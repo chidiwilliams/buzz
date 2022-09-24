@@ -41,6 +41,7 @@ class Transcriber:
                     result = self.model.transcribe(
                         audio=chunk_path, language="en")
 
+                    # TODO: this should probably be a callback or output buffer
                     print(result["text"])
 
                     os.remove(chunk_path)

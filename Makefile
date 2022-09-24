@@ -1,2 +1,2 @@
 buzz:
-	pyinstaller --name 'Buzz' --windowed main.py
+	pyinstaller --noconfirm Buzz.spec

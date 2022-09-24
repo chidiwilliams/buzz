@@ -1,4 +1,18 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_data_files, copy_metadata
+
+datas = []
+datas += collect_data_files('torch')
+datas += copy_metadata('tqdm')
+datas += copy_metadata('torch')
+datas += copy_metadata('tqdm')
+datas += copy_metadata('regex')
+datas += copy_metadata('requests')
+datas += copy_metadata('packaging')
+datas += copy_metadata('filelock')
+datas += copy_metadata('numpy')
+datas += copy_metadata('tokenizers')
+datas += collect_data_files('whisper')
 
 
 block_cipher = None
@@ -8,8 +22,9 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[],
-    hiddenimports=[],
+    datas=datas,
+    hiddenimports=['googleapiclient', 'apiclient', 'pytorch', '“sklearn.utils._cython_blas”',
+                   '“sklearn.neighbors.typedefs”', '“sklearn.neighbors.quad_tree”', '“sklearn.tree”', '“sklearn.tree._utils”'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
