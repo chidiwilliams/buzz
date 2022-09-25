@@ -9,6 +9,10 @@ from typing import Callable
 import pyaudio
 import whisper
 
+# When the app is opened as a .app from Finder, the path doesn't contain /usr/local/bin
+# which breaks the call to run `ffmpeg`. This sets the path manually to fix that.
+os.environ["PATH"] += os.pathsep + "/usr/local/bin"
+
 
 class Transcriber:
     # Number of times the queue is greater than the frames_per_chunk

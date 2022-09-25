@@ -34,7 +34,6 @@ class AudioDevicesComboBox(QComboBox):
 
     def on_index_changed(self, index: int):
         self.deviceChanged.emit(self.audio_devices[index][0])
-        pass
 
 
 class RecordButton(QPushButton):
