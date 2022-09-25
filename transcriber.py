@@ -17,13 +17,15 @@ class Transcriber:
         self.text_callback = text_callback
         self.stopped = False
 
-    def start_recording(self, frames_per_buffer=1024, sample_format=pyaudio.paInt16, channels=1, rate=44100, chunk_duration=4):
+    def start_recording(self, frames_per_buffer=1024, sample_format=pyaudio.paInt16,
+                        channels=1, rate=44100, chunk_duration=4, input_device_index=None):
         logging.debug("Recording...")
         self.stream = self.pyaudio.open(format=sample_format,
                                         channels=channels,
                                         rate=rate,
                                         frames_per_buffer=frames_per_buffer,
                                         input=True,
+                                        input_device_index=input_device_index,
                                         stream_callback=self.stream_callback)
 
         self.stream.start_stream()
