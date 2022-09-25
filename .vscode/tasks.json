@@ -12,16 +12,6 @@
         "kind": "build",
         "isDefault": true
       }
-    },
-    {
-      "label": "run",
-      "type": "shell",
-      "command": "source venv/bin/activate; python main.py",
-      "problemMatcher": [],
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      }
     }
   ]
 }
