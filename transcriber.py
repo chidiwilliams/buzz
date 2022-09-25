@@ -1,5 +1,7 @@
 import logging
 import os
+import platform
+import tempfile
 import wave
 from datetime import datetime
 from typing import Callable
@@ -9,6 +11,10 @@ import whisper
 
 
 class Transcriber:
+    # Number of times the queue is greater than the frames_per_chunk
+    # after which the transcriber will stop queueing new frames
+    chunk_drop_factor = 5
+
     def __init__(self, model_name="tiny", text_callback: Callable[[str], None] = print) -> None:
         self.pyaudio = pyaudio.PyAudio()
         self.model = whisper.load_model(model_name)
@@ -30,23 +36,26 @@ class Transcriber:
 
         self.stream.start_stream()
 
-        frames_per_chunk = int(rate / frames_per_buffer * chunk_duration)
+        self.frames_per_chunk = int(rate / frames_per_buffer * chunk_duration)
         while True:
             if self.stopped:
                 self.frames = []
                 logging.debug("Recording stopped. Exiting...")
                 return
-            if len(self.frames) > frames_per_chunk:
+            if len(self.frames) > self.frames_per_chunk:
                 logging.debug("Buffer size: %d. Transcribing next %d frames..." %
-                              (len(self.frames), frames_per_chunk))
+                              (len(self.frames), self.frames_per_chunk))
                 chunk_path = self.chunk_path()
                 try:
                     clip = []
-                    for i in range(0, frames_per_chunk):
+                    # TODO: Breaking the audio into chunks might make it more difficult for
+                    # Whisper to work. Could it be helpful to re-use a section of the previous
+                    # chunk in the next iteration?
+                    for i in range(0, self.frames_per_chunk):
                         clip.append(self.frames[i])
                     frames = b''.join(clip)
 
-                    # TODO: Can we pass the chunk to whisper in-memory?
+                    # TODO: Can the chunk be passed to whisper in-memory instead?
                     self.write_chunk(chunk_path, channels, rate, frames)
 
                     result = self.model.transcribe(
@@ -58,14 +67,17 @@ class Transcriber:
 
                     os.remove(chunk_path)
 
-                    self.frames = self.frames[frames_per_chunk:]
+                    # TODO: Implement dropping frames if the queue gets too large
+                    self.frames = self.frames[self.frames_per_chunk:]
                 except KeyboardInterrupt as e:
                     self.stop_recording()
                     os.remove(chunk_path)
                     raise e
 
     def stream_callback(self, in_data, frame_count, time_info, status):
-        self.frames.append(in_data)
+        # Append new frame only if the queue is not larger than the chunk drop factor
+        if (len(self.frames) / self.frames_per_chunk) < self.chunk_drop_factor:
+            self.frames.append(in_data)
         return in_data, pyaudio.paContinue
 
     def stop_recording(self):
@@ -76,6 +88,7 @@ class Transcriber:
         self.pyaudio.terminate()
 
     def write_chunk(self, path, channels, rate, frames):
+        logging.debug('Writing chunk to path: %s' % path)
         wavefile = wave.open(path, 'wb')
         wavefile.setnchannels(channels)
         wavefile.setsampwidth(
@@ -86,6 +99,10 @@ class Transcriber:
         return path
 
     def chunk_path(self):
-        base_dir = os.path.dirname(__file__)
         chunk_id = "clip-%s.wav" % (datetime.utcnow().strftime('%Y%m%d%H%M%S'))
-        return os.path.join(base_dir, chunk_id)
+        return os.path.join(self.tmp_dir(), chunk_id)
+
+    # https://stackoverflow.com/a/43418319/9830227
+    def tmp_dir(self):
+        # return tempfile.gettempdir()
+        return "/tmp" if platform.system() == "Darwin" else tempfile.gettempdir()

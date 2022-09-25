@@ -22,7 +22,7 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=datas,
-    hiddenimports=['apiclient', 'pytorch', '“sklearn.utils._cython_blas”', '“sklearn.neighbors.typedefs”',
+    hiddenimports=['apiclient', 'pyaudio', 'pytorch', '“sklearn.utils._cython_blas”', '“sklearn.neighbors.typedefs”',
                    '“sklearn.neighbors.quad_tree”', '“sklearn.tree”', '“sklearn.tree._utils”'],
     hookspath=[],
     hooksconfig={},
@@ -67,4 +67,8 @@ app = BUNDLE(
     name='Buzz.app',
     icon=None,
     bundle_identifier=None,
+    version='0.0.1',
+    info_plist={
+        'NSMicrophoneUsageDescription': 'Please provide microphone access to continue'
+    }
 )
