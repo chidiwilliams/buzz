@@ -5,7 +5,6 @@ datas = []
 datas += collect_data_files('torch')
 datas += copy_metadata('tqdm')
 datas += copy_metadata('torch')
-datas += copy_metadata('tqdm')
 datas += copy_metadata('regex')
 datas += copy_metadata('requests')
 datas += copy_metadata('packaging')
@@ -23,8 +22,8 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=datas,
-    hiddenimports=['googleapiclient', 'apiclient', 'pytorch', '“sklearn.utils._cython_blas”',
-                   '“sklearn.neighbors.typedefs”', '“sklearn.neighbors.quad_tree”', '“sklearn.tree”', '“sklearn.tree._utils”'],
+    hiddenimports=['apiclient', 'pytorch', '“sklearn.utils._cython_blas”', '“sklearn.neighbors.typedefs”',
+                   '“sklearn.neighbors.quad_tree”', '“sklearn.tree”', '“sklearn.tree._utils”'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

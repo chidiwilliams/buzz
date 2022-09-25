@@ -2,17 +2,20 @@ import logging
 import os
 import wave
 from datetime import datetime
+from typing import Callable
 
 import pyaudio
 import whisper
 
 
 class Transcriber:
-    def __init__(self, model_name="tiny") -> None:
+    def __init__(self, model_name="tiny", text_callback: Callable[[str], None] = print) -> None:
         self.pyaudio = pyaudio.PyAudio()
         self.model = whisper.load_model(model_name)
         self.stream = None
         self.frames = []
+        self.text_callback = text_callback
+        self.stopped = False
 
     def start_recording(self, frames_per_buffer=1024, sample_format=pyaudio.paInt16, channels=1, rate=44100, chunk_duration=4):
         logging.debug("Recording...")
@@ -26,9 +29,14 @@ class Transcriber:
         self.stream.start_stream()
 
         frames_per_chunk = int(rate / frames_per_buffer * chunk_duration)
-
         while True:
+            if self.stopped:
+                self.frames = []
+                logging.debug("Recording stopped. Exiting...")
+                return
             if len(self.frames) > frames_per_chunk:
+                logging.debug("Buffer size: %d. Transcribing next %d frames..." %
+                              (len(self.frames), frames_per_chunk))
                 chunk_path = self.chunk_path()
                 try:
                     clip = []
@@ -36,18 +44,19 @@ class Transcriber:
                         clip.append(self.frames[i])
                     frames = b''.join(clip)
 
+                    # TODO: Can we pass the chunk to whisper in-memory?
                     self.write_chunk(chunk_path, channels, rate, frames)
 
                     result = self.model.transcribe(
                         audio=chunk_path, language="en")
 
-                    # TODO: this should probably be a callback or output buffer
-                    print(result["text"])
+                    logging.debug("Received next result: \"%s\"" %
+                                  result["text"])
+                    self.text_callback(result["text"])
 
                     os.remove(chunk_path)
 
                     self.frames = self.frames[frames_per_chunk:]
-                    logging.debug("Buffer size: ", len(self.frames))
                 except KeyboardInterrupt as e:
                     self.stop_recording()
                     os.remove(chunk_path)
@@ -59,6 +68,7 @@ class Transcriber:
 
     def stop_recording(self):
         logging.debug("Ending recording...")
+        self.stopped = True
         self.stream.stop_stream()
         self.stream.close()
         self.pyaudio.terminate()
