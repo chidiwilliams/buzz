@@ -14,7 +14,9 @@ from transcriber import Transcriber
 class Label(QLabel):
     def __init__(self, name: str,  *args) -> None:
         super().__init__(name, *args)
-        self.setStyleSheet('QLabel { color: #ddd }')
+        self.setStyleSheet('QLabel { color: #ddd; text-align: right; }')
+        self.setAlignment(Qt.AlignmentFlag(
+            Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight))
 
 
 class AudioDevicesComboBox(QComboBox):
@@ -63,6 +65,21 @@ class LanguagesComboBox(QComboBox):
         self.languageChanged.emit(key)
 
 
+class TasksComboBox(QComboBox):
+    """TasksComboBox displays a list of tasks available to use with Whisper"""
+    taskChanged = pyqtSignal(Transcriber.Task)
+
+    def __init__(self, default_task: Transcriber.Task, *args) -> None:
+        super().__init__(*args)
+        self.tasks = [i for i in Transcriber.Task]
+        self.addItems(map(lambda task: task.value.title(), self.tasks))
+        self.currentIndexChanged.connect(self.on_index_changed)
+        self.setCurrentText(default_task.value.title())
+
+    def on_index_changed(self, index: int):
+        self.taskChanged.emit(self.tasks[index])
+
+
 class ModelsComboBox(QComboBox):
     """ModelsComboBox displays the list of available Whisper models for selection"""
     modelNameChanged = pyqtSignal(str)
@@ -72,7 +89,7 @@ class ModelsComboBox(QComboBox):
         self.models = whisper.available_models()
         self.addItems(map(self.label, self.models))
         self.currentIndexChanged.connect(self.on_index_changed)
-        self.setCurrentText(default_model_name)
+        self.setCurrentText(self.label(default_model_name))
 
     def on_index_changed(self, index: int):
         self.modelNameChanged.emit(self.models[index])
@@ -92,7 +109,15 @@ class TextDisplayBox(QTextEdit):
         self.setReadOnly(True)
         self.setPlaceholderText('Click Record to begin...')
         self.setStyleSheet(
-            'QTextEdit { padding-left: 5; padding-top: 5; padding-bottom: 5; padding-right: 5; background-color: #151515; border-radius: 6; background-color: #1e1e1e; }')
+            '''QTextEdit {
+                padding-left: 5;
+                padding-top: 5;
+                padding-bottom: 5;
+                padding-right: 5;
+                border-radius: 6;
+                background-color: #252525;
+                color: #dfdfdf;
+                }''')
 
 
 class RecordButton(QPushButton):
@@ -107,6 +132,7 @@ class RecordButton(QPushButton):
         super().__init__("Record", *args)
         self.clicked.connect(self.on_click_record)
         self.statusChanged.connect(self.on_status_changed)
+        self.setDefault(True)
 
     def on_click_record(self):
         current_status: RecordButton.Status
@@ -121,8 +147,10 @@ class RecordButton(QPushButton):
         self.current_status = status
         if status == self.Status.RECORDING:
             self.setText('Stop')
+            self.setDefault(False)
         else:
             self.setText('Record')
+            self.setDefault(True)
 
 
 class TranscriberWorker(QObject):
@@ -134,10 +162,12 @@ class TranscriberWorker(QObject):
     text = pyqtSignal(str)
     finished = pyqtSignal()
 
-    def __init__(self, model_name: str, language: Optional[str], input_device_index: Optional[int], *args) -> None:
+    def __init__(self, model_name: str, language: Optional[str],
+                 input_device_index: Optional[int], task: Transcriber.Task, *args) -> None:
         super().__init__(*args)
         self.transcriber = Transcriber(
-            model_name=model_name, language=language, text_callback=self.on_next_text)
+            model_name=model_name, language=language,
+            text_callback=self.on_next_text, task=task)
         self.input_device_index = input_device_index
 
     def run(self):
@@ -158,6 +188,7 @@ class Application(QApplication):
     selected_model_name = 'tiny'
     selected_language = 'en'
     selected_device_id: int
+    selected_task = Transcriber.Task.TRANSCRIBE
 
     def __init__(self) -> None:
         super().__init__([])
@@ -168,43 +199,51 @@ class Application(QApplication):
         layout = QGridLayout()
         self.window.setLayout(layout)
 
+        self.models_combo_box = ModelsComboBox(
+            default_model_name=self.selected_model_name)
+        self.models_combo_box.modelNameChanged.connect(self.on_model_changed)
+
+        self.languages_combo_box = LanguagesComboBox(
+            default_language=self.selected_language)
+        self.languages_combo_box.languageChanged.connect(
+            self.on_language_changed)
+
         self.audio_devices_combo_box = AudioDevicesComboBox()
         self.audio_devices_combo_box.deviceChanged.connect(
             self.on_device_changed)
         self.selected_device_id = self.audio_devices_combo_box.get_default_device_id()
+
+        self.tasks_combo_box = TasksComboBox(
+            default_task=Transcriber.Task.TRANSCRIBE)
+        self.tasks_combo_box.taskChanged.connect(self.on_task_changed)
 
         record_button = RecordButton()
         record_button.statusChanged.connect(self.on_status_changed)
 
         self.text_box = TextDisplayBox()
 
-        models_combo_box = ModelsComboBox(
-            default_model_name=self.selected_model_name)
-        models_combo_box.modelNameChanged.connect(self.on_model_changed)
+        grid = ((Label('Model:'), self.models_combo_box),
+                (Label('Language:'), self.languages_combo_box),
+                (Label('Microphone:'), self.audio_devices_combo_box),
+                (Label('Task:'), self.tasks_combo_box))
 
-        languages_combo_box = LanguagesComboBox(
-            default_language=self.selected_language)
-        languages_combo_box.languageChanged.connect(self.on_language_changed)
+        widths = (4, 8)
+        for (row_index, row) in enumerate(grid):
+            for (col_index, cell) in enumerate(row):
+                layout.addWidget(cell,
+                                 row_index, 0 if col_index == 0 else widths[col_index-1],
+                                 1, widths[col_index])
 
-        layout.addWidget(Label('Model:'), 0, 0, 1, 3)
-        layout.addWidget(models_combo_box, 0, 3, 1, 9)
+        layout.addWidget(record_button, 4, 9, 1, 3)
 
-        layout.addWidget(Label('Language:'), 1, 0, 1, 3)
-        layout.addWidget(languages_combo_box, 1, 3, 1, 9)
-
-        layout.addWidget(Label('Microphone:'), 2, 0, 1, 3)
-        layout.addWidget(self.audio_devices_combo_box, 2, 3, 1, 9)
-
-        layout.addWidget(record_button, 3, 9, 1, 3)
-
-        layout.addWidget(self.text_box, 4, 0, 1, 12)
+        layout.addWidget(self.text_box, 5, 0, 1, 12)
 
         self.window.show()
 
     # TODO: might be great to send when the text has been updated rather than appending
     def on_next_text(self, text: str):
         self.text_box.moveCursor(QTextCursor.MoveOperation.End)
-        self.text_box.insertPlainText(text)
+        self.text_box.insertPlainText(text + ' ')
         self.text_box.moveCursor(QTextCursor.MoveOperation.End)
 
     def on_device_changed(self, device_id: int):
@@ -212,10 +251,8 @@ class Application(QApplication):
 
     def on_status_changed(self, status: RecordButton.Status):
         if status == RecordButton.Status.RECORDING:
-            self.audio_devices_combo_box.setDisabled(True)
             self.start_recording()
         else:
-            self.audio_devices_combo_box.setDisabled(False)
             self.stop_recording()
 
     def on_model_changed(self, model_name: str):
@@ -223,6 +260,9 @@ class Application(QApplication):
 
     def on_language_changed(self, language: str):
         self.selected_language = language
+
+    def on_task_changed(self, task: Transcriber.Task):
+        self.selected_task = task
 
     def start_recording(self):
         # Clear text box placeholder because the first chunk takes a while to process
@@ -241,6 +281,7 @@ class Application(QApplication):
             input_device_index=self.selected_device_id,
             model_name=self.selected_model_name,
             language=self.selected_language if self.selected_language != '' else None,
+            task=self.selected_task
         )
         self.transcriber_worker.moveToThread(self.thread)
 

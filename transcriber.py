@@ -1,3 +1,4 @@
+import enum
 import logging
 import os
 import sys
@@ -17,11 +18,16 @@ os.environ["PATH"] += os.pathsep + "/usr/local/bin"
 class Transcriber:
     """Transcriber records audio from a system microphone and transcribes it into text using Whisper."""
 
+    class Task(enum.Enum):
+        TRANSLATE = "translate"
+        TRANSCRIBE = "transcribe"
+
     # Number of times the queue is greater than the frames_per_chunk
     # after which the transcriber will stop queueing new frames
     chunk_drop_factor = 5
 
-    def __init__(self, model_name: str, language: Optional[str], text_callback: Callable[[str], None]) -> None:
+    def __init__(self, model_name: str, language: Optional[str],
+                 text_callback: Callable[[str], None], task: Task) -> None:
         self.pyaudio = pyaudio.PyAudio()
         self.model_name = model_name
         self.model = whisper.load_model(model_name)
@@ -30,11 +36,14 @@ class Transcriber:
         self.text_callback = text_callback
         self.stopped = False
         self.language = language
+        self.task = task
 
     def start_recording(self, frames_per_buffer=1024, sample_format=pyaudio.paInt16,
                         channels=1, rate=44100, chunk_duration=5, input_device_index: Optional[int] = None):
-        logging.debug("Recording with language \"%s\", model \"%s\"" %
-                      (self.language, self.model_name))
+        logging.debug("Recording... language \"%s\", model \"%s\", task \"%s\"" %
+                      (self.language, self.model_name, self.task))
+
+        self.frames_per_chunk = int(rate / frames_per_buffer * chunk_duration)
         self.stream = self.pyaudio.open(format=sample_format,
                                         channels=channels,
                                         rate=rate,
@@ -45,14 +54,13 @@ class Transcriber:
 
         self.stream.start_stream()
 
-        self.frames_per_chunk = int(rate / frames_per_buffer * chunk_duration)
         while True:
             if self.stopped:
                 self.frames = []
                 logging.debug("Recording stopped. Exiting...")
                 return
             if len(self.frames) > self.frames_per_chunk:
-                logging.debug("Buffer size: %d. Transcribing next %d frames..." %
+                logging.debug("Buffer size: %d. Processing next %d frames..." %
                               (len(self.frames), self.frames_per_chunk))
                 chunk_path = self.chunk_path()
                 try:
@@ -68,7 +76,7 @@ class Transcriber:
                     self.write_chunk(chunk_path, channels, rate, frames)
 
                     result = self.model.transcribe(
-                        audio=chunk_path, language=self.language)
+                        audio=chunk_path, language=self.language, task=self.task)
 
                     logging.debug("Received next result: \"%s\"" %
                                   result["text"])
@@ -113,4 +121,4 @@ class Transcriber:
         system's temp directory and a unique filename.
         """
         chunk_id = "clip-%s.wav" % (datetime.utcnow().strftime('%Y%m%d%H%M%S'))
-        return os.path.join(tempfile.gettempdir(), chunk_id)
+        return os.path.join(tempfile.gettempdir(), 'Buzz', chunk_id)
