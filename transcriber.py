@@ -19,13 +19,14 @@ class Transcriber:
     # after which the transcriber will stop queueing new frames
     chunk_drop_factor = 5
 
-    def __init__(self, model_name="tiny", text_callback: Callable[[str], None] = print) -> None:
+    def __init__(self, model_name="tiny", language=None, text_callback: Callable[[str], None] = print) -> None:
         self.pyaudio = pyaudio.PyAudio()
         self.model = whisper.load_model(model_name)
         self.stream = None
         self.frames = []
         self.text_callback = text_callback
         self.stopped = False
+        self.language = language
 
     def start_recording(self, frames_per_buffer=1024, sample_format=pyaudio.paInt16,
                         channels=1, rate=44100, chunk_duration=4, input_device_index=None):
@@ -63,7 +64,7 @@ class Transcriber:
                     self.write_chunk(chunk_path, channels, rate, frames)
 
                     result = self.model.transcribe(
-                        audio=chunk_path, language="en")
+                        audio=chunk_path, language=self.language)
 
                     logging.debug("Received next result: \"%s\"" %
                                   result["text"])
@@ -104,7 +105,7 @@ class Transcriber:
 
     def chunk_path(self):
         chunk_id = "clip-%s.wav" % (datetime.utcnow().strftime('%Y%m%d%H%M%S'))
-        return os.path.join(self.tmp_dir(), chunk_id)
+        return os.path.join(tempfile.gettempdir(), chunk_id)
 
     # https://stackoverflow.com/a/43418319/9830227
     def tmp_dir(self):

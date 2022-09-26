@@ -2,9 +2,9 @@
 
 Buzz transcribes audio from your computer's microphones to text using OpenAI's [Whisper](https://github.com/openai/whisper).
 
-## Setup
+## Requirements
 
-Whisper [requires ffmpeg to be installed on your computer](https://github.com/openai/whisper#setup):
+To set up Buzz, first install ffmpeg ([needed to run Whisper](https://github.com/openai/whisper#setup)).
 
 ```text
 # on Ubuntu or Debian

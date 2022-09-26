@@ -2,11 +2,19 @@ import enum
 from typing import List, Tuple
 
 import pyaudio
+import whisper
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+from whisper import tokenizer
 
 from transcriber import Transcriber
+
+
+class Label(QLabel):
+    def __init__(self, name: str,  *args) -> None:
+        super().__init__(name, *args)
+        self.setStyleSheet('QLabel { color: #ddd }')
 
 
 class AudioDevicesComboBox(QComboBox):
@@ -34,6 +42,36 @@ class AudioDevicesComboBox(QComboBox):
 
     def on_index_changed(self, index: int):
         self.deviceChanged.emit(self.audio_devices[index][0])
+
+
+class LanguagesComboBox(QComboBox):
+    languageChanged = pyqtSignal(str)
+
+    def __init__(self, *args) -> None:
+        super().__init__(*args)
+        self.languages = {'none': 'Detect language', **tokenizer.LANGUAGES}
+        self.addItems(map(lambda lang: lang.title(), self.languages.values()))
+        self.currentIndexChanged.connect(self.on_index_changed)
+
+    def on_index_changed(self, index: int):
+        key = list(self.languages.values())[index]
+        self.languageChanged.emit(
+            self.languages.get(key) if key != 'none' else None)
+
+
+class ModelsComboBox(QComboBox):
+    """ModelsComboBox displays the list of available Whisper models for selection
+    """
+    modelChanged = pyqtSignal(str)
+
+    def __init__(self, *args) -> None:
+        super().__init__(*args)
+        self.models = whisper.available_models()
+        self.addItems(self.models)
+        self.currentIndexChanged.connect(self.on_index_changed)
+
+    def on_index_changed(self, index: int):
+        self.modelChanged.emit(self.models[index])
 
 
 class RecordButton(QPushButton):
@@ -99,7 +137,6 @@ class Application(QApplication):
     def __init__(self) -> None:
         super().__init__([])
 
-        self.setStyle("fusion")
         self.setStyleSheet("""QComboBox {
             color: #eee;
         }""")
@@ -107,7 +144,8 @@ class Application(QApplication):
         self.window = QWidget()
         self.window.setFixedSize(400, 400)
 
-        layout = QVBoxLayout()
+        layout = QGridLayout()
+        self.window.setLayout(layout)
 
         self.audio_devices_combo_box = AudioDevicesComboBox()
         self.audio_devices_combo_box.deviceChanged.connect(
@@ -116,38 +154,29 @@ class Application(QApplication):
         self.record_button = RecordButton()
         self.record_button.statusChanged.connect(self.on_status_changed)
 
-        self.text_box = self.get_text_box()
+        self.text_box = self.text_box()
 
-        layout.addLayout(self.get_audio_devices_row(
-            self.audio_devices_combo_box))
-        layout.addLayout(self.get_button_row(self.record_button))
-        layout.addWidget(self.text_box)
+        layout.addWidget(Label('Model:'), 0, 0, 1, 3)
+        layout.addWidget(ModelsComboBox(), 0, 3, 1, 9)
 
-        self.window.setLayout(layout)
+        layout.addWidget(Label('Language:'), 1, 0, 1, 3)
+        layout.addWidget(LanguagesComboBox(), 1, 3, 1, 9)
+
+        layout.addWidget(Label('Microphone:'), 2, 0, 1, 3)
+        layout.addWidget(self.audio_devices_combo_box, 2, 3, 1, 9)
+
+        layout.addWidget(self.record_button, 3, 9, 1, 3)
+
+        layout.addWidget(self.text_box, 4, 0, 1, 12)
+
         self.window.show()
 
-    def get_audio_devices_row(self, audio_devices_combo_box: AudioDevicesComboBox):
-        row = QHBoxLayout()
-
-        label = QLabel()
-        label.setText('Select microphone:')
-        label.setStyleSheet('QLabel { color: #ddd }')
-
-        row.addWidget(label)
-        row.addWidget(audio_devices_combo_box)
-        row.addStretch(1)
-        return row
-
-    def get_button_row(self, record_button: RecordButton):
-        row = QHBoxLayout()
-        row.addWidget(record_button)
-        row.addStretch(1)
-        return row
-
-    def get_text_box(self):
+    def text_box(self):
         box = QTextEdit()
         box.setReadOnly(True)
         box.setPlaceholderText('Click Record to begin...')
+        box.setStyleSheet(
+            'QTextEdit { padding-left:10; padding-top:10; padding-bottom:10; padding-right:10; background-color: #151515; border-radius: 6; }')
         return box
 
     def on_next_text(self, text: str):
@@ -165,6 +194,9 @@ class Application(QApplication):
             self.stop_recording()
 
     def start_recording(self):
+        # Clear text box placeholder
+        self.text_box.setPlaceholderText('')
+
         # Thread needs to be attached to app object to live after end of method
         self.thread = QThread()
 
