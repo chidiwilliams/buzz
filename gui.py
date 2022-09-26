@@ -1,7 +1,7 @@
 import enum
 from typing import List, Optional, Tuple
 
-import pyaudio
+import sounddevice
 import whisper
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -25,22 +25,15 @@ class AudioDevicesComboBox(QComboBox):
 
     def __init__(self, *args) -> None:
         super().__init__(*args)
-        self.pyaudio = pyaudio.PyAudio()
         self.audio_devices = self.get_audio_devices()
         self.addItems(map(lambda device: device[1], self.audio_devices))
         self.currentIndexChanged.connect(self.on_index_changed)
 
-    # https://stackoverflow.com/a/39677871/9830227
     def get_audio_devices(self) -> List[Tuple[int, str]]:
-        audio_info = self.pyaudio.get_host_api_info_by_index(0)
-        num_devices = audio_info.get('deviceCount')
-        devices = []
-        for i in range(0, num_devices):
-            device_info = self.pyaudio.get_device_info_by_host_api_device_index(
-                0, i)
-            if (device_info.get('maxInputChannels')) > 0:
-                devices.append((i, device_info.get('name')))
-        return devices
+        devices: sounddevice.DeviceList = sounddevice.query_devices()
+        input_devices = filter(
+            lambda device: device.get('max_input_channels') > 0, devices)
+        return list(map(lambda device: (device.get('index'), device.get('name')), input_devices))
 
     def on_index_changed(self, index: int):
         self.deviceChanged.emit(self.audio_devices[index][0])

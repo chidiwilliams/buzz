@@ -1,6 +1,7 @@
 altgraph==0.17.2
 autopep8==1.7.0
 certifi==2022.9.14
+cffi==1.15.1
 charset-normalizer==2.1.1
 ffmpeg-python==0.2.0
 filelock==3.8.0
@@ -11,8 +12,8 @@ macholib==1.16
 more-itertools==8.14.0
 numpy==1.23.3
 packaging==21.3
-PyAudio==0.2.12
 pycodestyle==2.9.1
+pycparser==2.21
 pyinstaller==5.4.1
 pyinstaller-hooks-contrib==2022.10
 pyparsing==3.0.9
@@ -24,6 +25,7 @@ regex==2022.9.13
 requests==2.28.1
 scipy==1.9.1
 six==1.16.0
+sounddevice==0.4.5
 tokenizers==0.12.1
 toml==0.10.2
 torch==1.12.1

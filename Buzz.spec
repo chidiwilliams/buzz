@@ -22,7 +22,7 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=datas,
-    hiddenimports=['apiclient', 'pyaudio', 'pytorch', '“sklearn.utils._cython_blas”', '“sklearn.neighbors.typedefs”',
+    hiddenimports=['apiclient', 'sounddevice', 'pytorch', '“sklearn.utils._cython_blas”', '“sklearn.neighbors.typedefs”',
                    '“sklearn.neighbors.quad_tree”', '“sklearn.tree”', '“sklearn.tree._utils”'],
     hookspath=[],
     hooksconfig={},
