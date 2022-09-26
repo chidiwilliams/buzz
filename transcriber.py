@@ -1,10 +1,10 @@
 import logging
 import os
-import platform
+import sys
 import tempfile
 import wave
 from datetime import datetime
-from typing import Callable
+from typing import Callable, Optional
 
 import pyaudio
 import whisper
@@ -15,12 +15,15 @@ os.environ["PATH"] += os.pathsep + "/usr/local/bin"
 
 
 class Transcriber:
+    """Transcriber records audio from a system microphone and transcribes it into text using Whisper."""
+
     # Number of times the queue is greater than the frames_per_chunk
     # after which the transcriber will stop queueing new frames
     chunk_drop_factor = 5
 
-    def __init__(self, model_name="tiny", language=None, text_callback: Callable[[str], None] = print) -> None:
+    def __init__(self, model_name: str, language: Optional[str], text_callback: Callable[[str], None]) -> None:
         self.pyaudio = pyaudio.PyAudio()
+        self.model_name = model_name
         self.model = whisper.load_model(model_name)
         self.stream = None
         self.frames = []
@@ -29,8 +32,9 @@ class Transcriber:
         self.language = language
 
     def start_recording(self, frames_per_buffer=1024, sample_format=pyaudio.paInt16,
-                        channels=1, rate=44100, chunk_duration=4, input_device_index=None):
-        logging.debug("Recording...")
+                        channels=1, rate=44100, chunk_duration=5, input_device_index: Optional[int] = None):
+        logging.debug("Recording with language \"%s\", model \"%s\"" %
+                      (self.language, self.model_name))
         self.stream = self.pyaudio.open(format=sample_format,
                                         channels=channels,
                                         rate=rate,
@@ -77,7 +81,7 @@ class Transcriber:
                 except KeyboardInterrupt as e:
                     self.stop_recording()
                     os.remove(chunk_path)
-                    raise e
+                    sys.exit(0)
 
     def stream_callback(self, in_data, frame_count, time_info, status):
         # Append new frame only if the queue is not larger than the chunk drop factor
@@ -86,11 +90,12 @@ class Transcriber:
         return in_data, pyaudio.paContinue
 
     def stop_recording(self):
-        logging.debug("Ending recording...")
-        self.stopped = True
-        self.stream.stop_stream()
-        self.stream.close()
-        self.pyaudio.terminate()
+        if self.stream != None:
+            logging.debug("Ending recording...")
+            self.stopped = True
+            self.stream.stop_stream()
+            self.stream.close()
+            self.pyaudio.terminate()
 
     def write_chunk(self, path, channels, rate, frames):
         logging.debug('Writing chunk to path: %s' % path)
@@ -103,11 +108,9 @@ class Transcriber:
         wavefile.close()
         return path
 
-    def chunk_path(self):
+    def chunk_path(self) -> str:
+        """Returns the path where a chunk should be saved using the
+        system's temp directory and a unique filename.
+        """
         chunk_id = "clip-%s.wav" % (datetime.utcnow().strftime('%Y%m%d%H%M%S'))
         return os.path.join(tempfile.gettempdir(), chunk_id)
-
-    # https://stackoverflow.com/a/43418319/9830227
-    def tmp_dir(self):
-        # return tempfile.gettempdir()
-        return "/tmp" if platform.system() == "Darwin" else tempfile.gettempdir()

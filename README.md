@@ -1,6 +1,6 @@
 # Buzz
 
-Buzz transcribes audio from your computer's microphones to text using OpenAI's [Whisper](https://github.com/openai/whisper).
+Buzz transcribes audio from your computer's microphones to text using OpenAI's [Whisper](https://github.com/openai/whisper). Buzz works by splitting audio recordings into chunks and transcribing the chunks to text using Whisper.
 
 ## Requirements
 
