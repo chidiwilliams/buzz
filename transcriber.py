@@ -30,22 +30,22 @@ class Transcriber:
         self.task = task
         self.queue: queue.Queue[np.ndarray] = queue.Queue()
 
-    def start_recording(self, num_block=160, input_device_index: Optional[int] = None):
+    def start_recording(self, block_duration=10, input_device_index: Optional[int] = None):
         logging.debug("Recording... language \"%s\", model \"%s\", task \"%s\", device \"%s\"" %
                       (self.language, self.model_name, self.task, input_device_index))
-
         self.stream = sounddevice.InputStream(
-            samplerate=whisper.audio.SAMPLE_RATE, blocksize=whisper.audio.N_FRAMES*num_block,
-            device=input_device_index, dtype="float32", channels=1,
-            callback=self.stream_callback)
+            samplerate=whisper.audio.SAMPLE_RATE,
+            blocksize=block_duration * whisper.audio.SAMPLE_RATE,
+            device=input_device_index, dtype="float32",
+            channels=1, callback=self.stream_callback)
         self.stream.start()
 
         while True:
-            chunk = self.queue.get()
+            block = self.queue.get()
             logging.debug(
                 'Processing next frame. Current queue size: %d' % self.queue.qsize())
             result = self.model.transcribe(
-                audio=chunk, language=self.language, task=self.task)
+                audio=block, language=self.language, task=self.task)
             logging.debug("Received next result: \"%s\"" % result["text"])
             self.text_callback(result["text"])
 
