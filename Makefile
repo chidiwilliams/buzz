@@ -6,7 +6,7 @@ clean:
 
 bundle_mac:
 	make buzz
-	tar -czf dist/Buzz.zip dist/Buzz
+	tar -czf dist/buzz-${version}-unix.zip dist/Buzz
 	mkdir -p dist/dmg && cp -r dist/Buzz.app dist/dmg
 	create-dmg \
 		--volname "Buzz" \
@@ -17,11 +17,11 @@ bundle_mac:
 		--icon "dist/Buzz.app/Contents/Resources/icon-windowed.icns" 175 120 \
 		--hide-extension "Buzz.app" \
 		--app-drop-link 425 120 \
-		"dist/Buzz.dmg" \
+		"dist/buzz-${version}-mac.dmg" \
 		"dist/dmg/"
 
 release:
 	make clean
-	make bundle_mac
+	make bundle_mac version=${version}
 	poetry version ${version}
 	git tag "v${version}"
