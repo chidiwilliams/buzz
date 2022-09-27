@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "buzz"
+version = "0.1.0"
+description = ""
+authors = ["Chidi Williams <williamschidi1@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+sounddevice = "^0.4.5"
+whisper = {git = "https://github.com/openai/whisper.git"}
+PyQt5 = "^5.15.7"
+torch = "^1.12.1"
+tqdm = "^4.64.1"
+ffmpeg = "^1.4"
+numpy = "^1.23.3"
+transformers = "^4.22.1"
+
+[tool.poetry.group.dev.dependencies]
+autopep8 = "^1.7.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
