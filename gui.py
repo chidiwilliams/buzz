@@ -253,9 +253,10 @@ class Application(QApplication):
 
     # TODO: might be great to send when the text has been updated rather than appending
     def on_text_changed(self, text: str):
-        self.text_box.moveCursor(QTextCursor.MoveOperation.End)
-        self.text_box.insertPlainText(text + '\n\n')
-        self.text_box.moveCursor(QTextCursor.MoveOperation.End)
+        if len(text) > 0:
+            self.text_box.moveCursor(QTextCursor.MoveOperation.End)
+            self.text_box.insertPlainText(text + '\n\n')
+            self.text_box.moveCursor(QTextCursor.MoveOperation.End)
 
     def on_device_changed(self, device_id: int):
         self.selected_device_id = device_id
