@@ -94,6 +94,24 @@ class ModelsComboBox(QComboBox):
         return name.title()
 
 
+class DelaysComboBox(QComboBox):
+    """DelaysComboBox displays the list of available delays"""
+    delay_changed = pyqtSignal(int)
+
+    def __init__(self, default_delay: int, *args) -> None:
+        super().__init__(*args)
+        self.delays = [5, 10, 20, 30]
+        self.addItems(map(self.label, self.delays))
+        self.currentIndexChanged.connect(self.on_index_changed)
+        self.setCurrentText(self.label(default_delay))
+
+    def on_index_changed(self, index: int):
+        self.delay_changed.emit(self.delays[index])
+
+    def label(self, delay: int):
+        return "%ds" % delay
+
+
 class TextDisplayBox(QTextEdit):
     """TextDisplayBox is a read-only textbox"""
 
@@ -160,9 +178,11 @@ class TranscriberWithSignal(QObject):
             model_name=model_name, language=language,
             text_callback=self.on_next_text, task=task)
 
-    def start_recording(self, input_device_index: Optional[int]):
+    def start_recording(self, input_device_index: Optional[int], block_duration: int):
         self.transcriber.start_recording(
-            input_device_index=input_device_index)
+            input_device_index=input_device_index,
+            block_duration=block_duration,
+        )
 
     def on_next_text(self, text: str):
         self.text_changed.emit(text.strip())
@@ -176,13 +196,14 @@ class Application(QApplication):
     selected_model_name = 'tiny'
     selected_language = 'en'
     selected_device_id: int
+    selected_delay = 10
     selected_task = Transcriber.Task.TRANSCRIBE
 
     def __init__(self) -> None:
         super().__init__([])
 
         self.window = QWidget()
-        self.window.setFixedSize(400, 400)
+        self.window.setFixedSize(400, 500)
 
         layout = QGridLayout()
         self.window.setLayout(layout)
@@ -205,26 +226,28 @@ class Application(QApplication):
             default_task=Transcriber.Task.TRANSCRIBE)
         self.tasks_combo_box.taskChanged.connect(self.on_task_changed)
 
+        delays_combo_box = DelaysComboBox(default_delay=self.selected_delay)
+        delays_combo_box.delay_changed.connect(self.on_delay_changed)
+
         record_button = RecordButton()
         record_button.statusChanged.connect(self.on_status_changed)
 
         self.text_box = TextDisplayBox()
 
-        grid = ((Label('Model:'), self.models_combo_box),
-                (Label('Language:'), self.languages_combo_box),
-                (Label('Microphone:'), self.audio_devices_combo_box),
-                (Label('Task:'), self.tasks_combo_box))
+        grid = (
+            ((0, 5, Label('Model:')), (5, 7, self.models_combo_box)),
+            ((0, 5, Label('Language:')), (5, 7, self.languages_combo_box)),
+            ((0, 5, Label('Task:')), (5, 7, self.tasks_combo_box)),
+            ((0, 5, Label('Microphone:')), (5, 7, self.audio_devices_combo_box)),
+            ((0, 5, Label('Delay:')), (5, 7, delays_combo_box)),
+            ((9, 3, record_button),),
+            ((0, 12, self.text_box),),
+        )
 
-        widths = (4, 8)
         for (row_index, row) in enumerate(grid):
-            for (col_index, cell) in enumerate(row):
-                layout.addWidget(cell,
-                                 row_index, 0 if col_index == 0 else widths[col_index-1],
-                                 1, widths[col_index])
-
-        layout.addWidget(record_button, 4, 9, 1, 3)
-
-        layout.addWidget(self.text_box, 5, 0, 1, 12)
+            for (_, cell) in enumerate(row):
+                (col_offset, col_width, widget) = cell
+                layout.addWidget(widget, row_index, col_offset, 1, col_width)
 
         self.window.show()
 
@@ -252,6 +275,9 @@ class Application(QApplication):
     def on_task_changed(self, task: Transcriber.Task):
         self.selected_task = task
 
+    def on_delay_changed(self, delay: int):
+        self.selected_delay = delay
+
     def start_recording(self):
         # Clear text box placeholder because the first chunk takes a while to process
         self.text_box.setPlaceholderText('')
@@ -259,11 +285,13 @@ class Application(QApplication):
         self.transcriber = TranscriberWithSignal(
             model_name=self.selected_model_name,
             language=self.selected_language if self.selected_language != '' else None,
-            task=self.selected_task
+            task=self.selected_task,
         )
         self.transcriber.text_changed.connect(self.on_text_changed)
         self.transcriber.start_recording(
-            input_device_index=self.selected_device_id)
+            input_device_index=self.selected_device_id,
+            block_duration=self.selected_delay,
+        )
 
     def stop_recording(self):
         self.transcriber.stop_recording()

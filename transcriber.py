@@ -36,8 +36,8 @@ class Transcriber:
         self.queue: queue.Queue[np.ndarray] = queue.Queue()
 
     def start_recording(self, block_duration=10, input_device_index: Optional[int] = None):
-        logging.debug("Recording... language \"%s\", model \"%s\", task \"%s\", device \"%s\"" %
-                      (self.language, self.model_name, self.task, input_device_index))
+        logging.debug("Recording... language: \"%s\", model: \"%s\", task: \"%s\", device: \"%s\", block duration: %s" %
+                      (self.language, self.model_name, self.task, input_device_index, block_duration))
         self.current_stream = sounddevice.InputStream(
             samplerate=whisper.audio.SAMPLE_RATE,
             blocksize=block_duration * whisper.audio.SAMPLE_RATE,
