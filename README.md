@@ -5,7 +5,7 @@
 ![MIT License](https://img.shields.io/badge/license-MIT-green)
 [![CI](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml/badge.svg)](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml)
 
-Buzz transcribes audio from your computer's microphones to text using OpenAI's [Whisper](https://github.com/openai/whisper).
+Buzz transcribes audio from your computer's microphones to text in real-time using OpenAI's [Whisper](https://github.com/openai/whisper).
 
 ## Requirements
 
@@ -27,9 +27,19 @@ scoop install ffmpeg
 
 ## How to use
 
-To record from a system microphone, select a model, language, microphone, and task, then click Record.
+To record from a system microphone, select a model, language, task, microphone, and delay, then click Record.
 
-See the [Whisper docs](https://github.com/openai/whisper) for more information about the model types, languages, and tasks.
+**Model**: Default: Tiny.
+
+**Language**: Default: English.
+
+**Task**: Transcribe/Translate. Default: Transcribe.
+
+**Microphone**: Default: System default microphone.
+
+**Delay**: The length of time (in seconds) Buzz waits before transcribing a new batch of recorded audio. Increasing this value will make Buzz take longer to show new transcribed text. However, shorter delays cut the audio into smaller chunks which may reduce the accuracy of the transcription. Default: 10s.
+
+For more information about the available model types, languages, and tasks, see the [Whisper docs](https://github.com/openai/whisper).
 
 ### Record audio playing from computer
 
