@@ -27,3 +27,7 @@ jobs:
       - run: pip install poetry
       - run: poetry install
       - run: poetry run make buzz
+      - uses: actions/upload-artifact@v3
+        with:
+          name: pyinstaller
+          path: dist/*
