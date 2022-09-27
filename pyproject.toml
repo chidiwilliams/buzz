@@ -7,7 +7,7 @@ license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "~3.10.1"
 sounddevice = "^0.4.5"
 whisper = {git = "https://github.com/openai/whisper.git"}
 PyQt5 = "^5.15.7"
@@ -19,6 +19,8 @@ transformers = "^4.22.1"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
+pyinstaller = "^5.4.1"
+six = "^1.16.0"
 
 [build-system]
 requires = ["poetry-core"]

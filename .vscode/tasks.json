@@ -6,7 +6,7 @@
     {
       "label": "build",
       "type": "shell",
-      "command": "source venv/bin/activate; make",
+      "command": "make",
       "problemMatcher": [],
       "group": {
         "kind": "build",
