@@ -2,9 +2,9 @@
 
 ![Buzz](buzz.png)
 
-Buzz transcribes audio from your computer's microphones to text using OpenAI's [Whisper](https://github.com/openai/whisper).
-
 ![MIT License](https://img.shields.io/badge/license-MIT-green)
+
+Buzz transcribes audio from your computer's microphones to text using OpenAI's [Whisper](https://github.com/openai/whisper).
 
 ## Requirements
 
