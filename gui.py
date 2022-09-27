@@ -146,30 +146,26 @@ class RecordButton(QPushButton):
             self.setDefault(True)
 
 
-class TranscriberWorker(QObject):
+class TranscriberWithSignal(QObject):
     """
-    TranscriberWorker wraps a `Transcriber` inside a QObject and exports signals
-    that report when a new transcription is received or the recording is stopped.
+    TranscriberWithSignal exports the text callback from a Transcriber
+    as a QtSignal to allow updating the UI from a secondary thread.
     """
 
-    text = pyqtSignal(str)
-    finished = pyqtSignal()
+    text_changed = pyqtSignal(str)
 
-    def __init__(self, model_name: str, language: Optional[str],
-                 input_device_index: Optional[int], task: Transcriber.Task, *args) -> None:
+    def __init__(self, model_name: str, language: Optional[str], task: Transcriber.Task, *args) -> None:
         super().__init__(*args)
         self.transcriber = Transcriber(
             model_name=model_name, language=language,
             text_callback=self.on_next_text, task=task)
-        self.input_device_index = input_device_index
 
-    def run(self):
+    def start_recording(self, input_device_index: Optional[int]):
         self.transcriber.start_recording(
-            input_device_index=self.input_device_index)
-        self.finished.emit()
+            input_device_index=input_device_index)
 
     def on_next_text(self, text: str):
-        self.text.emit(text.strip())
+        self.text_changed.emit(text.strip())
 
     def stop_recording(self):
         self.transcriber.stop_recording()
@@ -177,7 +173,6 @@ class TranscriberWorker(QObject):
 
 class Application(QApplication):
     current_status = RecordButton.Status.STOPPED
-    thread: Optional[QThread] = None
     selected_model_name = 'tiny'
     selected_language = 'en'
     selected_device_id: int
@@ -234,7 +229,7 @@ class Application(QApplication):
         self.window.show()
 
     # TODO: might be great to send when the text has been updated rather than appending
-    def on_next_text(self, text: str):
+    def on_text_changed(self, text: str):
         self.text_box.moveCursor(QTextCursor.MoveOperation.End)
         self.text_box.insertPlainText(text + ' ')
         self.text_box.moveCursor(QTextCursor.MoveOperation.End)
@@ -261,38 +256,14 @@ class Application(QApplication):
         # Clear text box placeholder because the first chunk takes a while to process
         self.text_box.setPlaceholderText('')
 
-        # Transcribing the recording chunks is a blocking
-        # process, so we handle this in a new thread
-
-        # Wait for previous thread to complete in case stop_recording isn't yet done
-        if self.thread != None:
-            self.thread.wait()
-
-        self.thread = QThread()
-
-        self.transcriber_worker = TranscriberWorker(
-            input_device_index=self.selected_device_id,
+        self.transcriber = TranscriberWithSignal(
             model_name=self.selected_model_name,
             language=self.selected_language if self.selected_language != '' else None,
             task=self.selected_task
         )
-        self.transcriber_worker.moveToThread(self.thread)
-
-        # Connect worker and thread such that the worker runs once
-        # the thread starts and the thread quits once the worker finishes
-        self.thread.started.connect(self.transcriber_worker.run)
-        self.transcriber_worker.finished.connect(self.thread.quit)
-        self.transcriber_worker.finished.connect(
-            self.transcriber_worker.deleteLater)
-        self.thread.finished.connect(self.clean_up_thread)
-
-        self.transcriber_worker.text.connect(self.on_next_text)
-
-        self.thread.start()
-
-    def clean_up_thread(self):
-        self.thread.deleteLater()
-        self.thread = None
+        self.transcriber.text_changed.connect(self.on_text_changed)
+        self.transcriber.start_recording(
+            input_device_index=self.selected_device_id)
 
     def stop_recording(self):
-        self.transcriber_worker.stop_recording()
+        self.transcriber.stop_recording()
