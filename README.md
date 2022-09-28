@@ -7,6 +7,11 @@
 
 Buzz transcribes audio from your computer's microphones to text in real-time using OpenAI's [Whisper](https://github.com/openai/whisper).
 
+<a href="https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7">
+  <p>Buzz - Watch Video</p>
+  <img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/564b753eb4d44b55b985b8abd26b55f7-1664390912932-with-play.gif">
+</a>
+
 ## Requirements
 
 To set up Buzz, first install ffmpeg ([needed to run Whisper](https://github.com/openai/whisper#setup)).
