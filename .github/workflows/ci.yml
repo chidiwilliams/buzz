@@ -19,7 +19,7 @@ jobs:
             CMD_BUILD: |
               poetry run make buzz
             PATH: |
-              dist/Buzz.exe
+              dist/*
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
