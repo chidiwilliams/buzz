@@ -41,4 +41,8 @@ jobs:
 
       - run: poetry install
       - run: ${{ matrix.CMD_BUILD }}
-      - run: ls dist/
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Buzz
+          path: |
+            ${{ matrix.PATH }}
