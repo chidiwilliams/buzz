@@ -17,9 +17,9 @@ jobs:
               dist/buzz*.zip
           - os: windows-latest
             CMD_BUILD: |
-              poetry run make buzz
+              poetry run make bundle_windows version=rc
             PATH: |
-              dist/*
+              dist/buzz*.zip
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4

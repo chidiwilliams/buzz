@@ -4,6 +4,10 @@ buzz:
 clean:
 	rm -r dist/* || true
 
+bundle_windows:
+	make buzz
+	tar -czf dist/buzz-${version}-windows.zip dist/Buzz
+
 bundle_mac:
 	make buzz
 	tar -czf dist/buzz-${version}-unix.zip dist/Buzz
