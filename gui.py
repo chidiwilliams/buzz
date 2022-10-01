@@ -1,5 +1,6 @@
 import enum
-from typing import List, Optional, Tuple
+import platform
+from typing import Dict, List, Optional, Tuple
 
 import sounddevice
 import whisper
@@ -11,10 +12,19 @@ from whisper import tokenizer
 from transcriber import Transcriber
 
 
+def get_platform_styles(all_platform_styles: Dict[str, str]):
+    return all_platform_styles.get(platform.system(), '')
+
+
 class Label(QLabel):
+    os_styles = {
+        'Darwin': 'QLabel { color: #ddd; }'
+    }
+
     def __init__(self, name: str,  *args) -> None:
         super().__init__(name, *args)
-        self.setStyleSheet('QLabel { color: #ddd; text-align: right; }')
+        self.setStyleSheet('QLabel { text-align: right; } %s' %
+                           get_platform_styles(self.os_styles))
         self.setAlignment(Qt.AlignmentFlag(
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight))
 
@@ -115,6 +125,15 @@ class DelaysComboBox(QComboBox):
 class TextDisplayBox(QTextEdit):
     """TextDisplayBox is a read-only textbox"""
 
+    os_styles = {
+        'Darwin': '''QTextEdit {
+            border-radius: 6;
+            background-color: #252525;
+            color: #dfdfdf;
+        }''',
+        'Windows': 'QTextEdit { background-color: #ffffff; }'
+    }
+
     def __init__(self, *args) -> None:
         super().__init__(*args)
         self.setReadOnly(True)
@@ -125,10 +144,7 @@ class TextDisplayBox(QTextEdit):
                 padding-top: 5;
                 padding-bottom: 5;
                 padding-right: 5;
-                border-radius: 6;
-                background-color: #252525;
-                color: #dfdfdf;
-                }''')
+                } %s''' % get_platform_styles(self.os_styles))
 
 
 class RecordButton(QPushButton):
