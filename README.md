@@ -4,6 +4,7 @@
 
 ![MIT License](https://img.shields.io/badge/license-MIT-green)
 [![CI](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml/badge.svg)](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/chidiwilliams/buzz)
 
 Buzz transcribes audio from your computer's microphones to text in real-time using OpenAI's [Whisper](https://github.com/openai/whisper).
 
@@ -29,6 +30,25 @@ choco install ffmpeg
 # on Windows using Scoop (https://scoop.sh/)
 scoop install ffmpeg
 ```
+
+## Installation
+
+To install Buzz, download the [latest version](https://github.com/chidiwilliams/buzz/releases/latest) for your Operating System.
+
+## Mac
+
+- Download and open the `*-mac.dmg` file.
+- After the installation window opens, drag the Buzz icon into the folder to add Buzz to your Applications directory.
+
+## Windows
+
+- Download and unzip the `*-windows.zip` file.
+- Open the Buzz.exe file
+
+## Linux
+
+- Download and unzip the `*-unix.zip` file.
+- Open the Buzz binary file.
 
 ## How to use
 
