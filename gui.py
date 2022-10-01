@@ -220,6 +220,7 @@ class Application(QApplication):
 
         self.window = QWidget()
         self.window.setFixedSize(400, 500)
+        self.window.setWindowTitle('Buzz')
 
         layout = QGridLayout()
         self.window.setLayout(layout)
