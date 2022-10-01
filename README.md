@@ -72,40 +72,45 @@ To record audio playing out from your computer, you'll need to install an audio 
 
 1. Install [BlackHole via Homebrew](https://github.com/ExistentialAudio/BlackHole#option-2-install-via-homebrew)
 
-```shell
-brew install blackhole-2ch
-```
+   ```shell
+   brew install blackhole-2ch
+   ```
 
 2. Open Audio MIDI Setup from Spotlight or from `/Applications/Utilities/Audio Midi Setup.app`.
 
-![](https://existential.audio/howto/img/spotlight.png)
+   ![Open Audio MIDI Setup from Spotlight](https://existential.audio/howto/img/spotlight.png)
 
 3. Click the '+' icon at the lower left corner and select 'Create Multi-Output Device'.
 
-![](https://existential.audio/howto/img/createmulti-output.png)
+   ![Create multi-output device](https://existential.audio/howto/img/createmulti-output.png)
 
 4. Add your default speaker and BlackHole to the multi-output device.
 
-![Screenshot of multi-output device](https://existential.audio/howto/img/multi-output.png)
+   ![Screenshot of multi-output device](https://existential.audio/howto/img/multi-output.png)
 
 5. Select this multi-output device as your speaker (application or system-wide) to play audio into BlackHole.
 
 6. Open Buzz, select BlackHole as your microphone, and record as before to see transcriptions from the audio playing through BlackHole.
 
-## Build
+## Build/run locally
 
-To build Buzz, install the dependencies:
+To build/run Buzz locally from source, first install the dependencies:
+
+1. Install [Poetry](https://python-poetry.org/docs/#installing-with-the-official-installer).
+2. Install the project dependencies.
+
+   ```shell
+   poetry install
+   ```
+
+Then, to run:
 
 ```shell
-# using pip
-pip install .
-
-# using poetry
-poetry install
+poetry run python main.py
 ```
 
-Then run:
+To build:
 
 ```shell
-make buzz
+poetry run pyinstaller --noconfirm Buzz.spec
 ```
