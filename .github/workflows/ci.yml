@@ -14,12 +14,12 @@ jobs:
               poetry run make bundle_mac version=rc
             PATH: |
               dist/buzz*.dmg
-              dist/buzz*.zip
+              dist/buzz*.tar.gz
           - os: windows-latest
             CMD_BUILD: |
               poetry run make bundle_windows version=rc
             PATH: |
-              dist/buzz*.zip
+              dist/buzz*.tar.gz
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
