@@ -6,11 +6,11 @@ clean:
 
 bundle_windows:
 	make buzz
-	tar -czf dist/buzz-${version}-windows.zip dist/Buzz
+	tar -czf dist/buzz-${version}-windows.tar.gz dist/Buzz
 
 bundle_mac:
 	make buzz
-	tar -czf dist/buzz-${version}-unix.zip dist/Buzz
+	tar -czf dist/buzz-${version}-unix.tar.gz dist/Buzz
 	mkdir -p dist/dmg && cp -r dist/Buzz.app dist/dmg
 	create-dmg \
 		--volname "Buzz" \
