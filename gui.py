@@ -106,7 +106,7 @@ class ModelsComboBox(QComboBox):
         self.modelNameChanged.emit(self.models[index])
 
     def label(self, model_name: str):
-        name, lang = (model_name.split('.') + [None])[: 2]
+        name, lang = (model_name.split('.') + [None])[:2]
         if lang:
             return "%s (%s)" % (name.title(), lang.upper())
         return name.title()
