@@ -41,7 +41,7 @@ jobs:
 
       - run: poetry install
       - name: Test
-        run: poetry run pytest
+        run: poetry run pytest --cov --cov-fail-under=73
       - run: ${{ matrix.CMD_BUILD }}
       - uses: actions/upload-artifact@v3
         with:
