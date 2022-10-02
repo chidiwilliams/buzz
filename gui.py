@@ -32,6 +32,7 @@ class Label(QLabel):
 class AudioDevicesComboBox(QComboBox):
     """AudioDevicesComboBox displays a list of available audio input devices"""
     deviceChanged = pyqtSignal(int)
+    audio_devices: List[Tuple[int, str]]
 
     def __init__(self, *args) -> None:
         super().__init__(*args)
@@ -48,8 +49,8 @@ class AudioDevicesComboBox(QComboBox):
     def on_index_changed(self, index: int):
         self.deviceChanged.emit(self.audio_devices[index][0])
 
-    def get_default_device_id(self):
-        return self.audio_devices[0][0]
+    def get_default_device_id(self) -> Optional[int]:
+        return self.audio_devices[0][0] if len(self.audio_devices) > 0 else None
 
 
 class LanguagesComboBox(QComboBox):
@@ -211,7 +212,7 @@ class Application(QApplication):
     current_status = RecordButton.Status.STOPPED
     selected_model_name = 'tiny'
     selected_language = 'en'
-    selected_device_id: int
+    selected_device_id: Optional[int]
     selected_delay = 10
     selected_task = Transcriber.Task.TRANSCRIBE
 
@@ -220,6 +221,7 @@ class Application(QApplication):
 
         self.window = QWidget()
         self.window.setFixedSize(400, 500)
+        self.window.setWindowTitle('Buzz')
 
         layout = QGridLayout()
         self.window.setLayout(layout)

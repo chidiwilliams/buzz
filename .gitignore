@@ -1,5 +1,4 @@
 dist/
 __pycache__/
 build/
-venv/
-*.wav
+.pytest_cache/
