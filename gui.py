@@ -59,14 +59,21 @@ class LanguagesComboBox(QComboBox):
 
     def __init__(self, default_language: str, *args) -> None:
         super().__init__(*args)
-        self.languages = {'': 'Detect language', **tokenizer.LANGUAGES}
-        self.addItems(map(lambda lang: lang.title(), self.languages.values()))
+
+        whisper_languages = sorted(
+            [(lang, tokenizer.LANGUAGES[lang].title())
+             for lang in tokenizer.LANGUAGES.keys()],
+            key=lambda lang: lang[1])
+        self.languages = [('', 'Detect Language')] + whisper_languages
+
+        self.addItems([lang[1] for lang in self.languages])
         self.currentIndexChanged.connect(self.on_index_changed)
-        self.setCurrentText(self.languages.get(default_language, '').title())
+        default_language_index = next((i for i, lang in enumerate(self.languages)
+                                       if lang[0] == default_language), 0)
+        self.setCurrentIndex(default_language_index)
 
     def on_index_changed(self, index: int):
-        key = list(self.languages.keys())[index]
-        self.languageChanged.emit(key)
+        self.languageChanged.emit(self.languages[index][0])
 
 
 class TasksComboBox(QComboBox):

@@ -8,6 +8,9 @@ bundle_windows:
 	make buzz
 	tar -czf dist/buzz-${version}-windows.tar.gz dist/Buzz
 
+test:
+	pytest --cov --cov-fail-under=73
+
 bundle_mac:
 	make buzz
 	tar -czf dist/buzz-${version}-unix.tar.gz dist/Buzz
