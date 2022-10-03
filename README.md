@@ -33,19 +33,19 @@ scoop install ffmpeg
 
 ## Installation
 
-To install Buzz, download the [latest version](https://github.com/chidiwilliams/buzz/releases/latest) for your Operating System.
+To install Buzz, download the [latest version](https://github.com/chidiwilliams/buzz/releases/latest) for your operating system.
 
-## Mac (Intel)
+### Mac (Intel)
 
 - Download and open the `*-mac.dmg` file.
 - After the installation window opens, drag the Buzz icon into the folder to add Buzz to your Applications directory.
 
-## Windows
+### Windows
 
 - Download and unzip the `*-windows.zip` file.
 - Open the Buzz.exe file
 
-## Linux
+### Linux
 
 - Download and unzip the `*-unix.zip` file.
 - Open the Buzz binary file.
