@@ -4,16 +4,12 @@ buzz:
 clean:
 	rm -r dist/* || true
 
-bundle_windows:
-	make buzz
-	tar -czf dist/buzz-${version}-windows.tar.gz dist/Buzz
-
 test:
 	pytest --cov --cov-fail-under=75
 
 bundle_mac:
 	make buzz
-	tar -czf dist/buzz-${version}-unix.tar.gz dist/Buzz
+	tar -czf dist/buzz-${version}-mac.tar.gz dist/Buzz
 	mkdir -p dist/dmg && cp -r dist/Buzz.app dist/dmg
 	create-dmg \
 		--volname "Buzz" \
@@ -26,6 +22,14 @@ bundle_mac:
 		--app-drop-link 425 120 \
 		"dist/buzz-${version}-mac.dmg" \
 		"dist/dmg/"
+
+bundle_linux:
+	make buzz
+	tar -czf dist/buzz-${version}-unix.tar.gz dist/Buzz
+
+bundle_windows:
+	make buzz
+	tar -czf dist/buzz-${version}-windows.tar.gz dist/Buzz
 
 release:
 	make clean
