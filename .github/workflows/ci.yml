@@ -12,10 +12,13 @@ jobs:
             CMD_BUILD: |
               brew install create-dmg
               poetry run make bundle_mac version=$GITHUB_REF_NAME
+            CMD_PRE_BUILD: |
+              brew install create-dmg
           - os: ubuntu-latest
             CMD_BUILD: |
-              sudo apt-get install libportaudio2
               poetry run make bundle_linux version=$GITHUB_REF_NAME
+            CMD_PRE_BUILD: |
+              sudo apt-get install libportaudio2
           - os: windows-latest
             CMD_BUILD: |
               poetry run make bundle_windows version=$env:GITHUB_REF_NAME
@@ -39,6 +42,7 @@ jobs:
           key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-2
 
       - run: poetry install
+      - run: ${{ matrix.POST_INSTALL }}
       - name: Test
         run: poetry run pytest --cov --cov-fail-under=73
       - run: ${{ matrix.CMD_BUILD }}
