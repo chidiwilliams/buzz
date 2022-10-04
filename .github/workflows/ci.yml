@@ -18,7 +18,7 @@ jobs:
             CMD_BUILD: |
               poetry run make bundle_linux version=$GITHUB_REF_NAME
             CMD_PRE_BUILD: |
-              sudo apt-get install libportaudio2
+              sudo apt-get install libxkbcommon-x11-0 libportaudio2 xvfb
           - os: windows-latest
             CMD_BUILD: |
               poetry run make bundle_windows version=$env:GITHUB_REF_NAME
