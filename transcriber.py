@@ -68,9 +68,9 @@ class Transcriber:
                 continue
 
     def get_device_sample_rate(self, device_id: Optional[int]) -> int:
-        info: dict[str, Any] = sounddevice.query_devices(
+        device_info: dict[str, Any] = sounddevice.query_devices(
             device=device_id)  # type: ignore
-        return int(info.get('default_samplerate', whisper.audio.SAMPLE_RATE))
+        return int(device_info.get('default_samplerate', whisper.audio.SAMPLE_RATE))
 
     def stream_callback(self, in_data, frame_count, time_info, status):
         # Try to enqueue the next block. If the queue is already full, drop the block.
