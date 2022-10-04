@@ -47,7 +47,7 @@ To install Buzz, download the [latest version](https://github.com/chidiwilliams/
 
 ### Linux
 
-- Download and unzip the `*-unix.zip` file.
+- Download and extract the `*-unix.tar.gz` file.
 - Open the Buzz binary file.
 
 ## How to use
