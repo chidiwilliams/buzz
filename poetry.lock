@@ -618,8 +618,8 @@ resolved_reference = "9e653bd0ea0f1e9493cb4939733e9de249493cfb"
 
 [metadata]
 lock-version = "1.1"
-python-versions = "~3.9.14"
-content-hash = "fd14afeb41f2e68a9f3be07a2019a8eefa1b692c81009a382f03dfcba883f449"
+python-versions = "~3.9.13"
+content-hash = "acce979d8bf57451bf249f784366c54b58dc0ffd4935bf5757697f84c29cffdd"
 
 [metadata.files]
 altgraph = [
