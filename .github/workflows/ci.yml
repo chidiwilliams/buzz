@@ -14,6 +14,7 @@ jobs:
               poetry run make bundle_mac version=$GITHUB_REF_NAME
           - os: ubuntu-latest
             CMD_BUILD: |
+              sudo apt-get install libportaudio2
               poetry run make bundle_linux version=$GITHUB_REF_NAME
           - os: windows-latest
             CMD_BUILD: |
