@@ -3,7 +3,7 @@ import logging
 import os
 import queue
 from threading import Thread
-from typing import Any, Callable, Optional
+from typing import Callable, Optional
 
 import numpy as np
 import sounddevice
@@ -39,9 +39,10 @@ class Transcriber:
         )
 
     def start_recording(self, block_duration=10, input_device_index: Optional[int] = None):
-        logging.debug("Recording... language: \"%s\", model: \"%s\", task: \"%s\", device: \"%s\", block duration: \"%s\"" %
-                      (self.language, self.model_name, self.task, input_device_index, block_duration))
         sample_rate = self.get_device_sample_rate(device_id=input_device_index)
+
+        logging.debug("Recording... language: \"%s\", model: \"%s\", task: \"%s\", device: \"%s\", block duration: \"%s\", sample rate: \"%s\"" %
+                      (self.language, self.model_name, self.task, input_device_index, block_duration, sample_rate))
         self.current_stream = sounddevice.InputStream(
             samplerate=sample_rate,
             blocksize=block_duration * sample_rate,
@@ -68,9 +69,15 @@ class Transcriber:
                 continue
 
     def get_device_sample_rate(self, device_id: Optional[int]) -> int:
-        device_info: dict[str, Any] = sounddevice.query_devices(
-            device=device_id)  # type: ignore
-        return int(device_info.get('default_samplerate', whisper.audio.SAMPLE_RATE))
+        whisper_sample_rate = whisper.audio.SAMPLE_RATE
+        try:
+            sounddevice.check_input_settings(
+                device=device_id, samplerate=whisper_sample_rate)
+            return whisper_sample_rate
+        except:
+            device_info = sounddevice.query_devices(device=device_id)
+            return device_info.get(  # type: ignore
+                'default_samplerate', whisper_sample_rate)
 
     def stream_callback(self, in_data, frame_count, time_info, status):
         # Try to enqueue the next block. If the queue is already full, drop the block.
