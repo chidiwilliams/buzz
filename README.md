@@ -33,7 +33,7 @@ scoop install ffmpeg
 
 ## Installation
 
-To install Buzz, download the [latest version](https://github.com/chidiwilliams/buzz/releases/latest) for your operating system.
+To install Buzz, download the [latest version](https://github.com/chidiwilliams/buzz/releases/latest) for your operating system. Buzz is available on Mac (Intel), Windows, and Linux.
 
 ### Mac (Intel)
 
