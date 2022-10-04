@@ -42,7 +42,7 @@ jobs:
           key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-2
 
       - run: poetry install
-      - run: ${{ matrix.POST_INSTALL }}
+      - run: ${{ matrix.CMD_PRE_BUILD }}
       - name: Test
         run: poetry run pytest --cov --cov-fail-under=73
       - run: ${{ matrix.CMD_BUILD }}
