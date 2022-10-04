@@ -356,10 +356,25 @@ pytest = ">=4.6"
 testing = ["fields", "hunter", "process-tests", "pytest-xdist", "six", "virtualenv"]
 
 [[package]]
+name = "pytest-qt"
+version = "4.1.0"
+description = "pytest support for PyQt and PySide applications"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+pytest = ">=3.0.0"
+
+[package.extras]
+dev = ["pre-commit", "tox"]
+doc = ["sphinx", "sphinx-rtd-theme"]
+
+[[package]]
 name = "pytest-xvfb"
 version = "2.0.0"
 description = "A pytest plugin to run Xvfb for tests."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.5"
 
@@ -371,7 +386,7 @@ pyvirtualdisplay = ">=1.3"
 name = "PyVirtualDisplay"
 version = "3.0"
 description = "python wrapper for Xvfb, Xephyr and Xvnc"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 
@@ -619,7 +634,7 @@ resolved_reference = "9e653bd0ea0f1e9493cb4939733e9de249493cfb"
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.9.13"
-content-hash = "acce979d8bf57451bf249f784366c54b58dc0ffd4935bf5757697f84c29cffdd"
+content-hash = "317773e01f6d9ee6f87008201e2e2a7bf13b9cbd540f5ffdf2539552b40646ed"
 
 [metadata.files]
 altgraph = [
@@ -911,6 +926,10 @@ pytest = [
 pytest-cov = [
     {file = "pytest-cov-4.0.0.tar.gz", hash = "sha256:996b79efde6433cdbd0088872dbc5fb3ed7fe1578b68cdbba634f14bb8dd0470"},
     {file = "pytest_cov-4.0.0-py3-none-any.whl", hash = "sha256:2feb1b751d66a8bd934e5edfa2e961d11309dc37b73b0eabe73b5945fee20f6b"},
+]
+pytest-qt = [
+    {file = "pytest-qt-4.1.0.tar.gz", hash = "sha256:027f3d3f5dd04af0530d846cf50fb858f719f7e87c2e4a1c686abd4e0f72172a"},
+    {file = "pytest_qt-4.1.0-py2.py3-none-any.whl", hash = "sha256:edd08dae3b207405edddfc482d4dda4b848e85a8e6a0e7c36f20bac11ab328de"},
 ]
 pytest-xvfb = [
     {file = "pytest-xvfb-2.0.0.tar.gz", hash = "sha256:c4ba642de05499940db7f65ee111621939be513e3e75c3da9156b7235e2ed8cf"},
