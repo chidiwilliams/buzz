@@ -12,14 +12,12 @@ jobs:
             CMD_BUILD: |
               brew install create-dmg
               poetry run make bundle_mac version=$GITHUB_REF_NAME
-            PATH: |
-              dist/buzz*.dmg
-              dist/buzz*.tar.gz
+          - os: ubuntu-latest
+            CMD_BUILD: |
+              poetry run make bundle_linux version=$GITHUB_REF_NAME
           - os: windows-latest
             CMD_BUILD: |
               poetry run make bundle_windows version=$env:GITHUB_REF_NAME
-            PATH: |
-              dist/buzz*.tar.gz
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -47,7 +45,8 @@ jobs:
         with:
           name: Buzz
           path: |
-            ${{ matrix.PATH }}
+            dist/buzz*.dmg
+            dist/buzz*.tar.gz
   release:
     runs-on: ubuntu-latest
     needs: build
