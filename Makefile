@@ -5,7 +5,7 @@ clean:
 	rm -r dist/* || true
 
 test:
-	pytest --cov --cov-fail-under=75
+	pytest --cov --cov-fail-under=73
 
 bundle_mac:
 	make buzz
