@@ -69,6 +69,10 @@ class Transcriber:
                 continue
 
     def get_device_sample_rate(self, device_id: Optional[int]) -> int:
+        """Returns the sample rate to be used for recording. It uses the default sample rate
+        provided by Whisper if the microphone supports it, or else it uses the device's default
+        sample rate.
+        """
         whisper_sample_rate = whisper.audio.SAMPLE_RATE
         try:
             sounddevice.check_input_settings(
@@ -76,8 +80,9 @@ class Transcriber:
             return whisper_sample_rate
         except:
             device_info = sounddevice.query_devices(device=device_id)
-            return device_info.get(  # type: ignore
-                'default_samplerate', whisper_sample_rate)
+            if isinstance(device_info, dict):
+                return int(device_info.get('default_samplerate', whisper_sample_rate))
+            return whisper_sample_rate
 
     def stream_callback(self, in_data, frame_count, time_info, status):
         # Try to enqueue the next block. If the queue is already full, drop the block.
