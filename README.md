@@ -42,7 +42,7 @@ To install Buzz, download the [latest version](https://github.com/chidiwilliams/
 
 ### Windows
 
-- Download and unzip the `*-windows.zip` file.
+- Download and extract the `*-windows.tar.gz` file.
 - Open the Buzz.exe file
 
 ### Linux
