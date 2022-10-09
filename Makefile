@@ -1,3 +1,11 @@
+mac_app_path := ./dist/Buzz.app
+mac_zip_path := ./dist/Buzz-$$BUZZ_VERSION-mac.zip
+mac_dmg_path := ./dist/Buzz-$$BUZZ_VERSION-mac.dmg
+
+unix_zip_path := ./dist/Buzz-$$BUZZ_VERSION-unix.tar.gz
+
+windows_zip_path := ./dist/Buzz-$$BUZZ_VERSION-windows.tar.gz
+
 buzz:
 	make clean
 	pyinstaller --noconfirm Buzz.spec
@@ -13,23 +21,19 @@ version:
 
 bundle_linux:
 	make buzz
-	tar -czf dist/buzz-${version}-unix.tar.gz dist/Buzz
+	tar -czf ${unix_zip_path} dist/Buzz
 
 bundle_windows:
 	make buzz
-	tar -czf dist/buzz-${version}-windows.tar.gz dist/Buzz
+	tar -czf ${windows_zip_path} dist/Buzz
 
 # MAC
 
-mac_app_path := ./dist/Buzz.app
-mac_zip_path := ./dist/Buzz-$$BUZZ_VERSION-mac.zip
-mac_dmg_path := ./dist/Buzz-$$BUZZ_VERSION-mac.dmg
 
 bundle_mac:
 	make buzz
 
 bundle_mac_local:
-	source .env
 	make buzz
 	make codesign_all_mac
 	make zip_mac

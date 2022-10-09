@@ -35,13 +35,13 @@ jobs:
           - os: macos-latest
             CMD_BUILD: |
               brew install create-dmg
-              poetry run make bundle_mac version=$GITHUB_REF_NAME
+              poetry run make bundle_mac
           - os: ubuntu-latest
             CMD_BUILD: |
-              poetry run make bundle_linux version=$GITHUB_REF_NAME
+              poetry run make bundle_linux
           - os: windows-latest
             CMD_BUILD: |
-              poetry run make bundle_windows version=$env:GITHUB_REF_NAME
+              poetry run make bundle_windows
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -63,6 +63,8 @@ jobs:
 
       - run: poetry install
       - run: ${{ matrix.CMD_BUILD }}
+        env:
+          BUZZ_VERSION: ${{ github.ref_name }}
       - uses: actions/upload-artifact@v3
         with:
           name: Buzz
