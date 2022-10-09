@@ -28,10 +28,9 @@ class Transcriber:
     is_running = False
     MAX_QUEUE_SIZE = 10
 
-    def __init__(self, model_name: str, language: Optional[str],
+    def __init__(self, model: whisper.Whisper, language: Optional[str],
                  text_callback: Callable[[str], None], task: Task) -> None:
-        self.model_name = model_name
-        self.model = _whisper.load_model(model_name)
+        self.model = model
         self.current_stream = None
         self.text_callback = text_callback
         self.language = language
@@ -44,7 +43,7 @@ class Transcriber:
         sample_rate = self.get_device_sample_rate(device_id=input_device_index)
 
         logging.debug("Recording... language: \"%s\", model: \"%s\", task: \"%s\", device: \"%s\", block duration: \"%s\", sample rate: \"%s\"" %
-                      (self.language, self.model_name, self.task, input_device_index, block_duration, sample_rate))
+                      (self.language, self.model._get_name(), self.task, input_device_index, block_duration, sample_rate))
         self.current_stream = sounddevice.InputStream(
             samplerate=sample_rate,
             blocksize=block_duration * sample_rate,
