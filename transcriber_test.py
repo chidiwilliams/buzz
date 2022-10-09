@@ -6,6 +6,6 @@ class TestTranscriber:
         def text_callback(text: str):
             pass
 
-        transcriber = Transcriber(model_name='tiny', language='en',
+        transcriber = Transcriber(model=None, language='en',
                                   text_callback=text_callback, task=Transcriber.Task.TRANSCRIBE)
         assert transcriber != None

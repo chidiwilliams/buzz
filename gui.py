@@ -9,6 +9,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from whisper import tokenizer
 
+import _whisper
 from transcriber import Transcriber
 
 
@@ -149,12 +150,12 @@ class RecordButton(QPushButton):
         STOPPED = enum.auto()
 
     current_status = Status.STOPPED
-    statusChanged = pyqtSignal(Status)
+    status_changed = pyqtSignal(Status)
 
     def __init__(self, *args) -> None:
         super().__init__("Record", *args)
         self.clicked.connect(self.on_click_record)
-        self.statusChanged.connect(self.on_status_changed)
+        self.status_changed.connect(self.on_status_changed)
         self.setDefault(True)
 
     def on_click_record(self):
@@ -164,7 +165,7 @@ class RecordButton(QPushButton):
         else:
             current_status = self.Status.RECORDING
 
-        self.statusChanged.emit(current_status)
+        self.status_changed.emit(current_status)
 
     def on_status_changed(self, status: Status):
         self.current_status = status
@@ -176,6 +177,26 @@ class RecordButton(QPushButton):
             self.setDefault(True)
 
 
+class DownloadModelProgressDialog(QProgressDialog):
+    def __init__(self, total_size: int, *args) -> None:
+        super().__init__('Downloading resources...', 'Cancel', 0, total_size, *args)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.setCancelButton(None)
+        self.installEventFilter(self)
+        self.setWindowFlags(Qt.WindowType(
+            Qt.WindowType.Window | Qt.WindowType.WindowTitleHint | Qt.WindowType.CustomizeWindowHint))
+
+    def closeEvent(self, event: QEvent):
+        event.ignore()
+
+    def eventFilter(self, obj: QObject, event: QEvent) -> bool:
+        if obj == self and \
+                event.type() == QEvent.Type.KeyPress and \
+                event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Escape, Qt.Key.Key_Enter):
+            return True
+        return super().eventFilter(obj, event)
+
+
 class TranscriberWithSignal(QObject):
     """
     TranscriberWithSignal exports the text callback from a Transcriber
@@ -184,10 +205,10 @@ class TranscriberWithSignal(QObject):
 
     text_changed = pyqtSignal(str)
 
-    def __init__(self, model_name: str, language: Optional[str], task: Transcriber.Task, *args) -> None:
+    def __init__(self, model: whisper.Whisper, language: Optional[str], task: Transcriber.Task, *args) -> None:
         super().__init__(*args)
         self.transcriber = Transcriber(
-            model_name=model_name, language=language,
+            model=model, language=language,
             text_callback=self.on_next_text, task=task)
 
     def start_recording(self, input_device_index: Optional[int], block_duration: int):
@@ -210,6 +231,7 @@ class Application(QApplication):
     selected_device_id: Optional[int]
     selected_delay = 10
     selected_task = Transcriber.Task.TRANSCRIBE
+    progress_dialog: Optional[DownloadModelProgressDialog] = None
 
     def __init__(self) -> None:
         super().__init__([])
@@ -242,8 +264,8 @@ class Application(QApplication):
         delays_combo_box = DelaysComboBox(default_delay=self.selected_delay)
         delays_combo_box.delay_changed.connect(self.on_delay_changed)
 
-        record_button = RecordButton()
-        record_button.statusChanged.connect(self.on_status_changed)
+        self.record_button = RecordButton()
+        self.record_button.status_changed.connect(self.on_status_changed)
 
         self.text_box = TextDisplayBox()
 
@@ -253,7 +275,7 @@ class Application(QApplication):
             ((0, 5, Label('Task:')), (5, 7, self.tasks_combo_box)),
             ((0, 5, Label('Microphone:')), (5, 7, self.audio_devices_combo_box)),
             ((0, 5, Label('Delay:')), (5, 7, delays_combo_box)),
-            ((9, 3, record_button),),
+            ((9, 3, self.record_button),),
             ((0, 12, self.text_box),),
         )
 
@@ -293,11 +315,17 @@ class Application(QApplication):
         self.selected_delay = delay
 
     def start_recording(self):
+        self.record_button.setDisabled(True)
+
+        model = _whisper.load_model(
+            self.selected_model_name, on_download_model_chunk=self.on_download_model_chunk)
+
+        self.record_button.setDisabled(False)
         # Clear text box placeholder because the first chunk takes a while to process
         self.text_box.setPlaceholderText('')
 
         self.transcriber = TranscriberWithSignal(
-            model_name=self.selected_model_name,
+            model=model,
             language=self.selected_language if self.selected_language != '' else None,
             task=self.selected_task,
         )
@@ -306,6 +334,13 @@ class Application(QApplication):
             input_device_index=self.selected_device_id,
             block_duration=self.selected_delay,
         )
+
+    def on_download_model_chunk(self, current_size: int, total_size: int):
+        if self.progress_dialog == None:
+            self.progress_dialog = DownloadModelProgressDialog(
+                total_size=total_size)
+        else:
+            self.progress_dialog.setValue(current_size)
 
     def stop_recording(self):
         self.transcriber.stop_recording()
