@@ -183,13 +183,16 @@ class DownloadModelProgressDialog(QProgressDialog):
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setCancelButton(None)
         self.installEventFilter(self)
+        # Don't show window close icons
         self.setWindowFlags(Qt.WindowType(
             Qt.WindowType.Window | Qt.WindowType.WindowTitleHint | Qt.WindowType.CustomizeWindowHint))
 
     def closeEvent(self, event: QEvent):
+        # Ignore close event from 'x' window icon
         event.ignore()
 
     def eventFilter(self, obj: QObject, event: QEvent) -> bool:
+        # Don't close dialog when Return, Esc, or Enter is clicked
         if obj == self and \
                 event.type() == QEvent.Type.KeyPress and \
                 event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Escape, Qt.Key.Key_Enter):
