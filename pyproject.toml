@@ -7,7 +7,7 @@ license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "~3.9.13"
+python = ">=3.9.13,<3.11"
 sounddevice = "^0.4.5"
 whisper = {git = "https://github.com/openai/whisper.git"}
 PyQt5 = "^5.15.7"
