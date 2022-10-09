@@ -22,8 +22,7 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=datas,
-    hiddenimports=['apiclient', 'sounddevice', 'pytorch', '“sklearn.utils._cython_blas”', '“sklearn.neighbors.typedefs”',
-                   '“sklearn.neighbors.quad_tree”', '“sklearn.tree”', '“sklearn.tree._utils”'],
+    hiddenimports=[],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -41,7 +40,7 @@ exe = EXE(
     [],
     exclude_binaries=True,
     name='Buzz',
-    debug=False,
+    debug=True,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
@@ -58,7 +57,7 @@ coll = COLLECT(
     a.zipfiles,
     a.datas,
     strip=False,
-    upx=True,
+    upx=False,
     upx_exclude=[],
     name='Buzz',
 )
@@ -69,6 +68,7 @@ app = BUNDLE(
     bundle_identifier=None,
     version='0.0.1',
     info_plist={
+        'NSPrincipalClass': 'NSApplication',
         'NSMicrophoneUsageDescription': 'Please provide microphone access to continue'
     }
 )
