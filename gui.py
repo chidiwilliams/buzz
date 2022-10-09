@@ -17,14 +17,9 @@ def get_platform_styles(all_platform_styles: Dict[str, str]):
 
 
 class Label(QLabel):
-    os_styles = {
-        'Darwin': 'QLabel { color: #ddd; }'
-    }
-
     def __init__(self, name: str,  *args) -> None:
         super().__init__(name, *args)
-        self.setStyleSheet('QLabel { text-align: right; } %s' %
-                           get_platform_styles(self.os_styles))
+        self.setStyleSheet('QLabel { text-align: right; }')
         self.setAlignment(Qt.AlignmentFlag(
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight))
 
@@ -130,16 +125,13 @@ class DelaysComboBox(QComboBox):
         return "%ds" % delay
 
 
-class TextDisplayBox(QTextEdit):
+class TextDisplayBox(QPlainTextEdit):
     """TextDisplayBox is a read-only textbox"""
 
     os_styles = {
         'Darwin': '''QTextEdit {
-            border-radius: 6;
-            background-color: #252525;
-            color: #dfdfdf;
-        }''',
-        'Windows': 'QTextEdit { background-color: #ffffff; }'
+            border: 0;
+        }'''
     }
 
     def __init__(self, *args) -> None:
@@ -148,10 +140,6 @@ class TextDisplayBox(QTextEdit):
         self.setPlaceholderText('Click Record to begin...')
         self.setStyleSheet(
             '''QTextEdit {
-                padding-left: 5;
-                padding-top: 5;
-                padding-bottom: 5;
-                padding-right: 5;
                 } %s''' % get_platform_styles(self.os_styles))
 
 
