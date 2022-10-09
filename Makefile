@@ -26,6 +26,9 @@ mac_zip_path := ./dist/Buzz-$$BUZZ_VERSION-mac.zip
 mac_dmg_path := ./dist/Buzz-$$BUZZ_VERSION-mac.dmg
 
 bundle_mac:
+	make buzz
+
+bundle_mac_local:
 	source .env
 	make buzz
 	make codesign_all_mac
