@@ -63,7 +63,7 @@ class Transcriber:
                 logging.debug(
                     'Processing next frame. Current queue size: %d' % self.queue.qsize())
                 result = self.model.transcribe(
-                    audio=block, language=self.language, task=self.task)
+                    audio=block, language=self.language, task=self.task.value)
                 logging.debug("Received next result: \"%s\"" % result["text"])
                 self.text_callback(result["text"])  # type: ignore
             except queue.Empty:
