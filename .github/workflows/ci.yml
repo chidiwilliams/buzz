@@ -69,8 +69,8 @@ jobs:
         with:
           name: Buzz
           path: |
-            dist/buzz*.dmg
-            dist/buzz*.tar.gz
+            dist/Buzz*.dmg
+            dist/Buzz*.tar.gz
   release:
     runs-on: ubuntu-latest
     needs: [build, test]
@@ -83,5 +83,5 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            buzz*.tar.gz
-            buzz*.dmg
+            Buzz*.tar.gz
+            Buzz*.dmg
