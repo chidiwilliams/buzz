@@ -4,8 +4,9 @@ import multiprocessing
 from gui import Application
 
 if __name__ == "__main__":
-    # Stop PyInstaller from randomly opening multiple windows: https://stackoverflow.com/a/32677108/9830227
-    multiprocessing.freeze_support()
+    # Starting child processes with 'fork' stops PyInstaller
+    # from opening a new window for each new process
+    multiprocessing.set_start_method('fork')
 
     logging.basicConfig(
         level=logging.DEBUG,
