@@ -1,6 +1,6 @@
-from main import main
+from main import init
 
 
 class TestMain:
-    def should_run_main(self):
-        main()
+    def test_should_run_init(self):
+        init()
