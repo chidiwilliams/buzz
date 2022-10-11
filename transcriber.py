@@ -64,7 +64,7 @@ class Transcriber:
                     audio=block, language=self.language, task=self.task.value)
                 text = result["text"]
                 logging.debug(
-                    "Received next result of length: \"%s\"" % len(text))
+                    "Received next result of length: %s" % len(text))
                 self.text_callback(text)  # type: ignore
             except queue.Empty:
                 continue
@@ -89,10 +89,8 @@ class Transcriber:
         # Try to enqueue the next block. If the queue is already full, drop the block.
         try:
             chunk = in_data.ravel()
-            logging.debug('Received next chunk of length %s, amplitude %s, status %s'
-                          % (len(chunk),
-                             (abs(max(chunk)) + abs(min(chunk))) / 2,
-                             status))
+            logging.debug('Received next chunk: length %s, amplitude %s, status "%s"'
+                          % (len(chunk), (abs(max(chunk)) + abs(min(chunk))) / 2, status))
             self.queue.put(chunk, block=False)
         except queue.Full:
             return
