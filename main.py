@@ -7,7 +7,8 @@ from appdirs import user_log_dir
 
 from gui import Application
 
-if __name__ == "__main__":
+
+def main():
     # Starting child processes with 'fork' stops PyInstaller
     # from opening a new window for each new process. Only
     # available on Mac, so the issue persists on Windows.
@@ -23,3 +24,7 @@ if __name__ == "__main__":
 
     app = Application()
     app.exec()
+
+
+if __name__ == "__main__":
+    main()
