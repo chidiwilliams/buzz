@@ -1,4 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
+import os
+
 from PyInstaller.utils.hooks import collect_data_files, copy_metadata
 
 datas = []
@@ -38,6 +40,7 @@ exe = EXE(
     pyz,
     a.scripts,
     [],
+    icon='./assets/buzz.ico',
     exclude_binaries=True,
     name='Buzz',
     debug=True,
@@ -64,11 +67,10 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='Buzz.app',
-    icon=None,
-    bundle_identifier=None,
-    version='0.0.1',
+    icon='./assets/buzz.icns',
+    bundle_identifier='com.chidiwilliams.buzz',
+    version=os.getenv('BUZZ_VERSION', '0.0.1'),
     info_plist={
-        'NSPrincipalClass': 'NSApplication',
         'NSMicrophoneUsageDescription': 'Please provide microphone access to continue'
     }
 )

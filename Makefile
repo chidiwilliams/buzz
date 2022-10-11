@@ -75,11 +75,11 @@ dmg_mac:
 	ditto -x -k "${mac_zip_path}" dist/dmg
 	create-dmg \
 		--volname "Buzz" \
-		--volicon "dist/Buzz.app/Contents/Resources/icon-windowed.icns" \
+		--volicon "./assets/buzz.icns" \
 		--window-pos 200 120 \
 		--window-size 600 300 \
 		--icon-size 100 \
-		--icon "dist/Buzz.app/Contents/Resources/icon-windowed.icns" 175 120 \
+		--icon "./assets/buzz.icns" 175 120 \
 		--hide-extension "Buzz.app" \
 		--app-drop-link 425 120 \
 		--codesign "$$BUZZ_CODESIGN_IDENTITY" \
