@@ -17,6 +17,7 @@ ffmpeg = "^1.4"
 numpy = "^1.23.3"
 transformers = "^4.22.1"
 pytest-qt = "^4.1.0"
+appdirs = "^1.4.4"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"

@@ -9,8 +9,6 @@ import numpy as np
 import sounddevice
 import whisper
 
-import _whisper
-
 # When the app is opened as a .app from Finder, the path doesn't contain /usr/local/bin
 # which breaks the call to run `ffmpeg`. This sets the path manually to fix that.
 os.environ["PATH"] += os.pathsep + "/usr/local/bin"
@@ -64,8 +62,10 @@ class Transcriber:
                     'Processing next frame. Current queue size: %d' % self.queue.qsize())
                 result = self.model.transcribe(
                     audio=block, language=self.language, task=self.task.value)
-                logging.debug("Received next result: \"%s\"" % result["text"])
-                self.text_callback(result["text"])  # type: ignore
+                text = result["text"]
+                logging.debug(
+                    "Received next result of length: \"%s\"" % len(text))
+                self.text_callback(text)  # type: ignore
             except queue.Empty:
                 continue
 
@@ -88,7 +88,12 @@ class Transcriber:
     def stream_callback(self, in_data, frame_count, time_info, status):
         # Try to enqueue the next block. If the queue is already full, drop the block.
         try:
-            self.queue.put(in_data.ravel(), block=False)
+            chunk = in_data.ravel()
+            logging.debug('Received next chunk of length %s, amplitude %s, status %s'
+                          % (len(chunk),
+                             (abs(max(chunk)) + abs(min(chunk))) / 2,
+                             status))
+            self.queue.put(chunk, block=False)
         except queue.Full:
             return
 
