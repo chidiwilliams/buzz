@@ -16,7 +16,7 @@ clean:
 	rm -r dist/* || true
 
 test:
-	pytest --cov --cov-fail-under=65
+	pytest --cov --cov-fail-under=64
 
 version:
 	poetry version ${version}
