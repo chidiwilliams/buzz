@@ -324,14 +324,12 @@ class Application(QApplication):
 
     def on_transcriber_status_changed(self, status: Status):
         if status.state == State.FINISHED_CURRENT_TRANSCRIPTION:
-            print('stopping trans')
             text = status.text.strip()
             if len(text) > 0:
                 self.text_box.moveCursor(QTextCursor.MoveOperation.End)
                 self.text_box.insertPlainText(text + '\n\n')
                 self.text_box.moveCursor(QTextCursor.MoveOperation.End)
         elif status.state == State.STARTING_NEXT_TRANSCRIPTION:
-            print('starting trans')
             pass
 
     def on_device_changed(self, device_id: int):
