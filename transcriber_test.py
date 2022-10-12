@@ -7,5 +7,5 @@ class TestTranscriber:
             pass
 
         transcriber = Transcriber(model=None, language='en',
-                                  text_callback=text_callback, task=Transcriber.Task.TRANSCRIBE)
+                                  status_callback=text_callback, task=Transcriber.Task.TRANSCRIBE)
         assert transcriber != None

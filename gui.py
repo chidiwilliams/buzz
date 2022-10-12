@@ -10,14 +10,14 @@ from PyQt5.QtWidgets import *
 from whisper import tokenizer
 
 import _whisper
-from transcriber import Transcriber
+from transcriber import State, Status, Transcriber
 
 
 def get_platform_styles(all_platform_styles: Dict[str, str]):
     return all_platform_styles.get(platform.system(), '')
 
 
-class Label(QLabel):
+class FormLabel(QLabel):
     def __init__(self, name: str,  *args) -> None:
         super().__init__(name, *args)
         self.setStyleSheet('QLabel { text-align: right; }')
@@ -206,13 +206,13 @@ class TranscriberWithSignal(QObject):
     as a QtSignal to allow updating the UI from a secondary thread.
     """
 
-    text_changed = pyqtSignal(str)
+    status_changed = pyqtSignal(Status)
 
     def __init__(self, model: whisper.Whisper, language: Optional[str], task: Transcriber.Task, *args) -> None:
         super().__init__(*args)
         self.transcriber = Transcriber(
             model=model, language=language,
-            text_callback=self.on_next_text, task=task)
+            status_callback=self.on_next_status, task=task)
 
     def start_recording(self, input_device_index: Optional[int], block_duration: int):
         self.transcriber.start_recording(
@@ -220,11 +220,41 @@ class TranscriberWithSignal(QObject):
             block_duration=block_duration,
         )
 
-    def on_next_text(self, text: str):
-        self.text_changed.emit(text.strip())
+    def on_next_status(self, status: Status):
+        self.status_changed.emit(status)
 
     def stop_recording(self):
         self.transcriber.stop_recording()
+
+
+class TimerLabel(QLabel):
+    timer = QTimer()
+    start_time: Optional[QDateTime]
+
+    def __init__(self):
+        super().__init__()
+        self.timer.timeout.connect(self.on_next_interval)
+        self.on_next_interval(stopped=True)
+        self.setAlignment(Qt.AlignmentFlag(
+            Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight))
+
+    def start_timer(self):
+        self.timer.start(1000)
+        self.start_time = QDateTime.currentDateTimeUtc()
+        self.on_next_interval()
+
+    def stop_timer(self):
+        self.timer.stop()
+        self.on_next_interval(stopped=True)
+
+    def on_next_interval(self, stopped=False):
+        if stopped:
+            self.setText('--:--')
+        elif self.start_time != None:
+            seconds_passed = self.start_time.secsTo(
+                QDateTime.currentDateTimeUtc())
+            self.setText('{0:02}:{1:02}'.format(
+                seconds_passed // 60, seconds_passed % 60))
 
 
 class Application(QApplication):
@@ -267,18 +297,21 @@ class Application(QApplication):
         delays_combo_box = DelaysComboBox(default_delay=self.selected_delay)
         delays_combo_box.delay_changed.connect(self.on_delay_changed)
 
+        self.timer_label = TimerLabel()
+
         self.record_button = RecordButton()
         self.record_button.status_changed.connect(self.on_status_changed)
 
         self.text_box = TextDisplayBox()
 
         grid = (
-            ((0, 5, Label('Model:')), (5, 7, self.models_combo_box)),
-            ((0, 5, Label('Language:')), (5, 7, self.languages_combo_box)),
-            ((0, 5, Label('Task:')), (5, 7, self.tasks_combo_box)),
-            ((0, 5, Label('Microphone:')), (5, 7, self.audio_devices_combo_box)),
-            ((0, 5, Label('Delay:')), (5, 7, delays_combo_box)),
-            ((9, 3, self.record_button),),
+            ((0, 5, FormLabel('Model:')), (5, 7, self.models_combo_box)),
+            ((0, 5, FormLabel('Language:')), (5, 7, self.languages_combo_box)),
+            ((0, 5, FormLabel('Task:')), (5, 7, self.tasks_combo_box)),
+            ((0, 5, FormLabel('Microphone:')),
+             (5, 7, self.audio_devices_combo_box)),
+            ((0, 5, FormLabel('Delay:')), (5, 7, delays_combo_box)),
+            ((6, 3, self.timer_label), (9, 3, self.record_button)),
             ((0, 12, self.text_box),),
         )
 
@@ -289,12 +322,17 @@ class Application(QApplication):
 
         self.window.show()
 
-    # TODO: might be great to send when the text has been updated rather than appending
-    def on_text_changed(self, text: str):
-        if len(text) > 0:
-            self.text_box.moveCursor(QTextCursor.MoveOperation.End)
-            self.text_box.insertPlainText(text + '\n\n')
-            self.text_box.moveCursor(QTextCursor.MoveOperation.End)
+    def on_transcriber_status_changed(self, status: Status):
+        if status.state == State.FINISHED_CURRENT_TRANSCRIPTION:
+            print('stopping trans')
+            text = status.text.strip()
+            if len(text) > 0:
+                self.text_box.moveCursor(QTextCursor.MoveOperation.End)
+                self.text_box.insertPlainText(text + '\n\n')
+                self.text_box.moveCursor(QTextCursor.MoveOperation.End)
+        elif status.state == State.STARTING_NEXT_TRANSCRIPTION:
+            print('starting trans')
+            pass
 
     def on_device_changed(self, device_id: int):
         self.selected_device_id = device_id
@@ -326,13 +364,15 @@ class Application(QApplication):
         self.record_button.setDisabled(False)
         # Clear text box placeholder because the first chunk takes a while to process
         self.text_box.setPlaceholderText('')
+        self.timer_label.start_timer()
 
         self.transcriber = TranscriberWithSignal(
             model=model,
             language=self.selected_language if self.selected_language != '' else None,
             task=self.selected_task,
         )
-        self.transcriber.text_changed.connect(self.on_text_changed)
+        self.transcriber.status_changed.connect(
+            self.on_transcriber_status_changed)
         self.transcriber.start_recording(
             input_device_index=self.selected_device_id,
             block_duration=self.selected_delay,
@@ -347,3 +387,4 @@ class Application(QApplication):
 
     def stop_recording(self):
         self.transcriber.stop_recording()
+        self.timer_label.stop_timer()

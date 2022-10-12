@@ -14,6 +14,17 @@ import whisper
 os.environ["PATH"] += os.pathsep + "/usr/local/bin"
 
 
+class State(enum.Enum):
+    STARTING_NEXT_TRANSCRIPTION = 0
+    FINISHED_CURRENT_TRANSCRIPTION = 1
+
+
+class Status:
+    def __init__(self, state: State, text='') -> None:
+        self.state = state
+        self.text = text
+
+
 class Transcriber:
     """Transcriber records audio from a system microphone and transcribes it into text using Whisper."""
 
@@ -27,10 +38,10 @@ class Transcriber:
     MAX_QUEUE_SIZE = 10
 
     def __init__(self, model: whisper.Whisper, language: Optional[str],
-                 text_callback: Callable[[str], None], task: Task) -> None:
+                 status_callback: Callable[[Status], None], task: Task) -> None:
         self.model = model
         self.current_stream = None
-        self.text_callback = text_callback
+        self.status_callback = status_callback
         self.language = language
         self.task = task
         self.queue: queue.Queue[np.ndarray] = queue.Queue(
@@ -60,12 +71,14 @@ class Transcriber:
                 block = self.queue.get(block=False)
                 logging.debug(
                     'Processing next frame. Current queue size: %d' % self.queue.qsize())
+                self.status_callback(Status(State.STARTING_NEXT_TRANSCRIPTION))
                 result = self.model.transcribe(
                     audio=block, language=self.language, task=self.task.value)
-                text = result["text"]
+                text = result.get("text")
                 logging.debug(
                     "Received next result of length: %s" % len(text))
-                self.text_callback(text)  # type: ignore
+                self.status_callback(
+                    Status(State.FINISHED_CURRENT_TRANSCRIPTION, text))
             except queue.Empty:
                 continue
 
