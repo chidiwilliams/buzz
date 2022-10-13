@@ -47,6 +47,8 @@ class TestAudioDevicesComboBox:
                  'default_low_output_latency': 0.0033333333333333335, 'default_high_input_latency': 0.1, 'default_high_output_latency': 0.012666666666666666, 'default_samplerate': 48000.0},
             ]
 
+            sounddevice.default.device = 3, 4
+
             audio_devices_combo_box = AudioDevicesComboBox()
 
             assert audio_devices_combo_box.itemText(0) == 'Background Music'
@@ -56,7 +58,5 @@ class TestAudioDevicesComboBox:
             assert audio_devices_combo_box.itemText(
                 3) == 'MacBook Pro Microphone'
             assert audio_devices_combo_box.itemText(4) == 'Null Audio Device'
-
-            assert sounddevice.default.device == []
 
             assert audio_devices_combo_box.currentText() == 'MacBook Pro Microphone'
