@@ -1,5 +1,7 @@
 from unittest.mock import patch
 
+import sounddevice
+
 from gui import Application, AudioDevicesComboBox, LanguagesComboBox
 
 
@@ -54,5 +56,7 @@ class TestAudioDevicesComboBox:
             assert audio_devices_combo_box.itemText(
                 3) == 'MacBook Pro Microphone'
             assert audio_devices_combo_box.itemText(4) == 'Null Audio Device'
+
+            assert sounddevice.default.device == []
 
             assert audio_devices_combo_box.currentText() == 'MacBook Pro Microphone'
