@@ -232,11 +232,12 @@ class TranscriberWithSignal(QObject):
 
 
 class TimerLabel(QLabel):
-    timer = QTimer()
     start_time: Optional[QDateTime]
 
     def __init__(self):
         super().__init__()
+
+        self.timer = QTimer(self)
         self.timer.timeout.connect(self.on_next_interval)
         self.on_next_interval(stopped=True)
         self.setAlignment(Qt.AlignmentFlag(
@@ -261,7 +262,7 @@ class TimerLabel(QLabel):
                 seconds_passed // 60, seconds_passed % 60))
 
 
-class Application(QApplication):
+class RecordingTranscriber(QWidget):
     current_status = RecordButton.Status.STOPPED
     selected_model_name = 'tiny'
     selected_language = 'en'
@@ -271,14 +272,9 @@ class Application(QApplication):
     progress_dialog: Optional[DownloadModelProgressDialog] = None
 
     def __init__(self) -> None:
-        super().__init__([])
-
-        self.window = QWidget()
-        self.window.setFixedSize(400, 500)
-        self.window.setWindowTitle('Buzz')
+        super().__init__()
 
         layout = QGridLayout()
-        self.window.setLayout(layout)
 
         self.models_combo_box = ModelsComboBox(
             default_model_name=self.selected_model_name)
@@ -324,7 +320,7 @@ class Application(QApplication):
                 (col_offset, col_width, widget) = cell
                 layout.addWidget(widget, row_index, col_offset, 1, col_width)
 
-        self.window.show()
+        self.setLayout(layout)
 
     def on_transcriber_status_changed(self, status: Status):
         if status.state == State.FINISHED_CURRENT_TRANSCRIPTION:
@@ -390,3 +386,57 @@ class Application(QApplication):
     def stop_recording(self):
         self.transcriber.stop_recording()
         self.timer_label.stop_timer()
+
+
+class MainWindow(QMainWindow):
+    new_window = pyqtSignal(QRect)
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
+        self.setFixedSize(400, 500)
+        self.setWindowTitle('Buzz')
+
+        self.transcriber = RecordingTranscriber()
+        self.transcriber.setContentsMargins(10, 10, 10, 10)
+        self.setCentralWidget(self.transcriber)
+
+        new_live_recording_button_action = QAction("&New Live Recording", self)
+        new_live_recording_button_action.triggered.connect(
+            self.on_new_live_recording_buton_click)
+        new_live_recording_button_action.setShortcut(
+            QKeySequence.fromString('Ctrl+L'))
+
+        menu = self.menuBar()
+
+        self.file_menu = menu.addMenu("&File")
+        self.file_menu.addAction(new_live_recording_button_action)
+
+    def on_new_live_recording_buton_click(self):
+        self.new_window.emit(self.geometry())
+
+
+class Application(QApplication):
+    windows: List[MainWindow] = []
+
+    def __init__(self) -> None:
+        super().__init__([])
+
+        window = MainWindow()
+        window.new_window.connect(self.new_window)
+        window.show()
+
+        self.windows.append(window)
+
+    def new_window(self, sibling_geometry: QRect):
+        window = MainWindow()
+
+        # Set window to open at an offset from the calling sibling
+        OFFSET = 35
+        geometry = QRect(sibling_geometry.left() + OFFSET, sibling_geometry.top() + OFFSET,
+                         sibling_geometry.width(), sibling_geometry.height())
+        window.setGeometry(geometry)
+        self.windows.append(window)
+
+        window.new_window.connect(self.new_window)
+        window.show()
