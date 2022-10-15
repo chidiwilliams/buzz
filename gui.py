@@ -67,7 +67,7 @@ class AudioDevicesComboBox(QComboBox):
 
 class LanguagesComboBox(QComboBox):
     """LanguagesComboBox displays a list of languages available to use with Whisper"""
-    # language is a languge key from whisper.tokenizer.LANGUAGES or '' for "detect langugage"
+    # language is a language key from whisper.tokenizer.LANGUAGES or '' for "detect langugage"
     languageChanged = pyqtSignal(str)
 
     def __init__(self, default_language: Optional[str], *args) -> None:
