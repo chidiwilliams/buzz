@@ -133,7 +133,7 @@ class FileTranscriber:
 
     stopped = False
 
-    def __init__(self, model: whisper.Whisper, language: str, task: Task, file_path: str, output_file_path: str, progress_callback: Callable[[int, int], None]) -> None:
+    def __init__(self, model: whisper.Whisper, language: Optional[str], task: Task, file_path: str, output_file_path: str, progress_callback: Callable[[int, int], None]) -> None:
         self.model = model
         self.file_path = file_path
         self.output_file_path = output_file_path
