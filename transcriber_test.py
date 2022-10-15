@@ -1,4 +1,4 @@
-from transcriber import Transcriber
+from transcriber import RecordingTranscriber
 
 
 class TestTranscriber:
@@ -6,6 +6,6 @@ class TestTranscriber:
         def text_callback(text: str):
             pass
 
-        transcriber = Transcriber(model=None, language='en',
-                                  status_callback=text_callback, task=Transcriber.Task.TRANSCRIBE)
+        transcriber = RecordingTranscriber(model=None, language='en',
+                                  status_callback=text_callback, task=RecordingTranscriber.Task.TRANSCRIBE)
         assert transcriber != None

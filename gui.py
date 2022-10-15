@@ -1,4 +1,5 @@
 import enum
+import os
 import platform
 from typing import Dict, List, Optional, Tuple
 
@@ -10,7 +11,8 @@ from PyQt5.QtWidgets import *
 from whisper import tokenizer
 
 import _whisper
-from transcriber import State, Status, Transcriber
+from transcriber import (FileTranscriber, RecordingTranscriber, State, Status,
+                         Task)
 
 
 def get_platform_styles(all_platform_styles: Dict[str, str]):
@@ -78,11 +80,11 @@ class LanguagesComboBox(QComboBox):
 
 class TasksComboBox(QComboBox):
     """TasksComboBox displays a list of tasks available to use with Whisper"""
-    taskChanged = pyqtSignal(Transcriber.Task)
+    taskChanged = pyqtSignal(Task)
 
-    def __init__(self, default_task: Transcriber.Task, *args) -> None:
+    def __init__(self, default_task: Task, *args) -> None:
         super().__init__(*args)
-        self.tasks = [i for i in Transcriber.Task]
+        self.tasks = [i for i in Task]
         self.addItems(map(lambda task: task.value.title(), self.tasks))
         self.currentIndexChanged.connect(self.on_index_changed)
         self.setCurrentText(default_task.value.title())
@@ -181,9 +183,9 @@ class RecordButton(QPushButton):
             self.setDefault(True)
 
 
-class DownloadModelProgressDialog(QProgressDialog):
-    def __init__(self, total_size: int, *args) -> None:
-        super().__init__('Downloading resources...', 'Cancel', 0, total_size, *args)
+class ProgressDialog(QProgressDialog):
+    def __init__(self, total_size: int, label_text='Downloading resources...', *args) -> None:
+        super().__init__(label_text, 'Cancel', 0, total_size, *args)
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setCancelButton(None)
         self.installEventFilter(self)
@@ -212,9 +214,9 @@ class TranscriberWithSignal(QObject):
 
     status_changed = pyqtSignal(Status)
 
-    def __init__(self, model: whisper.Whisper, language: Optional[str], task: Transcriber.Task, *args) -> None:
+    def __init__(self, model: whisper.Whisper, language: Optional[str], task: Task, *args) -> None:
         super().__init__(*args)
-        self.transcriber = Transcriber(
+        self.transcriber = RecordingTranscriber(
             model=model, language=language,
             status_callback=self.on_next_status, task=task)
 
@@ -262,14 +264,111 @@ class TimerLabel(QLabel):
                 seconds_passed // 60, seconds_passed % 60))
 
 
-class RecordingTranscriber(QWidget):
+class FileTranscriberWidget(QWidget):
+    selected_model_name = 'tiny'
+    selected_language = 'en'
+    selected_task = Task.TRANSCRIBE
+    progress_dialog: Optional[ProgressDialog] = None
+    transcribe_progress = pyqtSignal(tuple)
+
+    def __init__(self, file_path: str) -> None:
+        super().__init__()
+
+        layout = QGridLayout()
+
+        self.file_path = file_path
+
+        self.models_combo_box = ModelsComboBox(
+            default_model_name=self.selected_model_name)
+        self.models_combo_box.modelNameChanged.connect(self.on_model_changed)
+
+        self.languages_combo_box = LanguagesComboBox(
+            default_language=self.selected_language)
+        self.languages_combo_box.languageChanged.connect(
+            self.on_language_changed)
+
+        self.tasks_combo_box = TasksComboBox(
+            default_task=Task.TRANSCRIBE)
+        self.tasks_combo_box.taskChanged.connect(self.on_task_changed)
+
+        self.run_button = QPushButton('Run')
+        self.run_button.clicked.connect(self.on_click_run)
+        self.run_button.setDefault(True)
+
+        grid = (
+            ((0, 5, FormLabel('Task:')), (5, 7, self.tasks_combo_box)),
+            ((0, 5, FormLabel('Language:')), (5, 7, self.languages_combo_box)),
+            ((0, 5, FormLabel('Model:')), (5, 7, self.models_combo_box)),
+            ((9, 3, self.run_button),)
+        )
+
+        for (row_index, row) in enumerate(grid):
+            for (_, cell) in enumerate(row):
+                (col_offset, col_width, widget) = cell
+                layout.addWidget(widget, row_index, col_offset, 1, col_width)
+
+        self.setLayout(layout)
+
+        self.transcribe_progress.connect(self.handle_transcribe_progress)
+
+    def on_model_changed(self, model_name: str):
+        self.selected_model_name = model_name
+
+    def on_language_changed(self, language: str):
+        self.selected_language = language
+
+    def on_task_changed(self, task: Task):
+        self.selected_task = task
+
+    def on_click_run(self):
+        default_path = FileTranscriber.get_default_output_file_path(self.file_path)
+        (output_file, _) = QFileDialog.getSaveFileName(
+            self, 'Save File', default_path, 'Text files (*.txt)')
+
+        if output_file == '':
+            return
+
+        self.run_button.setDisabled(True)
+        model = _whisper.load_model(
+            self.selected_model_name, on_download_model_chunk=self.on_download_model_progress)
+
+        file_transcriber = FileTranscriber(
+            model=model, file_path=self.file_path,
+            language=self.selected_language, task=self.selected_task,
+            output_file_path=output_file, progress_callback=self.on_transcribe_model_progress)
+        file_transcriber.start()
+
+    def on_download_model_progress(self, current_size: int, total_size: int):
+        if self.progress_dialog == None:
+            self.progress_dialog = ProgressDialog(
+                total_size=total_size, label_text='Downloading resources...')
+        else:
+            self.progress_dialog.setValue(current_size)
+            if current_size == total_size:
+                self.run_button.setDisabled(False)
+
+    def on_transcribe_model_progress(self, current_size: int, total_size: int):
+        self.transcribe_progress.emit((current_size, total_size))
+
+    def handle_transcribe_progress(self, progress: Tuple[int, int]):
+        (current_size, total_size) = progress
+        if self.progress_dialog == None:
+            self.progress_dialog = ProgressDialog(
+                total_size=total_size, label_text='Processing...')
+        else:
+            self.progress_dialog.setValue(current_size)
+            if current_size == total_size:
+                self.run_button.setDisabled(False)
+
+
+class RecordingTranscriberWidget(QWidget):
     current_status = RecordButton.Status.STOPPED
     selected_model_name = 'tiny'
     selected_language = 'en'
     selected_device_id: Optional[int]
     selected_delay = 10
-    selected_task = Transcriber.Task.TRANSCRIBE
-    progress_dialog: Optional[DownloadModelProgressDialog] = None
+    selected_task = Task.TRANSCRIBE
+    progress_dialog: Optional[ProgressDialog] = None
 
     def __init__(self) -> None:
         super().__init__()
@@ -291,7 +390,7 @@ class RecordingTranscriber(QWidget):
         self.selected_device_id = self.audio_devices_combo_box.get_default_device_id()
 
         self.tasks_combo_box = TasksComboBox(
-            default_task=Transcriber.Task.TRANSCRIBE)
+            default_task=Task.TRANSCRIBE)
         self.tasks_combo_box.taskChanged.connect(self.on_task_changed)
 
         delays_combo_box = DelaysComboBox(default_delay=self.selected_delay)
@@ -347,7 +446,7 @@ class RecordingTranscriber(QWidget):
     def on_language_changed(self, language: str):
         self.selected_language = language
 
-    def on_task_changed(self, task: Transcriber.Task):
+    def on_task_changed(self, task: Task):
         self.selected_task = task
 
     def on_delay_changed(self, delay: int):
@@ -378,7 +477,7 @@ class RecordingTranscriber(QWidget):
 
     def on_download_model_chunk(self, current_size: int, total_size: int):
         if self.progress_dialog == None:
-            self.progress_dialog = DownloadModelProgressDialog(
+            self.progress_dialog = ProgressDialog(
                 total_size=total_size)
         else:
             self.progress_dialog.setValue(current_size)
@@ -389,31 +488,37 @@ class RecordingTranscriber(QWidget):
 
 
 class MainWindow(QMainWindow):
-    new_window = pyqtSignal(QRect)
+    new_import_window_triggered = pyqtSignal(tuple)
 
-    def __init__(self, *args):
+    def __init__(self, window_title: str,
+                 central_widget: QWidget,
+                 w=400, h=500,
+                 *args):
         super().__init__(*args)
 
-        self.setFixedSize(400, 500)
-        self.setWindowTitle('Buzz')
+        self.setFixedSize(w, h)
+        self.setWindowTitle(f'{window_title} — Buzz')
 
-        self.transcriber = RecordingTranscriber()
-        self.transcriber.setContentsMargins(10, 10, 10, 10)
-        self.setCentralWidget(self.transcriber)
+        self.central_widget = central_widget
+        self.central_widget.setContentsMargins(10, 10, 10, 10)
+        self.setCentralWidget(self.central_widget)
 
-        new_live_recording_button_action = QAction("&New Live Recording", self)
-        new_live_recording_button_action.triggered.connect(
-            self.on_new_live_recording_buton_click)
-        new_live_recording_button_action.setShortcut(
-            QKeySequence.fromString('Ctrl+L'))
+        import_audio_file_action = QAction("&Import Audio File...", self)
+        import_audio_file_action.triggered.connect(
+            self.on_import_audio_file_action)
+        import_audio_file_action.setShortcut(QKeySequence.fromString('Ctrl+O'))
 
         menu = self.menuBar()
 
-        self.file_menu = menu.addMenu("&File")
-        self.file_menu.addAction(new_live_recording_button_action)
+        file_menu = menu.addMenu("&File")
+        file_menu.addAction(import_audio_file_action)
 
-    def on_new_live_recording_buton_click(self):
-        self.new_window.emit(self.geometry())
+    def on_import_audio_file_action(self):
+        (file_path, _) = QFileDialog.getOpenFileName(
+            self, 'Select audio file', '', 'Audio Files (*.mp3 *.wav *.m4a)')
+        if file_path == '':
+            return
+        self.new_import_window_triggered.emit((file_path, self.geometry()))
 
 
 class Application(QApplication):
@@ -422,21 +527,26 @@ class Application(QApplication):
     def __init__(self) -> None:
         super().__init__([])
 
-        window = MainWindow()
-        window.new_window.connect(self.new_window)
+        window = MainWindow(window_title='Live Recording',
+                            central_widget=RecordingTranscriberWidget())
+        window.new_import_window_triggered.connect(self.open_import_window)
         window.show()
 
         self.windows.append(window)
 
-    def new_window(self, sibling_geometry: QRect):
-        window = MainWindow()
+    def open_import_window(self, window_config: Tuple[str, QRect]):
+        (file_path, geometry) = window_config
+
+        window = MainWindow(
+            w=400, h=180, central_widget=FileTranscriberWidget(file_path=file_path),
+            window_title=os.path.basename(file_path))
 
         # Set window to open at an offset from the calling sibling
         OFFSET = 35
-        geometry = QRect(sibling_geometry.left() + OFFSET, sibling_geometry.top() + OFFSET,
-                         sibling_geometry.width(), sibling_geometry.height())
+        geometry = QRect(geometry.left() + OFFSET, geometry.top() + OFFSET,
+                         geometry.width(), geometry.height())
         window.setGeometry(geometry)
         self.windows.append(window)
 
-        window.new_window.connect(self.new_window)
+        window.new_import_window_triggered.connect(self.open_import_window)
         window.show()

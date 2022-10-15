@@ -93,14 +93,6 @@ tomli = {version = "*", optional = true, markers = "python_full_version <= \"3.1
 toml = ["tomli"]
 
 [[package]]
-name = "ffmpeg"
-version = "1.4"
-description = "ffmpeg python package url [https://github.com/jiashaokun/ffmpeg]"
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "ffmpeg-python"
 version = "0.2.0"
 description = "Python bindings for FFmpeg - with complex filtering support"
@@ -643,7 +635,7 @@ resolved_reference = "d18e9ea5dd2ca57c697e8e55f9e654f06ede25d0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9.13,<3.11"
-content-hash = "eeec17187756fe557356a7f07cb4f86740b85dc94911ffec634da55d38aeef54"
+content-hash = "99a63b3395b47928e7f04a5eeb627f11f8641f91bd542e84c1f025407c86e234"
 
 [metadata.files]
 altgraph = [
@@ -791,9 +783,6 @@ coverage = [
     {file = "coverage-6.5.0-cp39-cp39-win_amd64.whl", hash = "sha256:fc2af30ed0d5ae0b1abdb4ebdce598eafd5b35397d4d75deb341a614d333d987"},
     {file = "coverage-6.5.0-pp36.pp37.pp38-none-any.whl", hash = "sha256:1431986dac3923c5945271f169f59c45b8802a114c8f548d611f2015133df77a"},
     {file = "coverage-6.5.0.tar.gz", hash = "sha256:f642e90754ee3e06b0e7e51bce3379590e76b7f76b708e1a71ff043f87025c84"},
-]
-ffmpeg = [
-    {file = "ffmpeg-1.4.tar.gz", hash = "sha256:6931692c890ff21d39938433c2189747815dca0c60ddc7f9bb97f199dba0b5b9"},
 ]
 ffmpeg-python = [
     {file = "ffmpeg-python-0.2.0.tar.gz", hash = "sha256:65225db34627c578ef0e11c8b1eb528bb35e024752f6f10b78c011f6f64c4127"},
