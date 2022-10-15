@@ -45,17 +45,14 @@ jobs:
             CMD_BUILD: |
               brew install create-dmg
               brew install ffmpeg
-              which ffmpeg
               poetry run make bundle_mac
           - os: ubuntu-latest
             CMD_BUILD: |
               sudo apt update && sudo apt install ffmpeg
-              which ffmpeg
               poetry run make bundle_linux
           - os: windows-latest
             CMD_BUILD: |
               choco install ffmpeg
-              which ffmpeg
               poetry run make bundle_windows
     steps:
       - uses: actions/checkout@v3
