@@ -192,9 +192,9 @@ class RecordButton(QPushButton):
             self.setDefault(True)
 
 
-class ProgressDialog(QProgressDialog):
-    def __init__(self, total_size: int, label_text='Downloading resources...', *args) -> None:
-        super().__init__(label_text, 'Cancel', 0, total_size, *args)
+class DownloadModelProgressDialog(QProgressDialog):
+    def __init__(self, total_size: int, *args) -> None:
+        super().__init__('Downloading resources...', 'Cancel', 0, total_size, *args)
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setCancelButton(None)
         self.installEventFilter(self)
@@ -306,7 +306,7 @@ class FileTranscriberWidget(QWidget):
     selected_model_name = 'tiny'
     selected_language = 'en'
     selected_task = Task.TRANSCRIBE
-    progress_dialog: Optional[ProgressDialog] = None
+    progress_dialog: Optional[DownloadModelProgressDialog] = None
     transcriber_progress_dialog: Optional[TranscriberProgressDialog] = None
     transcribe_progress = pyqtSignal(tuple)
 
@@ -361,7 +361,7 @@ class FileTranscriberWidget(QWidget):
 
     def on_click_run(self):
         default_path = FileTranscriber.get_default_output_file_path(
-            self.file_path)
+            task=self.selected_task, input_file_path=self.file_path)
         (output_file, _) = QFileDialog.getSaveFileName(
             self, 'Save File', default_path, 'Text files (*.txt)')
 
@@ -380,7 +380,7 @@ class FileTranscriberWidget(QWidget):
 
     def on_download_model_progress(self, current_size: int, total_size: int):
         if self.progress_dialog == None:
-            self.progress_dialog = ProgressDialog(
+            self.progress_dialog = DownloadModelProgressDialog(
                 total_size=total_size, label_text='Downloading resources...')
         else:
             self.progress_dialog.setValue(current_size)
@@ -417,7 +417,7 @@ class RecordingTranscriberWidget(QWidget):
     selected_device_id: Optional[int]
     selected_delay = 10
     selected_task = Task.TRANSCRIBE
-    progress_dialog: Optional[ProgressDialog] = None
+    progress_dialog: Optional[DownloadModelProgressDialog] = None
 
     def __init__(self) -> None:
         super().__init__()
@@ -526,7 +526,7 @@ class RecordingTranscriberWidget(QWidget):
 
     def on_download_model_chunk(self, current_size: int, total_size: int):
         if self.progress_dialog == None:
-            self.progress_dialog = ProgressDialog(
+            self.progress_dialog = DownloadModelProgressDialog(
                 total_size=total_size)
         else:
             self.progress_dialog.setValue(current_size)

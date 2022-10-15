@@ -172,5 +172,5 @@ class FileTranscriber:
         return self.stopped
 
     @classmethod
-    def get_default_output_file_path(cls, input_file_path: str):
-        return f'{os.path.splitext(input_file_path)[0]} (Transcribed on {datetime.datetime.now():%d-%b-%Y %H-%M-%S}).txt'
+    def get_default_output_file_path(cls, task: Task, input_file_path: str):
+        return f'{os.path.splitext(input_file_path)[0]} ({task.value.title()}d on {datetime.datetime.now():%d-%b-%Y %H-%M-%S}).txt'
