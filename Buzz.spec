@@ -1,6 +1,8 @@
 # -*- mode: python ; coding: utf-8 -*-
 import os
 import platform
+import subprocess
+import sys
 
 from PyInstaller.utils.hooks import collect_data_files, copy_metadata
 
@@ -15,10 +17,13 @@ datas += copy_metadata('filelock')
 datas += copy_metadata('numpy')
 datas += copy_metadata('tokenizers')
 datas += collect_data_files('whisper')
+
+ffmpeg = subprocess.check_output(
+    ['which', 'ffmpeg']).decode(sys.stdout.encoding).strip()
 datas += [(
     {
-        'Darwin': '/usr/local/bin/ffmpeg',
-        'Linux': '/usr/local/bin/ffmpeg',
+        'Darwin': ffmpeg,
+        'Linux': ffmpeg,
         'Windows': 'C:\\ProgramData\\chocolatey\\lib\\ffmpeg\\tools\\ffmpeg\\bin',
     }[platform.system()], '.')]
 
