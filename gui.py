@@ -200,7 +200,7 @@ class DownloadModelProgressDialog(QProgressDialog):
     start_time: datetime
 
     def __init__(self, total_size: int, parent: Optional[QWidget], *args) -> None:
-        super().__init__('Downloading resources (0%)',
+        super().__init__('Downloading resources (0%, unknown time remaining)',
                          'Cancel', 0, total_size, parent, *args)
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.start_time = datetime.now()

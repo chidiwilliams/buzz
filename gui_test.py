@@ -2,7 +2,8 @@ from unittest.mock import patch
 
 import sounddevice
 
-from gui import (Application, AudioDevicesComboBox, LanguagesComboBox,
+from gui import (Application, AudioDevicesComboBox,
+                 DownloadModelProgressDialog, LanguagesComboBox,
                  TranscriberProgressDialog)
 
 
@@ -91,3 +92,19 @@ class TestTranscriberProgressDialog:
 
         self.dialog.update_progress(123456)
         assert self.dialog.labelText().startswith('Processing c.txt (10.00%')
+
+
+class TestDownloadModelProgressDialog:
+    dialog = DownloadModelProgressDialog(total_size=1234567, parent=None)
+
+    def test_should_show_dialog(self):
+        assert self.dialog.labelText() == 'Downloading resources (0%, unknown time remaining)'
+
+    def test_should_update_label_on_progress(self):
+        self.dialog.setValue(12345)
+        assert self.dialog.labelText().startswith(
+            'Downloading resources (1.00%')
+
+        self.dialog.setValue(123456)
+        assert self.dialog.labelText().startswith(
+            'Downloading resources (10.00%')
