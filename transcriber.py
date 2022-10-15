@@ -131,6 +131,8 @@ class RecordingTranscriber:
 class FileTranscriber:
     """FileTranscriber transcribes an audio file to text, writes the text to a file, and then opens the file using the default program for opening txt files."""
 
+    stopped = False
+
     def __init__(self, model: whisper.Whisper, language: str, task: Task, file_path: str, output_file_path: str, progress_callback: Callable[[int, int], None]) -> None:
         self.model = model
         self.file_path = file_path
@@ -146,7 +148,12 @@ class FileTranscriber:
     def transcribe(self):
         result = _whisper.transcribe(model=self.model, audio=self.file_path,
                                      progress_callback=self.progress_callback,
-                                     language=self.language, task=self.task.value)
+                                     language=self.language, task=self.task.value,
+                                     check_stopped=self.check_stopped)
+
+        # If the stop signal was received, return
+        if result == None:
+            return
 
         output_file = open(self.output_file_path, 'w')
         output_file.write(result.get('text'))
@@ -157,6 +164,12 @@ class FileTranscriber:
         except AttributeError:
             opener = "open" if platform.system() == "Darwin" else "xdg-open"
             subprocess.call([opener, self.output_file_path])
+
+    def stop(self):
+        self.stopped = True
+
+    def check_stopped(self):
+        return self.stopped
 
     @classmethod
     def get_default_output_file_path(cls, input_file_path: str):

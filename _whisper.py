@@ -80,6 +80,7 @@ def transcribe(
     audio: Union[str, np.ndarray, torch.Tensor],
     *,
     progress_callback: Callable[[int, int], None],
+    check_stopped: Callable[[], bool],
     temperature: Union[float, Tuple[float, ...]] = (
         0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
     compression_ratio_threshold: Optional[float] = 2.4,
@@ -88,6 +89,7 @@ def transcribe(
     condition_on_previous_text: bool = True,
     **decode_options,
 ):
+    """Copy of whisper.transcribe that reports progress via progress_callback and can be stopped via check_stopped"""
     dtype = torch.float16 if decode_options.get(
         "fp16", True) else torch.float32
     if model.device == torch.device("cpu"):
@@ -190,6 +192,9 @@ def transcribe(
     progress_callback(0, num_frames)
 
     while seek < num_frames:
+        if check_stopped():
+            return None
+
         timestamp_offset = float(seek * HOP_LENGTH / SAMPLE_RATE)
         segment = pad_or_trim(mel[:, seek:], N_FRAMES).to(
             model.device).to(dtype)
@@ -263,5 +268,7 @@ def transcribe(
 
         previous_seek_value = seek
         progress_callback(int(min(num_frames, seek)), num_frames)
+
+    progress_callback(num_frames, num_frames)
 
     return dict(text=tokenizer.decode(all_tokens[len(initial_prompt):]), segments=all_segments, language=language)

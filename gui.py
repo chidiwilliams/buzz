@@ -1,8 +1,10 @@
 import enum
 import os
 import platform
+from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 
+import humanize
 import sounddevice
 import whisper
 from PyQt5.QtCore import *
@@ -17,6 +19,13 @@ from transcriber import (FileTranscriber, RecordingTranscriber, State, Status,
 
 def get_platform_styles(all_platform_styles: Dict[str, str]):
     return all_platform_styles.get(platform.system(), '')
+
+
+def get_short_file_path(file_path: str):
+    basename = os.path.basename(file_path)
+    if len(basename) > 20:
+        return f'{basename[0:10]}...{basename[-5:]}'
+    return basename
 
 
 class FormLabel(QLabel):
@@ -206,6 +215,35 @@ class ProgressDialog(QProgressDialog):
         return super().eventFilter(obj, event)
 
 
+class TranscriberProgressDialog(QProgressDialog):
+    total_size: int
+    short_file_path: str
+    start_time: datetime
+
+    def __init__(self, file_path: str, total_size: int, *args) -> None:
+        short_file_path = get_short_file_path(file_path)
+        label = f'Processing {short_file_path} (0%, unknown time remaining)'
+        super().__init__(label, 'Cancel', 0, total_size, *args)
+
+        self.total_size = total_size
+        self.short_file_path = short_file_path
+        self.start_time = datetime.now()
+
+        # Open dialog immediately
+        self.setMinimumDuration(0)
+
+        self.setValue(0)
+
+    def update_progress(self, current_size):
+        self.setValue(current_size)
+
+        fraction_completed = current_size / self.total_size
+        time_spent = (datetime.now() - self.start_time).total_seconds()
+        time_left = (time_spent / fraction_completed) - time_spent
+        self.setLabelText(
+            f'Processing {self.short_file_path} ({fraction_completed:.2%}, {humanize.naturaldelta(time_left)} remaining)')
+
+
 class TranscriberWithSignal(QObject):
     """
     TranscriberWithSignal exports the text callback from a Transcriber
@@ -269,6 +307,7 @@ class FileTranscriberWidget(QWidget):
     selected_language = 'en'
     selected_task = Task.TRANSCRIBE
     progress_dialog: Optional[ProgressDialog] = None
+    transcriber_progress_dialog: Optional[TranscriberProgressDialog] = None
     transcribe_progress = pyqtSignal(tuple)
 
     def __init__(self, file_path: str) -> None:
@@ -333,11 +372,11 @@ class FileTranscriberWidget(QWidget):
         model = _whisper.load_model(
             self.selected_model_name, on_download_model_chunk=self.on_download_model_progress)
 
-        file_transcriber = FileTranscriber(
+        self.file_transcriber = FileTranscriber(
             model=model, file_path=self.file_path,
             language=self.selected_language, task=self.selected_task,
             output_file_path=output_file, progress_callback=self.on_transcribe_model_progress)
-        file_transcriber.start()
+        self.file_transcriber.start()
 
     def on_download_model_progress(self, current_size: int, total_size: int):
         if self.progress_dialog == None:
@@ -353,13 +392,22 @@ class FileTranscriberWidget(QWidget):
 
     def handle_transcribe_progress(self, progress: Tuple[int, int]):
         (current_size, total_size) = progress
-        if self.progress_dialog == None:
-            self.progress_dialog = ProgressDialog(
-                total_size=total_size, label_text='Processing...')
-        else:
-            self.progress_dialog.setValue(current_size)
-            if current_size == total_size:
-                self.run_button.setDisabled(False)
+        if self.transcriber_progress_dialog == None:
+            self.transcriber_progress_dialog = TranscriberProgressDialog(
+                file_path=self.file_path, total_size=total_size)
+            self.transcriber_progress_dialog.canceled.connect(
+                self.on_cancel_transcriber_progress_dialog)
+        elif self.transcriber_progress_dialog.wasCanceled() == False:
+            self.transcriber_progress_dialog.update_progress(current_size)
+
+        if current_size == total_size:
+            self.run_button.setDisabled(False)
+            self.transcriber_progress_dialog = None
+
+    def on_cancel_transcriber_progress_dialog(self):
+        self.file_transcriber.stop()
+        self.run_button.setDisabled(False)
+        self.transcriber_progress_dialog = None
 
 
 class RecordingTranscriberWidget(QWidget):
@@ -540,7 +588,7 @@ class Application(QApplication):
 
         window = MainWindow(
             w=400, h=180, central_widget=FileTranscriberWidget(file_path=file_path),
-            window_title=os.path.basename(file_path))
+            window_title=get_short_file_path(file_path))
 
         # Set window to open at an offset from the calling sibling
         OFFSET = 35

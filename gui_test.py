@@ -2,7 +2,8 @@ from unittest.mock import patch
 
 import sounddevice
 
-from gui import Application, AudioDevicesComboBox, LanguagesComboBox
+from gui import (Application, AudioDevicesComboBox, LanguagesComboBox,
+                 TranscriberProgressDialog)
 
 
 class TestApplication:
@@ -75,3 +76,18 @@ class TestAudioDevicesComboBox:
             assert audio_devices_combo_box.itemText(4) == 'Null Audio Device'
 
             assert audio_devices_combo_box.currentText() == 'MacBook Pro Microphone'
+
+
+class TestTranscriberProgressDialog:
+    dialog = TranscriberProgressDialog(
+        file_path='/a/b/c.txt', total_size=1234567)
+
+    def test_should_show_dialog(self):
+        assert self.dialog.labelText() == 'Processing c.txt (0%, unknown time remaining)'
+
+    def test_should_update_label_on_progress(self):
+        self.dialog.update_progress(12345)
+        assert self.dialog.labelText().startswith('Processing c.txt (1.00%')
+
+        self.dialog.update_progress(123456)
+        assert self.dialog.labelText().startswith('Processing c.txt (10.00%')

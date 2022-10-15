@@ -71,6 +71,7 @@ app = BUNDLE(
     bundle_identifier='com.chidiwilliams.buzz',
     version=os.getenv('BUZZ_VERSION', '0.0.1'),
     info_plist={
-        'NSMicrophoneUsageDescription': 'Please provide microphone access to continue'
+        'NSPrincipalClass': 'NSApplication',
+        'NSHighResolutionCapable': 'True'
     }
 )
