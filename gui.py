@@ -566,6 +566,8 @@ class RecordingTranscriberWidget(QWidget):
             self.record_button.force_stop()
             return
 
+        self.record_button.setDisabled(False)
+
         # Clear text box placeholder because the first chunk takes a while to process
         self.text_box.setPlaceholderText('')
         self.timer_label.start_timer()
