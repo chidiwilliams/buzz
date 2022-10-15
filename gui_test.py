@@ -40,8 +40,12 @@ class TestLanguagesComboBox:
         assert self.languagesComboxBox.itemText(40) == 'Japanese'
         assert self.languagesComboxBox.itemText(50) == 'Lithuanian'
 
-    def test_should_select_default_language(self):
+    def test_should_select_en_as_default_language(self):
         assert self.languagesComboxBox.currentText() == 'English'
+
+    def test_should_select_detect_language_as_default(self):
+        languagesComboxBox = LanguagesComboBox(None)
+        assert languagesComboxBox.currentText() == 'Detect Language'
 
 
 class TestAudioDevicesComboBox:

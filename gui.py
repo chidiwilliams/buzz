@@ -67,9 +67,10 @@ class AudioDevicesComboBox(QComboBox):
 
 class LanguagesComboBox(QComboBox):
     """LanguagesComboBox displays a list of languages available to use with Whisper"""
+    # language is a languge key from whisper.tokenizer.LANGUAGES or '' for "detect langugage"
     languageChanged = pyqtSignal(str)
 
-    def __init__(self, default_language: str, *args) -> None:
+    def __init__(self, default_language: Optional[str], *args) -> None:
         super().__init__(*args)
 
         whisper_languages = sorted(
@@ -80,8 +81,10 @@ class LanguagesComboBox(QComboBox):
 
         self.addItems([lang[1] for lang in self.languages])
         self.currentIndexChanged.connect(self.on_index_changed)
+
+        default_language_key = default_language if default_language != '' else None
         default_language_index = next((i for i, lang in enumerate(self.languages)
-                                       if lang[0] == default_language), 0)
+                                       if lang[0] == default_language_key), 0)
         self.setCurrentIndex(default_language_index)
 
     def on_index_changed(self, index: int):
@@ -304,7 +307,7 @@ class TimerLabel(QLabel):
                 seconds_passed // 60, seconds_passed % 60))
 
 
-def get_model_name(quality: Quality, language: str) -> str:
+def get_model_name(quality: Quality, language: Optional[str]) -> str:
     return {
         Quality.LOW: ('tiny', 'tiny.en'),
         Quality.MEDIUM: ('base', 'base.en'),
@@ -314,7 +317,7 @@ def get_model_name(quality: Quality, language: str) -> str:
 
 class FileTranscriberWidget(QWidget):
     selected_quality = Quality.LOW
-    selected_language = 'en'
+    selected_language: Optional[str] = None
     selected_task = Task.TRANSCRIBE
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     transcriber_progress_dialog: Optional[TranscriberProgressDialog] = None
@@ -364,7 +367,7 @@ class FileTranscriberWidget(QWidget):
         self.selected_quality = quality
 
     def on_language_changed(self, language: str):
-        self.selected_language = language
+        self.selected_language = None if language == '' else language
 
     def on_task_changed(self, task: Task):
         self.selected_task = task
@@ -455,11 +458,10 @@ class FileTranscriberWidget(QWidget):
             self.model_download_progress_dialog = None
 
 
-
 class RecordingTranscriberWidget(QWidget):
     current_status = RecordButton.Status.STOPPED
     selected_quality = Quality.LOW
-    selected_language = 'en'
+    selected_language: Optional[str] = None
     selected_device_id: Optional[int]
     selected_delay = 10
     selected_task = Task.TRANSCRIBE
@@ -539,7 +541,7 @@ class RecordingTranscriberWidget(QWidget):
         self.selected_quality = quality
 
     def on_language_changed(self, language: str):
-        self.selected_language = language
+        self.selected_language = None if language == '' else language
 
     def on_task_changed(self, task: Task):
         self.selected_task = task
@@ -570,7 +572,7 @@ class RecordingTranscriberWidget(QWidget):
 
         self.transcriber = TranscriberWithSignal(
             model=model,
-            language=self.selected_language if self.selected_language != '' else None,
+            language=self.selected_language,
             task=self.selected_task,
         )
         self.transcriber.status_changed.connect(
@@ -670,4 +672,3 @@ class Application(QApplication):
 
         window.new_import_window_triggered.connect(self.open_import_window)
         window.show()
-
