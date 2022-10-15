@@ -15,9 +15,35 @@ from whisper.tokenizer import *
 from whisper.utils import *
 
 
-def load_model(name: str, on_download_model_chunk: Callable[[int, int], None] = lambda *_: None):
+class Stopped(Exception):
+    pass
+
+
+class ModelLoader:
+    stopped = False
+
+    def __init__(self, name: str,
+                 on_download_model_chunk: Callable[[int, int], None] = lambda *_: None) -> None:
+        self.name = name
+        self.on_download_model_chunk = on_download_model_chunk
+
+    def load(self):
+        return load_model(
+            name=self.name, is_stopped=self.is_stopped,
+            on_download_model_chunk=self.on_download_model_chunk)
+
+    def stop(self):
+        self.stopped = True
+
+    def is_stopped(self):
+        return self.stopped
+
+
+def load_model(
+        name: str, is_stopped: Callable[[], bool],
+        on_download_model_chunk: Callable[[int, int], None] = lambda *_: None):
     """
-    Loads a Whisper ASR model.
+    Loads a Whisper ASR model with cancellation and progress reporting.
 
     This is a patch for whisper.load_model that downloads the models using the requests module
     instead of urllib.request to allow the program get the correct SSL certificates when run from
@@ -27,8 +53,10 @@ def load_model(name: str, on_download_model_chunk: Callable[[int, int], None] = 
         os.path.expanduser("~"), ".cache", "whisper")
 
     url = whisper._MODELS[name]
-    _download(url=url, root=download_root, in_memory=False,
-              on_download_model_chunk=on_download_model_chunk)
+    _download(
+        url=url, root=download_root, in_memory=False,
+        on_download_model_chunk=on_download_model_chunk,
+        is_stopped=is_stopped)
 
     download_target = os.path.join(download_root, os.path.basename(url))
 
@@ -38,7 +66,10 @@ def load_model(name: str, on_download_model_chunk: Callable[[int, int], None] = 
 DONWLOAD_CHUNK_SIZE = 8192
 
 
-def _download(url: str, root: str, in_memory: bool, on_download_model_chunk: Callable[[int, int], None]) -> Union[bytes, str]:
+def _download(
+        url: str, root: str, in_memory: bool,
+        on_download_model_chunk: Callable[[int, int], None],
+        is_stopped: Callable[[], bool]) -> Union[bytes, str]:
     """ See whisper._download """
     os.makedirs(root, exist_ok=True)
 
@@ -63,6 +94,10 @@ def _download(url: str, root: str, in_memory: bool, on_download_model_chunk: Cal
         current_size = 0
         total_size = int(source.headers.get('Content-Length', 0))
         for chunk in source.iter_content(chunk_size=DONWLOAD_CHUNK_SIZE):
+            if is_stopped():
+                os.unlink(download_target)
+                raise Stopped
+
             output.write(chunk)
             current_size += len(chunk)
             on_download_model_chunk(current_size, total_size)
@@ -193,7 +228,7 @@ def transcribe(
 
     while seek < num_frames:
         if check_stopped():
-            return None
+            raise Stopped
 
         timestamp_offset = float(seek * HOP_LENGTH / SAMPLE_RATE)
         segment = pad_or_trim(mel[:, seek:], N_FRAMES).to(

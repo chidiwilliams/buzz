@@ -192,33 +192,34 @@ class RecordButton(QPushButton):
             self.setText('Record')
             self.setDefault(True)
 
+    def force_stop(self):
+        self.on_status_changed(self.Status.STOPPED)
+
 
 class DownloadModelProgressDialog(QProgressDialog):
-    def __init__(self, total_size: int, *args) -> None:
-        super().__init__('Downloading resources...', 'Cancel', 0, total_size, *args)
+    start_time: datetime
+
+    def __init__(self, total_size: int, parent: Optional[QWidget], *args) -> None:
+        super().__init__('Downloading resources (0%)',
+                         'Cancel', 0, total_size, parent, *args)
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
-        self.setCancelButton(None)
-        self.installEventFilter(self)
-        # Don't show window close icons
-        self.setWindowFlags(Qt.WindowType(
-            Qt.WindowType.Window | Qt.WindowType.WindowTitleHint | Qt.WindowType.CustomizeWindowHint))
+        self.start_time = datetime.now()
 
-    def closeEvent(self, event: QEvent):
-        # Ignore close event from 'x' window icon
-        event.ignore()
+    def setValue(self, current_size: int) -> None:
+        super().setValue(current_size)
 
-    def eventFilter(self, obj: QObject, event: QEvent) -> bool:
-        # Don't close dialog when Return, Esc, or Enter is clicked
-        if obj == self and \
-                event.type() == QEvent.Type.KeyPress and \
-                event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Escape, Qt.Key.Key_Enter):
-            return True
-        return super().eventFilter(obj, event)
+        fraction_completed = current_size / self.maximum()
+        time_spent = (datetime.now() - self.start_time).total_seconds()
+        time_left = (time_spent / fraction_completed) - time_spent
+
+        self.setLabelText(
+            f'Downloading resources ({(current_size / self.maximum()):.2%}, {humanize.naturaldelta(time_left)} remaining)')
 
 
 class TranscriberProgressDialog(QProgressDialog):
     short_file_path: str
     start_time: datetime
+    is_canceled = False
 
     def __init__(self, file_path: str, total_size: int, parent: Optional[QWidget], *args) -> None:
         short_file_path = get_short_file_path(file_path)
@@ -315,7 +316,7 @@ class FileTranscriberWidget(QWidget):
     selected_quality = Quality.LOW
     selected_language = 'en'
     selected_task = Task.TRANSCRIBE
-    progress_dialog: Optional[DownloadModelProgressDialog] = None
+    model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     transcriber_progress_dialog: Optional[TranscriberProgressDialog] = None
     transcribe_progress = pyqtSignal(tuple)
 
@@ -381,8 +382,15 @@ class FileTranscriberWidget(QWidget):
         model_name = get_model_name(
             self.selected_quality, self.selected_language)
         logging.debug(f'Loading model: {model_name}')
-        model = _whisper.load_model(
-            model_name, on_download_model_chunk=self.on_download_model_progress)
+
+        self.model_loader = _whisper.ModelLoader(
+            name=model_name, on_download_model_chunk=self.on_download_model_progress)
+
+        try:
+            model = self.model_loader.load()
+        except _whisper.Stopped:
+            self.run_button.setDisabled(False)
+            return
 
         self.file_transcriber = FileTranscriber(
             model=model, file_path=self.file_path,
@@ -391,13 +399,17 @@ class FileTranscriberWidget(QWidget):
         self.file_transcriber.start()
 
     def on_download_model_progress(self, current_size: int, total_size: int):
-        if self.progress_dialog == None:
-            self.progress_dialog = DownloadModelProgressDialog(
-                total_size=total_size)
+        if current_size == total_size:
+            self.end_download_model()
+            return
+
+        if self.model_download_progress_dialog == None:
+            self.model_download_progress_dialog = DownloadModelProgressDialog(
+                total_size=total_size, parent=self)
+            self.model_download_progress_dialog.canceled.connect(
+                self.on_cancel_model_progress_dialog)
         else:
-            self.progress_dialog.setValue(current_size)
-            if current_size == total_size:
-                self.run_button.setDisabled(False)
+            self.model_download_progress_dialog.setValue(current_size)
 
     def on_transcribe_model_progress(self, current_size: int, total_size: int):
         self.transcribe_progress.emit((current_size, total_size))
@@ -412,7 +424,7 @@ class FileTranscriberWidget(QWidget):
         # In the middle of transcription...
 
         # Create a dialog if one does not exist
-        if self.transcriber_progress_dialog == None:
+        if current_size == 0 and self.transcriber_progress_dialog == None:
             self.transcriber_progress_dialog = TranscriberProgressDialog(
                 file_path=self.file_path, total_size=total_size, parent=self)
             self.transcriber_progress_dialog.canceled.connect(
@@ -420,7 +432,7 @@ class FileTranscriberWidget(QWidget):
 
         # Update the progress of the dialog unless it has
         # been canceled before this progress update arrived
-        if self.transcriber_progress_dialog.wasCanceled() == False:
+        if self.transcriber_progress_dialog != None and self.transcriber_progress_dialog.wasCanceled() == False:
             self.transcriber_progress_dialog.update_progress(current_size)
 
     def on_cancel_transcriber_progress_dialog(self):
@@ -433,6 +445,16 @@ class FileTranscriberWidget(QWidget):
             self.transcriber_progress_dialog.destroy()
             self.transcriber_progress_dialog = None
 
+    def on_cancel_model_progress_dialog(self):
+        self.model_loader.stop()
+        self.end_download_model()
+
+    def end_download_model(self):
+        if self.model_download_progress_dialog != None:
+            self.model_download_progress_dialog.destroy()
+            self.model_download_progress_dialog = None
+
+
 
 class RecordingTranscriberWidget(QWidget):
     current_status = RecordButton.Status.STOPPED
@@ -441,7 +463,7 @@ class RecordingTranscriberWidget(QWidget):
     selected_device_id: Optional[int]
     selected_delay = 10
     selected_task = Task.TRANSCRIBE
-    progress_dialog: Optional[DownloadModelProgressDialog] = None
+    model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
 
     def __init__(self) -> None:
         super().__init__()
@@ -531,10 +553,17 @@ class RecordingTranscriberWidget(QWidget):
         model_name = get_model_name(
             self.selected_quality, self.selected_language)
         logging.debug(f'Loading model: {model_name}')
-        model = _whisper.load_model(
-            model_name, on_download_model_chunk=self.on_download_model_chunk)
 
-        self.record_button.setDisabled(False)
+        self.model_loader = _whisper.ModelLoader(
+            name=model_name, on_download_model_chunk=self.on_download_model_progress)
+
+        try:
+            model = self.model_loader.load()
+        except _whisper.Stopped:
+            self.record_button.setDisabled(False)
+            self.record_button.force_stop()
+            return
+
         # Clear text box placeholder because the first chunk takes a while to process
         self.text_box.setPlaceholderText('')
         self.timer_label.start_timer()
@@ -551,16 +580,31 @@ class RecordingTranscriberWidget(QWidget):
             block_duration=self.selected_delay,
         )
 
-    def on_download_model_chunk(self, current_size: int, total_size: int):
-        if self.progress_dialog == None:
-            self.progress_dialog = DownloadModelProgressDialog(
-                total_size=total_size)
+    def on_download_model_progress(self, current_size: int, total_size: int):
+        if current_size == total_size:
+            self.end_download_model()
+            return
+
+        if self.model_download_progress_dialog == None:
+            self.model_download_progress_dialog = DownloadModelProgressDialog(
+                total_size=total_size, parent=self)
+            self.model_download_progress_dialog.canceled.connect(
+                self.on_cancel_model_progress_dialog)
         else:
-            self.progress_dialog.setValue(current_size)
+            self.model_download_progress_dialog.setValue(current_size)
 
     def stop_recording(self):
         self.transcriber.stop_recording()
         self.timer_label.stop_timer()
+
+    def on_cancel_model_progress_dialog(self):
+        self.model_loader.stop()
+        self.end_download_model()
+
+    def end_download_model(self):
+        if self.model_download_progress_dialog != None:
+            self.model_download_progress_dialog.destroy()
+            self.model_download_progress_dialog = None
 
 
 class MainWindow(QMainWindow):
@@ -626,3 +670,4 @@ class Application(QApplication):
 
         window.new_import_window_triggered.connect(self.open_import_window)
         window.show()
+
