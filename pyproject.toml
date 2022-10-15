@@ -13,10 +13,11 @@ whisper = {git = "https://github.com/openai/whisper.git"}
 PyQt5 = "^5.15.7"
 torch = "^1.12.1"
 tqdm = "^4.64.1"
-ffmpeg = "^1.4"
 numpy = "^1.23.3"
 transformers = "^4.22.1"
 appdirs = "^1.4.4"
+ffmpeg-python = "^0.2.0"
+humanize = "^4.4.0"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"

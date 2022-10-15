@@ -1,13 +1,18 @@
+import datetime
 import enum
 import logging
 import os
+import platform
 import queue
+import subprocess
 from threading import Thread
 from typing import Callable, Optional
 
 import numpy as np
 import sounddevice
 import whisper
+
+import _whisper
 
 # When the app is opened as a .app from Finder, the path doesn't contain /usr/local/bin
 # which breaks the call to run `ffmpeg`. This sets the path manually to fix that.
@@ -25,12 +30,13 @@ class Status:
         self.text = text
 
 
-class Transcriber:
-    """Transcriber records audio from a system microphone and transcribes it into text using Whisper."""
+class Task(enum.Enum):
+    TRANSLATE = "translate"
+    TRANSCRIBE = "transcribe"
 
-    class Task(enum.Enum):
-        TRANSLATE = "translate"
-        TRANSCRIBE = "transcribe"
+
+class RecordingTranscriber:
+    """Transcriber records audio from a system microphone and transcribes it into text using Whisper."""
 
     current_thread: Optional[Thread]
     current_stream: Optional[sounddevice.InputStream]
@@ -45,7 +51,7 @@ class Transcriber:
         self.language = language
         self.task = task
         self.queue: queue.Queue[np.ndarray] = queue.Queue(
-            Transcriber.MAX_QUEUE_SIZE,
+            RecordingTranscriber.MAX_QUEUE_SIZE,
         )
 
     def start_recording(self, block_duration=10, input_device_index: Optional[int] = None):
@@ -120,3 +126,51 @@ class Transcriber:
             logging.debug('Waiting for processing thread to terminate')
             self.current_thread.join()
             logging.debug('Processing thread terminated')
+
+
+class FileTranscriber:
+    """FileTranscriber transcribes an audio file to text, writes the text to a file, and then opens the file using the default program for opening txt files."""
+
+    stopped = False
+
+    def __init__(self, model: whisper.Whisper, language: str, task: Task, file_path: str, output_file_path: str, progress_callback: Callable[[int, int], None]) -> None:
+        self.model = model
+        self.file_path = file_path
+        self.output_file_path = output_file_path
+        self.progress_callback = progress_callback
+        self.language = language
+        self.task = task
+
+    def start(self):
+        self.current_thread = Thread(target=self.transcribe)
+        self.current_thread.start()
+
+    def transcribe(self):
+        result = _whisper.transcribe(model=self.model, audio=self.file_path,
+                                     progress_callback=self.progress_callback,
+                                     language=self.language, task=self.task.value,
+                                     check_stopped=self.check_stopped)
+
+        # If the stop signal was received, return
+        if result == None:
+            return
+
+        output_file = open(self.output_file_path, 'w')
+        output_file.write(result.get('text'))
+        output_file.close()
+
+        try:
+            os.startfile(self.output_file_path)
+        except AttributeError:
+            opener = "open" if platform.system() == "Darwin" else "xdg-open"
+            subprocess.call([opener, self.output_file_path])
+
+    def stop(self):
+        self.stopped = True
+
+    def check_stopped(self):
+        return self.stopped
+
+    @classmethod
+    def get_default_output_file_path(cls, task: Task, input_file_path: str):
+        return f'{os.path.splitext(input_file_path)[0]} ({task.value.title()}d on {datetime.datetime.now():%d-%b-%Y %H-%M-%S}).txt'
