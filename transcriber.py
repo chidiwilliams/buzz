@@ -146,13 +146,13 @@ class FileTranscriber:
         self.current_thread.start()
 
     def transcribe(self):
-        result = _whisper.transcribe(model=self.model, audio=self.file_path,
-                                     progress_callback=self.progress_callback,
-                                     language=self.language, task=self.task.value,
-                                     check_stopped=self.check_stopped)
-
-        # If the stop signal was received, return
-        if result == None:
+        try:
+            result = _whisper.transcribe(
+                model=self.model, audio=self.file_path,
+                progress_callback=self.progress_callback,
+                language=self.language, task=self.task.value,
+                check_stopped=self.check_stopped)
+        except _whisper.Stopped:
             return
 
         output_file = open(self.output_file_path, 'w')
