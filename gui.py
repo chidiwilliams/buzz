@@ -220,7 +220,7 @@ class TranscriberProgressDialog(QProgressDialog):
     short_file_path: str
     start_time: datetime
 
-    def __init__(self, file_path: str, total_size: int, parent: QWidget, *args) -> None:
+    def __init__(self, file_path: str, total_size: int, parent: Optional[QWidget], *args) -> None:
         short_file_path = get_short_file_path(file_path)
         label = f'Processing {short_file_path} (0%, unknown time remaining)'
         super().__init__(label, 'Cancel', 0, total_size, parent, *args)
