@@ -80,7 +80,7 @@ class TestAudioDevicesComboBox:
 
 class TestTranscriberProgressDialog:
     dialog = TranscriberProgressDialog(
-        file_path='/a/b/c.txt', total_size=1234567)
+        file_path='/a/b/c.txt', total_size=1234567, parent=None)
 
     def test_should_show_dialog(self):
         assert self.dialog.labelText() == 'Processing c.txt (0%, unknown time remaining)'

@@ -220,10 +220,10 @@ class TranscriberProgressDialog(QProgressDialog):
     short_file_path: str
     start_time: datetime
 
-    def __init__(self, file_path: str, total_size: int, *args) -> None:
+    def __init__(self, file_path: str, total_size: int, parent: Optional[QWidget], *args) -> None:
         short_file_path = get_short_file_path(file_path)
         label = f'Processing {short_file_path} (0%, unknown time remaining)'
-        super().__init__(label, 'Cancel', 0, total_size, *args)
+        super().__init__(label, 'Cancel', 0, total_size, parent, *args)
 
         self.total_size = total_size
         self.short_file_path = short_file_path
@@ -234,14 +234,15 @@ class TranscriberProgressDialog(QProgressDialog):
 
         self.setValue(0)
 
-    def update_progress(self, current_size):
+    def update_progress(self, current_size: int):
         self.setValue(current_size)
 
         fraction_completed = current_size / self.total_size
-        time_spent = (datetime.now() - self.start_time).total_seconds()
-        time_left = (time_spent / fraction_completed) - time_spent
-        self.setLabelText(
-            f'Processing {self.short_file_path} ({fraction_completed:.2%}, {humanize.naturaldelta(time_left)} remaining)')
+        if fraction_completed > 0:
+            time_spent = (datetime.now() - self.start_time).total_seconds()
+            time_left = (time_spent / fraction_completed) - time_spent
+            self.setLabelText(
+                f'Processing {self.short_file_path} ({fraction_completed:.2%}, {humanize.naturaldelta(time_left)} remaining)')
 
 
 class TranscriberWithSignal(QObject):
@@ -392,7 +393,7 @@ class FileTranscriberWidget(QWidget):
     def on_download_model_progress(self, current_size: int, total_size: int):
         if self.progress_dialog == None:
             self.progress_dialog = DownloadModelProgressDialog(
-                total_size=total_size, label_text='Downloading resources...')
+                total_size=total_size)
         else:
             self.progress_dialog.setValue(current_size)
             if current_size == total_size:
@@ -403,22 +404,34 @@ class FileTranscriberWidget(QWidget):
 
     def handle_transcribe_progress(self, progress: Tuple[int, int]):
         (current_size, total_size) = progress
-        if self.transcriber_progress_dialog == None:
-            self.transcriber_progress_dialog = TranscriberProgressDialog(
-                file_path=self.file_path, total_size=total_size)
-            self.transcriber_progress_dialog.canceled.connect(
-                self.on_cancel_transcriber_progress_dialog)
-        elif self.transcriber_progress_dialog.wasCanceled() == False:
-            self.transcriber_progress_dialog.update_progress(current_size)
 
         if current_size == total_size:
-            self.run_button.setDisabled(False)
-            self.transcriber_progress_dialog = None
+            self.end_transcription()
+            return
+
+        # In the middle of transcription...
+
+        # Create a dialog if one does not exist
+        if self.transcriber_progress_dialog == None:
+            self.transcriber_progress_dialog = TranscriberProgressDialog(
+                file_path=self.file_path, total_size=total_size, parent=self)
+            self.transcriber_progress_dialog.canceled.connect(
+                self.on_cancel_transcriber_progress_dialog)
+
+        # Update the progress of the dialog unless it has
+        # been canceled before this progress update arrived
+        if self.transcriber_progress_dialog.wasCanceled() == False:
+            self.transcriber_progress_dialog.update_progress(current_size)
 
     def on_cancel_transcriber_progress_dialog(self):
         self.file_transcriber.stop()
+        self.end_transcription()
+
+    def end_transcription(self):
         self.run_button.setDisabled(False)
-        self.transcriber_progress_dialog = None
+        if self.transcriber_progress_dialog != None:
+            self.transcriber_progress_dialog.destroy()
+            self.transcriber_progress_dialog = None
 
 
 class RecordingTranscriberWidget(QWidget):
