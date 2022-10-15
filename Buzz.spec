@@ -18,8 +18,8 @@ datas += collect_data_files('whisper')
 datas += [(
     {
         'Darwin': '/usr/local/bin/ffmpeg',
-        'Linux': '',
-        'Windows': 'C:\\ProgramData\\chocolatey\\bin\\ffmpeg.exe',
+        'Linux': '/usr/local/bin/ffmpeg',
+        'Windows': 'C:\\ProgramData\\chocolatey\\lib\\ffmpeg\\tools\\ffmpeg\\bin',
     }[platform.system()], '.')]
 
 block_cipher = None
