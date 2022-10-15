@@ -10,20 +10,21 @@ class TestApplication:
 
     def test_should_show_window_title(self):
         assert len(self.app.windows) == 1
-        assert self.app.windows[0].windowTitle() == 'Buzz'
+        assert self.app.windows[0].windowTitle() == 'Live Recording — Buzz'
 
-    def test_should_open_a_new_live_recording_window(self):
+    def test_should_open_a_new_import_file_window(self):
         main_window = self.app.windows[0]
-        new_live_recording_action = main_window.file_menu.actions()[0]
+        import_file_action = main_window.file_menu.actions()[0]
 
-        assert new_live_recording_action.text() == '&New Live Recording'
+        assert import_file_action.text() == '&Import Audio File...'
 
-        new_live_recording_action.trigger()
+        with patch('PyQt5.QtWidgets.QFileDialog.getOpenFileName') as open_file_name_mock:
+            open_file_name_mock.return_value = ('/a/b/c.mp3', '')
+            import_file_action.trigger()
+            assert len(self.app.windows) == 2
 
-        assert len(self.app.windows) == 2
-
-        new_window = self.app.windows[1]
-        assert new_window.windowTitle() == 'Buzz'
+            new_window = self.app.windows[1]
+            assert new_window.windowTitle() == 'c.mp3 — Buzz'
 
 
 class TestLanguagesComboBox:

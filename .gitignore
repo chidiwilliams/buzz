@@ -4,3 +4,4 @@ build/
 .pytest_cache/
 .coverage
 .env
+htmlcov/

@@ -321,7 +321,8 @@ class FileTranscriberWidget(QWidget):
         self.selected_task = task
 
     def on_click_run(self):
-        default_path = FileTranscriber.get_default_output_file_path(self.file_path)
+        default_path = FileTranscriber.get_default_output_file_path(
+            self.file_path)
         (output_file, _) = QFileDialog.getSaveFileName(
             self, 'Save File', default_path, 'Text files (*.txt)')
 
@@ -510,8 +511,8 @@ class MainWindow(QMainWindow):
 
         menu = self.menuBar()
 
-        file_menu = menu.addMenu("&File")
-        file_menu.addAction(import_audio_file_action)
+        self.file_menu = menu.addMenu("&File")
+        self.file_menu.addAction(import_audio_file_action)
 
     def on_import_audio_file_action(self):
         (file_path, _) = QFileDialog.getOpenFileName(

@@ -1,10 +1,10 @@
+import datetime
 import enum
 import logging
 import os
 import platform
 import queue
 import subprocess
-from datetime import datetime
 from threading import Thread
 from typing import Callable, Optional
 
@@ -160,4 +160,4 @@ class FileTranscriber:
 
     @classmethod
     def get_default_output_file_path(cls, input_file_path: str):
-        return f'{os.path.splitext(input_file_path)[0]} (Transcribed on {datetime.now():%d-%b-%Y %H-%M-%S}).txt'
+        return f'{os.path.splitext(input_file_path)[0]} (Transcribed on {datetime.datetime.now():%d-%b-%Y %H-%M-%S}).txt'
