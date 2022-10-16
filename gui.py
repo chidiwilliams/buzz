@@ -8,9 +8,11 @@ from typing import Dict, List, Optional, Tuple
 import humanize
 import sounddevice
 import whisper
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from PyQt6.QtCore import QDateTime, QObject, QRect, Qt, QTimer, pyqtSignal
+from PyQt6.QtGui import QAction, QKeySequence, QTextCursor
+from PyQt6.QtWidgets import (QApplication, QComboBox, QFileDialog, QGridLayout,
+                             QLabel, QMainWindow, QPlainTextEdit,
+                             QProgressDialog, QPushButton, QWidget)
 from whisper import tokenizer
 
 import _whisper
