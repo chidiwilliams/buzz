@@ -45,7 +45,7 @@ class AudioDevicesComboBox(QComboBox):
     device_changed = pyqtSignal(int)
     audio_devices: List[Tuple[int, str]]
 
-    def __init__(self, parent: Optional[QWidget], *args) -> None:
+    def __init__(self, parent: Optional[QWidget] = None, *args) -> None:
         super().__init__(parent, *args)
         self.audio_devices = self.get_audio_devices()
         self.addItems(map(lambda device: device[1], self.audio_devices))
@@ -73,7 +73,7 @@ class LanguagesComboBox(QComboBox):
     # language is a languge key from whisper.tokenizer.LANGUAGES or '' for "detect langugage"
     languageChanged = pyqtSignal(str)
 
-    def __init__(self, default_language: Optional[str], parent: Optional[QWidget], *args) -> None:
+    def __init__(self, default_language: Optional[str], parent: Optional[QWidget] = None, *args) -> None:
         super().__init__(parent, *args)
 
         whisper_languages = sorted(
