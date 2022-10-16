@@ -4,9 +4,9 @@ mac_app_path := ./dist/Buzz.app
 mac_zip_path := ./dist/Buzz-${version}-mac.zip
 mac_dmg_path := ./dist/Buzz-${version}-mac.dmg
 
-unix_zip_path := ./dist/Buzz-${version}-unix.tar.gz
+unix_zip_path := Buzz-${version}-unix.tar.gz
 
-windows_zip_path := ./dist/Buzz-${version}-windows.tar.gz
+windows_zip_path := Buzz-${version}-windows.tar.gz
 
 buzz:
 	make clean
