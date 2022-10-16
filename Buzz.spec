@@ -18,14 +18,16 @@ datas += copy_metadata('numpy')
 datas += copy_metadata('tokenizers')
 datas += collect_data_files('whisper')
 
-ffmpeg = subprocess.check_output(
-    ['which', 'ffmpeg']).decode(sys.stdout.encoding).strip()
-datas += [(
-    {
-        'Darwin': ffmpeg,
-        'Linux': ffmpeg,
-        'Windows': 'C:\\ProgramData\\chocolatey\\lib\\ffmpeg\\tools\\ffmpeg\\bin',
-    }[platform.system()], '.')]
+
+def get_ffmpeg():
+    if platform.system() == 'Windows':
+        return 'C:\\ProgramData\\chocolatey\\lib\\ffmpeg\\tools\\ffmpeg\\bin'
+    return subprocess.check_output(
+        ['which', 'ffmpeg']).decode(sys.stdout.encoding).strip()
+
+
+datas += [(get_ffmpeg(), '.')]
+
 
 block_cipher = None
 
