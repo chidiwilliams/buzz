@@ -2,6 +2,7 @@ import enum
 import logging
 import os
 import platform
+import sys
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 
@@ -32,8 +33,8 @@ def get_short_file_path(file_path: str):
 
 
 class FormLabel(QLabel):
-    def __init__(self, name: str,  *args) -> None:
-        super().__init__(name, *args)
+    def __init__(self, name: str, parent: Optional[QWidget], *args) -> None:
+        super().__init__(name, parent, *args)
         self.setStyleSheet('QLabel { text-align: right; }')
         self.setAlignment(Qt.AlignmentFlag(
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight))
@@ -44,8 +45,8 @@ class AudioDevicesComboBox(QComboBox):
     device_changed = pyqtSignal(int)
     audio_devices: List[Tuple[int, str]]
 
-    def __init__(self, *args) -> None:
-        super().__init__(*args)
+    def __init__(self, parent: Optional[QWidget] = None, *args) -> None:
+        super().__init__(parent, *args)
         self.audio_devices = self.get_audio_devices()
         self.addItems(map(lambda device: device[1], self.audio_devices))
         self.currentIndexChanged.connect(self.on_index_changed)
@@ -72,8 +73,8 @@ class LanguagesComboBox(QComboBox):
     # language is a languge key from whisper.tokenizer.LANGUAGES or '' for "detect langugage"
     languageChanged = pyqtSignal(str)
 
-    def __init__(self, default_language: Optional[str], *args) -> None:
-        super().__init__(*args)
+    def __init__(self, default_language: Optional[str], parent: Optional[QWidget] = None, *args) -> None:
+        super().__init__(parent, *args)
 
         whisper_languages = sorted(
             [(lang, tokenizer.LANGUAGES[lang].title())
@@ -97,8 +98,8 @@ class TasksComboBox(QComboBox):
     """TasksComboBox displays a list of tasks available to use with Whisper"""
     taskChanged = pyqtSignal(Task)
 
-    def __init__(self, default_task: Task, *args) -> None:
-        super().__init__(*args)
+    def __init__(self, default_task: Task, parent: Optional[QWidget], *args) -> None:
+        super().__init__(parent, *args)
         self.tasks = [i for i in Task]
         self.addItems(map(lambda task: task.value.title(), self.tasks))
         self.currentIndexChanged.connect(self.on_index_changed)
@@ -117,8 +118,8 @@ class Quality(enum.Enum):
 class QualityComboBox(QComboBox):
     quality_changed = pyqtSignal(Quality)
 
-    def __init__(self, default_quality: Quality, *args) -> None:
-        super().__init__(*args)
+    def __init__(self, default_quality: Quality, parent: Optional[QWidget], *args) -> None:
+        super().__init__(parent, *args)
         self.qualities = [i for i in Quality]
         self.addItems(
             map(lambda quality: quality.value.title(), self.qualities))
@@ -133,8 +134,8 @@ class DelaysComboBox(QComboBox):
     """DelaysComboBox displays the list of available delays"""
     delay_changed = pyqtSignal(int)
 
-    def __init__(self, default_delay: int, *args) -> None:
-        super().__init__(*args)
+    def __init__(self, default_delay: int, parent: Optional[QWidget], *args) -> None:
+        super().__init__(parent, *args)
         self.delays = [5, 10, 20, 30]
         self.addItems(map(self.label, self.delays))
         self.currentIndexChanged.connect(self.on_index_changed)
@@ -156,8 +157,8 @@ class TextDisplayBox(QPlainTextEdit):
         }'''
     }
 
-    def __init__(self, *args) -> None:
-        super().__init__(*args)
+    def __init__(self, parent: Optional[QWidget], *args) -> None:
+        super().__init__(parent, *args)
         self.setReadOnly(True)
         self.setPlaceholderText('Click Record to begin...')
         self.setStyleSheet(
@@ -173,8 +174,8 @@ class RecordButton(QPushButton):
     current_status = Status.STOPPED
     status_changed = pyqtSignal(Status)
 
-    def __init__(self, *args) -> None:
-        super().__init__("Record", *args)
+    def __init__(self, parent: Optional[QWidget], *args) -> None:
+        super().__init__("Record", parent, *args)
         self.clicked.connect(self.on_click_record)
         self.status_changed.connect(self.on_status_changed)
         self.setDefault(True)
@@ -259,8 +260,8 @@ class TranscriberWithSignal(QObject):
 
     status_changed = pyqtSignal(Status)
 
-    def __init__(self, model: whisper.Whisper, language: Optional[str], task: Task, *args) -> None:
-        super().__init__(*args)
+    def __init__(self, model: whisper.Whisper, language: Optional[str], task: Task, parent: Optional[QWidget], *args) -> None:
+        super().__init__(parent, *args)
         self.transcriber = RecordingTranscriber(
             model=model, language=language,
             status_callback=self.on_next_status, task=task)
@@ -281,8 +282,8 @@ class TranscriberWithSignal(QObject):
 class TimerLabel(QLabel):
     start_time: Optional[QDateTime]
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent: Optional[QWidget]):
+        super().__init__(parent)
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.on_next_interval)
@@ -325,34 +326,39 @@ class FileTranscriberWidget(QWidget):
     transcriber_progress_dialog: Optional[TranscriberProgressDialog] = None
     transcribe_progress = pyqtSignal(tuple)
 
-    def __init__(self, file_path: str) -> None:
-        super().__init__()
+    def __init__(self, file_path: str, parent: Optional[QWidget]) -> None:
+        super().__init__(parent)
 
-        layout = QGridLayout()
+        layout = QGridLayout(self)
 
         self.file_path = file_path
 
         self.quality_combo_box = QualityComboBox(
-            default_quality=self.selected_quality)
+            default_quality=self.selected_quality,
+            parent=self)
         self.quality_combo_box.quality_changed.connect(self.on_quality_changed)
 
         self.languages_combo_box = LanguagesComboBox(
-            default_language=self.selected_language)
+            default_language=self.selected_language,
+            parent=self)
         self.languages_combo_box.languageChanged.connect(
             self.on_language_changed)
 
         self.tasks_combo_box = TasksComboBox(
-            default_task=Task.TRANSCRIBE)
+            default_task=Task.TRANSCRIBE,
+            parent=self)
         self.tasks_combo_box.taskChanged.connect(self.on_task_changed)
 
-        self.run_button = QPushButton('Run')
+        self.run_button = QPushButton('Run', self)
         self.run_button.clicked.connect(self.on_click_run)
         self.run_button.setDefault(True)
 
         grid = (
-            ((0, 5, FormLabel('Task:')), (5, 7, self.tasks_combo_box)),
-            ((0, 5, FormLabel('Language:')), (5, 7, self.languages_combo_box)),
-            ((0, 5, FormLabel('Quality:')), (5, 7, self.quality_combo_box)),
+            ((0, 5, FormLabel('Task:', parent=self)), (5, 7, self.tasks_combo_box)),
+            ((0, 5, FormLabel('Language:', parent=self)),
+             (5, 7, self.languages_combo_box)),
+            ((0, 5, FormLabel('Quality:', parent=self)),
+             (5, 7, self.quality_combo_box)),
             ((9, 3, self.run_button),)
         )
 
@@ -469,46 +475,51 @@ class RecordingTranscriberWidget(QWidget):
     selected_task = Task.TRANSCRIBE
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, parent: Optional[QWidget]) -> None:
+        super().__init__(parent)
 
-        layout = QGridLayout()
+        layout = QGridLayout(self)
 
         self.quality_combo_box = QualityComboBox(
-            default_quality=self.selected_quality)
+            default_quality=self.selected_quality,
+            parent=self)
         self.quality_combo_box.quality_changed.connect(self.on_quality_changed)
 
         self.languages_combo_box = LanguagesComboBox(
-            default_language=self.selected_language)
+            default_language=self.selected_language,
+            parent=self)
         self.languages_combo_box.languageChanged.connect(
             self.on_language_changed)
 
-        self.audio_devices_combo_box = AudioDevicesComboBox()
+        self.audio_devices_combo_box = AudioDevicesComboBox(self)
         self.audio_devices_combo_box.device_changed.connect(
             self.on_device_changed)
         self.selected_device_id = self.audio_devices_combo_box.get_default_device_id()
 
         self.tasks_combo_box = TasksComboBox(
-            default_task=Task.TRANSCRIBE)
+            default_task=Task.TRANSCRIBE,
+            parent=self)
         self.tasks_combo_box.taskChanged.connect(self.on_task_changed)
 
-        delays_combo_box = DelaysComboBox(default_delay=self.selected_delay)
+        delays_combo_box = DelaysComboBox(
+            default_delay=self.selected_delay, parent=self)
         delays_combo_box.delay_changed.connect(self.on_delay_changed)
 
-        self.timer_label = TimerLabel()
+        self.timer_label = TimerLabel(self)
 
-        self.record_button = RecordButton()
+        self.record_button = RecordButton(self)
         self.record_button.status_changed.connect(self.on_status_changed)
 
-        self.text_box = TextDisplayBox()
+        self.text_box = TextDisplayBox(self)
 
         grid = (
-            ((0, 5, FormLabel('Task:')), (5, 7, self.tasks_combo_box)),
-            ((0, 5, FormLabel('Language:')), (5, 7, self.languages_combo_box)),
-            ((0, 5, FormLabel('Quality:')), (5, 7, self.quality_combo_box)),
-            ((0, 5, FormLabel('Microphone:')),
+            ((0, 5, FormLabel('Task:', self)), (5, 7, self.tasks_combo_box)),
+            ((0, 5, FormLabel('Language:', self)),
+             (5, 7, self.languages_combo_box)),
+            ((0, 5, FormLabel('Quality:', self)), (5, 7, self.quality_combo_box)),
+            ((0, 5, FormLabel('Microphone:', self)),
              (5, 7, self.audio_devices_combo_box)),
-            ((0, 5, FormLabel('Delay:')), (5, 7, delays_combo_box)),
+            ((0, 5, FormLabel('Delay:', self)), (5, 7, delays_combo_box)),
             ((6, 3, self.timer_label), (9, 3, self.record_button)),
             ((0, 12, self.text_box),),
         )
@@ -578,6 +589,7 @@ class RecordingTranscriberWidget(QWidget):
             model=model,
             language=self.selected_language,
             task=self.selected_task,
+            parent=self
         )
         self.transcriber.status_changed.connect(
             self.on_transcriber_status_changed)
@@ -616,18 +628,11 @@ class RecordingTranscriberWidget(QWidget):
 class MainWindow(QMainWindow):
     new_import_window_triggered = pyqtSignal(tuple)
 
-    def __init__(self, window_title: str,
-                 central_widget: QWidget,
-                 w=400, h=500,
-                 *args):
-        super().__init__(*args)
+    def __init__(self, title: str, w: int, h: int, parent: Optional[QWidget], *args):
+        super().__init__(parent, *args)
 
         self.setFixedSize(w, h)
-        self.setWindowTitle(f'{window_title} — Buzz')
-
-        self.central_widget = central_widget
-        self.central_widget.setContentsMargins(10, 10, 10, 10)
-        self.setCentralWidget(self.central_widget)
+        self.setWindowTitle(f'{title} — Buzz')
 
         import_audio_file_action = QAction("&Import Audio File...", self)
         import_audio_file_action.triggered.connect(
@@ -647,14 +652,32 @@ class MainWindow(QMainWindow):
         self.new_import_window_triggered.emit((file_path, self.geometry()))
 
 
+class RecordingTranscriberMainWindow(MainWindow):
+    def __init__(self, parent: Optional[QWidget], *args) -> None:
+        super().__init__(title='Live Recording', w=400, h=500, parent=parent, *args)
+
+        central_widget = RecordingTranscriberWidget(self)
+        central_widget.setContentsMargins(10, 10, 10, 10)
+        self.setCentralWidget(central_widget)
+
+
+class FileTranscriberMainWindow(MainWindow):
+    def __init__(self, file_path: str, parent: Optional[QWidget], *args) -> None:
+        super().__init__(title=get_short_file_path(
+            file_path), w=400, h=180, parent=parent, *args)
+
+        central_widget = FileTranscriberWidget(file_path, self)
+        central_widget.setContentsMargins(10, 10, 10, 10)
+        self.setCentralWidget(central_widget)
+
+
 class Application(QApplication):
     windows: List[MainWindow] = []
 
     def __init__(self) -> None:
-        super().__init__([])
+        super().__init__(sys.argv)
 
-        window = MainWindow(window_title='Live Recording',
-                            central_widget=RecordingTranscriberWidget())
+        window = RecordingTranscriberMainWindow(None)
         window.new_import_window_triggered.connect(self.open_import_window)
         window.show()
 
@@ -663,9 +686,7 @@ class Application(QApplication):
     def open_import_window(self, window_config: Tuple[str, QRect]):
         (file_path, geometry) = window_config
 
-        window = MainWindow(
-            w=400, h=180, central_widget=FileTranscriberWidget(file_path=file_path),
-            window_title=get_short_file_path(file_path))
+        window = FileTranscriberMainWindow(file_path, None)
 
         # Set window to open at an offset from the calling sibling
         OFFSET = 35
