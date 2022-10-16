@@ -646,7 +646,7 @@ class MainWindow(QMainWindow):
 
     def on_import_audio_file_action(self):
         (file_path, _) = QFileDialog.getOpenFileName(
-            self, 'Select audio file', '', 'Audio Files (*.mp3 *.wav *.m4a)')
+            self, 'Select audio file', '', 'Audio Files (*.mp3 *.wav *.m4a *.ogg)')
         if file_path == '':
             return
         self.new_import_window_triggered.emit((file_path, self.geometry()))
