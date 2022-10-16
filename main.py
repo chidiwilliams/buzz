@@ -2,6 +2,7 @@ import logging
 import multiprocessing
 import os
 import platform
+import sys
 
 from appdirs import user_log_dir
 
@@ -26,4 +27,4 @@ def init():
 if __name__ == "__main__":
     init()
     app = Application()
-    app.exec()
+    sys.exit(app.exec())

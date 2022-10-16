@@ -13,7 +13,7 @@ buzz:
 	pyinstaller --noconfirm Buzz.spec
 
 clean:
-	rm -r dist/* || true
+	rm -rf dist/* || true
 
 test:
 	pytest --cov --cov-fail-under=57 --cov-report html
