@@ -57,6 +57,7 @@ codesign_all_mac:
 	do \
 		make codesign_mac path="$$i"; \
 	done
+	make codesign_mac path="./dist/Buzz.app/Contents/Resources/ffmpeg"
 	make codesign_mac path="./dist/Buzz.app/Contents/MacOS/Buzz"
 	make codesign_verify
 
