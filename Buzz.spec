@@ -21,7 +21,7 @@ datas += collect_data_files('whisper')
 
 def get_ffmpeg():
     if platform.system() == 'Windows':
-        return 'C:\\ProgramData\\chocolatey\\lib\\ffmpeg\\tools\\ffmpeg\\bin'
+        return 'C:\\ProgramData\\chocolatey\\lib\\ffmpeg\\tools\\ffmpeg\\bin\\ffmpeg.exe'
     return subprocess.check_output(
         ['which', 'ffmpeg']).decode(sys.stdout.encoding).strip()
 
