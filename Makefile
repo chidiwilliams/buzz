@@ -23,11 +23,11 @@ version:
 
 bundle_linux:
 	make buzz
-	tar -czf ${unix_zip_path} dist/Buzz
+	cd dist && tar -czf ${unix_zip_path} Buzz/ && cd -
 
 bundle_windows:
 	make buzz
-	tar -czf ${windows_zip_path} dist/Buzz
+	cd dist && tar -czf ${windows_zip_path} Buzz/ && cd -
 
 # MAC
 
