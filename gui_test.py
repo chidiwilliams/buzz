@@ -20,7 +20,7 @@ class TestApplication:
 
         assert import_file_action.text() == '&Import Audio File...'
 
-        with patch('PyQt5.QtWidgets.QFileDialog.getOpenFileName') as open_file_name_mock:
+        with patch('PyQt6.QtWidgets.QFileDialog.getOpenFileName') as open_file_name_mock:
             open_file_name_mock.return_value = ('/a/b/c.mp3', '')
             import_file_action.trigger()
             assert len(self.app.windows) == 2
