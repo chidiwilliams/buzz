@@ -130,24 +130,6 @@ class QualityComboBox(QComboBox):
         self.quality_changed.emit(self.qualities[index])
 
 
-class DelaysComboBox(QComboBox):
-    """DelaysComboBox displays the list of available delays"""
-    delay_changed = pyqtSignal(int)
-
-    def __init__(self, default_delay: int, parent: Optional[QWidget], *args) -> None:
-        super().__init__(parent, *args)
-        self.delays = [5, 10, 20, 30]
-        self.addItems(map(self.label, self.delays))
-        self.currentIndexChanged.connect(self.on_index_changed)
-        self.setCurrentText(self.label(default_delay))
-
-    def on_index_changed(self, index: int):
-        self.delay_changed.emit(self.delays[index])
-
-    def label(self, delay: int):
-        return "%ds" % delay
-
-
 class TextDisplayBox(QPlainTextEdit):
     """TextDisplayBox is a read-only textbox"""
 
@@ -260,17 +242,20 @@ class TranscriberWithSignal(QObject):
 
     status_changed = pyqtSignal(Status)
 
-    def __init__(self, model: whisper.Whisper, language: Optional[str], task: Task, parent: Optional[QWidget], *args) -> None:
+    def __init__(
+            self, model: whisper.Whisper, language: Optional[str],
+            task: Task, parent: Optional[QWidget], input_device_index: Optional[int],
+            *args,
+    ) -> None:
         super().__init__(parent, *args)
         self.transcriber = RecordingTranscriber(
             model=model, language=language,
-            status_callback=self.on_next_status, task=task)
-
-    def start_recording(self, input_device_index: Optional[int], block_duration: int):
-        self.transcriber.start_recording(
+            status_callback=self.on_next_status, task=task,
             input_device_index=input_device_index,
-            block_duration=block_duration,
         )
+
+    def start_recording(self):
+        self.transcriber.start_recording()
 
     def on_next_status(self, status: Status):
         self.status_changed.emit(status)
@@ -471,7 +456,6 @@ class RecordingTranscriberWidget(QWidget):
     selected_quality = Quality.LOW
     selected_language: Optional[str] = None
     selected_device_id: Optional[int]
-    selected_delay = 10
     selected_task = Task.TRANSCRIBE
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
 
@@ -501,10 +485,6 @@ class RecordingTranscriberWidget(QWidget):
             parent=self)
         self.tasks_combo_box.taskChanged.connect(self.on_task_changed)
 
-        delays_combo_box = DelaysComboBox(
-            default_delay=self.selected_delay, parent=self)
-        delays_combo_box.delay_changed.connect(self.on_delay_changed)
-
         self.timer_label = TimerLabel(self)
 
         self.record_button = RecordButton(self)
@@ -519,7 +499,6 @@ class RecordingTranscriberWidget(QWidget):
             ((0, 5, FormLabel('Quality:', self)), (5, 7, self.quality_combo_box)),
             ((0, 5, FormLabel('Microphone:', self)),
              (5, 7, self.audio_devices_combo_box)),
-            ((0, 5, FormLabel('Delay:', self)), (5, 7, delays_combo_box)),
             ((6, 3, self.timer_label), (9, 3, self.record_button)),
             ((0, 12, self.text_box),),
         )
@@ -559,9 +538,6 @@ class RecordingTranscriberWidget(QWidget):
     def on_task_changed(self, task: Task):
         self.selected_task = task
 
-    def on_delay_changed(self, delay: int):
-        self.selected_delay = delay
-
     def start_recording(self):
         self.record_button.setDisabled(True)
 
@@ -589,14 +565,12 @@ class RecordingTranscriberWidget(QWidget):
             model=model,
             language=self.selected_language,
             task=self.selected_task,
+            input_device_index=self.selected_device_id,
             parent=self
         )
         self.transcriber.status_changed.connect(
             self.on_transcriber_status_changed)
-        self.transcriber.start_recording(
-            input_device_index=self.selected_device_id,
-            block_duration=self.selected_delay,
-        )
+        self.transcriber.start_recording()
 
     def on_download_model_progress(self, current_size: int, total_size: int):
         if current_size == total_size:
