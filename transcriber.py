@@ -3,9 +3,8 @@ import enum
 import logging
 import os
 import platform
-import queue
 import subprocess
-from threading import Thread
+from threading import Lock, Thread
 from typing import Callable, Optional
 
 import numpy as np
@@ -13,10 +12,6 @@ import sounddevice
 import whisper
 
 import _whisper
-
-# When the app is opened as a .app from Finder, the path doesn't contain /usr/local/bin
-# which breaks the call to run `ffmpeg`. This sets the path manually to fix that.
-os.environ["PATH"] += os.pathsep + "/usr/local/bin"
 
 
 class State(enum.Enum):
@@ -41,28 +36,32 @@ class RecordingTranscriber:
     current_thread: Optional[Thread]
     current_stream: Optional[sounddevice.InputStream]
     is_running = False
-    MAX_QUEUE_SIZE = 10
 
     def __init__(self, model: whisper.Whisper, language: Optional[str],
-                 status_callback: Callable[[Status], None], task: Task) -> None:
+                 status_callback: Callable[[Status], None], task: Task,
+                 input_device_index: Optional[int] = None) -> None:
         self.model = model
         self.current_stream = None
         self.status_callback = status_callback
         self.language = language
         self.task = task
-        self.queue: queue.Queue[np.ndarray] = queue.Queue(
-            RecordingTranscriber.MAX_QUEUE_SIZE,
-        )
+        self.input_device_index = input_device_index
+        self.sample_rate = self.get_device_sample_rate(
+            device_id=input_device_index)
+        self.n_batch_samples = 5 * self.sample_rate  # every 5 seconds
+        # pause queueing if more than 3 batches behind
+        self.max_queue_size = 3 * self.n_batch_samples
+        self.queue = np.ndarray([], dtype=np.float32)
+        self.mutex = Lock()
+        self.text = ''
 
-    def start_recording(self, block_duration=10, input_device_index: Optional[int] = None):
-        sample_rate = self.get_device_sample_rate(device_id=input_device_index)
-
-        logging.debug("Recording... language: \"%s\", model: \"%s\", task: \"%s\", device: \"%s\", block duration: \"%s\", sample rate: \"%s\"" %
-                      (self.language, self.model._get_name(), self.task, input_device_index, block_duration, sample_rate))
+    def start_recording(self):
+        logging.debug(
+            f'Recording, language = {self.language}, task = {self.task}, device = {self.input_device_index}, sample rate = {self.sample_rate}')
         self.current_stream = sounddevice.InputStream(
-            samplerate=sample_rate,
-            blocksize=block_duration * sample_rate,
-            device=input_device_index, dtype="float32",
+            samplerate=self.sample_rate,
+            blocksize=1 * self.sample_rate,  # 1 sec
+            device=self.input_device_index, dtype="float32",
             channels=1, callback=self.stream_callback)
         self.current_stream.start()
 
@@ -73,20 +72,31 @@ class RecordingTranscriber:
 
     def process_queue(self):
         while self.is_running:
-            try:
-                block = self.queue.get(block=False)
+            self.mutex.acquire()
+            if self.queue.size >= self.n_batch_samples:
+                batch = self.queue[:self.n_batch_samples]
+                self.queue = self.queue[self.n_batch_samples:]
+                self.mutex.release()
+
                 logging.debug(
-                    'Processing next frame. Current queue size: %d' % self.queue.qsize())
-                self.status_callback(Status(State.STARTING_NEXT_TRANSCRIPTION))
-                result = self.model.transcribe(
-                    audio=block, language=self.language, task=self.task.value)
-                text = result.get("text")
-                logging.debug(
-                    "Received next result of length: %s" % len(text))
+                    f'Processing next frame, samples = {batch.size}, total samples = {self.queue.size}, amplitude = {self.amplitude(batch)}')
                 self.status_callback(
-                    Status(State.FINISHED_CURRENT_TRANSCRIPTION, text))
-            except queue.Empty:
-                continue
+                    Status(State.STARTING_NEXT_TRANSCRIPTION))
+                time_started = datetime.datetime.now()
+
+                result = self.model.transcribe(
+                    audio=batch, language=self.language, task=self.task.value,
+                    initial_prompt=self.text)  # prompt model with text from previous transcriptions
+                batch_text: str = result.get('text')
+
+                logging.debug(
+                    f'Received next result, length = {len(batch_text)}, time taken = {datetime.datetime.now() - time_started}')
+                self.status_callback(
+                    Status(State.FINISHED_CURRENT_TRANSCRIPTION, batch_text))
+
+                self.text += f'\n\n{batch_text}'
+            else:
+                self.mutex.release()
 
     def get_device_sample_rate(self, device_id: Optional[int]) -> int:
         """Returns the sample rate to be used for recording. It uses the default sample rate
@@ -106,13 +116,13 @@ class RecordingTranscriber:
 
     def stream_callback(self, in_data, frame_count, time_info, status):
         # Try to enqueue the next block. If the queue is already full, drop the block.
-        try:
-            chunk = in_data.ravel()
-            logging.debug('Received next chunk: length %s, amplitude %s, status "%s"'
-                          % (len(chunk), (abs(max(chunk)) + abs(min(chunk))) / 2, status))
-            self.queue.put(chunk, block=False)
-        except queue.Full:
-            return
+        chunk: np.ndarray = in_data.ravel()
+        with self.mutex:
+            if self.queue.size < self.max_queue_size:
+                self.queue = np.append(self.queue, chunk)
+
+    def amplitude(self, arr: np.ndarray):
+        return (abs(max(arr)) + abs(min(arr))) / 2
 
     def stop_recording(self):
         if self.current_stream != None:
@@ -120,7 +130,6 @@ class RecordingTranscriber:
             logging.debug('Closed recording stream')
 
         self.is_running = False
-        self.queue.queue.clear()
 
         if self.current_thread != None:
             logging.debug('Waiting for processing thread to terminate')
