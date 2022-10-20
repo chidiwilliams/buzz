@@ -98,3 +98,7 @@ notarize_log:
 
 codesign_verify:
 	codesign --verify --deep --strict --verbose=2 dist/Buzz.app
+
+whisper_cpp:
+	gcc -O3 -std=c11   -pthread -mavx -mavx2 -mfma -mf16c -fPIC -c whisper.cpp/ggml.c -o whisper.cpp/ggml.o
+	g++ -O3 -std=c++11 -pthread --shared -fPIC -static-libstdc++ whisper.cpp/whisper.cpp whisper.cpp/ggml.o -o libwhisper.so

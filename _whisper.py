@@ -8,11 +8,14 @@ import numpy as np
 import requests
 import torch
 import whisper
+from appdirs import user_cache_dir
 from whisper import Whisper
 from whisper.audio import *
 from whisper.decoding import *
 from whisper.tokenizer import *
 from whisper.utils import *
+
+from transcriber import WhisperCppModel
 
 
 class Stopped(Exception):
@@ -22,12 +25,28 @@ class Stopped(Exception):
 class ModelLoader:
     stopped = False
 
-    def __init__(self, name: str,
+    def __init__(self, name: str, use_whisper_cpp=False,
                  on_download_model_chunk: Callable[[int, int], None] = lambda *_: None) -> None:
         self.name = name
         self.on_download_model_chunk = on_download_model_chunk
+        self.use_whisper_cpp = use_whisper_cpp
 
-    def load(self):
+    def load(self) -> Union[Whisper, WhisperCppModel]:
+        if self.use_whisper_cpp:
+            base_dir = user_cache_dir('Buzz')
+            model_path = os.path.join(
+                base_dir, f'ggml-model-whisper-{self.name}.bin')
+
+            if os.path.exists(model_path) and not os.path.isfile(model_path):
+                raise RuntimeError(
+                    f"{model_path} exists and is not a regular file")
+
+            # todo: implement sha256 hash checking
+
+            if os.path.isfile(model_path):
+                return WhisperCppModel(model_path)
+
+            raise RuntimeError('unimplemented: download ggml model')
         return load_model(
             name=self.name, is_stopped=self.is_stopped,
             on_download_model_chunk=self.on_download_model_chunk)
