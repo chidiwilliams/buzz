@@ -46,10 +46,27 @@ class ModelLoader:
             if os.path.isfile(model_path):
                 return WhisperCppModel(model_path)
 
-            raise RuntimeError('unimplemented: download ggml model')
-        return load_model(
-            name=self.name, is_stopped=self.is_stopped,
-            on_download_model_chunk=self.on_download_model_chunk)
+            url = f'https://ggml.ggerganov.com/ggml-model-whisper-{self.name}.bin'
+
+            with requests.get(url, stream=True) as source, open(model_path, 'wb') as output:
+                source.raise_for_status()
+
+                current_size = 0
+                total_size = int(source.headers.get('Content-Length', 0))
+                for chunk in source.iter_content(chunk_size=DONWLOAD_CHUNK_SIZE):
+                    if self.is_stopped():
+                        os.unlink(model_path)
+                        raise Stopped
+
+                    output.write(chunk)
+                    current_size += len(chunk)
+                    self.on_download_model_chunk(current_size, total_size)
+
+            return WhisperCppModel(model_path)
+        else:
+            return load_model(
+                name=self.name, is_stopped=self.is_stopped,
+                on_download_model_chunk=self.on_download_model_chunk)
 
     def stop(self):
         self.stopped = True

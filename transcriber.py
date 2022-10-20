@@ -1,17 +1,89 @@
+import ctypes
 import datetime
 import enum
 import logging
 import os
+import pathlib
 import platform
 import subprocess
-from threading import Lock, Thread
-from typing import Callable, Optional
+import threading
+from threading import Thread
+from typing import Callable, List, Optional, Tuple, Union
 
 import numpy as np
 import sounddevice
 import whisper
 
 import _whisper
+
+
+class Task(enum.Enum):
+    TRANSLATE = "translate"
+    TRANSCRIBE = "transcribe"
+
+
+class WhisperFullParams(ctypes.Structure):
+    _fields_ = [
+        ("strategy",             ctypes.c_int),
+        ("n_threads",            ctypes.c_int),
+        ("offset_ms",            ctypes.c_int),
+        ("translate",            ctypes.c_bool),
+        ("no_context",           ctypes.c_bool),
+        ("print_special_tokens", ctypes.c_bool),
+        ("print_progress",       ctypes.c_bool),
+        ("print_realtime",       ctypes.c_bool),
+        ("print_timestamps",     ctypes.c_bool),
+        ("language",             ctypes.c_char_p),
+        ("greedy",               ctypes.c_int * 1),
+    ]
+
+
+whisper_cpp = ctypes.CDLL(str(pathlib.Path().absolute() / "libwhisper.so"))
+
+whisper_cpp.whisper_init.restype = ctypes.c_void_p
+whisper_cpp.whisper_full_default_params.restype = WhisperFullParams
+whisper_cpp.whisper_full_get_segment_text.restype = ctypes.c_char_p
+
+
+class WhisperCppModel:
+    def __init__(self, model: str) -> None:
+        self.ctx = whisper_cpp.whisper_init(model.encode('utf-8'))
+
+    def transcribe(self, audio: np.ndarray, language: Optional[str], task: Task):
+        if language == None:
+            return {}
+
+        params = whisper_cpp.whisper_full_default_params(0)
+        params.print_realtime = False
+        params.print_progress = False
+        params.language = language.encode('utf-8')
+        params.translate = task == Task.TRANSLATE
+
+        result = whisper_cpp.whisper_full(ctypes.c_void_p(
+            self.ctx), params, audio.ctypes.data_as(ctypes.POINTER(ctypes.c_float)), len(audio))
+        if result != 0:
+            raise Exception(f'Error from whisper.cpp: {result}')
+
+        segments: List[Tuple[int, int, str]] = []
+
+        n_segments = whisper_cpp.whisper_full_n_segments(
+            ctypes.c_void_p(self.ctx))
+        for i in range(n_segments):
+            txt = whisper_cpp.whisper_full_get_segment_text(
+                ctypes.c_void_p(self.ctx), i)
+            t0 = whisper_cpp.whisper_full_get_segment_t0(
+                ctypes.c_void_p(self.ctx), i)
+            t1 = whisper_cpp.whisper_full_get_segment_t1(
+                ctypes.c_void_p(self.ctx), i)
+
+            segments += [(t0, t1, txt.decode('utf-8'))]
+
+        return {
+            'segments': segments,
+            'text': ''.join([text for (_, _, text) in segments])}
+
+    def __del__(self):
+        whisper_cpp.whisper_free(ctypes.c_void_p(self.ctx))
 
 
 class State(enum.Enum):
@@ -25,19 +97,15 @@ class Status:
         self.text = text
 
 
-class Task(enum.Enum):
-    TRANSLATE = "translate"
-    TRANSCRIBE = "transcribe"
-
-
 class RecordingTranscriber:
     """Transcriber records audio from a system microphone and transcribes it into text using Whisper."""
 
     current_thread: Optional[Thread]
     current_stream: Optional[sounddevice.InputStream]
     is_running = False
+    MAX_QUEUE_SIZE = 10
 
-    def __init__(self, model: whisper.Whisper, language: Optional[str],
+    def __init__(self, model: Union[whisper.Whisper, WhisperCppModel], language: Optional[str],
                  status_callback: Callable[[Status], None], task: Task,
                  input_device_index: Optional[int] = None) -> None:
         self.model = model
@@ -52,7 +120,7 @@ class RecordingTranscriber:
         # pause queueing if more than 3 batches behind
         self.max_queue_size = 3 * self.n_batch_samples
         self.queue = np.ndarray([], dtype=np.float32)
-        self.mutex = Lock()
+        self.mutex = threading.Lock()
         self.text = ''
 
     def start_recording(self):
@@ -84,9 +152,14 @@ class RecordingTranscriber:
                     Status(State.STARTING_NEXT_TRANSCRIPTION))
                 time_started = datetime.datetime.now()
 
-                result = self.model.transcribe(
-                    audio=batch, language=self.language, task=self.task.value,
-                    initial_prompt=self.text)  # prompt model with text from previous transcriptions
+                if isinstance(self.model, whisper.Whisper):
+                    result = self.model.transcribe(
+                        audio=batch, language=self.language, task=self.task.value,
+                        initial_prompt=self.text)  # prompt model with text from previous transcriptions
+                else:
+                    result = self.model.transcribe(
+                        audio=batch, language=self.language, task=self.task.value)
+
                 batch_text: str = result.get('text')
 
                 logging.debug(

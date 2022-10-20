@@ -4,12 +4,13 @@ import os
 import platform
 import sys
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 import humanize
 import sounddevice
 import whisper
-from PyQt6.QtCore import QDateTime, QObject, QRect, Qt, QTimer, pyqtSignal
+from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt, QTimer,
+                          pyqtSignal)
 from PyQt6.QtGui import QAction, QKeySequence, QTextCursor
 from PyQt6.QtWidgets import (QApplication, QComboBox, QFileDialog, QGridLayout,
                              QLabel, QMainWindow, QPlainTextEdit,
@@ -18,7 +19,7 @@ from whisper import tokenizer
 
 import _whisper
 from transcriber import (FileTranscriber, RecordingTranscriber, State, Status,
-                         Task)
+                         Task, WhisperCppModel)
 
 
 def get_platform_styles(all_platform_styles: Dict[str, str]):
@@ -243,16 +244,13 @@ class TranscriberWithSignal(QObject):
     status_changed = pyqtSignal(Status)
 
     def __init__(
-            self, model: whisper.Whisper, language: Optional[str],
-            task: Task, parent: Optional[QWidget], input_device_index: Optional[int],
-            *args,
-    ) -> None:
+            self, model: Union[whisper.Whisper, WhisperCppModel], language: Optional[str],
+            task: Task, input_device_index: Optional[int], parent: Optional[QWidget], *args) -> None:
         super().__init__(parent, *args)
         self.transcriber = RecordingTranscriber(
             model=model, language=language,
             status_callback=self.on_next_status, task=task,
-            input_device_index=input_device_index,
-        )
+            input_device_index=input_device_index)
 
     def start_recording(self):
         self.transcriber.start_recording()
@@ -451,6 +449,16 @@ class FileTranscriberWidget(QWidget):
             self.model_download_progress_dialog = None
 
 
+class Settings(QSettings):
+    ENABLE_EXPERIMENTAL_INFERENCE = 'enable_experimental_inference'
+
+    def __init__(self, parent: Optional[QWidget], *args):
+        super().__init__('Buzz', 'Buzz', parent, *args)
+
+    def enable_experimental_inference(self):
+        return self.value(self.ENABLE_EXPERIMENTAL_INFERENCE, False)
+
+
 class RecordingTranscriberWidget(QWidget):
     current_status = RecordButton.Status.STOPPED
     selected_quality = Quality.LOW
@@ -463,6 +471,8 @@ class RecordingTranscriberWidget(QWidget):
         super().__init__(parent)
 
         layout = QGridLayout(self)
+
+        self.settings = Settings(self)
 
         self.quality_combo_box = QualityComboBox(
             default_quality=self.selected_quality,
@@ -541,12 +551,16 @@ class RecordingTranscriberWidget(QWidget):
     def start_recording(self):
         self.record_button.setDisabled(True)
 
+        use_whisper_cpp = self.settings.enable_experimental_inference(
+        ) and self.selected_language != None
+
         model_name = get_model_name(
             self.selected_quality, self.selected_language)
         logging.debug(f'Loading model: {model_name}')
 
         self.model_loader = _whisper.ModelLoader(
-            name=model_name, on_download_model_chunk=self.on_download_model_progress)
+            name=model_name, use_whisper_cpp=use_whisper_cpp,
+            on_download_model_chunk=self.on_download_model_progress)
 
         try:
             model = self.model_loader.load()
@@ -618,12 +632,28 @@ class MainWindow(QMainWindow):
         self.file_menu = menu.addMenu("&File")
         self.file_menu.addAction(import_audio_file_action)
 
+        self.settings = Settings(self)
+
+        enable_experimental_inference_action = QAction(
+            '&Enable Experimental Inference', self)
+        enable_experimental_inference_action.setCheckable(True)
+        enable_experimental_inference_action.setChecked(
+            bool(self.settings.enable_experimental_inference()))
+        enable_experimental_inference_action.triggered.connect(
+            self.on_toggle_enable_experimental_inference)
+
+        self.settings_menu = menu.addMenu('&Settings')
+        self.settings_menu.addAction(enable_experimental_inference_action)
+
     def on_import_audio_file_action(self):
         (file_path, _) = QFileDialog.getOpenFileName(
             self, 'Select audio file', '', 'Audio Files (*.mp3 *.wav *.m4a *.ogg);;Video Files (*.mp4 *.webm)')
         if file_path == '':
             return
         self.new_import_window_triggered.emit((file_path, self.geometry()))
+
+    def on_toggle_enable_experimental_inference(self, state: bool):
+        self.settings.setValue(Settings.ENABLE_EXPERIMENTAL_INFERENCE, state)
 
 
 class RecordingTranscriberMainWindow(MainWindow):
