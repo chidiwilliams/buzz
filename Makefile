@@ -18,6 +18,7 @@ clean:
 
 test:
 	make whisper_cpp
+	ls -la
 	pytest --cov --cov-fail-under=56 --cov-report html
 
 whisper_cpp:
