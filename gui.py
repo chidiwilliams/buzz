@@ -650,8 +650,8 @@ class MainWindow(QMainWindow):
             enable_ggml_inference_action.triggered.connect(
                 self.on_toggle_enable_ggml_inference)
 
-        self.settings_menu = menu.addMenu('&Settings')
-        self.settings_menu.addAction(enable_ggml_inference_action)
+            self.settings_menu = menu.addMenu('&Settings')
+            self.settings_menu.addAction(enable_ggml_inference_action)
 
     def on_import_audio_file_action(self):
         (file_path, _) = QFileDialog.getOpenFileName(
