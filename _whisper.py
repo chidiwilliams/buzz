@@ -3,6 +3,7 @@ import enum
 import hashlib
 import os
 import pathlib
+import platform
 import warnings
 from typing import Any, Callable, List, Optional, Tuple, Union
 
@@ -49,14 +50,13 @@ class WhisperFullParams(ctypes.Structure):
         ("greedy",               ctypes.c_int * 1),
     ]
 
-# https://stackoverflow.com/questions/59330863/cant-import-dll-module-in-python
-os.add_dll_directory(str(pathlib.Path().absolute()))
 
-whisper_cpp = ctypes.CDLL(str(pathlib.Path().absolute() / "libwhisper.so"))
+if platform.system() != 'Windows':
+    whisper_cpp = ctypes.CDLL(str(pathlib.Path().absolute() / "libwhisper.so"))
 
-whisper_cpp.whisper_init.restype = ctypes.c_void_p
-whisper_cpp.whisper_full_default_params.restype = WhisperFullParams
-whisper_cpp.whisper_full_get_segment_text.restype = ctypes.c_char_p
+    whisper_cpp.whisper_init.restype = ctypes.c_void_p
+    whisper_cpp.whisper_full_default_params.restype = WhisperFullParams
+    whisper_cpp.whisper_full_get_segment_text.restype = ctypes.c_char_p
 
 
 def whisper_cpp_progress(lines: str) -> Optional[int]:
