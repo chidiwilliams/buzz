@@ -18,7 +18,7 @@ clean:
 
 test:
 	make whisper_cpp
-	pytest --cov --cov-fail-under=56 --cov-report html
+	pytest --cov --cov-fail-under=54 --cov-report html
 
 whisper_cpp:
 	gcc -O3 -std=c11   -pthread -mavx -mavx2 -mfma -mf16c -fPIC -c whisper.cpp/ggml.c -o whisper.cpp/ggml.o
