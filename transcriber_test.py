@@ -2,6 +2,8 @@
 import os
 import tempfile
 
+import pytest
+
 from _whisper import Task, WhisperCpp
 from transcriber import (FileTranscriber, RecordingTranscriber, Status,
                          to_timestamp)
@@ -22,6 +24,7 @@ class TestFileTranscriber:
         assert FileTranscriber.get_default_output_file_path(
             Task.TRANSLATE, '/a/b/c.txt').startswith('/a/b/c (Translated on ')
 
+    @pytest.mark.skip(reason='test ggml model not working for')
     def test_transcribe_whisper_cpp(self):
         output_file_path = os.path.join(tempfile.gettempdir(), 'whisper.txt')
         transcriber = FileTranscriber(
