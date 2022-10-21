@@ -19,7 +19,7 @@ from whisper import tokenizer
 
 import _whisper
 from transcriber import (FileTranscriber, RecordingTranscriber, State, Status,
-                         Task, WhisperCppModel)
+                         Task, WhisperCpp)
 
 
 def get_platform_styles(all_platform_styles: Dict[str, str]):
@@ -244,7 +244,7 @@ class TranscriberWithSignal(QObject):
     status_changed = pyqtSignal(Status)
 
     def __init__(
-            self, model: Union[whisper.Whisper, WhisperCppModel], language: Optional[str],
+            self, model: Union[whisper.Whisper, WhisperCpp], language: Optional[str],
             task: Task, input_device_index: Optional[int], parent: Optional[QWidget], *args) -> None:
         super().__init__(parent, *args)
         self.transcriber = RecordingTranscriber(
@@ -314,6 +314,8 @@ class FileTranscriberWidget(QWidget):
 
         layout = QGridLayout(self)
 
+        self.settings = Settings(self)
+
         self.file_path = file_path
 
         self.quality_combo_box = QualityComboBox(
@@ -372,13 +374,17 @@ class FileTranscriberWidget(QWidget):
         if output_file == '':
             return
 
+        use_whisper_cpp = self.settings.enable_ggml_inference(
+        ) and self.selected_language != None
+
         self.run_button.setDisabled(True)
         model_name = get_model_name(
             self.selected_quality, self.selected_language)
         logging.debug(f'Loading model: {model_name}')
 
         self.model_loader = _whisper.ModelLoader(
-            name=model_name, on_download_model_chunk=self.on_download_model_progress)
+            name=model_name, use_whisper_cpp=use_whisper_cpp,
+            on_download_model_chunk=self.on_download_model_progress)
 
         try:
             model = self.model_loader.load()
@@ -450,13 +456,13 @@ class FileTranscriberWidget(QWidget):
 
 
 class Settings(QSettings):
-    ENABLE_EXPERIMENTAL_INFERENCE = 'enable_experimental_inference'
+    ENABLE_GGML_INFERENCE = 'enable_ggml_inference'
 
     def __init__(self, parent: Optional[QWidget], *args):
         super().__init__('Buzz', 'Buzz', parent, *args)
 
-    def enable_experimental_inference(self):
-        return self.value(self.ENABLE_EXPERIMENTAL_INFERENCE, False)
+    def enable_ggml_inference(self):
+        return self.value(self.ENABLE_GGML_INFERENCE, False)
 
 
 class RecordingTranscriberWidget(QWidget):
@@ -466,6 +472,7 @@ class RecordingTranscriberWidget(QWidget):
     selected_device_id: Optional[int]
     selected_task = Task.TRANSCRIBE
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
+    settings: Settings
 
     def __init__(self, parent: Optional[QWidget]) -> None:
         super().__init__(parent)
@@ -551,7 +558,7 @@ class RecordingTranscriberWidget(QWidget):
     def start_recording(self):
         self.record_button.setDisabled(True)
 
-        use_whisper_cpp = self.settings.enable_experimental_inference(
+        use_whisper_cpp = self.settings.enable_ggml_inference(
         ) and self.selected_language != None
 
         model_name = get_model_name(
@@ -634,16 +641,16 @@ class MainWindow(QMainWindow):
 
         self.settings = Settings(self)
 
-        enable_experimental_inference_action = QAction(
-            '&Enable Experimental Inference', self)
-        enable_experimental_inference_action.setCheckable(True)
-        enable_experimental_inference_action.setChecked(
-            bool(self.settings.enable_experimental_inference()))
-        enable_experimental_inference_action.triggered.connect(
-            self.on_toggle_enable_experimental_inference)
+        enable_ggml_inference_action = QAction(
+            '&Enable GGML Inference', self)
+        enable_ggml_inference_action.setCheckable(True)
+        enable_ggml_inference_action.setChecked(
+            bool(self.settings.enable_ggml_inference()))
+        enable_ggml_inference_action.triggered.connect(
+            self.on_toggle_enable_ggml_inference)
 
         self.settings_menu = menu.addMenu('&Settings')
-        self.settings_menu.addAction(enable_experimental_inference_action)
+        self.settings_menu.addAction(enable_ggml_inference_action)
 
     def on_import_audio_file_action(self):
         (file_path, _) = QFileDialog.getOpenFileName(
@@ -652,8 +659,8 @@ class MainWindow(QMainWindow):
             return
         self.new_import_window_triggered.emit((file_path, self.geometry()))
 
-    def on_toggle_enable_experimental_inference(self, state: bool):
-        self.settings.setValue(Settings.ENABLE_EXPERIMENTAL_INFERENCE, state)
+    def on_toggle_enable_ggml_inference(self, state: bool):
+        self.settings.setValue(Settings.ENABLE_GGML_INFERENCE, state)
 
 
 class RecordingTranscriberMainWindow(MainWindow):

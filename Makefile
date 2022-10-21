@@ -16,7 +16,7 @@ clean:
 	rm -rf dist/* || true
 
 test:
-	pytest --cov --cov-fail-under=57 --cov-report html
+	pytest --cov --cov-fail-under=61 --cov-report html
 
 version:
 	poetry version ${version}

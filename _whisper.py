@@ -15,7 +15,7 @@ from whisper.decoding import *
 from whisper.tokenizer import *
 from whisper.utils import *
 
-from transcriber import WhisperCppModel
+from transcriber import WhisperCpp
 
 
 class Stopped(Exception):
@@ -31,7 +31,7 @@ class ModelLoader:
         self.on_download_model_chunk = on_download_model_chunk
         self.use_whisper_cpp = use_whisper_cpp
 
-    def load(self) -> Union[Whisper, WhisperCppModel]:
+    def load(self) -> Union[Whisper, WhisperCpp]:
         if self.use_whisper_cpp:
             base_dir = user_cache_dir('Buzz')
             model_path = os.path.join(
@@ -44,7 +44,7 @@ class ModelLoader:
             # todo: implement sha256 hash checking
 
             if os.path.isfile(model_path):
-                return WhisperCppModel(model_path)
+                return WhisperCpp(model_path)
 
             url = f'https://ggml.ggerganov.com/ggml-model-whisper-{self.name}.bin'
 
@@ -62,7 +62,7 @@ class ModelLoader:
                     current_size += len(chunk)
                     self.on_download_model_chunk(current_size, total_size)
 
-            return WhisperCppModel(model_path)
+            return WhisperCpp(model_path)
         else:
             return load_model(
                 name=self.name, is_stopped=self.is_stopped,
