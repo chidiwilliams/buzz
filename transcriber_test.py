@@ -14,7 +14,7 @@ class TestRecordingTranscriber:
         def text_callback(status: Status):
             pass
 
-        transcriber = RecordingTranscriber(model=WhisperCpp('testdata/ggml-tiny.bin'), language='en',
+        transcriber = RecordingTranscriber(model=None, language='en',
                                            status_callback=text_callback, task=Task.TRANSCRIBE)
         assert transcriber != None
 
