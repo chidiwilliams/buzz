@@ -49,6 +49,8 @@ class WhisperFullParams(ctypes.Structure):
         ("greedy",               ctypes.c_int * 1),
     ]
 
+# https://stackoverflow.com/questions/59330863/cant-import-dll-module-in-python
+os.add_dll_directory(str(pathlib.Path().absolute()))
 
 whisper_cpp = ctypes.CDLL(str(pathlib.Path().absolute() / "libwhisper.so"))
 
