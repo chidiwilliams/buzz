@@ -1,105 +1,22 @@
-import ctypes
 import datetime
 import enum
 import logging
 import multiprocessing
 import os
-import pathlib
 import platform
 import select
 import subprocess
 import threading
 from contextlib import contextmanager
 from threading import Thread
-from typing import Any, Callable, List, Optional, Tuple, Union
+from typing import Any, Callable, List, Optional, Union
 
 import numpy as np
 import sounddevice
 import whisper
 
 import _whisper
-
-
-class Task(enum.Enum):
-    TRANSLATE = "translate"
-    TRANSCRIBE = "transcribe"
-
-
-class WhisperFullParams(ctypes.Structure):
-    _fields_ = [
-        ("strategy",             ctypes.c_int),
-        ("n_threads",            ctypes.c_int),
-        ("offset_ms",            ctypes.c_int),
-        ("translate",            ctypes.c_bool),
-        ("no_context",           ctypes.c_bool),
-        ("print_special_tokens", ctypes.c_bool),
-        ("print_progress",       ctypes.c_bool),
-        ("print_realtime",       ctypes.c_bool),
-        ("print_timestamps",     ctypes.c_bool),
-        ("language",             ctypes.c_char_p),
-        ("greedy",               ctypes.c_int * 1),
-    ]
-
-
-whisper_cpp = ctypes.CDLL(str(pathlib.Path().absolute() / "libwhisper.so"))
-
-whisper_cpp.whisper_init.restype = ctypes.c_void_p
-whisper_cpp.whisper_full_default_params.restype = WhisperFullParams
-whisper_cpp.whisper_full_get_segment_text.restype = ctypes.c_char_p
-
-
-def whisper_cpp_progress(lines: str) -> int:
-    """Extracts the progress of a whisper.cpp transcription.
-
-    The log lines have the following format:
-        whisper_full: progress = 20%\n *ƒ
-    """
-    # Example log line: "whisper_full: progress = 20%"
-    last_progress_line = list(filter(lambda line: line.startswith(
-        'whisper_full: progress'), lines.split('\n')))[-1]
-    last_word = last_progress_line.split(' ')[-1]
-    return min(int(last_word[:-1]), 100)
-
-
-def whisper_cpp_params(language: str, task: Task, print_realtime=False, print_progress=False):
-    params = whisper_cpp.whisper_full_default_params(0)
-    params.print_realtime = print_realtime
-    params.print_progress = print_progress
-    params.language = language.encode('utf-8')
-    params.translate = task == Task.TRANSLATE
-    return params
-
-
-class WhisperCpp:
-    def __init__(self, model: str) -> None:
-        self.ctx = whisper_cpp.whisper_init(model.encode('utf-8'))
-
-    def transcribe(self, audio: np.ndarray, params: Any):
-        result = whisper_cpp.whisper_full(ctypes.c_void_p(
-            self.ctx), params, audio.ctypes.data_as(ctypes.POINTER(ctypes.c_float)), len(audio))
-        if result != 0:
-            raise Exception(f'Error from whisper.cpp: {result}')
-
-        segments: List[Tuple[int, int, str]] = []
-
-        n_segments = whisper_cpp.whisper_full_n_segments(
-            ctypes.c_void_p(self.ctx))
-        for i in range(n_segments):
-            txt = whisper_cpp.whisper_full_get_segment_text(
-                ctypes.c_void_p(self.ctx), i)
-            t0 = whisper_cpp.whisper_full_get_segment_t0(
-                ctypes.c_void_p(self.ctx), i)
-            t1 = whisper_cpp.whisper_full_get_segment_t1(
-                ctypes.c_void_p(self.ctx), i)
-
-            segments += [(t0, t1, txt.decode('utf-8'))]
-
-        return {
-            'segments': segments,
-            'text': ''.join([text for (_, _, text) in segments])}
-
-    def __del__(self):
-        whisper_cpp.whisper_free(ctypes.c_void_p(self.ctx))
+from _whisper import Segment
 
 
 class State(enum.Enum):
@@ -121,8 +38,8 @@ class RecordingTranscriber:
     is_running = False
     MAX_QUEUE_SIZE = 10
 
-    def __init__(self, model: Union[whisper.Whisper, WhisperCpp], language: Optional[str],
-                 status_callback: Callable[[Status], None], task: Task,
+    def __init__(self, model: Union[whisper.Whisper, _whisper.WhisperCpp], language: Optional[str],
+                 status_callback: Callable[[Status], None], task: _whisper.Task,
                  input_device_index: Optional[int] = None) -> None:
         self.model = model
         self.current_stream = None
@@ -175,18 +92,18 @@ class RecordingTranscriber:
                 else:
                     result = self.model.transcribe(
                         audio=samples,
-                        params=whisper_cpp_params(
+                        params=_whisper.whisper_cpp_params(
                             language=self.language if self.language is not None else 'en',
                             task=self.task.value))
 
-                batch_text: str = result.get('text')
+                next_text: str = result.get('text')
 
                 logging.debug(
-                    f'Received next result, length = {len(batch_text)}, time taken = {datetime.datetime.now() - time_started}')
+                    f'Received next result, length = {len(next_text)}, time taken = {datetime.datetime.now() - time_started}')
                 self.status_callback(
-                    Status(State.FINISHED_CURRENT_TRANSCRIPTION, batch_text))
+                    Status(State.FINISHED_CURRENT_TRANSCRIPTION, next_text))
 
-                self.text += f'\n\n{batch_text}'
+                self.text += f'\n\n{next_text}'
             else:
                 self.mutex.release()
 
@@ -260,21 +177,59 @@ def capture_fd(fd: int):
         os.dup2(prev, fd)
 
 
-def write_and_open(path: str, text: str):
+class OutputFormat(enum.Enum):
+    TXT = 'txt'
+    VTT = 'vtt'
+    SRT = 'srt'
+
+
+def to_timestamp(ms: float) -> str:
+    hr = int(ms / (1000*60*60))
+    ms = ms - hr * (1000*60*60)
+    min = int(ms / (1000*60))
+    ms = ms - min * (1000*60)
+    sec = int(ms / 1000)
+    ms = int(ms - sec * 1000)
+    return f'{hr:02d}:{min:02d}:{sec:02d}.{ms:03d}'
+
+
+def write_output(path: str, segments: List[Segment], should_open: bool, output_format: OutputFormat):
     file = open(path, 'w')
-    file.write(text)
+
+    if output_format == OutputFormat.TXT:
+        for segment in segments:
+            file.write(segment.text)
+
+    elif output_format == OutputFormat.VTT:
+        file.write('WEBVTT\n\n')
+        for segment in segments:
+            file.write(
+                f'{to_timestamp(segment.start)} --> {to_timestamp(segment.end)}\n')
+            file.write(f'{segment.text}\n\n')
+
+    elif output_format == OutputFormat.SRT:
+        for (i, segment) in enumerate(segments):
+            file.write(f'{i+1}\n')
+            file.write(
+                f'{to_timestamp(segment.start)} --> {to_timestamp(segment.end)}\n')
+            file.write(f'{segment.text}\n\n')
+
     file.close()
 
-    try:
-        os.startfile(path)
-    except AttributeError:
-        opener = "open" if platform.system() == "Darwin" else "xdg-open"
-        subprocess.call([opener, path])
+    if should_open:
+        try:
+            os.startfile(path)
+        except AttributeError:
+            opener = "open" if platform.system() == "Darwin" else "xdg-open"
+            subprocess.call([opener, path])
 
 
-def transcribe_cpp(model: WhisperCpp, audio: np.ndarray, params: Any, output_file_path: str):
+def transcribe_cpp(
+        model: _whisper.WhisperCpp, audio: Union[np.ndarray, str],
+        params: Any, output_file_path: str, open_file_on_complete: bool, output_format):
     result = model.transcribe(audio=audio, params=params)
-    write_and_open(output_file_path, result.get('text'))
+    write_output(output_file_path, result.get(
+        'segments'), open_file_on_complete, output_format)
 
 
 class FileTranscriber:
@@ -283,15 +238,20 @@ class FileTranscriber:
     stopped = False
 
     def __init__(
-            self, model: Union[whisper.Whisper, WhisperCpp], language: Optional[str],
-            task: Task, file_path: str, output_file_path: str,
-            progress_callback: Callable[[int, int], None] = lambda *_: None) -> None:
+            self, model: Union[whisper.Whisper, _whisper.WhisperCpp], language: Optional[str],
+            task: _whisper.Task, file_path: str, output_file_path: str,
+            progress_callback: Callable[[int, int], None] = lambda *_: None,
+            open_file_on_complete=True) -> None:
         self.model = model
         self.file_path = file_path
         self.output_file_path = output_file_path
         self.progress_callback = progress_callback
         self.language = language
         self.task = task
+        self.open_file_on_complete = open_file_on_complete
+
+        _, extension = os.path.splitext(self.output_file_path)
+        self.output_format = OutputFormat(extension[1:])
 
     def start(self):
         self.current_thread = Thread(target=self.transcribe)
@@ -299,19 +259,20 @@ class FileTranscriber:
 
     def transcribe(self):
         try:
-            if isinstance(self.model, WhisperCpp):
+            if isinstance(self.model, _whisper. WhisperCpp):
                 self.progress_callback(0, 100)
-                samples = whisper.audio.load_audio(self.file_path)
 
                 with capture_fd(2) as (_, stderr):
                     process = multiprocessing.Process(
                         target=transcribe_cpp,
                         args=(
-                            self.model, samples,
-                            whisper_cpp_params(
+                            self.model, self.file_path,
+                            _whisper.whisper_cpp_params(
                                 language=self.language if self.language is not None else 'en',
                                 task=self.task, print_realtime=True, print_progress=True),
-                            self.output_file_path))
+                            self.output_file_path,
+                            self.open_file_on_complete,
+                            self.output_format))
                     process.start()
 
                     while process.is_alive():
@@ -320,8 +281,10 @@ class FileTranscriber:
 
                         next_stderr = read_pipe_str(stderr)
                         if len(next_stderr) > 0:
-                            progress = whisper_cpp_progress(next_stderr)
-                            self.progress_callback(progress, 100)
+                            progress = _whisper.whisper_cpp_progress(
+                                next_stderr)
+                            if progress != None:
+                                self.progress_callback(progress, 100)
 
                 self.progress_callback(100, 100)
             else:
@@ -331,7 +294,15 @@ class FileTranscriber:
                     language=self.language, task=self.task.value,
                     check_stopped=self.check_stopped)
 
-                write_and_open(self.output_file_path, result.get('text'))
+                segments = map(
+                    lambda segment: Segment(
+                        start=segment.get('start')*1000,  # s to ms
+                        end=segment.get('end')*1000,      # s to ms
+                        text=segment.get('text')),
+                    result.get('segments'))
+
+                write_output(self.output_file_path, list(
+                    segments), self.open_file_on_complete, self.output_format)
         except _whisper.Stopped:
             return
 
@@ -345,5 +316,5 @@ class FileTranscriber:
         return self.stopped
 
     @classmethod
-    def get_default_output_file_path(cls, task: Task, input_file_path: str):
+    def get_default_output_file_path(cls, task: _whisper.Task, input_file_path: str):
         return f'{os.path.splitext(input_file_path)[0]} ({task.value.title()}d on {datetime.datetime.now():%d-%b-%Y %H-%M-%S}).txt'

@@ -18,8 +18,8 @@ from PyQt6.QtWidgets import (QApplication, QComboBox, QFileDialog, QGridLayout,
 from whisper import tokenizer
 
 import _whisper
-from transcriber import (FileTranscriber, RecordingTranscriber, State, Status,
-                         Task, WhisperCpp)
+from _whisper import Task, WhisperCpp
+from transcriber import FileTranscriber, RecordingTranscriber, State, Status
 
 
 def get_platform_styles(all_platform_styles: Dict[str, str]):
@@ -369,7 +369,7 @@ class FileTranscriberWidget(QWidget):
         default_path = FileTranscriber.get_default_output_file_path(
             task=self.selected_task, input_file_path=self.file_path)
         (output_file, _) = QFileDialog.getSaveFileName(
-            self, 'Save File', default_path, 'Text files (*.txt)')
+            self, 'Save File', default_path, 'Text files (*.txt *.srt *.vtt)')
 
         if output_file == '':
             return
@@ -654,7 +654,7 @@ class MainWindow(QMainWindow):
 
     def on_import_audio_file_action(self):
         (file_path, _) = QFileDialog.getOpenFileName(
-            self, 'Select audio file', '', 'Audio Files (*.mp3 *.wav *.m4a *.ogg);;Video Files (*.mp4 *.webm)')
+            self, 'Select audio file', '', 'Audio Files (*.mp3 *.wav *.m4a *.ogg);;Video Files (*.mp4 *.webm *.ogm)')
         if file_path == '':
             return
         self.new_import_window_triggered.emit((file_path, self.geometry()))

@@ -2,8 +2,9 @@
 import os
 import tempfile
 
-from transcriber import (FileTranscriber, RecordingTranscriber, Status, Task,
-                         WhisperCpp)
+from _whisper import Task, WhisperCpp
+from transcriber import (FileTranscriber, RecordingTranscriber, Status,
+                         to_timestamp)
 
 
 class TestRecordingTranscriber:
@@ -11,7 +12,7 @@ class TestRecordingTranscriber:
         def text_callback(status: Status):
             pass
 
-        transcriber = RecordingTranscriber(model=None, language='en',
+        transcriber = RecordingTranscriber(model=WhisperCpp('testdata/ggml-tiny.bin'), language='en',
                                            status_callback=text_callback, task=Task.TRANSCRIBE)
         assert transcriber != None
 
@@ -26,8 +27,15 @@ class TestFileTranscriber:
         transcriber = FileTranscriber(
             model=WhisperCpp('testdata/ggml-tiny.bin'), language='en',
             task=Task.TRANSCRIBE, file_path='testdata/whisper.m4a',
-            output_file_path=output_file_path)
+            output_file_path=output_file_path,
+            open_file_on_complete=False)
         transcriber.start()
         transcriber.join()
 
         assert os.path.isfile(output_file_path)
+
+
+class TestToTimestamp:
+    def test_to_timestamp(self):
+        assert to_timestamp(0) == '00:00:00.000'
+        assert to_timestamp(123456789) == '34:17:36.789'
