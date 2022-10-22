@@ -47,7 +47,7 @@ To start a live recording:
 | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Task       | "Transcribe", "Translate"                                                                                                                | "Transcribe"                | "Transcribe" converts the input audio into text in the selected language, while "Translate" converts it into text in English.                                                                                                                                                                                                                                                                                     |
 | Language   | See [Whisper's documentation](https://github.com/openai/whisper#available-models-and-languages) for the full list of supported languages | "Detect Language"           | "Detect Language" will try to detect the spoken language in the audio based on the first few seconds. However, selecting a language is recommended (if known) as it will improve transcription quality in many cases.                                                                                                                                                                                             |
-| Quality    | "Low" / "Medium" / "High"                                                                                                                | "Low"                       | The transcription quality determines the Whisper model used for transcription. "Low" uses the "tiny" model; "Medium" uses the "base" model; and "High" uses the "small" model. The larger models produce higher-quality transcriptions, but require more system resources. See [Whisper's documentation](https://github.com/openai/whisper#available-models-and-languages) for more information about the models. |
+| Quality    | "Low", "Medium", "High"                                                                                                                  | "Low"                       | The transcription quality determines the Whisper model used for transcription. "Low" uses the "tiny" model; "Medium" uses the "base" model; and "High" uses the "small" model. The larger models produce higher-quality transcriptions, but require more system resources. See [Whisper's documentation](https://github.com/openai/whisper#available-models-and-languages) for more information about the models. |
 | Microphone | [Available system microphones]                                                                                                           | [Default system microphone] | Microphone for recording input audio.                                                                                                                                                                                                                                                                                                                                                                             |
 
 ### Record audio playing from computer
@@ -83,13 +83,23 @@ To import a file:
 - Click Import on the File menu (or **Command + O** on Mac, **Ctrl + O** on Windows).
 - Choose an audio or video file. Supported formats: "mp3", "wav", "m4a", "ogg", "mp4", "webm", "ogm".
 - Select a task, language, quality, and export format.
-- Click **Run**.
+- Click Run.
 
 | Field     | Options             | Default |
 | --------- | ------------------- | ------- |
 | Export As | "TXT", "SRT", "VTT" | "TXT"   |
 
 (See the [Live Recording section](#live-recording) for more information about the task, language, and quality settings.)
+
+## Settings
+
+- **Enable GGML inference** *(Default: off)*: Turn this on to use inference from [Whisper.cpp](https://github.com/ggerganov/whisper.cpp). Whisper.cpp runs faster than Whisper's original Python implementation, but it requires GGML models (which will be downloaded from <https://ggml.buzz.chidiwilliams.com/>) for inference. This setting is not available on Windows and with the "Detect Language" option (falls back to the original Whisper inference). See the [Whisper.cpp documentation](https://github.com/ggerganov/whisper.cpp) for more information.
+
+| Model | Link                                                               | SHA256                                                           |
+| ----- | ------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| tiny  | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-tiny.bin>  | be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21 |
+| base  | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-base.bin>  | 1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b |
+| small | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-small.bin> | 60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe |
 
 ## Build/run locally
 
