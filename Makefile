@@ -2,6 +2,7 @@ version := $$(poetry version -s)
 
 mac_app_path := ./dist/Buzz.app
 mac_zip_path := ./dist/Buzz-${version}-mac.zip
+mac_tar_path := ./dist/Buzz-${version}-mac.tar.gz
 mac_dmg_path := ./dist/Buzz-${version}-mac.dmg
 
 unix_zip_path := Buzz-${version}-unix.tar.gz
@@ -10,17 +11,16 @@ windows_zip_path := Buzz-${version}-windows.tar.gz
 
 buzz:
 	make clean
-	make whisper_cpp
+	make whisper.cpp
 	pyinstaller --noconfirm Buzz.spec
 
 clean:
 	rm -rf dist/* || true
 
 test:
-	make whisper_cpp
 	pytest --cov --cov-fail-under=54 --cov-report html
 
-whisper_cpp:
+whisper.cpp:
 	gcc -O3 -std=c11   -pthread -mavx -mavx2 -mfma -mf16c -fPIC -c whisper.cpp/ggml.c -o whisper.cpp/ggml.o
 	g++ -O3 -std=c++11 -pthread --shared -fPIC -static-libstdc++ whisper.cpp/whisper.cpp whisper.cpp/ggml.o -o libwhisper.so
 
@@ -37,9 +37,9 @@ bundle_windows:
 
 # MAC
 
-
 bundle_mac:
 	make buzz
+	cd dist && tar -czf ${mac_tar_path} Buzz/ && cd -
 
 bundle_mac_local:
 	make buzz

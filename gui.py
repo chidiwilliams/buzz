@@ -19,7 +19,8 @@ from whisper import tokenizer
 
 import _whisper
 from _whisper import Task, WhisperCpp
-from transcriber import FileTranscriber, RecordingTranscriber, State, Status
+from transcriber import (FileTranscriber, OutputFormat, RecordingTranscriber,
+                         State, Status)
 
 
 def get_platform_styles(all_platform_styles: Dict[str, str]):
@@ -108,6 +109,21 @@ class TasksComboBox(QComboBox):
 
     def on_index_changed(self, index: int):
         self.taskChanged.emit(self.tasks[index])
+
+
+class OutputFormatsComboBox(QComboBox):
+    output_format_changed = pyqtSignal(OutputFormat)
+    formats: List[OutputFormat]
+
+    def __init__(self, default_format: OutputFormat, parent: Optional[QWidget], *args) -> None:
+        super().__init__(parent, *args)
+        self.formats = [i for i in OutputFormat]
+        self.addItems(map(lambda format: format.value.upper(), self.formats))
+        self.currentIndexChanged.connect(self.on_index_changed)
+        self.setCurrentText(default_format.value.title())
+
+    def on_index_changed(self, index: int):
+        self.output_format_changed.emit(self.formats[index])
 
 
 class Quality(enum.Enum):
@@ -305,6 +321,7 @@ class FileTranscriberWidget(QWidget):
     selected_quality = Quality.LOW
     selected_language: Optional[str] = None
     selected_task = Task.TRANSCRIBE
+    selected_output_format = OutputFormat.TXT
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     transcriber_progress_dialog: Optional[TranscriberProgressDialog] = None
     transcribe_progress = pyqtSignal(tuple)
@@ -330,13 +347,17 @@ class FileTranscriberWidget(QWidget):
             self.on_language_changed)
 
         self.tasks_combo_box = TasksComboBox(
-            default_task=Task.TRANSCRIBE,
+            default_task=self.selected_task,
             parent=self)
         self.tasks_combo_box.taskChanged.connect(self.on_task_changed)
 
         self.run_button = QPushButton('Run', self)
         self.run_button.clicked.connect(self.on_click_run)
-        self.run_button.setDefault(True)
+
+        export_as_combo_box = OutputFormatsComboBox(
+            default_format=self.selected_output_format, parent=self)
+        export_as_combo_box.output_format_changed.connect(
+            self.on_export_format_changed)
 
         grid = (
             ((0, 5, FormLabel('Task:', parent=self)), (5, 7, self.tasks_combo_box)),
@@ -344,6 +365,7 @@ class FileTranscriberWidget(QWidget):
              (5, 7, self.languages_combo_box)),
             ((0, 5, FormLabel('Quality:', parent=self)),
              (5, 7, self.quality_combo_box)),
+            ((0, 5, FormLabel('Export As:', self)), (5, 7, export_as_combo_box)),
             ((9, 3, self.run_button),)
         )
 
@@ -365,11 +387,15 @@ class FileTranscriberWidget(QWidget):
     def on_task_changed(self, task: Task):
         self.selected_task = task
 
+    def on_export_format_changed(self, format: OutputFormat):
+        self.selected_output_format = format
+
     def on_click_run(self):
         default_path = FileTranscriber.get_default_output_file_path(
-            task=self.selected_task, input_file_path=self.file_path)
+            task=self.selected_task, input_file_path=self.file_path,
+            output_format=self.selected_output_format)
         (output_file, _) = QFileDialog.getSaveFileName(
-            self, 'Save File', default_path, 'Text files (*.txt *.srt *.vtt)')
+            self, 'Save File', default_path, f'Text files (*.{self.selected_output_format})')
 
         if output_file == '':
             return
@@ -395,7 +421,7 @@ class FileTranscriberWidget(QWidget):
         self.file_transcriber = FileTranscriber(
             model=model, file_path=self.file_path,
             language=self.selected_language, task=self.selected_task,
-            output_file_path=output_file, progress_callback=self.on_transcribe_model_progress)
+            output_file_path=output_file, output_format=self.selected_output_format, progress_callback=self.on_transcribe_model_progress)
         self.file_transcriber.start()
 
     def on_download_model_progress(self, current_size: int, total_size: int):
@@ -676,7 +702,7 @@ class RecordingTranscriberMainWindow(MainWindow):
 class FileTranscriberMainWindow(MainWindow):
     def __init__(self, file_path: str, parent: Optional[QWidget], *args) -> None:
         super().__init__(title=get_short_file_path(
-            file_path), w=400, h=180, parent=parent, *args)
+            file_path), w=400, h=210, parent=parent, *args)
 
         central_widget = FileTranscriberWidget(file_path, self)
         central_widget.setContentsMargins(10, 10, 10, 10)

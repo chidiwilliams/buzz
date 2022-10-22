@@ -5,8 +5,8 @@ import tempfile
 import pytest
 
 from _whisper import Task, WhisperCpp
-from transcriber import (FileTranscriber, RecordingTranscriber, Status,
-                         to_timestamp)
+from transcriber import (OutputFormat, FileTranscriber, RecordingTranscriber,
+                         Status, to_timestamp)
 
 
 class TestRecordingTranscriber:
@@ -21,8 +21,15 @@ class TestRecordingTranscriber:
 
 class TestFileTranscriber:
     def test_default_output_file(self):
-        assert FileTranscriber.get_default_output_file_path(
-            Task.TRANSLATE, '/a/b/c.txt').startswith('/a/b/c (Translated on ')
+        srt = FileTranscriber.get_default_output_file_path(
+            Task.TRANSLATE, '/a/b/c.mp4', OutputFormat.TXT)
+        assert srt.startswith('/a/b/c (Translated on ')
+        assert srt.endswith('.txt')
+
+        srt = FileTranscriber.get_default_output_file_path(
+            Task.TRANSLATE, '/a/b/c.mp4', OutputFormat.SRT)
+        assert srt.startswith('/a/b/c (Translated on ')
+        assert srt.endswith('.srt')
 
     @pytest.mark.skip(reason='test ggml model not working for')
     def test_transcribe_whisper_cpp(self):
@@ -30,7 +37,7 @@ class TestFileTranscriber:
         transcriber = FileTranscriber(
             model=WhisperCpp('testdata/ggml-tiny.bin'), language='en',
             task=Task.TRANSCRIBE, file_path='testdata/whisper.m4a',
-            output_file_path=output_file_path,
+            output_file_path=output_file_path, output_format=OutputFormat.TXT,
             open_file_on_complete=False)
         transcriber.start()
         transcriber.join()

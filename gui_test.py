@@ -3,8 +3,9 @@ from unittest.mock import patch
 import sounddevice
 
 from gui import (Application, AudioDevicesComboBox,
-                 DownloadModelProgressDialog, LanguagesComboBox, MainWindow,
-                 TranscriberProgressDialog)
+                 DownloadModelProgressDialog, OutputFormatsComboBox,
+                 LanguagesComboBox, MainWindow, TranscriberProgressDialog)
+from transcriber import OutputFormat
 
 
 class TestApplication:
@@ -125,6 +126,12 @@ class TestDownloadModelProgressDialog:
         assert self.dialog.labelText().startswith(
             'Downloading resources (10.00%')
 
+class TestFormatsComboBox:
+    def test_should_have_items(self):
+        formats_combo_box = OutputFormatsComboBox(OutputFormat.TXT, None)
+        assert formats_combo_box.itemText(0) == 'TXT'
+        assert formats_combo_box.itemText(1) == 'SRT'
+        assert formats_combo_box.itemText(2) == 'VTT'
 
 class TestMainWindow:
     def test_should_init(self):
