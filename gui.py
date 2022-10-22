@@ -11,7 +11,7 @@ import sounddevice
 import whisper
 from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt, QTimer,
                           pyqtSignal)
-from PyQt6.QtGui import QAction, QKeySequence, QTextCursor
+from PyQt6.QtGui import QAction, QCloseEvent, QKeySequence, QTextCursor
 from PyQt6.QtWidgets import (QApplication, QComboBox, QFileDialog, QGridLayout,
                              QLabel, QMainWindow, QPlainTextEdit,
                              QProgressDialog, QPushButton, QWidget)
@@ -507,6 +507,7 @@ class RecordingTranscriberWidget(QWidget):
     selected_task = Task.TRANSCRIBE
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     settings: Settings
+    transcriber: Optional[TranscriberWithSignal] = None
 
     def __init__(self, parent: Optional[QWidget]) -> None:
         super().__init__(parent)
@@ -641,7 +642,8 @@ class RecordingTranscriberWidget(QWidget):
             self.model_download_progress_dialog.setValue(current_size)
 
     def stop_recording(self):
-        self.transcriber.stop_recording()
+        if self.transcriber != None:
+            self.transcriber.stop_recording()
         self.timer_label.stop_timer()
 
     def on_cancel_model_progress_dialog(self):
@@ -702,9 +704,13 @@ class RecordingTranscriberMainWindow(MainWindow):
     def __init__(self, parent: Optional[QWidget], *args) -> None:
         super().__init__(title='Live Recording', w=400, h=500, parent=parent, *args)
 
-        central_widget = RecordingTranscriberWidget(self)
-        central_widget.setContentsMargins(10, 10, 10, 10)
-        self.setCentralWidget(central_widget)
+        self.central_widget = RecordingTranscriberWidget(self)
+        self.central_widget.setContentsMargins(10, 10, 10, 10)
+        self.setCentralWidget(self.central_widget)
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        self.central_widget.stop_recording()
+        return super().closeEvent(event)
 
 
 class FileTranscriberMainWindow(MainWindow):
