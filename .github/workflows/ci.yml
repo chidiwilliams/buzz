@@ -87,7 +87,7 @@ jobs:
           BUZZ_VERSION: ${{ github.ref_name }}
       - uses: actions/upload-artifact@v3
         with:
-          name: buzz-${{ runner.os }}
+          name: Buzz-${{ runner.os }}
           path: |
             dist/Buzz*.tar.gz
   release:
