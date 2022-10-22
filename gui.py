@@ -353,6 +353,7 @@ class FileTranscriberWidget(QWidget):
 
         self.run_button = QPushButton('Run', self)
         self.run_button.clicked.connect(self.on_click_run)
+        self.run_button.setDefault(True)
 
         export_as_combo_box = OutputFormatsComboBox(
             default_format=self.selected_output_format, parent=self)
