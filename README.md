@@ -1,6 +1,12 @@
-# Buzz
+<div style="margin: auto; text-align: center;">
+   <center>
+      <img src='./assets/buzz.ico' width=100 />
+   </center>
+   <h1>Buzz</h1>
+   <h4>Offline transcription and translation on your personal computer</h4>
+</div>
 
-![Buzz](buzz.png)
+![Buzz](./assets/buzz.png)
 
 ![MIT License](https://img.shields.io/badge/license-MIT-green)
 [![CI](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml/badge.svg)](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml)
