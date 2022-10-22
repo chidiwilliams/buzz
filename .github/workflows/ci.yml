@@ -4,13 +4,7 @@ on:
   push:
     branches:
       - master
-    paths-ignore:
-      - '**/README.md'
-      - 'assets/**'
   pull_request:
-    paths-ignore:
-      - '**/README.md'
-      - 'assets/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
