@@ -2,6 +2,7 @@
 <div align="center">
   <img src='./assets/buzz.ico' height='150'/>
   <h1>Buzz</h1>
+
   <a href="https://github.com/chidiwilliams/buzz/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-green">
   </a>
@@ -12,8 +13,7 @@
     <img src="https://img.shields.io/github/v/release/chidiwilliams/buzz" >
   </a>
 
-  <i>
-  Transcribe and translate audio offline on your personal computer. Powered by OpenAI's [Whisper](https://github.com/openai/whisper).</i>
+  <p><i>Transcribe and translate audio offline on your personal computer. Powered by OpenAI's [Whisper](https://github.com/openai/whisper).</i></p>
 </div>
 
 ![Buzz](./assets/buzz.png)
