@@ -1,41 +1,25 @@
+<img src='./assets/buzz.ico' width='100'/>
+
 # Buzz
 
-![Buzz](buzz.png)
+> Transcribe and translate audio offline on your personal computer. Powered by OpenAI's [Whisper](https://github.com/openai/whisper).
+
+![Buzz](./assets/buzz.png)
 
 ![MIT License](https://img.shields.io/badge/license-MIT-green)
 [![CI](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml/badge.svg)](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/chidiwilliams/buzz)
 
-Buzz transcribes audio from your computer's microphones to text in real-time using OpenAI's [Whisper](https://github.com/openai/whisper).
+## Features
 
-<a href="https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7">
-  <p>Buzz - Watch Video</p>
-  <img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/564b753eb4d44b55b985b8abd26b55f7-1664390912932-with-play.gif">
-</a>
-
-## Requirements
-
-To set up Buzz, first install ffmpeg ([needed to run Whisper](https://github.com/openai/whisper#setup)).
-
-```text
-# on Ubuntu or Debian
-sudo apt update && sudo apt install ffmpeg
-
-# on MacOS using Homebrew (https://brew.sh/)
-brew install ffmpeg
-
-# on Windows using Chocolatey (https://chocolatey.org/)
-choco install ffmpeg
-
-# on Windows using Scoop (https://scoop.sh/)
-scoop install ffmpeg
-```
+- Real-time transcription and translation from your computer's microphones to text. [Watch a demo video](https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7).
+- Import audio and video files and export transcripts to TXT, SRT, and VTT.
 
 ## Installation
 
-To install Buzz, download the [latest version](https://github.com/chidiwilliams/buzz/releases/latest) for your operating system. Buzz is available on Mac (Intel), Windows, and Linux.
+To install Buzz, download the [latest version](https://github.com/chidiwilliams/buzz/releases/latest) for your operating system. Buzz is available on **Mac (Intel x86)**, **Windows**, and **Linux**.
 
-### Mac (Intel)
+### Mac (Intel x86)
 
 - Download and open the `*-mac.dmg` file.
 - After the installation window opens, drag the Buzz icon into the folder to add Buzz to your Applications directory.
@@ -43,7 +27,7 @@ To install Buzz, download the [latest version](https://github.com/chidiwilliams/
 ### Windows
 
 - Download and extract the `*-windows.tar.gz` file.
-- Open the Buzz.exe file
+- Run the Buzz.exe file
 
 ### Linux
 
@@ -52,23 +36,23 @@ To install Buzz, download the [latest version](https://github.com/chidiwilliams/
 
 ## How to use
 
-To record from a system microphone, select a model, language, task, microphone, and delay, then click Record.
+## Live Recording
 
-**Model**: Default: Tiny.
+To start a live recording:
 
-**Language**: Default: English.
+- Select a recording task, language, quality, and microphone.
+- Click Record.
 
-**Task**: Transcribe/Translate. Default: Transcribe.
-
-**Microphone**: Default: System default microphone.
-
-**Delay**: The length of time (in seconds) Buzz waits before transcribing a new batch of recorded audio. Increasing this value will make Buzz take longer to show new transcribed text. However, shorter delays cut the audio into smaller chunks which may reduce the accuracy of the transcription. Default: 10s.
-
-For more information about the available model types, languages, and tasks, see the [Whisper docs](https://github.com/openai/whisper).
+| Field      | Options                                                                                                                                  | Default                     | Description                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Task       | "Transcribe", "Translate"                                                                                                                | "Transcribe"                | "Transcribe" converts the input audio into text in the selected language, while "Translate" converts it into text in English.                                                                                                                                                                                                                                                                                     |
+| Language   | See [Whisper's documentation](https://github.com/openai/whisper#available-models-and-languages) for the full list of supported languages | "Detect Language"           | "Detect Language" will try to detect the spoken language in the audio based on the first few seconds. However, selecting a language is recommended (if known) as it will improve transcription quality in many cases.                                                                                                                                                                                             |
+| Quality    | "Low", "Medium", "High"                                                                                                                  | "Low"                       | The transcription quality determines the Whisper model used for transcription. "Low" uses the "tiny" model; "Medium" uses the "base" model; and "High" uses the "small" model. The larger models produce higher-quality transcriptions, but require more system resources. See [Whisper's documentation](https://github.com/openai/whisper#available-models-and-languages) for more information about the models. |
+| Microphone | [Available system microphones]                                                                                                           | [Default system microphone] | Microphone for recording input audio.                                                                                                                                                                                                                                                                                                                                                                             |
 
 ### Record audio playing from computer
 
-To record audio playing out from your computer, you'll need to install an audio loopback driver (a program that lets you create virtual audio devices). The rest of this guide will use [BlackHole](https://github.com/ExistentialAudio/BlackHole) on Mac, but you can use other alternatives for your operating system (see [LoopBeAudio](https://nerds.de/en/loopbeaudio.html), [LoopBack](https://rogueamoeba.com/loopback/), and [Virtual Audio Cable](https://vac.muzychenko.net/en/)).
+To record audio playing from an application on your computer, you may install an audio loopback driver (a program that lets you create virtual audio devices). The rest of this guide will use [BlackHole](https://github.com/ExistentialAudio/BlackHole) on Mac, but you can use other alternatives for your operating system (see [LoopBeAudio](https://nerds.de/en/loopbeaudio.html), [LoopBack](https://rogueamoeba.com/loopback/), and [Virtual Audio Cable](https://vac.muzychenko.net/en/)).
 
 1. Install [BlackHole via Homebrew](https://github.com/ExistentialAudio/BlackHole#option-2-install-via-homebrew)
 
@@ -92,6 +76,31 @@ To record audio playing out from your computer, you'll need to install an audio 
 
 6. Open Buzz, select BlackHole as your microphone, and record as before to see transcriptions from the audio playing through BlackHole.
 
+## File import
+
+To import a file:
+
+- Click Import on the File menu (or **Command + O** on Mac, **Ctrl + O** on Windows).
+- Choose an audio or video file. Supported formats: "mp3", "wav", "m4a", "ogg", "mp4", "webm", "ogm".
+- Select a task, language, quality, and export format.
+- Click Run.
+
+| Field     | Options             | Default |
+| --------- | ------------------- | ------- |
+| Export As | "TXT", "SRT", "VTT" | "TXT"   |
+
+(See the [Live Recording section](#live-recording) for more information about the task, language, and quality settings.)
+
+## Settings
+
+- **Enable GGML inference** *(Default: off)*: Turn this on to use inference from [Whisper.cpp](https://github.com/ggerganov/whisper.cpp). Whisper.cpp runs faster than Whisper's original Python implementation but requires a different set of models for inference. The setting is also not available on Windows and with the "Detect Language" option; it should fall back to the original Whisper inference. See the [Whisper.cpp documentation](https://github.com/ggerganov/whisper.cpp) for more information.
+
+| Model | Link                                                               | SHA256                                                           |
+| ----- | ------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| tiny  | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-tiny.bin>  | be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21 |
+| base  | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-base.bin>  | 1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b |
+| small | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-small.bin> | 60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe |
+
 ## Build/run locally
 
 To build/run Buzz locally from source, first install the dependencies:
@@ -101,6 +110,12 @@ To build/run Buzz locally from source, first install the dependencies:
 
    ```shell
    poetry install
+   ```
+
+3. (Optional) To use Whisper.cpp inference, run:
+
+   ```shell
+   make libwhisper.so
    ```
 
 Then, to run:
@@ -114,3 +129,9 @@ To build:
 ```shell
 poetry run pyinstaller --noconfirm Buzz.spec
 ```
+
+## FAQ
+
+1. **Where are the models stored?**
+
+   The Whisper models are stored in `~/.cache/whisper`. The Whisper.cpp models are stored in `~/Library/Caches/Buzz` (Mac OS), `~/.cache/Buzz` (Unix), `C:\Users/<username>\AppData\Local\Buzz\Buzz\Cache` (Windows).
