@@ -309,7 +309,7 @@ class TimerLabel(QLabel):
                 seconds_passed // 60, seconds_passed % 60))
 
 
-def get_model_name(quality: Quality, language: Optional[str]) -> str:
+def get_model_name(quality: Quality) -> str:
     return {
         Quality.LOW: ('tiny', 'tiny.en'),
         Quality.MEDIUM: ('base', 'base.en'),
@@ -325,6 +325,7 @@ class FileTranscriberWidget(QWidget):
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     transcriber_progress_dialog: Optional[TranscriberProgressDialog] = None
     transcribe_progress = pyqtSignal(tuple)
+    model_loader: Optional[_whisper.ModelLoader] = None
     file_transcriber: Optional[FileTranscriber] = None
 
     def __init__(self, file_path: str, parent: Optional[QWidget]) -> None:
@@ -390,8 +391,8 @@ class FileTranscriberWidget(QWidget):
     def on_task_changed(self, task: Task):
         self.selected_task = task
 
-    def on_output_format_changed(self, format: OutputFormat):
-        self.selected_output_format = format
+    def on_output_format_changed(self, output_format: OutputFormat):
+        self.selected_output_format = output_format
 
     def on_click_run(self):
         default_path = FileTranscriber.get_default_output_file_path(
@@ -407,8 +408,7 @@ class FileTranscriberWidget(QWidget):
         ) and self.selected_language != None
 
         self.run_button.setDisabled(True)
-        model_name = get_model_name(
-            self.selected_quality, self.selected_language)
+        model_name = get_model_name(self.selected_quality)
         logging.debug(f'Loading model: {model_name}')
 
         self.model_loader = _whisper.ModelLoader(
@@ -478,7 +478,8 @@ class FileTranscriberWidget(QWidget):
             self.transcriber_progress_dialog = None
 
     def on_cancel_model_progress_dialog(self):
-        self.model_loader.stop()
+        if self.model_loader != None:
+            self.model_loader.stop()
         self.end_download_model()
 
     def end_download_model(self):
@@ -506,6 +507,7 @@ class RecordingTranscriberWidget(QWidget):
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     settings: Settings
     transcriber: Optional[TranscriberWithSignal] = None
+    model_loader: Optional[_whisper.ModelLoader] = None
 
     def __init__(self, parent: Optional[QWidget]) -> None:
         super().__init__(parent)
@@ -594,8 +596,7 @@ class RecordingTranscriberWidget(QWidget):
         use_whisper_cpp = self.settings.enable_ggml_inference(
         ) and self.selected_language != None
 
-        model_name = get_model_name(
-            self.selected_quality, self.selected_language)
+        model_name = get_model_name(self.selected_quality)
         logging.debug(f'Loading model: {model_name}')
 
         self.model_loader = _whisper.ModelLoader(
@@ -645,7 +646,8 @@ class RecordingTranscriberWidget(QWidget):
         self.timer_label.stop_timer()
 
     def on_cancel_model_progress_dialog(self):
-        self.model_loader.stop()
+        if self.model_loader != None:
+            self.model_loader.stop()
         self.end_download_model()
 
     def end_download_model(self):
