@@ -3,7 +3,7 @@ from unittest.mock import patch
 import sounddevice
 
 from gui import (Application, AudioDevicesComboBox,
-                 DownloadModelProgressDialog, LanguagesComboBox,
+                 DownloadModelProgressDialog, LanguagesComboBox, MainWindow,
                  TranscriberProgressDialog)
 
 
@@ -124,3 +124,9 @@ class TestDownloadModelProgressDialog:
         self.dialog.setValue(123456)
         assert self.dialog.labelText().startswith(
             'Downloading resources (10.00%')
+
+
+class TestMainWindow:
+    def test_should_init(self):
+        main_window = MainWindow(title='', w=200, h=200, parent=None)
+        assert main_window != None

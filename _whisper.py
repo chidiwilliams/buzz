@@ -1,13 +1,17 @@
-
+import ctypes
+import enum
 import hashlib
+import logging
 import os
+import pathlib
 import warnings
-from typing import Callable, Tuple, Union
+from typing import Any, Callable, List, Optional, Tuple, Union
 
 import numpy as np
 import requests
 import torch
 import whisper
+from appdirs import user_cache_dir
 from whisper import Whisper
 from whisper.audio import *
 from whisper.decoding import *
@@ -19,18 +23,166 @@ class Stopped(Exception):
     pass
 
 
+@dataclass
+class Segment:
+    start: float
+    end: float
+    text: str
+
+
+class Task(enum.Enum):
+    TRANSLATE = "translate"
+    TRANSCRIBE = "transcribe"
+
+
+class WhisperFullParams(ctypes.Structure):
+    _fields_ = [
+        ("strategy",             ctypes.c_int),
+        ("n_threads",            ctypes.c_int),
+        ("offset_ms",            ctypes.c_int),
+        ("translate",            ctypes.c_bool),
+        ("no_context",           ctypes.c_bool),
+        ("print_special_tokens", ctypes.c_bool),
+        ("print_progress",       ctypes.c_bool),
+        ("print_realtime",       ctypes.c_bool),
+        ("print_timestamps",     ctypes.c_bool),
+        ("language",             ctypes.c_char_p),
+        ("greedy",               ctypes.c_int * 1),
+    ]
+
+
+whisper_cpp = ctypes.CDLL(str(pathlib.Path().absolute() / "libwhisper.so"), winmode=1)
+
+whisper_cpp.whisper_init.restype = ctypes.c_void_p
+whisper_cpp.whisper_full_default_params.restype = WhisperFullParams
+whisper_cpp.whisper_full_get_segment_text.restype = ctypes.c_char_p
+
+
+def whisper_cpp_progress(lines: str) -> Optional[int]:
+    """Extracts the progress of a whisper.cpp transcription.
+
+    The log lines have the following format:
+        whisper_full: progress = 20%\n
+    """
+
+    # Example log line: "whisper_full: progress = 20%"
+    progress_lines = list(filter(lambda line: line.startswith(
+        'whisper_full: progress'), lines.split('\n')))
+    if len(progress_lines) == 0:
+        return None
+    last_word = progress_lines[-1].split(' ')[-1]
+    return min(int(last_word[:-1]), 100)
+
+
+def whisper_cpp_params(language: str, task: Task, print_realtime=False, print_progress=False):
+    params = whisper_cpp.whisper_full_default_params(0)
+    params.print_realtime = print_realtime
+    params.print_progress = print_progress
+    params.language = language.encode('utf-8')
+    params.translate = task == Task.TRANSLATE
+    return params
+
+
+class WhisperCpp:
+    def __init__(self, model: str) -> None:
+        self.ctx = whisper_cpp.whisper_init(model.encode('utf-8'))
+
+    def transcribe(self, audio: Union[np.ndarray, str], params: Any):
+        if isinstance(audio, str):
+            audio = whisper.audio.load_audio(audio)
+
+        result = whisper_cpp.whisper_full(ctypes.c_void_p(
+            self.ctx), params, audio.ctypes.data_as(ctypes.POINTER(ctypes.c_float)), len(audio))
+        if result != 0:
+            raise Exception(f'Error from whisper.cpp: {result}')
+
+        segments: List[Segment] = []
+
+        n_segments = whisper_cpp.whisper_full_n_segments(
+            ctypes.c_void_p(self.ctx))
+        for i in range(n_segments):
+            txt = whisper_cpp.whisper_full_get_segment_text(
+                ctypes.c_void_p(self.ctx), i)
+            t0 = whisper_cpp.whisper_full_get_segment_t0(
+                ctypes.c_void_p(self.ctx), i)
+            t1 = whisper_cpp.whisper_full_get_segment_t1(
+                ctypes.c_void_p(self.ctx), i)
+
+            segments.append(
+                Segment(start=t0*10,  # centisecond to ms
+                        end=t1*10,  # centisecond to ms
+                        text=txt.decode('utf-8')))
+
+        return {
+            'segments': segments,
+            'text': ''.join([segment.text for segment in segments])}
+
+    def __del__(self):
+        whisper_cpp.whisper_free(ctypes.c_void_p(self.ctx))
+
+
+WHISPER_CPP_SHA256 = {
+    'tiny': 'be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21',
+    'small': '60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe',
+    'base': '1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b'
+}
+
+
 class ModelLoader:
     stopped = False
 
-    def __init__(self, name: str,
+    def __init__(self, name: str, use_whisper_cpp=False,
                  on_download_model_chunk: Callable[[int, int], None] = lambda *_: None) -> None:
         self.name = name
         self.on_download_model_chunk = on_download_model_chunk
+        self.use_whisper_cpp = use_whisper_cpp
 
-    def load(self):
-        return load_model(
-            name=self.name, is_stopped=self.is_stopped,
-            on_download_model_chunk=self.on_download_model_chunk)
+    def load(self) -> Union[Whisper, WhisperCpp]:
+        if self.use_whisper_cpp:
+            base_dir = user_cache_dir('Buzz')
+            model_path = os.path.join(
+                base_dir, f'ggml-model-whisper-{self.name}.bin')
+
+            if os.path.exists(model_path) and not os.path.isfile(model_path):
+                raise RuntimeError(
+                    f"{model_path} exists and is not a regular file")
+
+            expected_sha256 = WHISPER_CPP_SHA256[self.name]
+
+            if os.path.isfile(model_path):
+                model_bytes = open(model_path, "rb").read()
+                if hashlib.sha256(model_bytes).hexdigest() == expected_sha256:
+                    return WhisperCpp(model_path)
+
+                logging.debug(
+                    f"{model_path} exists, but the SHA256 checksum does not match; re-downloading the file")
+
+            url = f'https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-{self.name}.bin'
+
+            with requests.get(url, stream=True) as source, open(model_path, 'wb') as output:
+                source.raise_for_status()
+
+                current_size = 0
+                total_size = int(source.headers.get('Content-Length', 0))
+                for chunk in source.iter_content(chunk_size=DONWLOAD_CHUNK_SIZE):
+                    if self.is_stopped():
+                        os.unlink(model_path)
+                        raise Stopped
+
+                    output.write(chunk)
+                    current_size += len(chunk)
+                    self.on_download_model_chunk(current_size, total_size)
+
+            model_bytes = open(model_path, "rb").read()
+            if hashlib.sha256(model_bytes).hexdigest() != expected_sha256:
+                raise RuntimeError(
+                    "Model has been downloaded but the SHA256 checksum does not match. Please retry loading the model.")
+
+            return WhisperCpp(model_path)
+        else:
+            return load_model(
+                name=self.name, is_stopped=self.is_stopped,
+                on_download_model_chunk=self.on_download_model_chunk)
 
     def stop(self):
         self.stopped = True
