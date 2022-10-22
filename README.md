@@ -1,4 +1,4 @@
-<img src='./assets/buzz.ico' width='50'/>
+<img src='./assets/buzz.ico' width='100'/>
 
 # Buzz
 
