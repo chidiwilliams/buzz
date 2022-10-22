@@ -1,8 +1,7 @@
 <p align="center" width="100%">
    <img src='./assets/buzz.ico' width='100' />
-
-   <h2 align="center">Buzz</h2>
-   <h4 align="center">Transcribe and translate audio offline</h4>
+   <h3 align="center">Buzz</h3>
+   <h5 align="center">Transcribe and translate audio offline</h5>
 </p>
 
 ![Buzz](./assets/buzz.png)
