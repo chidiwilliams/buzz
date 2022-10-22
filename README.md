@@ -1,14 +1,19 @@
-<p align="center" width="100%">
-   <img src='./assets/buzz.ico' width='100' />
-   <h3 align="center">Buzz</h3>
-   <h5 align="center">Transcribe and translate audio offline</h5>
-</p>
+<img src='./assets/buzz.ico' width='50'/>
+
+# Buzz
+
+> Transcribe and translate audio offline on your personal computer.
 
 ![Buzz](./assets/buzz.png)
 
 ![MIT License](https://img.shields.io/badge/license-MIT-green)
 [![CI](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml/badge.svg)](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/chidiwilliams/buzz)
+
+## Features
+
+- Real-time transcription and translation from your computer's microphones to text
+- Import audio and video files and export to TXT, SRT, and VTT
 
 Buzz transcribes audio from your computer's microphones to text in real-time using OpenAI's [Whisper](https://github.com/openai/whisper).
 
