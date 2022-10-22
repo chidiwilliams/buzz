@@ -298,7 +298,7 @@ def get_model_name(quality: Quality, language: Optional[str]) -> str:
         Quality.LOW: ('tiny', 'tiny.en'),
         Quality.MEDIUM: ('base', 'base.en'),
         Quality.HIGH: ('small', 'small.en'),
-    }[quality][1 if language == 'en' else 0]
+    }[quality][0]
 
 
 class FileTranscriberWidget(QWidget):

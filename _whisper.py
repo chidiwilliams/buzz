@@ -1,6 +1,7 @@
 import ctypes
 import enum
 import hashlib
+import logging
 import os
 import pathlib
 import platform
@@ -122,6 +123,13 @@ class WhisperCpp:
         whisper_cpp.whisper_free(ctypes.c_void_p(self.ctx))
 
 
+WHISPER_CPP_SHA256 = {
+    'tiny': 'be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21',
+    'small': '60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe',
+    'base': '1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b'
+}
+
+
 class ModelLoader:
     stopped = False
 
@@ -141,12 +149,17 @@ class ModelLoader:
                 raise RuntimeError(
                     f"{model_path} exists and is not a regular file")
 
-            # todo: implement sha256 hash checking
+            expected_sha256 = WHISPER_CPP_SHA256[self.name]
 
             if os.path.isfile(model_path):
-                return WhisperCpp(model_path)
+                model_bytes = open(model_path, "rb").read()
+                if hashlib.sha256(model_bytes).hexdigest() == expected_sha256:
+                    return WhisperCpp(model_path)
 
-            url = f'https://ggml.ggerganov.com/ggml-model-whisper-{self.name}.bin'
+                logging.debug(
+                    f"{model_path} exists, but the SHA256 checksum does not match; re-downloading the file")
+
+            url = f'https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-{self.name}.bin'
 
             with requests.get(url, stream=True) as source, open(model_path, 'wb') as output:
                 source.raise_for_status()
@@ -161,6 +174,11 @@ class ModelLoader:
                     output.write(chunk)
                     current_size += len(chunk)
                     self.on_download_model_chunk(current_size, total_size)
+
+            model_bytes = open(model_path, "rb").read()
+            if hashlib.sha256(model_bytes).hexdigest() != expected_sha256:
+                raise RuntimeError(
+                    "Model has been downloaded but the SHA256 checksum does not match. Please retry loading the model.")
 
             return WhisperCpp(model_path)
         else:
