@@ -1,7 +1,6 @@
-<div style="margin: auto; text-align: center;">
-   <center>
-      <img src='./assets/buzz.ico' width=100 />
-   </center>
+<div style="margin: auto; text-align: center; align: center">
+   <img src='./assets/buzz.ico' width=100 />
+
    <h1>Buzz</h1>
    <h4>Offline transcription and translation on your personal computer</h4>
 </div>
