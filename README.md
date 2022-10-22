@@ -1,14 +1,22 @@
-<img src='./assets/buzz.ico' width='100'/>
 
-# Buzz
+<div align="center">
+  <img src='./assets/buzz.ico' height='150'/>
+  <h1>Buzz</h1>
+  <a href="https://github.com/chidiwilliams/buzz/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-green">
+  </a>
+  <a href="https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml">
+    <img src="https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml/badge.svg">
+  </a>
+  <a href="https://github.com/chidiwilliams/buzz/releases/latest">
+    <img src="https://img.shields.io/github/v/release/chidiwilliams/buzz" >
+  </a>
 
-> Transcribe and translate audio offline on your personal computer. Powered by OpenAI's [Whisper](https://github.com/openai/whisper).
+  <i>
+  Transcribe and translate audio offline on your personal computer. Powered by OpenAI's [Whisper](https://github.com/openai/whisper).</i>
+</div>
 
 ![Buzz](./assets/buzz.png)
-
-![MIT License](https://img.shields.io/badge/license-MIT-green)
-[![CI](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml/badge.svg)](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/chidiwilliams/buzz)
 
 ## Features
 
