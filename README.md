@@ -129,3 +129,9 @@ To build:
 ```shell
 poetry run pyinstaller --noconfirm Buzz.spec
 ```
+
+## FAQ
+
+1. **Where are the models stored?**
+
+   The Whisper models are stored in `~/.cache/whisper`. The Whisper.cpp models are stored in `~/Library/Caches/Buzz` (Mac OS), `~/.cache/Buzz` (Unix), `C:\Users/<username>\AppData\Local\Buzz\Buzz\Cache` (Windows).
