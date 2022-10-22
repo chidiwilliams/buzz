@@ -5,7 +5,7 @@ on:
     branches:
       - master
     tags:
-      - *
+      - "*"
   pull_request:
 
 concurrency:
