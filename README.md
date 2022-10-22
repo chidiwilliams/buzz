@@ -1,8 +1,8 @@
-<p style="margin: auto; text-align: center; align: center">
-   <img src='./assets/buzz.ico' width=100 />
+<p align="center" width="100%">
+   <img src='./assets/buzz.ico' width='100' />
 
-   <h1>Buzz</h1>
-   <h4>Offline transcription and translation on your personal computer</h4>
+   <h2 align="center">Buzz</h2>
+   <h4 align="center">Transcribe and translate audio offline</h4>
 </p>
 
 ![Buzz](./assets/buzz.png)
