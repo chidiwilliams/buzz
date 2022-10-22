@@ -13,11 +13,10 @@
 ## Features
 
 - Real-time transcription and translation from your computer's microphones to text.
-   <a href="https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7"><p>Watch a demo video</p><img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/564b753eb4d44b55b985b8abd26b55f7-1664390912932-with-play.gif"></a>
+   <a href="https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7"><img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/564b753eb4d44b55b985b8abd26b55f7-1664390912932-with-play.gif"></a>
 
 - Import audio and video files and export transcripts to TXT, SRT, and VTT.
    <a href="https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe">
-    <p>Watch a demo video</p>
     <img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/cf263b099ac3481082bb56d19b7c87fe-with-play.gif">
   </a>
 
