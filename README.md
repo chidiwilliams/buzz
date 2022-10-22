@@ -93,7 +93,7 @@ To import a file:
 
 ## Settings
 
-- **Enable GGML inference** *(Default: off)*: Turn this on to use inference from [Whisper.cpp](https://github.com/ggerganov/whisper.cpp). Whisper.cpp runs faster than Whisper's original Python implementation, but it requires GGML models (which will be downloaded from <https://ggml.buzz.chidiwilliams.com/>) for inference. This setting is not available on Windows and with the "Detect Language" option (falls back to the original Whisper inference). See the [Whisper.cpp documentation](https://github.com/ggerganov/whisper.cpp) for more information.
+- **Enable GGML inference** *(Default: off)*: Turn this on to use inference from [Whisper.cpp](https://github.com/ggerganov/whisper.cpp). Whisper.cpp runs faster than Whisper's original Python implementation but requires a different set of models for inference. The setting is also not available on Windows and with the "Detect Language" option; it should fall back to the original Whisper inference. See the [Whisper.cpp documentation](https://github.com/ggerganov/whisper.cpp) for more information.
 
 | Model | Link                                                               | SHA256                                                           |
 | ----- | ------------------------------------------------------------------ | ---------------------------------------------------------------- |
@@ -110,6 +110,12 @@ To build/run Buzz locally from source, first install the dependencies:
 
    ```shell
    poetry install
+   ```
+
+3. (Optional) To use Whisper.cpp inference, run:
+
+   ```shell
+   make libwhisper.so
    ```
 
 Then, to run:
