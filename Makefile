@@ -2,7 +2,6 @@ version := $$(poetry version -s)
 
 mac_app_path := ./dist/Buzz.app
 mac_zip_path := ./dist/Buzz-${version}-mac.zip
-mac_tar_path := ./dist/Buzz-${version}-mac.tar.gz
 mac_dmg_path := ./dist/Buzz-${version}-mac.dmg
 
 unix_zip_path := Buzz-${version}-unix.tar.gz
@@ -39,7 +38,7 @@ bundle_windows:
 
 bundle_mac:
 	make buzz
-	cd dist && tar -czf ${mac_tar_path} Buzz/ && cd -
+	make zip_mac
 
 bundle_mac_local:
 	make buzz

@@ -90,6 +90,7 @@ jobs:
           name: Buzz-${{ runner.os }}
           path: |
             dist/Buzz*.tar.gz
+            dist/Buzz*.zip
   release:
     runs-on: ubuntu-latest
     needs: [build, test]
