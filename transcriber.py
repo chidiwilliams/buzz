@@ -306,6 +306,8 @@ class FileTranscriber:
                     segments), self.open_file_on_complete, self.output_format)
         except _whisper.Stopped:
             return
+        except Exception:
+            logging.exception('')
 
     def join(self):
         self.current_thread.join()

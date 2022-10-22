@@ -8,6 +8,12 @@ from appdirs import user_log_dir
 
 from gui import Application
 
+# Adds the current directory to the PATH, so the ffmpeg binary get picked up:
+# https://stackoverflow.com/a/44352931/9830227
+app_dir = getattr(sys, '_MEIPASS', os.path.dirname(
+    os.path.abspath(__file__)))
+os.environ["PATH"] += os.pathsep + app_dir
+
 
 def init():
     # Starting child processes with 'fork' stops PyInstaller

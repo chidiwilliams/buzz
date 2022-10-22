@@ -366,7 +366,8 @@ class FileTranscriberWidget(QWidget):
              (5, 7, self.languages_combo_box)),
             ((0, 5, FormLabel('Quality:', parent=self)),
              (5, 7, self.quality_combo_box)),
-            ((0, 5, FormLabel('Export As:', self)), (5, 7, output_formats_combo_box)),
+            ((0, 5, FormLabel('Export As:', self)),
+             (5, 7, output_formats_combo_box)),
             ((9, 3, self.run_button),)
         )
 
@@ -392,6 +393,10 @@ class FileTranscriberWidget(QWidget):
         self.selected_output_format = format
 
     def on_click_run(self):
+        base_path = getattr(sys, '_MEIPASS', os.path.dirname(
+            os.path.abspath(__file__)))
+        logging.debug(base_path)
+
         default_path = FileTranscriber.get_default_output_file_path(
             task=self.selected_task, input_file_path=self.file_path,
             output_format=self.selected_output_format)
@@ -419,6 +424,8 @@ class FileTranscriberWidget(QWidget):
             self.run_button.setDisabled(False)
             return
 
+        logging.debug(
+            f'Starting file transcription, file_path = {self.file_path}, language = {self.selected_language}, task = {self.selected_task}, output file path = {output_file}, output format = {self.selected_output_format}')
         self.file_transcriber = FileTranscriber(
             model=model, file_path=self.file_path,
             language=self.selected_language, task=self.selected_task,
