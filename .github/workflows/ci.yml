@@ -41,7 +41,7 @@ jobs:
 
       - run: poetry install
       - name: Test
-        run: poetry run make test
+        run: poetry run make libwhisper.so test
   build:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -51,15 +51,15 @@ jobs:
             CMD_BUILD: |
               brew install create-dmg
               brew install ffmpeg
-              poetry run make bundle_mac
+              poetry run make libwhisper.so bundle_mac
           - os: ubuntu-latest
             CMD_BUILD: |
               sudo apt update && sudo apt install ffmpeg
-              poetry run make bundle_linux
+              poetry run make libwhisper.so bundle_linux
           - os: windows-latest
             CMD_BUILD: |
               choco install ffmpeg
-              poetry run make bundle_windows
+              poetry run make libwhisper.so bundle_windows
     steps:
       - uses: actions/checkout@v3
         with:

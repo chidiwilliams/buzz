@@ -10,7 +10,7 @@ windows_zip_path := Buzz-${version}-windows.tar.gz
 
 buzz:
 	make clean
-	make whisper.cpp
+	make libwhisper.so
 	pyinstaller --noconfirm Buzz.spec
 
 clean:
@@ -19,7 +19,7 @@ clean:
 test:
 	pytest --cov --cov-fail-under=54 --cov-report html
 
-whisper.cpp:
+libwhisper.so:
 	gcc -O3 -std=c11   -pthread -mavx -mavx2 -mfma -mf16c -fPIC -c whisper.cpp/ggml.c -o whisper.cpp/ggml.o
 	g++ -O3 -std=c++11 -pthread --shared -fPIC -static-libstdc++ whisper.cpp/whisper.cpp whisper.cpp/ggml.o -o libwhisper.so
 
