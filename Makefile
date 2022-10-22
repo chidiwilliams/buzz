@@ -10,17 +10,16 @@ windows_zip_path := Buzz-${version}-windows.tar.gz
 
 buzz:
 	make clean
-	make whisper_cpp
+	make libwhisper.so
 	pyinstaller --noconfirm Buzz.spec
 
 clean:
 	rm -rf dist/* || true
 
 test:
-	make whisper_cpp
 	pytest --cov --cov-fail-under=54 --cov-report html
 
-whisper_cpp:
+libwhisper.so:
 	gcc -O3 -std=c11   -pthread -mavx -mavx2 -mfma -mf16c -fPIC -c whisper.cpp/ggml.c -o whisper.cpp/ggml.o
 	g++ -O3 -std=c++11 -pthread --shared -fPIC -static-libstdc++ whisper.cpp/whisper.cpp whisper.cpp/ggml.o -o libwhisper.so
 
@@ -37,9 +36,9 @@ bundle_windows:
 
 # MAC
 
-
 bundle_mac:
 	make buzz
+	make zip_mac
 
 bundle_mac_local:
 	make buzz

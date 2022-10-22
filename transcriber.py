@@ -179,8 +179,8 @@ def capture_fd(fd: int):
 
 class OutputFormat(enum.Enum):
     TXT = 'txt'
-    VTT = 'vtt'
     SRT = 'srt'
+    VTT = 'vtt'
 
 
 def to_timestamp(ms: float) -> str:
@@ -239,7 +239,8 @@ class FileTranscriber:
 
     def __init__(
             self, model: Union[whisper.Whisper, _whisper.WhisperCpp], language: Optional[str],
-            task: _whisper.Task, file_path: str, output_file_path: str,
+            task: _whisper.Task, file_path: str,
+            output_file_path: str, output_format: OutputFormat,
             progress_callback: Callable[[int, int], None] = lambda *_: None,
             open_file_on_complete=True) -> None:
         self.model = model
@@ -251,7 +252,7 @@ class FileTranscriber:
         self.open_file_on_complete = open_file_on_complete
 
         _, extension = os.path.splitext(self.output_file_path)
-        self.output_format = OutputFormat(extension[1:])
+        self.output_format = output_format
 
     def start(self):
         self.current_thread = Thread(target=self.transcribe)
@@ -316,5 +317,5 @@ class FileTranscriber:
         return self.stopped
 
     @classmethod
-    def get_default_output_file_path(cls, task: _whisper.Task, input_file_path: str):
-        return f'{os.path.splitext(input_file_path)[0]} ({task.value.title()}d on {datetime.datetime.now():%d-%b-%Y %H-%M-%S}).txt'
+    def get_default_output_file_path(cls, task: _whisper.Task, input_file_path: str, output_format: OutputFormat):
+        return f'{os.path.splitext(input_file_path)[0]} ({task.value.title()}d on {datetime.datetime.now():%d-%b-%Y %H-%M-%S}).{output_format.value}'
