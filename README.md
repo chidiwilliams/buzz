@@ -93,7 +93,11 @@ To import a file:
 
 ## Settings
 
-- **Enable GGML inference** *(Default: off)*: Turn this on to use inference from [Whisper.cpp](https://github.com/ggerganov/whisper.cpp). Whisper.cpp runs faster than Whisper's original Python implementation but requires a different set of models for inference. The setting is also not available on Windows and with the "Detect Language" option; it should fall back to the original Whisper inference. See the [Whisper.cpp documentation](https://github.com/ggerganov/whisper.cpp) for more information.
+### Enable GGML inference
+
+_(Default: off)_
+
+Turn this on to use inference from [Whisper.cpp](https://github.com/ggerganov/whisper.cpp). Whisper.cpp runs faster than Whisper's original Python implementation but requires a different set of models for inference. The setting is also not available on Windows and with the "Detect Language" option; it should fall back to the original Whisper inference. See the [Whisper.cpp documentation](https://github.com/ggerganov/whisper.cpp) for more information.
 
 | Model | Link                                                               | SHA256                                                           |
 | ----- | ------------------------------------------------------------------ | ---------------------------------------------------------------- |
@@ -135,3 +139,7 @@ poetry run pyinstaller --noconfirm Buzz.spec
 1. **Where are the models stored?**
 
    The Whisper models are stored in `~/.cache/whisper`. The Whisper.cpp models are stored in `~/Library/Caches/Buzz` (Mac OS), `~/.cache/Buzz` (Unix), `C:\Users/<username>\AppData\Local\Buzz\Buzz\Cache` (Windows).
+
+2. **What can I try if the transcription runs too slowly?**
+
+   Try using a lower quality or turning on [GGML inference](#enable-ggml-inference).
