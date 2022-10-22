@@ -17,9 +17,7 @@ datas += copy_metadata('filelock')
 datas += copy_metadata('numpy')
 datas += copy_metadata('tokenizers')
 datas += collect_data_files('whisper')
-
-if platform.system() != 'Windows':
-    datas += [('libwhisper.so', '.')]
+datas += [('libwhisper.so', '.')]
 
 
 def get_ffmpeg():
