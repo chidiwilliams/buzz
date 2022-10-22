@@ -355,10 +355,10 @@ class FileTranscriberWidget(QWidget):
         self.run_button.clicked.connect(self.on_click_run)
         self.run_button.setDefault(True)
 
-        export_as_combo_box = OutputFormatsComboBox(
+        output_formats_combo_box = OutputFormatsComboBox(
             default_format=self.selected_output_format, parent=self)
-        export_as_combo_box.output_format_changed.connect(
-            self.on_export_format_changed)
+        output_formats_combo_box.output_format_changed.connect(
+            self.on_output_format_changed)
 
         grid = (
             ((0, 5, FormLabel('Task:', parent=self)), (5, 7, self.tasks_combo_box)),
@@ -366,7 +366,7 @@ class FileTranscriberWidget(QWidget):
              (5, 7, self.languages_combo_box)),
             ((0, 5, FormLabel('Quality:', parent=self)),
              (5, 7, self.quality_combo_box)),
-            ((0, 5, FormLabel('Export As:', self)), (5, 7, export_as_combo_box)),
+            ((0, 5, FormLabel('Export As:', self)), (5, 7, output_formats_combo_box)),
             ((9, 3, self.run_button),)
         )
 
@@ -388,7 +388,7 @@ class FileTranscriberWidget(QWidget):
     def on_task_changed(self, task: Task):
         self.selected_task = task
 
-    def on_export_format_changed(self, format: OutputFormat):
+    def on_output_format_changed(self, format: OutputFormat):
         self.selected_output_format = format
 
     def on_click_run(self):
