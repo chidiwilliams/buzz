@@ -326,6 +326,7 @@ class FileTranscriberWidget(QWidget):
     transcriber_progress_dialog: Optional[TranscriberProgressDialog] = None
     transcribe_progress = pyqtSignal(tuple)
     model_loader: Optional[_whisper.ModelLoader] = None
+    file_transcriber: Optional[FileTranscriber] = None
 
     def __init__(self, file_path: str, parent: Optional[QWidget]) -> None:
         super().__init__(parent)
@@ -394,10 +395,6 @@ class FileTranscriberWidget(QWidget):
         self.selected_output_format = output_format
 
     def on_click_run(self):
-        base_path = getattr(sys, '_MEIPASS', os.path.dirname(
-            os.path.abspath(__file__)))
-        logging.debug(base_path)
-
         default_path = FileTranscriber.get_default_output_file_path(
             task=self.selected_task, input_file_path=self.file_path,
             output_format=self.selected_output_format)
@@ -452,7 +449,7 @@ class FileTranscriberWidget(QWidget):
         (current_size, total_size) = progress
 
         if current_size == total_size:
-            self.end_transcription()
+            self.reset_transcription()
             return
 
         # In the middle of transcription...
@@ -462,25 +459,27 @@ class FileTranscriberWidget(QWidget):
             self.transcriber_progress_dialog = TranscriberProgressDialog(
                 file_path=self.file_path, total_size=total_size, parent=self)
             self.transcriber_progress_dialog.canceled.connect(
-                self.on_cancel_transcriber_progress_dialog)
+                self.stop_transcription)
 
         # Update the progress of the dialog unless it has
         # been canceled before this progress update arrived
         if self.transcriber_progress_dialog != None and self.transcriber_progress_dialog.wasCanceled() == False:
             self.transcriber_progress_dialog.update_progress(current_size)
 
-    def on_cancel_transcriber_progress_dialog(self):
-        self.file_transcriber.stop()
-        self.end_transcription()
+    def stop_transcription(self):
+        if self.file_transcriber != None:
+            self.file_transcriber.stop()
+        self.reset_transcription()
 
-    def end_transcription(self):
+    def reset_transcription(self):
         self.run_button.setDisabled(False)
         if self.transcriber_progress_dialog != None:
             self.transcriber_progress_dialog.destroy()
             self.transcriber_progress_dialog = None
 
     def on_cancel_model_progress_dialog(self):
-        self.model_loader.stop()
+        if self.model_loader != None:
+            self.model_loader.stop()
         self.end_download_model()
 
     def end_download_model(self):
@@ -719,9 +718,13 @@ class FileTranscriberMainWindow(MainWindow):
         super().__init__(title=get_short_file_path(
             file_path), w=400, h=210, parent=parent, *args)
 
-        central_widget = FileTranscriberWidget(file_path, self)
-        central_widget.setContentsMargins(10, 10, 10, 10)
-        self.setCentralWidget(central_widget)
+        self.central_widget = FileTranscriberWidget(file_path, self)
+        self.central_widget.setContentsMargins(10, 10, 10, 10)
+        self.setCentralWidget(self.central_widget)
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        self.central_widget.stop_transcription()
+        return super().closeEvent(event)
 
 
 class Application(QApplication):

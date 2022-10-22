@@ -141,9 +141,9 @@ class RecordingTranscriber:
         self.is_running = False
 
         if self.current_thread != None:
-            logging.debug('Waiting for processing thread to terminate')
+            logging.debug('Waiting for recording thread to terminate')
             self.current_thread.join()
-            logging.debug('Processing thread terminated')
+            logging.debug('Recording thread terminated')
 
 
 def more_data(fd: int):
@@ -314,6 +314,11 @@ class FileTranscriber:
 
     def stop(self):
         self.stopped = True
+
+        if self.current_thread != None:
+            logging.debug('Waiting for file transcription thread to terminate')
+            self.current_thread.join()
+            logging.debug('File transcription thread terminated')
 
     def check_stopped(self):
         return self.stopped
