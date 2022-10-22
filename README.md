@@ -12,9 +12,9 @@
   <a href="https://github.com/chidiwilliams/buzz/releases/latest">
     <img src="https://img.shields.io/github/v/release/chidiwilliams/buzz" >
   </a>
-
-  <p><i>Transcribe and translate audio offline on your personal computer. Powered by OpenAI's [Whisper](https://github.com/openai/whisper).</i></p>
 </div>
+
+> Transcribe and translate audio offline on your personal computer. Powered by OpenAI's [Whisper](https://github.com/openai/whisper).
 
 ![Buzz](./assets/buzz.png)
 
