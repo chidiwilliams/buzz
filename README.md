@@ -12,7 +12,7 @@
 
 ## Features
 
-- Real-time transcription and translation from your computer's microphones to text. [Watch a demo video.](https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7)
+- Real-time transcription and translation from your computer's microphones to text. [Watch a demo video](https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7).
 - Import audio and video files and export transcripts to TXT, SRT, and VTT.
 
 ## Installation
