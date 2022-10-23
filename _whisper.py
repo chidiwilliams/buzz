@@ -245,6 +245,7 @@ def _download(
 
         current_size = 0
         total_size = int(source.headers.get('Content-Length', 0))
+        on_download_model_chunk(0, total_size)
         for chunk in source.iter_content(chunk_size=DONWLOAD_CHUNK_SIZE):
             if is_stopped():
                 os.unlink(download_target)
@@ -266,8 +267,8 @@ def transcribe(
     model: "Whisper",
     audio: Union[str, np.ndarray, torch.Tensor],
     *,
-    progress_callback: Callable[[int, int], None],
-    check_stopped: Callable[[], bool],
+    progress_callback: Callable[[int, int], None] = lambda *_: None,
+    check_stopped: Callable[[], bool] = lambda *_: False,
     temperature: Union[float, Tuple[float, ...]] = (
         0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
     compression_ratio_threshold: Optional[float] = 2.4,
