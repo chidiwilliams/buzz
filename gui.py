@@ -9,15 +9,19 @@ from typing import Dict, List, Optional, Tuple, Union
 import humanize
 import sounddevice
 import whisper
+from PyQt6 import QtGui
 from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt, QTimer,
                           pyqtSignal)
-from PyQt6.QtGui import QAction, QCloseEvent, QKeySequence, QTextCursor
-from PyQt6.QtWidgets import (QApplication, QComboBox, QFileDialog, QGridLayout,
-                             QLabel, QMainWindow, QPlainTextEdit,
-                             QProgressDialog, QPushButton, QWidget)
+from PyQt6.QtGui import (QAction, QCloseEvent, QKeySequence, QPixmap,
+                         QTextCursor)
+from PyQt6.QtWidgets import (QApplication, QComboBox, QDialog, QFileDialog,
+                             QGridLayout, QLabel, QMainWindow, QPlainTextEdit,
+                             QProgressDialog, QPushButton, QVBoxLayout,
+                             QWidget)
 from whisper import tokenizer
 
 import _whisper
+from __version__ import VERSION
 from _whisper import Task, WhisperCpp
 from transcriber import (FileTranscriber, OutputFormat, RecordingTranscriber,
                          State, Status)
@@ -656,6 +660,42 @@ class RecordingTranscriberWidget(QWidget):
             self.model_download_progress_dialog = None
 
 
+class AboutDialog(QDialog):
+    def __init__(self, parent: Optional[QWidget]) -> None:
+        super().__init__(parent)
+
+        self.setFixedSize(200, 200)
+
+        layout = QVBoxLayout(self)
+
+        image_label = QLabel()
+        pixmap = QPixmap('./assets/buzz-icon-1024.png').scaled(
+            80, 80, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+        image_label.setPixmap(pixmap)
+        image_label.setAlignment(Qt.AlignmentFlag(
+            Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignHCenter))
+
+        buzz_label = QLabel('Buzz')
+        buzz_label.setAlignment(Qt.AlignmentFlag(
+            Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignHCenter))
+        buzz_label_font = QtGui.QFont()
+        buzz_label_font.setBold(True)
+        buzz_label_font.setPointSize(20)
+        buzz_label.setFont(buzz_label_font)
+
+        version_label = QLabel(f'Version {VERSION}')
+        version_label.setAlignment(Qt.AlignmentFlag(
+            Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignHCenter))
+
+        layout.addStretch(1)
+        layout.addWidget(image_label)
+        layout.addWidget(buzz_label)
+        layout.addWidget(version_label)
+        layout.addStretch(1)
+
+        self.setLayout(layout)
+
+
 class MainWindow(QMainWindow):
     new_import_window_triggered = pyqtSignal(tuple)
 
@@ -675,6 +715,12 @@ class MainWindow(QMainWindow):
         self.file_menu = menu.addMenu("&File")
         self.file_menu.addAction(import_audio_file_action)
 
+        self.about_action = QAction('&About', self)
+        self.about_action.triggered.connect(self.on_trigger_about_action)
+
+        self.help_menu = menu.addMenu("&Help")
+        self.help_menu.addAction(self.about_action)
+
         self.settings = Settings(self)
 
         if platform.system() != 'Windows':
@@ -686,9 +732,6 @@ class MainWindow(QMainWindow):
             enable_ggml_inference_action.triggered.connect(
                 self.on_toggle_enable_ggml_inference)
 
-            self.settings_menu = menu.addMenu('&Settings')
-            self.settings_menu.addAction(enable_ggml_inference_action)
-
     def on_import_audio_file_action(self):
         (file_path, _) = QFileDialog.getOpenFileName(
             self, 'Select audio file', '', 'Audio Files (*.mp3 *.wav *.m4a *.ogg);;Video Files (*.mp4 *.webm *.ogm)')
@@ -698,6 +741,10 @@ class MainWindow(QMainWindow):
 
     def on_toggle_enable_ggml_inference(self, state: bool):
         self.settings.setValue(Settings.ENABLE_GGML_INFERENCE, state)
+
+    def on_trigger_about_action(self):
+        about_dialog = AboutDialog(None)
+        about_dialog.exec()
 
 
 class RecordingTranscriberMainWindow(MainWindow):

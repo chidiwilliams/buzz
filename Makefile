@@ -25,6 +25,7 @@ libwhisper.so:
 
 version:
 	poetry version ${version}
+	echo "VERSION = \"${version}\"" > __version__.py
 
 bundle_linux:
 	make buzz
