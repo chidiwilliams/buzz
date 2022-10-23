@@ -1,3 +1,4 @@
+import faulthandler
 import logging
 import multiprocessing
 import os
@@ -7,6 +8,11 @@ import sys
 from appdirs import user_log_dir
 
 from gui import Application
+
+# Check for segfaults if not running in frozen mode
+if getattr(sys, 'frozen', False) is False:
+    faulthandler.enable()
+
 
 # Adds the current directory to the PATH, so the ffmpeg binary get picked up:
 # https://stackoverflow.com/a/44352931/9830227

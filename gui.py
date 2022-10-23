@@ -214,11 +214,12 @@ class DownloadModelProgressDialog(QProgressDialog):
         super().setValue(current_size)
 
         fraction_completed = current_size / self.maximum()
-        time_spent = (datetime.now() - self.start_time).total_seconds()
-        time_left = (time_spent / fraction_completed) - time_spent
+        if fraction_completed > 0:
+            time_spent = (datetime.now() - self.start_time).total_seconds()
+            time_left = (time_spent / fraction_completed) - time_spent
 
-        self.setLabelText(
-            f'Downloading resources ({(current_size / self.maximum()):.2%}, {humanize.naturaldelta(time_left)} remaining)')
+            self.setLabelText(
+                f'Downloading resources ({(current_size / self.maximum()):.2%}, {humanize.naturaldelta(time_left)} remaining)')
 
 
 class TranscriberProgressDialog(QProgressDialog):
@@ -430,17 +431,18 @@ class FileTranscriberWidget(QWidget):
         self.file_transcriber.start()
 
     def on_download_model_progress(self, current_size: int, total_size: int):
-        if current_size == total_size:
-            self.end_download_model()
-            return
-
-        if self.model_download_progress_dialog == None:
+        if current_size == 0:
             self.model_download_progress_dialog = DownloadModelProgressDialog(
                 total_size=total_size, parent=self)
             self.model_download_progress_dialog.canceled.connect(
                 self.on_cancel_model_progress_dialog)
-        else:
-            self.model_download_progress_dialog.setValue(current_size)
+
+        if self.model_download_progress_dialog is not None:
+            self.model_download_progress_dialog.setValue(
+                current_size=current_size)
+
+        if current_size == total_size:
+            self.reset_model_download()
 
     def on_transcribe_model_progress(self, current_size: int, total_size: int):
         self.transcribe_progress.emit((current_size, total_size))
@@ -448,43 +450,38 @@ class FileTranscriberWidget(QWidget):
     def handle_transcribe_progress(self, progress: Tuple[int, int]):
         (current_size, total_size) = progress
 
-        if current_size == total_size:
-            self.reset_transcription()
-            return
-
-        # In the middle of transcription...
-
-        # Create a dialog if one does not exist
-        if current_size == 0 and self.transcriber_progress_dialog == None:
+        # Create a dialog
+        if current_size == 0:
             self.transcriber_progress_dialog = TranscriberProgressDialog(
                 file_path=self.file_path, total_size=total_size, parent=self)
             self.transcriber_progress_dialog.canceled.connect(
-                self.stop_transcription)
+                self.on_cancel_transcriber_progress_dialog)
 
         # Update the progress of the dialog unless it has
         # been canceled before this progress update arrived
-        if self.transcriber_progress_dialog != None and self.transcriber_progress_dialog.wasCanceled() == False:
+        if self.transcriber_progress_dialog is not None:
             self.transcriber_progress_dialog.update_progress(current_size)
 
-    def stop_transcription(self):
-        if self.file_transcriber != None:
+        if current_size == total_size:
+            self.reset_transcription()
+
+    def on_cancel_transcriber_progress_dialog(self):
+        if self.file_transcriber is not None:
             self.file_transcriber.stop()
         self.reset_transcription()
 
     def reset_transcription(self):
         self.run_button.setDisabled(False)
-        if self.transcriber_progress_dialog != None:
-            self.transcriber_progress_dialog.destroy()
+        if self.transcriber_progress_dialog is not None:
             self.transcriber_progress_dialog = None
 
     def on_cancel_model_progress_dialog(self):
-        if self.model_loader != None:
+        if self.model_loader is not None:
             self.model_loader.stop()
-        self.end_download_model()
+        self.reset_model_download()
 
-    def end_download_model(self):
-        if self.model_download_progress_dialog != None:
-            self.model_download_progress_dialog.destroy()
+    def reset_model_download(self):
+        if self.model_download_progress_dialog is not None:
             self.model_download_progress_dialog = None
 
 
@@ -628,31 +625,31 @@ class RecordingTranscriberWidget(QWidget):
         self.transcriber.start_recording()
 
     def on_download_model_progress(self, current_size: int, total_size: int):
-        if current_size == total_size:
-            self.end_download_model()
-            return
-
-        if self.model_download_progress_dialog == None:
+        if current_size == 0:
             self.model_download_progress_dialog = DownloadModelProgressDialog(
                 total_size=total_size, parent=self)
             self.model_download_progress_dialog.canceled.connect(
                 self.on_cancel_model_progress_dialog)
-        else:
-            self.model_download_progress_dialog.setValue(current_size)
+
+        if self.model_download_progress_dialog is not None:
+            self.model_download_progress_dialog.setValue(
+                current_size=current_size)
+
+        if current_size == total_size:
+            self.reset_model_download()
 
     def stop_recording(self):
-        if self.transcriber != None:
+        if self.transcriber is not None:
             self.transcriber.stop_recording()
         self.timer_label.stop_timer()
 
     def on_cancel_model_progress_dialog(self):
-        if self.model_loader != None:
+        if self.model_loader is not None:
             self.model_loader.stop()
-        self.end_download_model()
+        self.reset_model_download()
 
-    def end_download_model(self):
-        if self.model_download_progress_dialog != None:
-            self.model_download_progress_dialog.destroy()
+    def reset_model_download(self):
+        if self.model_download_progress_dialog is not None:
             self.model_download_progress_dialog = None
 
 
@@ -714,6 +711,8 @@ class RecordingTranscriberMainWindow(MainWindow):
 
 
 class FileTranscriberMainWindow(MainWindow):
+    central_widget: FileTranscriberWidget
+
     def __init__(self, file_path: str, parent: Optional[QWidget], *args) -> None:
         super().__init__(title=get_short_file_path(
             file_path), w=400, h=210, parent=parent, *args)
@@ -723,7 +722,7 @@ class FileTranscriberMainWindow(MainWindow):
         self.setCentralWidget(self.central_widget)
 
     def closeEvent(self, event: QCloseEvent) -> None:
-        self.central_widget.stop_transcription()
+        self.central_widget.on_cancel_transcriber_progress_dialog()
         return super().closeEvent(event)
 
 

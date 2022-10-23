@@ -236,6 +236,7 @@ class FileTranscriber:
     """FileTranscriber transcribes an audio file to text, writes the text to a file, and then opens the file using the default program for opening txt files."""
 
     stopped = False
+    current_thread: Optional[Thread] = None
 
     def __init__(
             self, model: Union[whisper.Whisper, _whisper.WhisperCpp], language: Optional[str],
@@ -250,8 +251,6 @@ class FileTranscriber:
         self.language = language
         self.task = task
         self.open_file_on_complete = open_file_on_complete
-
-        _, extension = os.path.splitext(self.output_file_path)
         self.output_format = output_format
 
     def start(self):
@@ -310,15 +309,18 @@ class FileTranscriber:
             logging.exception('')
 
     def join(self):
-        self.current_thread.join()
+        if self.current_thread is not None:
+            self.current_thread.join()
 
     def stop(self):
-        self.stopped = True
+        if self.stopped is False:
+            self.stopped = True
 
-        if self.current_thread != None:
-            logging.debug('Waiting for file transcription thread to terminate')
-            self.current_thread.join()
-            logging.debug('File transcription thread terminated')
+            if self.current_thread is not None:
+                logging.debug(
+                    'Waiting for file transcription thread to terminate')
+                self.current_thread.join()
+                logging.debug('File transcription thread terminated')
 
     def check_stopped(self):
         return self.stopped

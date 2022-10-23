@@ -3,8 +3,8 @@ from unittest.mock import patch
 import sounddevice
 
 from gui import (Application, AudioDevicesComboBox,
-                 DownloadModelProgressDialog, OutputFormatsComboBox,
-                 LanguagesComboBox, MainWindow, TranscriberProgressDialog)
+                 DownloadModelProgressDialog, LanguagesComboBox, MainWindow,
+                 OutputFormatsComboBox, TranscriberProgressDialog)
 from transcriber import OutputFormat
 
 
@@ -118,6 +118,8 @@ class TestDownloadModelProgressDialog:
         assert self.dialog.labelText() == 'Downloading resources (0%, unknown time remaining)'
 
     def test_should_update_label_on_progress(self):
+        self.dialog.setValue(0)
+
         self.dialog.setValue(12345)
         assert self.dialog.labelText().startswith(
             'Downloading resources (1.00%')
