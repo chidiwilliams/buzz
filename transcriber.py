@@ -15,8 +15,8 @@ import numpy as np
 import sounddevice
 import whisper
 
-import _whisper
-from _whisper import Segment
+import whisper_util
+from whisper_util import Segment
 
 
 class State(enum.Enum):
@@ -38,8 +38,8 @@ class RecordingTranscriber:
     is_running = False
     MAX_QUEUE_SIZE = 10
 
-    def __init__(self, model: Union[whisper.Whisper, _whisper.WhisperCpp], language: Optional[str],
-                 status_callback: Callable[[Status], None], task: _whisper.Task,
+    def __init__(self, model: Union[whisper.Whisper, whisper_util.WhisperCpp], language: Optional[str],
+                 status_callback: Callable[[Status], None], task: whisper_util.Task,
                  input_device_index: Optional[int] = None) -> None:
         self.model = model
         self.current_stream = None
@@ -92,7 +92,7 @@ class RecordingTranscriber:
                 else:
                     result = self.model.transcribe(
                         audio=samples,
-                        params=_whisper.whisper_cpp_params(
+                        params=whisper_util.whisper_cpp_params(
                             language=self.language if self.language is not None else 'en',
                             task=self.task.value))
 
@@ -225,7 +225,7 @@ def write_output(path: str, segments: List[Segment], should_open: bool, output_f
 
 
 def transcribe_cpp(
-        model: _whisper.WhisperCpp, audio: Union[np.ndarray, str],
+        model: whisper_util.WhisperCpp, audio: Union[np.ndarray, str],
         params: Any, output_file_path: str, open_file_on_complete: bool, output_format):
     result = model.transcribe(audio=audio, params=params)
     write_output(output_file_path, result.get(
@@ -239,8 +239,8 @@ class FileTranscriber:
     current_thread: Optional[Thread] = None
 
     def __init__(
-            self, model: Union[whisper.Whisper, _whisper.WhisperCpp], language: Optional[str],
-            task: _whisper.Task, file_path: str,
+            self, model: Union[whisper.Whisper, whisper_util.WhisperCpp], language: Optional[str],
+            task: whisper_util.Task, file_path: str,
             output_file_path: str, output_format: OutputFormat,
             progress_callback: Callable[[int, int], None] = lambda *_: None,
             open_file_on_complete=True) -> None:
@@ -259,7 +259,7 @@ class FileTranscriber:
 
     def transcribe(self):
         try:
-            if isinstance(self.model, _whisper. WhisperCpp):
+            if isinstance(self.model, whisper_util. WhisperCpp):
                 self.progress_callback(0, 100)
 
                 with capture_fd(2) as (_, stderr):
@@ -267,7 +267,7 @@ class FileTranscriber:
                         target=transcribe_cpp,
                         args=(
                             self.model, self.file_path,
-                            _whisper.whisper_cpp_params(
+                            whisper_util.whisper_cpp_params(
                                 language=self.language if self.language is not None else 'en',
                                 task=self.task, print_realtime=True, print_progress=True),
                             self.output_file_path,
@@ -281,14 +281,14 @@ class FileTranscriber:
 
                         next_stderr = read_pipe_str(stderr)
                         if len(next_stderr) > 0:
-                            progress = _whisper.whisper_cpp_progress(
+                            progress = whisper_util.whisper_cpp_progress(
                                 next_stderr)
                             if progress != None:
                                 self.progress_callback(progress, 100)
 
                 self.progress_callback(100, 100)
             else:
-                result = _whisper.transcribe(
+                result = whisper_util.transcribe(
                     model=self.model, audio=self.file_path,
                     progress_callback=self.progress_callback,
                     language=self.language, task=self.task.value,
@@ -303,7 +303,7 @@ class FileTranscriber:
 
                 write_output(self.output_file_path, list(
                     segments), self.open_file_on_complete, self.output_format)
-        except _whisper.Stopped:
+        except whisper_util.Stopped:
             return
         except Exception:
             logging.exception('')
@@ -326,5 +326,5 @@ class FileTranscriber:
         return self.stopped
 
     @classmethod
-    def get_default_output_file_path(cls, task: _whisper.Task, input_file_path: str, output_format: OutputFormat):
+    def get_default_output_file_path(cls, task: whisper_util.Task, input_file_path: str, output_format: OutputFormat):
         return f'{os.path.splitext(input_file_path)[0]} ({task.value.title()}d on {datetime.datetime.now():%d-%b-%Y %H-%M-%S}).{output_format.value}'

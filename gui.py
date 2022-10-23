@@ -17,8 +17,8 @@ from PyQt6.QtWidgets import (QApplication, QComboBox, QFileDialog, QGridLayout,
                              QProgressDialog, QPushButton, QWidget)
 from whisper import tokenizer
 
-import _whisper
-from _whisper import Task, WhisperCpp
+import whisper_util
+from whisper_util import Task, WhisperCpp
 from transcriber import (FileTranscriber, OutputFormat, RecordingTranscriber,
                          State, Status)
 
@@ -326,7 +326,7 @@ class FileTranscriberWidget(QWidget):
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     transcriber_progress_dialog: Optional[TranscriberProgressDialog] = None
     transcribe_progress = pyqtSignal(tuple)
-    model_loader: Optional[_whisper.ModelLoader] = None
+    model_loader: Optional[whisper_util.ModelLoader] = None
     file_transcriber: Optional[FileTranscriber] = None
 
     def __init__(self, file_path: str, parent: Optional[QWidget]) -> None:
@@ -412,13 +412,13 @@ class FileTranscriberWidget(QWidget):
         model_name = get_model_name(self.selected_quality)
         logging.debug(f'Loading model: {model_name}')
 
-        self.model_loader = _whisper.ModelLoader(
+        self.model_loader = whisper_util.ModelLoader(
             name=model_name, use_whisper_cpp=use_whisper_cpp,
             on_download_model_chunk=self.on_download_model_progress)
 
         try:
             model = self.model_loader.load()
-        except _whisper.Stopped:
+        except whisper_util.Stopped:
             self.run_button.setDisabled(False)
             return
 
@@ -504,7 +504,7 @@ class RecordingTranscriberWidget(QWidget):
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     settings: Settings
     transcriber: Optional[TranscriberWithSignal] = None
-    model_loader: Optional[_whisper.ModelLoader] = None
+    model_loader: Optional[whisper_util.ModelLoader] = None
 
     def __init__(self, parent: Optional[QWidget]) -> None:
         super().__init__(parent)
@@ -596,13 +596,13 @@ class RecordingTranscriberWidget(QWidget):
         model_name = get_model_name(self.selected_quality)
         logging.debug(f'Loading model: {model_name}')
 
-        self.model_loader = _whisper.ModelLoader(
+        self.model_loader = whisper_util.ModelLoader(
             name=model_name, use_whisper_cpp=use_whisper_cpp,
             on_download_model_chunk=self.on_download_model_progress)
 
         try:
             model = self.model_loader.load()
-        except _whisper.Stopped:
+        except whisper_util.Stopped:
             self.record_button.setDisabled(False)
             self.record_button.force_stop()
             return

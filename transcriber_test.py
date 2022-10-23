@@ -4,7 +4,7 @@ import tempfile
 
 import pytest
 
-from _whisper import Task, WhisperCpp
+from whisper_util import Task, WhisperCpp
 from transcriber import (OutputFormat, FileTranscriber, RecordingTranscriber,
                          Status, to_timestamp)
 
