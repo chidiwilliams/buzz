@@ -4,24 +4,26 @@ import logging
 import multiprocessing
 import os
 import platform
-import select
 import subprocess
 import threading
-from contextlib import contextmanager
+import typing
+from dataclasses import dataclass
 from threading import Thread
-from typing import Any, Callable, List, Optional, Union
+from typing import Callable, List, Optional
 
 import numpy as np
 import sounddevice
 import whisper
 
 import whisper_util
-from whisper_util import Segment
+from fd import capture_fd, read_pipe_str
+from whisper_util import ModelLoader, Segment, Stopped
 
 
 class State(enum.Enum):
-    STARTING_NEXT_TRANSCRIPTION = 0
-    FINISHED_CURRENT_TRANSCRIPTION = 1
+    LOADED_MODEL = 0
+    STARTING_NEXT_TRANSCRIPTION = 1
+    FINISHED_CURRENT_TRANSCRIPTION = 2
 
 
 class Status:
@@ -38,10 +40,11 @@ class RecordingTranscriber:
     is_running = False
     MAX_QUEUE_SIZE = 10
 
-    def __init__(self, model: Union[whisper.Whisper, whisper_util.WhisperCpp], language: Optional[str],
+    def __init__(self,
+                 model_name: str, use_whisper_cpp: bool,
+                 on_download_model_chunk: Callable[[int, int], None], language: Optional[str],
                  status_callback: Callable[[Status], None], task: whisper_util.Task,
                  input_device_index: Optional[int] = None) -> None:
-        self.model = model
         self.current_stream = None
         self.status_callback = status_callback
         self.language = language
@@ -55,6 +58,9 @@ class RecordingTranscriber:
         self.queue = np.ndarray([], dtype=np.float32)
         self.mutex = threading.Lock()
         self.text = ''
+
+        self.model_loader = ModelLoader(
+            name=model_name, use_whisper_cpp=use_whisper_cpp, on_download_model_chunk=on_download_model_chunk)
 
     def start_recording(self):
         logging.debug(
@@ -72,6 +78,13 @@ class RecordingTranscriber:
         self.current_thread.start()
 
     def process_queue(self):
+        try:
+            model = self.model_loader.load()
+        except Stopped:
+            return
+
+        self.status_callback(Status(State.LOADED_MODEL))
+
         while self.is_running:
             self.mutex.acquire()
             if self.queue.size >= self.n_batch_samples:
@@ -85,12 +98,12 @@ class RecordingTranscriber:
                     Status(State.STARTING_NEXT_TRANSCRIPTION))
                 time_started = datetime.datetime.now()
 
-                if isinstance(self.model, whisper.Whisper):
-                    result = self.model.transcribe(
+                if isinstance(model, whisper.Whisper):
+                    result = model.transcribe(
                         audio=samples, language=self.language, task=self.task.value,
                         initial_prompt=self.text)  # prompt model with text from previous transcriptions
                 else:
-                    result = self.model.transcribe(
+                    result = model.transcribe(
                         audio=samples,
                         params=whisper_util.whisper_cpp_params(
                             language=self.language if self.language is not None else 'en',
@@ -145,36 +158,8 @@ class RecordingTranscriber:
             self.current_thread.join()
             logging.debug('Recording thread terminated')
 
-
-def more_data(fd: int):
-    r, _, _ = select.select([fd], [], [], 0)
-    return bool(r)
-
-
-def read_pipe_str(fd: int):
-    out = b''
-    while more_data(fd):
-        out += os.read(fd, 1024)
-    return out.decode('utf-8')
-
-
-@contextmanager
-def capture_fd(fd: int):
-    """Captures and restores a file descriptor into a pipe
-
-    Args:
-        fd (int): file descriptor
-
-    Yields:
-        Tuple[int, int]: previous descriptor and pipe output
-    """
-    pipe_out, pipe_in = os.pipe()
-    prev = os.dup(fd)
-    os.dup2(pipe_in, fd)
-    try:
-        yield (prev, pipe_out)
-    finally:
-        os.dup2(prev, fd)
+    def stop_loading_model(self):
+        self.model_loader.stop()
 
 
 class OutputFormat(enum.Enum):
@@ -224,89 +209,126 @@ def write_output(path: str, segments: List[Segment], should_open: bool, output_f
             subprocess.call([opener, path])
 
 
-def transcribe_cpp(
-        model: whisper_util.WhisperCpp, audio: Union[np.ndarray, str],
-        params: Any, output_file_path: str, open_file_on_complete: bool, output_format):
-    result = model.transcribe(audio=audio, params=params)
-    write_output(output_file_path, result.get(
-        'segments'), open_file_on_complete, output_format)
-
-
 class FileTranscriber:
     """FileTranscriber transcribes an audio file to text, writes the text to a file, and then opens the file using the default program for opening txt files."""
 
     stopped = False
     current_thread: Optional[Thread] = None
 
+    class Event():
+        pass
+
+    @dataclass
+    class ProgressEvent(Event):
+        current_value: int
+        max_value: int
+
+    class LoadedModelEvent(Event):
+        pass
+
     def __init__(
-            self, model: Union[whisper.Whisper, whisper_util.WhisperCpp], language: Optional[str],
-            task: whisper_util.Task, file_path: str,
+            self,
+            model_name: str, use_whisper_cpp: bool,
+            on_download_model_chunk: Callable[[int, int], None],
+            language: Optional[str], task: whisper_util.Task, file_path: str,
             output_file_path: str, output_format: OutputFormat,
-            progress_callback: Callable[[int, int], None] = lambda *_: None,
+            event_callback: Callable[[Event], None],
             open_file_on_complete=True) -> None:
-        self.model = model
         self.file_path = file_path
         self.output_file_path = output_file_path
-        self.progress_callback = progress_callback
         self.language = language
         self.task = task
         self.open_file_on_complete = open_file_on_complete
         self.output_format = output_format
 
+        self.model_name = model_name
+        self.use_whisper_cpp = use_whisper_cpp
+        self.on_download_model_chunk = on_download_model_chunk
+
+        self.model_loader = ModelLoader(
+            self.model_name, self.use_whisper_cpp, self.on_download_model_chunk)
+        self.event_callback = event_callback
+
     def start(self):
-        self.current_thread = Thread(target=self.transcribe)
+        self.current_thread = Thread(
+            target=self.transcribe, args=(self.model_loader,))
         self.current_thread.start()
 
-    def transcribe(self):
+    def transcribe(self, model_loader: ModelLoader):
         try:
-            if isinstance(self.model, whisper_util. WhisperCpp):
-                self.progress_callback(0, 100)
+            model = model_loader.load()
+            self.event_callback(self.LoadedModelEvent())
 
-                with capture_fd(2) as (_, stderr):
+            self.event_callback(self.ProgressEvent(0, 100))
+            with capture_fd(2) as (prev_stderr, stderr):
+                if self.use_whisper_cpp:
                     process = multiprocessing.Process(
-                        target=transcribe_cpp,
+                        target=self.transcribe_whisper_cpp,
                         args=(
-                            self.model, self.file_path,
+                            model, self.file_path,
                             whisper_util.whisper_cpp_params(
                                 language=self.language if self.language is not None else 'en',
                                 task=self.task, print_realtime=True, print_progress=True),
-                            self.output_file_path,
-                            self.open_file_on_complete,
+                            self.output_file_path, self.open_file_on_complete,
                             self.output_format))
-                    process.start()
+                else:
+                    process = multiprocessing.Process(
+                        target=self.transcribe_whisper,
+                        args=(
+                            model, self.file_path, self.language, self.task,
+                            self.output_file_path, self.open_file_on_complete,
+                            self.output_format))
 
-                    while process.is_alive():
-                        if self.check_stopped():
-                            process.kill()
+                process.start()
 
-                        next_stderr = read_pipe_str(stderr)
-                        if len(next_stderr) > 0:
+                while process.is_alive():
+                    if self.check_stopped():
+                        process.kill()
+
+                    next_stderr = read_pipe_str(stderr)
+                    if len(next_stderr) > 0:
+                        try:
                             progress = whisper_util.whisper_cpp_progress(
                                 next_stderr)
-                            if progress != None:
-                                self.progress_callback(progress, 100)
+                            self.event_callback(
+                                self.ProgressEvent(progress, 100))
+                        except Exception:
+                            # check for other progress type?
+                            os.write(prev_stderr, next_stderr.encode('utf-8'))
+                            pass
 
-                self.progress_callback(100, 100)
-            else:
-                result = whisper_util.transcribe(
-                    model=self.model, audio=self.file_path,
-                    progress_callback=self.progress_callback,
-                    language=self.language, task=self.task.value,
-                    check_stopped=self.check_stopped)
-
-                segments = map(
-                    lambda segment: Segment(
-                        start=segment.get('start')*1000,  # s to ms
-                        end=segment.get('end')*1000,      # s to ms
-                        text=segment.get('text')),
-                    result.get('segments'))
-
-                write_output(self.output_file_path, list(
-                    segments), self.open_file_on_complete, self.output_format)
+            self.event_callback(self.ProgressEvent(100, 100))
         except whisper_util.Stopped:
             return
         except Exception:
             logging.exception('')
+
+    def transcribe_whisper_cpp(
+        self, model: whisper_util.WhisperCpp, audio: typing.Union[np.ndarray, str],
+            params: typing.Any, output_file_path: str, open_file_on_complete: bool, output_format):
+        result = model.transcribe(audio=audio, params=params)
+        segments: List[Segment] = result.get('segments')
+        write_output(output_file_path, segments,
+                     open_file_on_complete, output_format)
+
+    def transcribe_whisper(
+            self, model: whisper.Whisper, file_path: str, language: str | None,
+            task: whisper_util.Task, output_file_path: str, open_file_on_complete: bool, output_format: OutputFormat):
+        result = whisper.transcribe(
+            model=model, audio=file_path, language=language, task=task.value)
+
+        segments = map(
+            lambda segment: Segment(
+                start=segment.get('start')*1000,  # s to ms
+                end=segment.get('end')*1000,      # s to ms
+                text=segment.get('text')),
+            result.get('segments'))
+
+        write_output(output_file_path, list(
+            segments), open_file_on_complete, output_format)
+
+    def stop_loading_model(self):
+        self.model_loader.stop()
 
     def join(self):
         if self.current_thread is not None:
