@@ -19,8 +19,6 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-            INSTALL_DEPS: |
-              brew install ffmpeg
           # - os: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -53,7 +51,11 @@ jobs:
           key: whisper-models
 
       - run: poetry install
-      - run: ${{ matrix.INSTALL_DEPS }}
+      - name: Install ffmeg
+        run: |
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            brew install ffmpeg
+          fi
       - name: Test
         run: poetry run make libwhisper.so test
   build:

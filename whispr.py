@@ -77,8 +77,13 @@ class WhisperCpp:
         if isinstance(audio, str):
             audio = whisper.audio.load_audio(audio)
 
-        result = whisper_cpp.whisper_full(ctypes.c_void_p(
-            self.ctx), params, audio.ctypes.data_as(ctypes.POINTER(ctypes.c_float)), len(audio))
+        logging.debug('Loaded audio with length = %s', len(audio))
+
+        whisper_cpp_ctx = ctypes.c_void_p(self.ctx)
+        whisper_cpp_audio = audio.ctypes.data_as(
+            ctypes.POINTER(ctypes.c_float))
+        result = whisper_cpp.whisper_full(
+            whisper_cpp_ctx, params, whisper_cpp_audio, len(audio))
         if result != 0:
             raise Exception(f'Error from whisper.cpp: {result}')
 
