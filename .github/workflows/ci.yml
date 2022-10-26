@@ -53,7 +53,7 @@ jobs:
           key: whisper-models
 
       - run: poetry install
-      - run: ${{ matrix.CMD_BUILD }}
+      - run: ${{ matrix.INSTALL_DEPS }}
       - name: Test
         run: poetry run make libwhisper.so test
   build:
