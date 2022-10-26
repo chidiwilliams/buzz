@@ -17,7 +17,7 @@ from whisper import tokenizer
 
 from transcriber import (FileTranscriber, OutputFormat, RecordingTranscriber,
                          State, Status)
-from whispr import ModelLoader, Task
+from whispr import Task
 
 
 def get_platform_styles(all_platform_styles: Dict[str, str]):
@@ -278,6 +278,9 @@ class FileTranscriberObject(QObject):
     def stop(self):
         self.transcriber.stop()
 
+    def stop_loading_model(self):
+        self.transcriber.stop_loading_model()
+
 
 class RecordingTranscriberObject(QObject):
     """
@@ -360,8 +363,6 @@ class FileTranscriberWidget(QWidget):
     selected_output_format = OutputFormat.TXT
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     transcriber_progress_dialog: Optional[TranscriberProgressDialog] = None
-    transcribe_progress = pyqtSignal(tuple)
-    model_loader: Optional[ModelLoader] = None
     file_transcriber: Optional[FileTranscriberObject] = None
 
     def __init__(self, file_path: str, parent: Optional[QWidget]) -> None:
@@ -415,8 +416,6 @@ class FileTranscriberWidget(QWidget):
                 layout.addWidget(widget, row_index, col_offset, 1, col_width)
 
         self.setLayout(layout)
-
-        self.transcribe_progress.connect(self.on_transcriber_event)
 
     def on_quality_changed(self, quality: Quality):
         self.selected_quality = quality
@@ -472,9 +471,6 @@ class FileTranscriberWidget(QWidget):
             self.model_download_progress_dialog.setValue(
                 current_size=current_size)
 
-    def on_transcribe_model_progress(self, current_size: int, total_size: int):
-        self.transcribe_progress.emit((current_size, total_size))
-
     def on_transcriber_event(self, event: FileTranscriber.Event):
         if isinstance(event, FileTranscriber.LoadedModelEvent):
             self.reset_model_download()
@@ -508,8 +504,8 @@ class FileTranscriberWidget(QWidget):
             self.transcriber_progress_dialog = None
 
     def on_cancel_model_progress_dialog(self):
-        if self.model_loader is not None:
-            self.model_loader.stop()
+        if self.file_transcriber is not None:
+            self.file_transcriber.stop_loading_model()
         self.reset_model_download()
 
     def reset_model_download(self):
