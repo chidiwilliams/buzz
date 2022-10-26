@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-latest
+          - os: macos-12
           # - os: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -63,19 +63,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-latest
-            CMD_BUILD: |
-              brew install create-dmg
-              brew install ffmpeg
-              poetry run make libwhisper.so bundle_mac
+          - os: macos-12
           - os: ubuntu-latest
-            CMD_BUILD: |
-              sudo apt update && sudo apt install ffmpeg
-              poetry run make libwhisper.so bundle_linux
           - os: windows-latest
-            CMD_BUILD: |
-              choco install ffmpeg
-              poetry run make libwhisper.so bundle_windows
     steps:
       - uses: actions/checkout@v3
         with:
@@ -98,7 +88,24 @@ jobs:
           key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-2
 
       - run: poetry install
-      - run: ${{ matrix.CMD_BUILD }}
+      - name: Install ffmpeg
+        run: |
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            brew install ffmpeg
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            choco install ffmpeg
+          elif [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt update && sudo apt install ffmpeg
+          fi
+      - name: Bundle
+        run: |
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            poetry run make libwhisper.so bundle_mac
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            poetry run make libwhisper.so bundle_windows
+          elif [ "$RUNNER_OS" == "Linux" ]; then
+            poetry run make libwhisper.so bundle_linux
+          fi
         env:
           BUZZ_VERSION: ${{ github.ref_name }}
       - uses: actions/upload-artifact@v3
