@@ -28,7 +28,6 @@ class TestFileTranscriber:
         assert srt.startswith('/a/b/c (Translated on ')
         assert srt.endswith('.srt')
 
-    # @pytest.mark.skip(reason='test ggml model not working for')
     def test_transcribe_whisper_cpp(self):
         output_file_path = os.path.join(tempfile.gettempdir(), 'whisper.txt')
         if os.path.exists(output_file_path):

@@ -5,7 +5,7 @@ on:
     branches:
       - master
     tags:
-      - "*"
+      - '*'
   pull_request:
 
 concurrency:
@@ -40,6 +40,15 @@ jobs:
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-2
+
+      - name: Load Whisper models
+        id: cached-whisper-models
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/Library/Caches/Buzz
+            ~/.cache/whisper
+          key: whisper-models
 
       - run: poetry install
       - name: Test
