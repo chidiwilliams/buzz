@@ -324,7 +324,7 @@ class FileTranscriber:
                      open_file_on_complete, output_format)
 
     def transcribe_whisper(
-            self, model: whisper.Whisper, file_path: str, language: str | None,
+            self, model: whisper.Whisper, file_path: str, language: Optional[str],
             task: Task, output_file_path: str, open_file_on_complete: bool, output_format: OutputFormat):
         result = whisper.transcribe(
             model=model, audio=file_path, language=language, task=task.value, verbose=False)
