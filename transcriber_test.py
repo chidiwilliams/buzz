@@ -27,13 +27,13 @@ class TestFileTranscriber:
         assert srt.startswith('/a/b/c (Translated on ')
         assert srt.endswith('.srt')
 
-    def test_transcribe_whisper_cpp(self):
+    def test_transcribe_whisper(self):
         output_file_path = os.path.join(tempfile.gettempdir(), 'whisper.txt')
         if os.path.exists(output_file_path):
             os.remove(output_file_path)
 
         transcriber = FileTranscriber(
-            model_name='tiny', use_whisper_cpp=True, language='en',
+            model_name='tiny', use_whisper_cpp=False, language='en',
             task=Task.TRANSCRIBE, file_path='testdata/whisper.m4a',
             output_file_path=output_file_path, output_format=OutputFormat.TXT,
             open_file_on_complete=False)
