@@ -227,6 +227,8 @@ def download_whisper_cpp_model(name: str):
     """Downloads a Whisper.cpp GGML model to the user cache directory."""
 
     base_dir = user_cache_dir('Buzz')
+    os.makedirs(base_dir, exist_ok=True)
+
     model_path = os.path.join(
         base_dir, f'ggml-model-whisper-{name}.bin')
 
