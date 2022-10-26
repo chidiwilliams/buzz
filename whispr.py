@@ -1,21 +1,23 @@
 import ctypes
 import enum
 import hashlib
+import logging
 import multiprocessing
 import os
 import pathlib
 import warnings
 from dataclasses import dataclass
+from queue import Empty
 from typing import Any, Callable, List, Optional, Union
 
 import numpy as np
 import requests
 import whisper
+from appdirs import user_cache_dir
 from tqdm import tqdm
 from whisper import Whisper
 
 from fd import capture_fd, read_pipe_str
-from whisper_cpp import download_model
 
 
 class Stopped(Exception):
@@ -56,22 +58,6 @@ whisper_cpp = ctypes.CDLL(
 whisper_cpp.whisper_init.restype = ctypes.c_void_p
 whisper_cpp.whisper_full_default_params.restype = WhisperFullParams
 whisper_cpp.whisper_full_get_segment_text.restype = ctypes.c_char_p
-
-
-def whisper_cpp_progress(lines: str):
-    """Extracts the progress of a whisper.cpp transcription.
-
-    The log lines have the following format:
-        whisper_full: progress = 20%\n
-    """
-
-    # Example log line: "whisper_full: progress = 20%"
-    progress_lines = list(filter(lambda line: line.startswith(
-        'whisper_full: progress'), lines.split('\n')))
-    if len(progress_lines) == 0:
-        raise Exception('No lines match whisper.cpp progress format')
-    last_word = progress_lines[-1].split(' ')[-1]
-    return min(int(last_word[:-1]), 100)
 
 
 def whisper_cpp_params(language: str, task: Task, print_realtime=False, print_progress=False):
@@ -132,18 +118,26 @@ class ModelLoader:
         self.use_whisper_cpp = use_whisper_cpp
 
     def load(self) -> Union[Whisper, WhisperCpp]:
-        queue = multiprocessing.Queue()
+        logging.debug(
+            'Loading model = %s, whisper.cpp = %s', self.name, self.use_whisper_cpp)
+
+        model_path_queue = multiprocessing.Queue()
 
         # Fixes an issue with the pickling of a torch model from another process
-        if self.use_whisper_cpp is False:
-            os.environ["no_proxy"] = '*'
+        os.environ["no_proxy"] = '*'
 
+        model_path: Optional[Any] = None
         with capture_fd(2) as (prev_stderr, stderr):
             self.process = multiprocessing.Process(
-                target=self.load_whisper_cpp_model if self.use_whisper_cpp else self.load_whisper_model, args=(queue, self.name))
+                target=self.load_whisper_cpp_model if self.use_whisper_cpp else self.load_whisper_model, args=(model_path_queue, self.name))
             self.process.start()
 
             while self.process.is_alive():
+                try:
+                    model_path = model_path_queue.get(block=False)
+                except Empty:
+                    pass
+
                 if self.stopped:
                     self.process.kill()
                     raise Stopped
@@ -151,30 +145,29 @@ class ModelLoader:
                 next_stderr = read_pipe_str(stderr)
                 if len(next_stderr) > 0:
                     os.write(prev_stderr, next_stderr.encode('utf-8'))
-                    # tqdm progress line looks like: " 54%|█████       |"
-                    percent_progress = next_stderr.split(
-                        '|')[0].strip().strip('%')
                     try:
-                        self.on_download_model_chunk(
-                            int(percent_progress), 100)
+                        progress = tqdm_progress(next_stderr)
+                        self.on_download_model_chunk(progress, 100)
                     except ValueError:
                         continue
 
-        self.process.join()
-        return WhisperCpp(queue.get()) if self.use_whisper_cpp else queue.get()
+        if model_path is None:
+            raise Exception('model not loaded')
+
+        logging.debug('Loading model from path = %s', model_path)
+        return WhisperCpp(model_path) if self.use_whisper_cpp else whisper.load_model(model_path)
 
     def load_whisper_cpp_model(self, queue: multiprocessing.Queue, name: str):
-        model_path = download_model(name)
-        queue.put(model_path)
+        path = download_whisper_cpp_model(name)
+        queue.put(path)
 
     def load_whisper_model(self, queue: multiprocessing.Queue, name: str):
         download_root = os.getenv(
             "XDG_CACHE_HOME",
             os.path.join(os.path.expanduser("~"), ".cache", "whisper")
         )
-        path = _download(whisper._MODELS[name], download_root)
-        model = whisper.load_model(path)
-        queue.put(model)
+        path = download_whisper_model(whisper._MODELS[name], download_root)
+        queue.put(path)
 
     def stop(self):
         self.stopped = True
@@ -186,7 +179,7 @@ class ModelLoader:
         return self.stopped
 
 
-def _download(url: str, root: str):
+def download_whisper_model(url: str, root: str):
     """See whisper._download"""
     os.makedirs(root, exist_ok=True)
 
@@ -221,3 +214,71 @@ def _download(url: str, root: str):
             "Model has been downloaded but the SHA256 checksum does not not match. Please retry loading the model.")
 
     return download_target
+
+
+MODELS_SHA256 = {
+    'tiny': 'be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21',
+    'small': '60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe',
+    'base': '1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b'
+}
+
+
+def download_whisper_cpp_model(name: str):
+    """Downloads a Whisper.cpp GGML model to the user cache directory."""
+
+    base_dir = user_cache_dir('Buzz')
+    model_path = os.path.join(
+        base_dir, f'ggml-model-whisper-{name}.bin')
+
+    if os.path.exists(model_path) and not os.path.isfile(model_path):
+        raise RuntimeError(
+            f"{model_path} exists and is not a regular file")
+
+    expected_sha256 = MODELS_SHA256[name]
+
+    if os.path.isfile(model_path):
+        model_bytes = open(model_path, "rb").read()
+        if hashlib.sha256(model_bytes).hexdigest() == expected_sha256:
+            return model_path
+
+        logging.debug(
+            '%s exists, but the SHA256 checksum does not match; re-downloading the file', model_path)
+
+    url = f'https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-{name}.bin'
+    with requests.get(url, stream=True, timeout=15) as source, open(model_path, 'wb') as output:
+        source.raise_for_status()
+
+        total_size = int(source.headers.get('Content-Length', 0))
+        with tqdm(total=total_size, ncols=80, unit='iB', unit_scale=True, unit_divisor=1024) as loop:
+            for chunk in source.iter_content(chunk_size=8192):
+                output.write(chunk)
+                loop.update(len(chunk))
+
+    model_bytes = open(model_path, "rb").read()
+    if hashlib.sha256(model_bytes).hexdigest() != expected_sha256:
+        raise RuntimeError(
+            "Model has been downloaded but the SHA256 checksum does not match. Please retry loading the model.")
+
+    return model_path
+
+
+# tqdm progress line looks like: " 54%|█████       |"
+def tqdm_progress(line: str):
+    percent_progress = line.split('|')[0].strip().strip('%')
+    return int(percent_progress)
+
+
+def whisper_cpp_progress(lines: str):
+    """Extracts the progress of a whisper.cpp transcription.
+
+    The log lines have the following format:
+        whisper_full: progress = 20%\n
+    """
+
+    # Example log line: "whisper_full: progress = 20%"
+    progress_lines = list(filter(lambda line: line.startswith(
+        'whisper_full: progress'), lines.split('\n')))
+    if len(progress_lines) == 0:
+        raise ValueError('No lines match whisper.cpp progress format')
+    last_word = progress_lines[-1].split(' ')[-1]
+    return min(int(last_word[:-1]), 100)

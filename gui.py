@@ -1,5 +1,4 @@
 import enum
-import logging
 import os
 import platform
 import sys
@@ -16,10 +15,9 @@ from PyQt6.QtWidgets import (QApplication, QComboBox, QFileDialog, QGridLayout,
                              QProgressDialog, QPushButton, QWidget)
 from whisper import tokenizer
 
-import whisper_util
 from transcriber import (FileTranscriber, OutputFormat, RecordingTranscriber,
                          State, Status)
-from whisper_util import Task
+from whispr import ModelLoader, Task
 
 
 def get_platform_styles(all_platform_styles: Dict[str, str]):
@@ -254,16 +252,19 @@ class TranscriberProgressDialog(QProgressDialog):
 class FileTranscriberObject(QObject):
     download_model_progress = pyqtSignal(tuple)
     event_received = pyqtSignal(object)
+    transcriber: FileTranscriber
 
     def __init__(
             self, model_name: str, use_whisper_cpp: bool, language: Optional[str],
-            task: whisper_util.Task, file_path: str, output_file_path: str,
+            task: Task, file_path: str, output_file_path: str,
             output_format: OutputFormat, parent: Optional['QObject'], *args) -> None:
         super().__init__(parent, *args)
         self.transcriber = FileTranscriber(
-            model_name, use_whisper_cpp, self.on_download_model_progress,
-            language, task, file_path, output_file_path,
-            output_format, self.on_file_transcriber_event)
+            model_name=model_name, use_whisper_cpp=use_whisper_cpp,
+            on_download_model_chunk=self.on_download_model_progress,
+            language=language, task=task, file_path=file_path,
+            output_file_path=output_file_path, output_format=output_format,
+            event_callback=self.on_file_transcriber_event)
 
     def on_download_model_progress(self, current: int, total: int):
         self.download_model_progress.emit((current, total))
@@ -286,6 +287,7 @@ class RecordingTranscriberObject(QObject):
 
     status_changed = pyqtSignal(Status)
     download_model_progress = pyqtSignal(tuple)
+    transcriber: RecordingTranscriber
 
     def __init__(self, model_name, use_whisper_cpp, language: Optional[str],
                  task: Task, input_device_index: Optional[int], parent: Optional[QWidget], *args) -> None:
@@ -359,7 +361,7 @@ class FileTranscriberWidget(QWidget):
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     transcriber_progress_dialog: Optional[TranscriberProgressDialog] = None
     transcribe_progress = pyqtSignal(tuple)
-    model_loader: Optional[whisper_util.ModelLoader] = None
+    model_loader: Optional[ModelLoader] = None
     file_transcriber: Optional[FileTranscriberObject] = None
 
     def __init__(self, file_path: str, parent: Optional[QWidget]) -> None:
@@ -444,8 +446,6 @@ class FileTranscriberWidget(QWidget):
         self.run_button.setDisabled(True)
         model_name = get_model_name(self.selected_quality)
 
-        logging.debug(
-            f'Starting file transcription, file_path = {self.file_path}, language = {self.selected_language}, task = {self.selected_task}, output file path = {output_file}, output format = {self.selected_output_format}')
         self.file_transcriber = FileTranscriberObject(
             model_name=model_name, use_whisper_cpp=use_whisper_cpp,
             file_path=self.file_path,
@@ -615,7 +615,6 @@ class RecordingTranscriberWidget(QWidget):
         ) and self.selected_language != None
 
         model_name = get_model_name(self.selected_quality)
-        logging.debug(f'Loading model: {model_name}')
 
         self.transcriber = RecordingTranscriberObject(
             model_name=model_name, use_whisper_cpp=use_whisper_cpp,

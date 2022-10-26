@@ -15,9 +15,9 @@ import numpy as np
 import sounddevice
 import whisper
 
-import whisper_util
 from fd import capture_fd, read_pipe_str
-from whisper_util import ModelLoader, Segment, Stopped
+from whispr import (ModelLoader, Segment, Stopped, Task, WhisperCpp,
+                    tqdm_progress, whisper_cpp_params, whisper_cpp_progress)
 
 
 class State(enum.Enum):
@@ -42,8 +42,10 @@ class RecordingTranscriber:
 
     def __init__(self,
                  model_name: str, use_whisper_cpp: bool,
-                 on_download_model_chunk: Callable[[int, int], None], language: Optional[str],
-                 status_callback: Callable[[Status], None], task: whisper_util.Task,
+                 language: Optional[str], task: Task,
+                 on_download_model_chunk: Callable[[
+                     int, int], None] = lambda *_: None,
+                 status_callback: Callable[[Status], None] = lambda *_: None,
                  input_device_index: Optional[int] = None) -> None:
         self.current_stream = None
         self.status_callback = status_callback
@@ -105,7 +107,7 @@ class RecordingTranscriber:
                 else:
                     result = model.transcribe(
                         audio=samples,
-                        params=whisper_util.whisper_cpp_params(
+                        params=whisper_cpp_params(
                             language=self.language if self.language is not None else 'en',
                             task=self.task.value))
 
@@ -229,10 +231,11 @@ class FileTranscriber:
     def __init__(
             self,
             model_name: str, use_whisper_cpp: bool,
-            on_download_model_chunk: Callable[[int, int], None],
-            language: Optional[str], task: whisper_util.Task, file_path: str,
+            language: Optional[str], task: Task, file_path: str,
             output_file_path: str, output_format: OutputFormat,
-            event_callback: Callable[[Event], None],
+            event_callback: Callable[[Event], None] = lambda *_: None,
+            on_download_model_chunk: Callable[[
+                int, int], None] = lambda *_: None,
             open_file_on_complete=True) -> None:
         self.file_path = file_path
         self.output_file_path = output_file_path
@@ -259,6 +262,11 @@ class FileTranscriber:
             model = model_loader.load()
             self.event_callback(self.LoadedModelEvent())
 
+            time_started = datetime.datetime.now()
+            logging.debug(
+                'Starting file transcription, file path = %s, language = %s, task = %s, output file path = %s, output format = %s',
+                self.file_path, self.language, self.task, self.output_file_path, self.output_format)
+
             self.event_callback(self.ProgressEvent(0, 100))
             with capture_fd(2) as (prev_stderr, stderr):
                 if self.use_whisper_cpp:
@@ -266,7 +274,7 @@ class FileTranscriber:
                         target=self.transcribe_whisper_cpp,
                         args=(
                             model, self.file_path,
-                            whisper_util.whisper_cpp_params(
+                            whisper_cpp_params(
                                 language=self.language if self.language is not None else 'en',
                                 task=self.task, print_realtime=True, print_progress=True),
                             self.output_file_path, self.open_file_on_complete,
@@ -282,29 +290,33 @@ class FileTranscriber:
                 process.start()
 
                 while process.is_alive():
-                    if self.check_stopped():
+                    if self.stopped:
                         process.kill()
 
                     next_stderr = read_pipe_str(stderr)
                     if len(next_stderr) > 0:
+                        os.write(prev_stderr, next_stderr.encode('utf-8'))
+
                         try:
-                            progress = whisper_util.whisper_cpp_progress(
-                                next_stderr)
+                            if self.use_whisper_cpp:
+                                progress = whisper_cpp_progress(next_stderr)
+                            else:
+                                progress = tqdm_progress(next_stderr)
                             self.event_callback(
                                 self.ProgressEvent(progress, 100))
-                        except Exception:
-                            # check for other progress type?
-                            os.write(prev_stderr, next_stderr.encode('utf-8'))
+                        except ValueError:
                             pass
 
             self.event_callback(self.ProgressEvent(100, 100))
-        except whisper_util.Stopped:
+            logging.debug('Completed file transcription, time taken = %s',
+                          datetime.datetime.now()-time_started)
+        except Stopped:
             return
         except Exception:
             logging.exception('')
 
     def transcribe_whisper_cpp(
-        self, model: whisper_util.WhisperCpp, audio: typing.Union[np.ndarray, str],
+        self, model: WhisperCpp, audio: typing.Union[np.ndarray, str],
             params: typing.Any, output_file_path: str, open_file_on_complete: bool, output_format):
         result = model.transcribe(audio=audio, params=params)
         segments: List[Segment] = result.get('segments')
@@ -313,9 +325,9 @@ class FileTranscriber:
 
     def transcribe_whisper(
             self, model: whisper.Whisper, file_path: str, language: str | None,
-            task: whisper_util.Task, output_file_path: str, open_file_on_complete: bool, output_format: OutputFormat):
+            task: Task, output_file_path: str, open_file_on_complete: bool, output_format: OutputFormat):
         result = whisper.transcribe(
-            model=model, audio=file_path, language=language, task=task.value)
+            model=model, audio=file_path, language=language, task=task.value, verbose=False)
 
         segments = map(
             lambda segment: Segment(
@@ -338,15 +350,12 @@ class FileTranscriber:
         if self.stopped is False:
             self.stopped = True
 
-            if self.current_thread is not None:
+            if self.current_thread is not None and self.current_thread.is_alive():
                 logging.debug(
                     'Waiting for file transcription thread to terminate')
                 self.current_thread.join()
                 logging.debug('File transcription thread terminated')
 
-    def check_stopped(self):
-        return self.stopped
-
     @classmethod
-    def get_default_output_file_path(cls, task: whisper_util.Task, input_file_path: str, output_format: OutputFormat):
+    def get_default_output_file_path(cls, task: Task, input_file_path: str, output_format: OutputFormat):
         return f'{os.path.splitext(input_file_path)[0]} ({task.value.title()}d on {datetime.datetime.now():%d-%b-%Y %H-%M-%S}).{output_format.value}'
