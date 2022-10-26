@@ -56,6 +56,7 @@ jobs:
           if [ "$RUNNER_OS" == "macOS" ]; then
             brew install ffmpeg
           fi
+        shell: bash
       - name: Test
         run: poetry run make libwhisper.so test
   build:
@@ -97,6 +98,7 @@ jobs:
           elif [ "$RUNNER_OS" == "Linux" ]; then
             sudo apt update && sudo apt install ffmpeg
           fi
+        shell: bash
       - name: Bundle
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
@@ -108,6 +110,7 @@ jobs:
           fi
         env:
           BUZZ_VERSION: ${{ github.ref_name }}
+        shell: bash
       - uses: actions/upload-artifact@v3
         with:
           name: Buzz-${{ runner.os }}
