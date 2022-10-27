@@ -2,7 +2,7 @@ dist/
 __pycache__/
 build/
 .pytest_cache/
-.coverage
+.coverage*
 .env
 htmlcov/
 *.so

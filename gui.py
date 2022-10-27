@@ -1,14 +1,12 @@
 import enum
-import logging
 import os
 import platform
 import sys
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple
 
 import humanize
 import sounddevice
-import whisper
 from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt, QTimer,
                           pyqtSignal)
 from PyQt6.QtGui import QAction, QCloseEvent, QKeySequence, QTextCursor
@@ -17,10 +15,9 @@ from PyQt6.QtWidgets import (QApplication, QComboBox, QFileDialog, QGridLayout,
                              QProgressDialog, QPushButton, QWidget)
 from whisper import tokenizer
 
-import _whisper
-from _whisper import Task, WhisperCpp
 from transcriber import (FileTranscriber, OutputFormat, RecordingTranscriber,
                          State, Status)
+from whispr import Task
 
 
 def get_platform_styles(all_platform_styles: Dict[str, str]):
@@ -252,20 +249,55 @@ class TranscriberProgressDialog(QProgressDialog):
                 f'Processing {self.short_file_path} ({fraction_completed:.2%}, {humanize.naturaldelta(time_left)} remaining)')
 
 
-class TranscriberWithSignal(QObject):
+class FileTranscriberObject(QObject):
+    download_model_progress = pyqtSignal(tuple)
+    event_received = pyqtSignal(object)
+    transcriber: FileTranscriber
+
+    def __init__(
+            self, model_name: str, use_whisper_cpp: bool, language: Optional[str],
+            task: Task, file_path: str, output_file_path: str,
+            output_format: OutputFormat, parent: Optional['QObject'], *args) -> None:
+        super().__init__(parent, *args)
+        self.transcriber = FileTranscriber(
+            model_name=model_name, use_whisper_cpp=use_whisper_cpp,
+            on_download_model_chunk=self.on_download_model_progress,
+            language=language, task=task, file_path=file_path,
+            output_file_path=output_file_path, output_format=output_format,
+            event_callback=self.on_file_transcriber_event)
+
+    def on_download_model_progress(self, current: int, total: int):
+        self.download_model_progress.emit((current, total))
+
+    def on_file_transcriber_event(self, event: FileTranscriber.Event):
+        self.event_received.emit(event)
+
+    def start(self):
+        self.transcriber.start()
+
+    def stop(self):
+        self.transcriber.stop()
+
+    def stop_loading_model(self):
+        self.transcriber.stop_loading_model()
+
+
+class RecordingTranscriberObject(QObject):
     """
     TranscriberWithSignal exports the text callback from a Transcriber
     as a QtSignal to allow updating the UI from a secondary thread.
     """
 
     status_changed = pyqtSignal(Status)
+    download_model_progress = pyqtSignal(tuple)
+    transcriber: RecordingTranscriber
 
-    def __init__(
-            self, model: Union[whisper.Whisper, WhisperCpp], language: Optional[str],
-            task: Task, input_device_index: Optional[int], parent: Optional[QWidget], *args) -> None:
+    def __init__(self, model_name, use_whisper_cpp, language: Optional[str],
+                 task: Task, input_device_index: Optional[int], parent: Optional[QWidget], *args) -> None:
         super().__init__(parent, *args)
         self.transcriber = RecordingTranscriber(
-            model=model, language=language,
+            model_name=model_name, use_whisper_cpp=use_whisper_cpp,
+            on_download_model_chunk=self.on_download_model_progress, language=language,
             status_callback=self.on_next_status, task=task,
             input_device_index=input_device_index)
 
@@ -275,8 +307,14 @@ class TranscriberWithSignal(QObject):
     def on_next_status(self, status: Status):
         self.status_changed.emit(status)
 
+    def on_download_model_progress(self, current: int, total: int):
+        self.download_model_progress.emit((current, total))
+
     def stop_recording(self):
         self.transcriber.stop_recording()
+
+    def stop_loading_model(self):
+        self.transcriber.stop_loading_model()
 
 
 class TimerLabel(QLabel):
@@ -325,9 +363,7 @@ class FileTranscriberWidget(QWidget):
     selected_output_format = OutputFormat.TXT
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     transcriber_progress_dialog: Optional[TranscriberProgressDialog] = None
-    transcribe_progress = pyqtSignal(tuple)
-    model_loader: Optional[_whisper.ModelLoader] = None
-    file_transcriber: Optional[FileTranscriber] = None
+    file_transcriber: Optional[FileTranscriberObject] = None
 
     def __init__(self, file_path: str, parent: Optional[QWidget]) -> None:
         super().__init__(parent)
@@ -381,8 +417,6 @@ class FileTranscriberWidget(QWidget):
 
         self.setLayout(layout)
 
-        self.transcribe_progress.connect(self.handle_transcribe_progress)
-
     def on_quality_changed(self, quality: Quality):
         self.selected_quality = quality
 
@@ -410,30 +444,26 @@ class FileTranscriberWidget(QWidget):
 
         self.run_button.setDisabled(True)
         model_name = get_model_name(self.selected_quality)
-        logging.debug(f'Loading model: {model_name}')
 
-        self.model_loader = _whisper.ModelLoader(
-            name=model_name, use_whisper_cpp=use_whisper_cpp,
-            on_download_model_chunk=self.on_download_model_progress)
-
-        try:
-            model = self.model_loader.load()
-        except _whisper.Stopped:
-            self.run_button.setDisabled(False)
-            return
-
-        logging.debug(
-            f'Starting file transcription, file_path = {self.file_path}, language = {self.selected_language}, task = {self.selected_task}, output file path = {output_file}, output format = {self.selected_output_format}')
-        self.file_transcriber = FileTranscriber(
-            model=model, file_path=self.file_path,
+        self.file_transcriber = FileTranscriberObject(
+            model_name=model_name, use_whisper_cpp=use_whisper_cpp,
+            file_path=self.file_path,
             language=self.selected_language, task=self.selected_task,
-            output_file_path=output_file, output_format=self.selected_output_format, progress_callback=self.on_transcribe_model_progress)
+            output_file_path=output_file, output_format=self.selected_output_format,
+            parent=self)
+        self.file_transcriber.download_model_progress.connect(
+            self.on_download_model_progress)
+        self.file_transcriber.event_received.connect(
+            self.on_transcriber_event)
+
         self.file_transcriber.start()
 
-    def on_download_model_progress(self, current_size: int, total_size: int):
-        if current_size == 0:
+    def on_download_model_progress(self, progress: Tuple[int, int]):
+        (current_size, _) = progress
+
+        if self.model_download_progress_dialog is None:
             self.model_download_progress_dialog = DownloadModelProgressDialog(
-                total_size=total_size, parent=self)
+                total_size=100, parent=self)
             self.model_download_progress_dialog.canceled.connect(
                 self.on_cancel_model_progress_dialog)
 
@@ -441,29 +471,27 @@ class FileTranscriberWidget(QWidget):
             self.model_download_progress_dialog.setValue(
                 current_size=current_size)
 
-        if current_size == total_size:
+    def on_transcriber_event(self, event: FileTranscriber.Event):
+        if isinstance(event, FileTranscriber.LoadedModelEvent):
             self.reset_model_download()
+        elif isinstance(event, FileTranscriber.ProgressEvent):
+            current_size = event.current_value
+            total_size = event.max_value
 
-    def on_transcribe_model_progress(self, current_size: int, total_size: int):
-        self.transcribe_progress.emit((current_size, total_size))
+            # Create a dialog
+            if self.transcriber_progress_dialog is None:
+                self.transcriber_progress_dialog = TranscriberProgressDialog(
+                    file_path=self.file_path, total_size=total_size, parent=self)
+                self.transcriber_progress_dialog.canceled.connect(
+                    self.on_cancel_transcriber_progress_dialog)
 
-    def handle_transcribe_progress(self, progress: Tuple[int, int]):
-        (current_size, total_size) = progress
+            # Update the progress of the dialog unless it has
+            # been canceled before this progress update arrived
+            if self.transcriber_progress_dialog is not None:
+                self.transcriber_progress_dialog.update_progress(current_size)
 
-        # Create a dialog
-        if current_size == 0:
-            self.transcriber_progress_dialog = TranscriberProgressDialog(
-                file_path=self.file_path, total_size=total_size, parent=self)
-            self.transcriber_progress_dialog.canceled.connect(
-                self.on_cancel_transcriber_progress_dialog)
-
-        # Update the progress of the dialog unless it has
-        # been canceled before this progress update arrived
-        if self.transcriber_progress_dialog is not None:
-            self.transcriber_progress_dialog.update_progress(current_size)
-
-        if current_size == total_size:
-            self.reset_transcription()
+            if current_size == total_size:
+                self.reset_transcription()
 
     def on_cancel_transcriber_progress_dialog(self):
         if self.file_transcriber is not None:
@@ -476,8 +504,8 @@ class FileTranscriberWidget(QWidget):
             self.transcriber_progress_dialog = None
 
     def on_cancel_model_progress_dialog(self):
-        if self.model_loader is not None:
-            self.model_loader.stop()
+        if self.file_transcriber is not None:
+            self.file_transcriber.stop_loading_model()
         self.reset_model_download()
 
     def reset_model_download(self):
@@ -503,8 +531,7 @@ class RecordingTranscriberWidget(QWidget):
     selected_task = Task.TRANSCRIBE
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     settings: Settings
-    transcriber: Optional[TranscriberWithSignal] = None
-    model_loader: Optional[_whisper.ModelLoader] = None
+    transcriber: Optional[RecordingTranscriberObject] = None
 
     def __init__(self, parent: Optional[QWidget]) -> None:
         super().__init__(parent)
@@ -559,16 +586,6 @@ class RecordingTranscriberWidget(QWidget):
 
         self.setLayout(layout)
 
-    def on_transcriber_status_changed(self, status: Status):
-        if status.state == State.FINISHED_CURRENT_TRANSCRIPTION:
-            text = status.text.strip()
-            if len(text) > 0:
-                self.text_box.moveCursor(QTextCursor.MoveOperation.End)
-                self.text_box.insertPlainText(text + '\n\n')
-                self.text_box.moveCursor(QTextCursor.MoveOperation.End)
-        elif status.state == State.STARTING_NEXT_TRANSCRIPTION:
-            pass
-
     def on_device_changed(self, device_id: int):
         self.selected_device_id = device_id
 
@@ -594,40 +611,43 @@ class RecordingTranscriberWidget(QWidget):
         ) and self.selected_language != None
 
         model_name = get_model_name(self.selected_quality)
-        logging.debug(f'Loading model: {model_name}')
 
-        self.model_loader = _whisper.ModelLoader(
-            name=model_name, use_whisper_cpp=use_whisper_cpp,
-            on_download_model_chunk=self.on_download_model_progress)
-
-        try:
-            model = self.model_loader.load()
-        except _whisper.Stopped:
-            self.record_button.setDisabled(False)
-            self.record_button.force_stop()
-            return
-
-        self.record_button.setDisabled(False)
-
-        # Clear text box placeholder because the first chunk takes a while to process
-        self.text_box.setPlaceholderText('')
-        self.timer_label.start_timer()
-
-        self.transcriber = TranscriberWithSignal(
-            model=model,
-            language=self.selected_language,
-            task=self.selected_task,
+        self.transcriber = RecordingTranscriberObject(
+            model_name=model_name, use_whisper_cpp=use_whisper_cpp,
+            language=self.selected_language, task=self.selected_task,
             input_device_index=self.selected_device_id,
             parent=self
         )
         self.transcriber.status_changed.connect(
             self.on_transcriber_status_changed)
+        self.transcriber.download_model_progress.connect(
+            self.on_download_model_progress)
+
         self.transcriber.start_recording()
 
-    def on_download_model_progress(self, current_size: int, total_size: int):
-        if current_size == 0:
+    def on_transcriber_status_changed(self, status: Status):
+        if status.state == State.LOADED_MODEL:
+            # Clear text box placeholder because the first chunk takes a while to process
+            self.text_box.setPlaceholderText('')
+            # TODO: timer should start after recording stream opens, not after model loads
+            self.timer_label.start_timer()
+            self.record_button.setDisabled(False)
+            self.reset_model_download()
+        elif status.state == State.FINISHED_CURRENT_TRANSCRIPTION:
+            text = status.text.strip()
+            if len(text) > 0:
+                self.text_box.moveCursor(QTextCursor.MoveOperation.End)
+                self.text_box.insertPlainText(text + '\n\n')
+                self.text_box.moveCursor(QTextCursor.MoveOperation.End)
+        elif status.state == State.STARTING_NEXT_TRANSCRIPTION:
+            pass
+
+    def on_download_model_progress(self, progress: Tuple[int, int]):
+        (current_size, _) = progress
+
+        if self.model_download_progress_dialog is None:
             self.model_download_progress_dialog = DownloadModelProgressDialog(
-                total_size=total_size, parent=self)
+                total_size=100, parent=self)
             self.model_download_progress_dialog.canceled.connect(
                 self.on_cancel_model_progress_dialog)
 
@@ -635,18 +655,17 @@ class RecordingTranscriberWidget(QWidget):
             self.model_download_progress_dialog.setValue(
                 current_size=current_size)
 
-        if current_size == total_size:
-            self.reset_model_download()
-
     def stop_recording(self):
         if self.transcriber is not None:
             self.transcriber.stop_recording()
         self.timer_label.stop_timer()
 
     def on_cancel_model_progress_dialog(self):
-        if self.model_loader is not None:
-            self.model_loader.stop()
+        if self.transcriber is not None:
+            self.transcriber.stop_loading_model()
         self.reset_model_download()
+        self.record_button.force_stop()
+        self.record_button.setDisabled(False)
 
     def reset_model_download(self):
         if self.model_download_progress_dialog is not None:
