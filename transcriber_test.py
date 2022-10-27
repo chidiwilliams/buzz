@@ -1,6 +1,8 @@
 import os
 import tempfile
 
+import pytest
+
 from transcriber import (FileTranscriber, OutputFormat, RecordingTranscriber,
                          to_timestamp)
 from whispr import Task
@@ -58,6 +60,7 @@ class TestFileTranscriber:
         assert len([event for event in events if isinstance(
             event, FileTranscriber.ProgressEvent) and event.current_value > 0 and event.current_value < 100 and event.max_value == 100]) > 0
 
+    @pytest.mark.skip(reason='issue with .so file on windows')
     def test_transcribe_whisper_cpp(self):
         output_file_path = os.path.join(
             tempfile.gettempdir(), 'whisper_cpp.txt')
