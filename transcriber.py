@@ -16,7 +16,7 @@ import numpy as np
 import sounddevice
 import whisper
 
-from fd import pipe_stderr, pipe_stdout
+from conn import pipe_stderr, pipe_stdout
 from whispr import (ModelLoader, Segment, Stopped, Task, WhisperCpp,
                     read_progress, tqdm_progress, whisper_cpp_params,
                     whisper_cpp_progress)

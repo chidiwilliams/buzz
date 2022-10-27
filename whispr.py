@@ -18,7 +18,7 @@ from appdirs import user_cache_dir
 from tqdm import tqdm
 from whisper import Whisper
 
-from fd import pipe_stderr
+from conn import pipe_stderr
 
 
 class Stopped(Exception):
