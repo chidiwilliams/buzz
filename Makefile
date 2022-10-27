@@ -17,7 +17,7 @@ clean:
 	rm -rf dist/* || true
 
 test:
-	pytest --cov --cov-fail-under=67 --cov-report html
+	pytest --cov --cov-fail-under=74 --cov-report html
 
 libwhisper.so:
 	gcc -O3 -std=c11   -pthread -mavx -mavx2 -mfma -mf16c -fPIC -c whisper.cpp/ggml.c -o whisper.cpp/ggml.o
