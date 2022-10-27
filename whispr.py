@@ -7,7 +7,8 @@ import os
 import pathlib
 import warnings
 from dataclasses import dataclass
-from queue import Empty
+from multiprocessing.connection import Connection
+from threading import Thread
 from typing import Any, Callable, List, Optional, Union
 
 import numpy as np
@@ -17,7 +18,7 @@ from appdirs import user_cache_dir
 from tqdm import tqdm
 from whisper import Whisper
 
-from fd import capture_fd, read_pipe_str
+from fd import pipe_stderr
 
 
 class Stopped(Exception):
@@ -126,35 +127,25 @@ class ModelLoader:
         # Fixes an issue with the pickling of a torch model from another process
         os.environ["no_proxy"] = '*'
 
-        model_path: Optional[Any] = None
-        with capture_fd(2) as (prev_stderr, stderr):
-            self.process = multiprocessing.Process(
-                target=self.load_whisper_cpp_model if self.use_whisper_cpp else self.load_whisper_model, args=(model_path_queue, self.name))
-            self.process.start()
+        on_download_model_chunk(0, 100)
+        recv_pipe, send_pipe = multiprocessing.Pipe(duplex=False)
 
-            while self.process.is_alive():
-                try:
-                    model_path = model_path_queue.get(block=False)
-                except Empty:
-                    pass
+        self.process = multiprocessing.Process(
+            target=self.load_whisper_cpp_model if self.use_whisper_cpp else self.load_whisper_model,
+            args=(send_pipe, model_path_queue, self.name))
+        self.process.start()
 
-                if self.stopped:
-                    self.process.kill()
-                    raise Stopped
+        thread = Thread(target=read_progress, args=(
+            recv_pipe, self.use_whisper_cpp, on_download_model_chunk))
+        thread.start()
 
-                next_stderr = read_pipe_str(stderr)
-                if len(next_stderr) > 0:
-                    os.write(prev_stderr, next_stderr.encode('utf-8'))
-                    try:
-                        progress = tqdm_progress(next_stderr)
-                        on_download_model_chunk(progress, 100)
-                    except ValueError:
-                        continue
+        self.process.join()
 
-        if model_path is None:
-            raise Exception('model not loaded')
+        recv_pipe.close()
+        send_pipe.close()
 
-        return model_path
+        on_download_model_chunk(100, 100)
+        return model_path_queue.get(block=False)
 
     def load(self, on_download_model_chunk: Callable[[int, int], None] = lambda *_: None) -> Union[Whisper, WhisperCpp]:
         logging.debug(
@@ -165,17 +156,18 @@ class ModelLoader:
         logging.debug('Loading model from path = %s', model_path)
         return WhisperCpp(model_path) if self.use_whisper_cpp else whisper.load_model(model_path)
 
-    def load_whisper_cpp_model(self, queue: multiprocessing.Queue, name: str):
+    def load_whisper_cpp_model(self, stderr_conn: Connection, queue: multiprocessing.Queue, name: str):
         path = download_whisper_cpp_model(name)
         queue.put(path)
 
-    def load_whisper_model(self, queue: multiprocessing.Queue, name: str):
-        download_root = os.getenv(
-            "XDG_CACHE_HOME",
-            os.path.join(os.path.expanduser("~"), ".cache", "whisper")
-        )
-        path = download_whisper_model(whisper._MODELS[name], download_root)
-        queue.put(path)
+    def load_whisper_model(self, stderr_conn: Connection, queue: multiprocessing.Queue, name: str):
+        with pipe_stderr(stderr_conn):
+            download_root = os.getenv(
+                "XDG_CACHE_HOME",
+                os.path.join(os.path.expanduser("~"), ".cache", "whisper")
+            )
+            path = download_whisper_model(whisper._MODELS[name], download_root)
+            queue.put(path)
 
     def stop(self):
         self.stopped = True
@@ -292,3 +284,21 @@ def whisper_cpp_progress(lines: str):
         raise ValueError('No lines match whisper.cpp progress format')
     last_word = progress_lines[-1].split(' ')[-1]
     return min(int(last_word[:-1]), 100)
+
+
+def read_progress(
+        pipe: Connection, use_whisper_cpp: bool,
+        progress_callback: Callable[[int, int], None]):
+    while True:
+        try:
+            recv = pipe.recv().strip()
+            if recv:
+                if use_whisper_cpp:
+                    progress = whisper_cpp_progress(recv)
+                else:
+                    progress = tqdm_progress(recv)
+                progress_callback(progress, 100)
+        except ValueError:
+            pass
+        except EOFError:
+            break

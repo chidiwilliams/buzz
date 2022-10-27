@@ -1,6 +1,9 @@
-from contextlib import contextmanager
 import os
 import select
+import sys
+from contextlib import contextmanager
+from io import StringIO
+from multiprocessing.connection import Connection
 
 
 @contextmanager
@@ -32,3 +35,31 @@ def read_pipe_str(fd: int):
     while more_data(fd):
         out += os.read(fd, 1024)
     return out.decode('utf-8')
+
+
+class PipeWriter:
+    def __init__(self, pipe: Connection):
+        self.pipe = pipe
+
+    def write(self, s: str):
+        self.pipe.send(s.strip())
+
+
+@contextmanager
+def pipe_stderr(pipe: Connection):
+    sys.stderr = PipeWriter(pipe)
+
+    try:
+        yield
+    finally:
+        sys.stderr = sys.__stderr__
+
+
+@contextmanager
+def pipe_stdout(pipe: Connection):
+    sys.stdout = PipeWriter(pipe)
+
+    try:
+        yield
+    finally:
+        sys.stdout = sys.__stdout__
