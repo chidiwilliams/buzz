@@ -120,10 +120,7 @@ class ModelLoader:
         self.name = name
         self.use_whisper_cpp = use_whisper_cpp
 
-    def load(self, on_download_model_chunk: Callable[[int, int], None] = lambda *_: None) -> Union[Whisper, WhisperCpp]:
-        logging.debug(
-            'Loading model = %s, whisper.cpp = %s', self.name, self.use_whisper_cpp)
-
+    def get_model_path(self,  on_download_model_chunk: Callable[[int, int], None] = lambda *_: None) -> str:
         model_path_queue = multiprocessing.Queue()
 
         # Fixes an issue with the pickling of a torch model from another process
@@ -156,6 +153,14 @@ class ModelLoader:
 
         if model_path is None:
             raise Exception('model not loaded')
+
+        return model_path
+
+    def load(self, on_download_model_chunk: Callable[[int, int], None] = lambda *_: None) -> Union[Whisper, WhisperCpp]:
+        logging.debug(
+            'Loading model = %s, whisper.cpp = %s', self.name, self.use_whisper_cpp)
+
+        model_path = self.get_model_path(on_download_model_chunk)
 
         logging.debug('Loading model from path = %s', model_path)
         return WhisperCpp(model_path) if self.use_whisper_cpp else whisper.load_model(model_path)

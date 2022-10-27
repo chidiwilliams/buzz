@@ -45,6 +45,23 @@ class TestFileTranscriber:
         output_file = open(output_file_path, 'r', encoding='utf-8')
         assert 'test out Whisper' in output_file.read()
 
+    def test_transcribe_whisper_cpp(self):
+        output_file_path = os.path.join(tempfile.gettempdir(), 'whisper_cpp.txt')
+        if os.path.exists(output_file_path):
+            os.remove(output_file_path)
+
+        transcriber = FileTranscriber(
+            model_name='tiny', use_whisper_cpp=True, language='en',
+            task=Task.TRANSCRIBE, file_path='testdata/whisper.m4a',
+            output_file_path=output_file_path, output_format=OutputFormat.TXT,
+            open_file_on_complete=False)
+        transcriber.start()
+        transcriber.join()
+
+        assert os.path.isfile(output_file_path)
+
+        output_file = open(output_file_path, 'r', encoding='utf-8')
+        assert 'test out Whisper' in output_file.read()
 
 class TestToTimestamp:
     def test_to_timestamp(self):

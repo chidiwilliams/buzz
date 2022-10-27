@@ -81,7 +81,8 @@ class RecordingTranscriber:
 
     def process_queue(self):
         try:
-            model = self.model_loader.load()
+            model = self.model_loader.load(
+                on_download_model_chunk=self.on_download_model_chunk)
         except Stopped:
             return
 
@@ -103,7 +104,6 @@ class RecordingTranscriber:
                 if isinstance(model, whisper.Whisper):
                     result = model.transcribe(
                         audio=samples, language=self.language, task=self.task.value,
-                        on_download_model_chunk=self.on_download_model_chunk,
                         initial_prompt=self.text)  # prompt model with text from previous transcriptions
                 else:
                     result = model.transcribe(
@@ -258,8 +258,12 @@ class FileTranscriber:
 
     def transcribe(self):
         try:
-            model = self.model_loader.load(
-                on_download_model_chunk=self.on_download_model_chunk)
+            try:
+                model_path = self.model_loader.get_model_path(
+                    on_download_model_chunk=self.on_download_model_chunk)
+            except Stopped:
+                return
+
             self.event_callback(self.LoadedModelEvent())
 
             time_started = datetime.datetime.now()
@@ -271,19 +275,19 @@ class FileTranscriber:
             with capture_fd(2) as (prev_stderr, stderr):
                 if self.use_whisper_cpp:
                     process = multiprocessing.Process(
-                        target=self.transcribe_whisper_cpp,
+                        target=transcribe_whisper_cpp,
                         args=(
-                            model, self.file_path,
-                            whisper_cpp_params(
-                                language=self.language if self.language is not None else 'en',
-                                task=self.task, print_realtime=True, print_progress=True),
+                            model_path, self.file_path,
                             self.output_file_path, self.open_file_on_complete,
-                            self.output_format))
+                            self.output_format,
+                            self.language if self.language is not None else 'en',
+                            self.task, True, True,
+                        ))
                 else:
                     process = multiprocessing.Process(
                         target=transcribe_whisper,
                         args=(
-                            model, self.file_path, self.language, self.task,
+                            model_path, self.file_path, self.language, self.task,
                             self.output_file_path, self.open_file_on_complete,
                             self.output_format))
 
@@ -315,14 +319,6 @@ class FileTranscriber:
         except Exception:
             logging.exception('')
 
-    def transcribe_whisper_cpp(
-        self, model: WhisperCpp, audio: typing.Union[np.ndarray, str],
-            params: typing.Any, output_file_path: str, open_file_on_complete: bool, output_format):
-        result = model.transcribe(audio=audio, params=params)
-        segments: List[Segment] = result.get('segments')
-        write_output(output_file_path, segments,
-                     open_file_on_complete, output_format)
-
     def stop_loading_model(self):
         self.model_loader.stop()
 
@@ -346,8 +342,9 @@ class FileTranscriber:
 
 
 def transcribe_whisper(
-        model: whisper.Whisper, file_path: str, language: Optional[str],
+        model_path: str, file_path: str, language: Optional[str],
         task: Task, output_file_path: str, open_file_on_complete: bool, output_format: OutputFormat):
+    model = whisper.load_model(model_path)
     result = whisper.transcribe(
         model=model, audio=file_path, language=language, task=task.value, verbose=False)
 
@@ -360,3 +357,15 @@ def transcribe_whisper(
 
     write_output(output_file_path, list(
         segments), open_file_on_complete, output_format)
+
+
+def transcribe_whisper_cpp(
+        model_path: str, audio: typing.Union[np.ndarray, str],
+        output_file_path: str, open_file_on_complete: bool, output_format: OutputFormat,
+        language: str, task: Task, print_realtime: bool, print_progress: bool):
+    model = WhisperCpp(model_path)
+    params = whisper_cpp_params(language, task, print_realtime, print_progress)
+    result = model.transcribe(audio=audio, params=params)
+    segments: List[Segment] = result.get('segments')
+    write_output(
+        output_file_path, segments, open_file_on_complete, output_format)

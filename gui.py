@@ -629,6 +629,7 @@ class RecordingTranscriberWidget(QWidget):
         if status.state == State.LOADED_MODEL:
             # Clear text box placeholder because the first chunk takes a while to process
             self.text_box.setPlaceholderText('')
+            # TODO: timer should start after recording stream opens, not after model loads
             self.timer_label.start_timer()
             self.record_button.setDisabled(False)
             self.reset_model_download()
