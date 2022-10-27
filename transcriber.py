@@ -60,9 +60,9 @@ class RecordingTranscriber:
         self.queue = np.ndarray([], dtype=np.float32)
         self.mutex = threading.Lock()
         self.text = ''
-
+        self.on_download_model_chunk = on_download_model_chunk
         self.model_loader = ModelLoader(
-            name=model_name, use_whisper_cpp=use_whisper_cpp, on_download_model_chunk=on_download_model_chunk)
+            name=model_name, use_whisper_cpp=use_whisper_cpp,)
 
     def start_recording(self):
         logging.debug(
@@ -103,6 +103,7 @@ class RecordingTranscriber:
                 if isinstance(model, whisper.Whisper):
                     result = model.transcribe(
                         audio=samples, language=self.language, task=self.task.value,
+                        on_download_model_chunk=self.on_download_model_chunk,
                         initial_prompt=self.text)  # prompt model with text from previous transcriptions
                 else:
                     result = model.transcribe(
@@ -248,18 +249,17 @@ class FileTranscriber:
         self.use_whisper_cpp = use_whisper_cpp
         self.on_download_model_chunk = on_download_model_chunk
 
-        self.model_loader = ModelLoader(
-            self.model_name, self.use_whisper_cpp, self.on_download_model_chunk)
+        self.model_loader = ModelLoader(self.model_name, self.use_whisper_cpp)
         self.event_callback = event_callback
 
     def start(self):
-        self.current_thread = Thread(
-            target=self.transcribe, args=(self.model_loader,))
+        self.current_thread = Thread(target=self.transcribe, args=())
         self.current_thread.start()
 
-    def transcribe(self, model_loader: ModelLoader):
+    def transcribe(self):
         try:
-            model = model_loader.load()
+            model = self.model_loader.load(
+                on_download_model_chunk=self.on_download_model_chunk)
             self.event_callback(self.LoadedModelEvent())
 
             time_started = datetime.datetime.now()
@@ -281,7 +281,7 @@ class FileTranscriber:
                             self.output_format))
                 else:
                     process = multiprocessing.Process(
-                        target=self.transcribe_whisper,
+                        target=transcribe_whisper,
                         args=(
                             model, self.file_path, self.language, self.task,
                             self.output_file_path, self.open_file_on_complete,
@@ -323,22 +323,6 @@ class FileTranscriber:
         write_output(output_file_path, segments,
                      open_file_on_complete, output_format)
 
-    def transcribe_whisper(
-            self, model: whisper.Whisper, file_path: str, language: Optional[str],
-            task: Task, output_file_path: str, open_file_on_complete: bool, output_format: OutputFormat):
-        result = whisper.transcribe(
-            model=model, audio=file_path, language=language, task=task.value, verbose=False)
-
-        segments = map(
-            lambda segment: Segment(
-                start=segment.get('start')*1000,  # s to ms
-                end=segment.get('end')*1000,      # s to ms
-                text=segment.get('text')),
-            result.get('segments'))
-
-        write_output(output_file_path, list(
-            segments), open_file_on_complete, output_format)
-
     def stop_loading_model(self):
         self.model_loader.stop()
 
@@ -359,3 +343,20 @@ class FileTranscriber:
     @classmethod
     def get_default_output_file_path(cls, task: Task, input_file_path: str, output_format: OutputFormat):
         return f'{os.path.splitext(input_file_path)[0]} ({task.value.title()}d on {datetime.datetime.now():%d-%b-%Y %H-%M-%S}).{output_format.value}'
+
+
+def transcribe_whisper(
+        model: whisper.Whisper, file_path: str, language: Optional[str],
+        task: Task, output_file_path: str, open_file_on_complete: bool, output_format: OutputFormat):
+    result = whisper.transcribe(
+        model=model, audio=file_path, language=language, task=task.value, verbose=False)
+
+    segments = map(
+        lambda segment: Segment(
+            start=segment.get('start')*1000,  # s to ms
+            end=segment.get('end')*1000,      # s to ms
+            text=segment.get('text')),
+        result.get('segments'))
+
+    write_output(output_file_path, list(
+        segments), open_file_on_complete, output_format)

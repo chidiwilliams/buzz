@@ -116,13 +116,11 @@ class ModelLoader:
     stopped = False
     process: Optional[multiprocessing.Process] = None
 
-    def __init__(self, name: str, use_whisper_cpp=False,
-                 on_download_model_chunk: Callable[[int, int], None] = lambda *_: None) -> None:
+    def __init__(self, name: str, use_whisper_cpp=False) -> None:
         self.name = name
-        self.on_download_model_chunk = on_download_model_chunk
         self.use_whisper_cpp = use_whisper_cpp
 
-    def load(self) -> Union[Whisper, WhisperCpp]:
+    def load(self, on_download_model_chunk: Callable[[int, int], None] = lambda *_: None) -> Union[Whisper, WhisperCpp]:
         logging.debug(
             'Loading model = %s, whisper.cpp = %s', self.name, self.use_whisper_cpp)
 
@@ -152,7 +150,7 @@ class ModelLoader:
                     os.write(prev_stderr, next_stderr.encode('utf-8'))
                     try:
                         progress = tqdm_progress(next_stderr)
-                        self.on_download_model_chunk(progress, 100)
+                        on_download_model_chunk(progress, 100)
                     except ValueError:
                         continue
 
