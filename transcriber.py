@@ -183,7 +183,7 @@ def to_timestamp(ms: float) -> str:
 
 
 def write_output(path: str, segments: List[Segment], should_open: bool, output_format: OutputFormat):
-    file = open(path, 'w')
+    file = open(path, 'w', encoding='utf-8')
 
     if output_format == OutputFormat.TXT:
         for segment in segments:
