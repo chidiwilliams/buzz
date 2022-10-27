@@ -18,8 +18,7 @@ import whisper
 
 from conn import pipe_stderr, pipe_stdout
 from whispr import (ModelLoader, Segment, Stopped, Task, WhisperCpp,
-                    read_progress, tqdm_progress, whisper_cpp_params,
-                    whisper_cpp_progress)
+                    read_progress, whisper_cpp_params)
 
 
 class State(enum.Enum):

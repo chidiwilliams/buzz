@@ -38,7 +38,7 @@ class TestFileTranscriber:
             events.append(event)
 
         transcriber = FileTranscriber(
-            model_name='tiny', use_whisper_cpp=False, language='en',
+            model_name='tiny', use_whisper_cpp=False, language='fr',
             task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
             output_file_path=output_file_path, output_format=OutputFormat.TXT,
             open_file_on_complete=False, event_callback=event_callback)
@@ -48,7 +48,7 @@ class TestFileTranscriber:
         assert os.path.isfile(output_file_path)
 
         output_file = open(output_file_path, 'r', encoding='utf-8')
-        assert 'podcast for students' in output_file.read()
+        assert 'Bienvenue dans Passe-Relle, un podcast' in output_file.read()
 
         # Reports progress at 0, 0<progress<100, and 100
         assert len([event for event in events if isinstance(
@@ -70,7 +70,7 @@ class TestFileTranscriber:
             events.append(event)
 
         transcriber = FileTranscriber(
-            model_name='tiny', use_whisper_cpp=True, language='en',
+            model_name='tiny', use_whisper_cpp=True, language='fr',
             task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
             output_file_path=output_file_path, output_format=OutputFormat.TXT,
             open_file_on_complete=False, event_callback=event_callback)
@@ -80,7 +80,7 @@ class TestFileTranscriber:
         assert os.path.isfile(output_file_path)
 
         output_file = open(output_file_path, 'r', encoding='utf-8')
-        assert 'podcast for students' in output_file.read()
+        assert 'Bienvenue dans Passe-Relle, un podcast' in output_file.read()
 
 
 class TestToTimestamp:
