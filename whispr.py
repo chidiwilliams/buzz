@@ -5,6 +5,7 @@ import logging
 import multiprocessing
 import os
 import pathlib
+import platform
 import warnings
 from dataclasses import dataclass
 from multiprocessing.connection import Connection
@@ -53,12 +54,13 @@ class WhisperFullParams(ctypes.Structure):
     ]
 
 
-whisper_cpp = ctypes.CDLL(
-    str(pathlib.Path().absolute() / "libwhisper.so"), winmode=1)
+if platform.system() != 'Windows':
+    whisper_cpp = ctypes.CDLL(
+        str(pathlib.Path().absolute() / "libwhisper.so"), winmode=1)
 
-whisper_cpp.whisper_init.restype = ctypes.c_void_p
-whisper_cpp.whisper_full_default_params.restype = WhisperFullParams
-whisper_cpp.whisper_full_get_segment_text.restype = ctypes.c_char_p
+    whisper_cpp.whisper_init.restype = ctypes.c_void_p
+    whisper_cpp.whisper_full_default_params.restype = WhisperFullParams
+    whisper_cpp.whisper_full_get_segment_text.restype = ctypes.c_char_p
 
 
 def whisper_cpp_params(language: str, task: Task, print_realtime=False, print_progress=False):
