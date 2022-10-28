@@ -15,8 +15,7 @@ from PyQt6.QtWidgets import (QApplication, QComboBox, QFileDialog, QGridLayout,
                              QProgressDialog, QPushButton, QWidget)
 from whisper import tokenizer
 
-from transcriber import (FileTranscriber, OutputFormat, RecordingTranscriber,
-                         State, Status)
+from transcriber import FileTranscriber, OutputFormat, RecordingTranscriber
 from whispr import Task
 
 
@@ -76,9 +75,7 @@ class LanguagesComboBox(QComboBox):
         super().__init__(parent, *args)
 
         whisper_languages = sorted(
-            [(lang, tokenizer.LANGUAGES[lang].title())
-             for lang in tokenizer.LANGUAGES.keys()],
-            key=lambda lang: lang[1])
+            [(lang, tokenizer.LANGUAGES[lang].title()) for lang in tokenizer.LANGUAGES], key=lambda lang: lang[1])
         self.languages = [('', 'Detect Language')] + whisper_languages
 
         self.addItems([lang[1] for lang in self.languages])
@@ -288,7 +285,7 @@ class RecordingTranscriberObject(QObject):
     as a QtSignal to allow updating the UI from a secondary thread.
     """
 
-    status_changed = pyqtSignal(Status)
+    event_changed = pyqtSignal(RecordingTranscriber.Event)
     download_model_progress = pyqtSignal(tuple)
     transcriber: RecordingTranscriber
 
@@ -298,14 +295,14 @@ class RecordingTranscriberObject(QObject):
         self.transcriber = RecordingTranscriber(
             model_name=model_name, use_whisper_cpp=use_whisper_cpp,
             on_download_model_chunk=self.on_download_model_progress, language=language,
-            status_callback=self.on_next_status, task=task,
+            event_callback=self.event_callback, task=task,
             input_device_index=input_device_index)
 
     def start_recording(self):
         self.transcriber.start_recording()
 
-    def on_next_status(self, status: Status):
-        self.status_changed.emit(status)
+    def event_callback(self, event: RecordingTranscriber.Event):
+        self.event_changed.emit(event)
 
     def on_download_model_progress(self, current: int, total: int):
         self.download_model_progress.emit((current, total))
@@ -618,29 +615,26 @@ class RecordingTranscriberWidget(QWidget):
             input_device_index=self.selected_device_id,
             parent=self
         )
-        self.transcriber.status_changed.connect(
-            self.on_transcriber_status_changed)
+        self.transcriber.event_changed.connect(
+            self.on_transcriber_event_changed)
         self.transcriber.download_model_progress.connect(
             self.on_download_model_progress)
 
         self.transcriber.start_recording()
 
-    def on_transcriber_status_changed(self, status: Status):
-        if status.state == State.LOADED_MODEL:
+    def on_transcriber_event_changed(self, event: RecordingTranscriber.Event):
+        if isinstance(event, RecordingTranscriber.LoadedModelEvent):
             # Clear text box placeholder because the first chunk takes a while to process
             self.text_box.setPlaceholderText('')
-            # TODO: timer should start after recording stream opens, not after model loads
             self.timer_label.start_timer()
             self.record_button.setDisabled(False)
             self.reset_model_download()
-        elif status.state == State.FINISHED_CURRENT_TRANSCRIPTION:
-            text = status.text.strip()
+        elif isinstance(event, RecordingTranscriber.TranscribedNextChunkEvent):
+            text = event.text.strip()
             if len(text) > 0:
                 self.text_box.moveCursor(QTextCursor.MoveOperation.End)
                 self.text_box.insertPlainText(text + '\n\n')
                 self.text_box.moveCursor(QTextCursor.MoveOperation.End)
-        elif status.state == State.STARTING_NEXT_TRANSCRIPTION:
-            pass
 
     def on_download_model_progress(self, progress: Tuple[int, int]):
         (current_size, _) = progress
