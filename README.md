@@ -102,8 +102,8 @@ Turn this on to use inference from [Whisper.cpp](https://github.com/ggerganov/wh
 | Model | Link                                                               | SHA256                                                           |
 | ----- | ------------------------------------------------------------------ | ---------------------------------------------------------------- |
 | tiny  | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-tiny.bin>  | be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21 |
-| base  | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-base.bin>  | 1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b |
-| small | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-small.bin> | 60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe |
+| base  | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-base.bin>  | 60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe |
+| small | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-small.bin> | 1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b |
 
 ## Build/run locally
 
