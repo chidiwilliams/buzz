@@ -48,7 +48,7 @@ class AudioDevicesComboBox(QComboBox):
         self.audio_devices = self.get_audio_devices()
         self.addItems(map(lambda device: device[1], self.audio_devices))
         self.currentIndexChanged.connect(self.on_index_changed)
-        if self.get_default_device_id() != -1 and len(self.audio_devices) > 0:
+        if self.get_default_device_id() != -1:
             default_device_index = next(i for i, device in enumerate(
                 self.audio_devices) if device[0] == self.get_default_device_id())
             self.setCurrentIndex(default_device_index)
@@ -63,7 +63,15 @@ class AudioDevicesComboBox(QComboBox):
         self.device_changed.emit(self.audio_devices[index][0])
 
     def get_default_device_id(self) -> Optional[int]:
-        return sounddevice.default.device[0]
+        default_system_device = sounddevice.default.device[0]
+        if default_system_device != -1:
+            return default_system_device
+
+        audio_devices = self.get_audio_devices()
+        if len(audio_devices) > 0:
+            return audio_devices[0][0]
+
+        return -1
 
 
 class LanguagesComboBox(QComboBox):
