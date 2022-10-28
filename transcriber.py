@@ -22,18 +22,6 @@ from whispr import (ModelLoader, Segment, Stopped, Task, WhisperCpp,
                     read_progress, whisper_cpp_params)
 
 
-class State(enum.Enum):
-    LOADED_MODEL = 0
-    STARTING_NEXT_TRANSCRIPTION = 1
-    FINISHED_CURRENT_TRANSCRIPTION = 2
-
-
-class Status:
-    def __init__(self, state: State, text='') -> None:
-        self.state = state
-        self.text = text
-
-
 class RecordingTranscriber:
     """Transcriber records audio from a system microphone and transcribes it into text using Whisper."""
 
