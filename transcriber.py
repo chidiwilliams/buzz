@@ -15,22 +15,11 @@ from typing import Callable, List, Optional
 import numpy as np
 import sounddevice
 import whisper
+from sounddevice import PortAudioError
 
 from conn import pipe_stderr, pipe_stdout
 from whispr import (ModelLoader, Segment, Stopped, Task, WhisperCpp,
                     read_progress, whisper_cpp_params)
-
-
-class State(enum.Enum):
-    LOADED_MODEL = 0
-    STARTING_NEXT_TRANSCRIPTION = 1
-    FINISHED_CURRENT_TRANSCRIPTION = 2
-
-
-class Status:
-    def __init__(self, state: State, text='') -> None:
-        self.state = state
-        self.text = text
 
 
 class RecordingTranscriber:
@@ -41,15 +30,25 @@ class RecordingTranscriber:
     is_running = False
     MAX_QUEUE_SIZE = 10
 
+    class Event:
+        pass
+
+    class LoadedModelEvent(Event):
+        pass
+
+    @dataclass
+    class TranscribedNextChunkEvent(Event):
+        text: str
+
     def __init__(self,
                  model_name: str, use_whisper_cpp: bool,
                  language: Optional[str], task: Task,
                  on_download_model_chunk: Callable[[
                      int, int], None] = lambda *_: None,
-                 status_callback: Callable[[Status], None] = lambda *_: None,
+                 event_callback: Callable[[Event], None] = lambda *_: None,
                  input_device_index: Optional[int] = None) -> None:
         self.current_stream = None
-        self.status_callback = status_callback
+        self.event_callback = event_callback
         self.language = language
         self.task = task
         self.input_device_index = input_device_index
@@ -66,17 +65,6 @@ class RecordingTranscriber:
             name=model_name, use_whisper_cpp=use_whisper_cpp,)
 
     def start_recording(self):
-        logging.debug(
-            f'Recording, language = {self.language}, task = {self.task}, device = {self.input_device_index}, sample rate = {self.sample_rate}')
-        self.current_stream = sounddevice.InputStream(
-            samplerate=self.sample_rate,
-            blocksize=1 * self.sample_rate,  # 1 sec
-            device=self.input_device_index, dtype="float32",
-            channels=1, callback=self.stream_callback)
-        self.current_stream.start()
-
-        self.is_running = True
-
         self.current_thread = Thread(target=self.process_queue)
         self.current_thread.start()
 
@@ -87,7 +75,18 @@ class RecordingTranscriber:
         except Stopped:
             return
 
-        self.status_callback(Status(State.LOADED_MODEL))
+        self.event_callback(self.LoadedModelEvent())
+
+        logging.debug('Recording, language = %s, task = %s, device = %s, sample rate = %s',
+                      self.language, self.task, self.input_device_index, self.sample_rate)
+        self.current_stream = sounddevice.InputStream(
+            samplerate=self.sample_rate,
+            blocksize=1 * self.sample_rate,  # 1 sec
+            device=self.input_device_index, dtype="float32",
+            channels=1, callback=self.stream_callback)
+        self.current_stream.start()
+
+        self.is_running = True
 
         while self.is_running:
             self.mutex.acquire()
@@ -96,10 +95,8 @@ class RecordingTranscriber:
                 self.queue = self.queue[self.n_batch_samples:]
                 self.mutex.release()
 
-                logging.debug(
-                    f'Processing next frame, samples = {samples.size}, total samples = {self.queue.size}, amplitude = {self.amplitude(samples)}')
-                self.status_callback(
-                    Status(State.STARTING_NEXT_TRANSCRIPTION))
+                logging.debug('Processing next frame, sample size = %s, queue size = %s, amplitude = %s',
+                              samples.size, self.queue.size, self.amplitude(samples))
                 time_started = datetime.datetime.now()
 
                 if isinstance(model, whisper.Whisper):
@@ -115,10 +112,9 @@ class RecordingTranscriber:
 
                 next_text: str = result.get('text')
 
-                logging.debug(
-                    f'Received next result, length = {len(next_text)}, time taken = {datetime.datetime.now() - time_started}')
-                self.status_callback(
-                    Status(State.FINISHED_CURRENT_TRANSCRIPTION, next_text))
+                logging.debug('Received next result, length = %s, time taken = %s',
+                              len(next_text), datetime.datetime.now()-time_started)
+                self.event_callback(self.TranscribedNextChunkEvent(next_text))
 
                 self.text += f'\n\n{next_text}'
             else:
@@ -134,7 +130,7 @@ class RecordingTranscriber:
             sounddevice.check_input_settings(
                 device=device_id, samplerate=whisper_sample_rate)
             return whisper_sample_rate
-        except:
+        except PortAudioError:
             device_info = sounddevice.query_devices(device=device_id)
             if isinstance(device_info, dict):
                 return int(device_info.get('default_samplerate', whisper_sample_rate))
@@ -151,16 +147,17 @@ class RecordingTranscriber:
         return (abs(max(arr)) + abs(min(arr))) / 2
 
     def stop_recording(self):
-        if self.current_stream != None:
-            self.current_stream.close()
-            logging.debug('Closed recording stream')
+        if self.is_running:
+            self.is_running = False
 
-        self.is_running = False
+            if self.current_stream is not None:
+                self.current_stream.close()
+                logging.debug('Closed recording stream')
 
-        if self.current_thread != None:
-            logging.debug('Waiting for recording thread to terminate')
-            self.current_thread.join()
-            logging.debug('Recording thread terminated')
+            if self.current_thread is not None:
+                logging.debug('Waiting for recording thread to terminate')
+                self.current_thread.join()
+                logging.debug('Recording thread terminated')
 
     def stop_loading_model(self):
         self.model_loader.stop()

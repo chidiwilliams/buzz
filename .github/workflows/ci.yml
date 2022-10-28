@@ -48,7 +48,7 @@ jobs:
           path: |
             ~/Library/Caches/Buzz
             ~/.cache/whisper
-          key: whisper-models
+          key: whisper-models-${{ runner.os }}
 
       - run: poetry install
       - name: Install ffmpeg
