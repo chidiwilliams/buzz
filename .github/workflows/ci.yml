@@ -62,7 +62,7 @@ jobs:
           fi
         shell: bash
       - name: Test
-        run: poetry run make libwhisper.so test
+        run: poetry run make test
 
   build:
     runs-on: ${{ matrix.os }}
@@ -107,11 +107,11 @@ jobs:
       - name: Bundle
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
-            poetry run make libwhisper.so bundle_mac
+            poetry run make bundle_mac
           elif [ "$RUNNER_OS" == "Windows" ]; then
-            poetry run make libwhisper.so bundle_windows
+            poetry run make bundle_windows
           elif [ "$RUNNER_OS" == "Linux" ]; then
-            poetry run make libwhisper.so bundle_linux
+            poetry run make bundle_linux
           fi
         env:
           BUZZ_VERSION: ${{ github.ref_name }}

@@ -8,40 +8,34 @@ unix_zip_path := Buzz-${version}-unix.tar.gz
 
 windows_zip_path := Buzz-${version}-windows.tar.gz
 
-buzz:
-	make clean
-	make libwhisper.so
+libwhisper.so:
+	gcc -O3 -std=c11   -pthread -mavx -mavx2 -mfma -mf16c -fPIC -c whisper.cpp/ggml.c -o whisper.cpp/ggml.o
+	g++ -O3 -std=c++11 -pthread --shared -fPIC -static-libstdc++ whisper.cpp/whisper.cpp whisper.cpp/ggml.o -o libwhisper.so
+
+dist/Buzz: libwhisper.so
 	pyinstaller --noconfirm Buzz.spec
 
 clean:
 	rm -rf dist/* || true
 
-test:
+test: libwhisper.so
 	pytest --cov --cov-fail-under=69 --cov-report html
-
-libwhisper.so:
-	gcc -O3 -std=c11   -pthread -mavx -mavx2 -mfma -mf16c -fPIC -c whisper.cpp/ggml.c -o whisper.cpp/ggml.o
-	g++ -O3 -std=c++11 -pthread --shared -fPIC -static-libstdc++ whisper.cpp/whisper.cpp whisper.cpp/ggml.o -o libwhisper.so
 
 version:
 	poetry version ${version}
 
-bundle_linux:
-	make buzz
+bundle_linux: dist/Buzz
 	cd dist && tar -czf ${unix_zip_path} Buzz/ && cd -
 
-bundle_windows:
-	make buzz
+bundle_windows: dist/Buzz
 	iscc //DAppVersion=${version} installer.iss
 
 # MAC
 
-bundle_mac:
-	make buzz
+bundle_mac: dist/Buzz
 	make zip_mac
 
-bundle_mac_local:
-	make buzz
+bundle_mac_local: dist/Buzz
 	make codesign_all_mac
 	make zip_mac
 	make notarize_zip
