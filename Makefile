@@ -8,29 +8,11 @@ unix_zip_path := Buzz-${version}-unix.tar.gz
 
 windows_zip_path := Buzz-${version}-windows.tar.gz
 
-libwhisper.so:
-	gcc -O3 -std=c11   -pthread -mavx -mavx2 -mfma -mf16c -fPIC -c whisper.cpp/ggml.c -o whisper.cpp/ggml.o
-	g++ -O3 -std=c++11 -pthread --shared -fPIC -static-libstdc++ whisper.cpp/whisper.cpp whisper.cpp/ggml.o -o libwhisper.so
-
-dist/Buzz: libwhisper.so
-	pyinstaller --noconfirm Buzz.spec
-
-clean:
-	rm -rf dist/* || true
-
-test: libwhisper.so
-	pytest --cov --cov-fail-under=69 --cov-report html
-
-version:
-	poetry version ${version}
-
 bundle_linux: dist/Buzz
 	cd dist && tar -czf ${unix_zip_path} Buzz/ && cd -
 
 bundle_windows: dist/Buzz
 	iscc //DAppVersion=${version} installer.iss
-
-# MAC
 
 bundle_mac: dist/Buzz
 	make zip_mac
@@ -41,6 +23,22 @@ bundle_mac_local: dist/Buzz
 	make notarize_zip
 	make staple_app_mac
 	make dmg_mac
+
+clean:
+	rm -rf dist/* || true
+
+test: libwhisper.so
+	pytest --cov --cov-fail-under=69 --cov-report html
+
+dist/Buzz: libwhisper.so
+	pyinstaller --noconfirm Buzz.spec
+
+version:
+	poetry version ${version}
+
+libwhisper.so:
+	gcc -O3 -std=c11   -pthread -mavx -mavx2 -mfma -mf16c -fPIC -c whisper.cpp/ggml.c -o whisper.cpp/ggml.o
+	g++ -O3 -std=c++11 -pthread --shared -fPIC -static-libstdc++ whisper.cpp/whisper.cpp whisper.cpp/ggml.o -o libwhisper.so
 
 staple_app_mac:
 	xcrun stapler staple ${mac_app_path}
