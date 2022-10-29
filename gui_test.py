@@ -3,8 +3,8 @@ from unittest.mock import patch
 import sounddevice
 
 from gui import (Application, AudioDevicesComboBox,
-                 DownloadModelProgressDialog, OutputFormatsComboBox,
-                 LanguagesComboBox, MainWindow, TranscriberProgressDialog)
+                 DownloadModelProgressDialog, LanguagesComboBox, MainWindow,
+                 OutputFormatsComboBox, TranscriberProgressDialog)
 from transcriber import OutputFormat
 
 
@@ -13,7 +13,7 @@ class TestApplication:
 
     def test_should_show_window_title(self):
         assert len(self.app.windows) == 1
-        assert self.app.windows[0].windowTitle() == 'Live Recording — Buzz'
+        assert self.app.windows[0].windowTitle() == 'Live Recording - Buzz'
 
     def test_should_open_a_new_import_file_window(self):
         main_window = self.app.windows[0]
@@ -27,7 +27,7 @@ class TestApplication:
             assert len(self.app.windows) == 2
 
             new_window = self.app.windows[1]
-            assert new_window.windowTitle() == 'c.mp3 — Buzz'
+            assert new_window.windowTitle() == 'c.mp3 - Buzz'
 
 
 class TestLanguagesComboBox:
@@ -118,6 +118,8 @@ class TestDownloadModelProgressDialog:
         assert self.dialog.labelText() == 'Downloading resources (0%, unknown time remaining)'
 
     def test_should_update_label_on_progress(self):
+        self.dialog.setValue(0)
+
         self.dialog.setValue(12345)
         assert self.dialog.labelText().startswith(
             'Downloading resources (1.00%')

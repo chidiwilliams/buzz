@@ -5,7 +5,7 @@ on:
     branches:
       - master
     tags:
-      - "*"
+      - '*'
   pull_request:
 
 concurrency:
@@ -41,27 +41,37 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-2
 
+      - name: Load cached Whisper models
+        id: cached-whisper-models
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/Library/Caches/Buzz
+            ~/.cache/whisper
+          key: whisper-models-${{ runner.os }}
+
       - run: poetry install
+      - name: Install ffmpeg
+        run: |
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            brew install ffmpeg
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            choco install ffmpeg
+          elif [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt update && sudo apt install ffmpeg
+          fi
+        shell: bash
       - name: Test
-        run: poetry run make libwhisper.so test
+        run: poetry run make test
+
   build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
           - os: macos-latest
-            CMD_BUILD: |
-              brew install create-dmg
-              brew install ffmpeg
-              poetry run make libwhisper.so bundle_mac
           - os: ubuntu-latest
-            CMD_BUILD: |
-              sudo apt update && sudo apt install ffmpeg
-              poetry run make libwhisper.so bundle_linux
           - os: windows-latest
-            CMD_BUILD: |
-              choco install ffmpeg
-              poetry run make libwhisper.so bundle_windows
     steps:
       - uses: actions/checkout@v3
         with:
@@ -84,15 +94,36 @@ jobs:
           key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-2
 
       - run: poetry install
-      - run: ${{ matrix.CMD_BUILD }}
+      - name: Install ffmpeg
+        run: |
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            brew install ffmpeg
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            choco install ffmpeg
+          elif [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt update && sudo apt install ffmpeg
+          fi
+        shell: bash
+      - name: Bundle
+        run: |
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            poetry run make bundle_mac
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            poetry run make dist/Buzz.exe
+          elif [ "$RUNNER_OS" == "Linux" ]; then
+            poetry run make bundle_linux
+          fi
         env:
           BUZZ_VERSION: ${{ github.ref_name }}
+        shell: bash
       - uses: actions/upload-artifact@v3
         with:
           name: Buzz-${{ runner.os }}
           path: |
             dist/Buzz*.tar.gz
             dist/Buzz*.zip
+            dist/Buzz*.exe
+
   release:
     runs-on: ubuntu-latest
     needs: [build, test]
@@ -110,3 +141,4 @@ jobs:
           files: |
             Buzz*.tar.gz
             Buzz*.dmg
+            Buzz.exe
