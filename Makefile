@@ -25,10 +25,11 @@ bundle_mac_local: dist/Buzz
 	make dmg_mac
 
 clean:
+	rm -f *.so
 	rm -rf dist/* || true
 
 test: libwhisper.so
-	pytest --cov --cov-fail-under=69 --cov-report html
+	pytest --cov --cov-fail-under=68 --cov-report html
 
 dist/Buzz: libwhisper.so
 	pyinstaller --noconfirm Buzz.spec

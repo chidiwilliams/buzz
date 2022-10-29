@@ -18,6 +18,7 @@ datas += copy_metadata('numpy')
 datas += copy_metadata('tokenizers')
 datas += collect_data_files('whisper')
 datas += [('libwhisper.so', '.')]
+datas += [('assets/buzz.ico', 'assets')]
 
 
 def get_ffmpeg():
