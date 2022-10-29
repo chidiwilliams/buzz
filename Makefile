@@ -29,13 +29,14 @@ clean:
 	rm -rf dist/* || true
 
 test: libwhisper.so
-	pytest --cov --cov-fail-under=68 --cov-report html
+	pytest --cov --cov-fail-under=67 --cov-report html
 
 dist/Buzz: libwhisper.so
 	pyinstaller --noconfirm Buzz.spec
 
 version:
 	poetry version ${version}
+	echo "VERSION = \"${version}\"" > __version__.py
 
 libwhisper.so:
 	gcc -O3 -std=c11   -pthread -mavx -mavx2 -mfma -mf16c -fPIC -c whisper.cpp/ggml.c -o whisper.cpp/ggml.o
