@@ -32,7 +32,7 @@ bundle_linux:
 
 bundle_windows:
 	make buzz
-	iscc /DAppVersion=${version} installer.iss
+	iscc //DAppVersion=${version} installer.iss
 
 # MAC
 
