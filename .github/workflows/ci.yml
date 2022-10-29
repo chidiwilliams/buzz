@@ -62,7 +62,7 @@ jobs:
           fi
         shell: bash
       - name: Test
-        run: poetry run make libwhisper.so test
+        run: poetry run make test
 
   build:
     runs-on: ${{ matrix.os }}
@@ -107,11 +107,11 @@ jobs:
       - name: Bundle
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
-            poetry run make libwhisper.so bundle_mac
+            poetry run make bundle_mac
           elif [ "$RUNNER_OS" == "Windows" ]; then
-            poetry run make libwhisper.so bundle_windows
+            poetry run make dist/Buzz.exe
           elif [ "$RUNNER_OS" == "Linux" ]; then
-            poetry run make libwhisper.so bundle_linux
+            poetry run make bundle_linux
           fi
         env:
           BUZZ_VERSION: ${{ github.ref_name }}
@@ -122,6 +122,7 @@ jobs:
           path: |
             dist/Buzz*.tar.gz
             dist/Buzz*.zip
+            dist/Buzz*.exe
 
   release:
     runs-on: ubuntu-latest
@@ -140,3 +141,4 @@ jobs:
           files: |
             Buzz*.tar.gz
             Buzz*.dmg
+            Buzz.exe
