@@ -23,6 +23,8 @@ from __version__ import VERSION
 from transcriber import FileTranscriber, OutputFormat, RecordingTranscriber
 from whispr import Task
 
+APP_NAME = 'Buzz'
+
 
 def get_platform_styles(all_platform_styles: Dict[str, str]):
     return all_platform_styles.get(platform.system(), '')
@@ -680,12 +682,18 @@ class RecordingTranscriberWidget(QWidget):
         if self.model_download_progress_dialog is not None:
             self.model_download_progress_dialog = None
 
+class Icon(QIcon):
+    def __init__(self):
+        super().__init__('assets/buzz.ico')
 
 class AboutDialog(QDialog):
     def __init__(self, parent: Optional[QWidget]) -> None:
         super().__init__(parent)
 
         self.setFixedSize(200, 200)
+
+        self.setWindowIcon(Icon())
+        self.setWindowTitle(f'About {APP_NAME}')
 
         layout = QVBoxLayout(self)
 
@@ -696,7 +704,7 @@ class AboutDialog(QDialog):
         image_label.setAlignment(Qt.AlignmentFlag(
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignHCenter))
 
-        buzz_label = QLabel('Buzz')
+        buzz_label = QLabel(APP_NAME)
         buzz_label.setAlignment(Qt.AlignmentFlag(
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignHCenter))
         buzz_label_font = QtGui.QFont()
@@ -724,8 +732,8 @@ class MainWindow(QMainWindow):
         super().__init__(parent, *args)
 
         self.setFixedSize(w, h)
-        self.setWindowTitle(f'{title} - Buzz')
-        self.setWindowIcon(QIcon('assets/buzz.ico'))
+        self.setWindowTitle(f'{title} - {APP_NAME}')
+        self.setWindowIcon(Icon())
 
         import_audio_file_action = QAction("&Import Audio File...", self)
         import_audio_file_action.triggered.connect(
@@ -737,7 +745,7 @@ class MainWindow(QMainWindow):
         self.file_menu = menu.addMenu("&File")
         self.file_menu.addAction(import_audio_file_action)
 
-        self.about_action = QAction('&About', self)
+        self.about_action = QAction(f'&About {APP_NAME}', self)
         self.about_action.triggered.connect(self.on_trigger_about_action)
 
         self.help_menu = menu.addMenu("&Help")
@@ -765,7 +773,7 @@ class MainWindow(QMainWindow):
         self.settings.setValue(Settings.ENABLE_GGML_INFERENCE, state)
 
     def on_trigger_about_action(self):
-        about_dialog = AboutDialog(None)
+        about_dialog = AboutDialog(self)
         about_dialog.exec()
 
 
