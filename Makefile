@@ -36,6 +36,7 @@ dist/Buzz: libwhisper.so
 
 version:
 	poetry version ${version}
+	echo "VERSION = \"${version}\"" > __version__.py
 
 libwhisper.so:
 	gcc -O3 -std=c11   -pthread -mavx -mavx2 -mfma -mf16c -fPIC -c whisper.cpp/ggml.c -o whisper.cpp/ggml.o
