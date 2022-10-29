@@ -32,7 +32,7 @@ bundle_linux:
 
 bundle_windows:
 	make buzz
-	cd dist && tar -czf ${windows_zip_path} Buzz/ && cd -
+	iscc /DAppVersion=${version} installer.iss
 
 # MAC
 

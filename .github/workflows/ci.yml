@@ -122,6 +122,7 @@ jobs:
           path: |
             dist/Buzz*.tar.gz
             dist/Buzz*.zip
+            dist/Buzz*.exe
 
   release:
     runs-on: ubuntu-latest
