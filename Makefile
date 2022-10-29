@@ -25,6 +25,7 @@ bundle_mac_local: dist/Buzz
 	make dmg_mac
 
 clean:
+	rm -f *.so
 	rm -rf dist/* || true
 
 test: libwhisper.so

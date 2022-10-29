@@ -9,10 +9,10 @@ import humanize
 import sounddevice
 from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt, QTimer,
                           pyqtSignal)
-from PyQt6.QtGui import QAction, QCloseEvent, QKeySequence, QTextCursor
+from PyQt6.QtGui import QAction, QCloseEvent, QKeySequence, QTextCursor, QIcon
 from PyQt6.QtWidgets import (QApplication, QComboBox, QFileDialog, QGridLayout,
                              QLabel, QMainWindow, QPlainTextEdit,
-                             QProgressDialog, QPushButton, QWidget)
+                             QProgressDialog, QPushButton, QWidget,)
 from whisper import tokenizer
 
 from transcriber import FileTranscriber, OutputFormat, RecordingTranscriber
@@ -683,7 +683,8 @@ class MainWindow(QMainWindow):
         super().__init__(parent, *args)
 
         self.setFixedSize(w, h)
-        self.setWindowTitle(f'{title} — Buzz')
+        self.setWindowTitle(f'{title} - Buzz')
+        self.setWindowIcon(QIcon('assets/buzz.ico'))
 
         import_audio_file_action = QAction("&Import Audio File...", self)
         import_audio_file_action.triggered.connect(
