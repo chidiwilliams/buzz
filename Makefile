@@ -29,7 +29,7 @@ clean:
 	rm -rf dist/* || true
 
 test: libwhisper.so
-	pytest --cov --cov-fail-under=68 --cov-report html
+	pytest --cov --cov-fail-under=67 --cov-report html
 
 dist/Buzz: libwhisper.so
 	pyinstaller --noconfirm Buzz.spec
