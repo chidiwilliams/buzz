@@ -11,7 +11,7 @@ windows_zip_path := Buzz-${version}-windows.tar.gz
 bundle_linux: dist/Buzz
 	cd dist && tar -czf ${unix_zip_path} Buzz/ && cd -
 
-bundle_windows: dist/Buzz
+dist/Buzz.exe: dist/Buzz
 	iscc //DAppVersion=${version} installer.iss
 
 bundle_mac: dist/Buzz

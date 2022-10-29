@@ -109,7 +109,7 @@ jobs:
           if [ "$RUNNER_OS" == "macOS" ]; then
             poetry run make bundle_mac
           elif [ "$RUNNER_OS" == "Windows" ]; then
-            poetry run make bundle_windows
+            poetry run make dist/Buzz.exe
           elif [ "$RUNNER_OS" == "Linux" ]; then
             poetry run make bundle_linux
           fi
@@ -141,3 +141,4 @@ jobs:
           files: |
             Buzz*.tar.gz
             Buzz*.dmg
+            Buzz.exe
