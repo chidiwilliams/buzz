@@ -6,7 +6,6 @@ import sys
 
 from appdirs import user_log_dir
 
-
 # Check for segfaults if not running in frozen mode
 if getattr(sys, 'frozen', False) is False:
     faulthandler.enable()

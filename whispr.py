@@ -10,7 +10,7 @@ import warnings
 from dataclasses import dataclass
 from multiprocessing.connection import Connection
 from threading import Thread
-from typing import Any, Callable, List, Optional, Union
+from typing import Any, Callable, List, Union
 
 import numpy as np
 import requests
@@ -18,6 +18,7 @@ import whisper
 from appdirs import user_cache_dir
 from tqdm import tqdm
 from whisper import Whisper
+from queue import Empty
 
 from conn import pipe_stderr
 
@@ -115,39 +116,43 @@ class WhisperCpp:
         whisper_cpp.whisper_free(ctypes.c_void_p(self.ctx))
 
 
+# TODO: should this instead subclass Process?
 class ModelLoader:
-    stopped = False
-    process: Optional[multiprocessing.Process] = None
+    process: multiprocessing.Process
+    model_path_queue: multiprocessing.Queue
 
     def __init__(self, name: str, use_whisper_cpp=False) -> None:
         self.name = name
         self.use_whisper_cpp = use_whisper_cpp
 
-    def get_model_path(self,  on_download_model_chunk: Callable[[int, int], None] = lambda *_: None) -> str:
-        model_path_queue = multiprocessing.Queue()
+        self.recv_pipe, self.send_pipe = multiprocessing.Pipe(duplex=False)
+        self.model_path_queue = multiprocessing.Queue()
+        self.process = multiprocessing.Process(
+            target=self.load_whisper_cpp_model if self.use_whisper_cpp else self.load_whisper_model,
+            args=(self.send_pipe, self.model_path_queue, self.name))
 
+    def get_model_path(self,  on_download_model_chunk: Callable[[int, int], None] = lambda *_: None) -> str:
         # Fixes an issue with the pickling of a torch model from another process
         os.environ["no_proxy"] = '*'
 
         on_download_model_chunk(0, 100)
-        recv_pipe, send_pipe = multiprocessing.Pipe(duplex=False)
 
-        self.process = multiprocessing.Process(
-            target=self.load_whisper_cpp_model if self.use_whisper_cpp else self.load_whisper_model,
-            args=(send_pipe, model_path_queue, self.name))
         self.process.start()
 
         thread = Thread(target=read_progress, args=(
-            recv_pipe, self.use_whisper_cpp, on_download_model_chunk))
+            self.recv_pipe, self.use_whisper_cpp, on_download_model_chunk))
         thread.start()
 
         self.process.join()
 
-        recv_pipe.close()
-        send_pipe.close()
+        self.recv_pipe.close()
+        self.send_pipe.close()
 
         on_download_model_chunk(100, 100)
-        return model_path_queue.get(block=False)
+        try:
+            return self.model_path_queue.get(block=False)
+        except Empty as exc:
+            raise Stopped from exc
 
     def load(self, on_download_model_chunk: Callable[[int, int], None] = lambda *_: None) -> Union[Whisper, WhisperCpp]:
         logging.debug(
@@ -172,13 +177,11 @@ class ModelLoader:
             queue.put(path)
 
     def stop(self):
-        self.stopped = True
+        if self.process.is_alive():
+            self.process.terminate()
 
-        if self.process is not None:
-            self.process.join()
-
-    def is_stopped(self):
-        return self.stopped
+    def is_alive(self):
+        return self.process.is_alive()
 
 
 def download_whisper_model(url: str, root: str):
