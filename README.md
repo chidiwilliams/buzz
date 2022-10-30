@@ -1,14 +1,14 @@
-<img src='./assets/buzz.ico' width='75'/>
 
 # Buzz
 
-> Transcribe and translate audio offline on your personal computer. Powered by OpenAI's [Whisper](https://github.com/openai/whisper).
-
-![Buzz](./assets/buzz.png)
+Transcribe and translate audio offline on your personal computer. Powered by OpenAI's [Whisper](https://github.com/openai/whisper).
 
 ![MIT License](https://img.shields.io/badge/license-MIT-green)
 [![CI](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml/badge.svg)](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/chidiwilliams/buzz)
+
+![Buzz](./assets/buzz-banner.jpg)
+
 
 ## Features
 
@@ -36,7 +36,7 @@ To install Buzz, download the [latest version](https://github.com/chidiwilliams/
 
 ## How to use
 
-## Live Recording
+### Live Recording
 
 To start a live recording:
 
