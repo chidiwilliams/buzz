@@ -10,8 +10,8 @@ import sounddevice
 from PyQt6 import QtGui
 from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt, QTimer,
                           pyqtSignal)
-from PyQt6.QtGui import (QAction, QCloseEvent, QKeySequence, QPixmap,
-                         QTextCursor, QIcon)
+from PyQt6.QtGui import (QAction, QCloseEvent, QIcon, QKeySequence, QPixmap,
+                         QTextCursor)
 from PyQt6.QtWidgets import (QApplication, QComboBox, QDialog, QFileDialog,
                              QGridLayout, QLabel, QMainWindow, QPlainTextEdit,
                              QProgressDialog, QPushButton, QVBoxLayout,
@@ -19,7 +19,6 @@ from PyQt6.QtWidgets import (QApplication, QComboBox, QDialog, QFileDialog,
 from whisper import tokenizer
 
 from __version__ import VERSION
-
 from transcriber import FileTranscriber, OutputFormat, RecordingTranscriber
 from whispr import Task
 
@@ -249,6 +248,7 @@ class TranscriberProgressDialog(QProgressDialog):
         self.setMinimumDuration(0)
 
         self.setValue(0)
+        self.setWindowModality(Qt.WindowModality.WindowModal)
 
     def update_progress(self, current_size: int):
         self.setValue(current_size)
@@ -513,6 +513,7 @@ class FileTranscriberWidget(QWidget):
     def reset_transcription(self):
         self.run_button.setDisabled(False)
         if self.transcriber_progress_dialog is not None:
+            self.transcriber_progress_dialog.close()
             self.transcriber_progress_dialog = None
 
     def on_cancel_model_progress_dialog(self):
@@ -682,9 +683,21 @@ class RecordingTranscriberWidget(QWidget):
         if self.model_download_progress_dialog is not None:
             self.model_download_progress_dialog = None
 
-class Icon(QIcon):
+
+ICON_PATH = 'assets/buzz.ico'
+ICON_LARGE_PATH = 'assets/buzz-icon-1024.png'
+
+
+def get_asset_path(path: str):
+    base_dir = os.path.dirname(sys.executable if getattr(
+        sys, 'frozen', False) else __file__)
+    return os.path.join(base_dir, path)
+
+
+class AppIcon(QIcon):
     def __init__(self):
-        super().__init__('assets/buzz.ico')
+        super().__init__(get_asset_path(ICON_PATH))
+
 
 class AboutDialog(QDialog):
     def __init__(self, parent: Optional[QWidget]) -> None:
@@ -692,13 +705,13 @@ class AboutDialog(QDialog):
 
         self.setFixedSize(200, 200)
 
-        self.setWindowIcon(Icon())
+        self.setWindowIcon(AppIcon())
         self.setWindowTitle(f'About {APP_NAME}')
 
         layout = QVBoxLayout(self)
 
         image_label = QLabel()
-        pixmap = QPixmap('./assets/buzz-icon-1024.png').scaled(
+        pixmap = QPixmap(get_asset_path(ICON_LARGE_PATH)).scaled(
             80, 80, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
         image_label.setPixmap(pixmap)
         image_label.setAlignment(Qt.AlignmentFlag(
@@ -733,7 +746,7 @@ class MainWindow(QMainWindow):
 
         self.setFixedSize(w, h)
         self.setWindowTitle(f'{title} - {APP_NAME}')
-        self.setWindowIcon(Icon())
+        self.setWindowIcon(AppIcon())
 
         import_audio_file_action = QAction("&Import Audio File...", self)
         import_audio_file_action.triggered.connect(

@@ -215,6 +215,7 @@ class FileTranscriber:
 
     stopped = False
     current_thread: Optional[Thread] = None
+    current_process: Optional[multiprocessing.Process] = None
 
     class Event():
         pass
@@ -255,61 +256,63 @@ class FileTranscriber:
         self.current_thread.start()
 
     def transcribe(self):
+        if self.stopped:
+            return
+
         try:
-            try:
-                model_path = self.model_loader.get_model_path(
-                    on_download_model_chunk=self.on_download_model_chunk)
-            except Stopped:
-                return
-
-            self.event_callback(self.LoadedModelEvent())
-
-            time_started = datetime.datetime.now()
-            logging.debug(
-                'Starting file transcription, file path = %s, language = %s, task = %s, output file path = %s, output format = %s',
-                self.file_path, self.language, self.task, self.output_file_path, self.output_format)
-
-            self.event_callback(self.ProgressEvent(0, 100))
-            recv_pipe, send_pipe = multiprocessing.Pipe(duplex=False)
-
-            if self.use_whisper_cpp:
-                process = multiprocessing.Process(
-                    target=transcribe_whisper_cpp,
-                    args=(
-                        send_pipe, model_path, self.file_path,
-                        self.output_file_path, self.open_file_on_complete,
-                        self.output_format,
-                        self.language if self.language is not None else 'en',
-                        self.task, True, True,
-                    ))
-            else:
-                process = multiprocessing.Process(
-                    target=transcribe_whisper,
-                    args=(
-                        send_pipe, model_path, self.file_path,
-                        self.language, self.task, self.output_file_path,
-                        self.open_file_on_complete, self.output_format,
-                    ))
-
-            process.start()
-
-            thread = Thread(target=read_progress, args=(
-                recv_pipe, self.use_whisper_cpp,
-                lambda current_value, max_value: self.event_callback(self.ProgressEvent(current_value, max_value))))
-            thread.start()
-
-            process.join()
-
-            recv_pipe.close()
-            send_pipe.close()
-
-            self.event_callback(self.ProgressEvent(100, 100))
-            logging.debug('Completed file transcription, time taken = %s',
-                          datetime.datetime.now()-time_started)
+            model_path = self.model_loader.get_model_path(
+                on_download_model_chunk=self.on_download_model_chunk)
         except Stopped:
             return
-        except Exception:
-            logging.exception('')
+
+        self.event_callback(self.LoadedModelEvent())
+
+        time_started = datetime.datetime.now()
+        logging.debug(
+            'Starting file transcription, file path = %s, language = %s, task = %s, output file path = %s, output format = %s',
+            self.file_path, self.language, self.task, self.output_file_path, self.output_format)
+
+        recv_pipe, send_pipe = multiprocessing.Pipe(duplex=False)
+
+        if self.stopped:
+            return
+
+        self.event_callback(self.ProgressEvent(0, 100))
+        if self.use_whisper_cpp:
+            self.current_process = multiprocessing.Process(
+                target=transcribe_whisper_cpp,
+                args=(
+                    send_pipe, model_path, self.file_path,
+                    self.output_file_path, self.open_file_on_complete,
+                    self.output_format,
+                    self.language if self.language is not None else 'en',
+                    self.task, True, True,
+                ))
+        else:
+            self.current_process = multiprocessing.Process(
+                target=transcribe_whisper,
+                args=(
+                    send_pipe, model_path, self.file_path,
+                    self.language, self.task, self.output_file_path,
+                    self.open_file_on_complete, self.output_format,
+                ))
+
+        self.current_process.start()
+
+        thread = Thread(target=read_progress, args=(
+            recv_pipe, self.use_whisper_cpp,
+            lambda current_value, max_value: self.event_callback(self.ProgressEvent(current_value, max_value))))
+        thread.start()
+
+        self.current_process.join()
+        self.current_process.close()
+
+        recv_pipe.close()
+        send_pipe.close()
+
+        self.event_callback(self.ProgressEvent(100, 100))
+        logging.debug('Completed file transcription, time taken = %s',
+                      datetime.datetime.now()-time_started)
 
     def stop_loading_model(self):
         self.model_loader.stop()
@@ -319,14 +322,21 @@ class FileTranscriber:
             self.current_thread.join()
 
     def stop(self):
-        if self.stopped is False:
-            self.stopped = True
+        self.stopped = True
 
-            if self.current_thread is not None and self.current_thread.is_alive():
-                logging.debug(
-                    'Waiting for file transcription thread to terminate')
-                self.current_thread.join()
-                logging.debug('File transcription thread terminated')
+        self.model_loader.stop()
+
+        if self.current_process is not None and self.current_process.is_alive():
+            self.current_process.terminate()
+            logging.debug('File transcription process terminated')
+
+        if self.current_thread is not None and self.current_thread.is_alive():
+            logging.debug(
+                'Waiting for file transcription thread to terminate')
+            self.current_thread.join()
+            logging.debug('File transcription thread terminated')
+
+        self.current_process = None
 
     @classmethod
     def get_default_output_file_path(cls, task: Task, input_file_path: str, output_format: OutputFormat):

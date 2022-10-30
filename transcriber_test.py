@@ -60,6 +60,29 @@ class TestFileTranscriber:
         assert len([event for event in events if isinstance(
             event, FileTranscriber.ProgressEvent) and event.current_value > 0 and event.current_value < 100 and event.max_value == 100]) > 0
 
+    def test_transcribe_whisper_stop(self):
+        output_file_path = os.path.join(tempfile.gettempdir(), 'whisper.txt')
+        if os.path.exists(output_file_path):
+            os.remove(output_file_path)
+
+        events = []
+
+        def event_callback(event: FileTranscriber.Event):
+            events.append(event)
+
+        transcriber = FileTranscriber(
+            model_name='tiny', use_whisper_cpp=False, language='fr',
+            task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
+            output_file_path=output_file_path, output_format=OutputFormat.TXT,
+            open_file_on_complete=False, event_callback=event_callback)
+        transcriber.start()
+        transcriber.stop()
+
+        # Assert that file was not created and there was no completed progress event
+        assert os.path.isfile(output_file_path) is False
+        assert any([isinstance(event, FileTranscriber.ProgressEvent)
+                   and event.current_value == event.max_value for event in events]) is False
+
     @pytest.mark.skip(reason='issue with .so file on windows')
     def test_transcribe_whisper_cpp(self):
         output_file_path = os.path.join(

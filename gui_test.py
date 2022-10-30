@@ -2,9 +2,11 @@ from unittest.mock import patch
 
 import sounddevice
 
-from gui import (Application, AudioDevicesComboBox,
+from gui import (AboutDialog, Application, AudioDevicesComboBox,
                  DownloadModelProgressDialog, LanguagesComboBox, MainWindow,
                  OutputFormatsComboBox, TranscriberProgressDialog)
+from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt, QTimer,
+                          pyqtSignal)
 from transcriber import OutputFormat
 
 
@@ -100,6 +102,12 @@ class TestTranscriberProgressDialog:
     dialog = TranscriberProgressDialog(
         file_path='/a/b/c.txt', total_size=1234567, parent=None)
 
+    # Should not be able to interact with the transcriber widget while transcription
+    # is already ongoing. This also prevents an issue with the application
+    # not closing when the transcriber widget is closed before the progress dialog
+    def test_should_be_a_window_modal(self):
+        assert self.dialog.windowModality() == Qt.WindowModality.WindowModal
+
     def test_should_show_dialog(self):
         assert self.dialog.labelText() == 'Processing c.txt (0%, unknown time remaining)'
 
@@ -128,12 +136,18 @@ class TestDownloadModelProgressDialog:
         assert self.dialog.labelText().startswith(
             'Downloading resources (10.00%')
 
+    # Other windows should not be processing while models are being downloaded
+    def test_should_be_an_application_modal(self):
+        assert self.dialog.windowModality() == Qt.WindowModality.ApplicationModal
+
+
 class TestFormatsComboBox:
     def test_should_have_items(self):
         formats_combo_box = OutputFormatsComboBox(OutputFormat.TXT, None)
         assert formats_combo_box.itemText(0) == 'TXT'
         assert formats_combo_box.itemText(1) == 'SRT'
         assert formats_combo_box.itemText(2) == 'VTT'
+
 
 class TestMainWindow:
     def test_should_init(self):
