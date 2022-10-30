@@ -17,22 +17,16 @@ Transcribe and translate audio offline on your personal computer. Powered by Ope
 
 ## Installation
 
-To install Buzz, download the [latest version](https://github.com/chidiwilliams/buzz/releases/latest) for your operating system. Buzz is available on **Mac (Intel x86)**, **Windows**, and **Linux**.
+To install Buzz, download the [latest version](https://github.com/chidiwilliams/buzz/releases/latest) for your operating system. Buzz is available on **Mac** and **Windows**.
 
-### Mac (Intel x86)
+### Mac
 
-- Download and open the `*-mac.dmg` file.
+- Download and open the `Buzz-x.y.z-dmg` file.
 - After the installation window opens, drag the Buzz icon into the folder to add Buzz to your Applications directory.
 
 ### Windows
 
-- Download and extract the `*-windows.tar.gz` file.
-- Run the Buzz.exe file
-
-### Linux
-
-- Download and extract the `*-unix.tar.gz` file.
-- Open the Buzz binary file.
+- Download and run the `Buzz-x.y.z.exe` file.
 
 ## How to use
 
