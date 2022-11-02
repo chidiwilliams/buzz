@@ -9,7 +9,6 @@ Transcribe and translate audio offline on your personal computer. Powered by Ope
 
 ![Buzz](./assets/buzz-banner.jpg)
 
-
 ## Features
 
 - Real-time transcription and translation from your computer's microphones to text ([Demo](https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7))
@@ -19,7 +18,7 @@ Transcribe and translate audio offline on your personal computer. Powered by Ope
 
 To install Buzz, download the [latest version](https://github.com/chidiwilliams/buzz/releases/latest) for your operating system. Buzz is available on **Mac** and **Windows**.
 
-### Mac
+### Mac (macOS 11.7 and above)
 
 - Download and open the `Buzz-x.y.z-dmg` file.
 - After the installation window opens, drag the Buzz icon into the folder to add Buzz to your Applications directory.
