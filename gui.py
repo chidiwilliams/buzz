@@ -9,13 +9,14 @@ import humanize
 import sounddevice
 from PyQt6 import QtGui
 from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt, QTimer,
-                          pyqtSignal)
-from PyQt6.QtGui import (QAction, QCloseEvent, QIcon, QKeySequence, QPixmap,
-                         QTextCursor)
+                          QUrl, pyqtSignal)
+from PyQt6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
+                         QKeySequence, QPixmap, QTextCursor)
 from PyQt6.QtWidgets import (QApplication, QComboBox, QDialog, QFileDialog,
-                             QGridLayout, QLabel, QMainWindow, QPlainTextEdit,
-                             QProgressDialog, QPushButton, QVBoxLayout,
-                             QWidget)
+                             QGridLayout, QLabel, QMainWindow, QMessageBox,
+                             QPlainTextEdit, QProgressDialog, QPushButton,
+                             QVBoxLayout, QWidget)
+from requests import get
 from whisper import tokenizer
 
 from __version__ import VERSION
@@ -126,7 +127,8 @@ class OutputFormatsComboBox(QComboBox):
     def __init__(self, default_format: OutputFormat, parent: Optional[QWidget], *args) -> None:
         super().__init__(parent, *args)
         self.formats = [i for i in OutputFormat]
-        self.addItems(map(lambda format: format.value.upper(), self.formats))
+        self.addItems(
+            map(lambda format: f'.{format.value.lower()}', self.formats))
         self.currentIndexChanged.connect(self.on_index_changed)
         self.setCurrentText(default_format.value.title())
 
@@ -729,13 +731,29 @@ class AboutDialog(QDialog):
         version_label.setAlignment(Qt.AlignmentFlag(
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignHCenter))
 
+        check_updates_button = QPushButton('Check for updates')
+        check_updates_button.clicked.connect(self.on_click_check_for_updates)
+
         layout.addStretch(1)
         layout.addWidget(image_label)
         layout.addWidget(buzz_label)
         layout.addWidget(version_label)
+        layout.addWidget(check_updates_button)
         layout.addStretch(1)
 
         self.setLayout(layout)
+
+    def on_click_check_for_updates(self):
+        response = get(
+            'https://api.github.com/repos/chidiwilliams/buzz/releases/latest', timeout=15).json()
+        version_number = response.get('name')
+        if version_number == 'v' + VERSION:
+            dialog = QMessageBox(self)
+            dialog.setText("You're up to date!")
+            dialog.exec()
+        else:
+            QDesktopServices.openUrl(
+                QUrl('https://github.com/chidiwilliams/buzz/releases/latest'))
 
 
 class MainWindow(QMainWindow):
