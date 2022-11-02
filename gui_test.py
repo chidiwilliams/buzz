@@ -144,9 +144,9 @@ class TestDownloadModelProgressDialog:
 class TestFormatsComboBox:
     def test_should_have_items(self):
         formats_combo_box = OutputFormatsComboBox(OutputFormat.TXT, None)
-        assert formats_combo_box.itemText(0) == 'TXT'
-        assert formats_combo_box.itemText(1) == 'SRT'
-        assert formats_combo_box.itemText(2) == 'VTT'
+        assert formats_combo_box.itemText(0) == '.txt'
+        assert formats_combo_box.itemText(1) == '.srt'
+        assert formats_combo_box.itemText(2) == '.vtt'
 
 
 class TestMainWindow:
