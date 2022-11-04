@@ -26,12 +26,13 @@ bundle_mac_local: dist/Buzz
 
 clean:
 	rm -f libwhisper.*
+	rm -f whisper_cpp.py
 	rm -rf dist/* || true
 
-test: libwhisper.so
+test: whisper_cpp.py
 	pytest --cov --cov-fail-under=67 --cov-report html
 
-dist/Buzz: libwhisper.so
+dist/Buzz: whisper_cpp.py
 	pyinstaller --noconfirm Buzz.spec
 
 version:
@@ -43,7 +44,7 @@ libwhisper.dylib libwhisper.dll libwhisper.so:
 	cp whisper.cpp/libwhisper.* .
 
 whisper_cpp.py: libwhisper.dylib
-	ctypesgen ./whisper.cpp/whisper.h -llibwhisper.dylib -o whisper_cpp.py
+	ctypesgen ./whisper.cpp/whisper.h -llibwhisper.dylib -llibwhisper.so -llibwhisper.dll -o whisper_cpp.py
 
 staple_app_mac:
 	xcrun stapler staple ${mac_app_path}
