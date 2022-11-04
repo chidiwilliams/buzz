@@ -54,7 +54,7 @@ def whisper_cpp_params(language: str, task: Task, print_realtime=False, print_pr
 
 class WhisperCpp:
     def __init__(self, model: str) -> None:
-        self.ctx = whisper_init(model.encode('utf-8'))
+        self.ctx = whisper_init(String(model.encode('utf-8')))
 
     def transcribe(self, audio: Union[np.ndarray, str], params: Any):
         if isinstance(audio, str):
