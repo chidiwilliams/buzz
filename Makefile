@@ -53,8 +53,7 @@ version:
 
 $(LIBWHISPER):
 	cd whisper.cpp && cmake . && cmake --build .
-	ls -R whisper.cpp
-	cp whisper.cpp/$(LIBWHISPER) .
+	cp whisper.cpp/**/$(LIBWHISPER) .
 
 whisper_cpp.py: $(LIBWHISPER)
 	ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o whisper_cpp.py
