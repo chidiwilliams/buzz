@@ -1,10 +1,8 @@
 import faulthandler
 import multiprocessing
-import os
 
-from appdirs import user_cache_dir
-
-from whisper_cpp import String, whisper_init
+from whisper_cpp import String, whisper_free, whisper_init
+from whispr import download_whisper_cpp_model
 
 faulthandler.enable()
 
@@ -13,10 +11,7 @@ if __name__ == "__main__":
     # https://stackoverflow.com/a/33979091
     multiprocessing.freeze_support()
 
-    base_dir = user_cache_dir('Buzz')
-    os.makedirs(base_dir, exist_ok=True)
-
-    model_path = os.path.join(base_dir, 'ggml-model-whisper-tiny.bin')
+    model_path = download_whisper_cpp_model("tiny")
     ctx = whisper_init(String(model_path.encode('utf-8')))
-
     print(ctx)
+    whisper_free(ctx)
