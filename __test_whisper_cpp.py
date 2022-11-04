@@ -1,7 +1,10 @@
 import faulthandler
 import multiprocessing
+import os
 
-from whispr import ModelLoader, Task, WhisperCpp, whisper_cpp_params
+from appdirs import user_cache_dir
+
+from whisper_cpp import String, whisper_init
 
 faulthandler.enable()
 
@@ -10,12 +13,10 @@ if __name__ == "__main__":
     # https://stackoverflow.com/a/33979091
     multiprocessing.freeze_support()
 
-    model_loader = ModelLoader('tiny', True)
-    model_path = model_loader.get_model_path()
+    base_dir = user_cache_dir('Buzz')
+    os.makedirs(base_dir, exist_ok=True)
 
-    whispercpp = WhisperCpp(model_path)
-    params = whisper_cpp_params(
-        language='fr', task=Task.TRANSCRIBE, print_realtime=True, print_progress=True)
-    result = whispercpp.transcribe('./testdata/whisper-french.mp3', params)
+    model_path = os.path.join(base_dir, 'ggml-model-whisper-tiny.bin')
+    ctx = whisper_init(String(model_path.encode('utf-8')))
 
-    print(result)
+    print(ctx)
