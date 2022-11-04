@@ -69,7 +69,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-latest
+          - os: macos-11
           - os: ubuntu-latest
           - os: windows-latest
     steps:
