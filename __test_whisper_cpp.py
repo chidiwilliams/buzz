@@ -21,8 +21,6 @@ if __name__ == "__main__":
 
     model_path = download_whisper_cpp_model("tiny")
     ctx = whisper_init(String(model_path.encode('utf-8')))
-    print(ctx)
-    whisper_free(ctx)
 
     audio = whisper.audio.load_audio('./testdata/whisper-french.mp3')
 
@@ -41,3 +39,5 @@ if __name__ == "__main__":
         t1 = whisper_full_get_segment_t1(ctx, i)
 
         print(t0, t1, txt.decode('utf-8'))
+
+    whisper_free(ctx)
