@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-12
+          - os: macos-11
           - os: windows-latest
     steps:
       - uses: actions/checkout@v3
