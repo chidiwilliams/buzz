@@ -1,6 +1,9 @@
+import faulthandler
 import multiprocessing
 
 from whispr import ModelLoader, Task, WhisperCpp, whisper_cpp_params
+
+faulthandler.enable()
 
 if __name__ == "__main__":
     # Fixes opening new window when app has been frozen on Windows:
