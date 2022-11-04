@@ -10,7 +10,7 @@ windows_zip_path := Buzz-${version}-windows.tar.gz
 
 LIBWHISPER :=
 ifeq ($(OS), Windows_NT)
-	LIBWHISPER=libwhisper.dll
+	LIBWHISPER=whisper.dll
 else
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S), Darwin)
