@@ -8,6 +8,18 @@ unix_zip_path := Buzz-${version}-unix.tar.gz
 
 windows_zip_path := Buzz-${version}-windows.tar.gz
 
+LIBWHISPER :=
+ifeq ($(OS), Windows_NT)
+	LIBWHISPER=libwhisper.dll
+else
+	UNAME_S := $(shell uname -s)
+	ifeq ($(UNAME_S), Darwin)
+		LIBWHISPER=libwhisper.dylib
+	else
+		LIBWHISPER=libwhisper.so
+	endif
+endif
+
 bundle_linux: dist/Buzz
 	cd dist && tar -czf ${unix_zip_path} Buzz/ && cd -
 
@@ -25,7 +37,7 @@ bundle_mac_local: dist/Buzz
 	make dmg_mac
 
 clean:
-	rm -f libwhisper.*
+	rm -f $(LIBWHISPER)
 	rm -f whisper_cpp.py
 	rm -rf dist/* || true
 
@@ -39,12 +51,12 @@ version:
 	poetry version ${version}
 	echo "VERSION = \"${version}\"" > __version__.py
 
-libwhisper.dylib libwhisper.dll libwhisper.so:
+$(LIBWHISPER):
 	cd whisper.cpp && cmake . && cmake --build .
-	cp whisper.cpp/libwhisper.* .
+	cp whisper.cpp/$(LIBWHISPER) .
 
-whisper_cpp.py: libwhisper.dylib
-	ctypesgen ./whisper.cpp/whisper.h -llibwhisper.dylib -llibwhisper.so -llibwhisper.dll -o whisper_cpp.py
+whisper_cpp.py: $(LIBWHISPER)
+	ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o whisper_cpp.py
 
 staple_app_mac:
 	xcrun stapler staple ${mac_app_path}
@@ -52,7 +64,7 @@ staple_app_mac:
 codesign_all_mac:
 	make codesign_mac path="./dist/Buzz.app"
 	make codesign_mac path="./dist/Buzz.app/Contents/MacOS/Buzz"
-	for i in $$(find dist/Buzz.app/Contents/Resources -name "*.dylib" -o -name "*.so" -type f); \
+	for i in $$(find dist/Buzz.app/Contents/Resources -name "*.dylib" -o -name "*.so" -o -name "*.dll" -type f); \
 	do \
 		make codesign_mac path="$$i"; \
 	done
