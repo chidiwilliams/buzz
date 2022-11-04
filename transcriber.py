@@ -314,6 +314,8 @@ class FileTranscriber:
         logging.debug('Completed file transcription, time taken = %s',
                       datetime.datetime.now()-time_started)
 
+        self.current_process = None
+
     def stop_loading_model(self):
         self.model_loader.stop()
 
