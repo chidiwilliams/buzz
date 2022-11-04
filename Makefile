@@ -52,7 +52,7 @@ version:
 	echo "VERSION = \"${version}\"" > __version__.py
 
 $(LIBWHISPER):
-	cd whisper.cpp && cmake . && cmake --build .
+	cd whisper.cpp && cmake . && cmake --build . && cd -
 	cp whisper.cpp/**/$(LIBWHISPER) .
 
 whisper_cpp.py: $(LIBWHISPER)
