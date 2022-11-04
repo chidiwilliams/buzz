@@ -5,4 +5,5 @@ build/
 .coverage*
 .env
 htmlcov/
-*.so
+libwhisper.*
+whisper_cpp.py

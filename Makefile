@@ -25,7 +25,7 @@ bundle_mac_local: dist/Buzz
 	make dmg_mac
 
 clean:
-	rm -f *.so
+	rm -f libwhisper.*
 	rm -rf dist/* || true
 
 test: libwhisper.so
@@ -38,9 +38,12 @@ version:
 	poetry version ${version}
 	echo "VERSION = \"${version}\"" > __version__.py
 
-libwhisper.so:
-	gcc -O3 -std=c11   -pthread -mavx -mavx2 -mfma -mf16c -fPIC -c whisper.cpp/ggml.c -o whisper.cpp/ggml.o
-	g++ -O3 -std=c++11 -pthread --shared -fPIC -static-libstdc++ whisper.cpp/whisper.cpp whisper.cpp/ggml.o -o libwhisper.so
+libwhisper.dylib libwhisper.dll libwhisper.so:
+	cd whisper.cpp && cmake . && cmake --build .
+	cp whisper.cpp/libwhisper.* .
+
+whisper_cpp.py: libwhisper.dylib
+	ctypesgen ./whisper.cpp/whisper.h -llibwhisper.dylib -o whisper_cpp.py
 
 staple_app_mac:
 	xcrun stapler staple ${mac_app_path}
