@@ -17,7 +17,8 @@ datas += copy_metadata('filelock')
 datas += copy_metadata('numpy')
 datas += copy_metadata('tokenizers')
 datas += collect_data_files('whisper')
-datas += [('libwhisper.*', '.')]
+datas += [('whisper.dll' if platform.system() ==
+           'Windows' else 'libwhisper.*', '.')]
 datas += [('assets/buzz.ico', 'assets')]
 
 
