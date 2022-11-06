@@ -52,7 +52,7 @@ version:
 	echo "VERSION = \"${version}\"" > __version__.py
 
 $(LIBWHISPER):
-	gcc -O3 -std=c11   -pthread -mavx -mavx2 -mfma -mf16c -fPIC -c whisper.cpp/ggml.c -o whisper.cpp/ggml.o
+	gcc -O3 -std=c11   -pthread -mavx -mavx2 -mfma -mf16c -mmacosx-version-min=12 -fPIC -c whisper.cpp/ggml.c -o whisper.cpp/ggml.o
 	g++ -O3 -std=c++11 -pthread --shared -fPIC -static-libstdc++ whisper.cpp/whisper.cpp whisper.cpp/ggml.o -o $(LIBWHISPER)
 	# cd whisper.cpp && cmake . && cmake --build . && cd -
 	# cp whisper.cpp/$(LIBWHISPER) . || true
