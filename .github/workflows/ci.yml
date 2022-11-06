@@ -55,6 +55,8 @@ jobs:
       - name: Install ffmpeg
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
+            gcc --version
+            g++ --version
             brew install ffmpeg
           elif [ "$RUNNER_OS" == "Windows" ]; then
             choco install ffmpeg
