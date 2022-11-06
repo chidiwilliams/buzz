@@ -48,7 +48,8 @@ if __name__ == "__main__":
     # multiprocessing.freeze_support()
 
     model_path = download_whisper_cpp_model("tiny")
-    ctx = whisper_cpp.whisper_init((model_path.encode('utf-8')))
+    ctx = ctypes.c_void_p(whisper_cpp.whisper_init(
+        (model_path.encode('utf-8'))))
 
     audio = whisper.audio.load_audio('./testdata/whisper-french.mp3')
 
@@ -57,16 +58,17 @@ if __name__ == "__main__":
     whisper_cpp_audio = audio.ctypes.data_as(
         ctypes.POINTER(ctypes.c_float))
     result = whisper_cpp.whisper_full(
-        ctypes.c_void_p(ctx), params, whisper_cpp_audio, len(audio))
+        (ctx), params, whisper_cpp_audio, len(audio))
     if result != 0:
         raise Exception(f'Error from whisper.cpp: {result}')
 
-    n_segments = whisper_cpp.whisper_full_n_segments((ctypes.c_void_p(ctx)))
+    n_segments = whisper_cpp.whisper_full_n_segments(((ctx)))
     for i in range(n_segments):
-        txt = whisper_cpp.whisper_full_get_segment_text(ctypes.c_void_p(ctx), i)
-        t0 = whisper_cpp.whisper_full_get_segment_t0(ctypes.c_void_p(ctx), i)
-        t1 = whisper_cpp.whisper_full_get_segment_t1(ctypes.c_void_p(ctx), i)
+        txt = whisper_cpp.whisper_full_get_segment_text(
+            (ctx), i)
+        t0 = whisper_cpp.whisper_full_get_segment_t0((ctx), i)
+        t1 = whisper_cpp.whisper_full_get_segment_t1((ctx), i)
 
         print(t0, t1, txt.decode('utf-8'))
 
-    whisper_cpp.whisper_free(ctypes.c_void_p(ctx))
+    whisper_cpp.whisper_free((ctx))
