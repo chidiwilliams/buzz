@@ -42,6 +42,10 @@ libwhisper.so:
 	gcc -O3 -std=c11   -pthread -mavx -mavx2 -mfma -mf16c -fPIC -c whisper.cpp/ggml.c -o whisper.cpp/ggml.o
 	g++ -O3 -std=c++11 -pthread --shared -fPIC -static-libstdc++ whisper.cpp/whisper.cpp whisper.cpp/ggml.o -o libwhisper.so
 
+whisper_cpp:
+	cd whisper.cpp && cmake . && cmake --build . && cd -
+	cp whisper.cpp/main whisper_cpp
+
 staple_app_mac:
 	xcrun stapler staple ${mac_app_path}
 
