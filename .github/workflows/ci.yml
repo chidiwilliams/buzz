@@ -17,6 +17,7 @@ jobs:
   test_whisper_cpp:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: macos-11
