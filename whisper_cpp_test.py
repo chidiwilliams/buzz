@@ -2,7 +2,7 @@ import hashlib
 import logging
 import os
 import sys
-from subprocess import Popen
+from subprocess import PIPE, Popen
 
 import ffmpeg
 import requests
@@ -83,7 +83,11 @@ process = Popen([
     'whisper_cpp',
     '-f', OUTPUT_FILE,
     '-m', model_path],
-    stdout=sys.stdout,
-    stderr=sys.stderr, bufsize=1)
+    stdout=PIPE,
+    stderr=PIPE, bufsize=1)
 
 process.wait()
+
+print('processs done')
+print(process.stderr.read().decode())
+print(process.stdout.read().decode())
