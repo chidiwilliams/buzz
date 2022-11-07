@@ -137,6 +137,7 @@ class OutputFormatsComboBox(QComboBox):
 
 
 class Quality(enum.Enum):
+    VERY_LOW = 'very low'
     LOW = 'low'
     MEDIUM = 'medium'
     HIGH = 'high'
@@ -364,14 +365,15 @@ class TimerLabel(QLabel):
 
 def get_model_name(quality: Quality) -> str:
     return {
-        Quality.LOW: ('tiny', 'tiny.en'),
-        Quality.MEDIUM: ('base', 'base.en'),
-        Quality.HIGH: ('small', 'small.en'),
+        Quality.VERY_LOW: ('tiny', 'tiny.en'),
+        Quality.LOW:      ('base', 'base.en'),
+        Quality.MEDIUM:   ('small', 'small.en'),
+        Quality.HIGH:     ('medium', 'medium.en'),
     }[quality][0]
 
 
 class FileTranscriberWidget(QWidget):
-    selected_quality = Quality.LOW
+    selected_quality = Quality.VERY_LOW
     selected_language: Optional[str] = None
     selected_task = Task.TRANSCRIBE
     selected_output_format = OutputFormat.TXT
@@ -542,7 +544,7 @@ class Settings(QSettings):
 
 class RecordingTranscriberWidget(QWidget):
     current_status = RecordButton.Status.STOPPED
-    selected_quality = Quality.LOW
+    selected_quality = Quality.VERY_LOW
     selected_language: Optional[str] = None
     selected_device_id: Optional[int]
     selected_task = Task.TRANSCRIBE
@@ -792,6 +794,9 @@ class MainWindow(QMainWindow):
                 bool(self.settings.enable_ggml_inference()))
             enable_ggml_inference_action.triggered.connect(
                 self.on_toggle_enable_ggml_inference)
+
+            settings_menu = menu.addMenu("&Settings")
+            settings_menu.addAction(enable_ggml_inference_action)
 
     def on_import_audio_file_action(self):
         (file_path, _) = QFileDialog.getOpenFileName(
