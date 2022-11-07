@@ -10,7 +10,7 @@ readme = "README.md"
 python = ">=3.9.13,<3.11"
 sounddevice = "^0.4.5"
 whisper = {git = "https://github.com/openai/whisper.git"}
-torch = "^1.12.1"
+torch = "1.12.1"
 numpy = "^1.23.3"
 transformers = "^4.22.1"
 appdirs = "^1.4.4"
@@ -27,6 +27,7 @@ pytest-cov = "^4.0.0"
 pytest-qt = "^4.1.0"
 pytest-xvfb = "^2.0.0"
 pylint = "^2.15.5"
+pre-commit = "^2.20.0"
 
 [build-system]
 requires = ["poetry-core"]

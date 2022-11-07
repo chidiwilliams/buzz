@@ -1,12 +1,12 @@
 from unittest.mock import patch
 
 import sounddevice
+from PyQt6.QtCore import Qt
 
-from gui import (AboutDialog, Application, AudioDevicesComboBox,
+from gui import (Application, AudioDevicesComboBox,
                  DownloadModelProgressDialog, LanguagesComboBox, MainWindow,
-                 OutputFormatsComboBox, TranscriberProgressDialog)
-from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt, QTimer,
-                          pyqtSignal)
+                 OutputFormatsComboBox, Quality, QualityComboBox,
+                 TranscriberProgressDialog)
 from transcriber import OutputFormat
 
 
@@ -47,8 +47,22 @@ class TestLanguagesComboBox:
         assert self.languagesComboxBox.currentText() == 'English'
 
     def test_should_select_detect_language_as_default(self):
-        languagesComboxBox = LanguagesComboBox(None)
-        assert languagesComboxBox.currentText() == 'Detect Language'
+        languages_combo_box = LanguagesComboBox(None)
+        assert languages_combo_box.currentText() == 'Detect Language'
+
+
+class TestQualityComboBox:
+    quality_combo_box = QualityComboBox(
+        default_quality=Quality.MEDIUM, parent=None)
+
+    def test_should_show_qualities(self):
+        assert self.quality_combo_box.itemText(0) == 'Very Low'
+        assert self.quality_combo_box.itemText(1) == 'Low'
+        assert self.quality_combo_box.itemText(2) == 'Medium'
+        assert self.quality_combo_box.itemText(3) == 'High'
+
+    def test_should_select_default_quality(self):
+        assert self.quality_combo_box.currentText() == 'Medium'
 
 
 class TestAudioDevicesComboBox:
