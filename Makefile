@@ -45,7 +45,7 @@ libwhisper.so:
 whisper_cpp:
 	cd whisper.cpp && cmake . && cmake --build . && cd -
 	cp whisper.cpp/bin/main whisper_cpp || true
-	cp whisper.cpp/bin/Debug/main.exe whisper_cpp.exe || true
+	cp whisper.cpp/bin/Debug/main.exe whisper_cpp || true
 
 staple_app_mac:
 	xcrun stapler staple ${mac_app_path}
