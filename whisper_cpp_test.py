@@ -87,8 +87,8 @@ os.environ["PATH"] += os.pathsep + app_dir
 
 process = Popen([
     'whisper_cpp',
-    '-f', OUTPUT_FILE,
-    '-m', model_path],
+    '-f', OUTPUT_FILE, '-m', model_path,
+    '-otxt'],
     stdout=PIPE,
     stderr=PIPE, bufsize=1)
 

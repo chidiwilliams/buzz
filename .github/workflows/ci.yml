@@ -64,9 +64,8 @@ jobs:
           fi
         shell: bash
       - run: poetry run make whisper_cpp
-      - run: ./whisper_cpp
-        shell: bash
-      # - run: poetry run python whisper_cpp_test.py
+      - run: poetry run python whisper_cpp_test.py
+      - run: cat testdata/whisper-french.wav.txt
 
   test:
     runs-on: ${{ matrix.os }}
