@@ -65,7 +65,7 @@ jobs:
         shell: bash
       - run: poetry run make whisper_cpp
       - run: poetry run python whisper_cpp_test.py
-      - run: whisper_cpp -f testdata/whisper-french.wav -m $HOME/Library/Caches/Buzz/ggml-model-whisper-tiny.bin -v -otxt
+      - run: ./whisper_cpp -f testdata/whisper-french.wav -m $HOME/Library/Caches/Buzz/ggml-model-whisper-tiny.bin -v -otxt
       - run: cat testdata/whisper-french.wav.txt
 
   test:
