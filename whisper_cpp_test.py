@@ -82,22 +82,22 @@ ffmpeg.input(INPUT_FILE).output(
     ac=1, ar=whisper.audio.SAMPLE_RATE,
 ).overwrite_output().run()
 
-# Adds the current directory to the PATH, so the ffmpeg binary get picked up:
-# https://stackoverflow.com/a/44352931/9830227
-app_dir = getattr(sys, '_MEIPASS', os.path.dirname(
-    os.path.abspath(__file__)))
-os.environ["PATH"] += os.pathsep + app_dir
+# # Adds the current directory to the PATH, so the ffmpeg binary get picked up:
+# # https://stackoverflow.com/a/44352931/9830227
+# app_dir = getattr(sys, '_MEIPASS', os.path.dirname(
+#     os.path.abspath(__file__)))
+# os.environ["PATH"] += os.pathsep + app_dir
 
-process = Popen([
-    'whisper_cpp',
-    '-f', OUTPUT_FILE, '-m', model_path,
-    '-v',
-    '-otxt'],
-    stdout=sys.stdout,
-    stderr=sys.stderr, bufsize=1)
+# process = Popen([
+#     'whisper_cpp',
+#     '-f', OUTPUT_FILE, '-m', model_path,
+#     '-v',
+#     '-otxt'],
+#     stdout=sys.stdout,
+#     stderr=sys.stderr, bufsize=1)
 
-process.wait()
+# process.wait()
 
-print('process done')
+# print('process done')
 # print(process.stderr.read().decode())
 # print(process.stdout.read().decode())
