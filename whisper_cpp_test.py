@@ -1,14 +1,17 @@
+import faulthandler
 import hashlib
 import logging
 import os
 import sys
-from subprocess import PIPE, Popen
+from subprocess import Popen
 
 import ffmpeg
 import requests
 import whisper
 from platformdirs import user_cache_dir
 from tqdm import tqdm
+
+faulthandler.enable()
 
 INPUT_FILE = 'testdata/whisper-french.mp3'
 OUTPUT_FILE = 'testdata/whisper-french.wav'
@@ -88,12 +91,13 @@ os.environ["PATH"] += os.pathsep + app_dir
 process = Popen([
     'whisper_cpp',
     '-f', OUTPUT_FILE, '-m', model_path,
+    '-v',
     '-otxt'],
-    stdout=PIPE,
-    stderr=PIPE, bufsize=1)
+    stdout=sys.stdout,
+    stderr=sys.stderr, bufsize=1)
 
 process.wait()
 
-print('processs done')
-print(process.stderr.read().decode())
-print(process.stdout.read().decode())
+print('process done')
+# print(process.stderr.read().decode())
+# print(process.stdout.read().decode())
