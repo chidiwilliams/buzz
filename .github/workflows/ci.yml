@@ -64,7 +64,6 @@ jobs:
           fi
         shell: bash
       - run: poetry run make whisper_cpp
-      - run: whisper_cpp
       - run: poetry run python whisper_cpp_test.py
 
   test:
