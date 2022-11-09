@@ -99,6 +99,7 @@ jobs:
           if [ "$RUNNER_OS" == "macOS" ]; then
             poetry run make bundle_mac
           elif [ "$RUNNER_OS" == "Windows" ]; then
+            where ffmpeg
             poetry run make dist/Buzz.exe
           elif [ "$RUNNER_OS" == "Linux" ]; then
             poetry run make bundle_linux
