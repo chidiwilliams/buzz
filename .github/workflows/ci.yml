@@ -52,6 +52,8 @@ jobs:
 
       - uses: FedericoCarboni/setup-ffmpeg@v1
         id: setup-ffmpeg
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - run: poetry install
       - name: Test
@@ -88,6 +90,8 @@ jobs:
 
       - uses: FedericoCarboni/setup-ffmpeg@v1
         id: setup-ffmpeg
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - run: poetry install
       - name: Bundle
