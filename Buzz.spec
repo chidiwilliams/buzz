@@ -1,8 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 import os
-import platform
-import subprocess
-import sys
+import shutil
 
 from PyInstaller.utils.hooks import collect_data_files, copy_metadata
 
@@ -19,16 +17,7 @@ datas += copy_metadata('tokenizers')
 datas += collect_data_files('whisper')
 datas += [('libwhisper.so', '.')]
 datas += [('assets/buzz.ico', 'assets')]
-
-
-def get_ffmpeg():
-    if platform.system() == 'Windows':
-        return 'C:\\ProgramData\\chocolatey\\lib\\ffmpeg\\tools\\ffmpeg\\bin\\ffmpeg.exe'
-    return subprocess.check_output(
-        ['which', 'ffmpeg']).decode(sys.stdout.encoding).strip()
-
-
-datas += [(get_ffmpeg(), '.')]
+datas += [(shutil.which('ffmpeg'), '.')]
 
 
 block_cipher = None

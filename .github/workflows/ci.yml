@@ -50,17 +50,12 @@ jobs:
             ~/.cache/whisper
           key: whisper-models-${{ runner.os }}
 
+      - uses: FedericoCarboni/setup-ffmpeg@v1
+        id: setup-ffmpeg
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - run: poetry install
-      - name: Install ffmpeg
-        run: |
-          if [ "$RUNNER_OS" == "macOS" ]; then
-            brew install ffmpeg
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            choco install ffmpeg
-          elif [ "$RUNNER_OS" == "Linux" ]; then
-            sudo apt update && sudo apt install ffmpeg
-          fi
-        shell: bash
       - name: Test
         run: poetry run make test
 
@@ -93,17 +88,12 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-2
 
+      - uses: FedericoCarboni/setup-ffmpeg@v1
+        id: setup-ffmpeg
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - run: poetry install
-      - name: Install ffmpeg
-        run: |
-          if [ "$RUNNER_OS" == "macOS" ]; then
-            brew install ffmpeg
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            choco install ffmpeg
-          elif [ "$RUNNER_OS" == "Linux" ]; then
-            sudo apt update && sudo apt install ffmpeg
-          fi
-        shell: bash
       - name: Bundle
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
