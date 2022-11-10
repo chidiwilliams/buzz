@@ -306,6 +306,7 @@ class FileTranscriber:
 
         self.current_process.join()
         self.current_process.close()
+        self.stopped = True
 
         recv_pipe.close()
         send_pipe.close()
@@ -322,21 +323,22 @@ class FileTranscriber:
             self.current_thread.join()
 
     def stop(self):
-        self.stopped = True
+        if self.stopped is False:
+            self.stopped = True
 
-        self.model_loader.stop()
+            self.model_loader.stop()
 
-        if self.current_process is not None and self.current_process.is_alive():
-            self.current_process.terminate()
-            logging.debug('File transcription process terminated')
+            if self.current_process is not None and self.current_process.is_alive():
+                self.current_process.terminate()
+                logging.debug('File transcription process terminated')
 
-        if self.current_thread is not None and self.current_thread.is_alive():
-            logging.debug(
-                'Waiting for file transcription thread to terminate')
-            self.current_thread.join()
-            logging.debug('File transcription thread terminated')
+            if self.current_thread is not None and self.current_thread.is_alive():
+                logging.debug(
+                    'Waiting for file transcription thread to terminate')
+                self.current_thread.join()
+                logging.debug('File transcription thread terminated')
 
-        self.current_process = None
+            self.current_process = None
 
     @classmethod
     def get_default_output_file_path(cls, task: Task, input_file_path: str, output_format: OutputFormat):
