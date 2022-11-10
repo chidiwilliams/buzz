@@ -1,9 +1,10 @@
 # -*- mode: python ; coding: utf-8 -*-
-import os
 import platform
 import shutil
 
 from PyInstaller.utils.hooks import collect_data_files, copy_metadata
+
+from __version__ import VERSION
 
 datas = []
 datas += collect_data_files('torch')
@@ -75,7 +76,7 @@ app = BUNDLE(
     name='Buzz.app',
     icon='./assets/buzz.icns',
     bundle_identifier='com.chidiwilliams.buzz',
-    version=os.getenv('BUZZ_VERSION', '0.0.1'),
+    version=VERSION,
     info_plist={
         'NSPrincipalClass': 'NSApplication',
         'NSHighResolutionCapable': 'True',
