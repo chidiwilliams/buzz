@@ -1,5 +1,4 @@
 # -*- mode: python ; coding: utf-8 -*-
-import os
 import platform
 import shutil
 
@@ -75,7 +74,7 @@ app = BUNDLE(
     name='Buzz.app',
     icon='./assets/buzz.icns',
     bundle_identifier='com.chidiwilliams.buzz',
-    version=os.getenv('BUZZ_VERSION', '0.0.1'),
+    version='0.5.4',
     info_plist={
         'NSPrincipalClass': 'NSApplication',
         'NSHighResolutionCapable': 'True',
