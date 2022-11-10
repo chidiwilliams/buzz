@@ -41,10 +41,10 @@ clean:
 	rm -f $(LIBWHISPER)
 	rm -rf dist/* || true
 
-test: $(LIBWHISPER)
+test: whisper_cpp.py
 	pytest --cov --cov-fail-under=67 --cov-report html
 
-dist/Buzz: $(LIBWHISPER)
+dist/Buzz: whisper_cpp.py
 	pyinstaller --noconfirm Buzz.spec
 
 version:
