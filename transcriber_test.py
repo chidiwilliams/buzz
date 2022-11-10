@@ -83,7 +83,6 @@ class TestFileTranscriber:
         assert any([isinstance(event, FileTranscriber.ProgressEvent)
                    and event.current_value == event.max_value for event in events]) is False
 
-    @pytest.mark.skip(reason='issue with .so file on windows')
     def test_transcribe_whisper_cpp(self):
         output_file_path = os.path.join(
             tempfile.gettempdir(), 'whisper_cpp.txt')

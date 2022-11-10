@@ -24,23 +24,53 @@ bundle_mac_local: dist/Buzz
 	make staple_app_mac
 	make dmg_mac
 
+UNAME_S := $(shell uname -s)
+
+LIBWHISPER :=
+ifeq ($(OS), Windows_NT)
+	LIBWHISPER=whisper.dll
+else
+	ifeq ($(UNAME_S), Darwin)
+		LIBWHISPER=libwhisper.dylib
+	else
+		LIBWHISPER=libwhisper.so
+	endif
+endif
+
 clean:
-	rm -f *.so
+	rm -f $(LIBWHISPER)
 	rm -rf dist/* || true
 
-test: libwhisper.so
+test: whisper_cpp.py
 	pytest --cov --cov-fail-under=67 --cov-report html
 
-dist/Buzz: libwhisper.so
+dist/Buzz: whisper_cpp.py
 	pyinstaller --noconfirm Buzz.spec
 
 version:
 	poetry version ${version}
 	echo "VERSION = \"${version}\"" > __version__.py
 
-libwhisper.so:
-	gcc -O3 -std=c11   -pthread -mavx -mavx2 -mfma -mf16c -fPIC -c whisper.cpp/ggml.c -o whisper.cpp/ggml.o
-	g++ -O3 -std=c++11 -pthread --shared -fPIC -static-libstdc++ whisper.cpp/whisper.cpp whisper.cpp/ggml.o -o libwhisper.so
+CMAKE_FLAGS=
+ifeq ($(UNAME_S),Darwin)
+	AVX1_M := $(shell sysctl machdep.cpu.features)
+	ifeq (,$(findstring AVX1.0,$(AVX1_M)))
+		CMAKE_FLAGS += -DWHISPER_NO_AVX=ON
+	endif
+	AVX2_M := $(shell sysctl machdep.cpu.leaf7_features)
+	ifeq (,$(findstring AVX2,$(AVX2_M)))
+		CMAKE_FLAGS += -DWHISPER_NO_AVX2=ON
+	endif
+endif
+
+$(LIBWHISPER):
+	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS)
+	cmake --build whisper.cpp/build --verbose
+	cp whisper.cpp/build/$(LIBWHISPER) . || true
+	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) . || true
+
+whisper_cpp.py: $(LIBWHISPER)
+	ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o whisper_cpp.py
 
 staple_app_mac:
 	xcrun stapler staple ${mac_app_path}

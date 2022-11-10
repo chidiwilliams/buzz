@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-11
+          - os: macos-latest
           - os: windows-latest
     steps:
       - uses: actions/checkout@v3

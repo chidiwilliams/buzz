@@ -28,6 +28,7 @@ pytest-qt = "^4.1.0"
 pytest-xvfb = "^2.0.0"
 pylint = "^2.15.5"
 pre-commit = "^2.20.0"
+ctypesgen = "^1.1.1"
 
 [build-system]
 requires = ["poetry-core"]
