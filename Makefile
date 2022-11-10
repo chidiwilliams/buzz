@@ -24,11 +24,12 @@ bundle_mac_local: dist/Buzz
 	make staple_app_mac
 	make dmg_mac
 
+UNAME_S := $(shell uname -s)
+
 LIBWHISPER :=
 ifeq ($(OS), Windows_NT)
 	LIBWHISPER=whisper.dll
 else
-	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S), Darwin)
 		LIBWHISPER=libwhisper.dylib
 	else
@@ -50,8 +51,20 @@ version:
 	poetry version ${version}
 	echo "VERSION = \"${version}\"" > __version__.py
 
+CMAKE_FLAGS=
+ifeq ($(UNAME_S),Darwin)
+	AVX1_M := $(shell sysctl machdep.cpu.features)
+	ifeq (,$(findstring AVX1.0,$(AVX1_M)))
+		CMAKE_FLAGS += -DWHISPER_NO_AVX
+	endif
+	AVX2_M := $(shell sysctl machdep.cpu.leaf7_features)
+	ifeq (,$(findstring AVX2,$(AVX2_M)))
+		CFLAGS += -DWHISPER_NO_AVX2
+	endif
+endif
+
 $(LIBWHISPER):
-	cmake -S whisper.cpp -B whisper.cpp/build/
+	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS)
 	cmake --build whisper.cpp/build --verbose
 	cp whisper.cpp/build/$(LIBWHISPER) . || true
 
