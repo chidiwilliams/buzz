@@ -114,6 +114,14 @@ tomli = {version = "*", optional = true, markers = "python_full_version <= \"3.1
 toml = ["tomli"]
 
 [[package]]
+name = "ctypesgen"
+version = "1.1.1"
+description = "Python wrapper generator for ctypes"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
 name = "dill"
 version = "0.3.6"
 description = "serialize all of python"
@@ -281,6 +289,14 @@ description = "McCabe checker, plugin for flake8"
 category = "dev"
 optional = false
 python-versions = ">=3.6"
+
+[[package]]
+name = "more-itertools"
+version = "9.0.0"
+description = "More routines for operating on iterables, beyond itertools"
+category = "main"
+optional = false
+python-versions = ">=3.7"
 
 [[package]]
 name = "nodeenv"
@@ -783,11 +799,19 @@ testing = ["coverage (>=6.2)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7
 [[package]]
 name = "whisper"
 version = "1.0"
-description = ""
+description = "Robust Speech Recognition via Large-Scale Weak Supervision"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 develop = false
+
+[package.dependencies]
+ffmpeg-python = "0.2.0"
+more-itertools = "*"
+numpy = "*"
+torch = "*"
+tqdm = "*"
+transformers = ">=4.19.0"
 
 [package.extras]
 dev = ["pytest"]
@@ -809,7 +833,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9.13,<3.11"
-content-hash = "509ccb4019a68ec86504d9c31df212fedbb0f8ba33bf225bd88cdef0cf34971c"
+content-hash = "39e8e23bd707e141380bf675d7070a6a38899b607ae2246770903fab5cbd5c4e"
 
 [metadata.files]
 altgraph = [
@@ -966,6 +990,10 @@ coverage = [
     {file = "coverage-6.5.0-pp36.pp37.pp38-none-any.whl", hash = "sha256:1431986dac3923c5945271f169f59c45b8802a114c8f548d611f2015133df77a"},
     {file = "coverage-6.5.0.tar.gz", hash = "sha256:f642e90754ee3e06b0e7e51bce3379590e76b7f76b708e1a71ff043f87025c84"},
 ]
+ctypesgen = [
+    {file = "ctypesgen-1.1.1-py3-none-any.whl", hash = "sha256:94cc6c89ccdd93a72a4c915266cde9a82bfe693331d9d880f66fe9d82af1fc87"},
+    {file = "ctypesgen-1.1.1.tar.gz", hash = "sha256:deaa2d64a95d90196a2e8a689cf9b952be6f3366f81e835245354bf9dbac92f6"},
+]
 dill = [
     {file = "dill-0.3.6-py3-none-any.whl", hash = "sha256:a07ffd2351b8c678dfc4a856a3005f8067aea51d6ba6c700796a4d9e280f39f0"},
     {file = "dill-0.3.6.tar.gz", hash = "sha256:e5db55f3687856d8fbdab002ed78544e1c4559a130302693d839dfe8f93f2373"},
@@ -1041,6 +1069,10 @@ macholib = [
 mccabe = [
     {file = "mccabe-0.7.0-py2.py3-none-any.whl", hash = "sha256:6c2d30ab6be0e4a46919781807b4f0d834ebdd6c6e3dca0bda5a15f863427b6e"},
     {file = "mccabe-0.7.0.tar.gz", hash = "sha256:348e0240c33b60bbdf4e523192ef919f28cb2c3d7d5c7794f74009290f236325"},
+]
+more-itertools = [
+    {file = "more-itertools-9.0.0.tar.gz", hash = "sha256:5a6257e40878ef0520b1803990e3e22303a41b5714006c32a3fd8304b26ea1ab"},
+    {file = "more_itertools-9.0.0-py3-none-any.whl", hash = "sha256:250e83d7e81d0c87ca6bd942e6aeab8cc9daa6096d12c5308f3f92fa5e5c1f41"},
 ]
 nodeenv = [
     {file = "nodeenv-1.7.0-py2.py3-none-any.whl", hash = "sha256:27083a7b96a25f2f5e1d8cb4b6317ee8aeda3bdd121394e5ac54e498028a042e"},

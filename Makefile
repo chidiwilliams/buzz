@@ -24,23 +24,39 @@ bundle_mac_local: dist/Buzz
 	make staple_app_mac
 	make dmg_mac
 
+LIBWHISPER :=
+ifeq ($(OS), Windows_NT)
+	LIBWHISPER=whisper.dll
+else
+	UNAME_S := $(shell uname -s)
+	ifeq ($(UNAME_S), Darwin)
+		LIBWHISPER=libwhisper.dylib
+	else
+		LIBWHISPER=libwhisper.so
+	endif
+endif
+
 clean:
-	rm -f *.so
+	rm -f $(LIBWHISPER)
 	rm -rf dist/* || true
 
-test: libwhisper.so
+test: $(LIBWHISPER)
 	pytest --cov --cov-fail-under=67 --cov-report html
 
-dist/Buzz: libwhisper.so
+dist/Buzz: $(LIBWHISPER)
 	pyinstaller --noconfirm Buzz.spec
 
 version:
 	poetry version ${version}
 	echo "VERSION = \"${version}\"" > __version__.py
 
-libwhisper.so:
-	gcc -O3 -std=c11   -pthread -mavx -mavx2 -mfma -mf16c -fPIC -c whisper.cpp/ggml.c -o whisper.cpp/ggml.o
-	g++ -O3 -std=c++11 -pthread --shared -fPIC -static-libstdc++ whisper.cpp/whisper.cpp whisper.cpp/ggml.o -o libwhisper.so
+$(LIBWHISPER):
+	cmake -S whisper.cpp -B whisper.cpp/build/
+	cmake --build whisper.cpp/build --verbose
+	cp whisper.cpp/build/$(LIBWHISPER) . || true
+
+whisper_cpp.py: $(LIBWHISPER)
+	ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o whisper_cpp.py
 
 staple_app_mac:
 	xcrun stapler staple ${mac_app_path}

@@ -4,11 +4,10 @@ import hashlib
 import logging
 import multiprocessing
 import os
-import pathlib
-import platform
 import warnings
 from dataclasses import dataclass
 from multiprocessing.connection import Connection
+from queue import Empty
 from threading import Thread
 from typing import Any, Callable, List, Union
 
@@ -18,8 +17,8 @@ import whisper
 from appdirs import user_cache_dir
 from tqdm import tqdm
 from whisper import Whisper
-from queue import Empty
 
+import whisper_cpp
 from conn import pipe_stderr
 
 
@@ -39,36 +38,11 @@ class Task(enum.Enum):
     TRANSCRIBE = "transcribe"
 
 
-class WhisperFullParams(ctypes.Structure):
-    _fields_ = [
-        ("strategy",             ctypes.c_int),
-        ("n_threads",            ctypes.c_int),
-        ("offset_ms",            ctypes.c_int),
-        ("translate",            ctypes.c_bool),
-        ("no_context",           ctypes.c_bool),
-        ("print_special_tokens", ctypes.c_bool),
-        ("print_progress",       ctypes.c_bool),
-        ("print_realtime",       ctypes.c_bool),
-        ("print_timestamps",     ctypes.c_bool),
-        ("language",             ctypes.c_char_p),
-        ("greedy",               ctypes.c_int * 1),
-    ]
-
-
-if platform.system() != 'Windows':
-    whisper_cpp = ctypes.CDLL(
-        str(pathlib.Path().absolute() / "libwhisper.so"), winmode=1)
-
-    whisper_cpp.whisper_init.restype = ctypes.c_void_p
-    whisper_cpp.whisper_full_default_params.restype = WhisperFullParams
-    whisper_cpp.whisper_full_get_segment_text.restype = ctypes.c_char_p
-
-
 def whisper_cpp_params(language: str, task: Task, print_realtime=False, print_progress=False):
     params = whisper_cpp.whisper_full_default_params(0)
     params.print_realtime = print_realtime
     params.print_progress = print_progress
-    params.language = language.encode('utf-8')
+    params.language = whisper_cpp.String(language.encode('utf-8'))
     params.translate = task == Task.TRANSLATE
     return params
 
@@ -83,25 +57,20 @@ class WhisperCpp:
 
         logging.debug('Loaded audio with length = %s', len(audio))
 
-        whisper_cpp_ctx = ctypes.c_void_p(self.ctx)
         whisper_cpp_audio = audio.ctypes.data_as(
             ctypes.POINTER(ctypes.c_float))
         result = whisper_cpp.whisper_full(
-            whisper_cpp_ctx, params, whisper_cpp_audio, len(audio))
+            self.ctx, params, whisper_cpp_audio, len(audio))
         if result != 0:
             raise Exception(f'Error from whisper.cpp: {result}')
 
         segments: List[Segment] = []
 
-        n_segments = whisper_cpp.whisper_full_n_segments(
-            ctypes.c_void_p(self.ctx))
+        n_segments = whisper_cpp.whisper_full_n_segments((self.ctx))
         for i in range(n_segments):
-            txt = whisper_cpp.whisper_full_get_segment_text(
-                ctypes.c_void_p(self.ctx), i)
-            t0 = whisper_cpp.whisper_full_get_segment_t0(
-                ctypes.c_void_p(self.ctx), i)
-            t1 = whisper_cpp.whisper_full_get_segment_t1(
-                ctypes.c_void_p(self.ctx), i)
+            txt = whisper_cpp.whisper_full_get_segment_text((self.ctx), i)
+            t0 = whisper_cpp.whisper_full_get_segment_t0((self.ctx), i)
+            t1 = whisper_cpp.whisper_full_get_segment_t1((self.ctx), i)
 
             segments.append(
                 Segment(start=t0*10,  # centisecond to ms
@@ -113,7 +82,7 @@ class WhisperCpp:
             'text': ''.join([segment.text for segment in segments])}
 
     def __del__(self):
-        whisper_cpp.whisper_free(ctypes.c_void_p(self.ctx))
+        whisper_cpp.whisper_free((self.ctx))
 
 
 # TODO: should this instead subclass Process?
