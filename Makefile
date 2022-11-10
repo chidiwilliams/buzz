@@ -67,6 +67,7 @@ $(LIBWHISPER):
 	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS)
 	cmake --build whisper.cpp/build --verbose
 	cp whisper.cpp/build/$(LIBWHISPER) . || true
+	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) . || true
 
 whisper_cpp.py: $(LIBWHISPER)
 	ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o whisper_cpp.py
