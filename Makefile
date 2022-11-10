@@ -55,11 +55,11 @@ CMAKE_FLAGS=
 ifeq ($(UNAME_S),Darwin)
 	AVX1_M := $(shell sysctl machdep.cpu.features)
 	ifeq (,$(findstring AVX1.0,$(AVX1_M)))
-		CMAKE_FLAGS += -DWHISPER_NO_AVX
+		CMAKE_FLAGS += -DWHISPER_NO_AVX=ON
 	endif
 	AVX2_M := $(shell sysctl machdep.cpu.leaf7_features)
 	ifeq (,$(findstring AVX2,$(AVX2_M)))
-		CMAKE_FLAGS += -DWHISPER_NO_AVX2
+		CMAKE_FLAGS += -DWHISPER_NO_AVX2=ON
 	endif
 endif
 
