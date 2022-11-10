@@ -1,12 +1,14 @@
+import os
+import tempfile
 from unittest.mock import patch
 
 import sounddevice
 from PyQt6.QtCore import Qt
 
 from gui import (Application, AudioDevicesComboBox,
-                 DownloadModelProgressDialog, LanguagesComboBox, MainWindow,
-                 OutputFormatsComboBox, Quality, QualityComboBox,
-                 TranscriberProgressDialog)
+                 DownloadModelProgressDialog, FileTranscriberWidget,
+                 LanguagesComboBox, MainWindow, OutputFormatsComboBox, Quality,
+                 QualityComboBox, TranscriberProgressDialog)
 from transcriber import OutputFormat
 
 
@@ -166,4 +168,25 @@ class TestFormatsComboBox:
 class TestMainWindow:
     def test_should_init(self):
         main_window = MainWindow(title='', w=200, h=200, parent=None)
-        assert main_window != None
+        assert main_window is not None
+
+
+class TestFileTranscriberWidget:
+    widget = FileTranscriberWidget(
+        file_path='testdata/whisper-french.mp3', parent=None)
+
+    def test_should_transcribe(self):
+        output_file_path = os.path.join(
+            tempfile.gettempdir(), 'whisper_cpp.txt')
+        if os.path.exists(output_file_path):
+            os.remove(output_file_path)
+
+        with patch('PyQt6.QtWidgets.QFileDialog.getSaveFileName') as save_file_name_mock:
+            save_file_name_mock.return_value = (output_file_path, '')
+
+            self.widget.run_button.click()
+            if self.widget.file_transcriber is not None:
+                self.widget.file_transcriber.join()
+
+                output_file = open(output_file_path, 'r', encoding='utf-8')
+                assert 'Bienvenue dans Passe-Relle, un podcast' in output_file.read()

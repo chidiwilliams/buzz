@@ -290,6 +290,9 @@ class FileTranscriberObject(QObject):
     def start(self):
         self.transcriber.start()
 
+    def join(self):
+        self.transcriber.join()
+
     def stop(self):
         self.transcriber.stop()
 
