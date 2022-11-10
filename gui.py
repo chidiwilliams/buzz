@@ -510,21 +510,18 @@ class FileTranscriberWidget(QWidget):
                 self.transcriber_progress_dialog.update_progress(current_size)
 
             if current_size == total_size:
-                self.on_complete_transcription()
-
-    def on_complete_transcription(self):
-        self.run_button.setDisabled(False)
-        if self.transcriber_progress_dialog is not None:
-            self.transcriber_progress_dialog = None
+                self.reset_transcription()
 
     def on_cancel_transcriber_progress_dialog(self):
         if self.file_transcriber is not None:
             self.file_transcriber.stop()
+        self.reset_transcription()
 
+    def reset_transcription(self):
+        self.run_button.setDisabled(False)
         if self.transcriber_progress_dialog is not None:
             self.transcriber_progress_dialog.close()
-
-        self.on_complete_transcription()
+            self.transcriber_progress_dialog = None
 
     def on_cancel_model_progress_dialog(self):
         if self.file_transcriber is not None:
