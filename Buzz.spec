@@ -4,8 +4,6 @@ import shutil
 
 from PyInstaller.utils.hooks import collect_data_files, copy_metadata
 
-from __version__ import VERSION
-
 datas = []
 datas += collect_data_files('torch')
 datas += copy_metadata('tqdm')
@@ -76,7 +74,7 @@ app = BUNDLE(
     name='Buzz.app',
     icon='./assets/buzz.icns',
     bundle_identifier='com.chidiwilliams.buzz',
-    version=VERSION,
+    version='0.5.4',
     info_plist={
         'NSPrincipalClass': 'NSApplication',
         'NSHighResolutionCapable': 'True',
