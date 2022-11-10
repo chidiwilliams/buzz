@@ -59,7 +59,7 @@ ifeq ($(UNAME_S),Darwin)
 	endif
 	AVX2_M := $(shell sysctl machdep.cpu.leaf7_features)
 	ifeq (,$(findstring AVX2,$(AVX2_M)))
-		CFLAGS += -DWHISPER_NO_AVX2
+		CMAKE_FLAGS += -DWHISPER_NO_AVX2
 	endif
 endif
 
