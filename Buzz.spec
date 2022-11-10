@@ -78,6 +78,7 @@ app = BUNDLE(
     version=os.getenv('BUZZ_VERSION', '0.0.1'),
     info_plist={
         'NSPrincipalClass': 'NSApplication',
-        'NSHighResolutionCapable': 'True'
+        'NSHighResolutionCapable': 'True',
+        'NSMicrophoneUsageDescription': 'Please provide microphone access'
     }
 )
