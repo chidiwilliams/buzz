@@ -355,12 +355,8 @@ def transcribe_whisper(
         open_file_on_complete: bool, output_format: OutputFormat):
     with pipe_stderr(stderr_conn):
         model = whisper.load_model(model_path)
-        try:
-            result = whisper.transcribe(
-                model=model, audio=file_path, language=language, task=task.value, verbose=False)
-        except:
-            print('exception')
-            logging.exception('')
+        result = whisper.transcribe(
+            model=model, audio=file_path, language=language, task=task.value, verbose=False)
 
         segments = map(
             lambda segment: Segment(
