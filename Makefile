@@ -39,6 +39,7 @@ endif
 
 clean:
 	rm -f $(LIBWHISPER)
+	rm -f whisper_cpp.py
 	rm -rf dist/* || true
 
 test: whisper_cpp.py
@@ -64,7 +65,7 @@ ifeq ($(UNAME_S),Darwin)
 endif
 
 $(LIBWHISPER):
-	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS)
+	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS) -DBUILD_SHARED_LIBS=ON
 	cmake --build whisper.cpp/build --verbose
 	cp whisper.cpp/build/$(LIBWHISPER) . || true
 	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) . || true

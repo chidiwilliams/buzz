@@ -228,6 +228,9 @@ class FileTranscriber:
     class LoadedModelEvent(Event):
         pass
 
+    class CompletedTranscriptionEvent(Event):
+        pass
+
     def __init__(
             self,
             model_name: str, use_whisper_cpp: bool,
@@ -312,6 +315,7 @@ class FileTranscriber:
         send_pipe.close()
 
         self.event_callback(self.ProgressEvent(100, 100))
+        self.event_callback(self.CompletedTranscriptionEvent())
         logging.debug('Completed file transcription, time taken = %s',
                       datetime.datetime.now()-time_started)
 
