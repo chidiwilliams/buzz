@@ -538,8 +538,6 @@ class Settings(QSettings):
         super().__init__('Buzz', 'Buzz', parent, *args)
 
     def enable_ggml_inference(self):
-        if platform.system() == 'Windows':
-            return False
         return self.value(self.ENABLE_GGML_INFERENCE, False)
 
 
@@ -782,22 +780,21 @@ class MainWindow(QMainWindow):
         self.about_action = QAction(f'&About {APP_NAME}', self)
         self.about_action.triggered.connect(self.on_trigger_about_action)
 
-        self.help_menu = menu.addMenu("&Help")
-        self.help_menu.addAction(self.about_action)
-
         self.settings = Settings(self)
 
-        if platform.system() != 'Windows':
-            enable_ggml_inference_action = QAction(
-                '&Enable GGML Inference', self)
-            enable_ggml_inference_action.setCheckable(True)
-            enable_ggml_inference_action.setChecked(
-                bool(self.settings.enable_ggml_inference()))
-            enable_ggml_inference_action.triggered.connect(
-                self.on_toggle_enable_ggml_inference)
+        enable_ggml_inference_action = QAction(
+            '&Enable GGML Inference', self)
+        enable_ggml_inference_action.setCheckable(True)
+        enable_ggml_inference_action.setChecked(
+            bool(self.settings.enable_ggml_inference()))
+        enable_ggml_inference_action.triggered.connect(
+            self.on_toggle_enable_ggml_inference)
 
-            settings_menu = menu.addMenu("&Settings")
-            settings_menu.addAction(enable_ggml_inference_action)
+        settings_menu = menu.addMenu("&Settings")
+        settings_menu.addAction(enable_ggml_inference_action)
+
+        self.help_menu = menu.addMenu("&Help")
+        self.help_menu.addAction(self.about_action)
 
     def on_import_audio_file_action(self):
         (file_path, _) = QFileDialog.getOpenFileName(
