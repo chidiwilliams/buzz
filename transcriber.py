@@ -228,6 +228,9 @@ class FileTranscriber:
     class LoadedModelEvent(Event):
         pass
 
+    class CompletedTranscriptionEvent(Event):
+        pass
+
     def __init__(
             self,
             model_name: str, use_whisper_cpp: bool,
@@ -312,6 +315,7 @@ class FileTranscriber:
         send_pipe.close()
 
         self.event_callback(self.ProgressEvent(100, 100))
+        self.event_callback(self.CompletedTranscriptionEvent())
         logging.debug('Completed file transcription, time taken = %s',
                       datetime.datetime.now()-time_started)
 
@@ -351,8 +355,12 @@ def transcribe_whisper(
         open_file_on_complete: bool, output_format: OutputFormat):
     with pipe_stderr(stderr_conn):
         model = whisper.load_model(model_path)
-        result = whisper.transcribe(
-            model=model, audio=file_path, language=language, task=task.value, verbose=False)
+        try:
+            result = whisper.transcribe(
+                model=model, audio=file_path, language=language, task=task.value, verbose=False)
+        except:
+            print('exception')
+            logging.exception('')
 
         segments = map(
             lambda segment: Segment(

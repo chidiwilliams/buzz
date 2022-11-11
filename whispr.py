@@ -263,7 +263,7 @@ def whisper_cpp_progress(lines: str):
 def read_progress(
         pipe: Connection, use_whisper_cpp: bool,
         progress_callback: Callable[[int, int], None]):
-    while True:
+    while pipe.closed is False:
         try:
             recv = pipe.recv().strip()
             if recv:

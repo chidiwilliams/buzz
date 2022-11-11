@@ -508,9 +508,8 @@ class FileTranscriberWidget(QWidget):
             # been canceled before this progress update arrived
             if self.transcriber_progress_dialog is not None:
                 self.transcriber_progress_dialog.update_progress(current_size)
-
-            if current_size == total_size:
-                self.reset_transcription()
+        elif isinstance(event, FileTranscriber.CompletedTranscriptionEvent):
+            self.reset_transcription()
 
     def on_cancel_transcriber_progress_dialog(self):
         if self.file_transcriber is not None:
@@ -520,7 +519,6 @@ class FileTranscriberWidget(QWidget):
     def reset_transcription(self):
         self.run_button.setDisabled(False)
         if self.transcriber_progress_dialog is not None:
-            self.transcriber_progress_dialog.close()
             self.transcriber_progress_dialog = None
 
     def on_cancel_model_progress_dialog(self):
