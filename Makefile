@@ -43,7 +43,7 @@ clean:
 	rm -rf dist/* || true
 
 test: whisper_cpp.py
-	pytest --cov --cov-fail-under=70 --cov-report html
+	pytest --cov --cov-fail-under=69 --cov-report html
 
 dist/Buzz: whisper_cpp.py
 	pyinstaller --noconfirm Buzz.spec
