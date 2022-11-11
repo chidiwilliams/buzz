@@ -78,6 +78,6 @@ app = BUNDLE(
     info_plist={
         'NSPrincipalClass': 'NSApplication',
         'NSHighResolutionCapable': 'True',
-        'NSMicrophoneUsageDescription': 'Please provide microphone access'
+        'NSMicrophoneUsageDescription': 'Allow Buzz to record audio from your microphone.'
     }
 )

@@ -62,10 +62,14 @@ ifeq ($(UNAME_S),Darwin)
 	ifeq (,$(findstring AVX2,$(AVX2_M)))
 		CMAKE_FLAGS += -DWHISPER_NO_AVX2=ON
 	endif
+else
+	ifeq ($(OS), Windows_NT)
+		CMAKE_FLAGS += -DBUILD_SHARED_LIBS=ON
+	endif
 endif
 
 $(LIBWHISPER):
-	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS) -DBUILD_SHARED_LIBS=ON
+	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS)
 	cmake --build whisper.cpp/build --verbose
 	cp whisper.cpp/build/$(LIBWHISPER) . || true
 	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) . || true
