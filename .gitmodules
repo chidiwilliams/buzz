@@ -4,3 +4,4 @@
 [submodule "stable_ts"]
 	path = stable_ts
 	url = https://github.com/chidiwilliams/stable-ts
+	branch = main
