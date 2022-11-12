@@ -1,7 +1,6 @@
 [submodule "whisper.cpp"]
 	path = whisper.cpp
 	url = https://github.com/chidiwilliams/whisper.cpp
-
-[submodule "stable-ts"]
+[submodule "stable_ts"]
 	path = stable_ts
 	url = https://github.com/chidiwilliams/stable-ts
