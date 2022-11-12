@@ -9,7 +9,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">=3.9.13,<3.11"
 sounddevice = "^0.4.5"
-whisper = {git = "https://github.com/openai/whisper.git"}
+whisper = { git = "https://github.com/openai/whisper.git" }
 torch = "1.12.1"
 numpy = "^1.23.3"
 transformers = "^4.22.1"

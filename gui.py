@@ -12,10 +12,10 @@ from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt, QTimer,
                           QUrl, pyqtSignal)
 from PyQt6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
                          QKeySequence, QPixmap, QTextCursor)
-from PyQt6.QtWidgets import (QApplication, QComboBox, QDialog, QFileDialog,
-                             QGridLayout, QLabel, QMainWindow, QMessageBox,
-                             QPlainTextEdit, QProgressDialog, QPushButton,
-                             QVBoxLayout, QWidget)
+from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
+                             QFileDialog, QGridLayout, QLabel, QMainWindow,
+                             QMessageBox, QPlainTextEdit, QProgressDialog,
+                             QPushButton, QVBoxLayout, QWidget)
 from requests import get
 from whisper import tokenizer
 
@@ -270,16 +270,18 @@ class FileTranscriberObject(QObject):
     transcriber: FileTranscriber
 
     def __init__(
-            self, model_name: str, use_whisper_cpp: bool, language: Optional[str],
-            task: Task, file_path: str, output_file_path: str,
-            output_format: OutputFormat, parent: Optional['QObject'], *args) -> None:
+        self, model_name: str, use_whisper_cpp: bool, language: Optional[str],
+        task: Task, file_path: str, output_file_path: str,
+        output_format: OutputFormat, word_level_timings: bool,
+            parent: Optional['QObject'], *args) -> None:
         super().__init__(parent, *args)
         self.transcriber = FileTranscriber(
             model_name=model_name, use_whisper_cpp=use_whisper_cpp,
             on_download_model_chunk=self.on_download_model_progress,
             language=language, task=task, file_path=file_path,
             output_file_path=output_file_path, output_format=output_format,
-            event_callback=self.on_file_transcriber_event)
+            event_callback=self.on_file_transcriber_event,
+            word_level_timings=word_level_timings)
 
     def on_download_model_progress(self, current: int, total: int):
         self.download_model_progress.emit((current, total))
@@ -380,6 +382,7 @@ class FileTranscriberWidget(QWidget):
     selected_language: Optional[str] = None
     selected_task = Task.TRANSCRIBE
     selected_output_format = OutputFormat.TXT
+    enabled_word_level_timings = False
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     transcriber_progress_dialog: Optional[TranscriberProgressDialog] = None
     file_transcriber: Optional[FileTranscriberObject] = None
@@ -418,6 +421,11 @@ class FileTranscriberWidget(QWidget):
         output_formats_combo_box.output_format_changed.connect(
             self.on_output_format_changed)
 
+        self.word_level_timings_checkbox = QCheckBox('Word-level timings')
+        self.word_level_timings_checkbox.stateChanged.connect(
+            self.on_word_level_timings_changed)
+        self.word_level_timings_checkbox.setDisabled(True)
+
         grid = (
             ((0, 5, FormLabel('Task:', parent=self)), (5, 7, self.tasks_combo_box)),
             ((0, 5, FormLabel('Language:', parent=self)),
@@ -426,6 +434,7 @@ class FileTranscriberWidget(QWidget):
              (5, 7, self.quality_combo_box)),
             ((0, 5, FormLabel('Export As:', self)),
              (5, 7, output_formats_combo_box)),
+            ((5, 7, self.word_level_timings_checkbox),),
             ((9, 3, self.run_button),)
         )
 
@@ -447,6 +456,8 @@ class FileTranscriberWidget(QWidget):
 
     def on_output_format_changed(self, output_format: OutputFormat):
         self.selected_output_format = output_format
+        self.word_level_timings_checkbox.setDisabled(
+            output_format == OutputFormat.TXT)
 
     def on_click_run(self):
         default_path = FileTranscriber.get_default_output_file_path(
@@ -469,6 +480,7 @@ class FileTranscriberWidget(QWidget):
             file_path=self.file_path,
             language=self.selected_language, task=self.selected_task,
             output_file_path=output_file, output_format=self.selected_output_format,
+            word_level_timings=self.enabled_word_level_timings,
             parent=self)
         self.file_transcriber.download_model_progress.connect(
             self.on_download_model_progress)
@@ -529,6 +541,9 @@ class FileTranscriberWidget(QWidget):
     def reset_model_download(self):
         if self.model_download_progress_dialog is not None:
             self.model_download_progress_dialog = None
+
+    def on_word_level_timings_changed(self, value: int):
+        self.enabled_word_level_timings = value == Qt.CheckState.Checked.value
 
 
 class Settings(QSettings):
@@ -829,7 +844,7 @@ class FileTranscriberMainWindow(MainWindow):
 
     def __init__(self, file_path: str, parent: Optional[QWidget], *args) -> None:
         super().__init__(title=get_short_file_path(
-            file_path), w=400, h=210, parent=parent, *args)
+            file_path), w=400, h=240, parent=parent, *args)
 
         self.central_widget = FileTranscriberWidget(file_path, self)
         self.central_widget.setContentsMargins(10, 10, 10, 10)

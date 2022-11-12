@@ -3,6 +3,7 @@ __pycache__/
 build/
 .pytest_cache/
 .coverage*
+!.coveragerc
 .env
 htmlcov/
 libwhisper.*

@@ -18,6 +18,7 @@ import whisper
 from sounddevice import PortAudioError
 
 from conn import pipe_stderr, pipe_stdout
+from stable_ts.stable_whisper import group_word_timestamps, modify_model
 from whispr import (ModelLoader, Segment, Stopped, Task, WhisperCpp,
                     read_progress, whisper_cpp_params)
 
@@ -108,7 +109,7 @@ class RecordingTranscriber:
                         audio=samples,
                         params=whisper_cpp_params(
                             language=self.language if self.language is not None else 'en',
-                            task=self.task.value))
+                            task=self.task.value, word_level_timings=False))
 
                 next_text: str = result.get('text')
 
@@ -236,6 +237,7 @@ class FileTranscriber:
             model_name: str, use_whisper_cpp: bool,
             language: Optional[str], task: Task, file_path: str,
             output_file_path: str, output_format: OutputFormat,
+            word_level_timings: bool,
             event_callback: Callable[[Event], None] = lambda *_: None,
             on_download_model_chunk: Callable[[
                 int, int], None] = lambda *_: None,
@@ -246,6 +248,7 @@ class FileTranscriber:
         self.task = task
         self.open_file_on_complete = open_file_on_complete
         self.output_format = output_format
+        self.word_level_timings = word_level_timings
 
         self.model_name = model_name
         self.use_whisper_cpp = use_whisper_cpp
@@ -290,6 +293,7 @@ class FileTranscriber:
                     self.output_format,
                     self.language if self.language is not None else 'en',
                     self.task, True, True,
+                    self.word_level_timings
                 ))
         else:
             self.current_process = multiprocessing.Process(
@@ -298,6 +302,7 @@ class FileTranscriber:
                     send_pipe, model_path, self.file_path,
                     self.language, self.task, self.output_file_path,
                     self.open_file_on_complete, self.output_format,
+                    self.word_level_timings
                 ))
 
         self.current_process.start()
@@ -352,18 +357,26 @@ class FileTranscriber:
 def transcribe_whisper(
         stderr_conn: Connection, model_path: str, file_path: str,
         language: Optional[str], task: Task, output_file_path: str,
-        open_file_on_complete: bool, output_format: OutputFormat):
+        open_file_on_complete: bool, output_format: OutputFormat,
+        word_level_timings: bool):
     with pipe_stderr(stderr_conn):
         model = whisper.load_model(model_path)
-        result = whisper.transcribe(
-            model=model, audio=file_path, language=language, task=task.value, verbose=False)
+
+        if word_level_timings:
+            modify_model(model)
+
+        result = model.transcribe(
+            audio=file_path, language=language, task=task.value, verbose=False)
+
+        whisper_segments = group_word_timestamps(
+            result) if word_level_timings else result.get('segments')
 
         segments = map(
             lambda segment: Segment(
                 start=segment.get('start')*1000,  # s to ms
                 end=segment.get('end')*1000,      # s to ms
                 text=segment.get('text')),
-            result.get('segments'))
+            whisper_segments)
 
         write_output(output_file_path, list(
             segments), open_file_on_complete, output_format)
@@ -372,13 +385,14 @@ def transcribe_whisper(
 def transcribe_whisper_cpp(
         stderr_conn: Connection, model_path: str, audio: typing.Union[np.ndarray, str],
         output_file_path: str, open_file_on_complete: bool, output_format: OutputFormat,
-        language: str, task: Task, print_realtime: bool, print_progress: bool):
+        language: str, task: Task, print_realtime: bool, print_progress: bool,
+        word_level_timings: bool):
     # TODO: capturing output does not work because ctypes functions
     # See: https://stackoverflow.com/questions/9488560/capturing-print-output-from-shared-library-called-from-python-with-ctypes-module
     with pipe_stdout(stderr_conn), pipe_stderr(stderr_conn):
         model = WhisperCpp(model_path)
         params = whisper_cpp_params(
-            language, task, print_realtime, print_progress)
+            language, task, word_level_timings, print_realtime, print_progress)
         result = model.transcribe(audio=audio, params=params)
         segments: List[Segment] = result.get('segments')
         write_output(
