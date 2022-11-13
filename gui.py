@@ -21,7 +21,7 @@ from whisper import tokenizer
 
 from __version__ import VERSION
 from transcriber import FileTranscriber, OutputFormat, RecordingTranscriber
-from whispr import Task
+from whispr import LOADED_WHISPER_DLL, Task
 
 APP_NAME = 'Buzz'
 
@@ -553,6 +553,8 @@ class Settings(QSettings):
         super().__init__('Buzz', 'Buzz', parent, *args)
 
     def enable_ggml_inference(self):
+        if LOADED_WHISPER_DLL is False:
+            return False
         return self.value(self.ENABLE_GGML_INFERENCE, False)
 
 
@@ -804,6 +806,7 @@ class MainWindow(QMainWindow):
             bool(self.settings.enable_ggml_inference()))
         enable_ggml_inference_action.triggered.connect(
             self.on_toggle_enable_ggml_inference)
+        enable_ggml_inference_action.setDisabled(LOADED_WHISPER_DLL is False)
 
         settings_menu = menu.addMenu("&Settings")
         settings_menu.addAction(enable_ggml_inference_action)

@@ -18,8 +18,17 @@ from appdirs import user_cache_dir
 from tqdm import tqdm
 from whisper import Whisper
 
-import whisper_cpp
 from conn import pipe_stderr
+
+# Catch exception from whisper.dll not getting loaded.
+# TODO: Remove flag and try-except when issue with loading
+# the DLL in some envs is fixed.
+LOADED_WHISPER_DLL = False
+try:
+    import whisper_cpp
+    LOADED_WHISPER_DLL = True
+except ImportError:
+    logging.exception('')
 
 
 class Stopped(Exception):
@@ -41,7 +50,8 @@ class Task(enum.Enum):
 def whisper_cpp_params(
         language: str, task: Task, word_level_timings: bool,
         print_realtime=False, print_progress=False,):
-    params = whisper_cpp.whisper_full_default_params(whisper_cpp.WHISPER_SAMPLING_GREEDY)
+    params = whisper_cpp.whisper_full_default_params(
+        whisper_cpp.WHISPER_SAMPLING_GREEDY)
     params.print_realtime = print_realtime
     params.print_progress = print_progress
     params.language = whisper_cpp.String(language.encode('utf-8'))
