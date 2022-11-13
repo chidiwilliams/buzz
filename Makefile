@@ -1,5 +1,4 @@
 version := $$(poetry version -s)
-version_escaped := $$(echo ${version} | sed -e 's/\./\\./g')
 
 mac_app_path := ./dist/Buzz.app
 mac_zip_path := ./dist/Buzz-${version}-mac.zip
@@ -15,10 +14,13 @@ bundle_linux: dist/Buzz
 dist/Buzz.exe: dist/Buzz
 	iscc //DAppVersion=${version} installer.iss
 
-bundle_mac: dist/Buzz
+dist/Buzz-windows.exe: dist/Buzz
+	cd dist && tar -czf ${windows_zip_path} Buzz/ && cd -
+
+bundle_mac: dist/Buzz.app
 	make zip_mac
 
-bundle_mac_local: dist/Buzz
+bundle_mac_local: dist/Buzz.app
 	make codesign_all_mac
 	make zip_mac
 	make notarize_zip
@@ -46,13 +48,12 @@ clean:
 test: whisper_cpp.py
 	pytest --cov
 
-dist/Buzz: whisper_cpp.py
+dist/Buzz dist/Buzz.app: whisper_cpp.py
 	pyinstaller --noconfirm Buzz.spec
 
 version:
 	poetry version ${version}
 	echo "VERSION = \"${version}\"" > __version__.py
-	sed -i "s/version=.*,/version=\'${version_escaped}\',/" Buzz.spec
 
 CMAKE_FLAGS=
 ifeq ($(UNAME_S),Darwin)
