@@ -18,29 +18,17 @@ from appdirs import user_cache_dir
 from tqdm import tqdm
 from whisper import Whisper
 
+from conn import pipe_stderr
+
+# Catch exception from whisper.dll not getting loaded.
+# TODO: Remove flag and try-except when issue with loading
+# the DLL in some envs is fixed.
+LOADED_WHISPER_DLL = False
 try:
     import whisper_cpp
+    LOADED_WHISPER_DLL = True
 except ImportError:
-    try:
-        logging.debug('loading library with whisper.dll')
-        ctypes.windll.LoadLibrary('whisper.dll')
-    except Exception:
-        logging.exception('')
-
-    try:
-        logging.debug('loading library with constructor')
-        ctypes.WinDLL('whisper.dll')
-    except Exception:
-        logging.exception('')
-
-    import sys
-    app_dir = getattr(sys, '_MEIPASS', os.path.dirname(
-        os.path.abspath(__file__)))
-    logging.exception(
-        'app directory: %s, app_dir in path: %s, whisper.dll in directory: %s, platform: %s',
-        app_dir, app_dir in os.environ["PATH"], os.path.exists('whisper.dll'), sys.platform)
-
-from conn import pipe_stderr
+    logging.exception('')
 
 
 class Stopped(Exception):
