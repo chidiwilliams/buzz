@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "buzz"
-version = "0.5.6"
+version = "0.5.7"
 description = ""
 authors = ["Chidi Williams <williamschidi1@gmail.com>"]
 license = "MIT"

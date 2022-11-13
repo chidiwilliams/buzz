@@ -1,4 +1,5 @@
 version := $$(poetry version -s)
+version_escaped := $$(echo ${version} | sed -e 's/\./\\./g')
 
 mac_app_path := ./dist/Buzz.app
 mac_zip_path := ./dist/Buzz-${version}-mac.zip
@@ -51,6 +52,7 @@ dist/Buzz: whisper_cpp.py
 version:
 	poetry version ${version}
 	echo "VERSION = \"${version}\"" > __version__.py
+	sed -i "s/version=.*,/version=\'${version_escaped}\',/" Buzz.spec
 
 CMAKE_FLAGS=
 ifeq ($(UNAME_S),Darwin)
