@@ -18,7 +18,28 @@ from appdirs import user_cache_dir
 from tqdm import tqdm
 from whisper import Whisper
 
-import whisper_cpp
+try:
+    import whisper_cpp
+except ImportError:
+    try:
+        logging.debug('loading library with whisper.dll')
+        ctypes.windll.LoadLibrary('whisper.dll')
+    except Exception:
+        logging.exception('')
+
+    try:
+        logging.debug('loading library with constructor')
+        ctypes.WinDLL('whisper.dll')
+    except Exception:
+        logging.exception('')
+
+    import sys
+    app_dir = getattr(sys, '_MEIPASS', os.path.dirname(
+        os.path.abspath(__file__)))
+    logging.exception(
+        'app directory: %s, app_dir in path: %s, whisper.dll in directory: %s, platform: %s',
+        app_dir, app_dir in os.environ["PATH"], os.path.exists('whisper.dll'), sys.platform)
+
 from conn import pipe_stderr
 
 
@@ -41,7 +62,8 @@ class Task(enum.Enum):
 def whisper_cpp_params(
         language: str, task: Task, word_level_timings: bool,
         print_realtime=False, print_progress=False,):
-    params = whisper_cpp.whisper_full_default_params(whisper_cpp.WHISPER_SAMPLING_GREEDY)
+    params = whisper_cpp.whisper_full_default_params(
+        whisper_cpp.WHISPER_SAMPLING_GREEDY)
     params.print_realtime = print_realtime
     params.print_progress = print_progress
     params.language = whisper_cpp.String(language.encode('utf-8'))
