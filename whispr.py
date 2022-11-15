@@ -115,6 +115,9 @@ class ModelLoader:
             args=(self.send_pipe, self.model_path_queue, self.name))
 
     def get_model_path(self,  on_download_model_chunk: Callable[[int, int], None] = lambda *_: None) -> str:
+        logging.debug(
+            'Loading model = %s, whisper.cpp = %s', self.name, self.use_whisper_cpp)
+
         # Fixes an issue with the pickling of a torch model from another process
         os.environ["no_proxy"] = '*'
 
@@ -133,17 +136,16 @@ class ModelLoader:
 
         on_download_model_chunk(100, 100)
         try:
-            return self.model_path_queue.get(block=False)
+            model_path = self.model_path_queue.get(block=False)
+            logging.debug('Model path = %s', model_path)
+            return model_path
         except Empty as exc:
             raise Stopped from exc
 
     def load(self, on_download_model_chunk: Callable[[int, int], None] = lambda *_: None) -> Union[Whisper, WhisperCpp]:
-        logging.debug(
-            'Loading model = %s, whisper.cpp = %s', self.name, self.use_whisper_cpp)
 
         model_path = self.get_model_path(on_download_model_chunk)
 
-        logging.debug('Loading model from path = %s', model_path)
         return WhisperCpp(model_path) if self.use_whisper_cpp else whisper.load_model(model_path)
 
     def load_whisper_cpp_model(self, stderr_conn: Connection, queue: multiprocessing.Queue, name: str):
