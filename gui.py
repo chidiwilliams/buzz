@@ -643,7 +643,7 @@ class RecordingTranscriberWidget(QWidget):
         self.record_button.setDisabled(True)
 
         use_whisper_cpp = self.settings.enable_ggml_inference(
-        ) and self.selected_language != None
+        ) and self.selected_language is not None
 
         model_name = get_model_name(self.selected_quality)
 

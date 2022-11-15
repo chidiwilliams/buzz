@@ -275,8 +275,8 @@ class FileTranscriber:
 
         time_started = datetime.datetime.now()
         logging.debug(
-            'Starting file transcription, file path = %s, language = %s, task = %s, output file path = %s, output format = %s',
-            self.file_path, self.language, self.task, self.output_file_path, self.output_format)
+            'Starting file transcription, file path = %s, language = %s, task = %s, output file path = %s, output format = %s, model_path = %s',
+            self.file_path, self.language, self.task, self.output_file_path, self.output_format, model_path)
 
         recv_pipe, send_pipe = multiprocessing.Pipe(duplex=False)
 
