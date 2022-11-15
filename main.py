@@ -2,6 +2,7 @@ import faulthandler
 import logging
 import multiprocessing
 import os
+import platform
 import sys
 
 from appdirs import user_log_dir
@@ -18,7 +19,8 @@ app_dir = getattr(sys, '_MEIPASS', os.path.dirname(
 os.environ["PATH"] += os.pathsep + app_dir
 
 # Add the app directory to the DLL list: https://stackoverflow.com/a/64303856
-os.add_dll_directory(app_dir)
+if platform.system() == 'Windows':
+    os.add_dll_directory(app_dir)
 
 if __name__ == "__main__":
     # Fixes opening new window when app has been frozen on Windows:
