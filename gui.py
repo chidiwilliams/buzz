@@ -824,14 +824,9 @@ class MainWindow(QMainWindow):
             self.on_toggle_enable_ggml_inference)
         enable_ggml_inference_action.setDisabled(LOADED_WHISPER_DLL is False)
 
-        reset_settings_action = QAction(
-            '&Reset Settings to Default', self)
-        reset_settings_action.triggered.connect(self.on_reset_settings_action)
-
         settings_menu = menu.addMenu("&Settings")
         settings_menu.addAction(enable_ggml_inference_action)
         settings_menu.addSeparator()
-        settings_menu.addAction(reset_settings_action)
 
         self.help_menu = menu.addMenu("&Help")
         self.help_menu.addAction(self.about_action)
@@ -849,9 +844,6 @@ class MainWindow(QMainWindow):
     def on_trigger_about_action(self):
         about_dialog = AboutDialog(self)
         about_dialog.exec()
-
-    def on_reset_settings_action(self):
-        self.settings.clear()
 
 
 class RecordingTranscriberMainWindow(MainWindow):

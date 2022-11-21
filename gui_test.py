@@ -200,3 +200,5 @@ class TestSettings:
         assert settings.get_enable_ggml_inference() is False
         settings.set_enable_ggml_inference(True)
         assert settings.get_enable_ggml_inference() is True
+        settings.set_enable_ggml_inference(False)
+        assert settings.get_enable_ggml_inference() is False
