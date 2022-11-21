@@ -1,10 +1,10 @@
 import enum
+import logging
 import os
 import platform
 import sys
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
-import logging
+from typing import Any, Dict, List, Optional, Tuple
 
 import humanize
 import sounddevice
@@ -554,13 +554,24 @@ class Settings(QSettings):
         super().__init__('Buzz', 'Buzz', parent, *args)
         logging.debug('Loaded settings from path = %s', self.fileName())
 
-    def get_enable_ggml_inference(self):
+    def get_enable_ggml_inference(self) -> bool:
         if LOADED_WHISPER_DLL is False:
             return False
-        return self.value(self._ENABLE_GGML_INFERENCE, False)
+        return self._value_to_bool(self.value(self._ENABLE_GGML_INFERENCE, False))
 
     def set_enable_ggml_inference(self, value: bool) -> None:
         self.setValue(self._ENABLE_GGML_INFERENCE, value)
+
+    # Convert QSettings value to boolean: https://forum.qt.io/topic/108622/how-to-get-a-boolean-value-from-qsettings-correctly
+    @staticmethod
+    def _value_to_bool(value: Any) -> bool:
+        if isinstance(value, bool):
+            return value
+
+        if isinstance(value, str):
+            return value.lower() == 'true'
+
+        return bool(value)
 
 
 class RecordingTranscriberWidget(QWidget):
