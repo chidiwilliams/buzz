@@ -4,6 +4,7 @@ import platform
 import sys
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
+import logging
 
 import humanize
 import sounddevice
@@ -469,7 +470,7 @@ class FileTranscriberWidget(QWidget):
         if output_file == '':
             return
 
-        use_whisper_cpp = self.settings.enable_ggml_inference(
+        use_whisper_cpp = self.settings.get_enable_ggml_inference(
         ) and self.selected_language is not None
 
         self.run_button.setDisabled(True)
@@ -547,15 +548,19 @@ class FileTranscriberWidget(QWidget):
 
 
 class Settings(QSettings):
-    ENABLE_GGML_INFERENCE = 'enable_ggml_inference'
+    _ENABLE_GGML_INFERENCE = 'enable_ggml_inference'
 
-    def __init__(self, parent: Optional[QWidget], *args):
+    def __init__(self, parent: Optional[QWidget] = None, *args):
         super().__init__('Buzz', 'Buzz', parent, *args)
+        logging.debug('Loaded settings from path = %s', self.fileName())
 
-    def enable_ggml_inference(self):
+    def get_enable_ggml_inference(self):
         if LOADED_WHISPER_DLL is False:
             return False
-        return self.value(self.ENABLE_GGML_INFERENCE, False)
+        return self.value(self._ENABLE_GGML_INFERENCE, False)
+
+    def set_enable_ggml_inference(self, value: bool) -> None:
+        self.setValue(self._ENABLE_GGML_INFERENCE, value)
 
 
 class RecordingTranscriberWidget(QWidget):
@@ -642,7 +647,7 @@ class RecordingTranscriberWidget(QWidget):
     def start_recording(self):
         self.record_button.setDisabled(True)
 
-        use_whisper_cpp = self.settings.enable_ggml_inference(
+        use_whisper_cpp = self.settings.get_enable_ggml_inference(
         ) and self.selected_language is not None
 
         model_name = get_model_name(self.selected_quality)
@@ -803,13 +808,19 @@ class MainWindow(QMainWindow):
             '&Enable GGML Inference', self)
         enable_ggml_inference_action.setCheckable(True)
         enable_ggml_inference_action.setChecked(
-            bool(self.settings.enable_ggml_inference()))
+            bool(self.settings.get_enable_ggml_inference()))
         enable_ggml_inference_action.triggered.connect(
             self.on_toggle_enable_ggml_inference)
         enable_ggml_inference_action.setDisabled(LOADED_WHISPER_DLL is False)
 
+        reset_settings_action = QAction(
+            '&Reset Settings to Default', self)
+        reset_settings_action.triggered.connect(self.on_reset_settings_action)
+
         settings_menu = menu.addMenu("&Settings")
         settings_menu.addAction(enable_ggml_inference_action)
+        settings_menu.addSeparator()
+        settings_menu.addAction(reset_settings_action)
 
         self.help_menu = menu.addMenu("&Help")
         self.help_menu.addAction(self.about_action)
@@ -822,11 +833,14 @@ class MainWindow(QMainWindow):
         self.new_import_window_triggered.emit((file_path, self.geometry()))
 
     def on_toggle_enable_ggml_inference(self, state: bool):
-        self.settings.setValue(Settings.ENABLE_GGML_INFERENCE, state)
+        self.settings.set_enable_ggml_inference(state)
 
     def on_trigger_about_action(self):
         about_dialog = AboutDialog(self)
         about_dialog.exec()
+
+    def on_reset_settings_action(self):
+        self.settings.clear()
 
 
 class RecordingTranscriberMainWindow(MainWindow):

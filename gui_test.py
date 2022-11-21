@@ -7,7 +7,7 @@ from PyQt6.QtCore import Qt
 
 from gui import (Application, AudioDevicesComboBox,
                  DownloadModelProgressDialog, FileTranscriberWidget,
-                 LanguagesComboBox, MainWindow, OutputFormatsComboBox, Quality,
+                 LanguagesComboBox, MainWindow, OutputFormatsComboBox, Quality, Settings,
                  QualityComboBox, TranscriberProgressDialog)
 from transcriber import OutputFormat
 
@@ -190,3 +190,13 @@ class TestFileTranscriberWidget:
 
                 output_file = open(output_file_path, 'r', encoding='utf-8')
                 assert 'Bienvenue dans Passe-Relle, un podcast' in output_file.read()
+
+
+class TestSettings:
+    def test_should_enable_ggml_inference(self):
+        settings = Settings()
+        settings.clear()
+
+        assert settings.get_enable_ggml_inference() is False
+        settings.set_enable_ggml_inference(True)
+        assert settings.get_enable_ggml_inference() is True
