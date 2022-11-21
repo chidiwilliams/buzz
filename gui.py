@@ -826,7 +826,6 @@ class MainWindow(QMainWindow):
 
         settings_menu = menu.addMenu("&Settings")
         settings_menu.addAction(enable_ggml_inference_action)
-        settings_menu.addSeparator()
 
         self.help_menu = menu.addMenu("&Help")
         self.help_menu.addAction(self.about_action)
