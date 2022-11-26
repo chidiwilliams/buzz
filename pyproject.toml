@@ -17,6 +17,7 @@ appdirs = "^1.4.4"
 ffmpeg-python = "^0.2.0"
 humanize = "^4.4.0"
 PyQt6 = "^6.4.0"
+stable-ts = "^1.0.1"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
