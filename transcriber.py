@@ -364,9 +364,11 @@ def transcribe_whisper(
 
         if word_level_timings:
             stable_whisper.modify_model(model)
-
-        result = model.transcribe(
-            audio=file_path, language=language, task=task.value, verbose=False)
+            result = model.transcribe(
+                audio=file_path, language=language, task=task.value, pbar=True)
+        else:
+            result = model.transcribe(
+                audio=file_path, language=language, task=task.value, verbose=False)
 
         whisper_segments = stable_whisper.group_word_timestamps(
             result) if word_level_timings else result.get('segments')
