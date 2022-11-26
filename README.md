@@ -35,11 +35,7 @@ To start a live recording:
 - Select a recording task, language, quality, and microphone.
 - Click Record.
 
-{% note %}
-
-**Note:** Transcribing audio using the default Whisper model is resource-intensive. If your computer is unable to keep up with real-time transcription, consider enabling [GGML inference](#enable-ggml-inference).
-
-{% endnote %}
+> **Note:** Transcribing audio using the default Whisper model is resource-intensive. If your computer is unable to keep up with real-time transcription, consider enabling [GGML inference](#enable-ggml-inference).
 
 | Field      | Options                                                                                                                                  | Default                     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
