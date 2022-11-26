@@ -84,7 +84,7 @@ To import a file:
 | Field              | Options             | Default | Description                                                                                                                                              |
 | ------------------ | ------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Export As          | "TXT", "SRT", "VTT" | "TXT"   | Export file format                                                                                                                                       |
-| Word-Level Timings | True / False        | False   | If checked, the transcription will generate a separate subtitle line for each word in the audio. Enabled only when "Export As" is set to "SRT" or "VTT". |
+| Word-Level Timings | ☐ / ☑               | ☐       | If checked, the transcription will generate a separate subtitle line for each word in the audio. Enabled only when "Export As" is set to "SRT" or "VTT". |
 
 (See the [Live Recording section](#live-recording) for more information about the task, language, and quality settings.)
 
