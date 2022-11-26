@@ -2,7 +2,6 @@
 omit =
   whisper_cpp.py
   *_test.py
-  stable_ts/*
 
 [html]
 directory = coverage/html

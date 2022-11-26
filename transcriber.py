@@ -14,11 +14,11 @@ from typing import Callable, List, Optional
 
 import numpy as np
 import sounddevice
+import stable_whisper
 import whisper
 from sounddevice import PortAudioError
 
 from conn import pipe_stderr, pipe_stdout
-from stable_ts.stable_whisper import group_word_timestamps, modify_model
 from whispr import (ModelLoader, Segment, Stopped, Task, WhisperCpp,
                     read_progress, whisper_cpp_params)
 
@@ -363,12 +363,14 @@ def transcribe_whisper(
         model = whisper.load_model(model_path)
 
         if word_level_timings:
-            modify_model(model)
+            stable_whisper.modify_model(model)
+            result = model.transcribe(
+                audio=file_path, language=language, task=task.value, pbar=True)
+        else:
+            result = model.transcribe(
+                audio=file_path, language=language, task=task.value, verbose=False)
 
-        result = model.transcribe(
-            audio=file_path, language=language, task=task.value, verbose=False)
-
-        whisper_segments = group_word_timestamps(
+        whisper_segments = stable_whisper.group_word_timestamps(
             result) if word_level_timings else result.get('segments')
 
         segments = map(

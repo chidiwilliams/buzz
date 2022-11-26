@@ -55,7 +55,9 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: poetry install
+      - name: Install dependencies
+        run: poetry config experimental.new-installer false && poetry install
+
       - name: Test
         run: poetry run make test
 
@@ -93,7 +95,9 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: poetry install
+      - name: Install dependencies
+        run: poetry config experimental.new-installer false && poetry install
+
       - name: Bundle
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
@@ -106,6 +110,7 @@ jobs:
         env:
           BUZZ_VERSION: ${{ github.ref_name }}
         shell: bash
+
       - uses: actions/upload-artifact@v3
         with:
           name: Buzz-${{ runner.os }}
