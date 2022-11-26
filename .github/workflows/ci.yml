@@ -55,7 +55,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: poetry install
+      - run: poetry config experimental.new-installer false && poetry install
       - name: Test
         run: poetry run make test
 
