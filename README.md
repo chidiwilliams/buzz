@@ -105,14 +105,20 @@ Turn this on to use inference from [Whisper.cpp](https://github.com/ggerganov/wh
 
 To build/run Buzz locally from source, first install the dependencies:
 
-1. Install [Poetry](https://python-poetry.org/docs/#installing-with-the-official-installer).
-2. Install the project dependencies.
+1. git clone including the submodules
+
+   ```shell
+   git clone --recurse-submodules https://github.com/chidiwilliams/buzz
+   ```
+
+2. Install [Poetry](https://python-poetry.org/docs/#installing-with-the-official-installer).
+3. Install the project dependencies.
 
    ```shell
    poetry install
    ```
 
-3. (Optional) To use Whisper.cpp inference, run:
+4. (Optional) To use Whisper.cpp inference, run:
 
    ```shell
    make libwhisper.so
