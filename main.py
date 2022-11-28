@@ -34,6 +34,6 @@ if __name__ == "__main__":
         level=logging.DEBUG,
         format="[%(asctime)s] %(module)s.%(funcName)s:%(lineno)d %(levelname)s -> %(message)s")
 
-    from gui import Application
+    from buzz.gui import Application
     app = Application()
     sys.exit(app.exec())

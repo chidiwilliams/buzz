@@ -1,4 +1,3 @@
-import logging
 import os
 import pathlib
 import tempfile
@@ -6,10 +5,10 @@ import time
 
 import pytest
 
-from model_loader import ModelLoader
-from transcriber import (FileTranscriber, OutputFormat, RecordingTranscriber,
-                         to_timestamp)
-from whispr import Task
+from buzz.model_loader import ModelLoader
+from buzz.transcriber import (FileTranscriber, OutputFormat,
+                              RecordingTranscriber, to_timestamp)
+from buzz.whispr import Task
 
 
 def get_model_path(model_name: str, use_whisper_cpp: bool) -> str:

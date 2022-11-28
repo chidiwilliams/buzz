@@ -5,11 +5,12 @@ from unittest.mock import patch
 import sounddevice
 from PyQt6.QtCore import Qt
 
-from gui import (Application, AudioDevicesComboBox,
-                 DownloadModelProgressDialog, FileTranscriberWidget,
-                 LanguagesComboBox, MainWindow, OutputFormatsComboBox, Quality, Settings, AboutDialog,
-                 QualityComboBox, TranscriberProgressDialog)
-from transcriber import OutputFormat
+from buzz.gui import (AboutDialog, Application, AudioDevicesComboBox,
+                      DownloadModelProgressDialog, FileTranscriberWidget,
+                      LanguagesComboBox, MainWindow, OutputFormatsComboBox,
+                      Quality, QualityComboBox, Settings,
+                      TranscriberProgressDialog)
+from buzz.transcriber import OutputFormat
 
 
 class TestApplication:

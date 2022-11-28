@@ -14,7 +14,7 @@ import whisper
 # the DLL in some envs is fixed.
 LOADED_WHISPER_DLL = False
 try:
-    import whisper_cpp
+    import buzz.whisper_cpp as whisper_cpp
     LOADED_WHISPER_DLL = True
 except ImportError:
     logging.exception('')
