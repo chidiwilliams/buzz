@@ -1,19 +1,35 @@
+import logging
 import os
 import pathlib
 import tempfile
+import time
 
 import pytest
 
+from model_loader import ModelLoader
 from transcriber import (FileTranscriber, OutputFormat, RecordingTranscriber,
                          to_timestamp)
 from whispr import Task
 
 
+def get_model_path(model_name: str, use_whisper_cpp: bool) -> str:
+    model_loader = ModelLoader(model_name, use_whisper_cpp)
+    model_path = ''
+
+    def on_load_model(path: str):
+        nonlocal model_path
+        model_path = path
+
+    model_loader.signals.completed.connect(on_load_model)
+    model_loader.run()
+    return model_path
+
+
 class TestRecordingTranscriber:
     def test_transcriber(self):
-
+        model_path = get_model_path('tiny', True)
         transcriber = RecordingTranscriber(
-            model_name='tiny', use_whisper_cpp=True, language='en',
+            model_path=model_path, use_whisper_cpp=True, language='en',
             task=Task.TRANSCRIBE)
         assert transcriber is not None
 
@@ -36,7 +52,8 @@ class TestFileTranscriber:
             (False, OutputFormat.TXT, 'Bienvenue dans Passe-Relle, un podcast'),
             (False, OutputFormat.SRT, '1\n00:00:00.000 --> 00:00:06.560\n Bienvenue dans Passe-Relle, un podcast pensé pour évêyer la curiosité des apprenances'),
             (False, OutputFormat.VTT, 'WEBVTT\n\n00:00:00.000 --> 00:00:06.560\n Bienvenue dans Passe-Relle, un podcast pensé pour évêyer la curiosité des apprenances'),
-            (True, OutputFormat.SRT, '1\n00:00:00.040 --> 00:00:00.359\n Bienvenue dans\n\n2\n00:00:00.359 --> 00:00:00.419\n Passe-'),
+            (True, OutputFormat.SRT,
+             '1\n00:00:00.040 --> 00:00:00.359\n Bienvenue dans\n\n2\n00:00:00.359 --> 00:00:00.419\n Passe-'),
         ])
     def test_transcribe_whisper(self, tmp_path: pathlib.Path, word_level_timings: bool, output_format: OutputFormat, output_text: str):
         output_file_path = tmp_path / f'whisper.{output_format.value.lower()}'
@@ -46,8 +63,9 @@ class TestFileTranscriber:
         def event_callback(event: FileTranscriber.Event):
             events.append(event)
 
+        model_path = get_model_path('tiny', False)
         transcriber = FileTranscriber(
-            model_name='tiny', use_whisper_cpp=False, language='fr',
+            model_path=model_path, use_whisper_cpp=False, language='fr',
             task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
             output_file_path=output_file_path.as_posix(), output_format=output_format,
             open_file_on_complete=False, event_callback=event_callback,
@@ -78,19 +96,19 @@ class TestFileTranscriber:
         def event_callback(event: FileTranscriber.Event):
             events.append(event)
 
+        model_path = get_model_path('tiny', False)
         transcriber = FileTranscriber(
-            model_name='tiny', use_whisper_cpp=False, language='fr',
+            model_path=model_path, use_whisper_cpp=False, language='fr',
             task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
             output_file_path=output_file_path, output_format=OutputFormat.TXT,
             open_file_on_complete=False, event_callback=event_callback,
             word_level_timings=False)
         transcriber.start()
+        time.sleep(1)
         transcriber.stop()
 
-        # Assert that file was not created and there was no completed progress event
+        # Assert that file was not created
         assert os.path.isfile(output_file_path) is False
-        assert any([isinstance(event, FileTranscriber.ProgressEvent)
-                   and event.current_value == event.max_value for event in events]) is False
 
     def test_transcribe_whisper_cpp(self):
         output_file_path = os.path.join(
@@ -103,8 +121,9 @@ class TestFileTranscriber:
         def event_callback(event: FileTranscriber.Event):
             events.append(event)
 
+        model_path = get_model_path('tiny', True)
         transcriber = FileTranscriber(
-            model_name='tiny', use_whisper_cpp=True, language='fr',
+            model_path=model_path, use_whisper_cpp=True, language='fr',
             task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
             output_file_path=output_file_path, output_format=OutputFormat.TXT,
             open_file_on_complete=False, event_callback=event_callback,
