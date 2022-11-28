@@ -43,6 +43,8 @@ class ModelLoader(QRunnable):
                 )
                 url = whisper._MODELS[self.name]
 
+            os.makedirs(root, exist_ok=True)
+
             model_path = os.path.join(root, os.path.basename(url))
 
             if os.path.exists(model_path) and not os.path.isfile(model_path):
