@@ -19,8 +19,7 @@ import whisper
 from sounddevice import PortAudioError
 
 from conn import pipe_stderr, pipe_stdout
-from whispr import (ModelLoader, Segment, Stopped, Task, WhisperCpp,
-                    read_progress, whisper_cpp_params)
+from whispr import Segment, Task, WhisperCpp, read_progress, whisper_cpp_params
 
 
 class RecordingTranscriber:
@@ -34,20 +33,19 @@ class RecordingTranscriber:
     class Event:
         pass
 
-    class LoadedModelEvent(Event):
-        pass
-
     @dataclass
     class TranscribedNextChunkEvent(Event):
         text: str
 
     def __init__(self,
-                 model_name: str, use_whisper_cpp: bool,
+                 model_path: str, use_whisper_cpp: bool,
                  language: Optional[str], task: Task,
                  on_download_model_chunk: Callable[[
                      int, int], None] = lambda *_: None,
                  event_callback: Callable[[Event], None] = lambda *_: None,
                  input_device_index: Optional[int] = None) -> None:
+        self.model_path = model_path
+        self.use_whisper_cpp = use_whisper_cpp
         self.current_stream = None
         self.event_callback = event_callback
         self.language = language
@@ -62,24 +60,18 @@ class RecordingTranscriber:
         self.mutex = threading.Lock()
         self.text = ''
         self.on_download_model_chunk = on_download_model_chunk
-        self.model_loader = ModelLoader(
-            name=model_name, use_whisper_cpp=use_whisper_cpp,)
 
     def start_recording(self):
         self.current_thread = Thread(target=self.process_queue)
         self.current_thread.start()
 
     def process_queue(self):
-        try:
-            model = self.model_loader.load(
-                on_download_model_chunk=self.on_download_model_chunk)
-        except Stopped:
-            return
+        model = WhisperCpp(
+            self.model_path) if self.use_whisper_cpp else whisper.load_model(self.model_path)
 
-        self.event_callback(self.LoadedModelEvent())
-
-        logging.debug('Recording, language = %s, task = %s, device = %s, sample rate = %s',
-                      self.language, self.task, self.input_device_index, self.sample_rate)
+        logging.debug(
+            'Recording, language = %s, task = %s, device = %s, sample rate = %s, model_path = %s',
+            self.language, self.task, self.input_device_index, self.sample_rate, self.model_path)
         self.current_stream = sounddevice.InputStream(
             samplerate=self.sample_rate,
             blocksize=1 * self.sample_rate,  # 1 sec
@@ -160,9 +152,6 @@ class RecordingTranscriber:
                 self.current_thread.join()
                 logging.debug('Recording thread terminated')
 
-    def stop_loading_model(self):
-        self.model_loader.stop()
-
 
 class OutputFormat(enum.Enum):
     TXT = 'txt'
@@ -226,15 +215,12 @@ class FileTranscriber:
         current_value: int
         max_value: int
 
-    class LoadedModelEvent(Event):
-        pass
-
     class CompletedTranscriptionEvent(Event):
         pass
 
     def __init__(
             self,
-            model_name: str, use_whisper_cpp: bool,
+            model_path: str, use_whisper_cpp: bool,
             language: Optional[str], task: Task, file_path: str,
             output_file_path: str, output_format: OutputFormat,
             word_level_timings: bool,
@@ -249,12 +235,9 @@ class FileTranscriber:
         self.open_file_on_complete = open_file_on_complete
         self.output_format = output_format
         self.word_level_timings = word_level_timings
-
-        self.model_name = model_name
+        self.model_path = model_path
         self.use_whisper_cpp = use_whisper_cpp
         self.on_download_model_chunk = on_download_model_chunk
-
-        self.model_loader = ModelLoader(self.model_name, self.use_whisper_cpp)
         self.event_callback = event_callback
 
     def start(self):
@@ -262,21 +245,10 @@ class FileTranscriber:
         self.current_thread.start()
 
     def transcribe(self):
-        if self.stopped:
-            return
-
-        try:
-            model_path = self.model_loader.get_model_path(
-                on_download_model_chunk=self.on_download_model_chunk)
-        except Stopped:
-            return
-
-        self.event_callback(self.LoadedModelEvent())
-
         time_started = datetime.datetime.now()
         logging.debug(
             'Starting file transcription, file path = %s, language = %s, task = %s, output file path = %s, output format = %s, model_path = %s',
-            self.file_path, self.language, self.task, self.output_file_path, self.output_format, model_path)
+            self.file_path, self.language, self.task, self.output_file_path, self.output_format, self.model_path)
 
         recv_pipe, send_pipe = multiprocessing.Pipe(duplex=False)
 
@@ -288,7 +260,7 @@ class FileTranscriber:
             self.current_process = multiprocessing.Process(
                 target=transcribe_whisper_cpp,
                 args=(
-                    send_pipe, model_path, self.file_path,
+                    send_pipe, self.model_path, self.file_path,
                     self.output_file_path, self.open_file_on_complete,
                     self.output_format,
                     self.language if self.language is not None else 'en',
@@ -299,7 +271,7 @@ class FileTranscriber:
             self.current_process = multiprocessing.Process(
                 target=transcribe_whisper,
                 args=(
-                    send_pipe, model_path, self.file_path,
+                    send_pipe, self.model_path, self.file_path,
                     self.language, self.task, self.output_file_path,
                     self.open_file_on_complete, self.output_format,
                     self.word_level_timings
@@ -324,9 +296,6 @@ class FileTranscriber:
         logging.debug('Completed file transcription, time taken = %s',
                       datetime.datetime.now()-time_started)
 
-    def stop_loading_model(self):
-        self.model_loader.stop()
-
     def join(self):
         if self.current_thread is not None:
             self.current_thread.join()
@@ -334,8 +303,6 @@ class FileTranscriber:
     def stop(self):
         if self.stopped is False:
             self.stopped = True
-
-            self.model_loader.stop()
 
             if self.current_process is not None and self.current_process.is_alive():
                 self.current_process.terminate()

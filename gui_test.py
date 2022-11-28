@@ -7,7 +7,7 @@ from PyQt6.QtCore import Qt
 
 from gui import (Application, AudioDevicesComboBox,
                  DownloadModelProgressDialog, FileTranscriberWidget,
-                 LanguagesComboBox, MainWindow, OutputFormatsComboBox, Quality, Settings,
+                 LanguagesComboBox, MainWindow, OutputFormatsComboBox, Quality, Settings, AboutDialog,
                  QualityComboBox, TranscriberProgressDialog)
 from transcriber import OutputFormat
 
@@ -204,3 +204,9 @@ class TestSettings:
 
         settings.set_enable_ggml_inference(False)
         assert settings.get_enable_ggml_inference() is False
+
+
+class TestAboutDialog:
+    def test_should_create(self):
+        dialog = AboutDialog()
+        assert dialog is not None

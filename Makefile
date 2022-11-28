@@ -47,7 +47,7 @@ clean:
 	rm -rf dist/* || true
 
 test: whisper_cpp.py
-	pytest --cov
+	pytest --cov --cov-report=html
 
 dist/Buzz dist/Buzz.app: whisper_cpp.py
 	pyinstaller --noconfirm Buzz.spec
