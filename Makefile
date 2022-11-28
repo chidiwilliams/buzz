@@ -43,18 +43,18 @@ endif
 
 clean:
 	rm -f $(LIBWHISPER)
-	rm -f whisper_cpp.py
+	rm -f buzz/whisper_cpp.py
 	rm -rf dist/* || true
 
-test: whisper_cpp.py
+test: buzz/whisper_cpp.py
 	pytest --cov --cov-report=html
 
-dist/Buzz dist/Buzz.app: whisper_cpp.py
+dist/Buzz dist/Buzz.app: buzz/whisper_cpp.py
 	pyinstaller --noconfirm Buzz.spec
 
 version:
 	poetry version ${version}
-	echo "VERSION = \"${version}\"" > __version__.py
+	echo "VERSION = \"${version}\"" > buzz/__version__.py
 	sed -i "s/version=.*,/version=\'${version_escaped}\',/" Buzz.spec
 
 CMAKE_FLAGS=
@@ -79,8 +79,8 @@ $(LIBWHISPER):
 	cp whisper.cpp/build/$(LIBWHISPER) . || true
 	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) . || true
 
-whisper_cpp.py: $(LIBWHISPER)
-	ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o whisper_cpp.py
+buzz/whisper_cpp.py: $(LIBWHISPER)
+	ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o buzz/whisper_cpp.py
 
 staple_app_mac:
 	xcrun stapler staple ${mac_app_path}

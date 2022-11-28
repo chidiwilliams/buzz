@@ -18,8 +18,9 @@ import stable_whisper
 import whisper
 from sounddevice import PortAudioError
 
-from conn import pipe_stderr, pipe_stdout
-from whispr import Segment, Task, WhisperCpp, read_progress, whisper_cpp_params
+from .conn import pipe_stderr, pipe_stdout
+from .whispr import (Segment, Task, WhisperCpp, read_progress,
+                     whisper_cpp_params)
 
 
 class RecordingTranscriber:

@@ -20,10 +20,10 @@ from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
 from requests import get
 from whisper import tokenizer
 
-from __version__ import VERSION
-from transcriber import FileTranscriber, OutputFormat, RecordingTranscriber
-from whispr import LOADED_WHISPER_DLL, Task
-from model_loader import ModelLoader
+from .__version__ import VERSION
+from .transcriber import FileTranscriber, OutputFormat, RecordingTranscriber
+from .whispr import LOADED_WHISPER_DLL, Task
+from .model_loader import ModelLoader
 
 APP_NAME = 'Buzz'
 
