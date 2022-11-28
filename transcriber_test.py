@@ -1,10 +1,12 @@
+import logging
 import os
 import pathlib
 import tempfile
+import time
 
 import pytest
-from model_loader import ModelLoader
 
+from model_loader import ModelLoader
 from transcriber import (FileTranscriber, OutputFormat, RecordingTranscriber,
                          to_timestamp)
 from whispr import Task
@@ -102,12 +104,11 @@ class TestFileTranscriber:
             open_file_on_complete=False, event_callback=event_callback,
             word_level_timings=False)
         transcriber.start()
+        time.sleep(1)
         transcriber.stop()
 
-        # Assert that file was not created and there was no completed progress event
+        # Assert that file was not created
         assert os.path.isfile(output_file_path) is False
-        assert any([isinstance(event, FileTranscriber.ProgressEvent)
-                   and event.current_value == event.max_value for event in events]) is False
 
     def test_transcribe_whisper_cpp(self):
         output_file_path = os.path.join(
