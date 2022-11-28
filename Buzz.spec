@@ -4,6 +4,26 @@ import shutil
 
 from PyInstaller.utils.hooks import collect_data_files, copy_metadata
 
+def get_locales_data():
+    locales_data = []
+    locale_dir = 'locale'
+    for locale in os.listdir(os.path.join(locale_dir)):
+
+        locale = os.path.join(locale_dir, locale, "LC_MESSAGES")
+        locale_full = os.path.abspath(locale)
+        is_dir = os.path.isdir(locale_full)
+
+        if os.path.isdir(locale_full) == False:
+            continue
+
+        locales_data.append((
+            os.path.join(locale, '*.mo'),
+            locale
+        ))
+
+    return locales_data
+
+
 datas = []
 datas += collect_data_files('torch')
 datas += copy_metadata('tqdm')
@@ -20,7 +40,7 @@ datas += [('whisper.dll' if platform.system() ==
 datas += [('assets/buzz.ico', 'assets')]
 datas += [('assets/buzz-icon-1024.png', 'assets')]
 datas += [(shutil.which('ffmpeg'), '.')]
-
+datas += get_locales_data()
 
 block_cipher = None
 

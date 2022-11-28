@@ -127,6 +127,11 @@ To build/run Buzz locally from source, first install the dependencies:
    ```shell
    make libwhisper.so
    ```
+5. Generate compiled translations
+
+   ```shell
+   make generate_translation_binaries
+   ```
 
 Then, to run:
 
@@ -149,3 +154,7 @@ poetry run pyinstaller --noconfirm Buzz.spec
 2. **What can I try if the transcription runs too slowly?**
 
    Try using a lower quality or turning on [GGML inference](#enable-ggml-inference).
+
+3. **How can I contribute a translation?**
+   * Add your translations to the locale directory
+   * Add them into the Makefile

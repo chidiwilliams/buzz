@@ -137,3 +137,10 @@ notarize_log:
 
 codesign_verify:
 	codesign --verify --deep --strict --verbose=2 dist/Buzz.app
+
+# I18N support
+generate_translation_pot:
+	xgettext --from-code=UTF-8 -o locale/buzz.pot -l python gui.py
+
+generate_translation_binaries:
+	msgfmt --check locale/ca_ES/LC_MESSAGES/buzz.po -o locale/ca_ES/LC_MESSAGES/buzz.mo

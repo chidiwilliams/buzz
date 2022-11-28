@@ -10,7 +10,7 @@ import humanize
 import sounddevice
 from PyQt6 import QtGui
 from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt, QTimer,
-                          QUrl, pyqtSignal, QThreadPool)
+                          QUrl, pyqtSignal, QThreadPool, QLocale)
 from PyQt6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
                          QKeySequence, QPixmap, QTextCursor)
 from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
@@ -24,6 +24,18 @@ from .__version__ import VERSION
 from .transcriber import FileTranscriber, OutputFormat, RecordingTranscriber
 from .whispr import LOADED_WHISPER_DLL, Task
 from .model_loader import ModelLoader
+import gettext
+
+domain_dir = "buzz"
+
+locale_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../locale"))
+gettext.bindtextdomain(domain_dir, locale_dir)
+gettext.textdomain(domain_dir)
+
+# One click applications do not have LANG env var defined
+if 'LANG' not in os.environ:
+    lang =  str(QLocale().uiLanguages()[0]).replace("-", "_")
+    os.environ['LANG'] = lang
 
 APP_NAME = 'Buzz'
 
@@ -172,7 +184,7 @@ class TextDisplayBox(QPlainTextEdit):
     def __init__(self, parent: Optional[QWidget], *args) -> None:
         super().__init__(parent, *args)
         self.setReadOnly(True)
-        self.setPlaceholderText('Click Record to begin...')
+        self.setPlaceholderText(gettext.gettext('Click Record to begin...'))
         self.setStyleSheet(
             '''QTextEdit {
                 } %s''' % get_platform_styles(self.os_styles))
@@ -187,7 +199,7 @@ class RecordButton(QPushButton):
     status_changed = pyqtSignal(Status)
 
     def __init__(self, parent: Optional[QWidget], *args) -> None:
-        super().__init__("Record", parent, *args)
+        super().__init__(gettext.gettext("Record"), parent, *args)
         self.clicked.connect(self.on_click_record)
         self.status_changed.connect(self.on_status_changed)
         self.setDefault(True)
@@ -204,10 +216,10 @@ class RecordButton(QPushButton):
     def on_status_changed(self, status: Status):
         self.current_status = status
         if status == self.Status.RECORDING:
-            self.setText('Stop')
+            self.setText(gettext.gettext('Stop'))
             self.setDefault(False)
         else:
-            self.setText('Record')
+            self.setText(gettext.gettext('Record'))
             self.setDefault(True)
 
     def force_stop(self):
@@ -218,8 +230,8 @@ class DownloadModelProgressDialog(QProgressDialog):
     start_time: datetime
 
     def __init__(self, total_size: int, parent: Optional[QWidget], *args) -> None:
-        super().__init__('Downloading resources (0%, unknown time remaining)',
-                         'Cancel', 0, total_size, parent, *args)
+        super().__init__(gettext.gettext('Downloading resources (0%, unknown time remaining)'),
+                         gettext.gettext('Cancel'), 0, total_size, parent, *args)
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.start_time = datetime.now()
 
@@ -242,8 +254,8 @@ class TranscriberProgressDialog(QProgressDialog):
 
     def __init__(self, file_path: str, total_size: int, parent: Optional[QWidget], *args) -> None:
         short_file_path = get_short_file_path(file_path)
-        label = f'Processing {short_file_path} (0%, unknown time remaining)'
-        super().__init__(label, 'Cancel', 0, total_size, parent, *args)
+        label = gettext.gettext('Processing {} (0%, unknown time remaining)').format(short_file_path)
+        super().__init__(label, gettext.gettext('Cancel'), 0, total_size, parent, *args)
 
         self.total_size = total_size
         self.short_file_path = short_file_path
@@ -414,7 +426,7 @@ class FileTranscriberWidget(QWidget):
             parent=self)
         self.tasks_combo_box.taskChanged.connect(self.on_task_changed)
 
-        self.run_button = QPushButton('Run', self)
+        self.run_button = QPushButton(gettext.gettext('Run'), self)
         self.run_button.clicked.connect(self.on_click_run)
         self.run_button.setDefault(True)
 
@@ -423,18 +435,18 @@ class FileTranscriberWidget(QWidget):
         output_formats_combo_box.output_format_changed.connect(
             self.on_output_format_changed)
 
-        self.word_level_timings_checkbox = QCheckBox('Word-level timings')
+        self.word_level_timings_checkbox = QCheckBox(gettext.gettext('Word-level timings'))
         self.word_level_timings_checkbox.stateChanged.connect(
             self.on_word_level_timings_changed)
         self.word_level_timings_checkbox.setDisabled(True)
 
         grid = (
-            ((0, 5, FormLabel('Task:', parent=self)), (5, 7, self.tasks_combo_box)),
-            ((0, 5, FormLabel('Language:', parent=self)),
+            ((0, 5, FormLabel(gettext.gettext('Task:'), parent=self)), (5, 7, self.tasks_combo_box)),
+            ((0, 5, FormLabel(gettext.gettext('Language:'), parent=self)),
              (5, 7, self.languages_combo_box)),
-            ((0, 5, FormLabel('Quality:', parent=self)),
+            ((0, 5, FormLabel(gettext.gettext('Quality:'), parent=self)),
              (5, 7, self.quality_combo_box)),
-            ((0, 5, FormLabel('Export As:', self)),
+            ((0, 5, FormLabel(gettext.gettext('Export As:'), self)),
              (5, 7, output_formats_combo_box)),
             ((5, 7, self.word_level_timings_checkbox),),
             ((9, 3, self.run_button),)
@@ -636,11 +648,11 @@ class RecordingTranscriberWidget(QWidget):
         self.text_box = TextDisplayBox(self)
 
         grid = (
-            ((0, 5, FormLabel('Task:', self)), (5, 7, self.tasks_combo_box)),
-            ((0, 5, FormLabel('Language:', self)),
+            ((0, 5, FormLabel(gettext.gettext('Task:'), self)), (5, 7, self.tasks_combo_box)),
+            ((0, 5, FormLabel(gettext.gettext('Language:'), self)),
              (5, 7, self.languages_combo_box)),
-            ((0, 5, FormLabel('Quality:', self)), (5, 7, self.quality_combo_box)),
-            ((0, 5, FormLabel('Microphone:', self)),
+            ((0, 5, FormLabel(gettext.gettext('Quality:'), self)), (5, 7, self.quality_combo_box)),
+            ((0, 5, FormLabel(gettext.gettext('Microphone:'), self)),
              (5, 7, self.audio_devices_combo_box)),
             ((6, 3, self.timer_label), (9, 3, self.record_button)),
             ((0, 12, self.text_box),),
@@ -817,7 +829,7 @@ class AboutDialog(QDialog):
         version_number = response.get('name')
         if version_number == 'v' + VERSION:
             dialog = QMessageBox(self)
-            dialog.setText("You're up to date!")
+            dialog.setText(_("You're up to date!"))
             dialog.exec()
         else:
             QDesktopServices.openUrl(
@@ -834,14 +846,14 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(f'{title} - {APP_NAME}')
         self.setWindowIcon(AppIcon())
 
-        import_audio_file_action = QAction("&Import Audio File...", self)
+        import_audio_file_action = QAction(gettext.gettext("&Import Audio File..."), self)
         import_audio_file_action.triggered.connect(
             self.on_import_audio_file_action)
         import_audio_file_action.setShortcut(QKeySequence.fromString('Ctrl+O'))
 
         menu = self.menuBar()
 
-        self.file_menu = menu.addMenu("&File")
+        self.file_menu = menu.addMenu(gettext.gettext("&File"))
         self.file_menu.addAction(import_audio_file_action)
 
         self.about_action = QAction(f'&About {APP_NAME}', self)
@@ -850,7 +862,7 @@ class MainWindow(QMainWindow):
         self.settings = Settings(self)
 
         enable_ggml_inference_action = QAction(
-            '&Enable GGML Inference', self)
+            gettext.gettext('&Enable GGML Inference'), self)
         enable_ggml_inference_action.setCheckable(True)
         enable_ggml_inference_action.setChecked(
             bool(self.settings.get_enable_ggml_inference()))
@@ -858,15 +870,16 @@ class MainWindow(QMainWindow):
             self.on_toggle_enable_ggml_inference)
         enable_ggml_inference_action.setDisabled(LOADED_WHISPER_DLL is False)
 
-        settings_menu = menu.addMenu("&Settings")
+        settings_menu = menu.addMenu(gettext.gettext("&Settings"))
         settings_menu.addAction(enable_ggml_inference_action)
 
-        self.help_menu = menu.addMenu("&Help")
+        self.help_menu = menu.addMenu(gettext.gettext("&Help"))
         self.help_menu.addAction(self.about_action)
 
     def on_import_audio_file_action(self):
         (file_path, _) = QFileDialog.getOpenFileName(
-            self, 'Select audio file', '', 'Audio Files (*.mp3 *.wav *.m4a *.ogg);;Video Files (*.mp4 *.webm *.ogm)')
+            self, gettext.gettext('Select audio file'), '',
+            gettext.gettext('Audio Files (*.mp3 *.wav *.m4a *.ogg);;Video Files (*.mp4 *.webm *.ogm)'))
         if file_path == '':
             return
         self.new_import_window_triggered.emit((file_path, self.geometry()))
@@ -881,7 +894,7 @@ class MainWindow(QMainWindow):
 
 class RecordingTranscriberMainWindow(MainWindow):
     def __init__(self, parent: Optional[QWidget], *args) -> None:
-        super().__init__(title='Live Recording', w=400, h=500, parent=parent, *args)
+        super().__init__(title=gettext.gettext('Live Recording'), w=400, h=500, parent=parent, *args)
 
         self.central_widget = RecordingTranscriberWidget(self)
         self.central_widget.setContentsMargins(10, 10, 10, 10)
@@ -934,3 +947,4 @@ class Application(QApplication):
 
         window.new_import_window_triggered.connect(self.open_import_window)
         window.show()
+

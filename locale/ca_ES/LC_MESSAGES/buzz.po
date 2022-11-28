@@ -1,0 +1,105 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Jordi Mas i Hernàndez <jmas@softcatala.org>, 2022
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-11-28 10:40+0100\n"
+"PO-Revision-Date: 2022-11-28 13:49+0100\n"
+"Last-Translator: Jordi Mas i Hernàndez <jmas@softcatala.org>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: gui.py:186
+msgid "Click Record to begin..."
+msgstr "Feu click a Enregistra per a començar"
+
+#: gui.py:201 gui.py:221
+msgid "Record"
+msgstr "Enregistra"
+
+#: gui.py:218
+msgid "Stop"
+msgstr "Atura"
+
+#: gui.py:232
+msgid "Downloading resources (0%, unknown time remaining)"
+msgstr "S'estan baixant els recursos (0%, temps desconegut restant)"
+
+#: gui.py:233 gui.py:257
+msgid "Cancel"
+msgstr "Cancel·la"
+
+#: gui.py:256
+msgid "Processing {} (0%, unknown time remaining)"
+msgstr "S'està processant {} (0%, temps restant desconegut)"
+
+#: gui.py:428
+msgid "Run"
+msgstr "Executa"
+
+#: gui.py:437
+msgid "Word-level timings"
+msgstr "Temps a nivell de paraula"
+
+#: gui.py:443 gui.py:635
+msgid "Task:"
+msgstr "Tasca:"
+
+#: gui.py:444 gui.py:636
+msgid "Language:"
+msgstr "Idioma:"
+
+#: gui.py:446 gui.py:638
+msgid "Quality:"
+msgstr "Qualitat:"
+
+#: gui.py:448
+msgid "Export As:"
+msgstr "Exporta com a:"
+
+#: gui.py:639
+msgid "Microphone:"
+msgstr "Micròfon:"
+
+#: gui.py:798
+msgid "You're up to date!"
+msgstr "Estàs al dia!"
+
+#: gui.py:815
+msgid "&Import Audio File..."
+msgstr "&Importa fitxer d'àudio..."
+
+#: gui.py:822
+msgid "&File"
+msgstr "&Fitxer"
+
+#: gui.py:831
+msgid "&Enable GGML Inference"
+msgstr "&Habilita la inferència GGML"
+
+#: gui.py:839
+msgid "&Settings"
+msgstr "&Paràmetres"
+
+#: gui.py:842
+msgid "&Help"
+msgstr "&Ajuda"
+
+#: gui.py:847
+msgid "Select audio file"
+msgstr "Selecciona un fitxer d'àudio"
+
+#: gui.py:848
+msgid "Audio Files (*.mp3 *.wav *.m4a *.ogg);;Video Files (*.mp4 *.webm *.ogm)"
+msgstr "Fitxers d'àudio (*.mp3 *.wav *.m4a *.ogg);;Fitxer de vídeo (*.mp4 *.webm *.ogm)"
+
+#: gui.py:863
+msgid "Live Recording"
+msgstr "Enregistrament en viu"
