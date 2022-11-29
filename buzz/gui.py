@@ -9,8 +9,8 @@ from typing import Any, Dict, List, Optional, Tuple
 import humanize
 import sounddevice
 from PyQt6 import QtGui
-from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt, QTimer,
-                          QUrl, pyqtSignal, QThreadPool, QLocale)
+from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt,
+                          QThreadPool, QTimer, QUrl, pyqtSignal, QLocale)
 from PyQt6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
                          QKeySequence, QPixmap, QTextCursor)
 from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
@@ -21,6 +21,7 @@ from requests import get
 from whisper import tokenizer
 
 from .__version__ import VERSION
+from .model_loader import ModelLoader
 from .transcriber import FileTranscriber, OutputFormat, RecordingTranscriber
 from .whispr import LOADED_WHISPER_DLL, Task
 from .model_loader import ModelLoader
@@ -782,7 +783,7 @@ class AppIcon(QIcon):
 
 
 class AboutDialog(QDialog):
-    def __init__(self, parent: Optional[QWidget]=None) -> None:
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
 
         self.setFixedSize(200, 200)
@@ -878,8 +879,7 @@ class MainWindow(QMainWindow):
 
     def on_import_audio_file_action(self):
         (file_path, _) = QFileDialog.getOpenFileName(
-            self, gettext.gettext('Select audio file'), '',
-            gettext.gettext('Audio Files (*.mp3 *.wav *.m4a *.ogg);;Video Files (*.mp4 *.webm *.ogm)'))
+            self, gettext.gettext('Select audio file'), '', FileTranscriber.SUPPORTED_FILE_FORMATS)
         if file_path == '':
             return
         self.new_import_window_triggered.emit((file_path, self.geometry()))

@@ -207,6 +207,7 @@ class FileTranscriber:
     stopped = False
     current_thread: Optional[Thread] = None
     current_process: Optional[multiprocessing.Process] = None
+    SUPPORTED_FILE_FORMATS = 'Audio files (*.mp3 *.wav *.m4a *.ogg);;Video files (*.mp4 *.webm *.ogm *.mov);;All files (*.*)'
 
     class Event():
         pass
