@@ -19,8 +19,11 @@ To install Buzz, download the [latest version](https://github.com/chidiwilliams/
 
 ### Mac (macOS 11.7 and above)
 
-- Download and open the `Buzz-x.y.z-dmg` file.
-- After the installation window opens, drag the Buzz icon into the folder to add Buzz to your Applications directory.
+Install via [brew](https://brew.sh/):
+
+```sh
+$ brew install --cask buzz
+```
 
 ### Windows
 
