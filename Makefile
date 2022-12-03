@@ -82,6 +82,7 @@ $(LIBWHISPER) whisper_cpp:
 	cp whisper.cpp/build/$(LIBWHISPER) . || true
 	cp whisper.cpp/build/bin/main whisper_cpp || true
 	./whisper_cpp
+	whisper_cpp
 
 buzz/whisper_cpp.py: $(LIBWHISPER) whisper_cpp
 	ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o buzz/whisper_cpp.py
