@@ -175,6 +175,9 @@ def to_timestamp(ms: float) -> str:
 
 
 def write_output(path: str, segments: List[Segment], should_open: bool, output_format: OutputFormat):
+    logging.debug(
+        'Writing transcription output, path = %s, output format = %s, number of segments = %s', path, output_format, len(segments))
+
     with open(path, 'w', encoding='utf-8') as file:
         if output_format == OutputFormat.TXT:
             for segment in segments:
@@ -234,11 +237,6 @@ class WhisperCppFileTranscriber(QRunnable):
         self.process.readyReadStandardError.connect(self.read_std_err)
         self.process.readyReadStandardOutput.connect(self.read_std_out)
 
-    def stop(self):
-        process_state = self.process.state()
-        if process_state == QProcess.ProcessState.Starting or process_state == QProcess.ProcessState.Running:
-            self.process.terminate()
-
     @pyqtSlot()
     def run(self):
         logging.debug(
@@ -268,6 +266,7 @@ class WhisperCppFileTranscriber(QRunnable):
         self.process.waitForFinished()
 
         status = self.process.exitStatus()
+        logging.debug('whisper_cpp process completed with status = %s', status)
         if status == QProcess.ExitStatus.NormalExit:
             self.signals.progress.emit(
                 (self.duration_audio_ms, self.duration_audio_ms))
@@ -276,8 +275,15 @@ class WhisperCppFileTranscriber(QRunnable):
 
         self.signals.completed.emit(True)
 
+    def stop(self):
+        process_state = self.process.state()
+        if process_state == QProcess.ProcessState.Starting or process_state == QProcess.ProcessState.Running:
+            self.process.terminate()
+
     def read_std_out(self):
         output = self.process.readAllStandardOutput().data().decode('UTF-8').strip()
+        logging.debug('whisper_cpp (stdout): %s', output)
+
         if len(output) > 0:
             lines = output.split('\n')
             for line in lines:
@@ -298,7 +304,7 @@ class WhisperCppFileTranscriber(QRunnable):
 
     def read_std_err(self):
         output = self.process.readAllStandardError().data().decode('UTF-8').strip()
-        logging.debug('whisper_cpp: %s', output)
+        logging.debug('whisper_cpp (stderr): %s', output)
 
         lines = output.split('\n')
         for line in lines:
