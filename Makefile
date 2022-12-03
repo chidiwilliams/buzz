@@ -43,6 +43,7 @@ endif
 
 clean:
 	rm -f $(LIBWHISPER)
+	rm -f whisper_cpp
 	rm -f buzz/whisper_cpp.py
 	rm -rf dist/* || true
 
@@ -73,13 +74,15 @@ else
 	endif
 endif
 
-$(LIBWHISPER):
+$(LIBWHISPER) whisper_cpp:
 	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS)
 	cmake --build whisper.cpp/build --verbose
-	cp whisper.cpp/build/$(LIBWHISPER) . || true
 	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) . || true
+	cp whisper.cpp/build/bin/Debug/main whisper_cpp || true
+	cp whisper.cpp/build/$(LIBWHISPER) . || true
+	cp whisper.cpp/build/bin/main whisper_cpp || true
 
-buzz/whisper_cpp.py: $(LIBWHISPER)
+buzz/whisper_cpp.py: $(LIBWHISPER) whisper_cpp
 	ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o buzz/whisper_cpp.py
 
 staple_app_mac:

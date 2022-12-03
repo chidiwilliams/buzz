@@ -1,6 +1,8 @@
 {
   "files.associations": {
-    "Buzz.spec": "python"
+    ".coveragerc": "ini",
+    "Buzz.spec": "python",
+    "iosfwd": "cpp"
   },
   "files.exclude": {
     "**/.git": true,

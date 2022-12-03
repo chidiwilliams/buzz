@@ -26,8 +26,8 @@ class Stopped(Exception):
 
 @dataclass
 class Segment:
-    start: float
-    end: float
+    start: int  # start time in ms
+    end: int  # end time in ms
     text: str
 
 
@@ -95,33 +95,12 @@ def tqdm_progress(line: str):
     return int(percent_progress)
 
 
-def whisper_cpp_progress(lines: str):
-    """Extracts the progress of a whisper.cpp transcription.
-
-    The log lines have the following format:
-        whisper_full: progress = 20%\n
-    """
-
-    # Example log line: "whisper_full: progress = 20%"
-    progress_lines = list(filter(lambda line: line.startswith(
-        'whisper_full: progress'), lines.split('\n')))
-    if len(progress_lines) == 0:
-        raise ValueError('No lines match whisper.cpp progress format')
-    last_word = progress_lines[-1].split(' ')[-1]
-    return min(int(last_word[:-1]), 100)
-
-
-def read_progress(
-        pipe: Connection, use_whisper_cpp: bool,
-        progress_callback: Callable[[int, int], None]):
+def read_progress(pipe: Connection, progress_callback: Callable[[int, int], None]):
     while pipe.closed is False:
         try:
             recv = pipe.recv().strip()
             if recv:
-                if use_whisper_cpp:
-                    progress = whisper_cpp_progress(recv)
-                else:
-                    progress = tqdm_progress(recv)
+                progress = tqdm_progress(recv)
                 progress_callback(progress, 100)
         except ValueError:
             pass

@@ -1,13 +1,16 @@
+import logging
 import os
 import pathlib
 import tempfile
 import time
+from unittest.mock import Mock
 
 import pytest
 
 from buzz.model_loader import ModelLoader
 from buzz.transcriber import (FileTranscriber, OutputFormat,
-                              RecordingTranscriber, to_timestamp)
+                              RecordingTranscriber, WhisperCppFileTranscriber,
+                              to_timestamp)
 from buzz.whispr import Task
 
 
@@ -31,6 +34,37 @@ class TestRecordingTranscriber:
             model_path=model_path, use_whisper_cpp=True, language='en',
             task=Task.TRANSCRIBE)
         assert transcriber is not None
+
+
+class TestWhisperCppFileTranscriber:
+    @pytest.mark.parametrize(
+        'task,output_text',
+        [
+            (Task.TRANSCRIBE, 'Bienvenue dans Passe-Relle, un podcast'),
+            (Task.TRANSLATE, 'Welcome to Passe-Relle, a podcast'),
+        ])
+    def test_transcribe(self, tmp_path: pathlib.Path, task: Task, output_text: str):
+        output_file_path = tmp_path / 'whisper_cpp.txt'
+        if os.path.exists(output_file_path):
+            os.remove(output_file_path)
+
+        model_path = get_model_path('tiny', True)
+        transcriber = WhisperCppFileTranscriber(
+            model_path=model_path, language='fr',
+            task=task, file_path='testdata/whisper-french.mp3',
+            output_file_path=output_file_path.as_posix(), output_format=OutputFormat.TXT,
+            open_file_on_complete=False,
+            word_level_timings=False)
+        mock_progress = Mock()
+        transcriber.signals.progress.connect(mock_progress)
+        transcriber.run()
+
+        assert os.path.isfile(output_file_path)
+
+        output_file = open(output_file_path, 'r', encoding='utf-8')
+        assert output_text in output_file.read()
+
+        mock_progress.assert_called()
 
 
 class TestFileTranscriber:
@@ -64,7 +98,7 @@ class TestFileTranscriber:
 
         model_path = get_model_path('tiny', False)
         transcriber = FileTranscriber(
-            model_path=model_path, use_whisper_cpp=False, language='fr',
+            model_path=model_path, language='fr',
             task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
             output_file_path=output_file_path.as_posix(), output_format=output_format,
             open_file_on_complete=False, event_callback=event_callback,
@@ -97,7 +131,7 @@ class TestFileTranscriber:
 
         model_path = get_model_path('tiny', False)
         transcriber = FileTranscriber(
-            model_path=model_path, use_whisper_cpp=False, language='fr',
+            model_path=model_path, language='fr',
             task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
             output_file_path=output_file_path, output_format=OutputFormat.TXT,
             open_file_on_complete=False, event_callback=event_callback,
@@ -108,32 +142,6 @@ class TestFileTranscriber:
 
         # Assert that file was not created
         assert os.path.isfile(output_file_path) is False
-
-    def test_transcribe_whisper_cpp(self):
-        output_file_path = os.path.join(
-            tempfile.gettempdir(), 'whisper_cpp.txt')
-        if os.path.exists(output_file_path):
-            os.remove(output_file_path)
-
-        events = []
-
-        def event_callback(event: FileTranscriber.Event):
-            events.append(event)
-
-        model_path = get_model_path('tiny', True)
-        transcriber = FileTranscriber(
-            model_path=model_path, use_whisper_cpp=True, language='fr',
-            task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
-            output_file_path=output_file_path, output_format=OutputFormat.TXT,
-            open_file_on_complete=False, event_callback=event_callback,
-            word_level_timings=False)
-        transcriber.start()
-        transcriber.join()
-
-        assert os.path.isfile(output_file_path)
-
-        output_file = open(output_file_path, 'r', encoding='utf-8')
-        assert 'Bienvenue dans Passe-Relle, un podcast' in output_file.read()
 
 
 class TestToTimestamp:
