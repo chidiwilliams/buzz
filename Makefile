@@ -77,13 +77,11 @@ endif
 $(LIBWHISPER) whisper_cpp:
 	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS)
 	cmake --build whisper.cpp/build --verbose
-	ls -lA whisper.cpp/build/
-	ls -lA whisper.cpp/build/bin
-	ls -lA whisper.cpp/build/bin/Debug
 	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) . || true
 	cp whisper.cpp/build/bin/Debug/main whisper_cpp || true
 	cp whisper.cpp/build/$(LIBWHISPER) . || true
 	cp whisper.cpp/build/bin/main whisper_cpp || true
+	./whisper_cpp
 
 buzz/whisper_cpp.py: $(LIBWHISPER) whisper_cpp
 	ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o buzz/whisper_cpp.py
