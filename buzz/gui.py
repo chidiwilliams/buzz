@@ -4,7 +4,7 @@ import os
 import platform
 import sys
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import humanize
 import sounddevice
@@ -382,8 +382,8 @@ class FileTranscriberWidget(QWidget):
     enabled_word_level_timings = False
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     transcriber_progress_dialog: Optional[TranscriberProgressDialog] = None
-    file_transcriber: Optional[FileTranscriberObject |
-                               WhisperCppFileTranscriber] = None
+    file_transcriber: Optional[Union[FileTranscriberObject,
+                                     WhisperCppFileTranscriber]] = None
     model_loader: Optional[ModelLoader] = None
 
     def __init__(self, file_path: str, parent: Optional[QWidget]) -> None:
