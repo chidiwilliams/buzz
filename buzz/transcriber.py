@@ -264,7 +264,7 @@ class WhisperCppFileTranscriber(QRunnable):
 
         logging.debug('Running whisper_cpp process, args = %s', args)
 
-        self.process.start('whisper_cpp', args)
+        self.process.start('./whisper_cpp', args)
         self.process.waitForFinished()
 
         status = self.process.exitStatus()
