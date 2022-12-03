@@ -77,6 +77,7 @@ endif
 $(LIBWHISPER) whisper_cpp:
 	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS)
 	cmake --build whisper.cpp/build --verbose
+	tree whisper.cpp
 	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) . || true
 	cp whisper.cpp/build/bin/Debug/main whisper_cpp || true
 	cp whisper.cpp/build/$(LIBWHISPER) . || true
