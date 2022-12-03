@@ -81,7 +81,6 @@ $(LIBWHISPER) whisper_cpp:
 	cp whisper.cpp/build/bin/Debug/main whisper_cpp || true
 	cp whisper.cpp/build/$(LIBWHISPER) . || true
 	cp whisper.cpp/build/bin/main whisper_cpp || true
-	./whisper_cpp
 	whisper_cpp
 
 buzz/whisper_cpp.py: $(LIBWHISPER) whisper_cpp
