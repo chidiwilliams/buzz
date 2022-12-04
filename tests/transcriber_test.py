@@ -43,7 +43,7 @@ class TestWhisperCppFileTranscriber:
             (Task.TRANSCRIBE, 'Bienvenue dans Passe-Relle, un podcast'),
             (Task.TRANSLATE, 'Welcome to Passe-Relle, a podcast'),
         ])
-    def test_transcribe(self, tmp_path: pathlib.Path, task: Task, output_text: str):
+    def test_transcribe(self, qtbot, tmp_path: pathlib.Path, task: Task, output_text: str):
         output_file_path = tmp_path / 'whisper_cpp.txt'
         if os.path.exists(output_file_path):
             os.remove(output_file_path)
@@ -56,8 +56,9 @@ class TestWhisperCppFileTranscriber:
             open_file_on_complete=False,
             word_level_timings=False)
         mock_progress = Mock()
-        transcriber.signals.progress.connect(mock_progress)
-        transcriber.run()
+        with qtbot.waitSignal(transcriber.signals.completed, timeout=10000):
+            transcriber.signals.progress.connect(mock_progress)
+            transcriber.run()
 
         assert os.path.isfile(output_file_path)
 

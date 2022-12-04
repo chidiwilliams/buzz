@@ -236,6 +236,7 @@ class WhisperCppFileTranscriber(QRunnable):
         self.process = QProcess()
         self.process.readyReadStandardError.connect(self.read_std_err)
         self.process.readyReadStandardOutput.connect(self.read_std_out)
+        self.process.finished.connect(self.on_process_finished)
 
     @pyqtSlot()
     def run(self):
@@ -263,8 +264,8 @@ class WhisperCppFileTranscriber(QRunnable):
         logging.debug('Running whisper_cpp process, args = %s', args)
 
         self.process.start('./whisper_cpp', args)
-        self.process.waitForFinished()
 
+    def on_process_finished(self):
         status = self.process.exitStatus()
         logging.debug('whisper_cpp process completed with status = %s', status)
         if status == QProcess.ExitStatus.NormalExit:
