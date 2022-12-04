@@ -283,7 +283,6 @@ class WhisperCppFileTranscriber(QRunnable):
 
     def read_std_out(self):
         output = self.process.readAllStandardOutput().data().decode('UTF-8').strip()
-        logging.debug('whisper_cpp (stdout): %s', output)
 
         if len(output) > 0:
             lines = output.split('\n')
