@@ -56,7 +56,7 @@ class TestWhisperCppFileTranscriber:
             open_file_on_complete=False,
             word_level_timings=False)
         mock_progress = Mock()
-        with qtbot.waitSignal(transcriber.signals.completed, timeout=10000):
+        with qtbot.waitSignal(transcriber.signals.completed, timeout=100_000):
             transcriber.signals.progress.connect(mock_progress)
             transcriber.run()
 
