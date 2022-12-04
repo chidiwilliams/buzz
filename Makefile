@@ -84,7 +84,7 @@ $(LIBWHISPER) whisper_cpp:
 	cp whisper.cpp/build/$(LIBWHISPER) . || true
 	cp whisper.cpp/build/bin/main whisper_cpp || true
 
-buzz/whisper_cpp.py: $(LIBWHISPER) whisper_cpp
+buzz/whisper_cpp.py: $(LIBWHISPER)
 	ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o buzz/whisper_cpp.py
 
 staple_app_mac:
