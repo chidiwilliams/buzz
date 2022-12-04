@@ -4,7 +4,7 @@ import os
 import platform
 import sys
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import humanize
 import sounddevice
@@ -22,7 +22,8 @@ from whisper import tokenizer
 
 from .__version__ import VERSION
 from .model_loader import ModelLoader
-from .transcriber import FileTranscriber, OutputFormat, RecordingTranscriber
+from .transcriber import (FileTranscriber, OutputFormat, RecordingTranscriber,
+                          WhisperCppFileTranscriber)
 from .whispr import LOADED_WHISPER_DLL, Task
 
 APP_NAME = 'Buzz'
@@ -267,26 +268,21 @@ class TranscriberProgressDialog(QProgressDialog):
 
 
 class FileTranscriberObject(QObject):
-    download_model_progress = pyqtSignal(tuple)
     event_received = pyqtSignal(object)
     transcriber: FileTranscriber
 
     def __init__(
-        self, model_path: str, use_whisper_cpp: bool, language: Optional[str],
+        self, model_path: str, language: Optional[str],
         task: Task, file_path: str, output_file_path: str,
         output_format: OutputFormat, word_level_timings: bool,
             parent: Optional['QObject'], *args) -> None:
         super().__init__(parent, *args)
         self.transcriber = FileTranscriber(
-            model_path=model_path, use_whisper_cpp=use_whisper_cpp,
-            on_download_model_chunk=self.on_download_model_progress,
+            model_path=model_path,
             language=language, task=task, file_path=file_path,
             output_file_path=output_file_path, output_format=output_format,
             event_callback=self.on_file_transcriber_event,
             word_level_timings=word_level_timings)
-
-    def on_download_model_progress(self, current: int, total: int):
-        self.download_model_progress.emit((current, total))
 
     def on_file_transcriber_event(self, event: FileTranscriber.Event):
         self.event_received.emit(event)
@@ -386,7 +382,8 @@ class FileTranscriberWidget(QWidget):
     enabled_word_level_timings = False
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     transcriber_progress_dialog: Optional[TranscriberProgressDialog] = None
-    file_transcriber: Optional[FileTranscriberObject] = None
+    file_transcriber: Optional[Union[FileTranscriberObject,
+                                     WhisperCppFileTranscriber]] = None
     model_loader: Optional[ModelLoader] = None
 
     def __init__(self, file_path: str, parent: Optional[QWidget]) -> None:
@@ -482,17 +479,28 @@ class FileTranscriberWidget(QWidget):
             if self.model_download_progress_dialog is not None:
                 self.model_download_progress_dialog = None
 
-            self.file_transcriber = FileTranscriberObject(
-                model_path=model_path, use_whisper_cpp=use_whisper_cpp,
-                file_path=self.file_path,
-                language=self.selected_language, task=self.selected_task,
-                output_file_path=output_file, output_format=self.selected_output_format,
-                word_level_timings=self.enabled_word_level_timings,
-                parent=self)
-            self.file_transcriber.event_received.connect(
-                self.on_transcriber_event)
-
-            self.file_transcriber.start()
+            if use_whisper_cpp:
+                self.file_transcriber = WhisperCppFileTranscriber(
+                    model_path=model_path, file_path=self.file_path,
+                    language=self.selected_language, task=self.selected_task,
+                    output_file_path=output_file, output_format=self.selected_output_format,
+                    word_level_timings=self.enabled_word_level_timings,
+                )
+                self.file_transcriber.signals.progress.connect(
+                    self.on_transcriber_progress)
+                self.file_transcriber.signals.completed.connect(
+                    self.on_transcriber_complete)
+                self.pool.start(self.file_transcriber)
+            else:
+                self.file_transcriber = FileTranscriberObject(
+                    model_path=model_path, file_path=self.file_path,
+                    language=self.selected_language, task=self.selected_task,
+                    output_file_path=output_file, output_format=self.selected_output_format,
+                    word_level_timings=self.enabled_word_level_timings,
+                    parent=self)
+                self.file_transcriber.event_received.connect(
+                    self.on_transcriber_event)
+                self.file_transcriber.start()
 
         self.model_loader = ModelLoader(
             name=model_name, use_whisper_cpp=use_whisper_cpp)
@@ -522,22 +530,28 @@ class FileTranscriberWidget(QWidget):
 
     def on_transcriber_event(self, event: FileTranscriber.Event):
         if isinstance(event, FileTranscriber.ProgressEvent):
-            current_size = event.current_value
-            total_size = event.max_value
-
-            # Create a dialog
-            if self.transcriber_progress_dialog is None:
-                self.transcriber_progress_dialog = TranscriberProgressDialog(
-                    file_path=self.file_path, total_size=total_size, parent=self)
-                self.transcriber_progress_dialog.canceled.connect(
-                    self.on_cancel_transcriber_progress_dialog)
-
-            # Update the progress of the dialog unless it has
-            # been canceled before this progress update arrived
-            if self.transcriber_progress_dialog is not None:
-                self.transcriber_progress_dialog.update_progress(current_size)
+            self.on_transcriber_progress(
+                (event.current_value, event.max_value))
         elif isinstance(event, FileTranscriber.CompletedTranscriptionEvent):
-            self.reset_transcription()
+            self.on_transcriber_complete()
+
+    def on_transcriber_progress(self, progress: Tuple[int, int]):
+        (current_size, total_size) = progress
+
+        # Create a dialog
+        if self.transcriber_progress_dialog is None:
+            self.transcriber_progress_dialog = TranscriberProgressDialog(
+                file_path=self.file_path, total_size=total_size, parent=self)
+            self.transcriber_progress_dialog.canceled.connect(
+                self.on_cancel_transcriber_progress_dialog)
+
+        # Update the progress of the dialog unless it has
+        # been canceled before this progress update arrived
+        if self.transcriber_progress_dialog is not None:
+            self.transcriber_progress_dialog.update_progress(current_size)
+
+    def on_transcriber_complete(self):
+        self.reset_transcription()
 
     def on_cancel_transcriber_progress_dialog(self):
         if self.file_transcriber is not None:
@@ -547,6 +561,7 @@ class FileTranscriberWidget(QWidget):
     def reset_transcription(self):
         self.run_button.setDisabled(False)
         if self.transcriber_progress_dialog is not None:
+            self.transcriber_progress_dialog.close()
             self.transcriber_progress_dialog = None
 
     def on_cancel_model_progress_dialog(self):

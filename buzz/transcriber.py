@@ -4,21 +4,25 @@ import logging
 import multiprocessing
 import os
 import platform
+import re
 import subprocess
+import sys
+import tempfile
 import threading
-import typing
 from dataclasses import dataclass
 from multiprocessing.connection import Connection
 from threading import Thread
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Tuple
 
+import ffmpeg
 import numpy as np
 import sounddevice
 import stable_whisper
 import whisper
+from PyQt6.QtCore import QObject, QProcess, QRunnable, pyqtSignal, pyqtSlot
 from sounddevice import PortAudioError
 
-from .conn import pipe_stderr, pipe_stdout
+from .conn import pipe_stderr
 from .whispr import (Segment, Task, WhisperCpp, read_progress,
                      whisper_cpp_params)
 
@@ -171,27 +175,27 @@ def to_timestamp(ms: float) -> str:
 
 
 def write_output(path: str, segments: List[Segment], should_open: bool, output_format: OutputFormat):
-    file = open(path, 'w', encoding='utf-8')
+    logging.debug(
+        'Writing transcription output, path = %s, output format = %s, number of segments = %s', path, output_format, len(segments))
 
-    if output_format == OutputFormat.TXT:
-        for segment in segments:
-            file.write(segment.text)
+    with open(path, 'w', encoding='utf-8') as file:
+        if output_format == OutputFormat.TXT:
+            for segment in segments:
+                file.write(segment.text + ' ')
 
-    elif output_format == OutputFormat.VTT:
-        file.write('WEBVTT\n\n')
-        for segment in segments:
-            file.write(
-                f'{to_timestamp(segment.start)} --> {to_timestamp(segment.end)}\n')
-            file.write(f'{segment.text}\n\n')
+        elif output_format == OutputFormat.VTT:
+            file.write('WEBVTT\n\n')
+            for segment in segments:
+                file.write(
+                    f'{to_timestamp(segment.start)} --> {to_timestamp(segment.end)}\n')
+                file.write(f'{segment.text}\n\n')
 
-    elif output_format == OutputFormat.SRT:
-        for (i, segment) in enumerate(segments):
-            file.write(f'{i+1}\n')
-            file.write(
-                f'{to_timestamp(segment.start)} --> {to_timestamp(segment.end)}\n')
-            file.write(f'{segment.text}\n\n')
-
-    file.close()
+        elif output_format == OutputFormat.SRT:
+            for (i, segment) in enumerate(segments):
+                file.write(f'{i+1}\n')
+                file.write(
+                    f'{to_timestamp(segment.start)} --> {to_timestamp(segment.end)}\n')
+                file.write(f'{segment.text}\n\n')
 
     if should_open:
         try:
@@ -199,6 +203,116 @@ def write_output(path: str, segments: List[Segment], should_open: bool, output_f
         except AttributeError:
             opener = "open" if platform.system() == "Darwin" else "xdg-open"
             subprocess.call([opener, path])
+
+
+class WhisperCppFileTranscriber(QRunnable):
+    class Signals(QObject):
+        progress = pyqtSignal(tuple)  # (current, total)
+        completed = pyqtSignal(bool)
+        error = pyqtSignal(str)
+
+    signals: Signals
+    duration_audio_ms = sys.maxsize  # max int
+    segments: List[Segment] = []
+
+    def __init__(
+            self,
+            model_path: str, language: Optional[str], task: Task, file_path: str,
+            output_file_path: str, output_format: OutputFormat,
+            word_level_timings: bool, open_file_on_complete=True,
+    ) -> None:
+        super(WhisperCppFileTranscriber, self).__init__()
+
+        self.file_path = file_path
+        self.output_file_path = output_file_path
+        self.language = language
+        self.task = task
+        self.open_file_on_complete = open_file_on_complete
+        self.output_format = output_format
+        self.word_level_timings = word_level_timings
+        self.model_path = model_path
+        self.signals = self.Signals()
+
+        self.process = QProcess()
+        self.process.readyReadStandardError.connect(self.read_std_err)
+        self.process.readyReadStandardOutput.connect(self.read_std_out)
+        self.process.finished.connect(self.on_process_finished)
+
+    @pyqtSlot()
+    def run(self):
+        logging.debug(
+            'Starting file transcription, file path = %s, language = %s, task = %s, output file path = %s, output format = %s, model_path = %s',
+            self.file_path, self.language, self.task, self.output_file_path, self.output_format, self.model_path)
+
+        wav_file = tempfile.mktemp()+'.wav'
+        (
+            ffmpeg.input(self.file_path)
+            .output(wav_file, acodec="pcm_s16le", ac=1, ar=whisper.audio.SAMPLE_RATE)
+            .run(cmd=["ffmpeg", "-nostdin"], capture_stdout=True, capture_stderr=True)
+        )
+
+        args = [
+            '--language', self.language if self.language is not None else 'en',
+            '--max-len', '1' if self.word_level_timings else '0',
+            '--model', self.model_path,
+            '--verbose'
+        ]
+        if self.task == Task.TRANSLATE:
+            args.append('--translate')
+        args.append(wav_file)
+
+        logging.debug('Running whisper_cpp process, args = %s', args)
+
+        self.process.start('./whisper_cpp', args)
+
+    def on_process_finished(self):
+        status = self.process.exitStatus()
+        logging.debug('whisper_cpp process completed with status = %s', status)
+        if status == QProcess.ExitStatus.NormalExit:
+            self.signals.progress.emit(
+                (self.duration_audio_ms, self.duration_audio_ms))
+            write_output(
+                self.output_file_path, self.segments, self.open_file_on_complete, self.output_format)
+
+        self.signals.completed.emit(True)
+
+    def stop(self):
+        process_state = self.process.state()
+        if process_state == QProcess.ProcessState.Starting or process_state == QProcess.ProcessState.Running:
+            self.process.terminate()
+
+    def read_std_out(self):
+        output = self.process.readAllStandardOutput().data().decode('UTF-8').strip()
+        logging.debug('whisper_cpp (stdout): %s', output)
+
+        if len(output) > 0:
+            lines = output.split('\n')
+            for line in lines:
+                timings, text = line.split('  ')
+                start, end = self.parse_timings(timings)
+                segment = Segment(start, end, text.strip())
+                self.segments.append(segment)
+                self.signals.progress.emit((end, self.duration_audio_ms))
+
+    def parse_timings(self, timings: str) -> Tuple[int, int]:
+        start, end = timings[1:len(timings)-1].split(' --> ')
+        return self.parse_timestamp(start), self.parse_timestamp(end)
+
+    def parse_timestamp(self, timestamp: str) -> int:
+        hrs, mins, secs_ms = timestamp.split(':')
+        secs, ms = secs_ms.split('.')
+        return int(hrs)*60*60*1000 + int(mins)*60*1000 + int(secs)*1000 + int(ms)
+
+    def read_std_err(self):
+        output = self.process.readAllStandardError().data().decode('UTF-8').strip()
+        logging.debug('whisper_cpp (stderr): %s', output)
+
+        lines = output.split('\n')
+        for line in lines:
+            if line.startswith('main: processing'):
+                match = re.search(r'samples, (.*) sec', line)
+                if match is not None:
+                    self.duration_audio_ms = round(float(match.group(1))*1000)
 
 
 class FileTranscriber:
@@ -222,13 +336,10 @@ class FileTranscriber:
 
     def __init__(
             self,
-            model_path: str, use_whisper_cpp: bool,
-            language: Optional[str], task: Task, file_path: str,
+            model_path: str, language: Optional[str], task: Task, file_path: str,
             output_file_path: str, output_format: OutputFormat,
             word_level_timings: bool,
             event_callback: Callable[[Event], None] = lambda *_: None,
-            on_download_model_chunk: Callable[[
-                int, int], None] = lambda *_: None,
             open_file_on_complete=True) -> None:
         self.file_path = file_path
         self.output_file_path = output_file_path
@@ -238,8 +349,6 @@ class FileTranscriber:
         self.output_format = output_format
         self.word_level_timings = word_level_timings
         self.model_path = model_path
-        self.use_whisper_cpp = use_whisper_cpp
-        self.on_download_model_chunk = on_download_model_chunk
         self.event_callback = event_callback
 
     def start(self):
@@ -258,31 +367,19 @@ class FileTranscriber:
             return
 
         self.event_callback(self.ProgressEvent(0, 100))
-        if self.use_whisper_cpp:
-            self.current_process = multiprocessing.Process(
-                target=transcribe_whisper_cpp,
-                args=(
-                    send_pipe, self.model_path, self.file_path,
-                    self.output_file_path, self.open_file_on_complete,
-                    self.output_format,
-                    self.language if self.language is not None else 'en',
-                    self.task, True, True,
-                    self.word_level_timings
-                ))
-        else:
-            self.current_process = multiprocessing.Process(
-                target=transcribe_whisper,
-                args=(
-                    send_pipe, self.model_path, self.file_path,
-                    self.language, self.task, self.output_file_path,
-                    self.open_file_on_complete, self.output_format,
-                    self.word_level_timings
-                ))
+        self.current_process = multiprocessing.Process(
+            target=transcribe_whisper,
+            args=(
+                send_pipe, self.model_path, self.file_path,
+                self.language, self.task, self.output_file_path,
+                self.open_file_on_complete, self.output_format,
+                self.word_level_timings
+            ))
 
         self.current_process.start()
 
         thread = Thread(target=read_progress, args=(
-            recv_pipe, self.use_whisper_cpp,
+            recv_pipe,
             lambda current_value, max_value: self.event_callback(self.ProgressEvent(current_value, max_value))))
         thread.start()
 
@@ -351,20 +448,3 @@ def transcribe_whisper(
 
         write_output(output_file_path, list(
             segments), open_file_on_complete, output_format)
-
-
-def transcribe_whisper_cpp(
-        stderr_conn: Connection, model_path: str, audio: typing.Union[np.ndarray, str],
-        output_file_path: str, open_file_on_complete: bool, output_format: OutputFormat,
-        language: str, task: Task, print_realtime: bool, print_progress: bool,
-        word_level_timings: bool):
-    # TODO: capturing output does not work because ctypes functions
-    # See: https://stackoverflow.com/questions/9488560/capturing-print-output-from-shared-library-called-from-python-with-ctypes-module
-    with pipe_stdout(stderr_conn), pipe_stderr(stderr_conn):
-        model = WhisperCpp(model_path)
-        params = whisper_cpp_params(
-            language, task, word_level_timings, print_realtime, print_progress)
-        result = model.transcribe(audio=audio, params=params)
-        segments: List[Segment] = result.get('segments')
-        write_output(
-            output_file_path, segments, open_file_on_complete, output_format)

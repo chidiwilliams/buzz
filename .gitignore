@@ -7,5 +7,6 @@ build/
 .env
 htmlcov/
 libwhisper.*
+whisper_cpp
 whisper.dll
 whisper_cpp.py
