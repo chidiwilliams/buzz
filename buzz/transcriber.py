@@ -255,7 +255,6 @@ class WhisperCppFileTranscriber(QRunnable):
             '--language', self.language if self.language is not None else 'en',
             '--max-len', '1' if self.word_level_timings else '0',
             '--model', self.model_path,
-            '--verbose'
         ]
         if self.task == Task.TRANSLATE:
             args.append('--translate')
