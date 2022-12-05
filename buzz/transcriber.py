@@ -273,25 +273,6 @@ class WhisperCppFileTranscriber(QRunnable):
                     self.duration_audio_ms = round(float(match.group(1))*1000)
 
 
-class ConnReader(QObject):
-    line_sent = pyqtSignal(str)
-    finished = pyqtSignal()
-
-    def __init__(self, conn: Connection, parent: Optional['QObject'] = None) -> None:
-        super().__init__(parent)
-        self.conn = conn
-
-    def run(self):
-        while self.conn.closed is False:
-            try:
-                line = self.conn.recv()
-                logging.debug('line = %s', line)
-                self.line_sent.emit(line)
-            except EOFError:
-                break
-        self.finished.emit()
-
-
 class WhisperFileTranscriber(QRunnable):
     """WhisperFileTranscriber transcribes an audio file to text, writes the text to a file, and then opens the file using the default program for opening txt files."""
 
@@ -316,18 +297,6 @@ class WhisperFileTranscriber(QRunnable):
         self.model_path = model_path
         self.signals = Signals()
 
-        self.recv_pipe, self.send_pipe = multiprocessing.Pipe(duplex=False)
-        self.current_process = multiprocessing.Process(
-            target=transcribe_whisper,
-            args=(
-                self.send_pipe, self.model_path, self.file_path,
-                self.language, self.task, self.output_file_path,
-                self.open_file_on_complete, self.output_format,
-                self.word_level_timings
-            ))
-
-
-
     @pyqtSlot()
     def run(self):
         time_started = datetime.datetime.now()
@@ -335,20 +304,21 @@ class WhisperFileTranscriber(QRunnable):
             'Starting file transcription, file path = %s, language = %s, task = %s, output file path = %s, output format = %s, model_path = %s',
             self.file_path, self.language, self.task, self.output_file_path, self.output_format, self.model_path)
 
+        recv_pipe, send_pipe = multiprocessing.Pipe(duplex=False)
+        self.current_process = multiprocessing.Process(
+            target=transcribe_whisper,
+            args=(
+                send_pipe, self.model_path, self.file_path,
+                self.language, self.task, self.output_file_path,
+                self.open_file_on_complete, self.output_format,
+                self.word_level_timings
+            ))
+
         self.current_process.start()
 
-        # thread = Thread(target=self.read_line, args=(
-        #     self.recv_pipe, self.on_whisper_stdout))
-        # thread.start()
-        self.thread = QThread()
-        self.worker = ConnReader(self.recv_pipe)
-        self.worker.moveToThread(self.thread)
-        self.thread.started.connect(self.worker.run)
-        self.worker.finished.connect(self.thread.quit)
-        self.worker.finished.connect(self.worker.deleteLater)
-        self.thread.finished.connect(self.thread.deleteLater)
-        self.worker.line_sent.connect(self.on_whisper_stdout)
-        self.thread.start()
+        thread = Thread(target=self.read_line, args=(
+            recv_pipe, self.on_whisper_stdout))
+        thread.start()
 
         self.current_process.join()
 
@@ -358,8 +328,8 @@ class WhisperFileTranscriber(QRunnable):
 
         self.current_process.close()
 
-        self.recv_pipe.close()
-        self.send_pipe.close()
+        recv_pipe.close()
+        send_pipe.close()
 
         self.signals.completed.emit(True)
 
@@ -370,10 +340,8 @@ class WhisperFileTranscriber(QRunnable):
 
     def on_whisper_stdout(self, line: str):
         try:
-            logging.debug('line received = %s', line)
             progress = int(line.split('|')[0].strip().strip('%'))
             self.signals.progress.emit((progress, 100))
-            logging.debug(progress)
         except ValueError:
             pass
 

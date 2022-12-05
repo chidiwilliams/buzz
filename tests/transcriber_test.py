@@ -1,4 +1,3 @@
-import logging
 import os
 import pathlib
 import tempfile
@@ -6,13 +5,12 @@ import time
 from unittest.mock import Mock
 
 import pytest
+from PyQt6.QtCore import QThreadPool
 
 from buzz.model_loader import ModelLoader
-from buzz.transcriber import (WhisperFileTranscriber, OutputFormat,
-                              RecordingTranscriber, WhisperCppFileTranscriber, WhisperFileTranscriber,
-                              to_timestamp)
-from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt,
-                          QThreadPool, QTimer, QUrl, pyqtSignal)
+from buzz.transcriber import (OutputFormat, RecordingTranscriber,
+                              WhisperCppFileTranscriber,
+                              WhisperFileTranscriber, to_timestamp)
 from buzz.whispr import Task
 
 
@@ -60,7 +58,7 @@ class TestWhisperCppFileTranscriber:
         mock_progress = Mock()
         with qtbot.waitSignal(transcriber.signals.completed, timeout=10*60*1000):
             transcriber.signals.progress.connect(mock_progress)
-            transcriber.run() # todo: makes no sense bc run is sync, no need to wait for signal, just assert
+            transcriber.run()
 
         assert os.path.isfile(output_file_path)
 
@@ -86,18 +84,19 @@ class TestWhisperFileTranscriber:
         'word_level_timings,output_format,output_text',
         [
             (False, OutputFormat.TXT, 'Bienvenue dans Passe-Relle, un podcast'),
-            # (False, OutputFormat.SRT, '1\n00:00:00.000 --> 00:00:06.560\n Bienvenue dans Passe-Relle, un podcast pensé pour évêyer la curiosité des apprenances'),
-            # (False, OutputFormat.VTT, 'WEBVTT\n\n00:00:00.000 --> 00:00:06.560\n Bienvenue dans Passe-Relle, un podcast pensé pour évêyer la curiosité des apprenances'),
-            # (True, OutputFormat.SRT,
-            #  '1\n00:00:00.040 --> 00:00:00.359\n Bienvenue dans\n\n2\n00:00:00.359 --> 00:00:00.419\n Passe-'),
+            (False, OutputFormat.SRT, '1\n00:00:00.000 --> 00:00:06.560\n Bienvenue dans Passe-Relle, un podcast pensé pour évêyer la curiosité des apprenances'),
+            (False, OutputFormat.VTT, 'WEBVTT\n\n00:00:00.000 --> 00:00:06.560\n Bienvenue dans Passe-Relle, un podcast pensé pour évêyer la curiosité des apprenances'),
+            (True, OutputFormat.SRT,
+             '1\n00:00:00.040 --> 00:00:00.359\n Bienvenue dans\n\n2\n00:00:00.359 --> 00:00:00.419\n Passe-'),
         ])
-    def test_transcribe(self, tmp_path: pathlib.Path, word_level_timings: bool, output_format: OutputFormat, output_text: str):
+    def test_transcribe(self, qtbot, tmp_path: pathlib.Path, word_level_timings: bool, output_format: OutputFormat, output_text: str):
         output_file_path = tmp_path / f'whisper.{output_format.value.lower()}'
 
         model_path = get_model_path('tiny', False)
 
         mock_progress = Mock()
         mock_completed = Mock()
+        pool = QThreadPool()
         transcriber = WhisperFileTranscriber(
             model_path=model_path, language='fr',
             task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
@@ -106,23 +105,23 @@ class TestWhisperFileTranscriber:
             word_level_timings=word_level_timings)
         transcriber.signals.progress.connect(mock_progress)
         transcriber.signals.completed.connect(mock_completed)
-        transcriber.run()
+        with qtbot.waitSignal(transcriber.signals.completed, timeout=10*60*1000):
+            pool.start(transcriber)
 
         assert os.path.isfile(output_file_path)
 
         output_file = open(output_file_path, 'r', encoding='utf-8')
         assert output_text in output_file.read()
 
-        logging.debug(mock_progress.call_count)
-        mock_completed.assert_called()
+        # Reports progress at 0, 0<progress<100, and 100
+        assert any(
+            [call_args.args[0] == (0, 100) for call_args in mock_progress.call_args_list])
+        assert any(
+            [call_args.args[0] == (100, 100) for call_args in mock_progress.call_args_list])
+        assert any(
+            [(0 < call_args.args[0][0] < 100) and (call_args.args[0][1] == 100) for call_args in mock_progress.call_args_list])
 
-        # # Reports progress at 0, 0<progress<100, and 100
-        # assert len([event for event in events if isinstance(
-        #     event, FileTranscriber.ProgressEvent) and event.current_value == 0 and event.max_value == 100]) > 0
-        # assert len([event for event in events if isinstance(
-        #     event, FileTranscriber.ProgressEvent) and event.current_value == 100 and event.max_value == 100]) > 0
-        # assert len([event for event in events if isinstance(
-        #     event, FileTranscriber.ProgressEvent) and event.current_value > 0 and event.current_value < 100 and event.max_value == 100]) > 0
+        mock_completed.assert_called()
 
     @pytest.mark.skip()
     def test_transcribe_stop(self):
