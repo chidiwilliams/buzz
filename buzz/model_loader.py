@@ -33,6 +33,7 @@ class ModelLoader(QRunnable):
     @pyqtSlot()
     def run(self):
         try:
+            logging.debug('loading model')
             if self.use_whisper_cpp:
                 root = user_cache_dir('Buzz')
                 url = f'https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-{self.name}.bin'
@@ -83,7 +84,8 @@ class ModelLoader(QRunnable):
 
             self.signals.completed.emit(model_path)
         except RuntimeError as exc:
-            self.signals.error.emit(str(exc))
+            # logging.debug(exc)
+            # self.signals.error.emit(str(exc))
             logging.exception('')
         except requests.RequestException:
             self.signals.error.emit('A connection error occurred.')

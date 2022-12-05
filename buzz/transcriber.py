@@ -165,7 +165,7 @@ class OutputFormat(enum.Enum):
 
 class Signals(QObject):
     progress = pyqtSignal(tuple)  # (current, total)
-    completed = pyqtSignal(bool)
+    completed = pyqtSignal()
     error = pyqtSignal(str)
 
 
@@ -233,7 +233,7 @@ class WhisperCppFileTranscriber(QRunnable):
             write_output(
                 self.output_file_path, self.segments, self.open_file_on_complete, self.output_format)
 
-        self.signals.completed.emit(True)
+        self.signals.completed.emit()
 
     def stop(self):
         process_state = self.process.state()
@@ -331,7 +331,7 @@ class WhisperFileTranscriber(QRunnable):
         recv_pipe.close()
         send_pipe.close()
 
-        self.signals.completed.emit(True)
+        self.signals.completed.emit()
 
     def stop(self):
         if self.current_process.is_alive():

@@ -1,4 +1,5 @@
 import os
+import pathlib
 import tempfile
 from unittest.mock import patch
 import pytest
@@ -177,20 +178,16 @@ class TestFileTranscriberWidget:
     widget = FileTranscriberWidget(
         file_path='testdata/whisper-french.mp3', parent=None)
 
-    @pytest.mark.skip(reason="fix after click behaviour")
-    def test_should_transcribe(self):
-        output_file_path = os.path.join(
-            tempfile.gettempdir(), 'whisper_cpp.txt')
-        if os.path.exists(output_file_path):
-            os.remove(output_file_path)
+    @pytest.mark.skip()
+    def test_should_transcribe(self, qtbot, tmp_path: pathlib.Path):
+        output_file_path = tmp_path / 'whisper.txt'
 
         with patch('PyQt6.QtWidgets.QFileDialog.getSaveFileName') as save_file_name_mock:
             save_file_name_mock.return_value = (output_file_path, '')
 
             self.widget.run_button.click()
-            if self.widget.file_transcriber is not None:
-                self.widget.file_transcriber.join()
 
+            with qtbot.waitSignal(self.widget.transcribed, timeout=10*60*1000):
                 output_file = open(output_file_path, 'r', encoding='utf-8')
                 assert 'Bienvenue dans Passe-Relle, un podcast' in output_file.read()
 
