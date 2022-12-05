@@ -87,22 +87,3 @@ class WhisperCpp:
 
     def __del__(self):
         whisper_cpp.whisper_free((self.ctx))
-
-
-# tqdm progress line looks like: " 54%|█████       |"
-def tqdm_progress(line: str):
-    percent_progress = line.split('|')[0].strip().strip('%')
-    return int(percent_progress)
-
-
-def read_progress(pipe: Connection, progress_callback: Callable[[int, int], None]):
-    while pipe.closed is False:
-        try:
-            recv = pipe.recv().strip()
-            if recv:
-                progress = tqdm_progress(recv)
-                progress_callback(progress, 100)
-        except ValueError:
-            pass
-        except EOFError:
-            break
