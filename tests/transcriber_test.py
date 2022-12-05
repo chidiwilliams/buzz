@@ -8,10 +8,11 @@ import pytest
 from PyQt6.QtCore import QThreadPool
 
 from buzz.model_loader import ModelLoader
-from buzz.transcriber import (OutputFormat, RecordingTranscriber,
-                              WhisperCppFileTranscriber,
-                              WhisperFileTranscriber, get_default_output_file_path, to_timestamp)
-from buzz.whispr import Task
+from buzz.transcriber import (OutputFormat, RecordingTranscriber, Task,
+                              WhisperCpp, WhisperCppFileTranscriber,
+                              WhisperFileTranscriber,
+                              get_default_output_file_path, to_timestamp,
+                              whisper_cpp_params)
 
 
 def get_model_path(model_name: str, use_whisper_cpp: bool) -> str:
@@ -148,3 +149,16 @@ class TestToTimestamp:
     def test_to_timestamp(self):
         assert to_timestamp(0) == '00:00:00.000'
         assert to_timestamp(123456789) == '34:17:36.789'
+
+
+class TestWhisperCpp:
+    def test_transcribe(self):
+        model_path = get_model_path('tiny', True)
+
+        whisper_cpp = WhisperCpp(model=model_path)
+        params = whisper_cpp_params(
+            language='fr', task=Task.TRANSCRIBE, word_level_timings=False)
+        result = whisper_cpp.transcribe(
+            audio='testdata/whisper-french.mp3', params=params)
+
+        assert 'Bienvenue dans Passe-Relle, un podcast' in result['text']

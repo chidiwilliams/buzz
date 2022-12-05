@@ -22,9 +22,10 @@ from whisper import tokenizer
 
 from .__version__ import VERSION
 from .model_loader import ModelLoader
-from .transcriber import (WhisperFileTranscriber, OutputFormat, RecordingTranscriber,
-                          WhisperCppFileTranscriber, SUPPORTED_OUTPUT_FORMATS, get_default_output_file_path)
-from .whispr import LOADED_WHISPER_DLL, Task
+from .transcriber import (LOADED_WHISPER_DLL, SUPPORTED_OUTPUT_FORMATS,
+                          OutputFormat, RecordingTranscriber, Task,
+                          WhisperCppFileTranscriber, WhisperFileTranscriber,
+                          get_default_output_file_path)
 
 APP_NAME = 'Buzz'
 

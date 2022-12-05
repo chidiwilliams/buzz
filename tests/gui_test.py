@@ -1,14 +1,8 @@
-from contextlib import contextmanager
-import time
-import logging
-import os
 import pathlib
-import tempfile
 from unittest.mock import Mock, patch
 
-import pytest
 import sounddevice
-from PyQt6.QtCore import Qt, QCoreApplication, pyqtBoundSignal
+from PyQt6.QtCore import QCoreApplication, Qt, pyqtBoundSignal
 
 from buzz.gui import (AboutDialog, Application, AudioDevicesComboBox,
                       DownloadModelProgressDialog, FileTranscriberWidget,
