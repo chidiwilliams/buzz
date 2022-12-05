@@ -278,7 +278,6 @@ class WhisperFileTranscriber(QRunnable):
     """WhisperFileTranscriber transcribes an audio file to text, writes the text to a file, and then opens the file using the default program for opening txt files."""
 
     current_process: multiprocessing.Process
-    SUPPORTED_FILE_FORMATS = 'Audio files (*.mp3 *.wav *.m4a *.ogg);;Video files (*.mp4 *.webm *.ogm *.mov);;All files (*.*)'
     signals: Signals
 
     def __init__(
@@ -351,10 +350,6 @@ class WhisperFileTranscriber(QRunnable):
             except EOFError:
                 break
 
-    @classmethod
-    def get_default_output_file_path(cls, task: Task, input_file_path: str, output_format: OutputFormat):
-        return f'{os.path.splitext(input_file_path)[0]} ({task.value.title()}d on {datetime.datetime.now():%d-%b-%Y %H-%M-%S}).{output_format.value}'
-
 
 def transcribe_whisper(
         stderr_conn: Connection, model_path: str, file_path: str,
@@ -425,3 +420,11 @@ def to_timestamp(ms: float) -> str:
     sec = int(ms / 1000)
     ms = int(ms - sec * 1000)
     return f'{hr:02d}:{min:02d}:{sec:02d}.{ms:03d}'
+
+
+SUPPORTED_OUTPUT_FORMATS = 'Audio files (*.mp3 *.wav *.m4a *.ogg);;\
+Video files (*.mp4 *.webm *.ogm *.mov);;All files (*.*)'
+
+
+def get_default_output_file_path(task: Task, input_file_path: str, output_format: OutputFormat):
+    return f'{os.path.splitext(input_file_path)[0]} ({task.value.title()}d on {datetime.datetime.now():%d-%b-%Y %H-%M-%S}).{output_format.value}'

@@ -2,12 +2,10 @@ import ctypes
 import enum
 import logging
 from dataclasses import dataclass
-from multiprocessing.connection import Connection
-from typing import Any, Callable, List, Union
+from typing import Any, List, Union
 
 import numpy as np
 import whisper
-
 
 # Catch exception from whisper.dll not getting loaded.
 # TODO: Remove flag and try-except when issue with loading
@@ -18,10 +16,6 @@ try:
     LOADED_WHISPER_DLL = True
 except ImportError:
     logging.exception('')
-
-
-class Stopped(Exception):
-    pass
 
 
 @dataclass

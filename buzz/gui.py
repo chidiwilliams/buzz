@@ -23,7 +23,7 @@ from whisper import tokenizer
 from .__version__ import VERSION
 from .model_loader import ModelLoader
 from .transcriber import (WhisperFileTranscriber, OutputFormat, RecordingTranscriber,
-                          WhisperCppFileTranscriber)
+                          WhisperCppFileTranscriber, SUPPORTED_OUTPUT_FORMATS, get_default_output_file_path)
 from .whispr import LOADED_WHISPER_DLL, Task
 
 APP_NAME = 'Buzz'
@@ -355,7 +355,7 @@ class FileTranscriberWidget(QWidget):
     file_transcriber: Optional[Union[WhisperFileTranscriber,
                                      WhisperCppFileTranscriber]] = None
     model_loader: Optional[ModelLoader] = None
-    transcribed = pyqtSignal(bool)
+    transcribed = pyqtSignal()
 
     def __init__(self, file_path: str, parent: Optional[QWidget]) -> None:
         super().__init__(parent)
@@ -431,7 +431,7 @@ class FileTranscriberWidget(QWidget):
             output_format == OutputFormat.TXT)
 
     def on_click_run(self):
-        default_path = WhisperFileTranscriber.get_default_output_file_path(
+        default_path = get_default_output_file_path(
             task=self.selected_task, input_file_path=self.file_path,
             output_format=self.selected_output_format)
         (output_file, _) = QFileDialog.getSaveFileName(
@@ -447,7 +447,6 @@ class FileTranscriberWidget(QWidget):
         model_name = get_model_name(self.selected_quality)
 
         def start_file_transcription(model_path: str):
-            logging.debug('starting transcription')
             if self.model_download_progress_dialog is not None:
                 self.model_download_progress_dialog = None
 
@@ -495,7 +494,6 @@ class FileTranscriberWidget(QWidget):
                 current_size=current_size)
 
     def on_download_model_error(self, error: str):
-        logging.debug('on download model error')
         show_model_download_error_dialog(self, error)
         self.reset_transcription()
 
@@ -516,7 +514,7 @@ class FileTranscriberWidget(QWidget):
 
     def on_transcriber_complete(self):
         self.reset_transcription()
-        self.transcribed.emit(True)
+        self.transcribed.emit()
 
     def on_cancel_transcriber_progress_dialog(self):
         if self.file_transcriber is not None:
@@ -846,7 +844,7 @@ class MainWindow(QMainWindow):
 
     def on_import_audio_file_action(self):
         (file_path, _) = QFileDialog.getOpenFileName(
-            self, 'Select audio file', '', WhisperFileTranscriber.SUPPORTED_FILE_FORMATS)
+            self, 'Select audio file', '', SUPPORTED_FILE_FORMATS)
         if file_path == '':
             return
         self.new_import_window_triggered.emit((file_path, self.geometry()))

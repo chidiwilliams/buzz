@@ -10,7 +10,7 @@ from PyQt6.QtCore import QThreadPool
 from buzz.model_loader import ModelLoader
 from buzz.transcriber import (OutputFormat, RecordingTranscriber,
                               WhisperCppFileTranscriber,
-                              WhisperFileTranscriber, to_timestamp)
+                              WhisperFileTranscriber, get_default_output_file_path, to_timestamp)
 from buzz.whispr import Task
 
 
@@ -70,12 +70,12 @@ class TestWhisperCppFileTranscriber:
 
 class TestWhisperFileTranscriber:
     def test_default_output_file(self):
-        srt = WhisperFileTranscriber.get_default_output_file_path(
+        srt = get_default_output_file_path(
             Task.TRANSLATE, '/a/b/c.mp4', OutputFormat.TXT)
         assert srt.startswith('/a/b/c (Translated on ')
         assert srt.endswith('.txt')
 
-        srt = WhisperFileTranscriber.get_default_output_file_path(
+        srt = get_default_output_file_path(
             Task.TRANSLATE, '/a/b/c.mp4', OutputFormat.SRT)
         assert srt.startswith('/a/b/c (Translated on ')
         assert srt.endswith('.srt')
