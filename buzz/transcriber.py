@@ -19,11 +19,12 @@ import numpy as np
 import sounddevice
 import stable_whisper
 import whisper
-from PyQt6.QtCore import QObject, QProcess, QRunnable, pyqtSignal, pyqtSlot, QThread
+from PyQt6.QtCore import (QObject, QProcess, QRunnable, QThread, pyqtSignal,
+                          pyqtSlot)
 from sounddevice import PortAudioError
 
 from .conn import pipe_stderr
-from .whispr import (Segment, Task, WhisperCpp, whisper_cpp_params)
+from .whispr import Segment, Task, WhisperCpp, whisper_cpp_params
 
 
 class RecordingTranscriber:
@@ -325,8 +326,6 @@ class WhisperFileTranscriber(QRunnable):
         logging.debug(
             'whisper process completed with code = %s, time taken = %s',
             self.current_process.exitcode, datetime.datetime.now()-time_started)
-
-        self.current_process.close()
 
         recv_pipe.close()
         send_pipe.close()

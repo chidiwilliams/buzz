@@ -15,11 +15,13 @@ MODELS_SHA256 = {
 }
 
 
+class Signals(QObject):
+    progress = pyqtSignal(tuple)  # (current, total)
+    completed = pyqtSignal(str)
+    error = pyqtSignal(str)
+
+
 class ModelLoader(QRunnable):
-    class Signals(QObject):
-        progress = pyqtSignal(tuple)  # (current, total)
-        completed = pyqtSignal(str)
-        error = pyqtSignal(str)
 
     signals: Signals
     stopped = False
@@ -28,12 +30,12 @@ class ModelLoader(QRunnable):
         super(ModelLoader, self).__init__()
         self.name = name
         self.use_whisper_cpp = use_whisper_cpp
-        self.signals = self.Signals()
+        self.signals = Signals()
 
     @pyqtSlot()
     def run(self):
         try:
-            logging.debug('loading model')
+            logging.debug('loading model %s %s', self.name, self.use_whisper_cpp)
             if self.use_whisper_cpp:
                 root = user_cache_dir('Buzz')
                 url = f'https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-{self.name}.bin'
@@ -58,6 +60,7 @@ class ModelLoader(QRunnable):
                 model_bytes = open(model_path, "rb").read()
                 if hashlib.sha256(model_bytes).hexdigest() == expected_sha256:
                     self.signals.completed.emit(model_path)
+                    logging.debug('loaded model_path')
                     return
                 else:
                     warnings.warn(
@@ -84,13 +87,15 @@ class ModelLoader(QRunnable):
 
             self.signals.completed.emit(model_path)
         except RuntimeError as exc:
-            # logging.debug(exc)
-            # self.signals.error.emit(str(exc))
+            logging.debug('exc')
+            self.signals.error.emit(str(exc))
             logging.exception('')
         except requests.RequestException:
+            logging.debug('exc')
             self.signals.error.emit('A connection error occurred.')
             logging.exception('')
         except Exception:
+            logging.debug('exc')
             self.signals.error.emit('An unknown error occurred.')
             logging.exception('')
 

@@ -355,7 +355,7 @@ class FileTranscriberWidget(QWidget):
     file_transcriber: Optional[Union[WhisperFileTranscriber,
                                      WhisperCppFileTranscriber]] = None
     model_loader: Optional[ModelLoader] = None
-    transcribed = pyqtSignal()
+    transcribed = pyqtSignal(bool)
 
     def __init__(self, file_path: str, parent: Optional[QWidget]) -> None:
         super().__init__(parent)
@@ -447,6 +447,7 @@ class FileTranscriberWidget(QWidget):
         model_name = get_model_name(self.selected_quality)
 
         def start_file_transcription(model_path: str):
+            logging.debug('starting transcription')
             if self.model_download_progress_dialog is not None:
                 self.model_download_progress_dialog = None
 
@@ -494,6 +495,7 @@ class FileTranscriberWidget(QWidget):
                 current_size=current_size)
 
     def on_download_model_error(self, error: str):
+        logging.debug('on download model error')
         show_model_download_error_dialog(self, error)
         self.reset_transcription()
 
@@ -514,7 +516,7 @@ class FileTranscriberWidget(QWidget):
 
     def on_transcriber_complete(self):
         self.reset_transcription()
-        self.transcribed.emit()
+        self.transcribed.emit(True)
 
     def on_cancel_transcriber_progress_dialog(self):
         if self.file_transcriber is not None:
