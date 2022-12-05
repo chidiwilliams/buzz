@@ -1,9 +1,8 @@
-import os
-import tempfile
-from unittest.mock import patch
+import pathlib
+from unittest.mock import Mock, patch
 
 import sounddevice
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import QCoreApplication, Qt, pyqtBoundSignal
 
 from buzz.gui import (AboutDialog, Application, AudioDevicesComboBox,
                       DownloadModelProgressDialog, FileTranscriberWidget,
@@ -173,24 +172,30 @@ class TestMainWindow:
 
 
 class TestFileTranscriberWidget:
-    widget = FileTranscriberWidget(
-        file_path='testdata/whisper-french.mp3', parent=None)
+    def test_should_transcribe(self, qtbot, tmp_path: pathlib.Path):
+        widget = FileTranscriberWidget(
+            file_path='testdata/whisper-french.mp3', parent=None)
+        qtbot.addWidget(widget)
 
-    def test_should_transcribe(self):
-        output_file_path = os.path.join(
-            tempfile.gettempdir(), 'whisper_cpp.txt')
-        if os.path.exists(output_file_path):
-            os.remove(output_file_path)
+        output_file_path = tmp_path / 'whisper.txt'
 
         with patch('PyQt6.QtWidgets.QFileDialog.getSaveFileName') as save_file_name_mock:
             save_file_name_mock.return_value = (output_file_path, '')
+            widget.run_button.click()
 
-            self.widget.run_button.click()
-            if self.widget.file_transcriber is not None:
-                self.widget.file_transcriber.join()
+        wait_signal_while_processing(widget.transcribed)
 
-                output_file = open(output_file_path, 'r', encoding='utf-8')
-                assert 'Bienvenue dans Passe-Relle, un podcast' in output_file.read()
+        output_file = open(output_file_path, 'r', encoding='utf-8')
+        assert 'Bienvenue dans Passe-Relle, un podcast' in output_file.read()
+
+
+def wait_signal_while_processing(signal: pyqtBoundSignal):
+    mock = Mock()
+    signal.connect(mock)
+    while True:
+        QCoreApplication.processEvents()
+        if mock.call_count > 0:
+            break
 
 
 class TestSettings:

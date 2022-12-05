@@ -22,9 +22,10 @@ from whisper import tokenizer
 
 from .__version__ import VERSION
 from .model_loader import ModelLoader
-from .transcriber import (FileTranscriber, OutputFormat, RecordingTranscriber,
-                          WhisperCppFileTranscriber)
-from .whispr import LOADED_WHISPER_DLL, Task
+from .transcriber import (LOADED_WHISPER_DLL, SUPPORTED_OUTPUT_FORMATS,
+                          OutputFormat, RecordingTranscriber, Task,
+                          WhisperCppFileTranscriber, WhisperFileTranscriber,
+                          get_default_output_file_path)
 
 APP_NAME = 'Buzz'
 
@@ -267,36 +268,6 @@ class TranscriberProgressDialog(QProgressDialog):
                 f'Processing {self.short_file_path} ({fraction_completed:.2%}, {humanize.naturaldelta(time_left)} remaining)')
 
 
-class FileTranscriberObject(QObject):
-    event_received = pyqtSignal(object)
-    transcriber: FileTranscriber
-
-    def __init__(
-        self, model_path: str, language: Optional[str],
-        task: Task, file_path: str, output_file_path: str,
-        output_format: OutputFormat, word_level_timings: bool,
-            parent: Optional['QObject'], *args) -> None:
-        super().__init__(parent, *args)
-        self.transcriber = FileTranscriber(
-            model_path=model_path,
-            language=language, task=task, file_path=file_path,
-            output_file_path=output_file_path, output_format=output_format,
-            event_callback=self.on_file_transcriber_event,
-            word_level_timings=word_level_timings)
-
-    def on_file_transcriber_event(self, event: FileTranscriber.Event):
-        self.event_received.emit(event)
-
-    def start(self):
-        self.transcriber.start()
-
-    def join(self):
-        self.transcriber.join()
-
-    def stop(self):
-        self.transcriber.stop()
-
-
 class RecordingTranscriberObject(QObject):
     """
     TranscriberWithSignal exports the text callback from a Transcriber
@@ -382,9 +353,10 @@ class FileTranscriberWidget(QWidget):
     enabled_word_level_timings = False
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     transcriber_progress_dialog: Optional[TranscriberProgressDialog] = None
-    file_transcriber: Optional[Union[FileTranscriberObject,
+    file_transcriber: Optional[Union[WhisperFileTranscriber,
                                      WhisperCppFileTranscriber]] = None
     model_loader: Optional[ModelLoader] = None
+    transcribed = pyqtSignal()
 
     def __init__(self, file_path: str, parent: Optional[QWidget]) -> None:
         super().__init__(parent)
@@ -460,7 +432,7 @@ class FileTranscriberWidget(QWidget):
             output_format == OutputFormat.TXT)
 
     def on_click_run(self):
-        default_path = FileTranscriber.get_default_output_file_path(
+        default_path = get_default_output_file_path(
             task=self.selected_task, input_file_path=self.file_path,
             output_format=self.selected_output_format)
         (output_file, _) = QFileDialog.getSaveFileName(
@@ -486,21 +458,19 @@ class FileTranscriberWidget(QWidget):
                     output_file_path=output_file, output_format=self.selected_output_format,
                     word_level_timings=self.enabled_word_level_timings,
                 )
-                self.file_transcriber.signals.progress.connect(
-                    self.on_transcriber_progress)
-                self.file_transcriber.signals.completed.connect(
-                    self.on_transcriber_complete)
-                self.pool.start(self.file_transcriber)
             else:
-                self.file_transcriber = FileTranscriberObject(
+                self.file_transcriber = WhisperFileTranscriber(
                     model_path=model_path, file_path=self.file_path,
                     language=self.selected_language, task=self.selected_task,
                     output_file_path=output_file, output_format=self.selected_output_format,
                     word_level_timings=self.enabled_word_level_timings,
-                    parent=self)
-                self.file_transcriber.event_received.connect(
-                    self.on_transcriber_event)
-                self.file_transcriber.start()
+                )
+
+            self.file_transcriber.signals.progress.connect(
+                self.on_transcriber_progress)
+            self.file_transcriber.signals.completed.connect(
+                self.on_transcriber_complete)
+            self.pool.start(self.file_transcriber)
 
         self.model_loader = ModelLoader(
             name=model_name, use_whisper_cpp=use_whisper_cpp)
@@ -528,13 +498,6 @@ class FileTranscriberWidget(QWidget):
         show_model_download_error_dialog(self, error)
         self.reset_transcription()
 
-    def on_transcriber_event(self, event: FileTranscriber.Event):
-        if isinstance(event, FileTranscriber.ProgressEvent):
-            self.on_transcriber_progress(
-                (event.current_value, event.max_value))
-        elif isinstance(event, FileTranscriber.CompletedTranscriptionEvent):
-            self.on_transcriber_complete()
-
     def on_transcriber_progress(self, progress: Tuple[int, int]):
         (current_size, total_size) = progress
 
@@ -552,6 +515,7 @@ class FileTranscriberWidget(QWidget):
 
     def on_transcriber_complete(self):
         self.reset_transcription()
+        self.transcribed.emit()
 
     def on_cancel_transcriber_progress_dialog(self):
         if self.file_transcriber is not None:
@@ -881,7 +845,7 @@ class MainWindow(QMainWindow):
 
     def on_import_audio_file_action(self):
         (file_path, _) = QFileDialog.getOpenFileName(
-            self, 'Select audio file', '', FileTranscriber.SUPPORTED_FILE_FORMATS)
+            self, 'Select audio file', '', SUPPORTED_OUTPUT_FORMATS)
         if file_path == '':
             return
         self.new_import_window_triggered.emit((file_path, self.geometry()))

@@ -15,11 +15,13 @@ MODELS_SHA256 = {
 }
 
 
+class Signals(QObject):
+    progress = pyqtSignal(tuple)  # (current, total)
+    completed = pyqtSignal(str)
+    error = pyqtSignal(str)
+
+
 class ModelLoader(QRunnable):
-    class Signals(QObject):
-        progress = pyqtSignal(tuple)  # (current, total)
-        completed = pyqtSignal(str)
-        error = pyqtSignal(str)
 
     signals: Signals
     stopped = False
@@ -28,7 +30,7 @@ class ModelLoader(QRunnable):
         super(ModelLoader, self).__init__()
         self.name = name
         self.use_whisper_cpp = use_whisper_cpp
-        self.signals = self.Signals()
+        self.signals = Signals()
 
     @pyqtSlot()
     def run(self):
