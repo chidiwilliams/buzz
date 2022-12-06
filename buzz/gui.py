@@ -10,7 +10,7 @@ import humanize
 import sounddevice
 from PyQt6 import QtGui
 from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt,
-                          QThreadPool, QTimer, QUrl, pyqtSignal)
+                          QThreadPool, QThread, QTimer, QUrl, pyqtSignal)
 from PyQt6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
                          QKeySequence, QPixmap, QTextCursor)
 from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
@@ -54,8 +54,8 @@ class AudioDevicesComboBox(QComboBox):
     device_changed = pyqtSignal(int)
     audio_devices: List[Tuple[int, str]]
 
-    def __init__(self, parent: Optional[QWidget] = None, *args) -> None:
-        super().__init__(parent, *args)
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
         self.audio_devices = self.get_audio_devices()
         self.addItems(map(lambda device: device[1], self.audio_devices))
         self.currentIndexChanged.connect(self.on_index_changed)
@@ -65,10 +65,14 @@ class AudioDevicesComboBox(QComboBox):
             self.setCurrentIndex(default_device_index)
 
     def get_audio_devices(self) -> List[Tuple[int, str]]:
-        devices: sounddevice.DeviceList = sounddevice.query_devices()
-        input_devices = filter(
-            lambda device: device.get('max_input_channels') > 0, devices)
-        return list(map(lambda device: (device.get('index'), device.get('name')), input_devices))
+        devices = sounddevice.query_devices()
+        if isinstance(devices, sounddevice.DeviceList) or isinstance(devices, list):
+            input_devices = filter(
+                lambda device: device.get('max_input_channels') > 0, devices)
+            return list(map(lambda device: (device.get('index'), device.get('name')), input_devices))
+        logging.debug(
+            'Expected device list to be sounddevice.DeviceList or list, but got = %s', devices)
+        return []
 
     def on_index_changed(self, index: int):
         self.device_changed.emit(self.audio_devices[index][0])
@@ -90,8 +94,8 @@ class LanguagesComboBox(QComboBox):
     # language is a languge key from whisper.tokenizer.LANGUAGES or '' for "detect langugage"
     languageChanged = pyqtSignal(str)
 
-    def __init__(self, default_language: Optional[str], parent: Optional[QWidget] = None, *args) -> None:
-        super().__init__(parent, *args)
+    def __init__(self, default_language: Optional[str], parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
 
         whisper_languages = sorted(
             [(lang, tokenizer.LANGUAGES[lang].title()) for lang in tokenizer.LANGUAGES], key=lambda lang: lang[1])
@@ -275,7 +279,6 @@ class RecordingTranscriberObject(QObject):
     """
 
     event_changed = pyqtSignal(RecordingTranscriber.Event)
-    download_model_progress = pyqtSignal(tuple)
     transcriber: RecordingTranscriber
 
     def __init__(self, model_path: str, use_whisper_cpp, language: Optional[str],
@@ -283,8 +286,7 @@ class RecordingTranscriberObject(QObject):
         super().__init__(parent, *args)
         self.transcriber = RecordingTranscriber(
             model_path=model_path, use_whisper_cpp=use_whisper_cpp,
-            on_download_model_chunk=self.on_download_model_progress, language=language,
-            event_callback=self.event_callback, task=task,
+            language=language, event_callback=self.event_callback, task=task,
             input_device_index=input_device_index)
 
     def start_recording(self):
@@ -292,9 +294,6 @@ class RecordingTranscriberObject(QObject):
 
     def event_callback(self, event: RecordingTranscriber.Event):
         self.event_changed.emit(event)
-
-    def on_download_model_progress(self, current: int, total: int):
-        self.download_model_progress.emit((current, total))
 
     def stop_recording(self):
         self.transcriber.stop_recording()
@@ -357,6 +356,8 @@ class FileTranscriberWidget(QWidget):
                                      WhisperCppFileTranscriber]] = None
     model_loader: Optional[ModelLoader] = None
     transcribed = pyqtSignal()
+    transcriber_thread: Optional[QThread] = None
+    is_transcribing = False
 
     def __init__(self, file_path: str, parent: Optional[QWidget]) -> None:
         super().__init__(parent)
@@ -451,6 +452,8 @@ class FileTranscriberWidget(QWidget):
             if self.model_download_progress_dialog is not None:
                 self.model_download_progress_dialog = None
 
+            self.transcriber_thread = QThread()
+
             if use_whisper_cpp:
                 self.file_transcriber = WhisperCppFileTranscriber(
                     model_path=model_path, file_path=self.file_path,
@@ -466,11 +469,24 @@ class FileTranscriberWidget(QWidget):
                     word_level_timings=self.enabled_word_level_timings,
                 )
 
-            self.file_transcriber.signals.progress.connect(
+            self.file_transcriber.moveToThread(self.transcriber_thread)
+
+            self.transcriber_thread.started.connect(self.file_transcriber.run)
+            self.transcriber_thread.finished.connect(
+                self.transcriber_thread.deleteLater)
+
+            self.file_transcriber.progress.connect(
                 self.on_transcriber_progress)
-            self.file_transcriber.signals.completed.connect(
+
+            self.file_transcriber.completed.connect(
+                self.transcriber_thread.quit)
+            self.file_transcriber.completed.connect(
+                self.file_transcriber.deleteLater)
+            self.file_transcriber.completed.connect(
                 self.on_transcriber_complete)
-            self.pool.start(self.file_transcriber)
+
+            self.transcriber_thread.start()
+            self.is_transcribing = True
 
         self.model_loader = ModelLoader(
             name=model_name, use_whisper_cpp=use_whisper_cpp)
@@ -506,7 +522,7 @@ class FileTranscriberWidget(QWidget):
             self.transcriber_progress_dialog = TranscriberProgressDialog(
                 file_path=self.file_path, total_size=total_size, parent=self)
             self.transcriber_progress_dialog.canceled.connect(
-                self.on_cancel_transcriber_progress_dialog)
+                self.stop_transcription)
 
         # Update the progress of the dialog unless it has
         # been canceled before this progress update arrived
@@ -517,13 +533,14 @@ class FileTranscriberWidget(QWidget):
         self.reset_transcription()
         self.transcribed.emit()
 
-    def on_cancel_transcriber_progress_dialog(self):
-        if self.file_transcriber is not None:
+    def stop_transcription(self):
+        if self.file_transcriber is not None and self.is_transcribing:
             self.file_transcriber.stop()
         self.reset_transcription()
 
     def reset_transcription(self):
         self.run_button.setDisabled(False)
+        self.is_transcribing = False
         if self.transcriber_progress_dialog is not None:
             self.transcriber_progress_dialog.close()
             self.transcriber_progress_dialog = None
@@ -544,13 +561,11 @@ class FileTranscriberWidget(QWidget):
 class Settings(QSettings):
     _ENABLE_GGML_INFERENCE = 'enable_ggml_inference'
 
-    def __init__(self, parent: Optional[QWidget] = None, *args):
-        super().__init__('Buzz', 'Buzz', parent, *args)
+    def __init__(self, parent: Optional[QWidget] = None):
+        super().__init__('Buzz', 'Buzz', parent)
         logging.debug('Loaded settings from path = %s', self.fileName())
 
     def get_enable_ggml_inference(self) -> bool:
-        if LOADED_WHISPER_DLL is False:
-            return False
         return self._value_to_bool(self.value(self._ENABLE_GGML_INFERENCE, False))
 
     def set_enable_ggml_inference(self, value: bool) -> None:
@@ -661,6 +676,13 @@ class RecordingTranscriberWidget(QWidget):
         model_name = get_model_name(self.selected_quality)
 
         def start_recording_transcription(model_path: str):
+            if use_whisper_cpp and (LOADED_WHISPER_DLL is False):
+                QMessageBox.critical(
+                    self, '', 'An error occured while loading the Whisper.cpp library. Please check the application logs for more information.')
+                self.record_button.force_stop()
+                self.record_button.setDisabled(False)
+                return
+
             # Clear text box placeholder because the first chunk takes a while to process
             self.text_box.setPlaceholderText('')
             self.timer_label.start_timer()
@@ -676,9 +698,6 @@ class RecordingTranscriberWidget(QWidget):
             )
             self.transcriber.event_changed.connect(
                 self.on_transcriber_event_changed)
-            self.transcriber.download_model_progress.connect(
-                self.on_download_model_progress)
-
             self.transcriber.start_recording()
 
         self.model_loader = ModelLoader(
@@ -835,7 +854,6 @@ class MainWindow(QMainWindow):
             bool(self.settings.get_enable_ggml_inference()))
         enable_ggml_inference_action.triggered.connect(
             self.on_toggle_enable_ggml_inference)
-        enable_ggml_inference_action.setDisabled(LOADED_WHISPER_DLL is False)
 
         settings_menu = menu.addMenu("&Settings")
         settings_menu.addAction(enable_ggml_inference_action)
@@ -883,7 +901,7 @@ class FileTranscriberMainWindow(MainWindow):
         self.setCentralWidget(self.central_widget)
 
     def closeEvent(self, event: QCloseEvent) -> None:
-        self.central_widget.on_cancel_transcriber_progress_dialog()
+        self.central_widget.stop_transcription()
         return super().closeEvent(event)
 
 

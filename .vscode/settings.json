@@ -17,5 +17,8 @@
   "python.testing.pytestEnabled": true,
   "python.linting.pylintEnabled": true,
   "python.linting.enabled": true,
-  "cmake.sourceDirectory": "${workspaceFolder}/whisper.cpp"
+  "cmake.sourceDirectory": "${workspaceFolder}/whisper.cpp",
+  "githubPullRequests.ignoredPullRequestBranches": [
+    "master"
+  ]
 }

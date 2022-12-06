@@ -66,8 +66,6 @@ class RecordingTranscriber:
     def __init__(self,
                  model_path: str, use_whisper_cpp: bool,
                  language: Optional[str], task: Task,
-                 on_download_model_chunk: Callable[[
-                     int, int], None] = lambda *_: None,
                  event_callback: Callable[[Event], None] = lambda *_: None,
                  input_device_index: Optional[int] = None) -> None:
         self.model_path = model_path
@@ -85,7 +83,6 @@ class RecordingTranscriber:
         self.queue = np.ndarray([], dtype=np.float32)
         self.mutex = threading.Lock()
         self.text = ''
-        self.on_download_model_chunk = on_download_model_chunk
 
     def start_recording(self):
         self.current_thread = Thread(target=self.process_queue)
@@ -185,24 +182,22 @@ class OutputFormat(enum.Enum):
     VTT = 'vtt'
 
 
-class Signals(QObject):
+class WhisperCppFileTranscriber(QObject):
     progress = pyqtSignal(tuple)  # (current, total)
     completed = pyqtSignal()
     error = pyqtSignal(str)
 
-
-class WhisperCppFileTranscriber(QRunnable):
-    signals: Signals
     duration_audio_ms = sys.maxsize  # max int
-    segments: List[Segment] = []
+    segments: List[Segment]
 
     def __init__(
             self,
             model_path: str, language: Optional[str], task: Task, file_path: str,
             output_file_path: str, output_format: OutputFormat,
             word_level_timings: bool, open_file_on_complete=True,
+            parent: Optional[QObject] = None
     ) -> None:
-        super(WhisperCppFileTranscriber, self).__init__()
+        super().__init__(parent)
 
         self.file_path = file_path
         self.output_file_path = output_file_path
@@ -212,17 +207,16 @@ class WhisperCppFileTranscriber(QRunnable):
         self.output_format = output_format
         self.word_level_timings = word_level_timings
         self.model_path = model_path
-        self.signals = Signals()
+        self.segments = []
 
-        self.process = QProcess()
+        self.process = QProcess(self)
         self.process.readyReadStandardError.connect(self.read_std_err)
         self.process.readyReadStandardOutput.connect(self.read_std_out)
-        self.process.finished.connect(self.on_process_finished)
 
     @pyqtSlot()
     def run(self):
         logging.debug(
-            'Starting file transcription, file path = %s, language = %s, task = %s, output file path = %s, output format = %s, model_path = %s',
+            'Starting whisper_cpp file transcription, file path = %s, language = %s, task = %s, output file path = %s, output format = %s, model_path = %s',
             self.file_path, self.language, self.task, self.output_file_path, self.output_format, self.model_path)
 
         wav_file = tempfile.mktemp()+'.wav'
@@ -242,20 +236,21 @@ class WhisperCppFileTranscriber(QRunnable):
         args.append(wav_file)
 
         logging.debug(
-            'Running whisper_cpp process, args = "%s"', ''.join(args))
+            'Running whisper_cpp process, args = "%s"', ' '.join(args))
 
         self.process.start('./whisper_cpp', args)
 
-    def on_process_finished(self):
+        self.process.waitForFinished()
+
         status = self.process.exitStatus()
         logging.debug('whisper_cpp process completed with status = %s', status)
         if status == QProcess.ExitStatus.NormalExit:
-            self.signals.progress.emit(
+            self.progress.emit(
                 (self.duration_audio_ms, self.duration_audio_ms))
             write_output(
                 self.output_file_path, self.segments, self.open_file_on_complete, self.output_format)
 
-        self.signals.completed.emit()
+        self.completed.emit()
 
     def stop(self):
         process_state = self.process.state()
@@ -272,7 +267,7 @@ class WhisperCppFileTranscriber(QRunnable):
                 start, end = self.parse_timings(timings)
                 segment = Segment(start, end, text.strip())
                 self.segments.append(segment)
-                self.signals.progress.emit((end, self.duration_audio_ms))
+                self.progress.emit((end, self.duration_audio_ms))
 
     def parse_timings(self, timings: str) -> Tuple[int, int]:
         start, end = timings[1:len(timings)-1].split(' --> ')
@@ -295,18 +290,22 @@ class WhisperCppFileTranscriber(QRunnable):
                     self.duration_audio_ms = round(float(match.group(1))*1000)
 
 
-class WhisperFileTranscriber(QRunnable):
+class WhisperFileTranscriber(QObject):
     """WhisperFileTranscriber transcribes an audio file to text, writes the text to a file, and then opens the file using the default program for opening txt files."""
 
     current_process: multiprocessing.Process
-    signals: Signals
+    progress = pyqtSignal(tuple)  # (current, total)
+    completed = pyqtSignal()
+    error = pyqtSignal(str)
 
     def __init__(
             self,
             model_path: str, language: Optional[str], task: Task, file_path: str,
             output_file_path: str, output_format: OutputFormat,
-            word_level_timings: bool, open_file_on_complete=True) -> None:
-        super(WhisperFileTranscriber, self).__init__()
+            word_level_timings: bool, open_file_on_complete=True,
+            parent: Optional[QObject] = None
+    ) -> None:
+        super().__init__(parent)
 
         self.file_path = file_path
         self.output_file_path = output_file_path
@@ -316,13 +315,12 @@ class WhisperFileTranscriber(QRunnable):
         self.output_format = output_format
         self.word_level_timings = word_level_timings
         self.model_path = model_path
-        self.signals = Signals()
 
     @pyqtSlot()
     def run(self):
         time_started = datetime.datetime.now()
         logging.debug(
-            'Starting file transcription, file path = %s, language = %s, task = %s, output file path = %s, output format = %s, model_path = %s',
+            'Starting whisper file transcription, file path = %s, language = %s, task = %s, output file path = %s, output format = %s, model_path = %s',
             self.file_path, self.language, self.task, self.output_file_path, self.output_format, self.model_path)
 
         recv_pipe, send_pipe = multiprocessing.Pipe(duplex=False)
@@ -350,7 +348,7 @@ class WhisperFileTranscriber(QRunnable):
         recv_pipe.close()
         send_pipe.close()
 
-        self.signals.completed.emit()
+        self.completed.emit()
 
     def stop(self):
         if self.current_process.is_alive():
@@ -360,7 +358,7 @@ class WhisperFileTranscriber(QRunnable):
     def on_whisper_stdout(self, line: str):
         try:
             progress = int(line.split('|')[0].strip().strip('%'))
-            self.signals.progress.emit((progress, 100))
+            self.progress.emit((progress, 100))
         except ValueError:
             pass
 
@@ -467,6 +465,9 @@ def whisper_cpp_params(
 
 
 class WhisperCpp:
+    """WhisperCpp wraps the whisper.cpp library into a Python class
+    """
+
     def __init__(self, model: str) -> None:
         self.ctx = whisper_cpp.whisper_init(model.encode('utf-8'))
 

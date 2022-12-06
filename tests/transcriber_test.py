@@ -5,7 +5,7 @@ import time
 from unittest.mock import Mock
 
 import pytest
-from PyQt6.QtCore import QThreadPool
+from PyQt6.QtCore import QCoreApplication
 
 from buzz.model_loader import ModelLoader
 from buzz.transcriber import (OutputFormat, RecordingTranscriber, Task,
@@ -57,8 +57,8 @@ class TestWhisperCppFileTranscriber:
             open_file_on_complete=False,
             word_level_timings=False)
         mock_progress = Mock()
-        with qtbot.waitSignal(transcriber.signals.completed, timeout=10*60*1000):
-            transcriber.signals.progress.connect(mock_progress)
+        with qtbot.waitSignal(transcriber.completed, timeout=10*60*1000):
+            transcriber.progress.connect(mock_progress)
             transcriber.run()
 
         assert os.path.isfile(output_file_path)
@@ -97,17 +97,18 @@ class TestWhisperFileTranscriber:
 
         mock_progress = Mock()
         mock_completed = Mock()
-        pool = QThreadPool()
         transcriber = WhisperFileTranscriber(
             model_path=model_path, language='fr',
             task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
             output_file_path=output_file_path.as_posix(), output_format=output_format,
             open_file_on_complete=False,
             word_level_timings=word_level_timings)
-        transcriber.signals.progress.connect(mock_progress)
-        transcriber.signals.completed.connect(mock_completed)
-        with qtbot.waitSignal(transcriber.signals.completed, timeout=10*60*1000):
-            pool.start(transcriber)
+        transcriber.progress.connect(mock_progress)
+        transcriber.completed.connect(mock_completed)
+        with qtbot.waitSignal(transcriber.completed, timeout=10*60*1000):
+            transcriber.run()
+
+        QCoreApplication.processEvents()
 
         assert os.path.isfile(output_file_path)
 
