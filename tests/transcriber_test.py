@@ -2,7 +2,7 @@ import os
 import pathlib
 import tempfile
 import time
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
 from pytestqt.qtbot import QtBot
@@ -14,16 +14,13 @@ from buzz.transcriber import (OutputFormat, RecordingTranscriber, Task,
                               WhisperFileTranscriber,
                               get_default_output_file_path, to_timestamp,
                               whisper_cpp_params)
-from .sd import load_mock_input_stream
+from .sd import sounddevice_mocks
 
 
 class TestRecordingTranscriber:
     def test_transcriber(self, qtbot: QtBot):
         model_path = get_model_path('tiny', True)
-        with patch('sounddevice.InputStream') as input_stream_mock:
-            input_stream_mock.side_effect = load_mock_input_stream(
-                'testdata/whisper-french.mp3')
-
+        with sounddevice_mocks():
             mock_transcription = Mock()
 
             transcriber = RecordingTranscriber(
