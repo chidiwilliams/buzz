@@ -2,10 +2,13 @@ import os
 import pathlib
 import tempfile
 import time
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
+import whisper
 import pytest
+from pytestqt.qtbot import QtBot
 from PyQt6.QtCore import QCoreApplication
+from threading import Thread
 
 from buzz.model_loader import ModelLoader
 from buzz.transcriber import (OutputFormat, RecordingTranscriber, Task,
@@ -15,26 +18,28 @@ from buzz.transcriber import (OutputFormat, RecordingTranscriber, Task,
                               whisper_cpp_params)
 
 
-def get_model_path(model_name: str, use_whisper_cpp: bool) -> str:
-    model_loader = ModelLoader(model_name, use_whisper_cpp)
-    model_path = ''
-
-    def on_load_model(path: str):
-        nonlocal model_path
-        model_path = path
-
-    model_loader.signals.completed.connect(on_load_model)
-    model_loader.run()
-    return model_path
-
-
 class TestRecordingTranscriber:
-    def test_transcriber(self):
+    def test_transcriber(self, qtbot: QtBot):
         model_path = get_model_path('tiny', True)
-        transcriber = RecordingTranscriber(
-            model_path=model_path, use_whisper_cpp=True, language='en',
-            task=Task.TRANSCRIBE)
-        assert transcriber is not None
+        with patch('sounddevice.InputStream') as input_stream_mock:
+            input_stream_mock.side_effect = load_mock_input_stream(
+                'testdata/whisper-french.mp3')
+
+            mock_transcription = Mock()
+
+            transcriber = RecordingTranscriber(
+                use_whisper_cpp=True, language='fr', task=Task.TRANSCRIBE)
+            transcriber.transcription.connect(mock_transcription)
+
+            with qtbot.wait_signal(transcriber.transcription, timeout=30*1000, check_params_cb=call_counter(2)):
+                transcriber.run(model_path)
+
+            transcriber.stop()
+
+            mock_transcription.assert_any_call(
+                'Bienvenue dans Passe Rail. Un podcast pensé pour évayer la curiosité.')
+            mock_transcription.assert_any_call(
+                'Les apprenances et des apprenances de français.')
 
 
 class TestWhisperCppFileTranscriber:
@@ -51,15 +56,14 @@ class TestWhisperCppFileTranscriber:
 
         model_path = get_model_path('tiny', True)
         transcriber = WhisperCppFileTranscriber(
-            model_path=model_path, language='fr',
-            task=task, file_path='testdata/whisper-french.mp3',
+            language='fr', task=task, file_path='testdata/whisper-french.mp3',
             output_file_path=output_file_path.as_posix(), output_format=OutputFormat.TXT,
             open_file_on_complete=False,
             word_level_timings=False)
         mock_progress = Mock()
         with qtbot.waitSignal(transcriber.completed, timeout=10*60*1000):
             transcriber.progress.connect(mock_progress)
-            transcriber.run()
+            transcriber.run(model_path)
 
         assert os.path.isfile(output_file_path)
 
@@ -98,15 +102,13 @@ class TestWhisperFileTranscriber:
         mock_progress = Mock()
         mock_completed = Mock()
         transcriber = WhisperFileTranscriber(
-            model_path=model_path, language='fr',
-            task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
+            language='fr', task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
             output_file_path=output_file_path.as_posix(), output_format=output_format,
-            open_file_on_complete=False,
-            word_level_timings=word_level_timings)
+            open_file_on_complete=False, word_level_timings=word_level_timings)
         transcriber.progress.connect(mock_progress)
         transcriber.completed.connect(mock_completed)
         with qtbot.waitSignal(transcriber.completed, timeout=10*60*1000):
-            transcriber.run()
+            transcriber.run(model_path)
 
         QCoreApplication.processEvents()
 
@@ -133,12 +135,10 @@ class TestWhisperFileTranscriber:
 
         model_path = get_model_path('tiny', False)
         transcriber = WhisperFileTranscriber(
-            model_path=model_path, language='fr',
-            task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
+            language='fr', task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
             output_file_path=output_file_path, output_format=OutputFormat.TXT,
-            open_file_on_complete=False,
-            word_level_timings=False)
-        transcriber.run()
+            open_file_on_complete=False, word_level_timings=False)
+        transcriber.run(model_path)
         time.sleep(1)
         transcriber.stop()
 
@@ -163,3 +163,70 @@ class TestWhisperCpp:
             audio='testdata/whisper-french.mp3', params=params)
 
         assert 'Bienvenue dans Passe-Relle, un podcast' in result['text']
+
+
+def get_model_path(model_name: str, use_whisper_cpp: bool) -> str:
+    model_loader = ModelLoader(model_name, use_whisper_cpp)
+    model_path = ''
+
+    def on_load_model(path: str):
+        nonlocal model_path
+        model_path = path
+
+    model_loader.completed.connect(on_load_model)
+    model_loader.run()
+    return model_path
+
+
+def load_mock_input_stream(audio_path: str):
+    class MockInputStream:
+        """Mock implementation of sounddevice.InputStream
+        """
+
+        def __init__(self, blocksize: int, samplerate: int, callback, **args) -> None:
+            self.callback = callback
+            self.blocksize = blocksize
+            self.samplerate = samplerate
+            self.args = args
+
+            self.audio = whisper.audio.load_audio(audio_path)
+            self.thread = Thread(target=self.run_stream)
+            self.stopped = False
+
+        def start(self):
+            self.thread.start()
+
+        def run_stream(self):
+            timeout = self.blocksize / self.samplerate
+
+            current = 0
+            while current < self.audio.size and self.stopped is False:
+                time.sleep(timeout)
+
+                next_chunk = Mock()
+                next_chunk.ravel = Mock()
+                next_chunk.ravel.return_value = self.audio[current:current+self.blocksize]
+
+                self.callback(next_chunk, None, None, None)
+
+                current = current + self.blocksize
+
+        def close(self):
+            self.stopped = True
+            self.thread.join()
+
+    return MockInputStream
+
+
+def call_counter(num_calls: int):
+    """Returns a function that returns True when it has been
+    called the given number of times.
+    """
+    count = 0
+
+    def _call_counter(_):
+        nonlocal count
+        count += 1
+        return count >= num_calls
+
+    return _call_counter

@@ -48,30 +48,25 @@ class Segment:
     text: str
 
 
-class RecordingTranscriber:
+class RecordingTranscriber(QObject):
     """Transcriber records audio from a system microphone and transcribes it into text using Whisper."""
 
-    current_thread: Optional[Thread]
-    current_stream: Optional[sounddevice.InputStream]
+    process_thread: Optional[Thread]
+    stream: Optional[sounddevice.InputStream]
+    sample_rate: int
     is_running = False
     MAX_QUEUE_SIZE = 10
+    transcription = pyqtSignal(str)
+    completed = pyqtSignal()
 
-    class Event:
-        pass
-
-    @dataclass
-    class TranscribedNextChunkEvent(Event):
-        text: str
-
-    def __init__(self,
-                 model_path: str, use_whisper_cpp: bool,
-                 language: Optional[str], task: Task,
-                 event_callback: Callable[[Event], None] = lambda *_: None,
-                 input_device_index: Optional[int] = None) -> None:
-        self.model_path = model_path
+    def __init__(
+        self, use_whisper_cpp: bool, language: Optional[str],
+        task: Task, input_device_index: Optional[int] = None,
+        parent: Optional[QObject] = None
+    ) -> None:
+        super().__init__(parent)
         self.use_whisper_cpp = use_whisper_cpp
-        self.current_stream = None
-        self.event_callback = event_callback
+        self.stream = None
         self.language = language
         self.task = task
         self.input_device_index = input_device_index
@@ -84,23 +79,26 @@ class RecordingTranscriber:
         self.mutex = threading.Lock()
         self.text = ''
 
-    def start_recording(self):
-        self.current_thread = Thread(target=self.process_queue)
-        self.current_thread.start()
-
-    def process_queue(self):
-        model = WhisperCpp(
-            self.model_path) if self.use_whisper_cpp else whisper.load_model(self.model_path)
-
+    @pyqtSlot(str)
+    def run(self, model_path: str):
         logging.debug(
             'Recording, language = %s, task = %s, device = %s, sample rate = %s, model_path = %s',
-            self.language, self.task, self.input_device_index, self.sample_rate, self.model_path)
-        self.current_stream = sounddevice.InputStream(
+            self.language, self.task, self.input_device_index, self.sample_rate, model_path)
+
+        self.stream = sounddevice.InputStream(
             samplerate=self.sample_rate,
             blocksize=1 * self.sample_rate,  # 1 sec
             device=self.input_device_index, dtype="float32",
             channels=1, callback=self.stream_callback)
-        self.current_stream.start()
+        self.stream.start()
+
+        self.process_thread = Thread(
+            target=self.process_queue, args=(model_path,))
+        self.process_thread.start()
+
+    def process_queue(self, model_path: str):
+        model = WhisperCpp(
+            model_path) if self.use_whisper_cpp else whisper.load_model(model_path)
 
         self.is_running = True
 
@@ -126,15 +124,17 @@ class RecordingTranscriber:
                             language=self.language if self.language is not None else 'en',
                             task=self.task.value, word_level_timings=False))
 
-                next_text: str = result.get('text')
+                next_text = str(result.get('text')).strip()
 
                 logging.debug('Received next result, length = %s, time taken = %s',
                               len(next_text), datetime.datetime.now()-time_started)
-                self.event_callback(self.TranscribedNextChunkEvent(next_text))
+                self.transcription.emit(next_text)
 
                 self.text += f'\n\n{next_text}'
             else:
                 self.mutex.release()
+
+        self.completed.emit()
 
     def get_device_sample_rate(self, device_id: Optional[int]) -> int:
         """Returns the sample rate to be used for recording. It uses the default sample rate
@@ -162,18 +162,18 @@ class RecordingTranscriber:
     def amplitude(self, arr: np.ndarray):
         return (abs(max(arr)) + abs(min(arr))) / 2
 
-    def stop_recording(self):
+    def stop(self):
         if self.is_running:
             self.is_running = False
 
-            if self.current_stream is not None:
-                self.current_stream.close()
+            if self.stream is not None:
+                self.stream.close()
                 logging.debug('Closed recording stream')
 
-            if self.current_thread is not None:
-                logging.debug('Waiting for recording thread to terminate')
-                self.current_thread.join()
-                logging.debug('Recording thread terminated')
+            if self.process_thread is not None:
+                logging.debug('Waiting for processing thread to terminate')
+                self.process_thread.join()
+                logging.debug('Processing thread terminated')
 
 
 class OutputFormat(enum.Enum):
@@ -192,7 +192,7 @@ class WhisperCppFileTranscriber(QObject):
 
     def __init__(
             self,
-            model_path: str, language: Optional[str], task: Task, file_path: str,
+            language: Optional[str], task: Task, file_path: str,
             output_file_path: str, output_format: OutputFormat,
             word_level_timings: bool, open_file_on_complete=True,
             parent: Optional[QObject] = None
@@ -206,18 +206,17 @@ class WhisperCppFileTranscriber(QObject):
         self.open_file_on_complete = open_file_on_complete
         self.output_format = output_format
         self.word_level_timings = word_level_timings
-        self.model_path = model_path
         self.segments = []
 
         self.process = QProcess(self)
         self.process.readyReadStandardError.connect(self.read_std_err)
         self.process.readyReadStandardOutput.connect(self.read_std_out)
 
-    @pyqtSlot()
-    def run(self):
+    @pyqtSlot(str)
+    def run(self, model_path: str):
         logging.debug(
             'Starting whisper_cpp file transcription, file path = %s, language = %s, task = %s, output file path = %s, output format = %s, model_path = %s',
-            self.file_path, self.language, self.task, self.output_file_path, self.output_format, self.model_path)
+            self.file_path, self.language, self.task, self.output_file_path, self.output_format, model_path)
 
         wav_file = tempfile.mktemp()+'.wav'
         (
@@ -229,7 +228,7 @@ class WhisperCppFileTranscriber(QObject):
         args = [
             '--language', self.language if self.language is not None else 'en',
             '--max-len', '1' if self.word_level_timings else '0',
-            '--model', self.model_path,
+            '--model', model_path,
         ]
         if self.task == Task.TRANSLATE:
             args.append('--translate')
@@ -300,7 +299,7 @@ class WhisperFileTranscriber(QObject):
 
     def __init__(
             self,
-            model_path: str, language: Optional[str], task: Task, file_path: str,
+            language: Optional[str], task: Task, file_path: str,
             output_file_path: str, output_format: OutputFormat,
             word_level_timings: bool, open_file_on_complete=True,
             parent: Optional[QObject] = None
@@ -314,20 +313,19 @@ class WhisperFileTranscriber(QObject):
         self.open_file_on_complete = open_file_on_complete
         self.output_format = output_format
         self.word_level_timings = word_level_timings
-        self.model_path = model_path
 
-    @pyqtSlot()
-    def run(self):
+    @pyqtSlot(str)
+    def run(self, model_path: str):
         time_started = datetime.datetime.now()
         logging.debug(
             'Starting whisper file transcription, file path = %s, language = %s, task = %s, output file path = %s, output format = %s, model_path = %s',
-            self.file_path, self.language, self.task, self.output_file_path, self.output_format, self.model_path)
+            self.file_path, self.language, self.task, self.output_file_path, self.output_format, model_path)
 
         recv_pipe, send_pipe = multiprocessing.Pipe(duplex=False)
         self.current_process = multiprocessing.Process(
             target=transcribe_whisper,
             args=(
-                send_pipe, self.model_path, self.file_path,
+                send_pipe, model_path, self.file_path,
                 self.language, self.task, self.output_file_path,
                 self.open_file_on_complete, self.output_format,
                 self.word_level_timings
