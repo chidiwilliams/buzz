@@ -59,7 +59,6 @@ class ModelLoader(QRunnable):
             if os.path.isfile(model_path):
                 model_bytes = open(model_path, "rb").read()
                 model_sha256 = hashlib.sha256(model_bytes).hexdigest()
-                logging.debug('%s %s', model_sha256, expected_sha256)
                 if model_sha256 == expected_sha256:
                     self.signals.completed.emit(model_path)
                     return
