@@ -831,7 +831,7 @@ dev = ["pytest"]
 type = "git"
 url = "https://github.com/openai/whisper.git"
 reference = "HEAD"
-resolved_reference = "eff383b27b783e280c089475852ba83f20f64998"
+resolved_reference = "fd8f80c8b880dd7c284c109ca7f03dbe978bc532"
 
 [[package]]
 name = "wrapt"

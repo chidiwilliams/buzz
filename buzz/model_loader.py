@@ -12,6 +12,7 @@ MODELS_SHA256 = {
     'tiny': 'be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21',
     'base': '60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe',
     'small': '1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b',
+    'medium': '6c14d5adee5f86394037b4e4e8b59f1673b6cee10e3cf0b11bbdbee79c156208',
 }
 
 
@@ -57,7 +58,9 @@ class ModelLoader(QRunnable):
                 "/")[-2]
             if os.path.isfile(model_path):
                 model_bytes = open(model_path, "rb").read()
-                if hashlib.sha256(model_bytes).hexdigest() == expected_sha256:
+                model_sha256 = hashlib.sha256(model_bytes).hexdigest()
+                logging.debug('%s %s', model_sha256, expected_sha256)
+                if model_sha256 == expected_sha256:
                     self.signals.completed.emit(model_path)
                     return
                 else:
@@ -88,10 +91,10 @@ class ModelLoader(QRunnable):
             self.signals.error.emit(str(exc))
             logging.exception('')
         except requests.RequestException:
-            self.signals.error.emit('A connection error occurred.')
+            self.signals.error.emit('A connection error occurred')
             logging.exception('')
         except Exception:
-            self.signals.error.emit('An unknown error occurred.')
+            self.signals.error.emit('An unknown error occurred')
             logging.exception('')
 
     def stop(self):

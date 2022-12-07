@@ -1,5 +1,7 @@
 import pathlib
 from unittest.mock import Mock, patch
+from pytestqt.qtbot import QtBot
+
 
 import sounddevice
 from PyQt6.QtCore import QCoreApplication, Qt, pyqtBoundSignal
@@ -172,30 +174,20 @@ class TestMainWindow:
 
 
 class TestFileTranscriberWidget:
-    def test_should_transcribe(self, qtbot, tmp_path: pathlib.Path):
+    def test_should_transcribe(self, qtbot: QtBot, tmp_path: pathlib.Path):
         widget = FileTranscriberWidget(
             file_path='testdata/whisper-french.mp3', parent=None)
         qtbot.addWidget(widget)
 
         output_file_path = tmp_path / 'whisper.txt'
 
-        with patch('PyQt6.QtWidgets.QFileDialog.getSaveFileName') as save_file_name_mock:
+        with (patch('PyQt6.QtWidgets.QFileDialog.getSaveFileName') as save_file_name_mock,
+              qtbot.wait_signal(widget.transcribed, timeout=30*1000)):
             save_file_name_mock.return_value = (output_file_path, '')
             widget.run_button.click()
 
-        wait_signal_while_processing(widget.transcribed)
-
         output_file = open(output_file_path, 'r', encoding='utf-8')
         assert 'Bienvenue dans Passe-Relle, un podcast' in output_file.read()
-
-
-def wait_signal_while_processing(signal: pyqtBoundSignal):
-    mock = Mock()
-    signal.connect(mock)
-    while True:
-        QCoreApplication.processEvents()
-        if mock.call_count > 0:
-            break
 
 
 class TestSettings:

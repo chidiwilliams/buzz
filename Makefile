@@ -140,3 +140,9 @@ notarize_log:
 
 codesign_verify:
 	codesign --verify --deep --strict --verbose=2 dist/Buzz.app
+
+VENV_PATH := $(shell poetry env info -p)
+
+# Make GGML model from whisper. Example: make ggml model_path=/Users/chidiwilliams/.cache/whisper/medium.pt
+ggml:
+	python3 ./whisper.cpp/models/convert-pt-to-ggml.py ${model_path} $(VENV_PATH)/src/whisper dist
