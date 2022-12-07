@@ -834,16 +834,16 @@ class MainWindow(QMainWindow):
 
         self.settings = Settings(self)
 
-        enable_ggml_inference_action = QAction(
+        self.enable_ggml_inference_action = QAction(
             '&Enable GGML Inference', self)
-        enable_ggml_inference_action.setCheckable(True)
-        enable_ggml_inference_action.setChecked(
+        self.enable_ggml_inference_action.setCheckable(True)
+        self.enable_ggml_inference_action.setChecked(
             bool(self.settings.get_enable_ggml_inference()))
-        enable_ggml_inference_action.triggered.connect(
+        self.enable_ggml_inference_action.triggered.connect(
             self.on_toggle_enable_ggml_inference)
 
         settings_menu = menu.addMenu("&Settings")
-        settings_menu.addAction(enable_ggml_inference_action)
+        settings_menu.addAction(self.enable_ggml_inference_action)
 
         self.help_menu = menu.addMenu("&Help")
         self.help_menu.addAction(self.about_action)
@@ -879,7 +879,7 @@ class RecordingTranscriberMainWindow(MainWindow):
 class FileTranscriberMainWindow(MainWindow):
     central_widget: FileTranscriberWidget
 
-    def __init__(self, file_path: str, parent: Optional[QWidget], *args) -> None:
+    def __init__(self, file_path: str, parent: Optional[QWidget] = None, *args) -> None:
         super().__init__(title=get_short_file_path(
             file_path), w=400, h=240, parent=parent, *args)
 

@@ -20,7 +20,7 @@ import numpy as np
 import sounddevice
 import stable_whisper
 import whisper
-from PyQt6.QtCore import QObject, QProcess, QRunnable, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import QObject, QProcess, pyqtSignal, pyqtSlot
 from sounddevice import PortAudioError
 
 from .conn import pipe_stderr
@@ -353,6 +353,7 @@ class WhisperFileTranscriber(QObject):
             self.current_process.terminate()
             logging.debug('File transcription process terminated')
 
+    @pyqtSlot(str)
     def on_whisper_stdout(self, line: str):
         try:
             progress = int(line.split('|')[0].strip().strip('%'))
