@@ -1,4 +1,5 @@
 from unittest.mock import Mock
+from pytestqt.qtbot import QtBot
 import pathlib
 from unittest.mock import Mock, patch
 
@@ -8,9 +9,10 @@ from PyQt6.QtCore import QCoreApplication, Qt, pyqtBoundSignal
 from buzz.gui import (AboutDialog, Application, AudioDevicesComboBox,
                       DownloadModelProgressDialog, FileTranscriberWidget,
                       LanguagesComboBox, MainWindow, OutputFormatsComboBox,
-                      Quality, QualityComboBox, Settings,
+                      Quality, QualityComboBox, RecordingTranscriberWidget, Settings,
                       TranscriberProgressDialog)
 from buzz.transcriber import OutputFormat
+from tests.sd import load_mock_input_stream
 
 
 class TestApplication:
@@ -197,6 +199,21 @@ def wait_signal_while_processing(signal: pyqtBoundSignal):
         QCoreApplication.processEvents()
         if mock.call_count > 0:
             break
+
+
+class TestRecordingTranscriberWidget:
+    def test_should_transcribe(self, qtbot: QtBot):
+        widget = RecordingTranscriberWidget()
+
+        with patch('sounddevice.InputStream') as input_stream_mock:
+            input_stream_mock.side_effect = load_mock_input_stream(
+                'testdata/whisper-french.mp3')
+
+            with qtbot.wait_signal(widget.transcription, timeout=30_000):
+                widget.record_button.click()
+
+            widget.record_button.click()
+            assert 'Bienvenue dans Passe' in widget.text_box.toPlainText()
 
 
 class TestSettings:

@@ -563,8 +563,10 @@ class RecordingTranscriberWidget(QWidget):
     settings: Settings
     transcriber: Optional[RecordingTranscriber] = None
     model_loader: Optional[ModelLoader] = None
+    transcriber_thread: Optional[QThread] = None
+    transcription = pyqtSignal()
 
-    def __init__(self, parent: Optional[QWidget]) -> None:
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
 
         layout = QGridLayout(self)
@@ -663,13 +665,11 @@ class RecordingTranscriberWidget(QWidget):
             task=self.selected_task, input_device_index=self.selected_device_id)
 
         @pyqtSlot(str)
-        def start_recording_timer(model_path: str):
+        def start_recording_timer(_: str):
             # Clear text box placeholder because the first chunk takes a while to process
             self.text_box.setPlaceholderText('')
             self.timer_label.start_timer()
             self.record_button.setDisabled(False)
-
-            self.transcriber.run(model_path)
 
         self.model_loader.moveToThread(self.transcriber_thread)
         self.transcriber.moveToThread(self.transcriber_thread)
@@ -681,8 +681,8 @@ class RecordingTranscriberWidget(QWidget):
         self.model_loader.progress.connect(
             self.on_download_model_progress)
 
-        # self.model_loader.completed.connect(self.transcriber.run)
         self.model_loader.completed.connect(start_recording_timer)
+        self.model_loader.completed.connect(self.transcriber.run)
 
         self.model_loader.error.connect(self.on_download_model_error)
 
@@ -695,7 +695,6 @@ class RecordingTranscriberWidget(QWidget):
             self.transcriber.deleteLater)
 
         self.transcriber_thread.start()
-
 
     def on_download_model_progress(self, progress: Tuple[int, int]):
         (current_size, _) = progress
@@ -720,6 +719,8 @@ class RecordingTranscriberWidget(QWidget):
             self.text_box.moveCursor(QTextCursor.MoveOperation.End)
             self.text_box.insertPlainText(stripped_text + '\n\n')
             self.text_box.moveCursor(QTextCursor.MoveOperation.End)
+
+        self.transcription.emit()
 
     def stop_recording(self):
         if self.transcriber is not None:

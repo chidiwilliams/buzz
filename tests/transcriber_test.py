@@ -4,11 +4,9 @@ import tempfile
 import time
 from unittest.mock import Mock, patch
 
-import whisper
 import pytest
 from pytestqt.qtbot import QtBot
 from PyQt6.QtCore import QCoreApplication
-from threading import Thread
 
 from buzz.model_loader import ModelLoader
 from buzz.transcriber import (OutputFormat, RecordingTranscriber, Task,
@@ -16,6 +14,7 @@ from buzz.transcriber import (OutputFormat, RecordingTranscriber, Task,
                               WhisperFileTranscriber,
                               get_default_output_file_path, to_timestamp,
                               whisper_cpp_params)
+from .sd import load_mock_input_stream
 
 
 class TestRecordingTranscriber:
@@ -176,46 +175,6 @@ def get_model_path(model_name: str, use_whisper_cpp: bool) -> str:
     model_loader.completed.connect(on_load_model)
     model_loader.run()
     return model_path
-
-
-def load_mock_input_stream(audio_path: str):
-    class MockInputStream:
-        """Mock implementation of sounddevice.InputStream
-        """
-
-        def __init__(self, blocksize: int, samplerate: int, callback, **args) -> None:
-            self.callback = callback
-            self.blocksize = blocksize
-            self.samplerate = samplerate
-            self.args = args
-
-            self.audio = whisper.audio.load_audio(audio_path)
-            self.thread = Thread(target=self.run_stream)
-            self.stopped = False
-
-        def start(self):
-            self.thread.start()
-
-        def run_stream(self):
-            timeout = self.blocksize / self.samplerate
-
-            current = 0
-            while current < self.audio.size and self.stopped is False:
-                time.sleep(timeout)
-
-                next_chunk = Mock()
-                next_chunk.ravel = Mock()
-                next_chunk.ravel.return_value = self.audio[current:current+self.blocksize]
-
-                self.callback(next_chunk, None, None, None)
-
-                current = current + self.blocksize
-
-        def close(self):
-            self.stopped = True
-            self.thread.join()
-
-    return MockInputStream
 
 
 def call_counter(num_calls: int):
