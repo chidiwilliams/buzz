@@ -41,8 +41,8 @@ class TestWhisperCppFileTranscriber:
     @pytest.mark.parametrize(
         'task,output_text',
         [
-            (Task.TRANSCRIBE, 'Bienvenue dans Passe-Relle, un podcast'),
-            (Task.TRANSLATE, 'Welcome to Passe-Relle, a podcast'),
+            (Task.TRANSCRIBE, 'Bienvenue dans Passe'),
+            (Task.TRANSLATE, 'Welcome to Passe-Relle'),
         ])
     def test_transcribe(self, qtbot, tmp_path: pathlib.Path, task: Task, output_text: str):
         output_file_path = tmp_path / 'whisper_cpp.txt'
@@ -84,11 +84,11 @@ class TestWhisperFileTranscriber:
     @pytest.mark.parametrize(
         'word_level_timings,output_format,output_text',
         [
-            (False, OutputFormat.TXT, 'Bienvenue dans Passe-Relle, un podcast'),
-            (False, OutputFormat.SRT, '1\n00:00:00.000 --> 00:00:06.560\n Bienvenue dans Passe-Relle, un podcast pensé pour évêyer la curiosité des apprenances'),
-            (False, OutputFormat.VTT, 'WEBVTT\n\n00:00:00.000 --> 00:00:06.560\n Bienvenue dans Passe-Relle, un podcast pensé pour évêyer la curiosité des apprenances'),
+            (False, OutputFormat.TXT, 'Bienvenue dans Passe-Relle'),
+            (False, OutputFormat.SRT, '1\n00:00:00.000 --> 00:00:06.560\n Bienvenue dans Passe-Relle'),
+            (False, OutputFormat.VTT, 'WEBVTT\n\n00:00:00.000 --> 00:00:06.560\n Bienvenue dans Passe'),
             (True, OutputFormat.SRT,
-             '1\n00:00:00.040 --> 00:00:00.359\n Bienvenue dans\n\n2\n00:00:00.359 --> 00:00:00.419\n Passe-'),
+             '1\n00:00:00.040 --> 00:00:00.299\n Bien\n\n2\n00:00:00.299 --> 00:00:00.329\nvenue dans\n\n3\n00:00:00.329 --> 00:00:00.429\n P\n\n4\n00:00:00.429 --> 00:00:00.589\nasse-'),
         ])
     def test_transcribe(self, qtbot, tmp_path: pathlib.Path, word_level_timings: bool, output_format: OutputFormat, output_text: str):
         output_file_path = tmp_path / f'whisper.{output_format.value.lower()}'
@@ -161,4 +161,4 @@ class TestWhisperCpp:
         result = whisper_cpp.transcribe(
             audio='testdata/whisper-french.mp3', params=params)
 
-        assert 'Bienvenue dans Passe-Relle, un podcast' in result['text']
+        assert 'Bienvenue dans Passe' in result['text']
