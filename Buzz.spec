@@ -77,7 +77,7 @@ app = BUNDLE(
     name='Buzz.app',
     icon='./assets/buzz.icns',
     bundle_identifier='com.chidiwilliams.buzz',
-    version='0.6.1',
+    version='0.6.2',
     info_plist={
         'NSPrincipalClass': 'NSApplication',
         'NSHighResolutionCapable': 'True',
