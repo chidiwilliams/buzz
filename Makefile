@@ -100,6 +100,7 @@ codesign_all_mac:
 		make codesign_mac path="$$i"; \
 	done
 	make codesign_mac path="./dist/Buzz.app/Contents/Resources/ffmpeg"
+	make codesign_mac path="./dist/Buzz.app/Contents/Resources/whisper_cpp"
 	make codesign_mac path="./dist/Buzz.app/Contents/MacOS/Buzz"
 	make codesign_verify
 
@@ -146,3 +147,6 @@ VENV_PATH := $(shell poetry env info -p)
 # Make GGML model from whisper. Example: make ggml model_path=/Users/chidiwilliams/.cache/whisper/medium.pt
 ggml:
 	python3 ./whisper.cpp/models/convert-pt-to-ggml.py ${model_path} $(VENV_PATH)/src/whisper dist
+
+upload_brew:
+	brew bump-cask-pr --version ${version} buzz

@@ -243,7 +243,7 @@ class WhisperCppFileTranscriber(QRunnable):
         args.append(wav_file)
 
         logging.debug(
-            'Running whisper_cpp process, args = "%s"', ''.join(args))
+            'Running whisper_cpp process, args = "%s"', ' '.join(args))
 
         self.process.start('./whisper_cpp', args)
 
