@@ -194,7 +194,7 @@ class Signals(QObject):
 class WhisperCppFileTranscriber(QRunnable):
     signals: Signals
     duration_audio_ms = sys.maxsize  # max int
-    segments: List[Segment] = []
+    segments: List[Segment]
 
     def __init__(
             self,
@@ -213,6 +213,7 @@ class WhisperCppFileTranscriber(QRunnable):
         self.word_level_timings = word_level_timings
         self.model_path = model_path
         self.signals = Signals()
+        self.segments = []
 
         self.process = QProcess()
         self.process.readyReadStandardError.connect(self.read_std_err)

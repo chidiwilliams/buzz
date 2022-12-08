@@ -187,7 +187,7 @@ class TestFileTranscriberWidget:
             widget.run_button.click()
 
         output_file = open(output_file_path, 'r', encoding='utf-8')
-        assert 'Bienvenue dans Passe-Relle, un podcast' in output_file.read()
+        assert 'Bienvenue dans Passe' in output_file.read()
 
 
 class TestSettings:
