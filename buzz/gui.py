@@ -145,6 +145,7 @@ class Quality(enum.Enum):
     LOW = 'low'
     MEDIUM = 'medium'
     HIGH = 'high'
+    VERY_HIGH = 'very high'
 
 
 class QualityComboBox(QComboBox):
@@ -333,11 +334,12 @@ class TimerLabel(QLabel):
 
 def get_model_name(quality: Quality) -> str:
     return {
-        Quality.VERY_LOW: ('tiny', 'tiny.en'),
-        Quality.LOW:      ('base', 'base.en'),
-        Quality.MEDIUM:   ('small', 'small.en'),
-        Quality.HIGH:     ('medium', 'medium.en'),
-    }[quality][0]
+        Quality.VERY_LOW:  'tiny',
+        Quality.LOW:       'base',
+        Quality.MEDIUM:    'small',
+        Quality.HIGH:      'medium',
+        Quality.VERY_HIGH: 'large',
+    }[quality]
 
 
 def show_model_download_error_dialog(parent: QWidget, error: str):
@@ -707,6 +709,8 @@ class RecordingTranscriberWidget(QWidget):
     def on_download_model_error(self, error: str):
         show_model_download_error_dialog(self, error)
         self.stop_recording()
+        self.record_button.force_stop()
+        self.record_button.setDisabled(False)
 
     def on_transcriber_event_changed(self, event: RecordingTranscriber.Event):
         if isinstance(event, RecordingTranscriber.TranscribedNextChunkEvent):
