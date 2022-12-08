@@ -135,3 +135,5 @@ jobs:
             Buzz*.tar.gz
             Buzz*.dmg
             Buzz.exe
+      - name: Upload to Brew
+        run: make upload_brew
