@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "buzz"
-version = "0.6.2"
+version = "0.5.8"
 description = ""
 authors = ["Chidi Williams <williamschidi1@gmail.com>"]
 license = "MIT"
@@ -11,12 +11,12 @@ python = ">=3.9.13,<3.11"
 sounddevice = "^0.4.5"
 whisper = { git = "https://github.com/openai/whisper.git" }
 torch = "1.12.1"
+numpy = "^1.23.3"
 transformers = "^4.22.1"
 appdirs = "^1.4.4"
 ffmpeg-python = "^0.2.0"
 humanize = "^4.4.0"
 PyQt6 = "^6.4.0"
-stable-ts = "^1.0.1"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
