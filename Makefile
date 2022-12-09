@@ -158,7 +158,7 @@ gh_upgrade_pr:
 	make version version=${version}
 
 	git commit -am "Upgrade to ${version}"
-	git push -u origin
+	git push --set-upstream origin upgrade-to-${version}
 
 	gh pr create --fill
-	gh pr merge upgrade-to-${version} --auto
+	gh pr merge upgrade-to-${version} --auto --squash
