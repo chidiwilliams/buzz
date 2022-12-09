@@ -150,3 +150,15 @@ ggml:
 
 upload_brew:
 	brew bump-cask-pr --version ${version} buzz
+
+gh_upgrade_pr:
+	git checkout main && git pull
+	git checkout -b upgrade-to-${version}
+
+	make version version=${version}
+
+	git commit -am "Upgrade to ${version}"
+	git push --set-upstream origin upgrade-to-${version}
+
+	gh pr create --fill
+	gh pr merge upgrade-to-${version} --auto --squash
