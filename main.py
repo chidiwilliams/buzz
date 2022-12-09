@@ -4,12 +4,18 @@ import multiprocessing
 import os
 import platform
 import sys
+from typing import TextIO
 
 from appdirs import user_log_dir
 
 # Check for segfaults if not running in frozen mode
 if getattr(sys, 'frozen', False) is False:
     faulthandler.enable()
+
+# Sets stderr to no-op TextIO when None (run as Windows GUI).
+# Resolves https://github.com/chidiwilliams/buzz/issues/221
+if sys.stderr is None:
+    sys.stderr = TextIO()
 
 
 # Adds the current directory to the PATH, so the ffmpeg binary get picked up:
