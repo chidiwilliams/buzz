@@ -120,7 +120,7 @@ jobs:
             security list-keychain -d user -s $KEYCHAIN_PATH
 
             # store notarytool credentials
-            xcrun notarytool store-credentials --apple-id "$APPLE_ID" --password "$APPLE_APP_PASSWORD" --team-id "$APPLE_TEAM_ID"
+            xcrun notarytool store-credentials --apple-id "$APPLE_ID" --password "$APPLE_APP_PASSWORD" --team-id "$APPLE_TEAM_ID" notarytool --validate
 
             poetry run make bundle_mac
 
