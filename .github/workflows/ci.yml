@@ -103,6 +103,8 @@ jobs:
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
 
+            brew install create-dmg
+
             # create variables
             CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
             KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
