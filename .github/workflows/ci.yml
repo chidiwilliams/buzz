@@ -104,7 +104,7 @@ jobs:
           if [ "$RUNNER_OS" == "macOS" ]; then
             poetry run make bundle_mac
           elif [ "$RUNNER_OS" == "Windows" ]; then
-            poetry run make dist/Buzz.exe dist/Buzz-windows.exe
+            poetry run make bundle_windows
           elif [ "$RUNNER_OS" == "Linux" ]; then
             poetry run make bundle_linux
           fi
