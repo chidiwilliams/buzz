@@ -12,16 +12,11 @@ windows_zip_path := Buzz-${version}-windows.tar.gz
 bundle_linux: dist/Buzz
 	cd dist && tar -czf ${unix_zip_path} Buzz/ && cd -
 
-dist/Buzz.exe: dist/Buzz
+bundle_windows: dist/Buzz
 	iscc //DAppVersion=${version} installer.iss
-
-dist/Buzz-windows.exe: dist/Buzz
 	cd dist && tar -czf ${windows_zip_path} Buzz/ && cd -
 
 bundle_mac: dist/Buzz.app
-	make zip_mac
-
-bundle_mac_local: dist/Buzz.app
 	make codesign_all_mac
 	make zip_mac
 	make notarize_zip

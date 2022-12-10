@@ -102,23 +102,57 @@ jobs:
       - name: Bundle
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
+
+            brew install create-dmg
+
+            # create variables
+            CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+            KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+            # import certificate and provisioning profile from secrets
+            echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
+
+            # create temporary keychain
+            security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+            security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+            security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+            # import certificate to keychain
+            security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+            security list-keychain -d user -s $KEYCHAIN_PATH
+
+            # store notarytool credentials
+            xcrun notarytool store-credentials --apple-id "$APPLE_ID" --password "$APPLE_APP_PASSWORD" --team-id "$APPLE_TEAM_ID" notarytool --validate
+
             poetry run make bundle_mac
+
           elif [ "$RUNNER_OS" == "Windows" ]; then
-            poetry run make dist/Buzz.exe dist/Buzz-windows.exe
+
+            poetry run make bundle_windows
+
           elif [ "$RUNNER_OS" == "Linux" ]; then
+
             poetry run make bundle_linux
+
           fi
         env:
-          BUZZ_VERSION: ${{ github.ref_name }}
+          BUZZ_CODESIGN_IDENTITY: ${{ secrets.BUZZ_CODESIGN_IDENTITY }}
+          BUZZ_KEYCHAIN_NOTARY_PROFILE: ${{ secrets.BUZZ_KEYCHAIN_NOTARY_PROFILE }}
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         shell: bash
 
       - uses: actions/upload-artifact@v3
         with:
           name: Buzz-${{ runner.os }}
           path: |
-            dist/Buzz*.tar.gz
-            dist/Buzz*.zip
-            dist/Buzz*.exe
+            dist/Buzz*-windows.tar.gz
+            dist/Buzz*-windows.exe
+            dist/Buzz*-mac.dmg
 
   release:
     runs-on: ubuntu-latest
@@ -135,8 +169,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            Buzz*.tar.gz
-            Buzz*.dmg
-            Buzz.exe
+            Buzz*-windows.tar.gz
+            Buzz*-windows.exe
+            Buzz*-mac.dmg
       - name: Upload to Brew
         run: make upload_brew
