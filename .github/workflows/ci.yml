@@ -152,6 +152,7 @@ jobs:
           path: |
             dist/Buzz*.tar.gz
             dist/Buzz*.zip
+            dist/Buzz*.dmg
             dist/Buzz*.exe
 
   release:
