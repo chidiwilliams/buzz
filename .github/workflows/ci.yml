@@ -150,10 +150,9 @@ jobs:
         with:
           name: Buzz-${{ runner.os }}
           path: |
-            dist/Buzz*.tar.gz
-            dist/Buzz*.zip
-            dist/Buzz*.dmg
-            dist/Buzz*.exe
+            dist/Buzz*-windows.tar.gz
+            dist/Buzz*-windows.exe
+            dist/Buzz*-mac.dmg
 
   release:
     runs-on: ubuntu-latest
@@ -170,8 +169,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            Buzz*.tar.gz
-            Buzz*.dmg
-            Buzz.exe
+            Buzz*-windows.tar.gz
+            Buzz*-windows.exe
+            Buzz*-mac.dmg
       - name: Upload to Brew
         run: make upload_brew
