@@ -125,6 +125,9 @@ jobs:
     needs: [build, test]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - uses: actions/download-artifact@v3
         with:
           name: Buzz-Windows

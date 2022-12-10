@@ -101,11 +101,13 @@ _(Default: off)_
 
 Turn this on to use inference from [Whisper.cpp](https://github.com/ggerganov/whisper.cpp). Whisper.cpp runs faster than Whisper's original Python implementation but requires a different set of models for inference. Whisper.cpp currently does not support the "Detect Language" option, and transcription will fall back to the original Whisper inference if selected. See the [Whisper.cpp documentation](https://github.com/ggerganov/whisper.cpp) for more information.
 
-| Model | Link                                                               | SHA256                                                           |
-| ----- | ------------------------------------------------------------------ | ---------------------------------------------------------------- |
-| tiny  | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-tiny.bin>  | be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21 |
-| base  | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-base.bin>  | 60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe |
-| small | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-small.bin> | 1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b |
+| Model  | Link                                                                | Size    | SHA256                                                           |
+| ------ | ------------------------------------------------------------------- | ------- | ---------------------------------------------------------------- |
+| tiny   | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-tiny.bin>   | 78 MB   | be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21 |
+| base   | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-base.bin>   | 148 MB  | 60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe |
+| small  | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-small.bin>  | 488 MB  | 1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b |
+| medium | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-medium.bin> | 1.53 GB | 6c14d5adee5f86394037b4e4e8b59f1673b6cee10e3cf0b11bbdbee79c156208 |
+| large  | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-large.bin>  | 3.1 GB  | 9a423fe4d40c82774b6af34115b8b935f34152246eb19e80e376071d3f999487 |
 
 ## Build/run locally
 
