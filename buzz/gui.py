@@ -65,10 +65,15 @@ class AudioDevicesComboBox(QComboBox):
             self.setCurrentIndex(default_device_index)
 
     def get_audio_devices(self) -> List[Tuple[int, str]]:
-        devices: sounddevice.DeviceList = sounddevice.query_devices()
-        input_devices = filter(
-            lambda device: device.get('max_input_channels') > 0, devices)
-        return list(map(lambda device: (device.get('index'), device.get('name')), input_devices))
+        try:
+            devices: sounddevice.DeviceList = sounddevice.query_devices()
+            input_devices = filter(
+                lambda device: device.get('max_input_channels') > 0, devices)
+            return list(map(lambda device: (device.get('index'), device.get('name')), input_devices))
+        except UnicodeDecodeError:
+            QMessageBox.critical(
+                self, '', 'An error occured while loading your audio devices. Please check the application logs for more information.')
+            return []
 
     def on_index_changed(self, index: int):
         self.device_changed.emit(self.audio_devices[index][0])
