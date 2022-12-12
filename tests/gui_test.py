@@ -1,16 +1,19 @@
 import pathlib
 from unittest.mock import Mock, patch
 from pytestqt.qtbot import QtBot
+import pytest
 
 
 import sounddevice
 from PyQt6.QtCore import QCoreApplication, Qt, pyqtBoundSignal
 
-from buzz.gui import (AboutDialog, Application, AudioDevicesComboBox,
+from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application, AudioDevicesComboBox,
                       DownloadModelProgressDialog, FileTranscriberWidget,
                       LanguagesComboBox, MainWindow, OutputFormatsComboBox,
-                      Quality, QualityComboBox, Settings,
+                      Quality, QualityComboBox, Settings, TemperatureValidator,
                       TranscriberProgressDialog)
+from PyQt6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
+                         QKeySequence, QPixmap, QTextCursor, QValidator)
 from buzz.transcriber import OutputFormat
 
 
@@ -208,3 +211,37 @@ class TestAboutDialog:
     def test_should_create(self):
         dialog = AboutDialog()
         assert dialog is not None
+
+
+class TestAdvancedSettingsDialog:
+    def test_should_update_advanced_settings(self):
+        dialog = AdvancedSettingsDialog(
+            temperature=(0.0, 0.8), initial_prompt='prompt', use_whisper_cpp=False, parent=None)
+        temperature_mock = Mock()
+        initial_prompt_mock = Mock()
+        dialog.temperature_changed.connect(temperature_mock)
+        dialog.initial_prompt_changed.connect(initial_prompt_mock)
+
+        assert dialog.windowTitle() == 'Advanced Settings'
+        assert dialog.temperature_line_edit.text() == '0.0, 0.8'
+        assert dialog.initial_prompt_text_edit.toPlainText() == 'prompt'
+
+        dialog.temperature_line_edit.setText('0.0, 0.8, 1.0')
+        dialog.initial_prompt_text_edit.setPlainText('new prompt')
+
+        temperature_mock.assert_called_with((0.0, 0.8, 1.0))
+        initial_prompt_mock.assert_called_with('new prompt')
+
+
+class TestTemperatureValidator:
+    validator = TemperatureValidator(None)
+
+    @pytest.mark.parametrize(
+        'text,state',
+        [
+            ('0.0,0.5,1.0', QValidator.State.Acceptable),
+            ('0.0,0.5,', QValidator.State.Intermediate),
+            ('0.0,0.5,p', QValidator.State.Invalid),
+        ])
+    def test_should_validate_temperature(self, text: str, state: QValidator.State):
+        assert self.validator.validate(text, 0)[0] == state

@@ -36,6 +36,9 @@ except ImportError:
     logging.exception('')
 
 
+DEFAULT_WHISPER_TEMPERATURE = (0.0, 0.2, 0.4, 0.6, 0.8, 1.0)
+
+
 class Task(enum.Enum):
     TRANSLATE = "translate"
     TRANSCRIBE = "transcribe"
@@ -66,6 +69,7 @@ class RecordingTranscriber:
     def __init__(self,
                  model_path: str, use_whisper_cpp: bool,
                  language: Optional[str], task: Task,
+                 temperature: Tuple[float, ...] = DEFAULT_WHISPER_TEMPERATURE, initial_prompt: str = '',
                  on_download_model_chunk: Callable[[
                      int, int], None] = lambda *_: None,
                  event_callback: Callable[[Event], None] = lambda *_: None,
@@ -77,6 +81,8 @@ class RecordingTranscriber:
         self.language = language
         self.task = task
         self.input_device_index = input_device_index
+        self.temperature = temperature
+        self.initial_prompt = initial_prompt
         self.sample_rate = self.get_device_sample_rate(
             device_id=input_device_index)
         self.n_batch_samples = 5 * self.sample_rate  # every 5 seconds
@@ -96,8 +102,8 @@ class RecordingTranscriber:
             self.model_path) if self.use_whisper_cpp else whisper.load_model(self.model_path)
 
         logging.debug(
-            'Recording, language = %s, task = %s, device = %s, sample rate = %s, model_path = %s',
-            self.language, self.task, self.input_device_index, self.sample_rate, self.model_path)
+            'Recording, language = %s, task = %s, device = %s, sample rate = %s, model_path = %s, temperature = %s, initial prompt length = %s',
+            self.language, self.task, self.input_device_index, self.sample_rate, self.model_path, self.temperature, len(self.initial_prompt))
         self.current_stream = sounddevice.InputStream(
             samplerate=self.sample_rate,
             blocksize=1 * self.sample_rate,  # 1 sec
@@ -120,8 +126,9 @@ class RecordingTranscriber:
 
                 if isinstance(model, whisper.Whisper):
                     result = model.transcribe(
-                        audio=samples, language=self.language, task=self.task.value,
-                        initial_prompt=self.text)  # prompt model with text from previous transcriptions
+                        audio=samples, language=self.language,
+                        task=self.task.value, initial_prompt=self.initial_prompt,
+                        temperature=self.temperature)
                 else:
                     result = model.transcribe(
                         audio=samples,
@@ -130,6 +137,9 @@ class RecordingTranscriber:
                             task=self.task.value, word_level_timings=False))
 
                 next_text: str = result.get('text')
+
+                # Update initial prompt between successive recording chunks
+                self.initial_prompt += next_text
 
                 logging.debug('Received next result, length = %s, time taken = %s',
                               len(next_text), datetime.datetime.now()-time_started)
@@ -306,7 +316,8 @@ class WhisperFileTranscriber(QRunnable):
             self,
             model_path: str, language: Optional[str], task: Task, file_path: str,
             output_file_path: str, output_format: OutputFormat,
-            word_level_timings: bool, open_file_on_complete=True) -> None:
+            word_level_timings: bool, temperature: Tuple[float, ...] = DEFAULT_WHISPER_TEMPERATURE,
+            initial_prompt: str = '', open_file_on_complete=True) -> None:
         super(WhisperFileTranscriber, self).__init__()
 
         self.file_path = file_path
@@ -317,14 +328,16 @@ class WhisperFileTranscriber(QRunnable):
         self.output_format = output_format
         self.word_level_timings = word_level_timings
         self.model_path = model_path
+        self.temperature = temperature
+        self.initial_prompt = initial_prompt
         self.signals = Signals()
 
     @pyqtSlot()
     def run(self):
         time_started = datetime.datetime.now()
         logging.debug(
-            'Starting file transcription, file path = %s, language = %s, task = %s, output file path = %s, output format = %s, model_path = %s',
-            self.file_path, self.language, self.task, self.output_file_path, self.output_format, self.model_path)
+            'Starting file transcription, file path = %s, language = %s, task = %s, output file path = %s, output format = %s, model path = %s, temperature = %s, initial prompt length = %s',
+            self.file_path, self.language, self.task, self.output_file_path, self.output_format, self.model_path, self.temperature, len(self.initial_prompt))
 
         recv_pipe, send_pipe = multiprocessing.Pipe(duplex=False)
         self.current_process = multiprocessing.Process(
@@ -333,7 +346,8 @@ class WhisperFileTranscriber(QRunnable):
                 send_pipe, self.model_path, self.file_path,
                 self.language, self.task, self.output_file_path,
                 self.open_file_on_complete, self.output_format,
-                self.word_level_timings
+                self.word_level_timings,
+                self.temperature, self.initial_prompt
             ))
 
         self.current_process.start()
@@ -377,17 +391,20 @@ def transcribe_whisper(
         stderr_conn: Connection, model_path: str, file_path: str,
         language: Optional[str], task: Task, output_file_path: str,
         open_file_on_complete: bool, output_format: OutputFormat,
-        word_level_timings: bool):
+        word_level_timings: bool, temperature: Tuple[float, ...], initial_prompt: str):
     with pipe_stderr(stderr_conn):
         model = whisper.load_model(model_path)
 
         if word_level_timings:
             stable_whisper.modify_model(model)
             result = model.transcribe(
-                audio=file_path, language=language, task=task.value, pbar=True)
+                audio=file_path, language=language,
+                task=task.value, temperature=temperature,
+                initial_prompt=initial_prompt, pbar=True)
         else:
             result = model.transcribe(
-                audio=file_path, language=language, task=task.value, verbose=False)
+                audio=file_path, language=language, task=task.value, temperature=temperature,
+                initial_prompt=initial_prompt, verbose=False)
 
         whisper_segments = stable_whisper.group_word_timestamps(
             result) if word_level_timings else result.get('segments')
