@@ -2,11 +2,12 @@ import hashlib
 import logging
 import os
 import warnings
+from typing import Optional
 
 import requests
 import whisper
 from platformdirs import user_cache_dir
-from PyQt6.QtCore import QObject, QRunnable, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 
 MODELS_SHA256 = {
     'tiny': 'be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21',
@@ -23,16 +24,16 @@ class Signals(QObject):
     error = pyqtSignal(str)
 
 
-class ModelLoader(QRunnable):
-
-    signals: Signals
+class ModelLoader(QObject):
+    progress = pyqtSignal(tuple)  # (current, total)
+    finished = pyqtSignal(str)
+    error = pyqtSignal(str)
     stopped = False
 
-    def __init__(self, name: str, use_whisper_cpp=False) -> None:
-        super(ModelLoader, self).__init__()
+    def __init__(self, name: str, use_whisper_cpp=False, parent: Optional['QObject'] = None) -> None:
+        super().__init__(parent)
         self.name = name
         self.use_whisper_cpp = use_whisper_cpp
-        self.signals = Signals()
 
     @pyqtSlot()
     def run(self):
@@ -61,7 +62,7 @@ class ModelLoader(QRunnable):
                 model_bytes = open(model_path, "rb").read()
                 model_sha256 = hashlib.sha256(model_bytes).hexdigest()
                 if model_sha256 == expected_sha256:
-                    self.signals.completed.emit(model_path)
+                    self.finished.emit(model_path)
                     return
                 else:
                     warnings.warn(
@@ -73,28 +74,28 @@ class ModelLoader(QRunnable):
                 source.raise_for_status()
                 total_size = int(source.headers.get('Content-Length', 0))
                 current = 0
-                self.signals.progress.emit((0, total_size))
+                self.progress.emit((0, total_size))
                 for chunk in source.iter_content(chunk_size=8192):
                     if self.stopped:
                         return
                     output.write(chunk)
                     current += len(chunk)
-                    self.signals.progress.emit((current, total_size))
+                    self.progress.emit((current, total_size))
 
             model_bytes = open(model_path, "rb").read()
             if hashlib.sha256(model_bytes).hexdigest() != expected_sha256:
                 raise RuntimeError(
                     "Model has been downloaded but the SHA256 checksum does not match. Please retry loading the model.")
 
-            self.signals.completed.emit(model_path)
+            self.finished.emit(model_path)
         except RuntimeError as exc:
-            self.signals.error.emit(str(exc))
+            self.error.emit(str(exc))
             logging.exception('')
         except requests.RequestException:
-            self.signals.error.emit('A connection error occurred')
+            self.error.emit('A connection error occurred')
             logging.exception('')
         except Exception:
-            self.signals.error.emit('An unknown error occurred')
+            self.error.emit('An unknown error occurred')
             logging.exception('')
 
     def stop(self):
