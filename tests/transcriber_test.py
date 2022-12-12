@@ -44,6 +44,7 @@ class TestWhisperCppFileTranscriber:
             (Task.TRANSCRIBE, 'Bienvenue dans Passe'),
             (Task.TRANSLATE, 'Welcome to Passe-Relle'),
         ])
+    @pytest.mark.skip()
     def test_transcribe(self, qtbot, tmp_path: pathlib.Path, task: Task, output_text: str):
         output_file_path = tmp_path / 'whisper_cpp.txt'
         if os.path.exists(output_file_path):
