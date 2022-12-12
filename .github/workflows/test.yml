@@ -103,8 +103,8 @@ jobs:
         run: |
           C:/msys64/usr/bin/wget.exe -qO blas.zip https://github.com/xianyi/OpenBLAS/releases/download/v0.3.21/OpenBLAS-0.3.21-x64.zip
           7z x blas.zip -oblas -y
-          copy blas/include/cblas.h .
-          copy blas/include/openblas_config.h .
+          copy blas/include/cblas.h whisper.cpp
+          copy blas/include/openblas_config.h whisper.cpp
           echo "blasdir=$env:GITHUB_WORKSPACE/blas" >> $env:GITHUB_ENV
 
       - name: Fetch SDL2 and set SDL2_DIR
