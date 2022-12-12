@@ -130,7 +130,7 @@ jobs:
         run: copy "$env:blasdir/bin/libopenblas.dll" whisper.cpp/build/bin/RelWithDebInfo
 
       - name: Copy SDL2.dll
-        run: copy "$env:SDL2_DIR/../lib/2.26.0/SDL2.dll" whisper.cpp/build/bin/RelWithDebInfo
+        run: copy "$env:SDL2_DIR/../lib/x64/SDL2.dll" whisper.cpp/build/bin/RelWithDebInfo
 
       - run: copy whisper.cpp/build/bin/RelWithDebInfo/*.* .
 
