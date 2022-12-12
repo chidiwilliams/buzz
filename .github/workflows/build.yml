@@ -154,8 +154,7 @@ jobs:
 
       - run: copy whisper.cpp/build/bin/RelWithDebInfo/*.* .
 
-      - run: ls -ali
-        shell: bash
+      - run: copy main.exe whisper.exe
 
       - run: whisper.exe
 

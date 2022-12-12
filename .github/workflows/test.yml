@@ -134,5 +134,7 @@ jobs:
 
       - run: copy whisper.cpp/build/bin/RelWithDebInfo/*.* .
 
+      - run: copy main.exe whisper.exe
+
       - name: Test
         run: poetry run make test
