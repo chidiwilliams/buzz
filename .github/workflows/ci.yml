@@ -155,7 +155,13 @@ jobs:
             dist/Buzz*-mac.dmg
 
   release:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+          - os: windows-latest
     needs: [build, test]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
@@ -164,7 +170,12 @@ jobs:
           submodules: recursive
       - uses: actions/download-artifact@v3
         with:
-          name: Buzz-Windows
+          name: Buzz-${{ runner.os }}
+      - name: Install Poetry Action
+        uses: snok/install-poetry@v1.3.1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
