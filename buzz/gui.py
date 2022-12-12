@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import humanize
 import sounddevice
 from PyQt6 import QtGui
-from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt,
+from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt, QThread,
                           QThreadPool, QTimer, QUrl, pyqtSignal)
 from PyQt6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
                          QKeySequence, QPixmap, QTextCursor, QValidator)
@@ -367,6 +367,7 @@ class FileTranscriberWidget(QWidget):
     file_transcriber: Optional[Union[WhisperFileTranscriber,
                                      WhisperCppFileTranscriber]] = None
     model_loader: Optional[ModelLoader] = None
+    model_loader_thread: Optional[QThread] = None
     transcribed = pyqtSignal()
 
     def __init__(self, file_path: str, parent: Optional[QWidget]) -> None:
@@ -501,14 +502,27 @@ class FileTranscriberWidget(QWidget):
                 self.on_transcriber_complete)
             self.pool.start(self.file_transcriber)
 
+        self.model_loader_thread = QThread()
+
         self.model_loader = ModelLoader(
             name=model_name, use_whisper_cpp=use_whisper_cpp)
-        self.model_loader.signals.progress.connect(
-            self.on_download_model_progress)
-        self.model_loader.signals.completed.connect(start_file_transcription)
-        self.model_loader.signals.error.connect(self.on_download_model_error)
 
-        self.pool.start(self.model_loader)
+        self.model_loader.moveToThread(self.model_loader_thread)
+
+        self.model_loader_thread.started.connect(self.model_loader.run)
+        self.model_loader.finished.connect(self.model_loader_thread.quit)
+
+        self.model_loader.finished.connect(self.model_loader.deleteLater)
+        self.model_loader_thread.finished.connect(
+            self.model_loader_thread.deleteLater)
+
+        self.model_loader.progress.connect(
+            self.on_download_model_progress)
+
+        self.model_loader.finished.connect(start_file_transcription)
+        self.model_loader.error.connect(self.on_download_model_error)
+
+        self.model_loader_thread.start()
 
     def on_download_model_progress(self, progress: Tuple[int, int]):
         (current_size, total_size) = progress
@@ -623,6 +637,7 @@ class RecordingTranscriberWidget(QWidget):
     settings: Settings
     transcriber: Optional[RecordingTranscriberObject] = None
     model_loader: Optional[ModelLoader] = None
+    model_loader_thread: Optional[QThread] = None
 
     def __init__(self, parent: Optional[QWidget]) -> None:
         super().__init__(parent)
@@ -679,7 +694,6 @@ class RecordingTranscriberWidget(QWidget):
 
         self.setLayout(layout)
 
-        self.pool = QThreadPool()
 
     def open_advanced_settings(self):
         dialog = AdvancedSettingsDialog(
@@ -745,15 +759,27 @@ class RecordingTranscriberWidget(QWidget):
 
             self.transcriber.start_recording()
 
+        self.model_loader_thread = QThread()
+
         self.model_loader = ModelLoader(
             name=model_name, use_whisper_cpp=use_whisper_cpp)
-        self.model_loader.signals.progress.connect(
-            self.on_download_model_progress)
-        self.model_loader.signals.completed.connect(
-            start_recording_transcription)
-        self.model_loader.signals.error.connect(self.on_download_model_error)
 
-        self.pool.start(self.model_loader)
+        self.model_loader.moveToThread(self.model_loader_thread)
+
+        self.model_loader_thread.started.connect(self.model_loader.run)
+        self.model_loader.finished.connect(self.model_loader_thread.quit)
+
+        self.model_loader.finished.connect(self.model_loader.deleteLater)
+        self.model_loader_thread.finished.connect(
+            self.model_loader_thread.deleteLater)
+
+        self.model_loader.progress.connect(
+            self.on_download_model_progress)
+
+        self.model_loader.finished.connect(start_recording_transcription)
+        self.model_loader.error.connect(self.on_download_model_error)
+
+        self.model_loader_thread.start()
 
     def on_download_model_progress(self, progress: Tuple[int, int]):
         (current_size, _) = progress

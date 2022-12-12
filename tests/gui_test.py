@@ -1,19 +1,18 @@
 import pathlib
 from unittest.mock import Mock, patch
-from pytestqt.qtbot import QtBot
+
 import pytest
-
-
 import sounddevice
-from PyQt6.QtCore import QCoreApplication, Qt, pyqtBoundSignal
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import (QValidator)
+from pytestqt.qtbot import QtBot
 
-from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application, AudioDevicesComboBox,
-                      DownloadModelProgressDialog, FileTranscriberWidget,
-                      LanguagesComboBox, MainWindow, OutputFormatsComboBox,
-                      Quality, QualityComboBox, Settings, TemperatureValidator,
+from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application,
+                      AudioDevicesComboBox, DownloadModelProgressDialog,
+                      FileTranscriberWidget, LanguagesComboBox, MainWindow,
+                      OutputFormatsComboBox, Quality, QualityComboBox,
+                      Settings, TemperatureValidator,
                       TranscriberProgressDialog)
-from PyQt6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
-                         QKeySequence, QPixmap, QTextCursor, QValidator)
 from buzz.transcriber import OutputFormat
 
 
