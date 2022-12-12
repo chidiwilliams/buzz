@@ -13,14 +13,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: macos-latest
-          - os: windows-latest
+  macos-latest:
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
         with:
@@ -40,7 +34,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-2
+          key: venv-macOS-${{ hashFiles('**/poetry.lock') }}-2
 
       - name: Load cached Whisper models
         id: cached-whisper-models
@@ -49,7 +43,7 @@ jobs:
           path: |
             ~/Library/Caches/Buzz
             ~/.cache/whisper
-          key: whisper-models-${{ runner.os }}
+          key: whisper-models-macos
 
       - uses: FedericoCarboni/setup-ffmpeg@v1
         id: setup-ffmpeg
@@ -58,6 +52,87 @@ jobs:
 
       - name: Install dependencies
         run: poetry config experimental.new-installer false && poetry install
+
+      - name: Test
+        run: poetry run make test
+
+  windows-latest:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10.7'
+
+      - name: Install Poetry Action
+        uses: snok/install-poetry@v1.3.1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-Windows-${{ hashFiles('**/poetry.lock') }}-2
+
+      - name: Load cached Whisper models
+        id: cached-whisper-models
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/Library/Caches/Buzz
+            ~/.cache/whisper
+          key: whisper-models-macOS
+
+      - uses: FedericoCarboni/setup-ffmpeg@v1
+        id: setup-ffmpeg
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies
+        run: poetry config experimental.new-installer false && poetry install
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1
+
+      - name: Fetch OpenBLAS
+        run: |
+          C:/msys64/usr/bin/wget.exe -qO blas.zip https://github.com/xianyi/OpenBLAS/releases/download/v0.3.21/OpenBLAS-0.3.21-x64.zip
+          7z x blas.zip -oblas -y
+          copy blas/include/cblas.h .
+          copy blas/include/openblas_config.h .
+          echo "blasdir=$env:GITHUB_WORKSPACE/blas" >> $env:GITHUB_ENV
+
+      - name: Fetch SDL2 and set SDL2_DIR
+        run: |
+          C:/msys64/usr/bin/wget.exe -qO sdl2.zip https://github.com/libsdl-org/SDL/releases/download/release-2.26.0/SDL2-devel-2.26.0-VC.zip
+          7z x sdl2.zip
+          echo "SDL2_DIR=$env:GITHUB_WORKSPACE/SDL2-2.26.0/cmake" >> $env:GITHUB_ENV
+
+      - name: Configure
+        run: >
+          cmake -S whisper.cpp -B whisper.cpp/build -A x64
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          -DWHISPER_SUPPORT_OPENBLAS=ON
+          -DCMAKE_LIBRARY_PATH="$env:blasdir/lib"
+          -DWHISPER_SUPPORT_SDL2=ON
+
+      - name: Build
+        run: |
+          cd whisper.cpp/build
+          msbuild ALL_BUILD.vcxproj -t:build -p:configuration=RelWithDebInfo -p:platform=x64
+
+      - name: Copy libopenblas.dll
+        run: copy "$env:blasdir/bin/libopenblas.dll" whisper.cpp/build/bin/RelWithDebInfo
+
+      - name: Copy SDL2.dll
+        run: copy "$env:SDL2_DIR/../lib/2.26.0/SDL2.dll" whisper.cpp/build/bin/RelWithDebInfo
+
+      - run: copy whisper.cpp/build/bin/RelWithDebInfo/*.* .
 
       - name: Test
         run: poetry run make test

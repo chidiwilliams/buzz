@@ -134,7 +134,7 @@ jobs:
           echo "SDL2_DIR=$env:GITHUB_WORKSPACE/SDL2-2.26.0/cmake" >> $env:GITHUB_ENV
 
       - name: Configure
-        run: |
+        run: >
           cmake -S whisper.cpp -B whisper.cpp/build -A x64
           -DCMAKE_BUILD_TYPE=RelWithDebInfo
           -DWHISPER_SUPPORT_OPENBLAS=ON
