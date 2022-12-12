@@ -152,7 +152,7 @@ jobs:
           path: |
             dist/Buzz*-windows.tar.gz
             dist/Buzz*-windows.exe
-            dist/Buzz*-mac.dmg
+            dist/Buzz*-mac.dmg.zip
 
   release:
     runs-on: ${{ matrix.os }}

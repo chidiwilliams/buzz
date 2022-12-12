@@ -4,156 +4,161 @@ version_escaped := $$(echo ${version} | sed -e 's/\./\\./g')
 mac_app_path := ./dist/Buzz.app
 mac_zip_path := ./dist/Buzz-${version}-mac.zip
 mac_dmg_path := ./dist/Buzz-${version}-mac.dmg
+mac_dmg_zip_path := ./dist/Buzz-${version}-mac.dmg.zip
 
 unix_zip_path := Buzz-${version}-unix.tar.gz
 
 windows_zip_path := Buzz-${version}-windows.tar.gz
 
 bundle_linux: dist/Buzz
-	cd dist && tar -czf ${unix_zip_path} Buzz/ && cd -
+  cd dist && tar -czf ${unix_zip_path} Buzz/ && cd -
 
 bundle_windows: dist/Buzz
-	iscc //DAppVersion=${version} installer.iss
-	cd dist && tar -czf ${windows_zip_path} Buzz/ && cd -
+  iscc //DAppVersion=${version} installer.iss
+  cd dist && tar -czf ${windows_zip_path} Buzz/ && cd -
 
 bundle_mac: dist/Buzz.app
-	make codesign_all_mac
-	make zip_mac
-	make notarize_zip
-	make staple_app_mac
-	make dmg_mac
+  make codesign_all_mac
+
+  # zip .app
+  ditto -c -k --keepParent "${mac_app_path}" "${mac_zip_path}"
+
+  make notarize_zip
+  make staple_app_mac
+  make dmg_mac
+
+  # zip .dmg
+  ditto -c -k --keepParent "${mac_dmg_path}" "${mac_dmg_zip_path}"
 
 UNAME_S := $(shell uname -s)
 
 LIBWHISPER :=
 ifeq ($(OS), Windows_NT)
-	LIBWHISPER=whisper.dll
+  LIBWHISPER=whisper.dll
 else
-	ifeq ($(UNAME_S), Darwin)
-		LIBWHISPER=libwhisper.dylib
-	else
-		LIBWHISPER=libwhisper.so
-	endif
+  ifeq ($(UNAME_S), Darwin)
+    LIBWHISPER=libwhisper.dylib
+  else
+    LIBWHISPER=libwhisper.so
+  endif
 endif
 
 clean:
-	rm -f $(LIBWHISPER)
-	rm -f whisper_cpp
-	rm -f buzz/whisper_cpp.py
-	rm -rf dist/* || true
+  rm -f $(LIBWHISPER)
+  rm -f whisper_cpp
+  rm -f buzz/whisper_cpp.py
+  rm -rf dist/* || true
 
 test: buzz/whisper_cpp.py
-	pytest --cov --cov-report=html
+  pytest --cov --cov-report=html
 
 dist/Buzz dist/Buzz.app: buzz/whisper_cpp.py
-	pyinstaller --noconfirm Buzz.spec
+  pyinstaller --noconfirm Buzz.spec
 
 version:
-	poetry version ${version}
-	echo "VERSION = \"${version}\"" > buzz/__version__.py
-	sed -i "" "s/version=.*,/version=\'${version_escaped}\',/" Buzz.spec
+  poetry version ${version}
+  echo "VERSION = \"${version}\"" > buzz/__version__.py
+  sed -i "" "s/version=.*,/version=\'${version_escaped}\',/" Buzz.spec
 
 CMAKE_FLAGS=
 ifeq ($(UNAME_S),Darwin)
-	AVX1_M := $(shell sysctl machdep.cpu.features)
-	ifeq (,$(findstring AVX1.0,$(AVX1_M)))
-		CMAKE_FLAGS += -DWHISPER_NO_AVX=ON
-	endif
-	AVX2_M := $(shell sysctl machdep.cpu.leaf7_features)
-	ifeq (,$(findstring AVX2,$(AVX2_M)))
-		CMAKE_FLAGS += -DWHISPER_NO_AVX2=ON
-	endif
+  AVX1_M := $(shell sysctl machdep.cpu.features)
+  ifeq (,$(findstring AVX1.0,$(AVX1_M)))
+    CMAKE_FLAGS += -DWHISPER_NO_AVX=ON
+  endif
+  AVX2_M := $(shell sysctl machdep.cpu.leaf7_features)
+  ifeq (,$(findstring AVX2,$(AVX2_M)))
+    CMAKE_FLAGS += -DWHISPER_NO_AVX2=ON
+  endif
 else
-	ifeq ($(OS), Windows_NT)
-		CMAKE_FLAGS += -DBUILD_SHARED_LIBS=ON
-	endif
+  ifeq ($(OS), Windows_NT)
+    CMAKE_FLAGS += -DBUILD_SHARED_LIBS=ON
+  endif
 endif
 
 $(LIBWHISPER) whisper_cpp:
-	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS)
-	cmake --build whisper.cpp/build --verbose
-	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) . || true
-	cp whisper.cpp/build/bin/Debug/main whisper_cpp || true
-	cp whisper.cpp/build/$(LIBWHISPER) . || true
-	cp whisper.cpp/build/bin/main whisper_cpp || true
+  cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS)
+  cmake --build whisper.cpp/build --verbose
+  cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) . || true
+  cp whisper.cpp/build/bin/Debug/main whisper_cpp || true
+  cp whisper.cpp/build/$(LIBWHISPER) . || true
+  cp whisper.cpp/build/bin/main whisper_cpp || true
 
 buzz/whisper_cpp.py: $(LIBWHISPER)
-	ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o buzz/whisper_cpp.py
+  ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o buzz/whisper_cpp.py
 
 staple_app_mac:
-	xcrun stapler staple ${mac_app_path}
+  xcrun stapler staple ${mac_app_path}
 
 codesign_all_mac:
-	make codesign_mac path="./dist/Buzz.app"
-	make codesign_mac path="./dist/Buzz.app/Contents/MacOS/Buzz"
-	for i in $$(find dist/Buzz.app/Contents/Resources -name "*.dylib" -o -name "*.so" -type f); \
-	do \
-		make codesign_mac path="$$i"; \
-	done
-	for i in $$(find dist/Buzz.app/Contents/Resources/torch/bin -name "*" -type f); \
-	do \
-		make codesign_mac path="$$i"; \
-	done
-	make codesign_mac path="./dist/Buzz.app/Contents/Resources/ffmpeg"
-	make codesign_mac path="./dist/Buzz.app/Contents/Resources/whisper_cpp"
-	make codesign_mac path="./dist/Buzz.app/Contents/MacOS/Buzz"
-	make codesign_verify
+  make codesign_mac path="./dist/Buzz.app"
+  make codesign_mac path="./dist/Buzz.app/Contents/MacOS/Buzz"
+  for i in $$(find dist/Buzz.app/Contents/Resources -name "*.dylib" -o -name "*.so" -type f); \
+  do \
+    make codesign_mac path="$$i"; \
+  done
+  for i in $$(find dist/Buzz.app/Contents/Resources/torch/bin -name "*" -type f); \
+  do \
+    make codesign_mac path="$$i"; \
+  done
+  make codesign_mac path="./dist/Buzz.app/Contents/Resources/ffmpeg"
+  make codesign_mac path="./dist/Buzz.app/Contents/Resources/whisper_cpp"
+  make codesign_mac path="./dist/Buzz.app/Contents/MacOS/Buzz"
+  make codesign_verify
 
 codesign_mac:
-	codesign --deep --force --options=runtime --entitlements ./entitlements.plist --sign "$$BUZZ_CODESIGN_IDENTITY" --timestamp ${path}
+  codesign --deep --force --options=runtime --entitlements ./entitlements.plist --sign "$$BUZZ_CODESIGN_IDENTITY" --timestamp ${path}
 
-zip_mac:
-	ditto -c -k --keepParent "${mac_app_path}" "${mac_zip_path}"
 
 # Prints all the Mac developer identities used for code signing
 print_identities_mac:
-	security find-identity -p basic -v
+  security find-identity -p basic -v
 
 notarize_zip:
-	xcrun notarytool submit ${mac_zip_path} --keychain-profile "$$BUZZ_KEYCHAIN_NOTARY_PROFILE" --wait
+  xcrun notarytool submit ${mac_zip_path} --keychain-profile "$$BUZZ_KEYCHAIN_NOTARY_PROFILE" --wait
 
 dmg_mac:
-	ditto -x -k "${mac_zip_path}" dist/dmg
-	create-dmg \
-		--volname "Buzz" \
-		--volicon "./assets/buzz.icns" \
-		--window-pos 200 120 \
-		--window-size 600 300 \
-		--icon-size 100 \
-		--icon "./assets/buzz.icns" 175 120 \
-		--hide-extension "Buzz.app" \
-		--app-drop-link 425 120 \
-		--codesign "$$BUZZ_CODESIGN_IDENTITY" \
-		--notarize "$$BUZZ_KEYCHAIN_NOTARY_PROFILE" \
-		"${mac_dmg_path}" \
-		"dist/dmg/"
+  ditto -x -k "${mac_zip_path}" dist/dmg
+  create-dmg \
+    --volname "Buzz" \
+    --volicon "./assets/buzz.icns" \
+    --window-pos 200 120 \
+    --window-size 600 300 \
+    --icon-size 100 \
+    --icon "./assets/buzz.icns" 175 120 \
+    --hide-extension "Buzz.app" \
+    --app-drop-link 425 120 \
+    --codesign "$$BUZZ_CODESIGN_IDENTITY" \
+    --notarize "$$BUZZ_KEYCHAIN_NOTARY_PROFILE" \
+    "${mac_dmg_path}" \
+    "dist/dmg/"
 
 # HELPERS
 
 # Get the build logs for a notary upload
 notarize_log:
-	xcrun notarytool log ${id} --keychain-profile "$$BUZZ_KEYCHAIN_NOTARY_PROFILE"
+  xcrun notarytool log ${id} --keychain-profile "$$BUZZ_KEYCHAIN_NOTARY_PROFILE"
 
 codesign_verify:
-	codesign --verify --deep --strict --verbose=2 dist/Buzz.app
+  codesign --verify --deep --strict --verbose=2 dist/Buzz.app
 
 VENV_PATH := $(shell poetry env info -p)
 
 # Make GGML model from whisper. Example: make ggml model_path=/Users/chidiwilliams/.cache/whisper/medium.pt
 ggml:
-	python3 ./whisper.cpp/models/convert-pt-to-ggml.py ${model_path} $(VENV_PATH)/src/whisper dist
+  python3 ./whisper.cpp/models/convert-pt-to-ggml.py ${model_path} $(VENV_PATH)/src/whisper dist
 
 upload_brew:
-	brew bump-cask-pr --version ${version} buzz
+  brew bump-cask-pr --version ${version} buzz
 
 gh_upgrade_pr:
-	git checkout main && git pull
-	git checkout -b upgrade-to-${version}
+  git checkout main && git pull
+  git checkout -b upgrade-to-${version}
 
-	make version version=${version}
+  make version version=${version}
 
-	git commit -am "Upgrade to ${version}"
-	git push --set-upstream origin upgrade-to-${version}
+  git commit -am "Upgrade to ${version}"
+  git push --set-upstream origin upgrade-to-${version}
 
-	gh pr create --fill
-	gh pr merge upgrade-to-${version} --auto --squash
+  gh pr create --fill
+  gh pr merge upgrade-to-${version} --auto --squash
