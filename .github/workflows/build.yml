@@ -1,0 +1,208 @@
+---
+name: Build
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  macos-latest:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10.7'
+
+      - name: Install Poetry Action
+        uses: snok/install-poetry@v1.3.1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-macOS-latest-${{ hashFiles('**/poetry.lock') }}-2
+
+      - uses: FedericoCarboni/setup-ffmpeg@v1
+        id: setup-ffmpeg
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies
+        run: poetry config experimental.new-installer false && poetry install
+
+      - name: Bundle
+        run: |
+          brew install create-dmg
+
+          # create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          # import certificate and provisioning profile from secrets
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
+
+          # create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+          # store notarytool credentials
+          xcrun notarytool store-credentials --apple-id "$APPLE_ID" --password "$APPLE_APP_PASSWORD" --team-id "$APPLE_TEAM_ID" notarytool --validate
+
+          poetry run make bundle_mac
+        env:
+          BUZZ_CODESIGN_IDENTITY: ${{ secrets.BUZZ_CODESIGN_IDENTITY }}
+          BUZZ_KEYCHAIN_NOTARY_PROFILE: ${{ secrets.BUZZ_KEYCHAIN_NOTARY_PROFILE }}
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        shell: bash
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Buzz-macOS
+          path: |
+            dist/Buzz*-mac.dmg
+
+  windows-latest:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10.7'
+
+      - name: Install Poetry Action
+        uses: snok/install-poetry@v1.3.1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-Windows-${{ hashFiles('**/poetry.lock') }}-2
+
+      - uses: FedericoCarboni/setup-ffmpeg@v1
+        id: setup-ffmpeg
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies
+        run: poetry config experimental.new-installer false && poetry install
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1
+
+      - name: Fetch OpenBLAS
+        run: |
+          C:/msys64/usr/bin/wget.exe -qO blas.zip https://github.com/xianyi/OpenBLAS/releases/download/v0.3.21/OpenBLAS-0.3.21-x64.zip
+          7z x blas.zip -oblas -y
+          copy blas/include/cblas.h .
+          copy blas/include/openblas_config.h .
+          echo "blasdir=$env:GITHUB_WORKSPACE/blas" >> $env:GITHUB_ENV
+
+      - name: Fetch SDL2 and set SDL2_DIR
+        run: |
+          C:/msys64/usr/bin/wget.exe -qO sdl2.zip https://github.com/libsdl-org/SDL/releases/download/release-2.26.0/SDL2-devel-2.26.0-VC.zip
+          7z x sdl2.zip
+          echo "SDL2_DIR=$env:GITHUB_WORKSPACE/SDL2-2.26.0/cmake" >> $env:GITHUB_ENV
+
+      - name: Configure
+        run: |
+          cmake -S whisper.cpp -B whisper.cpp/build -A x64
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          -DWHISPER_SUPPORT_OPENBLAS=ON
+          -DCMAKE_LIBRARY_PATH="$env:blasdir/lib"
+          -DWHISPER_SUPPORT_SDL2=ON
+
+      - name: Build
+        run: |
+          cd whisper.cpp/build
+          msbuild ALL_BUILD.vcxproj -t:build -p:configuration=RelWithDebInfo -p:platform=x64
+
+      - name: Copy libopenblas.dll
+        run: copy "$env:blasdir/bin/libopenblas.dll" whisper.cpp/build/bin/RelWithDebInfo
+
+      - name: Copy SDL2.dll
+        run: copy "$env:SDL2_DIR/../lib/2.26.0/SDL2.dll" whisper.cpp/build/bin/RelWithDebInfo
+
+      - run: copy whisper.cpp/build/bin/RelWithDebInfo/*.* .
+
+      - name: Bundle
+        run: |
+          poetry run make bundle_windows
+        env:
+          BUZZ_CODESIGN_IDENTITY: ${{ secrets.BUZZ_CODESIGN_IDENTITY }}
+          BUZZ_KEYCHAIN_NOTARY_PROFILE: ${{ secrets.BUZZ_KEYCHAIN_NOTARY_PROFILE }}
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        shell: bash
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Buzz-Windows
+          path: |
+            dist/Buzz*-windows.tar.gz
+            dist/Buzz*-windows.exe
+
+  release:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+          - os: windows-latest
+    needs: [macos-latest, windows-latest]
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: actions/download-artifact@v3
+        with:
+          name: Buzz-${{ runner.os }}
+      - name: Install Poetry Action
+        uses: snok/install-poetry@v1.3.1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            Buzz*-windows.tar.gz
+            Buzz*-windows.exe
+            Buzz*-mac.dmg
+      - name: Upload to Brew
+        run: make upload_brew
