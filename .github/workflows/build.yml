@@ -156,7 +156,8 @@ jobs:
 
       - run: copy main.exe whisper.exe
 
-      - run: whisper.exe
+      - run: ./whisper.exe
+      shell: bash
 
       - name: Bundle
         run: |
