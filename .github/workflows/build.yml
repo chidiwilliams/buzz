@@ -154,18 +154,14 @@ jobs:
 
       - run: copy whisper.cpp/build/bin/RelWithDebInfo/*.* .
 
+      - run: ls -ali
+        shell: bash
+
+      - run: whisper.exe
+
       - name: Bundle
         run: |
           poetry run make bundle_windows
-        env:
-          BUZZ_CODESIGN_IDENTITY: ${{ secrets.BUZZ_CODESIGN_IDENTITY }}
-          BUZZ_KEYCHAIN_NOTARY_PROFILE: ${{ secrets.BUZZ_KEYCHAIN_NOTARY_PROFILE }}
-          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         shell: bash
 
       - uses: actions/upload-artifact@v3
