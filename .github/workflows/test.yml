@@ -134,9 +134,9 @@ jobs:
 
       - run: copy whisper.cpp/build/bin/RelWithDebInfo/*.* .
 
-      - run: copy main.exe whisper.exe
+      - run: copy main.exe whisper_cpp.exe
 
       - name: Test
         run: poetry run make test
 
-      - run: .\whisper --language fr --max-len 0 --model C:\Users\runneradmin\AppData\Local\Buzz\Buzz\Cache\ggml-model-whisper-tiny.bin whisper.cpp\samples\jfk.wav
+      - run: .\whisper_cpp --language fr --max-len 0 --model C:\Users\runneradmin\AppData\Local\Buzz\Buzz\Cache\ggml-model-whisper-tiny.bin whisper.cpp\samples\jfk.wav

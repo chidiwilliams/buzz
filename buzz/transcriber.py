@@ -255,7 +255,7 @@ class WhisperCppFileTranscriber(QRunnable):
         logging.debug(
             'Running whisper_cpp process, args = "%s"', ' '.join(args))
 
-        self.process.start('.\\whisper_cpp.exe', args)
+        self.process.start('.\\whisper_cpp', args)
 
     def on_process_finished(self):
         status = self.process.exitStatus()
