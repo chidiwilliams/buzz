@@ -44,7 +44,6 @@ class TestWhisperCppFileTranscriber:
             (Task.TRANSCRIBE, 'Bienvenue dans Passe'),
             (Task.TRANSLATE, 'Welcome to Passe-Relle'),
         ])
-    @pytest.mark.skip()
     def test_transcribe(self, qtbot, tmp_path: pathlib.Path, task: Task, output_text: str):
         output_file_path = tmp_path / 'whisper_cpp.txt'
         if os.path.exists(output_file_path):
@@ -58,7 +57,7 @@ class TestWhisperCppFileTranscriber:
             open_file_on_complete=False,
             word_level_timings=False)
         mock_progress = Mock()
-        with qtbot.waitSignal(transcriber.signals.completed, timeout=10*60*1000):
+        with qtbot.waitSignal(transcriber.signals.completed, timeout=60*1000):
             transcriber.signals.progress.connect(mock_progress)
             transcriber.run()
 
