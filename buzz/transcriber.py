@@ -256,7 +256,7 @@ class WhisperCppFileTranscriber(QRunnable):
         logging.debug(
             'Running whisper_cpp process, args = "%s"', ' '.join(args))
 
-        self.process.start('.\\whisper_cpp', args)
+        self.process.start('./whisper_cpp', args)
 
     def on_process_finished(self):
         status = self.process.exitStatus()
@@ -307,8 +307,8 @@ class WhisperCppFileTranscriber(QRunnable):
                     self.duration_audio_ms = round(float(match.group(1))*1000)
 
     def on_error_occurred(self, error: QProcess.ProcessError):
-        logging.debug(error)
-
+        logging.debug('whisper_cpp (error): %s', error)
+        self.signals.error.emit('Unable to start Whisper.cpp process')
 
 class WhisperFileTranscriber(QRunnable):
     """WhisperFileTranscriber transcribes an audio file to text, writes the text to a file, and then opens the file using the default program for opening txt files."""

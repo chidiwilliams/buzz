@@ -6,6 +6,7 @@ from unittest.mock import Mock
 
 import pytest
 from PyQt6.QtCore import QThreadPool
+from pytestqt.qtbot import QtBot
 
 from buzz.model_loader import ModelLoader
 from buzz.transcriber import (OutputFormat, RecordingTranscriber, Task,
@@ -44,7 +45,7 @@ class TestWhisperCppFileTranscriber:
             (Task.TRANSCRIBE, 'Bienvenue dans Passe'),
             (Task.TRANSLATE, 'Welcome to Passe-Relle'),
         ])
-    def test_transcribe(self, qtbot, tmp_path: pathlib.Path, task: Task, output_text: str):
+    def test_transcribe(self, qtbot: QtBot, tmp_path: pathlib.Path, task: Task, output_text: str):
         output_file_path = tmp_path / 'whisper_cpp.txt'
         if os.path.exists(output_file_path):
             os.remove(output_file_path)
@@ -57,16 +58,19 @@ class TestWhisperCppFileTranscriber:
             open_file_on_complete=False,
             word_level_timings=False)
         mock_progress = Mock()
-        with qtbot.waitSignal(transcriber.signals.completed, timeout=60*1000):
-            transcriber.signals.progress.connect(mock_progress)
+        transcriber.signals.progress.connect(mock_progress)
+        mock_error = Mock()
+        transcriber.signals.error.connect(mock_error)
+        with qtbot.wait_signal(transcriber.signals.completed, timeout=60*1000):
             transcriber.run()
+
+        mock_progress.assert_called()
+        mock_error.assert_not_called()
 
         assert os.path.isfile(output_file_path)
 
         output_file = open(output_file_path, 'r', encoding='utf-8')
         assert output_text in output_file.read()
-
-        mock_progress.assert_called()
 
 
 class TestWhisperFileTranscriber:
