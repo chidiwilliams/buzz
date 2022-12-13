@@ -43,7 +43,7 @@ clean:
 	rm -rf dist/* || true
 
 test: buzz/whisper_cpp.py
-	pytest --cov --cov-report=html
+	pytest --cov --cov-report=html --cov-report term-missing:skip-covered
 
 dist/Buzz dist/Buzz.app: buzz/whisper_cpp.py
 	pyinstaller --noconfirm Buzz.spec
