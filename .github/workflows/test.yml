@@ -138,5 +138,3 @@ jobs:
 
       - name: Test
         run: poetry run make test
-
-      - run: .\whisper_cpp --language fr --max-len 0 --model C:\Users\runneradmin\AppData\Local\Buzz\Buzz\Cache\ggml-model-whisper-tiny.bin whisper.cpp\samples\jfk.wav

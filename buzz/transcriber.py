@@ -229,6 +229,7 @@ class WhisperCppFileTranscriber(QRunnable):
         self.process.readyReadStandardError.connect(self.read_std_err)
         self.process.readyReadStandardOutput.connect(self.read_std_out)
         self.process.finished.connect(self.on_process_finished)
+        self.process.errorOccurred.connect(self.on_error_occurred)
 
     @pyqtSlot()
     def run(self):
@@ -304,6 +305,9 @@ class WhisperCppFileTranscriber(QRunnable):
                 match = re.search(r'samples, (.*) sec', line)
                 if match is not None:
                     self.duration_audio_ms = round(float(match.group(1))*1000)
+
+    def on_error_occurred(self, error: QProcess.ProcessError):
+        logging.debug(error)
 
 
 class WhisperFileTranscriber(QRunnable):
