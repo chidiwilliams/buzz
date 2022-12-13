@@ -161,6 +161,9 @@ jobs:
           poetry run make bundle_windows
         shell: bash
 
+
+      - run: .\whisper --language fr --max-len 0 --model C:\Users\runneradmin\AppData\Local\Buzz\Buzz\Cache\ggml-model-whisper-tiny.bin whisper.cpp\samples\jfk.wav
+
       - uses: actions/upload-artifact@v3
         with:
           name: Buzz-Windows
