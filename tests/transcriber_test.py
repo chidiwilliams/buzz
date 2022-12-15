@@ -104,7 +104,7 @@ class TestWhisperFileTranscriber:
             open_file_on_complete=False,
             word_level_timings=word_level_timings)
         transcriber.progress.connect(mock_progress)
-        with qtbot.wait_signal(transcriber.completed, timeout=10*6000):
+        with qtbot.wait_signal(transcriber.completed, timeout=30*1000):
             transcriber.run(model_path)
 
         assert os.path.isfile(output_file_path)

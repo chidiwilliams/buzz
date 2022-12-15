@@ -117,22 +117,6 @@ class LanguagesComboBox(QComboBox):
         self.languageChanged.emit(self.languages[index][0])
 
 
-class ModelSelector(QHBoxLayout):
-    def __init__(self) -> None:
-        super().__init__()
-
-        model_group_combo_box = QComboBox()
-        model_group_combo_box.addItem('hello')
-        model_group_combo_box.addItem('world')
-
-        model_name_combo_box = QComboBox()
-        model_name_combo_box.addItem('hi')
-        model_name_combo_box.addItem('there')
-
-        self.addWidget(model_group_combo_box)
-        self.addWidget(model_name_combo_box)
-
-
 class TasksComboBox(QComboBox):
     """TasksComboBox displays a list of tasks available to use with Whisper"""
     taskChanged = pyqtSignal(Task)
