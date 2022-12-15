@@ -184,7 +184,7 @@ class TestFileTranscriberWidget:
             file_path='testdata/whisper-french.mp3', parent=None)
         qtbot.addWidget(widget)
 
-        with qtbot.wait_signal(widget.transcribed, timeout=30*1000):
+        with qtbot.wait_signal(widget.transcribed, timeout=10*1000):
             widget.run_button.click()
 
         transcription_viewer = widget.findChild(TranscriptionViewerWidget)
@@ -207,8 +207,6 @@ class TestFileTranscriberWidget:
         def transcription_started():
             QCoreApplication.processEvents()
             assert widget.transcriber_progress_dialog is not None
-            logging.debug('asserted value = %s',
-                          widget.transcriber_progress_dialog.value())
             assert widget.transcriber_progress_dialog.value() > 0
         qtbot.wait_until(transcription_started, timeout=30*1000)
 

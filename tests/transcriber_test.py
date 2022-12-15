@@ -123,7 +123,7 @@ class TestWhisperFileTranscriber:
         for (i, expected_segment) in enumerate(expected_segments):
             assert segments[i] == expected_segment
 
-    @ pytest.mark.skip()
+    @pytest.mark.skip()
     def test_transcribe_stop(self):
         output_file_path = os.path.join(tempfile.gettempdir(), 'whisper.txt')
         if os.path.exists(output_file_path):
