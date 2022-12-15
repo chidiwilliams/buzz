@@ -4,8 +4,9 @@ import tempfile
 import time
 from unittest.mock import Mock
 
+from PyQt6.QtCore import QCoreApplication
 import pytest
-from PyQt6.QtCore import QThreadPool
+from pytestqt.qtbot import QtBot
 
 from buzz.model_loader import ModelLoader
 from buzz.transcriber import (OutputFormat, RecordingTranscriber, Task,
@@ -51,15 +52,14 @@ class TestWhisperCppFileTranscriber:
 
         model_path = get_model_path('tiny', True)
         transcriber = WhisperCppFileTranscriber(
-            model_path=model_path, language='fr',
-            task=task, file_path='testdata/whisper-french.mp3',
+            language='fr', task=task, file_path='testdata/whisper-french.mp3',
             output_file_path=output_file_path.as_posix(), output_format=OutputFormat.TXT,
             open_file_on_complete=False,
             word_level_timings=False)
         mock_progress = Mock()
-        with qtbot.waitSignal(transcriber.signals.completed, timeout=10*60*1000):
-            transcriber.signals.progress.connect(mock_progress)
-            transcriber.run()
+        with qtbot.waitSignal(transcriber.completed, timeout=10*60*1000):
+            transcriber.progress.connect(mock_progress)
+            transcriber.run(model_path)
 
         assert os.path.isfile(output_file_path)
 
@@ -92,29 +92,27 @@ class TestWhisperFileTranscriber:
             (True, OutputFormat.SRT,
              '1\n00:00:00.040 --> 00:00:00.299\n Bien\n\n2\n00:00:00.299 --> 00:00:00.329\nvenue dans\n\n3\n00:00:00.329 --> 00:00:00.429\n P\n\n4\n00:00:00.429 --> 00:00:00.589\nasse-'),
         ])
-    def test_transcribe(self, qtbot, tmp_path: pathlib.Path, word_level_timings: bool, output_format: OutputFormat, output_text: str):
+    def test_transcribe(self, qtbot: QtBot, tmp_path: pathlib.Path, word_level_timings: bool, output_format: OutputFormat, output_text: str):
         output_file_path = tmp_path / f'whisper.{output_format.value.lower()}'
 
         model_path = get_model_path('tiny', False)
 
         mock_progress = Mock()
-        mock_completed = Mock()
-        pool = QThreadPool()
         transcriber = WhisperFileTranscriber(
-            model_path=model_path, language='fr',
-            task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
+            language='fr', task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
             output_file_path=output_file_path.as_posix(), output_format=output_format,
             open_file_on_complete=False,
             word_level_timings=word_level_timings)
-        transcriber.signals.progress.connect(mock_progress)
-        transcriber.signals.completed.connect(mock_completed)
-        with qtbot.waitSignal(transcriber.signals.completed, timeout=10*60*1000):
-            pool.start(transcriber)
+        transcriber.progress.connect(mock_progress)
+        with qtbot.wait_signal(transcriber.completed, timeout=10*6000):
+            transcriber.run(model_path)
 
         assert os.path.isfile(output_file_path)
 
         output_file = open(output_file_path, 'r', encoding='utf-8')
         assert output_text in output_file.read()
+
+        QCoreApplication.processEvents()
 
         # Reports progress at 0, 0<progress<100, and 100
         assert any(
@@ -124,8 +122,6 @@ class TestWhisperFileTranscriber:
         assert any(
             [(0 < call_args.args[0][0] < 100) and (call_args.args[0][1] == 100) for call_args in mock_progress.call_args_list])
 
-        mock_completed.assert_called()
-
     @pytest.mark.skip()
     def test_transcribe_stop(self):
         output_file_path = os.path.join(tempfile.gettempdir(), 'whisper.txt')
@@ -134,12 +130,11 @@ class TestWhisperFileTranscriber:
 
         model_path = get_model_path('tiny', False)
         transcriber = WhisperFileTranscriber(
-            model_path=model_path, language='fr',
-            task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
+            language='fr', task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
             output_file_path=output_file_path, output_format=OutputFormat.TXT,
             open_file_on_complete=False,
             word_level_timings=False)
-        transcriber.run()
+        transcriber.run(model_path)
         time.sleep(1)
         transcriber.stop()
 
