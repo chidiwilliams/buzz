@@ -186,7 +186,7 @@ class TestFileTranscriberWidget:
         output_file_path = tmp_path / 'whisper.txt'
 
         with (patch('PyQt6.QtWidgets.QFileDialog.getSaveFileName') as save_file_name_mock,
-              qtbot.wait_signal(widget.transcribed, timeout=10*1000)):
+              qtbot.wait_signal(widget.transcribed, timeout=30*1000)):
             save_file_name_mock.return_value = (output_file_path, '')
             widget.run_button.click()
 

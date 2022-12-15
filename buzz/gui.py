@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import enum
 import logging
 import os
@@ -9,15 +10,15 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import humanize
 import sounddevice
 from PyQt6 import QtGui
-from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt, QThread,
+from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt, QThread, pyqtSlot,
                           QThreadPool, QTimer, QUrl, pyqtSignal)
 from PyQt6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
                          QKeySequence, QPixmap, QTextCursor, QValidator)
 from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
-                             QDialogButtonBox, QFileDialog, QGridLayout,
-                             QHBoxLayout, QLabel, QLayout, QLineEdit,
+                             QDialogButtonBox, QFileDialog, QGridLayout, QToolButton,
+                             QLabel, QLayout, QLineEdit,
                              QMainWindow, QMessageBox, QPlainTextEdit,
-                             QProgressDialog, QPushButton, QVBoxLayout,
+                             QProgressDialog, QPushButton, QVBoxLayout, QHBoxLayout, QMenu,
                              QWidget)
 from requests import get
 from whisper import tokenizer
@@ -25,10 +26,10 @@ from whisper import tokenizer
 from .__version__ import VERSION
 from .model_loader import ModelLoader
 from .transcriber import (DEFAULT_WHISPER_TEMPERATURE, LOADED_WHISPER_DLL,
-                          SUPPORTED_OUTPUT_FORMATS, OutputFormat,
-                          RecordingTranscriber, Task,
+                          SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
+                          RecordingTranscriber, Segment, Task,
                           WhisperCppFileTranscriber, WhisperFileTranscriber,
-                          get_default_output_file_path)
+                          get_default_output_file_path, segments_to_text, write_output)
 
 APP_NAME = 'Buzz'
 
@@ -174,19 +175,9 @@ class QualityComboBox(QComboBox):
 class TextDisplayBox(QPlainTextEdit):
     """TextDisplayBox is a read-only textbox"""
 
-    os_styles = {
-        'Darwin': '''QTextEdit {
-            border: 0;
-        }'''
-    }
-
     def __init__(self, parent: Optional[QWidget], *args) -> None:
         super().__init__(parent, *args)
         self.setReadOnly(True)
-        self.setPlaceholderText('Click Record to begin...')
-        self.setStyleSheet(
-            '''QTextEdit {
-                } %s''' % get_platform_styles(self.os_styles))
 
 
 class RecordButton(QPushButton):
@@ -371,6 +362,7 @@ class FileTranscriberWidget(QWidget):
     model_loader: Optional[ModelLoader] = None
     transcriber_thread: Optional[QThread] = None
     transcribed = pyqtSignal()
+    transcription_options: FileTranscriptionOptions
 
     def __init__(self, file_path: str, parent: Optional[QWidget]) -> None:
         super().__init__(parent)
@@ -378,6 +370,8 @@ class FileTranscriberWidget(QWidget):
         layout = QGridLayout(self)
 
         self.settings = Settings(self)
+        self.transcription_options = FileTranscriptionOptions(
+            file_path=file_path)
 
         self.file_path = file_path
 
@@ -462,15 +456,6 @@ class FileTranscriberWidget(QWidget):
         self.initial_prompt = initial_prompt
 
     def on_click_run(self):
-        default_path = get_default_output_file_path(
-            task=self.selected_task, input_file_path=self.file_path,
-            output_format=self.selected_output_format)
-        (output_file, _) = QFileDialog.getSaveFileName(
-            self, 'Save File', default_path, f'Text files (*.{self.selected_output_format.value})')
-
-        if output_file == '':
-            return
-
         use_whisper_cpp = self.settings.get_enable_ggml_inference(
         ) and self.selected_language is not None
 
@@ -482,20 +467,18 @@ class FileTranscriberWidget(QWidget):
         self.model_loader = ModelLoader(
             name=model_name, use_whisper_cpp=use_whisper_cpp)
 
+        self.transcription_options = FileTranscriptionOptions(
+            file_path=self.file_path, language=self.selected_language,
+            task=self.selected_task, word_level_timings=self.enabled_word_level_timings,
+            temperature=self.temperature, initial_prompt=self.initial_prompt
+        )
+
         if use_whisper_cpp:
             self.file_transcriber = WhisperCppFileTranscriber(
-                file_path=self.file_path, language=self.selected_language, task=self.selected_task,
-                output_file_path=output_file, output_format=self.selected_output_format,
-                word_level_timings=self.enabled_word_level_timings,
-            )
+                self.transcription_options)
         else:
             self.file_transcriber = WhisperFileTranscriber(
-                file_path=self.file_path, language=self.selected_language, task=self.selected_task,
-                output_file_path=output_file, output_format=self.selected_output_format,
-                word_level_timings=self.enabled_word_level_timings,
-                temperature=self.temperature,
-                initial_prompt=self.initial_prompt
-            )
+                self.transcription_options)
 
         self.model_loader.moveToThread(self.transcriber_thread)
         self.file_transcriber.moveToThread(self.transcriber_thread)
@@ -545,7 +528,6 @@ class FileTranscriberWidget(QWidget):
         self.reset_transcriber_controls()
 
     def on_transcriber_progress(self, progress: Tuple[int, int]):
-        logging.debug('received progress = %s', progress)
         (current_size, total_size) = progress
 
         # Create a dialog
@@ -560,7 +542,10 @@ class FileTranscriberWidget(QWidget):
         if self.transcriber_progress_dialog is not None:
             self.transcriber_progress_dialog.update_progress(current_size)
 
-    def on_transcriber_complete(self, exit_code: int):
+    @pyqtSlot(tuple)
+    def on_transcriber_complete(self, result: Tuple[int, List[Segment]]):
+        exit_code, segments = result
+
         if self.transcriber_progress_dialog is not None:
             self.transcriber_progress_dialog.reset()
             if exit_code != 0:
@@ -568,6 +553,10 @@ class FileTranscriberWidget(QWidget):
 
         self.reset_transcriber_controls()
         self.transcribed.emit()
+
+        TranscriptionViewerWidget(
+            transcription_options=self.transcription_options,
+            segments=segments, parent=self, flags=Qt.WindowType.Window).show()
 
     def on_cancel_transcriber_progress_dialog(self):
         if self.file_transcriber is not None:
@@ -588,6 +577,67 @@ class FileTranscriberWidget(QWidget):
 
     def on_word_level_timings_changed(self, value: int):
         self.enabled_word_level_timings = value == Qt.CheckState.Checked.value
+
+
+class TranscriptionViewerWidget(QWidget):
+    def __init__(
+        self, transcription_options: FileTranscriptionOptions, segments: List[Segment],
+        parent: Optional['QWidget'] = None, flags: Qt.WindowType = Qt.WindowType.Widget,
+    ) -> None:
+        super().__init__(parent, flags)
+        self.segments = segments
+        self.transcription_options = transcription_options
+
+        self.setMinimumWidth(500)
+        self.setMinimumHeight(500)
+
+        self.setWindowTitle(
+            f'Transcription - {get_short_file_path(transcription_options.file_path)}')
+
+        layout = QVBoxLayout(self)
+
+        text = segments_to_text(segments)
+
+        self.text_box = TextDisplayBox(self)
+        self.text_box.setPlainText(text)
+
+        layout.addWidget(self.text_box)
+
+        buttons_layout = QHBoxLayout()
+        buttons_layout.addStretch()
+
+        menu = QMenu()
+        actions = [QAction(text=output_format.value.upper(), parent=self)
+                   for output_format in OutputFormat]
+        menu.addActions(actions)
+
+        menu.triggered.connect(self.on_menu_triggered)
+
+        export_button = QPushButton(self)
+        export_button.setText('Export')
+        export_button.setMenu(menu)
+
+        buttons_layout.addWidget(export_button)
+        layout.addLayout(buttons_layout)
+
+        self.setLayout(layout)
+
+    def on_menu_triggered(self, action: QAction):
+        output_format = OutputFormat[action.text()]
+
+        default_path = get_default_output_file_path(
+            task=self.transcription_options.task,
+            input_file_path=self.transcription_options.file_path,
+            output_format=output_format)
+
+        (output_file_path, _) = QFileDialog.getSaveFileName(
+            self, 'Save File', default_path, f'Text files (*.{output_format.value})')
+
+        if output_file_path == '':
+            return
+
+        write_output(path=output_file_path, segments=self.segments,
+                     should_open=True, output_format=output_format)
 
 
 class Settings(QSettings):
@@ -686,6 +736,7 @@ class RecordingTranscriberWidget(QWidget):
             self.open_advanced_settings)
 
         self.text_box = TextDisplayBox(self)
+        self.text_box.setPlaceholderText('Click Record to begin...')
 
         widgets = [
             ((0, 5, FormLabel('Task:', self)), (5, 7, self.tasks_combo_box)),
