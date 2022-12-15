@@ -202,7 +202,7 @@ class FileTranscriptionOptions:
     file_path: str
     language: Optional[str] = None
     task: Task = Task.TRANSCRIBE
-    word_level_timings: Optional[bool] = False
+    word_level_timings: bool = False
     temperature: Tuple[float, ...] = DEFAULT_WHISPER_TEMPERATURE
     initial_prompt: str = ''
 
@@ -266,7 +266,7 @@ class WhisperCppFileTranscriber(QObject):
             self.progress.emit(
                 (self.duration_audio_ms, self.duration_audio_ms))
 
-        self.completed.emit((status == self.process.exitCode(), self.segments))
+        self.completed.emit((self.process.exitCode(), self.segments))
         self.running = False
 
     def stop(self):
@@ -429,8 +429,8 @@ def transcribe_whisper(
 
         segments = [
             Segment(
-                start=segment.get('start')*1000,
-                end=segment.get('end')*1000,
+                start=int(segment.get('start')*1000),
+                end=int(segment.get('end')*1000),
                 text=segment.get('text'),
             ) for segment in whisper_segments]
         segments_json = json.dumps(
@@ -444,8 +444,11 @@ def write_output(path: str, segments: List[Segment], should_open: bool, output_f
 
     with open(path, 'w', encoding='utf-8') as file:
         if output_format == OutputFormat.TXT:
-            for segment in segments:
-                file.write(segment.text + ' ')
+            for (i, segment) in enumerate(segments):
+                file.write(segment.text)
+                if i < len(segments)-1:
+                    file.write(' ')
+            file.write('\n')
 
         elif output_format == OutputFormat.VTT:
             file.write('WEBVTT\n\n')

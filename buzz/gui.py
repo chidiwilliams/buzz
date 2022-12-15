@@ -580,6 +580,9 @@ class FileTranscriberWidget(QWidget):
 
 
 class TranscriptionViewerWidget(QWidget):
+    segments: List[Segment]
+    transcription_options: FileTranscriptionOptions
+
     def __init__(
         self, transcription_options: FileTranscriptionOptions, segments: List[Segment],
         parent: Optional['QWidget'] = None, flags: Qt.WindowType = Qt.WindowType.Widget,

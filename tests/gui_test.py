@@ -7,15 +7,16 @@ import pytest
 import sounddevice
 from PyQt6.QtCore import Qt, QCoreApplication
 from PyQt6.QtGui import (QValidator)
+from PyQt6.QtWidgets import (QPushButton)
 from pytestqt.qtbot import QtBot
 
 from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application,
                       AudioDevicesComboBox, DownloadModelProgressDialog,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
                       OutputFormatsComboBox, Quality, QualityComboBox,
-                      Settings, TemperatureValidator,
-                      TranscriberProgressDialog)
-from buzz.transcriber import OutputFormat
+                      Settings, TemperatureValidator, TextDisplayBox,
+                      TranscriberProgressDialog, TranscriptionViewerWidget)
+from buzz.transcriber import FileTranscriptionOptions, OutputFormat, Segment
 
 
 class TestApplication:
@@ -178,20 +179,18 @@ class TestMainWindow:
 
 
 class TestFileTranscriberWidget:
-    def test_should_transcribe(self, qtbot: QtBot, tmp_path: pathlib.Path):
+    def test_should_transcribe(self, qtbot: QtBot):
         widget = FileTranscriberWidget(
             file_path='testdata/whisper-french.mp3', parent=None)
         qtbot.addWidget(widget)
 
-        output_file_path = tmp_path / 'whisper.txt'
-
-        with (patch('PyQt6.QtWidgets.QFileDialog.getSaveFileName') as save_file_name_mock,
-              qtbot.wait_signal(widget.transcribed, timeout=30*1000)):
-            save_file_name_mock.return_value = (output_file_path, '')
+        with qtbot.wait_signal(widget.transcribed, timeout=30*1000):
             widget.run_button.click()
 
-        output_file = open(output_file_path, 'r', encoding='utf-8')
-        assert 'Bienvenue dans Passe' in output_file.read()
+        transcription_viewer = widget.findChild(TranscriptionViewerWidget)
+        assert transcription_viewer is not None
+        assert isinstance(transcription_viewer, TranscriptionViewerWidget)
+        assert len(transcription_viewer.segments) > 0
 
     @pytest.mark.skip(reason="transcription_started callback sometimes not getting called until all progress events are emitted")
     def test_should_transcribe_and_stop(self, qtbot: QtBot, tmp_path: pathlib.Path):
@@ -202,13 +201,14 @@ class TestFileTranscriberWidget:
         output_file_path = tmp_path / 'whisper.txt'
 
         with (patch('PyQt6.QtWidgets.QFileDialog.getSaveFileName') as save_file_name_mock):
-            save_file_name_mock.return_value = (output_file_path, '')
+            save_file_name_mock.return_value = (str(output_file_path), '')
             widget.run_button.click()
 
         def transcription_started():
             QCoreApplication.processEvents()
             assert widget.transcriber_progress_dialog is not None
-            logging.debug('asserted value = %s', widget.transcriber_progress_dialog.value())
+            logging.debug('asserted value = %s',
+                          widget.transcriber_progress_dialog.value())
             assert widget.transcriber_progress_dialog.value() > 0
         qtbot.wait_until(transcription_started, timeout=30*1000)
 
@@ -270,3 +270,30 @@ class TestTemperatureValidator:
         ])
     def test_should_validate_temperature(self, text: str, state: QValidator.State):
         assert self.validator.validate(text, 0)[0] == state
+
+
+class TestTranscriptionViewerWidget:
+    widget = TranscriptionViewerWidget(
+        transcription_options=FileTranscriptionOptions(
+            file_path='testdata/whisper-french.mp3'),
+        segments=[Segment(40, 299, 'Bien'), Segment(299, 329, 'venue dans')])
+
+    def test_should_display_segments(self):
+        assert self.widget.windowTitle() == 'Transcription - whisper-french.mp3'
+
+        text_display_box = self.widget.findChild(TextDisplayBox)
+        assert isinstance(text_display_box, TextDisplayBox)
+        assert text_display_box.toPlainText(
+        ) == '00:00:00.040 --> 00:00:00.299\nBien\n\n00:00:00.299 --> 00:00:00.329\nvenue dans'
+
+    def test_should_export_segments(self, tmp_path: pathlib.Path):
+        export_button = self.widget.findChild(QPushButton)
+        assert isinstance(export_button, QPushButton)
+
+        output_file_path = tmp_path / 'whisper.txt'
+        with patch('PyQt6.QtWidgets.QFileDialog.getSaveFileName') as save_file_name_mock:
+            save_file_name_mock.return_value = (str(output_file_path), '')
+            export_button.menu().actions()[0].trigger()
+
+        output_file = open(output_file_path, 'r', encoding='utf-8')
+        assert 'Bien venue dans' in output_file.read()
