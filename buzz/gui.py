@@ -363,6 +363,7 @@ class FileTranscriberWidget(QWidget):
     transcriber_thread: Optional[QThread] = None
     transcribed = pyqtSignal()
     transcription_options: FileTranscriptionOptions
+    is_transcribing = False
 
     def __init__(self, file_path: str, parent: Optional[QWidget]) -> None:
         super().__init__(parent)
@@ -498,6 +499,7 @@ class FileTranscriberWidget(QWidget):
         self.model_loader.finished.connect(self.model_loader.deleteLater)
 
         # Run the file transcriber after the model loads
+        self.model_loader.finished.connect(self.on_model_loaded)
         self.model_loader.finished.connect(self.file_transcriber.run)
 
         self.file_transcriber.progress.connect(
@@ -509,6 +511,9 @@ class FileTranscriberWidget(QWidget):
             self.transcriber_thread.deleteLater)
 
         self.transcriber_thread.start()
+
+    def on_model_loaded(self):
+        self.is_transcribing = True
 
     def on_download_model_progress(self, progress: Tuple[int, int]):
         (current_size, total_size) = progress
@@ -530,21 +535,23 @@ class FileTranscriberWidget(QWidget):
     def on_transcriber_progress(self, progress: Tuple[int, int]):
         (current_size, total_size) = progress
 
-        # Create a dialog
-        if self.transcriber_progress_dialog is None:
-            self.transcriber_progress_dialog = TranscriberProgressDialog(
-                file_path=self.file_path, total_size=total_size, parent=self)
-            self.transcriber_progress_dialog.canceled.connect(
-                self.on_cancel_transcriber_progress_dialog)
-
-        # Update the progress of the dialog unless it has
-        # been canceled before this progress update arrived
-        if self.transcriber_progress_dialog is not None:
-            self.transcriber_progress_dialog.update_progress(current_size)
+        if self.is_transcribing:
+            # Create a dialog
+            if self.transcriber_progress_dialog is None:
+                self.transcriber_progress_dialog = TranscriberProgressDialog(
+                    file_path=self.file_path, total_size=total_size, parent=self)
+                self.transcriber_progress_dialog.canceled.connect(
+                    self.on_cancel_transcriber_progress_dialog)
+            else:
+                # Update the progress of the dialog unless it has
+                # been canceled before this progress update arrived
+                self.transcriber_progress_dialog.update_progress(current_size)
 
     @pyqtSlot(tuple)
     def on_transcriber_complete(self, result: Tuple[int, List[Segment]]):
         exit_code, segments = result
+
+        self.is_transcribing = False
 
         if self.transcriber_progress_dialog is not None:
             self.transcriber_progress_dialog.reset()

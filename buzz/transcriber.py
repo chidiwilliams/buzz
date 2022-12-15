@@ -235,7 +235,7 @@ class WhisperCppFileTranscriber(QObject):
         self.running = True
 
         logging.debug(
-            'Starting file transcription, file path = %s, language = %s, task = %s, model_path = %s',
+            'Starting whisper_cpp file transcription, file path = %s, language = %s, task = %s, model_path = %s',
             self.file_path, self.language, self.task, model_path)
 
         wav_file = tempfile.mktemp()+'.wav'
@@ -344,7 +344,7 @@ class WhisperFileTranscriber(QObject):
         self.running = True
         time_started = datetime.datetime.now()
         logging.debug(
-            'Starting file transcription, file path = %s, language = %s, task = %s, model path = %s, temperature = %s, initial prompt length = %s',
+            'Starting whisper file transcription, file path = %s, language = %s, task = %s, model path = %s, temperature = %s, initial prompt length = %s',
             self.file_path, self.language, self.task, model_path, self.temperature, len(self.initial_prompt))
 
         recv_pipe, send_pipe = multiprocessing.Pipe(duplex=False)
