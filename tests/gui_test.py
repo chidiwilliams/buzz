@@ -1,9 +1,11 @@
+import logging
+import os
 import pathlib
 from unittest.mock import Mock, patch
 
 import pytest
 import sounddevice
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QCoreApplication
 from PyQt6.QtGui import (QValidator)
 from pytestqt.qtbot import QtBot
 
@@ -184,12 +186,36 @@ class TestFileTranscriberWidget:
         output_file_path = tmp_path / 'whisper.txt'
 
         with (patch('PyQt6.QtWidgets.QFileDialog.getSaveFileName') as save_file_name_mock,
-              qtbot.wait_signal(widget.transcribed, timeout=30*1000)):
+              qtbot.wait_signal(widget.transcribed, timeout=10*1000)):
             save_file_name_mock.return_value = (output_file_path, '')
             widget.run_button.click()
 
         output_file = open(output_file_path, 'r', encoding='utf-8')
         assert 'Bienvenue dans Passe' in output_file.read()
+
+    @pytest.mark.skip(reason="transcription_started callback sometimes not getting called until all progress events are emitted")
+    def test_should_transcribe_and_stop(self, qtbot: QtBot, tmp_path: pathlib.Path):
+        widget = FileTranscriberWidget(
+            file_path='testdata/whisper-french-long.mp3', parent=None)
+        qtbot.addWidget(widget)
+
+        output_file_path = tmp_path / 'whisper.txt'
+
+        with (patch('PyQt6.QtWidgets.QFileDialog.getSaveFileName') as save_file_name_mock):
+            save_file_name_mock.return_value = (output_file_path, '')
+            widget.run_button.click()
+
+        def transcription_started():
+            QCoreApplication.processEvents()
+            assert widget.transcriber_progress_dialog is not None
+            logging.debug('asserted value = %s', widget.transcriber_progress_dialog.value())
+            assert widget.transcriber_progress_dialog.value() > 0
+        qtbot.wait_until(transcription_started, timeout=30*1000)
+
+        widget.transcriber_progress_dialog.close()
+
+        assert os.path.isfile(output_file_path) is False
+        assert widget.run_button.isEnabled()
 
 
 class TestSettings:

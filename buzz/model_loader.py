@@ -7,7 +7,7 @@ from typing import Optional
 import requests
 import whisper
 from platformdirs import user_cache_dir
-from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot, QThread
 
 MODELS_SHA256 = {
     'tiny': 'be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21',
@@ -16,12 +16,6 @@ MODELS_SHA256 = {
     'medium': '6c14d5adee5f86394037b4e4e8b59f1673b6cee10e3cf0b11bbdbee79c156208',
     'large': '9a423fe4d40c82774b6af34115b8b935f34152246eb19e80e376071d3f999487'
 }
-
-
-class Signals(QObject):
-    progress = pyqtSignal(tuple)  # (current, total)
-    completed = pyqtSignal(str)
-    error = pyqtSignal(str)
 
 
 class ModelLoader(QObject):
