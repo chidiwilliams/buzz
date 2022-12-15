@@ -179,6 +179,7 @@ class TestMainWindow:
 
 
 class TestFileTranscriberWidget:
+    @pytest.mark.skip()
     def test_should_transcribe(self, qtbot: QtBot):
         widget = FileTranscriberWidget(
             file_path='testdata/whisper-french.mp3', parent=None)
