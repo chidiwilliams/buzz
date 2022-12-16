@@ -62,21 +62,9 @@ jobs:
       - name: Test
         run: poetry run make test
 
-      - name: Upload code coverage
-        run: |
-          if [ "$RUNNER_OS" == "Windows" ]; then
-          
-            $ProgressPreference = 'SilentlyContinue'
-            Invoke-WebRequest -Uri https://uploader.codecov.io/latest/windows/codecov.exe -Outfile codecov.exe
-            .\codecov.exe
+      - name: Upload coverage reports to Codecov with GitHub Action
+        uses: codecov/codecov-action@v3
 
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-          
-            curl -Os https://uploader.codecov.io/latest/macos/codecov
-            chmod +x codecov
-            ./codecov
-          
-          fi
 
   build:
     runs-on: ${{ matrix.os }}
