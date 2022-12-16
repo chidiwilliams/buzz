@@ -361,7 +361,6 @@ class FileTranscriberWidget(QWidget):
                                      WhisperCppFileTranscriber]] = None
     model_loader: Optional[ModelLoader] = None
     transcriber_thread: Optional[QThread] = None
-    transcribed = pyqtSignal()
     transcription_options: FileTranscriptionOptions
     is_transcribing = False
 
@@ -559,7 +558,6 @@ class FileTranscriberWidget(QWidget):
                 self.transcriber_progress_dialog.close()
 
         self.reset_transcriber_controls()
-        self.transcribed.emit()
 
         TranscriptionViewerWidget(
             transcription_options=self.transcription_options,
