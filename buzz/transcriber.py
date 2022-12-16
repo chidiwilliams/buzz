@@ -324,7 +324,6 @@ class WhisperFileTranscriber(QObject):
     error = pyqtSignal(str)
     running = False
     read_line_thread: Optional[Thread] = None
-    segments: List[Segment]
 
     def __init__(
             self, transcription_options: FileTranscriptionOptions,
@@ -386,12 +385,13 @@ class WhisperFileTranscriber(QObject):
     def on_whisper_stdout(self, line: str):
         if line.startswith('segments = '):
             segments_dict = json.loads(line[11:])
-            self.segments = [Segment(
+            segments = [Segment(
                 start=segment.get('start'),
                 end=segment.get('end'),
                 text=segment.get('text'),
             ) for segment in segments_dict]
-            self.completed.emit((self.current_process.exitcode, self.segments))
+            self.current_process.join()
+            self.completed.emit((self.current_process.exitcode, segments))
             return
 
         try:
