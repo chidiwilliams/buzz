@@ -15,10 +15,9 @@ from pytestqt.qtbot import QtBot
 from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application,
                       AudioDevicesComboBox, DownloadModelProgressDialog,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
-                      OutputFormatsComboBox, Quality, QualityComboBox,
-                      Settings, TemperatureValidator, TextDisplayBox,
-                      TranscriberProgressDialog, TranscriptionViewerWidget)
-from buzz.transcriber import FileTranscriptionOptions, OutputFormat, Segment
+                      QualityComboBox, Settings, TemperatureValidator,
+                      TextDisplayBox, TranscriberProgressDialog, TranscriptionViewerWidget)
+from buzz.transcriber import FileTranscriptionOptions, OutputFormat, Segment, Quality
 
 
 class TestApplication:
@@ -182,14 +181,6 @@ class TestDownloadModelProgressDialog:
         dialog = DownloadModelProgressDialog(total_size=1234567, parent=None)
         qtbot.add_widget(dialog)
         assert dialog.windowModality() == Qt.WindowModality.ApplicationModal
-
-
-class TestFormatsComboBox:
-    def test_should_have_items(self):
-        formats_combo_box = OutputFormatsComboBox(OutputFormat.TXT, None)
-        assert formats_combo_box.itemText(0) == '.txt'
-        assert formats_combo_box.itemText(1) == '.srt'
-        assert formats_combo_box.itemText(2) == '.vtt'
 
 
 class TestMainWindow:

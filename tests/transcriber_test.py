@@ -54,7 +54,7 @@ class TestWhisperCppFileTranscriber:
 
         model_path = get_model_path('tiny', True)
         transcriber = WhisperCppFileTranscriber(
-            transcription_options=transcription_options)
+            file_transcription_options=transcription_options)
         mock_progress = Mock()
         mock_completed = Mock()
         transcriber.progress.connect(mock_progress)
@@ -101,7 +101,7 @@ class TestWhisperFileTranscriber:
             word_level_timings=word_level_timings)
 
         transcriber = WhisperFileTranscriber(
-            transcription_options=transcription_options)
+            file_transcription_options=transcription_options)
         transcriber.progress.connect(mock_progress)
         transcriber.completed.connect(mock_completed)
         with qtbot.wait_signal(transcriber.completed, timeout=10 * 6000):
@@ -136,7 +136,7 @@ class TestWhisperFileTranscriber:
             word_level_timings=False)
 
         transcriber = WhisperFileTranscriber(
-            transcription_options=transcription_options)
+            file_transcription_options=transcription_options)
         transcriber.run(model_path)
         time.sleep(1)
         transcriber.stop()
