@@ -62,6 +62,17 @@ jobs:
       - name: Test
         run: poetry run make test
 
+      - name: Upload code coverage
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            curl -Os https://uploader.codecov.io/latest/linux/codecov
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            curl -Os https://uploader.codecov.io/latest/macos/codecov
+          fi
+
+          chmod +x codecov
+          ./codecov
+
   build:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -162,7 +173,7 @@ jobs:
         include:
           - os: macos-latest
           - os: windows-latest
-    needs: [build, test]
+    needs: [ build, test ]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v3
