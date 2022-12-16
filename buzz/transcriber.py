@@ -217,7 +217,7 @@ class TranscriptionOptions:
 
 
 @dataclass()
-class FileTranscriptionOptions():
+class FileTranscriptionOptions:
     file_path: str
 
 
