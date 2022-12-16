@@ -45,8 +45,7 @@ class TestWhisperCppFileTranscriber:
         'word_level_timings,expected_segments',
         [
             (False, [Segment(0, 1840, 'Bienvenue dans Passe Relle.')]),
-            (True, [
-                Segment(0, 30, ''), Segment(30, 280, 'Bien'), Segment(280, 630, 'venue')])
+            (True, [Segment(30, 280, 'Bien'), Segment(280, 630, 'venue')])
         ])
     def test_transcribe(self, qtbot: QtBot, word_level_timings: bool, expected_segments: List[Segment]):
         transcription_options = FileTranscriptionOptions(
@@ -60,14 +59,14 @@ class TestWhisperCppFileTranscriber:
         mock_completed = Mock()
         transcriber.progress.connect(mock_progress)
         transcriber.completed.connect(mock_completed)
-        with qtbot.waitSignal(transcriber.completed, timeout=10*60*1000):
+        with qtbot.waitSignal(transcriber.completed, timeout=10 * 60 * 1000):
             transcriber.run(model_path)
 
         mock_progress.assert_called()
         exit_code, segments = mock_completed.call_args[0][0]
         assert exit_code is 0
-        for (i, expected_segment) in enumerate(expected_segments):
-            assert segments[i] == expected_segment
+        for expected_segment in expected_segments:
+            assert expected_segment in segments
 
 
 class TestWhisperFileTranscriber:
@@ -87,7 +86,8 @@ class TestWhisperFileTranscriber:
         [
             (False, [
                 Segment(
-                    0, 6560, ' Bienvenue dans Passe-Relle. Un podcast pensé pour évêiller la curiosité des apprenances'),
+                    0, 6560,
+                    ' Bienvenue dans Passe-Relle. Un podcast pensé pour évêiller la curiosité des apprenances'),
             ]),
             (True, [Segment(40, 299, ' Bien'), Segment(299, 329, 'venue dans')])
         ])
@@ -104,7 +104,7 @@ class TestWhisperFileTranscriber:
             transcription_options=transcription_options)
         transcriber.progress.connect(mock_progress)
         transcriber.completed.connect(mock_completed)
-        with qtbot.wait_signal(transcriber.completed, timeout=10*6000):
+        with qtbot.wait_signal(transcriber.completed, timeout=10 * 6000):
             transcriber.run(model_path)
 
         QCoreApplication.processEvents()
@@ -115,7 +115,8 @@ class TestWhisperFileTranscriber:
         assert any(
             [call_args.args[0] == (100, 100) for call_args in mock_progress.call_args_list])
         assert any(
-            [(0 < call_args.args[0][0] < 100) and (call_args.args[0][1] == 100) for call_args in mock_progress.call_args_list])
+            [(0 < call_args.args[0][0] < 100) and (call_args.args[0][1] == 100) for call_args in
+             mock_progress.call_args_list])
 
         mock_completed.assert_called()
         exit_code, segments = mock_completed.call_args[0][0]
@@ -167,8 +168,11 @@ class TestWhisperCpp:
     'output_format,output_text',
     [
         (OutputFormat.TXT, 'Bien venue dans\n'),
-        (OutputFormat.SRT, '1\n00:00:00.040 --> 00:00:00.299\nBien\n\n2\n00:00:00.299 --> 00:00:00.329\nvenue dans\n\n'),
-        (OutputFormat.VTT, 'WEBVTT\n\n00:00:00.040 --> 00:00:00.299\nBien\n\n00:00:00.299 --> 00:00:00.329\nvenue dans\n\n'),
+        (
+                OutputFormat.SRT,
+                '1\n00:00:00.040 --> 00:00:00.299\nBien\n\n2\n00:00:00.299 --> 00:00:00.329\nvenue dans\n\n'),
+        (OutputFormat.VTT,
+         'WEBVTT\n\n00:00:00.040 --> 00:00:00.299\nBien\n\n00:00:00.299 --> 00:00:00.329\nvenue dans\n\n'),
     ])
 def test_write_output(tmp_path: pathlib.Path, output_format: OutputFormat, output_text: str):
     output_file_path = tmp_path / 'whisper.txt'
