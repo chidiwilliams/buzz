@@ -64,14 +64,19 @@ jobs:
 
       - name: Upload code coverage
         run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            curl -Os https://uploader.codecov.io/latest/linux/codecov
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            curl -Os https://uploader.codecov.io/latest/macos/codecov
-          fi
+          if [ "$RUNNER_OS" == "Windows" ]; then
+          
+            $ProgressPreference = 'SilentlyContinue'
+            Invoke-WebRequest -Uri https://uploader.codecov.io/latest/windows/codecov.exe -Outfile codecov.exe
+            .\codecov.exe
 
-          chmod +x codecov
-          ./codecov
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+          
+            curl -Os https://uploader.codecov.io/latest/macos/codecov
+            chmod +x codecov
+            ./codecov
+          
+          fi
 
   build:
     runs-on: ${{ matrix.os }}
