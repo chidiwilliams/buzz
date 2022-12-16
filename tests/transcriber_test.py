@@ -1,7 +1,9 @@
+import logging
 import os
 import pathlib
 import tempfile
 import time
+from typing import List
 from unittest.mock import Mock
 
 from PyQt6.QtCore import QCoreApplication
@@ -9,11 +11,11 @@ import pytest
 from pytestqt.qtbot import QtBot
 
 from buzz.model_loader import ModelLoader
-from buzz.transcriber import (OutputFormat, RecordingTranscriber, Task,
+from buzz.transcriber import (FileTranscriptionOptions, OutputFormat, RecordingTranscriber, Segment, Task,
                               WhisperCpp, WhisperCppFileTranscriber,
                               WhisperFileTranscriber,
                               get_default_output_file_path, to_timestamp,
-                              whisper_cpp_params)
+                              whisper_cpp_params, write_output)
 
 
 def get_model_path(model_name: str, use_whisper_cpp: bool) -> str:
@@ -40,33 +42,31 @@ class TestRecordingTranscriber:
 
 class TestWhisperCppFileTranscriber:
     @pytest.mark.parametrize(
-        'task,output_text',
+        'word_level_timings,expected_segments',
         [
-            (Task.TRANSCRIBE, 'Bienvenue dans Passe'),
-            (Task.TRANSLATE, 'Welcome to Passe-Relle'),
+            (False, [Segment(0, 1840, 'Bienvenue dans Passe Relle.')]),
+            (True, [Segment(30, 280, 'Bien'), Segment(280, 630, 'venue')])
         ])
-    def test_transcribe(self, qtbot, tmp_path: pathlib.Path, task: Task, output_text: str):
-        output_file_path = tmp_path / 'whisper_cpp.txt'
-        if os.path.exists(output_file_path):
-            os.remove(output_file_path)
+    def test_transcribe(self, qtbot: QtBot, word_level_timings: bool, expected_segments: List[Segment]):
+        transcription_options = FileTranscriptionOptions(
+            language='fr', task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
+            word_level_timings=word_level_timings)
 
         model_path = get_model_path('tiny', True)
         transcriber = WhisperCppFileTranscriber(
-            language='fr', task=task, file_path='testdata/whisper-french.mp3',
-            output_file_path=output_file_path.as_posix(), output_format=OutputFormat.TXT,
-            open_file_on_complete=False,
-            word_level_timings=False)
+            transcription_options=transcription_options)
         mock_progress = Mock()
-        with qtbot.waitSignal(transcriber.completed, timeout=10*60*1000):
-            transcriber.progress.connect(mock_progress)
+        mock_completed = Mock()
+        transcriber.progress.connect(mock_progress)
+        transcriber.completed.connect(mock_completed)
+        with qtbot.waitSignal(transcriber.completed, timeout=10 * 60 * 1000):
             transcriber.run(model_path)
 
-        assert os.path.isfile(output_file_path)
-
-        output_file = open(output_file_path, 'r', encoding='utf-8')
-        assert output_text in output_file.read()
-
         mock_progress.assert_called()
+        exit_code, segments = mock_completed.call_args[0][0]
+        assert exit_code is 0
+        for expected_segment in expected_segments:
+            assert expected_segment in segments
 
 
 class TestWhisperFileTranscriber:
@@ -82,35 +82,30 @@ class TestWhisperFileTranscriber:
         assert srt.endswith('.srt')
 
     @pytest.mark.parametrize(
-        'word_level_timings,output_format,output_text',
+        'word_level_timings,expected_segments',
         [
-            (False, OutputFormat.TXT, 'Bienvenue dans Passe-Relle'),
-            (False, OutputFormat.SRT,
-             '1\n00:00:00.000 --> 00:00:06.560\n Bienvenue dans Passe-Relle'),
-            (False, OutputFormat.VTT,
-             'WEBVTT\n\n00:00:00.000 --> 00:00:06.560\n Bienvenue dans Passe'),
-            (True, OutputFormat.SRT,
-             '1\n00:00:00.040 --> 00:00:00.299\n Bien\n\n2\n00:00:00.299 --> 00:00:00.329\nvenue dans\n\n3\n00:00:00.329 --> 00:00:00.429\n P\n\n4\n00:00:00.429 --> 00:00:00.589\nasse-'),
+            (False, [
+                Segment(
+                    0, 6560,
+                    ' Bienvenue dans Passe-Relle. Un podcast pensé pour évêiller la curiosité des apprenances'),
+            ]),
+            (True, [Segment(40, 299, ' Bien'), Segment(299, 329, 'venue dans')])
         ])
-    def test_transcribe(self, qtbot: QtBot, tmp_path: pathlib.Path, word_level_timings: bool, output_format: OutputFormat, output_text: str):
-        output_file_path = tmp_path / f'whisper.{output_format.value.lower()}'
-
+    def test_transcribe(self, qtbot: QtBot, word_level_timings: bool, expected_segments: List[Segment]):
         model_path = get_model_path('tiny', False)
 
         mock_progress = Mock()
-        transcriber = WhisperFileTranscriber(
+        mock_completed = Mock()
+        transcription_options = FileTranscriptionOptions(
             language='fr', task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
-            output_file_path=output_file_path.as_posix(), output_format=output_format,
-            open_file_on_complete=False,
             word_level_timings=word_level_timings)
+
+        transcriber = WhisperFileTranscriber(
+            transcription_options=transcription_options)
         transcriber.progress.connect(mock_progress)
-        with qtbot.wait_signal(transcriber.completed, timeout=10*6000):
+        transcriber.completed.connect(mock_completed)
+        with qtbot.wait_signal(transcriber.completed, timeout=10 * 6000):
             transcriber.run(model_path)
-
-        assert os.path.isfile(output_file_path)
-
-        output_file = open(output_file_path, 'r', encoding='utf-8')
-        assert output_text in output_file.read()
 
         QCoreApplication.processEvents()
 
@@ -120,7 +115,14 @@ class TestWhisperFileTranscriber:
         assert any(
             [call_args.args[0] == (100, 100) for call_args in mock_progress.call_args_list])
         assert any(
-            [(0 < call_args.args[0][0] < 100) and (call_args.args[0][1] == 100) for call_args in mock_progress.call_args_list])
+            [(0 < call_args.args[0][0] < 100) and (call_args.args[0][1] == 100) for call_args in
+             mock_progress.call_args_list])
+
+        mock_completed.assert_called()
+        exit_code, segments = mock_completed.call_args[0][0]
+        assert exit_code is 0
+        for (i, expected_segment) in enumerate(expected_segments):
+            assert segments[i] == expected_segment
 
     @pytest.mark.skip()
     def test_transcribe_stop(self):
@@ -129,11 +131,12 @@ class TestWhisperFileTranscriber:
             os.remove(output_file_path)
 
         model_path = get_model_path('tiny', False)
-        transcriber = WhisperFileTranscriber(
+        transcription_options = FileTranscriptionOptions(
             language='fr', task=Task.TRANSCRIBE, file_path='testdata/whisper-french.mp3',
-            output_file_path=output_file_path, output_format=OutputFormat.TXT,
-            open_file_on_complete=False,
             word_level_timings=False)
+
+        transcriber = WhisperFileTranscriber(
+            transcription_options=transcription_options)
         transcriber.run(model_path)
         time.sleep(1)
         transcriber.stop()
@@ -159,3 +162,24 @@ class TestWhisperCpp:
             audio='testdata/whisper-french.mp3', params=params)
 
         assert 'Bienvenue dans Passe' in result['text']
+
+
+@pytest.mark.parametrize(
+    'output_format,output_text',
+    [
+        (OutputFormat.TXT, 'Bien venue dans\n'),
+        (
+                OutputFormat.SRT,
+                '1\n00:00:00.040 --> 00:00:00.299\nBien\n\n2\n00:00:00.299 --> 00:00:00.329\nvenue dans\n\n'),
+        (OutputFormat.VTT,
+         'WEBVTT\n\n00:00:00.040 --> 00:00:00.299\nBien\n\n00:00:00.299 --> 00:00:00.329\nvenue dans\n\n'),
+    ])
+def test_write_output(tmp_path: pathlib.Path, output_format: OutputFormat, output_text: str):
+    output_file_path = tmp_path / 'whisper.txt'
+    segments = [Segment(40, 299, 'Bien'), Segment(299, 329, 'venue dans')]
+
+    write_output(path=str(output_file_path), segments=segments,
+                 should_open=False, output_format=output_format)
+
+    output_file = open(output_file_path, 'r', encoding='utf-8')
+    assert output_text == output_file.read()
