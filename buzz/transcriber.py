@@ -217,7 +217,7 @@ class TranscriptionOptions:
 
 
 @dataclass()
-class FileTranscriptionOptions():
+class FileTranscriptionOptions:
     file_path: str
 
 
@@ -273,6 +273,9 @@ class WhisperCppFileTranscriber(QObject):
 
         self.process.start('./whisper_cpp', args)
         self.process.waitForFinished()
+
+        # Ensure all std_out data has been read
+        self.read_std_out()
 
         status = self.process.exitStatus()
         logging.debug('whisper_cpp process completed with status = %s', status)

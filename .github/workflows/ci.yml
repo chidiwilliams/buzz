@@ -62,6 +62,12 @@ jobs:
       - name: Test
         run: poetry run make test
 
+      - name: Upload coverage reports to Codecov with GitHub Action
+        uses: codecov/codecov-action@v3
+        with:
+          flags: ${{ runner.os }}
+
+
   build:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -162,7 +168,7 @@ jobs:
         include:
           - os: macos-latest
           - os: windows-latest
-    needs: [build, test]
+    needs: [ build, test ]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v3
