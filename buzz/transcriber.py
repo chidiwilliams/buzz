@@ -33,10 +33,10 @@ from .conn import pipe_stderr
 LOADED_WHISPER_DLL = False
 try:
     import buzz.whisper_cpp as whisper_cpp
+
     LOADED_WHISPER_DLL = True
 except ImportError:
     logging.exception('')
-
 
 DEFAULT_WHISPER_TEMPERATURE = (0.0, 0.2, 0.4, 0.6, 0.8, 1.0)
 
@@ -51,6 +51,14 @@ class Segment:
     start: int  # start time in ms
     end: int  # end time in ms
     text: str
+
+
+class Quality(enum.Enum):
+    VERY_LOW = 'very low'
+    LOW = 'low'
+    MEDIUM = 'medium'
+    HIGH = 'high'
+    VERY_HIGH = 'very high'
 
 
 class RecordingTranscriber:
@@ -105,7 +113,8 @@ class RecordingTranscriber:
 
         logging.debug(
             'Recording, language = %s, task = %s, device = %s, sample rate = %s, model_path = %s, temperature = %s, initial prompt length = %s',
-            self.language, self.task, self.input_device_index, self.sample_rate, self.model_path, self.temperature, len(self.initial_prompt))
+            self.language, self.task, self.input_device_index, self.sample_rate, self.model_path, self.temperature,
+            len(self.initial_prompt))
         self.current_stream = sounddevice.InputStream(
             samplerate=self.sample_rate,
             blocksize=1 * self.sample_rate,  # 1 sec
@@ -144,7 +153,7 @@ class RecordingTranscriber:
                 self.initial_prompt += next_text
 
                 logging.debug('Received next result, length = %s, time taken = %s',
-                              len(next_text), datetime.datetime.now()-time_started)
+                              len(next_text), datetime.datetime.now() - time_started)
                 self.event_callback(self.TranscribedNextChunkEvent(next_text))
 
                 self.text += f'\n\n{next_text}'
@@ -197,14 +206,19 @@ class OutputFormat(enum.Enum):
     VTT = 'vtt'
 
 
-@dataclass
-class FileTranscriptionOptions:
-    file_path: str
+@dataclass()
+class TranscriptionOptions:
     language: Optional[str] = None
     task: Task = Task.TRANSCRIBE
+    quality: Quality = Quality.VERY_LOW
     word_level_timings: bool = False
     temperature: Tuple[float, ...] = DEFAULT_WHISPER_TEMPERATURE
     initial_prompt: str = ''
+
+
+@dataclass()
+class FileTranscriptionOptions():
+    file_path: str
 
 
 class WhisperCppFileTranscriber(QObject):
@@ -215,12 +229,11 @@ class WhisperCppFileTranscriber(QObject):
     segments: List[Segment]
     running = False
 
-    def __init__(
-            self, transcription_options: FileTranscriptionOptions,
-            parent: Optional['QObject'] = None) -> None:
+    def __init__(self, transcription_options: TranscriptionOptions,
+                 file_transcription_options: FileTranscriptionOptions, parent: Optional['QObject'] = None) -> None:
         super().__init__(parent)
 
-        self.file_path = transcription_options.file_path
+        self.file_path = file_transcription_options.file_path
         self.language = transcription_options.language
         self.task = transcription_options.task
         self.word_level_timings = transcription_options.word_level_timings
@@ -235,10 +248,11 @@ class WhisperCppFileTranscriber(QObject):
         self.running = True
 
         logging.debug(
-            'Starting whisper_cpp file transcription, file path = %s, language = %s, task = %s, model_path = %s',
-            self.file_path, self.language, self.task, model_path)
+            'Starting whisper_cpp file transcription, file path = %s, language = %s, task = %s, model_path = %s, '
+            'word level timings = %s',
+            self.file_path, self.language, self.task, model_path, self.word_level_timings)
 
-        wav_file = tempfile.mktemp()+'.wav'
+        wav_file = tempfile.mktemp() + '.wav'
         (
             ffmpeg.input(self.file_path)
             .output(wav_file, acodec="pcm_s16le", ac=1, ar=whisper.audio.SAMPLE_RATE)
@@ -291,13 +305,13 @@ class WhisperCppFileTranscriber(QObject):
             pass
 
     def parse_timings(self, timings: str) -> Tuple[int, int]:
-        start, end = timings[1:len(timings)-1].split(' --> ')
+        start, end = timings[1:len(timings) - 1].split(' --> ')
         return self.parse_timestamp(start), self.parse_timestamp(end)
 
     def parse_timestamp(self, timestamp: str) -> int:
         hrs, mins, secs_ms = timestamp.split(':')
         secs, ms = secs_ms.split('.')
-        return int(hrs)*60*60*1000 + int(mins)*60*1000 + int(secs)*1000 + int(ms)
+        return int(hrs) * 60 * 60 * 1000 + int(mins) * 60 * 1000 + int(secs) * 1000 + int(ms)
 
     def read_std_err(self):
         try:
@@ -310,13 +324,14 @@ class WhisperCppFileTranscriber(QObject):
                     match = re.search(r'samples, (.*) sec', line)
                     if match is not None:
                         self.duration_audio_ms = round(
-                            float(match.group(1))*1000)
+                            float(match.group(1)) * 1000)
         except UnicodeDecodeError:
             pass
 
 
 class WhisperFileTranscriber(QObject):
-    """WhisperFileTranscriber transcribes an audio file to text, writes the text to a file, and then opens the file using the default program for opening txt files."""
+    """WhisperFileTranscriber transcribes an audio file to text, writes the text to a file, and then opens the file
+    using the default program for opening txt files. """
 
     current_process: multiprocessing.Process
     progress = pyqtSignal(tuple)  # (current, total)
@@ -324,13 +339,13 @@ class WhisperFileTranscriber(QObject):
     error = pyqtSignal(str)
     running = False
     read_line_thread: Optional[Thread] = None
+    READ_LINE_THREAD_STOP_TOKEN = '--STOP--'
 
-    def __init__(
-            self, transcription_options: FileTranscriptionOptions,
-            parent: Optional['QObject'] = None) -> None:
+    def __init__(self, transcription_options: TranscriptionOptions,
+                 file_transcription_options: FileTranscriptionOptions, parent: Optional['QObject'] = None) -> None:
         super().__init__(parent)
 
-        self.file_path = transcription_options.file_path
+        self.file_path = file_transcription_options.file_path
         self.language = transcription_options.language
         self.task = transcription_options.task
         self.word_level_timings = transcription_options.word_level_timings
@@ -343,8 +358,10 @@ class WhisperFileTranscriber(QObject):
         self.running = True
         time_started = datetime.datetime.now()
         logging.debug(
-            'Starting whisper file transcription, file path = %s, language = %s, task = %s, model path = %s, temperature = %s, initial prompt length = %s',
-            self.file_path, self.language, self.task, model_path, self.temperature, len(self.initial_prompt))
+            'Starting whisper file transcription, file path = %s, language = %s, task = %s, model path = %s, '
+            'temperature = %s, initial prompt length = %s, word level timings = %s',
+            self.file_path, self.language, self.task, model_path, self.temperature, len(self.initial_prompt),
+            self.word_level_timings)
 
         recv_pipe, send_pipe = multiprocessing.Pipe(duplex=False)
 
@@ -355,21 +372,16 @@ class WhisperFileTranscriber(QObject):
                 self.language, self.task, self.word_level_timings,
                 self.temperature, self.initial_prompt
             ))
-
         self.current_process.start()
 
-        self.read_line_thread = Thread(target=self.read_line, args=(
-            recv_pipe, self.on_whisper_stdout))
+        self.read_line_thread = Thread(target=self.read_line, args=(recv_pipe,))
         self.read_line_thread.start()
 
         self.current_process.join()
 
         logging.debug(
             'whisper process completed with code = %s, time taken = %s',
-            self.current_process.exitcode, datetime.datetime.now()-time_started)
-
-        recv_pipe.close()
-        send_pipe.close()
+            self.current_process.exitcode, datetime.datetime.now() - time_started)
 
         self.read_line_thread.join()
 
@@ -382,31 +394,28 @@ class WhisperFileTranscriber(QObject):
         if self.running:
             self.current_process.terminate()
 
-    def on_whisper_stdout(self, line: str):
-        if line.startswith('segments = '):
-            segments_dict = json.loads(line[11:])
-            segments = [Segment(
-                start=segment.get('start'),
-                end=segment.get('end'),
-                text=segment.get('text'),
-            ) for segment in segments_dict]
-            self.current_process.join()
-            self.completed.emit((self.current_process.exitcode, segments))
-            return
+    def read_line(self, pipe: Connection):
+        while True:
+            line = pipe.recv().strip()
+            if line == self.READ_LINE_THREAD_STOP_TOKEN:
+                return
 
-        try:
-            progress = int(line.split('|')[0].strip().strip('%'))
-            self.progress.emit((progress, 100))
-        except ValueError:
-            pass
-
-    def read_line(self, pipe: Connection, callback: Callable[[str], None]):
-        while pipe.closed is False:
-            try:
-                text = pipe.recv().strip()
-                callback(text)
-            except EOFError:
-                break
+            if line.startswith('segments = '):
+                segments_dict = json.loads(line[11:])
+                segments = [Segment(
+                    start=segment.get('start'),
+                    end=segment.get('end'),
+                    text=segment.get('text'),
+                ) for segment in segments_dict]
+                self.current_process.join()
+                # TODO: move this back to the parent thread
+                self.completed.emit((self.current_process.exitcode, segments))
+            else:
+                try:
+                    progress = int(line.split('|')[0].strip().strip('%'))
+                    self.progress.emit((progress, 100))
+                except ValueError:
+                    continue
 
 
 def transcribe_whisper(
@@ -432,24 +441,26 @@ def transcribe_whisper(
 
         segments = [
             Segment(
-                start=int(segment.get('start')*1000),
-                end=int(segment.get('end')*1000),
+                start=int(segment.get('start') * 1000),
+                end=int(segment.get('end') * 1000),
                 text=segment.get('text'),
             ) for segment in whisper_segments]
         segments_json = json.dumps(
             segments, ensure_ascii=True, default=vars)
         sys.stderr.write(f'segments = {segments_json}\n')
+        sys.stderr.write(WhisperFileTranscriber.READ_LINE_THREAD_STOP_TOKEN + '\n')
 
 
 def write_output(path: str, segments: List[Segment], should_open: bool, output_format: OutputFormat):
     logging.debug(
-        'Writing transcription output, path = %s, output format = %s, number of segments = %s', path, output_format, len(segments))
+        'Writing transcription output, path = %s, output format = %s, number of segments = %s', path, output_format,
+        len(segments))
 
     with open(path, 'w', encoding='utf-8') as file:
         if output_format == OutputFormat.TXT:
             for (i, segment) in enumerate(segments):
                 file.write(segment.text)
-                if i < len(segments)-1:
+                if i < len(segments) - 1:
                     file.write(' ')
             file.write('\n')
 
@@ -462,7 +473,7 @@ def write_output(path: str, segments: List[Segment], should_open: bool, output_f
 
         elif output_format == OutputFormat.SRT:
             for (i, segment) in enumerate(segments):
-                file.write(f'{i+1}\n')
+                file.write(f'{i + 1}\n')
                 file.write(
                     f'{to_timestamp(segment.start)} --> {to_timestamp(segment.end)}\n')
                 file.write(f'{segment.text}\n\n')
@@ -480,16 +491,16 @@ def segments_to_text(segments: List[Segment]) -> str:
     for (i, segment) in enumerate(segments):
         result += f'{to_timestamp(segment.start)} --> {to_timestamp(segment.end)}\n'
         result += f'{segment.text}'
-        if i < len(segments)-1:
+        if i < len(segments) - 1:
             result += '\n\n'
     return result
 
 
 def to_timestamp(ms: float) -> str:
-    hr = int(ms / (1000*60*60))
-    ms = ms - hr * (1000*60*60)
-    min = int(ms / (1000*60))
-    ms = ms - min * (1000*60)
+    hr = int(ms / (1000 * 60 * 60))
+    ms = ms - hr * (1000 * 60 * 60)
+    min = int(ms / (1000 * 60))
+    ms = ms - min * (1000 * 60)
     sec = int(ms / 1000)
     ms = int(ms - sec * 1000)
     return f'{hr:02d}:{min:02d}:{sec:02d}.{ms:03d}'
@@ -505,7 +516,7 @@ def get_default_output_file_path(task: Task, input_file_path: str, output_format
 
 def whisper_cpp_params(
         language: str, task: Task, word_level_timings: bool,
-        print_realtime=False, print_progress=False,):
+        print_realtime=False, print_progress=False, ):
     params = whisper_cpp.whisper_full_default_params(
         whisper_cpp.WHISPER_SAMPLING_GREEDY)
     params.print_realtime = print_realtime
@@ -544,8 +555,8 @@ class WhisperCpp:
             t1 = whisper_cpp.whisper_full_get_segment_t1((self.ctx), i)
 
             segments.append(
-                Segment(start=t0*10,  # centisecond to ms
-                        end=t1*10,  # centisecond to ms
+                Segment(start=t0 * 10,  # centisecond to ms
+                        end=t1 * 10,  # centisecond to ms
                         text=txt.decode('utf-8')))
 
         return {

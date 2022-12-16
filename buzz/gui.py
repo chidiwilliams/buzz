@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 import enum
 import logging
 import os
@@ -15,11 +14,10 @@ from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt, QThread, pyq
 from PyQt6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
                          QKeySequence, QPixmap, QTextCursor, QValidator)
 from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
-                             QDialogButtonBox, QFileDialog, QGridLayout, QToolButton,
-                             QLabel, QLayout, QLineEdit,
+                             QDialogButtonBox, QFileDialog, QGridLayout, QLabel, QLayout, QLineEdit,
                              QMainWindow, QMessageBox, QPlainTextEdit,
                              QProgressDialog, QPushButton, QVBoxLayout, QHBoxLayout, QMenu,
-                             QWidget)
+                             QWidget, QGroupBox)
 from requests import get
 from whisper import tokenizer
 
@@ -29,7 +27,7 @@ from .transcriber import (DEFAULT_WHISPER_TEMPERATURE, LOADED_WHISPER_DLL,
                           SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
                           RecordingTranscriber, Segment, Task,
                           WhisperCppFileTranscriber, WhisperFileTranscriber,
-                          get_default_output_file_path, segments_to_text, write_output)
+                          get_default_output_file_path, segments_to_text, write_output, TranscriptionOptions, Quality)
 
 APP_NAME = 'Buzz'
 
@@ -76,7 +74,8 @@ class AudioDevicesComboBox(QComboBox):
             return list(map(lambda device: (device.get('index'), device.get('name')), input_devices))
         except UnicodeDecodeError:
             QMessageBox.critical(
-                self, '', 'An error occured while loading your audio devices. Please check the application logs for more information.')
+                self, '',
+                'An error occured while loading your audio devices. Please check the application logs for more information.')
             return []
 
     def on_index_changed(self, index: int):
@@ -131,30 +130,6 @@ class TasksComboBox(QComboBox):
 
     def on_index_changed(self, index: int):
         self.taskChanged.emit(self.tasks[index])
-
-
-class OutputFormatsComboBox(QComboBox):
-    output_format_changed = pyqtSignal(OutputFormat)
-    formats: List[OutputFormat]
-
-    def __init__(self, default_format: OutputFormat, parent: Optional[QWidget], *args) -> None:
-        super().__init__(parent, *args)
-        self.formats = [i for i in OutputFormat]
-        self.addItems(
-            map(lambda format: f'.{format.value.lower()}', self.formats))
-        self.currentIndexChanged.connect(self.on_index_changed)
-        self.setCurrentText(default_format.value.title())
-
-    def on_index_changed(self, index: int):
-        self.output_format_changed.emit(self.formats[index])
-
-
-class Quality(enum.Enum):
-    VERY_LOW = 'very low'
-    LOW = 'low'
-    MEDIUM = 'medium'
-    HIGH = 'high'
-    VERY_HIGH = 'very high'
 
 
 class QualityComboBox(QComboBox):
@@ -279,11 +254,13 @@ class RecordingTranscriberObject(QObject):
     transcriber: RecordingTranscriber
 
     def __init__(self, model_path: str, use_whisper_cpp, language: Optional[str],
-                 task: Task, input_device_index: Optional[int], temperature: Tuple[float, ...], initial_prompt: str, parent: Optional[QWidget], *args) -> None:
+                 task: Task, input_device_index: Optional[int], temperature: Tuple[float, ...], initial_prompt: str,
+                 parent: Optional[QWidget], *args) -> None:
         super().__init__(parent, *args)
         self.transcriber = RecordingTranscriber(
             model_path=model_path, use_whisper_cpp=use_whisper_cpp,
-            on_download_model_chunk=self.on_download_model_progress, language=language, temperature=temperature, initial_prompt=initial_prompt,
+            on_download_model_chunk=self.on_download_model_progress, language=language, temperature=temperature,
+            initial_prompt=initial_prompt,
             event_callback=self.event_callback, task=task,
             input_device_index=input_device_index)
 
@@ -333,10 +310,10 @@ class TimerLabel(QLabel):
 
 def get_model_name(quality: Quality) -> str:
     return {
-        Quality.VERY_LOW:  'tiny',
-        Quality.LOW:       'base',
-        Quality.MEDIUM:    'small',
-        Quality.HIGH:      'medium',
+        Quality.VERY_LOW: 'tiny',
+        Quality.LOW: 'base',
+        Quality.MEDIUM: 'small',
+        Quality.HIGH: 'medium',
         Quality.VERY_HIGH: 'large',
     }[quality]
 
@@ -347,78 +324,40 @@ def show_model_download_error_dialog(parent: QWidget, error: str):
 
 
 class FileTranscriberWidget(QWidget):
-    selected_quality = Quality.VERY_LOW
-    selected_language: Optional[str] = None
-    selected_task = Task.TRANSCRIBE
-    selected_output_format = OutputFormat.TXT
-    enabled_word_level_timings = False
-    temperature: Tuple[float, ...] = DEFAULT_WHISPER_TEMPERATURE
-    initial_prompt = ''
-
+    settings: 'Settings'
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     transcriber_progress_dialog: Optional[TranscriberProgressDialog] = None
-    file_transcriber: Optional[Union[WhisperFileTranscriber,
-                                     WhisperCppFileTranscriber]] = None
+    file_transcriber: Optional[Union[WhisperFileTranscriber, WhisperCppFileTranscriber]] = None
     model_loader: Optional[ModelLoader] = None
     transcriber_thread: Optional[QThread] = None
-    transcription_options: FileTranscriptionOptions
+    file_transcription_options: FileTranscriptionOptions
+    transcription_options: TranscriptionOptions
     is_transcribing = False
 
     def __init__(self, file_path: str, parent: Optional[QWidget]) -> None:
         super().__init__(parent)
+        self.file_path = file_path
+        self.settings = Settings(self)
+        self.transcription_options = TranscriptionOptions()
+        self.file_transcription_options = FileTranscriptionOptions(file_path=self.file_path)
 
         layout = QGridLayout(self)
-
-        self.settings = Settings(self)
-        self.transcription_options = FileTranscriptionOptions(
-            file_path=file_path)
-
-        self.file_path = file_path
-
-        self.quality_combo_box = QualityComboBox(
-            default_quality=self.selected_quality,
-            parent=self)
-        self.quality_combo_box.quality_changed.connect(self.on_quality_changed)
-
-        self.languages_combo_box = LanguagesComboBox(
-            default_language=self.selected_language,
-            parent=self)
-        self.languages_combo_box.languageChanged.connect(
-            self.on_language_changed)
-
-        self.tasks_combo_box = TasksComboBox(
-            default_task=self.selected_task,
-            parent=self)
-        self.tasks_combo_box.taskChanged.connect(self.on_task_changed)
 
         self.run_button = QPushButton('Run', self)
         self.run_button.clicked.connect(self.on_click_run)
         self.run_button.setDefault(True)
 
-        output_formats_combo_box = OutputFormatsComboBox(
-            default_format=self.selected_output_format, parent=self)
-        output_formats_combo_box.output_format_changed.connect(
-            self.on_output_format_changed)
-
         self.word_level_timings_checkbox = QCheckBox('Word-level timings')
         self.word_level_timings_checkbox.stateChanged.connect(
             self.on_word_level_timings_changed)
-        self.word_level_timings_checkbox.setDisabled(True)
 
-        self.advanced_settings_button = AdvancedSettingsButton(self)
-        self.advanced_settings_button.clicked.connect(
-            self.open_advanced_settings)
+        transcription_options_group_box = TranscriptionOptionsGroupBox(
+            default_transcription_options=self.transcription_options, parent=self)
+        transcription_options_group_box.transcription_options_changed.connect(self.on_transcription_options_changed)
 
         widgets = [
-            ((0, 5, FormLabel('Task:', parent=self)), (5, 7, self.tasks_combo_box)),
-            ((0, 5, FormLabel('Language:', parent=self)),
-             (5, 7, self.languages_combo_box)),
-            ((0, 5, FormLabel('Quality:', parent=self)),
-             (5, 7, self.quality_combo_box)),
-            ((0, 5, FormLabel('Export As:', self)),
-             (5, 7, output_formats_combo_box)),
+            ((0, 12, transcription_options_group_box),),
             ((5, 7, self.word_level_timings_checkbox),),
-            ((5, 3, self.advanced_settings_button),),
             ((9, 3, self.run_button),)
         ]
         add_widgets_to_grid(widgets, layout)
@@ -426,19 +365,8 @@ class FileTranscriberWidget(QWidget):
         self.setLayout(layout)
         self.pool = QThreadPool()
 
-    def on_quality_changed(self, quality: Quality):
-        self.selected_quality = quality
-
-    def on_language_changed(self, language: str):
-        self.selected_language = None if language == '' else language
-
-    def on_task_changed(self, task: Task):
-        self.selected_task = task
-
-    def on_output_format_changed(self, output_format: OutputFormat):
-        self.selected_output_format = output_format
-        self.word_level_timings_checkbox.setDisabled(
-            output_format == OutputFormat.TXT)
+    def on_transcription_options_changed(self, transcription_options: TranscriptionOptions):
+        self.transcription_options = transcription_options
 
     def open_advanced_settings(self):
         dialog = AdvancedSettingsDialog(
@@ -449,36 +377,25 @@ class FileTranscriberWidget(QWidget):
         dialog.initial_prompt_changed.connect(self.on_initial_prompt_changed)
         dialog.exec()
 
-    def on_temperature_changed(self, temperature: Tuple[float, ...]):
-        self.temperature = temperature
-
-    def on_initial_prompt_changed(self, initial_prompt: str):
-        self.initial_prompt = initial_prompt
-
     def on_click_run(self):
         use_whisper_cpp = self.settings.get_enable_ggml_inference(
-        ) and self.selected_language is not None
+        ) and self.transcription_options.language is not None
 
         self.run_button.setDisabled(True)
-        model_name = get_model_name(self.selected_quality)
+        model_name = get_model_name(self.transcription_options.quality)
 
         self.transcriber_thread = QThread()
 
         self.model_loader = ModelLoader(
             name=model_name, use_whisper_cpp=use_whisper_cpp)
 
-        self.transcription_options = FileTranscriptionOptions(
-            file_path=self.file_path, language=self.selected_language,
-            task=self.selected_task, word_level_timings=self.enabled_word_level_timings,
-            temperature=self.temperature, initial_prompt=self.initial_prompt
-        )
-
         if use_whisper_cpp:
             self.file_transcriber = WhisperCppFileTranscriber(
-                self.transcription_options)
+                file_transcription_options=self.file_transcription_options,
+                transcription_options=self.transcription_options)
         else:
-            self.file_transcriber = WhisperFileTranscriber(
-                self.transcription_options)
+            self.file_transcriber = WhisperFileTranscriber(file_transcription_options=self.file_transcription_options,
+                                                           transcription_options=self.transcription_options)
 
         self.model_loader.moveToThread(self.transcriber_thread)
         self.file_transcriber.moveToThread(self.transcriber_thread)
@@ -561,6 +478,7 @@ class FileTranscriberWidget(QWidget):
 
         TranscriptionViewerWidget(
             transcription_options=self.transcription_options,
+            file_transcription_options=self.file_transcription_options,
             segments=segments, parent=self, flags=Qt.WindowType.Window).show()
 
     def on_cancel_transcriber_progress_dialog(self):
@@ -581,26 +499,28 @@ class FileTranscriberWidget(QWidget):
             self.model_download_progress_dialog = None
 
     def on_word_level_timings_changed(self, value: int):
-        self.enabled_word_level_timings = value == Qt.CheckState.Checked.value
+        self.transcription_options.word_level_timings = value == Qt.CheckState.Checked.value
 
 
 class TranscriptionViewerWidget(QWidget):
     segments: List[Segment]
-    transcription_options: FileTranscriptionOptions
+    file_transcription_options: FileTranscriptionOptions
+    transcription_options: TranscriptionOptions
 
     def __init__(
-        self, transcription_options: FileTranscriptionOptions, segments: List[Segment],
-        parent: Optional['QWidget'] = None, flags: Qt.WindowType = Qt.WindowType.Widget,
+            self, file_transcription_options: FileTranscriptionOptions, transcription_options: TranscriptionOptions,
+            segments: List[Segment], parent: Optional['QWidget'] = None, flags: Qt.WindowType = Qt.WindowType.Widget,
     ) -> None:
         super().__init__(parent, flags)
         self.segments = segments
+        self.file_transcription_options = file_transcription_options
         self.transcription_options = transcription_options
 
         self.setMinimumWidth(500)
         self.setMinimumHeight(500)
 
         self.setWindowTitle(
-            f'Transcription - {get_short_file_path(transcription_options.file_path)}')
+            f'Transcription - {get_short_file_path(file_transcription_options.file_path)}')
 
         layout = QVBoxLayout(self)
 
@@ -635,7 +555,7 @@ class TranscriptionViewerWidget(QWidget):
 
         default_path = get_default_output_file_path(
             task=self.transcription_options.task,
-            input_file_path=self.transcription_options.file_path,
+            input_file_path=self.file_transcription_options.file_path,
             output_format=output_format)
 
         (output_file_path, _) = QFileDialog.getSaveFileName(
@@ -692,14 +612,8 @@ class AdvancedSettingsButton(QPushButton):
 
 class RecordingTranscriberWidget(QWidget):
     current_status = RecordButton.Status.STOPPED
-
-    selected_quality = Quality.VERY_LOW
-    selected_language: Optional[str] = None
+    transcription_options: TranscriptionOptions
     selected_device_id: Optional[int]
-    selected_task = Task.TRANSCRIBE
-    temperature: Tuple[float, ...] = DEFAULT_WHISPER_TEMPERATURE
-    initial_prompt = ''
-
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     settings: Settings
     transcriber: Optional[RecordingTranscriberObject] = None
@@ -712,48 +626,29 @@ class RecordingTranscriberWidget(QWidget):
         layout = QGridLayout(self)
 
         self.settings = Settings(self)
-
-        self.quality_combo_box = QualityComboBox(
-            default_quality=self.selected_quality,
-            parent=self)
-        self.quality_combo_box.quality_changed.connect(self.on_quality_changed)
-
-        self.languages_combo_box = LanguagesComboBox(
-            default_language=self.selected_language,
-            parent=self)
-        self.languages_combo_box.languageChanged.connect(
-            self.on_language_changed)
+        self.transcription_options = TranscriptionOptions()
 
         self.audio_devices_combo_box = AudioDevicesComboBox(self)
         self.audio_devices_combo_box.device_changed.connect(
             self.on_device_changed)
         self.selected_device_id = self.audio_devices_combo_box.get_default_device_id()
 
-        self.tasks_combo_box = TasksComboBox(
-            default_task=Task.TRANSCRIBE,
-            parent=self)
-        self.tasks_combo_box.taskChanged.connect(self.on_task_changed)
-
         self.timer_label = TimerLabel(self)
 
         self.record_button = RecordButton(self)
         self.record_button.status_changed.connect(self.on_status_changed)
 
-        self.advanced_settings_button = AdvancedSettingsButton(self)
-        self.advanced_settings_button.clicked.connect(
-            self.open_advanced_settings)
-
         self.text_box = TextDisplayBox(self)
         self.text_box.setPlaceholderText('Click Record to begin...')
 
+        transcription_options_group_box = TranscriptionOptionsGroupBox(
+            default_transcription_options=self.transcription_options, parent=self)
+        transcription_options_group_box.transcription_options_changed.connect(self.on_transcription_options_changed)
+
         widgets = [
-            ((0, 5, FormLabel('Task:', self)), (5, 7, self.tasks_combo_box)),
-            ((0, 5, FormLabel('Language:', self)),
-             (5, 7, self.languages_combo_box)),
-            ((0, 5, FormLabel('Quality:', self)), (5, 7, self.quality_combo_box)),
+            ((0, 12, transcription_options_group_box),),
             ((0, 5, FormLabel('Microphone:', self)),
              (5, 7, self.audio_devices_combo_box)),
-            ((5, 3, self.advanced_settings_button),),
             ((6, 3, self.timer_label), (9, 3, self.record_button)),
             ((0, 12, self.text_box),),
         ]
@@ -762,20 +657,8 @@ class RecordingTranscriberWidget(QWidget):
 
         self.setLayout(layout)
 
-    def open_advanced_settings(self):
-        dialog = AdvancedSettingsDialog(
-            self.temperature, self.initial_prompt,
-            use_whisper_cpp=self.use_whisper_cpp(),
-            parent=self)
-        dialog.temperature_changed.connect(self.on_temperature_changed)
-        dialog.initial_prompt_changed.connect(self.on_initial_prompt_changed)
-        dialog.exec()
-
-    def on_temperature_changed(self, temperature: Tuple[float, ...]):
-        self.temperature = temperature
-
-    def on_initial_prompt_changed(self, initial_prompt: str):
-        self.initial_prompt = initial_prompt
+    def on_transcription_options_changed(self, transcription_options: TranscriptionOptions):
+        self.transcription_options = transcription_options
 
     def on_device_changed(self, device_id: int):
         self.selected_device_id = device_id
@@ -786,23 +669,14 @@ class RecordingTranscriberWidget(QWidget):
         else:
             self.stop_recording()
 
-    def on_quality_changed(self, quality: Quality):
-        self.selected_quality = quality
-
-    def on_language_changed(self, language: str):
-        self.selected_language = None if language == '' else language
-
-    def on_task_changed(self, task: Task):
-        self.selected_task = task
-
     def use_whisper_cpp(self):
-        return self.settings.get_enable_ggml_inference() and self.selected_language is not None
+        return self.settings.get_enable_ggml_inference() and self.transcription_options.language is not None
 
     def start_recording(self):
         self.record_button.setDisabled(True)
 
         use_whisper_cpp = self.use_whisper_cpp()
-        model_name = get_model_name(self.selected_quality)
+        model_name = get_model_name(self.transcription_options.quality)
 
         def start_recording_transcription(model_path: str):
             # Clear text box placeholder because the first chunk takes a while to process
@@ -814,9 +688,10 @@ class RecordingTranscriberWidget(QWidget):
 
             self.transcriber = RecordingTranscriberObject(
                 model_path=model_path, use_whisper_cpp=use_whisper_cpp,
-                language=self.selected_language, task=self.selected_task,
+                language=self.transcription_options.language, task=self.transcription_options.task,
                 input_device_index=self.selected_device_id,
-                temperature=self.temperature, initial_prompt=self.initial_prompt,
+                temperature=self.transcription_options.temperature,
+                initial_prompt=self.transcription_options.initial_prompt,
                 parent=self
             )
             self.transcriber.event_changed.connect(
@@ -1019,7 +894,7 @@ class MainWindow(QMainWindow):
 
 class RecordingTranscriberMainWindow(MainWindow):
     def __init__(self, parent: Optional[QWidget], *args) -> None:
-        super().__init__(title='Live Recording', w=400, h=500, parent=parent, *args)
+        super().__init__(title='Live Recording', w=400, h=520, parent=parent, *args)
 
         self.central_widget = RecordingTranscriberWidget(self)
         self.central_widget.setContentsMargins(10, 10, 10, 10)
@@ -1030,12 +905,86 @@ class RecordingTranscriberMainWindow(MainWindow):
         return super().closeEvent(event)
 
 
+class TranscriptionOptionsGroupBox(QGroupBox):
+    settings: Settings
+    transcription_options: TranscriptionOptions
+    transcription_options_changed = pyqtSignal(TranscriptionOptions)
+
+    def __init__(self, default_transcription_options: TranscriptionOptions, parent: Optional[QWidget] = None):
+        super().__init__(title='', parent=parent)
+        self.transcription_options = default_transcription_options
+        self.settings = Settings(self)
+
+        layout = QGridLayout(self)
+
+        self.tasks_combo_box = TasksComboBox(
+            default_task=self.transcription_options.task,
+            parent=self)
+        self.tasks_combo_box.taskChanged.connect(self.on_task_changed)
+
+        self.languages_combo_box = LanguagesComboBox(
+            default_language=self.transcription_options.language,
+            parent=self)
+        self.languages_combo_box.languageChanged.connect(self.on_language_changed)
+
+        self.quality_combo_box = QualityComboBox(
+            default_quality=self.transcription_options.quality,
+            parent=self)
+        self.quality_combo_box.quality_changed.connect(self.on_quality_changed)
+
+        self.advanced_settings_button = AdvancedSettingsButton(self)
+        self.advanced_settings_button.clicked.connect(
+            self.open_advanced_settings)
+
+        layout.addWidget(FormLabel('Task:', self), 0, 0, 1, 5)
+        layout.addWidget(self.tasks_combo_box, 0, 5, 1, 7)
+
+        layout.addWidget(FormLabel('Language:', self), 1, 0, 1, 5)
+        layout.addWidget(self.languages_combo_box, 1, 5, 1, 7)
+
+        layout.addWidget(FormLabel('Quality:', self), 2, 0, 1, 5)
+        layout.addWidget(self.quality_combo_box, 2, 5, 1, 7)
+
+        layout.addWidget(self.advanced_settings_button, 3, 5, 1, 3)
+
+        self.setLayout(layout)
+
+    def on_language_changed(self, language: str):
+        self.transcription_options.language = language
+        self.transcription_options_changed.emit(self.transcription_options)
+
+    def on_quality_changed(self, quality: Quality):
+        self.transcription_options.quality = quality
+        self.transcription_options_changed.emit(self.transcription_options)
+
+    def on_task_changed(self, task: Task):
+        self.transcription_options.task = task
+        self.transcription_options_changed.emit(self.transcription_options)
+
+    def on_temperature_changed(self, temperature: Tuple[float, ...]):
+        self.transcription_options.temperature = temperature
+        self.transcription_options_changed.emit(self.transcription_options)
+
+    def on_initial_prompt_changed(self, initial_prompt: str):
+        self.transcription_options.initial_prompt = initial_prompt
+        self.transcription_options_changed.emit(self.transcription_options)
+
+    def open_advanced_settings(self):
+        dialog = AdvancedSettingsDialog(
+            self.transcription_options.temperature, self.transcription_options.initial_prompt,
+            use_whisper_cpp=self.settings.get_enable_ggml_inference(),
+            parent=self)
+        dialog.temperature_changed.connect(self.on_temperature_changed)
+        dialog.initial_prompt_changed.connect(self.on_initial_prompt_changed)
+        dialog.exec()
+
+
 class FileTranscriberMainWindow(MainWindow):
     central_widget: FileTranscriberWidget
 
     def __init__(self, file_path: str, parent: Optional[QWidget], *args) -> None:
         super().__init__(title=get_short_file_path(
-            file_path), w=400, h=280, parent=parent, *args)
+            file_path), w=400, h=270, parent=parent, *args)
 
         self.central_widget = FileTranscriberWidget(file_path, self)
         self.central_widget.setContentsMargins(10, 10, 10, 10)
@@ -1080,7 +1029,8 @@ class AdvancedSettingsDialog(QDialog):
     temperature_changed = pyqtSignal(tuple)
     initial_prompt_changed = pyqtSignal(str)
 
-    def __init__(self, temperature: Tuple[float, ...], initial_prompt: str, use_whisper_cpp: bool, parent: QWidget | None = None):
+    def __init__(self, temperature: Tuple[float, ...], initial_prompt: str, use_whisper_cpp: bool,
+                 parent: QWidget | None = None):
         super().__init__(parent)
 
         self.temperature = temperature
