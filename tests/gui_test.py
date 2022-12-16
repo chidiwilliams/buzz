@@ -2,6 +2,7 @@ import logging
 import os
 import pathlib
 from typing import Any, Callable
+import platform
 from unittest.mock import Mock, patch
 
 import pytest
@@ -194,6 +195,7 @@ def wait_until(callback: Callable[[], Any], timeout=0):
 
 
 class TestFileTranscriberWidget:
+    @pytest.mark.skipif(condition=platform.system() == 'Windows', reason='Waiting for signal crashes process on Windows')
     def test_should_transcribe(self, qtbot: QtBot):
         widget = FileTranscriberWidget(
             file_path='testdata/whisper-french.mp3', parent=None)
