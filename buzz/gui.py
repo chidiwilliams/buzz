@@ -477,7 +477,8 @@ class FileTranscriberWidget(QWidget):
         self.reset_transcriber_controls()
 
         TranscriptionViewerWidget(
-            transcription_options=self.file_transcription_options,
+            transcription_options=self.transcription_options,
+            file_transcription_options=self.file_transcription_options,
             segments=segments, parent=self, flags=Qt.WindowType.Window).show()
 
     def on_cancel_transcriber_progress_dialog(self):
@@ -503,21 +504,23 @@ class FileTranscriberWidget(QWidget):
 
 class TranscriptionViewerWidget(QWidget):
     segments: List[Segment]
-    transcription_options: FileTranscriptionOptions
+    file_transcription_options: FileTranscriptionOptions
+    transcription_options: TranscriptionOptions
 
     def __init__(
-            self, transcription_options: FileTranscriptionOptions, segments: List[Segment],
-            parent: Optional['QWidget'] = None, flags: Qt.WindowType = Qt.WindowType.Widget,
+            self, file_transcription_options: FileTranscriptionOptions, transcription_options: TranscriptionOptions,
+            segments: List[Segment], parent: Optional['QWidget'] = None, flags: Qt.WindowType = Qt.WindowType.Widget,
     ) -> None:
         super().__init__(parent, flags)
         self.segments = segments
+        self.file_transcription_options = file_transcription_options
         self.transcription_options = transcription_options
 
         self.setMinimumWidth(500)
         self.setMinimumHeight(500)
 
         self.setWindowTitle(
-            f'Transcription - {get_short_file_path(transcription_options.file_path)}')
+            f'Transcription - {get_short_file_path(file_transcription_options.file_path)}')
 
         layout = QVBoxLayout(self)
 
@@ -552,7 +555,7 @@ class TranscriptionViewerWidget(QWidget):
 
         default_path = get_default_output_file_path(
             task=self.transcription_options.task,
-            input_file_path=self.transcription_options.file_path,
+            input_file_path=self.file_transcription_options.file_path,
             output_format=output_format)
 
         (output_file_path, _) = QFileDialog.getSaveFileName(

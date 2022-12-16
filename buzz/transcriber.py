@@ -217,7 +217,7 @@ class TranscriptionOptions:
 
 
 @dataclass()
-class FileTranscriptionOptions:
+class FileTranscriptionOptions():
     file_path: str
 
 
@@ -339,6 +339,7 @@ class WhisperFileTranscriber(QObject):
     error = pyqtSignal(str)
     running = False
     read_line_thread: Optional[Thread] = None
+    READ_LINE_THREAD_STOP_TOKEN = '--STOP--'
 
     def __init__(self, transcription_options: TranscriptionOptions,
                  file_transcription_options: FileTranscriptionOptions, parent: Optional['QObject'] = None) -> None:
@@ -371,11 +372,9 @@ class WhisperFileTranscriber(QObject):
                 self.language, self.task, self.word_level_timings,
                 self.temperature, self.initial_prompt
             ))
-
         self.current_process.start()
 
-        self.read_line_thread = Thread(target=self.read_line, args=(
-            recv_pipe, self.on_whisper_stdout))
+        self.read_line_thread = Thread(target=self.read_line, args=(recv_pipe,))
         self.read_line_thread.start()
 
         self.current_process.join()
@@ -383,9 +382,6 @@ class WhisperFileTranscriber(QObject):
         logging.debug(
             'whisper process completed with code = %s, time taken = %s',
             self.current_process.exitcode, datetime.datetime.now() - time_started)
-
-        recv_pipe.close()
-        send_pipe.close()
 
         self.read_line_thread.join()
 
@@ -398,31 +394,28 @@ class WhisperFileTranscriber(QObject):
         if self.running:
             self.current_process.terminate()
 
-    def on_whisper_stdout(self, line: str):
-        if line.startswith('segments = '):
-            segments_dict = json.loads(line[11:])
-            segments = [Segment(
-                start=segment.get('start'),
-                end=segment.get('end'),
-                text=segment.get('text'),
-            ) for segment in segments_dict]
-            self.current_process.join()
-            self.completed.emit((self.current_process.exitcode, segments))
-            return
+    def read_line(self, pipe: Connection):
+        while True:
+            line = pipe.recv().strip()
+            if line == self.READ_LINE_THREAD_STOP_TOKEN:
+                return
 
-        try:
-            progress = int(line.split('|')[0].strip().strip('%'))
-            self.progress.emit((progress, 100))
-        except ValueError:
-            pass
-
-    def read_line(self, pipe: Connection, callback: Callable[[str], None]):
-        while pipe.closed is False:
-            try:
-                text = pipe.recv().strip()
-                callback(text)
-            except (EOFError, OSError):
-                break
+            if line.startswith('segments = '):
+                segments_dict = json.loads(line[11:])
+                segments = [Segment(
+                    start=segment.get('start'),
+                    end=segment.get('end'),
+                    text=segment.get('text'),
+                ) for segment in segments_dict]
+                self.current_process.join()
+                # TODO: move this back to the parent thread
+                self.completed.emit((self.current_process.exitcode, segments))
+            else:
+                try:
+                    progress = int(line.split('|')[0].strip().strip('%'))
+                    self.progress.emit((progress, 100))
+                except ValueError:
+                    continue
 
 
 def transcribe_whisper(
@@ -455,7 +448,7 @@ def transcribe_whisper(
         segments_json = json.dumps(
             segments, ensure_ascii=True, default=vars)
         sys.stderr.write(f'segments = {segments_json}\n')
-        sys.stderr.flush()
+        sys.stderr.write(WhisperFileTranscriber.READ_LINE_THREAD_STOP_TOKEN + '\n')
 
 
 def write_output(path: str, segments: List[Segment], should_open: bool, output_format: OutputFormat):

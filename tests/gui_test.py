@@ -17,7 +17,7 @@ from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
                       QualityComboBox, Settings, TemperatureValidator,
                       TextDisplayBox, TranscriberProgressDialog, TranscriptionViewerWidget)
-from buzz.transcriber import FileTranscriptionOptions, OutputFormat, Segment, Quality
+from buzz.transcriber import FileTranscriptionOptions, OutputFormat, Segment, Quality, TranscriptionOptions
 
 
 class TestApplication:
@@ -298,11 +298,14 @@ class TestTemperatureValidator:
 
 class TestTranscriptionViewerWidget:
     widget = TranscriptionViewerWidget(
-        transcription_options=FileTranscriptionOptions(
+        file_transcription_options=FileTranscriptionOptions(
             file_path='testdata/whisper-french.mp3'),
+        transcription_options=TranscriptionOptions(),
         segments=[Segment(40, 299, 'Bien'), Segment(299, 329, 'venue dans')])
 
-    def test_should_display_segments(self):
+    def test_should_display_segments(self, qtbot: QtBot):
+        qtbot.add_widget(self.widget)
+
         assert self.widget.windowTitle() == 'Transcription - whisper-french.mp3'
 
         text_display_box = self.widget.findChild(TextDisplayBox)
@@ -310,7 +313,9 @@ class TestTranscriptionViewerWidget:
         assert text_display_box.toPlainText(
         ) == '00:00:00.040 --> 00:00:00.299\nBien\n\n00:00:00.299 --> 00:00:00.329\nvenue dans'
 
-    def test_should_export_segments(self, tmp_path: pathlib.Path):
+    def test_should_export_segments(self, tmp_path: pathlib.Path, qtbot: QtBot):
+        qtbot.add_widget(self.widget)
+
         export_button = self.widget.findChild(QPushButton)
         assert isinstance(export_button, QPushButton)
 
