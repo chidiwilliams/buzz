@@ -1,6 +1,7 @@
 import logging
 import os
 import pathlib
+from typing import Any, Callable
 from unittest.mock import Mock, patch
 
 import pytest
@@ -143,25 +144,29 @@ class TestTranscriberProgressDialog:
 
 
 class TestDownloadModelProgressDialog:
-    dialog = DownloadModelProgressDialog(total_size=1234567, parent=None)
+    def test_should_show_dialog(self, qtbot: QtBot):
+        dialog = DownloadModelProgressDialog(total_size=1234567, parent=None)
+        qtbot.add_widget(dialog)
+        assert dialog.labelText() == 'Downloading resources (0%, unknown time remaining)'
 
-    def test_should_show_dialog(self):
-        assert self.dialog.labelText() == 'Downloading resources (0%, unknown time remaining)'
+    def test_should_update_label_on_progress(self, qtbot: QtBot):
+        dialog = DownloadModelProgressDialog(total_size=1234567, parent=None)
+        qtbot.add_widget(dialog)
+        dialog.setValue(0)
 
-    def test_should_update_label_on_progress(self):
-        self.dialog.setValue(0)
-
-        self.dialog.setValue(12345)
-        assert self.dialog.labelText().startswith(
+        dialog.setValue(12345)
+        assert dialog.labelText().startswith(
             'Downloading resources (1.00%')
 
-        self.dialog.setValue(123456)
-        assert self.dialog.labelText().startswith(
+        dialog.setValue(123456)
+        assert dialog.labelText().startswith(
             'Downloading resources (10.00%')
 
     # Other windows should not be processing while models are being downloaded
-    def test_should_be_an_application_modal(self):
-        assert self.dialog.windowModality() == Qt.WindowModality.ApplicationModal
+    def test_should_be_an_application_modal(self, qtbot: QtBot):
+        dialog = DownloadModelProgressDialog(total_size=1234567, parent=None)
+        qtbot.add_widget(dialog)
+        assert dialog.windowModality() == Qt.WindowModality.ApplicationModal
 
 
 class TestFormatsComboBox:
@@ -178,18 +183,29 @@ class TestMainWindow:
         assert main_window is not None
 
 
+def wait_until(callback: Callable[[], Any], timeout=0):
+    while True:
+        try:
+            QCoreApplication.processEvents()
+            callback()
+            return
+        except AssertionError:
+            pass
+
+
 class TestFileTranscriberWidget:
-    @pytest.mark.skip()
     def test_should_transcribe(self, qtbot: QtBot):
         widget = FileTranscriberWidget(
             file_path='testdata/whisper-french.mp3', parent=None)
         qtbot.addWidget(widget)
 
-        with qtbot.wait_signal(widget.transcribed, timeout=10*1000):
-            widget.run_button.click()
+        # Waiting for a "transcribed" signal seems to work more consistently
+        # than checking for the opening of a TranscriptionViewerWidget.
+        # See also: https://github.com/pytest-dev/pytest-qt/issues/313
+        with qtbot.wait_signal(widget.transcribed, timeout=30*1000):
+            qtbot.mouseClick(widget.run_button, Qt.MouseButton.LeftButton)
 
         transcription_viewer = widget.findChild(TranscriptionViewerWidget)
-        assert transcription_viewer is not None
         assert isinstance(transcription_viewer, TranscriptionViewerWidget)
         assert len(transcription_viewer.segments) > 0
 

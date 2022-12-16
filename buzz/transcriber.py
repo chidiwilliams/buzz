@@ -374,7 +374,9 @@ class WhisperFileTranscriber(QObject):
 
         self.read_line_thread.join()
 
-        self.completed.emit((self.current_process.exitcode, self.segments))
+        if self.current_process.exitcode != 0:
+            self.completed.emit((self.current_process.exitcode, []))
+
         self.running = False
 
     def stop(self):
@@ -389,6 +391,7 @@ class WhisperFileTranscriber(QObject):
                 end=segment.get('end'),
                 text=segment.get('text'),
             ) for segment in segments_dict]
+            self.completed.emit((self.current_process.exitcode, self.segments))
             return
 
         try:
