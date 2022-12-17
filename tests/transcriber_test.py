@@ -1,4 +1,3 @@
-import logging
 import os
 import pathlib
 import tempfile
@@ -6,7 +5,6 @@ import time
 from typing import List
 from unittest.mock import Mock
 
-from PyQt6.QtCore import QCoreApplication
 import pytest
 from pytestqt.qtbot import QtBot
 
@@ -15,11 +13,11 @@ from buzz.transcriber import (FileTranscriptionOptions, OutputFormat, RecordingT
                               WhisperCpp, WhisperCppFileTranscriber,
                               WhisperFileTranscriber,
                               get_default_output_file_path, to_timestamp,
-                              whisper_cpp_params, write_output, TranscriptionOptions)
+                              whisper_cpp_params, write_output, TranscriptionOptions, Model)
 
 
-def get_model_path(model_name: str, use_whisper_cpp: bool) -> str:
-    model_loader = ModelLoader(model_name, use_whisper_cpp)
+def get_model_path(model: Model) -> str:
+    model_loader = ModelLoader(model=model)
     model_path = ''
 
     def on_load_model(path: str):
@@ -33,7 +31,7 @@ def get_model_path(model_name: str, use_whisper_cpp: bool) -> str:
 
 class TestRecordingTranscriber:
     def test_transcriber(self):
-        model_path = get_model_path('tiny', True)
+        model_path = get_model_path(Model.WHISPER_CPP_TINY)
         transcriber = RecordingTranscriber(
             model_path=model_path, use_whisper_cpp=True, language='en',
             task=Task.TRANSCRIBE)
@@ -52,7 +50,7 @@ class TestWhisperCppFileTranscriber:
         transcription_options = TranscriptionOptions(language='fr', task=Task.TRANSCRIBE,
                                                      word_level_timings=word_level_timings)
 
-        model_path = get_model_path('tiny', True)
+        model_path = get_model_path(Model.WHISPER_CPP_TINY)
         transcriber = WhisperCppFileTranscriber(
             file_transcription_options=file_transcription_options, transcription_options=transcription_options)
         mock_progress = Mock()
@@ -92,7 +90,7 @@ class TestWhisperFileTranscriber:
             (True, [Segment(40, 299, ' Bien'), Segment(299, 329, 'venue dans')])
         ])
     def test_transcribe(self, qtbot: QtBot, word_level_timings: bool, expected_segments: List[Segment]):
-        model_path = get_model_path('tiny', False)
+        model_path = get_model_path(Model.WHISPER_TINY)
 
         mock_progress = Mock()
         mock_completed = Mock()
@@ -128,7 +126,7 @@ class TestWhisperFileTranscriber:
         if os.path.exists(output_file_path):
             os.remove(output_file_path)
 
-        model_path = get_model_path('tiny', False)
+        model_path = get_model_path(Model.WHISPER_TINY)
         file_transcription_options = FileTranscriptionOptions(file_path='testdata/whisper-french.mp3')
         transcription_options = TranscriptionOptions(language='fr', task=Task.TRANSCRIBE, word_level_timings=False)
 
@@ -150,7 +148,7 @@ class TestToTimestamp:
 
 class TestWhisperCpp:
     def test_transcribe(self):
-        model_path = get_model_path('tiny', True)
+        model_path = get_model_path(Model.WHISPER_CPP_TINY)
 
         whisper_cpp = WhisperCpp(model=model_path)
         params = whisper_cpp_params(
