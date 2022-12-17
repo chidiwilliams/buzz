@@ -1,7 +1,9 @@
 import enum
 import logging
+import multiprocessing
 import os
 import platform
+import queue
 import sys
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -9,21 +11,21 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import humanize
 import sounddevice
 from PyQt6 import QtGui
-from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt, QThread, pyqtSlot,
-                          QThreadPool, QTimer, QUrl, pyqtSignal)
+from PyQt6.QtCore import (QDateTime, QObject, QSettings, Qt, QThread, pyqtSlot,
+                          QTimer, QUrl, pyqtSignal)
 from PyQt6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
                          QKeySequence, QPixmap, QTextCursor, QValidator)
 from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
                              QDialogButtonBox, QFileDialog, QGridLayout, QLabel, QLayout, QLineEdit,
                              QMainWindow, QMessageBox, QPlainTextEdit,
                              QProgressDialog, QPushButton, QVBoxLayout, QHBoxLayout, QMenu,
-                             QWidget, QGroupBox)
+                             QWidget, QGroupBox, QToolBar, QTableWidget, QMenuBar)
 from requests import get
 from whisper import tokenizer
 
 from .__version__ import VERSION
 from .model_loader import ModelLoader
-from .transcriber import (DEFAULT_WHISPER_TEMPERATURE, LOADED_WHISPER_DLL,
+from .transcriber import (LOADED_WHISPER_DLL,
                           SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
                           RecordingTranscriber, Segment, Task,
                           WhisperCppFileTranscriber, WhisperFileTranscriber,
@@ -333,9 +335,15 @@ class FileTranscriberWidget(QWidget):
     file_transcription_options: FileTranscriptionOptions
     transcription_options: TranscriptionOptions
     is_transcribing = False
+    triggered = pyqtSignal(tuple)  # (TranscriptionOptions, FileTranscriptionOptions)
 
-    def __init__(self, file_path: str, parent: Optional[QWidget]) -> None:
-        super().__init__(parent)
+    def __init__(self, file_path: str, parent: Optional[QWidget] = None,
+                 flags: Qt.WindowType = Qt.WindowType.Widget) -> None:
+        super().__init__(parent, flags)
+
+        self.setWindowTitle(get_short_file_path(file_path))
+        self.setFixedSize(420, 270)
+
         self.file_path = file_path
         self.settings = Settings(self)
         self.transcription_options = TranscriptionOptions()
@@ -363,21 +371,19 @@ class FileTranscriberWidget(QWidget):
         add_widgets_to_grid(widgets, layout)
 
         self.setLayout(layout)
-        self.pool = QThreadPool()
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        self.on_cancel_transcriber_progress_dialog()
+        return super().closeEvent(event)
 
     def on_transcription_options_changed(self, transcription_options: TranscriptionOptions):
         self.transcription_options = transcription_options
 
-    def open_advanced_settings(self):
-        dialog = AdvancedSettingsDialog(
-            self.temperature, self.initial_prompt,
-            use_whisper_cpp=self.settings.get_enable_ggml_inference(),
-            parent=self)
-        dialog.temperature_changed.connect(self.on_temperature_changed)
-        dialog.initial_prompt_changed.connect(self.on_initial_prompt_changed)
-        dialog.exec()
-
     def on_click_run(self):
+        self.triggered.emit((self.transcription_options, self.file_transcription_options))
+        self.close()
+        return
+
         use_whisper_cpp = self.settings.get_enable_ggml_inference(
         ) and self.transcription_options.language is not None
 
@@ -583,7 +589,8 @@ class Settings(QSettings):
     def set_enable_ggml_inference(self, value: bool) -> None:
         self.setValue(self._ENABLE_GGML_INFERENCE, value)
 
-    # Convert QSettings value to boolean: https://forum.qt.io/topic/108622/how-to-get-a-boolean-value-from-qsettings-correctly
+    # Convert QSettings value to boolean:
+    # https://forum.qt.io/topic/108622/how-to-get-a-boolean-value-from-qsettings-correctly
     @staticmethod
     def _value_to_bool(value: Any) -> bool:
         if isinstance(value, bool):
@@ -620,10 +627,13 @@ class RecordingTranscriberWidget(QWidget):
     model_loader: Optional[ModelLoader] = None
     model_loader_thread: Optional[QThread] = None
 
-    def __init__(self, parent: Optional[QWidget]) -> None:
-        super().__init__(parent)
+    def __init__(self, parent: Optional[QWidget] = None, flags: Qt.WindowType = Qt.WindowType.Widget) -> None:
+        super().__init__(parent, flags)
 
         layout = QGridLayout(self)
+
+        self.setWindowTitle('Live Recording')
+        self.setFixedSize(400, 520)
 
         self.settings = Settings(self)
         self.transcription_options = TranscriptionOptions()
@@ -656,6 +666,10 @@ class RecordingTranscriberWidget(QWidget):
         add_widgets_to_grid(widgets, layout)
 
         self.setLayout(layout)
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        self.stop_recording()
+        return super().closeEvent(event)
 
     def on_transcription_options_changed(self, transcription_options: TranscriptionOptions):
         self.transcription_options = transcription_options
@@ -767,8 +781,8 @@ class RecordingTranscriberWidget(QWidget):
             self.model_download_progress_dialog = None
 
 
-ICON_PATH = 'assets/buzz.ico'
-ICON_LARGE_PATH = 'assets/buzz-icon-1024.png'
+ICON_PATH = '../assets/buzz.ico'
+ICON_LARGE_PATH = '../assets/buzz-icon-1024.png'
 
 
 def get_asset_path(path: str):
@@ -786,7 +800,7 @@ class AboutDialog(QDialog):
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
 
-        self.setFixedSize(200, 200)
+        self.setFixedSize(200, 250)
 
         self.setWindowIcon(AppIcon())
         self.setWindowTitle(f'About {APP_NAME}')
@@ -812,15 +826,19 @@ class AboutDialog(QDialog):
         version_label.setAlignment(Qt.AlignmentFlag(
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignHCenter))
 
-        check_updates_button = QPushButton('Check for updates')
+        check_updates_button = QPushButton('Check for updates', self)
         check_updates_button.clicked.connect(self.on_click_check_for_updates)
 
-        layout.addStretch(1)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton(
+            QDialogButtonBox.StandardButton.Close), self)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+
         layout.addWidget(image_label)
         layout.addWidget(buzz_label)
         layout.addWidget(version_label)
         layout.addWidget(check_updates_button)
-        layout.addStretch(1)
+        layout.addWidget(button_box)
 
         self.setLayout(layout)
 
@@ -831,78 +849,10 @@ class AboutDialog(QDialog):
         if version_number == 'v' + VERSION:
             dialog = QMessageBox(self)
             dialog.setText("You're up to date!")
-            dialog.exec()
+            dialog.open()
         else:
             QDesktopServices.openUrl(
                 QUrl('https://github.com/chidiwilliams/buzz/releases/latest'))
-
-
-class MainWindow(QMainWindow):
-    new_import_window_triggered = pyqtSignal(tuple)
-
-    def __init__(self, title: str, w: int, h: int, parent: Optional[QWidget], *args):
-        super().__init__(parent, *args)
-
-        self.setFixedSize(w, h)
-        self.setWindowTitle(f'{title} - {APP_NAME}')
-        self.setWindowIcon(AppIcon())
-
-        import_audio_file_action = QAction("&Import Audio File...", self)
-        import_audio_file_action.triggered.connect(
-            self.on_import_audio_file_action)
-        import_audio_file_action.setShortcut(QKeySequence.fromString('Ctrl+O'))
-
-        menu = self.menuBar()
-
-        self.file_menu = menu.addMenu("&File")
-        self.file_menu.addAction(import_audio_file_action)
-
-        self.about_action = QAction(f'&About {APP_NAME}', self)
-        self.about_action.triggered.connect(self.on_trigger_about_action)
-
-        self.settings = Settings(self)
-
-        enable_ggml_inference_action = QAction(
-            '&Enable GGML Inference', self)
-        enable_ggml_inference_action.setCheckable(True)
-        enable_ggml_inference_action.setChecked(
-            bool(self.settings.get_enable_ggml_inference()))
-        enable_ggml_inference_action.triggered.connect(
-            self.on_toggle_enable_ggml_inference)
-        enable_ggml_inference_action.setDisabled(LOADED_WHISPER_DLL is False)
-
-        settings_menu = menu.addMenu("&Settings")
-        settings_menu.addAction(enable_ggml_inference_action)
-
-        self.help_menu = menu.addMenu("&Help")
-        self.help_menu.addAction(self.about_action)
-
-    def on_import_audio_file_action(self):
-        (file_path, _) = QFileDialog.getOpenFileName(
-            self, 'Select audio file', '', SUPPORTED_OUTPUT_FORMATS)
-        if file_path == '':
-            return
-        self.new_import_window_triggered.emit((file_path, self.geometry()))
-
-    def on_toggle_enable_ggml_inference(self, state: bool):
-        self.settings.set_enable_ggml_inference(state)
-
-    def on_trigger_about_action(self):
-        about_dialog = AboutDialog(self)
-        about_dialog.exec()
-
-
-class RecordingTranscriberMainWindow(MainWindow):
-    def __init__(self, parent: Optional[QWidget], *args) -> None:
-        super().__init__(title='Live Recording', w=400, h=520, parent=parent, *args)
-
-        self.central_widget = RecordingTranscriberWidget(self)
-        self.central_widget.setContentsMargins(10, 10, 10, 10)
-        self.setCentralWidget(self.central_widget)
-
-    def closeEvent(self, event: QCloseEvent) -> None:
-        self.central_widget.stop_recording()
-        return super().closeEvent(event)
 
 
 class TranscriptionOptionsGroupBox(QGroupBox):
@@ -976,51 +926,195 @@ class TranscriptionOptionsGroupBox(QGroupBox):
             parent=self)
         dialog.temperature_changed.connect(self.on_temperature_changed)
         dialog.initial_prompt_changed.connect(self.on_initial_prompt_changed)
-        dialog.exec()
+        dialog.open()
 
 
-class FileTranscriberMainWindow(MainWindow):
-    central_widget: FileTranscriberWidget
+class MenuBar(QMenuBar):
+    import_action_triggered = pyqtSignal()
 
-    def __init__(self, file_path: str, parent: Optional[QWidget], *args) -> None:
-        super().__init__(title=get_short_file_path(
-            file_path), w=400, h=270, parent=parent, *args)
+    def __init__(self, parent: QWidget):
+        super().__init__(parent)
 
-        self.central_widget = FileTranscriberWidget(file_path, self)
-        self.central_widget.setContentsMargins(10, 10, 10, 10)
-        self.setCentralWidget(self.central_widget)
+        self.settings = Settings(self)
 
-    def closeEvent(self, event: QCloseEvent) -> None:
-        self.central_widget.on_cancel_transcriber_progress_dialog()
-        return super().closeEvent(event)
+        import_action = QAction("&Import Media File...", self)
+        import_action.triggered.connect(
+            self.on_import_action_triggered)
+        import_action.setShortcut(QKeySequence.fromString('Ctrl+O'))
+
+        about_action = QAction(f'&About {APP_NAME}', self)
+        about_action.triggered.connect(self.on_about_action_triggered)
+
+        enable_ggml_inference_action = QAction(
+            '&Enable GGML Inference', self)
+        enable_ggml_inference_action.setCheckable(True)
+        enable_ggml_inference_action.setChecked(
+            bool(self.settings.get_enable_ggml_inference()))
+        enable_ggml_inference_action.triggered.connect(
+            self.on_ggml_inference_toggled)
+        enable_ggml_inference_action.setDisabled(LOADED_WHISPER_DLL is False)
+
+        file_menu = self.addMenu("&File")
+        file_menu.addAction(import_action)
+
+        settings_menu = self.addMenu("&Settings")
+        settings_menu.addAction(enable_ggml_inference_action)
+
+        help_menu = self.addMenu("&Help")
+        help_menu.addAction(about_action)
+
+    def on_import_action_triggered(self):
+        self.import_action_triggered.emit()
+
+    def on_ggml_inference_toggled(self, state: bool):
+        self.settings.set_enable_ggml_inference(state)
+
+    def on_about_action_triggered(self):
+        about_dialog = AboutDialog(self)
+        about_dialog.open()
+
+
+class FileTranscriberQueueWorker(QObject):
+    queue: multiprocessing.Queue
+    task_progress = pyqtSignal(tuple)  # (task_id, current, max)
+    task_completed = pyqtSignal(int)  # (task_id)
+    task_error = pyqtSignal(tuple)  # (task_id, error_msg)
+    completed = pyqtSignal()
+    stopped = False
+
+    def __init__(self, parent: Optional[QObject] = None):
+        super().__init__(parent)
+        self.queue = multiprocessing.Queue()
+
+    @pyqtSlot()
+    def run(self):
+        while self.stopped is False:
+            try:
+                task = self.queue.get(block=False)
+                task_id, transcription_options, file_transcription_options = task
+
+                try:
+                    print(task_id, transcription_options, file_transcription_options)
+                    self.task_completed.emit(task_id)
+                except Exception:
+                    self.task_error.emit((task_id, 'Unknown error?'))
+                    logging.exception('')
+            except queue.Empty:
+                continue
+
+        self.completed.emit()
+
+    def add_task(self, task_id: int, transcription_options: TranscriptionOptions,
+                 file_transcription_options: FileTranscriptionOptions):
+        self.queue.put((task_id, transcription_options, file_transcription_options))
+
+    def stop(self):
+        self.stopped = True
+
+
+class MainWindow(QMainWindow):
+    next_task_id = 0
+
+    def __init__(self):
+        super().__init__(flags=Qt.WindowType.Window)
+
+        self.setWindowTitle(f'{APP_NAME}')
+        self.setWindowIcon(AppIcon())
+        self.setFixedSize(400, 400)
+
+        self.settings = Settings(self)
+
+        record_action = QAction(QIcon(get_asset_path(ICON_PATH)), 'New Recording Session', self)
+        record_action.triggered.connect(self.on_record_action_triggered)
+
+        import_action = QAction(QIcon(get_asset_path(ICON_PATH)), 'Import Media File', self)
+        import_action.triggered.connect(self.on_import_action_triggered)
+
+        toolbar = QToolBar()
+        toolbar.addActions([record_action, import_action])
+        toolbar.setMovable(False)
+
+        self.addToolBar(toolbar)
+
+        menu_bar = MenuBar(self)
+        menu_bar.import_action_triggered.connect(self.on_import_action_triggered)
+        self.setMenuBar(menu_bar)
+
+        table_widget = QTableWidget(self)
+        table_widget.setRowCount(0)
+        table_widget.setColumnCount(2)
+        table_widget.verticalHeader().hide()
+        table_widget.horizontalHeader().hide()
+
+        self.setCentralWidget(table_widget)
+
+        # Start transcriber thread
+        self.transcriber_thread = QThread()
+
+        self.transcriber_worker = FileTranscriberQueueWorker()
+        self.transcriber_worker.moveToThread(self.transcriber_thread)
+
+        self.transcriber_worker.task_progress.connect(self.on_transcriber_worker_task_progress)
+        self.transcriber_worker.task_completed.connect(self.on_transcriber_worker_task_completed)
+        self.transcriber_worker.task_error.connect(self.on_transcriber_worker_task_error)
+        self.transcriber_worker.completed.connect(self.transcriber_worker.deleteLater)
+        self.transcriber_worker.completed.connect(self.transcriber_thread.quit)
+
+        self.transcriber_thread.started.connect(self.transcriber_worker.run)
+        self.transcriber_thread.finished.connect(self.transcriber_thread.deleteLater)
+
+        self.transcriber_thread.start()
+
+    def on_transcriber_worker_task_progress(self, data):
+        logging.debug(data)
+
+    def on_transcriber_worker_task_completed(self, data):
+        logging.debug(data)
+
+    def on_transcriber_worker_task_error(self, data):
+        logging.debug(data)
+
+    def on_record_action_triggered(self):
+        recording_transcriber_window = RecordingTranscriberWidget(self, flags=Qt.WindowType.Window)
+        recording_transcriber_window.show()
+
+    def on_import_action_triggered(self):
+        (file_path, _) = QFileDialog.getOpenFileName(
+            self, 'Select audio file', '', SUPPORTED_OUTPUT_FORMATS)
+        if file_path == '':
+            return
+
+        # TODO: can change this to a QDialog?
+        file_transcriber_window = FileTranscriberWidget(file_path, self, flags=Qt.WindowType.Window)
+        file_transcriber_window.triggered.connect(self.on_file_transcriber_triggered)
+        file_transcriber_window.show()
+
+    def on_toggle_enable_ggml_inference(self, state: bool):
+        self.settings.set_enable_ggml_inference(state)
+
+    def on_trigger_about_action(self):
+        about_dialog = AboutDialog(self)
+        about_dialog.open()
+
+    def on_file_transcriber_triggered(self, options: Tuple[TranscriptionOptions, FileTranscriptionOptions]):
+        transcription_options, file_transcription_options = options
+        self.transcriber_worker.add_task(self.next_task_id, transcription_options, file_transcription_options)
+        self.next_task_id += 1
+
+    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        self.transcriber_worker.stop()
+        self.transcriber_thread.quit()
+        super().closeEvent(event)
 
 
 class Application(QApplication):
-    windows: List[MainWindow] = []
+    window: MainWindow
 
     def __init__(self) -> None:
         super().__init__(sys.argv)
 
-        window = RecordingTranscriberMainWindow(None)
-        window.new_import_window_triggered.connect(self.open_import_window)
-        window.show()
-
-        self.windows.append(window)
-
-    def open_import_window(self, window_config: Tuple[str, QRect]):
-        (file_path, geometry) = window_config
-
-        window = FileTranscriberMainWindow(file_path, None)
-
-        # Set window to open at an offset from the calling sibling
-        OFFSET = 35
-        geometry = QRect(geometry.left() + OFFSET, geometry.top() + OFFSET,
-                         geometry.width(), geometry.height())
-        window.setGeometry(geometry)
-        self.windows.append(window)
-
-        window.new_import_window_triggered.connect(self.open_import_window)
-        window.show()
+        self.window = MainWindow()
+        self.window.show()
 
 
 class AdvancedSettingsDialog(QDialog):

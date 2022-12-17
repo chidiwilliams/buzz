@@ -7,7 +7,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 import sounddevice
-from PyQt6.QtCore import Qt, QCoreApplication
+from PyQt6.QtCore import Qt, QCoreApplication, QSize
 from PyQt6.QtGui import (QValidator)
 from PyQt6.QtWidgets import (QPushButton)
 from pytestqt.qtbot import QtBot
@@ -16,7 +16,7 @@ from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application,
                       AudioDevicesComboBox, DownloadModelProgressDialog,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
                       QualityComboBox, Settings, TemperatureValidator,
-                      TextDisplayBox, TranscriberProgressDialog, TranscriptionViewerWidget)
+                      TextDisplayBox, TranscriberProgressDialog, TranscriptionViewerWidget, AppIcon)
 from buzz.transcriber import FileTranscriptionOptions, OutputFormat, Segment, Quality, TranscriptionOptions
 
 
@@ -326,3 +326,9 @@ class TestTranscriptionViewerWidget:
 
         output_file = open(output_file_path, 'r', encoding='utf-8')
         assert 'Bien venue dans' in output_file.read()
+
+
+class TestAppIcon:
+    def test_loads(self):
+        widget = AppIcon()
+        assert widget.pixmap(QSize(64, 64)).isNull() is False
