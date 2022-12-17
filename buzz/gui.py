@@ -23,8 +23,7 @@ from whisper import tokenizer
 
 from .__version__ import VERSION
 from .model_loader import ModelLoader
-from .transcriber import (LOADED_WHISPER_DLL,
-                          SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
+from .transcriber import (SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
                           RecordingTranscriber, Segment, Task,
                           WhisperCppFileTranscriber, WhisperFileTranscriber,
                           get_default_output_file_path, segments_to_text, write_output, TranscriptionOptions,
@@ -559,16 +558,6 @@ class Settings(QSettings):
         return bool(value)
 
 
-def add_widgets_to_grid(widgets: List[List[Tuple[int, int, Union[QWidget, QLayout]]]], layout: QGridLayout):
-    for (row_index, row) in enumerate(widgets):
-        for (_, cell) in enumerate(row):
-            (col_offset, col_width, widget) = cell
-            if isinstance(widget, QWidget):
-                layout.addWidget(widget, row_index, col_offset, 1, col_width)
-            else:
-                layout.addLayout(widget, row_index, col_offset, 1, col_width)
-
-
 class AdvancedSettingsButton(QPushButton):
     def __init__(self, parent: Optional[QWidget]) -> None:
         super().__init__('Advanced...', parent)
@@ -974,9 +963,7 @@ class AdvancedSettingsDialog(QDialog):
             QDialogButtonBox.StandardButton.Ok), self)
         button_box.accepted.connect(self.accept)
 
-        layout = QGridLayout(self)
-
-        temperature_label = FormLabel('Temperature:', self)
+        layout = QFormLayout(self)
 
         default_temperature_text = ', '.join(
             [str(temp) for temp in transcription_options.temperature])
@@ -988,18 +975,15 @@ class AdvancedSettingsDialog(QDialog):
         self.temperature_line_edit.setValidator(TemperatureValidator(self))
         self.temperature_line_edit.setDisabled(transcription_options.model.is_whisper_cpp())
 
-        initial_prompt_label = FormLabel('Initial Prompt:', self)
         self.initial_prompt_text_edit = QPlainTextEdit(transcription_options.initial_prompt, self)
         self.initial_prompt_text_edit.textChanged.connect(
             self.on_initial_prompt_changed)
         self.initial_prompt_text_edit.setDisabled(transcription_options.model.is_whisper_cpp())
 
-        widgets = [
-            [(0, 5, temperature_label), (5, 7, self.temperature_line_edit)],
-            [(0, 5, initial_prompt_label), (5, 7, self.initial_prompt_text_edit)],
-            [(9, 3, button_box)]
-        ]
-        add_widgets_to_grid(widgets, layout)
+        layout.addRow('Temperature:', self.temperature_line_edit)
+        layout.addRow('Initial Prompt:', self.initial_prompt_text_edit)
+        layout.addWidget(button_box)
+
         self.setLayout(layout)
 
     def on_temperature_changed(self, text: str):
