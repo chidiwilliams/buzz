@@ -6,7 +6,6 @@ import logging
 import multiprocessing
 import os
 import platform
-import queue
 import re
 import subprocess
 import sys
@@ -51,14 +50,6 @@ class Segment:
     start: int  # start time in ms
     end: int  # end time in ms
     text: str
-
-
-class Quality(enum.Enum):
-    VERY_LOW = 'very low'
-    LOW = 'low'
-    MEDIUM = 'medium'
-    HIGH = 'high'
-    VERY_HIGH = 'very high'
 
 
 class RecordingTranscriber:
@@ -206,11 +197,32 @@ class OutputFormat(enum.Enum):
     VTT = 'vtt'
 
 
+class Model(enum.Enum):
+    WHISPER_TINY = 'Whisper - Tiny'
+    WHISPER_BASE = 'Whisper - Base'
+    WHISPER_SMALL = 'Whisper - Small'
+    WHISPER_MEDIUM = 'Whisper - Medium'
+    WHISPER_LARGE = 'Whisper - Large'
+    WHISPER_CPP_TINY = 'Whisper.cpp - Tiny'
+    WHISPER_CPP_BASE = 'Whisper.cpp - Base'
+    WHISPER_CPP_SMALL = 'Whisper.cpp - Small'
+    WHISPER_CPP_MEDIUM = 'Whisper.cpp - Medium'
+    WHISPER_CPP_LARGE = 'Whisper.cpp - Large'
+
+    def is_whisper_cpp(self) -> bool:
+        model_type, _ = self.value.split(' - ')
+        return model_type == 'Whisper.cpp'
+
+    def model_name(self) -> str:
+        _, model_name = self.value.split(' - ')
+        return model_name.lower()
+
+
 @dataclass()
 class TranscriptionOptions:
     language: Optional[str] = None
     task: Task = Task.TRANSCRIBE
-    quality: Quality = Quality.VERY_LOW
+    model: Model = Model.WHISPER_TINY
     word_level_timings: bool = False
     temperature: Tuple[float, ...] = DEFAULT_WHISPER_TEMPERATURE
     initial_prompt: str = ''

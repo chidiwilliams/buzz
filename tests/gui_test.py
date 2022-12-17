@@ -1,8 +1,6 @@
-import logging
 import os
 import pathlib
 from typing import Any, Callable
-import platform
 from unittest.mock import Mock, patch
 
 import pytest
@@ -12,12 +10,11 @@ from PyQt6.QtGui import (QValidator)
 from PyQt6.QtWidgets import (QPushButton)
 from pytestqt.qtbot import QtBot
 
-from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application,
-                      AudioDevicesComboBox, DownloadModelProgressDialog,
-                      FileTranscriberWidget, LanguagesComboBox, MainWindow,
-                      QualityComboBox, Settings, TemperatureValidator,
-                      TextDisplayBox, TranscriberProgressDialog, TranscriptionViewerWidget, AppIcon)
-from buzz.transcriber import FileTranscriptionOptions, OutputFormat, Segment, Quality, TranscriptionOptions
+from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application, AudioDevicesComboBox,
+                      DownloadModelProgressDialog, FileTranscriberWidget, LanguagesComboBox, MainWindow,
+                      TemperatureValidator, TextDisplayBox, TranscriberProgressDialog, TranscriptionViewerWidget,
+                      AppIcon, ModelComboBox)
+from buzz.transcriber import FileTranscriptionOptions, Segment, TranscriptionOptions, Model
 
 
 class TestApplication:
@@ -61,18 +58,18 @@ class TestLanguagesComboBox:
         assert languages_combo_box.currentText() == 'Detect Language'
 
 
-class TestQualityComboBox:
-    quality_combo_box = QualityComboBox(
-        default_quality=Quality.MEDIUM, parent=None)
+class TestModelComboBox:
+    model_combo_box = ModelComboBox(
+        default_model=Model.WHISPER_CPP_BASE, parent=None)
 
     def test_should_show_qualities(self):
-        assert self.quality_combo_box.itemText(0) == 'Very Low'
-        assert self.quality_combo_box.itemText(1) == 'Low'
-        assert self.quality_combo_box.itemText(2) == 'Medium'
-        assert self.quality_combo_box.itemText(3) == 'High'
+        assert self.model_combo_box.itemText(0) == 'Whisper - Tiny'
+        assert self.model_combo_box.itemText(1) == 'Whisper - Base'
+        assert self.model_combo_box.itemText(2) == 'Whisper - Small'
+        assert self.model_combo_box.itemText(3) == 'Whisper - Medium'
 
-    def test_should_select_default_quality(self):
-        assert self.quality_combo_box.currentText() == 'Medium'
+    def test_should_select_default_model(self):
+        assert self.model_combo_box.currentText() == 'Whisper.cpp - Base'
 
 
 class TestAudioDevicesComboBox:
@@ -242,20 +239,6 @@ class TestFileTranscriberWidget:
         assert widget.run_button.isEnabled()
 
 
-class TestSettings:
-    def test_should_enable_ggml_inference(self):
-        settings = Settings()
-        settings.clear()
-
-        assert settings.get_enable_ggml_inference() is False
-
-        settings.set_enable_ggml_inference(True)
-        assert settings.get_enable_ggml_inference() is True
-
-        settings.set_enable_ggml_inference(False)
-        assert settings.get_enable_ggml_inference() is False
-
-
 class TestAboutDialog:
     def test_should_create(self):
         dialog = AboutDialog()
@@ -263,13 +246,14 @@ class TestAboutDialog:
 
 
 class TestAdvancedSettingsDialog:
-    def test_should_update_advanced_settings(self):
+    def test_should_update_advanced_settings(self, qtbot: QtBot):
         dialog = AdvancedSettingsDialog(
-            temperature=(0.0, 0.8), initial_prompt='prompt', use_whisper_cpp=False, parent=None)
-        temperature_mock = Mock()
-        initial_prompt_mock = Mock()
-        dialog.temperature_changed.connect(temperature_mock)
-        dialog.initial_prompt_changed.connect(initial_prompt_mock)
+            transcription_options=TranscriptionOptions(temperature=(0.0, 0.8), initial_prompt='prompt',
+                                                       model=Model.WHISPER_CPP_BASE))
+        qtbot.add_widget(dialog)
+
+        transcription_options_mock = Mock()
+        dialog.transcription_options_changed.connect(transcription_options_mock)
 
         assert dialog.windowTitle() == 'Advanced Settings'
         assert dialog.temperature_line_edit.text() == '0.0, 0.8'
@@ -278,8 +262,8 @@ class TestAdvancedSettingsDialog:
         dialog.temperature_line_edit.setText('0.0, 0.8, 1.0')
         dialog.initial_prompt_text_edit.setPlainText('new prompt')
 
-        temperature_mock.assert_called_with((0.0, 0.8, 1.0))
-        initial_prompt_mock.assert_called_with('new prompt')
+        assert transcription_options_mock.call_args[0][0].temperature == (0.0, 0.8, 1.0)
+        assert transcription_options_mock.call_args[0][0].initial_prompt == 'new prompt'
 
 
 class TestTemperatureValidator:

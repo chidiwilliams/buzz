@@ -16,20 +16,20 @@ from PyQt6.QtCore import (QDateTime, QObject, QSettings, Qt, QThread, pyqtSlot,
 from PyQt6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
                          QKeySequence, QPixmap, QTextCursor, QValidator)
 from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
-                             QDialogButtonBox, QFileDialog, QGridLayout, QLabel, QLayout, QLineEdit,
+                             QDialogButtonBox, QFileDialog, QLabel, QLineEdit,
                              QMainWindow, QMessageBox, QPlainTextEdit,
                              QProgressDialog, QPushButton, QVBoxLayout, QHBoxLayout, QMenu,
-                             QWidget, QGroupBox, QToolBar, QTableWidget, QMenuBar)
+                             QWidget, QGroupBox, QToolBar, QTableWidget, QMenuBar, QFormLayout)
 from requests import get
 from whisper import tokenizer
 
 from .__version__ import VERSION
 from .model_loader import ModelLoader
-from .transcriber import (LOADED_WHISPER_DLL,
-                          SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
+from .transcriber import (SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
                           RecordingTranscriber, Segment, Task,
                           WhisperCppFileTranscriber, WhisperFileTranscriber,
-                          get_default_output_file_path, segments_to_text, write_output, TranscriptionOptions, Quality)
+                          get_default_output_file_path, segments_to_text, write_output, TranscriptionOptions,
+                          Model)
 
 APP_NAME = 'Buzz'
 
@@ -97,11 +97,11 @@ class AudioDevicesComboBox(QComboBox):
 
 class LanguagesComboBox(QComboBox):
     """LanguagesComboBox displays a list of languages available to use with Whisper"""
-    # language is a languge key from whisper.tokenizer.LANGUAGES or '' for "detect langugage"
+    # language is a languge key from whisper.tokenizer.LANGUAGES or '' for "detect language"
     languageChanged = pyqtSignal(str)
 
-    def __init__(self, default_language: Optional[str], parent: Optional[QWidget] = None, *args) -> None:
-        super().__init__(parent, *args)
+    def __init__(self, default_language: Optional[str], parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
 
         whisper_languages = sorted(
             [(lang, tokenizer.LANGUAGES[lang].title()) for lang in tokenizer.LANGUAGES], key=lambda lang: lang[1])
@@ -134,19 +134,18 @@ class TasksComboBox(QComboBox):
         self.taskChanged.emit(self.tasks[index])
 
 
-class QualityComboBox(QComboBox):
-    quality_changed = pyqtSignal(Quality)
+class ModelComboBox(QComboBox):
+    model_changed = pyqtSignal(Model)
 
-    def __init__(self, default_quality: Quality, parent: Optional[QWidget], *args) -> None:
+    def __init__(self, default_model: Model, parent: Optional[QWidget], *args) -> None:
         super().__init__(parent, *args)
-        self.qualities = [i for i in Quality]
-        self.addItems(
-            map(lambda quality: quality.value.title(), self.qualities))
+        self.models = [model for model in Model]
+        self.addItems([model.value for model in self.models])
         self.currentIndexChanged.connect(self.on_index_changed)
-        self.setCurrentText(default_quality.value.title())
+        self.setCurrentText(default_model.value)
 
     def on_index_changed(self, index: int):
-        self.quality_changed.emit(self.qualities[index])
+        self.model_changed.emit(self.models[index])
 
 
 class TextDisplayBox(QPlainTextEdit):
@@ -310,23 +309,12 @@ class TimerLabel(QLabel):
                 seconds_passed // 60, seconds_passed % 60))
 
 
-def get_model_name(quality: Quality) -> str:
-    return {
-        Quality.VERY_LOW: 'tiny',
-        Quality.LOW: 'base',
-        Quality.MEDIUM: 'small',
-        Quality.HIGH: 'medium',
-        Quality.VERY_HIGH: 'large',
-    }[quality]
-
-
 def show_model_download_error_dialog(parent: QWidget, error: str):
     message = f'Unable to load the Whisper model: {error}. Please retry or check the application logs for more information.'
     QMessageBox.critical(parent, '', message)
 
 
 class FileTranscriberWidget(QWidget):
-    settings: 'Settings'
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     transcriber_progress_dialog: Optional[TranscriberProgressDialog] = None
     file_transcriber: Optional[Union[WhisperFileTranscriber, WhisperCppFileTranscriber]] = None
@@ -345,30 +333,29 @@ class FileTranscriberWidget(QWidget):
         self.setFixedSize(420, 270)
 
         self.file_path = file_path
-        self.settings = Settings(self)
         self.transcription_options = TranscriptionOptions()
         self.file_transcription_options = FileTranscriptionOptions(file_path=self.file_path)
 
-        layout = QGridLayout(self)
-
-        self.run_button = QPushButton('Run', self)
-        self.run_button.clicked.connect(self.on_click_run)
-        self.run_button.setDefault(True)
-
-        self.word_level_timings_checkbox = QCheckBox('Word-level timings')
-        self.word_level_timings_checkbox.stateChanged.connect(
-            self.on_word_level_timings_changed)
+        layout = QVBoxLayout(self)
 
         transcription_options_group_box = TranscriptionOptionsGroupBox(
             default_transcription_options=self.transcription_options, parent=self)
         transcription_options_group_box.transcription_options_changed.connect(self.on_transcription_options_changed)
 
-        widgets = [
-            ((0, 12, transcription_options_group_box),),
-            ((5, 7, self.word_level_timings_checkbox),),
-            ((9, 3, self.run_button),)
-        ]
-        add_widgets_to_grid(widgets, layout)
+        self.word_level_timings_checkbox = QCheckBox('Word-level timings')
+        self.word_level_timings_checkbox.stateChanged.connect(
+            self.on_word_level_timings_changed)
+
+        file_transcription_layout = QFormLayout()
+        file_transcription_layout.addRow('', self.word_level_timings_checkbox)
+
+        self.run_button = QPushButton('Run', self)
+        self.run_button.setDefault(True)
+        self.run_button.clicked.connect(self.on_click_run)
+
+        layout.addWidget(transcription_options_group_box)
+        layout.addLayout(file_transcription_layout)
+        layout.addWidget(self.run_button, 0, Qt.AlignmentFlag.AlignRight)
 
         self.setLayout(layout)
 
@@ -384,18 +371,13 @@ class FileTranscriberWidget(QWidget):
         self.close()
         return
 
-        use_whisper_cpp = self.settings.get_enable_ggml_inference(
-        ) and self.transcription_options.language is not None
-
         self.run_button.setDisabled(True)
-        model_name = get_model_name(self.transcription_options.quality)
 
         self.transcriber_thread = QThread()
 
-        self.model_loader = ModelLoader(
-            name=model_name, use_whisper_cpp=use_whisper_cpp)
+        self.model_loader = ModelLoader(model=self.transcription_options.model)
 
-        if use_whisper_cpp:
+        if self.transcription_options.model.is_whisper_cpp():
             self.file_transcriber = WhisperCppFileTranscriber(
                 file_transcription_options=self.file_transcription_options,
                 transcription_options=self.transcription_options)
@@ -575,22 +557,11 @@ class TranscriptionViewerWidget(QWidget):
 
 
 class Settings(QSettings):
-    _ENABLE_GGML_INFERENCE = 'enable_ggml_inference'
-
-    def __init__(self, parent: Optional[QWidget] = None, *args):
-        super().__init__('Buzz', 'Buzz', parent, *args)
+    def __init__(self, parent: Optional[QWidget] = None):
+        super().__init__('Buzz', 'Buzz', parent)
         logging.debug('Loaded settings from path = %s', self.fileName())
 
-    def get_enable_ggml_inference(self) -> bool:
-        if LOADED_WHISPER_DLL is False:
-            return False
-        return self._value_to_bool(self.value(self._ENABLE_GGML_INFERENCE, False))
-
-    def set_enable_ggml_inference(self, value: bool) -> None:
-        self.setValue(self._ENABLE_GGML_INFERENCE, value)
-
-    # Convert QSettings value to boolean:
-    # https://forum.qt.io/topic/108622/how-to-get-a-boolean-value-from-qsettings-correctly
+    # Convert QSettings value to boolean: https://forum.qt.io/topic/108622/how-to-get-a-boolean-value-from-qsettings-correctly
     @staticmethod
     def _value_to_bool(value: Any) -> bool:
         if isinstance(value, bool):
@@ -600,16 +571,6 @@ class Settings(QSettings):
             return value.lower() == 'true'
 
         return bool(value)
-
-
-def add_widgets_to_grid(widgets: List[List[Tuple[int, int, Union[QWidget, QLayout]]]], layout: QGridLayout):
-    for (row_index, row) in enumerate(widgets):
-        for (_, cell) in enumerate(row):
-            (col_offset, col_width, widget) = cell
-            if isinstance(widget, QWidget):
-                layout.addWidget(widget, row_index, col_offset, 1, col_width)
-            else:
-                layout.addLayout(widget, row_index, col_offset, 1, col_width)
 
 
 class AdvancedSettingsButton(QPushButton):
@@ -622,7 +583,6 @@ class RecordingTranscriberWidget(QWidget):
     transcription_options: TranscriptionOptions
     selected_device_id: Optional[int]
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
-    settings: Settings
     transcriber: Optional[RecordingTranscriberObject] = None
     model_loader: Optional[ModelLoader] = None
     model_loader_thread: Optional[QThread] = None
@@ -630,12 +590,11 @@ class RecordingTranscriberWidget(QWidget):
     def __init__(self, parent: Optional[QWidget] = None, flags: Qt.WindowType = Qt.WindowType.Widget) -> None:
         super().__init__(parent, flags)
 
-        layout = QGridLayout(self)
+        layout = QVBoxLayout(self)
 
         self.setWindowTitle('Live Recording')
         self.setFixedSize(400, 520)
 
-        self.settings = Settings(self)
         self.transcription_options = TranscriptionOptions()
 
         self.audio_devices_combo_box = AudioDevicesComboBox(self)
@@ -655,15 +614,18 @@ class RecordingTranscriberWidget(QWidget):
             default_transcription_options=self.transcription_options, parent=self)
         transcription_options_group_box.transcription_options_changed.connect(self.on_transcription_options_changed)
 
-        widgets = [
-            ((0, 12, transcription_options_group_box),),
-            ((0, 5, FormLabel('Microphone:', self)),
-             (5, 7, self.audio_devices_combo_box)),
-            ((6, 3, self.timer_label), (9, 3, self.record_button)),
-            ((0, 12, self.text_box),),
-        ]
+        recording_options_layout = QFormLayout()
+        recording_options_layout.addRow('Microphone:', self.audio_devices_combo_box)
 
-        add_widgets_to_grid(widgets, layout)
+        record_button_layout = QHBoxLayout()
+        record_button_layout.addStretch()
+        record_button_layout.addWidget(self.timer_label)
+        record_button_layout.addWidget(self.record_button)
+
+        layout.addWidget(transcription_options_group_box)
+        layout.addLayout(recording_options_layout)
+        layout.addLayout(record_button_layout)
+        layout.addWidget(self.text_box)
 
         self.setLayout(layout)
 
@@ -683,14 +645,10 @@ class RecordingTranscriberWidget(QWidget):
         else:
             self.stop_recording()
 
-    def use_whisper_cpp(self):
-        return self.settings.get_enable_ggml_inference() and self.transcription_options.language is not None
-
     def start_recording(self):
         self.record_button.setDisabled(True)
 
-        use_whisper_cpp = self.use_whisper_cpp()
-        model_name = get_model_name(self.transcription_options.quality)
+        use_whisper_cpp = self.transcription_options.model.is_whisper_cpp() and self.transcription_options.language is not None
 
         def start_recording_transcription(model_path: str):
             # Clear text box placeholder because the first chunk takes a while to process
@@ -717,8 +675,7 @@ class RecordingTranscriberWidget(QWidget):
 
         self.model_loader_thread = QThread()
 
-        self.model_loader = ModelLoader(
-            name=model_name, use_whisper_cpp=use_whisper_cpp)
+        self.model_loader = ModelLoader(model=self.transcription_options.model)
 
         self.model_loader.moveToThread(self.model_loader_thread)
 
@@ -855,17 +812,53 @@ class AboutDialog(QDialog):
                 QUrl('https://github.com/chidiwilliams/buzz/releases/latest'))
 
 
+class MainWindow(QMainWindow):
+    new_import_window_triggered = pyqtSignal(tuple)
+
+    def __init__(self, title: str, w: int, h: int, parent: Optional[QWidget], *args):
+        super().__init__(parent, *args)
+
+        self.setFixedSize(w, h)
+        self.setWindowTitle(f'{title} - {APP_NAME}')
+        self.setWindowIcon(AppIcon())
+
+        import_audio_file_action = QAction("&Import Audio File...", self)
+        import_audio_file_action.triggered.connect(
+            self.on_import_audio_file_action)
+        import_audio_file_action.setShortcut(QKeySequence.fromString('Ctrl+O'))
+
+        menu = self.menuBar()
+
+        self.file_menu = menu.addMenu("&File")
+        self.file_menu.addAction(import_audio_file_action)
+
+        self.about_action = QAction(f'&About {APP_NAME}', self)
+        self.about_action.triggered.connect(self.on_trigger_about_action)
+
+        self.help_menu = menu.addMenu("&Help")
+        self.help_menu.addAction(self.about_action)
+
+    def on_import_audio_file_action(self):
+        (file_path, _) = QFileDialog.getOpenFileName(
+            self, 'Select audio file', '', SUPPORTED_OUTPUT_FORMATS)
+        if file_path == '':
+            return
+        self.new_import_window_triggered.emit((file_path, self.geometry()))
+
+    def on_trigger_about_action(self):
+        about_dialog = AboutDialog(self)
+        about_dialog.exec()
+
+
 class TranscriptionOptionsGroupBox(QGroupBox):
-    settings: Settings
     transcription_options: TranscriptionOptions
     transcription_options_changed = pyqtSignal(TranscriptionOptions)
 
     def __init__(self, default_transcription_options: TranscriptionOptions, parent: Optional[QWidget] = None):
         super().__init__(title='', parent=parent)
         self.transcription_options = default_transcription_options
-        self.settings = Settings(self)
 
-        layout = QGridLayout(self)
+        layout = QFormLayout(self)
 
         self.tasks_combo_box = TasksComboBox(
             default_task=self.transcription_options.task,
@@ -877,25 +870,19 @@ class TranscriptionOptionsGroupBox(QGroupBox):
             parent=self)
         self.languages_combo_box.languageChanged.connect(self.on_language_changed)
 
-        self.quality_combo_box = QualityComboBox(
-            default_quality=self.transcription_options.quality,
+        self.model_combo_box = ModelComboBox(
+            default_model=self.transcription_options.model,
             parent=self)
-        self.quality_combo_box.quality_changed.connect(self.on_quality_changed)
+        self.model_combo_box.model_changed.connect(self.on_model_changed)
 
         self.advanced_settings_button = AdvancedSettingsButton(self)
         self.advanced_settings_button.clicked.connect(
             self.open_advanced_settings)
 
-        layout.addWidget(FormLabel('Task:', self), 0, 0, 1, 5)
-        layout.addWidget(self.tasks_combo_box, 0, 5, 1, 7)
-
-        layout.addWidget(FormLabel('Language:', self), 1, 0, 1, 5)
-        layout.addWidget(self.languages_combo_box, 1, 5, 1, 7)
-
-        layout.addWidget(FormLabel('Quality:', self), 2, 0, 1, 5)
-        layout.addWidget(self.quality_combo_box, 2, 5, 1, 7)
-
-        layout.addWidget(self.advanced_settings_button, 3, 5, 1, 3)
+        layout.addRow('Task:', self.tasks_combo_box)
+        layout.addRow('Language:', self.languages_combo_box)
+        layout.addRow('Model:', self.model_combo_box)
+        layout.addRow('', self.advanced_settings_button)
 
         self.setLayout(layout)
 
@@ -903,8 +890,8 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.transcription_options.language = language
         self.transcription_options_changed.emit(self.transcription_options)
 
-    def on_quality_changed(self, quality: Quality):
-        self.transcription_options.quality = quality
+    def on_model_changed(self, model: Model):
+        self.transcription_options.model = model
         self.transcription_options_changed.emit(self.transcription_options)
 
     def on_task_changed(self, task: Task):
@@ -920,13 +907,13 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.transcription_options_changed.emit(self.transcription_options)
 
     def open_advanced_settings(self):
-        dialog = AdvancedSettingsDialog(
-            self.transcription_options.temperature, self.transcription_options.initial_prompt,
-            use_whisper_cpp=self.settings.get_enable_ggml_inference(),
-            parent=self)
-        dialog.temperature_changed.connect(self.on_temperature_changed)
-        dialog.initial_prompt_changed.connect(self.on_initial_prompt_changed)
-        dialog.open()
+        dialog = AdvancedSettingsDialog(transcription_options=self.transcription_options, parent=self)
+        dialog.transcription_options_changed.connect(self.on_transcription_options_changed)
+        dialog.exec()
+
+    def on_transcription_options_changed(self, transcription_options: TranscriptionOptions):
+        self.transcription_options = transcription_options
+        self.transcription_options_changed.emit(transcription_options)
 
 
 class MenuBar(QMenuBar):
@@ -945,29 +932,14 @@ class MenuBar(QMenuBar):
         about_action = QAction(f'&About {APP_NAME}', self)
         about_action.triggered.connect(self.on_about_action_triggered)
 
-        enable_ggml_inference_action = QAction(
-            '&Enable GGML Inference', self)
-        enable_ggml_inference_action.setCheckable(True)
-        enable_ggml_inference_action.setChecked(
-            bool(self.settings.get_enable_ggml_inference()))
-        enable_ggml_inference_action.triggered.connect(
-            self.on_ggml_inference_toggled)
-        enable_ggml_inference_action.setDisabled(LOADED_WHISPER_DLL is False)
-
         file_menu = self.addMenu("&File")
         file_menu.addAction(import_action)
-
-        settings_menu = self.addMenu("&Settings")
-        settings_menu.addAction(enable_ggml_inference_action)
 
         help_menu = self.addMenu("&Help")
         help_menu.addAction(about_action)
 
     def on_import_action_triggered(self):
         self.import_action_triggered.emit()
-
-    def on_ggml_inference_toggled(self, state: bool):
-        self.settings.set_enable_ggml_inference(state)
 
     def on_about_action_triggered(self):
         about_dialog = AboutDialog(self)
@@ -1118,17 +1090,13 @@ class Application(QApplication):
 
 
 class AdvancedSettingsDialog(QDialog):
-    temperature: Tuple[float, ...]
-    initial_prompt: str
-    temperature_changed = pyqtSignal(tuple)
-    initial_prompt_changed = pyqtSignal(str)
+    transcription_options: TranscriptionOptions
+    transcription_options_changed = pyqtSignal(TranscriptionOptions)
 
-    def __init__(self, temperature: Tuple[float, ...], initial_prompt: str, use_whisper_cpp: bool,
-                 parent: QWidget | None = None):
+    def __init__(self, transcription_options: TranscriptionOptions, parent: QWidget | None = None):
         super().__init__(parent)
 
-        self.temperature = temperature
-        self.initial_prompt = initial_prompt
+        self.transcription_options = transcription_options
 
         self.setFixedSize(400, 180)
         self.setWindowTitle('Advanced Settings')
@@ -1137,44 +1105,40 @@ class AdvancedSettingsDialog(QDialog):
             QDialogButtonBox.StandardButton.Ok), self)
         button_box.accepted.connect(self.accept)
 
-        layout = QGridLayout(self)
-
-        temperature_label = FormLabel('Temperature:', self)
+        layout = QFormLayout(self)
 
         default_temperature_text = ', '.join(
-            [str(temp) for temp in temperature])
+            [str(temp) for temp in transcription_options.temperature])
         self.temperature_line_edit = QLineEdit(default_temperature_text, self)
         self.temperature_line_edit.setPlaceholderText(
             'Comma-separated, e.g. "0.0, 0.2, 0.4, 0.6, 0.8, 1.0"')
         self.temperature_line_edit.textChanged.connect(
             self.on_temperature_changed)
         self.temperature_line_edit.setValidator(TemperatureValidator(self))
-        self.temperature_line_edit.setDisabled(use_whisper_cpp)
+        self.temperature_line_edit.setDisabled(transcription_options.model.is_whisper_cpp())
 
-        initial_prompt_label = FormLabel('Initial Prompt:', self)
-        self.initial_prompt_text_edit = QPlainTextEdit(initial_prompt, self)
+        self.initial_prompt_text_edit = QPlainTextEdit(transcription_options.initial_prompt, self)
         self.initial_prompt_text_edit.textChanged.connect(
             self.on_initial_prompt_changed)
-        self.initial_prompt_text_edit.setDisabled(use_whisper_cpp)
+        self.initial_prompt_text_edit.setDisabled(transcription_options.model.is_whisper_cpp())
 
-        widgets = [
-            [(0, 5, temperature_label), (5, 7, self.temperature_line_edit)],
-            [(0, 5, initial_prompt_label), (5, 7, self.initial_prompt_text_edit)],
-            [(9, 3, button_box)]
-        ]
-        add_widgets_to_grid(widgets, layout)
+        layout.addRow('Temperature:', self.temperature_line_edit)
+        layout.addRow('Initial Prompt:', self.initial_prompt_text_edit)
+        layout.addWidget(button_box)
+
         self.setLayout(layout)
 
     def on_temperature_changed(self, text: str):
         try:
             temperatures = [float(temp.strip()) for temp in text.split(',')]
-            self.temperature_changed.emit(tuple(temperatures))
+            self.transcription_options.temperature = tuple(temperatures)
+            self.transcription_options_changed.emit(self.transcription_options)
         except ValueError:
             pass
 
     def on_initial_prompt_changed(self):
-        self.initial_prompt_changed.emit(
-            self.initial_prompt_text_edit.toPlainText())
+        self.transcription_options.initial_prompt = self.initial_prompt_text_edit.toPlainText()
+        self.transcription_options_changed.emit(self.transcription_options)
 
 
 class TemperatureValidator(QValidator):
@@ -1185,8 +1149,8 @@ class TemperatureValidator(QValidator):
         try:
             temp_strings = [temp.strip() for temp in text.split(',')]
             if temp_strings[-1] == '':
-                return (QValidator.State.Intermediate, text, cursor_position)
+                return QValidator.State.Intermediate, text, cursor_position
             _ = [float(temp) for temp in temp_strings]
-            return (QValidator.State.Acceptable, text, cursor_position)
+            return QValidator.State.Acceptable, text, cursor_position
         except ValueError:
-            return (QValidator.State.Invalid, text, cursor_position)
+            return QValidator.State.Invalid, text, cursor_position
