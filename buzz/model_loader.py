@@ -9,6 +9,8 @@ import whisper
 from platformdirs import user_cache_dir
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot, QThread
 
+from buzz.transcriber import TranscriptionOptions, Model
+
 MODELS_SHA256 = {
     'tiny': 'be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21',
     'base': '60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe',
@@ -24,10 +26,10 @@ class ModelLoader(QObject):
     error = pyqtSignal(str)
     stopped = False
 
-    def __init__(self, name: str, use_whisper_cpp=False, parent: Optional['QObject'] = None) -> None:
+    def __init__(self, model: Model, parent: Optional['QObject'] = None) -> None:
         super().__init__(parent)
-        self.name = name
-        self.use_whisper_cpp = use_whisper_cpp
+        self.name = model.model_name()
+        self.use_whisper_cpp = model.is_whisper_cpp()
 
     @pyqtSlot()
     def run(self):
