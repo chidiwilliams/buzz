@@ -6,10 +6,10 @@ from typing import Optional
 
 import requests
 import whisper
+from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from platformdirs import user_cache_dir
-from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot, QThread
 
-from buzz.transcriber import TranscriptionOptions, Model
+from buzz.transcriber import Model
 
 MODELS_SHA256 = {
     'tiny': 'be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21',

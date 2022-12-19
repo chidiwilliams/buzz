@@ -1,3 +1,4 @@
+import dataclasses
 import enum
 import logging
 import multiprocessing
@@ -19,7 +20,8 @@ from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
                              QDialogButtonBox, QFileDialog, QLabel, QLineEdit,
                              QMainWindow, QMessageBox, QPlainTextEdit,
                              QProgressDialog, QPushButton, QVBoxLayout, QHBoxLayout, QMenu,
-                             QWidget, QGroupBox, QToolBar, QTableWidget, QMenuBar, QFormLayout)
+                             QWidget, QGroupBox, QToolBar, QTableWidget, QMenuBar, QFormLayout, QTableWidgetItem,
+                             QProgressBar, QHeaderView)
 from requests import get
 from whisper import tokenizer
 
@@ -72,8 +74,8 @@ class AudioDevicesComboBox(QComboBox):
         try:
             devices: sounddevice.DeviceList = sounddevice.query_devices()
             input_devices = filter(
-                lambda device: device.get('max_input_channels') > 0, devices)
-            return list(map(lambda device: (device.get('index'), device.get('name')), input_devices))
+                lambda device: device.field('max_input_channels') > 0, devices)
+            return list(map(lambda device: (device.field('index'), device.field('name')), input_devices))
         except UnicodeDecodeError:
             QMessageBox.critical(
                 self, '',
@@ -310,20 +312,23 @@ class TimerLabel(QLabel):
 
 
 def show_model_download_error_dialog(parent: QWidget, error: str):
-    message = f'Unable to load the Whisper model: {error}. Please retry or check the application logs for more information.'
+    message = f'Unable to load the Whisper model: {error}. Please retry or check the application logs for more ' \
+              f'information. '
     QMessageBox.critical(parent, '', message)
 
 
 class FileTranscriberWidget(QWidget):
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     transcriber_progress_dialog: Optional[TranscriberProgressDialog] = None
-    file_transcriber: Optional[Union[WhisperFileTranscriber, WhisperCppFileTranscriber]] = None
+    file_transcriber: Optional[Union[WhisperFileTranscriber,
+    WhisperCppFileTranscriber]] = None
     model_loader: Optional[ModelLoader] = None
     transcriber_thread: Optional[QThread] = None
     file_transcription_options: FileTranscriptionOptions
     transcription_options: TranscriptionOptions
     is_transcribing = False
-    triggered = pyqtSignal(tuple)  # (TranscriptionOptions, FileTranscriptionOptions)
+    # (TranscriptionOptions, FileTranscriptionOptions, str)
+    triggered = pyqtSignal(tuple)
 
     def __init__(self, file_path: str, parent: Optional[QWidget] = None,
                  flags: Qt.WindowType = Qt.WindowType.Widget) -> None:
@@ -334,13 +339,15 @@ class FileTranscriberWidget(QWidget):
 
         self.file_path = file_path
         self.transcription_options = TranscriptionOptions()
-        self.file_transcription_options = FileTranscriptionOptions(file_path=self.file_path)
+        self.file_transcription_options = FileTranscriptionOptions(
+            file_path=self.file_path)
 
         layout = QVBoxLayout(self)
 
         transcription_options_group_box = TranscriptionOptionsGroupBox(
             default_transcription_options=self.transcription_options, parent=self)
-        transcription_options_group_box.transcription_options_changed.connect(self.on_transcription_options_changed)
+        transcription_options_group_box.transcription_options_changed.connect(
+            self.on_transcription_options_changed)
 
         self.word_level_timings_checkbox = QCheckBox('Word-level timings')
         self.word_level_timings_checkbox.stateChanged.connect(
@@ -367,57 +374,34 @@ class FileTranscriberWidget(QWidget):
         self.transcription_options = transcription_options
 
     def on_click_run(self):
-        self.triggered.emit((self.transcription_options, self.file_transcription_options))
-        self.close()
-        return
-
         self.run_button.setDisabled(True)
 
         self.transcriber_thread = QThread()
-
         self.model_loader = ModelLoader(model=self.transcription_options.model)
 
-        if self.transcription_options.model.is_whisper_cpp():
-            self.file_transcriber = WhisperCppFileTranscriber(
-                file_transcription_options=self.file_transcription_options,
-                transcription_options=self.transcription_options)
-        else:
-            self.file_transcriber = WhisperFileTranscriber(file_transcription_options=self.file_transcription_options,
-                                                           transcription_options=self.transcription_options)
-
-        self.model_loader.moveToThread(self.transcriber_thread)
-        self.file_transcriber.moveToThread(self.transcriber_thread)
-
         self.transcriber_thread.started.connect(self.model_loader.run)
+        self.model_loader.finished.connect(
+            self.transcriber_thread.quit)
 
-        self.model_loader.progress.connect(
-            self.on_download_model_progress)
+        self.model_loader.progress.connect(self.on_download_model_progress)
 
         self.model_loader.error.connect(self.on_download_model_error)
-        self.model_loader.error.connect(
-            self.model_loader.deleteLater)
-        self.model_loader.error.connect(
-            self.file_transcriber.deleteLater)
-        self.model_loader.error.connect(self.transcriber_thread.quit)
+        self.model_loader.error.connect(self.model_loader.deleteLater)
 
+        self.model_loader.finished.connect(self.on_model_loaded)
         self.model_loader.finished.connect(self.model_loader.deleteLater)
 
-        # Run the file transcriber after the model loads
-        self.model_loader.finished.connect(self.on_model_loaded)
-        self.model_loader.finished.connect(self.file_transcriber.run)
-
-        self.file_transcriber.progress.connect(
-            self.on_transcriber_progress)
-
-        self.file_transcriber.completed.connect(self.on_transcriber_complete)
-        self.file_transcriber.completed.connect(self.transcriber_thread.quit)
         self.transcriber_thread.finished.connect(
             self.transcriber_thread.deleteLater)
 
         self.transcriber_thread.start()
 
-    def on_model_loaded(self):
-        self.is_transcribing = True
+    def on_model_loaded(self, model_path: str):
+        self.reset_transcriber_controls()
+
+        self.triggered.emit((self.transcription_options,
+                             self.file_transcription_options, model_path))
+        self.close()
 
     def on_download_model_progress(self, progress: Tuple[int, int]):
         (current_size, total_size) = progress
@@ -612,10 +596,12 @@ class RecordingTranscriberWidget(QWidget):
 
         transcription_options_group_box = TranscriptionOptionsGroupBox(
             default_transcription_options=self.transcription_options, parent=self)
-        transcription_options_group_box.transcription_options_changed.connect(self.on_transcription_options_changed)
+        transcription_options_group_box.transcription_options_changed.connect(
+            self.on_transcription_options_changed)
 
         recording_options_layout = QFormLayout()
-        recording_options_layout.addRow('Microphone:', self.audio_devices_combo_box)
+        recording_options_layout.addRow(
+            'Microphone:', self.audio_devices_combo_box)
 
         record_button_layout = QHBoxLayout()
         record_button_layout.addStretch()
@@ -648,7 +634,8 @@ class RecordingTranscriberWidget(QWidget):
     def start_recording(self):
         self.record_button.setDisabled(True)
 
-        use_whisper_cpp = self.transcription_options.model.is_whisper_cpp() and self.transcription_options.language is not None
+        use_whisper_cpp = self.transcription_options.model.is_whisper_cpp(
+        ) and self.transcription_options.language is not None
 
         def start_recording_transcription(model_path: str):
             # Clear text box placeholder because the first chunk takes a while to process
@@ -802,7 +789,7 @@ class AboutDialog(QDialog):
     def on_click_check_for_updates(self):
         response = get(
             'https://api.github.com/repos/chidiwilliams/buzz/releases/latest', timeout=15).json()
-        version_number = response.get('name')
+        version_number = response.field('name')
         if version_number == 'v' + VERSION:
             dialog = QMessageBox(self)
             dialog.setText("You're up to date!")
@@ -810,44 +797,6 @@ class AboutDialog(QDialog):
         else:
             QDesktopServices.openUrl(
                 QUrl('https://github.com/chidiwilliams/buzz/releases/latest'))
-
-
-class MainWindow(QMainWindow):
-    new_import_window_triggered = pyqtSignal(tuple)
-
-    def __init__(self, title: str, w: int, h: int, parent: Optional[QWidget], *args):
-        super().__init__(parent, *args)
-
-        self.setFixedSize(w, h)
-        self.setWindowTitle(f'{title} - {APP_NAME}')
-        self.setWindowIcon(AppIcon())
-
-        import_audio_file_action = QAction("&Import Audio File...", self)
-        import_audio_file_action.triggered.connect(
-            self.on_import_audio_file_action)
-        import_audio_file_action.setShortcut(QKeySequence.fromString('Ctrl+O'))
-
-        menu = self.menuBar()
-
-        self.file_menu = menu.addMenu("&File")
-        self.file_menu.addAction(import_audio_file_action)
-
-        self.about_action = QAction(f'&About {APP_NAME}', self)
-        self.about_action.triggered.connect(self.on_trigger_about_action)
-
-        self.help_menu = menu.addMenu("&Help")
-        self.help_menu.addAction(self.about_action)
-
-    def on_import_audio_file_action(self):
-        (file_path, _) = QFileDialog.getOpenFileName(
-            self, 'Select audio file', '', SUPPORTED_OUTPUT_FORMATS)
-        if file_path == '':
-            return
-        self.new_import_window_triggered.emit((file_path, self.geometry()))
-
-    def on_trigger_about_action(self):
-        about_dialog = AboutDialog(self)
-        about_dialog.exec()
 
 
 class TranscriptionOptionsGroupBox(QGroupBox):
@@ -868,7 +817,8 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.languages_combo_box = LanguagesComboBox(
             default_language=self.transcription_options.language,
             parent=self)
-        self.languages_combo_box.languageChanged.connect(self.on_language_changed)
+        self.languages_combo_box.languageChanged.connect(
+            self.on_language_changed)
 
         self.model_combo_box = ModelComboBox(
             default_model=self.transcription_options.model,
@@ -907,8 +857,10 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.transcription_options_changed.emit(self.transcription_options)
 
     def open_advanced_settings(self):
-        dialog = AdvancedSettingsDialog(transcription_options=self.transcription_options, parent=self)
-        dialog.transcription_options_changed.connect(self.on_transcription_options_changed)
+        dialog = AdvancedSettingsDialog(
+            transcription_options=self.transcription_options, parent=self)
+        dialog.transcription_options_changed.connect(
+            self.on_transcription_options_changed)
         dialog.exec()
 
     def on_transcription_options_changed(self, transcription_options: TranscriptionOptions):
@@ -946,46 +898,103 @@ class MenuBar(QMenuBar):
         about_dialog.open()
 
 
+@dataclasses.dataclass
+class FileTranscriptionTask:
+    id: int
+    transcription_options: TranscriptionOptions
+    file_transcription_options: FileTranscriptionOptions
+    model_path: str
+
+
 class FileTranscriberQueueWorker(QObject):
+    transcriber: Optional[WhisperFileTranscriber | WhisperCppFileTranscriber]
     queue: multiprocessing.Queue
     task_progress = pyqtSignal(tuple)  # (task_id, current, max)
-    task_completed = pyqtSignal(int)  # (task_id)
+    task_completed = pyqtSignal(tuple)  # (task_id, segments)
     task_error = pyqtSignal(tuple)  # (task_id, error_msg)
     completed = pyqtSignal()
     stopped = False
+    current_task: Optional[FileTranscriptionTask]
 
     def __init__(self, parent: Optional[QObject] = None):
         super().__init__(parent)
+        self.current_task = None
+        self.transcriber = None
         self.queue = multiprocessing.Queue()
 
     @pyqtSlot()
     def run(self):
-        while self.stopped is False:
-            try:
-                task = self.queue.get(block=False)
-                task_id, transcription_options, file_transcription_options = task
+        logging.debug('Waiting for next file transcription task')
+        try:
+            self.current_task = self.queue.get()
+        except EOFError:
+            return
 
-                try:
-                    print(task_id, transcription_options, file_transcription_options)
-                    self.task_completed.emit(task_id)
-                except Exception:
-                    self.task_error.emit((task_id, 'Unknown error?'))
-                    logging.exception('')
-            except queue.Empty:
-                continue
+        if self.current_task.transcription_options.model.is_whisper_cpp():
+            self.transcriber = WhisperCppFileTranscriber(
+                transcription_options=self.current_task.transcription_options,
+                file_transcription_options=self.current_task.file_transcription_options,
+                model_path=self.current_task.model_path,
+            )
+        else:
+            self.transcriber = WhisperFileTranscriber(
+                transcription_options=self.current_task.transcription_options,
+                file_transcription_options=self.current_task.file_transcription_options,
+                model_path=self.current_task.model_path,
+            )
 
-        self.completed.emit()
+        self.transcriber_thread = QThread(self)
 
-    def add_task(self, task_id: int, transcription_options: TranscriptionOptions,
-                 file_transcription_options: FileTranscriptionOptions):
-        self.queue.put((task_id, transcription_options, file_transcription_options))
+        self.transcriber.moveToThread(self.transcriber_thread)
+
+        self.transcriber_thread.started.connect(self.transcriber.run)
+        self.transcriber.completed.connect(self.transcriber_thread.quit)
+
+        self.transcriber.completed.connect(self.transcriber.deleteLater)
+        self.transcriber_thread.finished.connect(self.transcriber_thread.deleteLater)
+
+        self.transcriber.progress.connect(self.on_task_progress)
+        self.transcriber.error.connect(self.on_task_error)
+
+        self.transcriber.completed.connect(self.on_task_completed)
+
+        # Wait for next item on the queue
+        self.transcriber.completed.connect(self.run)
+
+        self.transcriber_thread.start()
+
+    def add_task(self, task: 'FileTranscriptionTask'):
+        self.queue.put(task)
 
     def stop(self):
         self.stopped = True
 
+    @pyqtSlot(str)
+    def on_task_error(self, error: str):
+        if self.current_task is not None:
+            self.task_error.emit((self.current_task.id, error))
+
+    @pyqtSlot(tuple)
+    def on_task_progress(self, progress: Tuple[int, int]):
+        if self.current_task is not None:
+            self.task_progress.emit(
+                (self.current_task.id, progress[0], progress[1]))
+
+    @pyqtSlot(tuple)
+    def on_task_completed(self, result: Tuple[int, List[Segment]]):
+        if self.current_task is not None:
+            _, segments = result
+            self.task_completed.emit((self.current_task.id, segments))
+
 
 class MainWindow(QMainWindow):
+    table_widget: QTableWidget
     next_task_id = 0
+    tasks: List['FileTranscriptionTask']
+
+    TASK_ID_COLUMN_INDEX = 0
+    FILE_NAME_COLUMN_INDEX = 1
+    STATUS_COLUMN_INDEX = 2
 
     def __init__(self):
         super().__init__(flags=Qt.WindowType.Window)
@@ -995,11 +1004,14 @@ class MainWindow(QMainWindow):
         self.setFixedSize(400, 400)
 
         self.settings = Settings(self)
+        self.tasks = []
 
-        record_action = QAction(QIcon(get_asset_path(ICON_PATH)), 'New Recording Session', self)
+        record_action = QAction(QIcon(get_asset_path(
+            ICON_PATH)), 'New Recording Session', self)
         record_action.triggered.connect(self.on_record_action_triggered)
 
-        import_action = QAction(QIcon(get_asset_path(ICON_PATH)), 'Import Media File', self)
+        import_action = QAction(
+            QIcon(get_asset_path(ICON_PATH)), 'Import Media File', self)
         import_action.triggered.connect(self.on_import_action_triggered)
 
         toolbar = QToolBar()
@@ -1007,18 +1019,25 @@ class MainWindow(QMainWindow):
         toolbar.setMovable(False)
 
         self.addToolBar(toolbar)
+        self.setUnifiedTitleAndToolBarOnMac(True)
 
         menu_bar = MenuBar(self)
-        menu_bar.import_action_triggered.connect(self.on_import_action_triggered)
+        menu_bar.import_action_triggered.connect(
+            self.on_import_action_triggered)
         self.setMenuBar(menu_bar)
 
-        table_widget = QTableWidget(self)
-        table_widget.setRowCount(0)
-        table_widget.setColumnCount(2)
-        table_widget.verticalHeader().hide()
-        table_widget.horizontalHeader().hide()
+        self.table_widget = QTableWidget(self)
+        self.table_widget.setRowCount(0)
+        self.table_widget.setColumnCount(3)
+        self.table_widget.verticalHeader().hide()
+        self.table_widget.setColumnHidden(0, True)
+        self.table_widget.setHorizontalHeaderLabels(['ID', 'File Name', 'Status'])
+        self.table_widget.horizontalHeader().setMinimumSectionSize(140)
+        self.table_widget.setAlternatingRowColors(True)
+        self.table_widget.horizontalHeader().setSectionResizeMode(self.FILE_NAME_COLUMN_INDEX,
+                                                                  QHeaderView.ResizeMode.Stretch)
 
-        self.setCentralWidget(table_widget)
+        self.setCentralWidget(self.table_widget)
 
         # Start transcriber thread
         self.transcriber_thread = QThread()
@@ -1026,28 +1045,69 @@ class MainWindow(QMainWindow):
         self.transcriber_worker = FileTranscriberQueueWorker()
         self.transcriber_worker.moveToThread(self.transcriber_thread)
 
-        self.transcriber_worker.task_progress.connect(self.on_transcriber_worker_task_progress)
-        self.transcriber_worker.task_completed.connect(self.on_transcriber_worker_task_completed)
-        self.transcriber_worker.task_error.connect(self.on_transcriber_worker_task_error)
-        self.transcriber_worker.completed.connect(self.transcriber_worker.deleteLater)
+        self.transcriber_worker.task_progress.connect(
+            self.on_transcriber_worker_task_progress)
+        self.transcriber_worker.task_completed.connect(
+            self.on_transcriber_worker_task_completed)
+        self.transcriber_worker.task_error.connect(
+            self.on_transcriber_worker_task_error)
+        self.transcriber_worker.completed.connect(
+            self.transcriber_worker.deleteLater)
         self.transcriber_worker.completed.connect(self.transcriber_thread.quit)
 
         self.transcriber_thread.started.connect(self.transcriber_worker.run)
-        self.transcriber_thread.finished.connect(self.transcriber_thread.deleteLater)
+        self.transcriber_thread.finished.connect(
+            self.transcriber_thread.deleteLater)
 
         self.transcriber_thread.start()
 
-    def on_transcriber_worker_task_progress(self, data):
-        logging.debug(data)
+    def on_file_transcriber_triggered(self, options: Tuple[TranscriptionOptions, FileTranscriptionOptions, str]):
+        transcription_options, file_transcription_options, model_path = options
+        task = FileTranscriptionTask(
+            self.next_task_id, transcription_options, file_transcription_options, model_path)
+        self.tasks.append(task)
 
-    def on_transcriber_worker_task_completed(self, data):
-        logging.debug(data)
+        self.table_widget.insertRow(self.table_widget.rowCount())
+
+        row_index = self.table_widget.rowCount() - 1
+        self.table_widget.setItem(row_index, self.TASK_ID_COLUMN_INDEX, QTableWidgetItem(str(task.id)))
+
+        file_name_widget_item = QTableWidgetItem(os.path.basename(
+            task.file_transcription_options.file_path))
+        file_name_widget_item.setFlags(file_name_widget_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
+        self.table_widget.setItem(row_index, self.FILE_NAME_COLUMN_INDEX, file_name_widget_item)
+
+        status_widget_item = QTableWidgetItem('Queued')
+        status_widget_item.setFlags(status_widget_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
+        self.table_widget.setItem(row_index, self.STATUS_COLUMN_INDEX, status_widget_item)
+
+        self.transcriber_worker.add_task(task)
+
+        self.next_task_id += 1
+
+    def on_transcriber_worker_task_progress(self, event: Tuple[int, int, int]):
+        task_id, current, maximum = event
+        task_row_index = self.get_task_row_index(task_id)
+
+        status_widget = self.table_widget.item(task_row_index, self.STATUS_COLUMN_INDEX)
+        status_widget.setText(f'In Progress ({(current / maximum):.0%})')
+
+    def on_transcriber_worker_task_completed(self, event: Tuple[int, List[Segment]]):
+        task_id, segments = event
+        task_row_index = self.get_task_row_index(task_id)
+        status_widget = self.table_widget.item(task_row_index, self.STATUS_COLUMN_INDEX)
+        status_widget.setText('Completed')
+
+    def get_task_row_index(self, task_id):
+        table_items = self.table_widget.findItems(str(task_id), Qt.MatchFlag.MatchExactly)
+        return [item for item in table_items if item.column() == self.TASK_ID_COLUMN_INDEX][0].row()
 
     def on_transcriber_worker_task_error(self, data):
-        logging.debug(data)
+        print('task error', data)
 
     def on_record_action_triggered(self):
-        recording_transcriber_window = RecordingTranscriberWidget(self, flags=Qt.WindowType.Window)
+        recording_transcriber_window = RecordingTranscriberWidget(
+            self, flags=Qt.WindowType.Window)
         recording_transcriber_window.show()
 
     def on_import_action_triggered(self):
@@ -1057,21 +1117,15 @@ class MainWindow(QMainWindow):
             return
 
         # TODO: can change this to a QDialog?
-        file_transcriber_window = FileTranscriberWidget(file_path, self, flags=Qt.WindowType.Window)
-        file_transcriber_window.triggered.connect(self.on_file_transcriber_triggered)
+        file_transcriber_window = FileTranscriberWidget(
+            file_path, self, flags=Qt.WindowType.Window)
+        file_transcriber_window.triggered.connect(
+            self.on_file_transcriber_triggered)
         file_transcriber_window.show()
-
-    def on_toggle_enable_ggml_inference(self, state: bool):
-        self.settings.set_enable_ggml_inference(state)
 
     def on_trigger_about_action(self):
         about_dialog = AboutDialog(self)
         about_dialog.open()
-
-    def on_file_transcriber_triggered(self, options: Tuple[TranscriptionOptions, FileTranscriptionOptions]):
-        transcription_options, file_transcription_options = options
-        self.transcriber_worker.add_task(self.next_task_id, transcription_options, file_transcription_options)
-        self.next_task_id += 1
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         self.transcriber_worker.stop()
@@ -1115,12 +1169,15 @@ class AdvancedSettingsDialog(QDialog):
         self.temperature_line_edit.textChanged.connect(
             self.on_temperature_changed)
         self.temperature_line_edit.setValidator(TemperatureValidator(self))
-        self.temperature_line_edit.setDisabled(transcription_options.model.is_whisper_cpp())
+        self.temperature_line_edit.setDisabled(
+            transcription_options.model.is_whisper_cpp())
 
-        self.initial_prompt_text_edit = QPlainTextEdit(transcription_options.initial_prompt, self)
+        self.initial_prompt_text_edit = QPlainTextEdit(
+            transcription_options.initial_prompt, self)
         self.initial_prompt_text_edit.textChanged.connect(
             self.on_initial_prompt_changed)
-        self.initial_prompt_text_edit.setDisabled(transcription_options.model.is_whisper_cpp())
+        self.initial_prompt_text_edit.setDisabled(
+            transcription_options.model.is_whisper_cpp())
 
         layout.addRow('Temperature:', self.temperature_line_edit)
         layout.addRow('Initial Prompt:', self.initial_prompt_text_edit)

@@ -242,11 +242,13 @@ class WhisperCppFileTranscriber(QObject):
     running = False
 
     def __init__(self, transcription_options: TranscriptionOptions,
-                 file_transcription_options: FileTranscriptionOptions, parent: Optional['QObject'] = None) -> None:
+                 file_transcription_options: FileTranscriptionOptions, model_path: str,
+                 parent: Optional['QObject'] = None) -> None:
         super().__init__(parent)
 
         self.file_path = file_transcription_options.file_path
         self.language = transcription_options.language
+        self.model_path = model_path
         self.task = transcription_options.task
         self.word_level_timings = transcription_options.word_level_timings
         self.segments = []
@@ -255,9 +257,10 @@ class WhisperCppFileTranscriber(QObject):
         self.process.readyReadStandardError.connect(self.read_std_err)
         self.process.readyReadStandardOutput.connect(self.read_std_out)
 
-    @pyqtSlot(str)
-    def run(self, model_path: str):
+    @pyqtSlot()
+    def run(self):
         self.running = True
+        model_path = self.model_path
 
         logging.debug(
             'Starting whisper_cpp file transcription, file path = %s, language = %s, task = %s, model_path = %s, '
@@ -357,7 +360,9 @@ class WhisperFileTranscriber(QObject):
     READ_LINE_THREAD_STOP_TOKEN = '--STOP--'
 
     def __init__(self, transcription_options: TranscriptionOptions,
-                 file_transcription_options: FileTranscriptionOptions, parent: Optional['QObject'] = None) -> None:
+                 file_transcription_options: FileTranscriptionOptions,
+                 model_path: str,
+                 parent: Optional['QObject'] = None) -> None:
         super().__init__(parent)
 
         self.file_path = file_transcription_options.file_path
@@ -366,11 +371,13 @@ class WhisperFileTranscriber(QObject):
         self.word_level_timings = transcription_options.word_level_timings
         self.temperature = transcription_options.temperature
         self.initial_prompt = transcription_options.initial_prompt
+        self.model_path = model_path
         self.segments = []
 
-    @pyqtSlot(str)
-    def run(self, model_path: str):
+    @pyqtSlot()
+    def run(self):
         self.running = True
+        model_path = self.model_path
         time_started = datetime.datetime.now()
         logging.debug(
             'Starting whisper file transcription, file path = %s, language = %s, task = %s, model path = %s, '
