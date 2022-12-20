@@ -37,11 +37,12 @@ def get_platform_styles(all_platform_styles: Dict[str, str]):
     return all_platform_styles.get(platform.system(), '')
 
 
-def get_short_file_path(file_path: str):
-    basename = os.path.basename(file_path)
-    if len(basename) > 20:
-        return f'{basename[0:10]}...{basename[-5:]}'
-    return basename
+def file_paths_as_title(file_paths: List[str]):
+    return ', '.join([file_path_as_title(path) for path in file_paths])
+
+
+def file_path_as_title(file_path: str):
+    return os.path.basename(file_path)
 
 
 class FormLabel(QLabel):
@@ -212,37 +213,6 @@ class DownloadModelProgressDialog(QProgressDialog):
                 f'Downloading resources ({(current_size / self.maximum()):.2%}, {humanize.naturaldelta(time_left)} remaining)')
 
 
-class TranscriberProgressDialog(QProgressDialog):
-    short_file_path: str
-    start_time: datetime
-    is_canceled = False
-
-    def __init__(self, file_path: str, total_size: int, parent: Optional[QWidget], *args) -> None:
-        short_file_path = get_short_file_path(file_path)
-        label = f'Processing {short_file_path} (0%, unknown time remaining)'
-        super().__init__(label, 'Cancel', 0, total_size, parent, *args)
-
-        self.total_size = total_size
-        self.short_file_path = short_file_path
-        self.start_time = datetime.now()
-
-        # Open dialog immediately
-        self.setMinimumDuration(0)
-
-        self.setValue(0)
-        self.setWindowModality(Qt.WindowModality.WindowModal)
-
-    def update_progress(self, current_size: int):
-        self.setValue(current_size)
-
-        fraction_completed = current_size / self.total_size
-        if fraction_completed > 0:
-            time_spent = (datetime.now() - self.start_time).total_seconds()
-            time_left = (time_spent / fraction_completed) - time_spent
-            self.setLabelText(
-                f'Processing {self.short_file_path} ({fraction_completed:.2%}, {humanize.naturaldelta(time_left)} remaining)')
-
-
 class RecordingTranscriberObject(QObject):
     """
     TranscriberWithSignal exports the text callback from a Transcriber
@@ -316,7 +286,6 @@ def show_model_download_error_dialog(parent: QWidget, error: str):
 
 class FileTranscriberWidget(QWidget):
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
-    transcriber_progress_dialog: Optional[TranscriberProgressDialog] = None
     file_transcriber: Optional[Union[WhisperFileTranscriber,
                                      WhisperCppFileTranscriber]] = None
     model_loader: Optional[ModelLoader] = None
@@ -327,17 +296,17 @@ class FileTranscriberWidget(QWidget):
     # (TranscriptionOptions, FileTranscriptionOptions, str)
     triggered = pyqtSignal(tuple)
 
-    def __init__(self, file_path: str, parent: Optional[QWidget] = None,
+    def __init__(self, file_paths: List[str], parent: Optional[QWidget] = None,
                  flags: Qt.WindowType = Qt.WindowType.Widget) -> None:
         super().__init__(parent, flags)
 
-        self.setWindowTitle(get_short_file_path(file_path))
+        self.setWindowTitle(file_paths_as_title(file_paths))
         self.setFixedSize(420, 270)
 
-        self.file_path = file_path
+        self.file_paths = file_paths
         self.transcription_options = TranscriptionOptions()
         self.file_transcription_options = FileTranscriptionOptions(
-            file_path=self.file_path)
+            file_paths=self.file_paths)
 
         layout = QVBoxLayout(self)
 
@@ -430,30 +399,23 @@ class FileTranscriberWidget(QWidget):
 
 
 class TranscriptionViewerWidget(QWidget):
-    segments: List[Segment]
-    file_transcription_options: FileTranscriptionOptions
-    transcription_options: TranscriptionOptions
+    transcription_task: FileTranscriptionTask
 
     def __init__(
-            self, file_transcription_options: FileTranscriptionOptions, transcription_options: TranscriptionOptions,
-            segments: List[Segment], parent: Optional['QWidget'] = None, flags: Qt.WindowType = Qt.WindowType.Widget,
+            self, transcription_task: FileTranscriptionTask, parent: Optional['QWidget'] = None, flags: Qt.WindowType = Qt.WindowType.Widget,
     ) -> None:
         super().__init__(parent, flags)
-        self.segments = segments
-        self.file_transcription_options = file_transcription_options
-        self.transcription_options = transcription_options
+        self.transcription_task = transcription_task
 
         self.setMinimumWidth(500)
         self.setMinimumHeight(500)
 
-        self.setWindowTitle(
-            f'Transcription - {get_short_file_path(file_transcription_options.file_path)}')
+        self.setWindowTitle(file_path_as_title(transcription_task.file_path))
 
         layout = QVBoxLayout(self)
 
-        text = segments_to_text(segments)
-
         self.text_box = TextDisplayBox(self)
+        text = segments_to_text(transcription_task.segments)
         self.text_box.setPlainText(text)
 
         layout.addWidget(self.text_box)
@@ -481,8 +443,8 @@ class TranscriptionViewerWidget(QWidget):
         output_format = OutputFormat[action.text()]
 
         default_path = get_default_output_file_path(
-            task=self.transcription_options.task,
-            input_file_path=self.file_transcription_options.file_path,
+            task=self.transcription_task.transcription_options.task,
+            input_file_path=self.transcription_task.file_path,
             output_format=output_format)
 
         (output_file_path, _) = QFileDialog.getSaveFileName(
@@ -491,7 +453,7 @@ class TranscriptionViewerWidget(QWidget):
         if output_file_path == '':
             return
 
-        write_output(path=output_file_path, segments=self.segments,
+        write_output(path=output_file_path, segments=self.transcription_task.segments,
                      should_open=True, output_format=output_format)
 
 
@@ -770,8 +732,8 @@ class TranscriptionTasksTableWidget(QTableWidget):
             self.setItem(row_index, self.TASK_ID_COLUMN_INDEX,
                          task_id_widget_item)
 
-            file_name_widget_item = QTableWidgetItem(os.path.basename(
-                task.file_transcription_options.file_path))
+            file_name_widget_item = QTableWidgetItem(
+                os.path.basename(task.file_path))
             file_name_widget_item.setFlags(
                 file_name_widget_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
             self.setItem(row_index, self.FILE_NAME_COLUMN_INDEX,
@@ -875,19 +837,16 @@ class MainWindow(QMainWindow):
         self.transcriber_thread.started.connect(self.transcriber_worker.run)
         self.transcriber_thread.finished.connect(
             self.transcriber_thread.deleteLater)
-        self.transcriber_thread.finished.connect(
-            lambda: print('thread closed'))
 
         self.transcriber_thread.start()
 
     def on_file_transcriber_triggered(self, options: Tuple[TranscriptionOptions, FileTranscriptionOptions, str]):
         transcription_options, file_transcription_options, model_path = options
-        task = FileTranscriptionTask(
-            self.next_task_id, transcription_options, file_transcription_options, model_path)
-
-        self.transcriber_worker.add_task(task)
-
-        self.next_task_id += 1
+        for file_path in file_transcription_options.file_paths:
+            task = FileTranscriptionTask(
+                file_path, transcription_options, file_transcription_options, model_path, id=self.next_task_id)
+            self.transcriber_worker.add_task(task)
+            self.next_task_id += 1
 
     def on_task_updated(self, task: FileTranscriptionTask):
         self.table_widget.upsert_task(task)
@@ -899,13 +858,13 @@ class MainWindow(QMainWindow):
         recording_transcriber_window.show()
 
     def on_new_transcription_action_triggered(self):
-        (file_path, _) = QFileDialog.getOpenFileName(
+        (file_paths, _) = QFileDialog.getOpenFileNames(
             self, 'Select audio file', '', SUPPORTED_OUTPUT_FORMATS)
-        if file_path == '':
+        if len(file_paths) == 0:
             return
 
         file_transcriber_window = FileTranscriberWidget(
-            file_path, self, flags=Qt.WindowType.Window)
+            file_paths, self, flags=Qt.WindowType.Window)
         file_transcriber_window.triggered.connect(
             self.on_file_transcriber_triggered)
         file_transcriber_window.show()
@@ -927,13 +886,11 @@ class MainWindow(QMainWindow):
 
     def open_transcription_viewer(self, task_id: int):
         task = self.tasks[task_id]
-        if task.segments is None:
+        if task.status != FileTranscriptionTask.Status.COMPLETED:
             return
 
         transcription_viewer_widget = TranscriptionViewerWidget(
-            file_transcription_options=task.file_transcription_options,
-            transcription_options=task.transcription_options, segments=task.segments,
-            parent=self, flags=Qt.WindowType.Window)
+            transcription_task=task, parent=self, flags=Qt.WindowType.Window)
         transcription_viewer_widget.show()
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:

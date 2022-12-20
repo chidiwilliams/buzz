@@ -14,7 +14,7 @@ from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application,
                       AudioDevicesComboBox, DownloadModelProgressDialog,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
                       ModelComboBox, RecordingTranscriberWidget, TemperatureValidator,
-                      TextDisplayBox, TranscriberProgressDialog, TranscriptionTasksTableWidget, TranscriptionViewerWidget,)
+                      TextDisplayBox, TranscriptionTasksTableWidget, TranscriptionViewerWidget,)
 from buzz.transcriber import FileTranscriptionOptions, FileTranscriptionTask, Segment, Task, TranscriptionOptions, Model
 
 
@@ -120,27 +120,6 @@ class TestAudioDevicesComboBox:
             assert audio_devices_combo_box.currentText() == 'Background Music'
 
 
-class TestTranscriberProgressDialog:
-    dialog = TranscriberProgressDialog(
-        file_path='/a/b/c.txt', total_size=1234567, parent=None)
-
-    # Should not be able to interact with the transcriber widget while transcription
-    # is already ongoing. This also prevents an issue with the application
-    # not closing when the transcriber widget is closed before the progress dialog
-    def test_should_be_a_window_modal(self):
-        assert self.dialog.windowModality() == Qt.WindowModality.WindowModal
-
-    def test_should_show_dialog(self):
-        assert self.dialog.labelText() == 'Processing c.txt (0%, unknown time remaining)'
-
-    def test_should_update_label_on_progress(self):
-        self.dialog.update_progress(12345)
-        assert self.dialog.labelText().startswith('Processing c.txt (1.00%')
-
-        self.dialog.update_progress(123456)
-        assert self.dialog.labelText().startswith('Processing c.txt (10.00%')
-
-
 class TestDownloadModelProgressDialog:
     def test_should_show_dialog(self, qtbot: QtBot):
         dialog = DownloadModelProgressDialog(total_size=1234567, parent=None)
@@ -188,7 +167,7 @@ def wait_until(callback: Callable[[], Any], timeout=0):
 
 class TestFileTranscriberWidget:
     widget = FileTranscriberWidget(
-        file_path='testdata/whisper-french.mp3', parent=None)
+        file_paths=['testdata/whisper-french.mp3'], parent=None)
 
     def test_should_set_window_title_and_size(self, qtbot: QtBot):
         qtbot.addWidget(self.widget)
@@ -197,7 +176,7 @@ class TestFileTranscriberWidget:
 
     def test_should_emit_triggered_event(self, qtbot: QtBot):
         widget = FileTranscriberWidget(
-            file_path='testdata/whisper-french.mp3', parent=None)
+            file_paths=['testdata/whisper-french.mp3'], parent=None)
         qtbot.addWidget(widget)
 
         mock_triggered = Mock()
@@ -210,33 +189,9 @@ class TestFileTranscriberWidget:
             0][0]
         assert transcription_options.language is None
         assert transcription_options.model == Model.WHISPER_TINY
-        assert file_transcription_options.file_path == 'testdata/whisper-french.mp3'
+        assert file_transcription_options.file_paths == [
+            'testdata/whisper-french.mp3']
         assert len(model_path) > 0
-
-    @pytest.mark.skip(
-        reason="transcription_started callback sometimes not getting called until all progress events are emitted")
-    def test_should_transcribe_and_stop(self, qtbot: QtBot, tmp_path: pathlib.Path):
-        widget = FileTranscriberWidget(
-            file_path='testdata/whisper-french-long.mp3', parent=None)
-        qtbot.addWidget(widget)
-
-        output_file_path = tmp_path / 'whisper.txt'
-
-        with (patch('PyQt6.QtWidgets.QFileDialog.getSaveFileName') as save_file_name_mock):
-            save_file_name_mock.return_value = (str(output_file_path), '')
-            widget.run_button.click()
-
-        def transcription_started():
-            QCoreApplication.processEvents()
-            assert widget.transcriber_progress_dialog is not None
-            assert widget.transcriber_progress_dialog.value() > 0
-
-        qtbot.wait_until(transcription_started, timeout=30 * 1000)
-
-        widget.transcriber_progress_dialog.close()
-
-        assert os.path.isfile(output_file_path) is False
-        assert widget.run_button.isEnabled()
 
 
 class TestAboutDialog:
@@ -284,15 +239,20 @@ class TestTemperatureValidator:
 
 class TestTranscriptionViewerWidget:
     widget = TranscriptionViewerWidget(
-        file_transcription_options=FileTranscriptionOptions(
-            file_path='testdata/whisper-french.mp3'),
-        transcription_options=TranscriptionOptions(),
-        segments=[Segment(40, 299, 'Bien'), Segment(299, 329, 'venue dans')])
+        transcription_task=FileTranscriptionTask(
+            id=0,
+            file_path='testdata/whisper-french.mp3',
+            file_transcription_options=FileTranscriptionOptions(
+                file_paths=['testdata/whisper-french.mp3']),
+            transcription_options=TranscriptionOptions(),
+            segments=[Segment(40, 299, 'Bien'),
+                      Segment(299, 329, 'venue dans')],
+            model_path=''))
 
     def test_should_display_segments(self, qtbot: QtBot):
         qtbot.add_widget(self.widget)
 
-        assert self.widget.windowTitle() == 'Transcription - whisper-french.mp3'
+        assert self.widget.windowTitle() == 'whisper-french.mp3'
 
         text_display_box = self.widget.findChild(TextDisplayBox)
         assert isinstance(text_display_box, TextDisplayBox)
@@ -320,8 +280,8 @@ class TestTranscriptionTasksTableWidget:
     def test_upsert_task(self, qtbot: QtBot):
         qtbot.add_widget(self.widget)
 
-        task = FileTranscriptionTask(id=0, transcription_options=TranscriptionOptions(
-        ), file_transcription_options=FileTranscriptionOptions(file_path='testdata/whisper-french.mp3'), model_path='', status=FileTranscriptionTask.Status.QUEUED)
+        task = FileTranscriptionTask(id=0, file_path='testdata/whisper-french.mp3', transcription_options=TranscriptionOptions(
+        ), file_transcription_options=FileTranscriptionOptions(file_paths=['testdata/whisper-french.mp3']), model_path='', status=FileTranscriptionTask.Status.QUEUED)
 
         self.widget.upsert_task(task)
 
