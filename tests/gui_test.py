@@ -13,31 +13,17 @@ from pytestqt.qtbot import QtBot
 from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application,
                       AudioDevicesComboBox, DownloadModelProgressDialog,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
-                      ModelComboBox, TemperatureValidator,
-                      TextDisplayBox, TranscriberProgressDialog, TranscriptionViewerWidget, AppIcon)
-from buzz.transcriber import FileTranscriptionOptions, Segment, TranscriptionOptions, Model
+                      ModelComboBox, RecordingTranscriberWidget, TemperatureValidator,
+                      TextDisplayBox, TranscriberProgressDialog, TranscriptionTasksTableWidget, TranscriptionViewerWidget,)
+from buzz.transcriber import FileTranscriptionOptions, FileTranscriptionTask, Segment, Task, TranscriptionOptions, Model
 
 
 class TestApplication:
+    # FIXME: this seems to break the tests if not run??
     app = Application()
 
-    def test_should_show_window_title(self):
-        assert len(self.app.windows) == 1
-        assert self.app.windows[0].windowTitle() == 'Live Recording - Buzz'
-
-    def test_should_open_a_new_import_file_window(self):
-        main_window = self.app.windows[0]
-        import_file_action = main_window.file_menu.actions()[0]
-
-        assert import_file_action.text() == '&Import Audio File...'
-
-        with patch('PyQt6.QtWidgets.QFileDialog.getOpenFileName') as open_file_name_mock:
-            open_file_name_mock.return_value = ('/a/b/c.mp3', '')
-            import_file_action.trigger()
-            assert len(self.app.windows) == 2
-
-            new_window = self.app.windows[1]
-            assert new_window.windowTitle() == 'c.mp3 - Buzz'
+    def test_should_open_application(self):
+        assert self.app is not None
 
 
 class TestLanguagesComboBox:
@@ -182,9 +168,12 @@ class TestDownloadModelProgressDialog:
 
 
 class TestMainWindow:
-    def test_should_init(self):
-        main_window = MainWindow(title='', w=200, h=200, parent=None)
-        assert main_window is not None
+    window = MainWindow()
+
+    def test_should_set_window_title_and_icon(self, qtbot: QtBot):
+        qtbot.add_widget(self.window)
+        assert self.window.windowTitle() == 'Buzz'
+        assert self.window.windowIcon().pixmap(QSize(64, 64)).isNull() is False
 
 
 def wait_until(callback: Callable[[], Any], timeout=0):
@@ -198,21 +187,31 @@ def wait_until(callback: Callable[[], Any], timeout=0):
 
 
 class TestFileTranscriberWidget:
-    @pytest.mark.skip(reason='Waiting for signal crashes process on Windows and Mac')
-    def test_should_transcribe(self, qtbot: QtBot):
+    widget = FileTranscriberWidget(
+        file_path='testdata/whisper-french.mp3', parent=None)
+
+    def test_should_set_window_title_and_size(self, qtbot: QtBot):
+        qtbot.addWidget(self.widget)
+        assert self.widget.windowTitle() == 'whisper-french.mp3'
+        assert self.widget.size() == QSize(420, 270)
+
+    def test_should_emit_triggered_event(self, qtbot: QtBot):
         widget = FileTranscriberWidget(
             file_path='testdata/whisper-french.mp3', parent=None)
         qtbot.addWidget(widget)
 
-        # Waiting for a "transcribed" signal seems to work more consistently
-        # than checking for the opening of a TranscriptionViewerWidget.
-        # See also: https://github.com/pytest-dev/pytest-qt/issues/313
-        with qtbot.wait_signal(widget.transcribed, timeout=30 * 1000):
+        mock_triggered = Mock()
+        widget.triggered.connect(mock_triggered)
+
+        with qtbot.wait_signal(widget.triggered, timeout=30 * 1000):
             qtbot.mouseClick(widget.run_button, Qt.MouseButton.LeftButton)
 
-        transcription_viewer = widget.findChild(TranscriptionViewerWidget)
-        assert isinstance(transcription_viewer, TranscriptionViewerWidget)
-        assert len(transcription_viewer.segments) > 0
+        transcription_options, file_transcription_options, model_path = mock_triggered.call_args[
+            0][0]
+        assert transcription_options.language is None
+        assert transcription_options.model == Model.WHISPER_TINY
+        assert file_transcription_options.file_path == 'testdata/whisper-french.mp3'
+        assert len(model_path) > 0
 
     @pytest.mark.skip(
         reason="transcription_started callback sometimes not getting called until all progress events are emitted")
@@ -254,7 +253,8 @@ class TestAdvancedSettingsDialog:
         qtbot.add_widget(dialog)
 
         transcription_options_mock = Mock()
-        dialog.transcription_options_changed.connect(transcription_options_mock)
+        dialog.transcription_options_changed.connect(
+            transcription_options_mock)
 
         assert dialog.windowTitle() == 'Advanced Settings'
         assert dialog.temperature_line_edit.text() == '0.0, 0.8'
@@ -263,7 +263,8 @@ class TestAdvancedSettingsDialog:
         dialog.temperature_line_edit.setText('0.0, 0.8, 1.0')
         dialog.initial_prompt_text_edit.setPlainText('new prompt')
 
-        assert transcription_options_mock.call_args[0][0].temperature == (0.0, 0.8, 1.0)
+        assert transcription_options_mock.call_args[0][0].temperature == (
+            0.0, 0.8, 1.0)
         assert transcription_options_mock.call_args[0][0].initial_prompt == 'new prompt'
 
 
@@ -313,7 +314,34 @@ class TestTranscriptionViewerWidget:
         assert 'Bien venue dans' in output_file.read()
 
 
-class TestAppIcon:
-    def test_loads(self):
-        widget = AppIcon()
-        assert widget.pixmap(QSize(64, 64)).isNull() is False
+class TestTranscriptionTasksTableWidget:
+    widget = TranscriptionTasksTableWidget()
+
+    def test_upsert_task(self, qtbot: QtBot):
+        qtbot.add_widget(self.widget)
+
+        task = FileTranscriptionTask(id=0, transcription_options=TranscriptionOptions(
+        ), file_transcription_options=FileTranscriptionOptions(file_path='testdata/whisper-french.mp3'), model_path='', status=FileTranscriptionTask.Status.QUEUED)
+
+        self.widget.upsert_task(task)
+
+        assert self.widget.rowCount() == 1
+        assert self.widget.item(0, 1).text() == 'whisper-french.mp3'
+        assert self.widget.item(0, 2).text() == 'Queued'
+
+        task.status = FileTranscriptionTask.Status.IN_PROGRESS
+        task.fraction_completed = 0.3524
+        self.widget.upsert_task(task)
+
+        assert self.widget.rowCount() == 1
+        assert self.widget.item(0, 1).text() == 'whisper-french.mp3'
+        assert self.widget.item(0, 2).text() == 'In Progress (35%)'
+
+
+class TestRecordingTranscriberWidget:
+    widget = RecordingTranscriberWidget()
+
+    def test_should_set_window_title_and_size(self, qtbot: QtBot):
+        qtbot.add_widget(self.widget)
+        assert self.widget.windowTitle() == 'Live Recording'
+        assert self.widget.size() == QSize(400, 520)

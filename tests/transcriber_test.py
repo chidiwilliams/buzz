@@ -9,7 +9,7 @@ import pytest
 from pytestqt.qtbot import QtBot
 
 from buzz.model_loader import ModelLoader
-from buzz.transcriber import (FileTranscriptionOptions, OutputFormat, RecordingTranscriber, Segment, Task,
+from buzz.transcriber import (FileTranscriberQueueWorker, FileTranscriptionOptions, OutputFormat, RecordingTranscriber, Segment, Task,
                               WhisperCpp, WhisperCppFileTranscriber,
                               WhisperFileTranscriber,
                               get_default_output_file_path, to_timestamp,
@@ -46,19 +46,20 @@ class TestWhisperCppFileTranscriber:
             (True, [Segment(30, 280, 'Bien'), Segment(280, 630, 'venue')])
         ])
     def test_transcribe(self, qtbot: QtBot, word_level_timings: bool, expected_segments: List[Segment]):
-        file_transcription_options = FileTranscriptionOptions(file_path='testdata/whisper-french.mp3')
+        file_transcription_options = FileTranscriptionOptions(
+            file_path='testdata/whisper-french.mp3')
         transcription_options = TranscriptionOptions(language='fr', task=Task.TRANSCRIBE,
                                                      word_level_timings=word_level_timings)
 
         model_path = get_model_path(Model.WHISPER_CPP_TINY)
         transcriber = WhisperCppFileTranscriber(
-            file_transcription_options=file_transcription_options, transcription_options=transcription_options)
+            file_transcription_options=file_transcription_options, transcription_options=transcription_options, model_path=model_path)
         mock_progress = Mock()
         mock_completed = Mock()
         transcriber.progress.connect(mock_progress)
         transcriber.completed.connect(mock_completed)
         with qtbot.waitSignal(transcriber.completed, timeout=10 * 60 * 1000):
-            transcriber.run(model_path)
+            transcriber.run()
 
         mock_progress.assert_called()
         exit_code, segments = mock_completed.call_args[0][0]
@@ -96,14 +97,15 @@ class TestWhisperFileTranscriber:
         mock_completed = Mock()
         transcription_options = TranscriptionOptions(language='fr', task=Task.TRANSCRIBE,
                                                      word_level_timings=word_level_timings)
-        file_transcription_options = FileTranscriptionOptions(file_path='testdata/whisper-french.mp3')
+        file_transcription_options = FileTranscriptionOptions(
+            file_path='testdata/whisper-french.mp3')
 
         transcriber = WhisperFileTranscriber(
-            file_transcription_options=file_transcription_options, transcription_options=transcription_options)
+            file_transcription_options=file_transcription_options, transcription_options=transcription_options, model_path=model_path)
         transcriber.progress.connect(mock_progress)
         transcriber.completed.connect(mock_completed)
         with qtbot.wait_signal(transcriber.completed, timeout=10 * 6000):
-            transcriber.run(model_path)
+            transcriber.run()
 
         # Reports progress at 0, 0<progress<100, and 100
         assert any(
@@ -127,12 +129,14 @@ class TestWhisperFileTranscriber:
             os.remove(output_file_path)
 
         model_path = get_model_path(Model.WHISPER_TINY)
-        file_transcription_options = FileTranscriptionOptions(file_path='testdata/whisper-french.mp3')
-        transcription_options = TranscriptionOptions(language='fr', task=Task.TRANSCRIBE, word_level_timings=False)
+        file_transcription_options = FileTranscriptionOptions(
+            file_path='testdata/whisper-french.mp3')
+        transcription_options = TranscriptionOptions(
+            language='fr', task=Task.TRANSCRIBE, word_level_timings=False)
 
         transcriber = WhisperFileTranscriber(
-            file_transcription_options=file_transcription_options, transcription_options=transcription_options)
-        transcriber.run(model_path)
+            file_transcription_options=file_transcription_options, transcription_options=transcription_options, model_path=model_path)
+        transcriber.run()
         time.sleep(1)
         transcriber.stop()
 
@@ -164,8 +168,8 @@ class TestWhisperCpp:
     [
         (OutputFormat.TXT, 'Bien venue dans\n'),
         (
-                OutputFormat.SRT,
-                '1\n00:00:00.040 --> 00:00:00.299\nBien\n\n2\n00:00:00.299 --> 00:00:00.329\nvenue dans\n\n'),
+            OutputFormat.SRT,
+            '1\n00:00:00.040 --> 00:00:00.299\nBien\n\n2\n00:00:00.299 --> 00:00:00.329\nvenue dans\n\n'),
         (OutputFormat.VTT,
          'WEBVTT\n\n00:00:00.040 --> 00:00:00.299\nBien\n\n00:00:00.299 --> 00:00:00.329\nvenue dans\n\n'),
     ])
