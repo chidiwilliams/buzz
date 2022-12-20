@@ -21,7 +21,7 @@ import numpy as np
 import sounddevice
 import stable_whisper
 import whisper
-from PyQt6.QtCore import QObject, QProcess, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import QObject, QProcess, pyqtSignal, pyqtSlot, QThread
 from sounddevice import PortAudioError
 
 from .conn import pipe_stderr
@@ -587,3 +587,109 @@ class WhisperCpp:
 
     def __del__(self):
         whisper_cpp.whisper_free((self.ctx))
+
+
+@dataclass
+class FileTranscriptionTask:
+    class Status(enum.Enum):
+        QUEUED = 'queued'
+        IN_PROGRESS = 'in_progress'
+        COMPLETED = 'completed'
+        ERROR = 'error'
+
+    id: int
+    transcription_options: TranscriptionOptions
+    file_transcription_options: FileTranscriptionOptions
+    model_path: str
+    segments: Optional[List[Segment]] = None
+    status: Optional[Status] = None
+    fraction_completed = 0.0
+    error: Optional[str] = None
+
+
+class FileTranscriberQueueWorker(QObject):
+    queue: multiprocessing.Queue
+    current_task: Optional[FileTranscriptionTask] = None
+    current_transcriber: Optional[WhisperFileTranscriber | WhisperCppFileTranscriber] = None
+    current_transcriber_thread: Optional[QThread] = None
+    task_updated = pyqtSignal(FileTranscriptionTask)
+    completed = pyqtSignal()
+    stopped = False
+
+    QUEUE_STOP_SIGNAL = None
+
+    def __init__(self, parent: Optional[QObject] = None):
+        super().__init__(parent)
+        self.queue = multiprocessing.Queue()
+
+    @pyqtSlot()
+    def run(self):
+        logging.debug('Waiting for next file transcription task')
+        self.current_task = self.queue.get()
+        if self.current_task is self.QUEUE_STOP_SIGNAL:
+            self.completed.emit()
+            return
+
+        if self.current_task.transcription_options.model.is_whisper_cpp():
+            self.current_transcriber = WhisperCppFileTranscriber(
+                transcription_options=self.current_task.transcription_options,
+                file_transcription_options=self.current_task.file_transcription_options,
+                model_path=self.current_task.model_path,
+            )
+        else:
+            self.current_transcriber = WhisperFileTranscriber(
+                transcription_options=self.current_task.transcription_options,
+                file_transcription_options=self.current_task.file_transcription_options,
+                model_path=self.current_task.model_path,
+            )
+
+        self.current_transcriber_thread = QThread(self)
+
+        self.current_transcriber.moveToThread(self.current_transcriber_thread)
+
+        self.current_transcriber_thread.started.connect(self.current_transcriber.run)
+        self.current_transcriber.completed.connect(self.current_transcriber_thread.quit)
+
+        self.current_transcriber.completed.connect(self.current_transcriber.deleteLater)
+        self.current_transcriber_thread.finished.connect(self.current_transcriber_thread.deleteLater)
+
+        self.current_transcriber.progress.connect(self.on_task_progress)
+        self.current_transcriber.error.connect(self.on_task_error)
+
+        self.current_transcriber.completed.connect(self.on_task_completed)
+
+        # Wait for next item on the queue
+        self.current_transcriber.completed.connect(self.run)
+
+        self.current_transcriber_thread.start()
+
+    def add_task(self, task: FileTranscriptionTask):
+        self.queue.put(task)
+        task.status = FileTranscriptionTask.Status.QUEUED
+        self.task_updated.emit(task)
+
+    @pyqtSlot(str)
+    def on_task_error(self, error: str):
+        if self.current_task is not None:
+            self.current_task.status = FileTranscriptionTask.Status.ERROR
+            self.current_task.error = error
+            self.task_updated.emit(self.current_task)
+
+    @pyqtSlot(tuple)
+    def on_task_progress(self, progress: Tuple[int, int]):
+        if self.current_task is not None:
+            self.current_task.status = FileTranscriptionTask.Status.IN_PROGRESS
+            self.current_task.fraction_completed = progress[0] / progress[1]
+            self.task_updated.emit(self.current_task)
+
+    @pyqtSlot(tuple)
+    def on_task_completed(self, result: Tuple[int, List[Segment]]):
+        if self.current_task is not None:
+            _, segments = result
+            self.current_task.status = FileTranscriptionTask.Status.COMPLETED
+            self.current_task.segments = segments
+            self.task_updated.emit(self.current_task)
+
+    def stop(self):
+        self.queue.put(self.QUEUE_STOP_SIGNAL)
+        self.stopped = True
