@@ -938,8 +938,8 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         self.transcriber_worker.stop()
-        # FIXME: thread should be cleaned up correctly, but this waits infinitely without processing the completed event
-        # self.transcriber_thread.wait()
+        self.transcriber_thread.quit()
+        self.transcriber_thread.wait()
         super().closeEvent(event)
 
 

@@ -382,7 +382,8 @@ class WhisperFileTranscriber(QObject):
         logging.debug(
             'Starting whisper file transcription, file path = %s, language = %s, task = %s, model path = %s, '
             'temperature = %s, initial prompt length = %s, word level timings = %s',
-            self.file_path, self.language, self.task, model_path, self.temperature, len(self.initial_prompt),
+            self.file_path, self.language, self.task, model_path, self.temperature, len(
+                self.initial_prompt),
             self.word_level_timings)
 
         recv_pipe, send_pipe = multiprocessing.Pipe(duplex=False)
@@ -396,10 +397,14 @@ class WhisperFileTranscriber(QObject):
             ))
         self.current_process.start()
 
-        self.read_line_thread = Thread(target=self.read_line, args=(recv_pipe,))
+        self.read_line_thread = Thread(
+            target=self.read_line, args=(recv_pipe,))
         self.read_line_thread.start()
 
         self.current_process.join()
+
+        send_pipe.close()
+        recv_pipe.close()
 
         logging.debug(
             'whisper process completed with code = %s, time taken = %s',
@@ -418,7 +423,11 @@ class WhisperFileTranscriber(QObject):
 
     def read_line(self, pipe: Connection):
         while True:
-            line = pipe.recv().strip()
+            try:
+                line = pipe.recv().strip()
+            except EOFError:  # Connection closed
+                break
+
             if line == self.READ_LINE_THREAD_STOP_TOKEN:
                 return
 
@@ -470,7 +479,8 @@ def transcribe_whisper(
         segments_json = json.dumps(
             segments, ensure_ascii=True, default=vars)
         sys.stderr.write(f'segments = {segments_json}\n')
-        sys.stderr.write(WhisperFileTranscriber.READ_LINE_THREAD_STOP_TOKEN + '\n')
+        sys.stderr.write(
+            WhisperFileTranscriber.READ_LINE_THREAD_STOP_TOKEN + '\n')
 
 
 def write_output(path: str, segments: List[Segment], should_open: bool, output_format: OutputFormat):
@@ -610,7 +620,8 @@ class FileTranscriptionTask:
 class FileTranscriberQueueWorker(QObject):
     queue: multiprocessing.Queue
     current_task: Optional[FileTranscriptionTask] = None
-    current_transcriber: Optional[WhisperFileTranscriber | WhisperCppFileTranscriber] = None
+    current_transcriber: Optional[WhisperFileTranscriber |
+                                  WhisperCppFileTranscriber] = None
     current_transcriber_thread: Optional[QThread] = None
     task_updated = pyqtSignal(FileTranscriptionTask)
     completed = pyqtSignal()
@@ -646,11 +657,15 @@ class FileTranscriberQueueWorker(QObject):
 
         self.current_transcriber.moveToThread(self.current_transcriber_thread)
 
-        self.current_transcriber_thread.started.connect(self.current_transcriber.run)
-        self.current_transcriber.completed.connect(self.current_transcriber_thread.quit)
+        self.current_transcriber_thread.started.connect(
+            self.current_transcriber.run)
+        self.current_transcriber.completed.connect(
+            self.current_transcriber_thread.quit)
 
-        self.current_transcriber.completed.connect(self.current_transcriber.deleteLater)
-        self.current_transcriber_thread.finished.connect(self.current_transcriber_thread.deleteLater)
+        self.current_transcriber.completed.connect(
+            self.current_transcriber.deleteLater)
+        self.current_transcriber_thread.finished.connect(
+            self.current_transcriber_thread.deleteLater)
 
         self.current_transcriber.progress.connect(self.on_task_progress)
         self.current_transcriber.error.connect(self.on_task_error)
@@ -693,3 +708,6 @@ class FileTranscriberQueueWorker(QObject):
         self.queue.put(self.QUEUE_STOP_SIGNAL)
         if self.current_transcriber is not None:
             self.current_transcriber.stop()
+        if self.current_transcriber_thread is not None:
+            self.current_transcriber_thread.quit()
+            self.current_transcriber_thread.wait()
