@@ -14,8 +14,8 @@ from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application,
                       AudioDevicesComboBox, DownloadModelProgressDialog,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
                       ModelComboBox, TemperatureValidator,
-                      TextDisplayBox, TranscriberProgressDialog, TranscriptionViewerWidget,)
-from buzz.transcriber import FileTranscriptionOptions, Segment, TranscriptionOptions, Model
+                      TextDisplayBox, TranscriberProgressDialog, TranscriptionTasksTableWidget, TranscriptionViewerWidget,)
+from buzz.transcriber import FileTranscriptionOptions, FileTranscriptionTask, Segment, TranscriptionOptions, Model
 
 
 class TestApplication:
@@ -187,6 +187,14 @@ def wait_until(callback: Callable[[], Any], timeout=0):
 
 
 class TestFileTranscriberWidget:
+    widget = FileTranscriberWidget(
+        file_path='testdata/whisper-french.mp3', parent=None)
+
+    def test_should_set_window_title_and_size(self, qtbot: QtBot):
+        qtbot.addWidget(self.widget)
+        assert self.widget.windowTitle() == 'whisper-french.mp3'
+        assert self.widget.size() == QSize(420, 270)
+
     @pytest.mark.skip(reason='Waiting for signal crashes process on Windows and Mac')
     def test_should_transcribe(self, qtbot: QtBot):
         widget = FileTranscriberWidget(
@@ -304,8 +312,25 @@ class TestTranscriptionViewerWidget:
         assert 'Bien venue dans' in output_file.read()
 
 
-# TODO:
-# class TestAppIcon:
-#     def test_loads(self):
-#         widget = AppIcon()
-#         assert widget.pixmap(QSize(64, 64)).isNull() is False
+class TestTranscriptionTasksTableWidget:
+    widget = TranscriptionTasksTableWidget()
+
+    def test_upsert_task(self, qtbot: QtBot):
+        qtbot.add_widget(self.widget)
+
+        task = FileTranscriptionTask(id=0, transcription_options=TranscriptionOptions(
+        ), file_transcription_options=FileTranscriptionOptions(file_path='testdata/whisper-french.mp3'), model_path='', status=FileTranscriptionTask.Status.QUEUED)
+
+        self.widget.upsert_task(task)
+
+        assert self.widget.rowCount() == 1
+        assert self.widget.item(0, 1).text() == 'whisper-french.mp3'
+        assert self.widget.item(0, 2).text() == 'Queued'
+
+        task.status = FileTranscriptionTask.Status.IN_PROGRESS
+        task.fraction_completed = 0.3524
+        self.widget.upsert_task(task)
+
+        assert self.widget.rowCount() == 1
+        assert self.widget.item(0, 1).text() == 'whisper-french.mp3'
+        assert self.widget.item(0, 2).text() == 'In Progress (35%)'

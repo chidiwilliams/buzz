@@ -318,7 +318,7 @@ class FileTranscriberWidget(QWidget):
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     transcriber_progress_dialog: Optional[TranscriberProgressDialog] = None
     file_transcriber: Optional[Union[WhisperFileTranscriber,
-    WhisperCppFileTranscriber]] = None
+                                     WhisperCppFileTranscriber]] = None
     model_loader: Optional[ModelLoader] = None
     transcriber_thread: Optional[QThread] = None
     file_transcription_options: FileTranscriptionOptions
@@ -537,23 +537,6 @@ class TranscriptionViewerWidget(QWidget):
                      should_open=True, output_format=output_format)
 
 
-class Settings(QSettings):
-    def __init__(self, parent: Optional[QWidget] = None):
-        super().__init__('Buzz', 'Buzz', parent)
-        logging.debug('Loaded settings from path = %s', self.fileName())
-
-    # Convert QSettings value to boolean: https://forum.qt.io/topic/108622/how-to-get-a-boolean-value-from-qsettings-correctly
-    @staticmethod
-    def _value_to_bool(value: Any) -> bool:
-        if isinstance(value, bool):
-            return value
-
-        if isinstance(value, str):
-            return value.lower() == 'true'
-
-        return bool(value)
-
-
 class AdvancedSettingsButton(QPushButton):
     def __init__(self, parent: Optional[QWidget]) -> None:
         super().__init__('Advanced...', parent)
@@ -731,7 +714,8 @@ def get_asset_path(path: str):
 BUZZ_ICON_PATH = get_asset_path('../assets/buzz.ico')
 BUZZ_LARGE_ICON_PATH = get_asset_path('../assets/buzz-icon-1024.png')
 RECORD_ICON_PATH = get_asset_path('../assets/record-icon.svg')
-EXPAND_ICON_PATH = get_asset_path('../assets/up-down-and-down-left-from-center-icon.svg')
+EXPAND_ICON_PATH = get_asset_path(
+    '../assets/up-down-and-down-left-from-center-icon.svg')
 ADD_ICON_PATH = get_asset_path('../assets/circle-plus-icon.svg')
 
 
@@ -814,31 +798,39 @@ class TranscriptionTasksTableWidget(QTableWidget):
         self.horizontalHeader().setSectionResizeMode(self.FILE_NAME_COLUMN_INDEX,
                                                      QHeaderView.ResizeMode.Stretch)
 
-        self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.setSelectionBehavior(
+            QAbstractItemView.SelectionBehavior.SelectRows)
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
 
-    def add_or_update_task(self, task: FileTranscriptionTask):
+    def upsert_task(self, task: FileTranscriptionTask):
         task_row_index = self.task_row_index(task.id)
         if task_row_index is None:
             self.insertRow(self.rowCount())
 
             row_index = self.rowCount() - 1
             task_id_widget_item = QTableWidgetItem(str(task.id))
-            self.setItem(row_index, self.TASK_ID_COLUMN_INDEX, task_id_widget_item)
+            self.setItem(row_index, self.TASK_ID_COLUMN_INDEX,
+                         task_id_widget_item)
 
             file_name_widget_item = QTableWidgetItem(os.path.basename(
                 task.file_transcription_options.file_path))
-            file_name_widget_item.setFlags(file_name_widget_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-            self.setItem(row_index, self.FILE_NAME_COLUMN_INDEX, file_name_widget_item)
+            file_name_widget_item.setFlags(
+                file_name_widget_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
+            self.setItem(row_index, self.FILE_NAME_COLUMN_INDEX,
+                         file_name_widget_item)
 
-            status_widget_item = QTableWidgetItem('Queued')
-            status_widget_item.setFlags(status_widget_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-            self.setItem(row_index, self.STATUS_COLUMN_INDEX, status_widget_item)
+            status_widget_item = QTableWidgetItem(
+                task.status.value.title() if task.status is not None else '')
+            status_widget_item.setFlags(
+                status_widget_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
+            self.setItem(row_index, self.STATUS_COLUMN_INDEX,
+                         status_widget_item)
         else:
             status_widget = self.item(task_row_index, self.STATUS_COLUMN_INDEX)
 
             if task.status == FileTranscriptionTask.Status.IN_PROGRESS:
-                status_widget.setText(f'In Progress ({task.fraction_completed :.0%})')
+                status_widget.setText(
+                    f'In Progress ({task.fraction_completed :.0%})')
             elif task.status == FileTranscriptionTask.Status.COMPLETED:
                 status_widget.setText('Completed')
             elif task.status == FileTranscriptionTask.Status.ERROR:
@@ -868,18 +860,20 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon(BUZZ_ICON_PATH))
         self.setFixedSize(400, 400)
 
-        self.settings = Settings(self)
         self.tasks = {}
 
         record_action = QAction(QIcon(RECORD_ICON_PATH), 'Record', self)
         record_action.triggered.connect(self.on_record_action_triggered)
 
-        new_transcription_action = QAction(QIcon(ADD_ICON_PATH), 'New Transcription', self)
-        new_transcription_action.triggered.connect(self.on_new_transcription_action_triggered)
+        new_transcription_action = QAction(
+            QIcon(ADD_ICON_PATH), 'New Transcription', self)
+        new_transcription_action.triggered.connect(
+            self.on_new_transcription_action_triggered)
 
         self.open_transcript_action = QAction(QIcon(EXPAND_ICON_PATH),
                                               'Open Transcript', self)
-        self.open_transcript_action.triggered.connect(self.on_open_transcript_action_triggered)
+        self.open_transcript_action.triggered.connect(
+            self.on_open_transcript_action_triggered)
         self.open_transcript_action.setDisabled(True)
 
         toolbar = QToolBar()
@@ -906,7 +900,8 @@ class MainWindow(QMainWindow):
 
         self.table_widget = TranscriptionTasksTableWidget(self)
         self.table_widget.doubleClicked.connect(self.on_table_double_clicked)
-        self.table_widget.itemSelectionChanged.connect(self.on_table_selection_changed)
+        self.table_widget.itemSelectionChanged.connect(
+            self.on_table_selection_changed)
 
         self.setCentralWidget(self.table_widget)
 
@@ -922,7 +917,8 @@ class MainWindow(QMainWindow):
         self.transcriber_thread.started.connect(self.transcriber_worker.run)
         self.transcriber_thread.finished.connect(
             self.transcriber_thread.deleteLater)
-        self.transcriber_thread.finished.connect(lambda: print('thread closed'))
+        self.transcriber_thread.finished.connect(
+            lambda: print('thread closed'))
 
         self.transcriber_thread.start()
 
@@ -937,7 +933,7 @@ class MainWindow(QMainWindow):
         self.next_task_id += 1
 
     def on_task_updated(self, task: FileTranscriptionTask):
-        self.table_widget.add_or_update_task(task)
+        self.table_widget.upsert_task(task)
         self.tasks[task.id] = task
 
     def on_record_action_triggered(self):
@@ -1064,8 +1060,6 @@ class MenuBar(QMenuBar):
 
     def __init__(self, parent: QWidget):
         super().__init__(parent)
-
-        self.settings = Settings(self)
 
         import_action = QAction("&Import Media File...", self)
         import_action.triggered.connect(
