@@ -363,10 +363,6 @@ class FileTranscriberWidget(QWidget):
 
         self.setLayout(layout)
 
-    def closeEvent(self, event: QCloseEvent) -> None:
-        self.on_cancel_transcriber_progress_dialog()
-        return super().closeEvent(event)
-
     def on_transcription_options_changed(self, transcription_options: TranscriptionOptions):
         self.transcription_options = transcription_options
 
@@ -415,44 +411,6 @@ class FileTranscriberWidget(QWidget):
 
     def on_download_model_error(self, error: str):
         show_model_download_error_dialog(self, error)
-        self.reset_transcriber_controls()
-
-    def on_transcriber_progress(self, progress: Tuple[int, int]):
-        (current_size, total_size) = progress
-
-        if self.is_transcribing:
-            # Create a dialog
-            if self.transcriber_progress_dialog is None:
-                self.transcriber_progress_dialog = TranscriberProgressDialog(
-                    file_path=self.file_path, total_size=total_size, parent=self)
-                self.transcriber_progress_dialog.canceled.connect(
-                    self.on_cancel_transcriber_progress_dialog)
-            else:
-                # Update the progress of the dialog unless it has
-                # been canceled before this progress update arrived
-                self.transcriber_progress_dialog.update_progress(current_size)
-
-    @pyqtSlot(tuple)
-    def on_transcriber_complete(self, result: Tuple[int, List[Segment]]):
-        exit_code, segments = result
-
-        self.is_transcribing = False
-
-        if self.transcriber_progress_dialog is not None:
-            self.transcriber_progress_dialog.reset()
-            if exit_code != 0:
-                self.transcriber_progress_dialog.close()
-
-        self.reset_transcriber_controls()
-
-        TranscriptionViewerWidget(
-            transcription_options=self.transcription_options,
-            file_transcription_options=self.file_transcription_options,
-            segments=segments, parent=self, flags=Qt.WindowType.Window).show()
-
-    def on_cancel_transcriber_progress_dialog(self):
-        if self.file_transcriber is not None:
-            self.file_transcriber.stop()
         self.reset_transcriber_controls()
 
     def reset_transcriber_controls(self):
