@@ -195,7 +195,7 @@ class TestFileTranscriberWidget:
         assert self.widget.windowTitle() == 'whisper-french.mp3'
         assert self.widget.size() == QSize(420, 270)
 
-    def test_should_transcribe(self, qtbot: QtBot):
+    def test_should_emit_triggered_event(self, qtbot: QtBot):
         widget = FileTranscriberWidget(
             file_path='testdata/whisper-french.mp3', parent=None)
         qtbot.addWidget(widget)
