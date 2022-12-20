@@ -252,7 +252,7 @@ class TestTranscriptionViewerWidget:
     def test_should_display_segments(self, qtbot: QtBot):
         qtbot.add_widget(self.widget)
 
-        assert self.widget.windowTitle() == 'Transcription - whisper-french.mp3'
+        assert self.widget.windowTitle() == 'whisper-french.mp3'
 
         text_display_box = self.widget.findChild(TextDisplayBox)
         assert isinstance(text_display_box, TextDisplayBox)
