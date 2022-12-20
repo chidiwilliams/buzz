@@ -14,30 +14,16 @@ from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application,
                       AudioDevicesComboBox, DownloadModelProgressDialog,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
                       ModelComboBox, TemperatureValidator,
-                      TextDisplayBox, TranscriberProgressDialog, TranscriptionViewerWidget, AppIcon)
+                      TextDisplayBox, TranscriberProgressDialog, TranscriptionViewerWidget,)
 from buzz.transcriber import FileTranscriptionOptions, Segment, TranscriptionOptions, Model
 
 
 class TestApplication:
+    # FIXME: this seems to break the tests if not run??
     app = Application()
 
-    def test_should_show_window_title(self):
-        assert len(self.app.windows) == 1
-        assert self.app.windows[0].windowTitle() == 'Live Recording - Buzz'
-
-    def test_should_open_a_new_import_file_window(self):
-        main_window = self.app.windows[0]
-        import_file_action = main_window.file_menu.actions()[0]
-
-        assert import_file_action.text() == '&Import Audio File...'
-
-        with patch('PyQt6.QtWidgets.QFileDialog.getOpenFileName') as open_file_name_mock:
-            open_file_name_mock.return_value = ('/a/b/c.mp3', '')
-            import_file_action.trigger()
-            assert len(self.app.windows) == 2
-
-            new_window = self.app.windows[1]
-            assert new_window.windowTitle() == 'c.mp3 - Buzz'
+    def test_should_open_application(self):
+        assert self.app is not None
 
 
 class TestLanguagesComboBox:
@@ -182,9 +168,12 @@ class TestDownloadModelProgressDialog:
 
 
 class TestMainWindow:
-    def test_should_init(self):
-        main_window = MainWindow(title='', w=200, h=200, parent=None)
-        assert main_window is not None
+    window = MainWindow()
+
+    def test_should_set_window_title_and_icon(self, qtbot: QtBot):
+        qtbot.add_widget(self.window)
+        assert self.window.windowTitle() == 'Buzz'
+        assert self.window.windowIcon().pixmap(QSize(64, 64)).isNull() is False
 
 
 def wait_until(callback: Callable[[], Any], timeout=0):
@@ -254,7 +243,8 @@ class TestAdvancedSettingsDialog:
         qtbot.add_widget(dialog)
 
         transcription_options_mock = Mock()
-        dialog.transcription_options_changed.connect(transcription_options_mock)
+        dialog.transcription_options_changed.connect(
+            transcription_options_mock)
 
         assert dialog.windowTitle() == 'Advanced Settings'
         assert dialog.temperature_line_edit.text() == '0.0, 0.8'
@@ -263,7 +253,8 @@ class TestAdvancedSettingsDialog:
         dialog.temperature_line_edit.setText('0.0, 0.8, 1.0')
         dialog.initial_prompt_text_edit.setPlainText('new prompt')
 
-        assert transcription_options_mock.call_args[0][0].temperature == (0.0, 0.8, 1.0)
+        assert transcription_options_mock.call_args[0][0].temperature == (
+            0.0, 0.8, 1.0)
         assert transcription_options_mock.call_args[0][0].initial_prompt == 'new prompt'
 
 
@@ -313,7 +304,8 @@ class TestTranscriptionViewerWidget:
         assert 'Bien venue dans' in output_file.read()
 
 
-class TestAppIcon:
-    def test_loads(self):
-        widget = AppIcon()
-        assert widget.pixmap(QSize(64, 64)).isNull() is False
+# TODO:
+# class TestAppIcon:
+#     def test_loads(self):
+#         widget = AppIcon()
+#         assert widget.pixmap(QSize(64, 64)).isNull() is False

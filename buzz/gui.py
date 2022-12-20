@@ -852,8 +852,8 @@ class TranscriptionTasksTableWidget(QTableWidget):
         return table_items_matching_task_id[0].row()
 
     @staticmethod
-    def find_task_id(cls: 'TranscriptionTasksTableWidget', index: QModelIndex):
-        return int(index.siblingAtColumn(cls.TASK_ID_COLUMN_INDEX).data())
+    def find_task_id(index: QModelIndex):
+        return int(index.siblingAtColumn(TranscriptionTasksTableWidget.TASK_ID_COLUMN_INDEX).data())
 
 
 class MainWindow(QMainWindow):
