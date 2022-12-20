@@ -13,7 +13,7 @@ from pytestqt.qtbot import QtBot
 from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application,
                       AudioDevicesComboBox, DownloadModelProgressDialog,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
-                      ModelComboBox, TemperatureValidator,
+                      ModelComboBox, RecordingTranscriberWidget, TemperatureValidator,
                       TextDisplayBox, TranscriberProgressDialog, TranscriptionTasksTableWidget, TranscriptionViewerWidget,)
 from buzz.transcriber import FileTranscriptionOptions, FileTranscriptionTask, Segment, TranscriptionOptions, Model
 
@@ -334,3 +334,12 @@ class TestTranscriptionTasksTableWidget:
         assert self.widget.rowCount() == 1
         assert self.widget.item(0, 1).text() == 'whisper-french.mp3'
         assert self.widget.item(0, 2).text() == 'In Progress (35%)'
+
+
+class TestRecordingTranscriberWidget:
+    widget = RecordingTranscriberWidget()
+
+    def test_should_set_window_title_and_size(self, qtbot: QtBot):
+        qtbot.add_widget(self.widget)
+        assert self.widget.windowTitle() == 'Live Recording'
+        assert self.widget.size() == QSize(400, 520)
