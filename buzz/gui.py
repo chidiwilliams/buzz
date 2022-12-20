@@ -716,8 +716,8 @@ class RecordingTranscriberWidget(QWidget):
             self.model_download_progress_dialog = None
 
 
-ICON_PATH = 'assets/buzz.ico'
-ICON_LARGE_PATH = 'assets/buzz-icon-1024.png'
+ICON_PATH = '../assets/buzz.ico'
+ICON_LARGE_PATH = '../assets/buzz-icon-1024.png'
 
 
 def get_asset_path(path: str):
