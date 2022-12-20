@@ -11,7 +11,7 @@ import subprocess
 import sys
 import tempfile
 import threading
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from multiprocessing.connection import Connection
 from threading import Thread
 from typing import Any, Callable, List, Optional, Tuple, Union
@@ -50,6 +50,61 @@ class Segment:
     start: int  # start time in ms
     end: int  # end time in ms
     text: str
+
+
+class Model(enum.Enum):
+    WHISPER_TINY = 'Whisper - Tiny'
+    WHISPER_BASE = 'Whisper - Base'
+    WHISPER_SMALL = 'Whisper - Small'
+    WHISPER_MEDIUM = 'Whisper - Medium'
+    WHISPER_LARGE = 'Whisper - Large'
+    WHISPER_CPP_TINY = 'Whisper.cpp - Tiny'
+    WHISPER_CPP_BASE = 'Whisper.cpp - Base'
+    WHISPER_CPP_SMALL = 'Whisper.cpp - Small'
+    WHISPER_CPP_MEDIUM = 'Whisper.cpp - Medium'
+    WHISPER_CPP_LARGE = 'Whisper.cpp - Large'
+
+    def is_whisper_cpp(self) -> bool:
+        model_type, _ = self.value.split(' - ')
+        return model_type == 'Whisper.cpp'
+
+    def model_name(self) -> str:
+        _, model_name = self.value.split(' - ')
+        return model_name.lower()
+
+
+@dataclass()
+class TranscriptionOptions:
+    language: Optional[str] = None
+    task: Task = Task.TRANSCRIBE
+    model: Model = Model.WHISPER_TINY
+    word_level_timings: bool = False
+    temperature: Tuple[float, ...] = DEFAULT_WHISPER_TEMPERATURE
+    initial_prompt: str = ''
+
+
+@dataclass()
+class FileTranscriptionOptions:
+    file_paths: List[str]
+
+
+@dataclass
+class FileTranscriptionTask:
+    class Status(enum.Enum):
+        QUEUED = 'queued'
+        IN_PROGRESS = 'in_progress'
+        COMPLETED = 'completed'
+        ERROR = 'error'
+
+    file_path: str
+    transcription_options: TranscriptionOptions
+    file_transcription_options: FileTranscriptionOptions
+    model_path: str
+    id: int = 0
+    segments: List[Segment] = field(default_factory=list)
+    status: Optional[Status] = None
+    fraction_completed = 0.0
+    error: Optional[str] = None
 
 
 class RecordingTranscriber:
@@ -197,42 +252,6 @@ class OutputFormat(enum.Enum):
     VTT = 'vtt'
 
 
-class Model(enum.Enum):
-    WHISPER_TINY = 'Whisper - Tiny'
-    WHISPER_BASE = 'Whisper - Base'
-    WHISPER_SMALL = 'Whisper - Small'
-    WHISPER_MEDIUM = 'Whisper - Medium'
-    WHISPER_LARGE = 'Whisper - Large'
-    WHISPER_CPP_TINY = 'Whisper.cpp - Tiny'
-    WHISPER_CPP_BASE = 'Whisper.cpp - Base'
-    WHISPER_CPP_SMALL = 'Whisper.cpp - Small'
-    WHISPER_CPP_MEDIUM = 'Whisper.cpp - Medium'
-    WHISPER_CPP_LARGE = 'Whisper.cpp - Large'
-
-    def is_whisper_cpp(self) -> bool:
-        model_type, _ = self.value.split(' - ')
-        return model_type == 'Whisper.cpp'
-
-    def model_name(self) -> str:
-        _, model_name = self.value.split(' - ')
-        return model_name.lower()
-
-
-@dataclass()
-class TranscriptionOptions:
-    language: Optional[str] = None
-    task: Task = Task.TRANSCRIBE
-    model: Model = Model.WHISPER_TINY
-    word_level_timings: bool = False
-    temperature: Tuple[float, ...] = DEFAULT_WHISPER_TEMPERATURE
-    initial_prompt: str = ''
-
-
-@dataclass()
-class FileTranscriptionOptions:
-    file_path: str
-
-
 class WhisperCppFileTranscriber(QObject):
     progress = pyqtSignal(tuple)  # (current, total)
     completed = pyqtSignal(tuple)  # (exit_code: int, segments: List[Segment])
@@ -241,16 +260,15 @@ class WhisperCppFileTranscriber(QObject):
     segments: List[Segment]
     running = False
 
-    def __init__(self, transcription_options: TranscriptionOptions,
-                 file_transcription_options: FileTranscriptionOptions, model_path: str,
+    def __init__(self, task: FileTranscriptionTask,
                  parent: Optional['QObject'] = None) -> None:
         super().__init__(parent)
 
-        self.file_path = file_transcription_options.file_path
-        self.language = transcription_options.language
-        self.model_path = model_path
-        self.task = transcription_options.task
-        self.word_level_timings = transcription_options.word_level_timings
+        self.file_path = task.file_path
+        self.language = task.transcription_options.language
+        self.model_path = task.model_path
+        self.task = task.transcription_options.task
+        self.word_level_timings = task.transcription_options.word_level_timings
         self.segments = []
 
         self.process = QProcess(self)
@@ -359,19 +377,17 @@ class WhisperFileTranscriber(QObject):
     read_line_thread: Optional[Thread] = None
     READ_LINE_THREAD_STOP_TOKEN = '--STOP--'
 
-    def __init__(self, transcription_options: TranscriptionOptions,
-                 file_transcription_options: FileTranscriptionOptions,
-                 model_path: str,
+    def __init__(self, task: FileTranscriptionTask,
                  parent: Optional['QObject'] = None) -> None:
         super().__init__(parent)
 
-        self.file_path = file_transcription_options.file_path
-        self.language = transcription_options.language
-        self.task = transcription_options.task
-        self.word_level_timings = transcription_options.word_level_timings
-        self.temperature = transcription_options.temperature
-        self.initial_prompt = transcription_options.initial_prompt
-        self.model_path = model_path
+        self.file_path = task.file_path
+        self.language = task.transcription_options.language
+        self.task = task.transcription_options.task
+        self.word_level_timings = task.transcription_options.word_level_timings
+        self.temperature = task.transcription_options.temperature
+        self.initial_prompt = task.transcription_options.initial_prompt
+        self.model_path = task.model_path
         self.segments = []
 
     @pyqtSlot()
@@ -403,12 +419,12 @@ class WhisperFileTranscriber(QObject):
 
         self.current_process.join()
 
-        send_pipe.close()
-        recv_pipe.close()
-
         logging.debug(
             'whisper process completed with code = %s, time taken = %s',
             self.current_process.exitcode, datetime.datetime.now() - time_started)
+
+        if self.current_process.exitcode != 0:
+            send_pipe.close()
 
         self.read_line_thread.join()
 
@@ -599,24 +615,6 @@ class WhisperCpp:
         whisper_cpp.whisper_free((self.ctx))
 
 
-@dataclass
-class FileTranscriptionTask:
-    class Status(enum.Enum):
-        QUEUED = 'queued'
-        IN_PROGRESS = 'in_progress'
-        COMPLETED = 'completed'
-        ERROR = 'error'
-
-    id: int
-    transcription_options: TranscriptionOptions
-    file_transcription_options: FileTranscriptionOptions
-    model_path: str
-    segments: Optional[List[Segment]] = None
-    status: Optional[Status] = None
-    fraction_completed = 0.0
-    error: Optional[str] = None
-
-
 class FileTranscriberQueueWorker(QObject):
     queue: multiprocessing.Queue
     current_task: Optional[FileTranscriptionTask] = None
@@ -642,16 +640,10 @@ class FileTranscriberQueueWorker(QObject):
 
         if self.current_task.transcription_options.model.is_whisper_cpp():
             self.current_transcriber = WhisperCppFileTranscriber(
-                transcription_options=self.current_task.transcription_options,
-                file_transcription_options=self.current_task.file_transcription_options,
-                model_path=self.current_task.model_path,
-            )
+                task=self.current_task)
         else:
             self.current_transcriber = WhisperFileTranscriber(
-                transcription_options=self.current_task.transcription_options,
-                file_transcription_options=self.current_task.file_transcription_options,
-                model_path=self.current_task.model_path,
-            )
+                task=self.current_task)
 
         self.current_transcriber_thread = QThread(self)
 

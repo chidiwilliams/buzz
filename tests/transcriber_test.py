@@ -9,7 +9,7 @@ import pytest
 from pytestqt.qtbot import QtBot
 
 from buzz.model_loader import ModelLoader
-from buzz.transcriber import (FileTranscriberQueueWorker, FileTranscriptionOptions, OutputFormat, RecordingTranscriber, Segment, Task,
+from buzz.transcriber import (FileTranscriberQueueWorker, FileTranscriptionOptions, FileTranscriptionTask, OutputFormat, RecordingTranscriber, Segment, Task,
                               WhisperCpp, WhisperCppFileTranscriber,
                               WhisperFileTranscriber,
                               get_default_output_file_path, to_timestamp,
@@ -47,13 +47,13 @@ class TestWhisperCppFileTranscriber:
         ])
     def test_transcribe(self, qtbot: QtBot, word_level_timings: bool, expected_segments: List[Segment]):
         file_transcription_options = FileTranscriptionOptions(
-            file_path='testdata/whisper-french.mp3')
+            file_paths=['testdata/whisper-french.mp3'])
         transcription_options = TranscriptionOptions(language='fr', task=Task.TRANSCRIBE,
                                                      word_level_timings=word_level_timings)
 
         model_path = get_model_path(Model.WHISPER_CPP_TINY)
         transcriber = WhisperCppFileTranscriber(
-            file_transcription_options=file_transcription_options, transcription_options=transcription_options, model_path=model_path)
+            task=FileTranscriptionTask(file_path='testdata/whisper-french.mp3', transcription_options=transcription_options, file_transcription_options=file_transcription_options, model_path=model_path))
         mock_progress = Mock()
         mock_completed = Mock()
         transcriber.progress.connect(mock_progress)
@@ -98,10 +98,10 @@ class TestWhisperFileTranscriber:
         transcription_options = TranscriptionOptions(language='fr', task=Task.TRANSCRIBE,
                                                      word_level_timings=word_level_timings)
         file_transcription_options = FileTranscriptionOptions(
-            file_path='testdata/whisper-french.mp3')
+            file_paths=['testdata/whisper-french.mp3'])
 
         transcriber = WhisperFileTranscriber(
-            file_transcription_options=file_transcription_options, transcription_options=transcription_options, model_path=model_path)
+            task=FileTranscriptionTask(transcription_options=transcription_options, file_transcription_options=file_transcription_options, file_path='testdata/whisper-french.mp3', model_path=model_path))
         transcriber.progress.connect(mock_progress)
         transcriber.completed.connect(mock_completed)
         with qtbot.wait_signal(transcriber.completed, timeout=10 * 6000):
@@ -130,12 +130,12 @@ class TestWhisperFileTranscriber:
 
         model_path = get_model_path(Model.WHISPER_TINY)
         file_transcription_options = FileTranscriptionOptions(
-            file_path='testdata/whisper-french.mp3')
+            file_paths=['testdata/whisper-french.mp3'])
         transcription_options = TranscriptionOptions(
             language='fr', task=Task.TRANSCRIBE, word_level_timings=False)
 
         transcriber = WhisperFileTranscriber(
-            file_transcription_options=file_transcription_options, transcription_options=transcription_options, model_path=model_path)
+            task=FileTranscriptionTask(model_path=model_path, transcription_options=transcription_options, file_transcription_options=file_transcription_options, file_path='testdata/whisper-french.mp3'))
         transcriber.run()
         time.sleep(1)
         transcriber.stop()
