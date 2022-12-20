@@ -1,26 +1,21 @@
 # Buzz
 
-Transcribe and translate audio offline on your personal computer. Powered by
-OpenAI's [Whisper](https://github.com/openai/whisper).
+Transcribe and translate audio offline on your personal computer. Powered by OpenAI's [Whisper](https://github.com/openai/whisper).
 
 ![MIT License](https://img.shields.io/badge/license-MIT-green)
 [![CI](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml/badge.svg)](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/github/chidiwilliams/buzz/branch/main/graph/badge.svg?token=YJSB8S2VEP)](https://codecov.io/github/chidiwilliams/buzz)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/chidiwilliams/buzz)
 
 ![Buzz](./assets/buzz-banner.jpg)
 
 ## Features
 
-- Real-time transcription and translation from your computer's microphones to
-  text ([Demo](https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7))
-- Import audio and video files and export transcripts to TXT, SRT, and
-  VTT ([Demo](https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe))
+- Real-time transcription and translation from your computer's microphones to text ([Demo](https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7))
+- Import audio and video files and export transcripts to TXT, SRT, and VTT ([Demo](https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe))
 
 ## Installation
 
-To install Buzz, download the [latest version](https://github.com/chidiwilliams/buzz/releases/latest) for your operating
-system. Buzz is available on **Mac** and **Windows**.
+To install Buzz, download the [latest version](https://github.com/chidiwilliams/buzz/releases/latest) for your operating system. Buzz is available on **Mac** and **Windows**.
 
 ### Mac (macOS 11.7 and above)
 
@@ -43,11 +38,10 @@ To start a live recording:
 - Select a recording task, language, quality, and microphone.
 - Click Record.
 
-> **Note:** Transcribing audio using the default Whisper model is resource-intensive. If your computer is unable to keep
-> up with real-time transcription, consider turning on [GGML inference](#enable-ggml-inference).
+> **Note:** Transcribing audio using the default Whisper model is resource-intensive. If your computer is unable to keep up with real-time transcription, consider turning on [GGML inference](#enable-ggml-inference).
 
 | Field      | Options                                                                                                                                  | Default                     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-|------------|------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Task       | "Transcribe", "Translate"                                                                                                                | "Transcribe"                | "Transcribe" converts the input audio into text in the selected language, while "Translate" converts it into text in English.                                                                                                                                                                                                                                                                                                                         |
 | Language   | See [Whisper's documentation](https://github.com/openai/whisper#available-models-and-languages) for the full list of supported languages | "Detect Language"           | "Detect Language" will try to detect the spoken language in the audio based on the first few seconds. However, selecting a language is recommended (if known) as it will improve transcription quality in many cases.                                                                                                                                                                                                                                 |
 | Quality    | "Very Low", "Low", "Medium", "High"                                                                                                      | "Very Low"                  | The transcription quality determines the Whisper model used for transcription. "Very Low" uses the "tiny" model; "Low" uses the "base" model; "Medium" uses the "small" model; and "High" uses the "medium" model. The larger models produce higher-quality transcriptions, but require more system resources. See [Whisper's documentation](https://github.com/openai/whisper#available-models-and-languages) for more information about the models. |
@@ -57,12 +51,7 @@ To start a live recording:
 
 ### Record audio playing from computer
 
-To record audio playing from an application on your computer, you may install an audio loopback driver (a program that
-lets you create virtual audio devices). The rest of this guide will
-use [BlackHole](https://github.com/ExistentialAudio/BlackHole) on Mac, but you can use other alternatives for your
-operating system (
-see [LoopBeAudio](https://nerds.de/en/loopbeaudio.html), [LoopBack](https://rogueamoeba.com/loopback/),
-and [Virtual Audio Cable](https://vac.muzychenko.net/en/)).
+To record audio playing from an application on your computer, you may install an audio loopback driver (a program that lets you create virtual audio devices). The rest of this guide will use [BlackHole](https://github.com/ExistentialAudio/BlackHole) on Mac, but you can use other alternatives for your operating system (see [LoopBeAudio](https://nerds.de/en/loopbeaudio.html), [LoopBack](https://rogueamoeba.com/loopback/), and [Virtual Audio Cable](https://vac.muzychenko.net/en/)).
 
 1. Install [BlackHole via Homebrew](https://github.com/ExistentialAudio/BlackHole#option-2-install-via-homebrew)
 
@@ -84,8 +73,7 @@ and [Virtual Audio Cable](https://vac.muzychenko.net/en/)).
 
 5. Select this multi-output device as your speaker (application or system-wide) to play audio into BlackHole.
 
-6. Open Buzz, select BlackHole as your microphone, and record as before to see transcriptions from the audio playing
-   through BlackHole.
+6. Open Buzz, select BlackHole as your microphone, and record as before to see transcriptions from the audio playing through BlackHole.
 
 ## File import
 
@@ -97,7 +85,7 @@ To import a file:
 - Click Run.
 
 | Field              | Options             | Default | Description                                                                                                                                              |
-|--------------------|---------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------------------ | ------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Export As          | "TXT", "SRT", "VTT" | "TXT"   | Export file format                                                                                                                                       |
 | Word-Level Timings | Off / On            | Off     | If checked, the transcription will generate a separate subtitle line for each word in the audio. Enabled only when "Export As" is set to "SRT" or "VTT". |
 
@@ -111,13 +99,10 @@ To import a file:
 
 _(Default: off)_
 
-Turn this on to use inference from [Whisper.cpp](https://github.com/ggerganov/whisper.cpp). Whisper.cpp runs faster than
-Whisper's original Python implementation but requires a different set of models for inference. Whisper.cpp currently
-does not support the "Detect Language" option, and transcription will fall back to the original Whisper inference if
-selected. See the [Whisper.cpp documentation](https://github.com/ggerganov/whisper.cpp) for more information.
+Turn this on to use inference from [Whisper.cpp](https://github.com/ggerganov/whisper.cpp). Whisper.cpp runs faster than Whisper's original Python implementation but requires a different set of models for inference. Whisper.cpp currently does not support the "Detect Language" option, and transcription will fall back to the original Whisper inference if selected. See the [Whisper.cpp documentation](https://github.com/ggerganov/whisper.cpp) for more information.
 
 | Model  | Link                                                                | Size    | SHA256                                                           |
-|--------|---------------------------------------------------------------------|---------|------------------------------------------------------------------|
+| ------ | ------------------------------------------------------------------- | ------- | ---------------------------------------------------------------- |
 | tiny   | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-tiny.bin>   | 78 MB   | be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21 |
 | base   | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-base.bin>   | 148 MB  | 60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe |
 | small  | <https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-small.bin>  | 488 MB  | 1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b |
@@ -164,8 +149,7 @@ poetry run pyinstaller --noconfirm Buzz.spec
 
 1. **Where are the models stored?**
 
-   The Whisper models are stored in `~/.cache/whisper`. The Whisper.cpp models are stored in `~/Library/Caches/Buzz` (
-   Mac OS), `~/.cache/Buzz` (Unix), `C:\Users/<username>\AppData\Local\Buzz\Buzz\Cache` (Windows).
+   The Whisper models are stored in `~/.cache/whisper`. The Whisper.cpp models are stored in `~/Library/Caches/Buzz` (Mac OS), `~/.cache/Buzz` (Unix), `C:\Users/<username>\AppData\Local\Buzz\Buzz\Cache` (Windows).
 
 2. **What can I try if the transcription runs too slowly?**
 
