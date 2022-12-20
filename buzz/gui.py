@@ -410,8 +410,7 @@ class TranscriptionViewerWidget(QWidget):
         self.setMinimumWidth(500)
         self.setMinimumHeight(500)
 
-        self.setWindowTitle(
-            f'Transcription - {file_path_as_title(transcription_task.file_path)}')
+        self.setWindowTitle(file_path_as_title(transcription_task.file_path))
 
         layout = QVBoxLayout(self)
 
