@@ -614,7 +614,6 @@ class FileTranscriberQueueWorker(QObject):
     current_transcriber_thread: Optional[QThread] = None
     task_updated = pyqtSignal(FileTranscriptionTask)
     completed = pyqtSignal()
-    stopped = False
 
     QUEUE_STOP_SIGNAL = None
 
@@ -692,4 +691,5 @@ class FileTranscriberQueueWorker(QObject):
 
     def stop(self):
         self.queue.put(self.QUEUE_STOP_SIGNAL)
-        self.stopped = True
+        if self.current_transcriber is not None:
+            self.current_transcriber.stop()
