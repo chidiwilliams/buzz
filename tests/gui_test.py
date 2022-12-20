@@ -15,7 +15,7 @@ from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
                       ModelComboBox, RecordingTranscriberWidget, TemperatureValidator,
                       TextDisplayBox, TranscriberProgressDialog, TranscriptionTasksTableWidget, TranscriptionViewerWidget,)
-from buzz.transcriber import FileTranscriptionOptions, FileTranscriptionTask, Segment, TranscriptionOptions, Model
+from buzz.transcriber import FileTranscriptionOptions, FileTranscriptionTask, Segment, Task, TranscriptionOptions, Model
 
 
 class TestApplication:
@@ -195,21 +195,23 @@ class TestFileTranscriberWidget:
         assert self.widget.windowTitle() == 'whisper-french.mp3'
         assert self.widget.size() == QSize(420, 270)
 
-    @pytest.mark.skip(reason='Waiting for signal crashes process on Windows and Mac')
     def test_should_transcribe(self, qtbot: QtBot):
         widget = FileTranscriberWidget(
             file_path='testdata/whisper-french.mp3', parent=None)
         qtbot.addWidget(widget)
 
-        # Waiting for a "transcribed" signal seems to work more consistently
-        # than checking for the opening of a TranscriptionViewerWidget.
-        # See also: https://github.com/pytest-dev/pytest-qt/issues/313
-        with qtbot.wait_signal(widget.transcribed, timeout=30 * 1000):
+        mock_triggered = Mock()
+        widget.triggered.connect(mock_triggered)
+
+        with qtbot.wait_signal(widget.triggered, timeout=30 * 1000):
             qtbot.mouseClick(widget.run_button, Qt.MouseButton.LeftButton)
 
-        transcription_viewer = widget.findChild(TranscriptionViewerWidget)
-        assert isinstance(transcription_viewer, TranscriptionViewerWidget)
-        assert len(transcription_viewer.segments) > 0
+        transcription_options, file_transcription_options, model_path = mock_triggered.call_args[
+            0][0]
+        assert transcription_options.language is None
+        assert transcription_options.model == Model.WHISPER_TINY
+        assert file_transcription_options.file_path == 'testdata/whisper-french.mp3'
+        assert len(model_path) > 0
 
     @pytest.mark.skip(
         reason="transcription_started callback sometimes not getting called until all progress events are emitted")
