@@ -14,7 +14,7 @@ from PyQt6.QtCore import (QDateTime, QObject, QRect, QSettings, Qt, QThread, pyq
 from PyQt6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
                          QKeySequence, QPixmap, QTextCursor, QValidator)
 from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
-                             QDialogButtonBox, QFileDialog, QGridLayout, QLabel, QLayout, QLineEdit,
+                             QDialogButtonBox, QFileDialog, QLabel, QLineEdit,
                              QMainWindow, QMessageBox, QPlainTextEdit,
                              QProgressDialog, QPushButton, QVBoxLayout, QHBoxLayout, QMenu,
                              QWidget, QGroupBox, QFormLayout)
@@ -716,8 +716,8 @@ class RecordingTranscriberWidget(QWidget):
             self.model_download_progress_dialog = None
 
 
-ICON_PATH = 'assets/buzz.ico'
-ICON_LARGE_PATH = 'assets/buzz-icon-1024.png'
+ICON_PATH = '../assets/buzz.ico'
+ICON_LARGE_PATH = '../assets/buzz-icon-1024.png'
 
 
 def get_asset_path(path: str):
