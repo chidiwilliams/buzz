@@ -19,13 +19,3 @@ def pipe_stderr(conn: Connection):
         yield
     finally:
         sys.stderr = sys.__stderr__
-
-
-@contextmanager
-def pipe_stdout(conn: Connection):
-    sys.stdout = ConnWriter(conn)
-
-    try:
-        yield
-    finally:
-        sys.stdout = sys.__stdout__

@@ -9,7 +9,7 @@ import pytest
 from pytestqt.qtbot import QtBot
 
 from buzz.model_loader import ModelLoader
-from buzz.transcriber import (FileTranscriptionOptions, OutputFormat, RecordingTranscriber, Segment, Task,
+from buzz.transcriber import (FileTranscriberQueueWorker, FileTranscriptionOptions, OutputFormat, RecordingTranscriber, Segment, Task,
                               WhisperCpp, WhisperCppFileTranscriber,
                               WhisperFileTranscriber,
                               get_default_output_file_path, to_timestamp,

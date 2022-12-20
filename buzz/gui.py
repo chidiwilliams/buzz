@@ -928,7 +928,6 @@ class MainWindow(QMainWindow):
             self.next_task_id, transcription_options, file_transcription_options, model_path)
 
         self.transcriber_worker.add_task(task)
-        self.transcriber_worker.queue.put(None)
 
         self.next_task_id += 1
 
