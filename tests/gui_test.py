@@ -10,10 +10,11 @@ from PyQt6.QtGui import (QValidator)
 from PyQt6.QtWidgets import (QPushButton)
 from pytestqt.qtbot import QtBot
 
-from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application, AudioDevicesComboBox,
-                      DownloadModelProgressDialog, FileTranscriberWidget, LanguagesComboBox, MainWindow,
-                      TemperatureValidator, TextDisplayBox, TranscriberProgressDialog, TranscriptionViewerWidget,
-                      AppIcon, ModelComboBox)
+from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application,
+                      AudioDevicesComboBox, DownloadModelProgressDialog,
+                      FileTranscriberWidget, LanguagesComboBox, MainWindow,
+                      ModelComboBox, TemperatureValidator,
+                      TextDisplayBox, TranscriberProgressDialog, TranscriptionViewerWidget, AppIcon)
 from buzz.transcriber import FileTranscriptionOptions, Segment, TranscriptionOptions, Model
 
 
