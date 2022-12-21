@@ -1,21 +1,21 @@
-import os
 import pathlib
-from typing import Any, Callable
 from unittest.mock import Mock, patch
 
 import pytest
 import sounddevice
-from PyQt6.QtCore import Qt, QCoreApplication, QSize
-from PyQt6.QtGui import (QValidator)
-from PyQt6.QtWidgets import (QPushButton)
+from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtGui import QValidator
+from PyQt6.QtWidgets import QPushButton
 from pytestqt.qtbot import QtBot
 
 from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application,
                       AudioDevicesComboBox, DownloadModelProgressDialog,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
-                      ModelComboBox, RecordingTranscriberWidget, TemperatureValidator,
-                      TextDisplayBox, TranscriptionTasksTableWidget, TranscriptionViewerWidget,)
-from buzz.transcriber import FileTranscriptionOptions, FileTranscriptionTask, Segment, Task, TranscriptionOptions, Model
+                      ModelComboBox, RecordingTranscriberWidget,
+                      TemperatureValidator, TextDisplayBox,
+                      TranscriptionTasksTableWidget, TranscriptionViewerWidget)
+from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask,
+                              Model, Segment, TranscriptionOptions)
 
 
 class TestApplication:
@@ -155,16 +155,6 @@ class TestMainWindow:
         assert self.window.windowIcon().pixmap(QSize(64, 64)).isNull() is False
 
 
-def wait_until(callback: Callable[[], Any], timeout=0):
-    while True:
-        try:
-            QCoreApplication.processEvents()
-            callback()
-            return
-        except AssertionError:
-            pass
-
-
 class TestFileTranscriberWidget:
     widget = FileTranscriberWidget(
         file_paths=['testdata/whisper-french.mp3'], parent=None)
@@ -280,8 +270,11 @@ class TestTranscriptionTasksTableWidget:
     def test_upsert_task(self, qtbot: QtBot):
         qtbot.add_widget(self.widget)
 
-        task = FileTranscriptionTask(id=0, file_path='testdata/whisper-french.mp3', transcription_options=TranscriptionOptions(
-        ), file_transcription_options=FileTranscriptionOptions(file_paths=['testdata/whisper-french.mp3']), model_path='', status=FileTranscriptionTask.Status.QUEUED)
+        task = FileTranscriptionTask(id=0, file_path='testdata/whisper-french.mp3',
+                                     transcription_options=TranscriptionOptions(),
+                                     file_transcription_options=FileTranscriptionOptions(
+                                         file_paths=['testdata/whisper-french.mp3']), model_path='',
+                                     status=FileTranscriptionTask.Status.QUEUED)
 
         self.widget.upsert_task(task)
 

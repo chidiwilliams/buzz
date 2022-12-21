@@ -4,6 +4,7 @@ Transcribe and translate audio offline on your personal computer. Powered by Ope
 
 ![MIT License](https://img.shields.io/badge/license-MIT-green)
 [![CI](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml/badge.svg)](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/github/chidiwilliams/buzz/branch/main/graph/badge.svg?token=YJSB8S2VEP)](https://codecov.io/github/chidiwilliams/buzz)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/chidiwilliams/buzz)
 
 ![Buzz](./assets/buzz-banner.jpg)

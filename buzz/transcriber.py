@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 from multiprocessing.connection import Connection
 from threading import Thread
 from typing import Any, Callable, List, Optional, Tuple, Union
+import typing
 
 import ffmpeg
 import numpy as np
@@ -624,8 +625,6 @@ class FileTranscriberQueueWorker(QObject):
     task_updated = pyqtSignal(FileTranscriptionTask)
     completed = pyqtSignal()
 
-    QUEUE_STOP_SIGNAL = None
-
     def __init__(self, parent: Optional[QObject] = None):
         super().__init__(parent)
         self.queue = multiprocessing.Queue()
@@ -633,9 +632,13 @@ class FileTranscriberQueueWorker(QObject):
     @pyqtSlot()
     def run(self):
         logging.debug('Waiting for next file transcription task')
-        self.current_task = self.queue.get()
-        if self.current_task is self.QUEUE_STOP_SIGNAL:
+        self.current_task: Optional[FileTranscriptionTask] = self.queue.get()
+        if self.current_task is None:
             self.completed.emit()
+            return
+
+        if self.current_task.status == FileTranscriptionTask.Status.COMPLETED or self.current_task.status == FileTranscriptionTask.Status.ERROR:
+            self.run()
             return
 
         if self.current_task.transcription_options.model.is_whisper_cpp():
@@ -697,7 +700,7 @@ class FileTranscriberQueueWorker(QObject):
             self.task_updated.emit(self.current_task)
 
     def stop(self):
-        self.queue.put(self.QUEUE_STOP_SIGNAL)
+        self.queue.put(None)
         if self.current_transcriber is not None:
             self.current_transcriber.stop()
         if self.current_transcriber_thread is not None:
