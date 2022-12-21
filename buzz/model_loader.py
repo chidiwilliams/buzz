@@ -68,9 +68,9 @@ class ModelLoader(QObject):
             # use the certs from certifi when the app is running in frozen mode
             with requests.get(url, stream=True, timeout=15) as source, open(model_path, 'wb') as output:
                 source.raise_for_status()
-                total_size = int(source.headers.get('Content-Length', 0))
-                current = 0
-                self.progress.emit((0, total_size))
+                total_size = float(source.headers.get('Content-Length', 0))
+                current = 0.0
+                self.progress.emit((current, total_size))
                 for chunk in source.iter_content(chunk_size=8192):
                     if self.stopped:
                         return
