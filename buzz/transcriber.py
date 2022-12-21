@@ -159,7 +159,8 @@ class RecordingTranscriber:
             self.model_path) if self.use_whisper_cpp else whisper.load_model(self.model_path)
 
         logging.debug(
-            'Recording, language = %s, task = %s, device = %s, sample rate = %s, model_path = %s, temperature = %s, initial prompt length = %s',
+            'Recording, language = %s, task = %s, device = %s, sample rate = %s, model_path = %s, temperature = %s, '
+            'initial prompt length = %s',
             self.language, self.task, self.input_device_index, self.sample_rate, self.model_path, self.temperature,
             len(self.initial_prompt))
         self.current_stream = sounddevice.InputStream(

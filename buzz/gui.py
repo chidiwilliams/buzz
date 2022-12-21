@@ -198,8 +198,8 @@ class DownloadModelProgressDialog(QProgressDialog):
     start_time: datetime
 
     def __init__(self, parent: Optional[QWidget], *args) -> None:
-        super().__init__('Downloading resources (0%, unknown time remaining)',
-                         'Cancel', 0, 1_000_000, parent, *args)
+        super().__init__('Downloading model (0%, unknown time remaining)',
+                         'Cancel', 0, 100, parent, *args)
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.start_time = datetime.now()
 
@@ -211,7 +211,7 @@ class DownloadModelProgressDialog(QProgressDialog):
             time_left = (time_spent / fraction_completed) - time_spent
 
             self.setLabelText(
-                f'Downloading resources ({(fraction_completed):.2%}, {humanize.naturaldelta(time_left)} remaining)')
+                f'Downloading model ({fraction_completed :.0%}, {humanize.naturaldelta(time_left)} remaining)')
 
 
 class RecordingTranscriberObject(QObject):
@@ -479,7 +479,7 @@ class RecordingTranscriberWidget(QWidget):
         self.setWindowTitle('Live Recording')
         self.setFixedSize(400, 520)
 
-        self.transcription_options = TranscriptionOptions()
+        self.transcription_options = TranscriptionOptions(model=Model.WHISPER_CPP_TINY)
 
         self.audio_devices_combo_box = AudioDevicesComboBox(self)
         self.audio_devices_combo_box.device_changed.connect(
