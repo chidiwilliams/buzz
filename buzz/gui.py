@@ -640,7 +640,7 @@ RECORD_ICON_PATH = get_asset_path('../assets/record-icon.svg')
 EXPAND_ICON_PATH = get_asset_path(
     '../assets/up-down-and-down-left-from-center-icon.svg')
 ADD_ICON_PATH = get_asset_path('../assets/circle-plus-icon.svg')
-TRASH_ICON_PATH = get_asset_path('../assets/trash.svg')
+TRASH_ICON_PATH = get_asset_path('../assets/trash-icon.svg')
 
 
 class AboutDialog(QDialog):
