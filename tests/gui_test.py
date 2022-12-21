@@ -1,3 +1,4 @@
+import os.path
 import pathlib
 from unittest.mock import Mock, patch
 
@@ -5,9 +6,10 @@ import pytest
 import sounddevice
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QValidator
-from PyQt6.QtWidgets import QPushButton
+from PyQt6.QtWidgets import QPushButton, QToolBar, QTableWidget
 from pytestqt.qtbot import QtBot
 
+from buzz.cache import TasksCache
 from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application,
                       AudioDevicesComboBox, DownloadModelProgressDialog,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
@@ -146,13 +148,47 @@ class TestDownloadModelProgressDialog:
         assert dialog.windowModality() == Qt.WindowModality.ApplicationModal
 
 
+@pytest.fixture
+def tasks_cache(tmp_path):
+    cache = TasksCache(cache_dir=str(tmp_path))
+    yield cache
+    cache.clear()
+
+
+def get_test_asset(filename: str):
+    return os.path.join(os.path.dirname(__file__), '../testdata/', filename)
+
+
 class TestMainWindow:
-    window = MainWindow()
 
     def test_should_set_window_title_and_icon(self, qtbot: QtBot):
-        qtbot.add_widget(self.window)
-        assert self.window.windowTitle() == 'Buzz'
-        assert self.window.windowIcon().pixmap(QSize(64, 64)).isNull() is False
+        window = MainWindow()
+        qtbot.add_widget(window)
+        assert window.windowTitle() == 'Buzz'
+        assert window.windowIcon().pixmap(QSize(64, 64)).isNull() is False
+
+    def test_should_run_transcription_task(self, qtbot: QtBot, tasks_cache):
+        window = MainWindow(tasks_cache=tasks_cache)
+        qtbot.add_widget(window)
+
+        toolbar: QToolBar = window.findChild(QToolBar)
+        new_transcription_action = [action for action in toolbar.actions() if action.text() == 'New Transcription'][0]
+
+        with patch('PyQt6.QtWidgets.QFileDialog.getOpenFileNames') as open_file_names_mock:
+            open_file_names_mock.return_value = ([get_test_asset('whisper-french.mp3')], '')
+            new_transcription_action.trigger()
+
+        file_transcriber_widget: FileTranscriberWidget = window.findChild(FileTranscriberWidget)
+        run_button: QPushButton = file_transcriber_widget.findChild(QPushButton)
+        run_button.click()
+
+        def check_task_completed():
+            table_widget: QTableWidget = window.findChild(QTableWidget)
+            assert table_widget.rowCount() == 1
+            assert table_widget.item(0, 1).text() == 'whisper-french.mp3'
+            assert table_widget.item(0, 2).text() == 'Completed'
+
+        qtbot.wait_until(check_task_completed, timeout=60 * 1000)
 
 
 class TestFileTranscriberWidget:

@@ -637,10 +637,6 @@ class FileTranscriberQueueWorker(QObject):
             self.completed.emit()
             return
 
-        if self.current_task.status == FileTranscriptionTask.Status.COMPLETED or self.current_task.status == FileTranscriptionTask.Status.ERROR:
-            self.run()
-            return
-
         if self.current_task.transcription_options.model.is_whisper_cpp():
             self.current_transcriber = WhisperCppFileTranscriber(
                 task=self.current_task)

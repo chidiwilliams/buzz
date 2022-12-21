@@ -831,14 +831,14 @@ class MainWindow(QMainWindow):
     tasks: Dict[int, 'FileTranscriptionTask']
     tasks_changed = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, tasks_cache=TasksCache()):
         super().__init__(flags=Qt.WindowType.Window)
 
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(QIcon(BUZZ_ICON_PATH))
         self.setMinimumSize(400, 400)
 
-        self.tasks_cache = TasksCache()
+        self.tasks_cache = tasks_cache
 
         self.tasks = {}
         self.tasks_changed.connect(self.on_tasks_changed)
@@ -895,11 +895,6 @@ class MainWindow(QMainWindow):
         self.table_widget.upsert_task(task)
         self.tasks[task.id] = task
         self.tasks_changed.emit()
-
-    def on_record_action_triggered(self):
-        recording_transcriber_window = RecordingTranscriberWidget(
-            self, flags=Qt.WindowType.Window)
-        recording_transcriber_window.show()
 
     @staticmethod
     def task_completed_or_errored(task: FileTranscriptionTask):

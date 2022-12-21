@@ -26,3 +26,6 @@ class TasksCache:
         except pickle.UnpicklingError:  # delete corrupted cache
             os.remove(self.file_path)
             return []
+
+    def clear(self):
+        os.remove(self.file_path)
