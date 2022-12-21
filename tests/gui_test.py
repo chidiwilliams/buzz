@@ -124,26 +124,26 @@ class TestAudioDevicesComboBox:
 
 class TestDownloadModelProgressDialog:
     def test_should_show_dialog(self, qtbot: QtBot):
-        dialog = DownloadModelProgressDialog(total_size=1234567, parent=None)
+        dialog = DownloadModelProgressDialog(parent=None)
         qtbot.add_widget(dialog)
         assert dialog.labelText() == 'Downloading resources (0%, unknown time remaining)'
 
     def test_should_update_label_on_progress(self, qtbot: QtBot):
-        dialog = DownloadModelProgressDialog(total_size=1234567, parent=None)
+        dialog = DownloadModelProgressDialog(parent=None)
         qtbot.add_widget(dialog)
-        dialog.setValue(0)
+        dialog.set_fraction_completed(0.0)
 
-        dialog.setValue(12345)
+        dialog.set_fraction_completed(0.01)
         assert dialog.labelText().startswith(
             'Downloading resources (1.00%')
 
-        dialog.setValue(123456)
+        dialog.set_fraction_completed(0.1)
         assert dialog.labelText().startswith(
             'Downloading resources (10.00%')
 
     # Other windows should not be processing while models are being downloaded
     def test_should_be_an_application_modal(self, qtbot: QtBot):
-        dialog = DownloadModelProgressDialog(total_size=1234567, parent=None)
+        dialog = DownloadModelProgressDialog(parent=None)
         qtbot.add_widget(dialog)
         assert dialog.windowModality() == Qt.WindowModality.ApplicationModal
 

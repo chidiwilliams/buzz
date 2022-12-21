@@ -203,8 +203,8 @@ class DownloadModelProgressDialog(QProgressDialog):
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.start_time = datetime.now()
 
-    def setValue(self, fraction_completed: float) -> None:
-        super().setValue(int(fraction_completed * self.maximum()))
+    def set_fraction_completed(self, fraction_completed: float) -> None:
+        self.setValue(int(fraction_completed * self.maximum()))
 
         if fraction_completed > 0.0:
             time_spent = (datetime.now() - self.start_time).total_seconds()
@@ -375,7 +375,7 @@ class FileTranscriberWidget(QWidget):
                 self.on_cancel_model_progress_dialog)
 
         if self.model_download_progress_dialog is not None:
-            self.model_download_progress_dialog.setValue(fraction_completed=current_size / total_size)
+            self.model_download_progress_dialog.set_fraction_completed(fraction_completed=current_size / total_size)
 
     def on_download_model_error(self, error: str):
         show_model_download_error_dialog(self, error)
@@ -590,7 +590,7 @@ class RecordingTranscriberWidget(QWidget):
                 self.on_cancel_model_progress_dialog)
 
         if self.model_download_progress_dialog is not None:
-            self.model_download_progress_dialog.setValue(fraction_completed=current_size / total_size)
+            self.model_download_progress_dialog.set_fraction_completed(fraction_completed=current_size / total_size)
 
     def on_download_model_error(self, error: str):
         show_model_download_error_dialog(self, error)
