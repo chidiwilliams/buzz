@@ -197,22 +197,21 @@ class RecordButton(QPushButton):
 class DownloadModelProgressDialog(QProgressDialog):
     start_time: datetime
 
-    def __init__(self, total_size: int, parent: Optional[QWidget], *args) -> None:
+    def __init__(self, parent: Optional[QWidget], *args) -> None:
         super().__init__('Downloading resources (0%, unknown time remaining)',
-                         'Cancel', 0, total_size, parent, *args)
+                         'Cancel', 0, 1_000_000, parent, *args)
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.start_time = datetime.now()
 
-    def setValue(self, current_size: int) -> None:
-        super().setValue(current_size)
+    def setValue(self, fraction_completed: float) -> None:
+        super().setValue(int(fraction_completed * self.maximum()))
 
-        fraction_completed = current_size / self.maximum()
-        if fraction_completed > 0:
+        if fraction_completed > 0.0:
             time_spent = (datetime.now() - self.start_time).total_seconds()
             time_left = (time_spent / fraction_completed) - time_spent
 
             self.setLabelText(
-                f'Downloading resources ({(current_size / self.maximum()):.2%}, {humanize.naturaldelta(time_left)} remaining)')
+                f'Downloading resources ({(fraction_completed):.2%}, {humanize.naturaldelta(time_left)} remaining)')
 
 
 class RecordingTranscriberObject(QObject):
@@ -367,18 +366,16 @@ class FileTranscriberWidget(QWidget):
                              self.file_transcription_options, model_path))
         self.close()
 
-    def on_download_model_progress(self, progress: Tuple[int, int]):
+    def on_download_model_progress(self, progress: Tuple[float, float]):
         (current_size, total_size) = progress
 
         if self.model_download_progress_dialog is None:
-            self.model_download_progress_dialog = DownloadModelProgressDialog(
-                total_size=total_size, parent=self)
+            self.model_download_progress_dialog = DownloadModelProgressDialog(parent=self)
             self.model_download_progress_dialog.canceled.connect(
                 self.on_cancel_model_progress_dialog)
 
         if self.model_download_progress_dialog is not None:
-            self.model_download_progress_dialog.setValue(
-                current_size=current_size)
+            self.model_download_progress_dialog.setValue(fraction_completed=current_size / total_size)
 
     def on_download_model_error(self, error: str):
         show_model_download_error_dialog(self, error)
@@ -584,18 +581,16 @@ class RecordingTranscriberWidget(QWidget):
 
         self.model_loader_thread.start()
 
-    def on_download_model_progress(self, progress: Tuple[int, int]):
-        (current_size, _) = progress
+    def on_download_model_progress(self, progress: Tuple[float, float]):
+        (current_size, total_size) = progress
 
         if self.model_download_progress_dialog is None:
-            self.model_download_progress_dialog = DownloadModelProgressDialog(
-                total_size=100, parent=self)
+            self.model_download_progress_dialog = DownloadModelProgressDialog(parent=self)
             self.model_download_progress_dialog.canceled.connect(
                 self.on_cancel_model_progress_dialog)
 
         if self.model_download_progress_dialog is not None:
-            self.model_download_progress_dialog.setValue(
-                current_size=current_size)
+            self.model_download_progress_dialog.setValue(fraction_completed=current_size / total_size)
 
     def on_download_model_error(self, error: str):
         show_model_download_error_dialog(self, error)
