@@ -161,11 +161,12 @@ def get_test_asset(filename: str):
 
 class TestMainWindow:
 
-    def test_should_set_window_title_and_icon(self, qtbot: QtBot):
+    def test_should_set_window_title_and_icon(self, qtbot):
         window = MainWindow()
         qtbot.add_widget(window)
         assert window.windowTitle() == 'Buzz'
         assert window.windowIcon().pixmap(QSize(64, 64)).isNull() is False
+        window.close()
 
     def test_should_run_transcription_task(self, qtbot: QtBot, tasks_cache):
         window = MainWindow(tasks_cache=tasks_cache)
