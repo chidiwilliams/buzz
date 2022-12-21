@@ -36,17 +36,17 @@ class ModelLoader(QObject):
         try:
             if self.use_whisper_cpp:
                 root = user_cache_dir('Buzz')
-                url = f'https://ggml.buzz.chidiwilliams.com/ggml-model-whisper-{self.name}.bin'
+                url = f'https://huggingface.co/datasets/ggerganov/whisper.cpp/resolve/main/ggml-{self.name}.bin'
+                model_path = os.path.join(root, f'ggml-model-whisper-{self.name}.bin')
             else:
                 root = os.getenv(
                     "XDG_CACHE_HOME",
                     os.path.join(os.path.expanduser("~"), ".cache", "whisper")
                 )
                 url = whisper._MODELS[self.name]
+                model_path = os.path.join(root, os.path.basename(url))
 
             os.makedirs(root, exist_ok=True)
-
-            model_path = os.path.join(root, os.path.basename(url))
 
             if os.path.exists(model_path) and not os.path.isfile(model_path):
                 raise RuntimeError(
