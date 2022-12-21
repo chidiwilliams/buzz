@@ -211,7 +211,7 @@ class DownloadModelProgressDialog(QProgressDialog):
             time_left = (time_spent / fraction_completed) - time_spent
 
             self.setLabelText(
-                f'Downloading resources ({fraction_completed :.0%}, {humanize.naturaldelta(time_left)} remaining)')
+                f'Downloading model ({fraction_completed :.0%}, {humanize.naturaldelta(time_left)} remaining)')
 
 
 class RecordingTranscriberObject(QObject):

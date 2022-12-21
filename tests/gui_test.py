@@ -1,3 +1,4 @@
+import logging
 import os.path
 import pathlib
 from unittest.mock import Mock, patch
@@ -126,7 +127,7 @@ class TestDownloadModelProgressDialog:
     def test_should_show_dialog(self, qtbot: QtBot):
         dialog = DownloadModelProgressDialog(parent=None)
         qtbot.add_widget(dialog)
-        assert dialog.labelText() == 'Downloading resources (0%, unknown time remaining)'
+        assert dialog.labelText() == 'Downloading model (0%, unknown time remaining)'
 
     def test_should_update_label_on_progress(self, qtbot: QtBot):
         dialog = DownloadModelProgressDialog(parent=None)
@@ -134,12 +135,13 @@ class TestDownloadModelProgressDialog:
         dialog.set_fraction_completed(0.0)
 
         dialog.set_fraction_completed(0.01)
+        logging.debug(dialog.labelText())
         assert dialog.labelText().startswith(
-            'Downloading resources (1.00%')
+            'Downloading model (1%')
 
         dialog.set_fraction_completed(0.1)
         assert dialog.labelText().startswith(
-            'Downloading resources (10.00%')
+            'Downloading model (10%')
 
     # Other windows should not be processing while models are being downloaded
     def test_should_be_an_application_modal(self, qtbot: QtBot):
