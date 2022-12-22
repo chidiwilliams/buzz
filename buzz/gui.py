@@ -10,15 +10,17 @@ import humanize
 import sounddevice
 from PyQt6 import QtGui
 from PyQt6.QtCore import (QDateTime, QObject, Qt, QThread,
-                          QTimer, QUrl, pyqtSignal, QModelIndex, QSize)
+                          QTimer, QUrl, pyqtSignal, QModelIndex, QSize, QAbstractItemModel, QStringListModel, QPoint,
+                          QUrlQuery)
 from PyQt6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
                          QKeySequence, QPixmap, QTextCursor, QValidator)
+from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
 from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
                              QDialogButtonBox, QFileDialog, QLabel, QLineEdit,
                              QMainWindow, QMessageBox, QPlainTextEdit,
                              QProgressDialog, QPushButton, QVBoxLayout, QHBoxLayout, QMenu,
                              QWidget, QGroupBox, QToolBar, QTableWidget, QMenuBar, QFormLayout, QTableWidgetItem,
-                             QHeaderView, QAbstractItemView)
+                             QHeaderView, QAbstractItemView, QCompleter, QTreeWidget, QFrame, QTreeWidgetItem)
 from requests import get
 from whisper import tokenizer
 
@@ -26,6 +28,7 @@ from buzz.cache import TasksCache
 
 from .__version__ import VERSION
 from .model_loader import ModelLoader
+from .suggest_completion import SuggestCompletion
 from .transcriber import (SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
                           RecordingTranscriber, Task,
                           WhisperCppFileTranscriber, WhisperFileTranscriber,
@@ -964,6 +967,46 @@ class MainWindow(QMainWindow):
         super().closeEvent(event)
 
 
+class HuggingFaceSearchLineEdit(QLineEdit):
+    def __init__(self, parent: Optional[QWidget] = None):
+        super().__init__(parent)
+
+        self.timer = QTimer(self)
+        self.timer.setSingleShot(True)
+        self.timer.setInterval(250)
+        self.timer.timeout.connect(self.fetch_models)
+
+        self.popup = SuggestCompletion(self)
+        self.popup.selected.connect(self.on_popup_selected)
+
+        # Restart debounce timer each time editor text changes
+        self.textEdited.connect(self.timer.start)
+
+        self.network_manager = QNetworkAccessManager(self)
+        self.network_manager.finished.connect(self.on_request_response)
+
+    def fetch_models(self):
+        text = self.text()
+        if len(text) < 3:
+            return
+
+        url = QUrl("https://huggingface.co/api/models")
+
+        query = QUrlQuery()
+        query.addQueryItem("filter", "whisper")
+        query.addQueryItem("search", text)
+
+        url.setQuery(query)
+
+        return self.network_manager.get(QNetworkRequest(url))
+
+    def on_popup_selected(self):
+        self.timer.stop()
+
+    def on_request_response(self, reply: QNetworkReply):
+        self.popup.on_request_response(reply)
+
+
 class TranscriptionOptionsGroupBox(QGroupBox):
     transcription_options: TranscriptionOptions
     transcription_options_changed = pyqtSignal(TranscriptionOptions)
@@ -990,6 +1033,8 @@ class TranscriptionOptionsGroupBox(QGroupBox):
             parent=self)
         self.model_combo_box.model_changed.connect(self.on_model_changed)
 
+        self.hugging_face_model = HuggingFaceSearchLineEdit(parent=self)
+
         self.advanced_settings_button = AdvancedSettingsButton(self)
         self.advanced_settings_button.clicked.connect(
             self.open_advanced_settings)
@@ -997,6 +1042,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         layout.addRow('Task:', self.tasks_combo_box)
         layout.addRow('Language:', self.languages_combo_box)
         layout.addRow('Model:', self.model_combo_box)
+        layout.addRow('Hugging Face Model:', self.hugging_face_model)
         layout.addRow('', self.advanced_settings_button)
 
         self.setLayout(layout)

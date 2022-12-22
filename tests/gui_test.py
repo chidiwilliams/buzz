@@ -16,7 +16,7 @@ from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
                       ModelComboBox, RecordingTranscriberWidget,
                       TemperatureValidator, TextDisplayBox,
-                      TranscriptionTasksTableWidget, TranscriptionViewerWidget)
+                      TranscriptionTasksTableWidget, TranscriptionViewerWidget, HuggingFaceCompleter)
 from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask,
                               Model, Segment, TranscriptionOptions)
 
@@ -337,3 +337,15 @@ class TestRecordingTranscriberWidget:
         qtbot.add_widget(self.widget)
         assert self.widget.windowTitle() == 'Live Recording'
         assert self.widget.size() == QSize(400, 520)
+
+
+class TestHuggingFaceCompleter:
+    completer = HuggingFaceCompleter()
+
+    def test_should_autocompleter(self, ):
+        self.completer.setCompletionPrefix("openai")
+        completion_count = self.completer.completionCount()
+        logging.debug(completion_count)
+        for i in range(completion_count):
+            self.completer.setCurrentRow(i)
+            logging.debug(self.completer.currentCompletion())
