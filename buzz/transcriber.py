@@ -71,8 +71,7 @@ class WhisperModelSize(enum.Enum):
 
 @dataclass
 class HuggingFaceModel:
-    repository_id: str
-    model_name: str
+    id: str
 
 
 @dataclass()

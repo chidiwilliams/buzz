@@ -293,7 +293,6 @@ class FileTranscriberWidget(QWidget):
         super().__init__(parent, flags)
 
         self.setWindowTitle(file_paths_as_title(file_paths))
-        # self.setFixedSize(420, 270)
 
         self.file_paths = file_paths
         self.transcription_options = TranscriptionOptions()
@@ -323,6 +322,7 @@ class FileTranscriberWidget(QWidget):
         layout.addWidget(self.run_button, 0, Qt.AlignmentFlag.AlignRight)
 
         self.setLayout(layout)
+        self.setFixedSize(self.sizeHint())
 
     def on_transcription_options_changed(self, transcription_options: TranscriptionOptions):
         self.transcription_options = transcription_options
@@ -469,7 +469,6 @@ class RecordingTranscriberWidget(QWidget):
         layout = QVBoxLayout(self)
 
         self.setWindowTitle('Live Recording')
-        self.setFixedSize(400, 520)
 
         self.transcription_options = TranscriptionOptions(model_type=ModelType.WHISPER_CPP,
                                                           whisper_model_size=WhisperModelSize.TINY)
@@ -507,6 +506,7 @@ class RecordingTranscriberWidget(QWidget):
         layout.addWidget(self.text_box)
 
         self.setLayout(layout)
+        self.setFixedSize(self.sizeHint())
 
     def closeEvent(self, event: QCloseEvent) -> None:
         self.stop_recording()
@@ -957,27 +957,26 @@ class MainWindow(QMainWindow):
         super().closeEvent(event)
 
 
-@dataclasses.dataclass
-class HuggingFaceRepository:
-    id: str
-    bin_files: List[str]
-
-
-class HuggingFaceSearchLineEdit(QLineEdit):
-    repository_selected = pyqtSignal(HuggingFaceRepository)
-
-    def __init__(self, parent: Optional[QWidget] = None):
-        super().__init__(parent)
-
-        self.setMinimumWidth(160)
-        self.setPlaceholderText('Search Hugging Face...')
+class LineEdit(QLineEdit):
+    def __init__(self, default_text: str = '', parent: Optional[QWidget] = None):
+        super().__init__(default_text, parent)
         if platform.system() == 'Darwin':
             self.setStyleSheet('QLineEdit { padding: 4px }')
+
+
+class HuggingFaceSearchLineEdit(LineEdit):
+    model_selected = pyqtSignal(HuggingFaceModel)
+
+    def __init__(self, parent: Optional[QWidget] = None):
+        super().__init__('', parent)
+
+        self.setMinimumWidth(150)
+        self.setPlaceholderText('openai/whisper-tiny')
 
         self.timer = QTimer(self)
         self.timer.setSingleShot(True)
         self.timer.setInterval(250)
-        self.timer.timeout.connect(self.fetch_repositories)
+        self.timer.timeout.connect(self.fetch_models)
 
         # Restart debounce timer each time editor text changes
         self.textEdited.connect(self.timer.start)
@@ -1001,9 +1000,9 @@ class HuggingFaceSearchLineEdit(QLineEdit):
         item = self.popup.currentItem()
         self.setText(item.text())
         QMetaObject.invokeMethod(self, 'returnPressed')
-        self.repository_selected.emit(item.data(Qt.ItemDataRole.UserRole))
+        self.model_selected.emit(item.data(Qt.ItemDataRole.UserRole))
 
-    def fetch_repositories(self):
+    def fetch_models(self):
         text = self.text()
         if len(text) < 3:
             return
@@ -1012,7 +1011,6 @@ class HuggingFaceSearchLineEdit(QLineEdit):
 
         query = QUrlQuery()
         query.addQueryItem("filter", "whisper")
-        query.addQueryItem("full", 'true')
         query.addQueryItem("search", text)
 
         url.setQuery(query)
@@ -1024,33 +1022,27 @@ class HuggingFaceSearchLineEdit(QLineEdit):
 
     def on_request_response(self, network_reply: QNetworkReply):
         if network_reply.error() != QNetworkReply.NetworkError.NoError:
-            message = f'An error occurred while fetching the Hugging Face repositories: {network_reply.error()}'
+            message = f'An error occurred while fetching the Hugging Face models: {network_reply.error()}'
             QMessageBox.critical(self, '', message)
             return
 
-        repositories = json.loads(network_reply.readAll().data())
+        models = json.loads(network_reply.readAll().data())
 
         self.popup.setUpdatesEnabled(False)
         self.popup.clear()
 
-        for repository in repositories:
-            bin_files = []
-            for file in repository.get('siblings'):
-                filename: str = file.get('rfilename')
-                if filename.endswith('.bin'):
-                    bin_files.append(filename)
-
-            repository = HuggingFaceRepository(id=repository.get('id'), bin_files=bin_files)
+        for model in models:
+            model = HuggingFaceModel(id=model.get('id'))
 
             item = QListWidgetItem(self.popup)
-            item.setText(repository.id)
-            item.setData(Qt.ItemDataRole.UserRole, repository)
+            item.setText(model.id)
+            item.setData(Qt.ItemDataRole.UserRole, model)
 
         self.popup.setCurrentItem(self.popup.item(0))
         self.popup.setFixedWidth(self.popup.sizeHintForColumn(0) + 20)
-        self.popup.setFixedHeight(self.popup.sizeHintForRow(0) * min(len(repositories), 5))
+        self.popup.setFixedHeight(self.popup.sizeHintForRow(0) * min(len(models), 8))
         self.popup.setUpdatesEnabled(True)
-        self.popup.move(self.mapToGlobal(QPoint(0, self.height() + 5)))
+        self.popup.move(self.mapToGlobal(QPoint(0, self.height())))
         self.popup.setFocus()
         self.popup.show()
 
@@ -1085,34 +1077,6 @@ class HuggingFaceSearchLineEdit(QLineEdit):
         return False
 
 
-class HuggingFaceModelSelector(QVBoxLayout):
-    repository: HuggingFaceRepository
-    model: HuggingFaceModel
-    model_changed = pyqtSignal(HuggingFaceModel)
-
-    def __init__(self, parent: Optional[QWidget] = None):
-        super().__init__(parent)
-
-        hugging_face_line_edit = HuggingFaceSearchLineEdit(parent)
-        hugging_face_line_edit.repository_selected.connect(self.on_repository_selected)
-
-        self.hugging_face_model_selector = QComboBox(parent)
-        self.hugging_face_model_selector.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
-        self.hugging_face_model_selector.currentTextChanged.connect(self.on_model_changed)
-
-        self.addWidget(hugging_face_line_edit)
-        self.addWidget(self.hugging_face_model_selector)
-
-    def on_repository_selected(self, repository: HuggingFaceRepository):
-        self.repository = repository
-        self.hugging_face_model_selector.clear()
-        self.hugging_face_model_selector.addItems(repository.bin_files)
-
-    def on_model_changed(self, text: str):
-        self.model = HuggingFaceModel(repository_id=self.repository.id, model_name=text)
-        self.model_changed.emit(self.model)
-
-
 class TranscriptionOptionsGroupBox(QGroupBox):
     transcription_options: TranscriptionOptions
     transcription_options_changed = pyqtSignal(TranscriptionOptions)
@@ -1138,8 +1102,8 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.advanced_settings_button.clicked.connect(
             self.open_advanced_settings)
 
-        self.hugging_face_selector = HuggingFaceModelSelector()
-        self.hugging_face_selector.model_changed.connect(self.on_hugging_face_model_changed)
+        self.hugging_face_search_line_edit = HuggingFaceSearchLineEdit()
+        self.hugging_face_search_line_edit.model_selected.connect(self.on_hugging_face_model_changed)
 
         model_type_combo_box = QComboBox(self)
         model_type_combo_box.addItems([model_type.value for model_type in ModelType])
@@ -1157,9 +1121,9 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.form_layout.addRow('Language:', self.languages_combo_box)
         self.form_layout.addRow('Model:', model_type_combo_box)
         self.form_layout.addRow('', self.whisper_model_size_combo_box)
-        self.form_layout.addRow('', self.hugging_face_selector)
+        self.form_layout.addRow('', self.hugging_face_search_line_edit)
 
-        self.form_layout.setRowVisible(self.hugging_face_selector, False)
+        self.form_layout.setRowVisible(self.hugging_face_search_line_edit, False)
 
         self.form_layout.addRow('', self.advanced_settings_button)
 
@@ -1194,9 +1158,9 @@ class TranscriptionOptionsGroupBox(QGroupBox):
 
     def on_model_type_changed(self, text: str):
         model_type = ModelType(text)
-        self.form_layout.setRowVisible(self.hugging_face_selector, model_type == ModelType.HUGGING_FACE)
+        self.form_layout.setRowVisible(self.hugging_face_search_line_edit, model_type == ModelType.HUGGING_FACE)
         self.form_layout.setRowVisible(self.whisper_model_size_combo_box,
-                                       model_type == ModelType.WHISPER.value or model_type == ModelType.WHISPER_CPP)
+                                       (model_type == ModelType.WHISPER) or (model_type == ModelType.WHISPER_CPP))
         self.transcription_options.model_type = model_type
         self.transcription_options_changed.emit(self.transcription_options)
 
@@ -1257,7 +1221,6 @@ class AdvancedSettingsDialog(QDialog):
 
         self.transcription_options = transcription_options
 
-        self.setFixedSize(400, 180)
         self.setWindowTitle('Advanced Settings')
 
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton(
@@ -1268,27 +1231,28 @@ class AdvancedSettingsDialog(QDialog):
 
         default_temperature_text = ', '.join(
             [str(temp) for temp in transcription_options.temperature])
-        self.temperature_line_edit = QLineEdit(default_temperature_text, self)
+        self.temperature_line_edit = LineEdit(default_temperature_text, self)
         self.temperature_line_edit.setPlaceholderText(
             'Comma-separated, e.g. "0.0, 0.2, 0.4, 0.6, 0.8, 1.0"')
+        self.temperature_line_edit.setMinimumWidth(170)
         self.temperature_line_edit.textChanged.connect(
             self.on_temperature_changed)
         self.temperature_line_edit.setValidator(TemperatureValidator(self))
-        self.temperature_line_edit.setDisabled(
-            transcription_options.model.is_whisper_cpp())
+        self.temperature_line_edit.setEnabled(transcription_options.model_type == ModelType.WHISPER)
 
         self.initial_prompt_text_edit = QPlainTextEdit(
             transcription_options.initial_prompt, self)
         self.initial_prompt_text_edit.textChanged.connect(
             self.on_initial_prompt_changed)
-        self.initial_prompt_text_edit.setDisabled(
-            transcription_options.model.is_whisper_cpp())
+        self.initial_prompt_text_edit.setEnabled(
+            transcription_options.model_type == ModelType.WHISPER)
 
         layout.addRow('Temperature:', self.temperature_line_edit)
         layout.addRow('Initial Prompt:', self.initial_prompt_text_edit)
         layout.addWidget(button_box)
 
         self.setLayout(layout)
+        self.setFixedSize(self.sizeHint())
 
     def on_temperature_changed(self, text: str):
         try:

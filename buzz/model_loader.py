@@ -67,9 +67,10 @@ class ModelLoader(QObject):
 
         if self.model_type == ModelType.HUGGING_FACE:
             self.progress.emit((0, 100))
-            transformers_whisper.load_model(self.hugging_face_model.repository_id)
+            # Loads the model from cache or download if not in cache
+            transformers_whisper.load_model(self.hugging_face_model.id)
             self.progress.emit((100, 100))
-            self.finished.emit(self.hugging_face_model.repository_id)
+            self.finished.emit(self.hugging_face_model.id)
             return
 
     def download_model(self, url: str, file_path: str, expected_sha256: Optional[str]):
