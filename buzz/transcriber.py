@@ -25,7 +25,9 @@ import whisper
 from PyQt6.QtCore import QObject, QProcess, pyqtSignal, pyqtSlot, QThread
 from sounddevice import PortAudioError
 
+from . import transformers_whisper
 from .conn import pipe_stderr
+from .transformers_whisper import load_model
 
 # Catch exception from whisper.dll not getting loaded.
 # TODO: Remove flag and try-except when issue with loading
@@ -53,32 +55,33 @@ class Segment:
     text: str
 
 
-class Model(enum.Enum):
-    WHISPER_TINY = 'Whisper - Tiny'
-    WHISPER_BASE = 'Whisper - Base'
-    WHISPER_SMALL = 'Whisper - Small'
-    WHISPER_MEDIUM = 'Whisper - Medium'
-    WHISPER_LARGE = 'Whisper - Large'
-    WHISPER_CPP_TINY = 'Whisper.cpp - Tiny'
-    WHISPER_CPP_BASE = 'Whisper.cpp - Base'
-    WHISPER_CPP_SMALL = 'Whisper.cpp - Small'
-    WHISPER_CPP_MEDIUM = 'Whisper.cpp - Medium'
-    WHISPER_CPP_LARGE = 'Whisper.cpp - Large'
+class ModelType(enum.Enum):
+    WHISPER = 'Whisper'
+    WHISPER_CPP = 'Whisper.cpp'
+    HUGGING_FACE = 'Hugging Face'
 
-    def is_whisper_cpp(self) -> bool:
-        model_type, _ = self.value.split(' - ')
-        return model_type == 'Whisper.cpp'
 
-    def model_name(self) -> str:
-        _, model_name = self.value.split(' - ')
-        return model_name.lower()
+class WhisperModelSize(enum.Enum):
+    TINY = 'tiny'
+    BASE = 'base'
+    SMALL = 'small'
+    MEDIUM = 'medium'
+    LARGE = 'large'
+
+
+@dataclass
+class HuggingFaceModel:
+    repository_id: str
+    model_name: str
 
 
 @dataclass()
 class TranscriptionOptions:
     language: Optional[str] = None
     task: Task = Task.TRANSCRIBE
-    model: Model = Model.WHISPER_TINY
+    model_type: ModelType = ModelType.WHISPER
+    whisper_model_size: Optional[WhisperModelSize] = WhisperModelSize.TINY
+    hugging_face_model: Optional[HuggingFaceModel] = None
     word_level_timings: bool = False
     temperature: Tuple[float, ...] = DEFAULT_WHISPER_TEMPERATURE
     initial_prompt: str = ''
@@ -390,6 +393,8 @@ class WhisperFileTranscriber(QObject):
         self.temperature = task.transcription_options.temperature
         self.initial_prompt = task.transcription_options.initial_prompt
         self.model_path = task.model_path
+        self.transcription_options = task.transcription_options
+        self.transcription_task = task
         self.segments = []
 
     @pyqtSlot()
@@ -406,13 +411,8 @@ class WhisperFileTranscriber(QObject):
 
         recv_pipe, send_pipe = multiprocessing.Pipe(duplex=False)
 
-        self.current_process = multiprocessing.Process(
-            target=transcribe_whisper,
-            args=(
-                send_pipe, model_path, self.file_path,
-                self.language, self.task, self.word_level_timings,
-                self.temperature, self.initial_prompt
-            ))
+        self.current_process = multiprocessing.Process(target=transcribe_whisper,
+                                                       args=(send_pipe, self.transcription_task))
         self.current_process.start()
 
         self.read_line_thread = Thread(
@@ -467,26 +467,29 @@ class WhisperFileTranscriber(QObject):
                     continue
 
 
-def transcribe_whisper(
-        stderr_conn: Connection, model_path: str, file_path: str,
-        language: Optional[str], task: Task,
-        word_level_timings: bool, temperature: Tuple[float, ...], initial_prompt: str):
+def transcribe_whisper(stderr_conn: Connection, task: FileTranscriptionTask):
     with pipe_stderr(stderr_conn):
-        model = whisper.load_model(model_path)
-
-        if word_level_timings:
-            stable_whisper.modify_model(model)
-            result = model.transcribe(
-                audio=file_path, language=language,
-                task=task.value, temperature=temperature,
-                initial_prompt=initial_prompt, pbar=True)
+        if task.transcription_options.model_type == ModelType.HUGGING_FACE:
+            model = transformers_whisper.load_model(task.model_path)
+            result = model.transcribe(audio_path=task.file_path, language=task.transcription_options.language,
+                                      task=task.transcription_options.task.value, verbose=False)
+            whisper_segments = result.get('segments')
         else:
-            result = model.transcribe(
-                audio=file_path, language=language, task=task.value, temperature=temperature,
-                initial_prompt=initial_prompt, verbose=False)
-
-        whisper_segments = stable_whisper.group_word_timestamps(
-            result) if word_level_timings else result.get('segments')
+            model = whisper.load_model(task.model_path)
+            if task.transcription_options.word_level_timings:
+                stable_whisper.modify_model(model)
+                result = model.transcribe(
+                    audio=task.file_path, language=task.transcription_options.language,
+                    task=task.transcription_options.task.value, temperature=task.transcription_options.temperature,
+                    initial_prompt=task.transcription_options.initial_prompt, pbar=True)
+                whisper_segments = stable_whisper.group_word_timestamps(result)
+            else:
+                result = model.transcribe(
+                    audio=task.file_path, language=task.transcription_options.language,
+                    task=task.transcription_options.task.value,
+                    temperature=task.transcription_options.temperature,
+                    initial_prompt=task.transcription_options.initial_prompt, verbose=False)
+                whisper_segments = result.get('segments')
 
         segments = [
             Segment(
@@ -638,7 +641,7 @@ class FileTranscriberQueueWorker(QObject):
             self.completed.emit()
             return
 
-        if self.current_task.transcription_options.model.is_whisper_cpp():
+        if self.current_task.transcription_options.model_type == ModelType.WHISPER_CPP:
             self.current_transcriber = WhisperCppFileTranscriber(
                 task=self.current_task)
         else:
