@@ -1,6 +1,7 @@
 import dataclasses
 import enum
 import json
+import logging
 import os
 import platform
 import random
@@ -103,7 +104,7 @@ class AudioDevicesComboBox(QComboBox):
 
 class LanguagesComboBox(QComboBox):
     """LanguagesComboBox displays a list of languages available to use with Whisper"""
-    # language is a languge key from whisper.tokenizer.LANGUAGES or '' for "detect language"
+    # language is a language key from whisper.tokenizer.LANGUAGES or '' for "detect language"
     languageChanged = pyqtSignal(str)
 
     def __init__(self, default_language: Optional[str], parent: Optional[QWidget] = None) -> None:
@@ -271,7 +272,7 @@ class TimerLabel(QLabel):
 
 
 def show_model_download_error_dialog(parent: QWidget, error: str):
-    message = f'Unable to load the Whisper model: {error}. Please retry or check the application logs for more ' \
+    message = f"An error occurred while loading the Whisper model: {error}{'' if error.endswith('.') else '.'}" \
               f'information. '
     QMessageBox.critical(parent, '', message)
 
@@ -326,6 +327,7 @@ class FileTranscriberWidget(QWidget):
 
     def on_transcription_options_changed(self, transcription_options: TranscriptionOptions):
         self.transcription_options = transcription_options
+        self.word_level_timings_checkbox.setDisabled(self.transcription_options.model_type == ModelType.HUGGING_FACE)
 
     def on_click_run(self):
         self.run_button.setDisabled(True)
@@ -370,6 +372,9 @@ class FileTranscriberWidget(QWidget):
             self.model_download_progress_dialog.set_fraction_completed(fraction_completed=current_size / total_size)
 
     def on_download_model_error(self, error: str):
+        # Close transcriber progress correctly
+        self.model_download_progress_dialog.set_fraction_completed(fraction_completed=1)
+
         show_model_download_error_dialog(self, error)
         self.reset_transcriber_controls()
 
@@ -383,6 +388,7 @@ class FileTranscriberWidget(QWidget):
 
     def reset_model_download(self):
         if self.model_download_progress_dialog is not None:
+            self.model_download_progress_dialog.close()
             self.model_download_progress_dialog = None
 
     def on_word_level_timings_changed(self, value: int):
@@ -980,6 +986,7 @@ class HuggingFaceSearchLineEdit(LineEdit):
 
         # Restart debounce timer each time editor text changes
         self.textEdited.connect(self.timer.start)
+        self.textEdited.connect(self.on_text_edited)
 
         self.network_manager = QNetworkAccessManager(self)
         self.network_manager.finished.connect(self.on_request_response)
@@ -992,6 +999,10 @@ class HuggingFaceSearchLineEdit(LineEdit):
         self.popup.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.popup.installEventFilter(self)
         self.popup.itemClicked.connect(self.on_select_item)
+
+    def on_text_edited(self):
+        model = HuggingFaceModel(id=self.text())
+        self.model_selected.emit(model)
 
     def on_select_item(self):
         self.popup.hide()
@@ -1022,8 +1033,7 @@ class HuggingFaceSearchLineEdit(LineEdit):
 
     def on_request_response(self, network_reply: QNetworkReply):
         if network_reply.error() != QNetworkReply.NetworkError.NoError:
-            message = f'An error occurred while fetching the Hugging Face models: {network_reply.error()}'
-            QMessageBox.critical(self, '', message)
+            logging.debug('Error fetching Hugging Face models: %s', network_reply.error())
             return
 
         models = json.loads(network_reply.readAll().data())
@@ -1040,7 +1050,7 @@ class HuggingFaceSearchLineEdit(LineEdit):
 
         self.popup.setCurrentItem(self.popup.item(0))
         self.popup.setFixedWidth(self.popup.sizeHintForColumn(0) + 20)
-        self.popup.setFixedHeight(self.popup.sizeHintForRow(0) * min(len(models), 8))
+        self.popup.setFixedHeight(self.popup.sizeHintForRow(0) * min(len(models), 8))  # show max 8 models, then scroll
         self.popup.setUpdatesEnabled(True)
         self.popup.move(self.mapToGlobal(QPoint(0, self.height())))
         self.popup.setFocus()

@@ -67,8 +67,14 @@ class ModelLoader(QObject):
 
         if self.model_type == ModelType.HUGGING_FACE:
             self.progress.emit((0, 100))
-            # Loads the model from cache or download if not in cache
-            transformers_whisper.load_model(self.hugging_face_model.id)
+
+            try:
+                # Loads the model from cache or download if not in cache
+                transformers_whisper.load_model(self.hugging_face_model.id)
+            except (FileNotFoundError, EnvironmentError) as exception:
+                self.error.emit(f'{exception}')
+                return
+
             self.progress.emit((100, 100))
             self.finished.emit(self.hugging_face_model.id)
             return

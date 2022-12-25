@@ -470,7 +470,8 @@ def transcribe_whisper(stderr_conn: Connection, task: FileTranscriptionTask):
     with pipe_stderr(stderr_conn):
         if task.transcription_options.model_type == ModelType.HUGGING_FACE:
             model = transformers_whisper.load_model(task.model_path)
-            result = model.transcribe(audio_path=task.file_path, language=task.transcription_options.language,
+            language = task.transcription_options.language if task.transcription_options.language is not None else 'en'
+            result = model.transcribe(audio_path=task.file_path, language=language,
                                       task=task.transcription_options.task.value, verbose=False)
             whisper_segments = result.get('segments')
         else:
