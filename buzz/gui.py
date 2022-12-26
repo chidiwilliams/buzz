@@ -1,4 +1,7 @@
+import dataclasses
 import enum
+import json
+import logging
 import os
 import platform
 import random
@@ -10,27 +13,28 @@ import humanize
 import sounddevice
 from PyQt6 import QtGui
 from PyQt6.QtCore import (QDateTime, QObject, Qt, QThread,
-                          QTimer, QUrl, pyqtSignal, QModelIndex, QSize)
+                          QTimer, QUrl, pyqtSignal, QModelIndex, QSize, QPoint,
+                          QUrlQuery, QMetaObject, QEvent)
 from PyQt6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
-                         QKeySequence, QPixmap, QTextCursor, QValidator)
+                         QKeySequence, QPixmap, QTextCursor, QValidator, QKeyEvent)
+from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
 from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
                              QDialogButtonBox, QFileDialog, QLabel, QLineEdit,
                              QMainWindow, QMessageBox, QPlainTextEdit,
                              QProgressDialog, QPushButton, QVBoxLayout, QHBoxLayout, QMenu,
                              QWidget, QGroupBox, QToolBar, QTableWidget, QMenuBar, QFormLayout, QTableWidgetItem,
-                             QHeaderView, QAbstractItemView)
+                             QHeaderView, QAbstractItemView, QListWidget, QListWidgetItem)
 from requests import get
 from whisper import tokenizer
 
 from buzz.cache import TasksCache
-
 from .__version__ import VERSION
-from .model_loader import ModelLoader
+from .model_loader import ModelLoader, WhisperModelSize, ModelType, TranscriptionModel
 from .transcriber import (SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
                           RecordingTranscriber, Task,
                           WhisperCppFileTranscriber, WhisperFileTranscriber,
                           get_default_output_file_path, segments_to_text, write_output, TranscriptionOptions,
-                          Model, FileTranscriberQueueWorker, FileTranscriptionTask)
+                          FileTranscriberQueueWorker, FileTranscriptionTask)
 
 APP_NAME = 'Buzz'
 
@@ -99,7 +103,7 @@ class AudioDevicesComboBox(QComboBox):
 
 class LanguagesComboBox(QComboBox):
     """LanguagesComboBox displays a list of languages available to use with Whisper"""
-    # language is a languge key from whisper.tokenizer.LANGUAGES or '' for "detect language"
+    # language is a language key from whisper.tokenizer.LANGUAGES or '' for "detect language"
     languageChanged = pyqtSignal(str)
 
     def __init__(self, default_language: Optional[str], parent: Optional[QWidget] = None) -> None:
@@ -134,20 +138,6 @@ class TasksComboBox(QComboBox):
 
     def on_index_changed(self, index: int):
         self.taskChanged.emit(self.tasks[index])
-
-
-class ModelComboBox(QComboBox):
-    model_changed = pyqtSignal(Model)
-
-    def __init__(self, default_model: Model, parent: Optional[QWidget], *args) -> None:
-        super().__init__(parent, *args)
-        self.models = [model for model in Model]
-        self.addItems([model.value for model in self.models])
-        self.currentIndexChanged.connect(self.on_index_changed)
-        self.setCurrentText(default_model.value)
-
-    def on_index_changed(self, index: int):
-        self.model_changed.emit(self.models[index])
 
 
 class TextDisplayBox(QPlainTextEdit):
@@ -202,6 +192,7 @@ class DownloadModelProgressDialog(QProgressDialog):
                          'Cancel', 0, 100, parent, *args)
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.start_time = datetime.now()
+        self.setFixedSize(self.size())
 
     def set_fraction_completed(self, fraction_completed: float) -> None:
         self.setValue(int(fraction_completed * self.maximum()))
@@ -280,7 +271,7 @@ class TimerLabel(QLabel):
 
 
 def show_model_download_error_dialog(parent: QWidget, error: str):
-    message = f'Unable to load the Whisper model: {error}. Please retry or check the application logs for more ' \
+    message = f"An error occurred while loading the Whisper model: {error}{'' if error.endswith('.') else '.'}" \
               f'information. '
     QMessageBox.critical(parent, '', message)
 
@@ -302,7 +293,6 @@ class FileTranscriberWidget(QWidget):
         super().__init__(parent, flags)
 
         self.setWindowTitle(file_paths_as_title(file_paths))
-        self.setFixedSize(420, 270)
 
         self.file_paths = file_paths
         self.transcription_options = TranscriptionOptions()
@@ -332,15 +322,19 @@ class FileTranscriberWidget(QWidget):
         layout.addWidget(self.run_button, 0, Qt.AlignmentFlag.AlignRight)
 
         self.setLayout(layout)
+        self.setFixedSize(self.sizeHint())
 
     def on_transcription_options_changed(self, transcription_options: TranscriptionOptions):
         self.transcription_options = transcription_options
+        self.word_level_timings_checkbox.setDisabled(
+            self.transcription_options.model.model_type == ModelType.HUGGING_FACE)
 
     def on_click_run(self):
         self.run_button.setDisabled(True)
 
         self.transcriber_thread = QThread()
         self.model_loader = ModelLoader(model=self.transcription_options.model)
+        self.model_loader.moveToThread(self.transcriber_thread)
 
         self.transcriber_thread.started.connect(self.model_loader.run)
         self.model_loader.finished.connect(
@@ -378,6 +372,7 @@ class FileTranscriberWidget(QWidget):
             self.model_download_progress_dialog.set_fraction_completed(fraction_completed=current_size / total_size)
 
     def on_download_model_error(self, error: str):
+        self.reset_model_download()
         show_model_download_error_dialog(self, error)
         self.reset_transcriber_controls()
 
@@ -391,6 +386,7 @@ class FileTranscriberWidget(QWidget):
 
     def reset_model_download(self):
         if self.model_download_progress_dialog is not None:
+            self.model_download_progress_dialog.close()
             self.model_download_progress_dialog = None
 
     def on_word_level_timings_changed(self, value: int):
@@ -477,9 +473,9 @@ class RecordingTranscriberWidget(QWidget):
         layout = QVBoxLayout(self)
 
         self.setWindowTitle('Live Recording')
-        self.setFixedSize(400, 520)
 
-        self.transcription_options = TranscriptionOptions(model=Model.WHISPER_CPP_TINY)
+        self.transcription_options = TranscriptionOptions(model=TranscriptionModel(model_type=ModelType.WHISPER_CPP,
+                                                                                   whisper_model_size=WhisperModelSize.TINY))
 
         self.audio_devices_combo_box = AudioDevicesComboBox(self)
         self.audio_devices_combo_box.device_changed.connect(
@@ -514,6 +510,7 @@ class RecordingTranscriberWidget(QWidget):
         layout.addWidget(self.text_box)
 
         self.setLayout(layout)
+        self.setFixedSize(self.sizeHint())
 
     def closeEvent(self, event: QCloseEvent) -> None:
         self.stop_recording()
@@ -534,8 +531,8 @@ class RecordingTranscriberWidget(QWidget):
     def start_recording(self):
         self.record_button.setDisabled(True)
 
-        use_whisper_cpp = self.transcription_options.model.is_whisper_cpp(
-        ) and self.transcription_options.language is not None
+        use_whisper_cpp = self.transcription_options.model.model_type == ModelType.WHISPER_CPP and \
+                          self.transcription_options.language is not None
 
         def start_recording_transcription(model_path: str):
             # Clear text box placeholder because the first chunk takes a while to process
@@ -593,6 +590,7 @@ class RecordingTranscriberWidget(QWidget):
             self.model_download_progress_dialog.set_fraction_completed(fraction_completed=current_size / total_size)
 
     def on_download_model_error(self, error: str):
+        self.reset_model_download()
         show_model_download_error_dialog(self, error)
         self.stop_recording()
         self.record_button.force_stop()
@@ -620,6 +618,7 @@ class RecordingTranscriberWidget(QWidget):
 
     def reset_model_download(self):
         if self.model_download_progress_dialog is not None:
+            self.model_download_progress_dialog.close()
             self.model_download_progress_dialog = None
 
 
@@ -964,6 +963,131 @@ class MainWindow(QMainWindow):
         super().closeEvent(event)
 
 
+class LineEdit(QLineEdit):
+    def __init__(self, default_text: str = '', parent: Optional[QWidget] = None):
+        super().__init__(default_text, parent)
+        if platform.system() == 'Darwin':
+            self.setStyleSheet('QLineEdit { padding: 4px }')
+
+
+# Adapted from https://github.com/ismailsunni/scripts/blob/master/autocomplete_from_url.py
+class HuggingFaceSearchLineEdit(LineEdit):
+    model_selected = pyqtSignal(str)
+    popup: QListWidget
+
+    def __init__(self, parent: Optional[QWidget] = None):
+        super().__init__('', parent)
+
+        self.setMinimumWidth(150)
+        self.setPlaceholderText('openai/whisper-tiny')
+
+        self.timer = QTimer(self)
+        self.timer.setSingleShot(True)
+        self.timer.setInterval(250)
+        self.timer.timeout.connect(self.fetch_models)
+
+        # Restart debounce timer each time editor text changes
+        self.textEdited.connect(self.timer.start)
+        self.textEdited.connect(self.on_text_edited)
+
+        self.network_manager = QNetworkAccessManager(self)
+        self.network_manager.finished.connect(self.on_request_response)
+
+        self.popup = QListWidget()
+        self.popup.setWindowFlags(Qt.WindowType.Popup)
+        self.popup.setFocusProxy(self)
+        self.popup.setMouseTracking(True)
+        self.popup.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.popup.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.popup.installEventFilter(self)
+        self.popup.itemClicked.connect(self.on_select_item)
+
+    def on_text_edited(self, text: str):
+        self.model_selected.emit(text)
+
+    def on_select_item(self):
+        self.popup.hide()
+        self.setFocus()
+
+        item = self.popup.currentItem()
+        self.setText(item.text())
+        QMetaObject.invokeMethod(self, 'returnPressed')
+        self.model_selected.emit(item.data(Qt.ItemDataRole.UserRole))
+
+    def fetch_models(self):
+        text = self.text()
+        if len(text) < 3:
+            return
+
+        url = QUrl("https://huggingface.co/api/models")
+
+        query = QUrlQuery()
+        query.addQueryItem("filter", "whisper")
+        query.addQueryItem("search", text)
+
+        url.setQuery(query)
+
+        return self.network_manager.get(QNetworkRequest(url))
+
+    def on_popup_selected(self):
+        self.timer.stop()
+
+    def on_request_response(self, network_reply: QNetworkReply):
+        if network_reply.error() != QNetworkReply.NetworkError.NoError:
+            logging.debug('Error fetching Hugging Face models: %s', network_reply.error())
+            return
+
+        models = json.loads(network_reply.readAll().data())
+
+        self.popup.setUpdatesEnabled(False)
+        self.popup.clear()
+
+        for model in models:
+            model_id = model.get('id')
+
+            item = QListWidgetItem(self.popup)
+            item.setText(model_id)
+            item.setData(Qt.ItemDataRole.UserRole, model_id)
+
+        self.popup.setCurrentItem(self.popup.item(0))
+        self.popup.setFixedWidth(self.popup.sizeHintForColumn(0) + 20)
+        self.popup.setFixedHeight(self.popup.sizeHintForRow(0) * min(len(models), 8))  # show max 8 models, then scroll
+        self.popup.setUpdatesEnabled(True)
+        self.popup.move(self.mapToGlobal(QPoint(0, self.height())))
+        self.popup.setFocus()
+        self.popup.show()
+
+    def eventFilter(self, target: QObject, event: QEvent):
+        if hasattr(self, 'popup') is False or target != self.popup:
+            return False
+
+        if event.type() == QEvent.Type.MouseButtonPress:
+            self.popup.hide()
+            self.setFocus()
+            return True
+
+        if isinstance(event, QKeyEvent):
+            key = event.key()
+            if key in [Qt.Key.Key_Enter, Qt.Key.Key_Return]:
+                self.on_select_item()
+                return True
+
+            if key == Qt.Key.Key_Escape:
+                self.setFocus()
+                self.popup.hide()
+                return True
+
+            if key in [Qt.Key.Key_Up, Qt.Key.Key_Down, Qt.Key.Key_Home, Qt.Key.Key_End, Qt.Key.Key_PageUp,
+                       Qt.Key.Key_PageDown]:
+                return False
+
+            self.setFocus()
+            self.event(event)
+            self.popup.hide()
+
+        return False
+
+
 class TranscriptionOptionsGroupBox(QGroupBox):
     transcription_options: TranscriptionOptions
     transcription_options_changed = pyqtSignal(TranscriptionOptions)
@@ -972,7 +1096,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         super().__init__(title='', parent=parent)
         self.transcription_options = default_transcription_options
 
-        layout = QFormLayout(self)
+        self.form_layout = QFormLayout(self)
 
         self.tasks_combo_box = TasksComboBox(
             default_task=self.transcription_options.task,
@@ -985,28 +1109,39 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.languages_combo_box.languageChanged.connect(
             self.on_language_changed)
 
-        self.model_combo_box = ModelComboBox(
-            default_model=self.transcription_options.model,
-            parent=self)
-        self.model_combo_box.model_changed.connect(self.on_model_changed)
-
         self.advanced_settings_button = AdvancedSettingsButton(self)
         self.advanced_settings_button.clicked.connect(
             self.open_advanced_settings)
 
-        layout.addRow('Task:', self.tasks_combo_box)
-        layout.addRow('Language:', self.languages_combo_box)
-        layout.addRow('Model:', self.model_combo_box)
-        layout.addRow('', self.advanced_settings_button)
+        self.hugging_face_search_line_edit = HuggingFaceSearchLineEdit()
+        self.hugging_face_search_line_edit.model_selected.connect(self.on_hugging_face_model_changed)
 
-        self.setLayout(layout)
+        model_type_combo_box = QComboBox(self)
+        model_type_combo_box.addItems([model_type.value for model_type in ModelType])
+        model_type_combo_box.setCurrentText(default_transcription_options.model.model_type.value)
+        model_type_combo_box.currentTextChanged.connect(self.on_model_type_changed)
+
+        self.whisper_model_size_combo_box = QComboBox(self)
+        self.whisper_model_size_combo_box.addItems([size.value.title() for size in WhisperModelSize])
+        if default_transcription_options.model.whisper_model_size is not None:
+            self.whisper_model_size_combo_box.setCurrentText(
+                default_transcription_options.model.whisper_model_size.value.title())
+        self.whisper_model_size_combo_box.currentTextChanged.connect(self.on_whisper_model_size_changed)
+
+        self.form_layout.addRow('Task:', self.tasks_combo_box)
+        self.form_layout.addRow('Language:', self.languages_combo_box)
+        self.form_layout.addRow('Model:', model_type_combo_box)
+        self.form_layout.addRow('', self.whisper_model_size_combo_box)
+        self.form_layout.addRow('', self.hugging_face_search_line_edit)
+
+        self.form_layout.setRowVisible(self.hugging_face_search_line_edit, False)
+
+        self.form_layout.addRow('', self.advanced_settings_button)
+
+        self.setLayout(self.form_layout)
 
     def on_language_changed(self, language: str):
         self.transcription_options.language = language
-        self.transcription_options_changed.emit(self.transcription_options)
-
-    def on_model_changed(self, model: Model):
-        self.transcription_options.model = model
         self.transcription_options_changed.emit(self.transcription_options)
 
     def on_task_changed(self, task: Task):
@@ -1031,6 +1166,23 @@ class TranscriptionOptionsGroupBox(QGroupBox):
     def on_transcription_options_changed(self, transcription_options: TranscriptionOptions):
         self.transcription_options = transcription_options
         self.transcription_options_changed.emit(transcription_options)
+
+    def on_model_type_changed(self, text: str):
+        model_type = ModelType(text)
+        self.form_layout.setRowVisible(self.hugging_face_search_line_edit, model_type == ModelType.HUGGING_FACE)
+        self.form_layout.setRowVisible(self.whisper_model_size_combo_box,
+                                       (model_type == ModelType.WHISPER) or (model_type == ModelType.WHISPER_CPP))
+        self.transcription_options.model_type = model_type
+        self.transcription_options_changed.emit(self.transcription_options)
+
+    def on_whisper_model_size_changed(self, text: str):
+        model_size = WhisperModelSize(text.lower())
+        self.transcription_options.model.whisper_model_size = model_size
+        self.transcription_options_changed.emit(self.transcription_options)
+
+    def on_hugging_face_model_changed(self, model: str):
+        self.transcription_options.hugging_face_model = model
+        self.transcription_options_changed.emit(self.transcription_options)
 
 
 class MenuBar(QMenuBar):
@@ -1080,7 +1232,6 @@ class AdvancedSettingsDialog(QDialog):
 
         self.transcription_options = transcription_options
 
-        self.setFixedSize(400, 180)
         self.setWindowTitle('Advanced Settings')
 
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton(
@@ -1091,27 +1242,28 @@ class AdvancedSettingsDialog(QDialog):
 
         default_temperature_text = ', '.join(
             [str(temp) for temp in transcription_options.temperature])
-        self.temperature_line_edit = QLineEdit(default_temperature_text, self)
+        self.temperature_line_edit = LineEdit(default_temperature_text, self)
         self.temperature_line_edit.setPlaceholderText(
             'Comma-separated, e.g. "0.0, 0.2, 0.4, 0.6, 0.8, 1.0"')
+        self.temperature_line_edit.setMinimumWidth(170)
         self.temperature_line_edit.textChanged.connect(
             self.on_temperature_changed)
         self.temperature_line_edit.setValidator(TemperatureValidator(self))
-        self.temperature_line_edit.setDisabled(
-            transcription_options.model.is_whisper_cpp())
+        self.temperature_line_edit.setEnabled(transcription_options.model.model_type == ModelType.WHISPER)
 
         self.initial_prompt_text_edit = QPlainTextEdit(
             transcription_options.initial_prompt, self)
         self.initial_prompt_text_edit.textChanged.connect(
             self.on_initial_prompt_changed)
-        self.initial_prompt_text_edit.setDisabled(
-            transcription_options.model.is_whisper_cpp())
+        self.initial_prompt_text_edit.setEnabled(
+            transcription_options.model.model_type == ModelType.WHISPER)
 
         layout.addRow('Temperature:', self.temperature_line_edit)
         layout.addRow('Initial Prompt:', self.initial_prompt_text_edit)
         layout.addWidget(button_box)
 
         self.setLayout(layout)
+        self.setFixedSize(self.sizeHint())
 
     def on_temperature_changed(self, text: str):
         try:

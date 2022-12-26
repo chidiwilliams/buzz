@@ -8,30 +8,18 @@ from unittest.mock import Mock
 import pytest
 from pytestqt.qtbot import QtBot
 
-from buzz.model_loader import ModelLoader
-from buzz.transcriber import (FileTranscriberQueueWorker, FileTranscriptionOptions, FileTranscriptionTask, OutputFormat, RecordingTranscriber, Segment, Task,
-                              WhisperCpp, WhisperCppFileTranscriber,
+from buzz.model_loader import WhisperModelSize, ModelType, TranscriptionModel
+from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask, OutputFormat, RecordingTranscriber,
+                              Segment, Task, WhisperCpp, WhisperCppFileTranscriber,
                               WhisperFileTranscriber,
                               get_default_output_file_path, to_timestamp,
-                              whisper_cpp_params, write_output, TranscriptionOptions, Model)
-
-
-def get_model_path(model: Model) -> str:
-    model_loader = ModelLoader(model=model)
-    model_path = ''
-
-    def on_load_model(path: str):
-        nonlocal model_path
-        model_path = path
-
-    model_loader.finished.connect(on_load_model)
-    model_loader.run()
-    return model_path
+                              whisper_cpp_params, write_output, TranscriptionOptions)
+from tests.model_loader import get_model_path
 
 
 class TestRecordingTranscriber:
     def test_transcriber(self):
-        model_path = get_model_path(Model.WHISPER_CPP_TINY)
+        model_path = get_model_path(transcription_model=TranscriptionModel())
         transcriber = RecordingTranscriber(
             model_path=model_path, use_whisper_cpp=True, language='en',
             task=Task.TRANSCRIBE)
@@ -49,11 +37,15 @@ class TestWhisperCppFileTranscriber:
         file_transcription_options = FileTranscriptionOptions(
             file_paths=['testdata/whisper-french.mp3'])
         transcription_options = TranscriptionOptions(language='fr', task=Task.TRANSCRIBE,
-                                                     word_level_timings=word_level_timings)
+                                                     word_level_timings=word_level_timings,
+                                                     model=TranscriptionModel(model_type=ModelType.WHISPER_CPP,
+                                                                              whisper_model_size=WhisperModelSize.TINY))
 
-        model_path = get_model_path(Model.WHISPER_CPP_TINY)
+        model_path = get_model_path(transcription_options.model)
         transcriber = WhisperCppFileTranscriber(
-            task=FileTranscriptionTask(file_path='testdata/whisper-french.mp3', transcription_options=transcription_options, file_transcription_options=file_transcription_options, model_path=model_path))
+            task=FileTranscriptionTask(file_path='testdata/whisper-french.mp3',
+                                       transcription_options=transcription_options,
+                                       file_transcription_options=file_transcription_options, model_path=model_path))
         mock_progress = Mock()
         mock_completed = Mock()
         transcriber.progress.connect(mock_progress)
@@ -81,44 +73,51 @@ class TestWhisperFileTranscriber:
         assert srt.endswith('.srt')
 
     @pytest.mark.parametrize(
-        'word_level_timings,expected_segments',
+        'word_level_timings,expected_segments,model,check_progress',
         [
-            (False, [
-                Segment(
-                    0, 6560,
-                    ' Bienvenue dans Passe-Relle. Un podcast pensé pour évêiller la curiosité des apprenances'),
-            ]),
-            (True, [Segment(40, 299, ' Bien'), Segment(299, 329, 'venue dans')])
+            (False, [Segment(0, 6560,
+                             ' Bienvenue dans Passe-Relle. Un podcast pensé pour évêiller la curiosité des apprenances')],
+             TranscriptionModel(model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY), True),
+            (True, [Segment(40, 299, ' Bien'), Segment(299, 329, 'venue dans')],
+             TranscriptionModel(model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY), True),
+            (False, [Segment(0, 8517,
+                             ' Bienvenue dans Passe-Relle. Un podcast pensé pour évêyer la curiosité des apprenances '
+                             'et des apprenances de français.')],
+             TranscriptionModel(model_type=ModelType.HUGGING_FACE,
+                                hugging_face_model_id='openai/whisper-tiny'), False)
         ])
-    def test_transcribe(self, qtbot: QtBot, word_level_timings: bool, expected_segments: List[Segment]):
-        model_path = get_model_path(Model.WHISPER_TINY)
-
+    def test_transcribe(self, qtbot: QtBot, word_level_timings: bool, expected_segments: List[Segment],
+                        model: TranscriptionModel, check_progress):
         mock_progress = Mock()
         mock_completed = Mock()
         transcription_options = TranscriptionOptions(language='fr', task=Task.TRANSCRIBE,
-                                                     word_level_timings=word_level_timings)
+                                                     word_level_timings=word_level_timings,
+                                                     model=model)
+        model_path = get_model_path(transcription_options.model)
         file_transcription_options = FileTranscriptionOptions(
             file_paths=['testdata/whisper-french.mp3'])
 
         transcriber = WhisperFileTranscriber(
-            task=FileTranscriptionTask(transcription_options=transcription_options, file_transcription_options=file_transcription_options, file_path='testdata/whisper-french.mp3', model_path=model_path))
+            task=FileTranscriptionTask(transcription_options=transcription_options,
+                                       file_transcription_options=file_transcription_options,
+                                       file_path='testdata/whisper-french.mp3', model_path=model_path))
         transcriber.progress.connect(mock_progress)
         transcriber.completed.connect(mock_completed)
         with qtbot.wait_signal(transcriber.completed, timeout=10 * 6000):
             transcriber.run()
 
-        # Reports progress at 0, 0<progress<100, and 100
-        assert any(
-            [call_args.args[0] == (0, 100) for call_args in mock_progress.call_args_list])
-        assert any(
-            [call_args.args[0] == (100, 100) for call_args in mock_progress.call_args_list])
-        assert any(
-            [(0 < call_args.args[0][0] < 100) and (call_args.args[0][1] == 100) for call_args in
-             mock_progress.call_args_list])
+        if check_progress:
+            # Reports progress at 0, 0<progress<100, and 100
+            assert any(
+                [call_args.args[0] == (0, 100) for call_args in mock_progress.call_args_list])
+            assert any(
+                [call_args.args[0] == (100, 100) for call_args in mock_progress.call_args_list])
+            assert any(
+                [(0 < call_args.args[0][0] < 100) and (call_args.args[0][1] == 100) for call_args in
+                 mock_progress.call_args_list])
 
         mock_completed.assert_called()
-        exit_code, segments = mock_completed.call_args[0][0]
-        assert exit_code is 0
+        segments = mock_completed.call_args[0][0]
         for (i, expected_segment) in enumerate(expected_segments):
             assert segments[i] == expected_segment
 
@@ -128,14 +127,17 @@ class TestWhisperFileTranscriber:
         if os.path.exists(output_file_path):
             os.remove(output_file_path)
 
-        model_path = get_model_path(Model.WHISPER_TINY)
         file_transcription_options = FileTranscriptionOptions(
             file_paths=['testdata/whisper-french.mp3'])
         transcription_options = TranscriptionOptions(
-            language='fr', task=Task.TRANSCRIBE, word_level_timings=False)
+            language='fr', task=Task.TRANSCRIBE, word_level_timings=False,
+            model=TranscriptionModel(model_type=ModelType.WHISPER_CPP, whisper_model_size=WhisperModelSize.TINY))
+        model_path = get_model_path(transcription_options.model)
 
         transcriber = WhisperFileTranscriber(
-            task=FileTranscriptionTask(model_path=model_path, transcription_options=transcription_options, file_transcription_options=file_transcription_options, file_path='testdata/whisper-french.mp3'))
+            task=FileTranscriptionTask(model_path=model_path, transcription_options=transcription_options,
+                                       file_transcription_options=file_transcription_options,
+                                       file_path='testdata/whisper-french.mp3'))
         transcriber.run()
         time.sleep(1)
         transcriber.stop()
@@ -152,7 +154,9 @@ class TestToTimestamp:
 
 class TestWhisperCpp:
     def test_transcribe(self):
-        model_path = get_model_path(Model.WHISPER_CPP_TINY)
+        transcription_options = TranscriptionOptions(
+            model=TranscriptionModel(model_type=ModelType.WHISPER_CPP, whisper_model_size=WhisperModelSize.TINY))
+        model_path = get_model_path(transcription_options.model)
 
         whisper_cpp = WhisperCpp(model=model_path)
         params = whisper_cpp_params(
@@ -168,8 +172,8 @@ class TestWhisperCpp:
     [
         (OutputFormat.TXT, 'Bien venue dans\n'),
         (
-            OutputFormat.SRT,
-            '1\n00:00:00.040 --> 00:00:00.299\nBien\n\n2\n00:00:00.299 --> 00:00:00.329\nvenue dans\n\n'),
+                OutputFormat.SRT,
+                '1\n00:00:00.040 --> 00:00:00.299\nBien\n\n2\n00:00:00.299 --> 00:00:00.329\nvenue dans\n\n'),
         (OutputFormat.VTT,
          'WEBVTT\n\n00:00:00.040 --> 00:00:00.299\nBien\n\n00:00:00.299 --> 00:00:00.329\nvenue dans\n\n'),
     ])

@@ -6,19 +6,19 @@ from unittest.mock import Mock, patch
 import pytest
 import sounddevice
 from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtGui import QValidator
-from PyQt6.QtWidgets import QPushButton, QToolBar, QTableWidget
+from PyQt6.QtGui import QValidator, QKeyEvent
+from PyQt6.QtWidgets import QPushButton, QToolBar, QTableWidget, QApplication
 from pytestqt.qtbot import QtBot
 
 from buzz.cache import TasksCache
 from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application,
                       AudioDevicesComboBox, DownloadModelProgressDialog,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
-                      ModelComboBox, RecordingTranscriberWidget,
+                      RecordingTranscriberWidget,
                       TemperatureValidator, TextDisplayBox,
-                      TranscriptionTasksTableWidget, TranscriptionViewerWidget)
+                      TranscriptionTasksTableWidget, TranscriptionViewerWidget, HuggingFaceSearchLineEdit)
 from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask,
-                              Model, Segment, TranscriptionOptions)
+                              Segment, TranscriptionOptions)
 
 
 class TestApplication:
@@ -46,20 +46,6 @@ class TestLanguagesComboBox:
     def test_should_select_detect_language_as_default(self):
         languages_combo_box = LanguagesComboBox(None)
         assert languages_combo_box.currentText() == 'Detect Language'
-
-
-class TestModelComboBox:
-    model_combo_box = ModelComboBox(
-        default_model=Model.WHISPER_CPP_BASE, parent=None)
-
-    def test_should_show_qualities(self):
-        assert self.model_combo_box.itemText(0) == 'Whisper - Tiny'
-        assert self.model_combo_box.itemText(1) == 'Whisper - Base'
-        assert self.model_combo_box.itemText(2) == 'Whisper - Small'
-        assert self.model_combo_box.itemText(3) == 'Whisper - Medium'
-
-    def test_should_select_default_model(self):
-        assert self.model_combo_box.currentText() == 'Whisper.cpp - Base'
 
 
 class TestAudioDevicesComboBox:
@@ -198,10 +184,9 @@ class TestFileTranscriberWidget:
     widget = FileTranscriberWidget(
         file_paths=['testdata/whisper-french.mp3'], parent=None)
 
-    def test_should_set_window_title_and_size(self, qtbot: QtBot):
+    def test_should_set_window_title(self, qtbot: QtBot):
         qtbot.addWidget(self.widget)
         assert self.widget.windowTitle() == 'whisper-french.mp3'
-        assert self.widget.size() == QSize(420, 270)
 
     def test_should_emit_triggered_event(self, qtbot: QtBot):
         widget = FileTranscriberWidget(
@@ -217,7 +202,6 @@ class TestFileTranscriberWidget:
         transcription_options, file_transcription_options, model_path = mock_triggered.call_args[
             0][0]
         assert transcription_options.language is None
-        assert transcription_options.model == Model.WHISPER_TINY
         assert file_transcription_options.file_paths == [
             'testdata/whisper-french.mp3']
         assert len(model_path) > 0
@@ -232,8 +216,7 @@ class TestAboutDialog:
 class TestAdvancedSettingsDialog:
     def test_should_update_advanced_settings(self, qtbot: QtBot):
         dialog = AdvancedSettingsDialog(
-            transcription_options=TranscriptionOptions(temperature=(0.0, 0.8), initial_prompt='prompt',
-                                                       model=Model.WHISPER_CPP_BASE))
+            transcription_options=TranscriptionOptions(temperature=(0.0, 0.8), initial_prompt='prompt'))
         qtbot.add_widget(dialog)
 
         transcription_options_mock = Mock()
@@ -333,7 +316,50 @@ class TestTranscriptionTasksTableWidget:
 class TestRecordingTranscriberWidget:
     widget = RecordingTranscriberWidget()
 
-    def test_should_set_window_title_and_size(self, qtbot: QtBot):
+    def test_should_set_window_title(self, qtbot: QtBot):
         qtbot.add_widget(self.widget)
         assert self.widget.windowTitle() == 'Live Recording'
-        assert self.widget.size() == QSize(400, 520)
+
+
+class TestHuggingFaceSearchLineEdit:
+    def test_should_update_selected_model_on_type(self, qtbot: QtBot):
+        widget = HuggingFaceSearchLineEdit()
+        qtbot.add_widget(widget)
+
+        mock_model_selected = Mock()
+        widget.model_selected.connect(mock_model_selected)
+
+        self._set_text_and_wait_response(qtbot, widget)
+        mock_model_selected.assert_called_with('openai/whisper-tiny')
+
+    def test_should_show_list_of_models(self, qtbot: QtBot):
+        widget = HuggingFaceSearchLineEdit()
+        qtbot.add_widget(widget)
+
+        self._set_text_and_wait_response(qtbot, widget)
+
+        assert widget.popup.count() > 0
+        assert 'openai/whisper-tiny' in widget.popup.item(0).text()
+
+    def test_should_select_model_from_list(self, qtbot: QtBot):
+        widget = HuggingFaceSearchLineEdit()
+        qtbot.add_widget(widget)
+
+        mock_model_selected = Mock()
+        widget.model_selected.connect(mock_model_selected)
+
+        self._set_text_and_wait_response(qtbot, widget)
+
+        # press down arrow and enter to select next item
+        QApplication.sendEvent(widget.popup,
+                               QKeyEvent(QKeyEvent.Type.KeyPress, Qt.Key.Key_Down, Qt.KeyboardModifier.NoModifier))
+        QApplication.sendEvent(widget.popup,
+                               QKeyEvent(QKeyEvent.Type.KeyPress, Qt.Key.Key_Enter, Qt.KeyboardModifier.NoModifier))
+
+        mock_model_selected.assert_called_with('openai/whisper-tiny.en')
+
+    @staticmethod
+    def _set_text_and_wait_response(qtbot: QtBot, widget: HuggingFaceSearchLineEdit):
+        with qtbot.wait_signal(widget.network_manager.finished, timeout=30 * 1000):
+            widget.setText('openai/whisper-tiny')
+            widget.textEdited.emit('openai/whisper-tiny')

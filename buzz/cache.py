@@ -23,7 +23,7 @@ class TasksCache:
                 return pickle.load(file)
         except FileNotFoundError:
             return []
-        except pickle.UnpicklingError:  # delete corrupted cache
+        except (pickle.UnpicklingError, AttributeError):  # delete corrupted cache
             os.remove(self.file_path)
             return []
 
