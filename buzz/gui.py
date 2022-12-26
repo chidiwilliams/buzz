@@ -975,6 +975,7 @@ class LineEdit(QLineEdit):
 
 class HuggingFaceSearchLineEdit(LineEdit):
     model_selected = pyqtSignal(str)
+    popup: QListWidget
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__('', parent)
@@ -994,6 +995,7 @@ class HuggingFaceSearchLineEdit(LineEdit):
         self.network_manager = QNetworkAccessManager(self)
         self.network_manager.finished.connect(self.on_request_response)
 
+        # TODO: change to QTreeWidget
         self.popup = QListWidget()
         self.popup.setWindowFlags(Qt.WindowType.Popup)
         self.popup.setFocusProxy(self)
@@ -1003,8 +1005,8 @@ class HuggingFaceSearchLineEdit(LineEdit):
         self.popup.installEventFilter(self)
         self.popup.itemClicked.connect(self.on_select_item)
 
-    def on_text_edited(self):
-        self.model_selected.emit(self.text())
+    def on_text_edited(self, text: str):
+        self.model_selected.emit(text)
 
     def on_select_item(self):
         self.popup.hide()
@@ -1059,7 +1061,7 @@ class HuggingFaceSearchLineEdit(LineEdit):
         self.popup.show()
 
     def eventFilter(self, target: QObject, event: QEvent):
-        if target != self.popup:
+        if hasattr(self, 'popup') is False or target != self.popup:
             return False
 
         if event.type() == QEvent.Type.MouseButtonPress:

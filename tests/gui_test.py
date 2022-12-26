@@ -6,8 +6,8 @@ from unittest.mock import Mock, patch
 import pytest
 import sounddevice
 from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtGui import QValidator
-from PyQt6.QtWidgets import QPushButton, QToolBar, QTableWidget
+from PyQt6.QtGui import QValidator, QKeyEvent
+from PyQt6.QtWidgets import QPushButton, QToolBar, QTableWidget, QApplication
 from pytestqt.qtbot import QtBot
 
 from buzz.cache import TasksCache
@@ -322,9 +322,44 @@ class TestRecordingTranscriberWidget:
 
 
 class TestHuggingFaceSearchLineEdit:
-    widget = HuggingFaceSearchLineEdit()
+    def test_should_update_selected_model_on_type(self, qtbot: QtBot):
+        widget = HuggingFaceSearchLineEdit()
+        qtbot.add_widget(widget)
 
-    def test_should_update_selected_model_on_type(self, qtbot):
-        qtbot.add_widget(self.widget)
+        mock_model_selected = Mock()
+        widget.model_selected.connect(mock_model_selected)
 
-        self.widget.textEdited.emit('openai/whisper-tiny')
+        self._set_text_and_wait_response(qtbot, widget)
+        mock_model_selected.assert_called_with('openai/whisper-tiny')
+
+    def test_should_show_list_of_models(self, qtbot: QtBot):
+        widget = HuggingFaceSearchLineEdit()
+        qtbot.add_widget(widget)
+
+        self._set_text_and_wait_response(qtbot, widget)
+
+        assert widget.popup.count() > 0
+        assert 'openai/whisper-tiny' in widget.popup.item(0).text()
+
+    def test_should_select_model_from_list(self, qtbot: QtBot):
+        widget = HuggingFaceSearchLineEdit()
+        qtbot.add_widget(widget)
+
+        mock_model_selected = Mock()
+        widget.model_selected.connect(mock_model_selected)
+
+        self._set_text_and_wait_response(qtbot, widget)
+
+        # press down arrow and enter to select next item
+        QApplication.sendEvent(widget.popup,
+                               QKeyEvent(QKeyEvent.Type.KeyPress, Qt.Key.Key_Down, Qt.KeyboardModifier.NoModifier))
+        QApplication.sendEvent(widget.popup,
+                               QKeyEvent(QKeyEvent.Type.KeyPress, Qt.Key.Key_Enter, Qt.KeyboardModifier.NoModifier))
+
+        mock_model_selected.assert_called_with('openai/whisper-tiny.en')
+
+    @staticmethod
+    def _set_text_and_wait_response(qtbot: QtBot, widget: HuggingFaceSearchLineEdit):
+        with qtbot.wait_signal(widget.network_manager.finished, timeout=30 * 1000):
+            widget.setText('openai/whisper-tiny')
+            widget.textEdited.emit('openai/whisper-tiny')
