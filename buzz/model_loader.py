@@ -14,11 +14,6 @@ from platformdirs import user_cache_dir
 from buzz import transformers_whisper
 
 
-@dataclass
-class HuggingFaceModel:
-    id: str
-
-
 class WhisperModelSize(enum.Enum):
     TINY = 'tiny'
     BASE = 'base'
@@ -37,7 +32,7 @@ class ModelType(enum.Enum):
 class TranscriptionModel:
     model_type: ModelType = ModelType.WHISPER
     whisper_model_size: Optional[WhisperModelSize] = WhisperModelSize.TINY
-    hugging_face_model: Optional[HuggingFaceModel] = None
+    hugging_face_model_id: Optional[str] = None
 
 
 WHISPER_CPP_MODELS_SHA256 = {
@@ -63,7 +58,7 @@ class ModelLoader(QObject):
         super().__init__(parent)
         self.model_type = model.model_type
         self.whisper_model_size = model.whisper_model_size
-        self.hugging_face_model = model.hugging_face_model
+        self.hugging_face_model_id = model.hugging_face_model_id
 
     @pyqtSlot()
     def run(self):
@@ -94,13 +89,13 @@ class ModelLoader(QObject):
 
             try:
                 # Loads the model from cache or download if not in cache
-                transformers_whisper.load_model(self.hugging_face_model.id)
+                transformers_whisper.load_model(self.hugging_face_model_id)
             except (FileNotFoundError, EnvironmentError) as exception:
                 self.error.emit(f'{exception}')
                 return
 
             self.progress.emit((100, 100))
-            self.finished.emit(self.hugging_face_model.id)
+            self.finished.emit(self.hugging_face_model_id)
             return
 
     def download_model(self, url: str, file_path: str, expected_sha256: Optional[str]):

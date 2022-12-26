@@ -8,7 +8,7 @@ from unittest.mock import Mock
 import pytest
 from pytestqt.qtbot import QtBot
 
-from buzz.model_loader import WhisperModelSize, ModelType, TranscriptionModel, HuggingFaceModel
+from buzz.model_loader import WhisperModelSize, ModelType, TranscriptionModel
 from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask, OutputFormat, RecordingTranscriber,
                               Segment, Task, WhisperCpp, WhisperCppFileTranscriber,
                               WhisperFileTranscriber,
@@ -84,7 +84,7 @@ class TestWhisperFileTranscriber:
                              ' Bienvenue dans Passe-Relle. Un podcast pensé pour évêyer la curiosité des apprenances '
                              'et des apprenances de français.')],
              TranscriptionModel(model_type=ModelType.HUGGING_FACE,
-                                hugging_face_model=HuggingFaceModel(id='openai/whisper-tiny')), False)
+                                hugging_face_model_id='openai/whisper-tiny'), False)
         ])
     def test_transcribe(self, qtbot: QtBot, word_level_timings: bool, expected_segments: List[Segment],
                         model: TranscriptionModel, check_progress):

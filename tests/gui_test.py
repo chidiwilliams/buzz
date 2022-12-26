@@ -16,7 +16,7 @@ from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
                       RecordingTranscriberWidget,
                       TemperatureValidator, TextDisplayBox,
-                      TranscriptionTasksTableWidget, TranscriptionViewerWidget)
+                      TranscriptionTasksTableWidget, TranscriptionViewerWidget, HuggingFaceSearchLineEdit)
 from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask,
                               Segment, TranscriptionOptions)
 
@@ -319,3 +319,12 @@ class TestRecordingTranscriberWidget:
     def test_should_set_window_title(self, qtbot: QtBot):
         qtbot.add_widget(self.widget)
         assert self.widget.windowTitle() == 'Live Recording'
+
+
+class TestHuggingFaceSearchLineEdit:
+    widget = HuggingFaceSearchLineEdit()
+
+    def test_should_update_selected_model_on_type(self, qtbot):
+        qtbot.add_widget(self.widget)
+
+        self.widget.textEdited.emit('openai/whisper-tiny')

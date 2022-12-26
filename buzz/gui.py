@@ -29,7 +29,7 @@ from whisper import tokenizer
 
 from buzz.cache import TasksCache
 from .__version__ import VERSION
-from .model_loader import ModelLoader, HuggingFaceModel, WhisperModelSize, ModelType, TranscriptionModel
+from .model_loader import ModelLoader, WhisperModelSize, ModelType, TranscriptionModel
 from .transcriber import (SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
                           RecordingTranscriber, Task,
                           WhisperCppFileTranscriber, WhisperFileTranscriber,
@@ -974,7 +974,7 @@ class LineEdit(QLineEdit):
 
 
 class HuggingFaceSearchLineEdit(LineEdit):
-    model_selected = pyqtSignal(HuggingFaceModel)
+    model_selected = pyqtSignal(str)
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__('', parent)
@@ -1004,8 +1004,7 @@ class HuggingFaceSearchLineEdit(LineEdit):
         self.popup.itemClicked.connect(self.on_select_item)
 
     def on_text_edited(self):
-        model = HuggingFaceModel(id=self.text())
-        self.model_selected.emit(model)
+        self.model_selected.emit(self.text())
 
     def on_select_item(self):
         self.popup.hide()
@@ -1045,11 +1044,11 @@ class HuggingFaceSearchLineEdit(LineEdit):
         self.popup.clear()
 
         for model in models:
-            model = HuggingFaceModel(id=model.get('id'))
+            model_id = model.get('id')
 
             item = QListWidgetItem(self.popup)
-            item.setText(model.id)
-            item.setData(Qt.ItemDataRole.UserRole, model)
+            item.setText(model_id)
+            item.setData(Qt.ItemDataRole.UserRole, model_id)
 
         self.popup.setCurrentItem(self.popup.item(0))
         self.popup.setFixedWidth(self.popup.sizeHintForColumn(0) + 20)
@@ -1182,7 +1181,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.transcription_options.model.whisper_model_size = model_size
         self.transcription_options_changed.emit(self.transcription_options)
 
-    def on_hugging_face_model_changed(self, model: HuggingFaceModel):
+    def on_hugging_face_model_changed(self, model: str):
         self.transcription_options.hugging_face_model = model
         self.transcription_options_changed.emit(self.transcription_options)
 
