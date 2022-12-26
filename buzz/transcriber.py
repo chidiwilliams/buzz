@@ -15,7 +15,6 @@ from dataclasses import dataclass, field
 from multiprocessing.connection import Connection
 from threading import Thread
 from typing import Any, Callable, List, Optional, Tuple, Union
-import typing
 
 import ffmpeg
 import numpy as np
@@ -27,7 +26,6 @@ from sounddevice import PortAudioError
 
 from . import transformers_whisper
 from .conn import pipe_stderr
-from .transformers_whisper import load_model
 
 # Catch exception from whisper.dll not getting loaded.
 # TODO: Remove flag and try-except when issue with loading
@@ -74,10 +72,18 @@ class HuggingFaceModel:
     id: str
 
 
+# @dataclass()
+# class TranscriptionModel:
+#     model_type: ModelType = ModelType.WHISPER
+#     whisper_model_size: Optional[WhisperModelSize] = WhisperModelSize.TINY
+#     hugging_face_model: Optional[HuggingFaceModel] = None
+
+
 @dataclass()
 class TranscriptionOptions:
     language: Optional[str] = None
     task: Task = Task.TRANSCRIBE
+    # transcription_model: TranscriptionModel = TranscriptionModel()
     model_type: ModelType = ModelType.WHISPER
     whisper_model_size: Optional[WhisperModelSize] = WhisperModelSize.TINY
     hugging_face_model: Optional[HuggingFaceModel] = None
