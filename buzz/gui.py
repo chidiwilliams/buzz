@@ -372,9 +372,7 @@ class FileTranscriberWidget(QWidget):
             self.model_download_progress_dialog.set_fraction_completed(fraction_completed=current_size / total_size)
 
     def on_download_model_error(self, error: str):
-        # Close transcriber progress correctly
-        self.model_download_progress_dialog.set_fraction_completed(fraction_completed=1)
-
+        self.reset_model_download()
         show_model_download_error_dialog(self, error)
         self.reset_transcriber_controls()
 
@@ -592,9 +590,7 @@ class RecordingTranscriberWidget(QWidget):
             self.model_download_progress_dialog.set_fraction_completed(fraction_completed=current_size / total_size)
 
     def on_download_model_error(self, error: str):
-        # Close transcriber progress correctly
-        self.model_download_progress_dialog.set_fraction_completed(fraction_completed=1)
-
+        self.reset_model_download()
         show_model_download_error_dialog(self, error)
         self.stop_recording()
         self.record_button.force_stop()
@@ -622,6 +618,7 @@ class RecordingTranscriberWidget(QWidget):
 
     def reset_model_download(self):
         if self.model_download_progress_dialog is not None:
+            self.model_download_progress_dialog.close()
             self.model_download_progress_dialog = None
 
 
