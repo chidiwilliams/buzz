@@ -29,13 +29,12 @@ from whisper import tokenizer
 
 from buzz.cache import TasksCache
 from .__version__ import VERSION
-from .model_loader import ModelLoader
+from .model_loader import ModelLoader, HuggingFaceModel, WhisperModelSize, ModelType, TranscriptionModel
 from .transcriber import (SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
                           RecordingTranscriber, Task,
                           WhisperCppFileTranscriber, WhisperFileTranscriber,
                           get_default_output_file_path, segments_to_text, write_output, TranscriptionOptions,
-                          FileTranscriberQueueWorker, FileTranscriptionTask, HuggingFaceModel, ModelType,
-                          WhisperModelSize)
+                          FileTranscriberQueueWorker, FileTranscriptionTask)
 
 APP_NAME = 'Buzz'
 
@@ -327,13 +326,14 @@ class FileTranscriberWidget(QWidget):
 
     def on_transcription_options_changed(self, transcription_options: TranscriptionOptions):
         self.transcription_options = transcription_options
-        self.word_level_timings_checkbox.setDisabled(self.transcription_options.model_type == ModelType.HUGGING_FACE)
+        self.word_level_timings_checkbox.setDisabled(
+            self.transcription_options.model.model_type == ModelType.HUGGING_FACE)
 
     def on_click_run(self):
         self.run_button.setDisabled(True)
 
         self.transcriber_thread = QThread()
-        self.model_loader = ModelLoader(transcription_options=self.transcription_options)
+        self.model_loader = ModelLoader(model=self.transcription_options.model)
         self.model_loader.moveToThread(self.transcriber_thread)
 
         self.transcriber_thread.started.connect(self.model_loader.run)
@@ -476,8 +476,8 @@ class RecordingTranscriberWidget(QWidget):
 
         self.setWindowTitle('Live Recording')
 
-        self.transcription_options = TranscriptionOptions(model_type=ModelType.WHISPER_CPP,
-                                                          whisper_model_size=WhisperModelSize.TINY)
+        self.transcription_options = TranscriptionOptions(model=TranscriptionModel(model_type=ModelType.WHISPER_CPP,
+                                                                                   whisper_model_size=WhisperModelSize.TINY))
 
         self.audio_devices_combo_box = AudioDevicesComboBox(self)
         self.audio_devices_combo_box.device_changed.connect(
@@ -533,7 +533,7 @@ class RecordingTranscriberWidget(QWidget):
     def start_recording(self):
         self.record_button.setDisabled(True)
 
-        use_whisper_cpp = self.transcription_options.model_type == ModelType.WHISPER_CPP and \
+        use_whisper_cpp = self.transcription_options.model.model_type == ModelType.WHISPER_CPP and \
                           self.transcription_options.language is not None
 
         def start_recording_transcription(model_path: str):
@@ -561,7 +561,7 @@ class RecordingTranscriberWidget(QWidget):
 
         self.model_loader_thread = QThread()
 
-        self.model_loader = ModelLoader(transcription_options=self.transcription_options)
+        self.model_loader = ModelLoader(model=self.transcription_options.model)
 
         self.model_loader.moveToThread(self.model_loader_thread)
 
@@ -1120,14 +1120,14 @@ class TranscriptionOptionsGroupBox(QGroupBox):
 
         model_type_combo_box = QComboBox(self)
         model_type_combo_box.addItems([model_type.value for model_type in ModelType])
-        model_type_combo_box.setCurrentText(default_transcription_options.model_type.value)
+        model_type_combo_box.setCurrentText(default_transcription_options.model.model_type.value)
         model_type_combo_box.currentTextChanged.connect(self.on_model_type_changed)
 
         self.whisper_model_size_combo_box = QComboBox(self)
         self.whisper_model_size_combo_box.addItems([size.value.title() for size in WhisperModelSize])
-        if default_transcription_options.whisper_model_size is not None:
+        if default_transcription_options.model.whisper_model_size is not None:
             self.whisper_model_size_combo_box.setCurrentText(
-                default_transcription_options.whisper_model_size.value.title())
+                default_transcription_options.model.whisper_model_size.value.title())
         self.whisper_model_size_combo_box.currentTextChanged.connect(self.on_whisper_model_size_changed)
 
         self.form_layout.addRow('Task:', self.tasks_combo_box)
@@ -1179,7 +1179,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
 
     def on_whisper_model_size_changed(self, text: str):
         model_size = WhisperModelSize(text.lower())
-        self.transcription_options.whisper_model_size = model_size
+        self.transcription_options.model.whisper_model_size = model_size
         self.transcription_options_changed.emit(self.transcription_options)
 
     def on_hugging_face_model_changed(self, model: HuggingFaceModel):
@@ -1251,14 +1251,14 @@ class AdvancedSettingsDialog(QDialog):
         self.temperature_line_edit.textChanged.connect(
             self.on_temperature_changed)
         self.temperature_line_edit.setValidator(TemperatureValidator(self))
-        self.temperature_line_edit.setEnabled(transcription_options.model_type == ModelType.WHISPER)
+        self.temperature_line_edit.setEnabled(transcription_options.model.model_type == ModelType.WHISPER)
 
         self.initial_prompt_text_edit = QPlainTextEdit(
             transcription_options.initial_prompt, self)
         self.initial_prompt_text_edit.textChanged.connect(
             self.on_initial_prompt_changed)
         self.initial_prompt_text_edit.setEnabled(
-            transcription_options.model_type == ModelType.WHISPER)
+            transcription_options.model.model_type == ModelType.WHISPER)
 
         layout.addRow('Temperature:', self.temperature_line_edit)
         layout.addRow('Initial Prompt:', self.initial_prompt_text_edit)

@@ -1,9 +1,8 @@
-from buzz.model_loader import ModelLoader
-from buzz.transcriber import TranscriptionOptions
+from buzz.model_loader import ModelLoader, TranscriptionModel
 
 
-def get_model_path(transcription_options: TranscriptionOptions) -> str:
-    model_loader = ModelLoader(transcription_options=transcription_options)
+def get_model_path(transcription_model: TranscriptionModel) -> str:
+    model_loader = ModelLoader(model=transcription_model)
     model_path = ''
 
     def on_load_model(path: str):

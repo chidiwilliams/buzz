@@ -216,8 +216,7 @@ class TestAboutDialog:
 class TestAdvancedSettingsDialog:
     def test_should_update_advanced_settings(self, qtbot: QtBot):
         dialog = AdvancedSettingsDialog(
-            transcription_options=TranscriptionOptions(temperature=(0.0, 0.8), initial_prompt='prompt',
-                                                       ))
+            transcription_options=TranscriptionOptions(temperature=(0.0, 0.8), initial_prompt='prompt'))
         qtbot.add_widget(dialog)
 
         transcription_options_mock = Mock()

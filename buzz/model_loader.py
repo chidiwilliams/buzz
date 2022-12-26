@@ -1,7 +1,9 @@
+import enum
 import hashlib
 import logging
 import os
 import warnings
+from dataclasses import dataclass
 from typing import Optional
 
 import requests
@@ -10,9 +12,35 @@ from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from platformdirs import user_cache_dir
 
 from buzz import transformers_whisper
-from buzz.transcriber import TranscriptionOptions, ModelType
 
-MODELS_SHA256 = {
+
+@dataclass
+class HuggingFaceModel:
+    id: str
+
+
+class WhisperModelSize(enum.Enum):
+    TINY = 'tiny'
+    BASE = 'base'
+    SMALL = 'small'
+    MEDIUM = 'medium'
+    LARGE = 'large'
+
+
+class ModelType(enum.Enum):
+    WHISPER = 'Whisper'
+    WHISPER_CPP = 'Whisper.cpp'
+    HUGGING_FACE = 'Hugging Face'
+
+
+@dataclass()
+class TranscriptionModel:
+    model_type: ModelType = ModelType.WHISPER
+    whisper_model_size: Optional[WhisperModelSize] = WhisperModelSize.TINY
+    hugging_face_model: Optional[HuggingFaceModel] = None
+
+
+WHISPER_CPP_MODELS_SHA256 = {
     'tiny': 'be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21',
     'base': '60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe',
     'small': '1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b',
@@ -25,21 +53,17 @@ def get_hugging_face_dataset_file_url(author: str, repository_name: str, filenam
     return f'https://huggingface.co/datasets/{author}/{repository_name}/resolve/main/{filename}'
 
 
-def get_hugging_face_repository_file_url(author: str, repository_name: str, filename: str):
-    return f'https://huggingface.co/{author}/{repository_name}/resolve/main/{filename}'
-
-
 class ModelLoader(QObject):
     progress = pyqtSignal(tuple)  # (current, total)
     finished = pyqtSignal(str)
     error = pyqtSignal(str)
     stopped = False
 
-    def __init__(self, transcription_options: TranscriptionOptions, parent: Optional['QObject'] = None) -> None:
+    def __init__(self, model: TranscriptionModel, parent: Optional['QObject'] = None) -> None:
         super().__init__(parent)
-        self.model_type = transcription_options.model_type
-        self.whisper_model_size = transcription_options.whisper_model_size
-        self.hugging_face_model = transcription_options.hugging_face_model
+        self.model_type = model.model_type
+        self.whisper_model_size = model.whisper_model_size
+        self.hugging_face_model = model.hugging_face_model
 
     @pyqtSlot()
     def run(self):
@@ -49,7 +73,7 @@ class ModelLoader(QObject):
             url = get_hugging_face_dataset_file_url(author='ggerganov', repository_name='whisper.cpp',
                                                     filename=f'ggml-{model_name}.bin')
             file_path = os.path.join(root_dir, f'ggml-model-whisper-{model_name}.bin')
-            expected_sha256 = MODELS_SHA256[model_name]
+            expected_sha256 = WHISPER_CPP_MODELS_SHA256[model_name]
             self.download_model(url, file_path, expected_sha256)
             return
 

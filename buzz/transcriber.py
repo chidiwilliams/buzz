@@ -26,6 +26,7 @@ from sounddevice import PortAudioError
 
 from . import transformers_whisper
 from .conn import pipe_stderr
+from .model_loader import TranscriptionModel, ModelType
 
 # Catch exception from whisper.dll not getting loaded.
 # TODO: Remove flag and try-except when issue with loading
@@ -53,40 +54,11 @@ class Segment:
     text: str
 
 
-class ModelType(enum.Enum):
-    WHISPER = 'Whisper'
-    WHISPER_CPP = 'Whisper.cpp'
-    HUGGING_FACE = 'Hugging Face'
-
-
-class WhisperModelSize(enum.Enum):
-    TINY = 'tiny'
-    BASE = 'base'
-    SMALL = 'small'
-    MEDIUM = 'medium'
-    LARGE = 'large'
-
-
-@dataclass
-class HuggingFaceModel:
-    id: str
-
-
-# @dataclass()
-# class TranscriptionModel:
-#     model_type: ModelType = ModelType.WHISPER
-#     whisper_model_size: Optional[WhisperModelSize] = WhisperModelSize.TINY
-#     hugging_face_model: Optional[HuggingFaceModel] = None
-
-
 @dataclass()
 class TranscriptionOptions:
     language: Optional[str] = None
     task: Task = Task.TRANSCRIBE
-    # transcription_model: TranscriptionModel = TranscriptionModel()
-    model_type: ModelType = ModelType.WHISPER
-    whisper_model_size: Optional[WhisperModelSize] = WhisperModelSize.TINY
-    hugging_face_model: Optional[HuggingFaceModel] = None
+    model: TranscriptionModel = TranscriptionModel()
     word_level_timings: bool = False
     temperature: Tuple[float, ...] = DEFAULT_WHISPER_TEMPERATURE
     initial_prompt: str = ''
@@ -381,7 +353,7 @@ class WhisperFileTranscriber(QObject):
 
     current_process: multiprocessing.Process
     progress = pyqtSignal(tuple)  # (current, total)
-    completed = pyqtSignal(tuple)  # (exit_code: int, segments: List[Segment])
+    completed = pyqtSignal(list)  # List[Segment]
     error = pyqtSignal(str)
     running = False
     read_line_thread: Optional[Thread] = None
@@ -435,8 +407,9 @@ class WhisperFileTranscriber(QObject):
 
         self.read_line_thread.join()
 
-        if self.current_process.exitcode != 0:
-            self.completed.emit((self.current_process.exitcode, []))
+        # TODO: fix error handling when process crashes
+        if self.current_process.exitcode != 0 and self.current_process.exitcode is not None:
+            self.completed.emit([])
 
         self.running = False
 
@@ -463,7 +436,7 @@ class WhisperFileTranscriber(QObject):
                 ) for segment in segments_dict]
                 self.current_process.join()
                 # TODO: move this back to the parent thread
-                self.completed.emit((self.current_process.exitcode, segments))
+                self.completed.emit(segments)
             else:
                 try:
                     progress = int(line.split('|')[0].strip().strip('%'))
@@ -474,7 +447,7 @@ class WhisperFileTranscriber(QObject):
 
 def transcribe_whisper(stderr_conn: Connection, task: FileTranscriptionTask):
     with pipe_stderr(stderr_conn):
-        if task.transcription_options.model_type == ModelType.HUGGING_FACE:
+        if task.transcription_options.model.model_type == ModelType.HUGGING_FACE:
             model = transformers_whisper.load_model(task.model_path)
             language = task.transcription_options.language if task.transcription_options.language is not None else 'en'
             result = model.transcribe(audio_path=task.file_path, language=language,
@@ -647,7 +620,7 @@ class FileTranscriberQueueWorker(QObject):
             self.completed.emit()
             return
 
-        if self.current_task.transcription_options.model_type == ModelType.WHISPER_CPP:
+        if self.current_task.transcription_options.model.model_type == ModelType.WHISPER_CPP:
             self.current_transcriber = WhisperCppFileTranscriber(
                 task=self.current_task)
         else:
@@ -697,10 +670,9 @@ class FileTranscriberQueueWorker(QObject):
             self.current_task.fraction_completed = progress[0] / progress[1]
             self.task_updated.emit(self.current_task)
 
-    @pyqtSlot(tuple)
-    def on_task_completed(self, result: Tuple[int, List[Segment]]):
+    @pyqtSlot(list)
+    def on_task_completed(self, segments: List[Segment]):
         if self.current_task is not None:
-            _, segments = result
             self.current_task.status = FileTranscriptionTask.Status.COMPLETED
             self.current_task.segments = segments
             self.task_updated.emit(self.current_task)
