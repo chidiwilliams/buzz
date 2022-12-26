@@ -970,6 +970,7 @@ class LineEdit(QLineEdit):
             self.setStyleSheet('QLineEdit { padding: 4px }')
 
 
+# Adapted from https://github.com/ismailsunni/scripts/blob/master/autocomplete_from_url.py
 class HuggingFaceSearchLineEdit(LineEdit):
     model_selected = pyqtSignal(str)
     popup: QListWidget
@@ -992,7 +993,6 @@ class HuggingFaceSearchLineEdit(LineEdit):
         self.network_manager = QNetworkAccessManager(self)
         self.network_manager.finished.connect(self.on_request_response)
 
-        # TODO: change to QTreeWidget
         self.popup = QListWidget()
         self.popup.setWindowFlags(Qt.WindowType.Popup)
         self.popup.setFocusProxy(self)
