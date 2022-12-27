@@ -20,9 +20,7 @@ from tests.model_loader import get_model_path
 class TestRecordingTranscriber:
     def test_transcriber(self):
         model_path = get_model_path(transcription_model=TranscriptionModel())
-        transcriber = RecordingTranscriber(
-            model_path=model_path, use_whisper_cpp=True, language='en',
-            task=Task.TRANSCRIBE)
+        transcriber = RecordingTranscriber(model_path=model_path, transcription_options=TranscriptionOptions())
         assert transcriber is not None
 
 

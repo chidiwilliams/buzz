@@ -16,7 +16,9 @@ from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
                       RecordingTranscriberWidget,
                       TemperatureValidator, TextDisplayBox,
-                      TranscriptionTasksTableWidget, TranscriptionViewerWidget, HuggingFaceSearchLineEdit)
+                      TranscriptionTasksTableWidget, TranscriptionViewerWidget, HuggingFaceSearchLineEdit,
+                      TranscriptionOptionsGroupBox)
+from buzz.model_loader import ModelType
 from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask,
                               Segment, TranscriptionOptions)
 
@@ -363,3 +365,17 @@ class TestHuggingFaceSearchLineEdit:
         with qtbot.wait_signal(widget.network_manager.finished, timeout=30 * 1000):
             widget.setText('openai/whisper-tiny')
             widget.textEdited.emit('openai/whisper-tiny')
+
+
+class TestTranscriptionOptionsGroupBox:
+    def test_should_update_model_type(self, qtbot):
+        widget = TranscriptionOptionsGroupBox()
+        qtbot.add_widget(widget)
+
+        mock_transcription_options_changed = Mock()
+        widget.transcription_options_changed.connect(mock_transcription_options_changed)
+
+        widget.model_type_combo_box.setCurrentIndex(1)
+
+        transcription_options: TranscriptionOptions = mock_transcription_options_changed.call_args[0][0]
+        assert transcription_options.model.model_type == ModelType.WHISPER_CPP

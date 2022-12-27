@@ -215,16 +215,13 @@ class RecordingTranscriberObject(QObject):
     download_model_progress = pyqtSignal(tuple)
     transcriber: RecordingTranscriber
 
-    def __init__(self, model_path: str, use_whisper_cpp, language: Optional[str],
-                 task: Task, input_device_index: Optional[int], temperature: Tuple[float, ...], initial_prompt: str,
-                 parent: Optional[QWidget], *args) -> None:
-        super().__init__(parent, *args)
+    def __init__(self, model_path: str, transcription_options: TranscriptionOptions,
+                 input_device_index: Optional[int], parent: Optional[QWidget]) -> None:
+        super().__init__(parent)
         self.transcriber = RecordingTranscriber(
-            model_path=model_path, use_whisper_cpp=use_whisper_cpp,
-            on_download_model_chunk=self.on_download_model_progress, language=language, temperature=temperature,
-            initial_prompt=initial_prompt,
-            event_callback=self.event_callback, task=task,
-            input_device_index=input_device_index)
+            model_path=model_path, on_download_model_chunk=self.on_download_model_progress,
+            transcription_options=transcription_options,
+            event_callback=self.event_callback, input_device_index=input_device_index)
 
     def start_recording(self):
         self.transcriber.start_recording()
@@ -531,9 +528,6 @@ class RecordingTranscriberWidget(QWidget):
     def start_recording(self):
         self.record_button.setDisabled(True)
 
-        use_whisper_cpp = self.transcription_options.model.model_type == ModelType.WHISPER_CPP and \
-                          self.transcription_options.language is not None
-
         def start_recording_transcription(model_path: str):
             # Clear text box placeholder because the first chunk takes a while to process
             self.text_box.setPlaceholderText('')
@@ -543,11 +537,8 @@ class RecordingTranscriberWidget(QWidget):
                 self.model_download_progress_dialog = None
 
             self.transcriber = RecordingTranscriberObject(
-                model_path=model_path, use_whisper_cpp=use_whisper_cpp,
-                language=self.transcription_options.language, task=self.transcription_options.task,
-                input_device_index=self.selected_device_id,
-                temperature=self.transcription_options.temperature,
-                initial_prompt=self.transcription_options.initial_prompt,
+                model_path=model_path, input_device_index=self.selected_device_id,
+                transcription_options=self.transcription_options,
                 parent=self
             )
             self.transcriber.event_changed.connect(
@@ -1091,7 +1082,8 @@ class TranscriptionOptionsGroupBox(QGroupBox):
     transcription_options: TranscriptionOptions
     transcription_options_changed = pyqtSignal(TranscriptionOptions)
 
-    def __init__(self, default_transcription_options: TranscriptionOptions, parent: Optional[QWidget] = None):
+    def __init__(self, default_transcription_options: TranscriptionOptions = TranscriptionOptions(),
+                 parent: Optional[QWidget] = None):
         super().__init__(title='', parent=parent)
         self.transcription_options = default_transcription_options
 
@@ -1115,10 +1107,10 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.hugging_face_search_line_edit = HuggingFaceSearchLineEdit()
         self.hugging_face_search_line_edit.model_selected.connect(self.on_hugging_face_model_changed)
 
-        model_type_combo_box = QComboBox(self)
-        model_type_combo_box.addItems([model_type.value for model_type in ModelType])
-        model_type_combo_box.setCurrentText(default_transcription_options.model.model_type.value)
-        model_type_combo_box.currentTextChanged.connect(self.on_model_type_changed)
+        self.model_type_combo_box = QComboBox(self)
+        self.model_type_combo_box.addItems([model_type.value for model_type in ModelType])
+        self.model_type_combo_box.setCurrentText(default_transcription_options.model.model_type.value)
+        self.model_type_combo_box.currentTextChanged.connect(self.on_model_type_changed)
 
         self.whisper_model_size_combo_box = QComboBox(self)
         self.whisper_model_size_combo_box.addItems([size.value.title() for size in WhisperModelSize])
@@ -1129,7 +1121,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
 
         self.form_layout.addRow('Task:', self.tasks_combo_box)
         self.form_layout.addRow('Language:', self.languages_combo_box)
-        self.form_layout.addRow('Model:', model_type_combo_box)
+        self.form_layout.addRow('Model:', self.model_type_combo_box)
         self.form_layout.addRow('', self.whisper_model_size_combo_box)
         self.form_layout.addRow('', self.hugging_face_search_line_edit)
 
@@ -1171,7 +1163,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.form_layout.setRowVisible(self.hugging_face_search_line_edit, model_type == ModelType.HUGGING_FACE)
         self.form_layout.setRowVisible(self.whisper_model_size_combo_box,
                                        (model_type == ModelType.WHISPER) or (model_type == ModelType.WHISPER_CPP))
-        self.transcription_options.model_type = model_type
+        self.transcription_options.model.model_type = model_type
         self.transcription_options_changed.emit(self.transcription_options)
 
     def on_whisper_model_size_changed(self, text: str):
@@ -1180,7 +1172,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.transcription_options_changed.emit(self.transcription_options)
 
     def on_hugging_face_model_changed(self, model: str):
-        self.transcription_options.hugging_face_model = model
+        self.transcription_options.model.hugging_face_model_id = model
         self.transcription_options_changed.emit(self.transcription_options)
 
 
