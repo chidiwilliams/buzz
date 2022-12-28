@@ -3,25 +3,58 @@ import pathlib
 import tempfile
 import time
 from typing import List
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import pytest
+from PyQt6.QtCore import QThread
 from pytestqt.qtbot import QtBot
 
-from buzz.model_loader import WhisperModelSize, ModelType, TranscriptionModel
+from buzz.model_loader import WhisperModelSize, ModelType, TranscriptionModel, ModelLoader
 from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask, OutputFormat, RecordingTranscriber,
                               Segment, Task, WhisperCpp, WhisperCppFileTranscriber,
                               WhisperFileTranscriber,
                               get_default_output_file_path, to_timestamp,
                               whisper_cpp_params, write_output, TranscriptionOptions)
+from tests.mock_sounddevice import MockInputStream
 from tests.model_loader import get_model_path
 
 
 class TestRecordingTranscriber:
-    def test_transcriber(self):
-        model_path = get_model_path(transcription_model=TranscriptionModel())
-        transcriber = RecordingTranscriber(model_path=model_path, transcription_options=TranscriptionOptions())
-        assert transcriber is not None
+    def test_should_transcribe(self, qtbot):
+        thread = QThread()
+
+        transcription_model = TranscriptionModel(model_type=ModelType.WHISPER_CPP,
+                                                 whisper_model_size=WhisperModelSize.TINY)
+        model_loader = ModelLoader(model=transcription_model)
+        model_loader.moveToThread(thread)
+
+        transcriber = RecordingTranscriber(transcription_options=TranscriptionOptions(
+            model=transcription_model, language='fr', task=Task.TRANSCRIBE),
+            input_device_index=0)
+        transcriber.moveToThread(thread)
+
+        thread.started.connect(model_loader.run)
+        thread.finished.connect(thread.deleteLater)
+
+        model_loader.finished.connect(transcriber.start)
+        model_loader.finished.connect(model_loader.deleteLater)
+
+        mock_transcription = Mock()
+        transcriber.transcription.connect(mock_transcription)
+
+        transcriber.finished.connect(thread.quit)
+        transcriber.finished.connect(transcriber.deleteLater)
+
+        with patch('sounddevice.InputStream') as mock_input_stream_init, patch(
+                'sounddevice.check_input_settings'), qtbot.wait_signal(transcriber.transcription, timeout=60 * 1000):
+            mock_input_stream_init.side_effect = MockInputStream
+            thread.start()
+
+        with qtbot.wait_signal(thread.finished, timeout=60 * 1000):
+            transcriber.stop_recording()
+
+        text = mock_transcription.call_args[0][0]
+        assert 'Bienvenue dans Passe' in text
 
 
 class TestWhisperCppFileTranscriber:

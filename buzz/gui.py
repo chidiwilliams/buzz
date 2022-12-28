@@ -171,6 +171,7 @@ class RecordButton(QPushButton):
 
         self.status_changed.emit(current_status)
 
+    # TODO: control the text and status from the caller
     def on_status_changed(self, status: Status):
         self.current_status = status
         if status == self.Status.RECORDING:
@@ -431,7 +432,7 @@ class RecordingTranscriberWidget(QWidget):
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
     transcriber: Optional[RecordingTranscriber] = None
     model_loader: Optional[ModelLoader] = None
-    model_loader_thread: Optional[QThread] = None
+    transcription_thread: Optional[QThread] = None
 
     def __init__(self, parent: Optional[QWidget] = None, flags: Qt.WindowType = Qt.WindowType.Widget) -> None:
         super().__init__(parent, flags)
@@ -497,44 +498,35 @@ class RecordingTranscriberWidget(QWidget):
     def start_recording(self):
         self.record_button.setDisabled(True)
 
-        def start_recording_transcription(model_path: str):
-            # Clear text box placeholder because the first chunk takes a while to process
-            self.text_box.setPlaceholderText('')
-            self.timer_label.start_timer()
-            self.record_button.setDisabled(False)
-            if self.model_download_progress_dialog is not None:
-                self.model_download_progress_dialog = None
-
-            self.transcriber = RecordingTranscriber(
-                model_path=model_path, input_device_index=self.selected_device_id,
-                transcription_options=self.transcription_options,
-                parent=self
-            )
-            self.transcriber.transcription.connect(
-                self.on_next_transcription)
-
-            self.transcriber.start_recording()
-
-        self.model_loader_thread = QThread()
+        self.transcription_thread = QThread()
 
         self.model_loader = ModelLoader(model=self.transcription_options.model)
+        self.transcriber = RecordingTranscriber(input_device_index=self.selected_device_id,
+                                                transcription_options=self.transcription_options)
 
-        self.model_loader.moveToThread(self.model_loader_thread)
+        self.model_loader.moveToThread(self.transcription_thread)
+        self.transcriber.moveToThread(self.transcription_thread)
 
-        self.model_loader_thread.started.connect(self.model_loader.run)
-        self.model_loader.finished.connect(self.model_loader_thread.quit)
+        self.transcription_thread.started.connect(self.model_loader.run)
+        self.transcription_thread.finished.connect(
+            self.transcription_thread.deleteLater)
 
+        self.model_loader.finished.connect(self.reset_recording_controls)
+        self.model_loader.finished.connect(self.transcriber.start)
         self.model_loader.finished.connect(self.model_loader.deleteLater)
-        self.model_loader_thread.finished.connect(
-            self.model_loader_thread.deleteLater)
 
         self.model_loader.progress.connect(
             self.on_download_model_progress)
 
-        self.model_loader.finished.connect(start_recording_transcription)
         self.model_loader.error.connect(self.on_download_model_error)
 
-        self.model_loader_thread.start()
+        self.transcriber.transcription.connect(self.on_next_transcription)
+
+        self.transcriber.finished.connect(self.on_transcriber_finished)
+        self.transcriber.finished.connect(self.transcription_thread.quit)
+        self.transcriber.finished.connect(self.transcriber.deleteLater)
+
+        self.transcription_thread.start()
 
     def on_download_model_progress(self, progress: Tuple[float, float]):
         (current_size, total_size) = progress
@@ -566,7 +558,12 @@ class RecordingTranscriberWidget(QWidget):
     def stop_recording(self):
         if self.transcriber is not None:
             self.transcriber.stop_recording()
+        # Disable record button until the transcription is actually stopped in the background
+        self.record_button.setDisabled(True)
         self.timer_label.stop_timer()
+
+    def on_transcriber_finished(self):
+        self.record_button.setEnabled(True)
 
     def on_cancel_model_progress_dialog(self):
         if self.model_loader is not None:
@@ -576,6 +573,15 @@ class RecordingTranscriberWidget(QWidget):
         self.record_button.setDisabled(False)
 
     def reset_model_download(self):
+        if self.model_download_progress_dialog is not None:
+            self.model_download_progress_dialog.close()
+            self.model_download_progress_dialog = None
+
+    def reset_recording_controls(self):
+        # Clear text box placeholder because the first chunk takes a while to process
+        self.text_box.setPlaceholderText('')
+        self.timer_label.start_timer()
+        self.record_button.setDisabled(False)
         if self.model_download_progress_dialog is not None:
             self.model_download_progress_dialog.close()
             self.model_download_progress_dialog = None
