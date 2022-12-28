@@ -27,6 +27,7 @@ from sounddevice import PortAudioError
 from . import transformers_whisper
 from .conn import pipe_stderr
 from .model_loader import TranscriptionModel, ModelType
+from .transformers_whisper import TransformersWhisper
 
 # Catch exception from whisper.dll not getting loaded.
 # TODO: Remove flag and try-except when issue with loading
@@ -129,18 +130,17 @@ class RecordingTranscriber:
         self.current_thread.start()
 
     def process_queue(self):
-        model = WhisperCpp(
-            self.model_path) \
-            if (self.transcription_options.model.model_type == ModelType.WHISPER_CPP and
-                self.transcription_options.language is not None) \
-            else whisper.load_model(self.model_path)
+        if self.transcription_options.model.model_type == ModelType.WHISPER:
+            model = whisper.load_model(self.model_path)
+        elif self.transcription_options.model.model_type == ModelType.WHISPER_CPP:
+            model = WhisperCpp(self.model_path)
+        else:  # ModelType.HUGGING_FACE
+            model = transformers_whisper.load_model(self.model_path)
 
-        logging.debug(
-            'Recording, language = %s, task = %s, device = %s, sample rate = %s, model_path = %s, temperature = %s, '
-            'initial prompt length = %s',
-            self.transcription_options.language, self.transcription_options.task, self.input_device_index,
-            self.sample_rate, self.model_path, self.transcription_options.temperature,
-            len(self.transcription_options.initial_prompt))
+        initial_prompt = self.transcription_options.initial_prompt
+
+        logging.debug('Recording, transcription options = %s, model path = %s, sample rate = %s, device = %s',
+                      self.transcription_options, self.model_path, self.sample_rate, self.input_device_index)
         self.current_stream = sounddevice.InputStream(
             samplerate=self.sample_rate,
             blocksize=1 * self.sample_rate,  # 1 sec
@@ -161,23 +161,32 @@ class RecordingTranscriber:
                               samples.size, self.queue.size, self.amplitude(samples))
                 time_started = datetime.datetime.now()
 
-                if isinstance(model, whisper.Whisper):
+                if self.transcription_options.model.model_type == ModelType.WHISPER:
+                    assert isinstance(model, whisper.Whisper)
                     result = model.transcribe(
                         audio=samples, language=self.transcription_options.language,
                         task=self.transcription_options.task.value,
-                        initial_prompt=self.transcription_options.initial_prompt,
+                        initial_prompt=initial_prompt,
                         temperature=self.transcription_options.temperature)
-                else:
+                elif self.transcription_options.model.model_type == ModelType.WHISPER_CPP:
+                    assert isinstance(model, WhisperCpp)
                     result = model.transcribe(
                         audio=samples,
                         params=whisper_cpp_params(
-                            language=self.transcription_options.language if self.transcription_options.language is not None else 'en',
+                            language=self.transcription_options.language
+                            if self.transcription_options.language is not None else 'en',
                             task=self.transcription_options.task.value, word_level_timings=False))
+                else:
+                    assert isinstance(model, TransformersWhisper)
+                    result = model.transcribe(audio=samples,
+                                              language=self.transcription_options.language
+                                              if self.transcription_options.language is not None else 'en',
+                                              task=self.transcription_options.task.value)
 
                 next_text: str = result.get('text')
 
                 # Update initial prompt between successive recording chunks
-                self.transcription_options.initial_prompt += next_text
+                initial_prompt += next_text
 
                 logging.debug('Received next result, length = %s, time taken = %s',
                               len(next_text), datetime.datetime.now() - time_started)
@@ -437,7 +446,7 @@ def transcribe_whisper(stderr_conn: Connection, task: FileTranscriptionTask):
         if task.transcription_options.model.model_type == ModelType.HUGGING_FACE:
             model = transformers_whisper.load_model(task.model_path)
             language = task.transcription_options.language if task.transcription_options.language is not None else 'en'
-            result = model.transcribe(audio_path=task.file_path, language=language,
+            result = model.transcribe(audio=task.file_path, language=language,
                                       task=task.transcription_options.task.value, verbose=False)
             whisper_segments = result.get('segments')
         else:
