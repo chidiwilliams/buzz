@@ -31,10 +31,10 @@ from buzz.cache import TasksCache
 from .__version__ import VERSION
 from .model_loader import ModelLoader, WhisperModelSize, ModelType, TranscriptionModel
 from .transcriber import (SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
-                          RecordingTranscriber, Task,
+                          Task,
                           WhisperCppFileTranscriber, WhisperFileTranscriber,
                           get_default_output_file_path, segments_to_text, write_output, TranscriptionOptions,
-                          FileTranscriberQueueWorker, FileTranscriptionTask)
+                          FileTranscriberQueueWorker, FileTranscriptionTask, RecordingTranscriber)
 
 APP_NAME = 'Buzz'
 
@@ -203,37 +203,6 @@ class DownloadModelProgressDialog(QProgressDialog):
 
             self.setLabelText(
                 f'Downloading model ({fraction_completed :.0%}, {humanize.naturaldelta(time_left)} remaining)')
-
-
-class RecordingTranscriberObject(QObject):
-    """
-    TranscriberWithSignal exports the text callback from a Transcriber
-    as a QtSignal to allow updating the UI from a secondary thread.
-    """
-
-    event_changed = pyqtSignal(RecordingTranscriber.Event)
-    download_model_progress = pyqtSignal(tuple)
-    transcriber: RecordingTranscriber
-
-    def __init__(self, model_path: str, transcription_options: TranscriptionOptions,
-                 input_device_index: Optional[int], parent: Optional[QWidget]) -> None:
-        super().__init__(parent)
-        self.transcriber = RecordingTranscriber(
-            model_path=model_path, on_download_model_chunk=self.on_download_model_progress,
-            transcription_options=transcription_options,
-            event_callback=self.event_callback, input_device_index=input_device_index)
-
-    def start_recording(self):
-        self.transcriber.start_recording()
-
-    def event_callback(self, event: RecordingTranscriber.Event):
-        self.event_changed.emit(event)
-
-    def on_download_model_progress(self, current: int, total: int):
-        self.download_model_progress.emit((current, total))
-
-    def stop_recording(self):
-        self.transcriber.stop_recording()
 
 
 class TimerLabel(QLabel):
@@ -460,7 +429,7 @@ class RecordingTranscriberWidget(QWidget):
     transcription_options: TranscriptionOptions
     selected_device_id: Optional[int]
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
-    transcriber: Optional[RecordingTranscriberObject] = None
+    transcriber: Optional[RecordingTranscriber] = None
     model_loader: Optional[ModelLoader] = None
     model_loader_thread: Optional[QThread] = None
 
@@ -536,15 +505,13 @@ class RecordingTranscriberWidget(QWidget):
             if self.model_download_progress_dialog is not None:
                 self.model_download_progress_dialog = None
 
-            self.transcriber = RecordingTranscriberObject(
+            self.transcriber = RecordingTranscriber(
                 model_path=model_path, input_device_index=self.selected_device_id,
                 transcription_options=self.transcription_options,
                 parent=self
             )
-            self.transcriber.event_changed.connect(
-                self.on_transcriber_event_changed)
-            self.transcriber.download_model_progress.connect(
-                self.on_download_model_progress)
+            self.transcriber.transcription.connect(
+                self.on_next_transcription)
 
             self.transcriber.start_recording()
 
@@ -587,13 +554,14 @@ class RecordingTranscriberWidget(QWidget):
         self.record_button.force_stop()
         self.record_button.setDisabled(False)
 
-    def on_transcriber_event_changed(self, event: RecordingTranscriber.Event):
-        if isinstance(event, RecordingTranscriber.TranscribedNextChunkEvent):
-            text = event.text.strip()
-            if len(text) > 0:
-                self.text_box.moveCursor(QTextCursor.MoveOperation.End)
-                self.text_box.insertPlainText(text + '\n\n')
-                self.text_box.moveCursor(QTextCursor.MoveOperation.End)
+    def on_next_transcription(self, text: str):
+        text = text.strip()
+        if len(text) > 0:
+            self.text_box.moveCursor(QTextCursor.MoveOperation.End)
+            if len(self.text_box.toPlainText()) > 0:
+                self.text_box.insertPlainText('\n\n')
+            self.text_box.insertPlainText(text)
+            self.text_box.moveCursor(QTextCursor.MoveOperation.End)
 
     def stop_recording(self):
         if self.transcriber is not None:

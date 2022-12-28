@@ -89,31 +89,19 @@ class FileTranscriptionTask:
     error: Optional[str] = None
 
 
-class RecordingTranscriber:
-    """Transcriber records audio from a system microphone and transcribes it into text using Whisper."""
-
+class RecordingTranscriber(QObject):
+    transcription = pyqtSignal(str)
     current_thread: Optional[Thread]
     current_stream: Optional[sounddevice.InputStream]
     is_running = False
     MAX_QUEUE_SIZE = 10
 
-    class Event:
-        pass
-
-    @dataclass
-    class TranscribedNextChunkEvent(Event):
-        text: str
-
-    def __init__(self,
-                 transcription_options: TranscriptionOptions,
-                 model_path: str, on_download_model_chunk: Callable[[
-                int, int], None] = lambda *_: None,
-                 event_callback: Callable[[Event], None] = lambda *_: None,
-                 input_device_index: Optional[int] = None) -> None:
+    def __init__(self, model_path: str, transcription_options: TranscriptionOptions,
+                 input_device_index: Optional[int], parent: Optional[QObject]) -> None:
+        super().__init__(parent)
         self.transcription_options = transcription_options
         self.model_path = model_path
         self.current_stream = None
-        self.event_callback = event_callback
         self.input_device_index = input_device_index
         self.sample_rate = self.get_device_sample_rate(
             device_id=input_device_index)
@@ -122,8 +110,6 @@ class RecordingTranscriber:
         self.max_queue_size = 3 * self.n_batch_samples
         self.queue = np.ndarray([], dtype=np.float32)
         self.mutex = threading.Lock()
-        self.text = ''
-        self.on_download_model_chunk = on_download_model_chunk
 
     def start_recording(self):
         self.current_thread = Thread(target=self.process_queue)
@@ -190,9 +176,7 @@ class RecordingTranscriber:
 
                 logging.debug('Received next result, length = %s, time taken = %s',
                               len(next_text), datetime.datetime.now() - time_started)
-                self.event_callback(self.TranscribedNextChunkEvent(next_text))
-
-                self.text += f'\n\n{next_text}'
+                self.transcription.emit(next_text)
             else:
                 self.mutex.release()
 
@@ -220,7 +204,8 @@ class RecordingTranscriber:
             if self.queue.size < self.max_queue_size:
                 self.queue = np.append(self.queue, chunk)
 
-    def amplitude(self, arr: np.ndarray):
+    @staticmethod
+    def amplitude(arr: np.ndarray):
         return (abs(max(arr)) + abs(min(arr))) / 2
 
     def stop_recording(self):
