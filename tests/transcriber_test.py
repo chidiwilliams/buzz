@@ -45,9 +45,8 @@ class TestRecordingTranscriber:
         transcriber.finished.connect(thread.quit)
         transcriber.finished.connect(transcriber.deleteLater)
 
-        with patch('sounddevice.InputStream') as mock_input_stream_init, patch(
+        with patch('sounddevice.InputStream', side_effect=MockInputStream), patch(
                 'sounddevice.check_input_settings'), qtbot.wait_signal(transcriber.transcription, timeout=60 * 1000):
-            mock_input_stream_init.side_effect = MockInputStream
             thread.start()
 
         with qtbot.wait_signal(thread.finished, timeout=60 * 1000):
