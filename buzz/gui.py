@@ -623,18 +623,17 @@ class RecordingTranscriberWidget(QWidget):
 
 
 def get_asset_path(path: str):
-    base_dir = os.path.dirname(sys.executable if getattr(
-        sys, 'frozen', False) else __file__)
-    return os.path.join(base_dir, path)
+    if getattr(sys, 'frozen', False):
+        return os.path.join(os.path.dirname(sys.executable), path)
+    return os.path.join(__file__, '..', path)
 
 
-BUZZ_ICON_PATH = get_asset_path('../assets/buzz.ico')
-BUZZ_LARGE_ICON_PATH = get_asset_path('../assets/buzz-icon-1024.png')
-RECORD_ICON_PATH = get_asset_path('../assets/record-icon.svg')
-EXPAND_ICON_PATH = get_asset_path(
-    '../assets/up-down-and-down-left-from-center-icon.svg')
-ADD_ICON_PATH = get_asset_path('../assets/circle-plus-icon.svg')
-TRASH_ICON_PATH = get_asset_path('../assets/trash-icon.svg')
+BUZZ_ICON_PATH = get_asset_path('assets/buzz.ico')
+BUZZ_LARGE_ICON_PATH = get_asset_path('assets/buzz-icon-1024.png')
+RECORD_ICON_PATH = get_asset_path('assets/record-icon.svg')
+EXPAND_ICON_PATH = get_asset_path('assets/up-down-and-down-left-from-center-icon.svg')
+ADD_ICON_PATH = get_asset_path('assets/circle-plus-icon.svg')
+TRASH_ICON_PATH = get_asset_path('assets/trash-icon.svg')
 
 
 class AboutDialog(QDialog):

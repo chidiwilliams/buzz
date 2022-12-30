@@ -14,6 +14,11 @@ datas += copy_metadata('packaging')
 datas += copy_metadata('filelock')
 datas += copy_metadata('numpy')
 datas += copy_metadata('tokenizers')
+
+# Allow transformers package to load __init__.py file dynamically:
+# https://github.com/chidiwilliams/buzz/issues/272
+datas += collect_data_files('transformers', include_py_files=True)
+
 datas += collect_data_files('whisper')
 datas += [('whisper.dll' if platform.system() ==
            'Windows' else 'libwhisper.*', '.')]

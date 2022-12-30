@@ -17,7 +17,6 @@ if getattr(sys, 'frozen', False) is False:
 if sys.stderr is None:
     sys.stderr = TextIO()
 
-
 # Adds the current directory to the PATH, so the ffmpeg binary get picked up:
 # https://stackoverflow.com/a/44352931/9830227
 app_dir = getattr(sys, '_MEIPASS', os.path.dirname(
@@ -41,5 +40,6 @@ if __name__ == "__main__":
         format="[%(asctime)s] %(module)s.%(funcName)s:%(lineno)d %(levelname)s -> %(message)s")
 
     from buzz.gui import Application
+
     app = Application()
     sys.exit(app.exec())
