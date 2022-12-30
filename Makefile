@@ -17,11 +17,11 @@ bundle_windows: dist/Buzz
 	cd dist && tar -czf ${windows_zip_path} Buzz/ && cd -
 
 bundle_mac: dist/Buzz.app
-	make codesign_all_mac
-	make zip_mac
-	make notarize_zip
-	make staple_app_mac
-	make dmg_mac
+#	make codesign_all_mac
+#	make zip_mac
+#	make notarize_zip
+#	make staple_app_mac
+#	make dmg_mac
 
 UNAME_S := $(shell uname -s)
 
