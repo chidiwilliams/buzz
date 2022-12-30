@@ -86,8 +86,7 @@ class TestWhisperCppFileTranscriber:
             transcriber.run()
 
         mock_progress.assert_called()
-        exit_code, segments = mock_completed.call_args[0][0]
-        assert exit_code is 0
+        segments = mock_completed.call_args[0][0]
         for expected_segment in expected_segments:
             assert expected_segment in segments
 

@@ -214,7 +214,7 @@ class OutputFormat(enum.Enum):
 
 class WhisperCppFileTranscriber(QObject):
     progress = pyqtSignal(tuple)  # (current, total)
-    completed = pyqtSignal(tuple)  # (exit_code: int, segments: List[Segment])
+    completed = pyqtSignal(list)  # List[Segment]
     error = pyqtSignal(str)
     duration_audio_ms = sys.maxsize  # max int
     segments: List[Segment]
@@ -276,7 +276,7 @@ class WhisperCppFileTranscriber(QObject):
             self.progress.emit(
                 (self.duration_audio_ms, self.duration_audio_ms))
 
-        self.completed.emit((self.process.exitCode(), self.segments))
+        self.completed.emit(self.segments)
         self.running = False
 
     def stop(self):
