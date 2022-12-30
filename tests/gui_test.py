@@ -317,7 +317,7 @@ class TestTranscriptionTasksTableWidget:
         assert self.widget.item(0, 2).text() == 'In Progress (35%)'
 
 
-@pytest.mark.skipif(platform.system() == 'Windows', reason='windows')
+@pytest.mark.skip()
 class TestRecordingTranscriberWidget:
     def test_should_set_window_title(self, qtbot: QtBot):
         widget = RecordingTranscriberWidget()
