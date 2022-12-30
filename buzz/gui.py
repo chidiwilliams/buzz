@@ -16,14 +16,14 @@ from PyQt6.QtCore import (QDateTime, QObject, Qt, QThread,
                           QTimer, QUrl, pyqtSignal, QModelIndex, QSize, QPoint,
                           QUrlQuery, QMetaObject, QEvent)
 from PyQt6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
-                         QKeySequence, QPixmap, QTextCursor, QValidator, QKeyEvent)
+                         QKeySequence, QPixmap, QTextCursor, QValidator, QKeyEvent, QPainter, QColor)
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
 from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
                              QDialogButtonBox, QFileDialog, QLabel, QLineEdit,
                              QMainWindow, QMessageBox, QPlainTextEdit,
                              QProgressDialog, QPushButton, QVBoxLayout, QHBoxLayout, QMenu,
                              QWidget, QGroupBox, QToolBar, QTableWidget, QMenuBar, QFormLayout, QTableWidgetItem,
-                             QHeaderView, QAbstractItemView, QListWidget, QListWidgetItem)
+                             QHeaderView, QAbstractItemView, QListWidget, QListWidgetItem, QToolButton)
 from requests import get
 from whisper import tokenizer
 
@@ -34,7 +34,7 @@ from .transcriber import (SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, Ou
                           Task,
                           WhisperCppFileTranscriber, WhisperFileTranscriber,
                           get_default_output_file_path, segments_to_text, write_output, TranscriptionOptions,
-                          FileTranscriberQueueWorker, FileTranscriptionTask, RecordingTranscriber)
+                          FileTranscriberQueueWorker, FileTranscriptionTask, RecordingTranscriber, LOADED_WHISPER_DLL)
 
 APP_NAME = 'Buzz'
 
@@ -64,26 +64,28 @@ class AudioDevicesComboBox(QComboBox):
     device_changed = pyqtSignal(int)
     audio_devices: List[Tuple[int, str]]
 
-    def __init__(self, parent: Optional[QWidget] = None, *args) -> None:
-        super().__init__(parent, *args)
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
         self.audio_devices = self.get_audio_devices()
-        self.addItems(map(lambda device: device[1], self.audio_devices))
+        self.addItems([device[1] for device in self.audio_devices])
         self.currentIndexChanged.connect(self.on_index_changed)
-        if self.get_default_device_id() != -1:
-            default_device_index = next(i for i, device in enumerate(
-                self.audio_devices) if device[0] == self.get_default_device_id())
-            self.setCurrentIndex(default_device_index)
+
+        default_device_id = self.get_default_device_id()
+        if default_device_id != -1:
+            for i, device in enumerate(self.audio_devices):
+                if device[0] == default_device_id:
+                    self.setCurrentIndex(i)
 
     def get_audio_devices(self) -> List[Tuple[int, str]]:
         try:
             devices: sounddevice.DeviceList = sounddevice.query_devices()
-            input_devices = filter(
-                lambda device: device.get('max_input_channels') > 0, devices)
-            return list(map(lambda device: (device.get('index'), device.get('name')), input_devices))
+            return [(device.get('index'), device.get('name'))
+                    for device in devices if device.get('max_input_channels') > 0]
         except UnicodeDecodeError:
             QMessageBox.critical(
                 self, '',
-                'An error occured while loading your audio devices. Please check the application logs for more information.')
+                'An error occurred while loading your audio devices. Please check the application logs for more '
+                'information.')
             return []
 
     def on_index_changed(self, index: int):
@@ -441,8 +443,9 @@ class RecordingTranscriberWidget(QWidget):
 
         self.setWindowTitle('Live Recording')
 
-        self.transcription_options = TranscriptionOptions(model=TranscriptionModel(model_type=ModelType.WHISPER_CPP,
-                                                                                   whisper_model_size=WhisperModelSize.TINY))
+        self.transcription_options = TranscriptionOptions(
+            model=TranscriptionModel(model_type=ModelType.WHISPER_CPP if LOADED_WHISPER_DLL else ModelType.WHISPER,
+                                     whisper_model_size=WhisperModelSize.TINY))
 
         self.audio_devices_combo_box = AudioDevicesComboBox(self)
         self.audio_devices_combo_box.device_changed.connect(
@@ -742,19 +745,19 @@ class MainWindowToolbar(QToolBar):
     def __init__(self, parent: Optional[QWidget]):
         super().__init__(parent)
 
-        record_action = QAction(QIcon(RECORD_ICON_PATH), 'Record', self)
+        record_action = QAction(self.load_icon(RECORD_ICON_PATH), 'Record', self)
         record_action.triggered.connect(self.on_record_action_triggered)
 
         new_transcription_action = QAction(
-            QIcon(ADD_ICON_PATH), 'New Transcription', self)
+            self.load_icon(ADD_ICON_PATH), 'New Transcription', self)
         self.new_transcription_action_triggered = new_transcription_action.triggered
 
-        self.open_transcript_action = QAction(QIcon(EXPAND_ICON_PATH),
+        self.open_transcript_action = QAction(self.load_icon(EXPAND_ICON_PATH),
                                               'Open Transcript', self)
         self.open_transcript_action_triggered = self.open_transcript_action.triggered
         self.open_transcript_action.setDisabled(True)
 
-        self.clear_history_action = QAction(QIcon(TRASH_ICON_PATH), 'Clear History', self)
+        self.clear_history_action = QAction(self.load_icon(TRASH_ICON_PATH), 'Clear History', self)
         self.clear_history_action_triggered = self.clear_history_action.triggered
         self.clear_history_action.setDisabled(True)
 
@@ -767,10 +770,29 @@ class MainWindowToolbar(QToolBar):
         self.setIconSize(QSize(16, 16))
         self.setContentsMargins(0, 2, 0, 2)
 
+        for action in self.actions():
+            widget = self.widgetForAction(action)
+            if isinstance(widget, QToolButton):
+                widget.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
+
         # Fix spacing issue on Mac
         if platform.system() == 'Darwin':
             self.widgetForAction(self.actions()[0]).setStyleSheet(
                 'QToolButton { margin-left: 9px; margin-right: 1px; }')
+
+    def load_icon(self, file_path: str):
+        is_dark_background = self.palette().window().color().black() > 127
+        return self.load_icon_with_color(file_path, '#888' if is_dark_background else '#444')
+
+    @staticmethod
+    def load_icon_with_color(file_path: str, color: str):
+        """Adapted from https://stackoverflow.com/questions/15123544/change-the-color-of-an-svg-in-qt"""
+        pixmap = QPixmap(file_path)
+        painter = QPainter(pixmap)
+        painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
+        painter.fillRect(pixmap.rect(), QColor(color))
+        painter.end()
+        return QIcon(pixmap)
 
     def on_record_action_triggered(self):
         recording_transcriber_window = RecordingTranscriberWidget(
@@ -1082,7 +1104,12 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.hugging_face_search_line_edit.model_selected.connect(self.on_hugging_face_model_changed)
 
         self.model_type_combo_box = QComboBox(self)
-        self.model_type_combo_box.addItems([model_type.value for model_type in ModelType])
+        for model_type in ModelType:
+            # Hide Whisper.cpp option is whisper.dll did not load correctly.
+            # See: https://github.com/chidiwilliams/buzz/issues/274, https://github.com/chidiwilliams/buzz/issues/197
+            if model_type == ModelType.WHISPER_CPP and LOADED_WHISPER_DLL is False:
+                continue
+            self.model_type_combo_box.addItem(model_type.value)
         self.model_type_combo_box.setCurrentText(default_transcription_options.model.model_type.value)
         self.model_type_combo_box.currentTextChanged.connect(self.on_model_type_changed)
 
