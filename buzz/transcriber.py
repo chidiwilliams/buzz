@@ -288,6 +288,7 @@ class WhisperCppFileTranscriber(QObject):
     def read_std_out(self):
         try:
             output = self.process.readAllStandardOutput().data().decode('UTF-8').strip()
+            logging.debug('whisper_cpp (output): %s', output)
 
             if len(output) > 0:
                 lines = output.split('\n')
@@ -304,7 +305,8 @@ class WhisperCppFileTranscriber(QObject):
         start, end = timings[1:len(timings) - 1].split(' --> ')
         return self.parse_timestamp(start), self.parse_timestamp(end)
 
-    def parse_timestamp(self, timestamp: str) -> int:
+    @staticmethod
+    def parse_timestamp(timestamp: str) -> int:
         hrs, mins, secs_ms = timestamp.split(':')
         secs, ms = secs_ms.split('.')
         return int(hrs) * 60 * 60 * 1000 + int(mins) * 60 * 1000 + int(secs) * 1000 + int(ms)
