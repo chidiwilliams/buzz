@@ -49,7 +49,7 @@ jobs:
           path: |
             ~/Library/Caches/Buzz
             ~/.cache/whisper
-            ~/AppData/Local/Buzz/Cache
+            ~/AppData/Local/Buzz/Buzz/Cache
           key: whisper-models-${{ runner.os }}
 
       - uses: FedericoCarboni/setup-ffmpeg@v1
