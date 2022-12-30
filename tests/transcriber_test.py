@@ -20,7 +20,7 @@ from tests.mock_sounddevice import MockInputStream
 from tests.model_loader import get_model_path
 
 
-@pytest.mark.skipif(platform.system() == 'Windows', reason='windows')
+@pytest.mark.skip()
 class TestRecordingTranscriber:
     def test_should_transcribe(self, qtbot):
         thread = QThread()
