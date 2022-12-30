@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 import whisper
@@ -23,8 +23,10 @@ class TransformersWhisper:
     # Patch implementation of transcribing with transformers' WhisperProcessor until long-form transcription and
     # timestamps are available. See: https://github.com/huggingface/transformers/issues/19887,
     # https://github.com/huggingface/transformers/pull/20620.
-    def transcribe(self, audio_path: str, language: str, task: str, verbose: Optional[bool] = None):
-        audio: np.ndarray = whisper.load_audio(audio_path, sr=self.SAMPLE_RATE)
+    def transcribe(self, audio: Union[str, np.ndarray], language: str, task: str, verbose: Optional[bool] = None):
+        if isinstance(audio, str):
+            audio = whisper.load_audio(audio, sr=self.SAMPLE_RATE)
+
         self.model.config.forced_decoder_ids = self.processor.get_decoder_prompt_ids(task=task, language=language)
 
         segments = []

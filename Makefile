@@ -16,12 +16,7 @@ bundle_windows: dist/Buzz
 	iscc //DAppVersion=${version} installer.iss
 	cd dist && tar -czf ${windows_zip_path} Buzz/ && cd -
 
-bundle_mac: dist/Buzz.app
-	make codesign_all_mac
-	make zip_mac
-	make notarize_zip
-	make staple_app_mac
-	make dmg_mac
+bundle_mac: dist/Buzz.app codesign_all_mac zip_mac notarize_zip staple_app_mac dmg_mac
 
 UNAME_S := $(shell uname -s)
 

@@ -27,6 +27,7 @@ from sounddevice import PortAudioError
 from . import transformers_whisper
 from .conn import pipe_stderr
 from .model_loader import TranscriptionModel, ModelType
+from .transformers_whisper import TransformersWhisper
 
 # Catch exception from whisper.dll not getting loaded.
 # TODO: Remove flag and try-except when issue with loading
@@ -88,38 +89,18 @@ class FileTranscriptionTask:
     error: Optional[str] = None
 
 
-class RecordingTranscriber:
-    """Transcriber records audio from a system microphone and transcribes it into text using Whisper."""
-
-    current_thread: Optional[Thread]
-    current_stream: Optional[sounddevice.InputStream]
+class RecordingTranscriber(QObject):
+    transcription = pyqtSignal(str)
+    finished = pyqtSignal()
     is_running = False
     MAX_QUEUE_SIZE = 10
 
-    class Event:
-        pass
-
-    @dataclass
-    class TranscribedNextChunkEvent(Event):
-        text: str
-
-    def __init__(self,
-                 model_path: str, use_whisper_cpp: bool,
-                 language: Optional[str], task: Task,
-                 temperature: Tuple[float, ...] = DEFAULT_WHISPER_TEMPERATURE, initial_prompt: str = '',
-                 on_download_model_chunk: Callable[[
-                     int, int], None] = lambda *_: None,
-                 event_callback: Callable[[Event], None] = lambda *_: None,
-                 input_device_index: Optional[int] = None) -> None:
-        self.model_path = model_path
-        self.use_whisper_cpp = use_whisper_cpp
+    def __init__(self, transcription_options: TranscriptionOptions,
+                 input_device_index: Optional[int], parent: Optional[QObject] = None) -> None:
+        super().__init__(parent)
+        self.transcription_options = transcription_options
         self.current_stream = None
-        self.event_callback = event_callback
-        self.language = language
-        self.task = task
         self.input_device_index = input_device_index
-        self.temperature = temperature
-        self.initial_prompt = initial_prompt
         self.sample_rate = self.get_device_sample_rate(
             device_id=input_device_index)
         self.n_batch_samples = 5 * self.sample_rate  # every 5 seconds
@@ -127,68 +108,74 @@ class RecordingTranscriber:
         self.max_queue_size = 3 * self.n_batch_samples
         self.queue = np.ndarray([], dtype=np.float32)
         self.mutex = threading.Lock()
-        self.text = ''
-        self.on_download_model_chunk = on_download_model_chunk
 
-    def start_recording(self):
-        self.current_thread = Thread(target=self.process_queue)
-        self.current_thread.start()
+    @pyqtSlot(str)
+    def start(self, model_path: str):
+        if self.transcription_options.model.model_type == ModelType.WHISPER:
+            model = whisper.load_model(model_path)
+        elif self.transcription_options.model.model_type == ModelType.WHISPER_CPP:
+            model = WhisperCpp(model_path)
+        else:  # ModelType.HUGGING_FACE
+            model = transformers_whisper.load_model(model_path)
 
-    def process_queue(self):
-        model = WhisperCpp(
-            self.model_path) if self.use_whisper_cpp else whisper.load_model(self.model_path)
+        initial_prompt = self.transcription_options.initial_prompt
 
-        logging.debug(
-            'Recording, language = %s, task = %s, device = %s, sample rate = %s, model_path = %s, temperature = %s, '
-            'initial prompt length = %s',
-            self.language, self.task, self.input_device_index, self.sample_rate, self.model_path, self.temperature,
-            len(self.initial_prompt))
-        self.current_stream = sounddevice.InputStream(
-            samplerate=self.sample_rate,
-            blocksize=1 * self.sample_rate,  # 1 sec
-            device=self.input_device_index, dtype="float32",
-            channels=1, callback=self.stream_callback)
-        self.current_stream.start()
+        logging.debug('Recording, transcription options = %s, model path = %s, sample rate = %s, device = %s',
+                      self.transcription_options, model_path, self.sample_rate, self.input_device_index)
 
         self.is_running = True
+        with sounddevice.InputStream(samplerate=self.sample_rate,
+                                     blocksize=1 * self.sample_rate,  # 1 sec
+                                     device=self.input_device_index, dtype="float32",
+                                     channels=1, callback=self.stream_callback):
+            while self.is_running:
+                self.mutex.acquire()
+                if self.queue.size >= self.n_batch_samples:
+                    samples = self.queue[:self.n_batch_samples]
+                    self.queue = self.queue[self.n_batch_samples:]
+                    self.mutex.release()
 
-        while self.is_running:
-            self.mutex.acquire()
-            if self.queue.size >= self.n_batch_samples:
-                samples = self.queue[:self.n_batch_samples]
-                self.queue = self.queue[self.n_batch_samples:]
-                self.mutex.release()
+                    logging.debug('Processing next frame, sample size = %s, queue size = %s, amplitude = %s',
+                                  samples.size, self.queue.size, self.amplitude(samples))
+                    time_started = datetime.datetime.now()
 
-                logging.debug('Processing next frame, sample size = %s, queue size = %s, amplitude = %s',
-                              samples.size, self.queue.size, self.amplitude(samples))
-                time_started = datetime.datetime.now()
+                    if self.transcription_options.model.model_type == ModelType.WHISPER:
+                        assert isinstance(model, whisper.Whisper)
+                        result = model.transcribe(
+                            audio=samples, language=self.transcription_options.language,
+                            task=self.transcription_options.task.value,
+                            initial_prompt=initial_prompt,
+                            temperature=self.transcription_options.temperature)
+                    elif self.transcription_options.model.model_type == ModelType.WHISPER_CPP:
+                        assert isinstance(model, WhisperCpp)
+                        result = model.transcribe(
+                            audio=samples,
+                            params=whisper_cpp_params(
+                                language=self.transcription_options.language
+                                if self.transcription_options.language is not None else 'en',
+                                task=self.transcription_options.task.value, word_level_timings=False))
+                    else:
+                        assert isinstance(model, TransformersWhisper)
+                        result = model.transcribe(audio=samples,
+                                                  language=self.transcription_options.language
+                                                  if self.transcription_options.language is not None else 'en',
+                                                  task=self.transcription_options.task.value)
 
-                if isinstance(model, whisper.Whisper):
-                    result = model.transcribe(
-                        audio=samples, language=self.language,
-                        task=self.task.value, initial_prompt=self.initial_prompt,
-                        temperature=self.temperature)
+                    next_text: str = result.get('text')
+
+                    # Update initial prompt between successive recording chunks
+                    initial_prompt += next_text
+
+                    logging.debug('Received next result, length = %s, time taken = %s',
+                                  len(next_text), datetime.datetime.now() - time_started)
+                    self.transcription.emit(next_text)
                 else:
-                    result = model.transcribe(
-                        audio=samples,
-                        params=whisper_cpp_params(
-                            language=self.language if self.language is not None else 'en',
-                            task=self.task.value, word_level_timings=False))
+                    self.mutex.release()
 
-                next_text: str = result.get('text')
+        self.finished.emit()
 
-                # Update initial prompt between successive recording chunks
-                self.initial_prompt += next_text
-
-                logging.debug('Received next result, length = %s, time taken = %s',
-                              len(next_text), datetime.datetime.now() - time_started)
-                self.event_callback(self.TranscribedNextChunkEvent(next_text))
-
-                self.text += f'\n\n{next_text}'
-            else:
-                self.mutex.release()
-
-    def get_device_sample_rate(self, device_id: Optional[int]) -> int:
+    @staticmethod
+    def get_device_sample_rate(device_id: Optional[int]) -> int:
         """Returns the sample rate to be used for recording. It uses the default sample rate
         provided by Whisper if the microphone supports it, or else it uses the device's default
         sample rate.
@@ -204,28 +191,19 @@ class RecordingTranscriber:
                 return int(device_info.get('default_samplerate', whisper_sample_rate))
             return whisper_sample_rate
 
-    def stream_callback(self, in_data, frame_count, time_info, status):
+    def stream_callback(self, in_data: np.ndarray, frame_count, time_info, status):
         # Try to enqueue the next block. If the queue is already full, drop the block.
         chunk: np.ndarray = in_data.ravel()
         with self.mutex:
             if self.queue.size < self.max_queue_size:
                 self.queue = np.append(self.queue, chunk)
 
-    def amplitude(self, arr: np.ndarray):
+    @staticmethod
+    def amplitude(arr: np.ndarray):
         return (abs(max(arr)) + abs(min(arr))) / 2
 
     def stop_recording(self):
-        if self.is_running:
-            self.is_running = False
-
-            if self.current_stream is not None:
-                self.current_stream.close()
-                logging.debug('Closed recording stream')
-
-            if self.current_thread is not None:
-                logging.debug('Waiting for recording thread to terminate')
-                self.current_thread.join()
-                logging.debug('Recording thread terminated')
+        self.is_running = False
 
 
 class OutputFormat(enum.Enum):
@@ -236,7 +214,7 @@ class OutputFormat(enum.Enum):
 
 class WhisperCppFileTranscriber(QObject):
     progress = pyqtSignal(tuple)  # (current, total)
-    completed = pyqtSignal(tuple)  # (exit_code: int, segments: List[Segment])
+    completed = pyqtSignal(list)  # List[Segment]
     error = pyqtSignal(str)
     duration_audio_ms = sys.maxsize  # max int
     segments: List[Segment]
@@ -298,7 +276,7 @@ class WhisperCppFileTranscriber(QObject):
             self.progress.emit(
                 (self.duration_audio_ms, self.duration_audio_ms))
 
-        self.completed.emit((self.process.exitCode(), self.segments))
+        self.completed.emit(self.segments)
         self.running = False
 
     def stop(self):
@@ -310,6 +288,7 @@ class WhisperCppFileTranscriber(QObject):
     def read_std_out(self):
         try:
             output = self.process.readAllStandardOutput().data().decode('UTF-8').strip()
+            logging.debug('whisper_cpp (output): %s', output)
 
             if len(output) > 0:
                 lines = output.split('\n')
@@ -326,7 +305,8 @@ class WhisperCppFileTranscriber(QObject):
         start, end = timings[1:len(timings) - 1].split(' --> ')
         return self.parse_timestamp(start), self.parse_timestamp(end)
 
-    def parse_timestamp(self, timestamp: str) -> int:
+    @staticmethod
+    def parse_timestamp(timestamp: str) -> int:
         hrs, mins, secs_ms = timestamp.split(':')
         secs, ms = secs_ms.split('.')
         return int(hrs) * 60 * 60 * 1000 + int(mins) * 60 * 1000 + int(secs) * 1000 + int(ms)
@@ -363,28 +343,15 @@ class WhisperFileTranscriber(QObject):
                  parent: Optional['QObject'] = None) -> None:
         super().__init__(parent)
 
-        self.file_path = task.file_path
-        self.language = task.transcription_options.language
-        self.task = task.transcription_options.task
-        self.word_level_timings = task.transcription_options.word_level_timings
-        self.temperature = task.transcription_options.temperature
-        self.initial_prompt = task.transcription_options.initial_prompt
-        self.model_path = task.model_path
-        self.transcription_options = task.transcription_options
         self.transcription_task = task
         self.segments = []
 
     @pyqtSlot()
     def run(self):
         self.running = True
-        model_path = self.model_path
         time_started = datetime.datetime.now()
         logging.debug(
-            'Starting whisper file transcription, file path = %s, language = %s, task = %s, model path = %s, '
-            'temperature = %s, initial prompt length = %s, word level timings = %s',
-            self.file_path, self.language, self.task, model_path, self.temperature, len(
-                self.initial_prompt),
-            self.word_level_timings)
+            'Starting whisper file transcription, task = %s', self.transcription_task)
 
         recv_pipe, send_pipe = multiprocessing.Pipe(duplex=False)
 
@@ -450,7 +417,7 @@ def transcribe_whisper(stderr_conn: Connection, task: FileTranscriptionTask):
         if task.transcription_options.model.model_type == ModelType.HUGGING_FACE:
             model = transformers_whisper.load_model(task.model_path)
             language = task.transcription_options.language if task.transcription_options.language is not None else 'en'
-            result = model.transcribe(audio_path=task.file_path, language=language,
+            result = model.transcribe(audio=task.file_path, language=language,
                                       task=task.transcription_options.task.value, verbose=False)
             whisper_segments = result.get('segments')
         else:
@@ -596,7 +563,7 @@ class WhisperCpp:
             'text': ''.join([segment.text for segment in segments])}
 
     def __del__(self):
-        whisper_cpp.whisper_free((self.ctx))
+        whisper_cpp.whisper_free(self.ctx)
 
 
 class FileTranscriberQueueWorker(QObject):

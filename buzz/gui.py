@@ -31,10 +31,10 @@ from buzz.cache import TasksCache
 from .__version__ import VERSION
 from .model_loader import ModelLoader, WhisperModelSize, ModelType, TranscriptionModel
 from .transcriber import (SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
-                          RecordingTranscriber, Task,
+                          Task,
                           WhisperCppFileTranscriber, WhisperFileTranscriber,
                           get_default_output_file_path, segments_to_text, write_output, TranscriptionOptions,
-                          FileTranscriberQueueWorker, FileTranscriptionTask)
+                          FileTranscriberQueueWorker, FileTranscriptionTask, RecordingTranscriber)
 
 APP_NAME = 'Buzz'
 
@@ -171,6 +171,7 @@ class RecordButton(QPushButton):
 
         self.status_changed.emit(current_status)
 
+    # TODO: control the text and status from the caller
     def on_status_changed(self, status: Status):
         self.current_status = status
         if status == self.Status.RECORDING:
@@ -203,40 +204,6 @@ class DownloadModelProgressDialog(QProgressDialog):
 
             self.setLabelText(
                 f'Downloading model ({fraction_completed :.0%}, {humanize.naturaldelta(time_left)} remaining)')
-
-
-class RecordingTranscriberObject(QObject):
-    """
-    TranscriberWithSignal exports the text callback from a Transcriber
-    as a QtSignal to allow updating the UI from a secondary thread.
-    """
-
-    event_changed = pyqtSignal(RecordingTranscriber.Event)
-    download_model_progress = pyqtSignal(tuple)
-    transcriber: RecordingTranscriber
-
-    def __init__(self, model_path: str, use_whisper_cpp, language: Optional[str],
-                 task: Task, input_device_index: Optional[int], temperature: Tuple[float, ...], initial_prompt: str,
-                 parent: Optional[QWidget], *args) -> None:
-        super().__init__(parent, *args)
-        self.transcriber = RecordingTranscriber(
-            model_path=model_path, use_whisper_cpp=use_whisper_cpp,
-            on_download_model_chunk=self.on_download_model_progress, language=language, temperature=temperature,
-            initial_prompt=initial_prompt,
-            event_callback=self.event_callback, task=task,
-            input_device_index=input_device_index)
-
-    def start_recording(self):
-        self.transcriber.start_recording()
-
-    def event_callback(self, event: RecordingTranscriber.Event):
-        self.event_changed.emit(event)
-
-    def on_download_model_progress(self, current: int, total: int):
-        self.download_model_progress.emit((current, total))
-
-    def stop_recording(self):
-        self.transcriber.stop_recording()
 
 
 class TimerLabel(QLabel):
@@ -463,9 +430,9 @@ class RecordingTranscriberWidget(QWidget):
     transcription_options: TranscriptionOptions
     selected_device_id: Optional[int]
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
-    transcriber: Optional[RecordingTranscriberObject] = None
+    transcriber: Optional[RecordingTranscriber] = None
     model_loader: Optional[ModelLoader] = None
-    model_loader_thread: Optional[QThread] = None
+    transcription_thread: Optional[QThread] = None
 
     def __init__(self, parent: Optional[QWidget] = None, flags: Qt.WindowType = Qt.WindowType.Widget) -> None:
         super().__init__(parent, flags)
@@ -531,52 +498,35 @@ class RecordingTranscriberWidget(QWidget):
     def start_recording(self):
         self.record_button.setDisabled(True)
 
-        use_whisper_cpp = self.transcription_options.model.model_type == ModelType.WHISPER_CPP and \
-                          self.transcription_options.language is not None
-
-        def start_recording_transcription(model_path: str):
-            # Clear text box placeholder because the first chunk takes a while to process
-            self.text_box.setPlaceholderText('')
-            self.timer_label.start_timer()
-            self.record_button.setDisabled(False)
-            if self.model_download_progress_dialog is not None:
-                self.model_download_progress_dialog = None
-
-            self.transcriber = RecordingTranscriberObject(
-                model_path=model_path, use_whisper_cpp=use_whisper_cpp,
-                language=self.transcription_options.language, task=self.transcription_options.task,
-                input_device_index=self.selected_device_id,
-                temperature=self.transcription_options.temperature,
-                initial_prompt=self.transcription_options.initial_prompt,
-                parent=self
-            )
-            self.transcriber.event_changed.connect(
-                self.on_transcriber_event_changed)
-            self.transcriber.download_model_progress.connect(
-                self.on_download_model_progress)
-
-            self.transcriber.start_recording()
-
-        self.model_loader_thread = QThread()
+        self.transcription_thread = QThread()
 
         self.model_loader = ModelLoader(model=self.transcription_options.model)
+        self.transcriber = RecordingTranscriber(input_device_index=self.selected_device_id,
+                                                transcription_options=self.transcription_options)
 
-        self.model_loader.moveToThread(self.model_loader_thread)
+        self.model_loader.moveToThread(self.transcription_thread)
+        self.transcriber.moveToThread(self.transcription_thread)
 
-        self.model_loader_thread.started.connect(self.model_loader.run)
-        self.model_loader.finished.connect(self.model_loader_thread.quit)
+        self.transcription_thread.started.connect(self.model_loader.run)
+        self.transcription_thread.finished.connect(
+            self.transcription_thread.deleteLater)
 
+        self.model_loader.finished.connect(self.reset_recording_controls)
+        self.model_loader.finished.connect(self.transcriber.start)
         self.model_loader.finished.connect(self.model_loader.deleteLater)
-        self.model_loader_thread.finished.connect(
-            self.model_loader_thread.deleteLater)
 
         self.model_loader.progress.connect(
             self.on_download_model_progress)
 
-        self.model_loader.finished.connect(start_recording_transcription)
         self.model_loader.error.connect(self.on_download_model_error)
 
-        self.model_loader_thread.start()
+        self.transcriber.transcription.connect(self.on_next_transcription)
+
+        self.transcriber.finished.connect(self.on_transcriber_finished)
+        self.transcriber.finished.connect(self.transcription_thread.quit)
+        self.transcriber.finished.connect(self.transcriber.deleteLater)
+
+        self.transcription_thread.start()
 
     def on_download_model_progress(self, progress: Tuple[float, float]):
         (current_size, total_size) = progress
@@ -596,18 +546,24 @@ class RecordingTranscriberWidget(QWidget):
         self.record_button.force_stop()
         self.record_button.setDisabled(False)
 
-    def on_transcriber_event_changed(self, event: RecordingTranscriber.Event):
-        if isinstance(event, RecordingTranscriber.TranscribedNextChunkEvent):
-            text = event.text.strip()
-            if len(text) > 0:
-                self.text_box.moveCursor(QTextCursor.MoveOperation.End)
-                self.text_box.insertPlainText(text + '\n\n')
-                self.text_box.moveCursor(QTextCursor.MoveOperation.End)
+    def on_next_transcription(self, text: str):
+        text = text.strip()
+        if len(text) > 0:
+            self.text_box.moveCursor(QTextCursor.MoveOperation.End)
+            if len(self.text_box.toPlainText()) > 0:
+                self.text_box.insertPlainText('\n\n')
+            self.text_box.insertPlainText(text)
+            self.text_box.moveCursor(QTextCursor.MoveOperation.End)
 
     def stop_recording(self):
         if self.transcriber is not None:
             self.transcriber.stop_recording()
+        # Disable record button until the transcription is actually stopped in the background
+        self.record_button.setDisabled(True)
         self.timer_label.stop_timer()
+
+    def on_transcriber_finished(self):
+        self.record_button.setEnabled(True)
 
     def on_cancel_model_progress_dialog(self):
         if self.model_loader is not None:
@@ -617,6 +573,15 @@ class RecordingTranscriberWidget(QWidget):
         self.record_button.setDisabled(False)
 
     def reset_model_download(self):
+        if self.model_download_progress_dialog is not None:
+            self.model_download_progress_dialog.close()
+            self.model_download_progress_dialog = None
+
+    def reset_recording_controls(self):
+        # Clear text box placeholder because the first chunk takes a while to process
+        self.text_box.setPlaceholderText('')
+        self.timer_label.start_timer()
+        self.record_button.setDisabled(False)
         if self.model_download_progress_dialog is not None:
             self.model_download_progress_dialog.close()
             self.model_download_progress_dialog = None
@@ -1091,7 +1056,8 @@ class TranscriptionOptionsGroupBox(QGroupBox):
     transcription_options: TranscriptionOptions
     transcription_options_changed = pyqtSignal(TranscriptionOptions)
 
-    def __init__(self, default_transcription_options: TranscriptionOptions, parent: Optional[QWidget] = None):
+    def __init__(self, default_transcription_options: TranscriptionOptions = TranscriptionOptions(),
+                 parent: Optional[QWidget] = None):
         super().__init__(title='', parent=parent)
         self.transcription_options = default_transcription_options
 
@@ -1115,10 +1081,10 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.hugging_face_search_line_edit = HuggingFaceSearchLineEdit()
         self.hugging_face_search_line_edit.model_selected.connect(self.on_hugging_face_model_changed)
 
-        model_type_combo_box = QComboBox(self)
-        model_type_combo_box.addItems([model_type.value for model_type in ModelType])
-        model_type_combo_box.setCurrentText(default_transcription_options.model.model_type.value)
-        model_type_combo_box.currentTextChanged.connect(self.on_model_type_changed)
+        self.model_type_combo_box = QComboBox(self)
+        self.model_type_combo_box.addItems([model_type.value for model_type in ModelType])
+        self.model_type_combo_box.setCurrentText(default_transcription_options.model.model_type.value)
+        self.model_type_combo_box.currentTextChanged.connect(self.on_model_type_changed)
 
         self.whisper_model_size_combo_box = QComboBox(self)
         self.whisper_model_size_combo_box.addItems([size.value.title() for size in WhisperModelSize])
@@ -1129,7 +1095,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
 
         self.form_layout.addRow('Task:', self.tasks_combo_box)
         self.form_layout.addRow('Language:', self.languages_combo_box)
-        self.form_layout.addRow('Model:', model_type_combo_box)
+        self.form_layout.addRow('Model:', self.model_type_combo_box)
         self.form_layout.addRow('', self.whisper_model_size_combo_box)
         self.form_layout.addRow('', self.hugging_face_search_line_edit)
 
@@ -1171,7 +1137,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.form_layout.setRowVisible(self.hugging_face_search_line_edit, model_type == ModelType.HUGGING_FACE)
         self.form_layout.setRowVisible(self.whisper_model_size_combo_box,
                                        (model_type == ModelType.WHISPER) or (model_type == ModelType.WHISPER_CPP))
-        self.transcription_options.model_type = model_type
+        self.transcription_options.model.model_type = model_type
         self.transcription_options_changed.emit(self.transcription_options)
 
     def on_whisper_model_size_changed(self, text: str):
@@ -1180,7 +1146,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.transcription_options_changed.emit(self.transcription_options)
 
     def on_hugging_face_model_changed(self, model: str):
-        self.transcription_options.hugging_face_model = model
+        self.transcription_options.model.hugging_face_model_id = model
         self.transcription_options_changed.emit(self.transcription_options)
 
 

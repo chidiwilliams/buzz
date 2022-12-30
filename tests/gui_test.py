@@ -1,6 +1,7 @@
 import logging
 import os.path
 import pathlib
+import platform
 from unittest.mock import Mock, patch
 
 import pytest
@@ -16,9 +17,12 @@ from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
                       RecordingTranscriberWidget,
                       TemperatureValidator, TextDisplayBox,
-                      TranscriptionTasksTableWidget, TranscriptionViewerWidget, HuggingFaceSearchLineEdit)
+                      TranscriptionTasksTableWidget, TranscriptionViewerWidget, HuggingFaceSearchLineEdit,
+                      TranscriptionOptionsGroupBox)
+from buzz.model_loader import ModelType
 from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask,
                               Segment, TranscriptionOptions)
+from tests.mock_sounddevice import MockInputStream
 
 
 class TestApplication:
@@ -313,12 +317,28 @@ class TestTranscriptionTasksTableWidget:
         assert self.widget.item(0, 2).text() == 'In Progress (35%)'
 
 
+@pytest.mark.skip()
 class TestRecordingTranscriberWidget:
-    widget = RecordingTranscriberWidget()
-
     def test_should_set_window_title(self, qtbot: QtBot):
-        qtbot.add_widget(self.widget)
-        assert self.widget.windowTitle() == 'Live Recording'
+        widget = RecordingTranscriberWidget()
+        qtbot.add_widget(widget)
+        assert widget.windowTitle() == 'Live Recording'
+
+    def test_should_transcribe(self, qtbot):
+        widget = RecordingTranscriberWidget()
+        qtbot.add_widget(widget)
+
+        def assert_text_box_contains_text():
+            assert len(widget.text_box.toPlainText()) > 0
+
+        with patch('sounddevice.InputStream', side_effect=MockInputStream), patch('sounddevice.check_input_settings'):
+            widget.record_button.click()
+            qtbot.wait_until(callback=assert_text_box_contains_text, timeout=60 * 1000)
+
+        with qtbot.wait_signal(widget.transcription_thread.finished, timeout=60 * 1000):
+            widget.stop_recording()
+
+        assert 'Welcome to Passe' in widget.text_box.toPlainText()
 
 
 class TestHuggingFaceSearchLineEdit:
@@ -363,3 +383,17 @@ class TestHuggingFaceSearchLineEdit:
         with qtbot.wait_signal(widget.network_manager.finished, timeout=30 * 1000):
             widget.setText('openai/whisper-tiny')
             widget.textEdited.emit('openai/whisper-tiny')
+
+
+class TestTranscriptionOptionsGroupBox:
+    def test_should_update_model_type(self, qtbot):
+        widget = TranscriptionOptionsGroupBox()
+        qtbot.add_widget(widget)
+
+        mock_transcription_options_changed = Mock()
+        widget.transcription_options_changed.connect(mock_transcription_options_changed)
+
+        widget.model_type_combo_box.setCurrentIndex(1)
+
+        transcription_options: TranscriptionOptions = mock_transcription_options_changed.call_args[0][0]
+        assert transcription_options.model.model_type == ModelType.WHISPER_CPP
