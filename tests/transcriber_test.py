@@ -1,5 +1,6 @@
 import os
 import pathlib
+import platform
 import tempfile
 import time
 from typing import List
@@ -19,6 +20,7 @@ from tests.mock_sounddevice import MockInputStream
 from tests.model_loader import get_model_path
 
 
+@pytest.mark.skipif(platform.system() == 'Windows')
 class TestRecordingTranscriber:
     def test_should_transcribe(self, qtbot):
         thread = QThread()
