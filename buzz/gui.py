@@ -119,9 +119,9 @@ class LanguagesComboBox(QComboBox):
         self.currentIndexChanged.connect(self.on_index_changed)
 
         default_language_key = default_language if default_language != '' else None
-        default_language_index = next((i for i, lang in enumerate(self.languages)
-                                       if lang[0] == default_language_key), 0)
-        self.setCurrentIndex(default_language_index)
+        for i, lang in enumerate(self.languages):
+            if lang[0] == default_language_key:
+                self.setCurrentIndex(i)
 
     def on_index_changed(self, index: int):
         self.languageChanged.emit(self.languages[index][0])
@@ -360,6 +360,11 @@ class FileTranscriberWidget(QWidget):
 
     def on_word_level_timings_changed(self, value: int):
         self.transcription_options.word_level_timings = value == Qt.CheckState.Checked.value
+
+    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        if self.transcriber_thread is not None:
+            self.transcriber_thread.wait()
+        super().closeEvent(event)
 
 
 class TranscriptionViewerWidget(QWidget):

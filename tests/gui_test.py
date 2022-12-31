@@ -1,7 +1,6 @@
 import logging
 import os.path
 import pathlib
-import platform
 from unittest.mock import Mock, patch
 
 import pytest
@@ -12,8 +11,7 @@ from PyQt6.QtWidgets import QPushButton, QToolBar, QTableWidget, QApplication
 from pytestqt.qtbot import QtBot
 
 from buzz.cache import TasksCache
-from buzz.gui import (AboutDialog, AdvancedSettingsDialog, Application,
-                      AudioDevicesComboBox, DownloadModelProgressDialog,
+from buzz.gui import (AboutDialog, AdvancedSettingsDialog, AudioDevicesComboBox, DownloadModelProgressDialog,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
                       RecordingTranscriberWidget,
                       TemperatureValidator, TextDisplayBox,
@@ -25,30 +23,26 @@ from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask,
 from tests.mock_sounddevice import MockInputStream
 
 
-class TestApplication:
-    # FIXME: this seems to break the tests if not run??
-    app = Application()
-
-    def test_should_open_application(self):
-        assert self.app is not None
-
-
 class TestLanguagesComboBox:
-    languagesComboxBox = LanguagesComboBox('en')
 
-    def test_should_show_sorted_whisper_languages(self):
-        assert self.languagesComboxBox.itemText(0) == 'Detect Language'
-        assert self.languagesComboxBox.itemText(10) == 'Belarusian'
-        assert self.languagesComboxBox.itemText(20) == 'Dutch'
-        assert self.languagesComboxBox.itemText(30) == 'Gujarati'
-        assert self.languagesComboxBox.itemText(40) == 'Japanese'
-        assert self.languagesComboxBox.itemText(50) == 'Lithuanian'
+    def test_should_show_sorted_whisper_languages(self, qtbot):
+        languages_combox_box = LanguagesComboBox('en')
+        qtbot.add_widget(languages_combox_box)
+        assert languages_combox_box.itemText(0) == 'Detect Language'
+        assert languages_combox_box.itemText(10) == 'Belarusian'
+        assert languages_combox_box.itemText(20) == 'Dutch'
+        assert languages_combox_box.itemText(30) == 'Gujarati'
+        assert languages_combox_box.itemText(40) == 'Japanese'
+        assert languages_combox_box.itemText(50) == 'Lithuanian'
 
-    def test_should_select_en_as_default_language(self):
-        assert self.languagesComboxBox.currentText() == 'English'
+    def test_should_select_en_as_default_language(self, qtbot):
+        languages_combox_box = LanguagesComboBox('en')
+        qtbot.add_widget(languages_combox_box)
+        assert languages_combox_box.currentText() == 'English'
 
-    def test_should_select_detect_language_as_default(self):
+    def test_should_select_detect_language_as_default(self, qtbot):
         languages_combo_box = LanguagesComboBox(None)
+        qtbot.add_widget(languages_combo_box)
         assert languages_combo_box.currentText() == 'Detect Language'
 
 
@@ -185,17 +179,16 @@ class TestMainWindow:
 
 
 class TestFileTranscriberWidget:
-    widget = FileTranscriberWidget(
-        file_paths=['testdata/whisper-french.mp3'], parent=None)
-
     def test_should_set_window_title(self, qtbot: QtBot):
-        qtbot.addWidget(self.widget)
-        assert self.widget.windowTitle() == 'whisper-french.mp3'
+        widget = FileTranscriberWidget(
+            file_paths=['testdata/whisper-french.mp3'], parent=None)
+        qtbot.add_widget(widget)
+        assert widget.windowTitle() == 'whisper-french.mp3'
 
     def test_should_emit_triggered_event(self, qtbot: QtBot):
         widget = FileTranscriberWidget(
             file_paths=['testdata/whisper-french.mp3'], parent=None)
-        qtbot.addWidget(widget)
+        qtbot.add_widget(widget)
 
         mock_triggered = Mock()
         widget.triggered.connect(mock_triggered)
@@ -254,31 +247,41 @@ class TestTemperatureValidator:
 
 
 class TestTranscriptionViewerWidget:
-    widget = TranscriptionViewerWidget(
-        transcription_task=FileTranscriptionTask(
-            id=0,
-            file_path='testdata/whisper-french.mp3',
-            file_transcription_options=FileTranscriptionOptions(
-                file_paths=['testdata/whisper-french.mp3']),
-            transcription_options=TranscriptionOptions(),
-            segments=[Segment(40, 299, 'Bien'),
-                      Segment(299, 329, 'venue dans')],
-            model_path=''))
 
     def test_should_display_segments(self, qtbot: QtBot):
-        qtbot.add_widget(self.widget)
+        widget = TranscriptionViewerWidget(
+            transcription_task=FileTranscriptionTask(
+                id=0,
+                file_path='testdata/whisper-french.mp3',
+                file_transcription_options=FileTranscriptionOptions(
+                    file_paths=['testdata/whisper-french.mp3']),
+                transcription_options=TranscriptionOptions(),
+                segments=[Segment(40, 299, 'Bien'),
+                          Segment(299, 329, 'venue dans')],
+                model_path=''))
+        qtbot.add_widget(widget)
 
-        assert self.widget.windowTitle() == 'whisper-french.mp3'
+        assert widget.windowTitle() == 'whisper-french.mp3'
 
-        text_display_box = self.widget.findChild(TextDisplayBox)
+        text_display_box = widget.findChild(TextDisplayBox)
         assert isinstance(text_display_box, TextDisplayBox)
         assert text_display_box.toPlainText(
         ) == '00:00:00.040 --> 00:00:00.299\nBien\n\n00:00:00.299 --> 00:00:00.329\nvenue dans'
 
     def test_should_export_segments(self, tmp_path: pathlib.Path, qtbot: QtBot):
-        qtbot.add_widget(self.widget)
+        widget = TranscriptionViewerWidget(
+            transcription_task=FileTranscriptionTask(
+                id=0,
+                file_path='testdata/whisper-french.mp3',
+                file_transcription_options=FileTranscriptionOptions(
+                    file_paths=['testdata/whisper-french.mp3']),
+                transcription_options=TranscriptionOptions(),
+                segments=[Segment(40, 299, 'Bien'),
+                          Segment(299, 329, 'venue dans')],
+                model_path=''))
+        qtbot.add_widget(widget)
 
-        export_button = self.widget.findChild(QPushButton)
+        export_button = widget.findChild(QPushButton)
         assert isinstance(export_button, QPushButton)
 
         output_file_path = tmp_path / 'whisper.txt'
@@ -291,10 +294,10 @@ class TestTranscriptionViewerWidget:
 
 
 class TestTranscriptionTasksTableWidget:
-    widget = TranscriptionTasksTableWidget()
 
     def test_upsert_task(self, qtbot: QtBot):
-        qtbot.add_widget(self.widget)
+        widget = TranscriptionTasksTableWidget()
+        qtbot.add_widget(widget)
 
         task = FileTranscriptionTask(id=0, file_path='testdata/whisper-french.mp3',
                                      transcription_options=TranscriptionOptions(),
@@ -302,28 +305,28 @@ class TestTranscriptionTasksTableWidget:
                                          file_paths=['testdata/whisper-french.mp3']), model_path='',
                                      status=FileTranscriptionTask.Status.QUEUED)
 
-        self.widget.upsert_task(task)
+        widget.upsert_task(task)
 
-        assert self.widget.rowCount() == 1
-        assert self.widget.item(0, 1).text() == 'whisper-french.mp3'
-        assert self.widget.item(0, 2).text() == 'Queued'
+        assert widget.rowCount() == 1
+        assert widget.item(0, 1).text() == 'whisper-french.mp3'
+        assert widget.item(0, 2).text() == 'Queued'
 
         task.status = FileTranscriptionTask.Status.IN_PROGRESS
         task.fraction_completed = 0.3524
-        self.widget.upsert_task(task)
+        widget.upsert_task(task)
 
-        assert self.widget.rowCount() == 1
-        assert self.widget.item(0, 1).text() == 'whisper-french.mp3'
-        assert self.widget.item(0, 2).text() == 'In Progress (35%)'
+        assert widget.rowCount() == 1
+        assert widget.item(0, 1).text() == 'whisper-french.mp3'
+        assert widget.item(0, 2).text() == 'In Progress (35%)'
 
 
-@pytest.mark.skip()
 class TestRecordingTranscriberWidget:
     def test_should_set_window_title(self, qtbot: QtBot):
         widget = RecordingTranscriberWidget()
         qtbot.add_widget(widget)
         assert widget.windowTitle() == 'Live Recording'
 
+    @pytest.mark.skip()
     def test_should_transcribe(self, qtbot):
         widget = RecordingTranscriberWidget()
         qtbot.add_widget(widget)
