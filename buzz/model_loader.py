@@ -70,9 +70,8 @@ class ModelLoader(QObject):
             file_path = os.path.join(root_dir, f'ggml-model-whisper-{model_name}.bin')
             expected_sha256 = WHISPER_CPP_MODELS_SHA256[model_name]
             self.download_model(url, file_path, expected_sha256)
-            return
 
-        if self.model_type == ModelType.WHISPER:
+        elif self.model_type == ModelType.WHISPER:
             root_dir = os.getenv(
                 "XDG_CACHE_HOME",
                 os.path.join(os.path.expanduser("~"), ".cache", "whisper")
@@ -82,9 +81,8 @@ class ModelLoader(QObject):
             file_path = os.path.join(root_dir, os.path.basename(url))
             expected_sha256 = url.split('/')[-2]
             self.download_model(url, file_path, expected_sha256)
-            return
 
-        if self.model_type == ModelType.HUGGING_FACE:
+        else:  # ModelType.HUGGING_FACE:
             self.progress.emit((0, 100))
 
             try:
@@ -95,8 +93,9 @@ class ModelLoader(QObject):
                 return
 
             self.progress.emit((100, 100))
-            self.finished.emit(self.hugging_face_model_id)
-            return
+            file_path = self.hugging_face_model_id
+
+        self.finished.emit(file_path)
 
     def download_model(self, url: str, file_path: str, expected_sha256: Optional[str]):
         try:
@@ -108,14 +107,12 @@ class ModelLoader(QObject):
 
             if os.path.isfile(file_path):
                 if expected_sha256 is None:
-                    self.finished.emit(file_path)
-                    return
+                    return file_path
 
                 model_bytes = open(file_path, "rb").read()
                 model_sha256 = hashlib.sha256(model_bytes).hexdigest()
                 if model_sha256 == expected_sha256:
-                    self.finished.emit(file_path)
-                    return
+                    return file_path
                 else:
                     warnings.warn(
                         f"{file_path} exists, but the SHA256 checksum does not match; re-downloading the file")
@@ -141,7 +138,7 @@ class ModelLoader(QObject):
                         "Model has been downloaded but the SHA256 checksum does not match. Please retry loading the "
                         "model.")
 
-            self.finished.emit(file_path)
+            return file_path
         except RuntimeError as exc:
             self.error.emit(str(exc))
             logging.exception('')
