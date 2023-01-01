@@ -23,7 +23,7 @@ from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
                              QMainWindow, QMessageBox, QPlainTextEdit,
                              QProgressDialog, QPushButton, QVBoxLayout, QHBoxLayout, QMenu,
                              QWidget, QGroupBox, QToolBar, QTableWidget, QMenuBar, QFormLayout, QTableWidgetItem,
-                             QHeaderView, QAbstractItemView, QListWidget, QListWidgetItem, QToolButton)
+                             QHeaderView, QAbstractItemView, QListWidget, QListWidgetItem, QToolButton, QSizePolicy)
 from requests import get
 from whisper import tokenizer
 
@@ -155,7 +155,7 @@ class RecordButton(QPushButton):
     def __init__(self, parent: Optional[QWidget]) -> None:
         super().__init__("Record", parent)
         self.setDefault(True)
-        self.setFixedSize(self.sizeHint())
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed))
 
     def set_to_record(self):
         self.setText('Record')
