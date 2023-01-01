@@ -452,7 +452,7 @@ class RecordingTranscriberWidget(QDialog):
         STOPPED = auto()
         RECORDING = auto()
 
-    def __init__(self, parent: Optional[QWidget] = None, flags: Qt.WindowType = Qt.WindowType.Widget) -> None:
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
 
         layout = QVBoxLayout(self)
@@ -841,8 +841,7 @@ class MainWindowToolbar(QToolBar):
         return QIcon(pixmap)
 
     def on_record_action_triggered(self):
-        recording_transcriber_window = RecordingTranscriberWidget(
-            self, flags=Qt.WindowType.Window)
+        recording_transcriber_window = RecordingTranscriberWidget(self)
         recording_transcriber_window.exec()
 
     def set_open_transcript_action_disabled(self, disabled: bool):
