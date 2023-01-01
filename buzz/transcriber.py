@@ -474,7 +474,7 @@ def write_output(path: str, segments: List[Segment], should_open: bool, output_f
             for (i, segment) in enumerate(segments):
                 file.write(f'{i + 1}\n')
                 file.write(
-                    f'{to_timestamp(segment.start)} --> {to_timestamp(segment.end)}\n')
+                    f'{to_timestamp(segment.start, ms_separator=",")} --> {to_timestamp(segment.end, ms_separator=",")}\n')
                 file.write(f'{segment.text}\n\n')
 
     if should_open:
@@ -495,14 +495,14 @@ def segments_to_text(segments: List[Segment]) -> str:
     return result
 
 
-def to_timestamp(ms: float) -> str:
+def to_timestamp(ms: float, ms_separator='.') -> str:
     hr = int(ms / (1000 * 60 * 60))
     ms = ms - hr * (1000 * 60 * 60)
     min = int(ms / (1000 * 60))
     ms = ms - min * (1000 * 60)
     sec = int(ms / 1000)
     ms = int(ms - sec * 1000)
-    return f'{hr:02d}:{min:02d}:{sec:02d}.{ms:03d}'
+    return f'{hr:02d}:{min:02d}:{sec:02d}{ms_separator}{ms:03d}'
 
 
 SUPPORTED_OUTPUT_FORMATS = 'Audio files (*.mp3 *.wav *.m4a *.ogg);;\
