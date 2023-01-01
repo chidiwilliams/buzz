@@ -96,13 +96,12 @@ class RecordingTranscriber(QObject):
     MAX_QUEUE_SIZE = 10
 
     def __init__(self, transcription_options: TranscriptionOptions,
-                 input_device_index: Optional[int], parent: Optional[QObject] = None) -> None:
+                 input_device_index: Optional[int], sample_rate: int, parent: Optional[QObject] = None) -> None:
         super().__init__(parent)
         self.transcription_options = transcription_options
         self.current_stream = None
         self.input_device_index = input_device_index
-        self.sample_rate = self.get_device_sample_rate(
-            device_id=input_device_index)
+        self.sample_rate = sample_rate
         self.n_batch_samples = 5 * self.sample_rate  # every 5 seconds
         # pause queueing if more than 3 batches behind
         self.max_queue_size = 3 * self.n_batch_samples
@@ -125,7 +124,6 @@ class RecordingTranscriber(QObject):
 
         self.is_running = True
         with sounddevice.InputStream(samplerate=self.sample_rate,
-                                     blocksize=1 * self.sample_rate,  # 1 sec
                                      device=self.input_device_index, dtype="float32",
                                      channels=1, callback=self.stream_callback):
             while self.is_running:
@@ -288,8 +286,6 @@ class WhisperCppFileTranscriber(QObject):
     def read_std_out(self):
         try:
             output = self.process.readAllStandardOutput().data().decode('UTF-8').strip()
-            logging.debug('whisper_cpp (output): %s', output)
-
             if len(output) > 0:
                 lines = output.split('\n')
                 for line in lines:
