@@ -25,16 +25,14 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
+
+      - name: Install poetry
+        run: pipx install poetry
+
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10.7'
           cache: 'poetry'
-
-      - name: Install Poetry Action
-        uses: snok/install-poetry@v1.3.1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
 
       - name: Load cached Whisper models
         id: cached-whisper-models
@@ -62,7 +60,6 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           flags: ${{ runner.os }}
-
 
   build:
     runs-on: ${{ matrix.os }}
@@ -164,7 +161,7 @@ jobs:
         include:
           - os: macos-latest
           - os: windows-latest
-    needs: [ build, test ]
+    needs: [build, test]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v3
