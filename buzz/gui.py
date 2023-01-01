@@ -380,7 +380,7 @@ class AdvancedSettingsButton(QPushButton):
         super().__init__('Advanced...', parent)
 
 
-class VolumeMeterWidget(QWidget):
+class AudioMeterWidget(QWidget):
     current_amplitude: float
     BAR_WIDTH = 2
     BAR_MARGIN = 1
@@ -484,10 +484,10 @@ class RecordingTranscriberWidget(QDialog):
         recording_options_layout.addRow(
             'Microphone:', self.audio_devices_combo_box)
 
-        self.volume_meter_widget = VolumeMeterWidget(self)
+        self.audio_meter_widget = AudioMeterWidget(self)
 
         record_button_layout = QHBoxLayout()
-        record_button_layout.addWidget(self.volume_meter_widget)
+        record_button_layout.addWidget(self.audio_meter_widget)
         record_button_layout.addWidget(self.record_button)
 
         layout.addWidget(transcription_options_group_box)
@@ -510,6 +510,11 @@ class RecordingTranscriberWidget(QDialog):
     def reset_recording_amplitude_listener(self):
         if self.recording_amplitude_listener is not None:
             self.recording_amplitude_listener.stop_recording()
+            self.recording_amplitude_listener.deleteLater()
+
+        # Listening to audio will fail if there are no input devices
+        if self.selected_device_id is None or self.selected_device_id == -1:
+            return
 
         # Get the device sample rate before starting the listener as the PortAudio function
         # fails if you try to get the device's settings while recording is in progress.
@@ -621,7 +626,7 @@ class RecordingTranscriberWidget(QDialog):
             self.model_download_progress_dialog = None
 
     def on_recording_amplitude_changed(self, amplitude: float):
-        self.volume_meter_widget.update_amplitude(amplitude)
+        self.audio_meter_widget.update_amplitude(amplitude)
 
     def closeEvent(self, event: QCloseEvent) -> None:
         self.stop_recording()
