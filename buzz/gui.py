@@ -445,7 +445,7 @@ class RecordingTranscriberWidget(QDialog):
     transcriber: Optional[RecordingTranscriber] = None
     model_loader: Optional[ModelLoader] = None
     transcription_thread: Optional[QThread] = None
-    recording_amplitude_listener: RecordingAmplitudeListener = None
+    recording_amplitude_listener: Optional[RecordingAmplitudeListener] = None
     device_sample_rate: Optional[int] = None
 
     class RecordingStatus(enum.Enum):
@@ -630,7 +630,9 @@ class RecordingTranscriberWidget(QDialog):
 
     def closeEvent(self, event: QCloseEvent) -> None:
         self.stop_recording()
-        self.recording_amplitude_listener.stop_recording()
+        if self.recording_amplitude_listener is not None:
+            self.recording_amplitude_listener.stop_recording()
+            self.recording_amplitude_listener.deleteLater()
         return super().closeEvent(event)
 
 
