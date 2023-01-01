@@ -5,16 +5,14 @@ import os
 import platform
 import random
 import sys
-import time
 from datetime import datetime
 from enum import auto
-from threading import Thread
 from typing import Dict, List, Optional, Tuple, Union
 
 import humanize
 import sounddevice
 from PyQt6 import QtGui
-from PyQt6.QtCore import (QDateTime, QObject, Qt, QThread,
+from PyQt6.QtCore import (QObject, Qt, QThread,
                           QTimer, QUrl, pyqtSignal, QModelIndex, QSize, QPoint,
                           QUrlQuery, QMetaObject, QEvent)
 from PyQt6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
