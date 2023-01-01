@@ -49,6 +49,7 @@ jobs:
           path: |
             ~/Library/Caches/Buzz
             ~/.cache/whisper
+            ~/.cache/huggingface
             ~/AppData/Local/Buzz/Buzz/Cache
           key: whisper-models-${{ runner.os }}
 
