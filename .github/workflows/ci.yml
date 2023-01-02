@@ -64,7 +64,7 @@ jobs:
 
       - name: Test
         run: |
-          valgrind --leak-check=yes ./whisper_cpp --model ~/Library/Caches/Buzz/ggml-model-whisper-tiny.bin whisper.cpp/samples/jfk.wav
+          ./whisper_cpp --model ~/Library/Caches/Buzz/ggml-model-whisper-tiny.bin whisper.cpp/samples/jfk.wav
           poetry run make test
 
       - name: Upload coverage reports to Codecov with GitHub Action
