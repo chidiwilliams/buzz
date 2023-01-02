@@ -38,7 +38,6 @@ clean:
 	rm -rf dist/* || true
 
 test: buzz/whisper_cpp.py
-	./whisper_cpp --model ~/Library/Caches/Buzz/ggml-model-whisper-tiny.bin whisper.cpp/samples/jfk.wav
 	pytest -vv --cov=buzz --cov-report=xml --cov-report=html
 
 dist/Buzz dist/Buzz.app: buzz/whisper_cpp.py

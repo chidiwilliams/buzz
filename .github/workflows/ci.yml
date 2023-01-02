@@ -63,8 +63,7 @@ jobs:
         run: poetry config experimental.new-installer false && poetry install
 
       - name: Test
-        run: |
-          poetry run make test
+        run: poetry run make test
 
       - name: Upload coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@v3
