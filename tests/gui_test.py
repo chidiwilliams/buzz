@@ -5,10 +5,12 @@ from unittest.mock import Mock, patch
 
 import pytest
 import sounddevice
-from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtCore import QSize, Qt, QByteArray, QObject
 from PyQt6.QtGui import QValidator, QKeyEvent
 from PyQt6.QtWidgets import QPushButton, QToolBar, QTableWidget, QApplication
 from pytestqt.qtbot import QtBot
+
+from .mock_qt import MockNetworkAccessManager, MockNetworkReply
 
 from buzz.cache import TasksCache
 from buzz.gui import (AboutDialog, AdvancedSettingsDialog, AudioDevicesComboBox, DownloadModelProgressDialog,
@@ -346,7 +348,7 @@ class TestRecordingTranscriberWidget:
 
 class TestHuggingFaceSearchLineEdit:
     def test_should_update_selected_model_on_type(self, qtbot: QtBot):
-        widget = HuggingFaceSearchLineEdit()
+        widget = HuggingFaceSearchLineEdit(network_access_manager=self.network_access_manager())
         qtbot.add_widget(widget)
 
         mock_model_selected = Mock()
@@ -356,7 +358,7 @@ class TestHuggingFaceSearchLineEdit:
         mock_model_selected.assert_called_with('openai/whisper-tiny')
 
     def test_should_show_list_of_models(self, qtbot: QtBot):
-        widget = HuggingFaceSearchLineEdit()
+        widget = HuggingFaceSearchLineEdit(network_access_manager=self.network_access_manager())
         qtbot.add_widget(widget)
 
         self._set_text_and_wait_response(qtbot, widget)
@@ -365,7 +367,7 @@ class TestHuggingFaceSearchLineEdit:
         assert 'openai/whisper-tiny' in widget.popup.item(0).text()
 
     def test_should_select_model_from_list(self, qtbot: QtBot):
-        widget = HuggingFaceSearchLineEdit()
+        widget = HuggingFaceSearchLineEdit(network_access_manager=self.network_access_manager())
         qtbot.add_widget(widget)
 
         mock_model_selected = Mock()
@@ -382,8 +384,13 @@ class TestHuggingFaceSearchLineEdit:
         mock_model_selected.assert_called_with('openai/whisper-tiny.en')
 
     @staticmethod
+    def network_access_manager():
+        reply = MockNetworkReply(data=[{'id': 'openai/whisper-tiny'}, {'id': 'openai/whisper-tiny.en'}])
+        return MockNetworkAccessManager(reply=reply)
+
+    @staticmethod
     def _set_text_and_wait_response(qtbot: QtBot, widget: HuggingFaceSearchLineEdit):
-        with qtbot.wait_signal(widget.network_manager.finished, timeout=30 * 1000):
+        with qtbot.wait_signal(widget.network_manager.finished):
             widget.setText('openai/whisper-tiny')
             widget.textEdited.emit('openai/whisper-tiny')
 
