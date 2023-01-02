@@ -157,11 +157,11 @@ class RecordButton(QPushButton):
         self.setDefault(True)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed))
 
-    def set_to_record(self):
+    def set_stopped(self):
         self.setText('Record')
         self.setDefault(True)
 
-    def set_to_stop(self):
+    def set_recording(self):
         self.setText('Stop')
         self.setDefault(False)
 
@@ -529,11 +529,10 @@ class RecordingTranscriberWidget(QDialog):
         if self.current_status == self.RecordingStatus.STOPPED:
             self.start_recording()
             self.current_status = self.RecordingStatus.RECORDING
-            self.record_button.set_to_stop()
+            self.record_button.set_recording()
         else:  # RecordingStatus.RECORDING
             self.stop_recording()
-            self.record_button.set_to_record()
-            self.current_status = self.RecordingStatus.STOPPED
+            self.set_recording_status_stopped()
 
     def start_recording(self):
         self.record_button.setDisabled(True)
@@ -567,6 +566,10 @@ class RecordingTranscriberWidget(QDialog):
         self.transcriber.finished.connect(self.transcription_thread.quit)
         self.transcriber.finished.connect(self.transcriber.deleteLater)
 
+        self.transcriber.error.connect(self.on_transcriber_error)
+        self.transcriber.error.connect(self.transcription_thread.quit)
+        self.transcriber.error.connect(self.transcriber.deleteLater)
+
         self.transcription_thread.start()
 
     def on_download_model_progress(self, progress: Tuple[float, float]):
@@ -580,11 +583,15 @@ class RecordingTranscriberWidget(QDialog):
         if self.model_download_progress_dialog is not None:
             self.model_download_progress_dialog.set_fraction_completed(fraction_completed=current_size / total_size)
 
+    def set_recording_status_stopped(self):
+        self.record_button.set_stopped()
+        self.current_status = self.RecordingStatus.STOPPED
+
     def on_download_model_error(self, error: str):
         self.reset_model_download()
         show_model_download_error_dialog(self, error)
         self.stop_recording()
-        self.record_button.set_to_stop()
+        self.set_recording_status_stopped()
         self.record_button.setDisabled(False)
 
     def on_next_transcription(self, text: str):
@@ -603,13 +610,18 @@ class RecordingTranscriberWidget(QDialog):
         self.record_button.setDisabled(True)
 
     def on_transcriber_finished(self):
-        self.record_button.setEnabled(True)
+        self.reset_record_button()
+
+    def on_transcriber_error(self, error: str):
+        self.reset_record_button()
+        self.set_recording_status_stopped()
+        QMessageBox.critical(self, '', f'An error occurred while starting a new recording: {error}. Please check your audio devices or check the application logs for more information.')
 
     def on_cancel_model_progress_dialog(self):
         if self.model_loader is not None:
             self.model_loader.stop()
         self.reset_model_download()
-        self.record_button.set_to_stop()
+        self.set_recording_status_stopped()
         self.record_button.setDisabled(False)
 
     def reset_model_download(self):
@@ -620,10 +632,13 @@ class RecordingTranscriberWidget(QDialog):
     def reset_recording_controls(self):
         # Clear text box placeholder because the first chunk takes a while to process
         self.text_box.setPlaceholderText('')
-        self.record_button.setDisabled(False)
+        self.reset_record_button()
         if self.model_download_progress_dialog is not None:
             self.model_download_progress_dialog.close()
             self.model_download_progress_dialog = None
+
+    def reset_record_button(self):
+        self.record_button.setEnabled(True)
 
     def on_recording_amplitude_changed(self, amplitude: float):
         self.audio_meter_widget.update_amplitude(amplitude)
