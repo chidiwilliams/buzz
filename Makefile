@@ -17,6 +17,7 @@ bundle_windows: dist/Buzz
 	cd dist && tar -czf ${windows_zip_path} Buzz/ && cd -
 
 bundle_mac: dist/Buzz.app codesign_all_mac zip_mac notarize_zip staple_app_mac dmg_mac
+	echo "test"
 
 UNAME_S := $(shell uname -s)
 
