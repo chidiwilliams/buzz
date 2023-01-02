@@ -1008,7 +1008,7 @@ class HuggingFaceSearchLineEdit(LineEdit):
     model_selected = pyqtSignal(str)
     popup: QListWidget
 
-    def __init__(self, network_access_manager: QNetworkAccessManager | None, parent: Optional[QWidget] = None):
+    def __init__(self, network_access_manager: Optional[QNetworkAccessManager] = None, parent: Optional[QWidget] = None):
         super().__init__('', parent)
 
         self.setMinimumWidth(150)
