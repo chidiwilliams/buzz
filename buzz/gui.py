@@ -787,6 +787,8 @@ class MainWindowToolbar(QToolBar):
     new_transcription_action_triggered: pyqtSignal
     open_transcript_action_triggered: pyqtSignal
     clear_history_action_triggered: pyqtSignal
+    ICON_LIGHT_THEME_BACKGROUND = '#555'
+    ICON_DARK_THEME_BACKGROUND = '#888'
 
     def __init__(self, parent: Optional[QWidget]):
         super().__init__(parent)
@@ -814,7 +816,7 @@ class MainWindowToolbar(QToolBar):
         self.addAction(self.clear_history_action)
         self.setMovable(False)
         self.setIconSize(QSize(16, 16))
-        self.setContentsMargins(0, 2, 0, 2)
+        self.setStyleSheet('QToolButton{margin: 6px 4px;}')
 
         for action in self.actions():
             widget = self.widgetForAction(action)
@@ -827,8 +829,8 @@ class MainWindowToolbar(QToolBar):
                 'QToolButton { margin-left: 9px; margin-right: 1px; }')
 
     def load_icon(self, file_path: str):
-        is_dark_background = self.palette().window().color().black() > 127
-        return self.load_icon_with_color(file_path, '#888' if is_dark_background else '#444')
+        is_dark_theme = self.palette().window().color().black() > 127
+        return self.load_icon_with_color(file_path, self.ICON_DARK_THEME_BACKGROUND if is_dark_theme else self.ICON_LIGHT_THEME_BACKGROUND)
 
     @staticmethod
     def load_icon_with_color(file_path: str, color: str):
@@ -1006,7 +1008,7 @@ class HuggingFaceSearchLineEdit(LineEdit):
     model_selected = pyqtSignal(str)
     popup: QListWidget
 
-    def __init__(self, parent: Optional[QWidget] = None):
+    def __init__(self, network_access_manager: Optional[QNetworkAccessManager] = None, parent: Optional[QWidget] = None):
         super().__init__('', parent)
 
         self.setMinimumWidth(150)
@@ -1021,7 +1023,10 @@ class HuggingFaceSearchLineEdit(LineEdit):
         self.textEdited.connect(self.timer.start)
         self.textEdited.connect(self.on_text_edited)
 
-        self.network_manager = QNetworkAccessManager(self)
+        if network_access_manager is None:
+            network_access_manager = QNetworkAccessManager(self)
+
+        self.network_manager = network_access_manager
         self.network_manager.finished.connect(self.on_request_response)
 
         self.popup = QListWidget()
@@ -1100,7 +1105,8 @@ class HuggingFaceSearchLineEdit(LineEdit):
         if isinstance(event, QKeyEvent):
             key = event.key()
             if key in [Qt.Key.Key_Enter, Qt.Key.Key_Return]:
-                self.on_select_item()
+                if self.popup.currentItem() is not None:
+                    self.on_select_item()
                 return True
 
             if key == Qt.Key.Key_Escape:
