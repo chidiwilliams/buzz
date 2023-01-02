@@ -24,8 +24,7 @@ datas += [('whisper.dll' if platform.system() ==
            'Windows' else 'libwhisper.*', '.')]
 datas += [(shutil.which('whisper_cpp') if platform.system()
            == 'Windows' else 'whisper_cpp', '.')]
-datas += [('assets/buzz.ico', 'assets')]
-datas += [('assets/buzz-icon-1024.png', 'assets')]
+datas += [('assets/*', 'assets')]
 datas += [(shutil.which('ffmpeg'), '.')]
 
 

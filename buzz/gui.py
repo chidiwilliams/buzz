@@ -787,6 +787,8 @@ class MainWindowToolbar(QToolBar):
     new_transcription_action_triggered: pyqtSignal
     open_transcript_action_triggered: pyqtSignal
     clear_history_action_triggered: pyqtSignal
+    ICON_LIGHT_THEME_BACKGROUND = '#555'
+    ICON_DARK_THEME_BACKGROUND = '#888'
 
     def __init__(self, parent: Optional[QWidget]):
         super().__init__(parent)
@@ -814,7 +816,7 @@ class MainWindowToolbar(QToolBar):
         self.addAction(self.clear_history_action)
         self.setMovable(False)
         self.setIconSize(QSize(16, 16))
-        self.setContentsMargins(0, 2, 0, 2)
+        self.setStyleSheet('QToolButton{margin: 6px 4px;}')
 
         for action in self.actions():
             widget = self.widgetForAction(action)
@@ -827,8 +829,8 @@ class MainWindowToolbar(QToolBar):
                 'QToolButton { margin-left: 9px; margin-right: 1px; }')
 
     def load_icon(self, file_path: str):
-        is_dark_background = self.palette().window().color().black() > 127
-        return self.load_icon_with_color(file_path, '#888' if is_dark_background else '#444')
+        is_dark_theme = self.palette().window().color().black() > 127
+        return self.load_icon_with_color(file_path, self.ICON_DARK_THEME_BACKGROUND if is_dark_theme else self.ICON_LIGHT_THEME_BACKGROUND)
 
     @staticmethod
     def load_icon_with_color(file_path: str, color: str):

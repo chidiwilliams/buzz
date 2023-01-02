@@ -6,9 +6,12 @@ build/
 !.coveragerc
 .env
 htmlcov/
-libwhisper.*
-whisper_cpp
-whisper.dll
-whisper_cpp.py
 coverage.xml
 .idea/
+
+# whisper_cpp
+libwhisper.*
+whisper_cpp
+whisper_cpp.exe
+whisper.dll
+whisper_cpp.py
