@@ -92,6 +92,7 @@ class FileTranscriptionTask:
 class RecordingTranscriber(QObject):
     transcription = pyqtSignal(str)
     finished = pyqtSignal()
+    error = pyqtSignal(str)
     is_running = False
     MAX_QUEUE_SIZE = 10
 
@@ -123,52 +124,57 @@ class RecordingTranscriber(QObject):
                       self.transcription_options, model_path, self.sample_rate, self.input_device_index)
 
         self.is_running = True
-        with sounddevice.InputStream(samplerate=self.sample_rate,
-                                     device=self.input_device_index, dtype="float32",
-                                     channels=1, callback=self.stream_callback):
-            while self.is_running:
-                self.mutex.acquire()
-                if self.queue.size >= self.n_batch_samples:
-                    samples = self.queue[:self.n_batch_samples]
-                    self.queue = self.queue[self.n_batch_samples:]
-                    self.mutex.release()
+        try:
+            with sounddevice.InputStream(samplerate=self.sample_rate,
+                                        device=self.input_device_index, dtype="float32",
+                                        channels=1, callback=self.stream_callback):
+                while self.is_running:
+                    self.mutex.acquire()
+                    if self.queue.size >= self.n_batch_samples:
+                        samples = self.queue[:self.n_batch_samples]
+                        self.queue = self.queue[self.n_batch_samples:]
+                        self.mutex.release()
 
-                    logging.debug('Processing next frame, sample size = %s, queue size = %s, amplitude = %s',
-                                  samples.size, self.queue.size, self.amplitude(samples))
-                    time_started = datetime.datetime.now()
+                        logging.debug('Processing next frame, sample size = %s, queue size = %s, amplitude = %s',
+                                    samples.size, self.queue.size, self.amplitude(samples))
+                        time_started = datetime.datetime.now()
 
-                    if self.transcription_options.model.model_type == ModelType.WHISPER:
-                        assert isinstance(model, whisper.Whisper)
-                        result = model.transcribe(
-                            audio=samples, language=self.transcription_options.language,
-                            task=self.transcription_options.task.value,
-                            initial_prompt=initial_prompt,
-                            temperature=self.transcription_options.temperature)
-                    elif self.transcription_options.model.model_type == ModelType.WHISPER_CPP:
-                        assert isinstance(model, WhisperCpp)
-                        result = model.transcribe(
-                            audio=samples,
-                            params=whisper_cpp_params(
-                                language=self.transcription_options.language
-                                if self.transcription_options.language is not None else 'en',
-                                task=self.transcription_options.task.value, word_level_timings=False))
+                        if self.transcription_options.model.model_type == ModelType.WHISPER:
+                            assert isinstance(model, whisper.Whisper)
+                            result = model.transcribe(
+                                audio=samples, language=self.transcription_options.language,
+                                task=self.transcription_options.task.value,
+                                initial_prompt=initial_prompt,
+                                temperature=self.transcription_options.temperature)
+                        elif self.transcription_options.model.model_type == ModelType.WHISPER_CPP:
+                            assert isinstance(model, WhisperCpp)
+                            result = model.transcribe(
+                                audio=samples,
+                                params=whisper_cpp_params(
+                                    language=self.transcription_options.language
+                                    if self.transcription_options.language is not None else 'en',
+                                    task=self.transcription_options.task.value, word_level_timings=False))
+                        else:
+                            assert isinstance(model, TransformersWhisper)
+                            result = model.transcribe(audio=samples,
+                                                    language=self.transcription_options.language
+                                                    if self.transcription_options.language is not None else 'en',
+                                                    task=self.transcription_options.task.value)
+
+                        next_text: str = result.get('text')
+
+                        # Update initial prompt between successive recording chunks
+                        initial_prompt += next_text
+
+                        logging.debug('Received next result, length = %s, time taken = %s',
+                                    len(next_text), datetime.datetime.now() - time_started)
+                        self.transcription.emit(next_text)
                     else:
-                        assert isinstance(model, TransformersWhisper)
-                        result = model.transcribe(audio=samples,
-                                                  language=self.transcription_options.language
-                                                  if self.transcription_options.language is not None else 'en',
-                                                  task=self.transcription_options.task.value)
-
-                    next_text: str = result.get('text')
-
-                    # Update initial prompt between successive recording chunks
-                    initial_prompt += next_text
-
-                    logging.debug('Received next result, length = %s, time taken = %s',
-                                  len(next_text), datetime.datetime.now() - time_started)
-                    self.transcription.emit(next_text)
-                else:
-                    self.mutex.release()
+                        self.mutex.release()
+        except PortAudioError as exc:
+            self.error.emit(str(exc))
+            logging.exception('')
+            return
 
         self.finished.emit()
 
