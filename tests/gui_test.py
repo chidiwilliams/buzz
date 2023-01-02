@@ -11,7 +11,6 @@ from PyQt6.QtWidgets import QPushButton, QToolBar, QTableWidget, QApplication
 from pytestqt.qtbot import QtBot
 
 from .mock_qt import MockNetworkAccessManager, MockNetworkReply
-
 from buzz.cache import TasksCache
 from buzz.gui import (AboutDialog, AdvancedSettingsDialog, AudioDevicesComboBox, DownloadModelProgressDialog,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
