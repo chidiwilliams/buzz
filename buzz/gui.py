@@ -1008,7 +1008,7 @@ class HuggingFaceSearchLineEdit(LineEdit):
     model_selected = pyqtSignal(str)
     popup: QListWidget
 
-    def __init__(self, parent: Optional[QWidget] = None):
+    def __init__(self, network_access_manager: Optional[QNetworkAccessManager] = None, parent: Optional[QWidget] = None):
         super().__init__('', parent)
 
         self.setMinimumWidth(150)
@@ -1023,7 +1023,10 @@ class HuggingFaceSearchLineEdit(LineEdit):
         self.textEdited.connect(self.timer.start)
         self.textEdited.connect(self.on_text_edited)
 
-        self.network_manager = QNetworkAccessManager(self)
+        if network_access_manager is None:
+            network_access_manager = QNetworkAccessManager(self)
+
+        self.network_manager = network_access_manager
         self.network_manager.finished.connect(self.on_request_response)
 
         self.popup = QListWidget()
@@ -1102,7 +1105,8 @@ class HuggingFaceSearchLineEdit(LineEdit):
         if isinstance(event, QKeyEvent):
             key = event.key()
             if key in [Qt.Key.Key_Enter, Qt.Key.Key_Return]:
-                self.on_select_item()
+                if self.popup.currentItem() is not None:
+                    self.on_select_item()
                 return True
 
             if key == Qt.Key.Key_Escape:
