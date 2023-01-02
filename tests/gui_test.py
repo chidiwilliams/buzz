@@ -7,8 +7,10 @@ import pytest
 import sounddevice
 from PyQt6.QtCore import QSize, Qt, QByteArray, QObject
 from PyQt6.QtGui import QValidator, QKeyEvent
-from PyQt6.QtWidgets import QPushButton, QToolBar, QTableWidget, QApplication
+from PyQt6.QtWidgets import QPushButton, QToolBar, QTableWidget, QApplication, QMessageBox
 from pytestqt.qtbot import QtBot
+
+from buzz.__version__ import VERSION
 
 from .mock_qt import MockNetworkAccessManager, MockNetworkReply
 from buzz.cache import TasksCache
@@ -206,9 +208,19 @@ class TestFileTranscriberWidget:
 
 
 class TestAboutDialog:
-    def test_should_create(self):
-        dialog = AboutDialog()
-        assert dialog is not None
+    def test_should_check_for_updates(self, qtbot: QtBot):
+        reply = MockNetworkReply(data={'name': 'v' + VERSION})
+        manager = MockNetworkAccessManager(reply=reply)
+        dialog = AboutDialog(network_access_manager=manager)
+        qtbot.add_widget(dialog)
+
+        mock_message_box_information = Mock()
+        QMessageBox.information = mock_message_box_information
+
+        with qtbot.wait_signal(dialog.network_access_manager.finished):
+            dialog.check_updates_button.click()
+
+        mock_message_box_information.assert_called_with(dialog, '', "You're up to date!")
 
 
 class TestAdvancedSettingsDialog:

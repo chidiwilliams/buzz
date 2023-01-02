@@ -666,13 +666,22 @@ TRASH_ICON_PATH = get_asset_path('assets/trash-icon.svg')
 
 
 class AboutDialog(QDialog):
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    GITHUB_API_LATEST_RELEASE_URL = 'https://api.github.com/repos/chidiwilliams/buzz/releases/latest'
+    GITHUB_LATEST_RELEASE_URL = 'https://github.com/chidiwilliams/buzz/releases/latest'
+
+    def __init__(self, network_access_manager: Optional[QNetworkAccessManager]=None, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
 
         self.setFixedSize(200, 250)
 
         self.setWindowIcon(QIcon(BUZZ_ICON_PATH))
         self.setWindowTitle(f'About {APP_NAME}')
+
+        if network_access_manager is None:
+            network_access_manager = QNetworkAccessManager()
+
+        self.network_access_manager = network_access_manager
+        self.network_access_manager.finished.connect(self.on_latest_release_reply)
 
         layout = QVBoxLayout(self)
 
@@ -695,8 +704,8 @@ class AboutDialog(QDialog):
         version_label.setAlignment(Qt.AlignmentFlag(
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignHCenter))
 
-        check_updates_button = QPushButton('Check for updates', self)
-        check_updates_button.clicked.connect(self.on_click_check_for_updates)
+        self.check_updates_button = QPushButton('Check for updates', self)
+        self.check_updates_button.clicked.connect(self.on_click_check_for_updates)
 
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton(
             QDialogButtonBox.StandardButton.Close), self)
@@ -706,22 +715,29 @@ class AboutDialog(QDialog):
         layout.addWidget(image_label)
         layout.addWidget(buzz_label)
         layout.addWidget(version_label)
-        layout.addWidget(check_updates_button)
+        layout.addWidget(self.check_updates_button)
         layout.addWidget(button_box)
 
         self.setLayout(layout)
 
     def on_click_check_for_updates(self):
-        response = get(
-            'https://api.github.com/repos/chidiwilliams/buzz/releases/latest', timeout=15).json()
-        version_number = response.field('name')
-        if version_number == 'v' + VERSION:
-            dialog = QMessageBox(self)
-            dialog.setText("You're up to date!")
-            dialog.open()
-        else:
-            QDesktopServices.openUrl(
-                QUrl('https://github.com/chidiwilliams/buzz/releases/latest'))
+        url = QUrl(self.GITHUB_API_LATEST_RELEASE_URL)
+        self.network_access_manager.get(QNetworkRequest(url))
+        self.check_updates_button.setDisabled(True)
+
+    def on_latest_release_reply(self, reply: QNetworkReply):
+        if reply.error() == QNetworkReply.NetworkError.NoError:
+            response = json.loads(reply.readAll().data())
+            tag_name = response.get('name')
+            if self.is_version_lower(VERSION, tag_name[1:]):
+                QDesktopServices.openUrl(QUrl(self.GITHUB_LATEST_RELEASE_URL))
+            else:
+                QMessageBox.information(self, '', "You're up to date!")
+        self.check_updates_button.setEnabled(True)
+
+    @staticmethod
+    def is_version_lower(version_a: str, version_b: str):
+        return version_a.replace('.', '') < version_b.replace('.', '')
 
 
 class TranscriptionTasksTableWidget(QTableWidget):
@@ -784,7 +800,8 @@ class TranscriptionTasksTableWidget(QTableWidget):
 
     def clear_task(self, task_id: int):
         task_row_index = self.task_row_index(task_id)
-        self.removeRow(task_row_index)
+        if task_row_index is not None:
+            self.removeRow(task_row_index)
 
     def task_row_index(self, task_id: int) -> int | None:
         table_items_matching_task_id = [item for item in self.findItems(str(task_id), Qt.MatchFlag.MatchExactly) if
@@ -1267,7 +1284,7 @@ class MenuBar(QMenuBar):
         self.import_action_triggered.emit()
 
     def on_about_action_triggered(self):
-        about_dialog = AboutDialog(self)
+        about_dialog = AboutDialog(parent=self)
         about_dialog.open()
 
 
