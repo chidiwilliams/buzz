@@ -188,7 +188,7 @@ class DownloadModelProgressDialog(QProgressDialog):
 
 def show_model_download_error_dialog(parent: QWidget, error: str):
     message = f"An error occurred while loading the Whisper model: {error}{'' if error.endswith('.') else '.'}" \
-              f'information. '
+              f"Please retry or check the application logs for more information."
     QMessageBox.critical(parent, '', message)
 
 
