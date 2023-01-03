@@ -24,7 +24,6 @@ from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
                              QProgressDialog, QPushButton, QVBoxLayout, QHBoxLayout, QMenu,
                              QWidget, QGroupBox, QToolBar, QTableWidget, QMenuBar, QFormLayout, QTableWidgetItem,
                              QHeaderView, QAbstractItemView, QListWidget, QListWidgetItem, QToolButton, QSizePolicy)
-from requests import get
 from whisper import tokenizer
 
 from buzz.cache import TasksCache
@@ -615,7 +614,8 @@ class RecordingTranscriberWidget(QDialog):
     def on_transcriber_error(self, error: str):
         self.reset_record_button()
         self.set_recording_status_stopped()
-        QMessageBox.critical(self, '', f'An error occurred while starting a new recording: {error}. Please check your audio devices or check the application logs for more information.')
+        QMessageBox.critical(self, '',
+                             f'An error occurred while starting a new recording: {error}. Please check your audio devices or check the application logs for more information.')
 
     def on_cancel_model_progress_dialog(self):
         if self.model_loader is not None:
@@ -669,7 +669,8 @@ class AboutDialog(QDialog):
     GITHUB_API_LATEST_RELEASE_URL = 'https://api.github.com/repos/chidiwilliams/buzz/releases/latest'
     GITHUB_LATEST_RELEASE_URL = 'https://github.com/chidiwilliams/buzz/releases/latest'
 
-    def __init__(self, network_access_manager: Optional[QNetworkAccessManager]=None, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, network_access_manager: Optional[QNetworkAccessManager] = None,
+                 parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
 
         self.setFixedSize(200, 250)
@@ -862,7 +863,8 @@ class MainWindowToolbar(QToolBar):
 
     def load_icon(self, file_path: str):
         is_dark_theme = self.palette().window().color().black() > 127
-        return self.load_icon_with_color(file_path, self.ICON_DARK_THEME_BACKGROUND if is_dark_theme else self.ICON_LIGHT_THEME_BACKGROUND)
+        return self.load_icon_with_color(file_path,
+                                         self.ICON_DARK_THEME_BACKGROUND if is_dark_theme else self.ICON_LIGHT_THEME_BACKGROUND)
 
     @staticmethod
     def load_icon_with_color(file_path: str, color: str):
@@ -878,8 +880,8 @@ class MainWindowToolbar(QToolBar):
         recording_transcriber_window = RecordingTranscriberWidget(self)
         recording_transcriber_window.exec()
 
-    def set_open_transcript_action_disabled(self, disabled: bool):
-        self.open_transcript_action.setDisabled(disabled)
+    def set_open_transcript_action_enabled(self, disabled: bool):
+        self.open_transcript_action.setEnabled(disabled)
 
     def set_clear_history_action_enabled(self, enabled: bool):
         self.clear_history_action.setEnabled(enabled)
@@ -987,8 +989,16 @@ class MainWindow(QMainWindow):
         self.open_transcription_viewer(task_id)
 
     def on_table_selection_changed(self):
+        enable_open_transcript_action = self.should_enable_open_transcript_action()
+        self.toolbar.set_open_transcript_action_enabled(enable_open_transcript_action)
+
+    def should_enable_open_transcript_action(self):
         selected_rows = self.table_widget.selectionModel().selectedRows()
-        self.toolbar.set_open_transcript_action_disabled(len(selected_rows) == 0)
+        if len(selected_rows) == 1:
+            task_id = TranscriptionTasksTableWidget.find_task_id(selected_rows[0])
+            if self.tasks[task_id].status == FileTranscriptionTask.Status.COMPLETED:
+                return True
+        return False
 
     def on_table_double_clicked(self, index: QModelIndex):
         task_id = TranscriptionTasksTableWidget.find_task_id(index)
@@ -1040,7 +1050,8 @@ class HuggingFaceSearchLineEdit(LineEdit):
     model_selected = pyqtSignal(str)
     popup: QListWidget
 
-    def __init__(self, network_access_manager: Optional[QNetworkAccessManager] = None, parent: Optional[QWidget] = None):
+    def __init__(self, network_access_manager: Optional[QNetworkAccessManager] = None,
+                 parent: Optional[QWidget] = None):
         super().__init__('', parent)
 
         self.setMinimumWidth(150)
