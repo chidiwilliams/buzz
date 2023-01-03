@@ -75,37 +75,9 @@ $(LIBWHISPER) whisper_cpp:
 buzz/whisper_cpp.py: $(LIBWHISPER)
 	ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o buzz/whisper_cpp.py
 
-staple_app_mac:
-	xcrun stapler staple ${mac_app_path}
-
-codesign_all_mac:
-	make codesign_mac path="./dist/Buzz.app"
-	make codesign_mac path="./dist/Buzz.app/Contents/MacOS/Buzz"
-	for i in $$(find dist/Buzz.app/Contents/Resources -name "*.dylib" -o -name "*.so" -type f); \
-	do \
-		make codesign_mac path="$$i"; \
-	done
-	for i in $$(find dist/Buzz.app/Contents/Resources/torch/bin -name "*" -type f); \
-	do \
-		make codesign_mac path="$$i"; \
-	done
-	make codesign_mac path="./dist/Buzz.app/Contents/Resources/ffmpeg"
-	make codesign_mac path="./dist/Buzz.app/Contents/Resources/whisper_cpp"
-	make codesign_mac path="./dist/Buzz.app/Contents/MacOS/Buzz"
-	make codesign_verify
-
-codesign_mac:
-	codesign --deep --force --options=runtime --entitlements ./entitlements.plist --sign "$$BUZZ_CODESIGN_IDENTITY" --timestamp ${path}
-
-zip_mac:
-	ditto -c -k --keepParent "${mac_app_path}" "${mac_zip_path}"
-
 # Prints all the Mac developer identities used for code signing
 print_identities_mac:
 	security find-identity -p basic -v
-
-notarize_zip:
-	xcrun notarytool submit ${mac_zip_path} --keychain-profile "$$BUZZ_KEYCHAIN_NOTARY_PROFILE" --wait
 
 dmg_mac:
 	ditto -x -k "${mac_zip_path}" dist/dmg
@@ -123,14 +95,39 @@ dmg_mac:
 		"${mac_dmg_path}" \
 		"dist/dmg/"
 
+staple_app_mac:
+	xcrun stapler staple ${mac_app_path}
+
+notarize_zip:
+	xcrun notarytool submit ${mac_zip_path} --keychain-profile "$$BUZZ_KEYCHAIN_NOTARY_PROFILE" --wait
+
+zip_mac:
+	ditto -c -k --keepParent "${mac_app_path}" "${mac_zip_path}"
+
+codesign_all_mac: dist/Buzz.app
+	codesign --force --options=runtime --sign "$$BUZZ_CODESIGN_IDENTITY" --timestamp dist/Buzz.app/Contents/Resources/ffmpeg
+	codesign --force --options=runtime --sign "$$BUZZ_CODESIGN_IDENTITY" --timestamp dist/Buzz.app/Contents/Resources/whisper_cpp
+	for i in $$(find dist/Buzz.app/Contents/Resources/torch/bin -name "*" -type f); \
+	do \
+		codesign --force --options=runtime --sign "$$BUZZ_CODESIGN_IDENTITY" --timestamp "$$i"; \
+	done
+	for i in $$(find dist/Buzz.app/Contents/Resources -name "*.dylib" -o -name "*.so" -type f); \
+	do \
+		codesign --force --options=runtime --sign "$$BUZZ_CODESIGN_IDENTITY" --timestamp "$$i"; \
+	done
+	for i in $$(find dist/Buzz.app/Contents/MacOS -name "*.dylib" -o -name "*.so" -o -name "Qt*" -o -name "Python" -type f); \
+	do \
+		codesign --force --options=runtime --sign "$$BUZZ_CODESIGN_IDENTITY" --timestamp "$$i"; \
+	done
+	codesign --force --options=runtime --sign "$$BUZZ_CODESIGN_IDENTITY" --timestamp dist/Buzz.app/Contents/MacOS/Buzz
+	codesign --force --options=runtime --sign "$$BUZZ_CODESIGN_IDENTITY" --entitlements ./entitlements.plist --timestamp dist/Buzz.app
+	codesign --verify --deep --strict --verbose=2 dist/Buzz.app
+
 # HELPERS
 
 # Get the build logs for a notary upload
 notarize_log:
 	xcrun notarytool log ${id} --keychain-profile "$$BUZZ_KEYCHAIN_NOTARY_PROFILE"
-
-codesign_verify:
-	codesign --verify --deep --strict --verbose=2 dist/Buzz.app
 
 VENV_PATH := $(shell poetry env info -p)
 
