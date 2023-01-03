@@ -126,8 +126,8 @@ class RecordingTranscriber(QObject):
         self.is_running = True
         try:
             with sounddevice.InputStream(samplerate=self.sample_rate,
-                                        device=self.input_device_index, dtype="float32",
-                                        channels=1, callback=self.stream_callback):
+                                         device=self.input_device_index, dtype="float32",
+                                         channels=1, callback=self.stream_callback):
                 while self.is_running:
                     self.mutex.acquire()
                     if self.queue.size >= self.n_batch_samples:
@@ -136,7 +136,7 @@ class RecordingTranscriber(QObject):
                         self.mutex.release()
 
                         logging.debug('Processing next frame, sample size = %s, queue size = %s, amplitude = %s',
-                                    samples.size, self.queue.size, self.amplitude(samples))
+                                      samples.size, self.queue.size, self.amplitude(samples))
                         time_started = datetime.datetime.now()
 
                         if self.transcription_options.model.model_type == ModelType.WHISPER:
@@ -157,9 +157,9 @@ class RecordingTranscriber(QObject):
                         else:
                             assert isinstance(model, TransformersWhisper)
                             result = model.transcribe(audio=samples,
-                                                    language=self.transcription_options.language
-                                                    if self.transcription_options.language is not None else 'en',
-                                                    task=self.transcription_options.task.value)
+                                                      language=self.transcription_options.language
+                                                      if self.transcription_options.language is not None else 'en',
+                                                      task=self.transcription_options.task.value)
 
                         next_text: str = result.get('text')
 
@@ -167,7 +167,7 @@ class RecordingTranscriber(QObject):
                         initial_prompt += next_text
 
                         logging.debug('Received next result, length = %s, time taken = %s',
-                                    len(next_text), datetime.datetime.now() - time_started)
+                                      len(next_text), datetime.datetime.now() - time_started)
                         self.transcription.emit(next_text)
                     else:
                         self.mutex.release()
@@ -367,19 +367,16 @@ class WhisperFileTranscriber(QObject):
 
         self.current_process.join()
 
-        logging.debug(
-            'whisper process completed with code = %s, time taken = %s',
-            self.current_process.exitcode, datetime.datetime.now() - time_started)
-
         if self.current_process.exitcode != 0:
             send_pipe.close()
 
         self.read_line_thread.join()
 
-        # TODO: fix error handling when process crashes
-        if self.current_process.exitcode != 0 and self.current_process.exitcode is not None:
-            self.completed.emit([])
+        logging.debug(
+            'whisper process completed with code = %s, time taken = %s, number of segments = %s',
+            self.current_process.exitcode, datetime.datetime.now() - time_started, len(self.segments))
 
+        self.completed.emit(self.segments)
         self.running = False
 
     def stop(self):
@@ -403,9 +400,7 @@ class WhisperFileTranscriber(QObject):
                     end=segment.get('end'),
                     text=segment.get('text'),
                 ) for segment in segments_dict]
-                self.current_process.join()
-                # TODO: move this back to the parent thread
-                self.completed.emit(segments)
+                self.segments = segments
             else:
                 try:
                     progress = int(line.split('|')[0].strip().strip('%'))
