@@ -376,7 +376,11 @@ class WhisperFileTranscriber(QObject):
             'whisper process completed with code = %s, time taken = %s, number of segments = %s',
             self.current_process.exitcode, datetime.datetime.now() - time_started, len(self.segments))
 
-        self.completed.emit(self.segments)
+        if self.current_process.exitcode == 0:
+            self.completed.emit(self.segments)
+        else:
+            self.error.emit('Unknown error')
+
         self.running = False
 
     def stop(self):
@@ -406,6 +410,7 @@ class WhisperFileTranscriber(QObject):
                     progress = int(line.split('|')[0].strip().strip('%'))
                     self.progress.emit((progress, 100))
                 except ValueError:
+                    logging.debug('whisper (stderr): %s', line)
                     continue
 
 
@@ -611,6 +616,7 @@ class FileTranscriberQueueWorker(QObject):
         self.current_transcriber.completed.connect(self.on_task_completed)
 
         # Wait for next item on the queue
+        self.current_transcriber.error.connect(self.run)
         self.current_transcriber.completed.connect(self.run)
 
         self.current_transcriber_thread.start()
