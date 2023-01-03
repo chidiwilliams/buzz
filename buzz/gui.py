@@ -1030,6 +1030,9 @@ class MainWindow(QMainWindow):
         self.toolbar.set_clear_history_action_enabled(
             any([self.task_completed_or_errored(task) for task in self.tasks.values()]))
 
+        enable_open_transcript_action = self.should_enable_open_transcript_action()
+        self.toolbar.set_open_transcript_action_enabled(enable_open_transcript_action)
+
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         self.transcriber_worker.stop()
         self.transcriber_thread.quit()
