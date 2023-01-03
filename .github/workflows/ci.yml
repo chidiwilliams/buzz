@@ -170,7 +170,7 @@ jobs:
         include:
           - os: macos-latest
           - os: windows-latest
-    needs: [build, test]
+    needs: [ build, test ]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v3
@@ -191,5 +191,21 @@ jobs:
             Buzz*-windows.tar.gz
             Buzz*-windows.exe
             Buzz*-mac.dmg
+
+  deploy_brew_cask:
+    runs-on: macos-latest
+    needs: [ release ]
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Install Poetry Action
+        uses: snok/install-poetry@v1.3.1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
       - name: Upload to Brew
         run: make upload_brew
+        env:
+          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
