@@ -1,3 +1,4 @@
+import logging
 import os
 import pathlib
 import platform
@@ -7,7 +8,7 @@ from typing import List
 from unittest.mock import Mock, patch
 
 import pytest
-from PyQt6.QtCore import QThread
+from PyQt6.QtCore import QThread, QCoreApplication
 from pytestqt.qtbot import QtBot
 
 from buzz.model_loader import WhisperModelSize, ModelType, TranscriptionModel, ModelLoader
@@ -135,7 +136,8 @@ class TestWhisperFileTranscriber:
                                        file_path='testdata/whisper-french.mp3', model_path=model_path))
         transcriber.progress.connect(mock_progress)
         transcriber.completed.connect(mock_completed)
-        with qtbot.wait_signal(transcriber.completed, timeout=10 * 6000):
+        with qtbot.wait_signal(transcriber.progress, timeout=10 * 6000), qtbot.wait_signal(transcriber.completed,
+                                                                                           timeout=10 * 6000):
             transcriber.run()
 
         if check_progress:
@@ -150,6 +152,7 @@ class TestWhisperFileTranscriber:
 
         mock_completed.assert_called()
         segments = mock_completed.call_args[0][0]
+        assert len(segments) >= len(expected_segments)
         for (i, expected_segment) in enumerate(expected_segments):
             assert segments[i] == expected_segment
 
