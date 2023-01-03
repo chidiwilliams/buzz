@@ -880,8 +880,8 @@ class MainWindowToolbar(QToolBar):
         recording_transcriber_window = RecordingTranscriberWidget(self)
         recording_transcriber_window.exec()
 
-    def set_open_transcript_action_enabled(self, disabled: bool):
-        self.open_transcript_action.setEnabled(disabled)
+    def set_open_transcript_action_enabled(self, enabled: bool):
+        self.open_transcript_action.setEnabled(enabled)
 
     def set_clear_history_action_enabled(self, enabled: bool):
         self.clear_history_action.setEnabled(enabled)
