@@ -192,11 +192,14 @@ jobs:
             Buzz*-windows.exe
             Buzz*-mac.dmg
 
-  deploy_brew_cash:
+  deploy_brew_cask:
     runs-on: macos-latest
-#    needs: [ release ]
-#    if: startsWith(github.ref, 'refs/tags/')
+    #    needs: [ release ]
+    #    if: startsWith(github.ref, 'refs/tags/')
     steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - name: Upload to Brew
         run: make upload_brew
         env:
