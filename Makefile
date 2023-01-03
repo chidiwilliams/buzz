@@ -138,14 +138,41 @@ ggml:
 upload_brew:
 	brew bump-cask-pr --version ${version} --verbose buzz
 
+GET_PR_URL = $(shell gh pr create --fill | grep 'pull\/\d*')
+SET_PR_URL = $(eval PR_URL=$(GET_PR_URL))
+BRANCH := upgrade-to-${version}
 gh_upgrade_pr:
 	git checkout main && git pull
-	git checkout -b upgrade-to-${version}
+	git checkout -B ${BRANCH}
 
 	make version version=${version}
 
 	git commit -am "Upgrade to ${version}"
-	git push --set-upstream origin upgrade-to-${version}
+	git push --set-upstream origin ${BRANCH}
 
 	gh pr create --fill
-	gh pr merge upgrade-to-${version} --auto --squash
+	gh pr merge ${BRANCH} --auto --squash
+	$(SET_PR_URL)
+	gh pr merge ${BRANCH} --auto --squash
+
+	if [[ -z "$(which gh)" ]]; then
+	  printf ":hand: This script requires the GitHub CLI to run. Please install it and try again.\n"
+	fi
+
+	while ! gh pr checks "$$PR_URL" | grep -q 'pending'; do
+	  printf ":stopwatch: PR checks still pending, retrying in 10 seconds...\n"
+	  sleep 10
+	done
+
+	if ! gh pr checks "$$PR_URL" | grep -q 'fail'; then
+	  printf ":x: PR checks failed!\n"
+	  exit 1
+	fi
+
+	if ! gh pr checks "$$PR_URL" | grep  -q 'pass'; then
+	  printf ":white_check_mark: PR checks passed!\n"
+	  exit 0
+	fi
+
+	printf ":confused: An unknown error occurred!\n"
+	exit 1
