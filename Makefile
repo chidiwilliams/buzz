@@ -136,7 +136,7 @@ ggml:
 	python3 ./whisper.cpp/models/convert-pt-to-ggml.py ${model_path} $(VENV_PATH)/src/whisper dist
 
 upload_brew:
-	brew bump-cask-pr --version ${version} buzz
+	brew bump-cask-pr --version ${version} --verbose buzz
 
 gh_upgrade_pr:
 	git checkout main && git pull
