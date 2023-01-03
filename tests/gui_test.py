@@ -5,14 +5,12 @@ from unittest.mock import Mock, patch
 
 import pytest
 import sounddevice
-from PyQt6.QtCore import QSize, Qt, QByteArray, QObject
+from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QValidator, QKeyEvent
 from PyQt6.QtWidgets import QPushButton, QToolBar, QTableWidget, QApplication, QMessageBox
 from pytestqt.qtbot import QtBot
 
 from buzz.__version__ import VERSION
-
-from .mock_qt import MockNetworkAccessManager, MockNetworkReply
 from buzz.cache import TasksCache
 from buzz.gui import (AboutDialog, AdvancedSettingsDialog, AudioDevicesComboBox, DownloadModelProgressDialog,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
@@ -24,6 +22,7 @@ from buzz.model_loader import ModelType
 from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask,
                               Segment, TranscriptionOptions)
 from tests.mock_sounddevice import MockInputStream
+from .mock_qt import MockNetworkAccessManager, MockNetworkReply
 
 
 class TestLanguagesComboBox:
@@ -161,24 +160,34 @@ class TestMainWindow:
         window = MainWindow(tasks_cache=tasks_cache)
         qtbot.add_widget(window)
 
-        toolbar: QToolBar = window.findChild(QToolBar)
-        new_transcription_action = [action for action in toolbar.actions() if action.text() == 'New Transcription'][0]
-
         with patch('PyQt6.QtWidgets.QFileDialog.getOpenFileNames') as open_file_names_mock:
             open_file_names_mock.return_value = ([get_test_asset('whisper-french.mp3')], '')
+            new_transcription_action = self.get_toolbar_action(window, 'New Transcription')
             new_transcription_action.trigger()
 
         file_transcriber_widget: FileTranscriberWidget = window.findChild(FileTranscriberWidget)
         run_button: QPushButton = file_transcriber_widget.findChild(QPushButton)
         run_button.click()
 
-        def check_task_completed():
-            table_widget: QTableWidget = window.findChild(QTableWidget)
-            assert table_widget.rowCount() == 1
-            assert table_widget.item(0, 1).text() == 'whisper-french.mp3'
-            assert table_widget.item(0, 2).text() == 'Completed'
+        open_transcript_action = self.get_toolbar_action(window, 'Open Transcript')
+        assert open_transcript_action.isEnabled() is False
 
-        qtbot.wait_until(check_task_completed, timeout=60 * 1000)
+        def assert_task_completed():
+            _table_widget: QTableWidget = window.findChild(QTableWidget)
+            assert _table_widget.rowCount() == 1
+            assert _table_widget.item(0, 1).text() == 'whisper-french.mp3'
+            assert _table_widget.item(0, 2).text() == 'Completed'
+
+        qtbot.wait_until(assert_task_completed, timeout=60 * 1000)
+
+        table_widget: QTableWidget = window.findChild(QTableWidget)
+        table_widget.setCurrentIndex(table_widget.indexFromItem(table_widget.item(0, 1)))
+        assert open_transcript_action.isEnabled()
+
+    @staticmethod
+    def get_toolbar_action(window: MainWindow, text: str):
+        toolbar: QToolBar = window.findChild(QToolBar)
+        return [action for action in toolbar.actions() if action.text() == text][0]
 
 
 class TestFileTranscriberWidget:
