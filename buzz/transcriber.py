@@ -376,11 +376,7 @@ class WhisperFileTranscriber(QObject):
             'whisper process completed with code = %s, time taken = %s, number of segments = %s',
             self.current_process.exitcode, datetime.datetime.now() - time_started, len(self.segments))
 
-        if self.current_process.exitcode == 0 or self.current_process.exitcode is None:
-            self.completed.emit(self.segments)
-        else:
-            self.completed.emit([])
-
+        self.completed.emit(self.segments)
         self.running = False
 
     def stop(self):
