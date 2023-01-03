@@ -140,7 +140,7 @@ upload_brew:
 
 GET_PR_URL = $(shell gh pr create --fill | grep 'pull\/\d*')
 SET_PR_URL = $(eval PR_URL=$(GET_PR_URL))
-BRANCH := upgrade-to-${version}-2
+BRANCH := upgrade-to-${version}
 gh_upgrade_pr:
 	git checkout main && git pull
 	git checkout -B ${BRANCH}
