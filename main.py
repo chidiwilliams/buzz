@@ -6,6 +6,7 @@ import platform
 import sys
 from typing import TextIO
 
+from PyQt6.QtCore import QTranslator, QLocale
 from appdirs import user_log_dir
 
 # Check for segfaults if not running in frozen mode
@@ -42,4 +43,10 @@ if __name__ == "__main__":
     from buzz.gui import Application
 
     app = Application()
+
+    translator = QTranslator()
+    locale_name = QLocale.system().name()
+    if translator.load(locale_name, 'i18n'):
+        app.installTranslator(translator)
+
     sys.exit(app.exec())
