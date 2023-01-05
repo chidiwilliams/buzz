@@ -76,6 +76,7 @@ class FileTranscriptionTask:
         QUEUED = 'queued'
         IN_PROGRESS = 'in_progress'
         COMPLETED = 'completed'
+        # TODO: rename to failed
         ERROR = 'error'
 
     file_path: str
@@ -648,6 +649,7 @@ class FileTranscriberQueueWorker(QObject):
             self.task_updated.emit(self.current_task)
 
     def stop(self):
+        # TODO: seems to crash intermittently, figure out possible race condition issues
         self.queue.put(None)
         if self.current_transcriber is not None:
             self.current_transcriber.stop()

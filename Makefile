@@ -37,10 +37,10 @@ clean:
 	rm -f buzz/whisper_cpp.py
 	rm -rf dist/* || true
 
-test: buzz/whisper_cpp.py
+test: buzz/whisper_cpp.py translation_mo
 	pytest -vv --cov=buzz --cov-report=xml --cov-report=html
 
-dist/Buzz dist/Buzz.app: buzz/whisper_cpp.py
+dist/Buzz dist/Buzz.app: buzz/whisper_cpp.py translation_mo
 	pyinstaller --noconfirm Buzz.spec
 
 version:
@@ -138,41 +138,38 @@ ggml:
 upload_brew:
 	brew bump-cask-pr --version ${version} --verbose buzz
 
-GET_PR_URL = $(shell gh pr create --fill | grep 'pull\/\d*')
-SET_PR_URL = $(eval PR_URL=$(GET_PR_URL))
-BRANCH := upgrade-to-${version}
+UPGRADE_VERSION_BRANCH := upgrade-to-${version}
 gh_upgrade_pr:
 	git checkout main && git pull
-	git checkout -B ${BRANCH}
+	git checkout -B ${UPGRADE_VERSION_BRANCH}
 
 	make version version=${version}
 
 	git commit -am "Upgrade to ${version}"
-	git push --set-upstream origin ${BRANCH}
+	git push --set-upstream origin ${UPGRADE_VERSION_BRANCH}
 
 	gh pr create --fill
-	gh pr merge ${BRANCH} --auto --squash
-	$(SET_PR_URL)
-	gh pr merge ${BRANCH} --auto --squash
+	gh pr merge ${UPGRADE_VERSION_BRANCH} --auto --squash
 
-	if [[ -z "$(which gh)" ]]; then
-	  printf ":hand: This script requires the GitHub CLI to run. Please install it and try again.\n"
+# Internationalization
+
+translation_po_all:
+	$(MAKE) translation_po locale=ca_ES
+
+TMP_POT_FILE_PATH := $(shell mktemp)
+PO_FILE_PATH := locale/${locale}/LC_MESSAGES/buzz.po
+translation_po:
+	if [[ -f "${PO_FILE_PATH}" ]]; then \
+		xgettext --from-code=UTF-8 -o ${TMP_POT_FILE_PATH} -l python buzz/gui.py; \
+		sed -i.bak 's/CHARSET/UTF-8/' ${TMP_POT_FILE_PATH} && rm ${TMP_POT_FILE_PATH}.bak; \
+		msgmerge -U ${PO_FILE_PATH} ${TMP_POT_FILE_PATH}; \
+  	else \
+  	  	mkdir -p locale/${locale}/LC_MESSAGES; \
+		xgettext --from-code=UTF-8 -o ${PO_FILE_PATH} -l python buzz/gui.py; \
+		sed -i.bak 's/CHARSET/UTF-8/' ${PO_FILE_PATH} && rm ${PO_FILE_PATH}.bak; \
 	fi
 
-	while ! gh pr checks "$$PR_URL" | grep -q 'pending'; do
-	  printf ":stopwatch: PR checks still pending, retrying in 10 seconds...\n"
-	  sleep 10
+translation_mo:
+	for dir in locale/*/ ; do \
+		msgfmt --check $$dir/LC_MESSAGES/buzz.po -o $$dir/LC_MESSAGES/buzz.mo; \
 	done
-
-	if ! gh pr checks "$$PR_URL" | grep -q 'fail'; then
-	  printf ":x: PR checks failed!\n"
-	  exit 1
-	fi
-
-	if ! gh pr checks "$$PR_URL" | grep  -q 'pass'; then
-	  printf ":white_check_mark: PR checks passed!\n"
-	  exit 0
-	fi
-
-	printf ":confused: An unknown error occurred!\n"
-	exit 1

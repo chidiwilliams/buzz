@@ -1,4 +1,5 @@
 import enum
+import gettext
 import json
 import logging
 import os
@@ -14,7 +15,7 @@ import sounddevice
 from PyQt6 import QtGui
 from PyQt6.QtCore import (QObject, Qt, QThread,
                           QTimer, QUrl, pyqtSignal, QModelIndex, QSize, QPoint,
-                          QUrlQuery, QMetaObject, QEvent)
+                          QUrlQuery, QMetaObject, QEvent, QLocale)
 from PyQt6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
                          QKeySequence, QPixmap, QTextCursor, QValidator, QKeyEvent, QPainter, QColor)
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
@@ -37,6 +38,24 @@ from .transcriber import (SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, Ou
                           FileTranscriberQueueWorker, FileTranscriptionTask, RecordingTranscriber, LOADED_WHISPER_DLL)
 
 APP_NAME = 'Buzz'
+
+
+def get_asset_path(path: str):
+    if getattr(sys, 'frozen', False):
+        return os.path.join(os.path.dirname(sys.executable), path)
+    return os.path.join(os.path.dirname(__file__), '..', path)
+
+
+if 'LANG' not in os.environ:
+    language = str(QLocale().uiLanguages()[0]).replace("-", "_")
+    os.environ['LANG'] = language
+
+locale_dir = get_asset_path('locale')
+gettext.bindtextdomain('buzz', locale_dir)
+
+translate = gettext.translation(APP_NAME, locale_dir, fallback=True)
+
+_ = translate.gettext
 
 
 def get_platform_styles(all_platform_styles: Dict[str, str]):
@@ -113,7 +132,7 @@ class LanguagesComboBox(QComboBox):
 
         whisper_languages = sorted(
             [(lang, tokenizer.LANGUAGES[lang].title()) for lang in tokenizer.LANGUAGES], key=lambda lang: lang[1])
-        self.languages = [('', 'Detect Language')] + whisper_languages
+        self.languages = [('', _('Detect Language'))] + whisper_languages
 
         self.addItems([lang[1] for lang in self.languages])
         self.currentIndexChanged.connect(self.on_index_changed)
@@ -152,16 +171,16 @@ class TextDisplayBox(QPlainTextEdit):
 
 class RecordButton(QPushButton):
     def __init__(self, parent: Optional[QWidget]) -> None:
-        super().__init__("Record", parent)
+        super().__init__(_("Record"), parent)
         self.setDefault(True)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed))
 
     def set_stopped(self):
-        self.setText('Record')
+        self.setText(_('Record'))
         self.setDefault(True)
 
     def set_recording(self):
-        self.setText('Stop')
+        self.setText(_('Stop'))
         self.setDefault(False)
 
 
@@ -169,8 +188,8 @@ class DownloadModelProgressDialog(QProgressDialog):
     start_time: datetime
 
     def __init__(self, parent: Optional[QWidget], *args) -> None:
-        super().__init__('Downloading model (0%, unknown time remaining)',
-                         'Cancel', 0, 100, parent, *args)
+        super().__init__(_('Downloading model (0%, unknown time remaining)'),
+                         _('Cancel'), 0, 100, parent, *args)
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.start_time = datetime.now()
         self.setFixedSize(self.size())
@@ -182,13 +201,17 @@ class DownloadModelProgressDialog(QProgressDialog):
             time_spent = (datetime.now() - self.start_time).total_seconds()
             time_left = (time_spent / fraction_completed) - time_spent
 
-            self.setLabelText(
-                f'Downloading model ({fraction_completed :.0%}, {humanize.naturaldelta(time_left)} remaining)')
+            self.setLabelText(_('Downloading model') +
+                              f' ({fraction_completed :.0%}, ' +
+                              humanize.naturaldelta(time_left) + ')')
 
 
 def show_model_download_error_dialog(parent: QWidget, error: str):
-    message = f"An error occurred while loading the Whisper model: {error}{'' if error.endswith('.') else '.'}" \
-              f"Please retry or check the application logs for more information."
+    message = parent.tr(
+        'An error occurred while loading the Whisper model') + \
+              f": {error}{'' if error.endswith('.') else '.'}" + \
+              parent.tr("Please retry or check the application logs for more information.")
+
     QMessageBox.critical(parent, '', message)
 
 
@@ -222,14 +245,14 @@ class FileTranscriberWidget(QWidget):
         transcription_options_group_box.transcription_options_changed.connect(
             self.on_transcription_options_changed)
 
-        self.word_level_timings_checkbox = QCheckBox('Word-level timings')
+        self.word_level_timings_checkbox = QCheckBox(_('Word-level timings'))
         self.word_level_timings_checkbox.stateChanged.connect(
             self.on_word_level_timings_changed)
 
         file_transcription_layout = QFormLayout()
         file_transcription_layout.addRow('', self.word_level_timings_checkbox)
 
-        self.run_button = QPushButton('Run', self)
+        self.run_button = QPushButton(_('Run'), self)
         self.run_button.setDefault(True)
         self.run_button.clicked.connect(self.on_click_run)
 
@@ -348,7 +371,7 @@ class TranscriptionViewerWidget(QWidget):
         menu.triggered.connect(self.on_menu_triggered)
 
         export_button = QPushButton(self)
-        export_button.setText('Export')
+        export_button.setText(_('Export'))
         export_button.setMenu(menu)
 
         buttons_layout.addWidget(export_button)
@@ -364,8 +387,8 @@ class TranscriptionViewerWidget(QWidget):
             input_file_path=self.transcription_task.file_path,
             output_format=output_format)
 
-        (output_file_path, _) = QFileDialog.getSaveFileName(
-            self, 'Save File', default_path, f'Text files (*.{output_format.value})')
+        (output_file_path, nil) = QFileDialog.getSaveFileName(self, _('Save File'), default_path,
+                                                              _('Text files') + f' (*.{output_format.value})')
 
         if output_file_path == '':
             return
@@ -457,7 +480,7 @@ class RecordingTranscriberWidget(QDialog):
         layout = QVBoxLayout(self)
 
         self.current_status = self.RecordingStatus.STOPPED
-        self.setWindowTitle('Live Recording')
+        self.setWindowTitle(_('Live Recording'))
 
         self.transcription_options = TranscriptionOptions(
             model=TranscriptionModel(model_type=ModelType.WHISPER_CPP if LOADED_WHISPER_DLL else ModelType.WHISPER,
@@ -472,7 +495,7 @@ class RecordingTranscriberWidget(QDialog):
         self.record_button.clicked.connect(self.on_record_button_clicked)
 
         self.text_box = TextDisplayBox(self)
-        self.text_box.setPlaceholderText('Click Record to begin...')
+        self.text_box.setPlaceholderText(_('Click Record to begin...'))
 
         transcription_options_group_box = TranscriptionOptionsGroupBox(
             default_transcription_options=self.transcription_options, parent=self)
@@ -481,7 +504,7 @@ class RecordingTranscriberWidget(QDialog):
 
         recording_options_layout = QFormLayout()
         recording_options_layout.addRow(
-            'Microphone:', self.audio_devices_combo_box)
+            _('Microphone:'), self.audio_devices_combo_box)
 
         self.audio_meter_widget = AudioMeterWidget(self)
 
@@ -614,8 +637,10 @@ class RecordingTranscriberWidget(QDialog):
     def on_transcriber_error(self, error: str):
         self.reset_record_button()
         self.set_recording_status_stopped()
-        QMessageBox.critical(self, '',
-                             f'An error occurred while starting a new recording: {error}. Please check your audio devices or check the application logs for more information.')
+        QMessageBox.critical(
+            self, '',
+            _('An error occurred while starting a new recording:') + error + '. ' +
+            _('Please check your audio devices or check the application logs for more information.'))
 
     def on_cancel_model_progress_dialog(self):
         if self.model_loader is not None:
@@ -651,12 +676,6 @@ class RecordingTranscriberWidget(QDialog):
         return super().closeEvent(event)
 
 
-def get_asset_path(path: str):
-    if getattr(sys, 'frozen', False):
-        return os.path.join(os.path.dirname(sys.executable), path)
-    return os.path.join(os.path.dirname(__file__), '..', path)
-
-
 BUZZ_ICON_PATH = get_asset_path('assets/buzz.ico')
 BUZZ_LARGE_ICON_PATH = get_asset_path('assets/buzz-icon-1024.png')
 RECORD_ICON_PATH = get_asset_path('assets/record-icon.svg')
@@ -676,7 +695,7 @@ class AboutDialog(QDialog):
         self.setFixedSize(200, 250)
 
         self.setWindowIcon(QIcon(BUZZ_ICON_PATH))
-        self.setWindowTitle(f'About {APP_NAME}')
+        self.setWindowTitle(f'{_("About")} {APP_NAME}')
 
         if network_access_manager is None:
             network_access_manager = QNetworkAccessManager()
@@ -701,11 +720,11 @@ class AboutDialog(QDialog):
         buzz_label_font.setPointSize(20)
         buzz_label.setFont(buzz_label_font)
 
-        version_label = QLabel(f'Version {VERSION}')
+        version_label = QLabel(f"{_('Version')} {VERSION}")
         version_label.setAlignment(Qt.AlignmentFlag(
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignHCenter))
 
-        self.check_updates_button = QPushButton('Check for updates', self)
+        self.check_updates_button = QPushButton(_('Check for updates'), self)
         self.check_updates_button.clicked.connect(self.on_click_check_for_updates)
 
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton(
@@ -733,7 +752,7 @@ class AboutDialog(QDialog):
             if self.is_version_lower(VERSION, tag_name[1:]):
                 QDesktopServices.openUrl(QUrl(self.GITHUB_LATEST_RELEASE_URL))
             else:
-                QMessageBox.information(self, '', "You're up to date!")
+                QMessageBox.information(self, '', _("You're up to date!"))
         self.check_updates_button.setEnabled(True)
 
     @staticmethod
@@ -756,7 +775,7 @@ class TranscriptionTasksTableWidget(QTableWidget):
         self.setColumnHidden(0, True)
 
         self.verticalHeader().hide()
-        self.setHorizontalHeaderLabels(['ID', 'File Name', 'Status'])
+        self.setHorizontalHeaderLabels([_('ID'), _('File Name'), _('Status')])
         self.horizontalHeader().setMinimumSectionSize(140)
         self.horizontalHeader().setSectionResizeMode(self.FILE_NAME_COLUMN_INDEX,
                                                      QHeaderView.ResizeMode.Stretch)
@@ -793,11 +812,11 @@ class TranscriptionTasksTableWidget(QTableWidget):
 
             if task.status == FileTranscriptionTask.Status.IN_PROGRESS:
                 status_widget.setText(
-                    f'In Progress ({task.fraction_completed :.0%})')
+                    f'{_("In Progress")} ({task.fraction_completed :.0%})')
             elif task.status == FileTranscriptionTask.Status.COMPLETED:
-                status_widget.setText('Completed')
+                status_widget.setText(_('Completed'))
             elif task.status == FileTranscriptionTask.Status.ERROR:
-                status_widget.setText('Failed')
+                status_widget.setText(_('Failed'))
 
     def clear_task(self, task_id: int):
         task_row_index = self.task_row_index(task_id)
@@ -826,19 +845,19 @@ class MainWindowToolbar(QToolBar):
     def __init__(self, parent: Optional[QWidget]):
         super().__init__(parent)
 
-        record_action = QAction(self.load_icon(RECORD_ICON_PATH), 'Record', self)
+        record_action = QAction(self.load_icon(RECORD_ICON_PATH), _('Record'), self)
         record_action.triggered.connect(self.on_record_action_triggered)
 
         new_transcription_action = QAction(
-            self.load_icon(ADD_ICON_PATH), 'New Transcription', self)
+            self.load_icon(ADD_ICON_PATH), _('New Transcription'), self)
         self.new_transcription_action_triggered = new_transcription_action.triggered
 
         self.open_transcript_action = QAction(self.load_icon(EXPAND_ICON_PATH),
-                                              'Open Transcript', self)
+                                              _('Open Transcript'), self)
         self.open_transcript_action_triggered = self.open_transcript_action.triggered
         self.open_transcript_action.setDisabled(True)
 
-        self.clear_history_action = QAction(self.load_icon(TRASH_ICON_PATH), 'Clear History', self)
+        self.clear_history_action = QAction(self.load_icon(TRASH_ICON_PATH), _('Clear History'), self)
         self.clear_history_action_triggered = self.clear_history_action.triggered
         self.clear_history_action.setDisabled(True)
 
@@ -970,8 +989,8 @@ class MainWindow(QMainWindow):
                 self.tasks_changed.emit()
 
     def on_new_transcription_action_triggered(self):
-        (file_paths, _) = QFileDialog.getOpenFileNames(
-            self, 'Select audio file', '', SUPPORTED_OUTPUT_FORMATS)
+        (file_paths, __) = QFileDialog.getOpenFileNames(
+            self, _('Select audio file'), '', SUPPORTED_OUTPUT_FORMATS)
         if len(file_paths) == 0:
             return
 
@@ -1217,9 +1236,9 @@ class TranscriptionOptionsGroupBox(QGroupBox):
                 default_transcription_options.model.whisper_model_size.value.title())
         self.whisper_model_size_combo_box.currentTextChanged.connect(self.on_whisper_model_size_changed)
 
-        self.form_layout.addRow('Task:', self.tasks_combo_box)
-        self.form_layout.addRow('Language:', self.languages_combo_box)
-        self.form_layout.addRow('Model:', self.model_type_combo_box)
+        self.form_layout.addRow(_('Task:'), self.tasks_combo_box)
+        self.form_layout.addRow(_('Language:'), self.languages_combo_box)
+        self.form_layout.addRow(_('Model:'), self.model_type_combo_box)
         self.form_layout.addRow('', self.whisper_model_size_combo_box)
         self.form_layout.addRow('', self.hugging_face_search_line_edit)
 
@@ -1280,18 +1299,18 @@ class MenuBar(QMenuBar):
     def __init__(self, parent: QWidget):
         super().__init__(parent)
 
-        import_action = QAction("&Import Media File...", self)
+        import_action = QAction(_("Import Media File..."), self)
         import_action.triggered.connect(
             self.on_import_action_triggered)
         import_action.setShortcut(QKeySequence.fromString('Ctrl+O'))
 
-        about_action = QAction(f'&About {APP_NAME}', self)
+        about_action = QAction(f'{_("About")} {APP_NAME}', self)
         about_action.triggered.connect(self.on_about_action_triggered)
 
-        file_menu = self.addMenu("&File")
+        file_menu = self.addMenu(_("File"))
         file_menu.addAction(import_action)
 
-        help_menu = self.addMenu("&Help")
+        help_menu = self.addMenu(_("Help"))
         help_menu.addAction(about_action)
 
     def on_import_action_triggered(self):
@@ -1321,7 +1340,7 @@ class AdvancedSettingsDialog(QDialog):
 
         self.transcription_options = transcription_options
 
-        self.setWindowTitle('Advanced Settings')
+        self.setWindowTitle(_('Advanced Settings'))
 
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton(
             QDialogButtonBox.StandardButton.Ok), self)
@@ -1333,7 +1352,7 @@ class AdvancedSettingsDialog(QDialog):
             [str(temp) for temp in transcription_options.temperature])
         self.temperature_line_edit = LineEdit(default_temperature_text, self)
         self.temperature_line_edit.setPlaceholderText(
-            'Comma-separated, e.g. "0.0, 0.2, 0.4, 0.6, 0.8, 1.0"')
+            _('Comma-separated, e.g. "0.0, 0.2, 0.4, 0.6, 0.8, 1.0"'))
         self.temperature_line_edit.setMinimumWidth(170)
         self.temperature_line_edit.textChanged.connect(
             self.on_temperature_changed)
@@ -1347,8 +1366,8 @@ class AdvancedSettingsDialog(QDialog):
         self.initial_prompt_text_edit.setEnabled(
             transcription_options.model.model_type == ModelType.WHISPER)
 
-        layout.addRow('Temperature:', self.temperature_line_edit)
-        layout.addRow('Initial Prompt:', self.initial_prompt_text_edit)
+        layout.addRow(_('Temperature:'), self.temperature_line_edit)
+        layout.addRow(_('Initial Prompt:'), self.initial_prompt_text_edit)
         layout.addWidget(button_box)
 
         self.setLayout(layout)
