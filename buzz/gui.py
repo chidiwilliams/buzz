@@ -989,7 +989,7 @@ class MainWindow(QMainWindow):
                 self.tasks_changed.emit()
 
     def on_new_transcription_action_triggered(self):
-        (file_paths, _) = QFileDialog.getOpenFileNames(
+        (file_paths, __) = QFileDialog.getOpenFileNames(
             self, _('Select audio file'), '', SUPPORTED_OUTPUT_FORMATS)
         if len(file_paths) == 0:
             return
