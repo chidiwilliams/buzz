@@ -7,7 +7,7 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
 [![CI](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml/badge.svg)](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/github/chidiwilliams/buzz/branch/main/graph/badge.svg?token=YJSB8S2VEP)](https://codecov.io/github/chidiwilliams/buzz)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/chidiwilliams/buzz)
-[![Github all releases](https://img.shields.io/github/downloads/chidiwilliams/buzz/total.svg)](https://GitHub.com/Naereen/StrapDown.js/releases/)
+[![Github all releases](https://img.shields.io/github/downloads/chidiwilliams/buzz/total.svg)](https://GitHub.com/chidiwilliams/buzz/releases/)
 
 ![Buzz](./assets/buzz-banner.jpg)
 
@@ -17,7 +17,9 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
   text ([Demo](https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7))
 - Import audio and video files and export transcripts to TXT, SRT, and
   VTT ([Demo](https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe))
-- Supports Whisper, Whisper.cpp, and Whisper-compatible Hugging Face models
+- Supports [Whisper](https://github.com/openai/whisper#available-models-and-languages),
+  [Whisper.cpp](https://github.com/ggerganov/whisper.cpp),
+  and [Whisper-compatible Hugging Face models](https://huggingface.co/models?other=whisper)
 
 ## Installation
 
@@ -32,9 +34,11 @@ Install via [brew](https://brew.sh/):
 brew install --cask buzz
 ```
 
+Or, download and run the `Buzz-x.y.z.dmg` file.
+
 ### Windows
 
-- Download and run the `Buzz-x.y.z.exe` file.
+Download and run the `Buzz-x.y.z.exe` file.
 
 ## How to use
 

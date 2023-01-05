@@ -815,7 +815,7 @@ class TranscriptionTasksTableWidget(QTableWidget):
                     f'{_("In Progress")} ({task.fraction_completed :.0%})')
             elif task.status == FileTranscriptionTask.Status.COMPLETED:
                 status_widget.setText(_('Completed'))
-            elif task.status == FileTranscriptionTask.Status.ERROR:
+            elif task.status == FileTranscriptionTask.Status.FAILED:
                 status_widget.setText(_('Failed'))
 
     def clear_task(self, task_id: int):
@@ -979,7 +979,7 @@ class MainWindow(QMainWindow):
     @staticmethod
     def task_completed_or_errored(task: FileTranscriptionTask):
         return task.status == FileTranscriptionTask.Status.COMPLETED or \
-            task.status == FileTranscriptionTask.Status.ERROR
+            task.status == FileTranscriptionTask.Status.FAILED
 
     def on_clear_history_action_triggered(self):
         for task_id, task in list(self.tasks.items()):

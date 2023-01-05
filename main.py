@@ -44,9 +44,4 @@ if __name__ == "__main__":
 
     app = Application()
 
-    translator = QTranslator()
-    locale_name = QLocale.system().name()
-    if translator.load(locale_name, 'i18n'):
-        app.installTranslator(translator)
-
     sys.exit(app.exec())
