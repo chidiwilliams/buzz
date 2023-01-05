@@ -1,25 +1,24 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# Jordi Mas i Hernàndez <jmas@softcatala.org>, 2022
+# Jordi Mas i Hernàndez <jmas@softcatala.org>, 2022, 2023
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-01-04 22:29+0000\n"
-"PO-Revision-Date: 2022-11-28 13:49+0100\n"
+"PO-Revision-Date: 2023-01-05 05:01+0000\n"
 "Last-Translator: Jordi Mas i Hernàndez <jmas@softcatala.org>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"Language-Team: Catalan <jmas@softcatala.org>\n"
+"Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: buzz/gui.py:138
-#, fuzzy
 msgid "Detect Language"
-msgstr "Idioma:"
+msgstr "Detecta l'idioma"
 
 #: buzz/gui.py:177 buzz/gui.py:182 buzz/gui.py:851
 msgid "Record"
@@ -30,9 +29,8 @@ msgid "Stop"
 msgstr "Atura"
 
 #: buzz/gui.py:194
-#, fuzzy
 msgid "Downloading model (0%, unknown time remaining)"
-msgstr "S'estan baixant els recursos (0%, temps desconegut restant)"
+msgstr "S'està baixant el model (0%, temps restant desconegut)"
 
 #: buzz/gui.py:195
 msgid "Cancel"
@@ -40,28 +38,27 @@ msgstr "Cancel·la"
 
 #: buzz/gui.py:207
 msgid "Downloading model"
-msgstr ""
+msgstr "S'està baixant el model"
 
 #: buzz/gui.py:251
 msgid "Word-level timings"
-msgstr "Temps a nivell de paraula"
+msgstr "Temps amb granularitat de paraula"
 
 #: buzz/gui.py:258
 msgid "Run"
 msgstr "Executa"
 
 #: buzz/gui.py:377
-#, fuzzy
 msgid "Export"
-msgstr "Exporta com a:"
+msgstr "Exporta"
 
 #: buzz/gui.py:393
 msgid "Save File"
-msgstr ""
+msgstr "Desa el fitxer"
 
 #: buzz/gui.py:394
 msgid "Text files"
-msgstr ""
+msgstr "Fitxers de text"
 
 #: buzz/gui.py:486
 msgid "Live Recording"
@@ -69,7 +66,7 @@ msgstr "Enregistrament en viu"
 
 #: buzz/gui.py:501
 msgid "Click Record to begin..."
-msgstr "Feu click a Enregistra per a començar"
+msgstr "Feu clic a Enregistra per a començar..."
 
 #: buzz/gui.py:510
 msgid "Microphone:"
@@ -77,17 +74,19 @@ msgstr "Micròfon:"
 
 #: buzz/gui.py:645
 msgid "An error occurred while starting a new recording:"
-msgstr ""
+msgstr "S'ha produït un error en iniciar un enregistrament nou:"
 
 #: buzz/gui.py:646
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
 msgstr ""
+"Comproveu els vostres dispositius d'àudio o els registres de l'aplicació per"
+" a més informació."
 
 #: buzz/gui.py:730
 msgid "Check for updates"
-msgstr ""
+msgstr "Comprova si hi ha actualitzacions"
 
 #: buzz/gui.py:758
 msgid "You're up to date!"
@@ -95,35 +94,35 @@ msgstr "Estàs al dia!"
 
 #: buzz/gui.py:781
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: buzz/gui.py:781
 msgid "File Name"
-msgstr ""
+msgstr "Nom del fitxer"
 
 #: buzz/gui.py:781
 msgid "Status"
-msgstr ""
+msgstr "Estat"
 
 #: buzz/gui.py:820
 msgid "Completed"
-msgstr ""
+msgstr "Completat"
 
 #: buzz/gui.py:822
 msgid "Failed"
-msgstr ""
+msgstr "Ha fallat"
 
 #: buzz/gui.py:855
 msgid "New Transcription"
-msgstr ""
+msgstr "Transcripció nova"
 
 #: buzz/gui.py:859
 msgid "Open Transcript"
-msgstr ""
+msgstr "Obre una transcripció"
 
 #: buzz/gui.py:863
 msgid "Clear History"
-msgstr ""
+msgstr "Neteja l'historial"
 
 #: buzz/gui.py:996
 msgid "Select audio file"
@@ -139,51 +138,32 @@ msgstr "Idioma:"
 
 #: buzz/gui.py:1244
 msgid "Model:"
-msgstr ""
+msgstr "Model:"
 
 #: buzz/gui.py:1305
-#, fuzzy
 msgid "Import Media File..."
-msgstr "&Importa fitxer d'àudio..."
+msgstr "Importa fitxer multimèdia..."
 
 #: buzz/gui.py:1313
-#, fuzzy
 msgid "File"
-msgstr "&Fitxer"
+msgstr "Fitxer"
 
 #: buzz/gui.py:1316
-#, fuzzy
 msgid "Help"
-msgstr "&Ajuda"
+msgstr "Ajuda"
 
 #: buzz/gui.py:1346
-#, fuzzy
 msgid "Advanced Settings"
-msgstr "&Paràmetres"
+msgstr "Configuració avançada"
 
 #: buzz/gui.py:1358
 msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-msgstr ""
+msgstr "Separat per comes, p. ex. «0.0, 0.2, 0.4, 0.6, 0.8, 1.0»"
 
 #: buzz/gui.py:1372
 msgid "Temperature:"
-msgstr ""
+msgstr "Temperatura:"
 
 #: buzz/gui.py:1373
 msgid "Initial Prompt:"
-msgstr ""
-
-#~ msgid "Processing {} (0%, unknown time remaining)"
-#~ msgstr "S'està processant {} (0%, temps restant desconegut)"
-
-#~ msgid "Quality:"
-#~ msgstr "Qualitat:"
-
-#~ msgid "&Enable GGML Inference"
-#~ msgstr "&Habilita la inferència GGML"
-
-#~ msgid ""
-#~ "Audio Files (*.mp3 *.wav *.m4a *.ogg);;Video Files (*.mp4 *.webm *.ogm)"
-#~ msgstr ""
-#~ "Fitxers d'àudio (*.mp3 *.wav *.m4a *.ogg);;Fitxer de vídeo (*.mp4 *.webm "
-#~ "*.ogm)"
+msgstr "Pregunta inicial:"
