@@ -6,6 +6,7 @@ import logging
 import multiprocessing
 import os
 import platform
+import queue
 import re
 import subprocess
 import sys
@@ -76,8 +77,7 @@ class FileTranscriptionTask:
         QUEUED = 'queued'
         IN_PROGRESS = 'in_progress'
         COMPLETED = 'completed'
-        # TODO: rename to failed
-        ERROR = 'error'
+        FAILED = 'failed'
 
     file_path: str
     transcription_options: TranscriptionOptions
@@ -585,7 +585,17 @@ class FileTranscriberQueueWorker(QObject):
     @pyqtSlot()
     def run(self):
         logging.debug('Waiting for next file transcription task')
-        self.current_task: Optional[FileTranscriptionTask] = self.queue.get()
+
+        # Waiting for new tasks in a loop instead of with queue.wait()
+        # resolves a "No Python frame" crash when the thread is quit.
+        while True:
+            try:
+                self.current_task: Optional[FileTranscriptionTask] = self.queue.get_nowait()
+                break
+            except queue.Empty:
+                continue
+
+        # Stop listening when a "None" task is received
         if self.current_task is None:
             self.completed.emit()
             return
@@ -630,7 +640,7 @@ class FileTranscriberQueueWorker(QObject):
     @pyqtSlot(str)
     def on_task_error(self, error: str):
         if self.current_task is not None:
-            self.current_task.status = FileTranscriptionTask.Status.ERROR
+            self.current_task.status = FileTranscriptionTask.Status.FAILED
             self.current_task.error = error
             self.task_updated.emit(self.current_task)
 
@@ -649,7 +659,6 @@ class FileTranscriberQueueWorker(QObject):
             self.task_updated.emit(self.current_task)
 
     def stop(self):
-        # TODO: seems to crash intermittently, figure out possible race condition issues
         self.queue.put(None)
         if self.current_transcriber is not None:
             self.current_transcriber.stop()
