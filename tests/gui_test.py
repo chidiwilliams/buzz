@@ -188,7 +188,6 @@ class TestMainWindow:
 
         table_widget.setCurrentIndex(table_widget.indexFromItem(table_widget.item(0, 1)))
         assert open_transcript_action.isEnabled()
-        window.close()
 
     def test_should_run_and_cancel_transcription_task(self, qtbot, tasks_cache):
         window = MainWindow(tasks_cache=tasks_cache)
