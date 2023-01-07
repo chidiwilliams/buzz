@@ -623,6 +623,8 @@ class FileTranscriberQueueWorker(QObject):
             self.current_transcriber.run)
         self.current_transcriber.completed.connect(
             self.current_transcriber_thread.quit)
+        self.current_transcriber.error.connect(
+            self.current_transcriber_thread.quit)
 
         self.current_transcriber.completed.connect(
             self.current_transcriber.deleteLater)
@@ -653,9 +655,6 @@ class FileTranscriberQueueWorker(QObject):
         if self.current_task.id == task_id:
             if self.current_transcriber is not None:
                 self.current_transcriber.stop()
-            if self.current_transcriber_thread is not None:
-                self.current_transcriber_thread.quit()
-                self.current_transcriber_thread.wait()
 
     @pyqtSlot(str)
     def on_task_error(self, error: str):
@@ -682,6 +681,3 @@ class FileTranscriberQueueWorker(QObject):
         self.tasks_queue.put(None)
         if self.current_transcriber is not None:
             self.current_transcriber.stop()
-        if self.current_transcriber_thread is not None:
-            self.current_transcriber_thread.quit()
-            self.current_transcriber_thread.wait()
