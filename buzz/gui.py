@@ -459,7 +459,7 @@ class AudioMeterWidget(QWidget):
         self.repaint()
 
 
-class RecordingTranscriberWidget(QDialog):
+class RecordingTranscriberWidget(QWidget):
     current_status: 'RecordingStatus'
     transcription_options: TranscriptionOptions
     selected_device_id: Optional[int]
@@ -474,8 +474,8 @@ class RecordingTranscriberWidget(QDialog):
         STOPPED = auto()
         RECORDING = auto()
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent)
+    def __init__(self, parent: Optional[QWidget] = None, flags: Optional[Qt.WindowType] = None) -> None:
+        super().__init__(parent, flags)
 
         layout = QVBoxLayout(self)
 
@@ -904,8 +904,10 @@ class MainWindowToolbar(QToolBar):
         return QIcon(pixmap)
 
     def on_record_action_triggered(self):
-        recording_transcriber_window = RecordingTranscriberWidget(self)
-        recording_transcriber_window.exec()
+        recording_transcriber_window = RecordingTranscriberWidget(self, flags=Qt.WindowType.Window)
+        # Blocking input to other windows fixes issues with getting audio device settings while recording is ongoing
+        recording_transcriber_window.setWindowModality(Qt.WindowModality.ApplicationModal)
+        recording_transcriber_window.show()
 
     def set_stop_transcription_action_enabled(self, enabled: bool):
         self.stop_transcription_action.setEnabled(enabled)
