@@ -1,6 +1,7 @@
 import logging
 import os.path
 import pathlib
+from typing import List
 from unittest.mock import Mock, patch
 
 import pytest
@@ -8,6 +9,7 @@ import sounddevice
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QValidator, QKeyEvent
 from PyQt6.QtWidgets import QPushButton, QToolBar, QTableWidget, QApplication, QMessageBox
+from _pytest.fixtures import SubRequest
 from pytestqt.qtbot import QtBot
 
 from buzz.__version__ import VERSION
@@ -136,15 +138,31 @@ class TestDownloadModelProgressDialog:
         assert dialog.windowModality() == Qt.WindowModality.ApplicationModal
 
 
-@pytest.fixture
-def tasks_cache(tmp_path):
+@pytest.fixture()
+def tasks_cache(tmp_path, request: SubRequest):
     cache = TasksCache(cache_dir=str(tmp_path))
+    if hasattr(request, 'param'):
+        tasks: List[FileTranscriptionTask] = request.param
+        cache.save(tasks)
     yield cache
     cache.clear()
 
 
 def get_test_asset(filename: str):
     return os.path.join(os.path.dirname(__file__), '../testdata/', filename)
+
+
+mock_tasks = [
+    FileTranscriptionTask(file_path='', transcription_options=TranscriptionOptions(),
+                          file_transcription_options=FileTranscriptionOptions(file_paths=[]), model_path='',
+                          status=FileTranscriptionTask.Status.COMPLETED),
+    FileTranscriptionTask(file_path='', transcription_options=TranscriptionOptions(),
+                          file_transcription_options=FileTranscriptionOptions(file_paths=[]), model_path='',
+                          status=FileTranscriptionTask.Status.CANCELED),
+    FileTranscriptionTask(file_path='', transcription_options=TranscriptionOptions(),
+                          file_transcription_options=FileTranscriptionOptions(file_paths=[]), model_path='',
+                          status=FileTranscriptionTask.Status.FAILED),
+]
 
 
 class TestMainWindow:
@@ -160,6 +178,67 @@ class TestMainWindow:
         window = MainWindow(tasks_cache=tasks_cache)
         qtbot.add_widget(window)
 
+        self.start_new_transcription(window)
+
+        open_transcript_action = self.get_toolbar_action(window, 'Open Transcript')
+        assert open_transcript_action.isEnabled() is False
+
+        table_widget: QTableWidget = window.findChild(QTableWidget)
+        qtbot.wait_until(self.assert_task_status(table_widget, 0, 'Completed'), timeout=60 * 1000)
+
+        table_widget.setCurrentIndex(table_widget.indexFromItem(table_widget.item(0, 1)))
+        assert open_transcript_action.isEnabled()
+        window.close()
+
+    def test_should_run_and_cancel_transcription_task(self, qtbot, tasks_cache):
+        window = MainWindow(tasks_cache=tasks_cache)
+        qtbot.add_widget(window)
+
+        self.start_new_transcription(window)
+
+        table_widget: QTableWidget = window.findChild(QTableWidget)
+
+        def assert_task_in_progress():
+            assert table_widget.rowCount() > 0
+            assert table_widget.item(0, 1).text() == 'whisper-french.mp3'
+            assert 'In Progress' in table_widget.item(0, 2).text()
+
+        qtbot.wait_until(assert_task_in_progress, timeout=60 * 1000)
+
+        # Stop task in progress
+        table_widget.selectRow(0)
+        window.toolbar.stop_transcription_action.trigger()
+
+        qtbot.wait_until(self.assert_task_status(table_widget, 0, 'Canceled'), timeout=60 * 1000)
+
+        table_widget.selectRow(0)
+        assert window.toolbar.stop_transcription_action.isEnabled() is False
+        assert window.toolbar.open_transcript_action.isEnabled() is False
+
+        window.close()
+
+    @pytest.mark.parametrize('tasks_cache', [mock_tasks], indirect=True)
+    def test_should_load_tasks_from_cache(self, qtbot, tasks_cache):
+        window = MainWindow(tasks_cache=tasks_cache)
+        qtbot.add_widget(window)
+
+        table_widget: QTableWidget = window.findChild(QTableWidget)
+        assert table_widget.rowCount() == 3
+
+        assert table_widget.item(0, 2).text() == 'Completed'
+        table_widget.selectRow(0)
+        assert window.toolbar.open_transcript_action.isEnabled()
+
+        assert table_widget.item(1, 2).text() == 'Canceled'
+        table_widget.selectRow(1)
+        assert window.toolbar.open_transcript_action.isEnabled() is False
+
+        assert table_widget.item(2, 2).text() == 'Failed'
+        table_widget.selectRow(2)
+        assert window.toolbar.open_transcript_action.isEnabled() is False
+        window.close()
+
+    def start_new_transcription(self, window: MainWindow):
         with patch('PyQt6.QtWidgets.QFileDialog.getOpenFileNames') as open_file_names_mock:
             open_file_names_mock.return_value = ([get_test_asset('whisper-french.mp3')], '')
             new_transcription_action = self.get_toolbar_action(window, 'New Transcription')
@@ -169,20 +248,14 @@ class TestMainWindow:
         run_button: QPushButton = file_transcriber_widget.findChild(QPushButton)
         run_button.click()
 
-        open_transcript_action = self.get_toolbar_action(window, 'Open Transcript')
-        assert open_transcript_action.isEnabled() is False
+    @staticmethod
+    def assert_task_status(table_widget: QTableWidget, row_index: int, expected_status: str):
+        def assert_task_canceled():
+            assert table_widget.rowCount() > 0
+            assert table_widget.item(row_index, 1).text() == 'whisper-french.mp3'
+            assert table_widget.item(row_index, 2).text() == expected_status
 
-        def assert_task_completed():
-            _table_widget: QTableWidget = window.findChild(QTableWidget)
-            assert _table_widget.rowCount() == 1
-            assert _table_widget.item(0, 1).text() == 'whisper-french.mp3'
-            assert _table_widget.item(0, 2).text() == 'Completed'
-
-        qtbot.wait_until(assert_task_completed, timeout=60 * 1000)
-
-        table_widget: QTableWidget = window.findChild(QTableWidget)
-        table_widget.setCurrentIndex(table_widget.indexFromItem(table_widget.item(0, 1)))
-        assert open_transcript_action.isEnabled()
+        return assert_task_canceled
 
     @staticmethod
     def get_toolbar_action(window: MainWindow, text: str):

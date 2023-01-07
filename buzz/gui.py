@@ -678,10 +678,11 @@ class RecordingTranscriberWidget(QDialog):
 
 BUZZ_ICON_PATH = get_asset_path('assets/buzz.ico')
 BUZZ_LARGE_ICON_PATH = get_asset_path('assets/buzz-icon-1024.png')
-RECORD_ICON_PATH = get_asset_path('assets/record-icon.svg')
-EXPAND_ICON_PATH = get_asset_path('assets/up-down-and-down-left-from-center-icon.svg')
-ADD_ICON_PATH = get_asset_path('assets/circle-plus-icon.svg')
-TRASH_ICON_PATH = get_asset_path('assets/trash-icon.svg')
+RECORD_ICON_PATH = get_asset_path('assets/mic_FILL0_wght700_GRAD0_opsz48.svg')
+EXPAND_ICON_PATH = get_asset_path('assets/open_in_full_FILL0_wght700_GRAD0_opsz48.svg')
+ADD_ICON_PATH = get_asset_path('assets/add_FILL0_wght700_GRAD0_opsz48.svg')
+TRASH_ICON_PATH = get_asset_path('assets/delete_FILL0_wght700_GRAD0_opsz48.svg')
+CANCEL_ICON_PATH = get_asset_path('assets/cancel_FILL0_wght700_GRAD0_opsz48.svg')
 
 
 class AboutDialog(QDialog):
@@ -817,6 +818,8 @@ class TranscriptionTasksTableWidget(QTableWidget):
                 status_widget.setText(_('Completed'))
             elif task.status == FileTranscriptionTask.Status.FAILED:
                 status_widget.setText(_('Failed'))
+            elif task.status == FileTranscriptionTask.Status.CANCELED:
+                status_widget.setText(_('Canceled'))
 
     def clear_task(self, task_id: int):
         task_row_index = self.task_row_index(task_id)
@@ -840,7 +843,7 @@ class MainWindowToolbar(QToolBar):
     open_transcript_action_triggered: pyqtSignal
     clear_history_action_triggered: pyqtSignal
     ICON_LIGHT_THEME_BACKGROUND = '#555'
-    ICON_DARK_THEME_BACKGROUND = '#888'
+    ICON_DARK_THEME_BACKGROUND = '#AAA'
 
     def __init__(self, parent: Optional[QWidget]):
         super().__init__(parent)
@@ -857,6 +860,10 @@ class MainWindowToolbar(QToolBar):
         self.open_transcript_action_triggered = self.open_transcript_action.triggered
         self.open_transcript_action.setDisabled(True)
 
+        self.stop_transcription_action = QAction(self.load_icon(CANCEL_ICON_PATH), _('Cancel Transcription'), self)
+        self.stop_transcription_action_triggered = self.stop_transcription_action.triggered
+        self.stop_transcription_action.setDisabled(True)
+
         self.clear_history_action = QAction(self.load_icon(TRASH_ICON_PATH), _('Clear History'), self)
         self.clear_history_action_triggered = self.clear_history_action.triggered
         self.clear_history_action.setDisabled(True)
@@ -865,10 +872,11 @@ class MainWindowToolbar(QToolBar):
         self.addSeparator()
         self.addAction(new_transcription_action)
         self.addAction(self.open_transcript_action)
+        self.addAction(self.stop_transcription_action)
         self.addAction(self.clear_history_action)
         self.setMovable(False)
-        self.setIconSize(QSize(16, 16))
-        self.setStyleSheet('QToolButton{margin: 6px 4px;}')
+        self.setIconSize(QSize(18, 18))
+        self.setStyleSheet('QToolButton{margin: 6px 3px;}')
 
         for action in self.actions():
             widget = self.widgetForAction(action)
@@ -899,6 +907,9 @@ class MainWindowToolbar(QToolBar):
         recording_transcriber_window = RecordingTranscriberWidget(self)
         recording_transcriber_window.exec()
 
+    def set_stop_transcription_action_enabled(self, enabled: bool):
+        self.stop_transcription_action.setEnabled(enabled)
+
     def set_open_transcript_action_enabled(self, enabled: bool):
         self.open_transcript_action.setEnabled(enabled)
 
@@ -927,6 +938,7 @@ class MainWindow(QMainWindow):
         self.toolbar.new_transcription_action_triggered.connect(self.on_new_transcription_action_triggered)
         self.toolbar.open_transcript_action_triggered.connect(self.on_open_transcript_action_triggered)
         self.toolbar.clear_history_action_triggered.connect(self.on_clear_history_action_triggered)
+        self.toolbar.stop_transcription_action_triggered.connect(self.on_stop_transcription_action_triggered)
         self.addToolBar(self.toolbar)
         self.setUnifiedTitleAndToolBarOnMac(True)
 
@@ -964,12 +976,8 @@ class MainWindow(QMainWindow):
         transcription_options, file_transcription_options, model_path = options
         for file_path in file_transcription_options.file_paths:
             task = FileTranscriptionTask(
-                file_path, transcription_options, file_transcription_options, model_path, id=self.get_next_task_id())
+                file_path, transcription_options, file_transcription_options, model_path)
             self.transcriber_worker.add_task(task)
-
-    @classmethod
-    def get_next_task_id(cls) -> int:
-        return random.randint(0, 1_000_000)
 
     def update_task_table_row(self, task: FileTranscriptionTask):
         self.table_widget.upsert_task(task)
@@ -987,6 +995,18 @@ class MainWindow(QMainWindow):
                 self.table_widget.clear_task(task_id)
                 self.tasks.pop(task_id)
                 self.tasks_changed.emit()
+
+    def on_stop_transcription_action_triggered(self):
+        selected_rows = self.table_widget.selectionModel().selectedRows()
+        if len(selected_rows) == 0:
+            return
+        task_id = TranscriptionTasksTableWidget.find_task_id(selected_rows[0])
+        task = self.tasks[task_id]
+
+        task.status = FileTranscriptionTask.Status.CANCELED
+        self.tasks_changed.emit()
+        self.transcriber_worker.cancel_task(task_id)
+        self.table_widget.upsert_task(task)
 
     def on_new_transcription_action_triggered(self):
         (file_paths, __) = QFileDialog.getOpenFileNames(
@@ -1011,11 +1031,16 @@ class MainWindow(QMainWindow):
         enable_open_transcript_action = self.should_enable_open_transcript_action()
         self.toolbar.set_open_transcript_action_enabled(enable_open_transcript_action)
 
+        self.toolbar.set_stop_transcription_action_enabled(self.should_enable_stop_transcription_action())
+
     def should_enable_open_transcript_action(self):
+        return self.selected_task_has_status([FileTranscriptionTask.Status.COMPLETED])
+
+    def selected_task_has_status(self, statuses: List[FileTranscriptionTask.Status]):
         selected_rows = self.table_widget.selectionModel().selectedRows()
         if len(selected_rows) == 1:
             task_id = TranscriptionTasksTableWidget.find_task_id(selected_rows[0])
-            if self.tasks[task_id].status == FileTranscriptionTask.Status.COMPLETED:
+            if self.tasks[task_id].status in statuses:
                 return True
         return False
 
@@ -1051,6 +1076,12 @@ class MainWindow(QMainWindow):
 
         enable_open_transcript_action = self.should_enable_open_transcript_action()
         self.toolbar.set_open_transcript_action_enabled(enable_open_transcript_action)
+
+        self.toolbar.set_stop_transcription_action_enabled(self.should_enable_stop_transcription_action())
+
+    def should_enable_stop_transcription_action(self):
+        return self.selected_task_has_status(
+            [FileTranscriptionTask.Status.IN_PROGRESS, FileTranscriptionTask.Status.QUEUED])
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         self.transcriber_worker.stop()

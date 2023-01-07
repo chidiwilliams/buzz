@@ -14,8 +14,9 @@ import tempfile
 import threading
 from dataclasses import dataclass, field
 from multiprocessing.connection import Connection
+from random import randint
 from threading import Thread
-from typing import Any, Callable, List, Optional, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import ffmpeg
 import numpy as np
@@ -78,12 +79,13 @@ class FileTranscriptionTask:
         IN_PROGRESS = 'in_progress'
         COMPLETED = 'completed'
         FAILED = 'failed'
+        CANCELED = 'canceled'
 
     file_path: str
     transcription_options: TranscriptionOptions
     file_transcription_options: FileTranscriptionOptions
     model_path: str
-    id: int = 0
+    id: int = field(default_factory=lambda: randint(0, 1_000_000))
     segments: List[Segment] = field(default_factory=list)
     status: Optional[Status] = None
     fraction_completed = 0.0
@@ -345,13 +347,13 @@ class WhisperFileTranscriber(QObject):
     def __init__(self, task: FileTranscriptionTask,
                  parent: Optional['QObject'] = None) -> None:
         super().__init__(parent)
-
         self.transcription_task = task
         self.segments = []
+        self.started_process = False
+        self.stopped = False
 
     @pyqtSlot()
     def run(self):
-        self.running = True
         time_started = datetime.datetime.now()
         logging.debug(
             'Starting whisper file transcription, task = %s', self.transcription_task)
@@ -360,7 +362,9 @@ class WhisperFileTranscriber(QObject):
 
         self.current_process = multiprocessing.Process(target=transcribe_whisper,
                                                        args=(send_pipe, self.transcription_task))
-        self.current_process.start()
+        if not self.stopped:
+            self.current_process.start()
+            self.started_process = True
 
         self.read_line_thread = Thread(
             target=self.read_line, args=(recv_pipe,))
@@ -382,10 +386,9 @@ class WhisperFileTranscriber(QObject):
         else:
             self.error.emit('Unknown error')
 
-        self.running = False
-
     def stop(self):
-        if self.running:
+        self.stopped = True
+        if self.started_process:
             self.current_process.terminate()
 
     def read_line(self, pipe: Connection):
@@ -570,7 +573,7 @@ class WhisperCpp:
 
 
 class FileTranscriberQueueWorker(QObject):
-    queue: multiprocessing.Queue
+    tasks_queue: multiprocessing.Queue
     current_task: Optional[FileTranscriptionTask] = None
     current_transcriber: Optional[WhisperFileTranscriber |
                                   WhisperCppFileTranscriber] = None
@@ -580,7 +583,8 @@ class FileTranscriberQueueWorker(QObject):
 
     def __init__(self, parent: Optional[QObject] = None):
         super().__init__(parent)
-        self.queue = multiprocessing.Queue()
+        self.tasks_queue = queue.Queue()
+        self.canceled_tasks = set()
 
     @pyqtSlot()
     def run(self):
@@ -590,15 +594,19 @@ class FileTranscriberQueueWorker(QObject):
         # resolves a "No Python frame" crash when the thread is quit.
         while True:
             try:
-                self.current_task: Optional[FileTranscriptionTask] = self.queue.get_nowait()
+                self.current_task: Optional[FileTranscriptionTask] = self.tasks_queue.get_nowait()
+
+                # Stop listening when a "None" task is received
+                if self.current_task is None:
+                    self.completed.emit()
+                    return
+
+                if self.current_task.id in self.canceled_tasks:
+                    continue
+
                 break
             except queue.Empty:
                 continue
-
-        # Stop listening when a "None" task is received
-        if self.current_task is None:
-            self.completed.emit()
-            return
 
         if self.current_task.transcription_options.model.model_type == ModelType.WHISPER_CPP:
             self.current_transcriber = WhisperCppFileTranscriber(
@@ -618,6 +626,8 @@ class FileTranscriberQueueWorker(QObject):
 
         self.current_transcriber.completed.connect(
             self.current_transcriber.deleteLater)
+        self.current_transcriber.error.connect(
+            self.current_transcriber.deleteLater)
         self.current_transcriber_thread.finished.connect(
             self.current_transcriber_thread.deleteLater)
 
@@ -633,13 +643,23 @@ class FileTranscriberQueueWorker(QObject):
         self.current_transcriber_thread.start()
 
     def add_task(self, task: FileTranscriptionTask):
-        self.queue.put(task)
+        self.tasks_queue.put(task)
         task.status = FileTranscriptionTask.Status.QUEUED
         self.task_updated.emit(task)
 
+    def cancel_task(self, task_id: int):
+        self.canceled_tasks.add(task_id)
+
+        if self.current_task.id == task_id:
+            if self.current_transcriber is not None:
+                self.current_transcriber.stop()
+            if self.current_transcriber_thread is not None:
+                self.current_transcriber_thread.quit()
+                self.current_transcriber_thread.wait()
+
     @pyqtSlot(str)
     def on_task_error(self, error: str):
-        if self.current_task is not None:
+        if self.current_task is not None and self.current_task.id not in self.canceled_tasks:
             self.current_task.status = FileTranscriptionTask.Status.FAILED
             self.current_task.error = error
             self.task_updated.emit(self.current_task)
@@ -659,7 +679,7 @@ class FileTranscriberQueueWorker(QObject):
             self.task_updated.emit(self.current_task)
 
     def stop(self):
-        self.queue.put(None)
+        self.tasks_queue.put(None)
         if self.current_transcriber is not None:
             self.current_transcriber.stop()
         if self.current_transcriber_thread is not None:
