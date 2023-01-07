@@ -46,6 +46,9 @@ class MockInputStream(MagicMock):
         self.running = False
         self.thread.join()
 
+    def close(self):
+        pass
+
     def __enter__(self):
         self.start()
 

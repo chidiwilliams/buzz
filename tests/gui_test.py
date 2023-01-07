@@ -19,7 +19,7 @@ from buzz.gui import (AboutDialog, AdvancedSettingsDialog, AudioDevicesComboBox,
                       RecordingTranscriberWidget,
                       TemperatureValidator, TextDisplayBox,
                       TranscriptionTasksTableWidget, TranscriptionViewerWidget, HuggingFaceSearchLineEdit,
-                      TranscriptionOptionsGroupBox)
+                      TranscriptionOptionsGroupBox, AudioMeterWidget)
 from buzz.model_loader import ModelType
 from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask,
                               Segment, TranscriptionOptions)
@@ -236,6 +236,20 @@ class TestMainWindow:
         table_widget.selectRow(2)
         assert window.toolbar.open_transcript_action.isEnabled() is False
         window.close()
+
+    @pytest.mark.parametrize('tasks_cache', [mock_tasks], indirect=True)
+    def test_should_clear_history(self, qtbot, tasks_cache):
+        window = MainWindow(tasks_cache=tasks_cache)
+        qtbot.add_widget(window)
+
+        table_widget: QTableWidget = window.findChild(QTableWidget)
+        table_widget.selectAll()
+
+        with patch('PyQt6.QtWidgets.QMessageBox.question') as question_message_box_mock:
+            question_message_box_mock.return_value = QMessageBox.StandardButton.Yes
+            window.toolbar.clear_history_action.trigger()
+
+        assert table_widget.rowCount() == 0
 
     def start_new_transcription(self, window: MainWindow):
         with patch('PyQt6.QtWidgets.QFileDialog.getOpenFileNames') as open_file_names_mock:
@@ -499,3 +513,10 @@ class TestTranscriptionOptionsGroupBox:
 
         transcription_options: TranscriptionOptions = mock_transcription_options_changed.call_args[0][0]
         assert transcription_options.model.model_type == ModelType.WHISPER_CPP
+
+
+class TestAudioMeterWidget:
+    def test_should_update_amplitude(self, qtbot):
+        widget = AudioMeterWidget()
+        qtbot.add_widget(widget)
+        widget.update_amplitude(0.75)
