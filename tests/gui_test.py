@@ -496,7 +496,7 @@ class TestHuggingFaceSearchLineEdit:
 
     @staticmethod
     def _set_text_and_wait_response(qtbot: QtBot, widget: HuggingFaceSearchLineEdit):
-        with qtbot.wait_signal(widget.network_manager.finished):
+        with qtbot.wait_signal(widget.network_manager.finished, timeout=60 * 1000):
             widget.setText('openai/whisper-tiny')
             widget.textEdited.emit('openai/whisper-tiny')
 
