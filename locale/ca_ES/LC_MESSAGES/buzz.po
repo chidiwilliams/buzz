@@ -16,101 +16,106 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: buzz/gui.py:138
+#: buzz/gui.py:135
 msgid "Detect Language"
 msgstr "Detecta l'idioma"
 
-#: buzz/gui.py:177 buzz/gui.py:182 buzz/gui.py:851
+#: buzz/gui.py:174 buzz/gui.py:179 buzz/gui.py:851
 msgid "Record"
 msgstr "Enregistra"
 
-#: buzz/gui.py:186
+#: buzz/gui.py:183
 msgid "Stop"
 msgstr "Atura"
 
-#: buzz/gui.py:194
+#: buzz/gui.py:191
 msgid "Downloading model (0%, unknown time remaining)"
 msgstr "S'està baixant el model (0%, temps restant desconegut)"
 
-#: buzz/gui.py:195
+#: buzz/gui.py:192
 msgid "Cancel"
 msgstr "Cancel·la"
 
-#: buzz/gui.py:207
+#: buzz/gui.py:204
 msgid "Downloading model"
 msgstr "S'està baixant el model"
 
-#: buzz/gui.py:251
+#: buzz/gui.py:248
 msgid "Word-level timings"
 msgstr "Temps amb granularitat de paraula"
 
-#: buzz/gui.py:258
+#: buzz/gui.py:255
 msgid "Run"
 msgstr "Executa"
 
-#: buzz/gui.py:377
+#: buzz/gui.py:374
 msgid "Export"
 msgstr "Exporta"
 
-#: buzz/gui.py:393
+#: buzz/gui.py:390
 msgid "Save File"
 msgstr "Desa el fitxer"
 
-#: buzz/gui.py:394
+#: buzz/gui.py:391
 msgid "Text files"
 msgstr "Fitxers de text"
 
-#: buzz/gui.py:486
+#: buzz/gui.py:483
 msgid "Live Recording"
 msgstr "Enregistrament en viu"
 
-#: buzz/gui.py:501
+#: buzz/gui.py:498
 msgid "Click Record to begin..."
 msgstr "Feu clic a Enregistra per a començar..."
 
-#: buzz/gui.py:510
+#: buzz/gui.py:507
 msgid "Microphone:"
 msgstr "Micròfon:"
 
-#: buzz/gui.py:645
+#: buzz/gui.py:642
 msgid "An error occurred while starting a new recording:"
 msgstr "S'ha produït un error en iniciar un enregistrament nou:"
 
-#: buzz/gui.py:646
+#: buzz/gui.py:643
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
 msgstr ""
-"Comproveu els vostres dispositius d'àudio o els registres de l'aplicació per"
-" a més informació."
+"Comproveu els vostres dispositius d'àudio o els registres de l'aplicació per "
+"a més informació."
 
-#: buzz/gui.py:730
+#: buzz/gui.py:728
 msgid "Check for updates"
 msgstr "Comprova si hi ha actualitzacions"
 
-#: buzz/gui.py:758
+#: buzz/gui.py:756
 msgid "You're up to date!"
 msgstr "Estàs al dia!"
 
-#: buzz/gui.py:781
+#: buzz/gui.py:779
 msgid "ID"
 msgstr "ID"
 
-#: buzz/gui.py:781
+#: buzz/gui.py:779
 msgid "File Name"
 msgstr "Nom del fitxer"
 
-#: buzz/gui.py:781
+#: buzz/gui.py:779
 msgid "Status"
 msgstr "Estat"
 
-#: buzz/gui.py:820
+#: buzz/gui.py:818
 msgid "Completed"
 msgstr "Completat"
 
-#: buzz/gui.py:822
+#: buzz/gui.py:820
 msgid "Failed"
 msgstr "Ha fallat"
+
+#: buzz/gui.py:822
+#, fuzzy
+msgid "Canceled"
+msgstr "Cancel·la"
 
 #: buzz/gui.py:855
 msgid "New Transcription"
@@ -121,49 +126,54 @@ msgid "Open Transcript"
 msgstr "Obre una transcripció"
 
 #: buzz/gui.py:863
+#, fuzzy
+msgid "Cancel Transcription"
+msgstr "Transcripció nova"
+
+#: buzz/gui.py:867
 msgid "Clear History"
 msgstr "Neteja l'historial"
 
-#: buzz/gui.py:996
+#: buzz/gui.py:1013
 msgid "Select audio file"
 msgstr "Selecciona un fitxer d'àudio"
 
-#: buzz/gui.py:1242
+#: buzz/gui.py:1270
 msgid "Task:"
 msgstr "Tasca:"
 
-#: buzz/gui.py:1243
+#: buzz/gui.py:1271
 msgid "Language:"
 msgstr "Idioma:"
 
-#: buzz/gui.py:1244
+#: buzz/gui.py:1272
 msgid "Model:"
 msgstr "Model:"
 
-#: buzz/gui.py:1305
+#: buzz/gui.py:1333
 msgid "Import Media File..."
 msgstr "Importa fitxer multimèdia..."
 
-#: buzz/gui.py:1313
+#: buzz/gui.py:1341
 msgid "File"
 msgstr "Fitxer"
 
-#: buzz/gui.py:1316
+#: buzz/gui.py:1344
 msgid "Help"
 msgstr "Ajuda"
 
-#: buzz/gui.py:1346
+#: buzz/gui.py:1374
 msgid "Advanced Settings"
 msgstr "Configuració avançada"
 
-#: buzz/gui.py:1358
+#: buzz/gui.py:1386
 msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
 msgstr "Separat per comes, p. ex. «0.0, 0.2, 0.4, 0.6, 0.8, 1.0»"
 
-#: buzz/gui.py:1372
+#: buzz/gui.py:1400
 msgid "Temperature:"
 msgstr "Temperatura:"
 
-#: buzz/gui.py:1373
+#: buzz/gui.py:1401
 msgid "Initial Prompt:"
 msgstr "Pregunta inicial:"
