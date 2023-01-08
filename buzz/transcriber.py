@@ -536,7 +536,7 @@ def whisper_cpp_params(
 
 class WhisperCpp:
     def __init__(self, model: str) -> None:
-        self.ctx = whisper_cpp.whisper_init(model.encode('utf-8'))
+        self.ctx = whisper_cpp.whisper_init_from_file(model.encode('utf-8'))
 
     def transcribe(self, audio: Union[np.ndarray, str], params: Any):
         if isinstance(audio, str):
