@@ -460,17 +460,27 @@ class TestHuggingFaceSearchLineEdit:
         mock_model_selected = Mock()
         widget.model_selected.connect(mock_model_selected)
 
-        self._set_text_and_wait_response(qtbot, widget)
-        mock_model_selected.assert_called_with('openai/whisper-tiny')
+        widget.setText('openai/whisper-tiny')
+        widget.textEdited.emit('openai/whisper-tiny')
+
+        def assert_model_selected_called():
+            mock_model_selected.assert_called()
+            mock_model_selected.assert_called_with('openai/whisper-tiny')
+
+        qtbot.wait_until(assert_model_selected_called, timeout=30 * 6000)
 
     def test_should_show_list_of_models(self, qtbot: QtBot):
         widget = HuggingFaceSearchLineEdit(network_access_manager=self.network_access_manager())
         qtbot.add_widget(widget)
 
-        self._set_text_and_wait_response(qtbot, widget)
+        widget.setText('openai/whisper-tiny')
+        widget.textEdited.emit('openai/whisper-tiny')
 
-        assert widget.popup.count() > 0
-        assert 'openai/whisper-tiny' in widget.popup.item(0).text()
+        def assert_popup_item_added():
+            assert widget.popup.count() > 0
+            assert 'openai/whisper-tiny' in widget.popup.item(0).text()
+
+        qtbot.wait_until(assert_popup_item_added, timeout=30 * 6000)
 
     def test_should_select_model_from_list(self, qtbot: QtBot):
         widget = HuggingFaceSearchLineEdit(network_access_manager=self.network_access_manager())
@@ -479,7 +489,13 @@ class TestHuggingFaceSearchLineEdit:
         mock_model_selected = Mock()
         widget.model_selected.connect(mock_model_selected)
 
-        self._set_text_and_wait_response(qtbot, widget)
+        widget.setText('openai/whisper-tiny')
+        widget.textEdited.emit('openai/whisper-tiny')
+
+        def assert_popup_item_added():
+            assert widget.popup.count() > 0
+
+        qtbot.wait_until(assert_popup_item_added, timeout=30 * 6000)
 
         # press down arrow and enter to select next item
         QApplication.sendEvent(widget.popup,
@@ -493,12 +509,6 @@ class TestHuggingFaceSearchLineEdit:
     def network_access_manager():
         reply = MockNetworkReply(data=[{'id': 'openai/whisper-tiny'}, {'id': 'openai/whisper-tiny.en'}])
         return MockNetworkAccessManager(reply=reply)
-
-    @staticmethod
-    def _set_text_and_wait_response(qtbot: QtBot, widget: HuggingFaceSearchLineEdit):
-        with qtbot.wait_signal(widget.network_manager.finished, timeout=60 * 1000):
-            widget.setText('openai/whisper-tiny')
-            widget.textEdited.emit('openai/whisper-tiny')
 
 
 class TestTranscriptionOptionsGroupBox:
