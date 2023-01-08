@@ -455,7 +455,7 @@ class TestRecordingTranscriberWidget:
         assert 'Welcome to Passe' in widget.text_box.toPlainText()
 
 
-@pytest.mark.xfail(condition=platform.system() == 'Darwin')
+@pytest.mark.skipif(condition=platform.system() == 'Darwin', reason='Crashing on Qt pytest-qt wait functions.')
 class TestHuggingFaceSearchLineEdit:
     def test_should_update_selected_model_on_type(self, qtbot: QtBot):
         widget = HuggingFaceSearchLineEdit(network_access_manager=self.network_access_manager())

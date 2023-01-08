@@ -1,9 +1,13 @@
+import platform
 from unittest.mock import Mock, patch
+
+import pytest
 
 from buzz.recording import RecordingAmplitudeListener
 from tests.mock_sounddevice import MockInputStream
 
 
+@pytest.mark.skipif(condition=platform.system() == 'Darwin', reason='Seems to be crashing on audio mock')
 class TestRecordingAmplitudeListener:
     def test_should_emit_amplitude_changed(self, qtbot):
         listener = RecordingAmplitudeListener()
