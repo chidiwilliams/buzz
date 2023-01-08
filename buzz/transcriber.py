@@ -50,6 +50,11 @@ class Task(enum.Enum):
     TRANSCRIBE = "transcribe"
 
 
+class Device(enum.Enum):
+    CPU = "cpu"
+    CUDA = "cuda"
+
+
 @dataclass
 class Segment:
     start: int  # start time in ms
@@ -62,6 +67,7 @@ class TranscriptionOptions:
     language: Optional[str] = None
     task: Task = Task.TRANSCRIBE
     model: TranscriptionModel = TranscriptionModel()
+    device: Device = Device.CPU
     word_level_timings: bool = False
     temperature: Tuple[float, ...] = DEFAULT_WHISPER_TEMPERATURE
     initial_prompt: str = ''
@@ -427,7 +433,8 @@ def transcribe_whisper(stderr_conn: Connection, task: FileTranscriptionTask):
                                       task=task.transcription_options.task.value, verbose=False)
             whisper_segments = result.get('segments')
         else:
-            model = whisper.load_model(task.model_path)
+            logging.info("Loading whisper with device %s", task.transcription_options.device)
+            model = whisper.load_model(task.model_path, device=task.transcription_options.device.value)
             if task.transcription_options.word_level_timings:
                 stable_whisper.modify_model(model)
                 result = model.transcribe(
