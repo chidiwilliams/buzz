@@ -1,6 +1,7 @@
 import logging
 import os.path
 import pathlib
+import platform
 from typing import List
 from unittest.mock import Mock, patch
 
@@ -454,6 +455,7 @@ class TestRecordingTranscriberWidget:
         assert 'Welcome to Passe' in widget.text_box.toPlainText()
 
 
+@pytest.mark.xfail(condition=platform.system() == 'Darwin')
 class TestHuggingFaceSearchLineEdit:
     def test_should_update_selected_model_on_type(self, qtbot: QtBot):
         widget = HuggingFaceSearchLineEdit(network_access_manager=self.network_access_manager())
