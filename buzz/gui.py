@@ -689,8 +689,7 @@ class AboutDialog(QDialog):
     GITHUB_API_LATEST_RELEASE_URL = 'https://api.github.com/repos/chidiwilliams/buzz/releases/latest'
     GITHUB_LATEST_RELEASE_URL = 'https://github.com/chidiwilliams/buzz/releases/latest'
 
-    def __init__(self, network_access_manager: Optional[QNetworkAccessManager] = None,
-                 parent: Optional[QWidget] = None) -> None:
+    def __init__(self, network_access_manager: QNetworkAccessManager, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
 
         self.setFixedSize(200, 250)
@@ -698,11 +697,7 @@ class AboutDialog(QDialog):
         self.setWindowIcon(QIcon(BUZZ_ICON_PATH))
         self.setWindowTitle(f'{_("About")} {APP_NAME}')
 
-        if network_access_manager is None:
-            network_access_manager = QNetworkAccessManager()
-
         self.network_access_manager = network_access_manager
-        self.network_access_manager.finished.connect(self.on_latest_release_reply)
 
         layout = QVBoxLayout(self)
 
@@ -743,18 +738,22 @@ class AboutDialog(QDialog):
 
     def on_click_check_for_updates(self):
         url = QUrl(self.GITHUB_API_LATEST_RELEASE_URL)
-        self.network_access_manager.get(QNetworkRequest(url))
-        self.check_updates_button.setDisabled(True)
+        reply = self.network_access_manager.get(QNetworkRequest(url))
 
-    def on_latest_release_reply(self, reply: QNetworkReply):
-        if reply.error() == QNetworkReply.NetworkError.NoError:
-            response = json.loads(reply.readAll().data())
-            tag_name = response.get('name')
-            if self.is_version_lower(VERSION, tag_name[1:]):
-                QDesktopServices.openUrl(QUrl(self.GITHUB_LATEST_RELEASE_URL))
-            else:
-                QMessageBox.information(self, '', _("You're up to date!"))
-        self.check_updates_button.setEnabled(True)
+        def on_reply_finished():
+            print('got reply')
+            if reply.error() == QNetworkReply.NetworkError.NoError:
+                response = json.loads(reply.readAll().data())
+                tag_name = response.get('name')
+                if self.is_version_lower(VERSION, tag_name[1:]):
+                    QDesktopServices.openUrl(QUrl(self.GITHUB_LATEST_RELEASE_URL))
+                else:
+                    QMessageBox.information(self, '', _("You're up to date!"))
+            self.check_updates_button.setEnabled(True)
+            reply.deleteLater()
+
+        reply.finished.connect(on_reply_finished)
+        self.check_updates_button.setDisabled(True)
 
     @staticmethod
     def is_version_lower(version_a: str, version_b: str):
@@ -1106,7 +1105,7 @@ class HuggingFaceSearchLineEdit(LineEdit):
     model_selected = pyqtSignal(str)
     popup: QListWidget
 
-    def __init__(self, network_access_manager: Optional[QNetworkAccessManager] = None,
+    def __init__(self, network_access_manager: QNetworkAccessManager,
                  parent: Optional[QWidget] = None):
         super().__init__('', parent)
 
@@ -1122,11 +1121,7 @@ class HuggingFaceSearchLineEdit(LineEdit):
         self.textEdited.connect(self.timer.start)
         self.textEdited.connect(self.on_text_edited)
 
-        if network_access_manager is None:
-            network_access_manager = QNetworkAccessManager(self)
-
         self.network_manager = network_access_manager
-        self.network_manager.finished.connect(self.on_request_response)
 
         self.popup = QListWidget()
         self.popup.setWindowFlags(Qt.WindowType.Popup)
@@ -1162,35 +1157,38 @@ class HuggingFaceSearchLineEdit(LineEdit):
 
         url.setQuery(query)
 
-        return self.network_manager.get(QNetworkRequest(url))
+        reply = self.network_manager.get(QNetworkRequest(url))
+
+        def on_reply_finished():
+            if reply.error() != QNetworkReply.NetworkError.NoError:
+                logging.debug('Error fetching Hugging Face models: %s', reply.error())
+                return
+
+            models = json.loads(reply.readAll().data())
+
+            self.popup.setUpdatesEnabled(False)
+            self.popup.clear()
+
+            for model in models:
+                model_id = model.get('id')
+
+                item = QListWidgetItem(self.popup)
+                item.setText(model_id)
+                item.setData(Qt.ItemDataRole.UserRole, model_id)
+
+            self.popup.setCurrentItem(self.popup.item(0))
+            self.popup.setFixedWidth(self.popup.sizeHintForColumn(0) + 20)
+            self.popup.setFixedHeight(
+                self.popup.sizeHintForRow(0) * min(len(models), 8))  # show max 8 models, then scroll
+            self.popup.setUpdatesEnabled(True)
+            self.popup.move(self.mapToGlobal(QPoint(0, self.height())))
+            self.popup.setFocus()
+            self.popup.show()
+
+        reply.finished.connect(on_reply_finished)
 
     def on_popup_selected(self):
         self.timer.stop()
-
-    def on_request_response(self, network_reply: QNetworkReply):
-        if network_reply.error() != QNetworkReply.NetworkError.NoError:
-            logging.debug('Error fetching Hugging Face models: %s', network_reply.error())
-            return
-
-        models = json.loads(network_reply.readAll().data())
-
-        self.popup.setUpdatesEnabled(False)
-        self.popup.clear()
-
-        for model in models:
-            model_id = model.get('id')
-
-            item = QListWidgetItem(self.popup)
-            item.setText(model_id)
-            item.setData(Qt.ItemDataRole.UserRole, model_id)
-
-        self.popup.setCurrentItem(self.popup.item(0))
-        self.popup.setFixedWidth(self.popup.sizeHintForColumn(0) + 20)
-        self.popup.setFixedHeight(self.popup.sizeHintForRow(0) * min(len(models), 8))  # show max 8 models, then scroll
-        self.popup.setUpdatesEnabled(True)
-        self.popup.move(self.mapToGlobal(QPoint(0, self.height())))
-        self.popup.setFocus()
-        self.popup.show()
 
     def eventFilter(self, target: QObject, event: QEvent):
         if hasattr(self, 'popup') is False or target != self.popup:
@@ -1250,7 +1248,8 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.advanced_settings_button.clicked.connect(
             self.open_advanced_settings)
 
-        self.hugging_face_search_line_edit = HuggingFaceSearchLineEdit()
+        self.hugging_face_search_line_edit = HuggingFaceSearchLineEdit(
+            network_access_manager=QNetworkAccessManager(self))
         self.hugging_face_search_line_edit.model_selected.connect(self.on_hugging_face_model_changed)
 
         self.model_type_combo_box = QComboBox(self)
@@ -1351,7 +1350,7 @@ class MenuBar(QMenuBar):
         self.import_action_triggered.emit()
 
     def on_about_action_triggered(self):
-        about_dialog = AboutDialog(parent=self)
+        about_dialog = AboutDialog(network_access_manager=QNetworkAccessManager(), parent=self)
         about_dialog.open()
 
 

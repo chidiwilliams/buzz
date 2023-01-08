@@ -312,10 +312,12 @@ class TestAboutDialog:
         mock_message_box_information = Mock()
         QMessageBox.information = mock_message_box_information
 
-        with qtbot.wait_signal(dialog.network_access_manager.finished):
-            dialog.check_updates_button.click()
+        dialog.check_updates_button.click()
 
-        mock_message_box_information.assert_called_with(dialog, '', "You're up to date!")
+        def assert_message():
+            mock_message_box_information.assert_called_with(dialog, '', "You're up to date!")
+
+        qtbot.wait_until(assert_message)
 
 
 class TestAdvancedSettingsDialog:

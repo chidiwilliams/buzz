@@ -1,4 +1,6 @@
 import json
+import time
+from threading import Thread
 from typing import Optional
 
 from PyQt6.QtCore import QByteArray, QObject, QSize, Qt, pyqtSignal
@@ -6,7 +8,10 @@ from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply
 
 
 class MockNetworkReply(QNetworkReply):
+    finished = pyqtSignal()
+
     def __init__(self, data: object, _: Optional[QObject] = None) -> None:
+        super().__init__()
         self.data = data
 
     def readAll(self) -> 'QByteArray':
@@ -17,13 +22,19 @@ class MockNetworkReply(QNetworkReply):
 
 
 class MockNetworkAccessManager(QNetworkAccessManager):
-    finished = pyqtSignal(object)
     reply: MockNetworkReply
+    reply_thread: Optional[Thread]
 
     def __init__(self, reply: MockNetworkReply, parent: Optional[QObject] = None) -> None:
         super().__init__(parent)
         self.reply = reply
 
     def get(self, _: 'QNetworkRequest') -> 'QNetworkReply':
-        self.finished.emit(self.reply)
+        def target():
+            time.sleep(0.1)
+            self.reply.finished.emit()
+
+        self.reply_thread = Thread(target=target)
+        self.reply_thread.start()
+
         return self.reply
