@@ -621,7 +621,7 @@ numpy = ["NumPy"]
 
 [[package]]
 name = "stable-ts"
-version = "1.0.1"
+version = "1.0.2"
 description = "Stabilizing timestamps of OpenAI's Whisper outputs down to word-level."
 category = "main"
 optional = false
@@ -1361,7 +1361,7 @@ sounddevice = [
     {file = "sounddevice-0.4.5.tar.gz", hash = "sha256:2fe0d41299e4f3037dad2acede4eff0666b34a1fa3da5335e47120373964bef5"},
 ]
 stable-ts = [
-    {file = "stable-ts-1.0.1.tar.gz", hash = "sha256:8242952db389043fc7715f78949d0f3f3df420912c609dca5d7bd7d25d85689d"},
+    {file = "stable-ts-1.0.2.tar.gz", hash = "sha256:2ad163773d3321b701fdebe87cf1ed01e613aef5b46b12adf59caa5980e1197b"},
 ]
 tokenizers = [
     {file = "tokenizers-0.13.2-cp310-cp310-macosx_10_11_x86_64.whl", hash = "sha256:a6f36b1b499233bb4443b5e57e20630c5e02fba61109632f5e00dab970440157"},
