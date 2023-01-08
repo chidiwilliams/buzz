@@ -1,6 +1,7 @@
 import logging
 import os.path
 import pathlib
+import platform
 from typing import List
 from unittest.mock import Mock, patch
 
@@ -19,7 +20,7 @@ from buzz.gui import (AboutDialog, AdvancedSettingsDialog, AudioDevicesComboBox,
                       RecordingTranscriberWidget,
                       TemperatureValidator, TextDisplayBox,
                       TranscriptionTasksTableWidget, TranscriptionViewerWidget, HuggingFaceSearchLineEdit,
-                      TranscriptionOptionsGroupBox)
+                      TranscriptionOptionsGroupBox, AudioMeterWidget)
 from buzz.model_loader import ModelType
 from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask,
                               Segment, TranscriptionOptions)
@@ -237,6 +238,20 @@ class TestMainWindow:
         assert window.toolbar.open_transcript_action.isEnabled() is False
         window.close()
 
+    @pytest.mark.parametrize('tasks_cache', [mock_tasks], indirect=True)
+    def test_should_clear_history(self, qtbot, tasks_cache):
+        window = MainWindow(tasks_cache=tasks_cache)
+        qtbot.add_widget(window)
+
+        table_widget: QTableWidget = window.findChild(QTableWidget)
+        table_widget.selectAll()
+
+        with patch('PyQt6.QtWidgets.QMessageBox.question') as question_message_box_mock:
+            question_message_box_mock.return_value = QMessageBox.StandardButton.Yes
+            window.toolbar.clear_history_action.trigger()
+
+        assert table_widget.rowCount() == 0
+
     def start_new_transcription(self, window: MainWindow):
         with patch('PyQt6.QtWidgets.QFileDialog.getOpenFileNames') as open_file_names_mock:
             open_file_names_mock.return_value = ([get_test_asset('whisper-french.mp3')], '')
@@ -298,10 +313,12 @@ class TestAboutDialog:
         mock_message_box_information = Mock()
         QMessageBox.information = mock_message_box_information
 
-        with qtbot.wait_signal(dialog.network_access_manager.finished):
-            dialog.check_updates_button.click()
+        dialog.check_updates_button.click()
 
-        mock_message_box_information.assert_called_with(dialog, '', "You're up to date!")
+        def assert_message():
+            mock_message_box_information.assert_called_with(dialog, '', "You're up to date!")
+
+        qtbot.wait_until(assert_message)
 
 
 class TestAdvancedSettingsDialog:
@@ -438,6 +455,7 @@ class TestRecordingTranscriberWidget:
         assert 'Welcome to Passe' in widget.text_box.toPlainText()
 
 
+@pytest.mark.skipif(condition=platform.system() == 'Darwin', reason='Crashing on Qt pytest-qt wait functions.')
 class TestHuggingFaceSearchLineEdit:
     def test_should_update_selected_model_on_type(self, qtbot: QtBot):
         widget = HuggingFaceSearchLineEdit(network_access_manager=self.network_access_manager())
@@ -446,17 +464,27 @@ class TestHuggingFaceSearchLineEdit:
         mock_model_selected = Mock()
         widget.model_selected.connect(mock_model_selected)
 
-        self._set_text_and_wait_response(qtbot, widget)
-        mock_model_selected.assert_called_with('openai/whisper-tiny')
+        widget.setText('openai/whisper-tiny')
+        widget.textEdited.emit('openai/whisper-tiny')
+
+        def assert_model_selected_called():
+            mock_model_selected.assert_called()
+            mock_model_selected.assert_called_with('openai/whisper-tiny')
+
+        qtbot.wait_until(assert_model_selected_called, timeout=30 * 6000)
 
     def test_should_show_list_of_models(self, qtbot: QtBot):
         widget = HuggingFaceSearchLineEdit(network_access_manager=self.network_access_manager())
         qtbot.add_widget(widget)
 
-        self._set_text_and_wait_response(qtbot, widget)
+        widget.setText('openai/whisper-tiny')
+        widget.textEdited.emit('openai/whisper-tiny')
 
-        assert widget.popup.count() > 0
-        assert 'openai/whisper-tiny' in widget.popup.item(0).text()
+        def assert_popup_item_added():
+            assert widget.popup.count() > 0
+            assert 'openai/whisper-tiny' in widget.popup.item(0).text()
+
+        qtbot.wait_until(assert_popup_item_added, timeout=30 * 6000)
 
     def test_should_select_model_from_list(self, qtbot: QtBot):
         widget = HuggingFaceSearchLineEdit(network_access_manager=self.network_access_manager())
@@ -465,7 +493,13 @@ class TestHuggingFaceSearchLineEdit:
         mock_model_selected = Mock()
         widget.model_selected.connect(mock_model_selected)
 
-        self._set_text_and_wait_response(qtbot, widget)
+        widget.setText('openai/whisper-tiny')
+        widget.textEdited.emit('openai/whisper-tiny')
+
+        def assert_popup_item_added():
+            assert widget.popup.count() > 0
+
+        qtbot.wait_until(assert_popup_item_added, timeout=30 * 6000)
 
         # press down arrow and enter to select next item
         QApplication.sendEvent(widget.popup,
@@ -480,12 +514,6 @@ class TestHuggingFaceSearchLineEdit:
         reply = MockNetworkReply(data=[{'id': 'openai/whisper-tiny'}, {'id': 'openai/whisper-tiny.en'}])
         return MockNetworkAccessManager(reply=reply)
 
-    @staticmethod
-    def _set_text_and_wait_response(qtbot: QtBot, widget: HuggingFaceSearchLineEdit):
-        with qtbot.wait_signal(widget.network_manager.finished):
-            widget.setText('openai/whisper-tiny')
-            widget.textEdited.emit('openai/whisper-tiny')
-
 
 class TestTranscriptionOptionsGroupBox:
     def test_should_update_model_type(self, qtbot):
@@ -499,3 +527,10 @@ class TestTranscriptionOptionsGroupBox:
 
         transcription_options: TranscriptionOptions = mock_transcription_options_changed.call_args[0][0]
         assert transcription_options.model.model_type == ModelType.WHISPER_CPP
+
+
+class TestAudioMeterWidget:
+    def test_should_update_amplitude(self, qtbot):
+        widget = AudioMeterWidget()
+        qtbot.add_widget(widget)
+        widget.update_amplitude(0.75)

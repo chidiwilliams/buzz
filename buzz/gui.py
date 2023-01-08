@@ -459,7 +459,7 @@ class AudioMeterWidget(QWidget):
         self.repaint()
 
 
-class RecordingTranscriberWidget(QDialog):
+class RecordingTranscriberWidget(QWidget):
     current_status: 'RecordingStatus'
     transcription_options: TranscriptionOptions
     selected_device_id: Optional[int]
@@ -474,8 +474,8 @@ class RecordingTranscriberWidget(QDialog):
         STOPPED = auto()
         RECORDING = auto()
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent)
+    def __init__(self, parent: Optional[QWidget] = None, flags: Qt.WindowType = Qt.WindowType.Widget) -> None:
+        super().__init__(parent, flags)
 
         layout = QVBoxLayout(self)
 
@@ -689,8 +689,7 @@ class AboutDialog(QDialog):
     GITHUB_API_LATEST_RELEASE_URL = 'https://api.github.com/repos/chidiwilliams/buzz/releases/latest'
     GITHUB_LATEST_RELEASE_URL = 'https://github.com/chidiwilliams/buzz/releases/latest'
 
-    def __init__(self, network_access_manager: Optional[QNetworkAccessManager] = None,
-                 parent: Optional[QWidget] = None) -> None:
+    def __init__(self, network_access_manager: QNetworkAccessManager, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
 
         self.setFixedSize(200, 250)
@@ -698,11 +697,7 @@ class AboutDialog(QDialog):
         self.setWindowIcon(QIcon(BUZZ_ICON_PATH))
         self.setWindowTitle(f'{_("About")} {APP_NAME}')
 
-        if network_access_manager is None:
-            network_access_manager = QNetworkAccessManager()
-
         self.network_access_manager = network_access_manager
-        self.network_access_manager.finished.connect(self.on_latest_release_reply)
 
         layout = QVBoxLayout(self)
 
@@ -743,18 +738,22 @@ class AboutDialog(QDialog):
 
     def on_click_check_for_updates(self):
         url = QUrl(self.GITHUB_API_LATEST_RELEASE_URL)
-        self.network_access_manager.get(QNetworkRequest(url))
-        self.check_updates_button.setDisabled(True)
+        reply = self.network_access_manager.get(QNetworkRequest(url))
 
-    def on_latest_release_reply(self, reply: QNetworkReply):
-        if reply.error() == QNetworkReply.NetworkError.NoError:
-            response = json.loads(reply.readAll().data())
-            tag_name = response.get('name')
-            if self.is_version_lower(VERSION, tag_name[1:]):
-                QDesktopServices.openUrl(QUrl(self.GITHUB_LATEST_RELEASE_URL))
-            else:
-                QMessageBox.information(self, '', _("You're up to date!"))
-        self.check_updates_button.setEnabled(True)
+        def on_reply_finished():
+            print('got reply')
+            if reply.error() == QNetworkReply.NetworkError.NoError:
+                response = json.loads(reply.readAll().data())
+                tag_name = response.get('name')
+                if self.is_version_lower(VERSION, tag_name[1:]):
+                    QDesktopServices.openUrl(QUrl(self.GITHUB_LATEST_RELEASE_URL))
+                else:
+                    QMessageBox.information(self, '', _("You're up to date!"))
+            self.check_updates_button.setEnabled(True)
+            reply.deleteLater()
+
+        reply.finished.connect(on_reply_finished)
+        self.check_updates_button.setDisabled(True)
 
     @staticmethod
     def is_version_lower(version_a: str, version_b: str):
@@ -777,13 +776,12 @@ class TranscriptionTasksTableWidget(QTableWidget):
 
         self.verticalHeader().hide()
         self.setHorizontalHeaderLabels([_('ID'), _('File Name'), _('Status')])
-        self.horizontalHeader().setMinimumSectionSize(140)
+        self.horizontalHeader().setMinimumSectionSize(160)
         self.horizontalHeader().setSectionResizeMode(self.FILE_NAME_COLUMN_INDEX,
                                                      QHeaderView.ResizeMode.Stretch)
 
         self.setSelectionBehavior(
             QAbstractItemView.SelectionBehavior.SelectRows)
-        self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
 
     def upsert_task(self, task: FileTranscriptionTask):
         task_row_index = self.task_row_index(task.id)
@@ -835,7 +833,8 @@ class TranscriptionTasksTableWidget(QTableWidget):
 
     @staticmethod
     def find_task_id(index: QModelIndex):
-        return int(index.siblingAtColumn(TranscriptionTasksTableWidget.TASK_ID_COLUMN_INDEX).data())
+        sibling_index = index.siblingAtColumn(TranscriptionTasksTableWidget.TASK_ID_COLUMN_INDEX).data()
+        return int(sibling_index) if sibling_index is not None else None
 
 
 class MainWindowToolbar(QToolBar):
@@ -904,8 +903,10 @@ class MainWindowToolbar(QToolBar):
         return QIcon(pixmap)
 
     def on_record_action_triggered(self):
-        recording_transcriber_window = RecordingTranscriberWidget(self)
-        recording_transcriber_window.exec()
+        recording_transcriber_window = RecordingTranscriberWidget(self, flags=Qt.WindowType.Window)
+        # Blocking input to other windows fixes issues with getting audio device settings while recording is ongoing
+        recording_transcriber_window.setWindowModality(Qt.WindowModality.ApplicationModal)
+        recording_transcriber_window.show()
 
     def set_stop_transcription_action_enabled(self, enabled: bool):
         self.stop_transcription_action.setEnabled(enabled)
@@ -927,7 +928,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(QIcon(BUZZ_ICON_PATH))
-        self.setMinimumSize(400, 400)
+        self.setMinimumSize(450, 400)
 
         self.tasks_cache = tasks_cache
 
@@ -984,29 +985,31 @@ class MainWindow(QMainWindow):
         self.tasks[task.id] = task
         self.tasks_changed.emit()
 
-    @staticmethod
-    def task_completed_or_errored(task: FileTranscriptionTask):
-        return task.status == FileTranscriptionTask.Status.COMPLETED or \
-            task.status == FileTranscriptionTask.Status.FAILED
-
     def on_clear_history_action_triggered(self):
-        for task_id, task in list(self.tasks.items()):
-            if self.task_completed_or_errored(task):
+        selected_rows = self.table_widget.selectionModel().selectedRows()
+        if len(selected_rows) == 0:
+            return
+
+        reply = QMessageBox.question(
+            self, 'Clear History',
+            'Are you sure you want to delete the selected transcription(s)? This action cannot be undone.')
+        if reply == QMessageBox.StandardButton.Yes:
+            task_ids = [TranscriptionTasksTableWidget.find_task_id(selected_row) for selected_row in selected_rows]
+            for task_id in task_ids:
                 self.table_widget.clear_task(task_id)
                 self.tasks.pop(task_id)
                 self.tasks_changed.emit()
 
     def on_stop_transcription_action_triggered(self):
         selected_rows = self.table_widget.selectionModel().selectedRows()
-        if len(selected_rows) == 0:
-            return
-        task_id = TranscriptionTasksTableWidget.find_task_id(selected_rows[0])
-        task = self.tasks[task_id]
+        for selected_row in selected_rows:
+            task_id = TranscriptionTasksTableWidget.find_task_id(selected_row)
+            task = self.tasks[task_id]
 
-        task.status = FileTranscriptionTask.Status.CANCELED
-        self.tasks_changed.emit()
-        self.transcriber_worker.cancel_task(task_id)
-        self.table_widget.upsert_task(task)
+            task.status = FileTranscriptionTask.Status.CANCELED
+            self.tasks_changed.emit()
+            self.transcriber_worker.cancel_task(task_id)
+            self.table_widget.upsert_task(task)
 
     def on_new_transcription_action_triggered(self):
         (file_paths, __) = QFileDialog.getOpenFileNames(
@@ -1022,27 +1025,34 @@ class MainWindow(QMainWindow):
 
     def on_open_transcript_action_triggered(self):
         selected_rows = self.table_widget.selectionModel().selectedRows()
-        if len(selected_rows) == 0:
-            return
-        task_id = TranscriptionTasksTableWidget.find_task_id(selected_rows[0])
-        self.open_transcription_viewer(task_id)
+        for selected_row in selected_rows:
+            task_id = TranscriptionTasksTableWidget.find_task_id(selected_row)
+            self.open_transcription_viewer(task_id)
 
     def on_table_selection_changed(self):
-        enable_open_transcript_action = self.should_enable_open_transcript_action()
-        self.toolbar.set_open_transcript_action_enabled(enable_open_transcript_action)
-
+        self.toolbar.set_open_transcript_action_enabled(self.should_enable_open_transcript_action())
         self.toolbar.set_stop_transcription_action_enabled(self.should_enable_stop_transcription_action())
+        self.toolbar.set_clear_history_action_enabled(self.should_enable_clear_history_action())
 
     def should_enable_open_transcript_action(self):
-        return self.selected_task_has_status([FileTranscriptionTask.Status.COMPLETED])
+        return self.selected_tasks_have_status([FileTranscriptionTask.Status.COMPLETED])
 
-    def selected_task_has_status(self, statuses: List[FileTranscriptionTask.Status]):
+    def should_enable_stop_transcription_action(self):
+        return self.selected_tasks_have_status(
+            [FileTranscriptionTask.Status.IN_PROGRESS, FileTranscriptionTask.Status.QUEUED])
+
+    def should_enable_clear_history_action(self):
+        return self.selected_tasks_have_status(
+            [FileTranscriptionTask.Status.COMPLETED, FileTranscriptionTask.Status.FAILED,
+             FileTranscriptionTask.Status.CANCELED])
+
+    def selected_tasks_have_status(self, statuses: List[FileTranscriptionTask.Status]):
         selected_rows = self.table_widget.selectionModel().selectedRows()
-        if len(selected_rows) == 1:
-            task_id = TranscriptionTasksTableWidget.find_task_id(selected_rows[0])
-            if self.tasks[task_id].status in statuses:
-                return True
-        return False
+        if len(selected_rows) == 0:
+            return False
+        return all(
+            [self.tasks[TranscriptionTasksTableWidget.find_task_id(selected_row)].status in statuses for selected_row in
+             selected_rows])
 
     def on_table_double_clicked(self, index: QModelIndex):
         task_id = TranscriptionTasksTableWidget.find_task_id(index)
@@ -1071,17 +1081,9 @@ class MainWindow(QMainWindow):
         self.tasks_cache.save(list(self.tasks.values()))
 
     def on_tasks_changed(self):
-        self.toolbar.set_clear_history_action_enabled(
-            any([self.task_completed_or_errored(task) for task in self.tasks.values()]))
-
-        enable_open_transcript_action = self.should_enable_open_transcript_action()
-        self.toolbar.set_open_transcript_action_enabled(enable_open_transcript_action)
-
+        self.toolbar.set_open_transcript_action_enabled(self.should_enable_open_transcript_action())
         self.toolbar.set_stop_transcription_action_enabled(self.should_enable_stop_transcription_action())
-
-    def should_enable_stop_transcription_action(self):
-        return self.selected_task_has_status(
-            [FileTranscriptionTask.Status.IN_PROGRESS, FileTranscriptionTask.Status.QUEUED])
+        self.toolbar.set_clear_history_action_enabled(self.should_enable_clear_history_action())
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         self.transcriber_worker.stop()
@@ -1103,7 +1105,7 @@ class HuggingFaceSearchLineEdit(LineEdit):
     model_selected = pyqtSignal(str)
     popup: QListWidget
 
-    def __init__(self, network_access_manager: Optional[QNetworkAccessManager] = None,
+    def __init__(self, network_access_manager: QNetworkAccessManager,
                  parent: Optional[QWidget] = None):
         super().__init__('', parent)
 
@@ -1119,11 +1121,7 @@ class HuggingFaceSearchLineEdit(LineEdit):
         self.textEdited.connect(self.timer.start)
         self.textEdited.connect(self.on_text_edited)
 
-        if network_access_manager is None:
-            network_access_manager = QNetworkAccessManager(self)
-
         self.network_manager = network_access_manager
-        self.network_manager.finished.connect(self.on_request_response)
 
         self.popup = QListWidget()
         self.popup.setWindowFlags(Qt.WindowType.Popup)
@@ -1159,35 +1157,38 @@ class HuggingFaceSearchLineEdit(LineEdit):
 
         url.setQuery(query)
 
-        return self.network_manager.get(QNetworkRequest(url))
+        reply = self.network_manager.get(QNetworkRequest(url))
+
+        def on_reply_finished():
+            if reply.error() != QNetworkReply.NetworkError.NoError:
+                logging.debug('Error fetching Hugging Face models: %s', reply.error())
+                return
+
+            models = json.loads(reply.readAll().data())
+
+            self.popup.setUpdatesEnabled(False)
+            self.popup.clear()
+
+            for model in models:
+                model_id = model.get('id')
+
+                item = QListWidgetItem(self.popup)
+                item.setText(model_id)
+                item.setData(Qt.ItemDataRole.UserRole, model_id)
+
+            self.popup.setCurrentItem(self.popup.item(0))
+            self.popup.setFixedWidth(self.popup.sizeHintForColumn(0) + 20)
+            self.popup.setFixedHeight(
+                self.popup.sizeHintForRow(0) * min(len(models), 8))  # show max 8 models, then scroll
+            self.popup.setUpdatesEnabled(True)
+            self.popup.move(self.mapToGlobal(QPoint(0, self.height())))
+            self.popup.setFocus()
+            self.popup.show()
+
+        reply.finished.connect(on_reply_finished)
 
     def on_popup_selected(self):
         self.timer.stop()
-
-    def on_request_response(self, network_reply: QNetworkReply):
-        if network_reply.error() != QNetworkReply.NetworkError.NoError:
-            logging.debug('Error fetching Hugging Face models: %s', network_reply.error())
-            return
-
-        models = json.loads(network_reply.readAll().data())
-
-        self.popup.setUpdatesEnabled(False)
-        self.popup.clear()
-
-        for model in models:
-            model_id = model.get('id')
-
-            item = QListWidgetItem(self.popup)
-            item.setText(model_id)
-            item.setData(Qt.ItemDataRole.UserRole, model_id)
-
-        self.popup.setCurrentItem(self.popup.item(0))
-        self.popup.setFixedWidth(self.popup.sizeHintForColumn(0) + 20)
-        self.popup.setFixedHeight(self.popup.sizeHintForRow(0) * min(len(models), 8))  # show max 8 models, then scroll
-        self.popup.setUpdatesEnabled(True)
-        self.popup.move(self.mapToGlobal(QPoint(0, self.height())))
-        self.popup.setFocus()
-        self.popup.show()
 
     def eventFilter(self, target: QObject, event: QEvent):
         if hasattr(self, 'popup') is False or target != self.popup:
@@ -1247,7 +1248,8 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.advanced_settings_button.clicked.connect(
             self.open_advanced_settings)
 
-        self.hugging_face_search_line_edit = HuggingFaceSearchLineEdit()
+        self.hugging_face_search_line_edit = HuggingFaceSearchLineEdit(
+            network_access_manager=QNetworkAccessManager(self))
         self.hugging_face_search_line_edit.model_selected.connect(self.on_hugging_face_model_changed)
 
         self.model_type_combo_box = QComboBox(self)
@@ -1348,7 +1350,7 @@ class MenuBar(QMenuBar):
         self.import_action_triggered.emit()
 
     def on_about_action_triggered(self):
-        about_dialog = AboutDialog(parent=self)
+        about_dialog = AboutDialog(network_access_manager=QNetworkAccessManager(), parent=self)
         about_dialog.open()
 
 
