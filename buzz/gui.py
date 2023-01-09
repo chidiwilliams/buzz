@@ -535,7 +535,6 @@ class RecordingTranscriberWidget(QWidget):
     def reset_recording_amplitude_listener(self):
         if self.recording_amplitude_listener is not None:
             self.recording_amplitude_listener.stop_recording()
-            self.recording_amplitude_listener.deleteLater()
 
         # Listening to audio will fail if there are no input devices
         if self.selected_device_id is None or self.selected_device_id == -1:
