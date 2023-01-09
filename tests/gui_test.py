@@ -143,7 +143,7 @@ class TestMainWindow:
         assert window.windowIcon().pixmap(QSize(64, 64)).isNull() is False
         window.close()
 
-    @pytest.mark.xfail(condition=platform.system() == 'Windows')
+    @pytest.mark.xfail(condition=platform.system() == 'Windows', reason='Timing out')
     def test_should_run_transcription_task(self, qtbot: QtBot, tasks_cache):
         window = MainWindow(tasks_cache=tasks_cache)
         qtbot.add_widget(window)
