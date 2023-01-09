@@ -459,7 +459,7 @@ class AudioMeterWidget(QWidget):
         self.repaint()
 
 
-class RecordingTranscriberWidget(QDialog):
+class RecordingTranscriberWidget(QWidget):
     current_status: 'RecordingStatus'
     transcription_options: TranscriptionOptions
     selected_device_id: Optional[int]
@@ -474,8 +474,8 @@ class RecordingTranscriberWidget(QDialog):
         STOPPED = auto()
         RECORDING = auto()
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent)
+    def __init__(self, parent: Optional[QWidget] = None, flags: Qt.WindowType = Qt.WindowType.Widget) -> None:
+        super().__init__(parent, flags)
 
         layout = QVBoxLayout(self)
 
@@ -777,7 +777,7 @@ class TranscriptionTasksTableWidget(QTableWidget):
 
         self.verticalHeader().hide()
         self.setHorizontalHeaderLabels([_('ID'), _('File Name'), _('Status')])
-        self.horizontalHeader().setMinimumSectionSize(140)
+        self.horizontalHeader().setMinimumSectionSize(160)
         self.horizontalHeader().setSectionResizeMode(self.FILE_NAME_COLUMN_INDEX,
                                                      QHeaderView.ResizeMode.Stretch)
 
@@ -904,8 +904,8 @@ class MainWindowToolbar(QToolBar):
         return QIcon(pixmap)
 
     def on_record_action_triggered(self):
-        recording_transcriber_window = RecordingTranscriberWidget(self)
-        recording_transcriber_window.exec()
+        recording_transcriber_window = RecordingTranscriberWidget(self, flags=Qt.WindowType.Window)
+        recording_transcriber_window.show()
 
     def set_stop_transcription_action_enabled(self, enabled: bool):
         self.stop_transcription_action.setEnabled(enabled)
@@ -927,7 +927,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(QIcon(BUZZ_ICON_PATH))
-        self.setMinimumSize(400, 400)
+        self.setMinimumSize(450, 400)
 
         self.tasks_cache = tasks_cache
 
