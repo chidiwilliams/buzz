@@ -396,7 +396,6 @@ class TestRecordingTranscriberWidget:
             qtbot.add_widget(widget)
             assert widget.windowTitle() == 'Live Recording'
 
-    # @pytest.mark.skip()
     def test_should_transcribe(self, qtbot):
         with patch('sounddevice.query_devices') as query_devices_mock, \
                 patch('sounddevice.InputStream', side_effect=MockInputStream), \
