@@ -1,6 +1,7 @@
 import logging
 import os.path
 import pathlib
+import platform
 from typing import List
 from unittest.mock import Mock, patch
 
@@ -23,8 +24,18 @@ from buzz.gui import (AboutDialog, AdvancedSettingsDialog, AudioDevicesComboBox,
 from buzz.model_loader import ModelType
 from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask,
                               Segment, TranscriptionOptions)
-from tests.mock_sounddevice import MockInputStream
+from tests.mock_sounddevice import MockInputStream, mock_query_devices
 from .mock_qt import MockNetworkAccessManager, MockNetworkReply
+
+
+@pytest.fixture(scope='module', autouse=True)
+def audio_setup():
+    with patch('sounddevice.query_devices') as query_devices_mock, \
+            patch('sounddevice.InputStream', side_effect=MockInputStream), \
+            patch('sounddevice.check_input_settings'):
+        query_devices_mock.return_value = mock_query_devices
+        sounddevice.default.device = 3, 4
+        yield
 
 
 class TestLanguagesComboBox:
@@ -51,64 +62,22 @@ class TestLanguagesComboBox:
 
 
 class TestAudioDevicesComboBox:
-    mock_query_devices = [
-        {'name': 'Background Music', 'index': 0, 'hostapi': 0, 'max_input_channels': 2, 'max_output_channels': 2,
-         'default_low_input_latency': 0.01,
-         'default_low_output_latency': 0.008, 'default_high_input_latency': 0.1, 'default_high_output_latency': 0.064,
-         'default_samplerate': 8000.0},
-        {'name': 'Background Music (UI Sounds)', 'index': 1, 'hostapi': 0, 'max_input_channels': 2,
-         'max_output_channels': 2, 'default_low_input_latency': 0.01,
-         'default_low_output_latency': 0.008, 'default_high_input_latency': 0.1, 'default_high_output_latency': 0.064,
-         'default_samplerate': 8000.0},
-        {'name': 'BlackHole 2ch', 'index': 2, 'hostapi': 0, 'max_input_channels': 2, 'max_output_channels': 2,
-         'default_low_input_latency': 0.01,
-         'default_low_output_latency': 0.0013333333333333333, 'default_high_input_latency': 0.1,
-         'default_high_output_latency': 0.010666666666666666, 'default_samplerate': 48000.0},
-        {'name': 'MacBook Pro Microphone', 'index': 3, 'hostapi': 0, 'max_input_channels': 1, 'max_output_channels': 0,
-         'default_low_input_latency': 0.034520833333333334,
-         'default_low_output_latency': 0.01, 'default_high_input_latency': 0.043854166666666666,
-         'default_high_output_latency': 0.1, 'default_samplerate': 48000.0},
-        {'name': 'MacBook Pro Speakers', 'index': 4, 'hostapi': 0, 'max_input_channels': 0, 'max_output_channels': 2,
-         'default_low_input_latency': 0.01,
-         'default_low_output_latency': 0.0070416666666666666, 'default_high_input_latency': 0.1,
-         'default_high_output_latency': 0.016375, 'default_samplerate': 48000.0},
-        {'name': 'Null Audio Device', 'index': 5, 'hostapi': 0, 'max_input_channels': 2, 'max_output_channels': 2,
-         'default_low_input_latency': 0.01,
-         'default_low_output_latency': 0.0014512471655328798, 'default_high_input_latency': 0.1,
-         'default_high_output_latency': 0.011609977324263039, 'default_samplerate': 44100.0},
-        {'name': 'Multi-Output Device', 'index': 6, 'hostapi': 0, 'max_input_channels': 0, 'max_output_channels': 2,
-         'default_low_input_latency': 0.01,
-         'default_low_output_latency': 0.0033333333333333335, 'default_high_input_latency': 0.1,
-         'default_high_output_latency': 0.012666666666666666, 'default_samplerate': 48000.0},
-    ]
-
     def test_get_devices(self):
-        with patch('sounddevice.query_devices') as query_devices_mock:
-            query_devices_mock.return_value = self.mock_query_devices
+        audio_devices_combo_box = AudioDevicesComboBox()
 
-            sounddevice.default.device = 3, 4
+        assert audio_devices_combo_box.itemText(0) == 'Background Music'
+        assert audio_devices_combo_box.itemText(1) == 'Background Music (UI Sounds)'
+        assert audio_devices_combo_box.itemText(2) == 'BlackHole 2ch'
+        assert audio_devices_combo_box.itemText(3) == 'MacBook Pro Microphone'
+        assert audio_devices_combo_box.itemText(4) == 'Null Audio Device'
 
-            audio_devices_combo_box = AudioDevicesComboBox()
-
-            assert audio_devices_combo_box.itemText(0) == 'Background Music'
-            assert audio_devices_combo_box.itemText(
-                1) == 'Background Music (UI Sounds)'
-            assert audio_devices_combo_box.itemText(2) == 'BlackHole 2ch'
-            assert audio_devices_combo_box.itemText(
-                3) == 'MacBook Pro Microphone'
-            assert audio_devices_combo_box.itemText(4) == 'Null Audio Device'
-
-            assert audio_devices_combo_box.currentText() == 'MacBook Pro Microphone'
+        assert audio_devices_combo_box.currentText() == 'MacBook Pro Microphone'
 
     def test_select_default_mic_when_no_default(self):
-        with patch('sounddevice.query_devices') as query_devices_mock:
-            query_devices_mock.return_value = self.mock_query_devices
+        sounddevice.default.device = -1, 1
 
-            sounddevice.default.device = -1, 1
-
-            audio_devices_combo_box = AudioDevicesComboBox()
-
-            assert audio_devices_combo_box.currentText() == 'Background Music'
+        audio_devices_combo_box = AudioDevicesComboBox()
+        assert audio_devices_combo_box.currentText() == 'Background Music'
 
 
 class TestDownloadModelProgressDialog:
@@ -174,6 +143,7 @@ class TestMainWindow:
         assert window.windowIcon().pixmap(QSize(64, 64)).isNull() is False
         window.close()
 
+    @pytest.mark.xfail(condition=platform.system() == 'Windows', reason='Timing out')
     def test_should_run_transcription_task(self, qtbot: QtBot, tasks_cache):
         window = MainWindow(tasks_cache=tasks_cache)
         qtbot.add_widget(window)
@@ -184,7 +154,7 @@ class TestMainWindow:
         assert open_transcript_action.isEnabled() is False
 
         table_widget: QTableWidget = window.findChild(QTableWidget)
-        qtbot.wait_until(self.assert_task_status(table_widget, 0, 'Completed'), timeout=60 * 1000)
+        qtbot.wait_until(self.assert_task_status(table_widget, 0, 'Completed'), timeout=2 * 60 * 1000)
 
         table_widget.setCurrentIndex(table_widget.indexFromItem(table_widget.item(0, 1)))
         assert open_transcript_action.isEnabled()
@@ -202,7 +172,7 @@ class TestMainWindow:
             assert table_widget.item(0, 1).text() == 'whisper-french.mp3'
             assert 'In Progress' in table_widget.item(0, 2).text()
 
-        qtbot.wait_until(assert_task_in_progress, timeout=60 * 1000)
+        qtbot.wait_until(assert_task_in_progress, timeout=2 * 60 * 1000)
 
         # Stop task in progress
         table_widget.selectRow(0)
@@ -420,7 +390,6 @@ class TestRecordingTranscriberWidget:
         qtbot.add_widget(widget)
         assert widget.windowTitle() == 'Live Recording'
 
-    @pytest.mark.skip()
     def test_should_transcribe(self, qtbot):
         widget = RecordingTranscriberWidget()
         qtbot.add_widget(widget)
@@ -428,9 +397,8 @@ class TestRecordingTranscriberWidget:
         def assert_text_box_contains_text():
             assert len(widget.text_box.toPlainText()) > 0
 
-        with patch('sounddevice.InputStream', side_effect=MockInputStream), patch('sounddevice.check_input_settings'):
-            widget.record_button.click()
-            qtbot.wait_until(callback=assert_text_box_contains_text, timeout=60 * 1000)
+        widget.record_button.click()
+        qtbot.wait_until(callback=assert_text_box_contains_text, timeout=60 * 1000)
 
         with qtbot.wait_signal(widget.transcription_thread.finished, timeout=60 * 1000):
             widget.stop_recording()

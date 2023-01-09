@@ -588,7 +588,7 @@ class FileTranscriberQueueWorker(QObject):
 
     @pyqtSlot()
     def run(self):
-        logging.debug('Waiting for next file transcription task')
+        logging.debug('Waiting for next transcription task')
 
         # Waiting for new tasks in a loop instead of with queue.wait()
         # resolves a "No Python frame" crash when the thread is quit.
@@ -607,6 +607,8 @@ class FileTranscriberQueueWorker(QObject):
                 break
             except queue.Empty:
                 continue
+
+        logging.debug('Starting next transcription task')
 
         if self.current_task.transcription_options.model.model_type == ModelType.WHISPER_CPP:
             self.current_transcriber = WhisperCppFileTranscriber(

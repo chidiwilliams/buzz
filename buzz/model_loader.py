@@ -99,6 +99,8 @@ class ModelLoader(QObject):
 
     def download_model(self, url: str, file_path: str, expected_sha256: Optional[str]):
         try:
+            logging.debug(f'Downloading model from {url} to {file_path}')
+
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
             if os.path.exists(file_path) and not os.path.isfile(file_path):
@@ -137,6 +139,8 @@ class ModelLoader(QObject):
                     raise RuntimeError(
                         "Model has been downloaded but the SHA256 checksum does not match. Please retry loading the "
                         "model.")
+
+            logging.debug('Downloaded model')
 
             return file_path
         except RuntimeError as exc:
