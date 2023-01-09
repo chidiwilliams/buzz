@@ -350,7 +350,6 @@ class WhisperFileTranscriber(QObject):
         self.transcription_task = task
         self.segments = []
         self.started_process = False
-        self.stopped = False
 
     @pyqtSlot()
     def run(self):
@@ -362,9 +361,8 @@ class WhisperFileTranscriber(QObject):
 
         self.current_process = multiprocessing.Process(target=transcribe_whisper,
                                                        args=(send_pipe, self.transcription_task))
-        if not self.stopped:
-            self.current_process.start()
-            self.started_process = True
+        self.current_process.start()
+        self.started_process = True
 
         self.read_line_thread = Thread(
             target=self.read_line, args=(recv_pipe,))
@@ -387,7 +385,6 @@ class WhisperFileTranscriber(QObject):
             self.error.emit('Unknown error')
 
     def stop(self):
-        self.stopped = True
         if self.started_process:
             self.current_process.terminate()
 
