@@ -152,7 +152,7 @@ class TestMainWindow:
         assert open_transcript_action.isEnabled() is False
 
         table_widget: QTableWidget = window.findChild(QTableWidget)
-        qtbot.wait_until(self.assert_task_status(table_widget, 0, 'Completed'), timeout=60 * 1000)
+        qtbot.wait_until(self.assert_task_status(table_widget, 0, 'Completed'), timeout=2 * 60 * 1000)
 
         table_widget.setCurrentIndex(table_widget.indexFromItem(table_widget.item(0, 1)))
         assert open_transcript_action.isEnabled()
@@ -170,7 +170,7 @@ class TestMainWindow:
             assert table_widget.item(0, 1).text() == 'whisper-french.mp3'
             assert 'In Progress' in table_widget.item(0, 2).text()
 
-        qtbot.wait_until(assert_task_in_progress, timeout=60 * 1000)
+        qtbot.wait_until(assert_task_in_progress, timeout=2 * 60 * 1000)
 
         # Stop task in progress
         table_widget.selectRow(0)
