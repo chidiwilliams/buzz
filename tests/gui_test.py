@@ -27,6 +27,16 @@ from tests.mock_sounddevice import MockInputStream, mock_query_devices
 from .mock_qt import MockNetworkAccessManager, MockNetworkReply
 
 
+@pytest.fixture(scope='module', autouse=True)
+def audio_setup():
+    with patch('sounddevice.query_devices') as query_devices_mock, \
+            patch('sounddevice.InputStream', side_effect=MockInputStream), \
+            patch('sounddevice.check_input_settings'):
+        query_devices_mock.return_value = mock_query_devices
+        sounddevice.default.device = 3, 4
+        yield
+
+
 class TestLanguagesComboBox:
 
     def test_should_show_sorted_whisper_languages(self, qtbot):
@@ -52,32 +62,21 @@ class TestLanguagesComboBox:
 
 class TestAudioDevicesComboBox:
     def test_get_devices(self):
-        with patch('sounddevice.query_devices') as query_devices_mock:
-            query_devices_mock.return_value = mock_query_devices
+        audio_devices_combo_box = AudioDevicesComboBox()
 
-            sounddevice.default.device = 3, 4
+        assert audio_devices_combo_box.itemText(0) == 'Background Music'
+        assert audio_devices_combo_box.itemText(1) == 'Background Music (UI Sounds)'
+        assert audio_devices_combo_box.itemText(2) == 'BlackHole 2ch'
+        assert audio_devices_combo_box.itemText(3) == 'MacBook Pro Microphone'
+        assert audio_devices_combo_box.itemText(4) == 'Null Audio Device'
 
-            audio_devices_combo_box = AudioDevicesComboBox()
-
-            assert audio_devices_combo_box.itemText(0) == 'Background Music'
-            assert audio_devices_combo_box.itemText(
-                1) == 'Background Music (UI Sounds)'
-            assert audio_devices_combo_box.itemText(2) == 'BlackHole 2ch'
-            assert audio_devices_combo_box.itemText(
-                3) == 'MacBook Pro Microphone'
-            assert audio_devices_combo_box.itemText(4) == 'Null Audio Device'
-
-            assert audio_devices_combo_box.currentText() == 'MacBook Pro Microphone'
+        assert audio_devices_combo_box.currentText() == 'MacBook Pro Microphone'
 
     def test_select_default_mic_when_no_default(self):
-        with patch('sounddevice.query_devices') as query_devices_mock:
-            query_devices_mock.return_value = mock_query_devices
+        sounddevice.default.device = -1, 1
 
-            sounddevice.default.device = -1, 1
-
-            audio_devices_combo_box = AudioDevicesComboBox()
-
-            assert audio_devices_combo_box.currentText() == 'Background Music'
+        audio_devices_combo_box = AudioDevicesComboBox()
+        assert audio_devices_combo_box.currentText() == 'Background Music'
 
 
 class TestDownloadModelProgressDialog:
@@ -385,38 +384,24 @@ class TestTranscriptionTasksTableWidget:
 
 class TestRecordingTranscriberWidget:
     def test_should_set_window_title(self, qtbot: QtBot):
-        with patch('sounddevice.query_devices') as query_devices_mock, \
-                patch('sounddevice.InputStream', side_effect=MockInputStream), \
-                patch('sounddevice.check_input_settings'):
-            query_devices_mock.return_value = mock_query_devices
-
-            sounddevice.default.device = 3, 4
-
-            widget = RecordingTranscriberWidget()
-            qtbot.add_widget(widget)
-            assert widget.windowTitle() == 'Live Recording'
+        widget = RecordingTranscriberWidget()
+        qtbot.add_widget(widget)
+        assert widget.windowTitle() == 'Live Recording'
 
     def test_should_transcribe(self, qtbot):
-        with patch('sounddevice.query_devices') as query_devices_mock, \
-                patch('sounddevice.InputStream', side_effect=MockInputStream), \
-                patch('sounddevice.check_input_settings'):
-            query_devices_mock.return_value = mock_query_devices
+        widget = RecordingTranscriberWidget()
+        qtbot.add_widget(widget)
 
-            sounddevice.default.device = 3, 4
+        def assert_text_box_contains_text():
+            assert len(widget.text_box.toPlainText()) > 0
 
-            widget = RecordingTranscriberWidget()
-            qtbot.add_widget(widget)
+        widget.record_button.click()
+        qtbot.wait_until(callback=assert_text_box_contains_text, timeout=60 * 1000)
 
-            def assert_text_box_contains_text():
-                assert len(widget.text_box.toPlainText()) > 0
+        with qtbot.wait_signal(widget.transcription_thread.finished, timeout=60 * 1000):
+            widget.stop_recording()
 
-            widget.record_button.click()
-            qtbot.wait_until(callback=assert_text_box_contains_text, timeout=60 * 1000)
-
-            with qtbot.wait_signal(widget.transcription_thread.finished, timeout=60 * 1000):
-                widget.stop_recording()
-
-            assert 'Welcome to Passe' in widget.text_box.toPlainText()
+        assert 'Welcome to Passe' in widget.text_box.toPlainText()
 
 
 class TestHuggingFaceSearchLineEdit:
