@@ -474,8 +474,11 @@ class RecordingTranscriberWidget(QWidget):
         STOPPED = auto()
         RECORDING = auto()
 
-    def __init__(self, parent: Optional[QWidget] = None, flags: Qt.WindowType = Qt.WindowType.Widget) -> None:
-        super().__init__(parent, flags)
+    def __init__(self, parent: Optional[QWidget] = None, flags: Optional[Qt.WindowType] = None) -> None:
+        super().__init__(parent)
+
+        if flags is not None:
+            self.setWindowFlags(flags)
 
         layout = QVBoxLayout(self)
 
