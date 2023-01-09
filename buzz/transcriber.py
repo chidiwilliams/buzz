@@ -350,6 +350,7 @@ class WhisperFileTranscriber(QObject):
         self.transcription_task = task
         self.segments = []
         self.started_process = False
+        self.stopped = False
 
     @pyqtSlot()
     def run(self):
@@ -361,8 +362,9 @@ class WhisperFileTranscriber(QObject):
 
         self.current_process = multiprocessing.Process(target=transcribe_whisper,
                                                        args=(send_pipe, self.transcription_task))
-        self.current_process.start()
-        self.started_process = True
+        if not self.stopped:
+            self.current_process.start()
+            self.started_process = True
 
         self.read_line_thread = Thread(
             target=self.read_line, args=(recv_pipe,))
@@ -385,6 +387,7 @@ class WhisperFileTranscriber(QObject):
             self.error.emit('Unknown error')
 
     def stop(self):
+        self.stopped = True
         if self.started_process:
             self.current_process.terminate()
 
@@ -585,7 +588,7 @@ class FileTranscriberQueueWorker(QObject):
 
     @pyqtSlot()
     def run(self):
-        logging.debug('Waiting for next file transcription task')
+        logging.debug('Waiting for next transcription task')
 
         # Waiting for new tasks in a loop instead of with queue.wait()
         # resolves a "No Python frame" crash when the thread is quit.
@@ -604,6 +607,8 @@ class FileTranscriberQueueWorker(QObject):
                 break
             except queue.Empty:
                 continue
+
+        logging.debug('Starting next transcription task')
 
         if self.current_task.transcription_options.model.model_type == ModelType.WHISPER_CPP:
             self.current_transcriber = WhisperCppFileTranscriber(
