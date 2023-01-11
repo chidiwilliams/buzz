@@ -154,7 +154,8 @@ class TestMainWindow:
         assert open_transcript_action.isEnabled() is False
 
         table_widget: QTableWidget = window.findChild(QTableWidget)
-        qtbot.wait_until(self.assert_task_status(table_widget, 0, 'Completed'), timeout=2 * 60 * 1000)
+
+        qtbot.wait_until(self.assert_task_status(table_widget, 0, 'Completed'), timeout=60 * 1000)
 
         table_widget.setCurrentIndex(table_widget.indexFromItem(table_widget.item(0, 1)))
         assert open_transcript_action.isEnabled()
@@ -172,7 +173,7 @@ class TestMainWindow:
             assert table_widget.item(0, 1).text() == 'whisper-french.mp3'
             assert 'In Progress' in table_widget.item(0, 2).text()
 
-        qtbot.wait_until(assert_task_in_progress, timeout=2 * 60 * 1000)
+        qtbot.wait_until(assert_task_in_progress, timeout=60 * 1000)
 
         # Stop task in progress
         table_widget.selectRow(0)
@@ -234,14 +235,14 @@ class TestMainWindow:
 
 class TestFileTranscriberWidget:
     def test_should_set_window_title(self, qtbot: QtBot):
-        widget = FileTranscriberWidget(
-            file_paths=['testdata/whisper-french.mp3'], parent=None)
+        widget = FileTranscriberWidget(network_access_manager=MockNetworkAccessManager(),
+                                       file_paths=['testdata/whisper-french.mp3'], parent=None)
         qtbot.add_widget(widget)
         assert widget.windowTitle() == 'whisper-french.mp3'
 
     def test_should_emit_triggered_event(self, qtbot: QtBot):
-        widget = FileTranscriberWidget(
-            file_paths=['testdata/whisper-french.mp3'], parent=None)
+        widget = FileTranscriberWidget(network_access_manager=MockNetworkAccessManager(),
+                                       file_paths=['testdata/whisper-french.mp3'], parent=None)
         qtbot.add_widget(widget)
 
         mock_triggered = Mock()
@@ -268,10 +269,12 @@ class TestAboutDialog:
         mock_message_box_information = Mock()
         QMessageBox.information = mock_message_box_information
 
-        with qtbot.wait_signal(dialog.network_access_manager.finished):
-            dialog.check_updates_button.click()
+        dialog.check_updates_button.click()
 
-        mock_message_box_information.assert_called_with(dialog, '', "You're up to date!")
+        def assert_message():
+            mock_message_box_information.assert_called_with(dialog, '', "You're up to date!")
+
+        qtbot.wait_until(assert_message)
 
 
 class TestAdvancedSettingsDialog:
@@ -386,12 +389,12 @@ class TestTranscriptionTasksTableWidget:
 
 class TestRecordingTranscriberWidget:
     def test_should_set_window_title(self, qtbot: QtBot):
-        widget = RecordingTranscriberWidget()
+        widget = RecordingTranscriberWidget(network_access_manager=MockNetworkAccessManager())
         qtbot.add_widget(widget)
         assert widget.windowTitle() == 'Live Recording'
 
     def test_should_transcribe(self, qtbot):
-        widget = RecordingTranscriberWidget()
+        widget = RecordingTranscriberWidget(network_access_manager=MockNetworkAccessManager())
         qtbot.add_widget(widget)
 
         def assert_text_box_contains_text():
@@ -414,17 +417,27 @@ class TestHuggingFaceSearchLineEdit:
         mock_model_selected = Mock()
         widget.model_selected.connect(mock_model_selected)
 
-        self._set_text_and_wait_response(qtbot, widget)
-        mock_model_selected.assert_called_with('openai/whisper-tiny')
+        widget.setText('openai/whisper-tiny')
+        widget.textEdited.emit('openai/whisper-tiny')
+
+        def assert_model_selected_called():
+            mock_model_selected.assert_called()
+            mock_model_selected.assert_called_with('openai/whisper-tiny')
+
+        qtbot.wait_until(assert_model_selected_called, timeout=30 * 6000)
 
     def test_should_show_list_of_models(self, qtbot: QtBot):
         widget = HuggingFaceSearchLineEdit(network_access_manager=self.network_access_manager())
         qtbot.add_widget(widget)
 
-        self._set_text_and_wait_response(qtbot, widget)
+        widget.setText('openai/whisper-tiny')
+        widget.textEdited.emit('openai/whisper-tiny')
 
-        assert widget.popup.count() > 0
-        assert 'openai/whisper-tiny' in widget.popup.item(0).text()
+        def assert_popup_item_added():
+            assert widget.popup.count() > 0
+            assert 'openai/whisper-tiny' in widget.popup.item(0).text()
+
+        qtbot.wait_until(assert_popup_item_added, timeout=30 * 6000)
 
     def test_should_select_model_from_list(self, qtbot: QtBot):
         widget = HuggingFaceSearchLineEdit(network_access_manager=self.network_access_manager())
@@ -433,7 +446,13 @@ class TestHuggingFaceSearchLineEdit:
         mock_model_selected = Mock()
         widget.model_selected.connect(mock_model_selected)
 
-        self._set_text_and_wait_response(qtbot, widget)
+        widget.setText('openai/whisper-tiny')
+        widget.textEdited.emit('openai/whisper-tiny')
+
+        def assert_popup_item_added():
+            assert widget.popup.count() > 0
+
+        qtbot.wait_until(assert_popup_item_added, timeout=30 * 6000)
 
         # press down arrow and enter to select next item
         QApplication.sendEvent(widget.popup,
@@ -448,16 +467,10 @@ class TestHuggingFaceSearchLineEdit:
         reply = MockNetworkReply(data=[{'id': 'openai/whisper-tiny'}, {'id': 'openai/whisper-tiny.en'}])
         return MockNetworkAccessManager(reply=reply)
 
-    @staticmethod
-    def _set_text_and_wait_response(qtbot: QtBot, widget: HuggingFaceSearchLineEdit):
-        with qtbot.wait_signal(widget.network_manager.finished):
-            widget.setText('openai/whisper-tiny')
-            widget.textEdited.emit('openai/whisper-tiny')
-
 
 class TestTranscriptionOptionsGroupBox:
     def test_should_update_model_type(self, qtbot):
-        widget = TranscriptionOptionsGroupBox()
+        widget = TranscriptionOptionsGroupBox(network_access_manager=MockNetworkAccessManager())
         qtbot.add_widget(widget)
 
         mock_transcription_options_changed = Mock()

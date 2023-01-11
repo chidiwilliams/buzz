@@ -227,7 +227,8 @@ class FileTranscriberWidget(QWidget):
     # (TranscriptionOptions, FileTranscriptionOptions, str)
     triggered = pyqtSignal(tuple)
 
-    def __init__(self, file_paths: List[str], parent: Optional[QWidget] = None,
+    def __init__(self, network_access_manager: QNetworkAccessManager, file_paths: List[str],
+                 parent: Optional[QWidget] = None,
                  flags: Qt.WindowType = Qt.WindowType.Widget) -> None:
         super().__init__(parent, flags)
 
@@ -240,8 +241,9 @@ class FileTranscriberWidget(QWidget):
 
         layout = QVBoxLayout(self)
 
-        transcription_options_group_box = TranscriptionOptionsGroupBox(
-            default_transcription_options=self.transcription_options, parent=self)
+        transcription_options_group_box = TranscriptionOptionsGroupBox(network_access_manager=network_access_manager,
+                                                                       default_transcription_options=self.transcription_options,
+                                                                       parent=self)
         transcription_options_group_box.transcription_options_changed.connect(
             self.on_transcription_options_changed)
 
@@ -474,7 +476,8 @@ class RecordingTranscriberWidget(QWidget):
         STOPPED = auto()
         RECORDING = auto()
 
-    def __init__(self, parent: Optional[QWidget] = None, flags: Optional[Qt.WindowType] = None) -> None:
+    def __init__(self, network_access_manager: QNetworkAccessManager, parent: Optional[QWidget] = None,
+                 flags: Optional[Qt.WindowType] = None) -> None:
         super().__init__(parent)
 
         if flags is not None:
@@ -500,8 +503,9 @@ class RecordingTranscriberWidget(QWidget):
         self.text_box = TextDisplayBox(self)
         self.text_box.setPlaceholderText(_('Click Record to begin...'))
 
-        transcription_options_group_box = TranscriptionOptionsGroupBox(
-            default_transcription_options=self.transcription_options, parent=self)
+        transcription_options_group_box = TranscriptionOptionsGroupBox(network_access_manager=network_access_manager,
+                                                                       default_transcription_options=self.transcription_options,
+                                                                       parent=self)
         transcription_options_group_box.transcription_options_changed.connect(
             self.on_transcription_options_changed)
 
@@ -691,8 +695,7 @@ class AboutDialog(QDialog):
     GITHUB_API_LATEST_RELEASE_URL = 'https://api.github.com/repos/chidiwilliams/buzz/releases/latest'
     GITHUB_LATEST_RELEASE_URL = 'https://github.com/chidiwilliams/buzz/releases/latest'
 
-    def __init__(self, network_access_manager: Optional[QNetworkAccessManager] = None,
-                 parent: Optional[QWidget] = None) -> None:
+    def __init__(self, network_access_manager: QNetworkAccessManager, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
 
         self.setFixedSize(200, 250)
@@ -700,11 +703,7 @@ class AboutDialog(QDialog):
         self.setWindowIcon(QIcon(BUZZ_ICON_PATH))
         self.setWindowTitle(f'{_("About")} {APP_NAME}')
 
-        if network_access_manager is None:
-            network_access_manager = QNetworkAccessManager()
-
         self.network_access_manager = network_access_manager
-        self.network_access_manager.finished.connect(self.on_latest_release_reply)
 
         layout = QVBoxLayout(self)
 
@@ -745,18 +744,21 @@ class AboutDialog(QDialog):
 
     def on_click_check_for_updates(self):
         url = QUrl(self.GITHUB_API_LATEST_RELEASE_URL)
-        self.network_access_manager.get(QNetworkRequest(url))
-        self.check_updates_button.setDisabled(True)
+        reply = self.network_access_manager.get(QNetworkRequest(url))
 
-    def on_latest_release_reply(self, reply: QNetworkReply):
-        if reply.error() == QNetworkReply.NetworkError.NoError:
-            response = json.loads(reply.readAll().data())
-            tag_name = response.get('name')
-            if self.is_version_lower(VERSION, tag_name[1:]):
-                QDesktopServices.openUrl(QUrl(self.GITHUB_LATEST_RELEASE_URL))
-            else:
-                QMessageBox.information(self, '', _("You're up to date!"))
-        self.check_updates_button.setEnabled(True)
+        def on_reply_finished():
+            if reply.error() == QNetworkReply.NetworkError.NoError:
+                response = json.loads(reply.readAll().data())
+                tag_name = response.get('name')
+                if self.is_version_lower(VERSION, tag_name[1:]):
+                    QDesktopServices.openUrl(QUrl(self.GITHUB_LATEST_RELEASE_URL))
+                else:
+                    QMessageBox.information(self, '', _("You're up to date!"))
+            self.check_updates_button.setEnabled(True)
+            reply.deleteLater()
+
+        reply.finished.connect(on_reply_finished)
+        self.check_updates_button.setDisabled(True)
 
     @staticmethod
     def is_version_lower(version_a: str, version_b: str):
@@ -847,8 +849,10 @@ class MainWindowToolbar(QToolBar):
     ICON_LIGHT_THEME_BACKGROUND = '#555'
     ICON_DARK_THEME_BACKGROUND = '#AAA'
 
-    def __init__(self, parent: Optional[QWidget]):
+    def __init__(self, network_access_manager: QNetworkAccessManager, parent: Optional[QWidget] = None):
         super().__init__(parent)
+
+        self.network_access_manager = network_access_manager
 
         record_action = QAction(self.load_icon(RECORD_ICON_PATH), _('Record'), self)
         record_action.triggered.connect(self.on_record_action_triggered)
@@ -906,7 +910,8 @@ class MainWindowToolbar(QToolBar):
         return QIcon(pixmap)
 
     def on_record_action_triggered(self):
-        recording_transcriber_window = RecordingTranscriberWidget(self, flags=Qt.WindowType.Window)
+        recording_transcriber_window = RecordingTranscriberWidget(network_access_manager=self.network_access_manager,
+                                                                  parent=self, flags=Qt.WindowType.Window)
         recording_transcriber_window.show()
 
     def set_stop_transcription_action_enabled(self, enabled: bool):
@@ -936,7 +941,9 @@ class MainWindow(QMainWindow):
         self.tasks = {}
         self.tasks_changed.connect(self.on_tasks_changed)
 
-        self.toolbar = MainWindowToolbar(self)
+        self.network_access_manager = QNetworkAccessManager()
+
+        self.toolbar = MainWindowToolbar(network_access_manager=self.network_access_manager, parent=self)
         self.toolbar.new_transcription_action_triggered.connect(self.on_new_transcription_action_triggered)
         self.toolbar.open_transcript_action_triggered.connect(self.on_open_transcript_action_triggered)
         self.toolbar.clear_history_action_triggered.connect(self.on_clear_history_action_triggered)
@@ -944,7 +951,7 @@ class MainWindow(QMainWindow):
         self.addToolBar(self.toolbar)
         self.setUnifiedTitleAndToolBarOnMac(True)
 
-        menu_bar = MenuBar(self)
+        menu_bar = MenuBar(self.network_access_manager, self)
         menu_bar.import_action_triggered.connect(
             self.on_new_transcription_action_triggered)
         self.setMenuBar(menu_bar)
@@ -1017,7 +1024,7 @@ class MainWindow(QMainWindow):
             return
 
         file_transcriber_window = FileTranscriberWidget(
-            file_paths, self, flags=Qt.WindowType.Window)
+            self.network_access_manager, file_paths, self, flags=Qt.WindowType.Window)
         file_transcriber_window.triggered.connect(
             self.on_file_transcriber_triggered)
         file_transcriber_window.show()
@@ -1105,8 +1112,7 @@ class HuggingFaceSearchLineEdit(LineEdit):
     model_selected = pyqtSignal(str)
     popup: QListWidget
 
-    def __init__(self, network_access_manager: Optional[QNetworkAccessManager] = None,
-                 parent: Optional[QWidget] = None):
+    def __init__(self, network_access_manager: QNetworkAccessManager, parent: Optional[QWidget] = None):
         super().__init__('', parent)
 
         self.setMinimumWidth(150)
@@ -1121,11 +1127,7 @@ class HuggingFaceSearchLineEdit(LineEdit):
         self.textEdited.connect(self.timer.start)
         self.textEdited.connect(self.on_text_edited)
 
-        if network_access_manager is None:
-            network_access_manager = QNetworkAccessManager(self)
-
         self.network_manager = network_access_manager
-        self.network_manager.finished.connect(self.on_request_response)
 
         self.popup = QListWidget()
         self.popup.setWindowFlags(Qt.WindowType.Popup)
@@ -1161,35 +1163,36 @@ class HuggingFaceSearchLineEdit(LineEdit):
 
         url.setQuery(query)
 
-        return self.network_manager.get(QNetworkRequest(url))
+        reply = self.network_manager.get(QNetworkRequest(url))
+
+        def on_reply_finished():
+            if reply.error() != QNetworkReply.NetworkError.NoError:
+                logging.debug('Error fetching Hugging Face models: %s', reply.error())
+                return
+
+            models = json.loads(reply.readAll().data())
+
+            self.popup.setUpdatesEnabled(False)
+            self.popup.clear()
+            for model in models:
+                model_id = model.get('id')
+                item = QListWidgetItem(self.popup)
+                item.setText(model_id)
+                item.setData(Qt.ItemDataRole.UserRole, model_id)
+
+            self.popup.setCurrentItem(self.popup.item(0))
+            self.popup.setFixedWidth(self.popup.sizeHintForColumn(0) + 20)
+            self.popup.setFixedHeight(
+                self.popup.sizeHintForRow(0) * min(len(models), 8))  # show max 8 models, then scroll
+            self.popup.setUpdatesEnabled(True)
+            self.popup.move(self.mapToGlobal(QPoint(0, self.height())))
+            self.popup.setFocus()
+            self.popup.show()
+
+        reply.finished.connect(on_reply_finished)
 
     def on_popup_selected(self):
         self.timer.stop()
-
-    def on_request_response(self, network_reply: QNetworkReply):
-        if network_reply.error() != QNetworkReply.NetworkError.NoError:
-            logging.debug('Error fetching Hugging Face models: %s', network_reply.error())
-            return
-
-        models = json.loads(network_reply.readAll().data())
-
-        self.popup.setUpdatesEnabled(False)
-        self.popup.clear()
-
-        for model in models:
-            model_id = model.get('id')
-
-            item = QListWidgetItem(self.popup)
-            item.setText(model_id)
-            item.setData(Qt.ItemDataRole.UserRole, model_id)
-
-        self.popup.setCurrentItem(self.popup.item(0))
-        self.popup.setFixedWidth(self.popup.sizeHintForColumn(0) + 20)
-        self.popup.setFixedHeight(self.popup.sizeHintForRow(0) * min(len(models), 8))  # show max 8 models, then scroll
-        self.popup.setUpdatesEnabled(True)
-        self.popup.move(self.mapToGlobal(QPoint(0, self.height())))
-        self.popup.setFocus()
-        self.popup.show()
 
     def eventFilter(self, target: QObject, event: QEvent):
         if hasattr(self, 'popup') is False or target != self.popup:
@@ -1227,7 +1230,8 @@ class TranscriptionOptionsGroupBox(QGroupBox):
     transcription_options: TranscriptionOptions
     transcription_options_changed = pyqtSignal(TranscriptionOptions)
 
-    def __init__(self, default_transcription_options: TranscriptionOptions = TranscriptionOptions(),
+    def __init__(self, network_access_manager: QNetworkAccessManager,
+                 default_transcription_options: TranscriptionOptions = TranscriptionOptions(),
                  parent: Optional[QWidget] = None):
         super().__init__(title='', parent=parent)
         self.transcription_options = default_transcription_options
@@ -1249,7 +1253,8 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.advanced_settings_button.clicked.connect(
             self.open_advanced_settings)
 
-        self.hugging_face_search_line_edit = HuggingFaceSearchLineEdit()
+        self.hugging_face_search_line_edit = HuggingFaceSearchLineEdit(network_access_manager=network_access_manager,
+                                                                       parent=self)
         self.hugging_face_search_line_edit.model_selected.connect(self.on_hugging_face_model_changed)
 
         self.model_type_combo_box = QComboBox(self)
@@ -1329,8 +1334,10 @@ class TranscriptionOptionsGroupBox(QGroupBox):
 class MenuBar(QMenuBar):
     import_action_triggered = pyqtSignal()
 
-    def __init__(self, parent: QWidget):
+    def __init__(self, network_access_manager: QNetworkAccessManager, parent: QWidget):
         super().__init__(parent)
+
+        self.network_access_manager = network_access_manager
 
         import_action = QAction(_("Import Media File..."), self)
         import_action.triggered.connect(
@@ -1350,7 +1357,7 @@ class MenuBar(QMenuBar):
         self.import_action_triggered.emit()
 
     def on_about_action_triggered(self):
-        about_dialog = AboutDialog(parent=self)
+        about_dialog = AboutDialog(parent=self, network_access_manager=self.network_access_manager)
         about_dialog.open()
 
 
