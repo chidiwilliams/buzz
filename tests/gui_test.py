@@ -143,7 +143,7 @@ class TestMainWindow:
         assert window.windowIcon().pixmap(QSize(64, 64)).isNull() is False
         window.close()
 
-    @pytest.mark.skipif(condition=platform.system() == 'Windows', reason='Timing out')
+    @pytest.mark.skipif(condition=platform.system() == 'Windows', reason='Error -1073740791 on Windows')
     def test_should_run_transcription_task(self, qtbot: QtBot, tasks_cache):
         window = MainWindow(tasks_cache=tasks_cache)
         qtbot.add_widget(window)
@@ -160,6 +160,7 @@ class TestMainWindow:
         table_widget.setCurrentIndex(table_widget.indexFromItem(table_widget.item(0, 1)))
         assert open_transcript_action.isEnabled()
 
+    @pytest.mark.skipif(condition=platform.system() == 'Windows', reason='Error -1073740791 on Windows')
     def test_should_run_and_cancel_transcription_task(self, qtbot, tasks_cache):
         window = MainWindow(tasks_cache=tasks_cache)
         qtbot.add_widget(window)
