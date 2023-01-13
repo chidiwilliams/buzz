@@ -67,9 +67,11 @@ jobs:
       - name: Test
         run: |
           if [ "$ARM" == "true" ]; then
+            echo "Running ARM=true"
             poetry run make whisper_cpp CMAKE_FLAGS="-DWHISPER_NO_AVX=ON -DWHISPER_NO_AVX2=ON -DWHISPER_NO_FMA=ON"
             poetry run make test
           else
+            echo "Running ARM=false"
             poetry run make test
           fi
         shell: bash

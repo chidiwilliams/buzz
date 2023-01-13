@@ -48,9 +48,9 @@ version:
 	echo "VERSION = \"${version}\"" > buzz/__version__.py
 	sed -i "" "s/version=.*,/version=\'${version_escaped}\',/" Buzz.spec
 
-# Allow caller to override CMAKE_FLAGS
-ifneq ($(CMAKE_FLAGS),)
 CMAKE_FLAGS=
+# Allow caller to override CMAKE_FLAGS
+ifeq ($(CMAKE_FLAGS),)
 	ifeq ($(UNAME_S),Darwin)
 		AVX1_M := $(shell sysctl machdep.cpu.features)
 		ifeq (,$(findstring AVX1.0,$(AVX1_M)))
