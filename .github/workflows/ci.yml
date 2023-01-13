@@ -72,6 +72,7 @@ jobs:
           else
             poetry run make test
           fi
+        shell: bash
         env:
           ARM: ${{ matrix.arm }}
 
