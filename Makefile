@@ -71,7 +71,6 @@ ifeq ($(CMAKE_FLAGS),)
 endif
 
 $(LIBWHISPER) whisper_cpp:
-	echo $(CMAKE_FLAGS)
 	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS)
 	cmake --build whisper.cpp/build --verbose
 	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) . || true
