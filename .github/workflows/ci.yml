@@ -73,7 +73,7 @@ jobs:
             poetry run make test
           fi
         env:
-          ARM: ${{ runner.arm }}
+          ARM: ${{ matrix.arm }}
 
       - name: Upload coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@v3
