@@ -48,26 +48,30 @@ version:
 	echo "VERSION = \"${version}\"" > buzz/__version__.py
 	sed -i "" "s/version=.*,/version=\'${version_escaped}\',/" Buzz.spec
 
+# Allow caller to override CMAKE_FLAGS
+ifneq ($(CMAKE_FLAGS),)
 CMAKE_FLAGS=
-ifeq ($(UNAME_S),Darwin)
-	AVX1_M := $(shell sysctl machdep.cpu.features)
-	ifeq (,$(findstring AVX1.0,$(AVX1_M)))
-		CMAKE_FLAGS += -DWHISPER_NO_AVX=ON
-	endif
-	ifeq (,$(findstring FMA,$(AVX1_M)))
-		CMAKE_FLAGS += -DWHISPER_NO_FMA=ON
-	endif
-	AVX2_M := $(shell sysctl machdep.cpu.leaf7_features)
-	ifeq (,$(findstring AVX2,$(AVX2_M)))
-		CMAKE_FLAGS += -DWHISPER_NO_AVX2=ON
-	endif
-else
-	ifeq ($(OS), Windows_NT)
-		CMAKE_FLAGS += -DBUILD_SHARED_LIBS=ON
+	ifeq ($(UNAME_S),Darwin)
+		AVX1_M := $(shell sysctl machdep.cpu.features)
+		ifeq (,$(findstring AVX1.0,$(AVX1_M)))
+			CMAKE_FLAGS += -DWHISPER_NO_AVX=ON
+		endif
+		ifeq (,$(findstring FMA,$(AVX1_M)))
+			CMAKE_FLAGS += -DWHISPER_NO_FMA=ON
+		endif
+		AVX2_M := $(shell sysctl machdep.cpu.leaf7_features)
+		ifeq (,$(findstring AVX2,$(AVX2_M)))
+			CMAKE_FLAGS += -DWHISPER_NO_AVX2=ON
+		endif
+	else
+		ifeq ($(OS), Windows_NT)
+			CMAKE_FLAGS += -DBUILD_SHARED_LIBS=ON
+		endif
 	endif
 endif
 
 $(LIBWHISPER) whisper_cpp:
+	echo $(CMAKE_FLAGS)
 	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS)
 	cmake --build whisper.cpp/build --verbose
 	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) . || true

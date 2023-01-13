@@ -20,6 +20,8 @@ jobs:
       matrix:
         include:
           - os: macos-latest
+          - os: macos-latest
+            arm: true
           - os: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -63,7 +65,15 @@ jobs:
         run: poetry config experimental.new-installer false && poetry install
 
       - name: Test
-        run: poetry run make test
+        run: |
+          if [ "$ARM" == "true" ]; then
+            poetry run make whisper_cpp CMAKE_FLAGS="-DWHISPER_NO_AVX=ON -DWHISPER_NO_AVX2=ON -DWHISPER_NO_FMA=ON"
+            poetry run make test
+          else
+            poetry run make test
+          fi
+        env:
+          ARM: ${{ runner.arm }}
 
       - name: Upload coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@v3
