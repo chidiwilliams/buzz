@@ -171,7 +171,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: Buzz-${{ runner.os }}
+          name: Buzz-${{ runner.os }}-${{ matrix.arm }}
           path: |
             dist/Buzz*-windows.tar.gz
             dist/Buzz*-windows.exe
