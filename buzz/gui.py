@@ -4,7 +4,7 @@ import json
 import logging
 import os
 import platform
-import random
+import subprocess
 import sys
 from datetime import datetime
 from enum import auto
@@ -30,6 +30,7 @@ from whisper import tokenizer
 from buzz.cache import TasksCache
 from .__version__ import VERSION
 from .model_loader import ModelLoader, WhisperModelSize, ModelType, TranscriptionModel
+from .path import resolve_path
 from .recording import RecordingAmplitudeListener
 from .transcriber import (SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
                           Task,
@@ -39,18 +40,11 @@ from .transcriber import (SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, Ou
 
 APP_NAME = 'Buzz'
 
-
-def get_asset_path(path: str):
-    if getattr(sys, 'frozen', False):
-        return os.path.join(os.path.dirname(sys.executable), path)
-    return os.path.join(os.path.dirname(__file__), '..', path)
-
-
 if 'LANG' not in os.environ:
     language = str(QLocale().uiLanguages()[0]).replace("-", "_")
     os.environ['LANG'] = language
 
-locale_dir = get_asset_path('locale')
+locale_dir = resolve_path('locale')
 gettext.bindtextdomain('buzz', locale_dir)
 
 translate = gettext.translation(APP_NAME, locale_dir, fallback=True)
@@ -678,13 +672,13 @@ class RecordingTranscriberWidget(QWidget):
         return super().closeEvent(event)
 
 
-BUZZ_ICON_PATH = get_asset_path('assets/buzz.ico')
-BUZZ_LARGE_ICON_PATH = get_asset_path('assets/buzz-icon-1024.png')
-RECORD_ICON_PATH = get_asset_path('assets/mic_FILL0_wght700_GRAD0_opsz48.svg')
-EXPAND_ICON_PATH = get_asset_path('assets/open_in_full_FILL0_wght700_GRAD0_opsz48.svg')
-ADD_ICON_PATH = get_asset_path('assets/add_FILL0_wght700_GRAD0_opsz48.svg')
-TRASH_ICON_PATH = get_asset_path('assets/delete_FILL0_wght700_GRAD0_opsz48.svg')
-CANCEL_ICON_PATH = get_asset_path('assets/cancel_FILL0_wght700_GRAD0_opsz48.svg')
+BUZZ_ICON_PATH = resolve_path('assets/buzz.ico')
+BUZZ_LARGE_ICON_PATH = resolve_path('assets/buzz-icon-1024.png')
+RECORD_ICON_PATH = resolve_path('assets/mic_FILL0_wght700_GRAD0_opsz48.svg')
+EXPAND_ICON_PATH = resolve_path('assets/open_in_full_FILL0_wght700_GRAD0_opsz48.svg')
+ADD_ICON_PATH = resolve_path('assets/add_FILL0_wght700_GRAD0_opsz48.svg')
+TRASH_ICON_PATH = resolve_path('assets/delete_FILL0_wght700_GRAD0_opsz48.svg')
+CANCEL_ICON_PATH = resolve_path('assets/cancel_FILL0_wght700_GRAD0_opsz48.svg')
 
 
 class AboutDialog(QDialog):
@@ -1359,6 +1353,12 @@ class Application(QApplication):
 
     def __init__(self) -> None:
         super().__init__(sys.argv)
+
+        try:
+            output = subprocess.check_output([resolve_path('whisper_cpp')])
+            logging.debug(f'output: {output}')
+        except:
+            logging.exception('')
 
         self.window = MainWindow()
         self.window.show()
