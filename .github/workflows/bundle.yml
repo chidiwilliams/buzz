@@ -112,11 +112,7 @@ jobs:
           # store notarytool credentials
           xcrun notarytool store-credentials --apple-id "$APPLE_ID" --password "$APPLE_APP_PASSWORD" --team-id "$APPLE_TEAM_ID" notarytool --validate
           
-          if [[ ${{ matrix.cpu }} == "arm" ]]; then
-            poetry run make whisper_cpp CMAKE_FLAGS="-DWHISPER_NO_AVX=ON -DWHISPER_NO_AVX2=ON -DWHISPER_NO_FMA=ON";
-          fi
-          
-          poetry run make bundle_mac
+          poetry run make bundle_mac cpu=${{ matrix.cpu }}
         env:
           BUZZ_CODESIGN_IDENTITY: ${{ secrets.BUZZ_CODESIGN_IDENTITY }}
           BUZZ_KEYCHAIN_NOTARY_PROFILE: ${{ secrets.BUZZ_KEYCHAIN_NOTARY_PROFILE }}

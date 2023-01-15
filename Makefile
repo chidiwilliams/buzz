@@ -3,7 +3,9 @@ version_escaped := $$(echo ${version} | sed -e 's/\./\\./g')
 
 mac_app_path := ./dist/Buzz.app
 mac_zip_path := ./dist/Buzz-${version}-mac.zip
-mac_dmg_path := ./dist/Buzz-${version}-mac.dmg
+
+cpu = intel
+mac_dmg_path := ./dist/Buzz-${version}-mac-${cpu}.dmg
 
 unix_zip_path := Buzz-${version}-unix.tar.gz
 
@@ -54,8 +56,10 @@ version:
 
 CMAKE_FLAGS=
 # Allow caller to override CMAKE_FLAGS
-ifeq ($(CMAKE_FLAGS),)
-	ifeq ($(UNAME_S),Darwin)
+ifeq ($(UNAME_S),Darwin)
+	ifeq ($(cpu),arm)
+		CMAKE_FLAGS += -DWHISPER_NO_AVX=ON -DWHISPER_NO_AVX2=ON -DWHISPER_NO_FMA=ON
+	else
 		AVX1_M := $(shell sysctl machdep.cpu.features)
 		ifeq (,$(findstring AVX1.0,$(AVX1_M)))
 			CMAKE_FLAGS += -DWHISPER_NO_AVX=ON
@@ -67,10 +71,10 @@ ifeq ($(CMAKE_FLAGS),)
 		ifeq (,$(findstring AVX2,$(AVX2_M)))
 			CMAKE_FLAGS += -DWHISPER_NO_AVX2=ON
 		endif
-	else
-		ifeq ($(OS), Windows_NT)
-			CMAKE_FLAGS += -DBUILD_SHARED_LIBS=ON
-		endif
+	endif
+else
+	ifeq ($(OS), Windows_NT)
+		CMAKE_FLAGS += -DBUILD_SHARED_LIBS=ON
 	endif
 endif
 
