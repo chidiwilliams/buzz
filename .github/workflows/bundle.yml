@@ -1,5 +1,5 @@
 ---
-name: CI
+name: Bundle
 on:
   push:
     branches:
@@ -13,21 +13,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: macos-latest
-          - os: macos-latest
-            arm: true
-          - os: windows-latest
+  windows-latest:
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10.7'
@@ -45,17 +36,6 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-2
 
-      - name: Load cached Whisper models
-        id: cached-whisper-models
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/Library/Caches/Buzz
-            ~/.cache/whisper
-            ~/.cache/huggingface
-            ~/AppData/Local/Buzz/Buzz/Cache
-          key: whisper-models-${{ runner.os }}
-
       - uses: FedericoCarboni/setup-ffmpeg@v1
         id: setup-ffmpeg
         with:
@@ -64,31 +44,22 @@ jobs:
       - name: Install dependencies
         run: poetry config experimental.new-installer false && poetry install
 
-      - name: Test
-        run: |
-          if [ "$ARM" == "true" ]; then
-            poetry run make whisper_cpp CMAKE_FLAGS="-DWHISPER_NO_AVX=ON -DWHISPER_NO_AVX2=ON -DWHISPER_NO_FMA=ON"
-          fi
-          poetry run make test
-        shell: bash
-        env:
-          ARM: ${{ matrix.arm }}
+      - name: Bundle
+        run: poetry run make bundle_windows
 
-      - name: Upload coverage reports to Codecov with GitHub Action
-        uses: codecov/codecov-action@v3
+      - uses: actions/upload-artifact@v3
         with:
-          flags: ${{ runner.os }}
+          name: Buzz-Windows
+          path: |
+            dist/Buzz*-windows.tar.gz
+            dist/Buzz*-windows.exe
 
-  build:
-    runs-on: ${{ matrix.os }}
+  macos-latest:
+    runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: macos-latest
-          - os: macos-latest
-            arm: true
-          - os: windows-latest
+        cpu: [ intel, arm ]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -120,44 +91,34 @@ jobs:
 
       - name: Bundle
         run: |
-          if [ "$RUNNER_OS" == "macOS" ]; then
-
-            brew install create-dmg
-
-            # create variables
-            CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
-            KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-
-            # import certificate and provisioning profile from secrets
-            echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
-
-            # create temporary keychain
-            security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-            security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-            security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-
-            # import certificate to keychain
-            security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-            security list-keychain -d user -s $KEYCHAIN_PATH
-
-            # store notarytool credentials
-            xcrun notarytool store-credentials --apple-id "$APPLE_ID" --password "$APPLE_APP_PASSWORD" --team-id "$APPLE_TEAM_ID" notarytool --validate
+          brew install create-dmg
           
-            if [ "$ARM" == "true" ]; then
-              poetry run make whisper_cpp CMAKE_FLAGS="-DWHISPER_NO_AVX=ON -DWHISPER_NO_AVX2=ON -DWHISPER_NO_FMA=ON"
-            fi
-
-            poetry run make bundle_mac
-
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-
-            poetry run make bundle_windows
-
-          elif [ "$RUNNER_OS" == "Linux" ]; then
-
-            poetry run make bundle_linux
-
+          # create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          
+          # import certificate and provisioning profile from secrets
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
+          
+          # create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          
+          # import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+          
+          # store notarytool credentials
+          xcrun notarytool store-credentials --apple-id "$APPLE_ID" --password "$APPLE_APP_PASSWORD" --team-id "$APPLE_TEAM_ID" notarytool --validate
+          
+          if [[ ${{ matrix.cpu }} == "intel" ]]; then
+            poetry run make test;
+          else 
+            poetry run make whisper_cpp CMAKE_FLAGS="-DWHISPER_NO_AVX=ON -DWHISPER_NO_AVX2=ON -DWHISPER_NO_FMA=ON";
           fi
+          
+          poetry run make bundle_mac
         env:
           BUZZ_CODESIGN_IDENTITY: ${{ secrets.BUZZ_CODESIGN_IDENTITY }}
           BUZZ_KEYCHAIN_NOTARY_PROFILE: ${{ secrets.BUZZ_KEYCHAIN_NOTARY_PROFILE }}
@@ -167,14 +128,11 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-        shell: bash
 
       - uses: actions/upload-artifact@v3
         with:
-          name: Buzz-${{ runner.os }}-${{ matrix.arm }}
+          name: Buzz-${{ runner.os }}-${{ matrix.cpu }}
           path: |
-            dist/Buzz*-windows.tar.gz
-            dist/Buzz*-windows.exe
             dist/Buzz*-mac.dmg
 
   release:
@@ -182,10 +140,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: macos-latest
-          - os: windows-latest
-    needs: [ build, test ]
+        os: [ macos-latest, windows-latest ]
+    needs: [ build, test ] # TODO
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v3

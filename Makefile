@@ -42,6 +42,10 @@ test: buzz/whisper_cpp.py translation_mo
 
 dist/Buzz dist/Buzz.app: buzz/whisper_cpp.py translation_mo
 	pyinstaller --noconfirm Buzz.spec
+	# Add @executable_path as an rpath to the binary so it can pick up libwhisper shared library
+ifeq ($(UNAME_S),Darwin)
+	install_name_tool -add_rpath @executable_path/. dist/Buzz.app/Contents/Resources/whisper_cpp
+endif
 
 version:
 	poetry version ${version}
