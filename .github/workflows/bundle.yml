@@ -127,7 +127,7 @@ jobs:
         with:
           name: Buzz-${{ runner.os }}-${{ matrix.cpu }}
           path: |
-            dist/Buzz*-mac.dmg
+            dist/Buzz-*.dmg
 
   release:
     runs-on: ${{ matrix.os }}
@@ -155,7 +155,7 @@ jobs:
           files: |
             Buzz*-windows.tar.gz
             Buzz*-windows.exe
-            Buzz*-mac.dmg
+            Buzz-*.dmg
 
   deploy_brew_cask:
     runs-on: macos-latest
