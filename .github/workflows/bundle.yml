@@ -141,7 +141,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ macos-latest, windows-latest ]
-    needs: [ build, test ] # TODO
+    needs: [ windows-latest, macos-latest ] # TODO
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v3

@@ -65,8 +65,10 @@ jobs:
 
   macos-latest:
     runs-on: macos-latest
-    matrix:
-      cpu: [ intel, arm ]
+    strategy:
+      fail-fast: false
+      matrix:
+        cpu: [ intel, arm ]
     steps:
       - uses: actions/checkout@v3
         with:
