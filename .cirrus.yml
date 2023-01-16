@@ -66,5 +66,7 @@ build_task:
   build_script:
     - source ~/.zshrc
     - source .venv/bin/activate
+    - echo $PATH
+    - ls .venv/bin
     - brew install create-dmg
     - poetry run make bundle_mac
