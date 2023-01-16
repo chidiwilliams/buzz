@@ -1,5 +1,18 @@
 macos_instance:
   image: ghcr.io/cirruslabs/macos-ventura-base:latest
 
-task:
-  script: echo "Hello World from macOS!"
+test_task:
+  name: Test
+
+  env:
+    PATH: $HOME/miniconda3/bin/:$PATH
+    PY_VER: "3.10.7"
+
+  #  conda_script:
+  #    - wget  --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O ~/miniconda.sh
+  #    - bash ~/miniconda.sh -b -p $HOME/miniconda3
+  #    - conda install --yes --file requirements.txt python=$PY_VER
+  #    - conda list
+  #
+  poetry_script:
+    - curl -sSL https://install.python-poetry.org | python3 -
