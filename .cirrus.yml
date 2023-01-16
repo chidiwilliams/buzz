@@ -63,7 +63,7 @@ build_task:
 
   build_script:
     - poetry install
-    - poetry shell
+    - source .venv/bin/activate
     - ctypesgen
     - brew install create-dmg
     - poetry run make bundle_mac
