@@ -15,10 +15,10 @@ test_task:
   #    - conda list
   #
   pyenv_script:
+    - which python3
     - brew update
     - brew install pyenv
     - pyenv install 3.10.7
     - pyenv global 3.10.7
-
-  poetry_script:
+    - which python3
     - curl -sSL https://install.python-poetry.org | python3 -
