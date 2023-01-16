@@ -36,11 +36,14 @@ test_task:
       - source ~/.zshrc
       - poetry install
 
+  whisper_cpp_cache:
+    folder: $HOME/Library/Caches/Buzz
+
   whisper_cache:
-    folders:
-      - $HOME/Library/Caches/Buzz
-      - $HOME/.cache/whisper
-      - $HOME/.cache/huggingface
+    folder: $HOME/.cache/whisper
+
+  huggingface_cache:
+    folder: $HOME/.cache/huggingface
 
   test_script:
     - source ~/.zshrc
