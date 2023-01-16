@@ -1,9 +1,7 @@
 macos_instance:
   image: ghcr.io/cirruslabs/macos-ventura-base:latest
 
-test_task:
-  name: Test
-
+setup_dependencies_template: &SETUP_DEPENDENCIES_TEMPLATE
   env:
     PYTHON_VERSION: "3.10.7"
 
@@ -23,8 +21,11 @@ test_task:
   poetry_script:
     - source ~/.zshrc
     - curl -sSL https://install.python-poetry.org | python3 -
-    - poetry config experimental.new-installer false && poetry config virtualenvs.create true && poetry config virtualenvs.in-project true
     - echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+    - source ~/.zshrc
+    - poetry config experimental.new-installer false
+    - poetry config virtualenvs.create true
+    - poetry config virtualenvs.in-project true
 
   ffmpeg_script:
     - brew install ffmpeg
@@ -45,9 +46,24 @@ test_task:
   huggingface_cache:
     folder: $HOME/.cache/huggingface
 
+test_task:
+  name: Test
+
+  <<: *SETUP_DEPENDENCIES_TEMPLATE
+
   test_script:
     - source ~/.zshrc
     - poetry run make test
 
   coverage_artifacts:
     path: coverage.xml
+
+build_task:
+  name: Build
+
+  <<: *SETUP_DEPENDENCIES_TEMPLATE
+
+  build_script:
+    - source ~/.zshrc
+    - brew install create-dmg
+    - poetry run make bundle_mac
