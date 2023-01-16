@@ -283,8 +283,10 @@ class WhisperCppFileTranscriber(QObject):
         if status == QProcess.ExitStatus.NormalExit:
             self.progress.emit(
                 (self.duration_audio_ms, self.duration_audio_ms))
+            self.completed.emit(self.segments)
+        else:
+            self.error.emit('Unknown error')
 
-        self.completed.emit(self.segments)
         self.running = False
 
     def stop(self):
