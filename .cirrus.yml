@@ -4,6 +4,7 @@ macos_instance:
 setup_dependencies_template: &SETUP_DEPENDENCIES_TEMPLATE
   env:
     PYTHON_VERSION: "3.10.7"
+    PATH: /.local/bin:${PATH}
 
   submodules_script:
     - git submodule init
@@ -22,7 +23,6 @@ setup_dependencies_template: &SETUP_DEPENDENCIES_TEMPLATE
     - source ~/.zshrc
     - curl -sSL https://install.python-poetry.org | python3 -
     - echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
-    - source ~/.zshrc
     - poetry config experimental.new-installer false
     - poetry config virtualenvs.create true
     - poetry config virtualenvs.in-project true
@@ -34,7 +34,6 @@ setup_dependencies_template: &SETUP_DEPENDENCIES_TEMPLATE
     folder: .venv
     fingerprint_script: cat poetry.lock
     populate_script:
-      - source ~/.zshrc
       - poetry install
 
   whisper_cpp_cache:
@@ -64,8 +63,6 @@ build_task:
   <<: *SETUP_DEPENDENCIES_TEMPLATE
 
   build_script:
-    - source ~/.zshrc
-    - source .venv/bin/activate
-    - ctypesgen
+    - poetry run ctypesgen
     - brew install create-dmg
     - poetry run make bundle_mac
