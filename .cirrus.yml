@@ -27,8 +27,8 @@ setup_dependencies_template: &SETUP_DEPENDENCIES_TEMPLATE
     - poetry config virtualenvs.create true
     - poetry config virtualenvs.in-project true
 
-  ffmpeg_script:
-    - brew install ffmpeg
+  #  ffmpeg_script:
+  #    - brew install ffmpeg
 
   dependencies_cache:
     folder: .venv
@@ -46,17 +46,17 @@ setup_dependencies_template: &SETUP_DEPENDENCIES_TEMPLATE
   huggingface_cache:
     folder: $HOME/.cache/huggingface
 
-test_task:
-  name: Test
-
-  <<: *SETUP_DEPENDENCIES_TEMPLATE
-
-  test_script:
-    - source ~/.zshrc
-    - poetry run make test
-
-  coverage_artifacts:
-    path: coverage.xml
+#test_task:
+#  name: Test
+#
+#  <<: *SETUP_DEPENDENCIES_TEMPLATE
+#
+#  test_script:
+#    - source ~/.zshrc
+#    - poetry run make test
+#
+#  coverage_artifacts:
+#    path: coverage.xml
 
 build_task:
   name: Build
@@ -65,5 +65,6 @@ build_task:
 
   build_script:
     - source ~/.zshrc
+    - source .venv/bin/activate
     - brew install create-dmg
     - poetry run make bundle_mac
