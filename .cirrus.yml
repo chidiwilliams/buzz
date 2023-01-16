@@ -16,18 +16,19 @@ test_task:
     - echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.zshrc
     - echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
     - echo 'eval "$(pyenv init -)"' >> ~/.zshrc
-    - source ~/.zshrc
 
   poetry_script:
+    - source ~/.zshrc
     - curl -sSL https://install.python-poetry.org | python -
     - echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
-    - source ~/.zshrc
 
   ffmpeg_script:
     - brew install ffmpeg
 
   dependencies_script:
+    - source ~/.zshrc
     - poetry config experimental.new-installer false && poetry install
 
   test_script:
+    - source ~/.zshrc
     - poetry run make test
