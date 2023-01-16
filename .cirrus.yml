@@ -12,7 +12,6 @@ test_task:
     - git submodule update
 
   python_script:
-    - echo $PYTHON_VERSION
     - brew update
     - brew install pyenv
     - pyenv install $PYTHON_VERSION
@@ -24,14 +23,24 @@ test_task:
   poetry_script:
     - source ~/.zshrc
     - curl -sSL https://install.python-poetry.org | python3 -
+    - poetry config experimental.new-installer false && poetry config virtualenvs.create true && poetry config virtualenvs.in-project true
     - echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
 
   ffmpeg_script:
     - brew install ffmpeg
 
-  dependencies_script:
-    - source ~/.zshrc
-    - poetry config experimental.new-installer false && poetry install
+  dependencies_cache:
+    folder: .venv
+    fingerprint_script: cat poetry.lock
+    populate_script:
+      - source ~/.zshrc
+      - poetry install
+
+  whisper_cache:
+    folders:
+      - $HOME/Library/Caches/Buzz
+      - $HOME/.cache/whisper
+      - $HOME/.cache/huggingface
 
   test_script:
     - source ~/.zshrc
