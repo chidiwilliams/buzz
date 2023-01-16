@@ -1,9 +1,5 @@
-arm_container:
-  image: node:latest
+macos_instance:
+  image: ghcr.io/cirruslabs/macos-ventura-base:latest
 
-check_task:
-  node_modules_cache:
-    folder: node_modules
-    fingerprint_script: cat yarn.lock
-    populate_script: yarn install
-  test_script: yarn test
+task:
+  script: echo "Hello World from macOS!"
