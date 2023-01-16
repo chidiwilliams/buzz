@@ -21,6 +21,11 @@ test_task:
     - brew install pyenv
     - pyenv install 3.10.7
     - pyenv global 3.10.7
-    - which python
-    - python --version
+    - echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.zshrc
+    - echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
+    - echo 'eval "$(pyenv init -)"' >> ~/.zshrc
+    - exec "$SHELL"
+    - which python3
+    - which python3.10
+    - python3 --version
     - curl -sSL https://install.python-poetry.org | python -
