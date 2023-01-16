@@ -29,11 +29,11 @@ setup_dependencies_template: &SETUP_DEPENDENCIES_TEMPLATE
   #  ffmpeg_script:
   #    - brew install ffmpeg
 
-  dependencies_cache:
-    folder: .venv
-    fingerprint_script: cat poetry.lock
-    populate_script:
-      - poetry install
+  #  dependencies_cache:
+  #    folder: .venv
+  #    fingerprint_script: cat poetry.lock
+  #    populate_script:
+  #      - poetry install
 
   whisper_cpp_cache:
     folder: $HOME/Library/Caches/Buzz
@@ -62,8 +62,7 @@ build_task:
   <<: *SETUP_DEPENDENCIES_TEMPLATE
 
   build_script:
-    - source ~/.zshrc
-    - poetry shell
+    - poetry install
     - ctypesgen
     - brew install create-dmg
     - poetry run make bundle_mac
