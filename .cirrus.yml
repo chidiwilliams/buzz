@@ -5,18 +5,18 @@ test_task:
   name: Test
 
   env:
-    PATH: $HOME/miniconda3/bin/:$PATH
-    PY_VER: "3.10.7"
+    PYTHON_VERSION: "3.10.7"
 
   submodules_script:
     - git submodule init
     - git submodule update
 
   python_script:
+    - echo $PYTHON_VERSION
     - brew update
     - brew install pyenv
-    - pyenv install $PV_VER
-    - pyenv global $PV_VER
+    - pyenv install $PYTHON_VERSION
+    - pyenv global $PYTHON_VERSION
     - echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.zshrc
     - echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
     - echo 'eval "$(pyenv init -)"' >> ~/.zshrc

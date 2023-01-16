@@ -56,7 +56,6 @@ version:
 	sed -i "" "s/version=.*,/version=\'${version_escaped}\',/" Buzz.spec
 
 CMAKE_FLAGS=
-# Allow caller to override CMAKE_FLAGS
 ifeq ($(UNAME_S),Darwin)
 	AVX1_M := $(shell sysctl machdep.cpu.features)
 	ifeq (,$(findstring AVX1.0,$(AVX1_M)))
