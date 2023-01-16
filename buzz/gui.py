@@ -4,7 +4,6 @@ import json
 import logging
 import os
 import platform
-import subprocess
 import sys
 from datetime import datetime
 from enum import auto
@@ -1353,12 +1352,6 @@ class Application(QApplication):
 
     def __init__(self) -> None:
         super().__init__(sys.argv)
-
-        try:
-            output = subprocess.check_output([resolve_path('whisper_cpp')])
-            logging.debug(f'output: {output}')
-        except:
-            logging.exception('')
 
         self.window = MainWindow()
         self.window.show()

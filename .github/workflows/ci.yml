@@ -1,5 +1,5 @@
 ---
-name: Bundle
+name: CI
 on:
   push:
     branches:
@@ -13,12 +13,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  windows-latest:
-    runs-on: windows-latest
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+          - os: windows-latest
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
+
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10.7'
@@ -36,6 +43,17 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-2
 
+      - name: Load cached Whisper models
+        id: cached-whisper-models
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/Library/Caches/Buzz
+            ~/.cache/whisper
+            ~/.cache/huggingface
+            ~/AppData/Local/Buzz/Buzz/Cache
+          key: whisper-models-${{ runner.os }}
+
       - uses: FedericoCarboni/setup-ffmpeg@v1
         id: setup-ffmpeg
         with:
@@ -44,22 +62,22 @@ jobs:
       - name: Install dependencies
         run: poetry config experimental.new-installer false && poetry install
 
-      - name: Bundle
-        run: poetry run make bundle_windows
+      - name: Test
+        run: poetry run make test
 
-      - uses: actions/upload-artifact@v3
+      - name: Upload coverage reports to Codecov with GitHub Action
+        uses: codecov/codecov-action@v3
         with:
-          name: Buzz-Windows
-          path: |
-            dist/Buzz*-windows.tar.gz
-            dist/Buzz*-windows.exe
+          flags: ${{ runner.os }}
 
-  macos-latest:
-    runs-on: macos-latest
+  build:
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        cpu: [ intel, arm ]
+        include:
+          - os: macos-latest
+          - os: windows-latest
     steps:
       - uses: actions/checkout@v3
         with:
@@ -91,28 +109,40 @@ jobs:
 
       - name: Bundle
         run: |
-          brew install create-dmg
-          
-          # create variables
-          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
-          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-          
-          # import certificate and provisioning profile from secrets
-          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
-          
-          # create temporary keychain
-          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          
-          # import certificate to keychain
-          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security list-keychain -d user -s $KEYCHAIN_PATH
-          
-          # store notarytool credentials
-          xcrun notarytool store-credentials --apple-id "$APPLE_ID" --password "$APPLE_APP_PASSWORD" --team-id "$APPLE_TEAM_ID" notarytool --validate
-          
-          poetry run make bundle_mac cpu=${{ matrix.cpu }}
+          if [ "$RUNNER_OS" == "macOS" ]; then
+
+            brew install create-dmg
+
+            # create variables
+            CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+            KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+            # import certificate and provisioning profile from secrets
+            echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
+
+            # create temporary keychain
+            security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+            security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+            security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+            # import certificate to keychain
+            security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+            security list-keychain -d user -s $KEYCHAIN_PATH
+
+            # store notarytool credentials
+            xcrun notarytool store-credentials --apple-id "$APPLE_ID" --password "$APPLE_APP_PASSWORD" --team-id "$APPLE_TEAM_ID" notarytool --validate
+
+            poetry run make bundle_mac
+
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+
+            poetry run make bundle_windows
+
+          elif [ "$RUNNER_OS" == "Linux" ]; then
+
+            poetry run make bundle_linux
+
+          fi
         env:
           BUZZ_CODESIGN_IDENTITY: ${{ secrets.BUZZ_CODESIGN_IDENTITY }}
           BUZZ_KEYCHAIN_NOTARY_PROFILE: ${{ secrets.BUZZ_KEYCHAIN_NOTARY_PROFILE }}
@@ -122,20 +152,25 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        shell: bash
 
       - uses: actions/upload-artifact@v3
         with:
-          name: Buzz-${{ runner.os }}-${{ matrix.cpu }}
+          name: Buzz-${{ runner.os }}
           path: |
-            dist/Buzz-*.dmg
+            dist/Buzz*-windows.tar.gz
+            dist/Buzz*-windows.exe
+            dist/Buzz*-mac.dmg
 
   release:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-latest, windows-latest ]
-    needs: [ windows-latest, macos-latest ]
+        include:
+          - os: macos-latest
+          - os: windows-latest
+    needs: [ build, test ]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v3
@@ -155,7 +190,7 @@ jobs:
           files: |
             Buzz*-windows.tar.gz
             Buzz*-windows.exe
-            Buzz-*.dmg
+            Buzz*-mac.dmg
 
   deploy_brew_cask:
     runs-on: macos-latest

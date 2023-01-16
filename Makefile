@@ -4,8 +4,7 @@ version_escaped := $$(echo ${version} | sed -e 's/\./\\./g')
 mac_app_path := ./dist/Buzz.app
 mac_zip_path := ./dist/Buzz-${version}-mac.zip
 
-cpu = intel
-mac_dmg_path := ./dist/Buzz-${version}-mac-${cpu}.dmg
+mac_dmg_path := ./dist/Buzz-${version}-mac-${UNAME_M}.dmg
 
 unix_zip_path := Buzz-${version}-unix.tar.gz
 
@@ -21,6 +20,7 @@ bundle_windows: dist/Buzz
 bundle_mac: dist/Buzz.app codesign_all_mac zip_mac notarize_zip staple_app_mac dmg_mac
 
 UNAME_S := $(shell uname -s)
+UNAME_M := $(shell uname -m)
 
 LIBWHISPER :=
 ifeq ($(OS), Windows_NT)
@@ -58,20 +58,16 @@ version:
 CMAKE_FLAGS=
 # Allow caller to override CMAKE_FLAGS
 ifeq ($(UNAME_S),Darwin)
-	ifeq ($(cpu),arm)
-		CMAKE_FLAGS += -DWHISPER_NO_AVX=ON -DWHISPER_NO_AVX2=ON -DWHISPER_NO_FMA=ON
-	else
-		AVX1_M := $(shell sysctl machdep.cpu.features)
-		ifeq (,$(findstring AVX1.0,$(AVX1_M)))
-			CMAKE_FLAGS += -DWHISPER_NO_AVX=ON
-		endif
-		ifeq (,$(findstring FMA,$(AVX1_M)))
-			CMAKE_FLAGS += -DWHISPER_NO_FMA=ON
-		endif
-		AVX2_M := $(shell sysctl machdep.cpu.leaf7_features)
-		ifeq (,$(findstring AVX2,$(AVX2_M)))
-			CMAKE_FLAGS += -DWHISPER_NO_AVX2=ON
-		endif
+	AVX1_M := $(shell sysctl machdep.cpu.features)
+	ifeq (,$(findstring AVX1.0,$(AVX1_M)))
+		CMAKE_FLAGS += -DWHISPER_NO_AVX=ON
+	endif
+	ifeq (,$(findstring FMA,$(AVX1_M)))
+		CMAKE_FLAGS += -DWHISPER_NO_FMA=ON
+	endif
+	AVX2_M := $(shell sysctl machdep.cpu.leaf7_features)
+	ifeq (,$(findstring AVX2,$(AVX2_M)))
+		CMAKE_FLAGS += -DWHISPER_NO_AVX2=ON
 	endif
 else
 	ifeq ($(OS), Windows_NT)
