@@ -14,5 +14,11 @@ test_task:
   #    - conda install --yes --file requirements.txt python=$PY_VER
   #    - conda list
   #
+  pyenv_script:
+    - brew update
+    - brew install pyenv
+    - pyenv install 3.10.7
+    - pyenv global 3.10.7
+
   poetry_script:
     - curl -sSL https://install.python-poetry.org | python3 -
