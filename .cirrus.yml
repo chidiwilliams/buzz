@@ -20,5 +20,5 @@ test_task:
     - brew install pyenv
     - pyenv install 3.10.7
     - pyenv global 3.10.7
-    - which python3
-    - curl -sSL https://install.python-poetry.org | python3 -
+    - which python
+    - curl -sSL https://install.python-poetry.org | python -
