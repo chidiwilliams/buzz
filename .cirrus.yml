@@ -45,3 +45,6 @@ test_task:
   test_script:
     - source ~/.zshrc
     - poetry run make test
+
+  coverage_artifacts:
+    path: coverage.xml
