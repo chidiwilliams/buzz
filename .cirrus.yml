@@ -1,0 +1,4 @@
+name: Test Suite
+jobs:
+  test:
+    runs-on: ghcr.io/cirruslabs/macos-ventura-xcode:latest
