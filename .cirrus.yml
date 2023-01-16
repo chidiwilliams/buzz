@@ -4,7 +4,7 @@ macos_instance:
 setup_dependencies_template: &SETUP_DEPENDENCIES_TEMPLATE
   env:
     PYTHON_VERSION: "3.10.7"
-    PATH: /.local/bin:${PATH}
+    PATH: ${HOME}/.local/bin:${PATH}
 
   submodules_script:
     - git submodule init
