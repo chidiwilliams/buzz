@@ -22,7 +22,6 @@ setup_dependencies_template: &SETUP_DEPENDENCIES_TEMPLATE
   poetry_script:
     - source ~/.zshrc
     - curl -sSL https://install.python-poetry.org | python3 -
-    - echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
     - poetry config experimental.new-installer false
     - poetry config virtualenvs.create true
     - poetry config virtualenvs.in-project true
@@ -63,6 +62,8 @@ build_task:
   <<: *SETUP_DEPENDENCIES_TEMPLATE
 
   build_script:
-    - poetry run ctypesgen
+    - source ~/.zshrc
+    - poetry shell
+    - ctypesgen
     - brew install create-dmg
     - poetry run make bundle_mac
