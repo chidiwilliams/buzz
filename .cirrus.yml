@@ -8,6 +8,10 @@ test_task:
     PATH: $HOME/miniconda3/bin/:$PATH
     PY_VER: "3.10.7"
 
+  submodules_script:
+    - git submodule init
+    - git submodule update
+
   python_script:
     - brew update
     - brew install pyenv
