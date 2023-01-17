@@ -162,7 +162,7 @@ jobs:
             dist/Buzz*-windows.exe
             dist/Buzz*-mac.dmg
 
-  sign_mac_arm:
+  bundle_mac_arm:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
@@ -188,13 +188,46 @@ jobs:
       - name: Dependencies
         run: brew install create-dmg
 
+      - name: Configure certificates
+        run: |
+          # create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          
+          # import certificate and provisioning profile from secrets
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
+          
+          # create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          
+          # import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+          
+          # store notarytool credentials
+          xcrun notarytool store-credentials --apple-id "$APPLE_ID" --password "$APPLE_APP_PASSWORD" --team-id "$APPLE_TEAM_ID" notarytool --validate
+        env:
+          BUZZ_CODESIGN_IDENTITY: ${{ secrets.BUZZ_CODESIGN_IDENTITY }}
+          BUZZ_KEYCHAIN_NOTARY_PROFILE: ${{ secrets.BUZZ_KEYCHAIN_NOTARY_PROFILE }}
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
       - name: Download artifacts
-        #        if: steps.wait-for-build.outputs.conclusion == 'success'
         run: |
           wget -q -O $RUNNER_TEMP/buzz.zip https://api.cirrus-ci.com/v1/artifact/github/chidiwilliams/buzz/Build/buzz.zip?branch=$GITHUB_HEAD_REF
           unzip $RUNNER_TEMP/buzz.zip
           ZIP_FILE_PATH=$(find dist/Buzz-*-mac.zip)
           ditto -x -k $ZIP_FILE_PATH dist
+
+      - name: Bundle
+        #        if: steps.wait-for-build.outputs.conclusion == 'success'
+        run: |
           make codesign_all_mac zip_mac notarize_zip staple_app_mac dmg_mac
         env:
           BUZZ_CODESIGN_IDENTITY: ${{ secrets.BUZZ_CODESIGN_IDENTITY }}
