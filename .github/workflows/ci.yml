@@ -195,7 +195,8 @@ jobs:
           unzip $RUNNER_TEMP/buzz.zip
           ZIP_FILE_PATH=$(find dist/Buzz-*-mac.zip)
           ditto -x -k $ZIP_FILE_PATH dist
-          make bundle_mac
+          ls dist
+#          make bundle_mac
 
   release:
     runs-on: ${{ matrix.os }}
