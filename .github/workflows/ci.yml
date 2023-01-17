@@ -193,7 +193,7 @@ jobs:
         run: |
           wget -O $RUNNER_TEMP/buzz.zip https://api.cirrus-ci.com/v1/artifact/github/chidiwilliams/buzz/Build/buzz.zip?branch=$GITHUB_HEAD_REF
           unzip $RUNNER_TEMP/buzz.zip
-          ZIP_FILE_PATH=$(find $RUNNER_TEMP/Buzz-*-mac.zip)
+          ZIP_FILE_PATH=$(find dist/Buzz-*-mac.zip)
           ditto -x -k $ZIP_FILE_PATH dist
           make bundle_mac
 
