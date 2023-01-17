@@ -162,6 +162,21 @@ jobs:
             dist/Buzz*-windows.exe
             dist/Buzz*-mac.dmg
 
+  sign_mac_arm:
+    runs-on: macos-latest
+    steps:
+#      - uses: fountainhead/action-wait-for-check@v1.1.0
+#        with:
+#          token: ${{ secrets.GITHUB_TOKEN }}
+#          checkName: Build
+#          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Download artifacts
+        if: steps.wait-for-build.outputs.conclusion == 'success'
+        run: |
+          curl https://api.cirrus-ci.com/v1/artifact/github/chidiwilliams/buzz/Build/buzz.zip?branch=$GITHUB_REF_NAME
+          ls -ali
+
   release:
     runs-on: ${{ matrix.os }}
     strategy:
