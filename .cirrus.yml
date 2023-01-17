@@ -34,8 +34,8 @@ setup_dependencies_template: &SETUP_DEPENDENCIES_TEMPLATE
     - poetry config virtualenvs.create true
     - poetry config virtualenvs.in-project true
 
-  #  ffmpeg_script:
-  #    - brew install ffmpeg
+  ffmpeg_script:
+    - brew install ffmpeg
 
   #  dependencies_cache:
   #    folder: .venv
