@@ -165,6 +165,20 @@ jobs:
   sign_mac_arm:
     runs-on: macos-latest
     steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10.7'
+
+      - name: Install Poetry Action
+        uses: snok/install-poetry@v1.3.1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
       #      - uses: fountainhead/action-wait-for-check@v1.1.0
       #        with:
       #          token: ${{ secrets.GITHUB_TOKEN }}
@@ -174,12 +188,11 @@ jobs:
       - name: Download artifacts
         #        if: steps.wait-for-build.outputs.conclusion == 'success'
         run: |
-          wget -O buzz.zip https://api.cirrus-ci.com/v1/artifact/github/chidiwilliams/buzz/Build/buzz.zip?branch=$GITHUB_HEAD_REF
-          unzip buzz.zip
-          ls -ali
-          ZIP_FILE_PATH=$(find buzz/dist/*.zip)
-          unzip ZIP_FILE_PATH
-          ls -ali buzz/dist
+          wget -O $RUNNER_TEMP/buzz.zip https://api.cirrus-ci.com/v1/artifact/github/chidiwilliams/buzz/Build/buzz.zip?branch=$GITHUB_HEAD_REF
+          unzip $RUNNER_TEMP/buzz.zip
+          ZIP_FILE_PATH=$(find $RUNNER_TEMP/Buzz-*-mac.zip)
+          ditto -x -k $ZIP_FILE_PATH dist
+          make bundle_mac
 
   release:
     runs-on: ${{ matrix.os }}
