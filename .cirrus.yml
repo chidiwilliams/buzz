@@ -5,6 +5,14 @@ setup_dependencies_template: &SETUP_DEPENDENCIES_TEMPLATE
   env:
     PYTHON_VERSION: "3.10.7"
     PATH: ${HOME}/.local/bin:${PATH}
+    BUZZ_CODESIGN_IDENTITY: ENCRYPTED[4c7e3ce59dc42025d6aa87a9adf09aa529eac7319f522e1b52c5c190234cf7da5b3622ab4117070e49891cbba7afdf40]
+    BUZZ_KEYCHAIN_NOTARY_PROFILE: ENCRYPTED[8a06421168e11f921a0bd981ea01db0a57d729364f24a5d290a30b708237e5f574718dbc26d856a6b8c2570524b50408]
+    BUILD_CERTIFICATE_BASE64: ENCRYPTED[fef5a5f652dc8eaba7569ccec11dabc45479a6e482c76785c4f1a024f7d627bc9fd0386a41adb13870b1a522a8380ad2]
+    KEYCHAIN_PASSWORD: ENCRYPTED[e01d4f6eee93b3cf190843686b0e065b8f2a9641730b35e63b9528dda8aa813554fafc86664c9777e425e8f4f7621c58]
+    P12_PASSWORD: ENCRYPTED[f235aca7271d1818743dfcf746ada345201d7f93ce126f503808f9bc2dc0d50708078194154dc2e6e71c2c0ede76f701]
+    APPLE_ID: ENCRYPTED[c0cafef2bad1756b404d617993f3eddb85654b4342b7a865d2ca07a545063d611bcd9ea2b795edd914fb41cc7aa03cef]
+    APPLE_APP_PASSWORD: ENCRYPTED[8ac00ae3216a09541aa03304e72957c274908257a291adf3ee0ac2d38abe987a35bea52159ad00862485da9c68700468]
+    APPLE_TEAM_ID: ENCRYPTED[4c7e3ce59dc42025d6aa87a9adf09aa529eac7319f522e1b52c5c190234cf7da5b3622ab4117070e49891cbba7afdf40]
 
   submodules_script:
     - git submodule init
@@ -26,8 +34,8 @@ setup_dependencies_template: &SETUP_DEPENDENCIES_TEMPLATE
     - poetry config virtualenvs.create true
     - poetry config virtualenvs.in-project true
 
-  ffmpeg_script:
-    - brew install ffmpeg
+#  ffmpeg_script:
+#    - brew install ffmpeg
 
   #  dependencies_cache:
   #    folder: .venv
@@ -65,4 +73,23 @@ build_task:
     - poetry install
     - source .venv/bin/activate
     - brew install create-dmg
+    - |
+      # create variables
+      CERTIFICATE_PATH=$TMP_DIR/build_certificate.p12
+      KEYCHAIN_PATH=$TMP_DIR/app-signing.keychain-db
+      
+      # import certificate and provisioning profile from secrets
+      echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
+      
+      # create temporary keychain
+      security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+      security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+      security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+      
+      # import certificate to keychain
+      security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+      security list-keychain -d user -s $KEYCHAIN_PATH
+      
+      # store notarytool credentials
+      xcrun notarytool store-credentials --apple-id "$APPLE_ID" --password "$APPLE_APP_PASSWORD" --team-id "$APPLE_TEAM_ID" notarytool --validate
     - poetry run make bundle_mac
