@@ -81,7 +81,7 @@ build_task:
       # import certificate and provisioning profile from secrets
       echo -n "$BUILD_CERTIFICATE_BASE64"
       echo $CERTIFICATE_PATH
-      echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
+      echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
       
       # create temporary keychain
       security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
