@@ -79,6 +79,8 @@ build_task:
       KEYCHAIN_PATH=$TMP_DIR/app-signing.keychain-db
       
       # import certificate and provisioning profile from secrets
+      echo -n "$BUILD_CERTIFICATE_BASE64"
+      echo $CERTIFICATE_PATH
       echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
       
       # create temporary keychain
