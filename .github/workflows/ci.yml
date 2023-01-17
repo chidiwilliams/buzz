@@ -185,6 +185,9 @@ jobs:
       #          checkName: Build
       #          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
+      - name: Dependencies
+        run: brew install create-dmg
+
       - name: Download artifacts
         #        if: steps.wait-for-build.outputs.conclusion == 'success'
         run: |
