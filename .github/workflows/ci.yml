@@ -174,11 +174,12 @@ jobs:
       - name: Download artifacts
         #        if: steps.wait-for-build.outputs.conclusion == 'success'
         run: |
-          echo $GITHUB_REF_NAME
-          echo $GITHUB_HEAD_REF
-          echo $GITHUB_BASE_REF
-          wget https://api.cirrus-ci.com/v1/artifact/github/chidiwilliams/buzz/Build/buzz.zip?branch=$GITHUB_HEAD_REF
+          wget -O buzz.zip https://api.cirrus-ci.com/v1/artifact/github/chidiwilliams/buzz/Build/buzz.zip?branch=$GITHUB_HEAD_REF
+          unzip buzz.zip
           ls -ali
+          ZIP_FILE_PATH=$(find buzz/dist/*.zip)
+          unzip ZIP_FILE_PATH
+          ls -ali buzz/dist
 
   release:
     runs-on: ${{ matrix.os }}
