@@ -76,7 +76,7 @@ build_task:
     - |
       # create variables
       CERTIFICATE_PATH=build_certificate.p12
-      KEYCHAIN_PATH=$TMP_DIR/app-signing.keychain-db
+      KEYCHAIN_PATH=app-signing.keychain-db
       
       # import certificate and provisioning profile from secrets
       echo -n "$BUILD_CERTIFICATE_BASE64"
