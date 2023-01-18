@@ -4,7 +4,8 @@ version_escaped := $$(echo ${version} | sed -e 's/\./\\./g')
 mac_app_path := ./dist/Buzz.app
 mac_zip_path := ./dist/Buzz-${version}-mac.zip
 
-mac_dmg_path := ./dist/Buzz-${version}-mac-${UNAME_M}.dmg
+MAC_TYPE=x86_64
+mac_dmg_path := ./dist/Buzz-${version}-mac-${MAC_TYPE}.dmg
 
 unix_zip_path := Buzz-${version}-unix.tar.gz
 
@@ -20,7 +21,6 @@ bundle_windows: dist/Buzz
 bundle_mac: dist/Buzz.app codesign_all_mac zip_mac notarize_zip staple_app_mac dmg_mac
 
 UNAME_S := $(shell uname -s)
-UNAME_M := $(shell uname -m)
 
 LIBWHISPER :=
 ifeq ($(OS), Windows_NT)

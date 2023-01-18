@@ -160,7 +160,7 @@ jobs:
           path: |
             dist/Buzz*-windows.tar.gz
             dist/Buzz*-windows.exe
-            dist/Buzz*-mac.dmg
+            dist/Buzz-mac-*.dmg
 
   bundle_mac_arm:
     runs-on: macos-latest
@@ -228,7 +228,8 @@ jobs:
       - name: Bundle
         #        if: steps.wait-for-build.outputs.conclusion == 'success'
         run: |
-          make codesign_all_mac zip_mac notarize_zip staple_app_mac dmg_mac
+          make codesign_all_mac zip_mac notarize_zip staple_app_mac
+          make dmg_mac MAC_TYPE=arm64
         env:
           BUZZ_CODESIGN_IDENTITY: ${{ secrets.BUZZ_CODESIGN_IDENTITY }}
           BUZZ_KEYCHAIN_NOTARY_PROFILE: ${{ secrets.BUZZ_KEYCHAIN_NOTARY_PROFILE }}
@@ -243,7 +244,7 @@ jobs:
         with:
           name: Buzz-macOS-arm
           path: |
-            dist/Buzz*-mac.dmg
+            dist/Buzz-*.dmg
 
   release:
     runs-on: ${{ matrix.os }}
@@ -273,7 +274,7 @@ jobs:
           files: |
             Buzz*-windows.tar.gz
             Buzz*-windows.exe
-            Buzz*-mac.dmg
+            Buzz-*.dmg
 
   deploy_brew_cask:
     runs-on: macos-latest
