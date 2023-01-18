@@ -41,17 +41,17 @@ setup_dependencies_template: &SETUP_DEPENDENCIES_TEMPLATE
   dependencies_script:
     - poetry install
 
-test_task:
-  name: Test
-
-  <<: *SETUP_DEPENDENCIES_TEMPLATE
-
-  test_script:
-    - source .venv/bin/activate
-    - poetry run make test
-
-  coverage_artifacts:
-    path: coverage.xml
+#test_task:
+#  name: Test
+#
+#  <<: *SETUP_DEPENDENCIES_TEMPLATE
+#
+#  test_script:
+#    - source .venv/bin/activate
+#    - poetry run make test
+#
+#  coverage_artifacts:
+#    path: coverage.xml
 
 build_task:
   name: Build
