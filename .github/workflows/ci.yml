@@ -222,7 +222,7 @@ jobs:
 #          intervalSeconds: 30
 
       - name: Download artifacts
-        if: steps.wait-for-build.outputs.conclusion == 'success'
+#        if: steps.wait-for-build.outputs.conclusion == 'success'
         run: |
           wget -q -O $RUNNER_TEMP/buzz.zip https://api.cirrus-ci.com/v1/artifact/github/chidiwilliams/buzz/Build/buzz.zip?branch=$GITHUB_HEAD_REF
           unzip $RUNNER_TEMP/buzz.zip -d $RUNNER_TEMP/buzz-zip
@@ -232,7 +232,7 @@ jobs:
           cp $RUNNER_TEMP/buzz-zip/Buzz.app/Contents/MacOS/libwhisper.dylib .
 
       - name: Bundle
-        if: steps.wait-for-build.outputs.conclusion == 'success'
+#        if: steps.wait-for-build.outputs.conclusion == 'success'
         run: |
           make bundle_mac MAC_TYPE=arm64
         env:
@@ -246,7 +246,7 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
       - uses: actions/upload-artifact@v3
-        if: steps.wait-for-build.outputs.conclusion == 'success'
+#        if: steps.wait-for-build.outputs.conclusion == 'success'
         with:
           name: Buzz-macOS-arm
           path: |
