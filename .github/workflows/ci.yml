@@ -242,8 +242,8 @@ jobs:
           unzip $RUNNER_TEMP/buzz.zip -d $RUNNER_TEMP/buzz-zip
           ZIP_FILE_PATH=$(find $RUNNER_TEMP/buzz-zip/dist/Buzz-*-mac.zip)
           ditto -x -k $ZIP_FILE_PATH $RUNNER_TEMP/buzz-zip
-          cp $RUNNER_TEMP/buzz-zip/Buzz.app/Contents/MacOS/whisper_cpp .
-          cp $RUNNER_TEMP/buzz-zip/Buzz.app/Contents/MacOS/libwhisper.dylib .
+          cp $RUNNER_TEMP/buzz-zip/Buzz.app/Contents/Resources/whisper_cpp .
+          cp $RUNNER_TEMP/buzz-zip/Buzz.app/Contents/Resources/libwhisper.dylib .
 
       - name: Bundle
         #        if: steps.wait-for-build.outputs.conclusion == 'success'
