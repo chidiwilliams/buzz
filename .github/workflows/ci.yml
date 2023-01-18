@@ -218,11 +218,15 @@ jobs:
           checkName: Build
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
-      - uses: fountainhead/action-wait-for-check@v1.1.0
+      - name: Wait for Cirrus CI build to succeed
+        uses: fountainhead/action-wait-for-check@v1.1.0
+        id: wait-for-build
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           checkName: Build
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          timeoutSeconds: 1800 # 30 minutes
+          intervalSeconds: 30
 
       - name: Download artifacts
         if: steps.wait-for-build.outputs.conclusion == 'success'
