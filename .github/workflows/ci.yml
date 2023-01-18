@@ -179,18 +179,10 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
 
-      - uses: fountainhead/action-wait-for-check@v1.1.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          checkName: Build
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-
       - name: Dependencies
-        if: steps.wait-for-build.outputs.conclusion == 'success'
         run: brew install create-dmg
 
       - name: Configure certificates
-        if: steps.wait-for-build.outputs.conclusion == 'success'
         run: |
           # create variables
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
@@ -219,6 +211,18 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
+      - uses: fountainhead/action-wait-for-check@v1.1.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: Build
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: fountainhead/action-wait-for-check@v1.1.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: Build
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Download artifacts
         if: steps.wait-for-build.outputs.conclusion == 'success'
