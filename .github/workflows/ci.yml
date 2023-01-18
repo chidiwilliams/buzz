@@ -179,6 +179,11 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
 
+      - uses: FedericoCarboni/setup-ffmpeg@v1
+        id: setup-ffmpeg
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Dependencies
         run: |
           brew install create-dmg
