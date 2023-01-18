@@ -180,7 +180,9 @@ jobs:
           virtualenvs-in-project: true
 
       - name: Dependencies
-        run: brew install create-dmg
+        run: |
+          brew install create-dmg
+          poetry install
 
       - name: Configure certificates
         run: |
