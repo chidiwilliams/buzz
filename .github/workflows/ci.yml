@@ -160,7 +160,7 @@ jobs:
           path: |
             dist/Buzz*-windows.tar.gz
             dist/Buzz*-windows.exe
-            dist/Buzz-mac-*.dmg
+            dist/Buzz-*.dmg
 
   bundle_mac_arm:
     runs-on: macos-latest
@@ -179,16 +179,18 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
 
-      #      - uses: fountainhead/action-wait-for-check@v1.1.0
-      #        with:
-      #          token: ${{ secrets.GITHUB_TOKEN }}
-      #          checkName: Build
-      #          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: fountainhead/action-wait-for-check@v1.1.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: Build
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Dependencies
+        if: steps.wait-for-build.outputs.conclusion == 'success'
         run: brew install create-dmg
 
       - name: Configure certificates
+        if: steps.wait-for-build.outputs.conclusion == 'success'
         run: |
           # create variables
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
@@ -219,6 +221,7 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
       - name: Download artifacts
+        if: steps.wait-for-build.outputs.conclusion == 'success'
         run: |
           wget -q -O $RUNNER_TEMP/buzz.zip https://api.cirrus-ci.com/v1/artifact/github/chidiwilliams/buzz/Build/buzz.zip?branch=$GITHUB_HEAD_REF
           unzip $RUNNER_TEMP/buzz.zip
@@ -226,7 +229,7 @@ jobs:
           ditto -x -k $ZIP_FILE_PATH dist
 
       - name: Bundle
-        #        if: steps.wait-for-build.outputs.conclusion == 'success'
+        if: steps.wait-for-build.outputs.conclusion == 'success'
         run: |
           make codesign_all_mac zip_mac notarize_zip staple_app_mac
           make dmg_mac MAC_TYPE=arm64
@@ -241,6 +244,7 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
       - uses: actions/upload-artifact@v3
+        if: steps.wait-for-build.outputs.conclusion == 'success'
         with:
           name: Buzz-macOS-arm
           path: |
