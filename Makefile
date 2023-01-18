@@ -45,9 +45,11 @@ test: buzz/whisper_cpp.py translation_mo
 dist/Buzz dist/Buzz.app: buzz/whisper_cpp.py translation_mo
 	pyinstaller --noconfirm Buzz.spec
 ifeq ($(UNAME_S),Darwin)
-	# Add @executable_path as an rpath to the binary so it can pick up libwhisper shared library
-	# https://medium.com/@donblas/fun-with-rpath-otool-and-install-name-tool-e3e41ae86172#8a52
-	install_name_tool -add_rpath @executable_path/. dist/Buzz.app/Contents/Resources/whisper_cpp
+	if ! $$(otool -l dist/Buzz.app/Contents/Resources/whisper_cpp | grep -q "path @executable_path/."); then \
+		# Add @executable_path as an rpath to the binary so it can pick up libwhisper shared library
+		# https://medium.com/@donblas/fun-with-rpath-otool-and-install-name-tool-e3e41ae86172#8a52
+		install_name_tool -add_rpath @executable_path/. dist/Buzz.app/Contents/Resources/whisper_cpp; \
+	fi
 endif
 
 version:
