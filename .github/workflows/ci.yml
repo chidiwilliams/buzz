@@ -236,6 +236,7 @@ jobs:
       - name: Bundle
         #        if: steps.wait-for-build.outputs.conclusion == 'success'
         run: |
+          source .venv/bin/activate
           make bundle_mac MAC_TYPE=arm64
         env:
           BUZZ_CODESIGN_IDENTITY: ${{ secrets.BUZZ_CODESIGN_IDENTITY }}
