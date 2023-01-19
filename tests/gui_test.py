@@ -210,7 +210,6 @@ class TestMainWindow:
     @pytest.mark.parametrize('tasks_cache', [mock_tasks], indirect=True)
     def test_should_clear_history_with_rows_selected(self, qtbot, tasks_cache):
         window = MainWindow(tasks_cache=tasks_cache)
-        qtbot.add_widget(window)
 
         table_widget: QTableWidget = window.findChild(QTableWidget)
         table_widget.selectAll()
