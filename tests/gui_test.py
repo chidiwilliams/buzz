@@ -207,6 +207,51 @@ class TestMainWindow:
         assert window.toolbar.open_transcript_action.isEnabled() is False
         window.close()
 
+    @pytest.mark.parametrize('tasks_cache', [mock_tasks], indirect=True)
+    def test_should_clear_history_with_rows_selected(self, qtbot, tasks_cache):
+        window = MainWindow(tasks_cache=tasks_cache)
+        qtbot.add_widget(window)
+
+        table_widget: QTableWidget = window.findChild(QTableWidget)
+        table_widget.selectAll()
+
+        with patch('PyQt6.QtWidgets.QMessageBox.question') as question_message_box_mock:
+            question_message_box_mock.return_value = QMessageBox.StandardButton.Yes
+            window.toolbar.clear_history_action.trigger()
+
+        assert table_widget.rowCount() == 0
+        window.close()
+
+    @pytest.mark.parametrize('tasks_cache', [mock_tasks], indirect=True)
+    def test_should_have_clear_history_action_disabled_with_no_rows_selected(self, qtbot, tasks_cache):
+        window = MainWindow(tasks_cache=tasks_cache)
+        qtbot.add_widget(window)
+
+        assert window.toolbar.clear_history_action.isEnabled() is False
+
+    @pytest.mark.parametrize('tasks_cache', [mock_tasks], indirect=True)
+    def test_should_open_transcription_viewer(self, qtbot, tasks_cache):
+        window = MainWindow(tasks_cache=tasks_cache)
+        qtbot.add_widget(window)
+
+        table_widget: QTableWidget = window.findChild(QTableWidget)
+
+        table_widget.selectRow(0)
+
+        window.toolbar.open_transcript_action.trigger()
+
+        transcription_viewer = window.findChild(TranscriptionViewerWidget)
+        assert transcription_viewer is not None
+
+        window.close()
+
+    @pytest.mark.parametrize('tasks_cache', [mock_tasks], indirect=True)
+    def test_should_have_open_transcript_action_disabled_with_no_rows_selected(self, qtbot, tasks_cache):
+        window = MainWindow(tasks_cache=tasks_cache)
+        qtbot.add_widget(window)
+
+        assert window.toolbar.open_transcript_action.isEnabled() is False
+
     def start_new_transcription(self, window: MainWindow):
         with patch('PyQt6.QtWidgets.QFileDialog.getOpenFileNames') as open_file_names_mock:
             open_file_names_mock.return_value = ([get_test_asset('whisper-french.mp3')], '')
