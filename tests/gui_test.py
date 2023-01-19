@@ -148,13 +148,13 @@ class TestMainWindow:
         window = MainWindow(tasks_cache=tasks_cache)
         qtbot.add_widget(window)
 
-        self.start_new_transcription(window)
+        self._start_new_transcription(window)
 
-        open_transcript_action = self.get_toolbar_action(window, 'Open Transcript')
+        open_transcript_action = self._get_toolbar_action(window, 'Open Transcript')
         assert open_transcript_action.isEnabled() is False
 
         table_widget: QTableWidget = window.findChild(QTableWidget)
-        qtbot.wait_until(self.assert_task_status(table_widget, 0, 'Completed'), timeout=2 * 60 * 1000)
+        qtbot.wait_until(self._assert_task_status(table_widget, 0, 'Completed'), timeout=2 * 60 * 1000)
 
         table_widget.setCurrentIndex(table_widget.indexFromItem(table_widget.item(0, 1)))
         assert open_transcript_action.isEnabled()
@@ -163,7 +163,7 @@ class TestMainWindow:
         window = MainWindow(tasks_cache=tasks_cache)
         qtbot.add_widget(window)
 
-        self.start_new_transcription(window)
+        self._start_new_transcription(window)
 
         table_widget: QTableWidget = window.findChild(QTableWidget)
 
@@ -178,7 +178,7 @@ class TestMainWindow:
         table_widget.selectRow(0)
         window.toolbar.stop_transcription_action.trigger()
 
-        qtbot.wait_until(self.assert_task_status(table_widget, 0, 'Canceled'), timeout=60 * 1000)
+        qtbot.wait_until(self._assert_task_status(table_widget, 0, 'Canceled'), timeout=60 * 1000)
 
         table_widget.selectRow(0)
         assert window.toolbar.stop_transcription_action.isEnabled() is False
@@ -228,6 +228,7 @@ class TestMainWindow:
         qtbot.add_widget(window)
 
         assert window.toolbar.clear_history_action.isEnabled() is False
+        window.close()
 
     @pytest.mark.parametrize('tasks_cache', [mock_tasks], indirect=True)
     def test_should_open_transcription_viewer(self, qtbot, tasks_cache):
@@ -251,11 +252,13 @@ class TestMainWindow:
         qtbot.add_widget(window)
 
         assert window.toolbar.open_transcript_action.isEnabled() is False
+        window.close()
 
-    def start_new_transcription(self, window: MainWindow):
+    @staticmethod
+    def _start_new_transcription(window: MainWindow):
         with patch('PyQt6.QtWidgets.QFileDialog.getOpenFileNames') as open_file_names_mock:
             open_file_names_mock.return_value = ([get_test_asset('whisper-french.mp3')], '')
-            new_transcription_action = self.get_toolbar_action(window, 'New Transcription')
+            new_transcription_action = TestMainWindow._get_toolbar_action(window, 'New Transcription')
             new_transcription_action.trigger()
 
         file_transcriber_widget: FileTranscriberWidget = window.findChild(FileTranscriberWidget)
@@ -263,7 +266,7 @@ class TestMainWindow:
         run_button.click()
 
     @staticmethod
-    def assert_task_status(table_widget: QTableWidget, row_index: int, expected_status: str):
+    def _assert_task_status(table_widget: QTableWidget, row_index: int, expected_status: str):
         def assert_task_canceled():
             assert table_widget.rowCount() > 0
             assert table_widget.item(row_index, 1).text() == 'whisper-french.mp3'
@@ -272,7 +275,7 @@ class TestMainWindow:
         return assert_task_canceled
 
     @staticmethod
-    def get_toolbar_action(window: MainWindow, text: str):
+    def _get_toolbar_action(window: MainWindow, text: str):
         toolbar: QToolBar = window.findChild(QToolBar)
         return [action for action in toolbar.actions() if action.text() == text][0]
 
