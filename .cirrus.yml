@@ -64,4 +64,6 @@ build_task:
 
   zip_artifacts:
     name: buzz
-    path: dist/Buzz-*.zip
+    paths:
+      - dist/Buzz-*.zip
+      - buzz/whisper_cpp.py

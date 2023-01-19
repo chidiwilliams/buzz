@@ -244,6 +244,7 @@ jobs:
           ditto -x -k $ZIP_FILE_PATH $RUNNER_TEMP/buzz-zip
           cp $RUNNER_TEMP/buzz-zip/Buzz.app/Contents/Resources/whisper_cpp .
           cp $RUNNER_TEMP/buzz-zip/Buzz.app/Contents/Resources/libwhisper.dylib .
+          cp $RUNNER_TEMP/buzz-zip/buzz/whisper_cpp.py buzz
 
       - name: Bundle
         #        if: steps.wait-for-build.outputs.conclusion == 'success'
