@@ -1,5 +1,5 @@
 macos_instance:
-  image: ghcr.io/cirruslabs/macos-ventura-base:latest
+  image: ghcr.io/cirruslabs/macos-ventura-xcode:latest
 
 setup_dependencies_template: &SETUP_DEPENDENCIES_TEMPLATE
   env:
@@ -70,7 +70,7 @@ build_task:
   <<: *SETUP_DEPENDENCIES_TEMPLATE
 
   setup_script:
-    - source .venv/bin/activate
+    - cd $HOME
     - echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
     - security create-keychain -p password build.keychain
     - security default-keychain -s build.keychain
@@ -81,6 +81,7 @@ build_task:
     - security find-identity
 
   build_script:
+    - source .venv/bin/activate
     - make bundle_mac MAC_TYPE=arm64
 
   zip_artifacts:
