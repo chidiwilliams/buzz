@@ -31,7 +31,6 @@ setup_dependencies_template: &SETUP_DEPENDENCIES_TEMPLATE
     #    - echo 'eval "$(pyenv init -)"' >> ~/.zshrc
 
   poetry_script:
-    - source ~/.zshrc
     - curl -sSL https://install.python-poetry.org | python3 -
     - poetry config experimental.new-installer false
     - poetry config virtualenvs.create true
