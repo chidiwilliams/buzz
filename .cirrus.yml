@@ -72,7 +72,7 @@ build_task:
     - source .venv/bin/activate
     - echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
     - security create-keychain -p password build.keychain
-    - security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+    - security default-keychain -s build.keychain
     - security unlock-keychain -p password build.keychain
     - security import certificate.p12 -k build.keychain -P $P12_PASSWORD -T /usr/bin/codesign -T /usr/bin/pkgbuild
     - 'security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k password build.keychain'
