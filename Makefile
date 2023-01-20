@@ -78,7 +78,6 @@ $(LIBWHISPER) whisper_cpp:
 	if [ $(UNAME_S) = "Darwin" ] && [ $(MAC_TYPE) = "arm64" ]; then \
 		cp bin/macos_arm64/libwhisper.dylib .; \
 		cp bin/macos_arm64/whisper_cpp .; \
-		cp bin/macos_arm64/whisper_cpp.py buzz; \
 	else \
 		cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS); \
 		cmake --build whisper.cpp/build --verbose; \
@@ -89,7 +88,11 @@ $(LIBWHISPER) whisper_cpp:
   	fi
 
 buzz/whisper_cpp.py: $(LIBWHISPER)
-	ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o buzz/whisper_cpp.py
+	if [ $(UNAME_S) = "Darwin" ] && [ $(MAC_TYPE) = "arm64" ]; then \
+		cp bin/macos_arm64/whisper_cpp.py buzz; \
+	else \
+		ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o buzz/whisper_cpp.py; \
+  	fi
 
 # Prints all the Mac developer identities used for code signing
 print_identities_mac:
