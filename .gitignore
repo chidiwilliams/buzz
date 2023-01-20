@@ -14,7 +14,7 @@ coverage.xml
 /whisper_cpp
 /whisper_cpp.exe
 /whisper.dll
-whisper_cpp.py
+buzz/whisper_cpp.py
 
 # Internationalization - compiled binaries
 locale/**/*.mo

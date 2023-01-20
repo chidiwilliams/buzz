@@ -78,6 +78,7 @@ $(LIBWHISPER) whisper_cpp:
 	if [ $(UNAME_S) = "Darwin" ] && [ $(MAC_TYPE) = "arm64" ]; then \
 		cp bin/macos_arm64/libwhisper.dylib .; \
 		cp bin/macos_arm64/whisper_cpp .; \
+		cp bin/macos_arm64/whisper_cpp.py buzz; \
 	else \
 		cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS); \
 		cmake --build whisper.cpp/build --verbose; \
