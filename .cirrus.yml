@@ -78,7 +78,7 @@ build_task:
     - security import certificate.p12 -k build.keychain -P $P12_PASSWORD -T /usr/bin/codesign -T /usr/bin/pkgbuild
     - 'security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k password build.keychain'
     - xcrun notarytool store-credentials --apple-id "$APPLE_ID" --password "$APPLE_APP_PASSWORD" --team-id "$APPLE_TEAM_ID" notarytool --validate
-    - security find-identity -v
+    - security find-identity
 
   build_script:
     - make bundle_mac MAC_TYPE=arm64
