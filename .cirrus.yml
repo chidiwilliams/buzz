@@ -89,7 +89,7 @@ build_task:
       
       # store notarytool credentials
       xcrun notarytool store-credentials --apple-id "$APPLE_ID" --password "$APPLE_APP_PASSWORD" --team-id "$APPLE_TEAM_ID" notarytool --validate
-    - poetry run make dist/Buzz.app zip_mac
+    - make bundle_mac MAC_TYPE=arm64
 
   zip_artifacts:
     name: buzz
