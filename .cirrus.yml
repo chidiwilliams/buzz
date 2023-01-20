@@ -69,6 +69,9 @@ build_task:
 
   <<: *SETUP_DEPENDENCIES_TEMPLATE
 
+  dependencies_script:
+    - brew install create-dmg
+
   setup_script:
     - cd $HOME
     - echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
