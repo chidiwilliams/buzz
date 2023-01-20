@@ -49,7 +49,7 @@ setup_dependencies_template: &SETUP_DEPENDENCIES_TEMPLATE
   huggingface_cache:
     folder: $HOME/.cache/huggingface
 
-  dependencies_script:
+  python_dependencies_script:
     - poetry install
 
 #test_task:
@@ -69,7 +69,7 @@ build_task:
 
   <<: *SETUP_DEPENDENCIES_TEMPLATE
 
-  dependencies_script:
+  build_dependencies_script:
     - brew install create-dmg
 
   setup_script:
