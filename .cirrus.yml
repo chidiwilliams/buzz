@@ -90,6 +90,7 @@ build_task:
   build_script:
     - source .venv/bin/activate
     - make bundle_mac MAC_TYPE=arm64
+    - dist/Buzz.app/Contents/MacOS/Buzz
 
   zip_artifacts:
     name: buzz
