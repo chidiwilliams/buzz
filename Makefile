@@ -82,8 +82,6 @@ $(LIBWHISPER) whisper_cpp:
 		cp whisper.cpp/build/bin/Debug/main whisper_cpp || true; \
 		cp whisper.cpp/build/$(LIBWHISPER) . || true; \
 		cp whisper.cpp/build/bin/main whisper_cpp || true; \
-#		cp bin/macos_arm64/libwhisper.dylib .; \
-#		cp bin/macos_arm64/whisper_cpp .; \
 	else \
 		cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS); \
 		cmake --build whisper.cpp/build --verbose; \
@@ -92,6 +90,8 @@ $(LIBWHISPER) whisper_cpp:
 		cp whisper.cpp/build/$(LIBWHISPER) . || true; \
 		cp whisper.cpp/build/bin/main whisper_cpp || true; \
   	fi
+#		cp bin/macos_arm64/libwhisper.dylib .; \
+#		cp bin/macos_arm64/whisper_cpp .; \
 
 buzz/whisper_cpp.py: $(LIBWHISPER)
 	ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o buzz/whisper_cpp.py;
