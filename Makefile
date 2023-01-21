@@ -76,8 +76,14 @@ endif
 
 $(LIBWHISPER) whisper_cpp:
 	if [ $(UNAME_S) = "Darwin" ] && [ $(MAC_TYPE) = "arm64" ]; then \
-		cp bin/macos_arm64/libwhisper.dylib .; \
-		cp bin/macos_arm64/whisper_cpp .; \
+		cmake -S whisper.cpp -B whisper.cpp/build/ -DWHISPER_NO_AVX=ON -DWHISPER_NO_FMA=ON -DWHISPER_NO_AVX2=ON; \
+		cmake --build whisper.cpp/build --verbose; \
+		cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) . || true; \
+		cp whisper.cpp/build/bin/Debug/main whisper_cpp || true; \
+		cp whisper.cpp/build/$(LIBWHISPER) . || true; \
+		cp whisper.cpp/build/bin/main whisper_cpp || true; \
+#		cp bin/macos_arm64/libwhisper.dylib .; \
+#		cp bin/macos_arm64/whisper_cpp .; \
 	else \
 		cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS); \
 		cmake --build whisper.cpp/build --verbose; \
@@ -88,11 +94,12 @@ $(LIBWHISPER) whisper_cpp:
   	fi
 
 buzz/whisper_cpp.py: $(LIBWHISPER)
-	if [ $(UNAME_S) = "Darwin" ] && [ $(MAC_TYPE) = "arm64" ]; then \
-		cp bin/macos_arm64/whisper_cpp.py buzz; \
-	else \
-		ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o buzz/whisper_cpp.py; \
-  	fi
+	ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o buzz/whisper_cpp.py;
+#	if [ $(UNAME_S) = "Darwin" ] && [ $(MAC_TYPE) = "arm64" ]; then \
+#		cp bin/macos_arm64/whisper_cpp.py buzz; \
+#	else \
+#	ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o buzz/whisper_cpp.py; \
+#  	fi
 
 # Prints all the Mac developer identities used for code signing
 print_identities_mac:
