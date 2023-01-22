@@ -78,7 +78,7 @@ jobs:
         include:
           #          - os: macos-latest
           #          - os: windows-latest
-          - os: ubuntu-latest
+          - os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
         with:
@@ -164,6 +164,7 @@ jobs:
             dist/Buzz*-windows.exe
             dist/Buzz*-mac.dmg
             dist/Buzz*-unix.tar.gz
+
 
 #  release:
 #    runs-on: ${{ matrix.os }}
