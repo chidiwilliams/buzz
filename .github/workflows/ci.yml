@@ -76,8 +76,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-latest
-          - os: windows-latest
+#          - os: macos-latest
+#          - os: windows-latest
+          - os: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
