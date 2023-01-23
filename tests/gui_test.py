@@ -383,8 +383,8 @@ class TestTranscriptionViewerWidget:
         assert text_display_box.toPlainText(
         ) == '00:00:00.040 --> 00:00:00.299\nBien\n\n00:00:00.299 --> 00:00:00.329\nvenue dans'
 
-    @pytest.mark.skipif(platform.system() == 'Linux',
-                        reason='getting stuck on exporting, might be failing on open file')
+    # @pytest.mark.skipif(platform.system() == 'Linux',
+    #                     reason='getting stuck on exporting, might be failing on open file')
     def test_should_export_segments(self, tmp_path: pathlib.Path, qtbot: QtBot):
         widget = TranscriptionViewerWidget(
             transcription_task=FileTranscriptionTask(
