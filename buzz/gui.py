@@ -341,11 +341,14 @@ class TranscriptionViewerWidget(QWidget):
     transcription_task: FileTranscriptionTask
 
     def __init__(
-            self, transcription_task: FileTranscriptionTask, parent: Optional['QWidget'] = None,
+            self, transcription_task: FileTranscriptionTask,
+            open_transcription_output=True,
+            parent: Optional['QWidget'] = None,
             flags: Qt.WindowType = Qt.WindowType.Widget,
     ) -> None:
         super().__init__(parent, flags)
         self.transcription_task = transcription_task
+        self.open_transcription_output = open_transcription_output
 
         self.setMinimumWidth(500)
         self.setMinimumHeight(500)
@@ -394,7 +397,7 @@ class TranscriptionViewerWidget(QWidget):
             return
 
         write_output(path=output_file_path, segments=self.transcription_task.segments,
-                     should_open=True, output_format=output_format)
+                     should_open=self.open_transcription_output, output_format=output_format)
 
 
 class AdvancedSettingsButton(QPushButton):
