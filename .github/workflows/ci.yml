@@ -66,6 +66,7 @@ jobs:
       - name: Test
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt install locate
             locate libGL
             sudo ln -s /usr/lib/x86_64-linux-gnu/mesa/libGL.so.1 /usr/lib/libGL.so
             # sudo apt install gettext libportaudio2 mesa-libegl-devel
