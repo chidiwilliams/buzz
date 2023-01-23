@@ -21,6 +21,7 @@ jobs:
         include:
           - os: macos-latest
           - os: windows-latest
+          - os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
         with:
@@ -63,7 +64,12 @@ jobs:
         run: poetry config experimental.new-installer false && poetry install
 
       - name: Test
-        run: poetry run make test
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt install gettext libportaudio2
+          fi
+          
+          poetry run make test
 
       - name: Upload coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@v3
