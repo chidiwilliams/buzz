@@ -66,9 +66,8 @@ jobs:
       - name: Test
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo apt install qt6-base-dev
-            sudo ln -s /usr/lib/x86_64-linux-gnu/mesa/libGL.so.1 /usr/lib/libGL.so
-            # sudo apt install gettext libportaudio2 mesa-libegl-devel
+            sudo apt update
+            sudo apt install gettext libportaudio2 libgl-dev libopengl-dev libglx-dev
           fi
           
           poetry run make test
