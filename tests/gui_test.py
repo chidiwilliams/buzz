@@ -373,7 +373,7 @@ class TestTranscriptionViewerWidget:
                 transcription_options=TranscriptionOptions(),
                 segments=[Segment(40, 299, 'Bien'),
                           Segment(299, 329, 'venue dans')],
-                model_path=''))
+                model_path=''), open_transcription_output=False)
         qtbot.add_widget(widget)
 
         assert widget.windowTitle() == 'whisper-french.mp3'
@@ -395,7 +395,7 @@ class TestTranscriptionViewerWidget:
                 transcription_options=TranscriptionOptions(),
                 segments=[Segment(40, 299, 'Bien'),
                           Segment(299, 329, 'venue dans')],
-                model_path=''))
+                model_path=''), open_transcription_output=False)
         qtbot.add_widget(widget)
 
         export_button = widget.findChild(QPushButton)
