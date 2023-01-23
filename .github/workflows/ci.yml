@@ -141,7 +141,7 @@ jobs:
 
           elif [ "$RUNNER_OS" == "Linux" ]; then
 
-            sudo apt install gettext
+            sudo apt install gettext libportaudio2
             poetry run make bundle_linux
 
           fi
