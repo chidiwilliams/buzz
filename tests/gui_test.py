@@ -1,4 +1,5 @@
 import logging
+import multiprocessing
 import os.path
 import pathlib
 import platform
@@ -26,6 +27,9 @@ from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask,
                               Segment, TranscriptionOptions)
 from tests.mock_sounddevice import MockInputStream, mock_query_devices
 from .mock_qt import MockNetworkAccessManager, MockNetworkReply
+
+if platform.system() == 'Linux':
+    multiprocessing.set_start_method('spawn')
 
 
 @pytest.fixture(scope='module', autouse=True)
