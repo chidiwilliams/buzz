@@ -47,7 +47,8 @@ dist/Buzz dist/Buzz.app: buzz/whisper_cpp.py translation_mo
 ifeq ($(UNAME_S),Darwin)
 	# Add @executable_path as an rpath to the binary so it can pick up libwhisper shared library
 	# https://medium.com/@donblas/fun-with-rpath-otool-and-install-name-tool-e3e41ae86172#8a52
-	install_name_tool -add_rpath @executable_path/. dist/Buzz.app/Contents/Resources/whisper_cpp || true
+	install_name_tool -add_rpath @executable_path/. dist/Buzz.app/Contents/Resources/whisper_cpp
+	install_name_tool -add_rpath @executable_path/. dist/Buzz.app/Contents/MacOS/Buzz
 endif
 
 version:
