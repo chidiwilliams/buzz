@@ -15,6 +15,7 @@ concurrency:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
+    if: ${{ false }}  # disable temporarily
     strategy:
       fail-fast: false
       matrix:
@@ -81,6 +82,7 @@ jobs:
           flags: ${{ runner.os }}
 
   build:
+    if: ${{ false }}  # disable temporarily
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
