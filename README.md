@@ -24,21 +24,31 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
 ## Installation
 
 To install Buzz, download the [latest version](https://github.com/chidiwilliams/buzz/releases/latest) for your operating
-system. Buzz is available on **Mac** and **Windows**.
+system. Buzz is available on **Mac**, **Windows**, and **Linux**.
 
-### Mac (macOS 11.7 and above)
+### Mac (macOS 11.7 and later)
 
-Install via [brew](https://brew.sh/):
+- Install via [brew](https://brew.sh/):
 
-```shell
-brew install --cask buzz
-```
+    ```shell
+    brew install --cask buzz
+    ```
 
-Or, download and run the `Buzz-x.y.z.dmg` file.
+  Alternatively, download and run the `Buzz-x.y.z.dmg` file.
 
-### Windows
+### Windows (Windows 10 and later)
 
-Download and run the `Buzz-x.y.z.exe` file.
+- Download and run the `Buzz-x.y.z.exe` file.
+
+### Linux (Ubuntu 20.04 and later)
+
+- Install dependencies:
+
+    ```shell
+    sudo apt-get install libportaudio2
+    ```
+
+- Download and extract the `Buzz-x.y.z-unix.tar.gz` file
 
 ## How to use
 
@@ -97,10 +107,12 @@ and [Virtual Audio Cable](https://vac.muzychenko.net/en/)).
 
 To import a file:
 
-- Click Import on the File menu (or **Command + O** on Mac, **Ctrl + O** on Windows).
-- Choose an audio or video file. Supported formats: "mp3", "wav", "m4a", "ogg", "mp4", "webm", "ogm".
-- Select a task, language, quality, and export format.
+- Click Import Media File on the File menu (or the '+' icon on the toolbar, or **Command/Ctrl + O**).
+- Choose an audio or video file.
+- Select a task, language, and the model settings.
 - Click Run.
+- When the transcription status shows 'Completed', double-click on the row (or select the row and click the '⤢' icon) to
+  open the transcription.
 
 | Field              | Options             | Default | Description                                                                                                                                              |
 |--------------------|---------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------|

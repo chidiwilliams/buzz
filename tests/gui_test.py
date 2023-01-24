@@ -1,4 +1,5 @@
 import logging
+import multiprocessing
 import os.path
 import pathlib
 import platform
@@ -26,6 +27,9 @@ from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask,
                               Segment, TranscriptionOptions)
 from tests.mock_sounddevice import MockInputStream, mock_query_devices
 from .mock_qt import MockNetworkAccessManager, MockNetworkReply
+
+if platform.system() == 'Linux':
+    multiprocessing.set_start_method('spawn')
 
 
 @pytest.fixture(scope='module', autouse=True)
@@ -369,7 +373,7 @@ class TestTranscriptionViewerWidget:
                 transcription_options=TranscriptionOptions(),
                 segments=[Segment(40, 299, 'Bien'),
                           Segment(299, 329, 'venue dans')],
-                model_path=''))
+                model_path=''), open_transcription_output=False)
         qtbot.add_widget(widget)
 
         assert widget.windowTitle() == 'whisper-french.mp3'
@@ -389,7 +393,7 @@ class TestTranscriptionViewerWidget:
                 transcription_options=TranscriptionOptions(),
                 segments=[Segment(40, 299, 'Bien'),
                           Segment(299, 329, 'venue dans')],
-                model_path=''))
+                model_path=''), open_transcription_output=False)
         qtbot.add_widget(widget)
 
         export_button = widget.findChild(QPushButton)
