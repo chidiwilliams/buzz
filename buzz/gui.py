@@ -334,11 +334,14 @@ class TranscriptionViewerWidget(QWidget):
     transcription_task: FileTranscriptionTask
 
     def __init__(
-            self, transcription_task: FileTranscriptionTask, parent: Optional['QWidget'] = None,
+            self, transcription_task: FileTranscriptionTask,
+            open_transcription_output=True,
+            parent: Optional['QWidget'] = None,
             flags: Qt.WindowType = Qt.WindowType.Widget,
     ) -> None:
         super().__init__(parent, flags)
         self.transcription_task = transcription_task
+        self.open_transcription_output = open_transcription_output
 
         self.setMinimumWidth(500)
         self.setMinimumHeight(500)
@@ -387,7 +390,7 @@ class TranscriptionViewerWidget(QWidget):
             return
 
         write_output(path=output_file_path, segments=self.transcription_task.segments,
-                     should_open=True, output_format=output_format)
+                     should_open=self.open_transcription_output, output_format=output_format)
 
 
 class AdvancedSettingsButton(QPushButton):
@@ -778,7 +781,6 @@ class TranscriptionTasksTableWidget(QTableWidget):
 
         self.setSelectionBehavior(
             QAbstractItemView.SelectionBehavior.SelectRows)
-        self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
 
     def upsert_task(self, task: FileTranscriptionTask):
         task_row_index = self.task_row_index(task.id)
@@ -830,7 +832,8 @@ class TranscriptionTasksTableWidget(QTableWidget):
 
     @staticmethod
     def find_task_id(index: QModelIndex):
-        return int(index.siblingAtColumn(TranscriptionTasksTableWidget.TASK_ID_COLUMN_INDEX).data())
+        sibling_index = index.siblingAtColumn(TranscriptionTasksTableWidget.TASK_ID_COLUMN_INDEX).data()
+        return int(sibling_index) if sibling_index is not None else None
 
 
 class MainWindowToolbar(QToolBar):
@@ -985,23 +988,30 @@ class MainWindow(QMainWindow):
             task.status == FileTranscriptionTask.Status.FAILED
 
     def on_clear_history_action_triggered(self):
-        for task_id, task in list(self.tasks.items()):
-            if self.task_completed_or_errored(task):
+        selected_rows = self.table_widget.selectionModel().selectedRows()
+        if len(selected_rows) == 0:
+            return
+
+        reply = QMessageBox.question(
+            self, _('Clear History'),
+            _('Are you sure you want to delete the selected transcription(s)? This action cannot be undone.'))
+        if reply == QMessageBox.StandardButton.Yes:
+            task_ids = [TranscriptionTasksTableWidget.find_task_id(selected_row) for selected_row in selected_rows]
+            for task_id in task_ids:
                 self.table_widget.clear_task(task_id)
                 self.tasks.pop(task_id)
                 self.tasks_changed.emit()
 
     def on_stop_transcription_action_triggered(self):
         selected_rows = self.table_widget.selectionModel().selectedRows()
-        if len(selected_rows) == 0:
-            return
-        task_id = TranscriptionTasksTableWidget.find_task_id(selected_rows[0])
-        task = self.tasks[task_id]
+        for selected_row in selected_rows:
+            task_id = TranscriptionTasksTableWidget.find_task_id(selected_row)
+            task = self.tasks[task_id]
 
-        task.status = FileTranscriptionTask.Status.CANCELED
-        self.tasks_changed.emit()
-        self.transcriber_worker.cancel_task(task_id)
-        self.table_widget.upsert_task(task)
+            task.status = FileTranscriptionTask.Status.CANCELED
+            self.tasks_changed.emit()
+            self.transcriber_worker.cancel_task(task_id)
+            self.table_widget.upsert_task(task)
 
     def on_new_transcription_action_triggered(self):
         (file_paths, __) = QFileDialog.getOpenFileNames(
@@ -1017,27 +1027,34 @@ class MainWindow(QMainWindow):
 
     def on_open_transcript_action_triggered(self):
         selected_rows = self.table_widget.selectionModel().selectedRows()
-        if len(selected_rows) == 0:
-            return
-        task_id = TranscriptionTasksTableWidget.find_task_id(selected_rows[0])
-        self.open_transcription_viewer(task_id)
+        for selected_row in selected_rows:
+            task_id = TranscriptionTasksTableWidget.find_task_id(selected_row)
+            self.open_transcription_viewer(task_id)
 
     def on_table_selection_changed(self):
-        enable_open_transcript_action = self.should_enable_open_transcript_action()
-        self.toolbar.set_open_transcript_action_enabled(enable_open_transcript_action)
-
+        self.toolbar.set_open_transcript_action_enabled(self.should_enable_open_transcript_action())
         self.toolbar.set_stop_transcription_action_enabled(self.should_enable_stop_transcription_action())
+        self.toolbar.set_clear_history_action_enabled(self.should_enable_clear_history_action())
 
     def should_enable_open_transcript_action(self):
-        return self.selected_task_has_status([FileTranscriptionTask.Status.COMPLETED])
+        return self.selected_tasks_have_status([FileTranscriptionTask.Status.COMPLETED])
 
-    def selected_task_has_status(self, statuses: List[FileTranscriptionTask.Status]):
+    def should_enable_stop_transcription_action(self):
+        return self.selected_tasks_have_status(
+            [FileTranscriptionTask.Status.IN_PROGRESS, FileTranscriptionTask.Status.QUEUED])
+
+    def should_enable_clear_history_action(self):
+        return self.selected_tasks_have_status(
+            [FileTranscriptionTask.Status.COMPLETED, FileTranscriptionTask.Status.FAILED,
+             FileTranscriptionTask.Status.CANCELED])
+
+    def selected_tasks_have_status(self, statuses: List[FileTranscriptionTask.Status]):
         selected_rows = self.table_widget.selectionModel().selectedRows()
-        if len(selected_rows) == 1:
-            task_id = TranscriptionTasksTableWidget.find_task_id(selected_rows[0])
-            if self.tasks[task_id].status in statuses:
-                return True
-        return False
+        if len(selected_rows) == 0:
+            return False
+        return all(
+            [self.tasks[TranscriptionTasksTableWidget.find_task_id(selected_row)].status in statuses for selected_row in
+             selected_rows])
 
     def on_table_double_clicked(self, index: QModelIndex):
         task_id = TranscriptionTasksTableWidget.find_task_id(index)
@@ -1066,17 +1083,9 @@ class MainWindow(QMainWindow):
         self.tasks_cache.save(list(self.tasks.values()))
 
     def on_tasks_changed(self):
-        self.toolbar.set_clear_history_action_enabled(
-            any([self.task_completed_or_errored(task) for task in self.tasks.values()]))
-
-        enable_open_transcript_action = self.should_enable_open_transcript_action()
-        self.toolbar.set_open_transcript_action_enabled(enable_open_transcript_action)
-
+        self.toolbar.set_open_transcript_action_enabled(self.should_enable_open_transcript_action())
         self.toolbar.set_stop_transcription_action_enabled(self.should_enable_stop_transcription_action())
-
-    def should_enable_stop_transcription_action(self):
-        return self.selected_task_has_status(
-            [FileTranscriptionTask.Status.IN_PROGRESS, FileTranscriptionTask.Status.QUEUED])
+        self.toolbar.set_clear_history_action_enabled(self.should_enable_clear_history_action())
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         self.transcriber_worker.stop()

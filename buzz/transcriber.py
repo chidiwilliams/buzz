@@ -486,8 +486,11 @@ def write_output(path: str, segments: List[Segment], should_open: bool, output_f
                     f'{to_timestamp(segment.start, ms_separator=",")} --> {to_timestamp(segment.end, ms_separator=",")}\n')
                 file.write(f'{segment.text}\n\n')
 
+    logging.debug('Written transcription output')
+
     if should_open:
         try:
+            logging.debug('Opening transcription output')
             os.startfile(path)
         except AttributeError:
             opener = "open" if platform.system() == "Darwin" else "xdg-open"
