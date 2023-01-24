@@ -148,7 +148,7 @@ codesign_all_mac:
 	done
 	codesign --force --options=runtime --sign "$$BUZZ_CODESIGN_IDENTITY" --timestamp dist/Buzz.app/Contents/MacOS/Buzz
 	codesign --force --options=runtime --sign "$$BUZZ_CODESIGN_IDENTITY" --entitlements ./entitlements.plist --timestamp dist/Buzz.app
-	codesign --verify --deep --strict --verbose=2 dist/Buzz.app
+	codesign --verify --deep --strict dist/Buzz.app
 
 # HELPERS
 
