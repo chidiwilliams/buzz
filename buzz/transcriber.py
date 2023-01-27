@@ -24,6 +24,7 @@ import sounddevice
 import stable_whisper
 import whisper
 from PyQt6.QtCore import QObject, QProcess, pyqtSignal, pyqtSlot, QThread
+from appdirs import user_log_dir
 from sounddevice import PortAudioError
 
 from . import transformers_whisper
@@ -422,41 +423,45 @@ class WhisperFileTranscriber(QObject):
 
 
 def transcribe_whisper(stderr_conn: Connection, task: FileTranscriptionTask):
-    with pipe_stderr(stderr_conn):
-        if task.transcription_options.model.model_type == ModelType.HUGGING_FACE:
-            model = transformers_whisper.load_model(task.model_path)
-            language = task.transcription_options.language if task.transcription_options.language is not None else 'en'
-            result = model.transcribe(audio=task.file_path, language=language,
-                                      task=task.transcription_options.task.value, verbose=False)
-            whisper_segments = result.get('segments')
-        else:
-            model = whisper.load_model(task.model_path)
-            if task.transcription_options.word_level_timings:
-                stable_whisper.modify_model(model)
-                result = model.transcribe(
-                    audio=task.file_path, language=task.transcription_options.language,
-                    task=task.transcription_options.task.value, temperature=task.transcription_options.temperature,
-                    initial_prompt=task.transcription_options.initial_prompt, pbar=True)
-                whisper_segments = stable_whisper.group_word_timestamps(result)
-            else:
-                result = model.transcribe(
-                    audio=task.file_path, language=task.transcription_options.language,
-                    task=task.transcription_options.task.value,
-                    temperature=task.transcription_options.temperature,
-                    initial_prompt=task.transcription_options.initial_prompt, verbose=False)
+    try:
+        with pipe_stderr(stderr_conn):
+            if task.transcription_options.model.model_type == ModelType.HUGGING_FACE:
+                model = transformers_whisper.load_model(task.model_path)
+                language = task.transcription_options.language if task.transcription_options.language is not None else 'en'
+                result = model.transcribe(audio=task.file_path, language=language,
+                                          task=task.transcription_options.task.value, verbose=False)
                 whisper_segments = result.get('segments')
+            else:
+                model = whisper.load_model(task.model_path)
+                if task.transcription_options.word_level_timings:
+                    stable_whisper.modify_model(model)
+                    result = model.transcribe(
+                        audio=task.file_path, language=task.transcription_options.language,
+                        task=task.transcription_options.task.value, temperature=task.transcription_options.temperature,
+                        initial_prompt=task.transcription_options.initial_prompt, pbar=True)
+                    whisper_segments = stable_whisper.group_word_timestamps(result)
+                else:
+                    result = model.transcribe(
+                        audio=task.file_path, language=task.transcription_options.language,
+                        task=task.transcription_options.task.value,
+                        temperature=task.transcription_options.temperature,
+                        initial_prompt=task.transcription_options.initial_prompt, verbose=False)
+                    whisper_segments = result.get('segments')
 
-        segments = [
-            Segment(
-                start=int(segment.get('start') * 1000),
-                end=int(segment.get('end') * 1000),
-                text=segment.get('text'),
-            ) for segment in whisper_segments]
-        segments_json = json.dumps(
-            segments, ensure_ascii=True, default=vars)
-        sys.stderr.write(f'segments = {segments_json}\n')
-        sys.stderr.write(
-            WhisperFileTranscriber.READ_LINE_THREAD_STOP_TOKEN + '\n')
+            segments = [
+                Segment(
+                    start=int(segment.get('start') * 1000),
+                    end=int(segment.get('end') * 1000),
+                    text=segment.get('text'),
+                ) for segment in whisper_segments]
+            segments_json = json.dumps(
+                segments, ensure_ascii=True, default=vars)
+            sys.stderr.write(f'segments = {segments_json}\n')
+            sys.stderr.write(
+                WhisperFileTranscriber.READ_LINE_THREAD_STOP_TOKEN + '\n')
+    except Exception as exc:
+        with open(user_log_dir(appname='Buzz'), 'a') as f:
+            f.write(str(exc))
 
 
 def write_output(path: str, segments: List[Segment], should_open: bool, output_format: OutputFormat):
