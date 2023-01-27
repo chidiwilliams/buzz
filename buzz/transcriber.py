@@ -424,6 +424,8 @@ class WhisperFileTranscriber(QObject):
 
 def transcribe_whisper(stderr_conn: Connection, task: FileTranscriptionTask):
     try:
+        logging.debug('in transcribe_whisper')
+        raise Exception('hello')
         with pipe_stderr(stderr_conn):
             if task.transcription_options.model.model_type == ModelType.HUGGING_FACE:
                 model = transformers_whisper.load_model(task.model_path)
