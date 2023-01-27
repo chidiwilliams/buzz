@@ -38,7 +38,7 @@ clean:
 	rm -f $(LIBWHISPER)
 	rm -f whisper_cpp
 	rm -f buzz/whisper_cpp.py
-	rm -rf dist/* || true
+	rm -rf dist || true
 
 test: buzz/whisper_cpp.py translation_mo
 	pytest -vv --cov=buzz --cov-report=xml --cov-report=html
