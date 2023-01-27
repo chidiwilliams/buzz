@@ -1,7 +1,7 @@
 #!/bin/zsh
 
-if [ ! -d "$1" ] then
-    echo "usage: fix-py-bundle.sh <app-bundle>" >&2
+if [ ! -d "$1" ]; then
+   echo "usage: fix-py-bundle.sh <app-bundle>" >&2
    exit 1
 fi
 
