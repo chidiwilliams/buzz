@@ -24,7 +24,7 @@ pushd "$1" > /dev/null
    # create symlinks for all directories that got moved to Frameworks since we don't have influence on
    # PYTHONPATH (would not be needed if it contained @executable_path/../Frameworks as well)
     pushd Contents/MacOS/ > /dev/null
-    find ../Frameworks/ -type d -mindepth 1 -maxdepth 1 -exec ln -s '{}' . ';'
+      find ../Frameworks/ -type d -mindepth 1 -maxdepth 1 -exec ln -s '{}' . ';'
     popd  > /dev/null
 
     # refresh the ad-hoc signature (could our actual signing profile here..)
