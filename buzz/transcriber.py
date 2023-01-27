@@ -29,6 +29,7 @@ from sounddevice import PortAudioError
 from . import transformers_whisper
 from .conn import pipe_stderr
 from .model_loader import TranscriptionModel, ModelType
+from .path import resolve_path
 from .transformers_whisper import TransformersWhisper
 
 # Catch exception from whisper.dll not getting loaded.
@@ -271,7 +272,7 @@ class WhisperCppFileTranscriber(QObject):
         logging.debug(
             'Running whisper_cpp process, args = "%s"', ' '.join(args))
 
-        self.process.start('./whisper_cpp', args)
+        self.process.start(resolve_path('whisper_cpp'), args)
         self.process.waitForFinished()
 
         # Ensure all std_out data has been read
@@ -282,8 +283,10 @@ class WhisperCppFileTranscriber(QObject):
         if status == QProcess.ExitStatus.NormalExit:
             self.progress.emit(
                 (self.duration_audio_ms, self.duration_audio_ms))
+            self.completed.emit(self.segments)
+        else:
+            self.error.emit('Unknown error')
 
-        self.completed.emit(self.segments)
         self.running = False
 
     def stop(self):

@@ -1,9 +1,12 @@
+UNAME_M := $(shell uname -m)
+UNAME_S := $(shell uname -s)
+
 version := $$(poetry version -s)
 version_escaped := $$(echo ${version} | sed -e 's/\./\\./g')
 
 mac_app_path := ./dist/Buzz.app
 mac_zip_path := ./dist/Buzz-${version}-mac.zip
-mac_dmg_path := ./dist/Buzz-${version}-mac.dmg
+MAC_DMG_PATH := ./dist/Buzz-${version}-mac-${UNAME_M}.dmg
 
 unix_zip_path := Buzz-${version}-unix.tar.gz
 
@@ -42,6 +45,12 @@ test: buzz/whisper_cpp.py translation_mo
 
 dist/Buzz dist/Buzz.app: buzz/whisper_cpp.py translation_mo
 	pyinstaller --noconfirm Buzz.spec
+ifeq ($(UNAME_S),Darwin)
+	# Add @executable_path as an rpath to the binary so it can pick up libwhisper shared library
+	# https://medium.com/@donblas/fun-with-rpath-otool-and-install-name-tool-e3e41ae86172#8a52
+	install_name_tool -add_rpath @executable_path/. dist/Buzz.app/Contents/Resources/whisper_cpp || true
+	install_name_tool -add_rpath @executable_path/. dist/Buzz.app/Contents/MacOS/Buzz
+endif
 
 version:
 	poetry version ${version}
@@ -95,7 +104,7 @@ dmg_mac:
 		--app-drop-link 425 120 \
 		--codesign "$$BUZZ_CODESIGN_IDENTITY" \
 		--notarize "$$BUZZ_KEYCHAIN_NOTARY_PROFILE" \
-		"${mac_dmg_path}" \
+		"${MAC_DMG_PATH}" \
 		"dist/dmg/"
 
 staple_app_mac:
@@ -124,7 +133,7 @@ codesign_all_mac: dist/Buzz.app
 	done
 	codesign --force --options=runtime --sign "$$BUZZ_CODESIGN_IDENTITY" --timestamp dist/Buzz.app/Contents/MacOS/Buzz
 	codesign --force --options=runtime --sign "$$BUZZ_CODESIGN_IDENTITY" --entitlements ./entitlements.plist --timestamp dist/Buzz.app
-	codesign --verify --deep --strict --verbose=2 dist/Buzz.app
+	codesign --verify --deep --strict dist/Buzz.app
 
 # HELPERS
 
