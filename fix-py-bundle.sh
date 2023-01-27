@@ -17,9 +17,9 @@ pushd "$1" > /dev/null
 
    # add the missing rpath entries to actually look in Frameworks for shared objects
     install_name_tool -add_rpath '@executable_path' "Contents/MacOS/$WRAPPER_NAME"
-    install_name_tool -add_rpath '@executable_path' Contents/MacOS/Python
+    install_name_tool -add_rpath '@executable_path' Contents/MacOS/Python || true
     install_name_tool -add_rpath '@executable_path/../Frameworks/' "Contents/MacOS/$WRAPPER_NAME"
-    install_name_tool -add_rpath '@executable_path/../Frameworks/' Contents/MacOS/Python
+    install_name_tool -add_rpath '@executable_path/../Frameworks/' Contents/MacOS/Python || true
 
    # create symlinks for all directories that got moved to Frameworks since we don't have influence on
    # PYTHONPATH (would not be needed if it contained @executable_path/../Frameworks as well)
