@@ -399,6 +399,7 @@ class WhisperFileTranscriber(QObject):
         while True:
             try:
                 line = pipe.recv().strip()
+                logging.debug('whisper (stderr): %s', line)
             except EOFError:  # Connection closed
                 break
 
