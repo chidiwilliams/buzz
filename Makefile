@@ -1,11 +1,13 @@
+UNAME_M := $(shell uname -m)
+UNAME_S := $(shell uname -s)
+
 version := $$(poetry version -s)
 version_escaped := $$(echo ${version} | sed -e 's/\./\\./g')
 
 mac_app_path := ./dist/Buzz.app
 mac_zip_path := ./dist/Buzz-${version}-mac.zip
 
-MAC_TYPE=x86_64
-mac_dmg_path := ./dist/Buzz-${version}-mac-${MAC_TYPE}.dmg
+mac_dmg_path := ./dist/Buzz-${version}-mac-${UNAME_M}.dmg
 
 unix_zip_path := Buzz-${version}-unix.tar.gz
 
@@ -19,8 +21,6 @@ bundle_windows: dist/Buzz
 	cd dist && tar -czf ${windows_zip_path} Buzz/ && cd -
 
 bundle_mac: dist/Buzz.app codesign_all_mac zip_mac notarize_zip staple_app_mac dmg_mac
-
-UNAME_S := $(shell uname -s)
 
 LIBWHISPER :=
 ifeq ($(OS), Windows_NT)
