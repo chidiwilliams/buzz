@@ -5,7 +5,7 @@ cd $BUZZ_DIR
 xcode-select --install || true
 
 # Set up Apple certificates. Source: https://github.com/cirruslabs/macos-image-templates/blob/baa16d28efa9cb476738e7134646be163215adb2/templates/xcode.pkr.hcl#L118
-sudo security delete-certificate -Z FF6797793A3CD798DC5B2ABEF56F73EDC9F83A64 /Library/Keychains/System.keychain || true
+echo $VNC_PASSWORD | sudo -S security delete-certificate -Z FF6797793A3CD798DC5B2ABEF56F73EDC9F83A64 /Library/Keychains/System.keychain || true
 curl -o add-certificate.swift https://raw.githubusercontent.com/actions/runner-images/fb3b6fd69957772c1596848e2daaec69eabca1bb/images/macos/provision/configuration/add-certificate.swift
 swiftc add-certificate.swift
 curl -o AppleWWDRCAG3.cer https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer
