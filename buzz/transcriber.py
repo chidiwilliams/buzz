@@ -255,13 +255,12 @@ class WhisperCppFileTranscriber(QObject):
             self.file_path, self.language, self.task, model_path, self.word_level_timings)
 
         wav_file = tempfile.mktemp() + '.wav'
-        (
-            ffmpeg.input(self.file_path)
-            .output(wav_file, acodec="pcm_s16le", ac=1, ar=whisper.audio.SAMPLE_RATE)
-            .run(cmd=["ffmpeg", "-nostdin"], capture_stdout=True, capture_stderr=True)
-        )
+        ffmpeg_cmd = (ffmpeg.input(self.file_path)
+                      .output(wav_file, acodec="pcm_s16le", ac=1, ar=whisper.audio.SAMPLE_RATE))
 
-        logging.debug('Generated temporary wav file at %s', wav_file)
+        logging.debug('Running ffmpeg, %s', ffmpeg_cmd.args())
+
+        ffmpeg_cmd.run(cmd=["ffmpeg", "-nostdin"], capture_stdout=True, capture_stderr=True)
 
         args = [
             '--language', self.language if self.language is not None else 'en',
