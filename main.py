@@ -29,8 +29,8 @@ if platform.system() == 'Windows':
     os.add_dll_directory(app_dir)
 
 if __name__ == "__main__":
-    if platform.system() == 'Linux':
-        multiprocessing.set_start_method('spawn')
+    # if platform.system() == 'Linux':
+    multiprocessing.set_start_method('spawn')
 
     # Fixes opening new window when app has been frozen on Windows:
     # https://stackoverflow.com/a/33979091
