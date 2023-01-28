@@ -3,6 +3,7 @@ import logging
 import multiprocessing
 import os
 import platform
+import subprocess
 import sys
 from typing import TextIO
 
@@ -48,6 +49,9 @@ if __name__ == "__main__":
         filename=os.path.join(log_dir, 'logs.txt'),
         level=logging.DEBUG,
         format="[%(asctime)s] %(module)s.%(funcName)s:%(lineno)d %(levelname)s -> %(message)s")
+
+    cmd = subprocess.run(['ffmpeg', '-h'])
+    logging.debug('subprocess exited with code %s', cmd.returncode)
 
     from buzz.gui import Application
 
