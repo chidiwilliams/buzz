@@ -463,7 +463,8 @@ def transcribe_whisper(stderr_conn: Connection, task: FileTranscriptionTask):
             sys.stderr.write(
                 WhisperFileTranscriber.READ_LINE_THREAD_STOP_TOKEN + '\n')
     except Exception as exc:
-        with open(user_log_dir(appname='Buzz'), 'a') as f:
+        log_dir = user_log_dir(appname='Buzz')
+        with open(os.path.join(log_dir, 'logs.txt'), 'a') as f:
             f.write(str(exc))
 
 
