@@ -31,8 +31,11 @@ if platform.system() == 'Windows':
 if __name__ == "__main__":
     # Contrary to the multiprocessing docs (https://docs.python.org/3/library/multiprocessing.html#contexts-and-start-methods),
     # running sub-processes seem to exit with code 1 on Linux and Mac ARM without setting the "spawn" start method
-    if platform.system() == 'Linux' or (platform.system() == 'Darwin' and platform.processor() == 'arm'):
+    if platform.system() == 'Linux':
         multiprocessing.set_start_method('spawn')
+
+    if platform.system() == 'Linux' and platform.processor() == 'arm':
+        multiprocessing.set_start_method('fork')
 
     # Fixes opening new window when app has been frozen on Windows:
     # https://stackoverflow.com/a/33979091
