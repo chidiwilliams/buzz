@@ -117,7 +117,7 @@ zip_mac:
 	ditto -c -k --keepParent "${mac_app_path}" "${mac_zip_path}"
 
 codesign_all_mac:
-	codesign --force --options=runtime --sign "$$BUZZ_CODESIGN_IDENTITY" --timestamp dist/Buzz.app/Contents/Resources/ffmpeg
+	#codesign --force --options=runtime --sign "$$BUZZ_CODESIGN_IDENTITY" --timestamp dist/Buzz.app/Contents/Resources/ffmpeg
 	codesign --force --options=runtime --sign "$$BUZZ_CODESIGN_IDENTITY" --timestamp dist/Buzz.app/Contents/Resources/whisper_cpp
 	for i in $$(find dist/Buzz.app/Contents/Resources/torch/bin -name "*" -type f); \
 	do \
