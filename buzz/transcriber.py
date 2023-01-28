@@ -260,7 +260,7 @@ class WhisperCppFileTranscriber(QObject):
 
         logging.debug('Running ffmpeg, %s', ffmpeg_cmd.get_args())
 
-        f = subprocess.run(['ffmpeg'] + ffmpeg_cmd.get_args)
+        f = subprocess.run(['ffmpeg'] + ffmpeg_cmd.get_args())
         logging.debug('subprocess exited with code %s', f.returncode)
 
         ffmpeg_cmd.run(cmd=["ffmpeg", "-nostdin"], capture_stdout=True, capture_stderr=True)
