@@ -261,6 +261,8 @@ class WhisperCppFileTranscriber(QObject):
             .run(cmd=["ffmpeg", "-nostdin"], capture_stdout=True, capture_stderr=True)
         )
 
+        logging.debug('Generated temporary wav file at %s', wav_file)
+
         args = [
             '--language', self.language if self.language is not None else 'en',
             '--max-len', '1' if self.word_level_timings else '0',
