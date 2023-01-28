@@ -29,7 +29,7 @@ if platform.system() == 'Windows':
     os.add_dll_directory(app_dir)
 
 if __name__ == "__main__":
-    # Counter to the multiprocessing docs (https://docs.python.org/3/library/multiprocessing.html#contexts-and-start-methods),
+    # Contrary to the multiprocessing docs (https://docs.python.org/3/library/multiprocessing.html#contexts-and-start-methods),
     # running sub-processes seem to exit with code 1 on Linux and Mac ARM without setting the "spawn" start method
     if platform.system() == 'Linux' or (platform.system() == 'Darwin' and platform.processor() == 'arm'):
         multiprocessing.set_start_method('spawn')
