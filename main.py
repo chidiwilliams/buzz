@@ -35,8 +35,8 @@ if __name__ == "__main__":
         multiprocessing.set_start_method('spawn')
 
     if platform.system() == 'Darwin' and platform.processor() == 'arm':
-        print('setting start method to fork')
-        multiprocessing.set_start_method('fork')
+        print('setting start method to spawn')
+        multiprocessing.set_start_method('spawn')
 
     # Fixes opening new window when app has been frozen on Windows:
     # https://stackoverflow.com/a/33979091
