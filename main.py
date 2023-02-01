@@ -6,7 +6,7 @@ import platform
 import sys
 from typing import TextIO
 
-from PyQt6.QtCore import QTranslator, QLocale
+import torch.cuda
 from appdirs import user_log_dir
 
 # Check for segfaults if not running in frozen mode
@@ -44,6 +44,8 @@ if __name__ == "__main__":
         format="[%(asctime)s] %(module)s.%(funcName)s:%(lineno)d %(levelname)s -> %(message)s")
 
     from buzz.gui import Application
+
+    logging.debug("CUDA available: %s", torch.cuda.is_available())
 
     app = Application()
 
