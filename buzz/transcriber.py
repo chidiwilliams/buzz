@@ -428,6 +428,8 @@ def transcribe_whisper(stderr_conn: Connection, task: FileTranscriptionTask):
             whisper_segments = result.get('segments')
         else:
             model = whisper.load_model(task.model_path)
+            sys.stderr.write(f"Running Whisper model with device = {model.device.type}")
+
             if task.transcription_options.word_level_timings:
                 stable_whisper.modify_model(model)
                 result = model.transcribe(
