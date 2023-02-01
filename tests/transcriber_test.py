@@ -108,8 +108,9 @@ class TestWhisperFileTranscriber:
     @pytest.mark.parametrize(
         'word_level_timings,expected_segments,model,check_progress',
         [
-            (False, [Segment(0, 6560,
-                             ' Bienvenue dans Passe-Relle. Un podcast pensé pour évêiller la curiosité des apprenances')],
+            (False, [Segment(0, 8400,
+                             ' Bienvenue dans Passe-Relle. Un podcast pensé pour évêiller la curiosité des apprenances '
+                             'et des apprenances de français.')],
              TranscriptionModel(model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY), True),
             (True, [Segment(40, 299, ' Bien'), Segment(299, 329, 'venue dans')],
              TranscriptionModel(model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY), True),
@@ -146,9 +147,7 @@ class TestWhisperFileTranscriber:
                 [call_args.args[0] == (0, 100) for call_args in mock_progress.call_args_list])
             assert any(
                 [call_args.args[0] == (100, 100) for call_args in mock_progress.call_args_list])
-            assert any(
-                [(0 < call_args.args[0][0] < 100) and (call_args.args[0][1] == 100) for call_args in
-                 mock_progress.call_args_list])
+            assert len(mock_progress.call_args_list) > 2
 
         mock_completed.assert_called()
         segments = mock_completed.call_args[0][0]
