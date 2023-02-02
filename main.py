@@ -45,6 +45,14 @@ if __name__ == "__main__":
 
     logging.debug("CUDA available: %s", torch.cuda.is_available())
 
+    import whisper
+
+    model = whisper.load_model("tiny")
+    logging.debug("whisper model device = %s", model.device.type)
+
+    result = model.transcribe("test.wav")
+    logging.debug("result = %s, text = %s", result, result["text"])
+
     from buzz.gui import Application
 
     app = Application()
