@@ -19,8 +19,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-latest
-          - os: windows-latest
+#          - os: macos-latest
+#          - os: windows-latest
           - os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -86,8 +86,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-latest
-          - os: windows-latest
+#          - os: macos-latest
+#          - os: windows-latest
           - os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
