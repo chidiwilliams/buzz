@@ -27,7 +27,6 @@ import whisper
 from PyQt6.QtCore import QObject, QProcess, pyqtSignal, pyqtSlot, QThread
 from sounddevice import PortAudioError
 
-import torch.nn 
 from . import transformers_whisper
 from .conn import pipe_stderr
 from .model_loader import TranscriptionModel, ModelType
@@ -48,7 +47,7 @@ DEFAULT_WHISPER_TEMPERATURE = (0.0, 0.2, 0.4, 0.6, 0.8, 1.0)
 
 if torch.has_mps: device = torch.device('mps')
 elif torch.has_cuda: device = torch.device('cuda')
-else: torch.device('cpu')
+else: device = torch.device('cpu')
 
 class Task(enum.Enum):
     TRANSLATE = "translate"
