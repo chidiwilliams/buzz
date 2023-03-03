@@ -178,18 +178,18 @@ jobs:
             dist/Buzz*-mac.dmg
             dist/Buzz*-unix.tar.gz
 
-    buzz-mac:
-      runs-on: macos-latest
-      steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-          
-      - uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: latest-stable
-          
-      - name: Build and test
-        run: xcodebuild clean build test -project Buzz.swift/Buzz.xcodeproj -scheme "CI" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+  buzz-mac:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+        
+    - uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+        
+    - name: Build and test
+      run: xcodebuild clean build test -project Buzz.swift/Buzz.xcodeproj -scheme "CI" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
 
   release:
     runs-on: ${{ matrix.os }}
