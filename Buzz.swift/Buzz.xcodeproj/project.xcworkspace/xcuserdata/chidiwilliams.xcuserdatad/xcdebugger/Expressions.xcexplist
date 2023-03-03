@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "Recorder.captureOutput(_:didOutput:from:):Recorder.swift">
+      </ContextState>
+      <ContextState
+         contextName = "closure #1 in ContentView.onDismissRecordingSheet():ContentView.swift">
+      </ContextState>
+      <ContextState
+         contextName = "closure #1 in ContentView.onDismissFileTranscriptionSheet():ContentView.swift">
+      </ContextState>
+      <ContextState
+         contextName = "ContentView.onDismissFileTranscriptionSheet():ContentView.swift">
+      </ContextState>
+      <ContextState
+         contextName = "closure #1 in closure #4 in ContentView.body.getter:ContentView.swift">
+      </ContextState>
+      <ContextState
+         contextName = "Recorder.setup(callback:):Recorder.swift">
+      </ContextState>
+      <ContextState
+         contextName = "TranscriptionView.onClickExport(exportFormat:):TranscriptionView.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "panel.nameFieldStringValue">
+            </PersistentString>
+            <PersistentString
+               value = "panel.url">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "closure #3 in ContentView.body.getter:ContentView.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "self.selectedTranscription?.title">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "log_mel_spectrogram(whisper_context&amp;, float const*, int, int, int, int, int, int, whisper_filters const&amp;, bool, whisper_mel&amp;):whisper.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "n_samples">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "FileTranscriber.transcribe(segmentCallback:):FileTranscriber.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "self.transcriptionOptions.model">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "closure #2 in RecordingTranscriber.start():RecordingTranscriber.swift">
+      </ContextState>
+      <ContextState
+         contextName = "ContentView.saveTranscriptions():ContentView.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "transcriptionStore.transcriptions">
+            </PersistentString>
+            <PersistentString
+               value = "self.transcriptionStore.transcriptions">
+            </PersistentString>
+            <PersistentString
+               value = "transcriptionStore">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "ContentView.onClickRecord():ContentView.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "self.currentRecordingTranscriptionTask?.transcription">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "Processor.transcribe():ContentView.swift">
+      </ContextState>
+      <ContextState
+         contextName = "Processor.captureOutput(_:didOutput:from:):ContentView.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "buf.floatChannelData?.pointee[100]">
+            </PersistentString>
+            <PersistentString
+               value = "pcmBuffer.floatChannelData?.pointee[1]">
+            </PersistentString>
+            <PersistentString
+               value = "buf">
+            </PersistentString>
+            <PersistentString
+               value = "sampleBuffer.int16ChannelData">
+            </PersistentString>
+            <PersistentString
+               value = "sampleBuffer.frameLength">
+            </PersistentString>
+            <PersistentString
+               value = "pcmBuffer.int32ChannelData?.pointee">
+            </PersistentString>
+            <PersistentString
+               value = "pcmBuffer.int16ChannelData?.pointee">
+            </PersistentString>
+            <PersistentString
+               value = "buf.floatChannelData.pointee">
+            </PersistentString>
+            <PersistentString
+               value = "sampleBuffer">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "Recorder.process(samples:count:):Recorder.swift">
+      </ContextState>
+      <ContextState
+         contextName = "ModelDownloadTask.urlSession(_:downloadTask:didFinishDownloadingTo:):TranscriptionOptionsView.swift">
+      </ContextState>
+      <ContextState
+         contextName = "AudioRecorder.captureOutput(_:didOutput:from:):AudioRecorder.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "sampleBuffer.formatDescription?.audioChannelLayout?.numberOfChannels">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "static ModelLoader.isAvailable(model:):ModelLoader.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "modelPath.path()">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "::whisper_full(whisper_context *, whisper_full_params, const float *, int):whisper.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "samples[5]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "closure #1 in static TranscriptionStore.save(transcription:completion:):TranscriptionStore.swift">
+      </ContextState>
+      <ContextState
+         contextName = "closure #1 in closure #1 in ContentView.body.getter:ContentView.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "session.outputs">
+            </PersistentString>
+            <PersistentString
+               value = "session.isRunning">
+            </PersistentString>
+            <PersistentString
+               value = "buf">
+            </PersistentString>
+            <PersistentString
+               value = "AVCaptureDevice.authorizationStatus(for: .audio)">
+            </PersistentString>
+            <PersistentString
+               value = "buf.frameLength">
+            </PersistentString>
+            <PersistentString
+               value = "file.fileFormat.sampleRate">
+            </PersistentString>
+            <PersistentString
+               value = "session.inputs">
+            </PersistentString>
+            <PersistentString
+               value = "buf.">
+            </PersistentString>
+            <PersistentString
+               value = "file.length">
+            </PersistentString>
+            <PersistentString
+               value = "cmd?.getReturnCode()">
+            </PersistentString>
+            <PersistentString
+               value = "file.processingFormat">
+            </PersistentString>
+            <PersistentString
+               value = "file.processingFormat.channelCount">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "closure #1 in closure #1 in closure #1 in ContentView.body.getter:ContentView.swift">
+      </ContextState>
+      <ContextState
+         contextName = "LiveRecordingView.init():LiveRecordingView.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "microphones[2].uniqueID">
+            </PersistentString>
+            <PersistentString
+               value = "self._selectedMicrophone">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>
