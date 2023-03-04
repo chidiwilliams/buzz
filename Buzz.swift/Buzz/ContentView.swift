@@ -24,6 +24,7 @@ struct ContentView: View {
     @StateObject private var transcriptionStore = TranscriptionStore()
     @State var selectedTranscription: Transcription? = nil
     @StateObject var fileTranscriptionOptions = FileTranscriptionOptions(file: URL(filePath: ""))
+    @State var shouldShowDeleteDialog = false
     
     private func saveTranscriptions() {
         TranscriptionStore.save(transcriptions: transcriptionStore.transcriptions) { result in
@@ -125,6 +126,11 @@ struct ContentView: View {
                 TranscriptionListRowContentView(transcription: transcription)
                     .padding(.vertical, 8)
                     .padding(.horizontal, 12)
+                    .contextMenu() {
+                        Button(action: { shouldShowDeleteDialog = true }) {
+                            Text("Delete")
+                        }
+                    }
             }
         }, detail: {
             if let transcription = selectedTranscription {
@@ -169,6 +175,16 @@ struct ContentView: View {
                 })
             }
         }
+        .alert("Are you sure you want to permanently delete the selected transcriptions?", isPresented: $shouldShowDeleteDialog,  actions: {
+            Button("Delete") {
+                guard let transcription = selectedTranscription else { return }
+                guard let transcriptionIndex = transcriptionStore.transcriptions.firstIndex(of: transcription) else { return }
+                transcriptionStore.transcriptions.remove(at: transcriptionIndex)
+            }
+            Button("Cancel", role: .cancel) {}
+        }, message: {
+            Text("You cannot undo this action.")
+        })
         .onAppear() {
             TranscriptionStore.load() { result in
                 switch result {
@@ -183,7 +199,9 @@ struct ContentView: View {
         .onReceive(
             NotificationCenter.default.publisher(for: NSApplication.willResignActiveNotification),
             perform: { _ in saveTranscriptions() })
-        
+        .onDeleteCommand() {
+            shouldShowDeleteDialog = true
+        }
     }
 }
 
