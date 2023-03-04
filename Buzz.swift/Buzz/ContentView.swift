@@ -25,6 +25,29 @@ struct ContentView: View {
     @State var selectedTranscription: Transcription? = nil
     @StateObject var fileTranscriptionOptions = FileTranscriptionOptions(file: URL(filePath: ""))
     @State var shouldShowDeleteDialog = false
+    @State var searchText = ""
+    
+    var transcriptions: [Transcription] {
+        let filtered: [Transcription]
+        if searchText.isEmpty {
+            filtered = transcriptionStore.transcriptions
+        } else {
+            let searchWords = searchText.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
+            
+            // Each search word is in the title or in a segment
+            filtered = transcriptionStore.transcriptions.filter { transcription in
+                return searchWords.allSatisfy({ word in
+                    transcription.title.localizedCaseInsensitiveContains(word) ||
+                    transcription.segments.contains { segment in
+                        segment.text.localizedCaseInsensitiveContains(word)
+                    }
+                })
+            }
+        }
+        
+        let sorted = filtered.sorted(by: { $0.timeStarted > $1.timeStarted })
+        return sorted
+    }
     
     private func saveTranscriptions() {
         TranscriptionStore.save(transcriptions: transcriptionStore.transcriptions) { result in
@@ -122,7 +145,7 @@ struct ContentView: View {
     
     var body: some View {
         NavigationSplitView(sidebar: {
-            List(transcriptionStore.transcriptions.sorted(by: { $0.timeStarted > $1.timeStarted }), id: \.self, selection: $selectedTranscription) { transcription in
+            List(transcriptions, id: \.self, selection: $selectedTranscription) { transcription in
                 TranscriptionListRowContentView(transcription: transcription)
                     .padding(.vertical, 8)
                     .padding(.horizontal, 12)
@@ -136,6 +159,12 @@ struct ContentView: View {
             if let transcription = selectedTranscription {
                 TranscriptionView(transcription: transcription)
             }
+        })
+        .searchable(text: $searchText, placement: .sidebar, prompt: "Search transcriptions")
+        .onChange(of: transcriptions, perform: { transcriptions in
+            //            This should reset the selected transcription to the first item in the filtered list,
+            //            but it reports an error with updating state while the view is changing...
+            selectedTranscription = nil
         })
         .toolbar() {
             Button(action: onClickRecord) {
@@ -192,7 +221,6 @@ struct ContentView: View {
                     fatalError(error.localizedDescription)
                 case .success(let transcriptions):
                     transcriptionStore.transcriptions = transcriptions
-                    selectedTranscription = transcriptions.first
                 }
             }
         }
