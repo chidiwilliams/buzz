@@ -33,7 +33,7 @@ class TestRecordingTranscriber:
 
         transcriber = RecordingTranscriber(transcription_options=TranscriptionOptions(
             model=transcription_model, language='fr', task=Task.TRANSCRIBE),
-            input_device_index=0)
+            input_device_index=0, sample_rate=16_000)
         transcriber.moveToThread(thread)
 
         thread.started.connect(model_loader.run)
