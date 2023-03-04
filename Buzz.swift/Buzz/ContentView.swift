@@ -45,8 +45,7 @@ struct ContentView: View {
             }
         }
         
-        let sorted = filtered.sorted(by: { $0.timeStarted > $1.timeStarted })
-        return sorted
+        return filtered.sorted(by: { $0.timeStarted > $1.timeStarted })
     }
     
     private func saveTranscriptions() {
@@ -143,6 +142,7 @@ struct ContentView: View {
         isFileTranscriptionOptionsSheetPresented = true
     }
     
+    
     var body: some View {
         NavigationSplitView(sidebar: {
             List(transcriptions, id: \.self, selection: $selectedTranscription) { transcription in
@@ -157,14 +157,12 @@ struct ContentView: View {
             }
         }, detail: {
             if let transcription = selectedTranscription {
-                TranscriptionView(transcription: transcription)
+                TranscriptionView(transcription: transcription, searchText: searchText)
             }
         })
-        .searchable(text: $searchText, placement: .sidebar, prompt: "Search transcriptions")
+        .searchable(text: $searchText, prompt: "Search transcriptions")
         .onChange(of: transcriptions, perform: { transcriptions in
-            //            This should reset the selected transcription to the first item in the filtered list,
-            //            but it reports an error with updating state while the view is changing...
-            selectedTranscription = nil
+            selectedTranscription = transcriptions.first
         })
         .toolbar() {
             Button(action: onClickRecord) {
@@ -221,6 +219,7 @@ struct ContentView: View {
                     fatalError(error.localizedDescription)
                 case .success(let transcriptions):
                     transcriptionStore.transcriptions = transcriptions
+                    selectedTranscription = transcriptions.first
                 }
             }
         }
