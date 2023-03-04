@@ -1,0 +1,200 @@
+fontconfig/COPYING
+
+Copyright © 2000,2001,2002,2003,2004,2006,2007 Keith Packard
+Copyright © 2005 Patrick Lam
+Copyright © 2007 Dwayne Bailey and Translate.org.za
+Copyright © 2009 Roozbeh Pournader
+Copyright © 2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020 Red Hat, Inc.
+Copyright © 2008 Danilo Šegan
+Copyright © 2012 Google, Inc.
+
+
+Permission to use, copy, modify, distribute, and sell this software and its
+documentation for any purpose is hereby granted without fee, provided that
+the above copyright notice appear in all copies and that both that
+copyright notice and this permission notice appear in supporting
+documentation, and that the name of the author(s) not be used in
+advertising or publicity pertaining to distribution of the software without
+specific, written prior permission.  The authors make no
+representations about the suitability of this software for any purpose.  It
+is provided "as is" without express or implied warranty.
+
+THE AUTHOR(S) DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
+EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY SPECIAL, INDIRECT OR
+CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
+DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+
+
+--------------------------------------------------------------------------------
+fontconfig/fc-case/CaseFolding.txt
+
+© 2019 Unicode®, Inc.
+Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
+For terms of use, see http://www.unicode.org/terms_of_use.html
+
+
+--------------------------------------------------------------------------------
+fontconfig/src/fcatomic.h
+
+/*
+ * Mutex operations.  Originally copied from HarfBuzz.
+ *
+ * Copyright © 2007  Chris Wilson
+ * Copyright © 2009,2010  Red Hat, Inc.
+ * Copyright © 2011,2012,2013  Google, Inc.
+ *
+ * Permission is hereby granted, without written agreement and without
+ * license or royalty fees, to use, copy, modify, and distribute this
+ * software and its documentation for any purpose, provided that the
+ * above copyright notice and the following two paragraphs appear in
+ * all copies of this software.
+ *
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE TO ANY PARTY FOR
+ * DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
+ * ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN
+ * IF THE COPYRIGHT HOLDER HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ *
+ * THE COPYRIGHT HOLDER SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING,
+ * BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE.  THE SOFTWARE PROVIDED HEREUNDER IS
+ * ON AN "AS IS" BASIS, AND THE COPYRIGHT HOLDER HAS NO OBLIGATION TO
+ * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+ *
+ * Contributor(s):
+ *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Red Hat Author(s): Behdad Esfahbod
+ * Google Author(s): Behdad Esfahbod
+ */
+
+
+--------------------------------------------------------------------------------
+fontconfig/src/fcfoundry.h
+
+/*
+  Copyright © 2002-2003 by Juliusz Chroboczek
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  THE SOFTWARE.
+*/
+
+
+--------------------------------------------------------------------------------
+fontconfig/src/fcmd5.h
+
+/*
+ * This code implements the MD5 message-digest algorithm.
+ * The algorithm is due to Ron Rivest.  This code was
+ * written by Colin Plumb in 1993, no copyright is claimed.
+ * This code is in the public domain; do with it what you wish.
+ *
+ * Equivalent code is available from RSA Data Security, Inc.
+ * This code has been tested against that, and is equivalent,
+ * except that you don't need to include two pages of legalese
+ * with every copy.
+ *
+ * To compute the message digest of a chunk of bytes, declare an
+ * MD5Context structure, pass it to MD5Init, call MD5Update as
+ * needed on buffers full of bytes, and then call MD5Final, which
+ * will fill a supplied 16-byte array with the digest.
+ */
+
+
+--------------------------------------------------------------------------------
+fontconfig/src/fcmutex.h
+
+/*
+ * Atomic int and pointer operations.  Originally copied from HarfBuzz.
+ *
+ * Copyright © 2007  Chris Wilson
+ * Copyright © 2009,2010  Red Hat, Inc.
+ * Copyright © 2011,2012,2013  Google, Inc.
+ *
+ * Permission is hereby granted, without written agreement and without
+ * license or royalty fees, to use, copy, modify, and distribute this
+ * software and its documentation for any purpose, provided that the
+ * above copyright notice and the following two paragraphs appear in
+ * all copies of this software.
+ *
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE TO ANY PARTY FOR
+ * DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
+ * ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN
+ * IF THE COPYRIGHT HOLDER HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ *
+ * THE COPYRIGHT HOLDER SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING,
+ * BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE.  THE SOFTWARE PROVIDED HEREUNDER IS
+ * ON AN "AS IS" BASIS, AND THE COPYRIGHT HOLDER HAS NO OBLIGATION TO
+ * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+ *
+ * Contributor(s):
+ *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Red Hat Author(s): Behdad Esfahbod
+ * Google Author(s): Behdad Esfahbod
+ */
+
+
+--------------------------------------------------------------------------------
+fontconfig/src/ftglue.[ch]
+
+/* ftglue.c: Glue code for compiling the OpenType code from
+ *           FreeType 1 using only the public API of FreeType 2
+ *
+ * By David Turner, The FreeType Project (www.freetype.org)
+ *
+ * This code is explicitely put in the public domain
+ *
+ * ==========================================================================
+ *
+ * the OpenType parser codes was originally written as an extension to
+ * FreeType 1.x. As such, its source code was embedded within the library,
+ * and used many internal FreeType functions to deal with memory and
+ * stream i/o.
+ *
+ * When it was 'salvaged' for Pango and Qt, the code was "ported" to FreeType 2,
+ * which basically means that some macro tricks were performed in order to
+ * directly access FT2 _internal_ functions.
+ *
+ * these functions were never part of FT2 public API, and _did_ change between
+ * various releases. This created chaos for many users: when they upgraded the
+ * FreeType library on their system, they couldn't run Gnome anymore since
+ * Pango refused to link.
+ *
+ * Very fortunately, it's possible to completely avoid this problem because
+ * the FT_StreamRec and FT_MemoryRec structure types, which describe how
+ * memory and stream implementations interface with the rest of the font
+ * library, have always been part of the public API, and never changed.
+ *
+ * What we do thus is re-implement, within the OpenType parser, the few
+ * functions that depend on them. This only adds one or two kilobytes of
+ * code, and ensures that the parser can work with _any_ version
+ * of FreeType installed on your system. How sweet... !
+ *
+ * Note that we assume that Pango doesn't use any other internal functions
+ * from FreeType. It used to in old versions, but this should no longer
+ * be the case. (crossing my fingers).
+ *
+ *  - David Turner
+ *  - The FreeType Project  (www.freetype.org)
+ *
+ * PS: This "glue" code is explicitely put in the public domain
+ */
