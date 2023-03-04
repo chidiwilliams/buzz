@@ -35,6 +35,7 @@ extension Transcription {
 
 struct TranscriptionView: View {
     @ObservedObject var transcription: Transcription
+    var searchText = ""
     
     var body: some View {
         ScrollView {
@@ -61,7 +62,11 @@ struct TranscriptionView: View {
                                         .foregroundColor(.secondary)
                                 }
                             }
-                            Text(segment.text)
+                            if searchText.isEmpty {
+                                Text(segment.text)
+                            } else {
+                                HighlightTextView(text: segment.text, highlights: searchText.components(separatedBy: .whitespaces))
+                            }
                         }
                         .padding(.bottom, 24)
                     }
@@ -98,7 +103,7 @@ struct TranscriptionView_Previews: PreviewProvider {
     }()
     
     static var previews: some View {
-        TranscriptionView(transcription: recordingTranscription)
+        TranscriptionView(transcription: recordingTranscription, searchText: "horrible")
             .previewDisplayName("Recording Transcription")
         TranscriptionView(transcription: inProgressFileTranscription)
             .previewDisplayName("File Transcription - In Progress")

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		981E0D3A29B3BE2D00E7DC24 /* HighlightTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 981E0D3929B3BE2D00E7DC24 /* HighlightTextView.swift */; };
 		983681FE29AD3A0600B8CE08 /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 983681FD29AD3A0600B8CE08 /* CircularProgressView.swift */; };
 		9836820029ADFBF800B8CE08 /* ModelDownloadTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 983681FF29ADFBF800B8CE08 /* ModelDownloadTask.swift */; };
 		98753C83299F0A8700FD06C7 /* Transcription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98753C82299F0A8700FD06C7 /* Transcription.swift */; };
@@ -92,6 +93,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		981E0D3929B3BE2D00E7DC24 /* HighlightTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighlightTextView.swift; sourceTree = "<group>"; };
 		983681FD29AD3A0600B8CE08 /* CircularProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularProgressView.swift; sourceTree = "<group>"; };
 		983681FF29ADFBF800B8CE08 /* ModelDownloadTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelDownloadTask.swift; sourceTree = "<group>"; };
 		9842D9AE2995CDBC0035C8E3 /* libavdevice.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libavdevice.xcframework; path = "../../../Downloads/ffmpeg-kit-full-4.5.1-macos-xcframework/libavdevice.xcframework"; sourceTree = "<group>"; };
@@ -225,6 +227,7 @@
 				98D9610C29A3D51E0074FCFA /* TranscriptionOptionsView */,
 				98753C84299F818300FD06C7 /* TranscriptionStore.swift */,
 				98DA8CC929918A8000634136 /* TranscriptionView.swift */,
+				981E0D3929B3BE2D00E7DC24 /* HighlightTextView.swift */,
 			);
 			path = Buzz;
 			sourceTree = "<group>";
@@ -475,6 +478,7 @@
 				98DA8CC62990694800634136 /* FloatingTranscriptionView.swift in Sources */,
 				98753C85299F818300FD06C7 /* TranscriptionStore.swift in Sources */,
 				98CA00E2298E8A77001A70A4 /* RecordingTranscriptionOptionsView.swift in Sources */,
+				981E0D3A29B3BE2D00E7DC24 /* HighlightTextView.swift in Sources */,
 				98DA8CC8299102B400634136 /* RecordingTranscriber.swift in Sources */,
 				98753C83299F0A8700FD06C7 /* Transcription.swift in Sources */,
 				98D9610529A3CA5E0074FCFA /* TranscriptionListRowContentView.swift in Sources */,
