@@ -21,9 +21,8 @@ from tests.mock_sounddevice import MockInputStream
 from tests.model_loader import get_model_path
 
 
-@pytest.mark.skip()
 class TestRecordingTranscriber:
-    @pytest.mark.skipif(platform.system() == 'Darwin', reason='Hanging')
+    @pytest.mark.skipif(platform.system() == 'Darwin' or platform.system() == 'Linux', reason='Hanging')
     def test_should_transcribe(self, qtbot):
         thread = QThread()
 
