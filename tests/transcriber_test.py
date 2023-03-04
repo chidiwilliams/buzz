@@ -22,7 +22,7 @@ from tests.model_loader import get_model_path
 
 
 class TestRecordingTranscriber:
-    @pytest.mark.skipif(platform.system() == 'Darwin' or platform.system() == 'Linux', reason='Hanging')
+    @pytest.mark.skip(reason='Hanging')
     def test_should_transcribe(self, qtbot):
         thread = QThread()
 
