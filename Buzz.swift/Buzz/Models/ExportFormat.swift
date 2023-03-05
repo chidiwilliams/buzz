@@ -8,5 +8,5 @@
 import Foundation
 
 enum ExportFormat: String, CaseIterable {
-    case TXT, SRT, VTT
+    case CSV, SRT, TXT, VTT
 }
