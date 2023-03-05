@@ -76,7 +76,7 @@ struct ContentView: View {
             transcriber.start() { segment in
                 DispatchQueue.main.async {
                     line = segment.text
-                    currentRecordingTranscription?.segments.insert(segment, at: 0)
+                    currentRecordingTranscription?.segments.append(segment)
                 }
             }
             self.transcriber = transcriber

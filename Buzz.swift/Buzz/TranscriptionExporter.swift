@@ -64,6 +64,11 @@ class TranscriptionExporter {
                     .appending("\(toTimestamp(ms: startMS)) --> \(toTimestamp(ms: endMS))\n")
                     .appending("\(segment.text)\n\n")
             }
+        case .CSV:
+            output = output.appending("Start time (ms), End time (ms),Text\n")
+            transcription.segments.forEach { segment in
+                output = output.appending("\(segment.startMS ?? 0),\(segment.endMS ?? 0),\"\(segment.text)\"\n")
+            }
         }
         
         do {
