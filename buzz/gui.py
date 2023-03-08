@@ -396,8 +396,7 @@ class TranscriptionViewerWidget(QWidget):
         if output_file_path == '':
             return
 
-        write_output(path=output_file_path, segments=self.transcription_task.segments,
-                     should_open=self.open_transcription_output, output_format=output_format)
+        write_output(path=output_file_path, segments=self.transcription_task.segments, output_format=output_format)
 
 
 class AdvancedSettingsButton(QPushButton):
