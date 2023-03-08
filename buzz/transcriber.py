@@ -456,7 +456,7 @@ def transcribe_whisper(stderr_conn: Connection, task: FileTranscriptionTask):
             WhisperFileTranscriber.READ_LINE_THREAD_STOP_TOKEN + '\n')
 
 
-def write_output(path: str, segments: List[Segment], should_open: bool, output_format: OutputFormat):
+def write_output(path: str, segments: List[Segment], output_format: OutputFormat):
     logging.debug(
         'Writing transcription output, path = %s, output format = %s, number of segments = %s', path, output_format,
         len(segments))
@@ -484,14 +484,6 @@ def write_output(path: str, segments: List[Segment], should_open: bool, output_f
                 file.write(f'{segment.text}\n\n')
 
     logging.debug('Written transcription output')
-
-    if should_open:
-        try:
-            logging.debug('Opening transcription output')
-            os.startfile(path)
-        except AttributeError:
-            opener = "open" if platform.system() == "Darwin" else "xdg-open"
-            subprocess.call([opener, path])
 
 
 def segments_to_text(segments: List[Segment]) -> str:

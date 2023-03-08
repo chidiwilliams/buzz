@@ -217,8 +217,7 @@ def test_write_output(tmp_path: pathlib.Path, output_format: OutputFormat, outpu
     output_file_path = tmp_path / 'whisper.txt'
     segments = [Segment(40, 299, 'Bien'), Segment(299, 329, 'venue dans')]
 
-    write_output(path=str(output_file_path), segments=segments,
-                 should_open=False, output_format=output_format)
+    write_output(path=str(output_file_path), segments=segments, output_format=output_format)
 
     output_file = open(output_file_path, 'r', encoding='utf-8')
     assert output_text == output_file.read()
