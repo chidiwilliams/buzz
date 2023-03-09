@@ -20,6 +20,7 @@ from threading import Thread
 from typing import Any, List, Optional, Tuple, Union
 import openai
 
+import torch
 import ffmpeg
 import numpy as np
 import sounddevice
@@ -46,6 +47,9 @@ except ImportError:
 
 DEFAULT_WHISPER_TEMPERATURE = (0.0, 0.2, 0.4, 0.6, 0.8, 1.0)
 
+if torch.has_mps: device = torch.device('mps')
+elif torch.has_cuda: device = torch.device('cuda')
+else: device = torch.device('cpu')
 
 class Task(enum.Enum):
     TRANSLATE = "translate"
@@ -123,6 +127,8 @@ class RecordingTranscriber(QObject):
             model = WhisperCpp(model_path)
         else:  # ModelType.HUGGING_FACE
             model = transformers_whisper.load_model(model_path)
+
+        model = model.to(device)
 
         initial_prompt = self.transcription_options.initial_prompt
 
