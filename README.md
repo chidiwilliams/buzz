@@ -19,7 +19,8 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
   VTT ([Demo](https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe))
 - Supports [Whisper](https://github.com/openai/whisper#available-models-and-languages),
   [Whisper.cpp](https://github.com/ggerganov/whisper.cpp),
-  and [Whisper-compatible Hugging Face models](https://huggingface.co/models?other=whisper)
+  [Whisper-compatible Hugging Face models](https://huggingface.co/models?other=whisper), and
+  the [OpenAI Whisper API](https://platform.openai.com/docs/api-reference/introduction)
 - Available on Mac, Windows, and Linux
 
 ## Installation
