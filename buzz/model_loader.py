@@ -26,6 +26,7 @@ class ModelType(enum.Enum):
     WHISPER = 'Whisper'
     WHISPER_CPP = 'Whisper.cpp'
     HUGGING_FACE = 'Hugging Face'
+    OPEN_AI_WHISPER_API = 'OpenAI Whisper API'
 
 
 @dataclass()
@@ -82,7 +83,7 @@ class ModelLoader(QObject):
             expected_sha256 = url.split('/')[-2]
             self.download_model(url, file_path, expected_sha256)
 
-        else:  # ModelType.HUGGING_FACE:
+        elif self.model_type == ModelType.HUGGING_FACE:
             self.progress.emit((0, 100))
 
             try:
@@ -94,6 +95,12 @@ class ModelLoader(QObject):
 
             self.progress.emit((100, 100))
             file_path = self.hugging_face_model_id
+
+        elif self.model_type == ModelType.OPEN_AI_WHISPER_API:
+            file_path = ""
+
+        else:
+            raise Exception("Invalid model type: " + self.model_type.value)
 
         self.finished.emit(file_path)
 

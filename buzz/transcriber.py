@@ -12,11 +12,13 @@ import subprocess
 import sys
 import tempfile
 import threading
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from multiprocessing.connection import Connection
 from random import randint
 from threading import Thread
 from typing import Any, List, Optional, Tuple, Union
+import openai
 
 import ffmpeg
 import numpy as np
@@ -61,10 +63,11 @@ class Segment:
 class TranscriptionOptions:
     language: Optional[str] = None
     task: Task = Task.TRANSCRIBE
-    model: TranscriptionModel = TranscriptionModel()
+    model: TranscriptionModel = field(default_factory=TranscriptionModel)
     word_level_timings: bool = False
     temperature: Tuple[float, ...] = DEFAULT_WHISPER_TEMPERATURE
     initial_prompt: str = ''
+    openai_access_token: Optional[str] = None
 
 
 @dataclass()
@@ -219,17 +222,34 @@ class OutputFormat(enum.Enum):
     VTT = 'vtt'
 
 
-class WhisperCppFileTranscriber(QObject):
+class FileTranscriber(QObject):
+    transcription_task: FileTranscriptionTask
     progress = pyqtSignal(tuple)  # (current, total)
     completed = pyqtSignal(list)  # List[Segment]
     error = pyqtSignal(str)
+
+    def __init__(self, task: FileTranscriptionTask,
+                 parent: Optional['QObject'] = None):
+        super().__init__(parent)
+        self.transcription_task = task
+
+    @abstractmethod
+    def run(self):
+        ...
+
+    @abstractmethod
+    def stop(self):
+        ...
+
+
+class WhisperCppFileTranscriber(FileTranscriber):
     duration_audio_ms = sys.maxsize  # max int
     segments: List[Segment]
     running = False
 
     def __init__(self, task: FileTranscriptionTask,
                  parent: Optional['QObject'] = None) -> None:
-        super().__init__(parent)
+        super().__init__(task, parent)
 
         self.file_path = task.file_path
         self.language = task.transcription_options.language
@@ -332,22 +352,60 @@ class WhisperCppFileTranscriber(QObject):
             pass
 
 
-class WhisperFileTranscriber(QObject):
+class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
+    def __init__(self, task: FileTranscriptionTask, parent: Optional['QObject'] = None):
+        super().__init__(task=task, parent=parent)
+        self.file_path = task.file_path
+        self.task = task.transcription_options.task
+
+    @pyqtSlot()
+    def run(self):
+        try:
+            logging.debug('Starting OpenAI Whisper API file transcription, file path = %s, task = %s', self.file_path,
+                          self.task)
+
+            wav_file = tempfile.mktemp() + '.wav'
+            (
+                ffmpeg.input(self.file_path)
+                .output(wav_file, acodec="pcm_s16le", ac=1, ar=whisper.audio.SAMPLE_RATE)
+                .run(cmd=["ffmpeg", "-nostdin"], capture_stdout=True, capture_stderr=True)
+            )
+
+            # Check if file size is more than 25MB (2.5 minutes), then chunk
+            audio_file = open(wav_file, "rb")
+            openai.api_key = self.transcription_task.transcription_options.openai_access_token
+            language = self.transcription_task.transcription_options.language
+            response_format = "verbose_json"
+            if self.transcription_task.transcription_options.task == Task.TRANSLATE:
+                transcript = openai.Audio.translate("whisper-1", audio_file, response_format=response_format,
+                                                    language=language)
+            else:
+                transcript = openai.Audio.transcribe("whisper-1", audio_file, response_format=response_format,
+                                                     language=language)
+
+            segments = [Segment(segment["start"] * 1000, segment["end"] * 1000, segment["text"]) for segment in
+                        transcript["segments"]]
+            self.completed.emit(segments)
+        except Exception as exc:
+            self.error.emit(str(exc))
+            logging.exception('')
+
+    def stop(self):
+        pass
+
+
+class WhisperFileTranscriber(FileTranscriber):
     """WhisperFileTranscriber transcribes an audio file to text, writes the text to a file, and then opens the file
     using the default program for opening txt files. """
 
     current_process: multiprocessing.Process
-    progress = pyqtSignal(tuple)  # (current, total)
-    completed = pyqtSignal(list)  # List[Segment]
-    error = pyqtSignal(str)
     running = False
     read_line_thread: Optional[Thread] = None
     READ_LINE_THREAD_STOP_TOKEN = '--STOP--'
 
     def __init__(self, task: FileTranscriptionTask,
                  parent: Optional['QObject'] = None) -> None:
-        super().__init__(parent)
-        self.transcription_task = task
+        super().__init__(task, parent)
         self.segments = []
         self.started_process = False
         self.stopped = False
@@ -570,8 +628,7 @@ class WhisperCpp:
 class FileTranscriberQueueWorker(QObject):
     tasks_queue: multiprocessing.Queue
     current_task: Optional[FileTranscriptionTask] = None
-    current_transcriber: Optional[WhisperFileTranscriber |
-                                  WhisperCppFileTranscriber] = None
+    current_transcriber: Optional[FileTranscriber] = None
     current_transcriber_thread: Optional[QThread] = None
     task_updated = pyqtSignal(FileTranscriptionTask)
     completed = pyqtSignal()
@@ -605,9 +662,12 @@ class FileTranscriberQueueWorker(QObject):
 
         logging.debug('Starting next transcription task')
 
-        if self.current_task.transcription_options.model.model_type == ModelType.WHISPER_CPP:
+        model_type = self.current_task.transcription_options.model.model_type
+        if model_type == ModelType.WHISPER_CPP:
             self.current_transcriber = WhisperCppFileTranscriber(
                 task=self.current_task)
+        elif model_type == ModelType.OPEN_AI_WHISPER_API:
+            self.current_transcriber = OpenAIWhisperAPIFileTranscriber(task=self.current_task)
         else:
             self.current_transcriber = WhisperFileTranscriber(
                 task=self.current_task)

@@ -20,6 +20,7 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
 - Supports [Whisper](https://github.com/openai/whisper#available-models-and-languages),
   [Whisper.cpp](https://github.com/ggerganov/whisper.cpp),
   and [Whisper-compatible Hugging Face models](https://huggingface.co/models?other=whisper)
+- Available on Mac, Windows, and Linux
 
 ## Installation
 
