@@ -371,7 +371,7 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
                 .run(cmd=["ffmpeg", "-nostdin"], capture_stdout=True, capture_stderr=True)
             )
 
-            # Check if file size is more than 25MB (2.5 minutes), then chunk
+            # TODO: Check if file size is more than 25MB (2.5 minutes), then chunk
             audio_file = open(wav_file, "rb")
             openai.api_key = self.transcription_task.transcription_options.openai_access_token
             language = self.transcription_task.transcription_options.language
