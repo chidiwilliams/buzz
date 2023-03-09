@@ -4,11 +4,10 @@ import json
 import logging
 import os
 import platform
-import random
 import sys
 from datetime import datetime
 from enum import auto
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple
 
 import humanize
 import sounddevice
@@ -33,7 +32,6 @@ from .model_loader import ModelLoader, WhisperModelSize, ModelType, Transcriptio
 from .recording import RecordingAmplitudeListener
 from .transcriber import (SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
                           Task,
-                          WhisperCppFileTranscriber, WhisperFileTranscriber,
                           get_default_output_file_path, segments_to_text, write_output, TranscriptionOptions,
                           FileTranscriberQueueWorker, FileTranscriptionTask, RecordingTranscriber, LOADED_WHISPER_DLL)
 
@@ -217,8 +215,6 @@ def show_model_download_error_dialog(parent: QWidget, error: str):
 
 class FileTranscriberWidget(QWidget):
     model_download_progress_dialog: Optional[DownloadModelProgressDialog] = None
-    file_transcriber: Optional[Union[WhisperFileTranscriber,
-    WhisperCppFileTranscriber]] = None
     model_loader: Optional[ModelLoader] = None
     transcriber_thread: Optional[QThread] = None
     file_transcription_options: FileTranscriptionOptions
@@ -226,15 +222,16 @@ class FileTranscriberWidget(QWidget):
     is_transcribing = False
     # (TranscriptionOptions, FileTranscriptionOptions, str)
     triggered = pyqtSignal(tuple)
+    openai_access_token_changed = pyqtSignal(str)
 
-    def __init__(self, file_paths: List[str], parent: Optional[QWidget] = None,
-                 flags: Qt.WindowType = Qt.WindowType.Widget) -> None:
+    def __init__(self, file_paths: List[str], openai_access_token: Optional[str] = None,
+                 parent: Optional[QWidget] = None, flags: Qt.WindowType = Qt.WindowType.Widget) -> None:
         super().__init__(parent, flags)
 
         self.setWindowTitle(file_paths_as_title(file_paths))
 
         self.file_paths = file_paths
-        self.transcription_options = TranscriptionOptions()
+        self.transcription_options = TranscriptionOptions(openai_access_token=openai_access_token)
         self.file_transcription_options = FileTranscriptionOptions(
             file_paths=self.file_paths)
 
@@ -266,7 +263,9 @@ class FileTranscriberWidget(QWidget):
     def on_transcription_options_changed(self, transcription_options: TranscriptionOptions):
         self.transcription_options = transcription_options
         self.word_level_timings_checkbox.setDisabled(
-            self.transcription_options.model.model_type == ModelType.HUGGING_FACE)
+            self.transcription_options.model.model_type == ModelType.HUGGING_FACE or self.transcription_options.model.model_type == ModelType.OPEN_AI_WHISPER_API)
+        if self.transcription_options.openai_access_token is not None:
+            self.openai_access_token_changed.emit(self.transcription_options.openai_access_token)
 
     def on_click_run(self):
         self.run_button.setDisabled(True)
@@ -503,7 +502,10 @@ class RecordingTranscriberWidget(QWidget):
         self.text_box.setPlaceholderText(_('Click Record to begin...'))
 
         transcription_options_group_box = TranscriptionOptionsGroupBox(
-            default_transcription_options=self.transcription_options, parent=self)
+            default_transcription_options=self.transcription_options,
+            # Live transcription with OpenAI Whisper API not implemented
+            model_types=[model_type for model_type in ModelType if model_type is not ModelType.OPEN_AI_WHISPER_API],
+            parent=self)
         transcription_options_group_box.transcription_options_changed.connect(
             self.on_transcription_options_changed)
 
@@ -820,7 +822,7 @@ class TranscriptionTasksTableWidget(QTableWidget):
             elif task.status == FileTranscriptionTask.Status.COMPLETED:
                 status_widget.setText(_('Completed'))
             elif task.status == FileTranscriptionTask.Status.FAILED:
-                status_widget.setText(_('Failed'))
+                status_widget.setText(f'{_("Failed")} ({task.error})')
             elif task.status == FileTranscriptionTask.Status.CANCELED:
                 status_widget.setText(_('Canceled'))
 
@@ -925,6 +927,7 @@ class MainWindow(QMainWindow):
     table_widget: TranscriptionTasksTableWidget
     tasks: Dict[int, 'FileTranscriptionTask']
     tasks_changed = pyqtSignal()
+    openai_access_token: Optional[str] = None
 
     def __init__(self, tasks_cache=TasksCache()):
         super().__init__(flags=Qt.WindowType.Window)
@@ -1026,10 +1029,16 @@ class MainWindow(QMainWindow):
             return
 
         file_transcriber_window = FileTranscriberWidget(
-            file_paths, self, flags=Qt.WindowType.Window)
+            file_paths, self.openai_access_token, self, flags=Qt.WindowType.Window)
         file_transcriber_window.triggered.connect(
             self.on_file_transcriber_triggered)
+        file_transcriber_window.openai_access_token_changed.connect(self.on_openai_access_token_changed)
         file_transcriber_window.show()
+
+    # Save the access token on the main window so the user doesn't need to re-enter (at least, not while the app is
+    # still open)
+    def on_openai_access_token_changed(self, access_token: str):
+        self.openai_access_token = access_token
 
     def on_open_transcript_action_triggered(self):
         selected_rows = self.table_widget.selectionModel().selectedRows()
@@ -1092,6 +1101,7 @@ class MainWindow(QMainWindow):
         self.toolbar.set_open_transcript_action_enabled(self.should_enable_open_transcript_action())
         self.toolbar.set_stop_transcription_action_enabled(self.should_enable_stop_transcription_action())
         self.toolbar.set_clear_history_action_enabled(self.should_enable_clear_history_action())
+        self.save_tasks_to_cache()
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         self.transcriber_worker.stop()
@@ -1236,6 +1246,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
     transcription_options_changed = pyqtSignal(TranscriptionOptions)
 
     def __init__(self, default_transcription_options: TranscriptionOptions = TranscriptionOptions(),
+                 model_types: Optional[List[ModelType]] = None,
                  parent: Optional[QWidget] = None):
         super().__init__(title='', parent=parent)
         self.transcription_options = default_transcription_options
@@ -1261,7 +1272,9 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.hugging_face_search_line_edit.model_selected.connect(self.on_hugging_face_model_changed)
 
         self.model_type_combo_box = QComboBox(self)
-        for model_type in ModelType:
+        if model_types is None:
+            model_types = [model_type for model_type in ModelType]
+        for model_type in model_types:
             # Hide Whisper.cpp option is whisper.dll did not load correctly.
             # See: https://github.com/chidiwilliams/buzz/issues/274, https://github.com/chidiwilliams/buzz/issues/197
             if model_type == ModelType.WHISPER_CPP and LOADED_WHISPER_DLL is False:
@@ -1277,17 +1290,27 @@ class TranscriptionOptionsGroupBox(QGroupBox):
                 default_transcription_options.model.whisper_model_size.value.title())
         self.whisper_model_size_combo_box.currentTextChanged.connect(self.on_whisper_model_size_changed)
 
-        self.form_layout.addRow(_('Task:'), self.tasks_combo_box)
-        self.form_layout.addRow(_('Language:'), self.languages_combo_box)
+        self.openai_access_token_edit = QLineEdit(self)
+        self.openai_access_token_edit.setText(default_transcription_options.openai_access_token)
+        self.openai_access_token_edit.setEchoMode(QLineEdit.EchoMode.Password)
+        self.openai_access_token_edit.textChanged.connect(self.on_openai_access_token_edit_changed)
+
         self.form_layout.addRow(_('Model:'), self.model_type_combo_box)
         self.form_layout.addRow('', self.whisper_model_size_combo_box)
         self.form_layout.addRow('', self.hugging_face_search_line_edit)
+        self.form_layout.addRow('Access Token:', self.openai_access_token_edit)
+        self.form_layout.addRow(_('Task:'), self.tasks_combo_box)
+        self.form_layout.addRow(_('Language:'), self.languages_combo_box)
 
-        self.form_layout.setRowVisible(self.hugging_face_search_line_edit, False)
+        self.reset_visible_rows()
 
         self.form_layout.addRow('', self.advanced_settings_button)
 
         self.setLayout(self.form_layout)
+
+    def on_openai_access_token_edit_changed(self, access_token: str):
+        self.transcription_options.openai_access_token = access_token
+        self.transcription_options_changed.emit(self.transcription_options)
 
     def on_language_changed(self, language: str):
         self.transcription_options.language = language
@@ -1316,12 +1339,17 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.transcription_options = transcription_options
         self.transcription_options_changed.emit(transcription_options)
 
-    def on_model_type_changed(self, text: str):
-        model_type = ModelType(text)
+    def reset_visible_rows(self):
+        model_type = self.transcription_options.model.model_type
         self.form_layout.setRowVisible(self.hugging_face_search_line_edit, model_type == ModelType.HUGGING_FACE)
         self.form_layout.setRowVisible(self.whisper_model_size_combo_box,
                                        (model_type == ModelType.WHISPER) or (model_type == ModelType.WHISPER_CPP))
+        self.form_layout.setRowVisible(self.openai_access_token_edit, model_type == ModelType.OPEN_AI_WHISPER_API)
+
+    def on_model_type_changed(self, text: str):
+        model_type = ModelType(text)
         self.transcription_options.model.model_type = model_type
+        self.reset_visible_rows()
         self.transcription_options_changed.emit(self.transcription_options)
 
     def on_whisper_model_size_changed(self, text: str):

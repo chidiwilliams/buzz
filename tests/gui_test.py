@@ -442,7 +442,7 @@ class TestRecordingTranscriberWidget:
         qtbot.add_widget(widget)
         assert widget.windowTitle() == 'Live Recording'
 
-    @pytest.mark.skipif(condition=platform.system() == 'Linux', reason='Hanging')
+    @pytest.mark.skip(reason='Seg faults on CI')
     def test_should_transcribe(self, qtbot):
         widget = RecordingTranscriberWidget()
         qtbot.add_widget(widget)
