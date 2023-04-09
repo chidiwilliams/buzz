@@ -23,8 +23,7 @@ from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
                              QMainWindow, QMessageBox, QPlainTextEdit,
                              QProgressDialog, QPushButton, QVBoxLayout, QHBoxLayout, QMenu,
                              QWidget, QGroupBox, QToolBar, QTableWidget, QMenuBar, QFormLayout, QTableWidgetItem,
-                             QHeaderView, QAbstractItemView, QListWidget, QListWidgetItem, QToolButton, QSizePolicy,
-                             QListView)
+                             QHeaderView, QAbstractItemView, QListWidget, QListWidgetItem, QToolButton, QSizePolicy)
 from whisper import tokenizer
 
 from buzz.cache import TasksCache
@@ -234,7 +233,7 @@ class FileTranscriberWidget(QWidget):
         self.file_paths = file_paths
         self.transcription_options = TranscriptionOptions(openai_access_token=openai_access_token)
         self.file_transcription_options = FileTranscriptionOptions(
-            file_paths=self.file_paths, output_formats=set())
+            file_paths=self.file_paths)
 
         layout = QVBoxLayout(self)
 
@@ -253,7 +252,7 @@ class FileTranscriberWidget(QWidget):
         export_format_layout = QHBoxLayout()
         for output_format in OutputFormat:
             export_format_checkbox = QCheckBox(f'{output_format.value.upper()}', parent=self)
-            export_format_checkbox.stateChanged.connect(self.get_on_checkbox_state_changed_cb(output_format))
+            export_format_checkbox.stateChanged.connect(self.get_on_checkbox_state_changed_callback(output_format))
             export_format_layout.addWidget(export_format_checkbox)
 
         file_transcription_layout.addRow('Export:', export_format_layout)
@@ -269,7 +268,7 @@ class FileTranscriberWidget(QWidget):
         self.setLayout(layout)
         self.setFixedSize(self.sizeHint())
 
-    def get_on_checkbox_state_changed_cb(self, output_format: OutputFormat):
+    def get_on_checkbox_state_changed_callback(self, output_format: OutputFormat):
         def on_checkbox_state_changed(state: Qt.CheckState):
             if state == Qt.CheckState.Checked.value:
                 self.file_transcription_options.output_formats.add(output_format)

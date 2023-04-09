@@ -73,7 +73,7 @@ class TranscriptionOptions:
 @dataclass()
 class FileTranscriptionOptions:
     file_paths: List[str]
-    output_formats: Set['OutputFormat']
+    output_formats: Set['OutputFormat'] = field(default_factory=set)
 
 
 @dataclass
