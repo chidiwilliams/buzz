@@ -303,9 +303,6 @@ class FileTranscriberWidget(QWidget):
         self.model_loader.finished.connect(self.on_model_loaded)
         self.model_loader.finished.connect(self.model_loader.deleteLater)
 
-        self.transcriber_thread.finished.connect(
-            self.transcriber_thread.deleteLater)
-
         self.transcriber_thread.start()
 
     def on_model_loaded(self, model_path: str):
