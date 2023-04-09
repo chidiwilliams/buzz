@@ -936,6 +936,8 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon(BUZZ_ICON_PATH))
         self.setMinimumSize(450, 400)
 
+        self.setAcceptDrops(True)
+
         self.tasks_cache = tasks_cache
 
         self.tasks = {}
@@ -978,6 +980,17 @@ class MainWindow(QMainWindow):
         self.transcriber_thread.start()
 
         self.load_tasks_from_cache()
+
+    def dragEnterEvent(self, event):
+        # Accept file drag events
+        if event.mimeData().hasUrls():
+            event.accept()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):
+        file_paths = [url.toLocalFile() for url in event.mimeData().urls()]
+        self.open_file_transcriber_widget(file_paths=file_paths)
 
     def on_file_transcriber_triggered(self, options: Tuple[TranscriptionOptions, FileTranscriptionOptions, str]):
         transcription_options, file_transcription_options, model_path = options
@@ -1028,6 +1041,9 @@ class MainWindow(QMainWindow):
         if len(file_paths) == 0:
             return
 
+        self.open_file_transcriber_widget(file_paths)
+
+    def open_file_transcriber_widget(self, file_paths: List[str]):
         file_transcriber_window = FileTranscriberWidget(
             file_paths, self.openai_access_token, self, flags=Qt.WindowType.Window)
         file_transcriber_window.triggered.connect(
