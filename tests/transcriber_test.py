@@ -69,7 +69,7 @@ class TestWhisperCppFileTranscriber:
         ])
     def test_transcribe(self, qtbot: QtBot, word_level_timings: bool, expected_segments: List[Segment]):
         file_transcription_options = FileTranscriptionOptions(
-            file_paths=['testdata/whisper-french.mp3'])
+            file_paths=['testdata/whisper-french.mp3'], output_formats=set())
         transcription_options = TranscriptionOptions(language='fr', task=Task.TRANSCRIBE,
                                                      word_level_timings=word_level_timings,
                                                      model=TranscriptionModel(model_type=ModelType.WHISPER_CPP,
@@ -128,7 +128,7 @@ class TestWhisperFileTranscriber:
                                                      model=model)
         model_path = get_model_path(transcription_options.model)
         file_transcription_options = FileTranscriptionOptions(
-            file_paths=['testdata/whisper-french.mp3'])
+            file_paths=['testdata/whisper-french.mp3'], output_formats=set())
 
         transcriber = WhisperFileTranscriber(
             task=FileTranscriptionTask(transcription_options=transcription_options,
@@ -164,7 +164,7 @@ class TestWhisperFileTranscriber:
             os.remove(output_file_path)
 
         file_transcription_options = FileTranscriptionOptions(
-            file_paths=['testdata/whisper-french.mp3'])
+            file_paths=['testdata/whisper-french.mp3'], output_formats=set())
         transcription_options = TranscriptionOptions(
             language='fr', task=Task.TRANSCRIBE, word_level_timings=False,
             model=TranscriptionModel(model_type=ModelType.WHISPER_CPP, whisper_model_size=WhisperModelSize.TINY))
