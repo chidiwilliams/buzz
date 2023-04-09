@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 from multiprocessing.connection import Connection
 from random import randint
 from threading import Thread
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union, Set
 import openai
 
 import ffmpeg
@@ -73,6 +73,7 @@ class TranscriptionOptions:
 @dataclass()
 class FileTranscriptionOptions:
     file_paths: List[str]
+    output_formats: Set['OutputFormat'] = field(default_factory=set)
 
 
 @dataclass
@@ -233,8 +234,27 @@ class FileTranscriber(QObject):
         super().__init__(parent)
         self.transcription_task = task
 
-    @abstractmethod
+    @pyqtSlot()
     def run(self):
+        try:
+            segments = self.transcribe()
+        except Exception as exc:
+            self.error.emit(str(exc))
+            logging.exception('')
+            return
+
+        self.completed.emit(segments)
+
+        for output_format in self.transcription_task.file_transcription_options.output_formats:
+            default_path = get_default_output_file_path(
+                task=self.transcription_task.transcription_options.task,
+                input_file_path=self.transcription_task.file_path,
+                output_format=output_format)
+
+            write_output(path=default_path, segments=segments, output_format=output_format)
+
+    @abstractmethod
+    def transcribe(self) -> List[Segment]:
         ...
 
     @abstractmethod
@@ -262,8 +282,7 @@ class WhisperCppFileTranscriber(FileTranscriber):
         self.process.readyReadStandardError.connect(self.read_std_err)
         self.process.readyReadStandardOutput.connect(self.read_std_out)
 
-    @pyqtSlot()
-    def run(self):
+    def transcribe(self) -> List[Segment]:
         self.running = True
         model_path = self.model_path
 
@@ -303,8 +322,8 @@ class WhisperCppFileTranscriber(FileTranscriber):
             self.progress.emit(
                 (self.duration_audio_ms, self.duration_audio_ms))
 
-        self.completed.emit(self.segments)
         self.running = False
+        return self.segments
 
     def stop(self):
         if self.running:
@@ -358,37 +377,32 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
         self.file_path = task.file_path
         self.task = task.transcription_options.task
 
-    @pyqtSlot()
-    def run(self):
-        try:
-            logging.debug('Starting OpenAI Whisper API file transcription, file path = %s, task = %s', self.file_path,
-                          self.task)
+    def transcribe(self) -> List[Segment]:
+        logging.debug('Starting OpenAI Whisper API file transcription, file path = %s, task = %s', self.file_path,
+                      self.task)
 
-            wav_file = tempfile.mktemp() + '.wav'
-            (
-                ffmpeg.input(self.file_path)
-                .output(wav_file, acodec="pcm_s16le", ac=1, ar=whisper.audio.SAMPLE_RATE)
-                .run(cmd=["ffmpeg", "-nostdin"], capture_stdout=True, capture_stderr=True)
-            )
+        wav_file = tempfile.mktemp() + '.wav'
+        (
+            ffmpeg.input(self.file_path)
+            .output(wav_file, acodec="pcm_s16le", ac=1, ar=whisper.audio.SAMPLE_RATE)
+            .run(cmd=["ffmpeg", "-nostdin"], capture_stdout=True, capture_stderr=True)
+        )
 
-            # TODO: Check if file size is more than 25MB (2.5 minutes), then chunk
-            audio_file = open(wav_file, "rb")
-            openai.api_key = self.transcription_task.transcription_options.openai_access_token
-            language = self.transcription_task.transcription_options.language
-            response_format = "verbose_json"
-            if self.transcription_task.transcription_options.task == Task.TRANSLATE:
-                transcript = openai.Audio.translate("whisper-1", audio_file, response_format=response_format,
-                                                    language=language)
-            else:
-                transcript = openai.Audio.transcribe("whisper-1", audio_file, response_format=response_format,
-                                                     language=language)
+        # TODO: Check if file size is more than 25MB (2.5 minutes), then chunk
+        audio_file = open(wav_file, "rb")
+        openai.api_key = self.transcription_task.transcription_options.openai_access_token
+        language = self.transcription_task.transcription_options.language
+        response_format = "verbose_json"
+        if self.transcription_task.transcription_options.task == Task.TRANSLATE:
+            transcript = openai.Audio.translate("whisper-1", audio_file, response_format=response_format,
+                                                language=language)
+        else:
+            transcript = openai.Audio.transcribe("whisper-1", audio_file, response_format=response_format,
+                                                 language=language)
 
-            segments = [Segment(segment["start"] * 1000, segment["end"] * 1000, segment["text"]) for segment in
-                        transcript["segments"]]
-            self.completed.emit(segments)
-        except Exception as exc:
-            self.error.emit(str(exc))
-            logging.exception('')
+        segments = [Segment(segment["start"] * 1000, segment["end"] * 1000, segment["text"]) for segment in
+                    transcript["segments"]]
+        return segments
 
     def stop(self):
         pass
@@ -410,8 +424,7 @@ class WhisperFileTranscriber(FileTranscriber):
         self.started_process = False
         self.stopped = False
 
-    @pyqtSlot()
-    def run(self):
+    def transcribe(self) -> List[Segment]:
         time_started = datetime.datetime.now()
         logging.debug(
             'Starting whisper file transcription, task = %s', self.transcription_task)
@@ -439,10 +452,10 @@ class WhisperFileTranscriber(FileTranscriber):
             'whisper process completed with code = %s, time taken = %s, number of segments = %s',
             self.current_process.exitcode, datetime.datetime.now() - time_started, len(self.segments))
 
-        if self.current_process.exitcode == 0:
-            self.completed.emit(self.segments)
-        else:
-            self.error.emit('Unknown error')
+        if self.current_process.exitcode != 0:
+            raise Exception('Unknown error')
+
+        return self.segments
 
     def stop(self):
         self.stopped = True

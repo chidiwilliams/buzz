@@ -249,6 +249,14 @@ class FileTranscriberWidget(QWidget):
         file_transcription_layout = QFormLayout()
         file_transcription_layout.addRow('', self.word_level_timings_checkbox)
 
+        export_format_layout = QHBoxLayout()
+        for output_format in OutputFormat:
+            export_format_checkbox = QCheckBox(f'{output_format.value.upper()}', parent=self)
+            export_format_checkbox.stateChanged.connect(self.get_on_checkbox_state_changed_callback(output_format))
+            export_format_layout.addWidget(export_format_checkbox)
+
+        file_transcription_layout.addRow('Export:', export_format_layout)
+
         self.run_button = QPushButton(_('Run'), self)
         self.run_button.setDefault(True)
         self.run_button.clicked.connect(self.on_click_run)
@@ -259,6 +267,15 @@ class FileTranscriberWidget(QWidget):
 
         self.setLayout(layout)
         self.setFixedSize(self.sizeHint())
+
+    def get_on_checkbox_state_changed_callback(self, output_format: OutputFormat):
+        def on_checkbox_state_changed(state: int):
+            if state == Qt.CheckState.Checked.value:
+                self.file_transcription_options.output_formats.add(output_format)
+            elif state == Qt.CheckState.Unchecked.value:
+                self.file_transcription_options.output_formats.remove(output_format)
+
+        return on_checkbox_state_changed
 
     def on_transcription_options_changed(self, transcription_options: TranscriptionOptions):
         self.transcription_options = transcription_options
@@ -285,9 +302,6 @@ class FileTranscriberWidget(QWidget):
 
         self.model_loader.finished.connect(self.on_model_loaded)
         self.model_loader.finished.connect(self.model_loader.deleteLater)
-
-        self.transcriber_thread.finished.connect(
-            self.transcriber_thread.deleteLater)
 
         self.transcriber_thread.start()
 
