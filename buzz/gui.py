@@ -269,7 +269,7 @@ class FileTranscriberWidget(QWidget):
         self.setFixedSize(self.sizeHint())
 
     def get_on_checkbox_state_changed_callback(self, output_format: OutputFormat):
-        def on_checkbox_state_changed(state: Qt.CheckState):
+        def on_checkbox_state_changed(state: int):
             if state == Qt.CheckState.Checked.value:
                 self.file_transcription_options.output_formats.add(output_format)
             elif state == Qt.CheckState.Unchecked.value:
