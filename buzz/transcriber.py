@@ -18,6 +18,8 @@ from multiprocessing.connection import Connection
 from random import randint
 from threading import Thread
 from typing import Any, List, Optional, Tuple, Union, Set
+
+import faster_whisper
 import openai
 
 import ffmpeg
@@ -497,6 +499,35 @@ def transcribe_whisper(stderr_conn: Connection, task: FileTranscriptionTask):
             result = model.transcribe(audio=task.file_path, language=language,
                                       task=task.transcription_options.task.value, verbose=False)
             whisper_segments = result.get('segments')
+            segments = [
+                Segment(
+                    start=int(segment.get('start') * 1000),
+                    end=int(segment.get('end') * 1000),
+                    text=segment.get('text'),
+                ) for segment in whisper_segments]
+        elif task.transcription_options.model.model_type == ModelType.FASTER_WHISPER:
+            model = faster_whisper.WhisperModel(
+                model_size_or_path=task.transcription_options.model.whisper_model_size.value)
+            whisper_segments, _ = model.transcribe(audio=task.file_path, language=task.transcription_options.language,
+                                                   task=task.transcription_options.task.value,
+                                                   temperature=task.transcription_options.temperature,
+                                                   initial_prompt=task.transcription_options.initial_prompt,
+                                                   word_timestamps=task.transcription_options.word_level_timings)
+            segments = []
+            for segment in list(whisper_segments):
+                if segment.words:
+                    for word in segment.words:
+                        segments.append(Segment(
+                            start=int(word.start * 1000),
+                            end=int(word.end * 1000),
+                            text=word.word
+                        ))
+                else:
+                    segments.append(Segment(
+                        start=int(segment.start * 1000),
+                        end=int(segment.end * 1000),
+                        text=segment.text
+                    ))
         else:
             model = whisper.load_model(task.model_path)
             if task.transcription_options.word_level_timings:
@@ -506,6 +537,12 @@ def transcribe_whisper(stderr_conn: Connection, task: FileTranscriptionTask):
                     task=task.transcription_options.task.value, temperature=task.transcription_options.temperature,
                     initial_prompt=task.transcription_options.initial_prompt, pbar=True)
                 whisper_segments = stable_whisper.group_word_timestamps(result)
+                segments = [
+                    Segment(
+                        start=int(segment.get('start') * 1000),
+                        end=int(segment.get('end') * 1000),
+                        text=segment.get('text'),
+                    ) for segment in whisper_segments]
             else:
                 result = model.transcribe(
                     audio=task.file_path, language=task.transcription_options.language,
@@ -513,13 +550,13 @@ def transcribe_whisper(stderr_conn: Connection, task: FileTranscriptionTask):
                     temperature=task.transcription_options.temperature,
                     initial_prompt=task.transcription_options.initial_prompt, verbose=False)
                 whisper_segments = result.get('segments')
+                segments = [
+                    Segment(
+                        start=int(segment.get('start') * 1000),
+                        end=int(segment.get('end') * 1000),
+                        text=segment.get('text'),
+                    ) for segment in whisper_segments]
 
-        segments = [
-            Segment(
-                start=int(segment.get('start') * 1000),
-                end=int(segment.get('end') * 1000),
-                text=segment.get('text'),
-            ) for segment in whisper_segments]
         segments_json = json.dumps(
             segments, ensure_ascii=True, default=vars)
         sys.stderr.write(f'segments = {segments_json}\n')
@@ -681,9 +718,12 @@ class FileTranscriberQueueWorker(QObject):
                 task=self.current_task)
         elif model_type == ModelType.OPEN_AI_WHISPER_API:
             self.current_transcriber = OpenAIWhisperAPIFileTranscriber(task=self.current_task)
+        elif model_type == ModelType.HUGGING_FACE or \
+                model_type == ModelType.WHISPER or \
+                model_type == ModelType.FASTER_WHISPER:
+            self.current_transcriber = WhisperFileTranscriber(task=self.current_task)
         else:
-            self.current_transcriber = WhisperFileTranscriber(
-                task=self.current_task)
+            raise Exception(f'Unknown model type: {model_type}')
 
         self.current_transcriber_thread = QThread(self)
 

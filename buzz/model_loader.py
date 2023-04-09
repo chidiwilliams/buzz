@@ -6,6 +6,7 @@ import warnings
 from dataclasses import dataclass
 from typing import Optional
 
+import faster_whisper
 import requests
 import whisper
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
@@ -26,6 +27,7 @@ class ModelType(enum.Enum):
     WHISPER = 'Whisper'
     WHISPER_CPP = 'Whisper.cpp'
     HUGGING_FACE = 'Hugging Face'
+    FASTER_WHISPER = 'Faster Whisper'
     OPEN_AI_WHISPER_API = 'OpenAI Whisper API'
 
 
@@ -98,6 +100,11 @@ class ModelLoader(QObject):
 
         elif self.model_type == ModelType.OPEN_AI_WHISPER_API:
             file_path = ""
+
+        elif self.model_type == ModelType.FASTER_WHISPER:
+            self.progress.emit((0, 100))
+            file_path = faster_whisper.download_model(size=self.whisper_model_size.value)
+            self.progress.emit((100, 100))
 
         else:
             raise Exception("Invalid model type: " + self.model_type.value)

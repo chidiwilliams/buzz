@@ -1373,7 +1373,8 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         model_type = self.transcription_options.model.model_type
         self.form_layout.setRowVisible(self.hugging_face_search_line_edit, model_type == ModelType.HUGGING_FACE)
         self.form_layout.setRowVisible(self.whisper_model_size_combo_box,
-                                       (model_type == ModelType.WHISPER) or (model_type == ModelType.WHISPER_CPP))
+                                       (model_type == ModelType.WHISPER) or (model_type == ModelType.WHISPER_CPP) or (
+                                                   model_type == ModelType.FASTER_WHISPER))
         self.form_layout.setRowVisible(self.openai_access_token_edit, model_type == ModelType.OPEN_AI_WHISPER_API)
 
     def on_model_type_changed(self, text: str):
