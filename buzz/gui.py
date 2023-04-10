@@ -30,12 +30,12 @@ from buzz.cache import TasksCache
 from .__version__ import VERSION
 from .model_loader import ModelLoader, WhisperModelSize, ModelType, TranscriptionModel
 from .recording import RecordingAmplitudeListener
+from .settings import Settings, APP_NAME
 from .transcriber import (SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
                           Task,
                           get_default_output_file_path, segments_to_text, write_output, TranscriptionOptions,
-                          FileTranscriberQueueWorker, FileTranscriptionTask, RecordingTranscriber, LOADED_WHISPER_DLL)
-
-APP_NAME = 'Buzz'
+                          FileTranscriberQueueWorker, FileTranscriptionTask, RecordingTranscriber, LOADED_WHISPER_DLL,
+                          DEFAULT_WHISPER_TEMPERATURE)
 
 
 def get_asset_path(path: str):
@@ -228,6 +228,7 @@ class FileTranscriberWidget(QWidget):
     # (TranscriptionOptions, FileTranscriptionOptions, str)
     triggered = pyqtSignal(tuple)
     openai_access_token_changed = pyqtSignal(str)
+    settings = Settings()
 
     def __init__(self, file_paths: List[str], openai_access_token: Optional[str] = None,
                  parent: Optional[QWidget] = None, flags: Qt.WindowType = Qt.WindowType.Widget) -> None:
@@ -236,7 +237,17 @@ class FileTranscriberWidget(QWidget):
         self.setWindowTitle(file_paths_as_title(file_paths))
 
         self.file_paths = file_paths
-        self.transcription_options = TranscriptionOptions(openai_access_token=openai_access_token)
+        default_language = self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_LANGUAGE, default_value='')
+        self.transcription_options = TranscriptionOptions(
+            openai_access_token=openai_access_token,
+            model=self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_MODEL, default_value=TranscriptionModel()),
+            task=self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_TASK, default_value=Task.TRANSCRIBE),
+            language=default_language if default_language != '' else None,
+            initial_prompt=self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_INITIAL_PROMPT, default_value=''),
+            temperature=self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_TEMPERATURE,
+                                            default_value=DEFAULT_WHISPER_TEMPERATURE),
+            word_level_timings=self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_WORD_LEVEL_TIMINGS,
+                                                   default_value=False))
         self.file_transcription_options = FileTranscriptionOptions(
             file_paths=self.file_paths)
 
@@ -248,6 +259,8 @@ class FileTranscriberWidget(QWidget):
             self.on_transcription_options_changed)
 
         self.word_level_timings_checkbox = QCheckBox(_('Word-level timings'))
+        self.word_level_timings_checkbox.setChecked(
+            self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_WORD_LEVEL_TIMINGS, default_value=False))
         self.word_level_timings_checkbox.stateChanged.connect(
             self.on_word_level_timings_changed)
 
@@ -255,8 +268,11 @@ class FileTranscriberWidget(QWidget):
         file_transcription_layout.addRow('', self.word_level_timings_checkbox)
 
         export_format_layout = QHBoxLayout()
+        default_export_format_states: List[str] = self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_EXPORT_FORMATS,
+                                                                      default_value=[])
         for output_format in OutputFormat:
             export_format_checkbox = QCheckBox(f'{output_format.value.upper()}', parent=self)
+            export_format_checkbox.setChecked(output_format.value in default_export_format_states)
             export_format_checkbox.stateChanged.connect(self.get_on_checkbox_state_changed_callback(output_format))
             export_format_layout.addWidget(export_format_checkbox)
 
@@ -352,6 +368,18 @@ class FileTranscriberWidget(QWidget):
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         if self.transcriber_thread is not None:
             self.transcriber_thread.wait()
+
+        self.settings.set_value(Settings.Key.FILE_TRANSCRIBER_LANGUAGE, self.transcription_options.language)
+        self.settings.set_value(Settings.Key.FILE_TRANSCRIBER_TASK, self.transcription_options.task)
+        self.settings.set_value(Settings.Key.FILE_TRANSCRIBER_TEMPERATURE, self.transcription_options.temperature)
+        self.settings.set_value(Settings.Key.FILE_TRANSCRIBER_INITIAL_PROMPT, self.transcription_options.initial_prompt)
+        self.settings.set_value(Settings.Key.FILE_TRANSCRIBER_MODEL, self.transcription_options.model)
+        self.settings.set_value(key=Settings.Key.FILE_TRANSCRIBER_WORD_LEVEL_TIMINGS,
+                                value=self.transcription_options.word_level_timings)
+        self.settings.set_value(key=Settings.Key.FILE_TRANSCRIBER_EXPORT_FORMATS,
+                                value=[export_format.value for export_format in
+                                       self.file_transcription_options.output_formats])
+
         super().closeEvent(event)
 
 
@@ -505,9 +533,17 @@ class RecordingTranscriberWidget(QWidget):
         self.current_status = self.RecordingStatus.STOPPED
         self.setWindowTitle(_('Live Recording'))
 
+        self.settings = Settings()
+        default_language = self.settings.value(key=Settings.Key.RECORDING_TRANSCRIBER_LANGUAGE, default_value='')
         self.transcription_options = TranscriptionOptions(
-            model=TranscriptionModel(model_type=ModelType.WHISPER_CPP if LOADED_WHISPER_DLL else ModelType.WHISPER,
-                                     whisper_model_size=WhisperModelSize.TINY))
+            model=self.settings.value(key=Settings.Key.RECORDING_TRANSCRIBER_MODEL, default_value=TranscriptionModel(
+                model_type=ModelType.WHISPER_CPP if LOADED_WHISPER_DLL else ModelType.WHISPER,
+                whisper_model_size=WhisperModelSize.TINY)),
+            task=self.settings.value(key=Settings.Key.RECORDING_TRANSCRIBER_TASK, default_value=Task.TRANSCRIBE),
+            language=default_language if default_language != '' else None,
+            initial_prompt=self.settings.value(key=Settings.Key.RECORDING_TRANSCRIBER_INITIAL_PROMPT, default_value=''),
+            temperature=self.settings.value(key=Settings.Key.RECORDING_TRANSCRIBER_TEMPERATURE,
+                                            default_value=DEFAULT_WHISPER_TEMPERATURE), word_level_timings=False)
 
         self.audio_devices_combo_box = AudioDevicesComboBox(self)
         self.audio_devices_combo_box.device_changed.connect(
@@ -698,6 +734,14 @@ class RecordingTranscriberWidget(QWidget):
         if self.recording_amplitude_listener is not None:
             self.recording_amplitude_listener.stop_recording()
             self.recording_amplitude_listener.deleteLater()
+
+        self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_LANGUAGE, self.transcription_options.language)
+        self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_TASK, self.transcription_options.task)
+        self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_TEMPERATURE, self.transcription_options.temperature)
+        self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_INITIAL_PROMPT,
+                                self.transcription_options.initial_prompt)
+        self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_MODEL, self.transcription_options.model)
+
         return super().closeEvent(event)
 
 
