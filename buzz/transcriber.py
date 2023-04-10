@@ -26,6 +26,7 @@ import ffmpeg
 import numpy as np
 import sounddevice
 import stable_whisper
+import tqdm
 import whisper
 from PyQt6.QtCore import QObject, QProcess, pyqtSignal, pyqtSlot, QThread
 from sounddevice import PortAudioError
@@ -477,10 +478,6 @@ class WhisperFileTranscriber(FileTranscriber):
             sys.stderr.write(
                 WhisperFileTranscriber.READ_LINE_THREAD_STOP_TOKEN + '\n')
 
-    @abstractmethod
-    def get_segments(self, task: FileTranscriptionTask) -> List[Segment]:
-        ...
-
     @classmethod
     def transcribe_hugging_face(cls, task: FileTranscriptionTask) -> List[Segment]:
         model = transformers_whisper.load_model(task.model_path)
@@ -498,27 +495,31 @@ class WhisperFileTranscriber(FileTranscriber):
     def transcribe_faster_whisper(cls, task: FileTranscriptionTask) -> List[Segment]:
         model = faster_whisper.WhisperModel(
             model_size_or_path=task.transcription_options.model.whisper_model_size.value)
-        whisper_segments, _ = model.transcribe(audio=task.file_path, language=task.transcription_options.language,
-                                               task=task.transcription_options.task.value,
-                                               temperature=task.transcription_options.temperature,
-                                               initial_prompt=task.transcription_options.initial_prompt,
-                                               word_timestamps=task.transcription_options.word_level_timings)
+        whisper_segments, info = model.transcribe(audio=task.file_path,
+                                                  language=task.transcription_options.language,
+                                                  task=task.transcription_options.task.value,
+                                                  temperature=task.transcription_options.temperature,
+                                                  initial_prompt=task.transcription_options.initial_prompt,
+                                                  word_timestamps=task.transcription_options.word_level_timings)
         segments = []
-        for segment in list(whisper_segments):
-            # Segment will contain words if word-level timings is True
-            if segment.words:
-                for word in segment.words:
+        with tqdm.tqdm(total=round(info.duration, 2), unit=' seconds') as pbar:
+            for segment in list(whisper_segments):
+                # Segment will contain words if word-level timings is True
+                if segment.words:
+                    for word in segment.words:
+                        segments.append(Segment(
+                            start=int(word.start * 1000),
+                            end=int(word.end * 1000),
+                            text=word.word
+                        ))
+                else:
                     segments.append(Segment(
-                        start=int(word.start * 1000),
-                        end=int(word.end * 1000),
-                        text=word.word
+                        start=int(segment.start * 1000),
+                        end=int(segment.end * 1000),
+                        text=segment.text
                     ))
-            else:
-                segments.append(Segment(
-                    start=int(segment.start * 1000),
-                    end=int(segment.end * 1000),
-                    text=segment.text
-                ))
+
+                pbar.update(segment.end - segment.start)
         return segments
 
     @classmethod
