@@ -493,39 +493,34 @@ class WhisperFileTranscriber(FileTranscriber):
 
     @classmethod
     def transcribe_faster_whisper(cls, task: FileTranscriptionTask) -> List[Segment]:
-        try:
-            model = faster_whisper.WhisperModel(
-                model_size_or_path=task.transcription_options.model.whisper_model_size.value)
-            whisper_segments, info = model.transcribe(audio=task.file_path,
-                                                      language=task.transcription_options.language,
-                                                      task=task.transcription_options.task.value,
-                                                      temperature=task.transcription_options.temperature,
-                                                      initial_prompt=task.transcription_options.initial_prompt,
-                                                      word_timestamps=task.transcription_options.word_level_timings)
-            segments = []
-            with tqdm.tqdm(total=round(info.duration, 2), unit=' seconds') as pbar:
-                for segment in list(whisper_segments):
-                    # Segment will contain words if word-level timings is True
-                    if segment.words:
-                        for word in segment.words:
-                            segments.append(Segment(
-                                start=int(word.start * 1000),
-                                end=int(word.end * 1000),
-                                text=word.word
-                            ))
-                    else:
+        model = faster_whisper.WhisperModel(
+            model_size_or_path=task.transcription_options.model.whisper_model_size.value)
+        whisper_segments, info = model.transcribe(audio=task.file_path,
+                                                  language=task.transcription_options.language,
+                                                  task=task.transcription_options.task.value,
+                                                  temperature=task.transcription_options.temperature,
+                                                  initial_prompt=task.transcription_options.initial_prompt,
+                                                  word_timestamps=task.transcription_options.word_level_timings)
+        segments = []
+        with tqdm.tqdm(total=round(info.duration, 2), unit=' seconds') as pbar:
+            for segment in list(whisper_segments):
+                # Segment will contain words if word-level timings is True
+                if segment.words:
+                    for word in segment.words:
                         segments.append(Segment(
-                            start=int(segment.start * 1000),
-                            end=int(segment.end * 1000),
-                            text=segment.text
+                            start=int(word.start * 1000),
+                            end=int(word.end * 1000),
+                            text=word.word
                         ))
+                else:
+                    segments.append(Segment(
+                        start=int(segment.start * 1000),
+                        end=int(segment.end * 1000),
+                        text=segment.text
+                    ))
 
-                    pbar.update(segment.end - segment.start)
-            return segments
-        except Exception as exc:
-            print(exc)
-            logging.exception(exc)
-            return []
+                pbar.update(segment.end - segment.start)
+        return segments
 
     @classmethod
     def transcribe_openai_whisper(cls, task: FileTranscriptionTask) -> List[Segment]:
