@@ -28,14 +28,14 @@ from whisper import tokenizer
 
 from buzz.cache import TasksCache
 from .__version__ import VERSION
+from .constants import APP_NAME
 from .model_loader import ModelLoader, WhisperModelSize, ModelType, TranscriptionModel
 from .recording import RecordingAmplitudeListener
+from .settings import Settings
 from .transcriber import (SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
                           Task,
                           get_default_output_file_path, segments_to_text, write_output, TranscriptionOptions,
                           FileTranscriberQueueWorker, FileTranscriptionTask, RecordingTranscriber, LOADED_WHISPER_DLL)
-
-APP_NAME = 'Buzz'
 
 
 def get_asset_path(path: str):
@@ -228,6 +228,7 @@ class FileTranscriberWidget(QWidget):
     # (TranscriptionOptions, FileTranscriptionOptions, str)
     triggered = pyqtSignal(tuple)
     openai_access_token_changed = pyqtSignal(str)
+    settings = Settings()
 
     def __init__(self, file_paths: List[str], openai_access_token: Optional[str] = None,
                  parent: Optional[QWidget] = None, flags: Qt.WindowType = Qt.WindowType.Widget) -> None:
@@ -236,18 +237,23 @@ class FileTranscriberWidget(QWidget):
         self.setWindowTitle(file_paths_as_title(file_paths))
 
         self.file_paths = file_paths
-        self.transcription_options = TranscriptionOptions(openai_access_token=openai_access_token)
+        self.transcription_options = TranscriptionOptions(openai_access_token=openai_access_token,
+                                                          task=self.settings.value(
+                                                              key=Settings.Key.FILE_TRANSCRIBER_TASK,
+                                                              default_value=Task.TRANSCRIBE))
         self.file_transcription_options = FileTranscriptionOptions(
             file_paths=self.file_paths)
 
         layout = QVBoxLayout(self)
 
         transcription_options_group_box = TranscriptionOptionsGroupBox(
-            default_transcription_options=self.transcription_options, parent=self)
+            default_transcription_options=self.transcription_options, settings=self.settings, parent=self)
         transcription_options_group_box.transcription_options_changed.connect(
             self.on_transcription_options_changed)
 
         self.word_level_timings_checkbox = QCheckBox(_('Word-level timings'))
+        self.word_level_timings_checkbox.setChecked(
+            self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_WORD_LEVEL_TIMINGS, default_value=False))
         self.word_level_timings_checkbox.stateChanged.connect(
             self.on_word_level_timings_changed)
 
@@ -255,8 +261,11 @@ class FileTranscriberWidget(QWidget):
         file_transcription_layout.addRow('', self.word_level_timings_checkbox)
 
         export_format_layout = QHBoxLayout()
+        export_format_states: List[str] = self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_EXPORT_FORMATS,
+                                                              default_value=[])
         for output_format in OutputFormat:
             export_format_checkbox = QCheckBox(f'{output_format.value.upper()}', parent=self)
+            export_format_checkbox.setChecked(output_format.value in export_format_states)
             export_format_checkbox.stateChanged.connect(self.get_on_checkbox_state_changed_callback(output_format))
             export_format_layout.addWidget(export_format_checkbox)
 
@@ -279,6 +288,9 @@ class FileTranscriberWidget(QWidget):
                 self.file_transcription_options.output_formats.add(output_format)
             elif state == Qt.CheckState.Unchecked.value:
                 self.file_transcription_options.output_formats.remove(output_format)
+            self.settings.set_value(key=Settings.Key.FILE_TRANSCRIBER_EXPORT_FORMATS,
+                                    value=[export_format.value for export_format in
+                                           self.file_transcription_options.output_formats])
 
         return on_checkbox_state_changed
 
@@ -348,6 +360,8 @@ class FileTranscriberWidget(QWidget):
 
     def on_word_level_timings_changed(self, value: int):
         self.transcription_options.word_level_timings = value == Qt.CheckState.Checked.value
+        self.settings.set_value(key=Settings.Key.FILE_TRANSCRIBER_WORD_LEVEL_TIMINGS,
+                                value=self.transcription_options.word_level_timings)
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         if self.transcriber_thread is not None:
@@ -501,6 +515,7 @@ class RecordingTranscriberWidget(QWidget):
             self.setWindowFlags(flags)
 
         layout = QVBoxLayout(self)
+        settings = Settings()
 
         self.current_status = self.RecordingStatus.STOPPED
         self.setWindowTitle(_('Live Recording'))
@@ -524,6 +539,7 @@ class RecordingTranscriberWidget(QWidget):
             default_transcription_options=self.transcription_options,
             # Live transcription with OpenAI Whisper API not implemented
             model_types=[model_type for model_type in ModelType if model_type is not ModelType.OPEN_AI_WHISPER_API],
+            settings=settings,
             parent=self)
         transcription_options_group_box.transcription_options_changed.connect(
             self.on_transcription_options_changed)
@@ -1280,11 +1296,12 @@ class TranscriptionOptionsGroupBox(QGroupBox):
     transcription_options: TranscriptionOptions
     transcription_options_changed = pyqtSignal(TranscriptionOptions)
 
-    def __init__(self, default_transcription_options: TranscriptionOptions = TranscriptionOptions(),
+    def __init__(self, settings: Settings, default_transcription_options: TranscriptionOptions = TranscriptionOptions(),
                  model_types: Optional[List[ModelType]] = None,
                  parent: Optional[QWidget] = None):
         super().__init__(title='', parent=parent)
         self.transcription_options = default_transcription_options
+        self.settings = settings
 
         self.form_layout = QFormLayout(self)
 
@@ -1294,7 +1311,8 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.tasks_combo_box.taskChanged.connect(self.on_task_changed)
 
         self.languages_combo_box = LanguagesComboBox(
-            default_language=self.transcription_options.language,
+            default_language=settings.value(key=Settings.Key.FILE_TRANSCRIBER_LANGUAGE,
+                                            default_value=self.transcription_options.language, value_type=str),
             parent=self)
         self.languages_combo_box.languageChanged.connect(
             self.on_language_changed)
@@ -1315,14 +1333,17 @@ class TranscriptionOptionsGroupBox(QGroupBox):
             if model_type == ModelType.WHISPER_CPP and LOADED_WHISPER_DLL is False:
                 continue
             self.model_type_combo_box.addItem(model_type.value)
-        self.model_type_combo_box.setCurrentText(default_transcription_options.model.model_type.value)
+        self.model_type_combo_box.setCurrentText(settings.value(key=Settings.Key.FILE_TRANSCRIBER_MODEL_TYPE,
+                                                                default_value=default_transcription_options.model.model_type.value))
         self.model_type_combo_box.currentTextChanged.connect(self.on_model_type_changed)
 
         self.whisper_model_size_combo_box = QComboBox(self)
         self.whisper_model_size_combo_box.addItems([size.value.title() for size in WhisperModelSize])
-        if default_transcription_options.model.whisper_model_size is not None:
-            self.whisper_model_size_combo_box.setCurrentText(
-                default_transcription_options.model.whisper_model_size.value.title())
+        self.whisper_model_size_combo_box.setCurrentText(settings.value(
+            key=Settings.Key.FILE_TRANSCRIBER_WHISPER_MODEL_SIZE,
+            default_value=default_transcription_options.model.whisper_model_size.value.title()
+            if default_transcription_options.model.whisper_model_size is not None
+            else ''))
         self.whisper_model_size_combo_box.currentTextChanged.connect(self.on_whisper_model_size_changed)
 
         self.openai_access_token_edit = QLineEdit(self)
@@ -1350,22 +1371,26 @@ class TranscriptionOptionsGroupBox(QGroupBox):
     def on_language_changed(self, language: str):
         self.transcription_options.language = language
         self.transcription_options_changed.emit(self.transcription_options)
+        self.settings.set_value(Settings.Key.FILE_TRANSCRIBER_LANGUAGE, self.transcription_options.language)
 
     def on_task_changed(self, task: Task):
         self.transcription_options.task = task
         self.transcription_options_changed.emit(self.transcription_options)
+        self.settings.set_value(Settings.Key.FILE_TRANSCRIBER_TASK, self.transcription_options.task)
 
     def on_temperature_changed(self, temperature: Tuple[float, ...]):
         self.transcription_options.temperature = temperature
         self.transcription_options_changed.emit(self.transcription_options)
+        self.settings.set_value(Settings.Key.FILE_TRANSCRIBER_TEMPERATURE, self.transcription_options.temperature)
 
     def on_initial_prompt_changed(self, initial_prompt: str):
         self.transcription_options.initial_prompt = initial_prompt
         self.transcription_options_changed.emit(self.transcription_options)
+        self.settings.set_value(Settings.Key.FILE_TRANSCRIBER_INITIAL_PROMPT, self.transcription_options.initial_prompt)
 
     def open_advanced_settings(self):
         dialog = AdvancedSettingsDialog(
-            transcription_options=self.transcription_options, parent=self)
+            transcription_options=self.transcription_options, settings=settings, parent=self)
         dialog.transcription_options_changed.connect(
             self.on_transcription_options_changed)
         dialog.exec()
@@ -1440,7 +1465,7 @@ class AdvancedSettingsDialog(QDialog):
     transcription_options: TranscriptionOptions
     transcription_options_changed = pyqtSignal(TranscriptionOptions)
 
-    def __init__(self, transcription_options: TranscriptionOptions, parent: QWidget | None = None):
+    def __init__(self, transcription_options: TranscriptionOptions, settings: Settings, parent: QWidget | None = None):
         super().__init__(parent)
 
         self.transcription_options = transcription_options
