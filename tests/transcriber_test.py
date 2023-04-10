@@ -118,9 +118,13 @@ class TestWhisperFileTranscriber:
                              'et des apprenances de français.')],
              TranscriptionModel(model_type=ModelType.HUGGING_FACE,
                                 hugging_face_model_id='openai/whisper-tiny'), False),
-            (False, [Segment(start=0, end=8400,
-                             text=' Bienvenue dans Passrel, un podcast pensé pour éveiller la curiosité des apprenances et des apprenances de français.')],
-             TranscriptionModel(model_type=ModelType.FASTER_WHISPER, whisper_model_size=WhisperModelSize.TINY), True)
+            pytest.param(
+                False, [Segment(start=0, end=8400,
+                                text=' Bienvenue dans Passrel, un podcast pensé pour éveiller la curiosité des apprenances et des apprenances de français.')],
+                TranscriptionModel(model_type=ModelType.FASTER_WHISPER, whisper_model_size=WhisperModelSize.TINY), True,
+                marks=pytest.mark.skipif(platform.system() == 'Darwin',
+                                         reason='Error with libiomp5 already initialized on GH action runner: https://github.com/chidiwilliams/buzz/actions/runs/4657331262/jobs/8241832087')
+            )
         ])
     def test_transcribe(self, qtbot: QtBot, word_level_timings: bool, expected_segments: List[Segment],
                         model: TranscriptionModel, check_progress):
