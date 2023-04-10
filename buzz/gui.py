@@ -28,10 +28,9 @@ from whisper import tokenizer
 
 from buzz.cache import TasksCache
 from .__version__ import VERSION
-from .constants import APP_NAME
 from .model_loader import ModelLoader, WhisperModelSize, ModelType, TranscriptionModel
 from .recording import RecordingAmplitudeListener
-from .settings import Settings
+from .settings import Settings, APP_NAME
 from .transcriber import (SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
                           Task,
                           get_default_output_file_path, segments_to_text, write_output, TranscriptionOptions,
@@ -240,6 +239,7 @@ class FileTranscriberWidget(QWidget):
         self.file_paths = file_paths
         self.transcription_options = TranscriptionOptions(
             openai_access_token=openai_access_token,
+            model=self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_MODEL, default_value=TranscriptionModel()),
             task=self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_TASK, default_value=Task.TRANSCRIBE),
             language=self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_LANGUAGE, default_value=None),
             initial_prompt=self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_INITIAL_PROMPT, default_value=''),
@@ -527,14 +527,20 @@ class RecordingTranscriberWidget(QWidget):
             self.setWindowFlags(flags)
 
         layout = QVBoxLayout(self)
-        settings = Settings()
 
         self.current_status = self.RecordingStatus.STOPPED
         self.setWindowTitle(_('Live Recording'))
 
+        self.settings = Settings()
         self.transcription_options = TranscriptionOptions(
-            model=TranscriptionModel(model_type=ModelType.WHISPER_CPP if LOADED_WHISPER_DLL else ModelType.WHISPER,
-                                     whisper_model_size=WhisperModelSize.TINY))
+            model=self.settings.value(key=Settings.Key.RECORDING_TRANSCRIBER_MODEL, default_value=TranscriptionModel(
+                model_type=ModelType.WHISPER_CPP if LOADED_WHISPER_DLL else ModelType.WHISPER,
+                whisper_model_size=WhisperModelSize.TINY)),
+            task=self.settings.value(key=Settings.Key.RECORDING_TRANSCRIBER_TASK, default_value=Task.TRANSCRIBE),
+            language=self.settings.value(key=Settings.Key.RECORDING_TRANSCRIBER_LANGUAGE, default_value=None),
+            initial_prompt=self.settings.value(key=Settings.Key.RECORDING_TRANSCRIBER_INITIAL_PROMPT, default_value=''),
+            temperature=self.settings.value(key=Settings.Key.RECORDING_TRANSCRIBER_TEMPERATURE,
+                                            default_value=DEFAULT_WHISPER_TEMPERATURE), word_level_timings=False)
 
         self.audio_devices_combo_box = AudioDevicesComboBox(self)
         self.audio_devices_combo_box.device_changed.connect(
@@ -551,7 +557,6 @@ class RecordingTranscriberWidget(QWidget):
             default_transcription_options=self.transcription_options,
             # Live transcription with OpenAI Whisper API not implemented
             model_types=[model_type for model_type in ModelType if model_type is not ModelType.OPEN_AI_WHISPER_API],
-            settings=settings,
             parent=self)
         transcription_options_group_box.transcription_options_changed.connect(
             self.on_transcription_options_changed)
@@ -1393,7 +1398,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
 
     def open_advanced_settings(self):
         dialog = AdvancedSettingsDialog(
-            transcription_options=self.transcription_options, settings=settings, parent=self)
+            transcription_options=self.transcription_options, parent=self)
         dialog.transcription_options_changed.connect(
             self.on_transcription_options_changed)
         dialog.exec()
@@ -1468,7 +1473,7 @@ class AdvancedSettingsDialog(QDialog):
     transcription_options: TranscriptionOptions
     transcription_options_changed = pyqtSignal(TranscriptionOptions)
 
-    def __init__(self, transcription_options: TranscriptionOptions, settings: Settings, parent: QWidget | None = None):
+    def __init__(self, transcription_options: TranscriptionOptions, parent: QWidget | None = None):
         super().__init__(parent)
 
         self.transcription_options = transcription_options
