@@ -372,6 +372,7 @@ class FileTranscriberWidget(QWidget):
         self.settings.set_value(Settings.Key.FILE_TRANSCRIBER_TASK, self.transcription_options.task)
         self.settings.set_value(Settings.Key.FILE_TRANSCRIBER_TEMPERATURE, self.transcription_options.temperature)
         self.settings.set_value(Settings.Key.FILE_TRANSCRIBER_INITIAL_PROMPT, self.transcription_options.initial_prompt)
+        self.settings.set_value(Settings.Key.FILE_TRANSCRIBER_MODEL, self.transcription_options.model)
         self.settings.set_value(key=Settings.Key.FILE_TRANSCRIBER_WORD_LEVEL_TIMINGS,
                                 value=self.transcription_options.word_level_timings)
         self.settings.set_value(key=Settings.Key.FILE_TRANSCRIBER_EXPORT_FORMATS,
@@ -731,6 +732,14 @@ class RecordingTranscriberWidget(QWidget):
         if self.recording_amplitude_listener is not None:
             self.recording_amplitude_listener.stop_recording()
             self.recording_amplitude_listener.deleteLater()
+
+        self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_LANGUAGE, self.transcription_options.language)
+        self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_TASK, self.transcription_options.task)
+        self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_TEMPERATURE, self.transcription_options.temperature)
+        self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_INITIAL_PROMPT,
+                                self.transcription_options.initial_prompt)
+        self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_MODEL, self.transcription_options.model)
+
         return super().closeEvent(event)
 
 
