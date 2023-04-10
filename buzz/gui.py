@@ -253,7 +253,7 @@ class FileTranscriberWidget(QWidget):
         layout = QVBoxLayout(self)
 
         transcription_options_group_box = TranscriptionOptionsGroupBox(
-            default_transcription_options=self.transcription_options, settings=self.settings, parent=self)
+            default_transcription_options=self.transcription_options, parent=self)
         transcription_options_group_box.transcription_options_changed.connect(
             self.on_transcription_options_changed)
 
@@ -267,11 +267,11 @@ class FileTranscriberWidget(QWidget):
         file_transcription_layout.addRow('', self.word_level_timings_checkbox)
 
         export_format_layout = QHBoxLayout()
-        export_format_states: List[str] = self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_EXPORT_FORMATS,
-                                                              default_value=[])
+        default_export_format_states: List[str] = self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_EXPORT_FORMATS,
+                                                                      default_value=[])
         for output_format in OutputFormat:
             export_format_checkbox = QCheckBox(f'{output_format.value.upper()}', parent=self)
-            export_format_checkbox.setChecked(output_format.value in export_format_states)
+            export_format_checkbox.setChecked(output_format.value in default_export_format_states)
             export_format_checkbox.stateChanged.connect(self.get_on_checkbox_state_changed_callback(output_format))
             export_format_layout.addWidget(export_format_checkbox)
 
@@ -294,9 +294,6 @@ class FileTranscriberWidget(QWidget):
                 self.file_transcription_options.output_formats.add(output_format)
             elif state == Qt.CheckState.Unchecked.value:
                 self.file_transcription_options.output_formats.remove(output_format)
-            self.settings.set_value(key=Settings.Key.FILE_TRANSCRIBER_EXPORT_FORMATS,
-                                    value=[export_format.value for export_format in
-                                           self.file_transcription_options.output_formats])
 
         return on_checkbox_state_changed
 
@@ -366,12 +363,21 @@ class FileTranscriberWidget(QWidget):
 
     def on_word_level_timings_changed(self, value: int):
         self.transcription_options.word_level_timings = value == Qt.CheckState.Checked.value
-        self.settings.set_value(key=Settings.Key.FILE_TRANSCRIBER_WORD_LEVEL_TIMINGS,
-                                value=self.transcription_options.word_level_timings)
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         if self.transcriber_thread is not None:
             self.transcriber_thread.wait()
+
+        self.settings.set_value(Settings.Key.FILE_TRANSCRIBER_LANGUAGE, self.transcription_options.language)
+        self.settings.set_value(Settings.Key.FILE_TRANSCRIBER_TASK, self.transcription_options.task)
+        self.settings.set_value(Settings.Key.FILE_TRANSCRIBER_TEMPERATURE, self.transcription_options.temperature)
+        self.settings.set_value(Settings.Key.FILE_TRANSCRIBER_INITIAL_PROMPT, self.transcription_options.initial_prompt)
+        self.settings.set_value(key=Settings.Key.FILE_TRANSCRIBER_WORD_LEVEL_TIMINGS,
+                                value=self.transcription_options.word_level_timings)
+        self.settings.set_value(key=Settings.Key.FILE_TRANSCRIBER_EXPORT_FORMATS,
+                                value=[export_format.value for export_format in
+                                       self.file_transcription_options.output_formats])
+
         super().closeEvent(event)
 
 
@@ -1372,22 +1378,18 @@ class TranscriptionOptionsGroupBox(QGroupBox):
     def on_language_changed(self, language: str):
         self.transcription_options.language = language
         self.transcription_options_changed.emit(self.transcription_options)
-        self.settings.set_value(Settings.Key.FILE_TRANSCRIBER_LANGUAGE, self.transcription_options.language)
 
     def on_task_changed(self, task: Task):
         self.transcription_options.task = task
         self.transcription_options_changed.emit(self.transcription_options)
-        self.settings.set_value(Settings.Key.FILE_TRANSCRIBER_TASK, self.transcription_options.task)
 
     def on_temperature_changed(self, temperature: Tuple[float, ...]):
         self.transcription_options.temperature = temperature
         self.transcription_options_changed.emit(self.transcription_options)
-        self.settings.set_value(Settings.Key.FILE_TRANSCRIBER_TEMPERATURE, self.transcription_options.temperature)
 
     def on_initial_prompt_changed(self, initial_prompt: str):
         self.transcription_options.initial_prompt = initial_prompt
         self.transcription_options_changed.emit(self.transcription_options)
-        self.settings.set_value(Settings.Key.FILE_TRANSCRIBER_INITIAL_PROMPT, self.transcription_options.initial_prompt)
 
     def open_advanced_settings(self):
         dialog = AdvancedSettingsDialog(
