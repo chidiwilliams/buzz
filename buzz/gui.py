@@ -237,12 +237,12 @@ class FileTranscriberWidget(QWidget):
         self.setWindowTitle(file_paths_as_title(file_paths))
 
         self.file_paths = file_paths
+        default_language = self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_LANGUAGE, default_value='')
         self.transcription_options = TranscriptionOptions(
             openai_access_token=openai_access_token,
             model=self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_MODEL, default_value=TranscriptionModel()),
             task=self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_TASK, default_value=Task.TRANSCRIBE),
-            language=self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_LANGUAGE, default_value=None,
-                                         value_type=str),
+            language=default_language if default_language != '' else None,
             initial_prompt=self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_INITIAL_PROMPT, default_value=''),
             temperature=self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_TEMPERATURE,
                                             default_value=DEFAULT_WHISPER_TEMPERATURE),
@@ -534,13 +534,13 @@ class RecordingTranscriberWidget(QWidget):
         self.setWindowTitle(_('Live Recording'))
 
         self.settings = Settings()
+        default_language = self.settings.value(key=Settings.Key.RECORDING_TRANSCRIBER_LANGUAGE, default_value='')
         self.transcription_options = TranscriptionOptions(
             model=self.settings.value(key=Settings.Key.RECORDING_TRANSCRIBER_MODEL, default_value=TranscriptionModel(
                 model_type=ModelType.WHISPER_CPP if LOADED_WHISPER_DLL else ModelType.WHISPER,
                 whisper_model_size=WhisperModelSize.TINY)),
             task=self.settings.value(key=Settings.Key.RECORDING_TRANSCRIBER_TASK, default_value=Task.TRANSCRIBE),
-            language=self.settings.value(key=Settings.Key.RECORDING_TRANSCRIBER_LANGUAGE, default_value=None,
-                                         value_type=str),
+            language=default_language if default_language != '' else None,
             initial_prompt=self.settings.value(key=Settings.Key.RECORDING_TRANSCRIBER_INITIAL_PROMPT, default_value=''),
             temperature=self.settings.value(key=Settings.Key.RECORDING_TRANSCRIBER_TEMPERATURE,
                                             default_value=DEFAULT_WHISPER_TEMPERATURE), word_level_timings=False)
