@@ -188,6 +188,11 @@ class DownloadModelProgressDialog(QProgressDialog):
     def __init__(self, parent: Optional[QWidget], *args) -> None:
         super().__init__(_('Downloading model (0%, unknown time remaining)'),
                          _('Cancel'), 0, 100, parent, *args)
+
+        # Setting this to a high value to avoid showing the dialog for models that
+        # are checked locally but set progress to 0 immediately, i.e. Hugging Face or Faster Whisper models
+        self.setMinimumDuration(10_000)
+
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.start_time = datetime.now()
         self.setFixedSize(self.size())
@@ -1374,7 +1379,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.form_layout.setRowVisible(self.hugging_face_search_line_edit, model_type == ModelType.HUGGING_FACE)
         self.form_layout.setRowVisible(self.whisper_model_size_combo_box,
                                        (model_type == ModelType.WHISPER) or (model_type == ModelType.WHISPER_CPP) or (
-                                                   model_type == ModelType.FASTER_WHISPER))
+                                               model_type == ModelType.FASTER_WHISPER))
         self.form_layout.setRowVisible(self.openai_access_token_edit, model_type == ModelType.OPEN_AI_WHISPER_API)
 
     def on_model_type_changed(self, text: str):

@@ -130,7 +130,7 @@ class TestWhisperFileTranscriber:
                                                      word_level_timings=word_level_timings,
                                                      model=model)
         model_path = get_model_path(transcription_options.model)
-        file_path = os.path.abspath('../testdata/whisper-french.mp3')
+        file_path = os.path.abspath(os.path.join(__file__, '../testdata/whisper-french.mp3'))
         file_transcription_options = FileTranscriptionOptions(
             file_paths=[file_path])
 
