@@ -23,7 +23,7 @@ class PreferencesDialog(QDialog):
         tab_widget.addTab(shortcuts_table_widget, _('Shortcuts'))
 
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton(
-            QDialogButtonBox.StandardButton.Close), self)
+            QDialogButtonBox.StandardButton.Ok), self)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
 

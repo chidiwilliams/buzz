@@ -819,7 +819,7 @@ class TranscriptionTasksTableWidget(QTableWidget):
     FILE_NAME_COLUMN_INDEX = 1
     STATUS_COLUMN_INDEX = 2
 
-    enter_clicked = pyqtSignal()
+    return_clicked = pyqtSignal()
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
@@ -894,7 +894,7 @@ class TranscriptionTasksTableWidget(QTableWidget):
 
     def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
         if event.key() == Qt.Key.Key_Return:
-            self.enter_clicked.emit()
+            self.return_clicked.emit()
         super().keyPressEvent(event)
 
 
@@ -1027,7 +1027,7 @@ class MainWindow(QMainWindow):
 
         self.table_widget = TranscriptionTasksTableWidget(self)
         self.table_widget.doubleClicked.connect(self.on_table_double_clicked)
-        self.table_widget.enter_clicked.connect(self.open_transcript_viewer)
+        self.table_widget.return_clicked.connect(self.open_transcript_viewer)
         self.table_widget.itemSelectionChanged.connect(
             self.on_table_selection_changed)
 
@@ -1160,9 +1160,6 @@ class MainWindow(QMainWindow):
     def on_table_double_clicked(self, index: QModelIndex):
         task_id = TranscriptionTasksTableWidget.find_task_id(index)
         self.open_transcription_viewer(task_id)
-
-    def on_table_enter_clicked(self):
-        self.open_transcript_viewer()
 
     def open_transcription_viewer(self, task_id: int):
         task = self.tasks[task_id]
