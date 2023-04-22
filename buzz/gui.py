@@ -819,6 +819,8 @@ class TranscriptionTasksTableWidget(QTableWidget):
     FILE_NAME_COLUMN_INDEX = 1
     STATUS_COLUMN_INDEX = 2
 
+    enter_clicked = pyqtSignal()
+
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
 
@@ -889,6 +891,11 @@ class TranscriptionTasksTableWidget(QTableWidget):
     def find_task_id(index: QModelIndex):
         sibling_index = index.siblingAtColumn(TranscriptionTasksTableWidget.TASK_ID_COLUMN_INDEX).data()
         return int(sibling_index) if sibling_index is not None else None
+
+    def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
+        if event.key() == Qt.Key.Key_Return:
+            self.enter_clicked.emit()
+        super().keyPressEvent(event)
 
 
 class MainWindowToolbar(QToolBar):
@@ -1006,7 +1013,7 @@ class MainWindow(QMainWindow):
 
         self.toolbar = MainWindowToolbar(shortcuts=self.shortcuts, parent=self)
         self.toolbar.new_transcription_action_triggered.connect(self.on_new_transcription_action_triggered)
-        self.toolbar.open_transcript_action_triggered.connect(self.on_open_transcript_action_triggered)
+        self.toolbar.open_transcript_action_triggered.connect(self.open_transcript_viewer)
         self.toolbar.clear_history_action_triggered.connect(self.on_clear_history_action_triggered)
         self.toolbar.stop_transcription_action_triggered.connect(self.on_stop_transcription_action_triggered)
         self.addToolBar(self.toolbar)
@@ -1020,6 +1027,7 @@ class MainWindow(QMainWindow):
 
         self.table_widget = TranscriptionTasksTableWidget(self)
         self.table_widget.doubleClicked.connect(self.on_table_double_clicked)
+        self.table_widget.enter_clicked.connect(self.open_transcript_viewer)
         self.table_widget.itemSelectionChanged.connect(
             self.on_table_selection_changed)
 
@@ -1118,7 +1126,7 @@ class MainWindow(QMainWindow):
     def on_openai_access_token_changed(self, access_token: str):
         self.openai_access_token = access_token
 
-    def on_open_transcript_action_triggered(self):
+    def open_transcript_viewer(self):
         selected_rows = self.table_widget.selectionModel().selectedRows()
         for selected_row in selected_rows:
             task_id = TranscriptionTasksTableWidget.find_task_id(selected_row)
@@ -1152,6 +1160,9 @@ class MainWindow(QMainWindow):
     def on_table_double_clicked(self, index: QModelIndex):
         task_id = TranscriptionTasksTableWidget.find_task_id(index)
         self.open_transcription_viewer(task_id)
+
+    def on_table_enter_clicked(self):
+        self.open_transcript_viewer()
 
     def open_transcription_viewer(self, task_id: int):
         task = self.tasks[task_id]
