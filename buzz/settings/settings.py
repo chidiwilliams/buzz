@@ -24,6 +24,8 @@ class Settings:
         FILE_TRANSCRIBER_WORD_LEVEL_TIMINGS = 'file-transcriber/word-level-timings'
         FILE_TRANSCRIBER_EXPORT_FORMATS = 'file-transcriber/export-formats'
 
+        SHORTCUTS = 'shortcuts'
+
     def set_value(self, key: Key, value: typing.Any) -> None:
         self.settings.setValue(key.value, value)
 

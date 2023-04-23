@@ -1,5 +1,4 @@
 import enum
-import gettext
 import json
 import logging
 import os
@@ -14,7 +13,7 @@ import sounddevice
 from PyQt6 import QtGui
 from PyQt6.QtCore import (QObject, Qt, QThread,
                           QTimer, QUrl, pyqtSignal, QModelIndex, QSize, QPoint,
-                          QUrlQuery, QMetaObject, QEvent, QLocale)
+                          QUrlQuery, QMetaObject, QEvent)
 from PyQt6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
                          QKeySequence, QPixmap, QTextCursor, QValidator, QKeyEvent, QPainter, QColor)
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
@@ -28,32 +27,19 @@ from whisper import tokenizer
 
 from buzz.cache import TasksCache
 from .__version__ import VERSION
+from .assets import get_asset_path
+from .locale import _
 from .model_loader import ModelLoader, WhisperModelSize, ModelType, TranscriptionModel
 from .recording import RecordingAmplitudeListener
-from .settings import Settings, APP_NAME
+from .settings.settings import Settings, APP_NAME
+from .settings.shortcut import Shortcut
+from .settings.shortcut_settings import ShortcutSettings
 from .transcriber import (SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
                           Task,
                           get_default_output_file_path, segments_to_text, write_output, TranscriptionOptions,
                           FileTranscriberQueueWorker, FileTranscriptionTask, RecordingTranscriber, LOADED_WHISPER_DLL,
                           DEFAULT_WHISPER_TEMPERATURE)
-
-
-def get_asset_path(path: str):
-    if getattr(sys, 'frozen', False):
-        return os.path.join(os.path.dirname(sys.executable), path)
-    return os.path.join(os.path.dirname(__file__), '..', path)
-
-
-if 'LANG' not in os.environ:
-    language = str(QLocale().uiLanguages()[0]).replace("-", "_")
-    os.environ['LANG'] = language
-
-locale_dir = get_asset_path('locale')
-gettext.bindtextdomain('buzz', locale_dir)
-
-translate = gettext.translation(APP_NAME, locale_dir, fallback=True)
-
-_ = translate.gettext
+from .widgets.preferences_dialog import PreferencesDialog
 
 
 def get_platform_styles(all_platform_styles: Dict[str, str]):
@@ -762,8 +748,6 @@ class AboutDialog(QDialog):
                  parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
 
-        self.setFixedSize(200, 250)
-
         self.setWindowIcon(QIcon(BUZZ_ICON_PATH))
         self.setWindowTitle(f'{_("About")} {APP_NAME}')
 
@@ -834,6 +818,8 @@ class TranscriptionTasksTableWidget(QTableWidget):
     TASK_ID_COLUMN_INDEX = 0
     FILE_NAME_COLUMN_INDEX = 1
     STATUS_COLUMN_INDEX = 2
+
+    return_clicked = pyqtSignal()
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
@@ -906,6 +892,11 @@ class TranscriptionTasksTableWidget(QTableWidget):
         sibling_index = index.siblingAtColumn(TranscriptionTasksTableWidget.TASK_ID_COLUMN_INDEX).data()
         return int(sibling_index) if sibling_index is not None else None
 
+    def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
+        if event.key() == Qt.Key.Key_Return:
+            self.return_clicked.emit()
+        super().keyPressEvent(event)
+
 
 class MainWindowToolbar(QToolBar):
     new_transcription_action_triggered: pyqtSignal
@@ -914,15 +905,14 @@ class MainWindowToolbar(QToolBar):
     ICON_LIGHT_THEME_BACKGROUND = '#555'
     ICON_DARK_THEME_BACKGROUND = '#AAA'
 
-    def __init__(self, parent: Optional[QWidget]):
+    def __init__(self, shortcuts: Dict[str, str], parent: Optional[QWidget]):
         super().__init__(parent)
 
-        record_action = QAction(self.load_icon(RECORD_ICON_PATH), _('Record'), self)
-        record_action.triggered.connect(self.on_record_action_triggered)
+        self.record_action = QAction(self.load_icon(RECORD_ICON_PATH), _('Record'), self)
+        self.record_action.triggered.connect(self.on_record_action_triggered)
 
-        new_transcription_action = QAction(
-            self.load_icon(ADD_ICON_PATH), _('New Transcription'), self)
-        self.new_transcription_action_triggered = new_transcription_action.triggered
+        self.new_transcription_action = QAction(self.load_icon(ADD_ICON_PATH), _('New Transcription'), self)
+        self.new_transcription_action_triggered = self.new_transcription_action.triggered
 
         self.open_transcript_action = QAction(self.load_icon(EXPAND_ICON_PATH),
                                               _('Open Transcript'), self)
@@ -937,9 +927,11 @@ class MainWindowToolbar(QToolBar):
         self.clear_history_action_triggered = self.clear_history_action.triggered
         self.clear_history_action.setDisabled(True)
 
-        self.addAction(record_action)
+        self.set_shortcuts(shortcuts)
+
+        self.addAction(self.record_action)
         self.addSeparator()
-        self.addAction(new_transcription_action)
+        self.addAction(self.new_transcription_action)
         self.addAction(self.open_transcript_action)
         self.addAction(self.stop_transcription_action)
         self.addAction(self.clear_history_action)
@@ -956,6 +948,14 @@ class MainWindowToolbar(QToolBar):
         if platform.system() == 'Darwin':
             self.widgetForAction(self.actions()[0]).setStyleSheet(
                 'QToolButton { margin-left: 9px; margin-right: 1px; }')
+
+    def set_shortcuts(self, shortcuts: Dict[str, str]):
+        self.record_action.setShortcut(QKeySequence.fromString(shortcuts[Shortcut.OPEN_RECORD_WINDOW.name]))
+        self.new_transcription_action.setShortcut(QKeySequence.fromString(shortcuts[Shortcut.OPEN_IMPORT_WINDOW.name]))
+        self.open_transcript_action.setShortcut(
+            QKeySequence.fromString(shortcuts[Shortcut.OPEN_TRANSCRIPT_EDITOR.name]))
+        self.stop_transcription_action.setShortcut(QKeySequence.fromString(shortcuts[Shortcut.STOP_TRANSCRIPTION.name]))
+        self.clear_history_action.setShortcut(QKeySequence.fromString(shortcuts[Shortcut.CLEAR_HISTORY.name]))
 
     def load_icon(self, file_path: str):
         is_dark_theme = self.palette().window().color().black() > 127
@@ -1003,24 +1003,31 @@ class MainWindow(QMainWindow):
 
         self.tasks_cache = tasks_cache
 
+        self.settings = Settings()
+
+        self.shortcut_settings = ShortcutSettings(settings=self.settings)
+        self.shortcuts = self.shortcut_settings.load()
+
         self.tasks = {}
         self.tasks_changed.connect(self.on_tasks_changed)
 
-        self.toolbar = MainWindowToolbar(self)
+        self.toolbar = MainWindowToolbar(shortcuts=self.shortcuts, parent=self)
         self.toolbar.new_transcription_action_triggered.connect(self.on_new_transcription_action_triggered)
-        self.toolbar.open_transcript_action_triggered.connect(self.on_open_transcript_action_triggered)
+        self.toolbar.open_transcript_action_triggered.connect(self.open_transcript_viewer)
         self.toolbar.clear_history_action_triggered.connect(self.on_clear_history_action_triggered)
         self.toolbar.stop_transcription_action_triggered.connect(self.on_stop_transcription_action_triggered)
         self.addToolBar(self.toolbar)
         self.setUnifiedTitleAndToolBarOnMac(True)
 
-        menu_bar = MenuBar(self)
-        menu_bar.import_action_triggered.connect(
+        self.menu_bar = MenuBar(shortcuts=self.shortcuts, parent=self)
+        self.menu_bar.import_action_triggered.connect(
             self.on_new_transcription_action_triggered)
-        self.setMenuBar(menu_bar)
+        self.menu_bar.shortcuts_changed.connect(self.on_shortcuts_changed)
+        self.setMenuBar(self.menu_bar)
 
         self.table_widget = TranscriptionTasksTableWidget(self)
         self.table_widget.doubleClicked.connect(self.on_table_double_clicked)
+        self.table_widget.return_clicked.connect(self.open_transcript_viewer)
         self.table_widget.itemSelectionChanged.connect(
             self.on_table_selection_changed)
 
@@ -1119,7 +1126,7 @@ class MainWindow(QMainWindow):
     def on_openai_access_token_changed(self, access_token: str):
         self.openai_access_token = access_token
 
-    def on_open_transcript_action_triggered(self):
+    def open_transcript_viewer(self):
         selected_rows = self.table_widget.selectionModel().selectedRows()
         for selected_row in selected_rows:
             task_id = TranscriptionTasksTableWidget.find_task_id(selected_row)
@@ -1182,11 +1189,18 @@ class MainWindow(QMainWindow):
         self.toolbar.set_clear_history_action_enabled(self.should_enable_clear_history_action())
         self.save_tasks_to_cache()
 
+    def on_shortcuts_changed(self, shortcuts: dict):
+        self.shortcuts = shortcuts
+        self.menu_bar.set_shortcuts(shortcuts=self.shortcuts)
+        self.toolbar.set_shortcuts(shortcuts=self.shortcuts)
+        self.shortcut_settings.save(shortcuts=self.shortcuts)
+
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         self.transcriber_worker.stop()
         self.transcriber_thread.quit()
         self.transcriber_thread.wait()
         self.save_tasks_to_cache()
+        self.shortcut_settings.save(shortcuts=self.shortcuts)
         super().closeEvent(event)
 
 
@@ -1444,23 +1458,31 @@ class TranscriptionOptionsGroupBox(QGroupBox):
 
 class MenuBar(QMenuBar):
     import_action_triggered = pyqtSignal()
+    shortcuts_changed = pyqtSignal(dict)
 
-    def __init__(self, parent: QWidget):
+    def __init__(self, shortcuts: Dict[str, str], parent: QWidget):
         super().__init__(parent)
 
-        import_action = QAction(_("Import Media File..."), self)
-        import_action.triggered.connect(
-            self.on_import_action_triggered)
-        import_action.setShortcut(QKeySequence.fromString('Ctrl+O'))
+        self.shortcuts = shortcuts
 
-        about_action = QAction(f'{_("About")} {APP_NAME}', self)
+        self.import_action = QAction(_("Import Media File..."), self)
+        self.import_action.triggered.connect(
+            self.on_import_action_triggered)
+
+        about_action = QAction(f'{_("About...")} {APP_NAME}', self)
         about_action.triggered.connect(self.on_about_action_triggered)
 
+        self.preferences_action = QAction(_("Preferences..."), self)
+        self.preferences_action.triggered.connect(self.on_preferences_action_triggered)
+
+        self.set_shortcuts(shortcuts)
+
         file_menu = self.addMenu(_("File"))
-        file_menu.addAction(import_action)
+        file_menu.addAction(self.import_action)
 
         help_menu = self.addMenu(_("Help"))
         help_menu.addAction(about_action)
+        help_menu.addAction(self.preferences_action)
 
     def on_import_action_triggered(self):
         self.import_action_triggered.emit()
@@ -1468,6 +1490,17 @@ class MenuBar(QMenuBar):
     def on_about_action_triggered(self):
         about_dialog = AboutDialog(parent=self)
         about_dialog.open()
+
+    def on_preferences_action_triggered(self):
+        preferences_dialog = PreferencesDialog(shortcuts=self.shortcuts, parent=self)
+        preferences_dialog.shortcuts_changed.connect(self.shortcuts_changed)
+        preferences_dialog.open()
+
+    def set_shortcuts(self, shortcuts: Dict[str, str]):
+        self.shortcuts = shortcuts
+
+        self.import_action.setShortcut(QKeySequence.fromString(shortcuts[Shortcut.OPEN_IMPORT_WINDOW.name]))
+        self.preferences_action.setShortcut(QKeySequence.fromString(shortcuts[Shortcut.OPEN_PREFERENCES_WINDOW.name]))
 
 
 class Application(QApplication):
