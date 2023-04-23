@@ -23,7 +23,6 @@ class ToolBar(QToolBar):
         self.fix_spacing_on_mac()
 
     def fix_spacing_on_mac(self):
-        # Fix spacing issue on Mac
         if platform.system() == 'Darwin':
             self.widgetForAction(self.actions()[0]).setStyleSheet(
                 'QToolButton { margin-left: 9px; margin-right: 1px; }')
