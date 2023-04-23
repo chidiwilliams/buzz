@@ -6,11 +6,13 @@ from buzz.widgets.preferences_dialog import PreferencesDialog
 
 class TestPreferencesDialog:
     def test_create(self, qtbot: QtBot):
-        dialog = PreferencesDialog(shortcuts={})
+        dialog = PreferencesDialog(shortcuts={}, openai_api_key='')
         qtbot.add_widget(dialog)
 
         assert dialog.windowTitle() == 'Preferences'
 
         tab_widget = dialog.findChild(QTabWidget)
         assert isinstance(tab_widget, QTabWidget)
-        assert tab_widget.tabText(0) == 'Shortcuts'
+        assert tab_widget.count() == 2
+        assert tab_widget.tabText(0) == 'General'
+        assert tab_widget.tabText(1) == 'Shortcuts'

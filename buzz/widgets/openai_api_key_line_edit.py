@@ -27,10 +27,10 @@ class OpenAIAPIKeyLineEdit(LineEdit):
     def on_toggle_show_action_triggered(self):
         if self.echoMode() == QLineEdit.EchoMode.Password:
             self.setEchoMode(QLineEdit.EchoMode.Normal)
-            self.actions()[0].setIcon(self.visible_off_icon)
+            self.toggle_show_openai_api_key_action.setIcon(self.visible_off_icon)
         else:
             self.setEchoMode(QLineEdit.EchoMode.Password)
-            self.actions()[0].setIcon(self.visible_on_icon)
+            self.toggle_show_openai_api_key_action.setIcon(self.visible_on_icon)
 
     def on_openai_api_key_changed(self, key: str):
         self.key = key
