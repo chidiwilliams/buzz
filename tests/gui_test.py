@@ -1,7 +1,6 @@
 import logging
 import multiprocessing
 import os.path
-import pathlib
 import platform
 from typing import List
 from unittest.mock import Mock, patch
@@ -19,12 +18,12 @@ from buzz.cache import TasksCache
 from buzz.gui import (AboutDialog, AdvancedSettingsDialog, AudioDevicesComboBox, DownloadModelProgressDialog,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
                       RecordingTranscriberWidget,
-                      TemperatureValidator, TextDisplayBox,
-                      TranscriptionTasksTableWidget, TranscriptionViewerWidget, HuggingFaceSearchLineEdit,
+                      TemperatureValidator, TranscriptionTasksTableWidget, HuggingFaceSearchLineEdit,
                       TranscriptionOptionsGroupBox)
+from buzz.widgets.transcription_viewer_widget import TranscriptionViewerWidget
 from buzz.model_loader import ModelType
 from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask,
-                              Segment, TranscriptionOptions)
+                              TranscriptionOptions)
 from tests.mock_sounddevice import MockInputStream, mock_query_devices
 from .mock_qt import MockNetworkAccessManager, MockNetworkReply
 
@@ -375,53 +374,6 @@ class TestTemperatureValidator:
         ])
     def test_should_validate_temperature(self, text: str, state: QValidator.State):
         assert self.validator.validate(text, 0)[0] == state
-
-
-class TestTranscriptionViewerWidget:
-
-    def test_should_display_segments(self, qtbot: QtBot):
-        widget = TranscriptionViewerWidget(
-            transcription_task=FileTranscriptionTask(
-                id=0,
-                file_path='testdata/whisper-french.mp3',
-                file_transcription_options=FileTranscriptionOptions(
-                    file_paths=['testdata/whisper-french.mp3']),
-                transcription_options=TranscriptionOptions(),
-                segments=[Segment(40, 299, 'Bien'),
-                          Segment(299, 329, 'venue dans')],
-                model_path=''), open_transcription_output=False)
-        qtbot.add_widget(widget)
-
-        assert widget.windowTitle() == 'whisper-french.mp3'
-
-        text_display_box = widget.findChild(TextDisplayBox)
-        assert isinstance(text_display_box, TextDisplayBox)
-        assert text_display_box.toPlainText(
-        ) == '00:00:00.040 --> 00:00:00.299\nBien\n\n00:00:00.299 --> 00:00:00.329\nvenue dans'
-
-    def test_should_export_segments(self, tmp_path: pathlib.Path, qtbot: QtBot):
-        widget = TranscriptionViewerWidget(
-            transcription_task=FileTranscriptionTask(
-                id=0,
-                file_path='testdata/whisper-french.mp3',
-                file_transcription_options=FileTranscriptionOptions(
-                    file_paths=['testdata/whisper-french.mp3']),
-                transcription_options=TranscriptionOptions(),
-                segments=[Segment(40, 299, 'Bien'),
-                          Segment(299, 329, 'venue dans')],
-                model_path=''), open_transcription_output=False)
-        qtbot.add_widget(widget)
-
-        export_button = widget.findChild(QPushButton)
-        assert isinstance(export_button, QPushButton)
-
-        output_file_path = tmp_path / 'whisper.txt'
-        with patch('PyQt6.QtWidgets.QFileDialog.getSaveFileName') as save_file_name_mock:
-            save_file_name_mock.return_value = (str(output_file_path), '')
-            export_button.menu().actions()[0].trigger()
-
-        output_file = open(output_file_path, 'r', encoding='utf-8')
-        assert 'Bien venue dans' in output_file.read()
 
 
 class TestTranscriptionTasksTableWidget:
