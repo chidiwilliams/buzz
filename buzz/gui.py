@@ -12,7 +12,7 @@ import humanize
 import sounddevice
 from PyQt6 import QtGui
 from PyQt6.QtCore import (QObject, Qt, QThread,
-                          QTimer, QUrl, pyqtSignal, QModelIndex, QSize, QPoint,
+                          QTimer, QUrl, pyqtSignal, QModelIndex, QPoint,
                           QUrlQuery, QMetaObject, QEvent)
 from PyQt6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
                          QKeySequence, QPixmap, QTextCursor, QValidator, QKeyEvent, QPainter, QColor)
@@ -20,38 +20,31 @@ from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkReques
 from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
                              QDialogButtonBox, QFileDialog, QLabel, QLineEdit,
                              QMainWindow, QMessageBox, QPlainTextEdit,
-                             QProgressDialog, QPushButton, QVBoxLayout, QHBoxLayout, QMenu,
-                             QWidget, QGroupBox, QToolBar, QTableWidget, QMenuBar, QFormLayout, QTableWidgetItem,
-                             QHeaderView, QAbstractItemView, QListWidget, QListWidgetItem, QToolButton, QSizePolicy)
+                             QProgressDialog, QPushButton, QVBoxLayout, QHBoxLayout, QWidget, QGroupBox, QTableWidget,
+                             QMenuBar, QFormLayout, QTableWidgetItem,
+                             QHeaderView, QAbstractItemView, QListWidget, QListWidgetItem, QSizePolicy)
 from whisper import tokenizer
 
 from buzz.cache import TasksCache
 from .__version__ import VERSION
+from .action import Action
 from .assets import get_asset_path
+from .icon import Icon
 from .locale import _
 from .model_loader import ModelLoader, WhisperModelSize, ModelType, TranscriptionModel
+from .paths import file_paths_as_title
 from .recording import RecordingAmplitudeListener
 from .settings.settings import Settings, APP_NAME
 from .settings.shortcut import Shortcut
 from .settings.shortcut_settings import ShortcutSettings
 from .transcriber import (SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
                           Task,
-                          get_default_output_file_path, segments_to_text, write_output, TranscriptionOptions,
+                          TranscriptionOptions,
                           FileTranscriberQueueWorker, FileTranscriptionTask, RecordingTranscriber, LOADED_WHISPER_DLL,
                           DEFAULT_WHISPER_TEMPERATURE)
 from .widgets.preferences_dialog import PreferencesDialog
-
-
-def get_platform_styles(all_platform_styles: Dict[str, str]):
-    return all_platform_styles.get(platform.system(), '')
-
-
-def file_paths_as_title(file_paths: List[str]):
-    return ', '.join([file_path_as_title(path) for path in file_paths])
-
-
-def file_path_as_title(file_path: str):
-    return os.path.basename(file_path)
+from .widgets.toolbar import ToolBar
+from .widgets.transcription_viewer_widget import TranscriptionViewerWidget
 
 
 class FormLabel(QLabel):
@@ -367,68 +360,6 @@ class FileTranscriberWidget(QWidget):
                                        self.file_transcription_options.output_formats])
 
         super().closeEvent(event)
-
-
-class TranscriptionViewerWidget(QWidget):
-    transcription_task: FileTranscriptionTask
-
-    def __init__(
-            self, transcription_task: FileTranscriptionTask,
-            open_transcription_output=True,
-            parent: Optional['QWidget'] = None,
-            flags: Qt.WindowType = Qt.WindowType.Widget,
-    ) -> None:
-        super().__init__(parent, flags)
-        self.transcription_task = transcription_task
-        self.open_transcription_output = open_transcription_output
-
-        self.setMinimumWidth(500)
-        self.setMinimumHeight(500)
-
-        self.setWindowTitle(file_path_as_title(transcription_task.file_path))
-
-        layout = QVBoxLayout(self)
-
-        self.text_box = TextDisplayBox(self)
-        text = segments_to_text(transcription_task.segments)
-        self.text_box.setPlainText(text)
-
-        layout.addWidget(self.text_box)
-
-        buttons_layout = QHBoxLayout()
-        buttons_layout.addStretch()
-
-        menu = QMenu()
-        actions = [QAction(text=output_format.value.upper(), parent=self)
-                   for output_format in OutputFormat]
-        menu.addActions(actions)
-
-        menu.triggered.connect(self.on_menu_triggered)
-
-        export_button = QPushButton(self)
-        export_button.setText(_('Export'))
-        export_button.setMenu(menu)
-
-        buttons_layout.addWidget(export_button)
-        layout.addLayout(buttons_layout)
-
-        self.setLayout(layout)
-
-    def on_menu_triggered(self, action: QAction):
-        output_format = OutputFormat[action.text()]
-
-        default_path = get_default_output_file_path(
-            task=self.transcription_task.transcription_options.task,
-            input_file_path=self.transcription_task.file_path,
-            output_format=output_format)
-
-        (output_file_path, nil) = QFileDialog.getSaveFileName(self, _('Save File'), default_path,
-                                                              _('Text files') + f' (*.{output_format.value})')
-
-        if output_file_path == '':
-            return
-
-        write_output(path=output_file_path, segments=self.transcription_task.segments, output_format=output_format)
 
 
 class AdvancedSettingsButton(QPushButton):
@@ -898,7 +829,7 @@ class TranscriptionTasksTableWidget(QTableWidget):
         super().keyPressEvent(event)
 
 
-class MainWindowToolbar(QToolBar):
+class MainWindowToolbar(ToolBar):
     new_transcription_action_triggered: pyqtSignal
     open_transcript_action_triggered: pyqtSignal
     clear_history_action_triggered: pyqtSignal
@@ -908,22 +839,22 @@ class MainWindowToolbar(QToolBar):
     def __init__(self, shortcuts: Dict[str, str], parent: Optional[QWidget]):
         super().__init__(parent)
 
-        self.record_action = QAction(self.load_icon(RECORD_ICON_PATH), _('Record'), self)
+        self.record_action = Action(Icon(RECORD_ICON_PATH, self), _('Record'), self)
         self.record_action.triggered.connect(self.on_record_action_triggered)
 
-        self.new_transcription_action = QAction(self.load_icon(ADD_ICON_PATH), _('New Transcription'), self)
+        self.new_transcription_action = Action(Icon(ADD_ICON_PATH, self), _('New Transcription'), self)
         self.new_transcription_action_triggered = self.new_transcription_action.triggered
 
-        self.open_transcript_action = QAction(self.load_icon(EXPAND_ICON_PATH),
-                                              _('Open Transcript'), self)
+        self.open_transcript_action = Action(Icon(EXPAND_ICON_PATH, self),
+                                             _('Open Transcript'), self)
         self.open_transcript_action_triggered = self.open_transcript_action.triggered
         self.open_transcript_action.setDisabled(True)
 
-        self.stop_transcription_action = QAction(self.load_icon(CANCEL_ICON_PATH), _('Cancel Transcription'), self)
+        self.stop_transcription_action = Action(Icon(CANCEL_ICON_PATH, self), _('Cancel Transcription'), self)
         self.stop_transcription_action_triggered = self.stop_transcription_action.triggered
         self.stop_transcription_action.setDisabled(True)
 
-        self.clear_history_action = QAction(self.load_icon(TRASH_ICON_PATH), _('Clear History'), self)
+        self.clear_history_action = Action(Icon(TRASH_ICON_PATH, self), _('Clear History'), self)
         self.clear_history_action_triggered = self.clear_history_action.triggered
         self.clear_history_action.setDisabled(True)
 
@@ -931,23 +862,10 @@ class MainWindowToolbar(QToolBar):
 
         self.addAction(self.record_action)
         self.addSeparator()
-        self.addAction(self.new_transcription_action)
-        self.addAction(self.open_transcript_action)
-        self.addAction(self.stop_transcription_action)
-        self.addAction(self.clear_history_action)
+        self.addActions([self.new_transcription_action, self.open_transcript_action, self.stop_transcription_action,
+                         self.clear_history_action])
         self.setMovable(False)
-        self.setIconSize(QSize(18, 18))
-        self.setStyleSheet('QToolButton{margin: 6px 3px;}')
-
-        for action in self.actions():
-            widget = self.widgetForAction(action)
-            if isinstance(widget, QToolButton):
-                widget.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
-
-        # Fix spacing issue on Mac
-        if platform.system() == 'Darwin':
-            self.widgetForAction(self.actions()[0]).setStyleSheet(
-                'QToolButton { margin-left: 9px; margin-right: 1px; }')
+        self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
 
     def set_shortcuts(self, shortcuts: Dict[str, str]):
         self.record_action.setShortcut(QKeySequence.fromString(shortcuts[Shortcut.OPEN_RECORD_WINDOW.name]))
@@ -956,21 +874,6 @@ class MainWindowToolbar(QToolBar):
             QKeySequence.fromString(shortcuts[Shortcut.OPEN_TRANSCRIPT_EDITOR.name]))
         self.stop_transcription_action.setShortcut(QKeySequence.fromString(shortcuts[Shortcut.STOP_TRANSCRIPTION.name]))
         self.clear_history_action.setShortcut(QKeySequence.fromString(shortcuts[Shortcut.CLEAR_HISTORY.name]))
-
-    def load_icon(self, file_path: str):
-        is_dark_theme = self.palette().window().color().black() > 127
-        return self.load_icon_with_color(file_path,
-                                         self.ICON_DARK_THEME_BACKGROUND if is_dark_theme else self.ICON_LIGHT_THEME_BACKGROUND)
-
-    @staticmethod
-    def load_icon_with_color(file_path: str, color: str):
-        """Adapted from https://stackoverflow.com/questions/15123544/change-the-color-of-an-svg-in-qt"""
-        pixmap = QPixmap(file_path)
-        painter = QPainter(pixmap)
-        painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
-        painter.fillRect(pixmap.rect(), QColor(color))
-        painter.end()
-        return QIcon(pixmap)
 
     def on_record_action_triggered(self):
         recording_transcriber_window = RecordingTranscriberWidget(self, flags=Qt.WindowType.Window)

@@ -185,3 +185,7 @@ Then:
 2. **What can I try if the transcription runs too slowly?**
 
    Try using a lower Whisper model size or using a Whisper.cpp model.
+
+## Credits
+
+- SVG Icons: [Google Fonts Material Symbols](https://fonts.google.com/icons)

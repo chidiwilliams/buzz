@@ -20,8 +20,9 @@ from buzz.gui import (AboutDialog, AdvancedSettingsDialog, AudioDevicesComboBox,
                       FileTranscriberWidget, LanguagesComboBox, MainWindow,
                       RecordingTranscriberWidget,
                       TemperatureValidator, TextDisplayBox,
-                      TranscriptionTasksTableWidget, TranscriptionViewerWidget, HuggingFaceSearchLineEdit,
+                      TranscriptionTasksTableWidget, HuggingFaceSearchLineEdit,
                       TranscriptionOptionsGroupBox)
+from buzz.widgets.transcription_viewer_widget import TranscriptionViewerWidget
 from buzz.model_loader import ModelType
 from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask,
                               Segment, TranscriptionOptions)
