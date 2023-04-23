@@ -1,12 +1,12 @@
 from PyQt6.QtWidgets import QPushButton, QLabel
 
 from buzz.settings.shortcut import Shortcut
-from buzz.widgets.shortcuts_editor_widget import ShortcutsEditorWidget, SequenceEdit
+from buzz.widgets.shortcuts_editor_preferences_widget import ShortcutsEditorPreferencesWidget, SequenceEdit
 
 
 class TestShortcutsEditorWidget:
     def test_should_reset_to_defaults(self, qtbot):
-        widget = ShortcutsEditorWidget(shortcuts=Shortcut.get_default_shortcuts())
+        widget = ShortcutsEditorPreferencesWidget(shortcuts=Shortcut.get_default_shortcuts())
         qtbot.add_widget(widget)
 
         reset_button = widget.findChild(QPushButton)

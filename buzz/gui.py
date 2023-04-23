@@ -2,7 +2,6 @@ import enum
 import json
 import logging
 import os
-import platform
 import sys
 from datetime import datetime
 from enum import auto
@@ -37,11 +36,14 @@ from .recording import RecordingAmplitudeListener
 from .settings.settings import Settings, APP_NAME
 from .settings.shortcut import Shortcut
 from .settings.shortcut_settings import ShortcutSettings
+from .store.keyring_store import KeyringStore
 from .transcriber import (SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
                           Task,
                           TranscriptionOptions,
                           FileTranscriberQueueWorker, FileTranscriptionTask, RecordingTranscriber, LOADED_WHISPER_DLL,
                           DEFAULT_WHISPER_TEMPERATURE)
+from .widgets.line_edit import LineEdit
+from .widgets.openai_api_key_line_edit import OpenAIAPIKeyLineEdit
 from .widgets.preferences_dialog import PreferencesDialog
 from .widgets.toolbar import ToolBar
 from .widgets.transcription_viewer_widget import TranscriptionViewerWidget
@@ -746,9 +748,10 @@ class AboutDialog(QDialog):
 
 
 class TranscriptionTasksTableWidget(QTableWidget):
-    TASK_ID_COLUMN_INDEX = 0
-    FILE_NAME_COLUMN_INDEX = 1
-    STATUS_COLUMN_INDEX = 2
+    class Column(enum.Enum):
+        TASK_ID = 0
+        FILE_NAME = auto()
+        STATUS = auto()
 
     return_clicked = pyqtSignal()
 
@@ -763,9 +766,9 @@ class TranscriptionTasksTableWidget(QTableWidget):
 
         self.verticalHeader().hide()
         self.setHorizontalHeaderLabels([_('ID'), _('File Name'), _('Status')])
-        self.horizontalHeader().setMinimumSectionSize(160)
-        self.horizontalHeader().setSectionResizeMode(self.FILE_NAME_COLUMN_INDEX,
-                                                     QHeaderView.ResizeMode.Stretch)
+        self.setColumnWidth(self.Column.FILE_NAME.value, 250)
+        self.setColumnWidth(self.Column.STATUS.value, 180)
+        self.horizontalHeader().setMinimumSectionSize(180)
 
         self.setSelectionBehavior(
             QAbstractItemView.SelectionBehavior.SelectRows)
@@ -777,24 +780,24 @@ class TranscriptionTasksTableWidget(QTableWidget):
 
             row_index = self.rowCount() - 1
             task_id_widget_item = QTableWidgetItem(str(task.id))
-            self.setItem(row_index, self.TASK_ID_COLUMN_INDEX,
+            self.setItem(row_index, self.Column.TASK_ID.value,
                          task_id_widget_item)
 
             file_name_widget_item = QTableWidgetItem(
                 os.path.basename(task.file_path))
             file_name_widget_item.setFlags(
                 file_name_widget_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-            self.setItem(row_index, self.FILE_NAME_COLUMN_INDEX,
+            self.setItem(row_index, self.Column.FILE_NAME.value,
                          file_name_widget_item)
 
             status_widget_item = QTableWidgetItem(
                 task.status.value.title() if task.status is not None else '')
             status_widget_item.setFlags(
                 status_widget_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-            self.setItem(row_index, self.STATUS_COLUMN_INDEX,
+            self.setItem(row_index, self.Column.STATUS.value,
                          status_widget_item)
         else:
-            status_widget = self.item(task_row_index, self.STATUS_COLUMN_INDEX)
+            status_widget = self.item(task_row_index, self.Column.STATUS.value)
 
             if task.status == FileTranscriptionTask.Status.IN_PROGRESS:
                 status_widget.setText(
@@ -813,14 +816,14 @@ class TranscriptionTasksTableWidget(QTableWidget):
 
     def task_row_index(self, task_id: int) -> int | None:
         table_items_matching_task_id = [item for item in self.findItems(str(task_id), Qt.MatchFlag.MatchExactly) if
-                                        item.column() == self.TASK_ID_COLUMN_INDEX]
+                                        item.column() == self.Column.TASK_ID.value]
         if len(table_items_matching_task_id) == 0:
             return None
         return table_items_matching_task_id[0].row()
 
     @staticmethod
     def find_task_id(index: QModelIndex):
-        sibling_index = index.siblingAtColumn(TranscriptionTasksTableWidget.TASK_ID_COLUMN_INDEX).data()
+        sibling_index = index.siblingAtColumn(TranscriptionTasksTableWidget.Column.TASK_ID.value).data()
         return int(sibling_index) if sibling_index is not None else None
 
     def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
@@ -893,7 +896,7 @@ class MainWindow(QMainWindow):
     table_widget: TranscriptionTasksTableWidget
     tasks: Dict[int, 'FileTranscriptionTask']
     tasks_changed = pyqtSignal()
-    openai_access_token: Optional[str] = None
+    openai_access_token: Optional[str]
 
     def __init__(self, tasks_cache=TasksCache()):
         super().__init__(flags=Qt.WindowType.Window)
@@ -905,6 +908,8 @@ class MainWindow(QMainWindow):
         self.setAcceptDrops(True)
 
         self.tasks_cache = tasks_cache
+
+        self.openai_access_token = KeyringStore.get_password(KeyringStore.Key.OPENAI_API_KEY)
 
         self.settings = Settings()
 
@@ -922,10 +927,11 @@ class MainWindow(QMainWindow):
         self.addToolBar(self.toolbar)
         self.setUnifiedTitleAndToolBarOnMac(True)
 
-        self.menu_bar = MenuBar(shortcuts=self.shortcuts, parent=self)
+        self.menu_bar = MenuBar(shortcuts=self.shortcuts, openai_api_key=self.openai_access_token, parent=self)
         self.menu_bar.import_action_triggered.connect(
             self.on_new_transcription_action_triggered)
         self.menu_bar.shortcuts_changed.connect(self.on_shortcuts_changed)
+        self.menu_bar.openai_api_key_changed.connect(self.on_openai_access_token_changed)
         self.setMenuBar(self.menu_bar)
 
         self.table_widget = TranscriptionTasksTableWidget(self)
@@ -947,8 +953,6 @@ class MainWindow(QMainWindow):
         self.transcriber_worker.completed.connect(self.transcriber_thread.quit)
 
         self.transcriber_thread.started.connect(self.transcriber_worker.run)
-        self.transcriber_thread.finished.connect(
-            self.transcriber_thread.deleteLater)
 
         self.transcriber_thread.start()
 
@@ -1024,10 +1028,10 @@ class MainWindow(QMainWindow):
         file_transcriber_window.openai_access_token_changed.connect(self.on_openai_access_token_changed)
         file_transcriber_window.show()
 
-    # Save the access token on the main window so the user doesn't need to re-enter (at least, not while the app is
-    # still open)
     def on_openai_access_token_changed(self, access_token: str):
         self.openai_access_token = access_token
+        self.menu_bar.set_openai_api_key(self.openai_access_token)
+        KeyringStore.set_password(KeyringStore.Key.OPENAI_API_KEY, access_token)
 
     def open_transcript_viewer(self):
         selected_rows = self.table_widget.selectionModel().selectedRows()
@@ -1105,13 +1109,6 @@ class MainWindow(QMainWindow):
         self.save_tasks_to_cache()
         self.shortcut_settings.save(shortcuts=self.shortcuts)
         super().closeEvent(event)
-
-
-class LineEdit(QLineEdit):
-    def __init__(self, default_text: str = '', parent: Optional[QWidget] = None):
-        super().__init__(default_text, parent)
-        if platform.system() == 'Darwin':
-            self.setStyleSheet('QLineEdit { padding: 4px }')
 
 
 # Adapted from https://github.com/ismailsunni/scripts/blob/master/autocomplete_from_url.py
@@ -1286,10 +1283,9 @@ class TranscriptionOptionsGroupBox(QGroupBox):
                 default_transcription_options.model.whisper_model_size.value.title())
         self.whisper_model_size_combo_box.currentTextChanged.connect(self.on_whisper_model_size_changed)
 
-        self.openai_access_token_edit = QLineEdit(self)
-        self.openai_access_token_edit.setText(default_transcription_options.openai_access_token)
-        self.openai_access_token_edit.setEchoMode(QLineEdit.EchoMode.Password)
-        self.openai_access_token_edit.textChanged.connect(self.on_openai_access_token_edit_changed)
+        self.openai_access_token_edit = OpenAIAPIKeyLineEdit(key=default_transcription_options.openai_access_token,
+                                                             parent=self)
+        self.openai_access_token_edit.key_changed.connect(self.on_openai_access_token_edit_changed)
 
         self.form_layout.addRow(_('Model:'), self.model_type_combo_box)
         self.form_layout.addRow('', self.whisper_model_size_combo_box)
@@ -1362,11 +1358,13 @@ class TranscriptionOptionsGroupBox(QGroupBox):
 class MenuBar(QMenuBar):
     import_action_triggered = pyqtSignal()
     shortcuts_changed = pyqtSignal(dict)
+    openai_api_key_changed = pyqtSignal(str)
 
-    def __init__(self, shortcuts: Dict[str, str], parent: QWidget):
+    def __init__(self, shortcuts: Dict[str, str], openai_api_key: str, parent: QWidget):
         super().__init__(parent)
 
         self.shortcuts = shortcuts
+        self.openai_api_key = openai_api_key
 
         self.import_action = QAction(_("Import Media File..."), self)
         self.import_action.triggered.connect(
@@ -1395,8 +1393,10 @@ class MenuBar(QMenuBar):
         about_dialog.open()
 
     def on_preferences_action_triggered(self):
-        preferences_dialog = PreferencesDialog(shortcuts=self.shortcuts, parent=self)
+        preferences_dialog = PreferencesDialog(shortcuts=self.shortcuts, openai_api_key=self.openai_api_key,
+                                               parent=self)
         preferences_dialog.shortcuts_changed.connect(self.shortcuts_changed)
+        preferences_dialog.openai_api_key_changed.connect(self.openai_api_key_changed)
         preferences_dialog.open()
 
     def set_shortcuts(self, shortcuts: Dict[str, str]):
@@ -1404,6 +1404,9 @@ class MenuBar(QMenuBar):
 
         self.import_action.setShortcut(QKeySequence.fromString(shortcuts[Shortcut.OPEN_IMPORT_WINDOW.name]))
         self.preferences_action.setShortcut(QKeySequence.fromString(shortcuts[Shortcut.OPEN_PREFERENCES_WINDOW.name]))
+
+    def set_openai_api_key(self, key: str):
+        self.openai_api_key = key
 
 
 class Application(QApplication):
