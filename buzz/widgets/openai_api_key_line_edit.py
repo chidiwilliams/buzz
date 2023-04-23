@@ -1,3 +1,5 @@
+from typing import Optional
+
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QWidget, QLineEdit
 
@@ -9,7 +11,7 @@ from buzz.widgets.line_edit import LineEdit
 class OpenAIAPIKeyLineEdit(LineEdit):
     key_changed = pyqtSignal(str)
 
-    def __init__(self, key: str, parent: QWidget):
+    def __init__(self, key: str, parent: Optional[QWidget] = None):
         super().__init__(key, parent)
 
         self.key = key
