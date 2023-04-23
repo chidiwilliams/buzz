@@ -952,8 +952,8 @@ class MainWindow(QMainWindow):
         self.transcriber_worker.completed.connect(self.transcriber_thread.quit)
 
         self.transcriber_thread.started.connect(self.transcriber_worker.run)
-        self.transcriber_thread.finished.connect(
-            self.transcriber_thread.deleteLater)
+        # self.transcriber_thread.finished.connect(
+        #     self.transcriber_thread.deleteLater)
 
         self.transcriber_thread.start()
 
