@@ -12,7 +12,7 @@ from buzz.widgets.openai_api_key_line_edit import OpenAIAPIKeyLineEdit
 class GeneralPreferencesWidget(QWidget):
     openai_api_key_changed = pyqtSignal(str)
 
-    def __init__(self, openai_api_key: str, parent=Optional[QWidget]):
+    def __init__(self, openai_api_key: str, parent: Optional[QWidget] = None):
         super().__init__(parent)
         self.openai_api_key = openai_api_key
 
@@ -23,11 +23,15 @@ class GeneralPreferencesWidget(QWidget):
 
         self.test_openai_api_key_button = QPushButton('Test')
         self.test_openai_api_key_button.clicked.connect(self.on_click_test_openai_api_key_button)
+        self.update_test_openai_api_key_button()
 
         layout.addRow('OpenAI API Key', self.openai_api_key_line_edit)
         layout.addRow('', self.test_openai_api_key_button)
 
         self.setLayout(layout)
+
+    def update_test_openai_api_key_button(self):
+        self.test_openai_api_key_button.setEnabled(len(self.openai_api_key) > 0)
 
     def on_click_test_openai_api_key_button(self):
         self.test_openai_api_key_button.setEnabled(False)
@@ -57,7 +61,7 @@ class GeneralPreferencesWidget(QWidget):
 
     def on_openai_api_key_changed(self, key: str):
         self.openai_api_key = key
-        self.test_openai_api_key_button.setEnabled(len(key) > 0)
+        self.update_test_openai_api_key_button()
         self.openai_api_key_changed.emit(key)
 
 
