@@ -3,7 +3,7 @@ from typing import Dict, Optional
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QDialog, QWidget, QVBoxLayout, QTabWidget, QDialogButtonBox
 
-from buzz.gui import _
+from buzz.locale import _
 from buzz.widgets.shortcuts_editor_widget import ShortcutsEditorWidget
 
 

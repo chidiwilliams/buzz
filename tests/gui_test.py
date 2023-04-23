@@ -235,7 +235,7 @@ class TestMainWindow:
         window.close()
 
     @pytest.mark.parametrize('tasks_cache', [mock_tasks], indirect=True)
-    def test_should_open_transcription_viewer(self, qtbot, tasks_cache):
+    def test_should_open_transcription_viewer_when_menu_action_is_clicked(self, qtbot, tasks_cache):
         window = MainWindow(tasks_cache=tasks_cache)
         qtbot.add_widget(window)
 
@@ -244,6 +244,21 @@ class TestMainWindow:
         table_widget.selectRow(0)
 
         window.toolbar.open_transcript_action.trigger()
+
+        transcription_viewer = window.findChild(TranscriptionViewerWidget)
+        assert transcription_viewer is not None
+
+        window.close()
+
+    @pytest.mark.parametrize('tasks_cache', [mock_tasks], indirect=True)
+    def test_should_open_transcription_viewer_when_return_clicked(self, qtbot, tasks_cache):
+        window = MainWindow(tasks_cache=tasks_cache)
+        qtbot.add_widget(window)
+
+        table_widget: QTableWidget = window.findChild(QTableWidget)
+        table_widget.selectRow(0)
+        table_widget.keyPressEvent(
+            QKeyEvent(QKeyEvent.Type.KeyPress, Qt.Key.Key_Return, Qt.KeyboardModifier.NoModifier, '\r'))
 
         transcription_viewer = window.findChild(TranscriptionViewerWidget)
         assert transcription_viewer is not None

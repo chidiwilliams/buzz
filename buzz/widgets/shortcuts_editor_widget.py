@@ -19,7 +19,7 @@ class ShortcutsEditorWidget(QWidget):
 
         self.layout = QFormLayout(self)
         for shortcut in Shortcut:
-            sequence_edit = SequenceEdit(shortcuts[shortcut.name], self)
+            sequence_edit = SequenceEdit(shortcuts.get(shortcut.name, ''), self)
             sequence_edit.keySequenceChanged.connect(self.get_key_sequence_changed(shortcut.name))
             self.layout.addRow(shortcut.description, sequence_edit)
 
