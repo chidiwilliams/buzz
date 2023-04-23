@@ -231,7 +231,6 @@ class TestMainWindow:
         qtbot.add_widget(window)
 
         assert window.toolbar.clear_history_action.isEnabled() is False
-        window.close()
 
     @pytest.mark.parametrize('tasks_cache', [mock_tasks], indirect=True)
     def test_should_open_transcription_viewer_when_menu_action_is_clicked(self, qtbot, tasks_cache):
@@ -270,7 +269,6 @@ class TestMainWindow:
         qtbot.add_widget(window)
 
         assert window.toolbar.open_transcript_action.isEnabled() is False
-        window.close()
 
     @staticmethod
     def _start_new_transcription(window: MainWindow):
