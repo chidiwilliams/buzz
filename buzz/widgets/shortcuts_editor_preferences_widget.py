@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import QKeySequenceEdit, QWidget, QFormLayout, QPushButton
 from buzz.settings.shortcut import Shortcut
 
 
-class ShortcutsEditorWidget(QWidget):
+class ShortcutsEditorPreferencesWidget(QWidget):
     shortcuts_changed = pyqtSignal(dict)
 
     def __init__(self, shortcuts: Dict[str, str], parent: Optional[QWidget] = None):
