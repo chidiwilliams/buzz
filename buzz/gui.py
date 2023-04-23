@@ -748,9 +748,10 @@ class AboutDialog(QDialog):
 
 
 class TranscriptionTasksTableWidget(QTableWidget):
-    TASK_ID_COLUMN_INDEX = 0
-    FILE_NAME_COLUMN_INDEX = 1
-    STATUS_COLUMN_INDEX = 2
+    class Column(enum.Enum):
+        TASK_ID = 0
+        FILE_NAME = auto()
+        STATUS = auto()
 
     return_clicked = pyqtSignal()
 
@@ -765,9 +766,9 @@ class TranscriptionTasksTableWidget(QTableWidget):
 
         self.verticalHeader().hide()
         self.setHorizontalHeaderLabels([_('ID'), _('File Name'), _('Status')])
-        self.horizontalHeader().setMinimumSectionSize(160)
-        self.horizontalHeader().setSectionResizeMode(self.FILE_NAME_COLUMN_INDEX,
-                                                     QHeaderView.ResizeMode.Stretch)
+        self.setColumnWidth(self.Column.FILE_NAME.value, 250)
+        self.setColumnWidth(self.Column.STATUS.value, 180)
+        self.horizontalHeader().setMinimumSectionSize(180)
 
         self.setSelectionBehavior(
             QAbstractItemView.SelectionBehavior.SelectRows)
@@ -779,24 +780,24 @@ class TranscriptionTasksTableWidget(QTableWidget):
 
             row_index = self.rowCount() - 1
             task_id_widget_item = QTableWidgetItem(str(task.id))
-            self.setItem(row_index, self.TASK_ID_COLUMN_INDEX,
+            self.setItem(row_index, self.Column.TASK_ID.value,
                          task_id_widget_item)
 
             file_name_widget_item = QTableWidgetItem(
                 os.path.basename(task.file_path))
             file_name_widget_item.setFlags(
                 file_name_widget_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-            self.setItem(row_index, self.FILE_NAME_COLUMN_INDEX,
+            self.setItem(row_index, self.Column.FILE_NAME.value,
                          file_name_widget_item)
 
             status_widget_item = QTableWidgetItem(
                 task.status.value.title() if task.status is not None else '')
             status_widget_item.setFlags(
                 status_widget_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-            self.setItem(row_index, self.STATUS_COLUMN_INDEX,
+            self.setItem(row_index, self.Column.STATUS.value,
                          status_widget_item)
         else:
-            status_widget = self.item(task_row_index, self.STATUS_COLUMN_INDEX)
+            status_widget = self.item(task_row_index, self.Column.STATUS.value)
 
             if task.status == FileTranscriptionTask.Status.IN_PROGRESS:
                 status_widget.setText(
@@ -815,14 +816,14 @@ class TranscriptionTasksTableWidget(QTableWidget):
 
     def task_row_index(self, task_id: int) -> int | None:
         table_items_matching_task_id = [item for item in self.findItems(str(task_id), Qt.MatchFlag.MatchExactly) if
-                                        item.column() == self.TASK_ID_COLUMN_INDEX]
+                                        item.column() == self.Column.TASK_ID.value]
         if len(table_items_matching_task_id) == 0:
             return None
         return table_items_matching_task_id[0].row()
 
     @staticmethod
     def find_task_id(index: QModelIndex):
-        sibling_index = index.siblingAtColumn(TranscriptionTasksTableWidget.TASK_ID_COLUMN_INDEX).data()
+        sibling_index = index.siblingAtColumn(TranscriptionTasksTableWidget.Column.TASK_ID.value).data()
         return int(sibling_index) if sibling_index is not None else None
 
     def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
