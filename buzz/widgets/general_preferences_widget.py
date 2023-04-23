@@ -53,12 +53,6 @@ class GeneralPreferencesWidget(QWidget):
         self.test_openai_api_key_button.setEnabled(True)
         QMessageBox.warning(self, 'OpenAI API Key Test', error)
 
-    def on_toggle_show_action_triggered(self):
-        if self.openai_api_key_line_edit.echoMode() == QLineEdit.EchoMode.Password:
-            self.openai_api_key_line_edit.setEchoMode(QLineEdit.EchoMode.Normal)
-        else:
-            self.openai_api_key_line_edit.setEchoMode(QLineEdit.EchoMode.Password)
-
     def on_openai_api_key_changed(self, key: str):
         self.openai_api_key = key
         self.update_test_openai_api_key_button()

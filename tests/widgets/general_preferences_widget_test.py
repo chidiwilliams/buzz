@@ -1,6 +1,6 @@
 from unittest.mock import Mock
 
-from PyQt6.QtWidgets import QPushButton, QMessageBox
+from PyQt6.QtWidgets import QPushButton, QMessageBox, QLineEdit
 
 from buzz.widgets.general_preferences_widget import GeneralPreferencesWidget
 
@@ -15,6 +15,12 @@ class TestGeneralPreferencesWidget:
 
         assert test_button.text() == 'Test'
         assert not test_button.isEnabled()
+
+        line_edit = widget.findChild(QLineEdit)
+        assert isinstance(line_edit, QLineEdit)
+        line_edit.setText('123')
+
+        assert test_button.isEnabled()
 
     def test_should_test_openai_api_key(self, qtbot):
         widget = GeneralPreferencesWidget(openai_api_key='wrong-api-key')
