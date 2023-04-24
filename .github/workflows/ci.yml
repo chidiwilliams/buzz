@@ -246,7 +246,6 @@ jobs:
           tool: 'pytest'
           output-file-path: benchmarks.json
 
-
   release:
     runs-on: ${{ matrix.os }}
     strategy:
