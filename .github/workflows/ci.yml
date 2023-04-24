@@ -178,7 +178,7 @@ jobs:
             dist/Buzz*-mac.dmg
             dist/Buzz*-unix.tar.gz
 
-  benchmarks:
+  benchmark:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
