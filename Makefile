@@ -41,7 +41,7 @@ test: buzz/whisper_cpp.py translation_mo
 	pytest -vv --cov=buzz --cov-report=xml --cov-report=html --benchmark-skip
 
 benchmarks: buzz/whisper_cpp.py translation_mo
-	pytest -vv --benchmark-only
+	pytest -vv --benchmark-only --benchmark-json benchmarks.json
 
 dist/Buzz dist/Buzz.app: buzz/whisper_cpp.py translation_mo
 	pyinstaller --noconfirm Buzz.spec

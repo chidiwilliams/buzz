@@ -240,6 +240,13 @@ jobs:
           poetry run make benchmarks
         shell: bash
 
+      - name: Store benchmark results
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'pytest'
+          output-file-path: benchmarks.json
+
+
   release:
     runs-on: ${{ matrix.os }}
     strategy:
