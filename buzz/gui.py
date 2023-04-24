@@ -1021,8 +1021,9 @@ class MainWindow(QMainWindow):
         self.open_file_transcriber_widget(file_paths)
 
     def open_file_transcriber_widget(self, file_paths: List[str]):
-        file_transcriber_window = FileTranscriberWidget(
-            file_paths, self.openai_access_token, self, flags=Qt.WindowType.Window)
+        file_transcriber_window = FileTranscriberWidget(file_paths=file_paths,
+                                                        openai_access_token=self.openai_access_token, parent=self,
+                                                        flags=Qt.WindowType.Window)
         file_transcriber_window.triggered.connect(
             self.on_file_transcriber_triggered)
         file_transcriber_window.openai_access_token_changed.connect(self.on_openai_access_token_changed)

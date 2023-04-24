@@ -64,8 +64,9 @@ class TestWhisperCppFileTranscriber:
     @pytest.mark.parametrize(
         'word_level_timings,expected_segments',
         [
-            (False, [Segment(0, 1840, 'Bienvenue dans Passe Relle.')]),
-            (True, [Segment(30, 280, 'Bien'), Segment(280, 630, 'venue')])
+            (False, [Segment(0, 6560,
+                             'Bienvenue dans Passe-Relle. Un podcast pensé pour évêiller la curiosité des apprenances')]),
+            (True, [Segment(0, 30, ''), Segment(30, 330, 'Bien'), Segment(330, 740, 'venue')])
         ])
     def test_transcribe(self, qtbot: QtBot, word_level_timings: bool, expected_segments: List[Segment]):
         file_transcription_options = FileTranscriptionOptions(
