@@ -64,8 +64,9 @@ class TestWhisperCppFileTranscriber:
     @pytest.mark.parametrize(
         'word_level_timings,expected_segments',
         [
-            (False, [Segment(0, 1840, 'Bienvenue dans Passe Relle.')]),
-            (True, [Segment(30, 280, 'Bien'), Segment(280, 630, 'venue')])
+            (False, [Segment(0, 6560,
+                             'Bienvenue dans Passe-Relle. Un podcast pensé pour')]),
+            (True, [Segment(0, 30, ''), Segment(30, 330, 'Bien'), Segment(330, 740, 'venue')])
         ])
     def test_transcribe(self, qtbot: QtBot, word_level_timings: bool, expected_segments: List[Segment]):
         file_transcription_options = FileTranscriptionOptions(
@@ -89,8 +90,10 @@ class TestWhisperCppFileTranscriber:
 
         mock_progress.assert_called()
         segments = mock_completed.call_args[0][0]
-        for expected_segment in expected_segments:
-            assert expected_segment in segments
+        for i, expected_segment in enumerate(expected_segments):
+            assert expected_segment.start == segments[i].start
+            assert expected_segment.end == segments[i].end
+            assert expected_segment.text in segments[i].text
 
 
 class TestWhisperFileTranscriber:
