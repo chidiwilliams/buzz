@@ -173,10 +173,71 @@ jobs:
         with:
           name: Buzz-${{ runner.os }}
           path: |
-            dist/Buzz*-windows.tar.gz
             dist/Buzz*-windows.exe
             dist/Buzz*-mac.dmg
             dist/Buzz*-unix.tar.gz
+
+  benchmarks:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+          - os: windows-latest
+          - os: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10.7'
+
+      - name: Install Poetry Action
+        uses: snok/install-poetry@v1.3.1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-2
+
+      - name: Load cached Whisper models
+        id: cached-whisper-models
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/Library/Caches/Buzz
+            ~/.cache/whisper
+            ~/.cache/huggingface
+            ~/AppData/Local/Buzz/Buzz/Cache
+          key: whisper-models-${{ runner.os }}
+
+      - uses: FedericoCarboni/setup-ffmpeg@v1
+        id: setup-ffmpeg
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies
+        run: poetry config experimental.new-installer false && poetry install
+
+      - name: Test
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt install libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 x11-utils
+            /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
+            sudo apt update
+            sudo apt install -y libpulse-mainloop-glib0 libegl1-mesa-dev libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev libportaudio2
+          fi
+          
+          poetry run make benchmarks
+        shell: bash
 
   release:
     runs-on: ${{ matrix.os }}
