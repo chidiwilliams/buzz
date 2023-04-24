@@ -18,10 +18,9 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
 
 ## Features
 
-- Real-time transcription and translation from your computer's microphones to
-  text ([Demo](https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7))
 - Import audio and video files and export transcripts to TXT, SRT, and
   VTT ([Demo](https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe))
+- Transcription and translation from your computer's microphones to text (Resource-intensive and may not be real-time, [Demo](https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7))
 - Supports [Whisper](https://github.com/openai/whisper#available-models-and-languages),
   [Whisper.cpp](https://github.com/ggerganov/whisper.cpp), [Faster Whisper](https://github.com/guillaumekln/faster-whisper),
   [Whisper-compatible Hugging Face models](https://huggingface.co/models?other=whisper), and
@@ -59,6 +58,26 @@ system. Buzz is available on **Mac**, **Windows**, and **Linux**.
 
 ## How to use
 
+### File import
+
+To import a file:
+
+- Click Import Media File on the File menu (or the '+' icon on the toolbar, or **Command/Ctrl + O**).
+- Choose an audio or video file.
+- Select a task, language, and the model settings.
+- Click Run.
+- When the transcription status shows 'Completed', double-click on the row (or select the row and click the '⤢' icon) to
+  open the transcription.
+
+| Field              | Options             | Default | Description                                                                                                                                              |
+|--------------------|---------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Export As          | "TXT", "SRT", "VTT" | "TXT"   | Export file format                                                                                                                                       |
+| Word-Level Timings | Off / On            | Off     | If checked, the transcription will generate a separate subtitle line for each word in the audio. Enabled only when "Export As" is set to "SRT" or "VTT". |
+
+(See the [Live Recording section](#live-recording) for more information about the task, language, and quality settings.)
+
+[![Media File Import on Buzz](https://cdn.loom.com/sessions/thumbnails/cf263b099ac3481082bb56d19b7c87fe-with-play.gif)](https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe 'Media File Import on Buzz')
+
 ### Live Recording
 
 To start a live recording:
@@ -66,8 +85,8 @@ To start a live recording:
 - Select a recording task, language, quality, and microphone.
 - Click Record.
 
-> **Note:** Transcribing audio using the default Whisper model is resource-intensive. If your computer is unable to keep
-> up with real-time transcription, consider turning on [GGML inference](#enable-ggml-inference).
+> **Note:** Transcribing audio using the default Whisper model is resource-intensive. Consider using the Whisper.cpp
+> Tiny model to get real-time performance.
 
 | Field      | Options                                                                                                                                  | Default                     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 |------------|------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -109,26 +128,6 @@ and [Virtual Audio Cable](https://vac.muzychenko.net/en/)).
 
 6. Open Buzz, select BlackHole as your microphone, and record as before to see transcriptions from the audio playing
    through BlackHole.
-
-## File import
-
-To import a file:
-
-- Click Import Media File on the File menu (or the '+' icon on the toolbar, or **Command/Ctrl + O**).
-- Choose an audio or video file.
-- Select a task, language, and the model settings.
-- Click Run.
-- When the transcription status shows 'Completed', double-click on the row (or select the row and click the '⤢' icon) to
-  open the transcription.
-
-| Field              | Options             | Default | Description                                                                                                                                              |
-|--------------------|---------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Export As          | "TXT", "SRT", "VTT" | "TXT"   | Export file format                                                                                                                                       |
-| Word-Level Timings | Off / On            | Off     | If checked, the transcription will generate a separate subtitle line for each word in the audio. Enabled only when "Export As" is set to "SRT" or "VTT". |
-
-(See the [Live Recording section](#live-recording) for more information about the task, language, and quality settings.)
-
-[![Media File Import on Buzz](https://cdn.loom.com/sessions/thumbnails/cf263b099ac3481082bb56d19b7c87fe-with-play.gif)](https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe 'Media File Import on Buzz')
 
 ## Build
 
