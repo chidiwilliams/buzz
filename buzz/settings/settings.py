@@ -32,3 +32,6 @@ class Settings:
     def value(self, key: Key, default_value: typing.Any, value_type: typing.Optional[type] = None) -> typing.Any:
         return self.settings.value(key.value, default_value,
                                    value_type if value_type is not None else type(default_value))
+
+    def clear(self):
+        self.settings.clear()

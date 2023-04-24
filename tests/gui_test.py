@@ -20,6 +20,7 @@ from buzz.gui import (AboutDialog, AdvancedSettingsDialog, AudioDevicesComboBox,
                       RecordingTranscriberWidget,
                       TemperatureValidator, TranscriptionTasksTableWidget, HuggingFaceSearchLineEdit,
                       TranscriptionOptionsGroupBox)
+from buzz.settings.settings import Settings
 from buzz.widgets.transcription_viewer_widget import TranscriptionViewerWidget
 from buzz.model_loader import ModelType
 from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask,
@@ -296,6 +297,12 @@ class TestMainWindow:
     def _get_toolbar_action(window: MainWindow, text: str):
         toolbar: QToolBar = window.findChild(QToolBar)
         return [action for action in toolbar.actions() if action.text() == text][0]
+
+
+@pytest.fixture(scope='module', autouse=True)
+def clear_settings():
+    settings = Settings()
+    settings.clear()
 
 
 class TestFileTranscriberWidget:
