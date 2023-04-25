@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1682412786223,
+  "lastUpdate": 1682412787989,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "Linux": [
@@ -87,6 +87,40 @@ window.BENCHMARK_DATA = {
       }
     ],
     "macOS": [
+      {
+        "commit": {
+          "author": {
+            "name": "chidiwilliams",
+            "username": "chidiwilliams"
+          },
+          "committer": {
+            "name": "chidiwilliams",
+            "username": "chidiwilliams"
+          },
+          "id": "9d3d52ed2abe66e8bdeb11495d64f7f2faaf0d4f",
+          "message": "Add benchmarks",
+          "timestamp": "2023-04-25T08:26:59Z",
+          "url": "https://github.com/chidiwilliams/buzz/pull/417/commits/9d3d52ed2abe66e8bdeb11495d64f7f2faaf0d4f"
+        },
+        "date": 1682412781471,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.10355431447525748,
+            "unit": "iter/sec",
+            "range": "stddev: 0.3217609892733118",
+            "extra": "mean: 9.65676809380002 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.04384291915635912,
+            "unit": "iter/sec",
+            "range": "stddev: 0.18709189512719068",
+            "extra": "mean: 22.808700224400013 sec\nrounds: 5"
+          }
+        ]
+      },
       {
         "commit": {
           "author": {
