@@ -1,3 +1,4 @@
+import platform
 from unittest.mock import Mock
 
 import pytest
@@ -43,7 +44,10 @@ def transcribe(qtbot, transcriber: FileTranscriber):
         pytest.param(
             WhisperFileTranscriber(task=(get_task(
                 TranscriptionModel(model_type=ModelType.FASTER_WHISPER, whisper_model_size=WhisperModelSize.TINY)))),
-            id="Faster Whisper - Tiny"),
+            id="Faster Whisper - Tiny",
+            marks=pytest.mark.skipif(platform.system() == 'Darwin',
+                                     reason='Error with libiomp5 already initialized on GH action runner: https://github.com/chidiwilliams/buzz/actions/runs/4657331262/jobs/8241832087')
+        ),
     ])
 def test_should_transcribe_and_benchmark(qtbot, benchmark, transcriber):
     segments = benchmark(transcribe, qtbot, transcriber)
