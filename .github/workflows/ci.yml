@@ -243,8 +243,13 @@ jobs:
       - name: Store benchmark results
         uses: benchmark-action/github-action-benchmark@v1
         with:
+          name: ${{ runner.os }}
           tool: 'pytest'
           output-file-path: benchmarks.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-on-alert: true
+          summary-always: true
+          auto-push: true
 
   release:
     runs-on: ${{ matrix.os }}
