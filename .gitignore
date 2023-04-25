@@ -18,3 +18,5 @@ whisper_cpp.py
 
 # Internationalization - compiled binaries
 locale/**/*.mo
+
+benchmarks.json

@@ -1371,7 +1371,7 @@ class MenuBar(QMenuBar):
         self.import_action.triggered.connect(
             self.on_import_action_triggered)
 
-        about_action = QAction(f'{_("About...")} {APP_NAME}', self)
+        about_action = QAction(f'{_("About")} {APP_NAME}', self)
         about_action.triggered.connect(self.on_about_action_triggered)
 
         self.preferences_action = QAction(_("Preferences..."), self)
