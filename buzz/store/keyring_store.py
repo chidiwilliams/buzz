@@ -11,16 +11,17 @@ class KeyringStore:
     class Key(enum.Enum):
         OPENAI_API_KEY = 'OpenAI API key'
 
-    @staticmethod
-    def get_password(username: Key) -> str:
+    def get_password(self, username: Key) -> str:
         try:
-            return keyring.get_password(APP_NAME, username=username.value)
+            password = keyring.get_password(APP_NAME, username=username.value)
+            if password is None:
+                return ''
+            return password
         except (KeyringLocked, KeyringError) as exc:
             logging.error('Unable to read from keyring: %s', exc)
             return ''
 
-    @staticmethod
-    def set_password(username: Key, password: str) -> None:
+    def set_password(self, username: Key, password: str) -> None:
         try:
             keyring.set_password(APP_NAME, username.value, password)
         except (KeyringLocked, PasswordSetError) as exc:
