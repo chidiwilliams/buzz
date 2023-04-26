@@ -211,11 +211,13 @@ class FileTranscriberWidget(QWidget):
     openai_access_token_changed = pyqtSignal(str)
     settings = Settings()
 
-    def __init__(self, file_paths: List[str], openai_access_token: Optional[str] = None,
-                 parent: Optional[QWidget] = None, flags: Qt.WindowType = Qt.WindowType.Widget) -> None:
+    def __init__(self, file_paths: List[str], parent: Optional[QWidget] = None,
+                 flags: Qt.WindowType = Qt.WindowType.Widget) -> None:
         super().__init__(parent, flags)
 
         self.setWindowTitle(file_paths_as_title(file_paths))
+
+        openai_access_token = KeyringStore().get_password(KeyringStore.Key.OPENAI_API_KEY)
 
         self.file_paths = file_paths
         default_language = self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_LANGUAGE, default_value='')
@@ -909,8 +911,6 @@ class MainWindow(QMainWindow):
 
         self.tasks_cache = tasks_cache
 
-        self.openai_access_token = KeyringStore.get_password(KeyringStore.Key.OPENAI_API_KEY)
-
         self.settings = Settings()
 
         self.shortcut_settings = ShortcutSettings(settings=self.settings)
@@ -927,7 +927,7 @@ class MainWindow(QMainWindow):
         self.addToolBar(self.toolbar)
         self.setUnifiedTitleAndToolBarOnMac(True)
 
-        self.menu_bar = MenuBar(shortcuts=self.shortcuts, openai_api_key=self.openai_access_token, parent=self)
+        self.menu_bar = MenuBar(shortcuts=self.shortcuts, parent=self)
         self.menu_bar.import_action_triggered.connect(
             self.on_new_transcription_action_triggered)
         self.menu_bar.shortcuts_changed.connect(self.on_shortcuts_changed)
@@ -1022,17 +1022,16 @@ class MainWindow(QMainWindow):
 
     def open_file_transcriber_widget(self, file_paths: List[str]):
         file_transcriber_window = FileTranscriberWidget(file_paths=file_paths,
-                                                        openai_access_token=self.openai_access_token, parent=self,
+                                                        parent=self,
                                                         flags=Qt.WindowType.Window)
         file_transcriber_window.triggered.connect(
             self.on_file_transcriber_triggered)
         file_transcriber_window.openai_access_token_changed.connect(self.on_openai_access_token_changed)
         file_transcriber_window.show()
 
-    def on_openai_access_token_changed(self, access_token: str):
-        self.openai_access_token = access_token
-        self.menu_bar.set_openai_api_key(self.openai_access_token)
-        KeyringStore.set_password(KeyringStore.Key.OPENAI_API_KEY, access_token)
+    @staticmethod
+    def on_openai_access_token_changed(access_token: str):
+        KeyringStore().set_password(KeyringStore.Key.OPENAI_API_KEY, access_token)
 
     def open_transcript_viewer(self):
         selected_rows = self.table_widget.selectionModel().selectedRows()
@@ -1361,11 +1360,10 @@ class MenuBar(QMenuBar):
     shortcuts_changed = pyqtSignal(dict)
     openai_api_key_changed = pyqtSignal(str)
 
-    def __init__(self, shortcuts: Dict[str, str], openai_api_key: str, parent: QWidget):
+    def __init__(self, shortcuts: Dict[str, str], parent: QWidget):
         super().__init__(parent)
 
         self.shortcuts = shortcuts
-        self.openai_api_key = openai_api_key
 
         self.import_action = QAction(_("Import Media File..."), self)
         self.import_action.triggered.connect(
@@ -1394,8 +1392,7 @@ class MenuBar(QMenuBar):
         about_dialog.open()
 
     def on_preferences_action_triggered(self):
-        preferences_dialog = PreferencesDialog(shortcuts=self.shortcuts, openai_api_key=self.openai_api_key,
-                                               parent=self)
+        preferences_dialog = PreferencesDialog(shortcuts=self.shortcuts, parent=self)
         preferences_dialog.shortcuts_changed.connect(self.shortcuts_changed)
         preferences_dialog.openai_api_key_changed.connect(self.openai_api_key_changed)
         preferences_dialog.open()
@@ -1405,9 +1402,6 @@ class MenuBar(QMenuBar):
 
         self.import_action.setShortcut(QKeySequence.fromString(shortcuts[Shortcut.OPEN_IMPORT_WINDOW.name]))
         self.preferences_action.setShortcut(QKeySequence.fromString(shortcuts[Shortcut.OPEN_PREFERENCES_WINDOW.name]))
-
-    def set_openai_api_key(self, key: str):
-        self.openai_api_key = key
 
 
 class Application(QApplication):

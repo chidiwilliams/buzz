@@ -3,17 +3,20 @@ from typing import Optional
 
 import openai
 from PyQt6.QtCore import QRunnable, QObject, pyqtSignal, QThreadPool
-from PyQt6.QtWidgets import QWidget, QFormLayout, QLineEdit, QPushButton, QMessageBox
+from PyQt6.QtWidgets import QWidget, QFormLayout, QPushButton, QMessageBox
 from openai.error import AuthenticationError
 
+from buzz.store.keyring_store import KeyringStore
 from buzz.widgets.openai_api_key_line_edit import OpenAIAPIKeyLineEdit
 
 
 class GeneralPreferencesWidget(QWidget):
     openai_api_key_changed = pyqtSignal(str)
 
-    def __init__(self, openai_api_key: str, parent: Optional[QWidget] = None):
+    def __init__(self, keyring_store=KeyringStore(), parent: Optional[QWidget] = None):
         super().__init__(parent)
+
+        openai_api_key = keyring_store.get_password(KeyringStore.Key.OPENAI_API_KEY)
         self.openai_api_key = openai_api_key
 
         layout = QFormLayout(self)

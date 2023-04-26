@@ -6,7 +6,7 @@ from buzz.widgets.preferences_dialog import PreferencesDialog
 
 class TestPreferencesDialog:
     def test_create(self, qtbot: QtBot):
-        dialog = PreferencesDialog(shortcuts={}, openai_api_key='')
+        dialog = PreferencesDialog(shortcuts={})
         qtbot.add_widget(dialog)
 
         assert dialog.windowTitle() == 'Preferences'
