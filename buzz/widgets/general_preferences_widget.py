@@ -16,12 +16,11 @@ class GeneralPreferencesWidget(QWidget):
     def __init__(self, keyring_store=KeyringStore(), parent: Optional[QWidget] = None):
         super().__init__(parent)
 
-        openai_api_key = keyring_store.get_password(KeyringStore.Key.OPENAI_API_KEY)
-        self.openai_api_key = openai_api_key
+        self.openai_api_key = keyring_store.get_password(KeyringStore.Key.OPENAI_API_KEY)
 
         layout = QFormLayout(self)
 
-        self.openai_api_key_line_edit = OpenAIAPIKeyLineEdit(openai_api_key, self)
+        self.openai_api_key_line_edit = OpenAIAPIKeyLineEdit(self.openai_api_key, self)
         self.openai_api_key_line_edit.key_changed.connect(self.on_openai_api_key_changed)
 
         self.test_openai_api_key_button = QPushButton('Test')

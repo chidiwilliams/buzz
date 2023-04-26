@@ -13,7 +13,10 @@ class KeyringStore:
 
     def get_password(self, username: Key) -> str:
         try:
-            return keyring.get_password(APP_NAME, username=username.value)
+            password = keyring.get_password(APP_NAME, username=username.value)
+            if password is None:
+                return ''
+            return password
         except (KeyringLocked, KeyringError) as exc:
             logging.error('Unable to read from keyring: %s', exc)
             return ''
