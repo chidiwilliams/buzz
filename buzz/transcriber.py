@@ -711,23 +711,19 @@ class FileTranscriberQueueWorker(QObject):
     def run(self):
         logging.debug('Waiting for next transcription task')
 
-        # Waiting for new tasks in a loop instead of with queue.wait()
-        # resolves a "No Python frame" crash when the thread is quit.
+        # Get next non-canceled task from queue
         while True:
-            try:
-                self.current_task: Optional[FileTranscriptionTask] = self.tasks_queue.get_nowait()
+            self.current_task: Optional[FileTranscriptionTask] = self.tasks_queue.get()
 
-                # Stop listening when a "None" task is received
-                if self.current_task is None:
-                    self.completed.emit()
-                    return
+            # Stop listening when a "None" task is received
+            if self.current_task is None:
+                self.completed.emit()
+                return
 
-                if self.current_task.id in self.canceled_tasks:
-                    continue
-
-                break
-            except queue.Empty:
+            if self.current_task.id in self.canceled_tasks:
                 continue
+
+            break
 
         logging.debug('Starting next transcription task')
 
