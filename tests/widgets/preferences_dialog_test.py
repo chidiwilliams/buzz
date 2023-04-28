@@ -13,6 +13,7 @@ class TestPreferencesDialog:
 
         tab_widget = dialog.findChild(QTabWidget)
         assert isinstance(tab_widget, QTabWidget)
-        assert tab_widget.count() == 2
+        assert tab_widget.count() == 3
         assert tab_widget.tabText(0) == 'General'
-        assert tab_widget.tabText(1) == 'Shortcuts'
+        assert tab_widget.tabText(1) == 'Models'
+        assert tab_widget.tabText(2) == 'Shortcuts'

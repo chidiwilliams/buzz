@@ -1,4 +1,3 @@
-import logging
 import os
 import pathlib
 import platform
@@ -8,10 +7,10 @@ from typing import List
 from unittest.mock import Mock, patch
 
 import pytest
-from PyQt6.QtCore import QThread, QCoreApplication
+from PyQt6.QtCore import QThread
 from pytestqt.qtbot import QtBot
 
-from buzz.model_loader import WhisperModelSize, ModelType, TranscriptionModel, ModelLoader
+from buzz.model_loader import WhisperModelSize, ModelType, TranscriptionModel
 from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask, OutputFormat, RecordingTranscriber,
                               Segment, Task, WhisperCpp, WhisperCppFileTranscriber,
                               WhisperFileTranscriber,
@@ -28,19 +27,13 @@ class TestRecordingTranscriber:
 
         transcription_model = TranscriptionModel(model_type=ModelType.WHISPER_CPP,
                                                  whisper_model_size=WhisperModelSize.TINY)
-        model_loader = ModelLoader(model=transcription_model)
-        model_loader.moveToThread(thread)
 
         transcriber = RecordingTranscriber(transcription_options=TranscriptionOptions(
             model=transcription_model, language='fr', task=Task.TRANSCRIBE),
             input_device_index=0, sample_rate=16_000)
         transcriber.moveToThread(thread)
 
-        thread.started.connect(model_loader.run)
         thread.finished.connect(thread.deleteLater)
-
-        model_loader.finished.connect(transcriber.start)
-        model_loader.finished.connect(model_loader.deleteLater)
 
         mock_transcription = Mock()
         transcriber.transcription.connect(mock_transcription)

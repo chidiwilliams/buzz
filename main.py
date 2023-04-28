@@ -38,10 +38,15 @@ if __name__ == "__main__":
 
     log_dir = user_log_dir(appname='Buzz')
     os.makedirs(log_dir, exist_ok=True)
-    logging.basicConfig(
-        filename=os.path.join(log_dir, 'logs.txt'),
-        level=logging.DEBUG,
-        format="[%(asctime)s] %(module)s.%(funcName)s:%(lineno)d %(levelname)s -> %(message)s")
+
+    log_format = "[%(asctime)s] %(module)s.%(funcName)s:%(lineno)d %(levelname)s -> %(message)s"
+    logging.basicConfig(filename=os.path.join(log_dir, 'logs.txt'), level=logging.DEBUG, format=log_format)
+
+    if getattr(sys, 'frozen', False) is False:
+        stdout_handler = logging.StreamHandler(sys.stdout)
+        stdout_handler.setLevel(logging.DEBUG)
+        stdout_handler.setFormatter(logging.Formatter(log_format))
+        logging.getLogger().addHandler(stdout_handler)
 
     from buzz.gui import Application
 

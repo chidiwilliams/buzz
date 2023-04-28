@@ -107,20 +107,23 @@ class RecordingTranscriber(QObject):
     MAX_QUEUE_SIZE = 10
 
     def __init__(self, transcription_options: TranscriptionOptions,
-                 input_device_index: Optional[int], sample_rate: int, parent: Optional[QObject] = None) -> None:
+                 input_device_index: Optional[int], sample_rate: int, model_path: str,
+                 parent: Optional[QObject] = None) -> None:
         super().__init__(parent)
         self.transcription_options = transcription_options
         self.current_stream = None
         self.input_device_index = input_device_index
         self.sample_rate = sample_rate
+        self.model_path = model_path
         self.n_batch_samples = 5 * self.sample_rate  # every 5 seconds
         # pause queueing if more than 3 batches behind
         self.max_queue_size = 3 * self.n_batch_samples
         self.queue = np.ndarray([], dtype=np.float32)
         self.mutex = threading.Lock()
 
-    @pyqtSlot(str)
-    def start(self, model_path: str):
+    def start(self):
+        model_path = self.model_path
+
         if self.transcription_options.model.model_type == ModelType.WHISPER:
             model = whisper.load_model(model_path)
         elif self.transcription_options.model.model_type == ModelType.WHISPER_CPP:
