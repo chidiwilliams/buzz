@@ -10,7 +10,7 @@ from buzz.widgets.model_type_combo_box import ModelTypeComboBox
 
 
 class ModelsPreferencesWidget(QWidget):
-    def __init__(self, parent: Optional[QWidget]):
+    def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
 
         self.model_downloader: Optional[ModelDownloader] = None

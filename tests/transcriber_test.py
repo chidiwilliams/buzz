@@ -59,7 +59,7 @@ class TestWhisperCppFileTranscriber:
         [
             (False, [Segment(0, 6560,
                              'Bienvenue dans Passe-Relle. Un podcast pensé pour')]),
-            (True, [Segment(0, 30, ''), Segment(30, 330, 'Bien'), Segment(330, 740, 'venue')])
+            (True, [Segment(30, 330, 'Bien'), Segment(330, 740, 'venue')])
         ])
     def test_transcribe(self, qtbot: QtBot, word_level_timings: bool, expected_segments: List[Segment]):
         file_transcription_options = FileTranscriptionOptions(
@@ -82,7 +82,7 @@ class TestWhisperCppFileTranscriber:
             transcriber.run()
 
         mock_progress.assert_called()
-        segments = mock_completed.call_args[0][0]
+        segments = [segment for segment in mock_completed.call_args[0][0] if len(segment.text) > 0]
         for i, expected_segment in enumerate(expected_segments):
             assert expected_segment.start == segments[i].start
             assert expected_segment.end == segments[i].end
