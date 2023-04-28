@@ -10,12 +10,13 @@ from buzz.widgets.model_type_combo_box import ModelTypeComboBox
 
 
 class ModelsPreferencesWidget(QWidget):
-    def __init__(self, parent: Optional[QWidget] = None):
+    def __init__(self, progress_dialog_modality: Optional[Qt.WindowModality] = None, parent: Optional[QWidget] = None):
         super().__init__(parent)
 
         self.model_downloader: Optional[ModelDownloader] = None
         self.model = TranscriptionModel(model_type=ModelType.WHISPER,
                                         whisper_model_size=WhisperModelSize.TINY)
+        self.progress_dialog_modality = progress_dialog_modality
 
         self.progress_dialog: Optional[ModelDownloadProgressDialog] = None
 
@@ -58,7 +59,8 @@ class ModelsPreferencesWidget(QWidget):
         self.reset_download_button()
 
     def on_download_button_clicked(self):
-        self.progress_dialog = ModelDownloadProgressDialog(model_type=self.model.model_type, parent=self)
+        self.progress_dialog = ModelDownloadProgressDialog(model_type=self.model.model_type,
+                                                           modality=self.progress_dialog_modality, parent=self)
         self.progress_dialog.canceled.connect(self.on_progress_dialog_canceled)
 
         self.download_button.setEnabled(False)

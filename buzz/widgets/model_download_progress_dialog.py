@@ -10,14 +10,14 @@ from buzz.model_loader import ModelType
 
 
 class ModelDownloadProgressDialog(QProgressDialog):
-    def __init__(self, model_type: ModelType, parent: Optional[QWidget] = None):
+    def __init__(self, model_type: ModelType, parent: Optional[QWidget] = None, modality=Qt.WindowModality.WindowModal):
         super().__init__(parent)
 
         self.cancelable = model_type == ModelType.WHISPER or model_type == ModelType.WHISPER_CPP
         self.start_time = datetime.now()
         self.setRange(0, 100)
         self.setMinimumDuration(0)
-        self.setWindowModality(Qt.WindowModality.WindowModal)
+        self.setWindowModality(modality)
         self.update_label_text(0)
 
         if not self.cancelable:
