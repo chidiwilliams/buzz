@@ -1,4 +1,3 @@
-import logging
 import multiprocessing
 import os.path
 import platform
@@ -15,16 +14,16 @@ from pytestqt.qtbot import QtBot
 
 from buzz.__version__ import VERSION
 from buzz.cache import TasksCache
-from buzz.gui import (AboutDialog, AdvancedSettingsDialog, AudioDevicesComboBox, DownloadModelProgressDialog,
-                      FileTranscriberWidget, LanguagesComboBox, MainWindow,
+from buzz.gui import (AboutDialog, AdvancedSettingsDialog, AudioDevicesComboBox, FileTranscriberWidget,
+                      LanguagesComboBox, MainWindow,
                       RecordingTranscriberWidget,
                       TemperatureValidator, TranscriptionTasksTableWidget, HuggingFaceSearchLineEdit,
                       TranscriptionOptionsGroupBox)
-from buzz.settings.settings import Settings
-from buzz.widgets.transcription_viewer_widget import TranscriptionViewerWidget
 from buzz.model_loader import ModelType
+from buzz.settings.settings import Settings
 from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask,
                               TranscriptionOptions)
+from buzz.widgets.transcription_viewer_widget import TranscriptionViewerWidget
 from tests.mock_sounddevice import MockInputStream, mock_query_devices
 from .mock_qt import MockNetworkAccessManager, MockNetworkReply
 
@@ -82,33 +81,6 @@ class TestAudioDevicesComboBox:
 
         audio_devices_combo_box = AudioDevicesComboBox()
         assert audio_devices_combo_box.currentText() == 'Background Music'
-
-
-class TestDownloadModelProgressDialog:
-    def test_should_show_dialog(self, qtbot: QtBot):
-        dialog = DownloadModelProgressDialog(parent=None)
-        qtbot.add_widget(dialog)
-        assert dialog.labelText() == 'Downloading model (0%, unknown time remaining)'
-
-    def test_should_update_label_on_progress(self, qtbot: QtBot):
-        dialog = DownloadModelProgressDialog(parent=None)
-        qtbot.add_widget(dialog)
-        dialog.set_fraction_completed(0.0)
-
-        dialog.set_fraction_completed(0.01)
-        logging.debug(dialog.labelText())
-        assert dialog.labelText().startswith(
-            'Downloading model (1%')
-
-        dialog.set_fraction_completed(0.1)
-        assert dialog.labelText().startswith(
-            'Downloading model (10%')
-
-    # Other windows should not be processing while models are being downloaded
-    def test_should_be_an_application_modal(self, qtbot: QtBot):
-        dialog = DownloadModelProgressDialog(parent=None)
-        qtbot.add_widget(dialog)
-        assert dialog.windowModality() == Qt.WindowModality.ApplicationModal
 
 
 @pytest.fixture()

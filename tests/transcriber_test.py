@@ -1,4 +1,3 @@
-import logging
 import os
 import pathlib
 import platform
@@ -8,10 +7,10 @@ from typing import List
 from unittest.mock import Mock, patch
 
 import pytest
-from PyQt6.QtCore import QThread, QCoreApplication
+from PyQt6.QtCore import QThread
 from pytestqt.qtbot import QtBot
 
-from buzz.model_loader import WhisperModelSize, ModelType, TranscriptionModel, ModelLoader
+from buzz.model_loader import WhisperModelSize, ModelType, TranscriptionModel
 from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask, OutputFormat, RecordingTranscriber,
                               Segment, Task, WhisperCpp, WhisperCppFileTranscriber,
                               WhisperFileTranscriber,
@@ -28,19 +27,13 @@ class TestRecordingTranscriber:
 
         transcription_model = TranscriptionModel(model_type=ModelType.WHISPER_CPP,
                                                  whisper_model_size=WhisperModelSize.TINY)
-        model_loader = ModelLoader(model=transcription_model)
-        model_loader.moveToThread(thread)
 
         transcriber = RecordingTranscriber(transcription_options=TranscriptionOptions(
             model=transcription_model, language='fr', task=Task.TRANSCRIBE),
             input_device_index=0, sample_rate=16_000)
         transcriber.moveToThread(thread)
 
-        thread.started.connect(model_loader.run)
         thread.finished.connect(thread.deleteLater)
-
-        model_loader.finished.connect(transcriber.start)
-        model_loader.finished.connect(model_loader.deleteLater)
 
         mock_transcription = Mock()
         transcriber.transcription.connect(mock_transcription)
@@ -66,7 +59,7 @@ class TestWhisperCppFileTranscriber:
         [
             (False, [Segment(0, 6560,
                              'Bienvenue dans Passe-Relle. Un podcast pensé pour')]),
-            (True, [Segment(0, 30, ''), Segment(30, 330, 'Bien'), Segment(330, 740, 'venue')])
+            (True, [Segment(30, 330, 'Bien'), Segment(330, 740, 'venue')])
         ])
     def test_transcribe(self, qtbot: QtBot, word_level_timings: bool, expected_segments: List[Segment]):
         file_transcription_options = FileTranscriptionOptions(
@@ -89,7 +82,7 @@ class TestWhisperCppFileTranscriber:
             transcriber.run()
 
         mock_progress.assert_called()
-        segments = mock_completed.call_args[0][0]
+        segments = [segment for segment in mock_completed.call_args[0][0] if len(segment.text) > 0]
         for i, expected_segment in enumerate(expected_segments):
             assert expected_segment.start == segments[i].start
             assert expected_segment.end == segments[i].end

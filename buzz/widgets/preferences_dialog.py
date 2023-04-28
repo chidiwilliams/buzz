@@ -4,8 +4,8 @@ from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QDialog, QWidget, QVBoxLayout, QTabWidget, QDialogButtonBox
 
 from buzz.locale import _
-from buzz.store.keyring_store import KeyringStore
 from buzz.widgets.general_preferences_widget import GeneralPreferencesWidget
+from buzz.widgets.models_preferences_widget import ModelsPreferencesWidget
 from buzz.widgets.shortcuts_editor_preferences_widget import ShortcutsEditorPreferencesWidget
 
 
@@ -24,6 +24,9 @@ class PreferencesDialog(QDialog):
         general_tab_widget = GeneralPreferencesWidget(parent=self)
         general_tab_widget.openai_api_key_changed.connect(self.openai_api_key_changed)
         tab_widget.addTab(general_tab_widget, _('General'))
+
+        models_tab_widget = ModelsPreferencesWidget(parent=self)
+        tab_widget.addTab(models_tab_widget, _('Models'))
 
         shortcuts_table_widget = ShortcutsEditorPreferencesWidget(shortcuts, self)
         shortcuts_table_widget.shortcuts_changed.connect(self.shortcuts_changed)
