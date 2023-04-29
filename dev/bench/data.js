@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1682803939785,
+  "lastUpdate": 1682804060122,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "Linux": [
@@ -1426,6 +1426,51 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.222780073567675",
             "extra": "mean: 15.778049740000005 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "williamschidi1@gmail.com",
+            "name": "Chidi Williams",
+            "username": "chidiwilliams"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "32af05da309ac96c375c161f85f0646ab694eb6f",
+          "message": "Add CLI (#424)",
+          "timestamp": "2023-04-29T21:23:20Z",
+          "tree_id": "326872c6f9a5b9be490b4324ca6458d6460cee71",
+          "url": "https://github.com/chidiwilliams/buzz/commit/32af05da309ac96c375c161f85f0646ab694eb6f"
+        },
+        "date": 1682804047380,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.03170269920851688,
+            "unit": "iter/sec",
+            "range": "stddev: 0.7840768716260393",
+            "extra": "mean: 31.54305548 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.0681796013840605,
+            "unit": "iter/sec",
+            "range": "stddev: 0.5820474723004564",
+            "extra": "mean: 14.66714354000003 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Faster Whisper - Tiny]",
+            "value": 0.08087002652955767,
+            "unit": "iter/sec",
+            "range": "stddev: 0.20229465534090693",
+            "extra": "mean: 12.365520860000014 sec\nrounds: 5"
           }
         ]
       }
