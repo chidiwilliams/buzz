@@ -5,14 +5,12 @@ import json
 import logging
 import multiprocessing
 import os
-import platform
 import queue
 import re
-import subprocess
 import sys
 import tempfile
 import threading
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from dataclasses import dataclass, field
 from multiprocessing.connection import Connection
 from random import randint
@@ -20,16 +18,16 @@ from threading import Thread
 from typing import Any, List, Optional, Tuple, Union, Set
 
 import faster_whisper
-import openai
-
 import ffmpeg
 import numpy as np
+import openai
 import sounddevice
 import stable_whisper
 import tqdm
 import whisper
 from PyQt6.QtCore import QObject, QProcess, pyqtSignal, pyqtSlot, QThread
 from sounddevice import PortAudioError
+from whisper import tokenizer
 
 from . import transformers_whisper
 from .conn import pipe_stderr
@@ -60,6 +58,9 @@ class Segment:
     start: int  # start time in ms
     end: int  # end time in ms
     text: str
+
+
+LANGUAGES = tokenizer.LANGUAGES
 
 
 @dataclass()

@@ -3,11 +3,9 @@ import json
 import logging
 import os
 import sys
-from datetime import datetime
 from enum import auto
 from typing import Dict, List, Optional, Tuple
 
-import humanize
 import sounddevice
 from PyQt6 import QtGui
 from PyQt6.QtCore import (QObject, Qt, QThread,
@@ -18,10 +16,9 @@ from PyQt6.QtGui import (QAction, QCloseEvent, QDesktopServices, QIcon,
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
 from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
                              QDialogButtonBox, QFileDialog, QLabel, QMainWindow, QMessageBox, QPlainTextEdit,
-                             QProgressDialog, QPushButton, QVBoxLayout, QHBoxLayout, QWidget, QGroupBox, QTableWidget,
+                             QPushButton, QVBoxLayout, QHBoxLayout, QWidget, QGroupBox, QTableWidget,
                              QMenuBar, QFormLayout, QTableWidgetItem,
                              QAbstractItemView, QListWidget, QListWidgetItem, QSizePolicy)
-from whisper import tokenizer
 
 from buzz.cache import TasksCache
 from .__version__ import VERSION
@@ -41,7 +38,7 @@ from .transcriber import (SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, Ou
                           Task,
                           TranscriptionOptions,
                           FileTranscriberQueueWorker, FileTranscriptionTask, RecordingTranscriber, LOADED_WHISPER_DLL,
-                          DEFAULT_WHISPER_TEMPERATURE)
+                          DEFAULT_WHISPER_TEMPERATURE, LANGUAGES)
 from .widgets.line_edit import LineEdit
 from .widgets.model_download_progress_dialog import ModelDownloadProgressDialog
 from .widgets.model_type_combo_box import ModelTypeComboBox
@@ -112,7 +109,7 @@ class LanguagesComboBox(QComboBox):
         super().__init__(parent)
 
         whisper_languages = sorted(
-            [(lang, tokenizer.LANGUAGES[lang].title()) for lang in tokenizer.LANGUAGES], key=lambda lang: lang[1])
+            [(lang, LANGUAGES[lang].title()) for lang in LANGUAGES], key=lambda lang: lang[1])
         self.languages = [('', _('Detect Language'))] + whisper_languages
 
         self.addItems([lang[1] for lang in self.languages])
@@ -950,7 +947,7 @@ class MainWindow(QMainWindow):
         for file_path in file_transcription_options.file_paths:
             task = FileTranscriptionTask(
                 file_path, transcription_options, file_transcription_options, model_path)
-            self.transcriber_worker.add_task(task)
+            self.add_task(task)
 
     def update_task_table_row(self, task: FileTranscriptionTask):
         self.table_widget.upsert_task(task)
@@ -1052,6 +1049,9 @@ class MainWindow(QMainWindow):
         transcription_viewer_widget = TranscriptionViewerWidget(
             transcription_task=task, parent=self, flags=Qt.WindowType.Window)
         transcription_viewer_widget.show()
+
+    def add_task(self, task: FileTranscriptionTask):
+        self.transcriber_worker.add_task(task)
 
     def load_tasks_from_cache(self):
         tasks = self.tasks_cache.load()
@@ -1380,6 +1380,9 @@ class Application(QApplication):
 
         self.window = MainWindow()
         self.window.show()
+
+    def add_task(self, task: FileTranscriptionTask):
+        self.window.add_task(task)
 
 
 class AdvancedSettingsDialog(QDialog):
