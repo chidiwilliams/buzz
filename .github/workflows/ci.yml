@@ -152,7 +152,11 @@ jobs:
             poetry run make bundle_mac
 
           elif [ "$RUNNER_OS" == "Windows" ]; then
-
+          
+            curl -OL "https://github.com/ggerganov/whisper.cpp/releases/download/v1.3.0/whisper-bin-x64.zip"
+            unzip whisper-bin-x64.zip
+            mv main.exe whisper_cpp.exe
+          
             poetry run make bundle_windows
 
           elif [ "$RUNNER_OS" == "Linux" ]; then
