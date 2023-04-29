@@ -133,20 +133,6 @@ and [Virtual Audio Cable](https://vac.muzychenko.net/en/)).
 
 ## Command-Line Interface
 
-```text
-$ /path/to/buzz --help                                                                                                                                                          
-
-Usage: buzz [options] <command>
-
-Options:
-  -h, --help     Displays help on commandline options.
-  -v, --version  Displays version information.
-
-Arguments:
-  <command>      One of the following commands:
-                 - add
-```
-
 ### `add`
 
 Starts a new transcription task
