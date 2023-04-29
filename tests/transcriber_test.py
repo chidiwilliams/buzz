@@ -52,7 +52,7 @@ class TestRecordingTranscriber:
         assert 'Bienvenue dans Passe' in text
 
 
-@pytest.mark.skipif(platform.system() == 'Windows', reason='whisper_cpp not printing segments on Windows')
+# @pytest.mark.skipif(platform.system() == 'Windows', reason='whisper_cpp not printing segments on Windows')
 class TestWhisperCppFileTranscriber:
     @pytest.mark.parametrize(
         'word_level_timings,expected_segments',
