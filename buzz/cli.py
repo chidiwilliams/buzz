@@ -26,7 +26,6 @@ class CommandLineModelType(enum.Enum):
 
 def parse_command_line(app: Application):
     parser = QCommandLineParser()
-
     try:
         parse(app, parser)
     except CommandLineError as exc:

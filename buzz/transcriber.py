@@ -71,7 +71,7 @@ class TranscriptionOptions:
     word_level_timings: bool = False
     temperature: Tuple[float, ...] = DEFAULT_WHISPER_TEMPERATURE
     initial_prompt: str = ''
-    openai_access_token: Optional[str] = None
+    openai_access_token: str = ''
 
 
 @dataclass()

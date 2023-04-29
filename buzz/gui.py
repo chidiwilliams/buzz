@@ -256,7 +256,7 @@ class FileTranscriberWidget(QWidget):
         self.transcription_options = transcription_options
         self.word_level_timings_checkbox.setDisabled(
             self.transcription_options.model.model_type == ModelType.HUGGING_FACE or self.transcription_options.model.model_type == ModelType.OPEN_AI_WHISPER_API)
-        if self.transcription_options.openai_access_token is not None:
+        if self.transcription_options.openai_access_token != '':
             self.openai_access_token_changed.emit(self.transcription_options.openai_access_token)
 
     def on_click_run(self):
@@ -1377,6 +1377,9 @@ class Application(QApplication):
 
     def __init__(self) -> None:
         super().__init__(sys.argv)
+
+        self.setApplicationName(APP_NAME)
+        self.setApplicationVersion(VERSION)
 
         self.window = MainWindow()
         self.window.show()

@@ -7,7 +7,8 @@ APP_NAME = 'Buzz'
 
 
 class Settings:
-    settings = QSettings(APP_NAME)
+    def __init__(self):
+        self.settings = QSettings(APP_NAME)
 
     class Key(enum.Enum):
         RECORDING_TRANSCRIBER_TASK = 'recording-transcriber/task'

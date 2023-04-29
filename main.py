@@ -8,9 +8,7 @@ from typing import TextIO
 
 from appdirs import user_log_dir
 
-from buzz.__version__ import VERSION
-from buzz.cli import parse_command_line, CommandLineError
-from buzz.settings.settings import APP_NAME
+from buzz.cli import parse_command_line
 
 # Check for segfaults if not running in frozen mode
 if getattr(sys, 'frozen', False) is False:
@@ -54,9 +52,5 @@ if __name__ == "__main__":
     from buzz.gui import Application
 
     app = Application()
-    app.setApplicationName(APP_NAME)
-    app.setApplicationVersion(VERSION)
-
     parse_command_line(app)
-
     sys.exit(app.exec())
