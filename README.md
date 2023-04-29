@@ -135,15 +135,15 @@ and [Virtual Audio Cable](https://vac.muzychenko.net/en/)).
 
 ### `add`
 
-Starts a new transcription task
+Start a new transcription task
 
 Examples:
 
 ```shell
-# Translates two MP3 files from French to English using OpenAI Whisper API
+# Translate two MP3 files from French to English using OpenAI Whisper API
 buzz add --task translate --language fr --model-type openaiapi /Users/user/Downloads/1b3b03e4-8db5-ea2c-ace5-b71ff32e3304.mp3 /Users/user/Downloads/koaf9083k1lkpsfdi0.mp3
 
-# Transcribes an MP4 using Whisper.cpp "small" model and immediately export to SRT and VTT files
+# Transcribe an MP4 using Whisper.cpp "small" model and immediately export to SRT and VTT files
 buzz add --task transcribe --model-type whispercpp --model-size small --prompt "My initial prompt" --srt --vtt /Users/user/Downloads/buzz/1b3b03e4-8db5-ea2c-ace5-b71ff32e3304.mp4
 ```
 
