@@ -36,7 +36,7 @@ def parse_command_line(app: Application):
 
 
 def parse(app: Application, parser: QCommandLineParser):
-    parser.addPositionalArgument('<command>', 'One of the following commands:\n\t\tadd')
+    parser.addPositionalArgument('<command>', 'One of the following commands:\n- add')
     parser.parse(app.arguments())
 
     args = parser.positionalArguments()
