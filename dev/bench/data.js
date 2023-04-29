@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1682797163736,
+  "lastUpdate": 1682797165812,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "Linux": [
@@ -740,6 +740,44 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 1.0191501294724707",
             "extra": "mean: 25.20065185699999 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "williamschidi1@gmail.com",
+            "name": "Chidi Williams",
+            "username": "chidiwilliams"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "66bd9a18340eba7757c8ec5cda86b3b96c92ed5a",
+          "message": "Fix Whisper.cpp on Windows (#422)",
+          "timestamp": "2023-04-29T19:30:40Z",
+          "tree_id": "96f426e5eecd809b8d482d2b0954e870f1b8e073",
+          "url": "https://github.com/chidiwilliams/buzz/commit/66bd9a18340eba7757c8ec5cda86b3b96c92ed5a"
+        },
+        "date": 1682797157630,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.05113198518767988,
+            "unit": "iter/sec",
+            "range": "stddev: 0.8145336077694687",
+            "extra": "mean: 19.55723010419997 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.03817394037011087,
+            "unit": "iter/sec",
+            "range": "stddev: 1.104692817831084",
+            "extra": "mean: 26.195881020000023 sec\nrounds: 5"
           }
         ]
       },
