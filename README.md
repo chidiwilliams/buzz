@@ -20,11 +20,13 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
 
 - Import audio and video files and export transcripts to TXT, SRT, and
   VTT ([Demo](https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe))
-- Transcription and translation from your computer's microphones to text (Resource-intensive and may not be real-time, [Demo](https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7))
+- Transcription and translation from your computer's microphones to text (Resource-intensive and may not be
+  real-time, [Demo](https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7))
 - Supports [Whisper](https://github.com/openai/whisper#available-models-and-languages),
   [Whisper.cpp](https://github.com/ggerganov/whisper.cpp), [Faster Whisper](https://github.com/guillaumekln/faster-whisper),
   [Whisper-compatible Hugging Face models](https://huggingface.co/models?other=whisper), and
   the [OpenAI Whisper API](https://platform.openai.com/docs/api-reference/introduction)
+- [Command-Line Interface](#command-line-interface)
 - Available on Mac, Windows, and Linux
 
 ## Installation
@@ -128,6 +130,24 @@ and [Virtual Audio Cable](https://vac.muzychenko.net/en/)).
 
 6. Open Buzz, select BlackHole as your microphone, and record as before to see transcriptions from the audio playing
    through BlackHole.
+
+## Command-Line Interface
+
+### `add`
+
+Start a new transcription task
+
+Examples:
+
+```shell
+# Translate two MP3 files from French to English using OpenAI Whisper API
+buzz add --task translate --language fr --model-type openaiapi /Users/user/Downloads/1b3b03e4-8db5-ea2c-ace5-b71ff32e3304.mp3 /Users/user/Downloads/koaf9083k1lkpsfdi0.mp3
+
+# Transcribe an MP4 using Whisper.cpp "small" model and immediately export to SRT and VTT files
+buzz add --task transcribe --model-type whispercpp --model-size small --prompt "My initial prompt" --srt --vtt /Users/user/Downloads/buzz/1b3b03e4-8db5-ea2c-ace5-b71ff32e3304.mp4
+```
+
+Run `buzz add --help` to see all available options.
 
 ## Build
 

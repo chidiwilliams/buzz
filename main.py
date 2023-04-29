@@ -6,8 +6,9 @@ import platform
 import sys
 from typing import TextIO
 
-from PyQt6.QtCore import QTranslator, QLocale
 from appdirs import user_log_dir
+
+from buzz.cli import parse_command_line
 
 # Check for segfaults if not running in frozen mode
 if getattr(sys, 'frozen', False) is False:
@@ -51,5 +52,5 @@ if __name__ == "__main__":
     from buzz.gui import Application
 
     app = Application()
-
+    parse_command_line(app)
     sys.exit(app.exec())

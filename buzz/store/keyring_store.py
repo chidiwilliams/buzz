@@ -11,9 +11,9 @@ class KeyringStore:
     class Key(enum.Enum):
         OPENAI_API_KEY = 'OpenAI API key'
 
-    def get_password(self, username: Key) -> str:
+    def get_password(self, key: Key) -> str:
         try:
-            password = keyring.get_password(APP_NAME, username=username.value)
+            password = keyring.get_password(APP_NAME, username=key.value)
             if password is None:
                 return ''
             return password
