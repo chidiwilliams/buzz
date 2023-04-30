@@ -20,7 +20,7 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-          - os: windows-latest
+          # - os: windows-latest
           - os: windows-2019
           - os: ubuntu-20.04
     steps:
@@ -72,13 +72,13 @@ jobs:
             sudo apt update
             sudo apt install -y libpulse-mainloop-glib0 libegl1-mesa-dev libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev libportaudio2
           fi
-          
+
           if [ "$RUNNER_OS" == "Windows" ]; then
             curl -OL "https://github.com/ggerganov/whisper.cpp/releases/download/v1.3.0/whisper-bin-x64.zip"
             unzip whisper-bin-x64.zip
             mv main.exe whisper_cpp.exe
           fi
-          
+
           poetry run make test
         shell: bash
 
@@ -94,7 +94,7 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-          - os: windows-latest
+          # - os: windows-latest
           - os: windows-2019
           - os: ubuntu-20.04
     steps:
@@ -154,11 +154,11 @@ jobs:
             poetry run make bundle_mac
 
           elif [ "$RUNNER_OS" == "Windows" ]; then
-          
+
             curl -OL "https://github.com/ggerganov/whisper.cpp/releases/download/v1.3.0/whisper-bin-x64.zip"
             unzip whisper-bin-x64.zip
             mv main.exe whisper_cpp.exe
-          
+
             poetry run make bundle_windows
 
           elif [ "$RUNNER_OS" == "Linux" ]; then
@@ -249,7 +249,7 @@ jobs:
             sudo apt update
             sudo apt install -y libpulse-mainloop-glib0 libegl1-mesa-dev libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev libportaudio2
           fi
-          
+
           poetry run make benchmarks
         shell: bash
 
