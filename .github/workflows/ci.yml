@@ -20,8 +20,7 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-          # - os: windows-latest
-          - os: windows-2019
+          - os: windows-latest
           - os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -94,8 +93,7 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-          # - os: windows-latest
-          - os: windows-2019
+          - os: windows-latest
           - os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3

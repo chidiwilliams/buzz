@@ -10,7 +10,7 @@ from buzz.widgets.model_type_combo_box import ModelTypeComboBox
 
 
 class ModelsPreferencesWidget(QWidget):
-    def __init__(self, progress_dialog_modality: Optional[Qt.WindowModality] = None, parent: Optional[QWidget] = None):
+    def __init__(self, progress_dialog_modality=Qt.WindowModality.WindowModal, parent: Optional[QWidget] = None):
         super().__init__(parent)
 
         self.model_downloader: Optional[ModelDownloader] = None
