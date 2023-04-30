@@ -8,8 +8,6 @@ from typing import TextIO
 
 from appdirs import user_log_dir
 
-from buzz.cli import parse_command_line
-
 # Check for segfaults if not running in frozen mode
 if getattr(sys, 'frozen', False) is False:
     faulthandler.enable()
@@ -50,6 +48,7 @@ if __name__ == "__main__":
         logging.getLogger().addHandler(stdout_handler)
 
     from buzz.gui import Application
+    from buzz.cli import parse_command_line
 
     app = Application()
     parse_command_line(app)
