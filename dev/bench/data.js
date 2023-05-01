@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1682956562023,
+  "lastUpdate": 1682956780151,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "Linux": [
@@ -1902,6 +1902,44 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 3.5948470446295873",
             "extra": "mean: 29.04740877700001 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "74401447+c469591@users.noreply.github.com",
+            "name": "c469591",
+            "username": "c469591"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "78ce227627ab8fc0e168f21457c023d1a38bb703",
+          "message": "Add Simplified Chinese and Traditional Chinese translation (#437)",
+          "timestamp": "2023-05-01T16:50:02+01:00",
+          "tree_id": "2c12237c165caadb9fd51f6ffe17f79528901b4b",
+          "url": "https://github.com/chidiwilliams/buzz/commit/78ce227627ab8fc0e168f21457c023d1a38bb703"
+        },
+        "date": 1682956776183,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.04877211425381299,
+            "unit": "iter/sec",
+            "range": "stddev: 4.5233273280286905",
+            "extra": "mean: 20.503519588999986 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.029405785836402274,
+            "unit": "iter/sec",
+            "range": "stddev: 2.825357121730352",
+            "extra": "mean: 34.006912978400024 sec\nrounds: 5"
           }
         ]
       }
