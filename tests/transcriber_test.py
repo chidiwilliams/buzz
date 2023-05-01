@@ -209,7 +209,7 @@ class TestWhisperCpp:
 @pytest.mark.parametrize(
     'output_format,output_text',
     [
-        (OutputFormat.TXT, 'Bien venue dans\n'),
+        (OutputFormat.TXT, 'Bien\nvenue dans\n'),
         (
                 OutputFormat.SRT,
                 '1\n00:00:00,040 --> 00:00:00,299\nBien\n\n2\n00:00:00,299 --> 00:00:00,329\nvenue dans\n\n'),

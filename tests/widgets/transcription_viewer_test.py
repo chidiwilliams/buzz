@@ -71,4 +71,4 @@ class TestTranscriptionViewerWidget:
             export_button.menu().actions()[0].trigger()
 
         output_file = open(output_file_path, 'r', encoding='utf-8')
-        assert 'Bien venue dans' in output_file.read()
+        assert 'Bien\nvenue dans' in output_file.read()

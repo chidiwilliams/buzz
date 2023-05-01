@@ -596,9 +596,7 @@ def write_output(path: str, segments: List[Segment], output_format: OutputFormat
         if output_format == OutputFormat.TXT:
             for (i, segment) in enumerate(segments):
                 file.write(segment.text)
-                if i < len(segments) - 1:
-                    file.write(' ')
-            file.write('\n')
+                file.write('\n')
 
         elif output_format == OutputFormat.VTT:
             file.write('WEBVTT\n\n')
