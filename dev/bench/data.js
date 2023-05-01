@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1682956928666,
+  "lastUpdate": 1682956932872,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "Linux": [
@@ -2962,6 +2962,51 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.10239741772360295",
             "extra": "mean: 14.043318640000006 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "74401447+c469591@users.noreply.github.com",
+            "name": "c469591",
+            "username": "c469591"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "78ce227627ab8fc0e168f21457c023d1a38bb703",
+          "message": "Add Simplified Chinese and Traditional Chinese translation (#437)",
+          "timestamp": "2023-05-01T16:50:02+01:00",
+          "tree_id": "2c12237c165caadb9fd51f6ffe17f79528901b4b",
+          "url": "https://github.com/chidiwilliams/buzz/commit/78ce227627ab8fc0e168f21457c023d1a38bb703"
+        },
+        "date": 1682956910243,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.03471419473343968,
+            "unit": "iter/sec",
+            "range": "stddev: 3.4403782884893417",
+            "extra": "mean: 28.80665985999999 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.06210925970046755,
+            "unit": "iter/sec",
+            "range": "stddev: 0.22114135866604065",
+            "extra": "mean: 16.100658819999943 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Faster Whisper - Tiny]",
+            "value": 0.06849035355765659,
+            "unit": "iter/sec",
+            "range": "stddev: 0.19201584728375554",
+            "extra": "mean: 14.600596260000021 sec\nrounds: 5"
           }
         ]
       },
