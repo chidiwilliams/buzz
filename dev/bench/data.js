@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1682899375811,
+  "lastUpdate": 1682899574455,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "Linux": [
@@ -1238,6 +1238,44 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 1.168772986911589",
             "extra": "mean: 25.476752470199973 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "williamschidi1@gmail.com",
+            "name": "Chidi Williams",
+            "username": "chidiwilliams"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "bfe3683d819ea20350511d357d802a4734e03ae8",
+          "message": "Fix Windows 10 build (#431)",
+          "timestamp": "2023-05-01T00:56:42+01:00",
+          "tree_id": "3550577cf9b4917224624c5613bcc579b07c3eb0",
+          "url": "https://github.com/chidiwilliams/buzz/commit/bfe3683d819ea20350511d357d802a4734e03ae8"
+        },
+        "date": 1682899567928,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.04289442570698874,
+            "unit": "iter/sec",
+            "range": "stddev: 2.336283194061788",
+            "extra": "mean: 23.313052535800033 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.03978950678436568,
+            "unit": "iter/sec",
+            "range": "stddev: 0.57653207888793",
+            "extra": "mean: 25.13225422520004 sec\nrounds: 5"
           }
         ]
       }
