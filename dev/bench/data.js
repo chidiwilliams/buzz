@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1682937000216,
+  "lastUpdate": 1682956560883,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "Linux": [
@@ -982,6 +982,51 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.04631612711632083",
             "extra": "mean: 9.308791625199978 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "74401447+c469591@users.noreply.github.com",
+            "name": "c469591",
+            "username": "c469591"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "78ce227627ab8fc0e168f21457c023d1a38bb703",
+          "message": "Add Simplified Chinese and Traditional Chinese translation (#437)",
+          "timestamp": "2023-05-01T16:50:02+01:00",
+          "tree_id": "2c12237c165caadb9fd51f6ffe17f79528901b4b",
+          "url": "https://github.com/chidiwilliams/buzz/commit/78ce227627ab8fc0e168f21457c023d1a38bb703"
+        },
+        "date": 1682956557901,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.07238285851787662,
+            "unit": "iter/sec",
+            "range": "stddev: 0.14279395979442328",
+            "extra": "mean: 13.815425647400025 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.11750083746095827,
+            "unit": "iter/sec",
+            "range": "stddev: 0.09107126801950713",
+            "extra": "mean: 8.51057764019995 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Faster Whisper - Tiny]",
+            "value": 0.1128251569911871,
+            "unit": "iter/sec",
+            "range": "stddev: 0.06726030036104295",
+            "extra": "mean: 8.863271513799987 sec\nrounds: 5"
           }
         ]
       }
