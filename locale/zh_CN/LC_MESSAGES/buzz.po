@@ -1,0 +1,170 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-05-01 12:47+0200\n"
+"PO-Revision-Date: 2023-05-01 15:45+0800\n"
+"Last-Translator: \n"
+"Language-Team: lamb \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.2.2\n"
+
+#: buzz/gui.py:112
+msgid "Detect Language"
+msgstr "检测语言"
+
+#: buzz/gui.py:151 buzz/gui.py:156 buzz/gui.py:842
+msgid "Record"
+msgstr "录制"
+
+#: buzz/gui.py:160
+msgid "Stop"
+msgstr "停止"
+
+#: buzz/gui.py:168
+msgid "Downloading model (0%, unknown time remaining)"
+msgstr "正在下载模型 (0%, unknown 剩余时间)"
+
+#: buzz/gui.py:169
+msgid "Cancel"
+msgstr "取消"
+
+#: buzz/gui.py:186
+msgid "Downloading model"
+msgstr "下载模型"
+
+#: buzz/gui.py:240
+msgid "Word-level timings"
+msgstr "单字级别的时间表达"
+
+#: buzz/gui.py:260
+msgid "Run"
+msgstr "开始执行"
+
+#: buzz/gui.py:451
+msgid "Live Recording"
+msgstr "现场录制"
+
+#: buzz/gui.py:474
+msgid "Click Record to begin..."
+msgstr "点击开始录制"
+
+#: buzz/gui.py:486
+msgid "Microphone:"
+msgstr "麦克风:"
+
+#: buzz/gui.py:620
+msgid "An error occurred while starting a new recording:"
+msgstr "开始新录制出错"
+
+#: buzz/gui.py:621
+msgid ""
+"Please check your audio devices or check the application logs for more "
+"information."
+msgstr "请检查您的音频设备或检查应用程序日志以获取更多信息。"
+
+#: buzz/gui.py:712
+msgid "Check for updates"
+msgstr "检查更新"
+
+#: buzz/gui.py:740
+msgid "You're up to date!"
+msgstr "你是最新的！"
+
+#: buzz/gui.py:765
+msgid "ID"
+msgstr "ID"
+
+#: buzz/gui.py:765
+msgid "File Name"
+msgstr "文件名称"
+
+#: buzz/gui.py:765
+msgid "Status"
+msgstr "状态"
+
+#: buzz/gui.py:803
+msgid "Completed"
+msgstr "完成"
+
+#: buzz/gui.py:807
+msgid "Canceled"
+msgstr "取消"
+
+#: buzz/gui.py:845
+msgid "New Transcription"
+msgstr "新录制"
+
+#: buzz/gui.py:849
+msgid "Open Transcript"
+msgstr "打开转换结果"
+
+#: buzz/gui.py:853
+msgid "Cancel Transcription"
+msgstr "取消录制"
+
+#: buzz/gui.py:857 buzz/gui.py:991
+msgid "Clear History"
+msgstr "清除历史纪录"
+
+#: buzz/gui.py:992
+msgid ""
+"Are you sure you want to delete the selected transcription(s)? This action "
+"cannot be undone."
+msgstr "您确定要删除所选录制吗？此操作无法撤消。"
+
+#: buzz/gui.py:1013
+msgid "Select audio file"
+msgstr "选择音频文件"
+
+#: buzz/gui.py:1294
+msgid "Model:"
+msgstr "模型:"
+
+#: buzz/gui.py:1298
+msgid "Task:"
+msgstr "任务:"
+
+#: buzz/gui.py:1299
+msgid "Language:"
+msgstr "语言:"
+
+#: buzz/gui.py:1371
+msgid "Import Media File..."
+msgstr "导入媒体文件..."
+
+#: buzz/gui.py:1378
+msgid "Preferences..."
+msgstr "偏好设定..."
+
+#: buzz/gui.py:1383
+msgid "File"
+msgstr "文件"
+
+#: buzz/gui.py:1386
+msgid "Help"
+msgstr "帮助"
+
+#: buzz/gui.py:1428
+msgid "Advanced Settings"
+msgstr "进阶设定"
+
+#: buzz/gui.py:1440
+msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+msgstr "逗号分隔，例如\"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+
+#: buzz/gui.py:1454
+msgid "Temperature:"
+msgstr "温度:"
+
+#: buzz/gui.py:1455
+msgid "Initial Prompt:"
+msgstr "初始提示："
