@@ -12,7 +12,7 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
 <blockquote>
 <p>Buzz is better on the App Store. Get a Mac-native version of Buzz with a cleaner look, audio playback, drag-and-drop import, transcript editing, search, and much more.</p>
 <a href="https://apps.apple.com/us/app/buzz-captions/id6446018936?mt=12&amp;itsct=apps_box_badge&amp;itscg=30200"><img src="https://tools.applemediaservices.com/api/badges/download-on-the-mac-app-store/black/en-us?size=250x83&amp;releaseDate=1679529600" alt="Download on the Mac App Store" /></a>
-</blockquote> 
+</blockquote>
 
 ![Buzz](./assets/buzz-banner.jpg)
 
@@ -32,15 +32,15 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
 ## Installation
 
 To install Buzz, download the [latest version](https://github.com/chidiwilliams/buzz/releases/latest) for your operating
-system. Buzz is available on **Mac**, **Windows**, and **Linux**.
+system. Buzz is available on **Mac** (Intel), **Windows**, and **Linux**. (For Apple Silicon, please see the [App Store version](https://apps.apple.com/us/app/buzz-captions/id6446018936?mt=12&itsct=apps_box_badge&itscg=30200).)
 
-### Mac (macOS 11.7 and later)
+### Mac (Intel, macOS 11.7 and later)
 
 - Install via [brew](https://brew.sh/):
 
-    ```shell
-    brew install --cask buzz
-    ```
+  ```shell
+  brew install --cask buzz
+  ```
 
   Alternatively, download and run the `Buzz-x.y.z.dmg` file.
 
@@ -52,9 +52,9 @@ system. Buzz is available on **Mac**, **Windows**, and **Linux**.
 
 - Install dependencies:
 
-    ```shell
-    sudo apt-get install libportaudio2
-    ```
+  ```shell
+  sudo apt-get install libportaudio2
+  ```
 
 - Download and extract the `Buzz-x.y.z-unix.tar.gz` file
 
@@ -72,13 +72,13 @@ To import a file:
   open the transcription.
 
 | Field              | Options             | Default | Description                                                                                                                                              |
-|--------------------|---------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------------------ | ------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Export As          | "TXT", "SRT", "VTT" | "TXT"   | Export file format                                                                                                                                       |
 | Word-Level Timings | Off / On            | Off     | If checked, the transcription will generate a separate subtitle line for each word in the audio. Enabled only when "Export As" is set to "SRT" or "VTT". |
 
 (See the [Live Recording section](#live-recording) for more information about the task, language, and quality settings.)
 
-[![Media File Import on Buzz](https://cdn.loom.com/sessions/thumbnails/cf263b099ac3481082bb56d19b7c87fe-with-play.gif)](https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe 'Media File Import on Buzz')
+[![Media File Import on Buzz](https://cdn.loom.com/sessions/thumbnails/cf263b099ac3481082bb56d19b7c87fe-with-play.gif)](https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe "Media File Import on Buzz")
 
 ### Live Recording
 
@@ -91,13 +91,13 @@ To start a live recording:
 > Tiny model to get real-time performance.
 
 | Field      | Options                                                                                                                                  | Default                     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-|------------|------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Task       | "Transcribe", "Translate"                                                                                                                | "Transcribe"                | "Transcribe" converts the input audio into text in the selected language, while "Translate" converts it into text in English.                                                                                                                                                                                                                                                                                                                         |
 | Language   | See [Whisper's documentation](https://github.com/openai/whisper#available-models-and-languages) for the full list of supported languages | "Detect Language"           | "Detect Language" will try to detect the spoken language in the audio based on the first few seconds. However, selecting a language is recommended (if known) as it will improve transcription quality in many cases.                                                                                                                                                                                                                                 |
 | Quality    | "Very Low", "Low", "Medium", "High"                                                                                                      | "Very Low"                  | The transcription quality determines the Whisper model used for transcription. "Very Low" uses the "tiny" model; "Low" uses the "base" model; "Medium" uses the "small" model; and "High" uses the "medium" model. The larger models produce higher-quality transcriptions, but require more system resources. See [Whisper's documentation](https://github.com/openai/whisper#available-models-and-languages) for more information about the models. |
 | Microphone | [Available system microphones]                                                                                                           | [Default system microphone] | Microphone for recording input audio.                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
-[![Live Recording on Buzz](https://cdn.loom.com/sessions/thumbnails/564b753eb4d44b55b985b8abd26b55f7-with-play.gif)](https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7 'Live Recording on Buzz')
+[![Live Recording on Buzz](https://cdn.loom.com/sessions/thumbnails/564b753eb4d44b55b985b8abd26b55f7-with-play.gif)](https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7 "Live Recording on Buzz")
 
 ### Record audio playing from computer
 
