@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1683009843139,
+  "lastUpdate": 1683009846176,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "Linux": [
@@ -3142,6 +3142,51 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.19201584728375554",
             "extra": "mean: 14.600596260000021 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "williamschidi1@gmail.com",
+            "name": "Chidi Williams",
+            "username": "chidiwilliams"
+          },
+          "committer": {
+            "email": "williamschidi1@gmail.com",
+            "name": "Chidi Williams",
+            "username": "chidiwilliams"
+          },
+          "distinct": true,
+          "id": "a489c883424faf200127779ec0fea9e63d82238e",
+          "message": "Add App Store docs for Mac Silicon",
+          "timestamp": "2023-05-02T07:34:04+01:00",
+          "tree_id": "fcd63ae2390ff046107a46147412cded2204b4a7",
+          "url": "https://github.com/chidiwilliams/buzz/commit/a489c883424faf200127779ec0fea9e63d82238e"
+        },
+        "date": 1683009835167,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.04859697883293368,
+            "unit": "iter/sec",
+            "range": "stddev: 14.731572520784537",
+            "extra": "mean: 20.577410860000008 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.09421079684258853,
+            "unit": "iter/sec",
+            "range": "stddev: 0.030237333740882787",
+            "extra": "mean: 10.614494659999991 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Faster Whisper - Tiny]",
+            "value": 0.09357369616152221,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0900464509095947",
+            "extra": "mean: 10.686763920000022 sec\nrounds: 5"
           }
         ]
       },
