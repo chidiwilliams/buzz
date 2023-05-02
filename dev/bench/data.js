@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1683009846176,
+  "lastUpdate": 1683009869066,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "Linux": [
@@ -2068,6 +2068,44 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 2.825357121730352",
             "extra": "mean: 34.006912978400024 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "williamschidi1@gmail.com",
+            "name": "Chidi Williams",
+            "username": "chidiwilliams"
+          },
+          "committer": {
+            "email": "williamschidi1@gmail.com",
+            "name": "Chidi Williams",
+            "username": "chidiwilliams"
+          },
+          "distinct": true,
+          "id": "a489c883424faf200127779ec0fea9e63d82238e",
+          "message": "Add App Store docs for Mac Silicon",
+          "timestamp": "2023-05-02T07:34:04+01:00",
+          "tree_id": "fcd63ae2390ff046107a46147412cded2204b4a7",
+          "url": "https://github.com/chidiwilliams/buzz/commit/a489c883424faf200127779ec0fea9e63d82238e"
+        },
+        "date": 1683009863105,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.04239394921653467,
+            "unit": "iter/sec",
+            "range": "stddev: 3.1287667092679765",
+            "extra": "mean: 23.588271875600014 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.03129316326659423,
+            "unit": "iter/sec",
+            "range": "stddev: 0.9641276979671294",
+            "extra": "mean: 31.9558617798 sec\nrounds: 5"
           }
         ]
       }
