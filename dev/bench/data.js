@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1683399358660,
+  "lastUpdate": 1683399422406,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "Linux": [
@@ -2234,6 +2234,44 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.9641276979671294",
             "extra": "mean: 31.9558617798 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "williamschidi1@gmail.com",
+            "name": "Chidi Williams",
+            "username": "chidiwilliams"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c281684ad7457877b95ef3e5ff55c4e7b3787b69",
+          "message": "Fix Ubuntu release artifacts (#451)",
+          "timestamp": "2023-05-06T18:49:26Z",
+          "tree_id": "73b6c66604648332bc59de7e6ae97853a7fb927a",
+          "url": "https://github.com/chidiwilliams/buzz/commit/c281684ad7457877b95ef3e5ff55c4e7b3787b69"
+        },
+        "date": 1683399417529,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.11153494073068955,
+            "unit": "iter/sec",
+            "range": "stddev: 0.10852463686574267",
+            "extra": "mean: 8.96580025459989 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.04474211344400899,
+            "unit": "iter/sec",
+            "range": "stddev: 0.027675851418104826",
+            "extra": "mean: 22.35030764139956 sec\nrounds: 5"
           }
         ]
       }
