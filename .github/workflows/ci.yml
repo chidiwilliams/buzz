@@ -5,7 +5,7 @@ on:
     branches:
       - main
     tags:
-      - '*'
+      - "*"
   pull_request:
 
 concurrency:
@@ -29,7 +29,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.10.7'
+          python-version: "3.10.7"
 
       - name: Install Poetry Action
         uses: snok/install-poetry@v1.3.1
@@ -101,7 +101,7 @@ jobs:
           submodules: recursive
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.10.7'
+          python-version: "3.10.7"
 
       - name: Install Poetry Action
         uses: snok/install-poetry@v1.3.1
@@ -205,7 +205,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.10.7'
+          python-version: "3.10.7"
 
       - name: Install Poetry Action
         uses: snok/install-poetry@v1.3.1
@@ -255,7 +255,7 @@ jobs:
         uses: benchmark-action/github-action-benchmark@v1
         with:
           name: ${{ runner.os }}
-          tool: 'pytest'
+          tool: "pytest"
           output-file-path: benchmarks.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-alert: true
@@ -270,7 +270,8 @@ jobs:
         include:
           - os: macos-latest
           - os: windows-latest
-    needs: [ build, test ]
+          - os: ubuntu-20.04
+    needs: [build, test]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v3
@@ -295,7 +296,7 @@ jobs:
 
   deploy_brew_cask:
     runs-on: macos-latest
-    needs: [ release ]
+    needs: [release]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v3
