@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1683399676193,
+  "lastUpdate": 1684276521249,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "Linux": [
@@ -1252,6 +1252,51 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.16987008223658",
             "extra": "mean: 9.755941350199999 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "williamschidi1@gmail.com",
+            "name": "Chidi Williams",
+            "username": "chidiwilliams"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "806b691d02253e675db5dce599a007eed94fa07c",
+          "message": "Change os.rename to shutil.move when downloading models (#459)",
+          "timestamp": "2023-05-16T22:24:39Z",
+          "tree_id": "4dd5faee7eefa38b34f778426027fe944d250cde",
+          "url": "https://github.com/chidiwilliams/buzz/commit/806b691d02253e675db5dce599a007eed94fa07c"
+        },
+        "date": 1684276515758,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.059725082448722815,
+            "unit": "iter/sec",
+            "range": "stddev: 0.26161669304189267",
+            "extra": "mean: 16.743384169599995 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.09566806385269132,
+            "unit": "iter/sec",
+            "range": "stddev: 0.08665072215850582",
+            "extra": "mean: 10.452809011999966 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Faster Whisper - Tiny]",
+            "value": 0.090933283358622,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0890678603168748",
+            "extra": "mean: 10.9970734924 sec\nrounds: 5"
           }
         ]
       }
