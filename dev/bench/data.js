@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1684276523069,
+  "lastUpdate": 1684276767272,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "Linux": [
@@ -2400,6 +2400,44 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.027675851418104826",
             "extra": "mean: 22.35030764139956 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "williamschidi1@gmail.com",
+            "name": "Chidi Williams",
+            "username": "chidiwilliams"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "806b691d02253e675db5dce599a007eed94fa07c",
+          "message": "Change os.rename to shutil.move when downloading models (#459)",
+          "timestamp": "2023-05-16T22:24:39Z",
+          "tree_id": "4dd5faee7eefa38b34f778426027fe944d250cde",
+          "url": "https://github.com/chidiwilliams/buzz/commit/806b691d02253e675db5dce599a007eed94fa07c"
+        },
+        "date": 1684276761536,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.07485605040328928,
+            "unit": "iter/sec",
+            "range": "stddev: 1.1522749054406463",
+            "extra": "mean: 13.358973584800015 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.037673917326427483,
+            "unit": "iter/sec",
+            "range": "stddev: 0.1953303438509607",
+            "extra": "mean: 26.543563052799936 sec\nrounds: 5"
           }
         ]
       }
