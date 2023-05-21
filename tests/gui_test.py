@@ -106,7 +106,7 @@ mock_tasks = [
                           status=FileTranscriptionTask.Status.CANCELED),
     FileTranscriptionTask(file_path='', transcription_options=TranscriptionOptions(),
                           file_transcription_options=FileTranscriptionOptions(file_paths=[]), model_path='',
-                          status=FileTranscriptionTask.Status.FAILED),
+                          status=FileTranscriptionTask.Status.FAILED, error='Error'),
 ]
 
 
@@ -179,7 +179,7 @@ class TestMainWindow:
         table_widget.selectRow(1)
         assert window.toolbar.open_transcript_action.isEnabled() is False
 
-        assert table_widget.item(2, 2).text() == 'Failed'
+        assert table_widget.item(2, 2).text() == 'Failed (Error)'
         table_widget.selectRow(2)
         assert window.toolbar.open_transcript_action.isEnabled() is False
         window.close()
@@ -261,7 +261,7 @@ class TestMainWindow:
         def assert_task_canceled():
             assert table_widget.rowCount() > 0
             assert table_widget.item(row_index, 1).text() == 'whisper-french.mp3'
-            assert table_widget.item(row_index, 2).text() == expected_status
+            assert expected_status in table_widget.item(row_index, 2).text()
 
         return assert_task_canceled
 
