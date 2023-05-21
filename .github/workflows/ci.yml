@@ -61,7 +61,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install dependencies
-        run: poetry config experimental.new-installer false && poetry install
+        run: poetry install
 
       - name: Test
         run: |
@@ -122,7 +122,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install dependencies
-        run: poetry config experimental.new-installer false && poetry install
+        run: poetry install
 
       - name: Bundle
         run: |
@@ -237,7 +237,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install dependencies
-        run: poetry config experimental.new-installer false && poetry install
+        run: poetry install
 
       - name: Test
         run: |
