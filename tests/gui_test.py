@@ -17,7 +17,7 @@ from buzz.cache import TasksCache
 from buzz.gui import (AboutDialog, AdvancedSettingsDialog, AudioDevicesComboBox, FileTranscriberWidget,
                       LanguagesComboBox, MainWindow,
                       RecordingTranscriberWidget,
-                      TemperatureValidator, TranscriptionTasksTableWidget, HuggingFaceSearchLineEdit,
+                      TemperatureValidator, HuggingFaceSearchLineEdit,
                       TranscriptionOptionsGroupBox)
 from buzz.model_loader import ModelType
 from buzz.settings.settings import Settings
@@ -353,33 +353,6 @@ class TestTemperatureValidator:
         ])
     def test_should_validate_temperature(self, text: str, state: QValidator.State):
         assert self.validator.validate(text, 0)[0] == state
-
-
-class TestTranscriptionTasksTableWidget:
-
-    def test_upsert_task(self, qtbot: QtBot):
-        widget = TranscriptionTasksTableWidget()
-        qtbot.add_widget(widget)
-
-        task = FileTranscriptionTask(id=0, file_path='testdata/whisper-french.mp3',
-                                     transcription_options=TranscriptionOptions(),
-                                     file_transcription_options=FileTranscriptionOptions(
-                                         file_paths=['testdata/whisper-french.mp3']), model_path='',
-                                     status=FileTranscriptionTask.Status.QUEUED)
-
-        widget.upsert_task(task)
-
-        assert widget.rowCount() == 1
-        assert widget.item(0, 1).text() == 'whisper-french.mp3'
-        assert widget.item(0, 2).text() == 'Queued'
-
-        task.status = FileTranscriptionTask.Status.IN_PROGRESS
-        task.fraction_completed = 0.3524
-        widget.upsert_task(task)
-
-        assert widget.rowCount() == 1
-        assert widget.item(0, 1).text() == 'whisper-french.mp3'
-        assert widget.item(0, 2).text() == 'In Progress (35%)'
 
 
 class TestRecordingTranscriberWidget:
