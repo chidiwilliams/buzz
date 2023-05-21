@@ -98,6 +98,9 @@ class FileTranscriptionTask:
     status: Optional[Status] = None
     fraction_completed = 0.0
     error: Optional[str] = None
+    queued_at: Optional[datetime.datetime] = None
+    started_at: Optional[datetime.datetime] = None
+    completed_at: Optional[datetime.datetime] = None
 
 
 class RecordingTranscriber(QObject):
@@ -769,9 +772,13 @@ class FileTranscriberQueueWorker(QObject):
         self.current_transcriber.error.connect(self.run)
         self.current_transcriber.completed.connect(self.run)
 
+        self.current_task.started_at = datetime.datetime.now()
         self.current_transcriber_thread.start()
 
     def add_task(self, task: FileTranscriptionTask):
+        if task.queued_at is None:
+            task.queued_at = datetime.datetime.now()
+
         self.tasks_queue.put(task)
         task.status = FileTranscriptionTask.Status.QUEUED
         self.task_updated.emit(task)
@@ -802,6 +809,7 @@ class FileTranscriberQueueWorker(QObject):
         if self.current_task is not None:
             self.current_task.status = FileTranscriptionTask.Status.COMPLETED
             self.current_task.segments = segments
+            self.current_task.completed_at = datetime.datetime.now()
             self.task_updated.emit(self.current_task)
 
     def stop(self):
