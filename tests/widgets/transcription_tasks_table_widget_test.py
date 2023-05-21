@@ -41,3 +41,18 @@ class TestTranscriptionTasksTableWidget:
         assert widget.rowCount() == 1
         assert widget.item(0, 1).text() == 'whisper-french.mp3'
         assert widget.item(0, 2).text() == 'Completed (5s)'
+
+    def test_upsert_task_no_timings(self, qtbot: QtBot):
+        widget = TranscriptionTasksTableWidget()
+        qtbot.add_widget(widget)
+
+        task = FileTranscriptionTask(id=0, file_path='testdata/whisper-french.mp3',
+                                     transcription_options=TranscriptionOptions(),
+                                     file_transcription_options=FileTranscriptionOptions(
+                                         file_paths=['testdata/whisper-french.mp3']), model_path='',
+                                     status=FileTranscriptionTask.Status.COMPLETED)
+        widget.upsert_task(task)
+
+        assert widget.rowCount() == 1
+        assert widget.item(0, 1).text() == 'whisper-french.mp3'
+        assert widget.item(0, 2).text() == 'Completed'
