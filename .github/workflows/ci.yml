@@ -93,6 +93,7 @@ jobs:
           - os: macos-latest
           - os: windows-latest
           - os: ubuntu-20.04
+          - os: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:
@@ -121,6 +122,12 @@ jobs:
 
       - name: Install dependencies
         run: poetry install
+
+      - name: Install apt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends libyaml-dev libegl1-mesa libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext
+        if: "startsWith(matrix.os, 'ubuntu-')"
 
       - name: Bundle
         run: |
@@ -159,10 +166,6 @@ jobs:
 
           elif [ "$RUNNER_OS" == "Linux" ]; then
 
-            sudo apt install libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 x11-utils
-            /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
-            sudo apt update
-            sudo apt install -y libpulse-mainloop-glib0 libegl1-mesa-dev libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev libportaudio2 gettext
             poetry run make bundle_linux
 
           fi
