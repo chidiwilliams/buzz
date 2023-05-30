@@ -288,7 +288,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            Buzz*-windows.tar.gz
             Buzz*-unix.tar.gz
             Buzz*-windows.exe
             Buzz*-mac.dmg
