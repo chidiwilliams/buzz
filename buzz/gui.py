@@ -597,7 +597,7 @@ class RecordingTranscriberWidget(QWidget):
 
     def on_cancel_model_progress_dialog(self):
         if self.model_loader is not None:
-            self.model_loader.stop()
+            self.model_loader.cancel()
         self.reset_model_download()
         self.set_recording_status_stopped()
         self.record_button.setDisabled(False)
