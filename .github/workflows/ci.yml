@@ -183,7 +183,6 @@ jobs:
         with:
           name: Buzz-${{ runner.os }}
           path: |
-            dist/Buzz*-windows.tar.gz
             dist/Buzz*-windows.exe
             dist/Buzz*-mac.dmg
             dist/Buzz*-unix.tar.gz
