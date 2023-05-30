@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1685488510561,
+  "lastUpdate": 1685488642096,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "Linux": [
@@ -2732,6 +2732,44 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 2.0537642407954704",
             "extra": "mean: 24.727042601799962 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "williamschidi1@gmail.com",
+            "name": "Chidi Williams",
+            "username": "chidiwilliams"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "df35d548d86670686992e514c7ba294bb11d4960",
+          "message": "Remove Windows .tar.gz (#477)",
+          "timestamp": "2023-05-30T23:09:01Z",
+          "tree_id": "2eb1470a2112d9a22567d217525d6f2a0dedba9f",
+          "url": "https://github.com/chidiwilliams/buzz/commit/df35d548d86670686992e514c7ba294bb11d4960"
+        },
+        "date": 1685488633215,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.09561762319779271,
+            "unit": "iter/sec",
+            "range": "stddev: 0.062169170242597105",
+            "extra": "mean: 10.458323126599998 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.03944715707087781,
+            "unit": "iter/sec",
+            "range": "stddev: 0.3678605839324768",
+            "extra": "mean: 25.350369310600037 sec\nrounds: 5"
           }
         ]
       }
