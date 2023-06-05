@@ -123,6 +123,12 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0' # Not needed with a .ruby-version file
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+        if: "startsWith(matrix.os, 'ubuntu-')"
+
       - name: Install apt dependencies
         run: |
           sudo apt-get update
@@ -130,6 +136,13 @@ jobs:
           gem install fpm --user-install
           fpm --version
         if: "startsWith(matrix.os, 'ubuntu-')"
+
+      - name: Install FPM
+        run: |
+          gem install fpm --user-install
+          fpm --version
+        if: "startsWith(matrix.os, 'ubuntu-')"
+
 
       - name: Bundle
         run: |
@@ -170,8 +183,8 @@ jobs:
           
             poetry run make bundle_linux
           
-            
-
+          
+          
           fi
         env:
           BUZZ_CODESIGN_IDENTITY: ${{ secrets.BUZZ_CODESIGN_IDENTITY }}
@@ -274,7 +287,7 @@ jobs:
           - os: macos-latest
           - os: windows-latest
           - os: ubuntu-20.04
-    needs: [build, test]
+    needs: [ build, test ]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v3
@@ -298,7 +311,7 @@ jobs:
 
   deploy_brew_cask:
     runs-on: macos-latest
-    needs: [release]
+    needs: [ release ]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v3
