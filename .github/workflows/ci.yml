@@ -140,7 +140,7 @@ jobs:
           which ruby
           which gem
           echo '' >> "${GITHUB_PATH}"
-          gem install --no-ri --no-rdoc fpm
+          gem install fpm
           fpm --version
         if: "startsWith(matrix.os, 'ubuntu-')"
 
