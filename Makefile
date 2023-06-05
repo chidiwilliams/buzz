@@ -9,6 +9,7 @@ unix_zip_path := Buzz-${version}-unix.tar.gz
 
 bundle_linux: dist/Buzz
 	cd dist && tar -czf ${unix_zip_path} Buzz/ && cd -
+	bash scripts/bundle_linux.sh
 
 bundle_windows: dist/Buzz
 	iscc //DAppVersion=${version} installer.iss

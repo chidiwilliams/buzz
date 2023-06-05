@@ -141,7 +141,6 @@ jobs:
           fpm --version
         if: "startsWith(matrix.os, 'ubuntu-')"
 
-
       - name: Bundle
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
@@ -180,8 +179,6 @@ jobs:
           elif [ "$RUNNER_OS" == "Linux" ]; then
           
             poetry run make bundle_linux
-          
-          
           
           fi
         env:
