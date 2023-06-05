@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1685961106968,
+  "lastUpdate": 1685961108750,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "Linux": [
@@ -1702,6 +1702,51 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.06987133828014312",
             "extra": "mean: 8.714811210000017 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "williamschidi1@gmail.com",
+            "name": "Chidi Williams",
+            "username": "chidiwilliams"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d63ccb970c13d0525052fe68b198d9cf1c7d2b45",
+          "message": "Fix key error when loading output formats from settings (#482)",
+          "timestamp": "2023-06-05T10:22:48Z",
+          "tree_id": "84e49e28ac2b14a2b2bc94fc28a47273b8811d67",
+          "url": "https://github.com/chidiwilliams/buzz/commit/d63ccb970c13d0525052fe68b198d9cf1c7d2b45"
+        },
+        "date": 1685961101848,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.05089703929661669,
+            "unit": "iter/sec",
+            "range": "stddev: 0.11018980989244168",
+            "extra": "mean: 19.64750826019999 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.06926715011913658,
+            "unit": "iter/sec",
+            "range": "stddev: 0.09214004672645183",
+            "extra": "mean: 14.436857850800015 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Faster Whisper - Tiny]",
+            "value": 0.07176986941718116,
+            "unit": "iter/sec",
+            "range": "stddev: 0.15912311881575666",
+            "extra": "mean: 13.933423707199996 sec\nrounds: 5"
           }
         ]
       },
