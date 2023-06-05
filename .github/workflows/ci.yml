@@ -137,9 +137,6 @@ jobs:
 
       - name: Install FPM
         run: |
-          which ruby
-          which gem
-          echo '' >> "${GITHUB_PATH}"
           gem install fpm
           fpm --version
         if: "startsWith(matrix.os, 'ubuntu-')"
