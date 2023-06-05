@@ -7,8 +7,8 @@ mkdir -p $PACKAGE_PATH/usr/share/icons/hicolor/scalable/apps
 cp -r $PYINSTALLER_BUILD_PATH $PACKAGE_PATH/opt/buzz
 cp buzz.desktop $PACKAGE_PATH/usr/share/applications
 
-find $PACKAGE_PATH/opt/hello-world -type f -exec chmod 644 -- {} +
-find $PACKAGE_PATH/opt/hello-world -type d -exec chmod 755 -- {} +
+find $PACKAGE_PATH/opt/buzz -type f -exec chmod 644 -- {} +
+find $PACKAGE_PATH/opt/buzz -type d -exec chmod 755 -- {} +
 find $PACKAGE_PATH/usr/share -type f -exec chmod 644 -- {} +
 chmod +x $PACKAGE_PATH/opt/buzz/Buzz
 
