@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1685961173011,
+  "lastUpdate": 1685961174868,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "Linux": [
@@ -3230,6 +3230,44 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 3.1660943834019886",
             "extra": "mean: 32.81160452280001 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "williamschidi1@gmail.com",
+            "name": "Chidi Williams",
+            "username": "chidiwilliams"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d63ccb970c13d0525052fe68b198d9cf1c7d2b45",
+          "message": "Fix key error when loading output formats from settings (#482)",
+          "timestamp": "2023-06-05T10:22:48Z",
+          "tree_id": "84e49e28ac2b14a2b2bc94fc28a47273b8811d67",
+          "url": "https://github.com/chidiwilliams/buzz/commit/d63ccb970c13d0525052fe68b198d9cf1c7d2b45"
+        },
+        "date": 1685961167887,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.045286562177823675,
+            "unit": "iter/sec",
+            "range": "stddev: 2.1392459304026588",
+            "extra": "mean: 22.081605489799994 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.03307598176329886,
+            "unit": "iter/sec",
+            "range": "stddev: 1.18762505933862",
+            "extra": "mean: 30.233418531800044 sec\nrounds: 5"
           }
         ]
       },
