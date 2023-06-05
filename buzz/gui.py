@@ -201,8 +201,11 @@ class FileTranscriberWidget(QWidget):
                                             default_value=DEFAULT_WHISPER_TEMPERATURE),
             word_level_timings=self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_WORD_LEVEL_TIMINGS,
                                                    default_value=False))
+        default_export_format_states: List[str] = self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_EXPORT_FORMATS,
+                                                                      default_value=[])
         self.file_transcription_options = FileTranscriptionOptions(
-            file_paths=self.file_paths)
+            file_paths=self.file_paths,
+            output_formats=set([OutputFormat(output_format) for output_format in default_export_format_states]))
 
         layout = QVBoxLayout(self)
 
@@ -221,11 +224,9 @@ class FileTranscriberWidget(QWidget):
         file_transcription_layout.addRow('', self.word_level_timings_checkbox)
 
         export_format_layout = QHBoxLayout()
-        default_export_format_states: List[str] = self.settings.value(key=Settings.Key.FILE_TRANSCRIBER_EXPORT_FORMATS,
-                                                                      default_value=[])
         for output_format in OutputFormat:
             export_format_checkbox = QCheckBox(f'{output_format.value.upper()}', parent=self)
-            export_format_checkbox.setChecked(output_format.value in default_export_format_states)
+            export_format_checkbox.setChecked(output_format in self.file_transcription_options.output_formats)
             export_format_checkbox.stateChanged.connect(self.get_on_checkbox_state_changed_callback(output_format))
             export_format_layout.addWidget(export_format_checkbox)
 
