@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Encoding=UTF-8
-Name=Buzz
-Comment=Buzz transcribes and translates audio offline on your personal computer
-Exec=buzz
-Icon=buzz
-Terminal=False

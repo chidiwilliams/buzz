@@ -63,15 +63,14 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
+      - name: Install apt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends libyaml-dev libegl1-mesa libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext
+        if: "startsWith(matrix.os, 'ubuntu-')"
+
       - name: Test
         run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo apt install libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 x11-utils
-            /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
-            sudo apt update
-            sudo apt install -y libpulse-mainloop-glib0 libegl1-mesa-dev libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev libportaudio2
-          fi
-
           if [ "$RUNNER_OS" == "Windows" ]; then
             curl -OL "https://github.com/ggerganov/whisper.cpp/releases/download/v1.3.0/whisper-bin-x64.zip"
             unzip whisper-bin-x64.zip
@@ -124,6 +123,22 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0' # Not needed with a .ruby-version file
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+        if: "startsWith(matrix.os, 'ubuntu-')"
+
+      - name: Install apt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends libyaml-dev libegl1-mesa libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext
+        if: "startsWith(matrix.os, 'ubuntu-')"
+
+      - name: Install FPM
+        run: gem install fpm
+        if: "startsWith(matrix.os, 'ubuntu-')"
+
       - name: Bundle
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
@@ -160,13 +175,9 @@ jobs:
             poetry run make bundle_windows
 
           elif [ "$RUNNER_OS" == "Linux" ]; then
-
-            sudo apt install libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 x11-utils
-            /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
-            sudo apt update
-            sudo apt install -y libpulse-mainloop-glib0 libegl1-mesa-dev libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev libportaudio2 gettext
+          
             poetry run make bundle_linux
-
+          
           fi
         env:
           BUZZ_CODESIGN_IDENTITY: ${{ secrets.BUZZ_CODESIGN_IDENTITY }}
@@ -185,7 +196,7 @@ jobs:
           path: |
             dist/Buzz*-windows.exe
             dist/Buzz*-mac.dmg
-            dist/Buzz*-unix.tar.gz
+            dist/buzz-*.deb
 
   benchmark:
     runs-on: ${{ matrix.os }}
@@ -238,15 +249,14 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
+      - name: Install apt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends libyaml-dev libegl1-mesa libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext
+        if: "startsWith(matrix.os, 'ubuntu-')"
+
       - name: Test
         run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo apt install libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 x11-utils
-            /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
-            sudo apt update
-            sudo apt install -y libpulse-mainloop-glib0 libegl1-mesa-dev libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev libportaudio2
-          fi
-
           poetry run make benchmarks
         shell: bash
 
@@ -270,7 +280,7 @@ jobs:
           - os: macos-latest
           - os: windows-latest
           - os: ubuntu-20.04
-    needs: [build, test]
+    needs: [ build, test ]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v3
@@ -288,13 +298,14 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
+            buzz-*.deb
             Buzz*-unix.tar.gz
             Buzz*-windows.exe
             Buzz*-mac.dmg
 
   deploy_brew_cask:
     runs-on: macos-latest
-    needs: [release]
+    needs: [ release ]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v3
