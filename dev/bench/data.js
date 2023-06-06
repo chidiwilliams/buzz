@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1686040963719,
+  "lastUpdate": 1686040965735,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "Linux": [
@@ -3396,6 +3396,44 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 1.18762505933862",
             "extra": "mean: 30.233418531800044 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "williamschidi1@gmail.com",
+            "name": "Chidi Williams",
+            "username": "chidiwilliams"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c1d90bf0c202f27becb2d3285e6f7a470693ec10",
+          "message": "Add DEB bundle (#483)",
+          "timestamp": "2023-06-06T09:31:53+01:00",
+          "tree_id": "183a7a278d319900944e33912349269cb2ced44a",
+          "url": "https://github.com/chidiwilliams/buzz/commit/c1d90bf0c202f27becb2d3285e6f7a470693ec10"
+        },
+        "date": 1686040958849,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.04324976035727529,
+            "unit": "iter/sec",
+            "range": "stddev: 1.857747553484775",
+            "extra": "mean: 23.12151539659998 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.02627734492420766,
+            "unit": "iter/sec",
+            "range": "stddev: 1.2791830059440412",
+            "extra": "mean: 38.05559514800002 sec\nrounds: 5"
           }
         ]
       },
