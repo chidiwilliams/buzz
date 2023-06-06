@@ -2,6 +2,8 @@
 
 PYINSTALLER_BUILD_PATH="dist/Buzz"
 PACKAGE_PATH="dist/package"
+VERSION=$(poetry version -s)
+DEB_PATH="dist/buzz-$VERSION.deb"
 
 mkdir -p $PACKAGE_PATH/opt
 mkdir -p $PACKAGE_PATH/usr/share/applications
@@ -19,7 +21,4 @@ find $PACKAGE_PATH/opt/buzz -type d -exec chmod 755 -- {} +
 find $PACKAGE_PATH/usr/share -type f -exec chmod 644 -- {} +
 chmod +x $PACKAGE_PATH/opt/buzz/Buzz
 
-fpm -C $PACKAGE_PATH -s dir -t deb -n "buzz" -v 0.1.0 -p buzz.deb
-
-sudo dpkg -i buzz.deb
-/opt/buzz/Buzz --version
+fpm -C $PACKAGE_PATH -s dir -t deb -n "buzz" -v $VERSION -p $DEB_PATH

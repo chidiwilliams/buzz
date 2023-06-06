@@ -136,9 +136,7 @@ jobs:
         if: "startsWith(matrix.os, 'ubuntu-')"
 
       - name: Install FPM
-        run: |
-          gem install fpm
-          fpm --version
+        run: gem install fpm
         if: "startsWith(matrix.os, 'ubuntu-')"
 
       - name: Bundle
@@ -198,7 +196,7 @@ jobs:
           path: |
             dist/Buzz*-windows.exe
             dist/Buzz*-mac.dmg
-            dist/Buzz*-unix.tar.gz
+            dist/buzz-*.deb
 
   benchmark:
     runs-on: ${{ matrix.os }}
@@ -300,6 +298,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
+            buzz-*.deb
             Buzz*-unix.tar.gz
             Buzz*-windows.exe
             Buzz*-mac.dmg
