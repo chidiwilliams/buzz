@@ -20,3 +20,6 @@ find $PACKAGE_PATH/usr/share -type f -exec chmod 644 -- {} +
 chmod +x $PACKAGE_PATH/opt/buzz/Buzz
 
 fpm -C $PACKAGE_PATH -s dir -t deb -n "buzz" -v 0.1.0 -p buzz.deb
+
+sudo dpkg -i buzz.deb
+/opt/buzz/Buzz --version
