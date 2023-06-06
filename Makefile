@@ -5,10 +5,7 @@ mac_app_path := ./dist/Buzz.app
 mac_zip_path := ./dist/Buzz-${version}-mac.zip
 mac_dmg_path := ./dist/Buzz-${version}-mac.dmg
 
-unix_zip_path := Buzz-${version}-unix.tar.gz
-
 bundle_linux: dist/Buzz
-	cd dist && tar -czf ${unix_zip_path} Buzz/ && cd -
 	bash scripts/bundle_linux.sh
 
 bundle_windows: dist/Buzz
