@@ -145,7 +145,7 @@ parts:
       - transformers==4.24.0
       - typing-extensions==4.4.0
       - urllib3==1.26.13
-      - whisper @ git+https://github.com/openai/whisper.git@HEAD
+      - https://github.com/openai/whisper/archive/refs/tags/v20230314.zip
       - yarl==1.8.2
       - zipp==3.15.0
     after: [desktop-qt5]
