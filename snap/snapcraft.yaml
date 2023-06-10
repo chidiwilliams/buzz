@@ -89,7 +89,8 @@ parts:
     source: https://github.com/chidiwilliams/buzz/archive/refs/tags/v0.8.1.zip
     stage-packages:
       - ffmpeg
-    requirements:
+      - libportaudio2
+    python-requirements:
       - requirements.txt
     after: [desktop-qt5]
 
