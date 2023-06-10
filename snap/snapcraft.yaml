@@ -90,7 +90,7 @@ parts:
     stage-packages:
       - ffmpeg
       - libportaudio2
-    python-requirements:
+    python-packages:
       - aiohttp==3.8.4
       - aiosignal==1.3.1
       - appdirs==1.4.4
