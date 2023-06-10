@@ -55,7 +55,7 @@ parts:
 
   buzz-src:
     plugin: dump
-    source: https://github.com/chidiwilliams/buzz/archive/refs/tags/v0.8.1.zip
+    source: https://github.com/chidiwilliams/buzz/archive/main.zip
     stage-packages:
       - ffmpeg
       - libportaudio2
@@ -86,7 +86,7 @@ parts:
 
   buzz:
     plugin: python
-    source: https://github.com/chidiwilliams/buzz/archive/refs/tags/v0.8.1.zip
+    source: https://github.com/chidiwilliams/buzz/archive/main.zip
     stage-packages:
       - ffmpeg
       - libportaudio2
@@ -162,7 +162,7 @@ parts:
 
 apps:
   buzz:
-    command: bin/desktop-launch python $SNAP/buzz-0.8.1/main.py
+    command: bin/desktop-launch python $SNAP/buzz-main/main.py
     desktop: usr/share/applications/buzz.desktop
     environment:
       PATH: $SNAP/usr/bin:$SNAP/bin:$PATH
