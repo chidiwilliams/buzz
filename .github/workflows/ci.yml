@@ -96,6 +96,11 @@ jobs:
         uses: samuelmeuli/action-snapcraft@v2.1.1
       - name: Use Snapcraft
         run: sudo sg lxd -c 'sudo snapcraft --use-lxd --debug'
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Snapcraft
+          path: |
+            *.snap
 
   build:
     runs-on: ${{ matrix.os }}
