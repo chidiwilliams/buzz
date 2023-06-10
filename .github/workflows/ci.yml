@@ -94,7 +94,7 @@ jobs:
       - name: Snapcraft Action
         uses: samuelmeuli/action-snapcraft@v2.1.1
       - name: Use Snapcraft
-        run: sudo sg lxd -c 'sudo snapcraft --use-lxd --debug'
+        run: tree && sudo sg lxd -c 'sudo snapcraft --use-lxd --debug'
 
   build:
     runs-on: ${{ matrix.os }}
