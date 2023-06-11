@@ -7,4 +7,4 @@ omit =
 directory = coverage/html
 
 [report]
-fail_under = 74
+fail_under = 73

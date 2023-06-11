@@ -74,7 +74,7 @@ jobs:
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then
             curl -OL "https://github.com/ggerganov/whisper.cpp/releases/download/v1.3.0/whisper-bin-x64.zip"
-            unzip whisper-bin-x64.zip
+            unzip -o whisper-bin-x64.zip
             mv main.exe whisper_cpp.exe
           fi
 
@@ -298,7 +298,7 @@ jobs:
           - os: macos-latest
           - os: windows-latest
           - os: ubuntu-20.04
-    needs: [build, test]
+    needs: [ build, test ]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v3
@@ -323,7 +323,7 @@ jobs:
 
   deploy_brew_cask:
     runs-on: macos-latest
-    needs: [release]
+    needs: [ release ]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v3
