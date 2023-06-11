@@ -20,6 +20,7 @@ openai = "^0.27.1"
 faster-whisper = "^0.4.1"
 keyring = "^23.13.1"
 openai-whisper = "v20230124"
+platformdirs = "^3.5.3"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
@@ -37,9 +38,9 @@ pytest-benchmark = "^4.0.0"
 ctypesgen = "^1.1.1"
 
 [build-system]
-requires = ["poetry-core", "ctypesgen"]
+requires = ["poetry-core", "ctypesgen", "setuptools"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.build]
-generate-setup-file = false
+generate-setup-file = true
 script = "build.py"

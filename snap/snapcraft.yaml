@@ -163,7 +163,7 @@ parts:
 
 apps:
   buzz:
-    command: bin/desktop-launch python $SNAP/buzz-main/main.py
+    command: bin/desktop-launch python $SNAP/main.py
     desktop: usr/share/applications/buzz.desktop
     environment:
       PATH: $SNAP/usr/bin:$SNAP/bin:$PATH

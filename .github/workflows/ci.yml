@@ -88,6 +88,8 @@ jobs:
 
   snapcraft:
     runs-on: ubuntu-latest
+    env:
+      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
     steps:
       - uses: actions/checkout@v3
         with:
