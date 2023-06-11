@@ -64,6 +64,8 @@ parts:
       - libasound2
       - libasound2-plugins
       - python3-platformdirs
+    organize:
+      buzz.desktop: usr/share/applications/buzz.desktop
 
   alsa-pulseaudio:
     plugin: dump
@@ -158,12 +160,6 @@ parts:
   desktop-settings-build:
     plugin: nil
     after: [ buzz ]
-
-  desktopfile:
-    plugin: dump
-    source: ./
-    organize:
-      buzz.desktop: usr/share/applications/buzz.desktop
 
 apps:
   buzz:
