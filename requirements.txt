@@ -36,9 +36,9 @@ openai==0.27.8
 packaging==23.1
 protobuf==4.23.2
 pycparser==2.21
-pyqt6-qt6==6.5.1
-pyqt6-sip==13.5.1
-pyqt6==6.5.1
+pyqt6-qt6==6.4.1
+pyqt6-sip==13.4.0
+pyqt6==6.4.0
 pyreadline3==3.4.1
 pywin32-ctypes==0.2.0
 pyyaml==6.0
