@@ -131,6 +131,7 @@ parts:
       - openai-whisper==20230124
       - openai==0.27.8
       - packaging==23.1
+      - platformdirs==3.5.3
       - protobuf==4.23.2
       - pycparser==2.21
       - pyqt6-qt6==6.5.1
