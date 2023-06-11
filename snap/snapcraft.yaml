@@ -1,6 +1,6 @@
 name: buzz
-base: core22 # the base snap is the execution environment for this snap
-version: "0.8.1" # just for humans, typically '1.2+git' or '1.3.2'
+base: core22
+version: git
 summary: Buzz, offline audio transcription and translation
 description: |
   Buzz transcribes and translates audio to text offline using OpenAI's Whisper.
@@ -21,7 +21,7 @@ parts:
     source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
     source-subdir: qt
     plugin: make
-    make-parameters: ["FLAVOR=qt5"]
+    make-parameters: [ "FLAVOR=qt5" ]
     build-packages:
       - qtbase5-dev
       - dpkg-dev
@@ -55,7 +55,8 @@ parts:
 
   buzz-src:
     plugin: dump
-    source: https://github.com/chidiwilliams/buzz/archive/main.zip
+    source: https://github.com/chidiwilliams/buzz.git
+    source-branch: add-snapcraft
     stage-packages:
       - ffmpeg
       - libportaudio2
@@ -86,7 +87,8 @@ parts:
 
   buzz:
     plugin: python
-    source: https://github.com/chidiwilliams/buzz/archive/main.zip
+    source: https://github.com/chidiwilliams/buzz.git
+    source-branch: add-snapcraft
     stage-packages:
       - ffmpeg
       - libportaudio2
@@ -95,64 +97,67 @@ parts:
       - aiosignal==1.3.1
       - appdirs==1.4.4
       - async-timeout==4.0.2
-      - attrs==22.1.0
+      - attrs==23.1.0
       - av==10.0.0
-      - certifi==2022.12.7
+      - certifi==2023.5.7
       - cffi==1.15.1
-      - charset-normalizer==2.1.1
+      - charset-normalizer==3.1.0
       - colorama==0.4.6
       - coloredlogs==15.0.1
-      - cryptography==40.0.2
-      - ctranslate2==3.11.0
+      - cryptography==41.0.1
+      - ctranslate2==3.15.1
       - faster-whisper==0.4.1
       - ffmpeg-python==0.2.0
-      - filelock==3.8.2
-      - flatbuffers==23.3.3
+      - filelock==3.12.1
+      - flatbuffers==23.5.26
       - frozenlist==1.3.3
-      - future==0.18.2
-      - huggingface-hub==0.13.4
+      - fsspec==2023.6.0
+      - future==0.18.3
+      - huggingface-hub==0.15.1
       - humanfriendly==10.0
-      - humanize==4.4.0
+      - humanize==4.6.0
       - idna==3.4
       - importlib-metadata==6.6.0
       - jaraco-classes==3.2.3
       - jeepney==0.8.0
       - keyring==23.13.1
-      - more-itertools==9.0.0
+      - more-itertools==9.1.0
       - mpmath==1.3.0
       - multidict==6.0.4
-      - numpy==1.23.5
+      - numpy==1.24.3
       - onnxruntime==1.14.1
-      - openai==0.27.1
-      - packaging==22.0
-      - protobuf==4.22.1
+      - openai-whisper==20230124
+      - openai==0.27.8
+      - packaging==23.1
+      - protobuf==4.23.2
       - pycparser==2.21
-      - pyqt6-qt6==6.4.1
-      - pyqt6-sip==13.4.0
-      - pyqt6==6.4.0
+      - pyqt6-qt6==6.5.1
+      - pyqt6-sip==13.5.1
+      - pyqt6==6.5.1
       - pyreadline3==3.4.1
       - pywin32-ctypes==0.2.0
       - pyyaml==6.0
-      - regex==2022.10.31
-      - requests==2.28.1
+      - regex==2023.6.3
+      - requests==2.31.0
       - secretstorage==3.3.3
-      - sounddevice==0.4.5
+      - six==1.16.0
+      - sounddevice==0.4.6
       - stable-ts==1.0.2
-      - sympy==1.11.1
-      - tokenizers==0.13.2
+      - sympy==1.12
+      - tokenizers==0.13.3
       - torch==1.12.1
-      - tqdm==4.64.1
+      - tqdm==4.65.0
       - transformers==4.24.0
-      - typing-extensions==4.4.0
-      - urllib3==1.26.13
-      - https://github.com/openai/whisper/archive/refs/tags/v20230314.zip
-      - yarl==1.8.2
+      - typing-extensions==4.6.3
+      - urllib3==2.0.3
+      - whisper==1.1.10
+      - yarl==1.9.2
       - zipp==3.15.0
-    after: [desktop-qt5]
+    after: [ desktop-qt5 ]
 
   desktop-settings-build:
     plugin: nil
-    after: [buzz]
+    after: [ buzz ]
 
   desktopfile:
     plugin: dump

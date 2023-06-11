@@ -20,3 +20,5 @@ whisper_cpp.py
 locale/**/*.mo
 
 benchmarks.json
+
+.eggs
