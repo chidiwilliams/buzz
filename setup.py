@@ -16,6 +16,7 @@ install_requires = \
  'keyring>=23.13.1,<24.0.0',
  'openai-whisper==v20230124',
  'openai>=0.27.1,<0.28.0',
+ 'platformdirs==3.5.3',
  'sounddevice>=0.4.5,<0.5.0',
  'stable-ts==1.0.2',
  'torch==1.12.1',
