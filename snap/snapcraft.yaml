@@ -56,20 +56,6 @@ parts:
     stage-packages:
       - qt5-gtk-platformtheme
 
-  buzz-src:
-    plugin: dump
-    source: https://github.com/chidiwilliams/buzz.git
-    source-branch: add-snapcraft
-    stage-packages:
-      - ffmpeg
-      - libportaudio2
-      - libpulse0
-      - libasound2
-      - libasound2-plugins
-      - python3-platformdirs
-    organize:
-      buzz.desktop: usr/share/applications/buzz.desktop
-
   alsa-pulseaudio:
     plugin: dump
     source: .
@@ -97,6 +83,9 @@ parts:
     stage-packages:
       - ffmpeg
       - libportaudio2
+      - libpulse0
+      - libasound2
+      - libasound2-plugins
     python-packages:
       - aiohttp==3.8.4
       - aiosignal==1.3.1
@@ -159,6 +148,8 @@ parts:
       - whisper==1.1.10
       - yarl==1.9.2
       - zipp==3.15.0
+    organize:
+      buzz.desktop: usr/share/applications/buzz.desktop
     after: [ desktop-qt5 ]
 
   desktop-settings-build:
