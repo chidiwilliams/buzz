@@ -78,8 +78,7 @@ parts:
 
   buzz:
     plugin: python
-    source: https://github.com/chidiwilliams/buzz.git
-    source-branch: add-snapcraft
+    source: .
     stage-packages:
       - ffmpeg
       - libportaudio2
@@ -148,13 +147,13 @@ parts:
       - whisper==1.1.10
       - yarl==1.9.2
       - zipp==3.15.0
-    organize:
-      buzz.desktop: usr/share/applications/buzz.desktop
     after: [ desktop-qt5 ]
 
-  desktop-settings-build:
-    plugin: nil
-    after: [ buzz ]
+  desktop-file:
+    plugin: dump
+    source: .
+    organize:
+      buzz.desktop: usr/share/applications/buzz.desktop
 
 apps:
   buzz:
