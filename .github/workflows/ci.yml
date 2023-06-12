@@ -99,6 +99,8 @@ jobs:
         uses: samuelmeuli/action-snapcraft@v2.1.1
       - name: Use Snapcraft
         run: sudo sg lxd -c 'sudo snapcraft --use-lxd --debug'
+      - name: Install
+        run: sudo snapcraft upload buzz_*.snap
       - uses: actions/upload-artifact@v3
         with:
           name: Snapcraft
