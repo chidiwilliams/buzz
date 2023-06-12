@@ -79,9 +79,6 @@ parts:
   buzz:
     plugin: python
     source: .
-    override-build: |
-      snapcraftctl build
-      ls -ali
     stage-packages:
       - ffmpeg
       - libportaudio2
