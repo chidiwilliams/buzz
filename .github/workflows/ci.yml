@@ -88,25 +88,22 @@ jobs:
 
   snapcraft:
     runs-on: ubuntu-latest
-    env:
-      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-      - uses: canonical/setup-lxd@v0.1.1
-      - name: Snapcraft Action
-        uses: samuelmeuli/action-snapcraft@v2.1.1
-      - name: Use Snapcraft
-        run: sudo sg lxd -c 'sudo snapcraft --use-lxd --debug'
-      - uses: t1m0thyj/unlock-keyring@v1
-      - name: Install
-        run: sudo snapcraft upload buzz_*.snap
+      - uses: snapcore/action-build@v1
+        id: snapcraft
+      - uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
+        with:
+          snap: ${{ steps.snapcraft.outputs.snap }}
+          release: edge
       - uses: actions/upload-artifact@v3
         with:
-          name: Snapcraft
-          path: |
-            *.snap
+          name: snap
+          path: ${{ steps.snapcraft.outputs.snap }}
 
   build:
     runs-on: ${{ matrix.os }}
