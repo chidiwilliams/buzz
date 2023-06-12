@@ -22,6 +22,7 @@ jobs:
           - os: macos-latest
           - os: windows-latest
           - os: ubuntu-20.04
+          - os: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:
@@ -73,7 +74,7 @@ jobs:
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then
             curl -OL "https://github.com/ggerganov/whisper.cpp/releases/download/v1.3.0/whisper-bin-x64.zip"
-            unzip whisper-bin-x64.zip
+            unzip -o whisper-bin-x64.zip
             mv main.exe whisper_cpp.exe
           fi
 
@@ -84,6 +85,25 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           flags: ${{ runner.os }}
+
+  snapcraft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: snapcore/action-build@v1
+        id: snapcraft
+#      - uses: snapcore/action-publish@v1
+#        env:
+#          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
+#        with:
+#          snap: ${{ steps.snapcraft.outputs.snap }}
+#          release: edge
+      - uses: actions/upload-artifact@v3
+        with:
+          name: snap
+          path: ${{ steps.snapcraft.outputs.snap }}
 
   build:
     runs-on: ${{ matrix.os }}
@@ -125,7 +145,7 @@ jobs:
 
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.0' # Not needed with a .ruby-version file
+          ruby-version: "3.0" # Not needed with a .ruby-version file
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
         if: "startsWith(matrix.os, 'ubuntu-')"
 
@@ -169,15 +189,15 @@ jobs:
           elif [ "$RUNNER_OS" == "Windows" ]; then
 
             curl -OL "https://github.com/ggerganov/whisper.cpp/releases/download/v1.3.0/whisper-bin-x64.zip"
-            unzip whisper-bin-x64.zip
+            unzip -o whisper-bin-x64.zip
             mv main.exe whisper_cpp.exe
 
             poetry run make bundle_windows
 
           elif [ "$RUNNER_OS" == "Linux" ]; then
-          
+
             poetry run make bundle_linux
-          
+
           fi
         env:
           BUZZ_CODESIGN_IDENTITY: ${{ secrets.BUZZ_CODESIGN_IDENTITY }}

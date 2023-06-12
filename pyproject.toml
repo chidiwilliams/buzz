@@ -9,17 +9,18 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">=3.9.13,<3.11"
 sounddevice = "^0.4.5"
-whisper = { git = "https://github.com/openai/whisper.git" }
 torch = "1.12.1"
 transformers = "~4.24.0"
 appdirs = "^1.4.4"
 ffmpeg-python = "^0.2.0"
 humanize = "^4.4.0"
-PyQt6 = "^6.4.0"
-stable-ts = "^1.0.1"
+PyQt6 = "6.4.0"
+stable-ts = "1.0.2"
 openai = "^0.27.1"
 faster-whisper = "^0.4.1"
 keyring = "^23.13.1"
+openai-whisper = "v20230124"
+platformdirs = "^3.5.3"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
@@ -31,9 +32,16 @@ pytest-qt = "^4.1.0"
 pytest-xvfb = "^2.0.0"
 pylint = "^2.15.5"
 pre-commit = "^2.20.0"
-ctypesgen = "^1.1.1"
 pytest-benchmark = "^4.0.0"
 
+[tool.poetry.group.build.dependencies]
+ctypesgen = "^1.1.1"
+cmake = "^3.26.4"
+
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core", "ctypesgen", "setuptools", "cmake"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.build]
+generate-setup-file = true
+script = "build.py"
