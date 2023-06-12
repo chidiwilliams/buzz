@@ -36,9 +36,10 @@ pytest-benchmark = "^4.0.0"
 
 [tool.poetry.group.build.dependencies]
 ctypesgen = "^1.1.1"
+cmake = "^3.26.4"
 
 [build-system]
-requires = ["poetry-core", "ctypesgen", "setuptools"]
+requires = ["poetry-core", "ctypesgen", "setuptools", "cmake"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.build]
