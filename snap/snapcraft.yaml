@@ -10,9 +10,8 @@ description: |
   Import audio and video files into Buzz and export them as TXT, SRT, or VTT files.
   Buzz supports Whisper, Whisper.cpp, Faster Whisper, Whisper-compatible models
   from the Hugging Face repository, and the OpenAI Whisper API.
-
-grade: devel # must be 'stable' to release into candidate/stable channels
-confinement: devmode # use 'strict' once you have the right plugs and slots
+grade: stable
+confinement: strict
 license: MIT
 icon: assets/buzz.svg
 

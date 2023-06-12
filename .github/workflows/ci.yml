@@ -94,12 +94,12 @@ jobs:
           submodules: recursive
       - uses: snapcore/action-build@v1
         id: snapcraft
-      - uses: snapcore/action-publish@v1
-        env:
-          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
-        with:
-          snap: ${{ steps.snapcraft.outputs.snap }}
-          release: edge
+#      - uses: snapcore/action-publish@v1
+#        env:
+#          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
+#        with:
+#          snap: ${{ steps.snapcraft.outputs.snap }}
+#          release: edge
       - uses: actions/upload-artifact@v3
         with:
           name: snap
