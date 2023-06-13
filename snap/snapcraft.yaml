@@ -86,6 +86,8 @@ parts:
       - libasound2-plugins
     override-build: |
       snapcraftctl build
+      ls -ali $SNAPCRAFT_PART_BUILD
+      ls -ali $SNAPCRAFT_PART_INSTALL
       cp -R $SNAPCRAFT_PART_BUILD/libwhisper.so $SNAPCRAFT_PART_INSTALL/usr/lib/
       cp -R $SNAPCRAFT_PART_BUILD/libwhisper.so $SNAPCRAFT_PART_INSTALL/
       cp -R $SNAPCRAFT_PART_BUILD/whisper_cpp $SNAPCRAFT_PART_INSTALL/usr/bin/
