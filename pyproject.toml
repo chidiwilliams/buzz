@@ -18,7 +18,7 @@ humanize = "^4.4.0"
 PyQt6 = "^6.4.0"
 stable-ts = "^1.0.1"
 openai = "^0.27.1"
-faster-whisper = "^0.4.1"
+faster-whisper = "^0.6.0"
 keyring = "^23.13.1"
 
 [tool.poetry.group.dev.dependencies]
