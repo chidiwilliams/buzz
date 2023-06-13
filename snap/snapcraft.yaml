@@ -87,16 +87,6 @@ parts:
     stage:
       - libwhisper.so
       - whisper_cpp
-      - buzz/whisper_cpp.py
-
-#      craftctl default
-#      ls -ali $CRAFT_PART_BUILD
-#      ls -ali $CRAFT_PART_INSTALL
-#      cp -R $CRAFT_PART_BUILD/libwhisper.so $CRAFT_PART_INSTALL/usr/lib/
-#      cp -R $CRAFT_PART_BUILD/libwhisper.so $CRAFT_PART_INSTALL/
-#      cp -R $CRAFT_PART_BUILD/whisper_cpp $CRAFT_PART_INSTALL/usr/bin/
-#      cp -R $CRAFT_PART_BUILD/whisper_cpp $CRAFT_PART_INSTALL/
-#      cp -R $CRAFT_PART_BUILD/buzz/whisper_cpp.py $CRAFT_PART_INSTALL/buzz/whisper_cpp.py
     python-packages:
       - aiohttp==3.8.4
       - aiosignal==1.3.1
@@ -166,8 +156,6 @@ parts:
     source: .
     organize:
       buzz.desktop: usr/share/applications/buzz.desktop
-      libwhisper.so: usr/lib/libwhisper.so
-      whisper_cpp: usr/bin/whisper_cpp
 
 apps:
   buzz:
