@@ -1965,16 +1965,16 @@ files = [
 
 [[package]]
 name = "sounddevice"
-version = "0.4.5"
+version = "0.4.6"
 description = "Play and Record Sound with Python"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "sounddevice-0.4.5-py3-none-any.whl", hash = "sha256:5cea4afd9412e731f50ae09a54d68b10628a604cfd56b42a976c54d424c6c39d"},
-    {file = "sounddevice-0.4.5-py3-none-macosx_10_6_x86_64.macosx_10_6_universal2.whl", hash = "sha256:0875173595a8bd5a66b5a03a3d958e7b89c3b956b8befbe4491a24a3ce7784c0"},
-    {file = "sounddevice-0.4.5-py3-none-win32.whl", hash = "sha256:442adf53850916374a58f902200aaf9412227378181264e60c966da64be47d41"},
-    {file = "sounddevice-0.4.5-py3-none-win_amd64.whl", hash = "sha256:d3216c5d3d678c3301058e9aac7000879e255140c524c9ef98730091b67ea676"},
-    {file = "sounddevice-0.4.5.tar.gz", hash = "sha256:2fe0d41299e4f3037dad2acede4eff0666b34a1fa3da5335e47120373964bef5"},
+    {file = "sounddevice-0.4.6-py3-none-any.whl", hash = "sha256:5de768ba6fe56ad2b5aaa2eea794b76b73e427961c95acad2ee2ed7f866a4b20"},
+    {file = "sounddevice-0.4.6-py3-none-macosx_10_6_x86_64.macosx_10_6_universal2.whl", hash = "sha256:8b0b806c205dd3e3cd5a97262b2482624fd21db7d47083b887090148a08051c8"},
+    {file = "sounddevice-0.4.6-py3-none-win32.whl", hash = "sha256:e3ba6e674ffa8f79a591d744a1d4ab922fe5bdfd4faf8b25069a08e051010b7b"},
+    {file = "sounddevice-0.4.6-py3-none-win_amd64.whl", hash = "sha256:7830d4f8f8570f2e5552942f81d96999c5fcd9a0b682d6fc5d5c5529df23be2c"},
+    {file = "sounddevice-0.4.6.tar.gz", hash = "sha256:3236b78f15f0415bdf006a620cef073d0c0522851d66f4a961ed6d8eb1482fe9"},
 ]
 
 [package.dependencies]
@@ -2491,4 +2491,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9.13,<3.11"
-content-hash = "bbd53ca3e9fc41a3d81b517e6c21233432febb9fcb073533fec8c70d8dfe7859"
+content-hash = "c20c4087ab979a48b75d8754bc81293a3fbb34538a746e6c914170af03cbd939"
