@@ -84,15 +84,10 @@ parts:
       - libpulse0
       - libasound2
       - libasound2-plugins
-    override-stage: |
-      snapcraftctl stage
-      ls -ali $SNAPCRAFT_PART_BUILD
-      ls -ali $SNAPCRAFT_PART_INSTALL
-      cp -R $SNAPCRAFT_PART_BUILD/libwhisper.so $SNAPCRAFT_PART_INSTALL/usr/lib/
-      cp -R $SNAPCRAFT_PART_BUILD/libwhisper.so $SNAPCRAFT_PART_INSTALL/
-      cp -R $SNAPCRAFT_PART_BUILD/whisper_cpp $SNAPCRAFT_PART_INSTALL/usr/bin/
-      cp -R $SNAPCRAFT_PART_BUILD/whisper_cpp $SNAPCRAFT_PART_INSTALL/
-      cp -R $SNAPCRAFT_PART_BUILD/buzz/whisper_cpp.py $SNAPCRAFT_PART_INSTALL/buzz/whisper_cpp.py
+    stage:
+      - libwhisper.so
+      - whisper_cpp
+      - buzz/whisper_cpp.py
     python-packages:
       - aiohttp==3.8.4
       - aiosignal==1.3.1
