@@ -87,7 +87,9 @@ parts:
     override-build: |
       snapcraftctl build
       cp -R $SNAPCRAFT_PART_BUILD/libwhisper.so $SNAPCRAFT_PART_INSTALL/usr/lib/
+      cp -R $SNAPCRAFT_PART_BUILD/libwhisper.so $SNAPCRAFT_PART_INSTALL/
       cp -R $SNAPCRAFT_PART_BUILD/whisper_cpp $SNAPCRAFT_PART_INSTALL/usr/bin/
+      cp -R $SNAPCRAFT_PART_BUILD/whisper_cpp $SNAPCRAFT_PART_INSTALL/
       cp -R $SNAPCRAFT_PART_BUILD/buzz/whisper_cpp.py $SNAPCRAFT_PART_INSTALL/buzz/whisper_cpp.py
     python-packages:
       - aiohttp==3.8.4
