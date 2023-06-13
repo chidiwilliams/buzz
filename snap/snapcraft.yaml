@@ -84,8 +84,8 @@ parts:
       - libpulse0
       - libasound2
       - libasound2-plugins
-    override-build: |
-      snapcraftctl build
+    override-stage: |
+      snapcraftctl stage
       ls -ali $SNAPCRAFT_PART_BUILD
       ls -ali $SNAPCRAFT_PART_INSTALL
       cp -R $SNAPCRAFT_PART_BUILD/libwhisper.so $SNAPCRAFT_PART_INSTALL/usr/lib/
