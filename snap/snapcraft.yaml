@@ -88,6 +88,7 @@ parts:
       snapcraftctl build
       cp -R $SNAPCRAFT_PART_BUILD/libwhisper.so $SNAPCRAFT_PART_INSTALL/libwhisper.so
       cp -R $SNAPCRAFT_PART_BUILD/whisper_cpp $SNAPCRAFT_PART_INSTALL/whisper_cpp
+      cp -R $SNAPCRAFT_PART_BUILD/buzz/whisper_cpp.py $SNAPCRAFT_PART_INSTALL/buzz/whisper_cpp.py
     python-packages:
       - aiohttp==3.8.4
       - aiosignal==1.3.1
