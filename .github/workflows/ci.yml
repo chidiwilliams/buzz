@@ -95,8 +95,8 @@ jobs:
       - uses: snapcore/action-build@v1
         id: snapcraft
       - run: |
-          ls -alit /snap/buzz/current
           sudo snap install --devmode *.snap
+          ls -alit /snap/buzz/current
       #      - uses: snapcore/action-publish@v1
       #        env:
       #          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
