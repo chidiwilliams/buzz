@@ -94,7 +94,7 @@ jobs:
           submodules: recursive
       - uses: snapcore/action-build@v1
         id: snapcraft
-      - run: snapcraft install *.snap
+      - run: snap install *.snap
       #      - uses: snapcore/action-publish@v1
       #        env:
       #          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
