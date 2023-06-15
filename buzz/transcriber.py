@@ -14,6 +14,7 @@ from abc import abstractmethod
 from dataclasses import dataclass, field
 from multiprocessing.connection import Connection
 from random import randint
+from subprocess import CalledProcessError, run
 from threading import Thread
 from typing import Any, List, Optional, Tuple, Union, Set
 
@@ -301,12 +302,16 @@ class WhisperCppFileTranscriber(FileTranscriber):
             'word level timings = %s',
             self.file_path, self.language, self.task, model_path, self.word_level_timings)
 
-        wav_file = tempfile.mktemp() + '.wav'
-        (
-            ffmpeg.input(self.file_path)
-            .output(wav_file, acodec="pcm_s16le", ac=1, ar=whisper.audio.SAMPLE_RATE)
-            .run(cmd=["ffmpeg", "-nostdin"], capture_stdout=True, capture_stderr=True)
-        )
+        wav_file = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
+        run([
+            "ffmpeg",
+            "-y",
+            "-nostdin",
+            "-i", self.file_path,
+            "-ac", "1",
+            "-acodec", "pcm_s16le",
+            "-ar", str(whisper.audio.SAMPLE_RATE),
+            wav_file.name], check=True)
 
         args = [
             '--language', self.language if self.language is not None else 'en',
@@ -315,7 +320,7 @@ class WhisperCppFileTranscriber(FileTranscriber):
         ]
         if self.task == Task.TRANSLATE:
             args.append('--translate')
-        args.append(wav_file)
+        args.append(wav_file.name)
 
         logging.debug(
             'Running whisper_cpp process, args = "%s"', ' '.join(args))
