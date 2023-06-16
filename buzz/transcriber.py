@@ -10,6 +10,7 @@ import re
 import sys
 import tempfile
 import threading
+import uuid
 from abc import abstractmethod
 from dataclasses import dataclass, field
 from multiprocessing.connection import Connection
@@ -27,6 +28,7 @@ import stable_whisper
 import tqdm
 import whisper
 from PyQt6.QtCore import QObject, QProcess, pyqtSignal, pyqtSlot, QThread
+from platformdirs import user_cache_dir
 from sounddevice import PortAudioError
 from whisper import tokenizer
 
@@ -302,8 +304,10 @@ class WhisperCppFileTranscriber(FileTranscriber):
             'word level timings = %s',
             self.file_path, self.language, self.task, model_path, self.word_level_timings)
 
-        wav_file = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
-        run([
+        wav_file_path = os.path.join(user_cache_dir('Buzz'), 'audio', str(uuid.uuid4()) + '.wav')
+        os.makedirs(os.path.dirname(wav_file_path), exist_ok=True)
+
+        ffmpeg_args = [
             "ffmpeg",
             "-y",
             "-nostdin",
@@ -311,7 +315,9 @@ class WhisperCppFileTranscriber(FileTranscriber):
             "-ac", "1",
             "-acodec", "pcm_s16le",
             "-ar", str(whisper.audio.SAMPLE_RATE),
-            wav_file.name], check=True)
+            wav_file_path]
+        logging.debug('ffmpeg, args = "%s"', ' '.join(ffmpeg_args))
+        run(ffmpeg_args, check=True)
 
         args = [
             '--language', self.language if self.language is not None else 'en',
@@ -320,7 +326,7 @@ class WhisperCppFileTranscriber(FileTranscriber):
         ]
         if self.task == Task.TRANSLATE:
             args.append('--translate')
-        args.append(wav_file.name)
+        args.append(wav_file_path)
 
         logging.debug(
             'Running whisper_cpp process, args = "%s"', ' '.join(args))
