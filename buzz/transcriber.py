@@ -5,17 +5,13 @@ import json
 import logging
 import multiprocessing
 import os
-import queue
-import re
 import sys
 import tempfile
 import threading
-import uuid
 from abc import abstractmethod
 from dataclasses import dataclass, field
 from multiprocessing.connection import Connection
 from random import randint
-from subprocess import CalledProcessError, run
 from threading import Thread
 from typing import Any, List, Optional, Tuple, Union, Set
 
@@ -27,8 +23,7 @@ import sounddevice
 import stable_whisper
 import tqdm
 import whisper
-from PyQt6.QtCore import QObject, QProcess, pyqtSignal, pyqtSlot, QThread
-from platformdirs import user_cache_dir
+from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from sounddevice import PortAudioError
 from whisper import tokenizer
 
@@ -240,7 +235,7 @@ class FileTranscriber(QObject):
     transcription_task: FileTranscriptionTask
     progress = pyqtSignal(tuple)  # (current, total)
     completed = pyqtSignal(list)  # List[Segment]
-    error = pyqtSignal(str)
+    error = pyqtSignal(Exception)
 
     def __init__(self, task: FileTranscriptionTask,
                  parent: Optional['QObject'] = None):
@@ -252,8 +247,7 @@ class FileTranscriber(QObject):
         try:
             segments = self.transcribe()
         except Exception as exc:
-            self.error.emit(str(exc))
-            logging.exception('')
+            self.error.emit(exc)
             return
 
         self.completed.emit(segments)
@@ -275,10 +269,16 @@ class FileTranscriber(QObject):
         ...
 
 
+class Stopped(Exception):
+    pass
+
+
 class WhisperCppFileTranscriber(FileTranscriber):
     duration_audio_ms = sys.maxsize  # max int
-    segments: List[Segment]
-    running = False
+    state: 'WhisperCppFileTranscriber.State'
+
+    class State:
+        running = True
 
     def __init__(self, task: FileTranscriptionTask,
                  parent: Optional['QObject'] = None) -> None:
@@ -289,14 +289,10 @@ class WhisperCppFileTranscriber(FileTranscriber):
         self.model_path = task.model_path
         self.task = task.transcription_options.task
         self.word_level_timings = task.transcription_options.word_level_timings
-        self.segments = []
-
-        self.process = QProcess(self)
-        self.process.readyReadStandardError.connect(self.read_std_err)
-        self.process.readyReadStandardOutput.connect(self.read_std_out)
+        self.state = self.State()
 
     def transcribe(self) -> List[Segment]:
-        self.running = True
+        self.state.running = True
         model_path = self.model_path
 
         logging.debug(
@@ -304,92 +300,42 @@ class WhisperCppFileTranscriber(FileTranscriber):
             'word level timings = %s',
             self.file_path, self.language, self.task, model_path, self.word_level_timings)
 
-        wav_file_path = os.path.join(user_cache_dir('Buzz'), 'audio', str(uuid.uuid4()) + '.wav')
-        os.makedirs(os.path.dirname(wav_file_path), exist_ok=True)
+        audio = whisper.audio.load_audio(self.file_path)
+        self.duration_audio_ms = len(audio) * 1000 / whisper.audio.SAMPLE_RATE
 
-        ffmpeg_args = [
-            "ffmpeg",
-            "-y",
-            "-nostdin",
-            "-i", self.file_path,
-            "-ac", "1",
-            "-acodec", "pcm_s16le",
-            "-ar", str(whisper.audio.SAMPLE_RATE),
-            wav_file_path]
-        logging.debug('ffmpeg, args = "%s"', ' '.join(ffmpeg_args))
-        run(ffmpeg_args, check=True)
+        whisper_params = whisper_cpp_params(language=self.language if self.language is not None else '', task=self.task,
+                                            word_level_timings=self.word_level_timings)
+        whisper_params.encoder_begin_callback_user_data = ctypes.c_void_p(id(self.state))
+        whisper_params.encoder_begin_callback = whisper_cpp.whisper_encoder_begin_callback(self.encoder_begin_callback)
+        whisper_params.new_segment_callback_user_data = ctypes.c_void_p(id(self.state))
+        whisper_params.new_segment_callback = whisper_cpp.whisper_new_segment_callback(self.new_segment_callback)
 
-        args = [
-            '--language', self.language if self.language is not None else 'en',
-            '--max-len', '1' if self.word_level_timings else '0',
-            '--model', model_path,
-        ]
-        if self.task == Task.TRANSLATE:
-            args.append('--translate')
-        args.append(wav_file_path)
+        model = WhisperCpp(model=model_path)
+        result = model.transcribe(audio=self.file_path, params=whisper_params)
 
-        logging.debug(
-            'Running whisper_cpp process, args = "%s"', ' '.join(args))
+        if not self.state.running:
+            raise Stopped
 
-        self.process.start('./whisper_cpp', args)
-        self.process.waitForFinished()
+        self.state.running = False
+        return result['segments']
 
-        # Ensure all std_out data has been read
-        self.read_std_out()
-
-        status = self.process.exitStatus()
-        logging.debug('whisper_cpp process completed with status = %s', status)
-        if status == QProcess.ExitStatus.NormalExit:
-            self.progress.emit(
-                (self.duration_audio_ms, self.duration_audio_ms))
-
-        self.running = False
-        return self.segments
-
-    def stop(self):
-        if self.running:
-            process_state = self.process.state()
-            if process_state == QProcess.ProcessState.Starting or process_state == QProcess.ProcessState.Running:
-                self.process.terminate()
-
-    def read_std_out(self):
-        try:
-            output = self.process.readAllStandardOutput().data().decode('UTF-8').strip()
-            if len(output) > 0:
-                lines = output.split('\n')
-                for line in lines:
-                    timings, text = line.split('  ')
-                    start, end = self.parse_timings(timings)
-                    segment = Segment(start, end, text.strip())
-                    self.segments.append(segment)
-                    self.progress.emit((end, self.duration_audio_ms))
-        except (UnicodeDecodeError, ValueError):
-            pass
-
-    def parse_timings(self, timings: str) -> Tuple[int, int]:
-        start, end = timings[1:len(timings) - 1].split(' --> ')
-        return self.parse_timestamp(start), self.parse_timestamp(end)
+    def new_segment_callback(self, ctx, _state, _n_new, user_data):
+        n_segments = whisper_cpp.whisper_full_n_segments(ctx)
+        t1 = whisper_cpp.whisper_full_get_segment_t1(ctx, n_segments - 1)
+        # t1 seems to sometimes be larger than the duration when the
+        # audio ends in silence. Trim to fix the displayed progress.
+        progress = min(t1 * 10, self.duration_audio_ms)
+        state: WhisperCppFileTranscriber.State = ctypes.cast(user_data, ctypes.py_object).value
+        if state.running:
+            self.progress.emit((progress, self.duration_audio_ms))
 
     @staticmethod
-    def parse_timestamp(timestamp: str) -> int:
-        hrs, mins, secs_ms = timestamp.split(':')
-        secs, ms = secs_ms.split('.')
-        return int(hrs) * 60 * 60 * 1000 + int(mins) * 60 * 1000 + int(secs) * 1000 + int(ms)
+    def encoder_begin_callback(_ctx, _state, user_data):
+        state: WhisperCppFileTranscriber.State = ctypes.cast(user_data, ctypes.py_object).value
+        return state.running == 1
 
-    def read_std_err(self):
-        try:
-            output = self.process.readAllStandardError().data().decode('UTF-8').strip()
-            logging.debug('whisper_cpp (stderr): %s', output)
-
-            lines = output.split('\n')
-            for line in lines:
-                if line.startswith('main: processing'):
-                    match = re.search(r'samples, (.*) sec', line)
-                    if match is not None:
-                        self.duration_audio_ms = round(
-                            float(match.group(1)) * 1000)
-        except UnicodeDecodeError:
-            pass
+    def stop(self):
+        self.state.running = False
 
 
 class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
@@ -708,122 +654,3 @@ class WhisperCpp:
 
     def __del__(self):
         whisper_cpp.whisper_free(self.ctx)
-
-
-class FileTranscriberQueueWorker(QObject):
-    tasks_queue: multiprocessing.Queue
-    current_task: Optional[FileTranscriptionTask] = None
-    current_transcriber: Optional[FileTranscriber] = None
-    current_transcriber_thread: Optional[QThread] = None
-    task_updated = pyqtSignal(FileTranscriptionTask)
-    completed = pyqtSignal()
-
-    def __init__(self, parent: Optional[QObject] = None):
-        super().__init__(parent)
-        self.tasks_queue = queue.Queue()
-        self.canceled_tasks = set()
-
-    @pyqtSlot()
-    def run(self):
-        logging.debug('Waiting for next transcription task')
-
-        # Get next non-canceled task from queue
-        while True:
-            self.current_task: Optional[FileTranscriptionTask] = self.tasks_queue.get()
-
-            # Stop listening when a "None" task is received
-            if self.current_task is None:
-                self.completed.emit()
-                return
-
-            if self.current_task.id in self.canceled_tasks:
-                continue
-
-            break
-
-        logging.debug('Starting next transcription task')
-
-        model_type = self.current_task.transcription_options.model.model_type
-        if model_type == ModelType.WHISPER_CPP:
-            self.current_transcriber = WhisperCppFileTranscriber(
-                task=self.current_task)
-        elif model_type == ModelType.OPEN_AI_WHISPER_API:
-            self.current_transcriber = OpenAIWhisperAPIFileTranscriber(task=self.current_task)
-        elif model_type == ModelType.HUGGING_FACE or \
-                model_type == ModelType.WHISPER or \
-                model_type == ModelType.FASTER_WHISPER:
-            self.current_transcriber = WhisperFileTranscriber(task=self.current_task)
-        else:
-            raise Exception(f'Unknown model type: {model_type}')
-
-        self.current_transcriber_thread = QThread(self)
-
-        self.current_transcriber.moveToThread(self.current_transcriber_thread)
-
-        self.current_transcriber_thread.started.connect(
-            self.current_transcriber.run)
-        self.current_transcriber.completed.connect(
-            self.current_transcriber_thread.quit)
-        self.current_transcriber.error.connect(
-            self.current_transcriber_thread.quit)
-
-        self.current_transcriber.completed.connect(
-            self.current_transcriber.deleteLater)
-        self.current_transcriber.error.connect(
-            self.current_transcriber.deleteLater)
-        self.current_transcriber_thread.finished.connect(
-            self.current_transcriber_thread.deleteLater)
-
-        self.current_transcriber.progress.connect(self.on_task_progress)
-        self.current_transcriber.error.connect(self.on_task_error)
-
-        self.current_transcriber.completed.connect(self.on_task_completed)
-
-        # Wait for next item on the queue
-        self.current_transcriber.error.connect(self.run)
-        self.current_transcriber.completed.connect(self.run)
-
-        self.current_task.started_at = datetime.datetime.now()
-        self.current_transcriber_thread.start()
-
-    def add_task(self, task: FileTranscriptionTask):
-        if task.queued_at is None:
-            task.queued_at = datetime.datetime.now()
-
-        self.tasks_queue.put(task)
-        task.status = FileTranscriptionTask.Status.QUEUED
-        self.task_updated.emit(task)
-
-    def cancel_task(self, task_id: int):
-        self.canceled_tasks.add(task_id)
-
-        if self.current_task.id == task_id:
-            if self.current_transcriber is not None:
-                self.current_transcriber.stop()
-
-    @pyqtSlot(str)
-    def on_task_error(self, error: str):
-        if self.current_task is not None and self.current_task.id not in self.canceled_tasks:
-            self.current_task.status = FileTranscriptionTask.Status.FAILED
-            self.current_task.error = error
-            self.task_updated.emit(self.current_task)
-
-    @pyqtSlot(tuple)
-    def on_task_progress(self, progress: Tuple[int, int]):
-        if self.current_task is not None:
-            self.current_task.status = FileTranscriptionTask.Status.IN_PROGRESS
-            self.current_task.fraction_completed = progress[0] / progress[1]
-            self.task_updated.emit(self.current_task)
-
-    @pyqtSlot(list)
-    def on_task_completed(self, segments: List[Segment]):
-        if self.current_task is not None:
-            self.current_task.status = FileTranscriptionTask.Status.COMPLETED
-            self.current_task.segments = segments
-            self.current_task.completed_at = datetime.datetime.now()
-            self.task_updated.emit(self.current_task)
-
-    def stop(self):
-        self.tasks_queue.put(None)
-        if self.current_transcriber is not None:
-            self.current_transcriber.stop()

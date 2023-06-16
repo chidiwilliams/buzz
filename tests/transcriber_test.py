@@ -73,7 +73,7 @@ class TestWhisperCppFileTranscriber:
             task=FileTranscriptionTask(file_path='testdata/whisper-french.mp3',
                                        transcription_options=transcription_options,
                                        file_transcription_options=file_transcription_options, model_path=model_path))
-        mock_progress = Mock()
+        mock_progress = Mock(side_effect=lambda value: print('progress: ', value))
         mock_completed = Mock()
         transcriber.progress.connect(mock_progress)
         transcriber.completed.connect(mock_completed)
