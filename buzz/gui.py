@@ -35,8 +35,9 @@ from .store.keyring_store import KeyringStore
 from .transcriber import (SUPPORTED_OUTPUT_FORMATS, FileTranscriptionOptions, OutputFormat,
                           Task,
                           TranscriptionOptions,
-                          FileTranscriberQueueWorker, FileTranscriptionTask, RecordingTranscriber, LOADED_WHISPER_DLL,
+                          FileTranscriptionTask, RecordingTranscriber, LOADED_WHISPER_DLL,
                           DEFAULT_WHISPER_TEMPERATURE, LANGUAGES)
+from .file_transcriber_queue_worker import FileTranscriberQueueWorker
 from .widgets.line_edit import LineEdit
 from .widgets.model_download_progress_dialog import ModelDownloadProgressDialog
 from .widgets.model_type_combo_box import ModelTypeComboBox

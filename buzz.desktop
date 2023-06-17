@@ -14,4 +14,4 @@ Exec=/opt/buzz/Buzz
 
 Icon=buzz
 
-Terminal=False
+Terminal=false

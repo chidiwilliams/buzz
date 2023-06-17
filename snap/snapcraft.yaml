@@ -84,6 +84,12 @@ parts:
       - libpulse0
       - libasound2
       - libasound2-plugins
+    override-build: |
+      craftctl default
+      cp $CRAFT_PART_BUILD/libwhisper.so $CRAFT_PART_INSTALL/
+      cp $CRAFT_PART_BUILD/libwhisper.so $CRAFT_PART_INSTALL/usr/lib/
+      cp $CRAFT_PART_BUILD/whisper_cpp $CRAFT_PART_INSTALL/
+      mkdir $CRAFT_PART_INSTALL/buzz && cp $CRAFT_PART_BUILD/buzz/whisper_cpp.py $CRAFT_PART_INSTALL/buzz/
     python-packages:
       - aiohttp==3.8.4
       - aiosignal==1.3.1
@@ -160,7 +166,7 @@ apps:
     desktop: usr/share/applications/buzz.desktop
     environment:
       PATH: $SNAP/usr/bin:$SNAP/bin:$PATH
-      LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/lapack:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/blas:$LD_LIBRARY_PATH
+      LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/lapack:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/blas:$SNAP:$LD_LIBRARY_PATH
       PYTHONPATH: $SNAP/usr/lib/python3/dist-packages:$SNAP/usr/lib/python3.10/site-packages:$SNAP/usr/local/lib/python3.10/dist-packages:$SNAP/usr/lib/python3.10/dist-packages:$PYTHONPATH
       # Fallback to XWayland if running in a Wayland session.
       DISABLE_WAYLAND: 1
