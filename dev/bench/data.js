@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1686984191728,
+  "lastUpdate": 1686984322843,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "Linux": [
@@ -3728,6 +3728,44 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 2.2601522290665876",
             "extra": "mean: 28.239773290200038 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "williamschidi1@gmail.com",
+            "name": "Chidi Williams",
+            "username": "chidiwilliams"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "530bf28407f559ba45db9f2d07d0a6912cb4a1a4",
+          "message": "Fix terminal value in .desktop file (#487)",
+          "timestamp": "2023-06-17T07:35:10+01:00",
+          "tree_id": "ca3a1990722ff7bedabb4ee5b211e3c9371614ae",
+          "url": "https://github.com/chidiwilliams/buzz/commit/530bf28407f559ba45db9f2d07d0a6912cb4a1a4"
+        },
+        "date": 1686984318116,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.07504633347420571,
+            "unit": "iter/sec",
+            "range": "stddev: 0.9444749906711081",
+            "extra": "mean: 13.325101356799951 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.041631033223509195,
+            "unit": "iter/sec",
+            "range": "stddev: 0.29087183659038457",
+            "extra": "mean: 24.02054243120001 sec\nrounds: 5"
           }
         ]
       }
