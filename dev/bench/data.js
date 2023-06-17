@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1686997996696,
+  "lastUpdate": 1686998344467,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "Linux": [
@@ -3894,6 +3894,44 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.29087183659038457",
             "extra": "mean: 24.02054243120001 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "williamschidi1@gmail.com",
+            "name": "Chidi Williams",
+            "username": "chidiwilliams"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6854d172f1e70b0115eac2f69490282b23fe4c6d",
+          "message": "Upload Snapcraft build (#495)",
+          "timestamp": "2023-06-17T10:26:57Z",
+          "tree_id": "874ae9ca0cc51c32cd47beb97a3bf1e73d99bb19",
+          "url": "https://github.com/chidiwilliams/buzz/commit/6854d172f1e70b0115eac2f69490282b23fe4c6d"
+        },
+        "date": 1686998339457,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.04095584316870324,
+            "unit": "iter/sec",
+            "range": "stddev: 2.2281057101598067",
+            "extra": "mean: 24.416540415999997 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.03320449040059161,
+            "unit": "iter/sec",
+            "range": "stddev: 0.7260176283069776",
+            "extra": "mean: 30.116408592200013 sec\nrounds: 5"
           }
         ]
       }
