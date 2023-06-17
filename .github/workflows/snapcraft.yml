@@ -25,12 +25,6 @@ jobs:
         id: snapcraft
       - run: |
           sudo snap install --devmode *.snap
-      - uses: snapcore/action-publish@v1
-        env:
-          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
-        with:
-          snap: ${{ steps.snapcraft.outputs.snap }}
-          release: edge
       - uses: actions/upload-artifact@v3
         with:
           name: snap
