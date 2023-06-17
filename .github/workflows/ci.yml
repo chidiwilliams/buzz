@@ -86,27 +86,6 @@ jobs:
         with:
           flags: ${{ runner.os }}
 
-  snapcraft:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-      - uses: snapcore/action-build@v1
-        id: snapcraft
-      - run: |
-          sudo snap install --devmode *.snap
-      #      - uses: snapcore/action-publish@v1
-      #        env:
-      #          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
-      #        with:
-      #          snap: ${{ steps.snapcraft.outputs.snap }}
-      #          release: edge
-      - uses: actions/upload-artifact@v3
-        with:
-          name: snap
-          path: ${{ steps.snapcraft.outputs.snap }}
-
   build:
     runs-on: ${{ matrix.os }}
     strategy:
