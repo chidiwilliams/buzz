@@ -295,7 +295,6 @@ jobs:
         with:
           virtualenvs-create: true
           virtualenvs-in-project: true
-
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
