@@ -137,9 +137,6 @@ VENV_PATH := $(shell poetry env info -p)
 ggml:
 	python3 ./whisper.cpp/models/convert-pt-to-ggml.py ${model_path} $(VENV_PATH)/src/whisper dist
 
-upload_brew:
-	brew bump-cask-pr --version ${version} --verbose buzz
-
 UPGRADE_VERSION_BRANCH := upgrade-to-${version}
 gh_upgrade_pr:
 	git checkout main && git pull
