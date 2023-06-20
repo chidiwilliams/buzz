@@ -38,6 +38,13 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
 
+      - name: Update Homebrew cask
+        uses: macauley/action-homebrew-bump-cask@v1
+        if: "startsWith(matrix.os, 'macos-')"
+        with:
+          token: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
+          cask: buzz
+
       - name: Load cached venv
         id: cached-poetry-dependencies
         uses: actions/cache@v3
