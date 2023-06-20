@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1687281958484,
+  "lastUpdate": 1687281961669,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "Linux": [
@@ -95,6 +95,44 @@ window.BENCHMARK_DATA = {
       }
     ],
     "macOS": [
+      {
+        "commit": {
+          "author": {
+            "email": "williamschidi1@gmail.com",
+            "name": "Chidi Williams",
+            "username": "chidiwilliams"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "798d623a386a123c3c3ac1f0419af6e1f19c40e4",
+          "message": "Fix brew cask deployment (#502)",
+          "timestamp": "2023-06-20T17:12:51Z",
+          "tree_id": "a67d4cba3a84c67bbe6c034ff1cb6eaa82b8d3b4",
+          "url": "https://github.com/chidiwilliams/buzz/commit/798d623a386a123c3c3ac1f0419af6e1f19c40e4"
+        },
+        "date": 1687281950602,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.036663635727041996,
+            "unit": "iter/sec",
+            "range": "stddev: 0.40764731500017237",
+            "extra": "mean: 27.274981876999995 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.022096436057588077,
+            "unit": "iter/sec",
+            "range": "stddev: 1.827720347247091",
+            "extra": "mean: 45.25616698519998 sec\nrounds: 5"
+          }
+        ]
+      },
       {
         "commit": {
           "author": {
