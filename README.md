@@ -17,3 +17,23 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
 </blockquote>
 
 ![Buzz](./assets/buzz-banner.jpg)
+
+## Installation
+
+macOS:
+
+```shell
+brew install --cask buzz
+```
+
+Windows:
+
+Download and run the `.exe` file in the [releases page](https://github.com/chidiwilliams/buzz/releases/latest).
+
+Linux:
+
+```shell
+sudo apt-get install libportaudio2
+sudo snap install buzz
+```
+
