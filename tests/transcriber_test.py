@@ -11,11 +11,11 @@ from PyQt6.QtCore import QThread
 from pytestqt.qtbot import QtBot
 
 from buzz.model_loader import WhisperModelSize, ModelType, TranscriptionModel
-from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask, OutputFormat, RecordingTranscriber,
-                              Segment, Task, WhisperCpp, WhisperCppFileTranscriber,
+from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask, OutputFormat, Segment, Task, WhisperCpp, WhisperCppFileTranscriber,
                               WhisperFileTranscriber,
                               get_default_output_file_path, to_timestamp,
                               whisper_cpp_params, write_output, TranscriptionOptions)
+from buzz.recording_transcriber import RecordingTranscriber
 from tests.mock_sounddevice import MockInputStream
 from tests.model_loader import get_model_path
 
