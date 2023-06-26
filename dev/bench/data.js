@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1687765973940,
+  "lastUpdate": 1687766144749,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "Linux": [
@@ -90,6 +90,46 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.024932262049156228",
             "extra": "mean: 14.212522079400003 sec\nrounds: 5"
+          }
+        ]
+      }
+    ],
+    "macOS": [
+      {
+        "commit": {
+          "author": {
+            "email": "williamschidi1@gmail.com",
+            "name": "Chidi Williams",
+            "username": "chidiwilliams"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2dc0797e64931a62a7209d0cb30913a73de949bf",
+          "message": "Refactor transcribers class (#508)",
+          "timestamp": "2023-06-26T07:46:17Z",
+          "tree_id": "c883ebd3dea5c588703aacc50b4673f10412011e",
+          "url": "https://github.com/chidiwilliams/buzz/commit/2dc0797e64931a62a7209d0cb30913a73de949bf"
+        },
+        "date": 1687766125286,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.04436758954640923,
+            "unit": "iter/sec",
+            "range": "stddev: 2.1582924604753937",
+            "extra": "mean: 22.53897518939999 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.03940542825580213,
+            "unit": "iter/sec",
+            "range": "stddev: 1.117734371707052",
+            "extra": "mean: 25.377214365200008 sec\nrounds: 5"
           }
         ]
       }
