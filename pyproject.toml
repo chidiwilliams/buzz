@@ -20,6 +20,7 @@ faster-whisper = "^0.4.1"
 keyring = "^23.13.1"
 openai-whisper = "v20230124"
 platformdirs = "^3.5.3"
+dataclasses-json = "^0.5.9"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
