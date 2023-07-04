@@ -24,6 +24,11 @@ class WhisperModelSize(enum.Enum):
     MEDIUM = 'medium'
     LARGE = 'large'
 
+    def to_faster_whisper_model_size(self) -> str:
+        if self == WhisperModelSize.LARGE:
+            return "large-v2"
+        return self.value
+
 
 class ModelType(enum.Enum):
     WHISPER = 'Whisper'
@@ -159,10 +164,8 @@ class ModelDownloader(QRunnable):
                 return super().close()
 
         if self.model.model_type == ModelType.FASTER_WHISPER:
-            model_size = self.model.whisper_model_size.value \
-                if self.model.whisper_model_size != WhisperModelSize.LARGE \
-                else "large-v2"
-            model_path = download_faster_whisper_model(size=model_size, tqdm_class=_tqdm)
+            model_path = download_faster_whisper_model(
+                size=self.model.whisper_model_size.to_faster_whisper_model_size(), tqdm_class=_tqdm)
             self.signals.finished.emit(model_path)
             return
 
