@@ -20,7 +20,8 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-          - os: windows-latest
+          - os: windows-2022
+          - os: windows-2019
           - os: ubuntu-20.04
           - os: ubuntu-22.04
     steps:
