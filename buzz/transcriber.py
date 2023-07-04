@@ -332,7 +332,7 @@ class WhisperFileTranscriber(FileTranscriber):
     @classmethod
     def transcribe_faster_whisper(cls, task: FileTranscriptionTask) -> List[Segment]:
         model = faster_whisper.WhisperModel(
-            model_size_or_path=task.transcription_options.model.whisper_model_size.value)
+            model_size_or_path=task.transcription_options.model.whisper_model_size.to_faster_whisper_model_size())
         whisper_segments, info = model.transcribe(audio=task.file_path,
                                                   language=task.transcription_options.language,
                                                   task=task.transcription_options.task.value,
