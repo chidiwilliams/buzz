@@ -159,8 +159,10 @@ class ModelDownloader(QRunnable):
                 return super().close()
 
         if self.model.model_type == ModelType.FASTER_WHISPER:
-            model_path = download_faster_whisper_model(
-                size=self.model.whisper_model_size.value, tqdm_class=_tqdm)
+            model_size = self.model.whisper_model_size.value \
+                if self.model.whisper_model_size != WhisperModelSize.LARGE \
+                else "large-v2"
+            model_path = download_faster_whisper_model(size=model_size, tqdm_class=_tqdm)
             self.signals.finished.emit(model_path)
             return
 
