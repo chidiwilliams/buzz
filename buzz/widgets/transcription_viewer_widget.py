@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QUndoCommand, QUndoStack, QKeySequence, QAction
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QMenu, QPushButton, QVBoxLayout, QFileDialog
 
@@ -16,16 +16,18 @@ from buzz.widgets.transcription_segments_editor_widget import TranscriptionSegme
 
 class TranscriptionViewerWidget(QWidget):
     transcription_task: FileTranscriptionTask
+    task_changed = pyqtSignal()
 
     class ChangeSegmentTextCommand(QUndoCommand):
         def __init__(self, table_widget: TranscriptionSegmentsEditorWidget, segments: List[Segment],
-                     segment_index: int, segment_text: str):
+                     segment_index: int, segment_text: str, task_changed: pyqtSignal):
             super().__init__()
 
             self.table_widget = table_widget
             self.segments = segments
             self.segment_index = segment_index
             self.segment_text = segment_text
+            self.task_changed = task_changed
 
             self.previous_segment_text = self.segments[self.segment_index].text
 
@@ -41,6 +43,7 @@ class TranscriptionViewerWidget(QWidget):
             self.table_widget.set_segment_text(self.segment_index, text)
             self.table_widget.blockSignals(False)
             self.segments[self.segment_index].text = text
+            self.task_changed.emit()
 
     def __init__(
             self, transcription_task: FileTranscriptionTask,
@@ -102,7 +105,8 @@ class TranscriptionViewerWidget(QWidget):
         segment_index, segment_text = event
         self.undo_stack.push(
             self.ChangeSegmentTextCommand(table_widget=self.table_widget, segments=self.transcription_task.segments,
-                                          segment_index=segment_index, segment_text=segment_text))
+                                          segment_index=segment_index, segment_text=segment_text,
+                                          task_changed=self.task_changed))
 
     def on_menu_triggered(self, action: QAction):
         output_format = OutputFormat[action.text()]

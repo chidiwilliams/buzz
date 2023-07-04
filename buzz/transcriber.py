@@ -22,6 +22,7 @@ import stable_whisper
 import tqdm
 import whisper
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
+from dataclasses_json import dataclass_json, config, Exclude
 from whisper import tokenizer
 
 from . import transformers_whisper
@@ -65,7 +66,7 @@ class TranscriptionOptions:
     word_level_timings: bool = False
     temperature: Tuple[float, ...] = DEFAULT_WHISPER_TEMPERATURE
     initial_prompt: str = ''
-    openai_access_token: str = ''
+    openai_access_token: str = field(default='', metadata=config(exclude=Exclude.ALWAYS))
 
 
 @dataclass()
@@ -74,6 +75,7 @@ class FileTranscriptionOptions:
     output_formats: Set['OutputFormat'] = field(default_factory=set)
 
 
+@dataclass_json
 @dataclass
 class FileTranscriptionTask:
     class Status(enum.Enum):
@@ -87,7 +89,7 @@ class FileTranscriptionTask:
     transcription_options: TranscriptionOptions
     file_transcription_options: FileTranscriptionOptions
     model_path: str
-    id: int = field(default_factory=lambda: randint(0, 1_000_000))
+    id: int = field(default_factory=lambda: randint(0, 100_000_000))
     segments: List[Segment] = field(default_factory=list)
     status: Optional[Status] = None
     fraction_completed = 0.0

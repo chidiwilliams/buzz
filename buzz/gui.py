@@ -866,9 +866,12 @@ class MainWindow(QMainWindow):
                 file_path, transcription_options, file_transcription_options, model_path)
             self.add_task(task)
 
-    def update_task_table_row(self, task: FileTranscriptionTask):
+    def load_task(self, task: FileTranscriptionTask):
         self.table_widget.upsert_task(task)
         self.tasks[task.id] = task
+
+    def update_task_table_row(self, task: FileTranscriptionTask):
+        self.load_task(task=task)
         self.tasks_changed.emit()
 
     @staticmethod
@@ -965,6 +968,7 @@ class MainWindow(QMainWindow):
 
         transcription_viewer_widget = TranscriptionViewerWidget(
             transcription_task=task, parent=self, flags=Qt.WindowType.Window)
+        transcription_viewer_widget.task_changed.connect(self.on_tasks_changed)
         transcription_viewer_widget.show()
 
     def add_task(self, task: FileTranscriptionTask):
@@ -978,7 +982,7 @@ class MainWindow(QMainWindow):
                 task.status = None
                 self.transcriber_worker.add_task(task)
             else:
-                self.update_task_table_row(task)
+                self.load_task(task=task)
 
     def save_tasks_to_cache(self):
         self.tasks_cache.save(list(self.tasks.values()))
