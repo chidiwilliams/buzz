@@ -49,8 +49,8 @@ WHISPER_CPP_MODELS_SHA256 = {
 }
 
 
-def get_hugging_face_dataset_file_url(author: str, repository_name: str, filename: str):
-    return f'https://huggingface.co/datasets/{author}/{repository_name}/resolve/main/{filename}'
+def get_hugging_face_file_url(author: str, repository_name: str, filename: str):
+    return f'https://huggingface.co/{author}/{repository_name}/resolve/main/{filename}'
 
 
 def get_whisper_cpp_file_path(size: WhisperModelSize) -> str:
@@ -132,8 +132,8 @@ class ModelDownloader(QRunnable):
     def run(self) -> None:
         if self.model.model_type == ModelType.WHISPER_CPP:
             model_name = self.model.whisper_model_size.value
-            url = get_hugging_face_dataset_file_url(author='ggerganov', repository_name='whisper.cpp',
-                                                    filename=f'ggml-{model_name}.bin')
+            url = get_hugging_face_file_url(author='ggerganov', repository_name='whisper.cpp',
+                                            filename=f'ggml-{model_name}.bin')
             file_path = get_whisper_cpp_file_path(
                 size=self.model.whisper_model_size)
             expected_sha256 = WHISPER_CPP_MODELS_SHA256[model_name]
