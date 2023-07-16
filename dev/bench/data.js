@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1689495101189,
+  "lastUpdate": 1689495103960,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "macOS": [
@@ -173,6 +173,51 @@ window.BENCHMARK_DATA = {
       }
     ],
     "Windows": [
+      {
+        "commit": {
+          "author": {
+            "email": "williamschidi1@gmail.com",
+            "name": "Chidi Williams",
+            "username": "chidiwilliams"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f0c3c054b86ce13e89eb20275e9107f965ef7d6c",
+          "message": "Delete stale.yml",
+          "timestamp": "2023-07-16T08:52:27+01:00",
+          "tree_id": "3f691caf3e0d18692d5fb5510bdf3ac3ec724bf7",
+          "url": "https://github.com/chidiwilliams/buzz/commit/f0c3c054b86ce13e89eb20275e9107f965ef7d6c"
+        },
+        "date": 1689495090238,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.011537287379850054,
+            "unit": "iter/sec",
+            "range": "stddev: 0.1537646873288925",
+            "extra": "mean: 86.6754868 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.06927837868619521,
+            "unit": "iter/sec",
+            "range": "stddev: 0.6922210607909972",
+            "extra": "mean: 14.434517940000024 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Faster Whisper - Tiny]",
+            "value": 0.05903347355688129,
+            "unit": "iter/sec",
+            "range": "stddev: 0.03976182661173302",
+            "extra": "mean: 16.939541919999964 sec\nrounds: 5"
+          }
+        ]
+      },
       {
         "commit": {
           "author": {
