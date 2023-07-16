@@ -24,7 +24,7 @@ jobs:
       - uses: snapcore/action-build@v1
         id: snapcraft
       - run: |
-          sudo snap install --devmode *.snap
+          sudo snap install *.snap
       - uses: actions/upload-artifact@v3
         with:
           name: snap
@@ -32,7 +32,7 @@ jobs:
 
   upload-edge:
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [ build ]
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/download-artifact@v3
@@ -47,7 +47,7 @@ jobs:
 
   upload-stable:
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [ build ]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/download-artifact@v3
@@ -59,4 +59,3 @@ jobs:
         with:
           snap: ${{ needs.build.outputs.snap }}
           release: stable
-
