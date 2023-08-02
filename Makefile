@@ -157,6 +157,11 @@ gh_upgrade_pr:
 
 translation_po_all:
 	$(MAKE) translation_po locale=ca_ES
+	$(MAKE) translation_po locale=es_ES
+	$(MAKE) translation_po locale=pl_PL
+	$(MAKE) translation_po locale=zh_CN
+	$(MAKE) translation_po locale=zh_TW
+	$(MAKE) translation_po locale=it_IT
 
 TMP_POT_FILE_PATH := $(shell mktemp)
 PO_FILE_PATH := locale/${locale}/LC_MESSAGES/buzz.po
