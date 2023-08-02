@@ -17,154 +17,146 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: buzz/gui.py:112
+#: buzz/gui.py:114
 msgid "Detect Language"
 msgstr "檢測語言"
 
-#: buzz/gui.py:151 buzz/gui.py:156 buzz/gui.py:842
+#: buzz/gui.py:153 buzz/gui.py:158 buzz/gui.py:737
 msgid "Record"
 msgstr "錄製"
 
-#: buzz/gui.py:160
+#: buzz/gui.py:162
 msgid "Stop"
 msgstr "停止"
 
-#: buzz/gui.py:168
-msgid "Downloading model (0%, unknown time remaining)"
-msgstr "正在下載模型 (0%, unknown 剩餘時間)"
-
-#: buzz/gui.py:169
-msgid "Cancel"
-msgstr "取消"
-
-#: buzz/gui.py:186
-msgid "Downloading model"
-msgstr "下載模型"
-
-#: buzz/gui.py:240
+#: buzz/gui.py:219
 msgid "Word-level timings"
 msgstr "單字級別的時間表達"
 
-#: buzz/gui.py:260
+#: buzz/gui.py:237
 msgid "Run"
 msgstr "開始執行"
 
-#: buzz/gui.py:451
+#: buzz/gui.py:422
 msgid "Live Recording"
 msgstr "現場錄製"
 
-#: buzz/gui.py:474
+#: buzz/gui.py:445
 msgid "Click Record to begin..."
 msgstr "點擊開始錄製"
 
-#: buzz/gui.py:486
+#: buzz/gui.py:457
 msgid "Microphone:"
 msgstr "麥克風:"
 
-#: buzz/gui.py:620
+#: buzz/gui.py:598
 msgid "An error occurred while starting a new recording:"
 msgstr "開始新錄製出錯"
 
-#: buzz/gui.py:621
+#: buzz/gui.py:599
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
 msgstr "請檢查您的音頻設備或檢查應用程序日誌以獲取更多信息。"
 
-#: buzz/gui.py:712
+#: buzz/gui.py:691
 msgid "Check for updates"
 msgstr "檢查更新"
 
-#: buzz/gui.py:740
+#: buzz/gui.py:719
 msgid "You're up to date!"
 msgstr "你是最新的！"
 
-#: buzz/gui.py:765
-msgid "ID"
-msgstr "ID"
-
-#: buzz/gui.py:765
-msgid "File Name"
-msgstr "檔案名稱"
-
-#: buzz/gui.py:765
-msgid "Status"
-msgstr "狀態"
-
-#: buzz/gui.py:803
-msgid "Completed"
-msgstr "完成"
-
-#: buzz/gui.py:807
-msgid "Canceled"
-msgstr "取消"
-
-#: buzz/gui.py:845
+#: buzz/gui.py:740
 msgid "New Transcription"
 msgstr "新錄製"
 
-#: buzz/gui.py:849
+#: buzz/gui.py:744
 msgid "Open Transcript"
 msgstr "打開轉換結果"
 
-#: buzz/gui.py:853
+#: buzz/gui.py:748
 msgid "Cancel Transcription"
 msgstr "取消錄製"
 
-#: buzz/gui.py:857 buzz/gui.py:991
+#: buzz/gui.py:752 buzz/gui.py:888
 msgid "Clear History"
 msgstr "清除歷史紀錄"
 
-#: buzz/gui.py:992
+#: buzz/gui.py:889
 msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
 msgstr "您確定要刪除所選錄製嗎？此操作無法撤消。"
 
-#: buzz/gui.py:1013
+#: buzz/gui.py:910
 msgid "Select audio file"
 msgstr "選擇聲音檔案"
 
-#: buzz/gui.py:1294
+#: buzz/gui.py:1180
 msgid "Model:"
 msgstr "模型:"
 
-#: buzz/gui.py:1298
+#: buzz/gui.py:1184
 msgid "Task:"
 msgstr "任務:"
 
-#: buzz/gui.py:1299
+#: buzz/gui.py:1185
 msgid "Language:"
 msgstr "語言:"
 
-#: buzz/gui.py:1371
+#: buzz/gui.py:1257
 msgid "Import Media File..."
 msgstr "導入媒體檔案..."
 
-#: buzz/gui.py:1378
+#: buzz/gui.py:1264
 msgid "Preferences..."
 msgstr "偏好設定..."
 
-#: buzz/gui.py:1383
+#: buzz/gui.py:1269
 msgid "File"
 msgstr "檔案"
 
-#: buzz/gui.py:1386
+#: buzz/gui.py:1272
 msgid "Help"
 msgstr "幫助"
 
-#: buzz/gui.py:1428
+#: buzz/gui.py:1321
 msgid "Advanced Settings"
 msgstr "進階設定"
 
-#: buzz/gui.py:1440
+#: buzz/gui.py:1333
 msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
 msgstr "逗號分隔，例如\"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
 
-#: buzz/gui.py:1454
+#: buzz/gui.py:1347
 msgid "Temperature:"
 msgstr "溫度:"
 
-#: buzz/gui.py:1455
+#: buzz/gui.py:1348
 msgid "Initial Prompt:"
 msgstr "初始提示："
+
+#~ msgid "Downloading model (0%, unknown time remaining)"
+#~ msgstr "正在下載模型 (0%, unknown 剩餘時間)"
+
+#~ msgid "Cancel"
+#~ msgstr "取消"
+
+#~ msgid "Downloading model"
+#~ msgstr "下載模型"
+
+#~ msgid "ID"
+#~ msgstr "ID"
+
+#~ msgid "File Name"
+#~ msgstr "檔案名稱"
+
+#~ msgid "Status"
+#~ msgstr "狀態"
+
+#~ msgid "Completed"
+#~ msgstr "完成"
+
+#~ msgid "Canceled"
+#~ msgstr "取消"

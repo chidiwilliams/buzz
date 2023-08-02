@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 # automatic translation
@@ -96,12 +96,12 @@ msgid "Cancel Transcription"
 msgstr "Cancelar transcripción"
 
 # automatic translation
-#: buzz/gui.py:752 buzz/gui.py:885
+#: buzz/gui.py:752 buzz/gui.py:888
 msgid "Clear History"
 msgstr "Borrar historial"
 
 # automatic translation
-#: buzz/gui.py:886
+#: buzz/gui.py:889
 msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
@@ -110,61 +110,61 @@ msgstr ""
 "acción no se puede deshacer."
 
 # automatic translation
-#: buzz/gui.py:907
+#: buzz/gui.py:910
 msgid "Select audio file"
 msgstr "Seleccionar archivo de audio"
 
 # automatic translation
-#: buzz/gui.py:1176
+#: buzz/gui.py:1180
 msgid "Model:"
 msgstr "Modelo:"
 
 # automatic translation
-#: buzz/gui.py:1180
+#: buzz/gui.py:1184
 msgid "Task:"
 msgstr "Tarea:"
 
 # automatic translation
-#: buzz/gui.py:1181
+#: buzz/gui.py:1185
 msgid "Language:"
 msgstr "Idioma:"
 
 # automatic translation
-#: buzz/gui.py:1253
+#: buzz/gui.py:1257
 msgid "Import Media File..."
 msgstr "Importar archivo multimedia..."
 
 # automatic translation
-#: buzz/gui.py:1260
+#: buzz/gui.py:1264
 msgid "Preferences..."
 msgstr "Preferencias..."
 
 # automatic translation
-#: buzz/gui.py:1265
+#: buzz/gui.py:1269
 msgid "File"
 msgstr "Archivo"
 
 # automatic translation
-#: buzz/gui.py:1268
+#: buzz/gui.py:1272
 msgid "Help"
 msgstr "Ayuda"
 
 # automatic translation
-#: buzz/gui.py:1317
+#: buzz/gui.py:1321
 msgid "Advanced Settings"
 msgstr "Ajustes avanzados"
 
 # automatic translation
-#: buzz/gui.py:1329
+#: buzz/gui.py:1333
 msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
 msgstr "Separados por comas, p. \"0,0, 0,2, 0,4, 0,6, 0,8, 1,0\""
 
 # automatic translation
-#: buzz/gui.py:1343
+#: buzz/gui.py:1347
 msgid "Temperature:"
 msgstr "Temperatura:"
 
 # automatic translation
-#: buzz/gui.py:1344
+#: buzz/gui.py:1348
 msgid "Initial Prompt:"
 msgstr "Indicación inicial:"
