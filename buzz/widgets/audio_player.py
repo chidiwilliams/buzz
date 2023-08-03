@@ -5,7 +5,7 @@ from PyQt6.QtCore import QTime, QUrl, Qt
 from PyQt6.QtMultimedia import QAudioOutput, QMediaPlayer
 from PyQt6.QtWidgets import QWidget, QSlider, QPushButton, QLabel, QHBoxLayout
 
-from buzz.locale import _
+from buzz.widgets.icon import PlayIcon, PauseIcon
 
 
 class AudioPlayer(QWidget):
@@ -15,6 +15,7 @@ class AudioPlayer(QWidget):
         self.range_ms: Optional[Tuple[int, int]] = None
         self.position = 0
         self.duration = 0
+        self.invalid_media = None
 
         self.audio_output = QAudioOutput()
         self.audio_output.setVolume(100)
@@ -27,7 +28,11 @@ class AudioPlayer(QWidget):
         self.scrubber.setRange(0, 0)
         self.scrubber.sliderMoved.connect(self.on_slider_moved)
 
-        self.play_button = QPushButton(_('Play'))
+        self.play_icon = PlayIcon(self)
+        self.pause_icon = PauseIcon(self)
+
+        self.play_button = QPushButton("")
+        self.play_button.setIcon(self.play_icon)
         self.play_button.clicked.connect(self.toggle_play)
 
         self.time_label = QLabel()
@@ -45,6 +50,7 @@ class AudioPlayer(QWidget):
         self.media_player.durationChanged.connect(self.on_duration_changed)
         self.media_player.positionChanged.connect(self.on_position_changed)
         self.media_player.playbackStateChanged.connect(self.on_playback_state_changed)
+        self.media_player.mediaStatusChanged.connect(self.on_media_status_changed)
 
         self.update_time_label()
 
@@ -65,9 +71,24 @@ class AudioPlayer(QWidget):
 
     def on_playback_state_changed(self, state: QMediaPlayer.PlaybackState):
         if state == QMediaPlayer.PlaybackState.PlayingState:
-            self.play_button.setText(_('Pause'))
+            self.play_button.setIcon(self.pause_icon)
         else:
-            self.play_button.setText(_('Play'))
+            self.play_button.setIcon(self.play_icon)
+
+    def on_media_status_changed(self, status: QMediaPlayer.MediaStatus):
+        match status:
+            case QMediaPlayer.MediaStatus.InvalidMedia:
+                self.set_invalid_media(True)
+            case QMediaPlayer.MediaStatus.LoadedMedia:
+                self.set_invalid_media(False)
+
+    def set_invalid_media(self, invalid_media: bool):
+        self.invalid_media = invalid_media
+        if self.invalid_media:
+            self.play_button.setDisabled(True)
+            self.scrubber.setRange(0, 1)
+            self.scrubber.setDisabled(True)
+            self.time_label.setDisabled(True)
 
     def toggle_play(self):
         if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
