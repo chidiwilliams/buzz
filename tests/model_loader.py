@@ -1,4 +1,7 @@
+import pytest
+
 from buzz.model_loader import TranscriptionModel, get_local_model_path, ModelDownloader
+
 
 
 def get_model_path(transcription_model: TranscriptionModel) -> str:

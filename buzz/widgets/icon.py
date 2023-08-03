@@ -1,6 +1,8 @@
 from PyQt6.QtGui import QIcon, QPixmap, QPainter, QColor
 from PyQt6.QtWidgets import QWidget
 
+from buzz.assets import get_asset_path
+
 
 # TODO: move icons to Qt resources: https://stackoverflow.com/a/52341917/9830227
 class Icon(QIcon):
@@ -19,3 +21,7 @@ class Icon(QIcon):
         painter.end()
 
         super().__init__(pixmap)
+
+
+BUZZ_ICON_PATH = get_asset_path('assets/buzz.ico')
+BUZZ_LARGE_ICON_PATH = get_asset_path('assets/buzz-icon-1024.png')
