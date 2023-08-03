@@ -4,7 +4,7 @@ from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QWidget, QLineEdit
 
 from buzz.assets import get_asset_path
-from buzz.icon import Icon
+from buzz.widgets.icon import Icon
 from buzz.widgets.line_edit import LineEdit
 
 

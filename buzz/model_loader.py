@@ -2,6 +2,8 @@ import enum
 import hashlib
 import logging
 import os
+import subprocess
+import sys
 import tempfile
 import warnings
 from dataclasses import dataclass
@@ -44,6 +46,61 @@ class TranscriptionModel:
     whisper_model_size: Optional[WhisperModelSize] = WhisperModelSize.TINY
     hugging_face_model_id: Optional[str] = None
 
+    def is_deletable(self):
+        return ((self.model_type == ModelType.WHISPER or
+                 self.model_type == ModelType.WHISPER_CPP) and
+                self.get_local_model_path() is not None)
+
+    def open_file_location(self):
+        model_path = self.get_local_model_path()
+        if model_path is None:
+            return
+        self.open_path(path=os.path.dirname(model_path))
+
+    @staticmethod
+    def open_path(path: str):
+        if sys.platform == "win32":
+            os.startfile(path)
+        else:
+            opener = "open" if sys.platform == "darwin" else "xdg-open"
+            subprocess.call([opener, path])
+
+    def delete_local_file(self):
+        model_path = self.get_local_model_path()
+        os.remove(model_path)
+
+    def get_local_model_path(self) -> Optional[str]:
+        if self.model_type == ModelType.WHISPER_CPP:
+            file_path = get_whisper_cpp_file_path(size=self.whisper_model_size)
+            if not os.path.exists(file_path) or not os.path.isfile(file_path):
+                return None
+            return file_path
+
+        if self.model_type == ModelType.WHISPER:
+            file_path = get_whisper_file_path(size=self.whisper_model_size)
+            if not os.path.exists(file_path) or not os.path.isfile(file_path):
+                return None
+            return file_path
+
+        if self.model_type == ModelType.FASTER_WHISPER:
+            try:
+                return download_faster_whisper_model(size=self.whisper_model_size.value,
+                                                     local_files_only=True)
+            except (ValueError, FileNotFoundError):
+                return None
+
+        if self.model_type == ModelType.OPEN_AI_WHISPER_API:
+            return ''
+
+        if self.model_type == ModelType.HUGGING_FACE:
+            try:
+                return huggingface_hub.snapshot_download(self.hugging_face_model_id,
+                                                         local_files_only=True)
+            except (ValueError, FileNotFoundError):
+                return None
+
+        raise Exception("Unknown model type")
+
 
 WHISPER_CPP_MODELS_SHA256 = {
     'tiny': 'be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21',
@@ -70,38 +127,8 @@ def get_whisper_file_path(size: WhisperModelSize) -> str:
     return os.path.join(root_dir, os.path.basename(url))
 
 
-def get_local_model_path(model: TranscriptionModel) -> Optional[str]:
-    if model.model_type == ModelType.WHISPER_CPP:
-        file_path = get_whisper_cpp_file_path(size=model.whisper_model_size)
-        if not os.path.exists(file_path) or not os.path.isfile(file_path):
-            return None
-        return file_path
-
-    if model.model_type == ModelType.WHISPER:
-        file_path = get_whisper_file_path(size=model.whisper_model_size)
-        if not os.path.exists(file_path) or not os.path.isfile(file_path):
-            return None
-        return file_path
-
-    if model.model_type == ModelType.FASTER_WHISPER:
-        try:
-            return download_faster_whisper_model(size=model.whisper_model_size.value, local_files_only=True)
-        except (ValueError, FileNotFoundError):
-            return None
-
-    if model.model_type == ModelType.OPEN_AI_WHISPER_API:
-        return ''
-
-    if model.model_type == ModelType.HUGGING_FACE:
-        try:
-            return huggingface_hub.snapshot_download(model.hugging_face_model_id, local_files_only=True)
-        except (ValueError, FileNotFoundError):
-            return None
-
-    raise Exception("Unknown model type")
-
-
-def download_faster_whisper_model(size: str, local_files_only=False, tqdm_class: Optional[tqdm] = None):
+def download_faster_whisper_model(size: str, local_files_only=False,
+                                  tqdm_class: Optional[tqdm] = None):
     if size not in faster_whisper.utils._MODELS:
         raise ValueError(
             "Invalid model size '%s', expected one of: %s" % (
@@ -117,7 +144,8 @@ def download_faster_whisper_model(size: str, local_files_only=False, tqdm_class:
         "vocabulary.txt",
     ]
 
-    return huggingface_hub.snapshot_download(repo_id, allow_patterns=allow_patterns, local_files_only=local_files_only,
+    return huggingface_hub.snapshot_download(repo_id, allow_patterns=allow_patterns,
+                                             local_files_only=local_files_only,
                                              tqdm_class=tqdm_class)
 
 
@@ -137,19 +165,22 @@ class ModelDownloader(QRunnable):
     def run(self) -> None:
         if self.model.model_type == ModelType.WHISPER_CPP:
             model_name = self.model.whisper_model_size.value
-            url = get_hugging_face_file_url(author='ggerganov', repository_name='whisper.cpp',
+            url = get_hugging_face_file_url(author='ggerganov',
+                                            repository_name='whisper.cpp',
                                             filename=f'ggml-{model_name}.bin')
             file_path = get_whisper_cpp_file_path(
                 size=self.model.whisper_model_size)
             expected_sha256 = WHISPER_CPP_MODELS_SHA256[model_name]
-            return self.download_model_to_path(url=url, file_path=file_path, expected_sha256=expected_sha256)
+            return self.download_model_to_path(url=url, file_path=file_path,
+                                               expected_sha256=expected_sha256)
 
         if self.model.model_type == ModelType.WHISPER:
             url = whisper._MODELS[self.model.whisper_model_size.value]
             file_path = get_whisper_file_path(
                 size=self.model.whisper_model_size)
             expected_sha256 = url.split('/')[-2]
-            return self.download_model_to_path(url=url, file_path=file_path, expected_sha256=expected_sha256)
+            return self.download_model_to_path(url=url, file_path=file_path,
+                                               expected_sha256=expected_sha256)
 
         progress = self.signals.progress
 
@@ -165,7 +196,8 @@ class ModelDownloader(QRunnable):
 
         if self.model.model_type == ModelType.FASTER_WHISPER:
             model_path = download_faster_whisper_model(
-                size=self.model.whisper_model_size.to_faster_whisper_model_size(), tqdm_class=_tqdm)
+                size=self.model.whisper_model_size.to_faster_whisper_model_size(),
+                tqdm_class=_tqdm)
             self.signals.finished.emit(model_path)
             return
 
@@ -181,7 +213,8 @@ class ModelDownloader(QRunnable):
 
         raise Exception("Invalid model type: " + self.model.model_type.value)
 
-    def download_model_to_path(self, url: str, file_path: str, expected_sha256: Optional[str]):
+    def download_model_to_path(self, url: str, file_path: str,
+                               expected_sha256: Optional[str]):
         try:
             downloaded = self.download_model(url, file_path, expected_sha256)
             if downloaded:
@@ -193,7 +226,8 @@ class ModelDownloader(QRunnable):
             self.signals.error.emit(str(exc))
             logging.exception(exc)
 
-    def download_model(self, url: str, file_path: str, expected_sha256: Optional[str]) -> bool:
+    def download_model(self, url: str, file_path: str,
+                       expected_sha256: Optional[str]) -> bool:
         logging.debug(f'Downloading model from {url} to {file_path}')
 
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
@@ -219,7 +253,8 @@ class ModelDownloader(QRunnable):
 
         # Downloads the model using the requests module instead of urllib to
         # use the certs from certifi when the app is running in frozen mode
-        with requests.get(url, stream=True, timeout=15) as source, open(tmp_file, 'wb') as output:
+        with requests.get(url, stream=True, timeout=15) as source, open(tmp_file,
+                                                                        'wb') as output:
             source.raise_for_status()
             total_size = float(source.headers.get('Content-Length', 0))
             current = 0.0

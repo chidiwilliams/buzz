@@ -2,16 +2,19 @@ from typing import List, Optional
 
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QUndoCommand, QUndoStack, QKeySequence, QAction
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QMenu, QPushButton, QVBoxLayout, QFileDialog
+from PyQt6.QtWidgets import QWidget, QHBoxLayout, QMenu, QPushButton, QVBoxLayout, \
+    QFileDialog
 
 from buzz.action import Action
 from buzz.assets import get_asset_path
-from buzz.paths import file_path_as_title
-from buzz.icon import Icon
 from buzz.locale import _
-from buzz.transcriber import FileTranscriptionTask, Segment, OutputFormat, get_default_output_file_path, write_output
+from buzz.paths import file_path_as_title
+from buzz.transcriber import FileTranscriptionTask, Segment, OutputFormat, \
+    get_default_output_file_path, write_output
+from buzz.widgets.icon import Icon
 from buzz.widgets.toolbar import ToolBar
-from buzz.widgets.transcription_segments_editor_widget import TranscriptionSegmentsEditorWidget
+from buzz.widgets.transcription_segments_editor_widget import \
+    TranscriptionSegmentsEditorWidget
 
 
 class TranscriptionViewerWidget(QWidget):

@@ -22,3 +22,4 @@ locale/**/*.mo
 benchmarks.json
 
 .eggs
+*.egg-info

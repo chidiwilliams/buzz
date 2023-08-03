@@ -1,7 +1,9 @@
 from PyQt6.QtWidgets import QPushButton, QLabel
 
 from buzz.settings.shortcut import Shortcut
-from buzz.widgets.shortcuts_editor_preferences_widget import ShortcutsEditorPreferencesWidget, SequenceEdit
+from buzz.widgets.preferences_dialog.shortcuts_editor_preferences_widget import \
+    ShortcutsEditorPreferencesWidget
+from buzz.widgets.sequence_edit import SequenceEdit
 
 
 class TestShortcutsEditorWidget:

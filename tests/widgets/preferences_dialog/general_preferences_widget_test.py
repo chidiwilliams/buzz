@@ -4,7 +4,8 @@ import pytest
 from PyQt6.QtWidgets import QPushButton, QMessageBox, QLineEdit
 
 from buzz.store.keyring_store import KeyringStore
-from buzz.widgets.general_preferences_widget import GeneralPreferencesWidget
+from buzz.widgets.preferences_dialog.general_preferences_widget import \
+    GeneralPreferencesWidget
 
 
 class TestGeneralPreferencesWidget:

@@ -1,8 +1,9 @@
-from buzz.model_loader import TranscriptionModel, get_local_model_path, ModelDownloader
+from buzz.model_loader import TranscriptionModel, ModelDownloader
+
 
 
 def get_model_path(transcription_model: TranscriptionModel) -> str:
-    path = get_local_model_path(model=transcription_model)
+    path = transcription_model.get_local_model_path()
     if path is not None:
         return path
 
