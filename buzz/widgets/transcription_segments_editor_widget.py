@@ -10,6 +10,7 @@ from buzz.transcriber import Segment, to_timestamp
 
 class TranscriptionSegmentsEditorWidget(QTableWidget):
     segment_text_changed = pyqtSignal(tuple)
+    segment_index_selected = pyqtSignal(int)
 
     class Column(enum.Enum):
         START = 0
@@ -49,6 +50,7 @@ class TranscriptionSegmentsEditorWidget(QTableWidget):
             self.setItem(row_index, self.Column.TEXT.value, text_item)
 
         self.itemChanged.connect(self.on_item_changed)
+        self.itemSelectionChanged.connect(self.on_item_selection_changed)
 
     def on_item_changed(self, item: QTableWidgetItem):
         if item.column() == self.Column.TEXT.value:
@@ -56,3 +58,8 @@ class TranscriptionSegmentsEditorWidget(QTableWidget):
 
     def set_segment_text(self, index: int, text: str):
         self.item(index, self.Column.TEXT.value).setText(text)
+
+    def on_item_selection_changed(self):
+        ranges = self.selectedRanges()
+        self.segment_index_selected.emit(
+            ranges[0].topRow() if len(ranges) > 0 else -1)
