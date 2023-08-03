@@ -5,7 +5,7 @@ import typing
 from PyQt6.QtCore import QCommandLineParser, QCommandLineOption
 
 from buzz.gui import Application
-from buzz.model_loader import ModelType, WhisperModelSize, TranscriptionModel, get_local_model_path
+from buzz.model_loader import ModelType, WhisperModelSize, TranscriptionModel
 from buzz.store.keyring_store import KeyringStore
 from buzz.transcriber import Task, FileTranscriptionTask, FileTranscriptionOptions, TranscriptionOptions, LANGUAGES, \
     OutputFormat
@@ -103,7 +103,7 @@ def parse(app: Application, parser: QCommandLineParser):
 
         model = TranscriptionModel(model_type=ModelType[model_type.name], whisper_model_size=model_size,
                                    hugging_face_model_id=hugging_face_model_id)
-        model_path = get_local_model_path(model)
+        model_path = model.get_local_model_path()
 
         if model_path is None:
             raise CommandLineError('Model not found')

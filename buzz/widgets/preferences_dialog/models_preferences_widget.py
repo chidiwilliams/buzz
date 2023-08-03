@@ -1,4 +1,3 @@
-import logging
 from typing import Optional
 
 from PyQt6.QtCore import Qt, QThreadPool
@@ -6,8 +5,7 @@ from PyQt6.QtWidgets import QWidget, QFormLayout, QTreeWidget, QTreeWidgetItem, 
     QPushButton, QMessageBox, QHBoxLayout
 
 from buzz.locale import _
-from buzz.model_loader import ModelType, WhisperModelSize, get_local_model_path, \
-    TranscriptionModel, ModelDownloader
+from buzz.model_loader import ModelType, WhisperModelSize, TranscriptionModel, ModelDownloader
 from buzz.widgets.model_download_progress_dialog import ModelDownloadProgressDialog
 from buzz.widgets.model_type_combo_box import ModelTypeComboBox
 
@@ -75,11 +73,11 @@ class ModelsPreferencesWidget(QWidget):
     def can_delete_model(model: TranscriptionModel):
         return ((model.model_type == ModelType.WHISPER or
                  model.model_type == ModelType.WHISPER_CPP) and
-                get_local_model_path(model) is not None)
+                model.get_local_model_path() is not None)
 
     def reset(self):
         # reset buttons
-        path = get_local_model_path(model=self.model)
+        path = self.model.get_local_model_path()
         self.download_button.setVisible(path is None)
         self.delete_button.setVisible(self.model.is_deletable())
         self.show_file_location_button.setVisible(self.model.is_deletable())
@@ -99,9 +97,9 @@ class ModelsPreferencesWidget(QWidget):
         self.model_list_widget.setHeaderHidden(True)
         self.model_list_widget.setAlternatingRowColors(True)
         for model_size in WhisperModelSize:
-            model_path = get_local_model_path(
-                model=TranscriptionModel(model_type=self.model.model_type,
-                                         whisper_model_size=model_size))
+            model = TranscriptionModel(model_type=self.model.model_type,
+                                   whisper_model_size=model_size)
+            model_path = model.get_local_model_path()
             parent = downloaded_item if model_path is not None else available_item
             item = QTreeWidgetItem(parent)
             item.setText(0, model_size.value.title())

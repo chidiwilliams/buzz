@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import QComboBox, QPushButton
 from pytestqt.qtbot import QtBot
 
 from buzz.model_loader import get_whisper_file_path, WhisperModelSize, \
-    get_local_model_path, TranscriptionModel, \
+    TranscriptionModel, \
     ModelType
 from buzz.widgets.preferences_dialog.models_preferences_widget import \
     ModelsPreferencesWidget
@@ -53,7 +53,7 @@ class TestModelsPreferencesWidget:
         model = TranscriptionModel(model_type=ModelType.WHISPER,
                                    whisper_model_size=WhisperModelSize.TINY)
 
-        assert get_local_model_path(model=model) is None
+        assert model.get_local_model_path() is None
 
         available_item = widget.model_list_widget.topLevelItem(1)
         assert available_item.text(0) == 'Available for Download'

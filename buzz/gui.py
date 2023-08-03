@@ -25,7 +25,7 @@ from .action import Action
 from .assets import get_asset_path
 from .widgets.icon import Icon, BUZZ_ICON_PATH
 from .locale import _
-from .model_loader import WhisperModelSize, ModelType, TranscriptionModel, get_local_model_path, \
+from .model_loader import WhisperModelSize, ModelType, TranscriptionModel, \
     ModelDownloader
 from .paths import file_paths_as_title
 from .recording import RecordingAmplitudeListener
@@ -265,7 +265,7 @@ class FileTranscriberWidget(QWidget):
     def on_click_run(self):
         self.run_button.setDisabled(True)
 
-        model_path = get_local_model_path(model=self.transcription_options.model)
+        model_path = self.transcription_options.model.get_local_model_path()
         if model_path is not None:
             self.on_model_loaded(model_path)
             return
@@ -509,7 +509,7 @@ class RecordingTranscriberWidget(QWidget):
     def start_recording(self):
         self.record_button.setDisabled(True)
 
-        model_path = get_local_model_path(model=self.transcription_options.model)
+        model_path = self.transcription_options.model.get_local_model_path()
         if model_path is not None:
             self.on_model_loaded(model_path)
             return

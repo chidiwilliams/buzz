@@ -127,39 +127,6 @@ def get_whisper_file_path(size: WhisperModelSize) -> str:
     return os.path.join(root_dir, os.path.basename(url))
 
 
-def get_local_model_path(model: TranscriptionModel) -> Optional[str]:
-    if model.model_type == ModelType.WHISPER_CPP:
-        file_path = get_whisper_cpp_file_path(size=model.whisper_model_size)
-        if not os.path.exists(file_path) or not os.path.isfile(file_path):
-            return None
-        return file_path
-
-    if model.model_type == ModelType.WHISPER:
-        file_path = get_whisper_file_path(size=model.whisper_model_size)
-        if not os.path.exists(file_path) or not os.path.isfile(file_path):
-            return None
-        return file_path
-
-    if model.model_type == ModelType.FASTER_WHISPER:
-        try:
-            return download_faster_whisper_model(size=model.whisper_model_size.value,
-                                                 local_files_only=True)
-        except (ValueError, FileNotFoundError):
-            return None
-
-    if model.model_type == ModelType.OPEN_AI_WHISPER_API:
-        return ''
-
-    if model.model_type == ModelType.HUGGING_FACE:
-        try:
-            return huggingface_hub.snapshot_download(model.hugging_face_model_id,
-                                                     local_files_only=True)
-        except (ValueError, FileNotFoundError):
-            return None
-
-    raise Exception("Unknown model type")
-
-
 def download_faster_whisper_model(size: str, local_files_only=False,
                                   tqdm_class: Optional[tqdm] = None):
     if size not in faster_whisper.utils._MODELS:
