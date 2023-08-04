@@ -1,7 +1,7 @@
-from PyQt6.QtWidgets import QPushButton, QTabWidget
+from PyQt6.QtWidgets import QTabWidget
 from pytestqt.qtbot import QtBot
 
-from buzz.widgets.preferences_dialog import PreferencesDialog
+from buzz.widgets.preferences_dialog.preferences_dialog import PreferencesDialog
 
 
 class TestPreferencesDialog:
