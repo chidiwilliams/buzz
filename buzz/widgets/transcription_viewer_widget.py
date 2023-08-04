@@ -1,3 +1,4 @@
+import platform
 from typing import List, Optional
 
 from PyQt6.QtCore import Qt, pyqtSignal
@@ -87,7 +88,9 @@ class TranscriptionViewerWidget(QWidget):
         self.table_widget.segment_text_changed.connect(self.on_segment_text_changed)
         self.table_widget.segment_index_selected.connect(self.on_segment_index_selected)
 
-        self.audio_player = AudioPlayer(file_path=transcription_task.file_path)
+        self.audio_player: Optional[AudioPlayer] = None
+        if platform.system() != "Linux":
+            self.audio_player = AudioPlayer(file_path=transcription_task.file_path)
 
         buttons_layout = QHBoxLayout()
         buttons_layout.addStretch()
@@ -108,7 +111,8 @@ class TranscriptionViewerWidget(QWidget):
         layout = QVBoxLayout(self)
         layout.setMenuBar(toolbar)
         layout.addWidget(self.table_widget)
-        layout.addWidget(self.audio_player)
+        if self.audio_player is not None:
+            layout.addWidget(self.audio_player)
         layout.addLayout(buttons_layout)
 
         self.setLayout(layout)
@@ -124,7 +128,8 @@ class TranscriptionViewerWidget(QWidget):
 
     def on_segment_index_selected(self, index: int):
         selected_segment = self.transcription_task.segments[index]
-        self.audio_player.set_range((selected_segment.start, selected_segment.end))
+        if self.audio_player is not None:
+            self.audio_player.set_range((selected_segment.start, selected_segment.end))
 
     def on_menu_triggered(self, action: QAction):
         output_format = OutputFormat[action.text()]
