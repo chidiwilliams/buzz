@@ -24,7 +24,7 @@ jobs:
       - uses: snapcore/action-build@v1
         id: snapcraft
       - run: |
-          sudo snap install *.snap
+          sudo snap install --devmode *.snap
       - uses: actions/upload-artifact@v3
         with:
           name: snap
