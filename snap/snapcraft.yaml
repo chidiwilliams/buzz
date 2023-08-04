@@ -93,10 +93,8 @@ parts:
       cp $CRAFT_PART_BUILD/whisper_cpp $CRAFT_PART_INSTALL/
       mkdir $CRAFT_PART_INSTALL/buzz && cp $CRAFT_PART_BUILD/buzz/whisper_cpp.py $CRAFT_PART_INSTALL/buzz/
 
-      # Resolves:
-      #   - Found files with executable stack. This adds PROT_EXEC to mmap(2) during mediation which may cause security denials. Either adjust your program to not require an executable stack, strip it with 'execstack --clear-execstack ...' or remove the affected file from your snap. Affected files: lib/python3.10/site-packages/ctranslate2.libs/libctranslate2-7e7a7741.so.3.15.1, lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_pybind11_state.cpython-310-x86_64-linux-gnu.so, lib/python3.10/site-packages/torch/lib/libtorch_cpu.so
-      # execstack -clear-execstack $CRAFT_PART_INSTALL/lib/python3.10/site-packages/ctranslate2.libs/libctranslate2-7e7a7741.so.3.15.1
-      # execstack --clear-execstack $CRAFT_PART_INSTALL/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_pybind11_state.cpython-310-x86_64-linux-gnu.so
+      # execstack --clear-execstack $CRAFT_PART_INSTALL/lib/python3.10/site-packages/ctranslate2.libs/libctranslate2-7e7a7741.so.3.15.1
+      execstack --clear-execstack $CRAFT_PART_INSTALL/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_pybind11_state.cpython-310-x86_64-linux-gnu.so
       # execstack --clear-execstack $CRAFT_PART_INSTALL/lib/python3.10/site-packages/torch/lib/libtorch_cpu.so
     python-packages:
       - aiohttp==3.8.4
