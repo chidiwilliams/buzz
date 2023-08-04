@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1691181965097,
+  "lastUpdate": 1691181968989,
   "repoUrl": "https://github.com/chidiwilliams/buzz",
   "entries": {
     "macOS": [
@@ -81,6 +81,51 @@ window.BENCHMARK_DATA = {
       }
     ],
     "Windows": [
+      {
+        "commit": {
+          "author": {
+            "email": "williamschidi1@gmail.com",
+            "name": "Chidi Williams",
+            "username": "chidiwilliams"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8b253ffc1c7eaba8f843744cb77a206a3bcc68cf",
+          "message": "Add audio player (#558)",
+          "timestamp": "2023-08-04T20:23:43Z",
+          "tree_id": "e4eb68c8d579c68809f2adc05af0d55821794dcf",
+          "url": "https://github.com/chidiwilliams/buzz/commit/8b253ffc1c7eaba8f843744cb77a206a3bcc68cf"
+        },
+        "date": 1691181951259,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper.cpp - Tiny]",
+            "value": 0.009405345255446647,
+            "unit": "iter/sec",
+            "range": "stddev: 6.09234187600908",
+            "extra": "mean: 106.32251904000002 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Whisper - Tiny]",
+            "value": 0.058141461326675095,
+            "unit": "iter/sec",
+            "range": "stddev: 0.050219655087190965",
+            "extra": "mean: 17.199430099999972 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/transcriber_benchmarks_test.py::test_should_transcribe_and_benchmark[Faster Whisper - Tiny]",
+            "value": 0.047798738006629864,
+            "unit": "iter/sec",
+            "range": "stddev: 0.10144375043466489",
+            "extra": "mean: 20.92105443999999 sec\nrounds: 5"
+          }
+        ]
+      },
       {
         "commit": {
           "author": {
