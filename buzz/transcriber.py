@@ -66,13 +66,15 @@ class TranscriptionOptions:
     word_level_timings: bool = False
     temperature: Tuple[float, ...] = DEFAULT_WHISPER_TEMPERATURE
     initial_prompt: str = ''
-    openai_access_token: str = field(default='', metadata=config(exclude=Exclude.ALWAYS))
+    openai_access_token: str = field(default='',
+                                     metadata=config(exclude=Exclude.ALWAYS))
 
 
 @dataclass()
 class FileTranscriptionOptions:
     file_paths: List[str]
     output_formats: Set['OutputFormat'] = field(default_factory=set)
+    default_output_file_name: str = ''
 
 
 @dataclass_json
@@ -127,12 +129,11 @@ class FileTranscriber(QObject):
         self.completed.emit(segments)
 
         for output_format in self.transcription_task.file_transcription_options.output_formats:
-            default_path = get_default_output_file_path(
-                task=self.transcription_task.transcription_options.task,
-                input_file_path=self.transcription_task.file_path,
-                output_format=output_format)
+            default_path = get_default_output_file_path(task=self.transcription_task,
+                                                        output_format=output_format)
 
-            write_output(path=default_path, segments=segments, output_format=output_format)
+            write_output(path=default_path, segments=segments,
+                         output_format=output_format)
 
     @abstractmethod
     def transcribe(self) -> List[Segment]:
@@ -172,17 +173,22 @@ class WhisperCppFileTranscriber(FileTranscriber):
         logging.debug(
             'Starting whisper_cpp file transcription, file path = %s, language = %s, task = %s, model_path = %s, '
             'word level timings = %s',
-            self.file_path, self.language, self.task, model_path, self.word_level_timings)
+            self.file_path, self.language, self.task, model_path,
+            self.word_level_timings)
 
         audio = whisper.audio.load_audio(self.file_path)
         self.duration_audio_ms = len(audio) * 1000 / whisper.audio.SAMPLE_RATE
 
-        whisper_params = whisper_cpp_params(language=self.language if self.language is not None else '', task=self.task,
-                                            word_level_timings=self.word_level_timings)
-        whisper_params.encoder_begin_callback_user_data = ctypes.c_void_p(id(self.state))
-        whisper_params.encoder_begin_callback = whisper_cpp.whisper_encoder_begin_callback(self.encoder_begin_callback)
+        whisper_params = whisper_cpp_params(
+            language=self.language if self.language is not None else '', task=self.task,
+            word_level_timings=self.word_level_timings)
+        whisper_params.encoder_begin_callback_user_data = ctypes.c_void_p(
+            id(self.state))
+        whisper_params.encoder_begin_callback = whisper_cpp.whisper_encoder_begin_callback(
+            self.encoder_begin_callback)
         whisper_params.new_segment_callback_user_data = ctypes.c_void_p(id(self.state))
-        whisper_params.new_segment_callback = whisper_cpp.whisper_new_segment_callback(self.new_segment_callback)
+        whisper_params.new_segment_callback = whisper_cpp.whisper_new_segment_callback(
+            self.new_segment_callback)
 
         model = WhisperCpp(model=model_path)
         result = model.transcribe(audio=self.file_path, params=whisper_params)
@@ -199,13 +205,15 @@ class WhisperCppFileTranscriber(FileTranscriber):
         # t1 seems to sometimes be larger than the duration when the
         # audio ends in silence. Trim to fix the displayed progress.
         progress = min(t1 * 10, self.duration_audio_ms)
-        state: WhisperCppFileTranscriber.State = ctypes.cast(user_data, ctypes.py_object).value
+        state: WhisperCppFileTranscriber.State = ctypes.cast(user_data,
+                                                             ctypes.py_object).value
         if state.running:
             self.progress.emit((progress, self.duration_audio_ms))
 
     @staticmethod
     def encoder_begin_callback(_ctx, _state, user_data):
-        state: WhisperCppFileTranscriber.State = ctypes.cast(user_data, ctypes.py_object).value
+        state: WhisperCppFileTranscriber.State = ctypes.cast(user_data,
+                                                             ctypes.py_object).value
         return state.running == 1
 
     def stop(self):
@@ -219,8 +227,10 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
         self.task = task.transcription_options.task
 
     def transcribe(self) -> List[Segment]:
-        logging.debug('Starting OpenAI Whisper API file transcription, file path = %s, task = %s', self.file_path,
-                      self.task)
+        logging.debug(
+            'Starting OpenAI Whisper API file transcription, file path = %s, task = %s',
+            self.file_path,
+            self.task)
 
         wav_file = tempfile.mktemp() + '.wav'
         (
@@ -235,14 +245,18 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
         language = self.transcription_task.transcription_options.language
         response_format = "verbose_json"
         if self.transcription_task.transcription_options.task == Task.TRANSLATE:
-            transcript = openai.Audio.translate("whisper-1", audio_file, response_format=response_format,
+            transcript = openai.Audio.translate("whisper-1", audio_file,
+                                                response_format=response_format,
                                                 language=language)
         else:
-            transcript = openai.Audio.transcribe("whisper-1", audio_file, response_format=response_format,
+            transcript = openai.Audio.transcribe("whisper-1", audio_file,
+                                                 response_format=response_format,
                                                  language=language)
 
-        segments = [Segment(segment["start"] * 1000, segment["end"] * 1000, segment["text"]) for segment in
-                    transcript["segments"]]
+        segments = [
+            Segment(segment["start"] * 1000, segment["end"] * 1000, segment["text"]) for
+            segment in
+            transcript["segments"]]
         return segments
 
     def stop(self):
@@ -273,7 +287,8 @@ class WhisperFileTranscriber(FileTranscriber):
         recv_pipe, send_pipe = multiprocessing.Pipe(duplex=False)
 
         self.current_process = multiprocessing.Process(target=self.transcribe_whisper,
-                                                       args=(send_pipe, self.transcription_task))
+                                                       args=(send_pipe,
+                                                             self.transcription_task))
         if not self.stopped:
             self.current_process.start()
             self.started_process = True
@@ -291,7 +306,8 @@ class WhisperFileTranscriber(FileTranscriber):
 
         logging.debug(
             'whisper process completed with code = %s, time taken = %s, number of segments = %s',
-            self.current_process.exitcode, datetime.datetime.now() - time_started, len(self.segments))
+            self.current_process.exitcode, datetime.datetime.now() - time_started,
+            len(self.segments))
 
         if self.current_process.exitcode != 0:
             raise Exception('Unknown error')
@@ -299,7 +315,8 @@ class WhisperFileTranscriber(FileTranscriber):
         return self.segments
 
     @classmethod
-    def transcribe_whisper(cls, stderr_conn: Connection, task: FileTranscriptionTask) -> None:
+    def transcribe_whisper(cls, stderr_conn: Connection,
+                           task: FileTranscriptionTask) -> None:
         with pipe_stderr(stderr_conn):
             if task.transcription_options.model.model_type == ModelType.HUGGING_FACE:
                 segments = cls.transcribe_hugging_face(task)
@@ -308,7 +325,8 @@ class WhisperFileTranscriber(FileTranscriber):
             elif task.transcription_options.model.model_type == ModelType.WHISPER:
                 segments = cls.transcribe_openai_whisper(task)
             else:
-                raise Exception(f"Invalid model type: {task.transcription_options.model.model_type}")
+                raise Exception(
+                    f"Invalid model type: {task.transcription_options.model.model_type}")
 
             segments_json = json.dumps(
                 segments, ensure_ascii=True, default=vars)
@@ -321,7 +339,8 @@ class WhisperFileTranscriber(FileTranscriber):
         model = transformers_whisper.load_model(task.model_path)
         language = task.transcription_options.language if task.transcription_options.language is not None else 'en'
         result = model.transcribe(audio=task.file_path, language=language,
-                                  task=task.transcription_options.task.value, verbose=False)
+                                  task=task.transcription_options.task.value,
+                                  verbose=False)
         return [
             Segment(
                 start=int(segment.get('start') * 1000),
@@ -368,7 +387,8 @@ class WhisperFileTranscriber(FileTranscriber):
             stable_whisper.modify_model(model)
             result = model.transcribe(
                 audio=task.file_path, language=task.transcription_options.language,
-                task=task.transcription_options.task.value, temperature=task.transcription_options.temperature,
+                task=task.transcription_options.task.value,
+                temperature=task.transcription_options.temperature,
                 initial_prompt=task.transcription_options.initial_prompt, pbar=True)
             segments = stable_whisper.group_word_timestamps(result)
             return [Segment(
@@ -423,7 +443,8 @@ class WhisperFileTranscriber(FileTranscriber):
 
 def write_output(path: str, segments: List[Segment], output_format: OutputFormat):
     logging.debug(
-        'Writing transcription output, path = %s, output format = %s, number of segments = %s', path, output_format,
+        'Writing transcription output, path = %s, output format = %s, number of segments = %s',
+        path, output_format,
         len(segments))
 
     with open(path, 'w', encoding='utf-8') as file:
@@ -473,8 +494,22 @@ SUPPORTED_OUTPUT_FORMATS = 'Audio files (*.mp3 *.wav *.m4a *.ogg);;\
 Video files (*.mp4 *.webm *.ogm *.mov);;All files (*.*)'
 
 
-def get_default_output_file_path(task: Task, input_file_path: str, output_format: OutputFormat):
-    return f'{os.path.splitext(input_file_path)[0]} ({task.value.title()}d on {datetime.datetime.now():%d-%b-%Y %H-%M-%S}).{output_format.value}'
+def get_default_output_file_path(task: FileTranscriptionTask,
+                                 output_format: OutputFormat):
+    input_file_name = os.path.splitext(task.file_path)[0]
+    date_time_now = datetime.datetime.now().strftime('%d-%b-%Y %H-%M-%S')
+    return (task.file_transcription_options.default_output_file_name
+            .replace('{{ input_file_name }}', input_file_name)
+            .replace('{{ task }}', task.transcription_options.task.value)
+            .replace('{{ language }}', task.transcription_options.language or '')
+            .replace('{{ model_type }}',
+                     task.transcription_options.model.model_type.value)
+            .replace('{{ model_size }}',
+                     task.transcription_options.model.whisper_model_size.value if
+                     task.transcription_options.model.whisper_model_size is not None else
+                     '')
+            .replace('{{ date_time }}', date_time_now)
+            + f".{output_format.value}")
 
 
 def whisper_cpp_params(

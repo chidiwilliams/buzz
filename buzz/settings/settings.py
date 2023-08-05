@@ -25,14 +25,18 @@ class Settings:
         FILE_TRANSCRIBER_WORD_LEVEL_TIMINGS = 'file-transcriber/word-level-timings'
         FILE_TRANSCRIBER_EXPORT_FORMATS = 'file-transcriber/export-formats'
 
+        DEFAULT_EXPORT_FILE_NAME = 'transcriber/default-export-file-name'
+
         SHORTCUTS = 'shortcuts'
 
     def set_value(self, key: Key, value: typing.Any) -> None:
         self.settings.setValue(key.value, value)
 
-    def value(self, key: Key, default_value: typing.Any, value_type: typing.Optional[type] = None) -> typing.Any:
+    def value(self, key: Key, default_value: typing.Any,
+              value_type: typing.Optional[type] = None) -> typing.Any:
         return self.settings.value(key.value, default_value,
-                                   value_type if value_type is not None else type(default_value))
+                                   value_type if value_type is not None else type(
+                                       default_value))
 
     def clear(self):
         self.settings.clear()

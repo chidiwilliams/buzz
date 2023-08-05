@@ -14,11 +14,14 @@ from pytestqt.qtbot import QtBot
 
 from buzz.__version__ import VERSION
 from buzz.cache import TasksCache
-from buzz.gui import (AdvancedSettingsDialog, AudioDevicesComboBox, FileTranscriberWidget,
-                      LanguagesComboBox, MainWindow,
-                      RecordingTranscriberWidget,
-                      TemperatureValidator, HuggingFaceSearchLineEdit,
-                      TranscriptionOptionsGroupBox)
+from buzz.gui import (AudioDevicesComboBox, MainWindow,
+                      RecordingTranscriberWidget)
+from buzz.widgets.transcriber.temperature_validator import TemperatureValidator
+from buzz.widgets.advanced_settings_dialog import AdvancedSettingsDialog
+from buzz.widgets.hugging_face_search_line_edit import HuggingFaceSearchLineEdit
+from buzz.widgets.languages_combo_box import LanguagesComboBox
+from buzz.widgets.transcription_options_group_box import TranscriptionOptionsGroupBox
+from buzz.widgets.file_transcriber_widget import FileTranscriberWidget
 from buzz.widgets.about_dialog import AboutDialog
 from buzz.model_loader import ModelType
 from buzz.settings.settings import Settings
