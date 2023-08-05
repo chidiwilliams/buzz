@@ -15,8 +15,9 @@ from buzz.widgets.preferences_dialog.shortcuts_editor_preferences_widget import 
 class PreferencesDialog(QDialog):
     shortcuts_changed = pyqtSignal(dict)
     openai_api_key_changed = pyqtSignal(str)
+    default_export_file_name_changed = pyqtSignal(str)
 
-    def __init__(self, shortcuts: Dict[str, str],
+    def __init__(self, shortcuts: Dict[str, str], default_export_file_name: str,
                  parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
 
@@ -25,8 +26,11 @@ class PreferencesDialog(QDialog):
         layout = QVBoxLayout(self)
         tab_widget = QTabWidget(self)
 
-        general_tab_widget = GeneralPreferencesWidget(parent=self)
+        general_tab_widget = GeneralPreferencesWidget(
+            default_export_file_name=default_export_file_name, parent=self)
         general_tab_widget.openai_api_key_changed.connect(self.openai_api_key_changed)
+        general_tab_widget.default_export_file_name_changed.connect(
+            self.default_export_file_name_changed)
         tab_widget.addTab(general_tab_widget, _('General'))
 
         models_tab_widget = ModelsPreferencesWidget(parent=self)

@@ -134,10 +134,8 @@ class TranscriptionViewerWidget(QWidget):
     def on_menu_triggered(self, action: QAction):
         output_format = OutputFormat[action.text()]
 
-        default_path = get_default_output_file_path(
-            task=self.transcription_task.transcription_options.task,
-            input_file_path=self.transcription_task.file_path,
-            output_format=output_format)
+        default_path = get_default_output_file_path(task=self.transcription_task,
+                                                    output_format=output_format)
 
         (output_file_path, nil) = QFileDialog.getSaveFileName(self, _('Save File'),
                                                               default_path,

@@ -19,7 +19,7 @@ from platformdirs import user_cache_dir
 from tqdm.auto import tqdm
 
 
-class WhisperModelSize(enum.Enum):
+class WhisperModelSize(str, enum.Enum):
     TINY = 'tiny'
     BASE = 'base'
     SMALL = 'small'

@@ -89,14 +89,39 @@ class TestWhisperCppFileTranscriber:
 
 
 class TestWhisperFileTranscriber:
+    @pytest.mark.parametrize(
+        'output_format,expected_file_path,default_output_file_name',
+        [
+            (OutputFormat.SRT, '/a/b/c-translate--Whisper-tiny.srt', '{{ input_file_name }}-{{ task }}-{{ language }}-{{ model_type }}-{{ model_size }}'),
+        ])
+    def test_default_output_file2(self, output_format: OutputFormat, expected_file_path: str, default_output_file_name: str):
+        file_path = get_default_output_file_path(
+            task=FileTranscriptionTask(
+                file_path='/a/b/c.mp4',
+                transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
+                file_transcription_options=FileTranscriptionOptions(file_paths=[], default_output_file_name=default_output_file_name),
+                model_path=''),
+            output_format=output_format)
+        assert file_path == expected_file_path
+
     def test_default_output_file(self):
         srt = get_default_output_file_path(
-            Task.TRANSLATE, '/a/b/c.mp4', OutputFormat.TXT)
+            task=FileTranscriptionTask(
+                file_path='/a/b/c.mp4',
+                transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
+                file_transcription_options=FileTranscriptionOptions(file_paths=[], default_output_file_name='{{ input_file_name }} (Translated on {{ date_time }})'),
+                model_path=''),
+            output_format=OutputFormat.TXT)
         assert srt.startswith('/a/b/c (Translated on ')
         assert srt.endswith('.txt')
 
         srt = get_default_output_file_path(
-            Task.TRANSLATE, '/a/b/c.mp4', OutputFormat.SRT)
+            task=FileTranscriptionTask(
+                file_path='/a/b/c.mp4',
+                transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
+                file_transcription_options=FileTranscriptionOptions(file_paths=[], default_output_file_name='{{ input_file_name }} (Translated on {{ date_time }})'),
+                model_path=''),
+            output_format=OutputFormat.SRT)
         assert srt.startswith('/a/b/c (Translated on ')
         assert srt.endswith('.srt')
 

@@ -14,16 +14,21 @@ from pytestqt.qtbot import QtBot
 
 from buzz.__version__ import VERSION
 from buzz.cache import TasksCache
-from buzz.gui import (AdvancedSettingsDialog, AudioDevicesComboBox, FileTranscriberWidget,
-                      LanguagesComboBox, MainWindow,
-                      RecordingTranscriberWidget,
-                      TemperatureValidator, HuggingFaceSearchLineEdit,
-                      TranscriptionOptionsGroupBox)
+from buzz.gui import (AudioDevicesComboBox, MainWindow,
+                      RecordingTranscriberWidget)
+from buzz.widgets.transcriber.advanced_settings_dialog import AdvancedSettingsDialog
+from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
+from buzz.widgets.transcriber.hugging_face_search_line_edit import \
+    HuggingFaceSearchLineEdit
+from buzz.widgets.transcriber.languages_combo_box import LanguagesComboBox
+from buzz.widgets.transcriber.temperature_validator import TemperatureValidator
 from buzz.widgets.about_dialog import AboutDialog
 from buzz.model_loader import ModelType
 from buzz.settings.settings import Settings
 from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask,
                               TranscriptionOptions)
+from buzz.widgets.transcriber.transcription_options_group_box import \
+    TranscriptionOptionsGroupBox
 from buzz.widgets.transcription_viewer_widget import TranscriptionViewerWidget
 from tests.mock_sounddevice import MockInputStream, mock_query_devices
 from .mock_qt import MockNetworkAccessManager, MockNetworkReply
@@ -276,32 +281,6 @@ class TestMainWindow:
 def clear_settings():
     settings = Settings()
     settings.clear()
-
-
-class TestFileTranscriberWidget:
-    def test_should_set_window_title(self, qtbot: QtBot):
-        widget = FileTranscriberWidget(
-            file_paths=['testdata/whisper-french.mp3'], parent=None)
-        qtbot.add_widget(widget)
-        assert widget.windowTitle() == 'whisper-french.mp3'
-
-    def test_should_emit_triggered_event(self, qtbot: QtBot):
-        widget = FileTranscriberWidget(
-            file_paths=['testdata/whisper-french.mp3'], parent=None)
-        qtbot.add_widget(widget)
-
-        mock_triggered = Mock()
-        widget.triggered.connect(mock_triggered)
-
-        with qtbot.wait_signal(widget.triggered, timeout=30 * 1000):
-            qtbot.mouseClick(widget.run_button, Qt.MouseButton.LeftButton)
-
-        transcription_options, file_transcription_options, model_path = mock_triggered.call_args[
-            0][0]
-        assert transcription_options.language is None
-        assert file_transcription_options.file_paths == [
-            'testdata/whisper-french.mp3']
-        assert len(model_path) > 0
 
 
 class TestAboutDialog:
