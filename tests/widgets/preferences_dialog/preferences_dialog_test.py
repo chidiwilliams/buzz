@@ -6,7 +6,7 @@ from buzz.widgets.preferences_dialog.preferences_dialog import PreferencesDialog
 
 class TestPreferencesDialog:
     def test_create(self, qtbot: QtBot):
-        dialog = PreferencesDialog(shortcuts={})
+        dialog = PreferencesDialog(shortcuts={}, default_export_file_name='')
         qtbot.add_widget(dialog)
 
         assert dialog.windowTitle() == 'Preferences'
