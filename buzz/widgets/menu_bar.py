@@ -1,3 +1,4 @@
+import webbrowser
 from typing import Dict
 
 from PyQt6.QtCore import pyqtSignal
@@ -34,6 +35,9 @@ class MenuBar(QMenuBar):
         self.preferences_action = QAction(_("Preferences..."), self)
         self.preferences_action.triggered.connect(self.on_preferences_action_triggered)
 
+        help_action = QAction(f'{_("Help")}', self)
+        help_action.triggered.connect(self.on_help_action_triggered)
+
         self.set_shortcuts(shortcuts)
 
         file_menu = self.addMenu(_("File"))
@@ -41,6 +45,7 @@ class MenuBar(QMenuBar):
 
         help_menu = self.addMenu(_("Help"))
         help_menu.addAction(about_action)
+        help_menu.addAction(help_action)
         help_menu.addAction(self.preferences_action)
 
     def on_import_action_triggered(self):
@@ -59,6 +64,9 @@ class MenuBar(QMenuBar):
         preferences_dialog.default_export_file_name_changed.connect(
             self.default_export_file_name_changed)
         preferences_dialog.open()
+
+    def on_help_action_triggered(self):
+        webbrowser.open('https://chidiwilliams.github.io/buzz/docs')
 
     def set_shortcuts(self, shortcuts: Dict[str, str]):
         self.shortcuts = shortcuts

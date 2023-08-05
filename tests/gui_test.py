@@ -16,17 +16,19 @@ from buzz.__version__ import VERSION
 from buzz.cache import TasksCache
 from buzz.gui import (AudioDevicesComboBox, MainWindow,
                       RecordingTranscriberWidget)
+from buzz.widgets.transcriber.advanced_settings_dialog import AdvancedSettingsDialog
+from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
+from buzz.widgets.transcriber.hugging_face_search_line_edit import \
+    HuggingFaceSearchLineEdit
+from buzz.widgets.transcriber.languages_combo_box import LanguagesComboBox
 from buzz.widgets.transcriber.temperature_validator import TemperatureValidator
-from buzz.widgets.advanced_settings_dialog import AdvancedSettingsDialog
-from buzz.widgets.hugging_face_search_line_edit import HuggingFaceSearchLineEdit
-from buzz.widgets.languages_combo_box import LanguagesComboBox
-from buzz.widgets.transcription_options_group_box import TranscriptionOptionsGroupBox
-from buzz.widgets.file_transcriber_widget import FileTranscriberWidget
 from buzz.widgets.about_dialog import AboutDialog
 from buzz.model_loader import ModelType
 from buzz.settings.settings import Settings
 from buzz.transcriber import (FileTranscriptionOptions, FileTranscriptionTask,
                               TranscriptionOptions)
+from buzz.widgets.transcriber.transcription_options_group_box import \
+    TranscriptionOptionsGroupBox
 from buzz.widgets.transcription_viewer_widget import TranscriptionViewerWidget
 from tests.mock_sounddevice import MockInputStream, mock_query_devices
 from .mock_qt import MockNetworkAccessManager, MockNetworkReply
