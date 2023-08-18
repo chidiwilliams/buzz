@@ -15,32 +15,40 @@ class GeneralPreferencesWidget(QWidget):
     openai_api_key_changed = pyqtSignal(str)
     default_export_file_name_changed = pyqtSignal(str)
 
-    def __init__(self, default_export_file_name: str, keyring_store=KeyringStore(),
-                 parent: Optional[QWidget] = None):
+    def __init__(
+        self,
+        default_export_file_name: str,
+        keyring_store=KeyringStore(),
+        parent: Optional[QWidget] = None,
+    ):
         super().__init__(parent)
 
         self.openai_api_key = keyring_store.get_password(
-            KeyringStore.Key.OPENAI_API_KEY)
+            KeyringStore.Key.OPENAI_API_KEY
+        )
 
         layout = QFormLayout(self)
 
         self.openai_api_key_line_edit = OpenAIAPIKeyLineEdit(self.openai_api_key, self)
         self.openai_api_key_line_edit.key_changed.connect(
-            self.on_openai_api_key_changed)
+            self.on_openai_api_key_changed
+        )
 
-        self.test_openai_api_key_button = QPushButton('Test')
+        self.test_openai_api_key_button = QPushButton("Test")
         self.test_openai_api_key_button.clicked.connect(
-            self.on_click_test_openai_api_key_button)
+            self.on_click_test_openai_api_key_button
+        )
         self.update_test_openai_api_key_button()
 
-        layout.addRow('OpenAI API Key', self.openai_api_key_line_edit)
-        layout.addRow('', self.test_openai_api_key_button)
+        layout.addRow("OpenAI API Key", self.openai_api_key_line_edit)
+        layout.addRow("", self.test_openai_api_key_button)
 
         default_export_file_name_line_edit = LineEdit(default_export_file_name, self)
         default_export_file_name_line_edit.textChanged.connect(
-            self.default_export_file_name_changed)
+            self.default_export_file_name_changed
+        )
         default_export_file_name_line_edit.setMinimumWidth(200)
-        layout.addRow('Default export file name', default_export_file_name_line_edit)
+        layout.addRow("Default export file name", default_export_file_name_line_edit)
 
         self.setLayout(layout)
 
@@ -60,12 +68,15 @@ class GeneralPreferencesWidget(QWidget):
 
     def on_test_openai_api_key_success(self):
         self.test_openai_api_key_button.setEnabled(True)
-        QMessageBox.information(self, 'OpenAI API Key Test',
-                                'Your API key is valid. Buzz will use this key to perform Whisper API transcriptions.')
+        QMessageBox.information(
+            self,
+            "OpenAI API Key Test",
+            "Your API key is valid. Buzz will use this key to perform Whisper API transcriptions.",
+        )
 
     def on_test_openai_api_key_failure(self, error: str):
         self.test_openai_api_key_button.setEnabled(True)
-        QMessageBox.warning(self, 'OpenAI API Key Test', error)
+        QMessageBox.warning(self, "OpenAI API Key Test", error)
 
     def on_openai_api_key_changed(self, key: str):
         self.openai_api_key = key

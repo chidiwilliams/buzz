@@ -111,7 +111,7 @@ class AudioPlayer(QWidget):
     def update_time_label(self):
         position_time = QTime(0, 0).addMSecs(self.position).toString()
         duration_time = QTime(0, 0).addMSecs(self.duration).toString()
-        self.time_label.setText(f'{position_time} / {duration_time}')
+        self.time_label.setText(f"{position_time} / {duration_time}")
 
     def stop(self):
         self.media_player.stop()

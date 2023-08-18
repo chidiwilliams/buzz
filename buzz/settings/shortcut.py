@@ -13,13 +13,13 @@ class Shortcut(str, enum.Enum):
         obj.description = description
         return obj
 
-    OPEN_RECORD_WINDOW = ('Ctrl+R', "Open Record Window")
-    OPEN_IMPORT_WINDOW = ('Ctrl+O', "Import File")
-    OPEN_PREFERENCES_WINDOW = ('Ctrl+,', 'Open Preferences Window')
+    OPEN_RECORD_WINDOW = ("Ctrl+R", "Open Record Window")
+    OPEN_IMPORT_WINDOW = ("Ctrl+O", "Import File")
+    OPEN_PREFERENCES_WINDOW = ("Ctrl+,", "Open Preferences Window")
 
-    OPEN_TRANSCRIPT_EDITOR = ('Ctrl+E', "Open Transcript Viewer")
-    CLEAR_HISTORY = ('Ctrl+S', "Clear History")
-    STOP_TRANSCRIPTION = ('Ctrl+X', "Cancel Transcription")
+    OPEN_TRANSCRIPT_EDITOR = ("Ctrl+E", "Open Transcript Viewer")
+    CLEAR_HISTORY = ("Ctrl+S", "Clear History")
+    STOP_TRANSCRIPTION = ("Ctrl+X", "Cancel Transcription")
 
     @staticmethod
     def get_default_shortcuts() -> typing.Dict[str, str]:

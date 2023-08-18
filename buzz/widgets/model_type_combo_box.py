@@ -10,8 +10,12 @@ from buzz.transcriber import LOADED_WHISPER_DLL
 class ModelTypeComboBox(QComboBox):
     changed = pyqtSignal(ModelType)
 
-    def __init__(self, model_types: Optional[List[ModelType]] = None, default_model: Optional[ModelType] = None,
-                 parent: Optional[QWidget] = None):
+    def __init__(
+        self,
+        model_types: Optional[List[ModelType]] = None,
+        default_model: Optional[ModelType] = None,
+        parent: Optional[QWidget] = None,
+    ):
         super().__init__(parent)
 
         if model_types is None:

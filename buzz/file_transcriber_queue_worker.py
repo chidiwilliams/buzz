@@ -7,8 +7,14 @@ from typing import Optional, Tuple, List
 from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 
 from buzz.model_loader import ModelType
-from buzz.transcriber import FileTranscriptionTask, FileTranscriber, WhisperCppFileTranscriber, \
-    OpenAIWhisperAPIFileTranscriber, WhisperFileTranscriber, Segment
+from buzz.transcriber import (
+    FileTranscriptionTask,
+    FileTranscriber,
+    WhisperCppFileTranscriber,
+    OpenAIWhisperAPIFileTranscriber,
+    WhisperFileTranscriber,
+    Segment,
+)
 
 
 class FileTranscriberQueueWorker(QObject):
@@ -26,7 +32,7 @@ class FileTranscriberQueueWorker(QObject):
 
     @pyqtSlot()
     def run(self):
-        logging.debug('Waiting for next transcription task')
+        logging.debug("Waiting for next transcription task")
 
         # Get next non-canceled task from queue
         while True:
@@ -42,38 +48,37 @@ class FileTranscriberQueueWorker(QObject):
 
             break
 
-        logging.debug('Starting next transcription task')
+        logging.debug("Starting next transcription task")
 
         model_type = self.current_task.transcription_options.model.model_type
         if model_type == ModelType.WHISPER_CPP:
-            self.current_transcriber = WhisperCppFileTranscriber(
-                task=self.current_task)
+            self.current_transcriber = WhisperCppFileTranscriber(task=self.current_task)
         elif model_type == ModelType.OPEN_AI_WHISPER_API:
-            self.current_transcriber = OpenAIWhisperAPIFileTranscriber(task=self.current_task)
-        elif model_type == ModelType.HUGGING_FACE or \
-                model_type == ModelType.WHISPER or \
-                model_type == ModelType.FASTER_WHISPER:
+            self.current_transcriber = OpenAIWhisperAPIFileTranscriber(
+                task=self.current_task
+            )
+        elif (
+            model_type == ModelType.HUGGING_FACE
+            or model_type == ModelType.WHISPER
+            or model_type == ModelType.FASTER_WHISPER
+        ):
             self.current_transcriber = WhisperFileTranscriber(task=self.current_task)
         else:
-            raise Exception(f'Unknown model type: {model_type}')
+            raise Exception(f"Unknown model type: {model_type}")
 
         self.current_transcriber_thread = QThread(self)
 
         self.current_transcriber.moveToThread(self.current_transcriber_thread)
 
-        self.current_transcriber_thread.started.connect(
-            self.current_transcriber.run)
-        self.current_transcriber.completed.connect(
-            self.current_transcriber_thread.quit)
-        self.current_transcriber.error.connect(
-            self.current_transcriber_thread.quit)
+        self.current_transcriber_thread.started.connect(self.current_transcriber.run)
+        self.current_transcriber.completed.connect(self.current_transcriber_thread.quit)
+        self.current_transcriber.error.connect(self.current_transcriber_thread.quit)
 
-        self.current_transcriber.completed.connect(
-            self.current_transcriber.deleteLater)
-        self.current_transcriber.error.connect(
-            self.current_transcriber.deleteLater)
+        self.current_transcriber.completed.connect(self.current_transcriber.deleteLater)
+        self.current_transcriber.error.connect(self.current_transcriber.deleteLater)
         self.current_transcriber_thread.finished.connect(
-            self.current_transcriber_thread.deleteLater)
+            self.current_transcriber_thread.deleteLater
+        )
 
         self.current_transcriber.progress.connect(self.on_task_progress)
         self.current_transcriber.error.connect(self.on_task_error)
@@ -104,7 +109,10 @@ class FileTranscriberQueueWorker(QObject):
 
     @pyqtSlot(Exception)
     def on_task_error(self, error: Exception):
-        if self.current_task is not None and self.current_task.id not in self.canceled_tasks:
+        if (
+            self.current_task is not None
+            and self.current_task.id not in self.canceled_tasks
+        ):
             self.current_task.status = FileTranscriptionTask.Status.FAILED
             self.current_task.error = str(error)
             self.task_updated.emit(self.current_task)

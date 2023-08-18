@@ -4,7 +4,10 @@ from PyQt6.QtGui import QAction, QKeySequence
 
 
 class Action(QAction):
-    def setShortcut(self, shortcut: typing.Union['QKeySequence', 'QKeySequence.StandardKey', str, int]) -> None:
+    def setShortcut(
+        self,
+        shortcut: typing.Union["QKeySequence", "QKeySequence.StandardKey", str, int],
+    ) -> None:
         super().setShortcut(shortcut)
         self.setToolTip(Action.get_tooltip(self))
 

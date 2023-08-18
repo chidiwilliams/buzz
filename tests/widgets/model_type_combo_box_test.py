@@ -7,8 +7,8 @@ class TestModelTypeComboBox:
         qtbot.add_widget(widget)
 
         assert widget.count() == 5
-        assert widget.itemText(0) == 'Whisper'
-        assert widget.itemText(1) == 'Whisper.cpp'
-        assert widget.itemText(2) == 'Hugging Face'
-        assert widget.itemText(3) == 'Faster Whisper'
-        assert widget.itemText(4) == 'OpenAI Whisper API'
+        assert widget.itemText(0) == "Whisper"
+        assert widget.itemText(1) == "Whisper.cpp"
+        assert widget.itemText(2) == "Hugging Face"
+        assert widget.itemText(3) == "Faster Whisper"
+        assert widget.itemText(4) == "OpenAI Whisper API"

@@ -3,20 +3,32 @@ from typing import List, Optional
 
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QUndoCommand, QUndoStack, QKeySequence, QAction
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QMenu, QPushButton, QVBoxLayout, \
-    QFileDialog
+from PyQt6.QtWidgets import (
+    QWidget,
+    QHBoxLayout,
+    QMenu,
+    QPushButton,
+    QVBoxLayout,
+    QFileDialog,
+)
 
 from buzz.action import Action
 from buzz.assets import get_asset_path
 from buzz.locale import _
 from buzz.paths import file_path_as_title
-from buzz.transcriber import FileTranscriptionTask, Segment, OutputFormat, \
-    get_default_output_file_path, write_output
+from buzz.transcriber import (
+    FileTranscriptionTask,
+    Segment,
+    OutputFormat,
+    get_default_output_file_path,
+    write_output,
+)
 from buzz.widgets.audio_player import AudioPlayer
 from buzz.widgets.icon import Icon
 from buzz.widgets.toolbar import ToolBar
-from buzz.widgets.transcription_segments_editor_widget import \
-    TranscriptionSegmentsEditorWidget
+from buzz.widgets.transcription_segments_editor_widget import (
+    TranscriptionSegmentsEditorWidget,
+)
 
 
 class TranscriptionViewerWidget(QWidget):
@@ -24,9 +36,14 @@ class TranscriptionViewerWidget(QWidget):
     task_changed = pyqtSignal()
 
     class ChangeSegmentTextCommand(QUndoCommand):
-        def __init__(self, table_widget: TranscriptionSegmentsEditorWidget,
-                     segments: List[Segment],
-                     segment_index: int, segment_text: str, task_changed: pyqtSignal):
+        def __init__(
+            self,
+            table_widget: TranscriptionSegmentsEditorWidget,
+            segments: List[Segment],
+            segment_index: int,
+            segment_text: str,
+            task_changed: pyqtSignal,
+        ):
             super().__init__()
 
             self.table_widget = table_widget
@@ -52,10 +69,11 @@ class TranscriptionViewerWidget(QWidget):
             self.task_changed.emit()
 
     def __init__(
-            self, transcription_task: FileTranscriptionTask,
-            open_transcription_output=True,
-            parent: Optional['QWidget'] = None,
-            flags: Qt.WindowType = Qt.WindowType.Widget,
+        self,
+        transcription_task: FileTranscriptionTask,
+        open_transcription_output=True,
+        parent: Optional["QWidget"] = None,
+        flags: Qt.WindowType = Qt.WindowType.Widget,
     ) -> None:
         super().__init__(parent, flags)
         self.transcription_task = transcription_task
@@ -71,20 +89,23 @@ class TranscriptionViewerWidget(QWidget):
         undo_action = self.undo_stack.createUndoAction(self, _("Undo"))
         undo_action.setShortcuts(QKeySequence.StandardKey.Undo)
         undo_action.setIcon(
-            Icon(get_asset_path('assets/undo_FILL0_wght700_GRAD0_opsz48.svg'), self))
+            Icon(get_asset_path("assets/undo_FILL0_wght700_GRAD0_opsz48.svg"), self)
+        )
         undo_action.setToolTip(Action.get_tooltip(undo_action))
 
         redo_action = self.undo_stack.createRedoAction(self, _("Redo"))
         redo_action.setShortcuts(QKeySequence.StandardKey.Redo)
         redo_action.setIcon(
-            Icon(get_asset_path('assets/redo_FILL0_wght700_GRAD0_opsz48.svg'), self))
+            Icon(get_asset_path("assets/redo_FILL0_wght700_GRAD0_opsz48.svg"), self)
+        )
         redo_action.setToolTip(Action.get_tooltip(redo_action))
 
         toolbar = ToolBar()
         toolbar.addActions([undo_action, redo_action])
 
         self.table_widget = TranscriptionSegmentsEditorWidget(
-            segments=transcription_task.segments, parent=self)
+            segments=transcription_task.segments, parent=self
+        )
         self.table_widget.segment_text_changed.connect(self.on_segment_text_changed)
         self.table_widget.segment_index_selected.connect(self.on_segment_index_selected)
 
@@ -96,14 +117,16 @@ class TranscriptionViewerWidget(QWidget):
         buttons_layout.addStretch()
 
         export_button_menu = QMenu()
-        actions = [QAction(text=output_format.value.upper(), parent=self)
-                   for output_format in OutputFormat]
+        actions = [
+            QAction(text=output_format.value.upper(), parent=self)
+            for output_format in OutputFormat
+        ]
         export_button_menu.addActions(actions)
 
         export_button_menu.triggered.connect(self.on_menu_triggered)
 
         export_button = QPushButton(self)
-        export_button.setText(_('Export'))
+        export_button.setText(_("Export"))
         export_button.setMenu(export_button_menu)
 
         buttons_layout.addWidget(export_button)
@@ -120,11 +143,14 @@ class TranscriptionViewerWidget(QWidget):
     def on_segment_text_changed(self, event: tuple):
         segment_index, segment_text = event
         self.undo_stack.push(
-            self.ChangeSegmentTextCommand(table_widget=self.table_widget,
-                                          segments=self.transcription_task.segments,
-                                          segment_index=segment_index,
-                                          segment_text=segment_text,
-                                          task_changed=self.task_changed))
+            self.ChangeSegmentTextCommand(
+                table_widget=self.table_widget,
+                segments=self.transcription_task.segments,
+                segment_index=segment_index,
+                segment_text=segment_text,
+                task_changed=self.task_changed,
+            )
+        )
 
     def on_segment_index_selected(self, index: int):
         selected_segment = self.transcription_task.segments[index]
@@ -134,15 +160,22 @@ class TranscriptionViewerWidget(QWidget):
     def on_menu_triggered(self, action: QAction):
         output_format = OutputFormat[action.text()]
 
-        default_path = get_default_output_file_path(task=self.transcription_task,
-                                                    output_format=output_format)
+        default_path = get_default_output_file_path(
+            task=self.transcription_task, output_format=output_format
+        )
 
-        (output_file_path, nil) = QFileDialog.getSaveFileName(self, _('Save File'),
-                                                              default_path,
-                                                              _('Text files') + f' (*.{output_format.value})')
+        (output_file_path, nil) = QFileDialog.getSaveFileName(
+            self,
+            _("Save File"),
+            default_path,
+            _("Text files") + f" (*.{output_format.value})",
+        )
 
-        if output_file_path == '':
+        if output_file_path == "":
             return
 
-        write_output(path=output_file_path, segments=self.transcription_task.segments,
-                     output_format=output_format)
+        write_output(
+            path=output_file_path,
+            segments=self.transcription_task.segments,
+            output_format=output_format,
+        )
