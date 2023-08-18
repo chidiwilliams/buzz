@@ -11,7 +11,7 @@ class ToolBar(QToolBar):
         super().__init__(parent)
 
         self.setIconSize(QSize(18, 18))
-        self.setStyleSheet('QToolButton{margin: 6px 3px;}')
+        self.setStyleSheet("QToolButton{margin: 6px 3px;}")
         self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
 
     def addAction(self, action: QtGui.QAction) -> None:
@@ -23,6 +23,7 @@ class ToolBar(QToolBar):
         self.fix_spacing_on_mac()
 
     def fix_spacing_on_mac(self):
-        if platform.system() == 'Darwin':
+        if platform.system() == "Darwin":
             self.widgetForAction(self.actions()[0]).setStyleSheet(
-                'QToolButton { margin-left: 9px; margin-right: 1px; }')
+                "QToolButton { margin-left: 9px; margin-right: 1px; }"
+            )

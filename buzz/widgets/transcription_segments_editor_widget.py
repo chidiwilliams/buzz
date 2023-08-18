@@ -27,9 +27,10 @@ class TranscriptionSegmentsEditorWidget(QTableWidget):
         self.setColumnCount(3)
 
         self.verticalHeader().hide()
-        self.setHorizontalHeaderLabels([_('Start'), _('End'), _('Text')])
-        self.horizontalHeader().setSectionResizeMode(2,
-                                                     QHeaderView.ResizeMode.ResizeToContents)
+        self.setHorizontalHeaderLabels([_("Start"), _("End"), _("Text")])
+        self.horizontalHeader().setSectionResizeMode(
+            2, QHeaderView.ResizeMode.ResizeToContents
+        )
         self.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
 
         for segment in segments:
@@ -38,12 +39,18 @@ class TranscriptionSegmentsEditorWidget(QTableWidget):
 
             start_item = QTableWidgetItem(to_timestamp(segment.start))
             start_item.setFlags(
-                start_item.flags() & ~Qt.ItemFlag.ItemIsEditable & ~Qt.ItemFlag.ItemIsSelectable)
+                start_item.flags()
+                & ~Qt.ItemFlag.ItemIsEditable
+                & ~Qt.ItemFlag.ItemIsSelectable
+            )
             self.setItem(row_index, self.Column.START.value, start_item)
 
             end_item = QTableWidgetItem(to_timestamp(segment.end))
             end_item.setFlags(
-                end_item.flags() & ~Qt.ItemFlag.ItemIsEditable & ~Qt.ItemFlag.ItemIsSelectable)
+                end_item.flags()
+                & ~Qt.ItemFlag.ItemIsEditable
+                & ~Qt.ItemFlag.ItemIsSelectable
+            )
             self.setItem(row_index, self.Column.END.value, end_item)
 
             text_item = QTableWidgetItem(segment.text)
@@ -61,5 +68,4 @@ class TranscriptionSegmentsEditorWidget(QTableWidget):
 
     def on_item_selection_changed(self):
         ranges = self.selectedRanges()
-        self.segment_index_selected.emit(
-            ranges[0].topRow() if len(ranges) > 0 else -1)
+        self.segment_index_selected.emit(ranges[0].topRow() if len(ranges) > 0 else -1)

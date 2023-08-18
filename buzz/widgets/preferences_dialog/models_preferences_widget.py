@@ -1,34 +1,55 @@
 from typing import Optional
 
 from PyQt6.QtCore import Qt, QThreadPool
-from PyQt6.QtWidgets import QWidget, QFormLayout, QTreeWidget, QTreeWidgetItem, \
-    QPushButton, QMessageBox, QHBoxLayout
+from PyQt6.QtWidgets import (
+    QWidget,
+    QFormLayout,
+    QTreeWidget,
+    QTreeWidgetItem,
+    QPushButton,
+    QMessageBox,
+    QHBoxLayout,
+)
 
 from buzz.locale import _
-from buzz.model_loader import ModelType, WhisperModelSize, TranscriptionModel, ModelDownloader
+from buzz.model_loader import (
+    ModelType,
+    WhisperModelSize,
+    TranscriptionModel,
+    ModelDownloader,
+)
 from buzz.widgets.model_download_progress_dialog import ModelDownloadProgressDialog
 from buzz.widgets.model_type_combo_box import ModelTypeComboBox
 
 
 class ModelsPreferencesWidget(QWidget):
-    def __init__(self, progress_dialog_modality=Qt.WindowModality.WindowModal,
-                 parent: Optional[QWidget] = None):
+    def __init__(
+        self,
+        progress_dialog_modality=Qt.WindowModality.WindowModal,
+        parent: Optional[QWidget] = None,
+    ):
         super().__init__(parent)
 
         self.model_downloader: Optional[ModelDownloader] = None
-        self.model = TranscriptionModel(model_type=ModelType.WHISPER,
-                                        whisper_model_size=WhisperModelSize.TINY)
+        self.model = TranscriptionModel(
+            model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY
+        )
         self.progress_dialog_modality = progress_dialog_modality
 
         self.progress_dialog: Optional[ModelDownloadProgressDialog] = None
 
         layout = QFormLayout()
         model_type_combo_box = ModelTypeComboBox(
-            model_types=[ModelType.WHISPER, ModelType.WHISPER_CPP,
-                         ModelType.FASTER_WHISPER],
-            default_model=self.model.model_type, parent=self)
+            model_types=[
+                ModelType.WHISPER,
+                ModelType.WHISPER_CPP,
+                ModelType.FASTER_WHISPER,
+            ],
+            default_model=self.model.model_type,
+            parent=self,
+        )
         model_type_combo_box.changed.connect(self.on_model_type_changed)
-        layout.addRow('Group', model_type_combo_box)
+        layout.addRow("Group", model_type_combo_box)
 
         self.model_list_widget = QTreeWidget()
         self.model_list_widget.setColumnCount(1)
@@ -37,20 +58,21 @@ class ModelsPreferencesWidget(QWidget):
 
         buttons_layout = QHBoxLayout()
 
-        self.download_button = QPushButton(_('Download'))
-        self.download_button.setObjectName('DownloadButton')
+        self.download_button = QPushButton(_("Download"))
+        self.download_button.setObjectName("DownloadButton")
         self.download_button.clicked.connect(self.on_download_button_clicked)
         buttons_layout.addWidget(self.download_button)
 
-        self.show_file_location_button = QPushButton(_('Show file location'))
-        self.show_file_location_button.setObjectName('ShowFileLocationButton')
+        self.show_file_location_button = QPushButton(_("Show file location"))
+        self.show_file_location_button.setObjectName("ShowFileLocationButton")
         self.show_file_location_button.clicked.connect(
-            self.on_show_file_location_button_clicked)
+            self.on_show_file_location_button_clicked
+        )
         buttons_layout.addWidget(self.show_file_location_button)
         buttons_layout.addStretch(1)
 
-        self.delete_button = QPushButton(_('Delete'))
-        self.delete_button.setObjectName('DeleteButton')
+        self.delete_button = QPushButton(_("Delete"))
+        self.delete_button.setObjectName("DeleteButton")
         self.delete_button.clicked.connect(self.on_delete_button_clicked)
         buttons_layout.addWidget(self.delete_button)
 
@@ -71,9 +93,10 @@ class ModelsPreferencesWidget(QWidget):
 
     @staticmethod
     def can_delete_model(model: TranscriptionModel):
-        return ((model.model_type == ModelType.WHISPER or
-                 model.model_type == ModelType.WHISPER_CPP) and
-                model.get_local_model_path() is not None)
+        return (
+            model.model_type == ModelType.WHISPER
+            or model.model_type == ModelType.WHISPER_CPP
+        ) and model.get_local_model_path() is not None
 
     def reset(self):
         # reset buttons
@@ -85,20 +108,21 @@ class ModelsPreferencesWidget(QWidget):
         # reset model list
         self.model_list_widget.clear()
         downloaded_item = QTreeWidgetItem(self.model_list_widget)
-        downloaded_item.setText(0, _('Downloaded'))
+        downloaded_item.setText(0, _("Downloaded"))
         downloaded_item.setFlags(
-            downloaded_item.flags() & ~Qt.ItemFlag.ItemIsSelectable)
+            downloaded_item.flags() & ~Qt.ItemFlag.ItemIsSelectable
+        )
         available_item = QTreeWidgetItem(self.model_list_widget)
-        available_item.setText(0, _('Available for Download'))
-        available_item.setFlags(
-            available_item.flags() & ~Qt.ItemFlag.ItemIsSelectable)
+        available_item.setText(0, _("Available for Download"))
+        available_item.setFlags(available_item.flags() & ~Qt.ItemFlag.ItemIsSelectable)
         self.model_list_widget.addTopLevelItems([downloaded_item, available_item])
         self.model_list_widget.expandToDepth(2)
         self.model_list_widget.setHeaderHidden(True)
         self.model_list_widget.setAlternatingRowColors(True)
         for model_size in WhisperModelSize:
-            model = TranscriptionModel(model_type=self.model.model_type,
-                                   whisper_model_size=model_size)
+            model = TranscriptionModel(
+                model_type=self.model.model_type, whisper_model_size=model_size
+            )
             model_path = model.get_local_model_path()
             parent = downloaded_item if model_path is not None else available_item
             item = QTreeWidgetItem(parent)
@@ -115,7 +139,9 @@ class ModelsPreferencesWidget(QWidget):
     def on_download_button_clicked(self):
         self.progress_dialog = ModelDownloadProgressDialog(
             model_type=self.model.model_type,
-            modality=self.progress_dialog_modality, parent=self)
+            modality=self.progress_dialog_modality,
+            parent=self,
+        )
         self.progress_dialog.canceled.connect(self.on_progress_dialog_canceled)
 
         self.download_button.setEnabled(False)
@@ -128,8 +154,10 @@ class ModelsPreferencesWidget(QWidget):
 
     def on_delete_button_clicked(self):
         reply = QMessageBox.question(
-            self, _('Delete Model'),
-            _('Are you sure you want to delete the selected model?'))
+            self,
+            _("Delete Model"),
+            _("Are you sure you want to delete the selected model?"),
+        )
         if reply == QMessageBox.StandardButton.Yes:
             self.model.delete_local_file()
             self.reset()
@@ -147,7 +175,7 @@ class ModelsPreferencesWidget(QWidget):
         self.progress_dialog = None
         self.download_button.setEnabled(True)
         self.reset()
-        QMessageBox.warning(self, _('Error'), f'Download failed: {error}')
+        QMessageBox.warning(self, _("Error"), f"Download failed: {error}")
 
     def on_download_progress(self, progress: tuple):
         self.progress_dialog.set_value(float(progress[0]) / progress[1])

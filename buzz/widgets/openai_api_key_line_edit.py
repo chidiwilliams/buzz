@@ -16,15 +16,22 @@ class OpenAIAPIKeyLineEdit(LineEdit):
 
         self.key = key
 
-        self.visible_on_icon = Icon(get_asset_path('assets/visibility_FILL0_wght700_GRAD0_opsz48.svg'), self)
-        self.visible_off_icon = Icon(get_asset_path('assets/visibility_off_FILL0_wght700_GRAD0_opsz48.svg'), self)
+        self.visible_on_icon = Icon(
+            get_asset_path("assets/visibility_FILL0_wght700_GRAD0_opsz48.svg"), self
+        )
+        self.visible_off_icon = Icon(
+            get_asset_path("assets/visibility_off_FILL0_wght700_GRAD0_opsz48.svg"), self
+        )
 
-        self.setPlaceholderText('sk-...')
+        self.setPlaceholderText("sk-...")
         self.setEchoMode(QLineEdit.EchoMode.Password)
         self.textChanged.connect(self.on_openai_api_key_changed)
-        self.toggle_show_openai_api_key_action = self.addAction(self.visible_on_icon,
-                                                                QLineEdit.ActionPosition.TrailingPosition)
-        self.toggle_show_openai_api_key_action.triggered.connect(self.on_toggle_show_action_triggered)
+        self.toggle_show_openai_api_key_action = self.addAction(
+            self.visible_on_icon, QLineEdit.ActionPosition.TrailingPosition
+        )
+        self.toggle_show_openai_api_key_action.triggered.connect(
+            self.on_toggle_show_action_triggered
+        )
 
     def on_toggle_show_action_triggered(self):
         if self.echoMode() == QLineEdit.EchoMode.Password:

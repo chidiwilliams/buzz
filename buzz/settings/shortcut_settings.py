@@ -10,7 +10,9 @@ class ShortcutSettings:
 
     def load(self) -> typing.Dict[str, str]:
         shortcuts = Shortcut.get_default_shortcuts()
-        custom_shortcuts: typing.Dict[str, str] = self.settings.value(Settings.Key.SHORTCUTS, {})
+        custom_shortcuts: typing.Dict[str, str] = self.settings.value(
+            Settings.Key.SHORTCUTS, {}
+        )
         for shortcut_name in custom_shortcuts:
             shortcuts[shortcut_name] = custom_shortcuts[shortcut_name]
         return shortcuts

@@ -8,6 +8,7 @@ from buzz.transcriber import Task
 
 class TasksComboBox(QComboBox):
     """TasksComboBox displays a list of tasks available to use with Whisper"""
+
     taskChanged = pyqtSignal(Task)
 
     def __init__(self, default_task: Task, parent: Optional[QWidget], *args) -> None:

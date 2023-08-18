@@ -33,6 +33,7 @@ pytest-xvfb = "^2.0.0"
 pylint = "^2.15.5"
 pre-commit = "^2.20.0"
 pytest-benchmark = "^4.0.0"
+black = {extras = ["d"], version = "^23.7.0"}
 
 [tool.poetry.group.build.dependencies]
 ctypesgen = "^1.1.1"

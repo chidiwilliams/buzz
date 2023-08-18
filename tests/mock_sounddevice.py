@@ -9,34 +9,90 @@ import sounddevice
 import whisper
 
 mock_query_devices = [
-    {'name': 'Background Music', 'index': 0, 'hostapi': 0, 'max_input_channels': 2, 'max_output_channels': 2,
-     'default_low_input_latency': 0.01,
-     'default_low_output_latency': 0.008, 'default_high_input_latency': 0.1, 'default_high_output_latency': 0.064,
-     'default_samplerate': 8000.0},
-    {'name': 'Background Music (UI Sounds)', 'index': 1, 'hostapi': 0, 'max_input_channels': 2,
-     'max_output_channels': 2, 'default_low_input_latency': 0.01,
-     'default_low_output_latency': 0.008, 'default_high_input_latency': 0.1, 'default_high_output_latency': 0.064,
-     'default_samplerate': 8000.0},
-    {'name': 'BlackHole 2ch', 'index': 2, 'hostapi': 0, 'max_input_channels': 2, 'max_output_channels': 2,
-     'default_low_input_latency': 0.01,
-     'default_low_output_latency': 0.0013333333333333333, 'default_high_input_latency': 0.1,
-     'default_high_output_latency': 0.010666666666666666, 'default_samplerate': 48000.0},
-    {'name': 'MacBook Pro Microphone', 'index': 3, 'hostapi': 0, 'max_input_channels': 1, 'max_output_channels': 0,
-     'default_low_input_latency': 0.034520833333333334,
-     'default_low_output_latency': 0.01, 'default_high_input_latency': 0.043854166666666666,
-     'default_high_output_latency': 0.1, 'default_samplerate': 48000.0},
-    {'name': 'MacBook Pro Speakers', 'index': 4, 'hostapi': 0, 'max_input_channels': 0, 'max_output_channels': 2,
-     'default_low_input_latency': 0.01,
-     'default_low_output_latency': 0.0070416666666666666, 'default_high_input_latency': 0.1,
-     'default_high_output_latency': 0.016375, 'default_samplerate': 48000.0},
-    {'name': 'Null Audio Device', 'index': 5, 'hostapi': 0, 'max_input_channels': 2, 'max_output_channels': 2,
-     'default_low_input_latency': 0.01,
-     'default_low_output_latency': 0.0014512471655328798, 'default_high_input_latency': 0.1,
-     'default_high_output_latency': 0.011609977324263039, 'default_samplerate': 44100.0},
-    {'name': 'Multi-Output Device', 'index': 6, 'hostapi': 0, 'max_input_channels': 0, 'max_output_channels': 2,
-     'default_low_input_latency': 0.01,
-     'default_low_output_latency': 0.0033333333333333335, 'default_high_input_latency': 0.1,
-     'default_high_output_latency': 0.012666666666666666, 'default_samplerate': 48000.0},
+    {
+        "name": "Background Music",
+        "index": 0,
+        "hostapi": 0,
+        "max_input_channels": 2,
+        "max_output_channels": 2,
+        "default_low_input_latency": 0.01,
+        "default_low_output_latency": 0.008,
+        "default_high_input_latency": 0.1,
+        "default_high_output_latency": 0.064,
+        "default_samplerate": 8000.0,
+    },
+    {
+        "name": "Background Music (UI Sounds)",
+        "index": 1,
+        "hostapi": 0,
+        "max_input_channels": 2,
+        "max_output_channels": 2,
+        "default_low_input_latency": 0.01,
+        "default_low_output_latency": 0.008,
+        "default_high_input_latency": 0.1,
+        "default_high_output_latency": 0.064,
+        "default_samplerate": 8000.0,
+    },
+    {
+        "name": "BlackHole 2ch",
+        "index": 2,
+        "hostapi": 0,
+        "max_input_channels": 2,
+        "max_output_channels": 2,
+        "default_low_input_latency": 0.01,
+        "default_low_output_latency": 0.0013333333333333333,
+        "default_high_input_latency": 0.1,
+        "default_high_output_latency": 0.010666666666666666,
+        "default_samplerate": 48000.0,
+    },
+    {
+        "name": "MacBook Pro Microphone",
+        "index": 3,
+        "hostapi": 0,
+        "max_input_channels": 1,
+        "max_output_channels": 0,
+        "default_low_input_latency": 0.034520833333333334,
+        "default_low_output_latency": 0.01,
+        "default_high_input_latency": 0.043854166666666666,
+        "default_high_output_latency": 0.1,
+        "default_samplerate": 48000.0,
+    },
+    {
+        "name": "MacBook Pro Speakers",
+        "index": 4,
+        "hostapi": 0,
+        "max_input_channels": 0,
+        "max_output_channels": 2,
+        "default_low_input_latency": 0.01,
+        "default_low_output_latency": 0.0070416666666666666,
+        "default_high_input_latency": 0.1,
+        "default_high_output_latency": 0.016375,
+        "default_samplerate": 48000.0,
+    },
+    {
+        "name": "Null Audio Device",
+        "index": 5,
+        "hostapi": 0,
+        "max_input_channels": 2,
+        "max_output_channels": 2,
+        "default_low_input_latency": 0.01,
+        "default_low_output_latency": 0.0014512471655328798,
+        "default_high_input_latency": 0.1,
+        "default_high_output_latency": 0.011609977324263039,
+        "default_samplerate": 44100.0,
+    },
+    {
+        "name": "Multi-Output Device",
+        "index": 6,
+        "hostapi": 0,
+        "max_input_channels": 0,
+        "max_output_channels": 2,
+        "default_low_input_latency": 0.01,
+        "default_low_output_latency": 0.0033333333333333335,
+        "default_high_input_latency": 0.1,
+        "default_high_output_latency": 0.012666666666666666,
+        "default_samplerate": 48000.0,
+    },
 ]
 
 
@@ -44,7 +100,12 @@ class MockInputStream(MagicMock):
     running = False
     thread: Thread
 
-    def __init__(self, callback: Callable[[np.ndarray, int, Any, sounddevice.CallbackFlags], None], *args, **kwargs):
+    def __init__(
+        self,
+        callback: Callable[[np.ndarray, int, Any, sounddevice.CallbackFlags], None],
+        *args,
+        **kwargs
+    ):
         super().__init__(spec=sounddevice.InputStream)
         self.thread = Thread(target=self.target)
         self.callback = callback
@@ -54,7 +115,9 @@ class MockInputStream(MagicMock):
 
     def target(self):
         sample_rate = whisper.audio.SAMPLE_RATE
-        file_path = os.path.join(os.path.dirname(__file__), '../testdata/whisper-french.mp3')
+        file_path = os.path.join(
+            os.path.dirname(__file__), "../testdata/whisper-french.mp3"
+        )
         audio = whisper.load_audio(file_path, sr=sample_rate)
 
         chunk_duration_secs = 1
@@ -65,7 +128,7 @@ class MockInputStream(MagicMock):
 
         while self.running:
             time.sleep(chunk_duration_secs)
-            chunk = audio[seek:seek + num_samples_in_chunk]
+            chunk = audio[seek : seek + num_samples_in_chunk]
             self.callback(chunk, 0, None, sounddevice.CallbackFlags())
             seek += num_samples_in_chunk
 

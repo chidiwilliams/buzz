@@ -18,12 +18,13 @@ class ShortcutsEditorPreferencesWidget(QWidget):
 
         self.layout = QFormLayout(self)
         for shortcut in Shortcut:
-            sequence_edit = SequenceEdit(shortcuts.get(shortcut.name, ''), self)
+            sequence_edit = SequenceEdit(shortcuts.get(shortcut.name, ""), self)
             sequence_edit.keySequenceChanged.connect(
-                self.get_key_sequence_changed(shortcut.name))
+                self.get_key_sequence_changed(shortcut.name)
+            )
             self.layout.addRow(shortcut.description, sequence_edit)
 
-        reset_to_defaults_button = QPushButton('Reset to Defaults', self)
+        reset_to_defaults_button = QPushButton("Reset to Defaults", self)
         reset_to_defaults_button.setDefault(False)
         reset_to_defaults_button.setAutoDefault(False)
         reset_to_defaults_button.clicked.connect(self.reset_to_defaults)
@@ -41,8 +42,9 @@ class ShortcutsEditorPreferencesWidget(QWidget):
         self.shortcuts = Shortcut.get_default_shortcuts()
 
         for i, shortcut in enumerate(Shortcut):
-            sequence_edit = self.layout.itemAt(i,
-                                               QFormLayout.ItemRole.FieldRole).widget()
+            sequence_edit = self.layout.itemAt(
+                i, QFormLayout.ItemRole.FieldRole
+            ).widget()
             assert isinstance(sequence_edit, SequenceEdit)
             sequence_edit.setKeySequence(QKeySequence(self.shortcuts[shortcut.name]))
 

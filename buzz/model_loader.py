@@ -20,11 +20,11 @@ from tqdm.auto import tqdm
 
 
 class WhisperModelSize(str, enum.Enum):
-    TINY = 'tiny'
-    BASE = 'base'
-    SMALL = 'small'
-    MEDIUM = 'medium'
-    LARGE = 'large'
+    TINY = "tiny"
+    BASE = "base"
+    SMALL = "small"
+    MEDIUM = "medium"
+    LARGE = "large"
 
     def to_faster_whisper_model_size(self) -> str:
         if self == WhisperModelSize.LARGE:
@@ -33,11 +33,11 @@ class WhisperModelSize(str, enum.Enum):
 
 
 class ModelType(enum.Enum):
-    WHISPER = 'Whisper'
-    WHISPER_CPP = 'Whisper.cpp'
-    HUGGING_FACE = 'Hugging Face'
-    FASTER_WHISPER = 'Faster Whisper'
-    OPEN_AI_WHISPER_API = 'OpenAI Whisper API'
+    WHISPER = "Whisper"
+    WHISPER_CPP = "Whisper.cpp"
+    HUGGING_FACE = "Hugging Face"
+    FASTER_WHISPER = "Faster Whisper"
+    OPEN_AI_WHISPER_API = "OpenAI Whisper API"
 
 
 @dataclass()
@@ -47,9 +47,10 @@ class TranscriptionModel:
     hugging_face_model_id: Optional[str] = None
 
     def is_deletable(self):
-        return ((self.model_type == ModelType.WHISPER or
-                 self.model_type == ModelType.WHISPER_CPP) and
-                self.get_local_model_path() is not None)
+        return (
+            self.model_type == ModelType.WHISPER
+            or self.model_type == ModelType.WHISPER_CPP
+        ) and self.get_local_model_path() is not None
 
     def open_file_location(self):
         model_path = self.get_local_model_path()
@@ -84,18 +85,20 @@ class TranscriptionModel:
 
         if self.model_type == ModelType.FASTER_WHISPER:
             try:
-                return download_faster_whisper_model(size=self.whisper_model_size.value,
-                                                     local_files_only=True)
+                return download_faster_whisper_model(
+                    size=self.whisper_model_size.value, local_files_only=True
+                )
             except (ValueError, FileNotFoundError):
                 return None
 
         if self.model_type == ModelType.OPEN_AI_WHISPER_API:
-            return ''
+            return ""
 
         if self.model_type == ModelType.HUGGING_FACE:
             try:
-                return huggingface_hub.snapshot_download(self.hugging_face_model_id,
-                                                         local_files_only=True)
+                return huggingface_hub.snapshot_download(
+                    self.hugging_face_model_id, local_files_only=True
+                )
             except (ValueError, FileNotFoundError):
                 return None
 
@@ -103,36 +106,38 @@ class TranscriptionModel:
 
 
 WHISPER_CPP_MODELS_SHA256 = {
-    'tiny': 'be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21',
-    'base': '60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe',
-    'small': '1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b',
-    'medium': '6c14d5adee5f86394037b4e4e8b59f1673b6cee10e3cf0b11bbdbee79c156208',
-    'large': '9a423fe4d40c82774b6af34115b8b935f34152246eb19e80e376071d3f999487'
+    "tiny": "be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21",
+    "base": "60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe",
+    "small": "1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b",
+    "medium": "6c14d5adee5f86394037b4e4e8b59f1673b6cee10e3cf0b11bbdbee79c156208",
+    "large": "9a423fe4d40c82774b6af34115b8b935f34152246eb19e80e376071d3f999487",
 }
 
 
 def get_hugging_face_file_url(author: str, repository_name: str, filename: str):
-    return f'https://huggingface.co/{author}/{repository_name}/resolve/main/{filename}'
+    return f"https://huggingface.co/{author}/{repository_name}/resolve/main/{filename}"
 
 
 def get_whisper_cpp_file_path(size: WhisperModelSize) -> str:
-    root_dir = user_cache_dir('Buzz')
-    return os.path.join(root_dir, f'ggml-model-whisper-{size.value}.bin')
+    root_dir = user_cache_dir("Buzz")
+    return os.path.join(root_dir, f"ggml-model-whisper-{size.value}.bin")
 
 
 def get_whisper_file_path(size: WhisperModelSize) -> str:
-    root_dir = os.getenv("XDG_CACHE_HOME", os.path.join(
-        os.path.expanduser("~"), ".cache", "whisper"))
+    root_dir = os.getenv(
+        "XDG_CACHE_HOME", os.path.join(os.path.expanduser("~"), ".cache", "whisper")
+    )
     url = whisper._MODELS[size.value]
     return os.path.join(root_dir, os.path.basename(url))
 
 
-def download_faster_whisper_model(size: str, local_files_only=False,
-                                  tqdm_class: Optional[tqdm] = None):
+def download_faster_whisper_model(
+    size: str, local_files_only=False, tqdm_class: Optional[tqdm] = None
+):
     if size not in faster_whisper.utils._MODELS:
         raise ValueError(
-            "Invalid model size '%s', expected one of: %s" % (
-                size, ", ".join(faster_whisper.utils._MODELS))
+            "Invalid model size '%s', expected one of: %s"
+            % (size, ", ".join(faster_whisper.utils._MODELS))
         )
 
     repo_id = "guillaumekln/faster-whisper-%s" % size
@@ -144,9 +149,12 @@ def download_faster_whisper_model(size: str, local_files_only=False,
         "vocabulary.txt",
     ]
 
-    return huggingface_hub.snapshot_download(repo_id, allow_patterns=allow_patterns,
-                                             local_files_only=local_files_only,
-                                             tqdm_class=tqdm_class)
+    return huggingface_hub.snapshot_download(
+        repo_id,
+        allow_patterns=allow_patterns,
+        local_files_only=local_files_only,
+        tqdm_class=tqdm_class,
+    )
 
 
 class ModelDownloader(QRunnable):
@@ -165,22 +173,24 @@ class ModelDownloader(QRunnable):
     def run(self) -> None:
         if self.model.model_type == ModelType.WHISPER_CPP:
             model_name = self.model.whisper_model_size.value
-            url = get_hugging_face_file_url(author='ggerganov',
-                                            repository_name='whisper.cpp',
-                                            filename=f'ggml-{model_name}.bin')
-            file_path = get_whisper_cpp_file_path(
-                size=self.model.whisper_model_size)
+            url = get_hugging_face_file_url(
+                author="ggerganov",
+                repository_name="whisper.cpp",
+                filename=f"ggml-{model_name}.bin",
+            )
+            file_path = get_whisper_cpp_file_path(size=self.model.whisper_model_size)
             expected_sha256 = WHISPER_CPP_MODELS_SHA256[model_name]
-            return self.download_model_to_path(url=url, file_path=file_path,
-                                               expected_sha256=expected_sha256)
+            return self.download_model_to_path(
+                url=url, file_path=file_path, expected_sha256=expected_sha256
+            )
 
         if self.model.model_type == ModelType.WHISPER:
             url = whisper._MODELS[self.model.whisper_model_size.value]
-            file_path = get_whisper_file_path(
-                size=self.model.whisper_model_size)
-            expected_sha256 = url.split('/')[-2]
-            return self.download_model_to_path(url=url, file_path=file_path,
-                                               expected_sha256=expected_sha256)
+            file_path = get_whisper_file_path(size=self.model.whisper_model_size)
+            expected_sha256 = url.split("/")[-2]
+            return self.download_model_to_path(
+                url=url, file_path=file_path, expected_sha256=expected_sha256
+            )
 
         progress = self.signals.progress
 
@@ -197,44 +207,47 @@ class ModelDownloader(QRunnable):
         if self.model.model_type == ModelType.FASTER_WHISPER:
             model_path = download_faster_whisper_model(
                 size=self.model.whisper_model_size.to_faster_whisper_model_size(),
-                tqdm_class=_tqdm)
+                tqdm_class=_tqdm,
+            )
             self.signals.finished.emit(model_path)
             return
 
         if self.model.model_type == ModelType.HUGGING_FACE:
             model_path = huggingface_hub.snapshot_download(
-                self.model.hugging_face_model_id, tqdm_class=_tqdm)
+                self.model.hugging_face_model_id, tqdm_class=_tqdm
+            )
             self.signals.finished.emit(model_path)
             return
 
         if self.model.model_type == ModelType.OPEN_AI_WHISPER_API:
-            self.signals.finished.emit('')
+            self.signals.finished.emit("")
             return
 
         raise Exception("Invalid model type: " + self.model.model_type.value)
 
-    def download_model_to_path(self, url: str, file_path: str,
-                               expected_sha256: Optional[str]):
+    def download_model_to_path(
+        self, url: str, file_path: str, expected_sha256: Optional[str]
+    ):
         try:
             downloaded = self.download_model(url, file_path, expected_sha256)
             if downloaded:
                 self.signals.finished.emit(file_path)
         except requests.RequestException:
-            self.signals.error.emit('A connection error occurred')
-            logging.exception('')
+            self.signals.error.emit("A connection error occurred")
+            logging.exception("")
         except Exception as exc:
             self.signals.error.emit(str(exc))
             logging.exception(exc)
 
-    def download_model(self, url: str, file_path: str,
-                       expected_sha256: Optional[str]) -> bool:
-        logging.debug(f'Downloading model from {url} to {file_path}')
+    def download_model(
+        self, url: str, file_path: str, expected_sha256: Optional[str]
+    ) -> bool:
+        logging.debug(f"Downloading model from {url} to {file_path}")
 
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
         if os.path.exists(file_path) and not os.path.isfile(file_path):
-            raise RuntimeError(
-                f"{file_path} exists and is not a regular file")
+            raise RuntimeError(f"{file_path} exists and is not a regular file")
 
         if os.path.isfile(file_path):
             if expected_sha256 is None:
@@ -246,17 +259,19 @@ class ModelDownloader(QRunnable):
                 return True
             else:
                 warnings.warn(
-                    f"{file_path} exists, but the SHA256 checksum does not match; re-downloading the file")
+                    f"{file_path} exists, but the SHA256 checksum does not match; re-downloading the file"
+                )
 
         tmp_file = tempfile.mktemp()
-        logging.debug('Downloading to temporary file = %s', tmp_file)
+        logging.debug("Downloading to temporary file = %s", tmp_file)
 
         # Downloads the model using the requests module instead of urllib to
         # use the certs from certifi when the app is running in frozen mode
-        with requests.get(url, stream=True, timeout=15) as source, open(tmp_file,
-                                                                        'wb') as output:
+        with requests.get(url, stream=True, timeout=15) as source, open(
+            tmp_file, "wb"
+        ) as output:
             source.raise_for_status()
-            total_size = float(source.headers.get('Content-Length', 0))
+            total_size = float(source.headers.get("Content-Length", 0))
             current = 0.0
             self.signals.progress.emit((current, total_size))
             for chunk in source.iter_content(chunk_size=8192):
@@ -271,13 +286,14 @@ class ModelDownloader(QRunnable):
             if hashlib.sha256(model_bytes).hexdigest() != expected_sha256:
                 raise RuntimeError(
                     "Model has been downloaded but the SHA256 checksum does not match. Please retry loading the "
-                    "model.")
+                    "model."
+                )
 
-        logging.debug('Downloaded model')
+        logging.debug("Downloaded model")
 
         # https://github.com/chidiwilliams/buzz/issues/454
         shutil.move(tmp_file, file_path)
-        logging.debug('Moved file from %s to %s', tmp_file, file_path)
+        logging.debug("Moved file from %s to %s", tmp_file, file_path)
         return True
 
     def cancel(self):

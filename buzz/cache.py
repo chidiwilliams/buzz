@@ -9,11 +9,11 @@ from .transcriber import FileTranscriptionTask
 
 
 class TasksCache:
-    def __init__(self, cache_dir=user_cache_dir('Buzz')):
+    def __init__(self, cache_dir=user_cache_dir("Buzz")):
         os.makedirs(cache_dir, exist_ok=True)
         self.cache_dir = cache_dir
-        self.pickle_cache_file_path = os.path.join(cache_dir, 'tasks')
-        self.tasks_list_file_path = os.path.join(cache_dir, 'tasks.json')
+        self.pickle_cache_file_path = os.path.join(cache_dir, "tasks")
+        self.tasks_list_file_path = os.path.join(cache_dir, "tasks.json")
 
     def save(self, tasks: List[FileTranscriptionTask]):
         self.save_json_tasks(tasks=tasks)
@@ -23,16 +23,20 @@ class TasksCache:
             return self.load_json_tasks()
 
         try:
-            with open(self.pickle_cache_file_path, 'rb') as file:
+            with open(self.pickle_cache_file_path, "rb") as file:
                 return pickle.load(file)
         except FileNotFoundError:
             return []
-        except (pickle.UnpicklingError, AttributeError, ValueError):  # delete corrupted cache
+        except (
+            pickle.UnpicklingError,
+            AttributeError,
+            ValueError,
+        ):  # delete corrupted cache
             os.remove(self.pickle_cache_file_path)
             return []
 
     def load_json_tasks(self) -> List[FileTranscriptionTask]:
-        with open(self.tasks_list_file_path, 'r') as file:
+        with open(self.tasks_list_file_path, "r") as file:
             task_ids = json.load(file)
 
         tasks = []
@@ -57,7 +61,7 @@ class TasksCache:
                 file.write(json_str)
 
     def get_task_path(self, task_id: int):
-        path = os.path.join(self.cache_dir, 'transcriptions', f'{task_id}.json')
+        path = os.path.join(self.cache_dir, "transcriptions", f"{task_id}.json")
         os.makedirs(os.path.dirname(path), exist_ok=True)
         return path
 

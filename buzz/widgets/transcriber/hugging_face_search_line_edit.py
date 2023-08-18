@@ -2,8 +2,17 @@ import json
 import logging
 from typing import Optional
 
-from PyQt6.QtCore import pyqtSignal, QTimer, Qt, QMetaObject, QUrl, QUrlQuery, QPoint, \
-    QObject, QEvent
+from PyQt6.QtCore import (
+    pyqtSignal,
+    QTimer,
+    Qt,
+    QMetaObject,
+    QUrl,
+    QUrlQuery,
+    QPoint,
+    QObject,
+    QEvent,
+)
 from PyQt6.QtGui import QKeyEvent
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from PyQt6.QtWidgets import QListWidget, QWidget, QAbstractItemView, QListWidgetItem
@@ -16,12 +25,15 @@ class HuggingFaceSearchLineEdit(LineEdit):
     model_selected = pyqtSignal(str)
     popup: QListWidget
 
-    def __init__(self, network_access_manager: Optional[QNetworkAccessManager] = None,
-                 parent: Optional[QWidget] = None):
-        super().__init__('', parent)
+    def __init__(
+        self,
+        network_access_manager: Optional[QNetworkAccessManager] = None,
+        parent: Optional[QWidget] = None,
+    ):
+        super().__init__("", parent)
 
         self.setMinimumWidth(150)
-        self.setPlaceholderText('openai/whisper-tiny')
+        self.setPlaceholderText("openai/whisper-tiny")
 
         self.timer = QTimer(self)
         self.timer.setSingleShot(True)
@@ -56,7 +68,7 @@ class HuggingFaceSearchLineEdit(LineEdit):
 
         item = self.popup.currentItem()
         self.setText(item.text())
-        QMetaObject.invokeMethod(self, 'returnPressed')
+        QMetaObject.invokeMethod(self, "returnPressed")
         self.model_selected.emit(item.data(Qt.ItemDataRole.UserRole))
 
     def fetch_models(self):
@@ -79,7 +91,9 @@ class HuggingFaceSearchLineEdit(LineEdit):
 
     def on_request_response(self, network_reply: QNetworkReply):
         if network_reply.error() != QNetworkReply.NetworkError.NoError:
-            logging.debug('Error fetching Hugging Face models: %s', network_reply.error())
+            logging.debug(
+                "Error fetching Hugging Face models: %s", network_reply.error()
+            )
             return
 
         models = json.loads(network_reply.readAll().data())
@@ -88,7 +102,7 @@ class HuggingFaceSearchLineEdit(LineEdit):
         self.popup.clear()
 
         for model in models:
-            model_id = model.get('id')
+            model_id = model.get("id")
 
             item = QListWidgetItem(self.popup)
             item.setText(model_id)
@@ -96,14 +110,16 @@ class HuggingFaceSearchLineEdit(LineEdit):
 
         self.popup.setCurrentItem(self.popup.item(0))
         self.popup.setFixedWidth(self.popup.sizeHintForColumn(0) + 20)
-        self.popup.setFixedHeight(self.popup.sizeHintForRow(0) * min(len(models), 8))  # show max 8 models, then scroll
+        self.popup.setFixedHeight(
+            self.popup.sizeHintForRow(0) * min(len(models), 8)
+        )  # show max 8 models, then scroll
         self.popup.setUpdatesEnabled(True)
         self.popup.move(self.mapToGlobal(QPoint(0, self.height())))
         self.popup.setFocus()
         self.popup.show()
 
     def eventFilter(self, target: QObject, event: QEvent):
-        if hasattr(self, 'popup') is False or target != self.popup:
+        if hasattr(self, "popup") is False or target != self.popup:
             return False
 
         if event.type() == QEvent.Type.MouseButtonPress:
@@ -123,8 +139,14 @@ class HuggingFaceSearchLineEdit(LineEdit):
                 self.popup.hide()
                 return True
 
-            if key in [Qt.Key.Key_Up, Qt.Key.Key_Down, Qt.Key.Key_Home, Qt.Key.Key_End, Qt.Key.Key_PageUp,
-                       Qt.Key.Key_PageDown]:
+            if key in [
+                Qt.Key.Key_Up,
+                Qt.Key.Key_Down,
+                Qt.Key.Key_Home,
+                Qt.Key.Key_End,
+                Qt.Key.Key_PageUp,
+                Qt.Key.Key_PageDown,
+            ]:
                 return False
 
             self.setFocus()
