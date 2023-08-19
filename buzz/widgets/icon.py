@@ -38,5 +38,30 @@ class PauseIcon(Icon):
         super().__init__(get_asset_path("assets/pause_black_24dp.svg"), parent)
 
 
+class UndoIcon(Icon):
+    def __init__(self, parent: QWidget):
+        super().__init__(
+            get_asset_path("assets/undo_FILL0_wght700_GRAD0_opsz48.svg"), parent
+        )
+
+
+class RedoIcon(Icon):
+    def __init__(self, parent: QWidget):
+        super().__init__(
+            get_asset_path("assets/redo_FILL0_wght700_GRAD0_opsz48.svg"), parent
+        )
+
+
+class FileDownloadIcon(Icon):
+    def __init__(self, parent: QWidget):
+        super().__init__(get_asset_path("assets/file_download_black_24dp.svg"), parent)
+
+
 BUZZ_ICON_PATH = get_asset_path("assets/buzz.ico")
 BUZZ_LARGE_ICON_PATH = get_asset_path("assets/buzz-icon-1024.png")
+
+RECORD_ICON_PATH = get_asset_path("assets/mic_FILL0_wght700_GRAD0_opsz48.svg")
+EXPAND_ICON_PATH = get_asset_path("assets/open_in_full_FILL0_wght700_GRAD0_opsz48.svg")
+ADD_ICON_PATH = get_asset_path("assets/add_FILL0_wght700_GRAD0_opsz48.svg")
+TRASH_ICON_PATH = get_asset_path("assets/delete_FILL0_wght700_GRAD0_opsz48.svg")
+CANCEL_ICON_PATH = get_asset_path("assets/cancel_FILL0_wght700_GRAD0_opsz48.svg")
