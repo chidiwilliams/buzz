@@ -1,7 +1,7 @@
 from typing import Tuple, Optional
 
 from PyQt6 import QtGui
-from PyQt6.QtCore import QTime, QUrl, Qt
+from PyQt6.QtCore import QTime, QUrl, Qt, pyqtSignal
 from PyQt6.QtMultimedia import QAudioOutput, QMediaPlayer
 from PyQt6.QtWidgets import QWidget, QSlider, QPushButton, QLabel, QHBoxLayout
 
@@ -9,12 +9,14 @@ from buzz.widgets.icon import PlayIcon, PauseIcon
 
 
 class AudioPlayer(QWidget):
+    position_ms_changed = pyqtSignal(int)
+
     def __init__(self, file_path: str):
         super().__init__()
 
         self.range_ms: Optional[Tuple[int, int]] = None
-        self.position = 0
-        self.duration = 0
+        self.position_ms = 0
+        self.duration_ms = 0
         self.invalid_media = None
 
         self.audio_output = QAudioOutput()
@@ -39,10 +41,9 @@ class AudioPlayer(QWidget):
         self.time_label.setAlignment(Qt.AlignmentFlag.AlignRight)
 
         layout = QHBoxLayout()
+        layout.addWidget(self.play_button, alignment=Qt.AlignmentFlag.AlignVCenter)
         layout.addWidget(self.scrubber, alignment=Qt.AlignmentFlag.AlignVCenter)
         layout.addWidget(self.time_label, alignment=Qt.AlignmentFlag.AlignVCenter)
-        layout.addWidget(self.play_button, alignment=Qt.AlignmentFlag.AlignVCenter)
-        layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
 
         self.setLayout(layout)
 
@@ -56,14 +57,17 @@ class AudioPlayer(QWidget):
 
     def on_duration_changed(self, duration_ms: int):
         self.scrubber.setRange(0, duration_ms)
-        self.duration = duration_ms
+        self.duration_ms = duration_ms
         self.update_time_label()
 
     def on_position_changed(self, position_ms: int):
         self.scrubber.setValue(position_ms)
-        self.position = position_ms
+        self.position_ms = position_ms
+        self.position_ms_changed.emit(self.position_ms)
         self.update_time_label()
 
+        # If a range has been selected as we've reached the end of the range,
+        # loop back to the start of the range
         if self.range_ms is not None:
             start_range_ms, end_range_ms = self.range_ms
             if position_ms > end_range_ms:
@@ -109,8 +113,8 @@ class AudioPlayer(QWidget):
         self.media_player.setPosition(position_ms)
 
     def update_time_label(self):
-        position_time = QTime(0, 0).addMSecs(self.position).toString()
-        duration_time = QTime(0, 0).addMSecs(self.duration).toString()
+        position_time = QTime(0, 0).addMSecs(self.position_ms).toString()
+        duration_time = QTime(0, 0).addMSecs(self.duration_ms).toString()
         self.time_label.setText(f"{position_time} / {duration_time}")
 
     def stop(self):

@@ -20,7 +20,9 @@ from pytestqt.qtbot import QtBot
 
 from buzz.__version__ import VERSION
 from buzz.cache import TasksCache
-from buzz.gui import AudioDevicesComboBox, MainWindow, RecordingTranscriberWidget
+from buzz.widgets.main_window import MainWindow
+from buzz.widgets.recording_transcriber_widget import RecordingTranscriberWidget
+from buzz.widgets.audio_devices_combo_box import AudioDevicesComboBox
 from buzz.widgets.transcriber.advanced_settings_dialog import AdvancedSettingsDialog
 from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
 from buzz.widgets.transcriber.hugging_face_search_line_edit import (

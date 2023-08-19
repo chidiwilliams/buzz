@@ -54,7 +54,7 @@ def main():
         logging.getLogger().addHandler(stdout_handler)
 
     from buzz.cli import parse_command_line
-    from buzz.gui import Application
+    from buzz.widgets.application import Application
 
     app = Application()
     parse_command_line(app)
