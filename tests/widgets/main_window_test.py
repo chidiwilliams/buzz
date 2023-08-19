@@ -48,7 +48,7 @@ mock_tasks = [
 
 
 def get_test_asset(filename: str):
-    return os.path.join(os.path.dirname(__file__), "../testdata/", filename)
+    return os.path.join(os.path.dirname(__file__), "../../testdata/", filename)
 
 
 class TestMainWindow:
