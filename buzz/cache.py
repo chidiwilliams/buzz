@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import pickle
 from typing import List
@@ -36,15 +37,23 @@ class TasksCache:
             return []
 
     def load_json_tasks(self) -> List[FileTranscriptionTask]:
-        with open(self.tasks_list_file_path, "r") as file:
-            task_ids = json.load(file)
+        task_ids: List[int]
+        try:
+            with open(self.tasks_list_file_path, "r") as file:
+                task_ids = json.load(file)
+        except json.JSONDecodeError:
+            logging.debug(
+                "Got JSONDecodeError while reading tasks list file path, "
+                "resetting cache..."
+            )
+            task_ids = []
 
         tasks = []
         for task_id in task_ids:
             try:
                 with open(self.get_task_path(task_id=task_id)) as file:
                     tasks.append(FileTranscriptionTask.from_json(file.read()))
-            except FileNotFoundError:
+            except (FileNotFoundError, json.JSONDecodeError):
                 pass
 
         return tasks
