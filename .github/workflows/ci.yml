@@ -73,9 +73,9 @@ jobs:
       - name: Test
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then
-            curl -OL "https://github.com/ggerganov/whisper.cpp/releases/download/v1.4.0/whisper-bin-x64.zip"
-            unzip -o whisper-bin-x64.zip
-            mv main.exe whisper_cpp.exe
+            # curl -OL "https://github.com/ggerganov/whisper.cpp/releases/download/v1.4.0/whisper-bin-x64.zip"
+            # unzip -o whisper-bin-x64.zip
+            # mv main.exe whisper_cpp.exe
           fi
 
           poetry run make test
@@ -169,9 +169,9 @@ jobs:
 
           elif [ "$RUNNER_OS" == "Windows" ]; then
 
-            curl -OL "https://github.com/ggerganov/whisper.cpp/releases/download/v1.4.0/whisper-bin-x64.zip"
-            unzip -o whisper-bin-x64.zip
-            mv main.exe whisper_cpp.exe
+            # curl -OL "https://github.com/ggerganov/whisper.cpp/releases/download/v1.4.0/whisper-bin-x64.zip"
+            # unzip -o whisper-bin-x64.zip
+            # mv main.exe whisper_cpp.exe
 
             poetry run make bundle_windows
 
