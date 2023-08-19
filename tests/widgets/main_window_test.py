@@ -21,6 +21,35 @@ from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
     TranscriptionViewerWidget,
 )
 
+mock_tasks = [
+    FileTranscriptionTask(
+        file_path="",
+        transcription_options=TranscriptionOptions(),
+        file_transcription_options=FileTranscriptionOptions(file_paths=[]),
+        model_path="",
+        status=FileTranscriptionTask.Status.COMPLETED,
+    ),
+    FileTranscriptionTask(
+        file_path="",
+        transcription_options=TranscriptionOptions(),
+        file_transcription_options=FileTranscriptionOptions(file_paths=[]),
+        model_path="",
+        status=FileTranscriptionTask.Status.CANCELED,
+    ),
+    FileTranscriptionTask(
+        file_path="",
+        transcription_options=TranscriptionOptions(),
+        file_transcription_options=FileTranscriptionOptions(file_paths=[]),
+        model_path="",
+        status=FileTranscriptionTask.Status.FAILED,
+        error="Error",
+    ),
+]
+
+
+def get_test_asset(filename: str):
+    return os.path.join(os.path.dirname(__file__), "../testdata/", filename)
+
 
 class TestMainWindow:
     def test_should_set_window_title_and_icon(self, qtbot):
@@ -222,33 +251,3 @@ def tasks_cache(tmp_path, request: SubRequest):
         cache.save(tasks)
     yield cache
     cache.clear()
-
-
-mock_tasks = [
-    FileTranscriptionTask(
-        file_path="",
-        transcription_options=TranscriptionOptions(),
-        file_transcription_options=FileTranscriptionOptions(file_paths=[]),
-        model_path="",
-        status=FileTranscriptionTask.Status.COMPLETED,
-    ),
-    FileTranscriptionTask(
-        file_path="",
-        transcription_options=TranscriptionOptions(),
-        file_transcription_options=FileTranscriptionOptions(file_paths=[]),
-        model_path="",
-        status=FileTranscriptionTask.Status.CANCELED,
-    ),
-    FileTranscriptionTask(
-        file_path="",
-        transcription_options=TranscriptionOptions(),
-        file_transcription_options=FileTranscriptionOptions(file_paths=[]),
-        model_path="",
-        status=FileTranscriptionTask.Status.FAILED,
-        error="Error",
-    ),
-]
-
-
-def get_test_asset(filename: str):
-    return os.path.join(os.path.dirname(__file__), "../testdata/", filename)
