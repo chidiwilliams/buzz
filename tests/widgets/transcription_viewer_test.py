@@ -2,8 +2,7 @@ import pathlib
 from unittest.mock import patch
 
 import pytest
-from PyQt6.QtGui import QKeyEvent
-from PyQt6.QtWidgets import QPushButton, QToolBar, QToolButton
+from PyQt6.QtWidgets import QPushButton, QToolBar
 from pytestqt.qtbot import QtBot
 
 from buzz.transcriber import (
@@ -12,10 +11,12 @@ from buzz.transcriber import (
     TranscriptionOptions,
     Segment,
 )
-from buzz.widgets.transcription_segments_editor_widget import (
+from buzz.widgets.transcription_viewer.transcription_segments_editor_widget import (
     TranscriptionSegmentsEditorWidget,
 )
-from buzz.widgets.transcription_viewer_widget import TranscriptionViewerWidget
+from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
+    TranscriptionViewerWidget,
+)
 
 
 class TestTranscriptionViewerWidget:
