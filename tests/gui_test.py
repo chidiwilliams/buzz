@@ -92,16 +92,6 @@ class TestAudioDevicesComboBox:
         assert audio_devices_combo_box.currentText() == "Background Music"
 
 
-@pytest.fixture()
-def tasks_cache(tmp_path, request: SubRequest):
-    cache = TasksCache(cache_dir=str(tmp_path))
-    if hasattr(request, "param"):
-        tasks: List[FileTranscriptionTask] = request.param
-        cache.save(tasks)
-    yield cache
-    cache.clear()
-
-
 @pytest.fixture(scope="module", autouse=True)
 def clear_settings():
     settings = Settings()

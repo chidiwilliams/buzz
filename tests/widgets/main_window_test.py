@@ -1,17 +1,25 @@
+import os
+from typing import List
 from unittest.mock import patch
 
 import pytest
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QKeyEvent
 from PyQt6.QtWidgets import QTableWidget, QMessageBox, QPushButton, QToolBar
+from _pytest.fixtures import SubRequest
 from pytestqt.qtbot import QtBot
 
+from buzz.cache import TasksCache
+from buzz.transcriber import (
+    FileTranscriptionTask,
+    TranscriptionOptions,
+    FileTranscriptionOptions,
+)
 from buzz.widgets.main_window import MainWindow
 from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
 from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
     TranscriptionViewerWidget,
 )
-from tests.mocks import get_test_asset, mock_tasks
 
 
 class TestMainWindow:
@@ -204,3 +212,43 @@ class TestMainWindow:
     def _get_toolbar_action(window: MainWindow, text: str):
         toolbar: QToolBar = window.findChild(QToolBar)
         return [action for action in toolbar.actions() if action.text() == text][0]
+
+
+@pytest.fixture()
+def tasks_cache(tmp_path, request: SubRequest):
+    cache = TasksCache(cache_dir=str(tmp_path))
+    if hasattr(request, "param"):
+        tasks: List[FileTranscriptionTask] = request.param
+        cache.save(tasks)
+    yield cache
+    cache.clear()
+
+
+mock_tasks = [
+    FileTranscriptionTask(
+        file_path="",
+        transcription_options=TranscriptionOptions(),
+        file_transcription_options=FileTranscriptionOptions(file_paths=[]),
+        model_path="",
+        status=FileTranscriptionTask.Status.COMPLETED,
+    ),
+    FileTranscriptionTask(
+        file_path="",
+        transcription_options=TranscriptionOptions(),
+        file_transcription_options=FileTranscriptionOptions(file_paths=[]),
+        model_path="",
+        status=FileTranscriptionTask.Status.CANCELED,
+    ),
+    FileTranscriptionTask(
+        file_path="",
+        transcription_options=TranscriptionOptions(),
+        file_transcription_options=FileTranscriptionOptions(file_paths=[]),
+        model_path="",
+        status=FileTranscriptionTask.Status.FAILED,
+        error="Error",
+    ),
+]
+
+
+def get_test_asset(filename: str):
+    return os.path.join(os.path.dirname(__file__), "../testdata/", filename)
