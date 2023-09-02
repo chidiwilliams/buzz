@@ -6,6 +6,7 @@ import platform
 import sys
 from typing import TextIO
 
+from PyQt6.QtCore import QLocale
 from appdirs import user_log_dir
 
 # Check for segfaults if not running in frozen mode
