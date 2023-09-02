@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-02 15:01-0700\n"
+"POT-Creation-Date: 2023-09-02 13:50+0100\n"
 "PO-Revision-Date: 2023-07-30 11:02+0200\n"
 "Language-Team: (Italiano) Angelo Giammarresi - info@wocmultimedia.com\n"
 "Language: it_IT\n"
@@ -16,75 +16,11 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.3\n"
 
-#: buzz/gui.py:114
-msgid "Detect Language"
-msgstr "Rileva la lingua"
-
-#: buzz/gui.py:153 buzz/gui.py:158 buzz/gui.py:737
-msgid "Record"
-msgstr "Registra"
-
-#: buzz/gui.py:162
-msgid "Stop"
-msgstr "Arresta"
-
-#: buzz/gui.py:219
-msgid "Word-level timings"
-msgstr "Tempistiche a livello di parola"
-
-#: buzz/gui.py:237
-msgid "Run"
-msgstr "Avvia"
-
-#: buzz/gui.py:422
-msgid "Live Recording"
-msgstr "Registrazione in diretta"
-
-#: buzz/gui.py:445
-msgid "Click Record to begin..."
-msgstr "Fai clic su Registra per iniziare…"
-
-#: buzz/gui.py:457
-msgid "Microphone:"
-msgstr "Microfono:"
-
-#: buzz/gui.py:598
-msgid "An error occurred while starting a new recording:"
-msgstr "Si è verificato un errore durante l'avvio della nuova registrazione:"
-
-#: buzz/gui.py:599
-msgid ""
-"Please check your audio devices or check the application logs for more "
-"information."
-msgstr ""
-"Controlla i tuoi dispositivi audio o i registri dell'applicazione per "
-"maggiori informazioni."
-
-#: buzz/gui.py:691
-msgid "Check for updates"
-msgstr "Controlla gli aggiornamenti"
-
-#: buzz/gui.py:719
-msgid "You're up to date!"
-msgstr "Il programma è aggiornato!"
-
-#: buzz/gui.py:740
-msgid "New Transcription"
-msgstr "Nuova trascrizione"
-
-#: buzz/gui.py:744
-msgid "Open Transcript"
-msgstr "Apri trascrizione"
-
-#: buzz/gui.py:748
-msgid "Cancel Transcription"
-msgstr "Annulla trascrizione"
-
-#: buzz/gui.py:752 buzz/gui.py:888
+#: buzz/widgets/main_window.py:157 buzz/widgets/main_window_toolbar.py:57
 msgid "Clear History"
 msgstr "Elimina la cronologia"
 
-#: buzz/gui.py:889
+#: buzz/widgets/main_window.py:159
 msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
@@ -92,53 +28,220 @@ msgstr ""
 "Sei certo di voler eliminare le trascrizioni selezionate? Questa azione non "
 "può essere annullata."
 
-#: buzz/gui.py:910
+#: buzz/widgets/main_window.py:185
 msgid "Select audio file"
 msgstr "Seleziona file audio"
 
-#: buzz/gui.py:1180
-msgid "Model:"
-msgstr "Modello:"
-
-#: buzz/gui.py:1184
-msgid "Task:"
-msgstr "Compito:"
-
-#: buzz/gui.py:1185
-msgid "Language:"
-msgstr "Lingua:"
-
-#: buzz/gui.py:1257
-msgid "Import Media File..."
-msgstr "Importa file media…"
-
-#: buzz/gui.py:1264
-msgid "Preferences..."
-msgstr ""
-
-#: buzz/gui.py:1269
-msgid "File"
-msgstr "File"
-
-#: buzz/gui.py:1272
-msgid "Help"
-msgstr "Aiuto"
-
-#: buzz/gui.py:1321
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:28
 msgid "Advanced Settings"
 msgstr "Impostazion avanzate"
 
-#: buzz/gui.py:1333
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:42
 msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
 msgstr "Separate da virgola, esempio: \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
 
-#: buzz/gui.py:1347
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:61
 msgid "Temperature:"
 msgstr "Temperatura:"
 
-#: buzz/gui.py:1348
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:62
 msgid "Initial Prompt:"
 msgstr "Domanda iniziale:"
+
+#: buzz/widgets/transcriber/transcription_options_group_box.py:79
+msgid "Model:"
+msgstr "Modello:"
+
+#: buzz/widgets/transcriber/transcription_options_group_box.py:83
+msgid "Task:"
+msgstr "Compito:"
+
+#: buzz/widgets/transcriber/transcription_options_group_box.py:84
+msgid "Language:"
+msgstr "Lingua:"
+
+#: buzz/widgets/transcriber/languages_combo_box.py:25
+msgid "Detect Language"
+msgstr "Rileva la lingua"
+
+#: buzz/widgets/transcriber/file_transcriber_widget.py:108
+msgid "Word-level timings"
+msgstr "Tempistiche a livello di parola"
+
+#: buzz/widgets/transcriber/file_transcriber_widget.py:137
+msgid "Run"
+msgstr "Avvia"
+
+#: buzz/widgets/main_window_toolbar.py:32 buzz/widgets/record_button.py:10
+#: buzz/widgets/record_button.py:17
+msgid "Record"
+msgstr "Registra"
+
+#: buzz/widgets/main_window_toolbar.py:36
+msgid "New Transcription"
+msgstr "Nuova trascrizione"
+
+#: buzz/widgets/main_window_toolbar.py:43
+msgid "Open Transcript"
+msgstr "Apri trascrizione"
+
+#: buzz/widgets/main_window_toolbar.py:49
+msgid "Cancel Transcription"
+msgstr "Annulla trascrizione"
+
+#: buzz/widgets/menu_bar.py:29
+msgid "Import Media File..."
+msgstr "Importa file media…"
+
+#: buzz/widgets/menu_bar.py:35
+msgid "Preferences..."
+msgstr ""
+
+#: buzz/widgets/menu_bar.py:43
+msgid "File"
+msgstr "File"
+
+#: buzz/widgets/menu_bar.py:46
+msgid "Help"
+msgstr "Aiuto"
+
+#: buzz/widgets/record_button.py:21
+msgid "Stop"
+msgstr "Arresta"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:33
+msgid "ID"
+msgstr "ID"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:33
+msgid "File Name"
+msgstr "Nome file"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:33
+msgid "Status"
+msgstr "Stato"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:81
+msgid "Completed"
+msgstr "Completato"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:88
+msgid "Canceled"
+msgstr "Annullato"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:90
+msgid "Queued"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:30
+msgid "Start"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:30
+msgid "End"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:30
+msgid "Text"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:87
+msgid "Undo"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:92
+msgid "Redo"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/export_transcription_button.py:39
+msgid "Save File"
+msgstr "Salva file"
+
+#: buzz/widgets/transcription_viewer/export_transcription_button.py:41
+msgid "Text files"
+msgstr "File testo"
+
+#: buzz/widgets/about_dialog.py:80
+msgid "Check for updates"
+msgstr "Controlla gli aggiornamenti"
+
+#: buzz/widgets/about_dialog.py:109
+msgid "You're up to date!"
+msgstr "Il programma è aggiornato!"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:61
+#, fuzzy
+msgid "Download"
+msgstr "Scaricando il modello"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:66
+msgid "Show file location"
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:74
+msgid "Delete"
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:111
+#, fuzzy
+msgid "Downloaded"
+msgstr "Scaricando il modello"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:116
+msgid "Available for Download"
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:158
+msgid "Delete Model"
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:159
+#, fuzzy
+msgid "Are you sure you want to delete the selected model?"
+msgstr ""
+"Sei certo di voler eliminare le trascrizioni selezionate? Questa azione non "
+"può essere annullata."
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:178
+msgid "Error"
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:43
+msgid "General"
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:46
+#, fuzzy
+msgid "Models"
+msgstr "Modello:"
+
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:50
+msgid "Shortcuts"
+msgstr ""
+
+#: buzz/widgets/recording_transcriber_widget.py:62
+msgid "Live Recording"
+msgstr "Registrazione in diretta"
+
+#: buzz/widgets/recording_transcriber_widget.py:101
+msgid "Click Record to begin..."
+msgstr "Fai clic su Registra per iniziare…"
+
+#: buzz/widgets/recording_transcriber_widget.py:118
+msgid "Microphone:"
+msgstr "Microfono:"
+
+#: buzz/widgets/recording_transcriber_widget.py:274
+msgid "An error occurred while starting a new recording:"
+msgstr "Si è verificato un errore durante l'avvio della nuova registrazione:"
+
+#: buzz/widgets/recording_transcriber_widget.py:278
+msgid ""
+"Please check your audio devices or check the application logs for more "
+"information."
+msgstr ""
+"Controlla i tuoi dispositivi audio o i registri dell'applicazione per "
+"maggiori informazioni."
 
 #~ msgid "Downloading model (0%, unknown time remaining)"
 #~ msgstr "Scaricando il modello (0\", tempo restante sconosciuto)"
@@ -146,32 +249,8 @@ msgstr "Domanda iniziale:"
 #~ msgid "Cancel"
 #~ msgstr "Annulla"
 
-#~ msgid "Downloading model"
-#~ msgstr "Scaricando il modello"
-
 #~ msgid "Export"
 #~ msgstr "Esporta"
 
-#~ msgid "Save File"
-#~ msgstr "Salva file"
-
-#~ msgid "Text files"
-#~ msgstr "File testo"
-
-#~ msgid "ID"
-#~ msgstr "ID"
-
-#~ msgid "File Name"
-#~ msgstr "Nome file"
-
-#~ msgid "Status"
-#~ msgstr "Stato"
-
-#~ msgid "Completed"
-#~ msgstr "Completato"
-
 #~ msgid "Failed"
 #~ msgstr "Fallito"
-
-#~ msgid "Canceled"
-#~ msgstr "Annullato"
