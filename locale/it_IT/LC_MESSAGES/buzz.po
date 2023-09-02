@@ -1,4 +1,4 @@
-# SOME DESCRIPTIVE TITLE.
+# ITALIAN TRANSLATION.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 #
@@ -7,8 +7,8 @@ msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-09-02 13:50+0100\n"
-"PO-Revision-Date: 2023-07-30 11:02+0200\n"
-"Language-Team: (Italiano) Angelo Giammarresi - info@wocmultimedia.com\n"
+"PO-Revision-Date: 2023-09-02 16:02+0200\n"
+"Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -95,7 +95,7 @@ msgstr "Importa file media…"
 
 #: buzz/widgets/menu_bar.py:35
 msgid "Preferences..."
-msgstr ""
+msgstr "Preferenze..."
 
 #: buzz/widgets/menu_bar.py:43
 msgid "File"
@@ -131,27 +131,27 @@ msgstr "Annullato"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:90
 msgid "Queued"
-msgstr ""
+msgstr "In coda"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:30
 msgid "Start"
-msgstr ""
+msgstr "Inizio"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:30
 msgid "End"
-msgstr ""
+msgstr "FIne"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:30
 msgid "Text"
-msgstr ""
+msgstr "Testo"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:87
 msgid "Undo"
-msgstr ""
+msgstr "Annulla"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:92
 msgid "Redo"
-msgstr ""
+msgstr "Rifai"
 
 #: buzz/widgets/transcription_viewer/export_transcription_button.py:39
 msgid "Save File"
@@ -170,54 +170,48 @@ msgid "You're up to date!"
 msgstr "Il programma è aggiornato!"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:61
-#, fuzzy
 msgid "Download"
-msgstr "Scaricando il modello"
+msgstr "Download"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:66
 msgid "Show file location"
-msgstr ""
+msgstr "Mostra la posizione del file"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:74
 msgid "Delete"
-msgstr ""
+msgstr "Elimina"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:111
-#, fuzzy
 msgid "Downloaded"
-msgstr "Scaricando il modello"
+msgstr "Scaricato"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:116
 msgid "Available for Download"
-msgstr ""
+msgstr "Disponibile per il download"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:158
 msgid "Delete Model"
-msgstr ""
+msgstr "Elimina modello"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:159
-#, fuzzy
 msgid "Are you sure you want to delete the selected model?"
-msgstr ""
-"Sei certo di voler eliminare le trascrizioni selezionate? Questa azione non "
-"può essere annullata."
+msgstr "Sei sicuro di voler eliminare il modello selezionato?"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:178
 msgid "Error"
-msgstr ""
+msgstr "Errore"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:43
 msgid "General"
-msgstr ""
+msgstr "Generale"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:46
-#, fuzzy
 msgid "Models"
-msgstr "Modello:"
+msgstr "Modelli"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:50
 msgid "Shortcuts"
-msgstr ""
+msgstr "Scorciatoie"
 
 #: buzz/widgets/recording_transcriber_widget.py:62
 msgid "Live Recording"
@@ -225,7 +219,7 @@ msgstr "Registrazione in diretta"
 
 #: buzz/widgets/recording_transcriber_widget.py:101
 msgid "Click Record to begin..."
-msgstr "Fai clic su Registra per iniziare…"
+msgstr "Fai clic su Registra per iniziare..."
 
 #: buzz/widgets/recording_transcriber_widget.py:118
 msgid "Microphone:"
