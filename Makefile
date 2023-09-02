@@ -168,7 +168,7 @@ PO_FILE_PATH := locale/${locale}/LC_MESSAGES/buzz.po
 translation_po:
 	xgettext --from-code=UTF-8 -o "${TMP_POT_FILE_PATH}" -l python $(shell find buzz/widgets -name '*.py')
 	sed -i.bak 's/CHARSET/UTF-8/' ${TMP_POT_FILE_PATH} && rm ${TMP_POT_FILE_PATH}.bak
-	msgmerge -U ${PO_FILE_PATH} ${TMP_POT_FILE_PATH};
+	msgmerge -U ${PO_FILE_PATH} ${TMP_POT_FILE_PATH}
 
 translation_mo:
 	for dir in locale/*/ ; do \
