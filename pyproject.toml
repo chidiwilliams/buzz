@@ -1,11 +1,15 @@
 [tool.poetry]
-name = "buzz"
+name = "buzz-captions"
 version = "0.8.4"
 description = ""
 authors = ["Chidi Williams <williamschidi1@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 include = ["buzz/libwhisper.*", "buzz/whisper_cpp.py"]
+repository = "https://github.com/chidiwilliams/buzz"
+packages = [
+    { include = "buzz" },
+]
 
 [tool.poetry.dependencies]
 python = ">=3.9.13,<3.11"
