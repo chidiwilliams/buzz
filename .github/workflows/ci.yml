@@ -286,7 +286,7 @@ jobs:
       - name: Publish to PyPI
         run: |
           poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
-          poetry publish --build
+          poetry publish --build --skip-existing
 
   release:
     runs-on: ${{ matrix.os }}
