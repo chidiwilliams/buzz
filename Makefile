@@ -28,7 +28,6 @@ endif
 
 clean:
 	rm -f $(LIBWHISPER)
-	rm -f whisper_cpp
 	rm -f buzz/whisper_cpp.py
 	rm -rf dist/* || true
 
@@ -106,7 +105,6 @@ zip_mac:
 
 codesign_all_mac: dist/Buzz.app
 	codesign --force --options=runtime --sign "$$BUZZ_CODESIGN_IDENTITY" --timestamp dist/Buzz.app/Contents/Resources/ffmpeg
-	codesign --force --options=runtime --sign "$$BUZZ_CODESIGN_IDENTITY" --timestamp dist/Buzz.app/Contents/Resources/whisper_cpp
 	for i in $$(find dist/Buzz.app/Contents/Resources/torch/bin -name "*" -type f); \
 	do \
 		codesign --force --options=runtime --sign "$$BUZZ_CODESIGN_IDENTITY" --timestamp "$$i"; \
