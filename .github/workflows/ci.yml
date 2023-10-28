@@ -33,7 +33,7 @@ jobs:
           python-version: "3.10.7"
 
       - name: Install Poetry Action
-        uses: snok/install-poetry@v1
+        uses: snok/install-poetry@v1.3.1
         with:
           virtualenvs-create: true
           virtualenvs-in-project: true
@@ -98,7 +98,7 @@ jobs:
           python-version: "3.10.7"
 
       - name: Install Poetry Action
-        uses: snok/install-poetry@v1
+        uses: snok/install-poetry@v1.3.1
         with:
           virtualenvs-create: true
           virtualenvs-in-project: true
@@ -209,7 +209,7 @@ jobs:
           python-version: "3.10.7"
 
       - name: Install Poetry Action
-        uses: snok/install-poetry@v1
+        uses: snok/install-poetry@v1.3.1
         with:
           virtualenvs-create: true
           virtualenvs-in-project: true
@@ -279,7 +279,7 @@ jobs:
         with:
           python-version: "3.10.7"
       - name: Install Poetry Action
-        uses: snok/install-poetry@v1
+        uses: snok/install-poetry@v1.3.1
         with:
           virtualenvs-create: true
           virtualenvs-in-project: true
@@ -307,7 +307,7 @@ jobs:
         with:
           name: Buzz-${{ runner.os }}
       - name: Install Poetry Action
-        uses: snok/install-poetry@v1
+        uses: snok/install-poetry@v1.3.1
         with:
           virtualenvs-create: true
           virtualenvs-in-project: true
@@ -329,7 +329,7 @@ jobs:
         with:
           submodules: recursive
       - name: Install Poetry Action
-        uses: snok/install-poetry@v1.
+        uses: snok/install-poetry@v1.3.1
         with:
           virtualenvs-create: true
           virtualenvs-in-project: true
