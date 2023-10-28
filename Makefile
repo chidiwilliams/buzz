@@ -28,7 +28,6 @@ endif
 
 clean:
 	rm -f $(LIBWHISPER)
-	rm -f whisper_cpp
 	rm -f buzz/whisper_cpp.py
 	rm -rf dist/* || true
 
@@ -66,16 +65,14 @@ else
 	endif
 endif
 
-$(LIBWHISPER) whisper_cpp:
+buzz/$(LIBWHISPER):
 	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS)
 	cmake --build whisper.cpp/build --verbose
-	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) . || true
-	cp whisper.cpp/build/bin/Debug/main whisper_cpp || true
-	cp whisper.cpp/build/$(LIBWHISPER) . || true
-	cp whisper.cpp/build/bin/main whisper_cpp || true
+	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) buzz || true
+	cp whisper.cpp/build/$(LIBWHISPER) buzz || true
 
-buzz/whisper_cpp.py: $(LIBWHISPER)
-	ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o buzz/whisper_cpp.py
+buzz/whisper_cpp.py: buzz/$(LIBWHISPER)
+	cd buzz && ctypesgen ../whisper.cpp/whisper.h -lwhisper -o whisper_cpp.py
 
 # Prints all the Mac developer identities used for code signing
 print_identities_mac:
@@ -89,7 +86,7 @@ dmg_mac:
 		--window-pos 200 120 \
 		--window-size 600 300 \
 		--icon-size 100 \
-		--icon "./assets/buzz.icns" 175 120 \
+		--icon "Buzz.app" 175 120 \
 		--hide-extension "Buzz.app" \
 		--app-drop-link 425 120 \
 		--codesign "$$BUZZ_CODESIGN_IDENTITY" \
@@ -108,7 +105,6 @@ zip_mac:
 
 codesign_all_mac: dist/Buzz.app
 	codesign --force --options=runtime --sign "$$BUZZ_CODESIGN_IDENTITY" --timestamp dist/Buzz.app/Contents/Resources/ffmpeg
-	codesign --force --options=runtime --sign "$$BUZZ_CODESIGN_IDENTITY" --timestamp dist/Buzz.app/Contents/Resources/whisper_cpp
 	for i in $$(find dist/Buzz.app/Contents/Resources/torch/bin -name "*" -type f); \
 	do \
 		codesign --force --options=runtime --sign "$$BUZZ_CODESIGN_IDENTITY" --timestamp "$$i"; \

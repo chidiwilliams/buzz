@@ -23,10 +23,8 @@ datas += copy_metadata('tokenizers')
 datas += collect_data_files('transformers', include_py_files=True)
 
 datas += collect_data_files('whisper')
-datas += [('whisper.dll' if platform.system() == 'Windows' else 'libwhisper.*', '.')]
-datas += [(shutil.which('whisper_cpp') if platform.system() == 'Windows' else 'whisper_cpp', '.')]
-datas += [('assets/*', 'assets')]
-datas += [(file[1], os.path.dirname(file[1])) for file in Tree('./locale', prefix='locale', excludes=['*.po'])]
+datas += [(file[1], os.path.dirname(file[1])) for file in
+          Tree('./locale', prefix='locale', excludes=['*.po'])]
 datas += [(shutil.which('ffmpeg'), '.')]
 
 block_cipher = None

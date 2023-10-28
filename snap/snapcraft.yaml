@@ -13,7 +13,7 @@ description: |
 grade: stable
 confinement: strict
 license: MIT
-icon: assets/buzz.svg
+icon: buzz/assets/buzz.svg
 
 architectures:
   - build-on: amd64
