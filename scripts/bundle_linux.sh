@@ -13,7 +13,7 @@ cp -r $PYINSTALLER_BUILD_PATH $PACKAGE_PATH/opt/buzz
 cp buzz.desktop $PACKAGE_PATH/usr/share/applications
 
 # Copy icons
-cp assets/buzz.svg $PACKAGE_PATH/usr/share/icons/hicolor/scalable/apps/buzz.svg
+cp buzz/assets/buzz.svg $PACKAGE_PATH/usr/share/icons/hicolor/scalable/apps/buzz.svg
 
 # Set permissions
 find $PACKAGE_PATH/opt/buzz -type f -exec chmod 644 -- {} +
