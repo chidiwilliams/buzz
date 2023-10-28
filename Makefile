@@ -86,7 +86,7 @@ dmg_mac:
 		--window-pos 200 120 \
 		--window-size 600 300 \
 		--icon-size 100 \
-		--icon "./assets/buzz.icns" 175 120 \
+		--icon "Buzz.app" 175 120 \
 		--hide-extension "Buzz.app" \
 		--app-drop-link 425 120 \
 		--codesign "$$BUZZ_CODESIGN_IDENTITY" \
