@@ -66,16 +66,14 @@ else
 	endif
 endif
 
-$(LIBWHISPER) whisper_cpp:
+buzz/$(LIBWHISPER):
 	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS)
 	cmake --build whisper.cpp/build --verbose
-	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) . || true
-	cp whisper.cpp/build/bin/Debug/main whisper_cpp || true
-	cp whisper.cpp/build/$(LIBWHISPER) . || true
-	cp whisper.cpp/build/bin/main whisper_cpp || true
+	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) buzz || true
+	cp whisper.cpp/build/$(LIBWHISPER) buzz || true
 
-buzz/whisper_cpp.py: $(LIBWHISPER)
-	ctypesgen ./whisper.cpp/whisper.h -l$(LIBWHISPER) -o buzz/whisper_cpp.py
+buzz/whisper_cpp.py: buzz/$(LIBWHISPER)
+	cd buzz && ctypesgen ../whisper.cpp/whisper.h -lwhisper -o whisper_cpp.py
 
 # Prints all the Mac developer identities used for code signing
 print_identities_mac:

@@ -5,6 +5,7 @@ description = ""
 authors = ["Chidi Williams <williamschidi1@gmail.com>"]
 license = "MIT"
 readme = "README.md"
+include = ["buzz/libwhisper.*", "buzz/whisper_cpp.py"]
 
 [tool.poetry.dependencies]
 python = ">=3.9.13,<3.11"
@@ -33,7 +34,7 @@ pytest-xvfb = "^2.0.0"
 pylint = "^2.15.5"
 pre-commit = "^2.20.0"
 pytest-benchmark = "^4.0.0"
-black = {extras = ["d"], version = "^23.7.0"}
+ruff = "^0.1.3"
 
 [tool.poetry.group.build.dependencies]
 ctypesgen = "^1.1.1"

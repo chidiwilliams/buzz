@@ -16,7 +16,7 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
 <a href="https://apps.apple.com/us/app/buzz-captions/id6446018936?mt=12&amp;itsct=apps_box_badge&amp;itscg=30200"><img src="https://tools.applemediaservices.com/api/badges/download-on-the-mac-app-store/black/en-us?size=250x83&amp;releaseDate=1679529600" alt="Download on the Mac App Store" /></a>
 </blockquote>
 
-![Buzz](./assets/buzz-banner.jpg)
+![Buzz](./buzz/assets/buzz-banner.jpg)
 
 ## Installation
 
