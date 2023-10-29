@@ -51,3 +51,6 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.build]
 generate-setup-file = true
 script = "build.py"
+
+[tool.poetry.scripts]
+buzz = "buzz.buzz:main"
