@@ -20,6 +20,13 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
 
 ## Installation
 
+**PyPI**:
+
+```shell
+pip install buzz-captions
+python -m buzz
+```
+
 **macOS**:
 
 ```shell

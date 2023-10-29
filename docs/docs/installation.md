@@ -41,3 +41,10 @@ sudo apt-get install libportaudio2
 ```
 
 Then, download and extract the `Buzz-x.y.z-unix.tar.gz` file
+
+## PyPI
+
+```shell
+pip install buzz-captions
+python -m buzz
+```
