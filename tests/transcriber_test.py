@@ -187,9 +187,10 @@ class TestWhisperFileTranscriber:
         assert srt.endswith(".srt")
 
     @pytest.mark.parametrize(
-        "expected_segments,model",
+        "word_level_timings,expected_segments,model",
         [
             (
+                False,
                 [
                     Segment(
                         0,
@@ -201,18 +202,17 @@ class TestWhisperFileTranscriber:
                     model_type=ModelType.WHISPER,
                     whisper_model_size=WhisperModelSize.TINY,
                 ),
-                True,
             ),
-            # (
-            #         True,
-            #         [Segment(40, 299, " Bien"), Segment(299, 329, "venue dans")],
-            #         TranscriptionModel(
-            #             model_type=ModelType.WHISPER,
-            #             whisper_model_size=WhisperModelSize.TINY,
-            #         ),
-            #         True,
-            # ),
             (
+                True,
+                [Segment(40, 299, " Bien"), Segment(299, 329, "venue dans")],
+                TranscriptionModel(
+                    model_type=ModelType.WHISPER,
+                    whisper_model_size=WhisperModelSize.TINY,
+                ),
+            ),
+            (
+                False,
                 [
                     Segment(
                         0,
@@ -225,9 +225,9 @@ class TestWhisperFileTranscriber:
                     model_type=ModelType.HUGGING_FACE,
                     hugging_face_model_id="openai/whisper-tiny",
                 ),
-                False,
             ),
             pytest.param(
+                False,
                 [
                     Segment(
                         start=0,
@@ -239,7 +239,6 @@ class TestWhisperFileTranscriber:
                     model_type=ModelType.FASTER_WHISPER,
                     whisper_model_size=WhisperModelSize.TINY,
                 ),
-                True,
                 marks=pytest.mark.skipif(
                     platform.system() == "Darwin",
                     reason="Error with libiomp5 already initialized on GH action runner: https://github.com/chidiwilliams/buzz/actions/runs/4657331262/jobs/8241832087",
@@ -248,14 +247,18 @@ class TestWhisperFileTranscriber:
         ],
     )
     def test_transcribe(
-        self, qtbot: QtBot, expected_segments: List[Segment], model: TranscriptionModel
+        self,
+        qtbot: QtBot,
+        word_level_timings: bool,
+        expected_segments: List[Segment],
+        model: TranscriptionModel,
     ):
         mock_progress = Mock()
         mock_completed = Mock()
         transcription_options = TranscriptionOptions(
             language="fr",
             task=Task.TRANSCRIBE,
-            word_level_timings=False,
+            word_level_timings=word_level_timings,
             model=model,
         )
         model_path = get_model_path(transcription_options.model)
