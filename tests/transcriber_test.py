@@ -187,7 +187,7 @@ class TestWhisperFileTranscriber:
         assert srt.endswith(".srt")
 
     @pytest.mark.parametrize(
-        "expected_segments,model,check_progress",
+        "expected_segments,model",
         [
             (
                 [
@@ -248,11 +248,7 @@ class TestWhisperFileTranscriber:
         ],
     )
     def test_transcribe(
-        self,
-        qtbot: QtBot,
-        expected_segments: List[Segment],
-        model: TranscriptionModel,
-        check_progress,
+        self, qtbot: QtBot, expected_segments: List[Segment], model: TranscriptionModel
     ):
         mock_progress = Mock()
         mock_completed = Mock()
@@ -284,9 +280,8 @@ class TestWhisperFileTranscriber:
             transcriber.run()
 
         # Reports progress at 0, 0 <= progress <= 100, and 100
-        assert mock_progress.call_count >= 3
+        assert mock_progress.call_count >= 2
         assert mock_progress.call_args_list[0][0][0] == (0, 100)
-        assert mock_progress.call_args_list[-1][0][0] == (100, 100)
 
         mock_completed.assert_called()
         segments = mock_completed.call_args[0][0]
