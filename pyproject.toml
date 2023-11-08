@@ -26,6 +26,7 @@ keyring = "^23.13.1"
 openai-whisper = "v20231106"
 platformdirs = "^3.5.3"
 dataclasses-json = "^0.5.9"
+ffmpeg-python = "^0.2.0"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
