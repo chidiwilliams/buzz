@@ -78,7 +78,7 @@ def parse(app: Application, parser: QCommandLineParser):
         )
         hugging_face_model_id_option = QCommandLineOption(
             ["hfid"],
-            f'Hugging Face model ID. Use only when --model-type is huggingface. Example: "openai/whisper-tiny"',
+            'Hugging Face model ID. Use only when --model-type is huggingface. Example: "openai/whisper-tiny"',
             "id",
         )
         language_option = QCommandLineOption(
@@ -88,7 +88,7 @@ def parse(app: Application, parser: QCommandLineParser):
             "",
         )
         initial_prompt_option = QCommandLineOption(
-            ["p", "prompt"], f"Initial prompt", "prompt", ""
+            ["p", "prompt"], "Initial prompt", "prompt", ""
         )
         open_ai_access_token_option = QCommandLineOption(
             "openai-token",

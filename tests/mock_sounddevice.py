@@ -104,7 +104,7 @@ class MockInputStream(MagicMock):
         self,
         callback: Callable[[np.ndarray, int, Any, sounddevice.CallbackFlags], None],
         *args,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(spec=sounddevice.InputStream)
         self.thread = Thread(target=self.target)

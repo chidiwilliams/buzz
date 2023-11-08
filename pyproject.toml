@@ -55,3 +55,8 @@ script = "build.py"
 
 [tool.poetry.scripts]
 buzz = "buzz.buzz:main"
+
+[tool.ruff]
+exclude = [
+    "**/whisper.cpp",
+]

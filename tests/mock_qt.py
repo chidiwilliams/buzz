@@ -1,8 +1,8 @@
 import json
 from typing import Optional
 
-from PyQt6.QtCore import QByteArray, QObject, QSize, Qt, pyqtSignal
-from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply
+from PyQt6.QtCore import QByteArray, QObject, pyqtSignal
+from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
 
 
 class MockNetworkReply(QNetworkReply):

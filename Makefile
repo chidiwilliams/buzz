@@ -170,3 +170,7 @@ translation_mo:
 	for dir in locale/*/ ; do \
 		msgfmt --check $$dir/LC_MESSAGES/buzz.po -o $$dir/LC_MESSAGES/buzz.mo; \
 	done
+
+lint:
+	ruff check . --fix
+	ruff format .

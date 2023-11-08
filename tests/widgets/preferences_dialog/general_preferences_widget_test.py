@@ -1,6 +1,5 @@
 from unittest.mock import Mock
 
-import pytest
 from PyQt6.QtWidgets import QPushButton, QMessageBox, QLineEdit
 
 from buzz.store.keyring_store import KeyringStore

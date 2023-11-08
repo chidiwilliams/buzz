@@ -3,7 +3,7 @@ from typing import Optional
 
 import openai
 from PyQt6.QtCore import QRunnable, QObject, pyqtSignal, QThreadPool
-from PyQt6.QtWidgets import QWidget, QFormLayout, QPushButton, QMessageBox, QLineEdit
+from PyQt6.QtWidgets import QWidget, QFormLayout, QPushButton, QMessageBox
 from openai.error import AuthenticationError
 
 from buzz.store.keyring_store import KeyringStore
