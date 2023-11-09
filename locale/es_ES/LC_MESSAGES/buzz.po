@@ -3,24 +3,24 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-09-02 13:50+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2023-11-09 04:35-0600\n"
+"Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
+"Language-Team: \n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.1\n"
 
 # automatic translation
 #: buzz/widgets/main_window.py:157 buzz/widgets/main_window_toolbar.py:57
 msgid "Clear History"
-msgstr "Borrar historial"
+msgstr "Vaciar historial"
 
 # automatic translation
 #: buzz/widgets/main_window.py:159
@@ -28,7 +28,7 @@ msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
 msgstr ""
-"¿Está seguro de que desea eliminar las transcripciones seleccionadas? Esta "
+"¿Confirma que quiere eliminar las transcripciones seleccionadas? Esta "
 "acción no se puede deshacer."
 
 # automatic translation
@@ -39,12 +39,12 @@ msgstr "Seleccionar archivo de audio"
 # automatic translation
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:28
 msgid "Advanced Settings"
-msgstr "Ajustes avanzados"
+msgstr "Configuración avanzada"
 
 # automatic translation
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:42
 msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-msgstr "Separados por comas, p. \"0,0, 0,2, 0,4, 0,6, 0,8, 1,0\""
+msgstr "Separados por comas, p. ej., «0.0, 0.2, 0.4, 0.6, 0.8, 1.0»"
 
 # automatic translation
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:61
@@ -84,13 +84,13 @@ msgstr "Tiempos a nivel de palabra"
 # automatic translation
 #: buzz/widgets/transcriber/file_transcriber_widget.py:137
 msgid "Run"
-msgstr "Correr"
+msgstr "Ejecutar"
 
 # automatic translation
 #: buzz/widgets/main_window_toolbar.py:32 buzz/widgets/record_button.py:10
 #: buzz/widgets/record_button.py:17
 msgid "Record"
-msgstr "Registro"
+msgstr "Grabar"
 
 # automatic translation
 #: buzz/widgets/main_window_toolbar.py:36
@@ -100,7 +100,7 @@ msgstr "Transcripción nueva"
 # automatic translation
 #: buzz/widgets/main_window_toolbar.py:43
 msgid "Open Transcript"
-msgstr "Abrir Transcripción"
+msgstr "Abrir transcripción"
 
 # automatic translation
 #: buzz/widgets/main_window_toolbar.py:49
@@ -134,59 +134,57 @@ msgstr "Detener"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:33
 msgid "ID"
-msgstr ""
+msgstr "Id."
 
 # automatic translation
 #: buzz/widgets/transcription_tasks_table_widget.py:33
-#, fuzzy
 msgid "File Name"
-msgstr "Archivo"
+msgstr "Nombre de archivo"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:33
 msgid "Status"
-msgstr ""
+msgstr "Estado"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:81
 msgid "Completed"
-msgstr ""
+msgstr "Completado"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:88
 msgid "Canceled"
-msgstr ""
+msgstr "Cancelado"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:90
 msgid "Queued"
-msgstr ""
+msgstr "En cola"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:30
 msgid "Start"
-msgstr ""
+msgstr "Inicio"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:30
 msgid "End"
-msgstr ""
+msgstr "Fin"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:30
 msgid "Text"
-msgstr ""
+msgstr "Texto"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:87
 msgid "Undo"
-msgstr ""
+msgstr "Deshacer"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:92
 msgid "Redo"
-msgstr ""
+msgstr "Rehacer"
 
 # automatic translation
 #: buzz/widgets/transcription_viewer/export_transcription_button.py:39
-#, fuzzy
 msgid "Save File"
-msgstr "Archivo"
+msgstr "Guardar archivo"
 
 #: buzz/widgets/transcription_viewer/export_transcription_button.py:41
 msgid "Text files"
-msgstr ""
+msgstr "Archivos de texto"
 
 # automatic translation
 #: buzz/widgets/about_dialog.py:80
@@ -196,57 +194,53 @@ msgstr "Buscar actualizaciones"
 # automatic translation
 #: buzz/widgets/about_dialog.py:109
 msgid "You're up to date!"
-msgstr "¡Estás al día!"
+msgstr "Está al día."
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:61
 msgid "Download"
-msgstr ""
+msgstr "Descargar"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:66
 msgid "Show file location"
-msgstr ""
+msgstr "Mostrar ubicación de archivo"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:74
 msgid "Delete"
-msgstr ""
+msgstr "Eliminar"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:111
 msgid "Downloaded"
-msgstr ""
+msgstr "Descargado"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:116
 msgid "Available for Download"
-msgstr ""
+msgstr "Disponible para descarga"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:158
 msgid "Delete Model"
-msgstr ""
+msgstr "Eliminar modelo"
 
 # automatic translation
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:159
-#, fuzzy
 msgid "Are you sure you want to delete the selected model?"
-msgstr ""
-"¿Está seguro de que desea eliminar las transcripciones seleccionadas? Esta "
-"acción no se puede deshacer."
+msgstr "¿Confirma que quiere eliminar el modelo seleccionado?"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:178
 msgid "Error"
-msgstr ""
+msgstr "Error"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:43
 msgid "General"
-msgstr ""
+msgstr "Generales"
 
 # automatic translation
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:46
-#, fuzzy
 msgid "Models"
-msgstr "Modelo:"
+msgstr "Modelos"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:50
 msgid "Shortcuts"
-msgstr ""
+msgstr "Atajos"
 
 # automatic translation
 #: buzz/widgets/recording_transcriber_widget.py:62
@@ -256,7 +250,7 @@ msgstr "Grabación en vivo"
 # automatic translation
 #: buzz/widgets/recording_transcriber_widget.py:101
 msgid "Click Record to begin..."
-msgstr "Haga clic en Grabar para comenzar..."
+msgstr "Pulse en Grabar para comenzar..."
 
 # automatic translation
 #: buzz/widgets/recording_transcriber_widget.py:118
@@ -266,7 +260,7 @@ msgstr "Micrófono:"
 # automatic translation
 #: buzz/widgets/recording_transcriber_widget.py:274
 msgid "An error occurred while starting a new recording:"
-msgstr "Ocurrió un error al iniciar una nueva grabación:"
+msgstr "Se produjo un error al iniciar una grabación nueva:"
 
 # automatic translation
 #: buzz/widgets/recording_transcriber_widget.py:278
@@ -274,5 +268,5 @@ msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
 msgstr ""
-"Verifique sus dispositivos de audio o consulte los registros de la "
+"Compruebe sus dispositivos de audio o consulte los registros de la "
 "aplicación para obtener más información."
