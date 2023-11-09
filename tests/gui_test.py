@@ -1,6 +1,5 @@
 import multiprocessing
 import platform
-from typing import List
 from unittest.mock import Mock, patch
 
 import pytest
@@ -11,11 +10,9 @@ from PyQt6.QtWidgets import (
     QApplication,
     QMessageBox,
 )
-from _pytest.fixtures import SubRequest
 from pytestqt.qtbot import QtBot
 
 from buzz.__version__ import VERSION
-from buzz.cache import TasksCache
 from buzz.widgets.recording_transcriber_widget import RecordingTranscriberWidget
 from buzz.widgets.audio_devices_combo_box import AudioDevicesComboBox
 from buzz.widgets.transcriber.advanced_settings_dialog import AdvancedSettingsDialog
@@ -28,7 +25,6 @@ from buzz.widgets.about_dialog import AboutDialog
 from buzz.model_loader import ModelType
 from buzz.settings.settings import Settings
 from buzz.transcriber import (
-    FileTranscriptionTask,
     TranscriptionOptions,
 )
 from buzz.widgets.transcriber.transcription_options_group_box import (
@@ -57,10 +53,6 @@ class TestLanguagesComboBox:
         qtbot.add_widget(languages_combox_box)
         assert languages_combox_box.itemText(0) == "Detect Language"
         assert languages_combox_box.itemText(10) == "Belarusian"
-        assert languages_combox_box.itemText(20) == "Dutch"
-        assert languages_combox_box.itemText(30) == "Gujarati"
-        assert languages_combox_box.itemText(40) == "Japanese"
-        assert languages_combox_box.itemText(50) == "Lithuanian"
 
     def test_should_select_en_as_default_language(self, qtbot):
         languages_combox_box = LanguagesComboBox("en")

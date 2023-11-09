@@ -18,14 +18,15 @@ torch = "1.12.1"
 transformers = "~4.24.0"
 appdirs = "^1.4.4"
 humanize = "^4.4.0"
-PyQt6 = "6.4.0"
+PyQt6 = "^6.4.0"
 stable-ts = "1.0.2"
 openai = "^0.27.1"
 faster-whisper = "^0.4.1"
 keyring = "^23.13.1"
-openai-whisper = "v20230124"
+openai-whisper = "v20231106"
 platformdirs = "^3.5.3"
 dataclasses-json = "^0.5.9"
+ffmpeg-python = "^0.2.0"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
@@ -54,3 +55,8 @@ script = "build.py"
 
 [tool.poetry.scripts]
 buzz = "buzz.buzz:main"
+
+[tool.ruff]
+exclude = [
+    "**/whisper.cpp",
+]

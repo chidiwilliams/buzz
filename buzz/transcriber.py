@@ -5,6 +5,7 @@ import json
 import logging
 import multiprocessing
 import os
+import subprocess
 import sys
 import tempfile
 from abc import abstractmethod
@@ -15,7 +16,6 @@ from threading import Thread
 from typing import Any, List, Optional, Tuple, Union, Set
 
 import faster_whisper
-import ffmpeg
 import numpy as np
 import openai
 import stable_whisper
@@ -250,11 +250,26 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
         )
 
         wav_file = tempfile.mktemp() + ".wav"
-        (
-            ffmpeg.input(self.file_path)
-            .output(wav_file, acodec="pcm_s16le", ac=1, ar=whisper.audio.SAMPLE_RATE)
-            .run(cmd=["ffmpeg", "-nostdin"], capture_stdout=True, capture_stderr=True)
-        )
+
+        # fmt: off
+        cmd = [
+            "ffmpeg",
+            "-nostdin",
+            "-threads", "0",
+            "-i", self.file_path,
+            "-f", "s16le",
+            "-ac", "1",
+            "-acodec", "pcm_s16le",
+            "-ar", str(whisper.audio.SAMPLE_RATE),
+            wav_file,
+        ]
+        # fmt: on
+
+        try:
+            subprocess.run(cmd, capture_output=True, check=True)
+        except subprocess.CalledProcessError as exc:
+            logging.exception("")
+            raise Exception(exc.stderr.decode("utf-8"))
 
         # TODO: Check if file size is more than 25MB (2.5 minutes), then chunk
         audio_file = open(wav_file, "rb")
