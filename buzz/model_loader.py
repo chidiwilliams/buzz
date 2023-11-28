@@ -31,6 +31,9 @@ class WhisperModelSize(str, enum.Enum):
             return "large-v2"
         return self.value
 
+    def __str__(self):
+        return self.value.capitalize()
+
 
 class ModelType(enum.Enum):
     WHISPER = "Whisper"
@@ -45,6 +48,21 @@ class TranscriptionModel:
     model_type: ModelType = ModelType.WHISPER
     whisper_model_size: Optional[WhisperModelSize] = WhisperModelSize.TINY
     hugging_face_model_id: Optional[str] = None
+
+    def __str__(self):
+        match self.model_type:
+            case ModelType.WHISPER:
+                return f"Whisper ({self.whisper_model_size})"
+            case ModelType.WHISPER_CPP:
+                return f"Whisper.cpp ({self.whisper_model_size})"
+            case ModelType.HUGGING_FACE:
+                return f"Hugging Face ({self.hugging_face_model_id})"
+            case ModelType.FASTER_WHISPER:
+                return f"Faster Whisper ({self.whisper_model_size})"
+            case ModelType.OPEN_AI_WHISPER_API:
+                return "OpenAI Whisper API"
+            case _:
+                raise Exception("Unknown model type")
 
     def is_deletable(self):
         return (

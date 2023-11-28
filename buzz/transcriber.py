@@ -27,6 +27,7 @@ from whisper import tokenizer
 
 from . import transformers_whisper
 from .conn import pipe_stderr
+from .locale import _
 from .model_loader import TranscriptionModel, ModelType
 
 # Catch exception from whisper.dll not getting loaded.
@@ -71,6 +72,12 @@ class TranscriptionOptions:
     )
 
 
+def humanize_language(language: str) -> str:
+    if language == "":
+        return _("Detect Language")
+    return LANGUAGES[language].title()
+
+
 @dataclass()
 class FileTranscriptionOptions:
     file_paths: List[str]
@@ -100,6 +107,36 @@ class FileTranscriptionTask:
     queued_at: Optional[datetime.datetime] = None
     started_at: Optional[datetime.datetime] = None
     completed_at: Optional[datetime.datetime] = None
+
+    def status_text(self) -> str:
+        if self.status == FileTranscriptionTask.Status.IN_PROGRESS:
+            return f'{_("In Progress")} ({self.fraction_completed :.0%})'
+        elif self.status == FileTranscriptionTask.Status.COMPLETED:
+            status = _("Completed")
+            if self.started_at is not None and self.completed_at is not None:
+                status += (
+                    f" ({self.format_timedelta(self.completed_at - self.started_at)})"
+                )
+            return status
+        elif self.status == FileTranscriptionTask.Status.FAILED:
+            return f'{_("Failed")} ({self.error})'
+        elif self.status == FileTranscriptionTask.Status.CANCELED:
+            return _("Canceled")
+        elif self.status == FileTranscriptionTask.Status.QUEUED:
+            return _("Queued")
+        return ""
+
+    @staticmethod
+    def format_timedelta(delta: datetime.timedelta):
+        mm, ss = divmod(delta.seconds, 60)
+        result = f"{ss}s"
+        if mm == 0:
+            return result
+        hh, mm = divmod(mm, 60)
+        result = f"{mm}m {result}"
+        if hh == 0:
+            return result
+        return f"{hh}h {result}"
 
 
 class OutputFormat(enum.Enum):
