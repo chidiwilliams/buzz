@@ -29,6 +29,10 @@ class Settings:
 
         SHORTCUTS = "shortcuts"
 
+        TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY = (
+            "transcription-tasks-table/column-visibility"
+        )
+
     def set_value(self, key: Key, value: typing.Any) -> None:
         self.settings.setValue(key.value, value)
 
@@ -46,3 +50,9 @@ class Settings:
 
     def clear(self):
         self.settings.clear()
+
+    def begin_group(self, group: Key):
+        self.settings.beginGroup(group.value)
+
+    def end_group(self):
+        self.settings.endGroup()

@@ -31,6 +31,9 @@ class WhisperModelSize(str, enum.Enum):
             return "large-v2"
         return self.value
 
+    def __str__(self):
+        return self.value.capitalize()
+
 
 class ModelType(enum.Enum):
     WHISPER = "Whisper"
@@ -45,6 +48,21 @@ class TranscriptionModel:
     model_type: ModelType = ModelType.WHISPER
     whisper_model_size: Optional[WhisperModelSize] = WhisperModelSize.TINY
     hugging_face_model_id: Optional[str] = None
+
+    def __str__(self):
+        match self.model_type:
+            case ModelType.WHISPER:
+                return f"Whisper ({self.whisper_model_size})"
+            case ModelType.WHISPER_CPP:
+                return f"Whisper.cpp ({self.whisper_model_size})"
+            case ModelType.HUGGING_FACE:
+                return f"Hugging Face ({self.hugging_face_model_id})"
+            case ModelType.FASTER_WHISPER:
+                return f"Faster Whisper ({self.whisper_model_size})"
+            case ModelType.OPEN_AI_WHISPER_API:
+                return "OpenAI Whisper API"
+            case _:
+                raise Exception("Unknown model type")
 
     def is_deletable(self):
         return (
@@ -110,12 +128,12 @@ WHISPER_CPP_MODELS_SHA256 = {
     "base": "60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe",
     "small": "1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b",
     "medium": "6c14d5adee5f86394037b4e4e8b59f1673b6cee10e3cf0b11bbdbee79c156208",
-    "large": "9a423fe4d40c82774b6af34115b8b935f34152246eb19e80e376071d3f999487",
+    "large": "64d182b440b98d5203c4f9bd541544d84c605196c4f7b845dfa11fb23594d1e2",
 }
 
 
 def get_hugging_face_file_url(author: str, repository_name: str, filename: str):
-    return f"https://huggingface.co/{author}/{repository_name}/resolve/main/{filename}"
+    return f"https://huggingface.co/{author}/{repository_name}/resolve/bf8b606c2fcd9173605cdf6bd2ac8a75a8141b6c/{filename}"
 
 
 def get_whisper_cpp_file_path(size: WhisperModelSize) -> str:

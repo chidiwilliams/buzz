@@ -1,21 +1,41 @@
-import datetime
 import enum
 import os
+from dataclasses import dataclass
 from enum import auto
-from typing import Optional
+from typing import Optional, Callable
 
 from PyQt6 import QtGui
 from PyQt6.QtCore import pyqtSignal, Qt, QModelIndex
-from PyQt6.QtWidgets import QTableWidget, QWidget, QAbstractItemView, QTableWidgetItem
+from PyQt6.QtWidgets import (
+    QTableWidget,
+    QWidget,
+    QAbstractItemView,
+    QTableWidgetItem,
+    QMenu,
+)
 
 from buzz.locale import _
-from buzz.transcriber import FileTranscriptionTask
+from buzz.settings.settings import Settings
+from buzz.transcriber import FileTranscriptionTask, humanize_language
+
+
+@dataclass
+class TableColDef:
+    id: str
+    header: str
+    column_index: int
+    value_getter: Callable[..., str]
+    width: Optional[int] = None
+    hidden: bool = False
+    hidden_toggleable: bool = True
 
 
 class TranscriptionTasksTableWidget(QTableWidget):
     class Column(enum.Enum):
         TASK_ID = 0
         FILE_NAME = auto()
+        MODEL = auto()
+        TASK = auto()
         STATUS = auto()
 
     return_clicked = pyqtSignal()
@@ -25,17 +45,104 @@ class TranscriptionTasksTableWidget(QTableWidget):
 
         self.setRowCount(0)
         self.setAlternatingRowColors(True)
+        self.settings = Settings()
 
-        self.setColumnCount(3)
-        self.setColumnHidden(0, True)
+        self.column_definitions = [
+            TableColDef(
+                id="id",
+                header=_("ID"),
+                column_index=self.Column.TASK_ID.value,
+                value_getter=lambda task: str(task.id),
+                width=0,
+                hidden=True,
+                hidden_toggleable=False,
+            ),
+            TableColDef(
+                id="file_name",
+                header=_("File Name"),
+                column_index=self.Column.FILE_NAME.value,
+                value_getter=lambda task: os.path.basename(task.file_path),
+                width=250,
+                hidden_toggleable=False,
+            ),
+            TableColDef(
+                id="model",
+                header=_("Model"),
+                column_index=self.Column.MODEL.value,
+                value_getter=lambda task: str(task.transcription_options.model),
+                width=180,
+                hidden=True,
+            ),
+            TableColDef(
+                id="task",
+                header=_("Task"),
+                column_index=self.Column.TASK.value,
+                value_getter=lambda task: self.get_task_label(task),
+                width=180,
+                hidden=True,
+            ),
+            TableColDef(
+                id="status",
+                header=_("Status"),
+                column_index=self.Column.STATUS.value,
+                value_getter=lambda task: task.status_text(),
+                width=180,
+                hidden_toggleable=False,
+            ),
+        ]
 
+        self.setColumnCount(len(self.column_definitions))
         self.verticalHeader().hide()
-        self.setHorizontalHeaderLabels([_("ID"), _("File Name"), _("Status")])
-        self.setColumnWidth(self.Column.FILE_NAME.value, 250)
-        self.setColumnWidth(self.Column.STATUS.value, 180)
+        self.setHorizontalHeaderLabels(
+            [definition.header for definition in self.column_definitions]
+        )
+        for definition in self.column_definitions:
+            if definition.width is not None:
+                self.setColumnWidth(definition.column_index, definition.width)
+        self.load_column_visibility()
+
         self.horizontalHeader().setMinimumSectionSize(180)
 
         self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+
+    def contextMenuEvent(self, event):
+        menu = QMenu(self)
+        for definition in self.column_definitions:
+            if not definition.hidden_toggleable:
+                continue
+            action = menu.addAction(definition.header)
+            action.setCheckable(True)
+            action.setChecked(not self.isColumnHidden(definition.column_index))
+            action.toggled.connect(
+                lambda checked,
+                column_index=definition.column_index: self.on_column_checked(
+                    column_index, checked
+                )
+            )
+        menu.exec(event.globalPos())
+
+    def on_column_checked(self, column_index: int, checked: bool):
+        self.setColumnHidden(column_index, not checked)
+        self.save_column_visibility()
+
+    def save_column_visibility(self):
+        self.settings.begin_group(
+            Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY
+        )
+        for definition in self.column_definitions:
+            self.settings.settings.setValue(
+                definition.id, not self.isColumnHidden(definition.column_index)
+            )
+        self.settings.end_group()
+
+    def load_column_visibility(self):
+        self.settings.begin_group(
+            Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY
+        )
+        for definition in self.column_definitions:
+            visible = self.settings.settings.value(definition.id, not definition.hidden)
+            self.setColumnHidden(definition.column_index, not visible)
+        self.settings.end_group()
 
     def upsert_task(self, task: FileTranscriptionTask):
         task_row_index = self.task_row_index(task.id)
@@ -43,51 +150,20 @@ class TranscriptionTasksTableWidget(QTableWidget):
             self.insertRow(self.rowCount())
 
             row_index = self.rowCount() - 1
-            task_id_widget_item = QTableWidgetItem(str(task.id))
-            self.setItem(row_index, self.Column.TASK_ID.value, task_id_widget_item)
-
-            file_name_widget_item = QTableWidgetItem(os.path.basename(task.file_path))
-            file_name_widget_item.setFlags(
-                file_name_widget_item.flags() & ~Qt.ItemFlag.ItemIsEditable
-            )
-            self.setItem(row_index, self.Column.FILE_NAME.value, file_name_widget_item)
-
-            status_widget_item = QTableWidgetItem(self.get_status_text(task))
-            status_widget_item.setFlags(
-                status_widget_item.flags() & ~Qt.ItemFlag.ItemIsEditable
-            )
-            self.setItem(row_index, self.Column.STATUS.value, status_widget_item)
+            for definition in self.column_definitions:
+                item = QTableWidgetItem(definition.value_getter(task))
+                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
+                self.setItem(row_index, definition.column_index, item)
         else:
             status_widget = self.item(task_row_index, self.Column.STATUS.value)
-            status_widget.setText(self.get_status_text(task))
+            status_widget.setText(task.status_text())
 
     @staticmethod
-    def format_timedelta(delta: datetime.timedelta):
-        mm, ss = divmod(delta.seconds, 60)
-        result = f"{ss}s"
-        if mm == 0:
-            return result
-        hh, mm = divmod(mm, 60)
-        result = f"{mm}m {result}"
-        if hh == 0:
-            return result
-        return f"{hh}h {result}"
-
-    @staticmethod
-    def get_status_text(task: FileTranscriptionTask):
-        if task.status == FileTranscriptionTask.Status.IN_PROGRESS:
-            return f'{_("In Progress")} ({task.fraction_completed :.0%})'
-        elif task.status == FileTranscriptionTask.Status.COMPLETED:
-            status = _("Completed")
-            if task.started_at is not None and task.completed_at is not None:
-                status += f" ({TranscriptionTasksTableWidget.format_timedelta(task.completed_at - task.started_at)})"
-            return status
-        elif task.status == FileTranscriptionTask.Status.FAILED:
-            return f'{_("Failed")} ({task.error})'
-        elif task.status == FileTranscriptionTask.Status.CANCELED:
-            return _("Canceled")
-        elif task.status == FileTranscriptionTask.Status.QUEUED:
-            return _("Queued")
+    def get_task_label(task: FileTranscriptionTask) -> str:
+        value = task.transcription_options.task.value.capitalize()
+        if task.transcription_options.language is not None:
+            value += f" ({humanize_language(task.transcription_options.language)})"
+        return value
 
     def clear_task(self, task_id: int):
         task_row_index = self.task_row_index(task_id)

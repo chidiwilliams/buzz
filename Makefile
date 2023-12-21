@@ -27,7 +27,7 @@ else
 endif
 
 clean:
-	rm -f $(LIBWHISPER)
+	rm -f buzz/$(LIBWHISPER)
 	rm -f buzz/whisper_cpp.py
 	rm -rf dist/* || true
 
