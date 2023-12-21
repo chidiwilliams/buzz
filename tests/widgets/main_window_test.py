@@ -10,6 +10,7 @@ from _pytest.fixtures import SubRequest
 from pytestqt.qtbot import QtBot
 
 from buzz.cache import TasksCache
+from buzz.settings.settings import Settings
 from buzz.transcriber import (
     FileTranscriptionTask,
     TranscriptionOptions,
@@ -69,7 +70,7 @@ class TestMainWindow:
 
         table_widget: QTableWidget = window.findChild(QTableWidget)
         qtbot.wait_until(
-            self._assert_task_status(table_widget, 0, "Completed"),
+            self.get_assert_task_status_callback(table_widget, 0, "Completed"),
             timeout=2 * 60 * 1000,
         )
 
@@ -88,19 +89,18 @@ class TestMainWindow:
 
         table_widget: QTableWidget = window.findChild(QTableWidget)
 
-        def assert_task_in_progress():
-            assert table_widget.rowCount() > 0
-            assert table_widget.item(0, 1).text() == "whisper-french.mp3"
-            assert "In Progress" in table_widget.item(0, 2).text()
-
-        qtbot.wait_until(assert_task_in_progress, timeout=2 * 60 * 1000)
+        qtbot.wait_until(
+            self.get_assert_task_status_callback(table_widget, 0, "In Progress"),
+            timeout=2 * 60 * 1000,
+        )
 
         # Stop task in progress
         table_widget.selectRow(0)
         window.toolbar.stop_transcription_action.trigger()
 
         qtbot.wait_until(
-            self._assert_task_status(table_widget, 0, "Canceled"), timeout=60 * 1000
+            self.get_assert_task_status_callback(table_widget, 0, "Canceled"),
+            timeout=60 * 1000,
         )
 
         table_widget.selectRow(0)
@@ -117,15 +117,15 @@ class TestMainWindow:
         table_widget: QTableWidget = window.findChild(QTableWidget)
         assert table_widget.rowCount() == 3
 
-        assert table_widget.item(0, 2).text() == "Completed"
+        assert table_widget.item(0, 4).text() == "Completed"
         table_widget.selectRow(0)
         assert window.toolbar.open_transcript_action.isEnabled()
 
-        assert table_widget.item(1, 2).text() == "Canceled"
+        assert table_widget.item(1, 4).text() == "Canceled"
         table_widget.selectRow(1)
         assert window.toolbar.open_transcript_action.isEnabled() is False
 
-        assert table_widget.item(2, 2).text() == "Failed (Error)"
+        assert table_widget.item(2, 4).text() == "Failed (Error)"
         table_widget.selectRow(2)
         assert window.toolbar.open_transcript_action.isEnabled() is False
         window.close()
@@ -226,15 +226,15 @@ class TestMainWindow:
         run_button.click()
 
     @staticmethod
-    def _assert_task_status(
+    def get_assert_task_status_callback(
         table_widget: QTableWidget, row_index: int, expected_status: str
     ):
-        def assert_task_canceled():
+        def assert_task_status():
             assert table_widget.rowCount() > 0
             assert table_widget.item(row_index, 1).text() == "whisper-french.mp3"
-            assert expected_status in table_widget.item(row_index, 2).text()
+            assert expected_status in table_widget.item(row_index, 4).text()
 
-        return assert_task_canceled
+        return assert_task_status
 
     @staticmethod
     def _get_toolbar_action(window: MainWindow, text: str):
@@ -250,3 +250,10 @@ def tasks_cache(tmp_path, request: SubRequest):
         cache.save(tasks)
     yield cache
     cache.clear()
+
+
+@pytest.fixture(autouse=True)
+def reset_settings():
+    settings = Settings()
+    settings.clear()
+    settings.sync()

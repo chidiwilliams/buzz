@@ -9,6 +9,7 @@ APP_NAME = "Buzz"
 class Settings:
     def __init__(self):
         self.settings = QSettings(APP_NAME)
+        self.settings.sync()
 
     class Key(enum.Enum):
         RECORDING_TRANSCRIBER_TASK = "recording-transcriber/task"
@@ -56,3 +57,6 @@ class Settings:
 
     def end_group(self):
         self.settings.endGroup()
+
+    def sync(self):
+        self.settings.sync()
