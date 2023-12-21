@@ -84,6 +84,22 @@ class TestTranscriptionTasksTableWidget:
             widget, 0, "whisper-french.mp3", "Whisper (Tiny)", "Transcribe", "Completed"
         )
 
+    def test_toggle_column_visibility(self, qtbot, reset_settings):
+        widget = TranscriptionTasksTableWidget()
+        qtbot.add_widget(widget)
+
+        assert widget.isColumnHidden(TranscriptionTasksTableWidget.Column.TASK_ID.value)
+        assert not widget.isColumnHidden(
+            TranscriptionTasksTableWidget.Column.FILE_NAME.value
+        )
+        assert widget.isColumnHidden(TranscriptionTasksTableWidget.Column.MODEL.value)
+        assert widget.isColumnHidden(TranscriptionTasksTableWidget.Column.TASK.value)
+        assert not widget.isColumnHidden(
+            TranscriptionTasksTableWidget.Column.STATUS.value
+        )
+
+        # TODO: open context menu and toggle column visibility
+
     def assert_row_text(
         self,
         widget: TranscriptionTasksTableWidget,

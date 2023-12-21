@@ -10,7 +10,6 @@ from _pytest.fixtures import SubRequest
 from pytestqt.qtbot import QtBot
 
 from buzz.cache import TasksCache
-from buzz.settings.settings import Settings
 from buzz.transcriber import (
     FileTranscriptionTask,
     TranscriptionOptions,
@@ -250,10 +249,3 @@ def tasks_cache(tmp_path, request: SubRequest):
         cache.save(tasks)
     yield cache
     cache.clear()
-
-
-@pytest.fixture(autouse=True)
-def reset_settings():
-    settings = Settings()
-    settings.clear()
-    settings.sync()
