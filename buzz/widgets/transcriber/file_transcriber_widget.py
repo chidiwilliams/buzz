@@ -145,6 +145,8 @@ class FileTranscriberWidget(QWidget):
         self.setLayout(layout)
         self.setFixedSize(self.sizeHint())
 
+        self.reset_transcriber_controls()
+
     def get_on_checkbox_state_changed_callback(self, output_format: OutputFormat):
         def on_checkbox_state_changed(state: int):
             if state == Qt.CheckState.Checked.value:
@@ -158,11 +160,6 @@ class FileTranscriberWidget(QWidget):
         self, transcription_options: TranscriptionOptions
     ):
         self.transcription_options = transcription_options
-        self.word_level_timings_checkbox.setDisabled(
-            self.transcription_options.model.model_type == ModelType.HUGGING_FACE
-            or self.transcription_options.model.model_type
-            == ModelType.OPEN_AI_WHISPER_API
-        )
         if self.transcription_options.openai_access_token != "":
             self.openai_access_token_changed.emit(
                 self.transcription_options.openai_access_token
@@ -213,6 +210,11 @@ class FileTranscriberWidget(QWidget):
 
     def reset_transcriber_controls(self):
         self.run_button.setDisabled(False)
+        self.word_level_timings_checkbox.setDisabled(
+            self.transcription_options.model.model_type == ModelType.HUGGING_FACE
+            or self.transcription_options.model.model_type
+            == ModelType.OPEN_AI_WHISPER_API
+        )
 
     def on_cancel_model_progress_dialog(self):
         if self.model_loader is not None:

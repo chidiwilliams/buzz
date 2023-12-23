@@ -24,7 +24,7 @@ class TableColDef:
     id: str
     header: str
     column_index: int
-    value_getter: Callable[..., str]
+    value_getter: Callable[[FileTranscriptionTask], str]
     width: Optional[int] = None
     hidden: bool = False
     hidden_toggleable: bool = True
@@ -37,6 +37,8 @@ class TranscriptionTasksTableWidget(QTableWidget):
         MODEL = auto()
         TASK = auto()
         STATUS = auto()
+        DATE_ADDED = auto()
+        DATE_COMPLETED = auto()
 
     return_clicked = pyqtSignal()
 
@@ -78,7 +80,7 @@ class TranscriptionTasksTableWidget(QTableWidget):
                 header=_("Task"),
                 column_index=self.Column.TASK.value,
                 value_getter=lambda task: self.get_task_label(task),
-                width=180,
+                width=120,
                 hidden=True,
             ),
             TableColDef(
@@ -88,6 +90,28 @@ class TranscriptionTasksTableWidget(QTableWidget):
                 value_getter=lambda task: task.status_text(),
                 width=180,
                 hidden_toggleable=False,
+            ),
+            TableColDef(
+                id="date_added",
+                header=_("Date Added"),
+                column_index=self.Column.DATE_ADDED.value,
+                value_getter=lambda task: task.queued_at.strftime("%Y-%m-%d %H:%M:%S")
+                if task.queued_at is not None
+                else "",
+                width=180,
+                hidden=True,
+            ),
+            TableColDef(
+                id="date_completed",
+                header=_("Date Completed"),
+                column_index=self.Column.DATE_COMPLETED.value,
+                value_getter=lambda task: task.completed_at.strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                )
+                if task.completed_at is not None
+                else "",
+                width=180,
+                hidden=True,
             ),
         ]
 
@@ -155,8 +179,9 @@ class TranscriptionTasksTableWidget(QTableWidget):
                 item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
                 self.setItem(row_index, definition.column_index, item)
         else:
-            status_widget = self.item(task_row_index, self.Column.STATUS.value)
-            status_widget.setText(task.status_text())
+            for definition in self.column_definitions:
+                item = self.item(task_row_index, definition.column_index)
+                item.setText(definition.value_getter(task))
 
     @staticmethod
     def get_task_label(task: FileTranscriptionTask) -> str:

@@ -34,6 +34,8 @@ class Settings:
             "transcription-tasks-table/column-visibility"
         )
 
+        MAIN_WINDOW = "main-window"
+
     def set_value(self, key: Key, value: typing.Any) -> None:
         self.settings.setValue(key.value, value)
 

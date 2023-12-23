@@ -111,6 +111,8 @@ class MainWindow(QMainWindow):
 
         self.load_tasks_from_cache()
 
+        self.load_geometry()
+
     def dragEnterEvent(self, event):
         # Accept file drag events
         if event.mimeData().hasUrls():
@@ -314,10 +316,27 @@ class MainWindow(QMainWindow):
         self.toolbar.set_shortcuts(shortcuts=self.shortcuts)
         self.shortcut_settings.save(shortcuts=self.shortcuts)
 
+    def resizeEvent(self, event):
+        self.save_geometry()
+
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        self.save_geometry()
+
         self.transcriber_worker.stop()
         self.transcriber_thread.quit()
         self.transcriber_thread.wait()
         self.save_tasks_to_cache()
         self.shortcut_settings.save(shortcuts=self.shortcuts)
         super().closeEvent(event)
+
+    def save_geometry(self):
+        self.settings.begin_group(Settings.Key.MAIN_WINDOW)
+        self.settings.settings.setValue("geometry", self.saveGeometry())
+        self.settings.end_group()
+
+    def load_geometry(self):
+        self.settings.begin_group(Settings.Key.MAIN_WINDOW)
+        geometry = self.settings.settings.value("geometry")
+        if geometry is not None:
+            self.restoreGeometry(geometry)
+        self.settings.end_group()

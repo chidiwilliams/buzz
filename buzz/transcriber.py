@@ -3,6 +3,7 @@ import datetime
 import enum
 import json
 import logging
+import math
 import multiprocessing
 import os
 import subprocess
@@ -286,21 +287,9 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
             self.task,
         )
 
-        wav_file = tempfile.mktemp() + ".wav"
+        mp3_file = tempfile.mktemp() + ".mp3"
 
-        # fmt: off
-        cmd = [
-            "ffmpeg",
-            "-nostdin",
-            "-threads", "0",
-            "-i", self.file_path,
-            "-f", "s16le",
-            "-ac", "1",
-            "-acodec", "pcm_s16le",
-            "-ar", str(whisper.audio.SAMPLE_RATE),
-            wav_file,
-        ]
-        # fmt: on
+        cmd = ["ffmpeg", "-i", self.file_path, mp3_file]
 
         try:
             subprocess.run(cmd, capture_output=True, check=True)
@@ -308,33 +297,89 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
             logging.exception("")
             raise Exception(exc.stderr.decode("utf-8"))
 
-        # TODO: Check if file size is more than 25MB (2.5 minutes), then chunk
-        audio_file = open(wav_file, "rb")
+        # fmt: off
+        cmd = [
+            "ffprobe",
+            "-v", "error",
+            "-show_entries", "format=duration",
+            "-of", "default=noprint_wrappers=1:nokey=1",
+            mp3_file,
+        ]
+        # fmt: on
+        duration_secs = float(
+            subprocess.run(cmd, capture_output=True, check=True).stdout.decode("utf-8")
+        )
+
+        total_size = os.path.getsize(mp3_file)
+        max_chunk_size = 25 * 1024 * 1024
+
         openai.api_key = (
             self.transcription_task.transcription_options.openai_access_token
         )
-        language = self.transcription_task.transcription_options.language
-        response_format = "verbose_json"
-        if self.transcription_task.transcription_options.task == Task.TRANSLATE:
-            transcript = openai.Audio.translate(
-                "whisper-1",
-                audio_file,
-                response_format=response_format,
-                language=language,
+
+        self.progress.emit((0, 100))
+
+        if total_size < max_chunk_size:
+            return self.get_segments_for_file(mp3_file)
+
+        # If the file is larger than 25MB, split into chunks
+        # and transcribe each chunk separately
+        num_chunks = math.ceil(total_size / max_chunk_size)
+        chunk_duration = duration_secs / num_chunks
+
+        segments = []
+
+        for i in range(num_chunks):
+            chunk_start = i * chunk_duration
+            chunk_end = min((i + 1) * chunk_duration, duration_secs)
+
+            chunk_file = tempfile.mktemp() + ".mp3"
+
+            # fmt: off
+            cmd = [
+                "ffmpeg",
+                "-i", mp3_file,
+                "-ss", str(chunk_start),
+                "-to", str(chunk_end),
+                "-c", "copy",
+                chunk_file,
+            ]
+            # fmt: on
+            subprocess.run(cmd, capture_output=True, check=True)
+            logging.debug('Created chunk file "%s"', chunk_file)
+
+            segments.extend(
+                self.get_segments_for_file(
+                    chunk_file, offset_ms=int(chunk_start * 1000)
+                )
             )
-        else:
-            transcript = openai.Audio.transcribe(
-                "whisper-1",
-                audio_file,
-                response_format=response_format,
-                language=language,
+            os.remove(chunk_file)
+            self.progress.emit((i + 1, num_chunks))
+
+        return segments
+
+    def get_segments_for_file(self, file: str, offset_ms: int = 0):
+        with open(file, "rb") as audio_file:
+            kwargs = {
+                "model": "whisper-1",
+                "file": audio_file,
+                "response_format": "verbose_json",
+                "language": self.transcription_task.transcription_options.language,
+            }
+            transcript = (
+                openai.Audio.translate(**kwargs)
+                if self.transcription_task.transcription_options.task == Task.TRANSLATE
+                else openai.Audio.transcribe(**kwargs)
             )
 
-        segments = [
-            Segment(segment["start"] * 1000, segment["end"] * 1000, segment["text"])
-            for segment in transcript["segments"]
-        ]
-        return segments
+            return [
+                Segment(
+                    int(segment["start"] * 1000 + offset_ms),
+                    int(segment["end"] * 1000 + offset_ms),
+                    segment["text"],
+                )
+                for segment in transcript["segments"]
+            ]
 
     def stop(self):
         pass
