@@ -72,7 +72,6 @@ class TestRecordingTranscriber:
 
 
 class TestOpenAIWhisperAPIFileTranscriber:
-    @pytest.mark.skip()
     def test_transcribe(self):
         file_path = "testdata/whisper-french.mp3"
         transcriber = OpenAIWhisperAPIFileTranscriber(
@@ -89,9 +88,18 @@ class TestOpenAIWhisperAPIFileTranscriber:
                 model_path="",
             )
         )
-        transcriber.completed.connect(lambda segments: print(segments))
-        transcriber.error.connect(lambda error: print(error))
-        transcriber.run()
+        mock_completed = Mock()
+        transcriber.completed.connect(mock_completed)
+        mock_openai_result = {"segments": [{"start": 0, "end": 6.56, "text": "Hello"}]}
+        with patch("openai.Audio.transcribe", return_value=mock_openai_result):
+            transcriber.run()
+
+        called_segments = mock_completed.call_args[0][0]
+
+        assert len(called_segments) == 1
+        assert called_segments[0].start == 0
+        assert called_segments[0].end == 6560
+        assert called_segments[0].text == "Hello"
 
 
 class TestWhisperCppFileTranscriber:

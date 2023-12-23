@@ -317,13 +317,13 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
             self.transcription_task.transcription_options.openai_access_token
         )
 
-        logging.debug("File size is %s", total_size)
-
         self.progress.emit((0, 100))
 
         if total_size < max_chunk_size:
             return self.get_segments_for_file(mp3_file)
 
+        # If the file is larger than 25MB, split into chunks
+        # and transcribe each chunk separately
         num_chunks = math.ceil(total_size / max_chunk_size)
         chunk_duration = duration_secs / num_chunks
 
