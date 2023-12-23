@@ -26,6 +26,7 @@ from buzz.transcriber import (
     whisper_cpp_params,
     write_output,
     TranscriptionOptions,
+    OpenAIWhisperAPIFileTranscriber,
 )
 from buzz.recording_transcriber import RecordingTranscriber
 from tests.mock_sounddevice import MockInputStream
@@ -68,6 +69,29 @@ class TestRecordingTranscriber:
 
         text = mock_transcription.call_args[0][0]
         assert "Bienvenue dans Passe" in text
+
+
+class TestOpenAIWhisperAPIFileTranscriber:
+    @pytest.mark.skip()
+    def test_transcribe(self):
+        file_path = "testdata/whisper-french.mp3"
+        transcriber = OpenAIWhisperAPIFileTranscriber(
+            task=FileTranscriptionTask(
+                file_path=file_path,
+                transcription_options=(
+                    TranscriptionOptions(
+                        openai_access_token=os.getenv("OPENAI_ACCESS_TOKEN"),
+                    )
+                ),
+                file_transcription_options=(
+                    FileTranscriptionOptions(file_paths=[file_path])
+                ),
+                model_path="",
+            )
+        )
+        transcriber.completed.connect(lambda segments: print(segments))
+        transcriber.error.connect(lambda error: print(error))
+        transcriber.run()
 
 
 class TestWhisperCppFileTranscriber:

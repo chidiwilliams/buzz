@@ -62,6 +62,7 @@ class ChangeSegmentTextCommand(QUndoCommand):
         self.task_changed.emit()
 
 
+# TODO: Fix player duration and add spacer below
 class TranscriptionViewerWidget(QWidget):
     transcription_task: FileTranscriptionTask
     task_changed = pyqtSignal()
