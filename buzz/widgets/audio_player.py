@@ -53,7 +53,7 @@ class AudioPlayer(QWidget):
         self.media_player.playbackStateChanged.connect(self.on_playback_state_changed)
         self.media_player.mediaStatusChanged.connect(self.on_media_status_changed)
 
-        self.update_time_label()
+        self.on_duration_changed(self.media_player.duration())
 
     def on_duration_changed(self, duration_ms: int):
         self.scrubber.setRange(0, duration_ms)

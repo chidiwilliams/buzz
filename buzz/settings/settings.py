@@ -54,10 +54,10 @@ class Settings:
     def clear(self):
         self.settings.clear()
 
-    def begin_group(self, group: Key):
+    def begin_group(self, group: Key) -> None:
         self.settings.beginGroup(group.value)
 
-    def end_group(self):
+    def end_group(self) -> None:
         self.settings.endGroup()
 
     def sync(self):

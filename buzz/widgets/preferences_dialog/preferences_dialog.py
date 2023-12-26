@@ -1,12 +1,20 @@
+import copy
 from typing import Dict, Optional
 
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QDialog, QWidget, QVBoxLayout, QTabWidget, QDialogButtonBox
 
 from buzz.locale import _
+from buzz.widgets.preferences_dialog.folder_watch_preferences_widget import (
+    FolderWatchPreferencesWidget,
+)
 from buzz.widgets.preferences_dialog.general_preferences_widget import (
     GeneralPreferencesWidget,
 )
+from buzz.widgets.preferences_dialog.models.folder_watch_preferences import (
+    FolderWatchPreferences,
+)
+from buzz.widgets.preferences_dialog.models.preferences import Preferences
 from buzz.widgets.preferences_dialog.models_preferences_widget import (
     ModelsPreferencesWidget,
 )
@@ -18,15 +26,21 @@ from buzz.widgets.preferences_dialog.shortcuts_editor_preferences_widget import 
 class PreferencesDialog(QDialog):
     shortcuts_changed = pyqtSignal(dict)
     openai_api_key_changed = pyqtSignal(str)
+    folder_watch_config_changed = pyqtSignal(FolderWatchPreferences)
     default_export_file_name_changed = pyqtSignal(str)
+    preferences_changed = pyqtSignal(Preferences)
 
     def __init__(
         self,
+        #     TODO: move shortcuts and default export file name into preferences
         shortcuts: Dict[str, str],
         default_export_file_name: str,
+        preferences: Preferences,
         parent: Optional[QWidget] = None,
     ) -> None:
         super().__init__(parent)
+
+        self.updated_preferences = copy.deepcopy(preferences)
 
         self.setWindowTitle("Preferences")
 
@@ -49,8 +63,15 @@ class PreferencesDialog(QDialog):
         shortcuts_table_widget.shortcuts_changed.connect(self.shortcuts_changed)
         tab_widget.addTab(shortcuts_table_widget, _("Shortcuts"))
 
+        folder_watch_widget = FolderWatchPreferencesWidget(
+            config=self.updated_preferences.folder_watch, parent=self
+        )
+        folder_watch_widget.config_changed.connect(self.folder_watch_config_changed)
+        tab_widget.addTab(folder_watch_widget, _("Folder Watch"))
+
         button_box = QDialogButtonBox(
-            QDialogButtonBox.StandardButton(QDialogButtonBox.StandardButton.Ok), self
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel,
+            self,
         )
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
@@ -60,4 +81,5 @@ class PreferencesDialog(QDialog):
 
         self.setLayout(layout)
 
-        self.setFixedSize(self.sizeHint())
+        self.setMinimumHeight(500)
+        self.setMinimumWidth(500)

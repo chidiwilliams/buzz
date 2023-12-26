@@ -4,27 +4,48 @@ from PyQt6.QtWidgets import QWidget
 from buzz.assets import get_asset_path
 
 
-# TODO: move icons to Qt resources: https://stackoverflow.com/a/52341917/9830227
 class Icon(QIcon):
-    LIGHT_THEME_BACKGROUND = "#555"
-    DARK_THEME_BACKGROUND = "#EEE"
+    LIGHT_THEME_COLOR = "#555"
+    DARK_THEME_COLOR = "#EEE"
 
     def __init__(self, path: str, parent: QWidget):
-        # Adapted from https://stackoverflow.com/questions/15123544/change-the-color-of-an-svg-in-qt
-        is_dark_theme = parent.palette().window().color().black() > 127
-        color = self.get_color(is_dark_theme)
+        super().__init__()
+        self.path = path
+        self.parent = parent
 
+        self.color = self.get_color()
+        normal_pixmap = self.create_default_pixmap(self.path, self.color)
+        disabled_pixmap = self.create_disabled_pixmap(normal_pixmap, self.color)
+        self.addPixmap(normal_pixmap, QIcon.Mode.Normal)
+        self.addPixmap(disabled_pixmap, QIcon.Mode.Disabled)
+
+    # https://stackoverflow.com/questions/15123544/change-the-color-of-an-svg-in-qt
+    def create_default_pixmap(self, path, color):
         pixmap = QPixmap(path)
         painter = QPainter(pixmap)
         painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
-        painter.fillRect(pixmap.rect(), QColor(color))
+        painter.fillRect(pixmap.rect(), color)
         painter.end()
+        return pixmap
 
-        super().__init__(pixmap)
+    def create_disabled_pixmap(self, pixmap, color):
+        disabled_pixmap = QPixmap(pixmap.size())
+        disabled_pixmap.fill(QColor(0, 0, 0, 0))
 
-    def get_color(self, is_dark_theme):
-        return (
-            self.DARK_THEME_BACKGROUND if is_dark_theme else self.LIGHT_THEME_BACKGROUND
+        painter = QPainter(disabled_pixmap)
+        painter.setOpacity(0.4)
+        painter.drawPixmap(0, 0, pixmap)
+        painter.setCompositionMode(
+            QPainter.CompositionMode.CompositionMode_DestinationIn
+        )
+        painter.fillRect(disabled_pixmap.rect(), color)
+        painter.end()
+        return disabled_pixmap
+
+    def get_color(self) -> QColor:
+        is_dark_theme = self.parent.palette().window().color().black() > 127
+        return QColor(
+            self.DARK_THEME_COLOR if is_dark_theme else self.LIGHT_THEME_COLOR
         )
 
 

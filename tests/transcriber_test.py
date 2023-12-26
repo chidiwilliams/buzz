@@ -21,7 +21,7 @@ from buzz.transcriber import (
     WhisperCpp,
     WhisperCppFileTranscriber,
     WhisperFileTranscriber,
-    get_default_output_file_path,
+    get_output_file_path,
     to_timestamp,
     whisper_cpp_params,
     write_output,
@@ -174,7 +174,7 @@ class TestWhisperFileTranscriber:
         expected_file_path: str,
         default_output_file_name: str,
     ):
-        file_path = get_default_output_file_path(
+        file_path = get_output_file_path(
             task=FileTranscriptionTask(
                 file_path="/a/b/c.mp4",
                 transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
@@ -188,7 +188,7 @@ class TestWhisperFileTranscriber:
         assert file_path == expected_file_path
 
     def test_default_output_file(self):
-        srt = get_default_output_file_path(
+        srt = get_output_file_path(
             task=FileTranscriptionTask(
                 file_path="/a/b/c.mp4",
                 transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
@@ -203,7 +203,7 @@ class TestWhisperFileTranscriber:
         assert srt.startswith("/a/b/c (Translated on ")
         assert srt.endswith(".txt")
 
-        srt = get_default_output_file_path(
+        srt = get_output_file_path(
             task=FileTranscriptionTask(
                 file_path="/a/b/c.mp4",
                 transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
