@@ -17,6 +17,9 @@ from buzz.transcriber import (
     FileTranscriptionOptions,
 )
 from buzz.widgets.line_edit import LineEdit
+from buzz.widgets.preferences_dialog.models.file_transcription_preferences import (
+    FileTranscriptionPreferences,
+)
 from buzz.widgets.preferences_dialog.models.folder_watch_preferences import (
     FolderWatchPreferences,
 )
@@ -120,19 +123,10 @@ class FolderWatchPreferencesWidget(QWidget):
         self, options: Tuple[TranscriptionOptions, FileTranscriptionOptions]
     ):
         transcription_options, file_transcription_options = options
-        self.config.file_transcription_options.task = transcription_options.task
-        self.config.file_transcription_options.language = transcription_options.language
-        self.config.file_transcription_options.temperature = (
-            transcription_options.temperature
-        )
-        self.config.file_transcription_options.initial_prompt = (
-            transcription_options.initial_prompt
-        )
-        self.config.file_transcription_options.word_level_timings = (
-            transcription_options.word_level_timings
-        )
-        self.config.file_transcription_options.model = transcription_options.model
-        self.config.file_transcription_options.output_formats = (
-            file_transcription_options.output_formats
+        self.config.file_transcription_options = (
+            FileTranscriptionPreferences.from_transcription_options(
+                transcription_options=transcription_options,
+                file_transcription_options=file_transcription_options,
+            )
         )
         self.config_changed.emit(self.config)
