@@ -222,7 +222,7 @@ class TestWhisperFileTranscriber:
 
         srt = get_output_file_path(
             task=FileTranscriptionTask(
-                file_path="/a/b/c.mp4",
+                file_path=file_path,
                 transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
                 file_transcription_options=FileTranscriptionOptions(
                     file_paths=[],
@@ -232,7 +232,7 @@ class TestWhisperFileTranscriber:
             ),
             output_format=OutputFormat.SRT,
         )
-        assert srt.startswith("/a/b/c (Translated on ")
+        assert srt.startswith(expected_starts_with)
         assert srt.endswith(".srt")
 
     @pytest.mark.parametrize(
