@@ -92,6 +92,7 @@ parts:
       pip install .
       echo $CRAFT_PART_BUILD
       echo $CRAFT_PART_INSTALL
+      which poetry
       #      export PATH="/root/.local/bin:$PATH"
       #
       #      # Install dependencies
