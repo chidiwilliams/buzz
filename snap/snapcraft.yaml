@@ -87,8 +87,6 @@ parts:
       - libasound2
       - libasound2-plugins
     override-build: |
-      #      craftctl default
-
       export PATH="/root/.local/bin:$PATH"
 
       # Install dependencies
