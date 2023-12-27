@@ -80,7 +80,7 @@ parts:
     source: .
     build-packages:
       - portaudio19-dev
-      - python3-pip
+      - python3-poetry
     stage-packages:
       - ffmpeg
       - libportaudio2
@@ -88,17 +88,25 @@ parts:
       - libasound2
       - libasound2-plugins
     override-build: |
-      export PATH="/root/.local/bin:$PATH"
-
-      # Install dependencies
-      pip3 install --upgrade pip wheel
-
-      curl -sSL https://install.python-poetry.org | python3 -
-
-      # Install all Poetry dependencies globally
-      poetry config virtualenvs.path "$SNAPCRAFT_PART_INSTALL"
-      poetry install
       craftctl default
+      pip install .
+      echo $CRAFT_PART_BUILD
+      echo $CRAFT_PART_INSTALL
+      #      export PATH="/root/.local/bin:$PATH"
+      #
+      #      # Install dependencies
+      #      pip3 install --upgrade pip wheel
+      #
+      #      curl -sSL https://install.python-poetry.org | python3 -
+      #
+      #      # Install all Poetry dependencies globally
+      #      poetry config virtualenvs.create false
+      #      poetry install
+      #
+      #      # Copy python deps to $CRAFT_PART_INSTALL
+      #      mkdir -p $CRAFT_PART_INSTALL/usr/lib/python3/dist-packages
+      #      cp -r $CRAFT_PART_BUILD/usr/lib/python3.10/site-packages/* $CRAFT_PART_INSTALL/usr/lib/python3/dist-packages
+
     after: [ desktop-qt5 ]
 
   desktop-file:
