@@ -88,10 +88,10 @@ parts:
       - libasound2-plugins
     override-build: |
       craftctl default
-      cp $CRAFT_PART_BUILD/buzz/libwhisper.so $CRAFT_PART_INSTALL/buzz/
       cp $CRAFT_PART_BUILD/buzz/libwhisper.so $CRAFT_PART_INSTALL/usr/lib/
-      cp $CRAFT_PART_BUILD/whisper_cpp $CRAFT_PART_INSTALL/
-      mkdir $CRAFT_PART_INSTALL/buzz && cp $CRAFT_PART_BUILD/buzz/whisper_cpp.py $CRAFT_PART_INSTALL/buzz/
+      mkdir $CRAFT_PART_INSTALL/buzz
+      cp $CRAFT_PART_BUILD/buzz/libwhisper.so $CRAFT_PART_INSTALL/buzz/
+      cp $CRAFT_PART_BUILD/buzz/whisper_cpp.py $CRAFT_PART_INSTALL/buzz/
 
       # execstack --clear-execstack $CRAFT_PART_INSTALL/lib/python3.10/site-packages/ctranslate2.libs/libctranslate2-7e7a7741.so.3.15.1
       execstack --clear-execstack $CRAFT_PART_INSTALL/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_pybind11_state.cpython-310-x86_64-linux-gnu.so
