@@ -100,7 +100,8 @@ parts:
 
       poetry build
 
-      tar xvzf dist/*.tar.gz -C $CRAFT_PART_BUILD/buzz/ --strip-components=1
+      tar xvzf dist/*.tar.gz -C $CRAFT_PART_INSTALL/buzz/ --strip-components=1
+      ls -la $CRAFT_PART_BUILD/buzz/
     after: [ desktop-qt5 ]
 
   desktop-file:
