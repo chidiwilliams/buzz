@@ -78,8 +78,9 @@ parts:
   buzz:
     plugin: python
     source: .
-    #    build-packages:
-    #      - execstack
+    build-packages:
+      - portaudio19-dev
+      - python3-pip
     stage-packages:
       - ffmpeg
       - libportaudio2
@@ -95,10 +96,9 @@ parts:
       curl -sSL https://install.python-poetry.org | python3 -
 
       # Install all Poetry dependencies globally
-      poetry config virtualenvs.create false
+      poetry config virtualenvs.path "$SNAPCRAFT_PART_INSTALL"
       poetry install
-
-      poetry build
+      craftctl default
     after: [ desktop-qt5 ]
 
   desktop-file:

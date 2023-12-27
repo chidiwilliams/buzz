@@ -25,6 +25,7 @@ jobs:
         id: snapcraft
       - run: |
           sudo snap install --devmode *.snap
+          buzz --version
       - uses: actions/upload-artifact@v3
         with:
           name: snap
