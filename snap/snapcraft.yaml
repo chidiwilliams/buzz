@@ -87,10 +87,18 @@ parts:
       - libasound2
       - libasound2-plugins
     override-build: |
-      craftctl default
+      #      craftctl default
+
+      export PATH=$PATH:/root/local/.bin
 
       # Install dependencies
       pip3 install --upgrade pip wheel
+
+      curl -sSL https://install.python-poetry.org | python3 -
+
+      # Install all Poetry dependencies globally
+      /root/local/.bin/poetry config virtualenvs.create false
+      /root/local/.bin/poetry install --no-root --no-dev
 
       file $CRAFT_PART_BUILD/buzz/libwhisper.so
       exit 1
