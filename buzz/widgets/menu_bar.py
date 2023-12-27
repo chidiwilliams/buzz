@@ -28,7 +28,7 @@ class MenuBar(QMenuBar):
         shortcuts: Dict[str, str],
         default_export_file_name: str,
         preferences: Preferences,
-        parent: QWidget,
+        parent: Optional[QWidget] = None,
     ):
         super().__init__(parent)
 
