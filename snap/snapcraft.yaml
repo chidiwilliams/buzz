@@ -90,6 +90,7 @@ parts:
     override-build: |
       craftctl default
       pip install .
+      python build.py
       mkdir $CRAFT_PART_INSTALL/buzz
       cp $CRAFT_PART_BUILD/buzz/whisper_cpp.py $CRAFT_PART_INSTALL/buzz/
       cp $CRAFT_PART_BUILD/buzz/libwhisper.so $CRAFT_PART_INSTALL/buzz/
