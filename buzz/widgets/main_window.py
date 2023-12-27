@@ -1,9 +1,11 @@
-import logging
-import os
 from typing import Dict, Tuple, List
 
 from PyQt6 import QtGui
-from PyQt6.QtCore import Qt, QThread, QModelIndex, QFileSystemWatcher
+from PyQt6.QtCore import (
+    Qt,
+    QThread,
+    QModelIndex,
+)
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QMainWindow, QMessageBox, QFileDialog
 
@@ -24,6 +26,9 @@ from buzz.widgets.main_window_toolbar import MainWindowToolbar
 from buzz.widgets.menu_bar import MenuBar
 from buzz.widgets.preferences_dialog.models.preferences import Preferences
 from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
+from buzz.widgets.transcription_task_folder_watcher import (
+    TranscriptionTaskFolderWatcher,
+)
 from buzz.widgets.transcription_tasks_table_widget import TranscriptionTasksTableWidget
 from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
     TranscriptionViewerWidget,
@@ -116,30 +121,19 @@ class MainWindow(QMainWindow):
 
         self.load_geometry()
 
-        self.watcher = QFileSystemWatcher(self)
-        self.watcher.directoryChanged.connect(self.on_watch_directory_changed)
-        self.reset_file_system_watcher()
-        self.sync_watch_folder()
-
-    def reset_file_system_watcher(self):
-        if len(self.watcher.directories()) > 0:
-            self.watcher.removePaths(self.watcher.directories())
-
-        if (
-            self.preferences.folder_watch.enabled
-            and len(self.preferences.folder_watch.input_folder) > 0
-        ):
-            self.watcher.addPath(self.preferences.folder_watch.input_folder)
-            logging.debug(
-                'Watching for media files in "%s"',
-                self.preferences.folder_watch.input_folder,
-            )
+        self.folder_watcher = TranscriptionTaskFolderWatcher(
+            tasks=self.tasks,
+            preferences=self.preferences.folder_watch,
+            default_export_file_name=self.default_export_file_name,
+        )
+        self.folder_watcher.task_found.connect(self.add_task)
+        self.folder_watcher.find_tasks()
 
     def on_preferences_changed(self, preferences: Preferences):
         self.preferences = preferences
         self.save_preferences(preferences)
-        self.reset_file_system_watcher()
-        self.sync_watch_folder()
+        self.folder_watcher.set_preferences(preferences.folder_watch)
+        self.folder_watcher.find_tasks()
 
     def save_preferences(self, preferences: Preferences):
         self.settings.settings.beginGroup("preferences")
@@ -151,47 +145,6 @@ class MainWindow(QMainWindow):
         preferences = Preferences.load(settings.settings)
         settings.settings.endGroup()
         return preferences
-
-    def on_watch_directory_changed(self):
-        self.sync_watch_folder()
-
-    def sync_watch_folder(self):
-        path = self.preferences.folder_watch.input_folder
-        tasks = {task.file_path: task for task in self.tasks.values()}
-        for dirpath, dirnames, filenames in os.walk(path):
-            for filename in filenames:
-                file_path = os.path.join(dirpath, filename)
-                if (
-                    filename.startswith(".")  # hidden files
-                    or file_path in tasks  # file already in tasks
-                ):
-                    continue
-
-                openai_access_token = KeyringStore().get_password(
-                    KeyringStore.Key.OPENAI_API_KEY
-                )
-                (
-                    transcription_options,
-                    file_transcription_options,
-                ) = self.preferences.folder_watch.file_transcription_options.to_transcription_options(
-                    openai_access_token=openai_access_token,
-                    default_output_file_name=self.default_export_file_name,
-                    file_paths=[file_path],
-                )
-                model_path = transcription_options.model.get_local_model_path()
-                self.add_task(
-                    task=FileTranscriptionTask(
-                        file_path=file_path,
-                        transcription_options=transcription_options,
-                        file_transcription_options=file_transcription_options,
-                        model_path=model_path,
-                        output_directory=self.preferences.folder_watch.output_directory,
-                        source=FileTranscriptionTask.Source.FOLDER_WATCH,
-                    )
-                )
-
-            # Don't traverse into subdirectories
-            break
 
     def dragEnterEvent(self, event):
         # Accept file drag events
@@ -294,6 +247,7 @@ class MainWindow(QMainWindow):
         self.settings.set_value(
             Settings.Key.DEFAULT_EXPORT_FILE_NAME, default_export_file_name
         )
+        self.folder_watcher.default_export_file_name = default_export_file_name
 
     def open_transcript_viewer(self):
         selected_rows = self.table_widget.selectionModel().selectedRows()

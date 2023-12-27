@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Optional
 
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import (
@@ -31,13 +31,16 @@ from buzz.widgets.transcriber.file_transcription_form_widget import (
 class FolderWatchPreferencesWidget(QWidget):
     config_changed = pyqtSignal(FolderWatchPreferences)
 
-    def __init__(self, config: FolderWatchPreferences, parent: QWidget):
+    def __init__(
+        self, config: FolderWatchPreferences, parent: Optional[QWidget] = None
+    ):
         super().__init__(parent)
 
         self.config = config
 
         checkbox = QCheckBox("Enable folder watch")
         checkbox.setChecked(config.enabled)
+        checkbox.setObjectName("EnableFolderWatchCheckbox")
         checkbox.stateChanged.connect(self.on_enable_changed)
 
         input_folder_browse_button = QPushButton("Browse")
@@ -47,9 +50,10 @@ class FolderWatchPreferencesWidget(QWidget):
         output_folder_browse_button.clicked.connect(self.on_click_browse_output_folder)
 
         input_folder_row = QHBoxLayout()
-        self.input_folder_line_edit = LineEdit(config.input_folder, self)
+        self.input_folder_line_edit = LineEdit(config.input_directory, self)
         self.input_folder_line_edit.setPlaceholderText("/path/to/input/folder")
         self.input_folder_line_edit.textChanged.connect(self.on_input_folder_changed)
+        self.input_folder_line_edit.setObjectName("InputFolderLineEdit")
 
         input_folder_row.addWidget(self.input_folder_line_edit)
         input_folder_row.addWidget(input_folder_browse_button)
@@ -58,6 +62,7 @@ class FolderWatchPreferencesWidget(QWidget):
         self.output_folder_line_edit = LineEdit(config.output_directory, self)
         self.output_folder_line_edit.setPlaceholderText("/path/to/output/folder")
         self.output_folder_line_edit.textChanged.connect(self.on_output_folder_changed)
+        self.output_folder_line_edit.setObjectName("OutputFolderLineEdit")
 
         output_folder_row.addWidget(self.output_folder_line_edit)
         output_folder_row.addWidget(output_folder_browse_button)
@@ -103,7 +108,7 @@ class FolderWatchPreferencesWidget(QWidget):
         self.on_input_folder_changed(folder)
 
     def on_input_folder_changed(self, folder):
-        self.config.input_folder = folder
+        self.config.input_directory = folder
         self.config_changed.emit(self.config)
 
     def on_click_browse_output_folder(self):

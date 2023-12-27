@@ -10,13 +10,13 @@ from buzz.widgets.preferences_dialog.models.file_transcription_preferences impor
 @dataclass
 class FolderWatchPreferences:
     enabled: bool
-    input_folder: str
+    input_directory: str
     output_directory: str
     file_transcription_options: FileTranscriptionPreferences
 
     def save(self, settings: QSettings):
         settings.setValue("enabled", self.enabled)
-        settings.setValue("input_folder", self.input_folder)
+        settings.setValue("input_folder", self.input_directory)
         settings.setValue("output_directory", self.output_directory)
         settings.beginGroup("file_transcription_options")
         self.file_transcription_options.save(settings)
@@ -32,7 +32,7 @@ class FolderWatchPreferences:
         settings.endGroup()
         return FolderWatchPreferences(
             enabled=enabled,
-            input_folder=input_folder,
+            input_directory=input_folder,
             output_directory=output_folder,
             file_transcription_options=file_transcription_options,
         )
