@@ -6,6 +6,7 @@ import logging
 import math
 import multiprocessing
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -184,7 +185,7 @@ class FileTranscriber(QObject):
             )
 
         if self.transcription_task.source == FileTranscriptionTask.Source.FOLDER_WATCH:
-            os.rename(
+            shutil.move(
                 self.transcription_task.file_path,
                 os.path.join(
                     self.transcription_task.output_directory,

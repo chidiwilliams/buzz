@@ -2,6 +2,7 @@ import logging
 import os
 import pathlib
 import platform
+import shutil
 import tempfile
 import time
 from typing import List
@@ -342,6 +343,43 @@ class TestWhisperFileTranscriber:
             assert segments[i].end > 0
             assert len(segments[i].text) > 0
             logging.debug(f"{segments[i].start} {segments[i].end} {segments[i].text}")
+
+    def test_transcribe_from_folder_watch_source(self, qtbot):
+        file_path = tempfile.mktemp(suffix=".mp3")
+        shutil.copy("testdata/whisper-french.mp3", file_path)
+
+        file_transcription_options = FileTranscriptionOptions(
+            file_paths=[file_path],
+            output_formats={OutputFormat.TXT},
+            default_output_file_name="{{ input_file_name }}",
+        )
+        transcription_options = TranscriptionOptions()
+        model_path = get_model_path(transcription_options.model)
+
+        output_directory = tempfile.mkdtemp()
+        transcriber = WhisperFileTranscriber(
+            task=FileTranscriptionTask(
+                model_path=model_path,
+                transcription_options=transcription_options,
+                file_transcription_options=file_transcription_options,
+                file_path=file_path,
+                output_directory=output_directory,
+                source=FileTranscriptionTask.Source.FOLDER_WATCH,
+            )
+        )
+        with qtbot.wait_signal(transcriber.completed, timeout=10 * 6000):
+            transcriber.run()
+
+        assert not os.path.isfile(file_path)
+        assert os.path.isfile(
+            os.path.join(output_directory, os.path.basename(file_path))
+        )
+        assert os.path.isfile(
+            os.path.join(
+                output_directory,
+                os.path.splitext(os.path.basename(file_path))[0] + ".txt",
+            )
+        )
 
     @pytest.mark.skip()
     def test_transcribe_stop(self):
