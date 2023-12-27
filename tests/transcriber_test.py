@@ -160,24 +160,34 @@ class TestWhisperCppFileTranscriber:
 
 class TestWhisperFileTranscriber:
     @pytest.mark.parametrize(
-        "output_format,expected_file_path,default_output_file_name",
+        "file_path,output_format,expected_file_path,default_output_file_name",
         [
-            (
+            pytest.param(
+                "/a/b/c.mp4",
                 OutputFormat.SRT,
                 "/a/b/c-translate--Whisper-tiny.srt",
                 "{{ input_file_name }}-{{ task }}-{{ language }}-{{ model_type }}-{{ model_size }}",
+                marks=pytest.mark.skipif(platform.system() == "Windows", reason=""),
+            ),
+            pytest.param(
+                "C:\\a\\b\\c.mp4",
+                OutputFormat.SRT,
+                "C:\\a\\b\\c-translate--Whisper-tiny.srt",
+                "{{ input_file_name }}-{{ task }}-{{ language }}-{{ model_type }}-{{ model_size }}",
+                marks=pytest.mark.skipif(platform.system() != "Windows", reason=""),
             ),
         ],
     )
-    def test_default_output_file2(
+    def test_default_output_file(
         self,
+        file_path: str,
         output_format: OutputFormat,
         expected_file_path: str,
         default_output_file_name: str,
     ):
         file_path = get_output_file_path(
             task=FileTranscriptionTask(
-                file_path="/a/b/c.mp4",
+                file_path=file_path,
                 transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
                 file_transcription_options=FileTranscriptionOptions(
                     file_paths=[], default_output_file_name=default_output_file_name
@@ -203,7 +213,9 @@ class TestWhisperFileTranscriber:
             ),
         ],
     )
-    def test_default_output_file(self, file_path: str, expected_starts_with: str):
+    def test_default_output_file_with_date(
+        self, file_path: str, expected_starts_with: str
+    ):
         srt = get_output_file_path(
             task=FileTranscriptionTask(
                 file_path=file_path,
