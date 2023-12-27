@@ -99,9 +99,9 @@ parts:
       poetry install
 
       poetry build
-
-      tar xvzf dist/*.tar.gz -C $CRAFT_PART_INSTALL/buzz/ --strip-components=1
-      ls -la $CRAFT_PART_BUILD/buzz/
+    #
+    #      tar xvzf dist/*.tar.gz -C $CRAFT_PART_INSTALL --strip-components=1
+    #      ls -la $CRAFT_PART_BUILD/buzz/
     after: [ desktop-qt5 ]
 
   desktop-file:
@@ -112,7 +112,7 @@ parts:
 
 apps:
   buzz:
-    command: bin/desktop-launch python $SNAP/main.py
+    command: bin/desktop-launch python3 $SNAP/main.py
     desktop: usr/share/applications/buzz.desktop
     environment:
       PATH: $SNAP/usr/bin:$SNAP/bin:$PATH
