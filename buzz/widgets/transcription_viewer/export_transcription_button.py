@@ -5,7 +5,7 @@ from buzz.locale import _
 from buzz.transcriber import (
     FileTranscriptionTask,
     OutputFormat,
-    get_default_output_file_path,
+    get_output_file_path,
     write_output,
 )
 from buzz.widgets.icon import FileDownloadIcon
@@ -30,7 +30,7 @@ class ExportTranscriptionButton(QPushButton):
     def on_menu_triggered(self, action: QAction):
         output_format = OutputFormat[action.text()]
 
-        default_path = get_default_output_file_path(
+        default_path = get_output_file_path(
             task=self.transcription_task, output_format=output_format
         )
 

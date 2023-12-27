@@ -62,7 +62,6 @@ class ChangeSegmentTextCommand(QUndoCommand):
         self.task_changed.emit()
 
 
-# TODO: Fix player duration and add spacer below
 class TranscriptionViewerWidget(QWidget):
     transcription_task: FileTranscriptionTask
     task_changed = pyqtSignal()
@@ -114,6 +113,7 @@ class TranscriptionViewerWidget(QWidget):
         self.current_segment_label = QLabel()
         self.current_segment_label.setText("")
         self.current_segment_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        self.current_segment_label.setContentsMargins(0, 0, 0, 10)
 
         buttons_layout = QHBoxLayout()
         buttons_layout.addStretch()

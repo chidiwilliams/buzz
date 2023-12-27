@@ -6,6 +6,7 @@ import logging
 import math
 import multiprocessing
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -96,6 +97,10 @@ class FileTranscriptionTask:
         FAILED = "failed"
         CANCELED = "canceled"
 
+    class Source(enum.Enum):
+        FILE_IMPORT = "file_import"
+        FOLDER_WATCH = "folder_watch"
+
     file_path: str
     transcription_options: TranscriptionOptions
     file_transcription_options: FileTranscriptionOptions
@@ -108,6 +113,8 @@ class FileTranscriptionTask:
     queued_at: Optional[datetime.datetime] = None
     started_at: Optional[datetime.datetime] = None
     completed_at: Optional[datetime.datetime] = None
+    output_directory: Optional[str] = None
+    source: Source = Source.FILE_IMPORT
 
     def status_text(self) -> str:
         if self.status == FileTranscriptionTask.Status.IN_PROGRESS:
@@ -169,12 +176,21 @@ class FileTranscriber(QObject):
         for (
             output_format
         ) in self.transcription_task.file_transcription_options.output_formats:
-            default_path = get_default_output_file_path(
+            default_path = get_output_file_path(
                 task=self.transcription_task, output_format=output_format
             )
 
             write_output(
                 path=default_path, segments=segments, output_format=output_format
+            )
+
+        if self.transcription_task.source == FileTranscriptionTask.Source.FOLDER_WATCH:
+            shutil.move(
+                self.transcription_task.file_path,
+                os.path.join(
+                    self.transcription_task.output_directory,
+                    os.path.basename(self.transcription_task.file_path),
+                ),
             )
 
     @abstractmethod
@@ -644,24 +660,22 @@ def segments_to_text(segments: List[Segment]) -> str:
 
 def to_timestamp(ms: float, ms_separator=".") -> str:
     hr = int(ms / (1000 * 60 * 60))
-    ms = ms - hr * (1000 * 60 * 60)
+    ms -= hr * (1000 * 60 * 60)
     min = int(ms / (1000 * 60))
-    ms = ms - min * (1000 * 60)
+    ms -= min * (1000 * 60)
     sec = int(ms / 1000)
     ms = int(ms - sec * 1000)
     return f"{hr:02d}:{min:02d}:{sec:02d}{ms_separator}{ms:03d}"
 
 
-SUPPORTED_OUTPUT_FORMATS = "Audio files (*.mp3 *.wav *.m4a *.ogg);;\
+SUPPORTED_AUDIO_FORMATS = "Audio files (*.mp3 *.wav *.m4a *.ogg);;\
 Video files (*.mp4 *.webm *.ogm *.mov);;All files (*.*)"
 
 
-def get_default_output_file_path(
-    task: FileTranscriptionTask, output_format: OutputFormat
-):
-    input_file_name = os.path.splitext(task.file_path)[0]
+def get_output_file_path(task: FileTranscriptionTask, output_format: OutputFormat):
+    input_file_name = os.path.splitext(os.path.basename(task.file_path))[0]
     date_time_now = datetime.datetime.now().strftime("%d-%b-%Y %H-%M-%S")
-    return (
+    output_file_name = (
         task.file_transcription_options.default_output_file_name.replace(
             "{{ input_file_name }}", input_file_name
         )
@@ -677,6 +691,9 @@ def get_default_output_file_path(
         .replace("{{ date_time }}", date_time_now)
         + f".{output_format.value}"
     )
+
+    output_directory = task.output_directory or os.path.dirname(task.file_path)
+    return os.path.join(output_directory, output_file_name)
 
 
 def whisper_cpp_params(

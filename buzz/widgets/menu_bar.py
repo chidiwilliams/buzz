@@ -1,15 +1,18 @@
 import webbrowser
-from typing import Dict
+from typing import Dict, Optional
 
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QAction, QKeySequence
 from PyQt6.QtWidgets import QMenuBar, QWidget
 
-from buzz.widgets.about_dialog import AboutDialog
 from buzz.locale import _
 from buzz.settings.settings import APP_NAME
 from buzz.settings.shortcut import Shortcut
-from buzz.widgets.preferences_dialog.preferences_dialog import PreferencesDialog
+from buzz.widgets.about_dialog import AboutDialog
+from buzz.widgets.preferences_dialog.models.preferences import Preferences
+from buzz.widgets.preferences_dialog.preferences_dialog import (
+    PreferencesDialog,
+)
 
 
 class MenuBar(QMenuBar):
@@ -17,14 +20,21 @@ class MenuBar(QMenuBar):
     shortcuts_changed = pyqtSignal(dict)
     openai_api_key_changed = pyqtSignal(str)
     default_export_file_name_changed = pyqtSignal(str)
+    preferences_changed = pyqtSignal(Preferences)
+    preferences_dialog: Optional[PreferencesDialog] = None
 
     def __init__(
-        self, shortcuts: Dict[str, str], default_export_file_name: str, parent: QWidget
+        self,
+        shortcuts: Dict[str, str],
+        default_export_file_name: str,
+        preferences: Preferences,
+        parent: Optional[QWidget] = None,
     ):
         super().__init__(parent)
 
         self.shortcuts = shortcuts
         self.default_export_file_name = default_export_file_name
+        self.preferences = preferences
 
         self.import_action = QAction(_("Import Media File..."), self)
         self.import_action.triggered.connect(self.on_import_action_triggered)
@@ -59,6 +69,7 @@ class MenuBar(QMenuBar):
         preferences_dialog = PreferencesDialog(
             shortcuts=self.shortcuts,
             default_export_file_name=self.default_export_file_name,
+            preferences=self.preferences,
             parent=self,
         )
         preferences_dialog.shortcuts_changed.connect(self.shortcuts_changed)
@@ -66,7 +77,16 @@ class MenuBar(QMenuBar):
         preferences_dialog.default_export_file_name_changed.connect(
             self.default_export_file_name_changed
         )
+        preferences_dialog.finished.connect(self.on_preferences_dialog_finished)
         preferences_dialog.open()
+
+        self.preferences_dialog = preferences_dialog
+
+    def on_preferences_dialog_finished(self, result):
+        if result == self.preferences_dialog.DialogCode.Accepted:
+            updated_preferences = self.preferences_dialog.updated_preferences
+            self.preferences = updated_preferences
+            self.preferences_changed.emit(updated_preferences)
 
     def on_help_action_triggered(self):
         webbrowser.open("https://chidiwilliams.github.io/buzz/docs")

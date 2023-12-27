@@ -40,7 +40,7 @@ class GeneralPreferencesWidget(QWidget):
         )
         self.update_test_openai_api_key_button()
 
-        layout.addRow("OpenAI API Key", self.openai_api_key_line_edit)
+        layout.addRow("OpenAI API key", self.openai_api_key_line_edit)
         layout.addRow("", self.test_openai_api_key_button)
 
         default_export_file_name_line_edit = LineEdit(default_export_file_name, self)

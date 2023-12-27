@@ -1,7 +1,11 @@
-from typing import Dict, Optional, Tuple, List
+from typing import Dict, Tuple, List
 
 from PyQt6 import QtGui
-from PyQt6.QtCore import pyqtSignal, Qt, QThread, QModelIndex
+from PyQt6.QtCore import (
+    Qt,
+    QThread,
+    QModelIndex,
+)
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QMainWindow, QMessageBox, QFileDialog
 
@@ -15,12 +19,16 @@ from buzz.transcriber import (
     FileTranscriptionTask,
     TranscriptionOptions,
     FileTranscriptionOptions,
-    SUPPORTED_OUTPUT_FORMATS,
+    SUPPORTED_AUDIO_FORMATS,
 )
 from buzz.widgets.icon import BUZZ_ICON_PATH
 from buzz.widgets.main_window_toolbar import MainWindowToolbar
 from buzz.widgets.menu_bar import MenuBar
+from buzz.widgets.preferences_dialog.models.preferences import Preferences
 from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
+from buzz.widgets.transcription_task_folder_watcher import (
+    TranscriptionTaskFolderWatcher,
+)
 from buzz.widgets.transcription_tasks_table_widget import TranscriptionTasksTableWidget
 from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
     TranscriptionViewerWidget,
@@ -30,8 +38,6 @@ from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
 class MainWindow(QMainWindow):
     table_widget: TranscriptionTasksTableWidget
     tasks: Dict[int, "FileTranscriptionTask"]
-    tasks_changed = pyqtSignal()
-    openai_access_token: Optional[str]
 
     def __init__(self, tasks_cache=TasksCache()):
         super().__init__(flags=Qt.WindowType.Window)
@@ -54,7 +60,6 @@ class MainWindow(QMainWindow):
         )
 
         self.tasks = {}
-        self.tasks_changed.connect(self.on_tasks_changed)
 
         self.toolbar = MainWindowToolbar(shortcuts=self.shortcuts, parent=self)
         self.toolbar.new_transcription_action_triggered.connect(
@@ -72,9 +77,11 @@ class MainWindow(QMainWindow):
         self.addToolBar(self.toolbar)
         self.setUnifiedTitleAndToolBarOnMac(True)
 
+        self.preferences = self.load_preferences(settings=self.settings)
         self.menu_bar = MenuBar(
             shortcuts=self.shortcuts,
             default_export_file_name=self.default_export_file_name,
+            preferences=self.preferences,
             parent=self,
         )
         self.menu_bar.import_action_triggered.connect(
@@ -87,6 +94,7 @@ class MainWindow(QMainWindow):
         self.menu_bar.default_export_file_name_changed.connect(
             self.default_export_file_name_changed
         )
+        self.menu_bar.preferences_changed.connect(self.on_preferences_changed)
         self.setMenuBar(self.menu_bar)
 
         self.table_widget = TranscriptionTasksTableWidget(self)
@@ -113,6 +121,31 @@ class MainWindow(QMainWindow):
 
         self.load_geometry()
 
+        self.folder_watcher = TranscriptionTaskFolderWatcher(
+            tasks=self.tasks,
+            preferences=self.preferences.folder_watch,
+            default_export_file_name=self.default_export_file_name,
+        )
+        self.folder_watcher.task_found.connect(self.add_task)
+        self.folder_watcher.find_tasks()
+
+    def on_preferences_changed(self, preferences: Preferences):
+        self.preferences = preferences
+        self.save_preferences(preferences)
+        self.folder_watcher.set_preferences(preferences.folder_watch)
+        self.folder_watcher.find_tasks()
+
+    def save_preferences(self, preferences: Preferences):
+        self.settings.settings.beginGroup("preferences")
+        preferences.save(self.settings.settings)
+        self.settings.settings.endGroup()
+
+    def load_preferences(self, settings: Settings):
+        settings.settings.beginGroup("preferences")
+        preferences = Preferences.load(settings.settings)
+        settings.settings.endGroup()
+        return preferences
+
     def dragEnterEvent(self, event):
         # Accept file drag events
         if event.mimeData().hasUrls():
@@ -134,13 +167,13 @@ class MainWindow(QMainWindow):
             )
             self.add_task(task)
 
-    def load_task(self, task: FileTranscriptionTask):
+    def upsert_task_in_table(self, task: FileTranscriptionTask):
         self.table_widget.upsert_task(task)
         self.tasks[task.id] = task
 
     def update_task_table_row(self, task: FileTranscriptionTask):
-        self.load_task(task=task)
-        self.tasks_changed.emit()
+        self.upsert_task_in_table(task=task)
+        self.on_tasks_changed()
 
     @staticmethod
     def task_completed_or_errored(task: FileTranscriptionTask):
@@ -158,7 +191,8 @@ class MainWindow(QMainWindow):
             self,
             _("Clear History"),
             _(
-                "Are you sure you want to delete the selected transcription(s)? This action cannot be undone."
+                "Are you sure you want to delete the selected transcription(s)? "
+                "This action cannot be undone."
             ),
         )
         if reply == QMessageBox.StandardButton.Yes:
@@ -169,7 +203,7 @@ class MainWindow(QMainWindow):
             for task_id in task_ids:
                 self.table_widget.clear_task(task_id)
                 self.tasks.pop(task_id)
-                self.tasks_changed.emit()
+                self.on_tasks_changed()
 
     def on_stop_transcription_action_triggered(self):
         selected_rows = self.table_widget.selectionModel().selectedRows()
@@ -178,13 +212,13 @@ class MainWindow(QMainWindow):
             task = self.tasks[task_id]
 
             task.status = FileTranscriptionTask.Status.CANCELED
-            self.tasks_changed.emit()
+            self.on_tasks_changed()
             self.transcriber_worker.cancel_task(task_id)
             self.table_widget.upsert_task(task)
 
     def on_new_transcription_action_triggered(self):
         (file_paths, __) = QFileDialog.getOpenFileNames(
-            self, _("Select audio file"), "", SUPPORTED_OUTPUT_FORMATS
+            self, _("Select audio file"), "", SUPPORTED_AUDIO_FORMATS
         )
         if len(file_paths) == 0:
             return
@@ -213,6 +247,7 @@ class MainWindow(QMainWindow):
         self.settings.set_value(
             Settings.Key.DEFAULT_EXPORT_FILE_NAME, default_export_file_name
         )
+        self.folder_watcher.default_export_file_name = default_export_file_name
 
     def open_transcript_viewer(self):
         selected_rows = self.table_widget.selectionModel().selectedRows()
@@ -291,9 +326,9 @@ class MainWindow(QMainWindow):
                 or task.status == FileTranscriptionTask.Status.IN_PROGRESS
             ):
                 task.status = None
-                self.transcriber_worker.add_task(task)
+                self.add_task(task)
             else:
-                self.load_task(task=task)
+                self.upsert_task_in_table(task=task)
 
     def save_tasks_to_cache(self):
         self.tasks_cache.save(list(self.tasks.values()))
