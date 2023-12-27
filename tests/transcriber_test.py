@@ -187,10 +187,25 @@ class TestWhisperFileTranscriber:
         )
         assert file_path == expected_file_path
 
-    def test_default_output_file(self):
+    @pytest.mark.parametrize(
+        "file_path,expected_starts_with",
+        [
+            pytest.param(
+                "/a/b/c.mp4",
+                "/a/b/c (Translated on ",
+                marks=pytest.mark.skipif(platform.system() == "Windows", reason=""),
+            ),
+            pytest.param(
+                "C:\\a\\b\\c.mp4",
+                "C:\\a\\b\\c (Translated on ",
+                marks=pytest.mark.skipif(platform.system() != "Windows", reason=""),
+            ),
+        ],
+    )
+    def test_default_output_file(self, file_path: str, expected_starts_with: str):
         srt = get_output_file_path(
             task=FileTranscriptionTask(
-                file_path="/a/b/c.mp4",
+                file_path=file_path,
                 transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
                 file_transcription_options=FileTranscriptionOptions(
                     file_paths=[],
@@ -200,7 +215,8 @@ class TestWhisperFileTranscriber:
             ),
             output_format=OutputFormat.TXT,
         )
-        assert srt.startswith("/a/b/c (Translated on ")
+
+        assert srt.startswith(expected_starts_with)
         assert srt.endswith(".txt")
 
         srt = get_output_file_path(
