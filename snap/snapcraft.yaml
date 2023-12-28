@@ -82,11 +82,24 @@ parts:
       - portaudio19-dev
       - python3-poetry
     stage-packages:
+      # Audio
       - ffmpeg
       - libportaudio2
       - libpulse0
       - libasound2
       - libasound2-plugins
+      - libyaml-dev
+      - libegl1-mesa
+      # Display
+      - libxkbcommon-x11-0
+      - libxcb-icccm4
+      - libxcb-image0
+      - libxcb-keysyms1
+      - libxcb-randr0
+      - libxcb-render-util0
+      - libxcb-xinerama0
+      - libxcb-shape0
+      - libxcb-cursor0
     override-build: |
       craftctl default
       pip install .
