@@ -25,9 +25,9 @@ jobs:
         id: snapcraft
       - run:
           sudo apt-get install --no-install-recommends libegl1-mesa libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2
-      - run: |
-          sudo snap install --devmode *.snap
-          buzz --version
+      - run: sudo snap install --devmode *.snap
+      - run: buzz --version
+        working-directory: $HOME
       - uses: actions/upload-artifact@v3
         with:
           name: snap
