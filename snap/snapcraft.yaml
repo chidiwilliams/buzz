@@ -111,7 +111,7 @@ parts:
 
       # execstack --clear-execstack $CRAFT_PART_INSTALL/lib/python3.10/site-packages/ctranslate2.libs/libctranslate2*.so*
       execstack --clear-execstack $CRAFT_PART_INSTALL/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_pybind11_state.cpython-310-x86_64-linux-gnu.so
-      execstack --clear-execstack $CRAFT_PART_INSTALL/lib/python3.10/site-packages/torch/lib/libtorch_cpu.so
+      # execstack --clear-execstack $CRAFT_PART_INSTALL/lib/python3.10/site-packages/torch/lib/libtorch_cpu.so
     after: [ desktop-qt5 ]
 
   desktop-file:
