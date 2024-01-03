@@ -24,7 +24,12 @@ jobs:
       - uses: snapcore/action-build@v1
         id: snapcraft
       - run: |
-          sudo snap install --devmode *.snap
+          sudo apt-get update
+          sudo apt-get install libportaudio2
+      - run: sudo snap install --devmode *.snap
+      - run: |
+          cd $HOME
+          xvfb-run buzz --version
       - uses: actions/upload-artifact@v3
         with:
           name: snap
