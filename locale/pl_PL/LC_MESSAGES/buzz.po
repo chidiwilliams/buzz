@@ -19,7 +19,7 @@ msgstr ""
 
 #: buzz/widgets/main_window.py:157 buzz/widgets/main_window_toolbar.py:57
 msgid "Clear History"
-msgstr "Wyczyść Historię"
+msgstr "Wyczyść historię"
 
 #: buzz/widgets/main_window.py:159
 msgid ""
@@ -35,7 +35,7 @@ msgstr "Wybierz plik audio"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:28
 msgid "Advanced Settings"
-msgstr "Ustawienia Zaawansowane"
+msgstr "Ustawienia zaawansowane"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:42
 msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
@@ -47,7 +47,7 @@ msgstr "Temperatura:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:62
 msgid "Initial Prompt:"
-msgstr "Wstępne Instrukcje:"
+msgstr "Wstępne instrukcje:"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py:79
 msgid "Model:"
@@ -63,7 +63,7 @@ msgstr "Język:"
 
 #: buzz/widgets/transcriber/languages_combo_box.py:25
 msgid "Detect Language"
-msgstr "Wykryj Język"
+msgstr "Wykryj język"
 
 #: buzz/widgets/transcriber/file_transcriber_widget.py:108
 msgid "Word-level timings"
@@ -84,15 +84,15 @@ msgstr "Nowa transkrypcja"
 
 #: buzz/widgets/main_window_toolbar.py:43
 msgid "Open Transcript"
-msgstr "Otwórz Transkrypt"
+msgstr "Otwórz transkrypt"
 
 #: buzz/widgets/main_window_toolbar.py:49
 msgid "Cancel Transcription"
-msgstr "Anuluj Transkrypcję"
+msgstr "Anuluj transkrypcję"
 
 #: buzz/widgets/menu_bar.py:29
 msgid "Import Media File..."
-msgstr "Importuj Plik Multimediów..."
+msgstr "Importuj plik multimediów..."
 
 #: buzz/widgets/menu_bar.py:35
 msgid "Preferences..."
@@ -116,7 +116,7 @@ msgstr "ID"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:33
 msgid "File Name"
-msgstr "Nazwa Pliku"
+msgstr "Nazwa pliku"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:33
 msgid "Status"
@@ -132,36 +132,36 @@ msgstr "Anulowano"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:90
 msgid "Queued"
-msgstr ""
+msgstr "Kolejka"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:30
 msgid "Start"
-msgstr ""
+msgstr "Roozpocznij"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:30
 msgid "End"
-msgstr ""
+msgstr "Zakończ"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:30
 msgid "Text"
-msgstr ""
+msgstr "Tekst"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:87
 msgid "Undo"
-msgstr ""
+msgstr "Cofnij"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:92
 msgid "Redo"
-msgstr ""
+msgstr "Ponów"
 
 #: buzz/widgets/transcription_viewer/export_transcription_button.py:39
 #, fuzzy
 msgid "Save File"
-msgstr "Plik"
+msgstr "Zapisz plik"
 
 #: buzz/widgets/transcription_viewer/export_transcription_button.py:41
 msgid "Text files"
-msgstr ""
+msgstr "Pliki tekstowe"
 
 #: buzz/widgets/about_dialog.py:80
 msgid "Check for updates"
@@ -174,43 +174,41 @@ msgstr "Posiadasz najnowszą wersję!"
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:61
 #, fuzzy
 msgid "Download"
-msgstr "Pobieranie modelu"
+msgstr "Pobierz"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:66
 msgid "Show file location"
-msgstr ""
+msgstr "Pokaż lokalizacje pliku"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:74
 msgid "Delete"
-msgstr ""
+msgstr "Usuń"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:111
 #, fuzzy
 msgid "Downloaded"
-msgstr "Pobieranie modelu"
+msgstr "Pobrany"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:116
 msgid "Available for Download"
-msgstr ""
+msgstr "Dostępne do pobrania"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:158
 msgid "Delete Model"
-msgstr ""
+msgstr "Usuń model"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:159
 #, fuzzy
 msgid "Are you sure you want to delete the selected model?"
-msgstr ""
-"Czy na pewno chcesz usunąć zaznaczone transkrypcje? Tej operacji nie można "
-"cofnąć."
+msgstr "Czy na pewno chcesz usunąć zaznaczoną transkrypcję?"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:178
 msgid "Error"
-msgstr ""
+msgstr "Błąd"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:43
 msgid "General"
-msgstr ""
+msgstr "Główne"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:46
 #, fuzzy
@@ -219,11 +217,11 @@ msgstr "Model:"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:50
 msgid "Shortcuts"
-msgstr ""
+msgstr "Skruty"
 
 #: buzz/widgets/recording_transcriber_widget.py:62
 msgid "Live Recording"
-msgstr "Nagrywanie Na Żywo"
+msgstr "Nagrywanie na żywo"
 
 #: buzz/widgets/recording_transcriber_widget.py:101
 msgid "Click Record to begin..."
