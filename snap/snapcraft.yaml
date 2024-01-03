@@ -109,7 +109,7 @@ parts:
       cp $CRAFT_PART_BUILD/buzz/whisper_cpp.py $CRAFT_PART_INSTALL/buzz/
       cp $CRAFT_PART_BUILD/buzz/libwhisper.so $CRAFT_PART_INSTALL/buzz/
 
-      execstack --clear-execstack $CRAFT_PART_INSTALL/lib/python3.10/site-packages/ctranslate2.libs/libctranslate2-7e7a7741.so.3.15.1
+      execstack --clear-execstack $CRAFT_PART_INSTALL/lib/python3.10/site-packages/ctranslate2.libs/libctranslate2*.so*
       execstack --clear-execstack $CRAFT_PART_INSTALL/lib/python3.10/site-packages/onnxruntime/capi/onnxruntime_pybind11_state.cpython-310-x86_64-linux-gnu.so
       execstack --clear-execstack $CRAFT_PART_INSTALL/lib/python3.10/site-packages/torch/lib/libtorch_cpu.so
     after: [ desktop-qt5 ]
