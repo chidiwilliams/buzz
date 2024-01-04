@@ -33,7 +33,7 @@ torch = { version = "1.12.1", markers = "sys_platform != 'linux'" }
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
 pyinstaller = "^5.4.1"
-# Lock to 2023.11 to fix the error in 2023.12:
+# Lock to 2023.11 to fix error in 2023.12:
 #    AttributeError: module 'dataclasses' has no attribute '__version__'
 pyinstaller-hooks-contrib = "2023.11"
 six = "^1.16.0"

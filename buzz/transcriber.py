@@ -32,7 +32,6 @@ if sys.platform != "linux":
     import faster_whisper
     import whisper
     import stable_whisper
-    from whisper import tokenizer
 
 # Catch exception from whisper.dll not getting loaded.
 # TODO: Remove flag and try-except when issue with loading
@@ -60,9 +59,6 @@ class Segment:
     text: str
 
 
-LANGUAGES = tokenizer.LANGUAGES
-
-
 @dataclass()
 class TranscriptionOptions:
     language: Optional[str] = None
@@ -79,7 +75,7 @@ class TranscriptionOptions:
 def humanize_language(language: str) -> str:
     if language == "":
         return _("Detect Language")
-    return LANGUAGES[language].title()
+    return whisper.tokenizer.LANGUAGES[language].title()
 
 
 @dataclass()
