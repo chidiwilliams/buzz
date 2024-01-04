@@ -6,7 +6,8 @@ from unittest.mock import MagicMock
 
 import numpy as np
 import sounddevice
-import whisper
+
+from buzz import whisper_audio
 
 mock_query_devices = [
     {
@@ -114,11 +115,11 @@ class MockInputStream(MagicMock):
         self.thread.start()
 
     def target(self):
-        sample_rate = whisper.audio.SAMPLE_RATE
+        sample_rate = whisper_audio.SAMPLE_RATE
         file_path = os.path.join(
             os.path.dirname(__file__), "../testdata/whisper-french.mp3"
         )
-        audio = whisper.load_audio(file_path, sr=sample_rate)
+        audio = whisper_audio.load_audio(file_path, sr=sample_rate)
 
         chunk_duration_secs = 1
 
