@@ -1,3 +1,4 @@
+import sys
 from typing import Optional, List
 
 from PyQt6.QtCore import pyqtSignal
@@ -22,9 +23,17 @@ class ModelTypeComboBox(QComboBox):
             model_types = [model_type for model_type in ModelType]
 
         for model_type in model_types:
-            # Hide Whisper.cpp option is whisper.dll did not load correctly.
-            # See: https://github.com/chidiwilliams/buzz/issues/274, https://github.com/chidiwilliams/buzz/issues/197
-            if model_type == ModelType.WHISPER_CPP and LOADED_WHISPER_DLL is False:
+            if (
+                # Hide Whisper.cpp option if whisper.dll did not load correctly.
+                # See: https://github.com/chidiwilliams/buzz/issues/274,
+                # https://github.com/chidiwilliams/buzz/issues/197
+                model_type == ModelType.WHISPER_CPP and LOADED_WHISPER_DLL is False
+            ) or (
+                # Disable Whisper and Faster Whisper options
+                # on Linux due to execstack errors on Snap
+                model_type in (ModelType.WHISPER, ModelType.FASTER_WHISPER)
+                and sys.platform == "Linux"
+            ):
                 continue
             self.addItem(model_type.value)
 

@@ -19,7 +19,6 @@ from typing import Any, List, Optional, Tuple, Union, Set
 
 import numpy as np
 import openai
-import stable_whisper
 import tqdm
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from dataclasses_json import dataclass_json, config, Exclude
@@ -32,6 +31,7 @@ from .model_loader import TranscriptionModel, ModelType
 if sys.platform != "linux":
     import faster_whisper
     import whisper
+    import stable_whisper
     from whisper import tokenizer
 
 # Catch exception from whisper.dll not getting loaded.
