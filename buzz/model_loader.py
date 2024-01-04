@@ -2,21 +2,23 @@ import enum
 import hashlib
 import logging
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
 import warnings
 from dataclasses import dataclass
 from typing import Optional
-import shutil
 
-import faster_whisper
 import huggingface_hub
 import requests
-import whisper
 from PyQt6.QtCore import QObject, pyqtSignal, QRunnable
 from platformdirs import user_cache_dir
 from tqdm.auto import tqdm
+
+if sys.platform != "linux":
+    import faster_whisper
+    import whisper
 
 
 class WhisperModelSize(str, enum.Enum):

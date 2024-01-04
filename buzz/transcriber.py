@@ -17,20 +17,22 @@ from random import randint
 from threading import Thread
 from typing import Any, List, Optional, Tuple, Union, Set
 
-import faster_whisper
 import numpy as np
 import openai
 import stable_whisper
 import tqdm
-import whisper
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from dataclasses_json import dataclass_json, config, Exclude
-from whisper import tokenizer
 
 from . import transformers_whisper
 from .conn import pipe_stderr
 from .locale import _
 from .model_loader import TranscriptionModel, ModelType
+
+if sys.platform != "linux":
+    import faster_whisper
+    import whisper
+    from whisper import tokenizer
 
 # Catch exception from whisper.dll not getting loaded.
 # TODO: Remove flag and try-except when issue with loading

@@ -1,9 +1,10 @@
 from typing import Optional, Union
 
 import numpy as np
-import whisper
 from tqdm import tqdm
 from transformers import WhisperProcessor, WhisperForConditionalGeneration
+
+from buzz import whisper_audio
 
 
 def load_model(model_name_or_path: str):
@@ -13,8 +14,8 @@ def load_model(model_name_or_path: str):
 
 
 class TransformersWhisper:
-    SAMPLE_RATE = whisper.audio.SAMPLE_RATE
-    N_SAMPLES_IN_CHUNK = whisper.audio.N_SAMPLES
+    SAMPLE_RATE = whisper_audio.SAMPLE_RATE
+    N_SAMPLES_IN_CHUNK = whisper_audio.N_SAMPLES
 
     def __init__(
         self, processor: WhisperProcessor, model: WhisperForConditionalGeneration
@@ -33,7 +34,7 @@ class TransformersWhisper:
         verbose: Optional[bool] = None,
     ):
         if isinstance(audio, str):
-            audio = whisper.load_audio(audio, sr=self.SAMPLE_RATE)
+            audio = whisper_audio.load_audio(audio, sr=self.SAMPLE_RATE)
 
         self.model.config.forced_decoder_ids = self.processor.get_decoder_prompt_ids(
             task=task, language=language

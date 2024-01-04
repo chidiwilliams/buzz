@@ -1,11 +1,11 @@
 import datetime
 import logging
+import sys
 import threading
 from typing import Optional
 
 import numpy as np
 import sounddevice
-import whisper
 from PyQt6.QtCore import QObject, pyqtSignal
 from sounddevice import PortAudioError
 
@@ -13,6 +13,9 @@ from buzz import transformers_whisper
 from buzz.model_loader import ModelType
 from buzz.transcriber import TranscriptionOptions, WhisperCpp, whisper_cpp_params
 from buzz.transformers_whisper import TransformersWhisper
+
+if sys.platform != "linux":
+    import whisper
 
 
 class RecordingTranscriber(QObject):
