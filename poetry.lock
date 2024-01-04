@@ -1685,19 +1685,14 @@ hook-testing = ["execnet (>=1.5.0)", "psutil", "pytest (>=2.7.3)"]
 
 [[package]]
 name = "pyinstaller-hooks-contrib"
-version = "2023.12"
+version = "2023.11"
 description = "Community maintained hooks for PyInstaller"
 optional = false
 python-versions = ">=3.7"
 files = [
-    { file = "pyinstaller-hooks-contrib-2023.12.tar.gz", hash = "sha256:11a9d59d903723dd693e8c10b054f3ea1ecad390623c9fa527c731d715fc5b3f" },
-    { file = "pyinstaller_hooks_contrib-2023.12-py2.py3-none-any.whl", hash = "sha256:6a601a0d783fa725327fc6ac712779475dc8979f639419c7fcd460dd8d0a6d2a" },
+    { file = "pyinstaller-hooks-contrib-2023.11.tar.gz", hash = "sha256:5dd7a8a054a65c19cdaa381cabcfbe76f44d5f88d18214b0c570a0cd139be77f" },
+    { file = "pyinstaller_hooks_contrib-2023.11-py2.py3-none-any.whl", hash = "sha256:f2a75dac2968ec81f92dcd3768906f654fa4204bc496126ae8483e87a5d89602" },
 ]
-
-[package.dependencies]
-importlib-metadata = { version = ">=4.6", markers = "python_version < \"3.10\"" }
-packaging = ">=22.0"
-setuptools = ">=42.0.0"
 
 [[package]]
 name = "pylint"
@@ -2775,4 +2770,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9.13,<3.11"
-content-hash = "fbf6f74ef9a08a29eee546c598925e282607d282773bd9204ac9ee9c7aece129"
+content-hash = "50a3b17b418cd78cdc66f056493a47c6a369c05fb52a5bb060df72e45ecc641a"
