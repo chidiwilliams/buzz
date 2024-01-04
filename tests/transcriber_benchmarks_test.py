@@ -70,6 +70,9 @@ def transcribe(qtbot, transcriber: FileTranscriber):
                 )
             ),
             id="Whisper - Tiny",
+            marks=pytest.mark.skipif(
+                platform.system() == "Linux", reason="Skip execstack error on Snap"
+            ),
         ),
         pytest.param(
             WhisperFileTranscriber(
@@ -84,8 +87,10 @@ def transcribe(qtbot, transcriber: FileTranscriber):
             ),
             id="Faster Whisper - Tiny",
             marks=pytest.mark.skipif(
-                platform.system() == "Darwin",
-                reason="Error with libiomp5 already initialized on GH action runner: https://github.com/chidiwilliams/buzz/actions/runs/4657331262/jobs/8241832087",
+                platform.system() == "Darwin" or platform.system() == "Linux",
+                reason="Darwin: Error with libiomp5 already initialized on GH action "
+                "runner: https://github.com/chidiwilliams/buzz/actions/runs/"
+                "4657331262/jobs/8241832087. Linux: Skip execstack error on Snap",
             ),
         ),
     ],
