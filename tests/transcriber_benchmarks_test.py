@@ -43,44 +43,29 @@ def transcribe(qtbot, transcriber: FileTranscriber):
 
 
 @pytest.mark.parametrize(
-    "transcriber",
+    "transcriber, model",
     [
         pytest.param(
-            WhisperCppFileTranscriber(
-                task=(
-                    get_task(
-                        TranscriptionModel(
-                            model_type=ModelType.WHISPER_CPP,
-                            whisper_model_size=WhisperModelSize.TINY,
-                        )
-                    )
-                )
+            WhisperCppFileTranscriber,
+            TranscriptionModel(
+                model_type=ModelType.WHISPER_CPP,
+                whisper_model_size=WhisperModelSize.TINY,
             ),
             id="Whisper.cpp - Tiny",
         ),
         pytest.param(
-            WhisperFileTranscriber(
-                task=(
-                    get_task(
-                        TranscriptionModel(
-                            model_type=ModelType.WHISPER,
-                            whisper_model_size=WhisperModelSize.TINY,
-                        )
-                    )
-                )
+            WhisperFileTranscriber,
+            TranscriptionModel(
+                model_type=ModelType.WHISPER,
+                whisper_model_size=WhisperModelSize.TINY,
             ),
             id="Whisper - Tiny",
         ),
         pytest.param(
-            WhisperFileTranscriber(
-                task=(
-                    get_task(
-                        TranscriptionModel(
-                            model_type=ModelType.FASTER_WHISPER,
-                            whisper_model_size=WhisperModelSize.TINY,
-                        )
-                    )
-                )
+            WhisperFileTranscriber,
+            TranscriptionModel(
+                model_type=ModelType.FASTER_WHISPER,
+                whisper_model_size=WhisperModelSize.TINY,
             ),
             id="Faster Whisper - Tiny",
             marks=pytest.mark.skipif(
@@ -95,6 +80,6 @@ def transcribe(qtbot, transcriber: FileTranscriber):
 @pytest.mark.skipif(
     platform.system() == "Linux", reason="Avoid execstack errors on Snap"
 )
-def test_should_transcribe_and_benchmark(qtbot, benchmark, transcriber):
-    segments = benchmark(transcribe, qtbot, transcriber)
+def test_should_transcribe_and_benchmark(qtbot, benchmark, transcriber, model):
+    segments = benchmark(transcribe, qtbot, transcriber(task=get_task(model)))
     assert len(segments) > 0
