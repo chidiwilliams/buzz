@@ -158,6 +158,9 @@ class TestWhisperCppFileTranscriber:
             assert expected_segment.text in segments[i].text
 
 
+@pytest.mark.skipif(
+    platform.system() == "Linux", reason="Avoid execstack errors on Snap"
+)
 class TestWhisperFileTranscriber:
     @pytest.mark.parametrize(
         "file_path,output_format,expected_file_path,default_output_file_name",
