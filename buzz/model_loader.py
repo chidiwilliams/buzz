@@ -15,6 +15,9 @@ from PyQt6.QtCore import QObject, pyqtSignal, QRunnable
 from platformdirs import user_cache_dir
 from tqdm.auto import tqdm
 
+whisper = None
+faster_whisper = None
+huggingface_hub = None
 if sys.platform != "linux":
     import faster_whisper
     import whisper
