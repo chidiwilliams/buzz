@@ -260,6 +260,7 @@ class FileTranscriber(QObject):
         try:
             segments = self.transcribe()
         except Exception as exc:
+            logging.error(exc)
             self.error.emit(exc)
             return
 
