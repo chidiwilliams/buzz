@@ -323,8 +323,8 @@ class WhisperCppFileTranscriber(FileTranscriber):
         model_path = self.model_path
 
         logging.debug(
-            "Starting whisper_cpp file transcription, file path = %s, language = %s, task = %s, model_path = %s, "
-            "word level timings = %s",
+            "Starting whisper_cpp file transcription, file path = %s, language = %s, "
+            "task = %s, model_path = %s, word level timings = %s",
             self.file_path,
             self.language,
             self.task,
@@ -333,7 +333,7 @@ class WhisperCppFileTranscriber(FileTranscriber):
         )
 
         audio = whisper_audio.load_audio(self.file_path)
-        self.duration_audio_ms = len(audio) * 1000 / whisper.audio.SAMPLE_RATE
+        self.duration_audio_ms = len(audio) * 1000 / whisper_audio.SAMPLE_RATE
 
         whisper_params = whisper_cpp_params(
             language=self.language if self.language is not None else "",
