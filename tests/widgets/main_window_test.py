@@ -229,11 +229,18 @@ class TestMainWindow:
 
     @staticmethod
     def get_assert_task_status_callback(
-        table_widget: QTableWidget, row_index: int, expected_status: str
+        table_widget: QTableWidget,
+        row_index: int,
+        expected_status: str,
+        long_audio: bool = False,
     ):
         def assert_task_status():
             assert table_widget.rowCount() > 0
-            assert table_widget.item(row_index, 1).text() == "whisper-french.mp3"
+            assert (
+                table_widget.item(row_index, 1).text() == "audio-long.mp3"
+                if long_audio
+                else "whisper-french.mp3"
+            )
             assert expected_status in table_widget.item(row_index, 4).text()
 
         return assert_task_status
