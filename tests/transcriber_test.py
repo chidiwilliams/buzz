@@ -142,10 +142,17 @@ class TestWhisperCppFileTranscriber:
         )
         mock_progress = Mock(side_effect=lambda value: print("progress: ", value))
         mock_completed = Mock()
+        mock_error = Mock()
         transcriber.progress.connect(mock_progress)
         transcriber.completed.connect(mock_completed)
-        with qtbot.waitSignal(transcriber.completed, timeout=10 * 60 * 1000):
+        transcriber.error.connect(mock_error)
+
+        with qtbot.waitSignal(
+            [transcriber.completed, transcriber.error], timeout=10 * 60 * 1000
+        ):
             transcriber.run()
+
+        mock_error.assert_not_called()
 
         mock_progress.assert_called()
         segments = [
