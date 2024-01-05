@@ -14,7 +14,6 @@ packages = [
 [tool.poetry.dependencies]
 python = ">=3.9.13,<3.11"
 sounddevice = "^0.4.5"
-transformers = "~4.24.0"
 appdirs = "^1.4.4"
 humanize = "^4.4.0"
 PyQt6 = "^6.4.0"
@@ -29,6 +28,7 @@ stable-ts = { version = "1.0.2", markers = "sys_platform != 'linux'" }
 faster-whisper = { version = "^0.4.1", markers = "sys_platform != 'linux'" }
 openai-whisper = { version = "v20231106", markers = "sys_platform != 'linux'" }
 torch = { version = "1.12.1", markers = "sys_platform != 'linux'" }
+transformers = { version = "~4.24.0", markers = "sys_platform != 'linux'" }
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
