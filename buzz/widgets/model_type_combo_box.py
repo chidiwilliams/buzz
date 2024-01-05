@@ -31,8 +31,15 @@ class ModelTypeComboBox(QComboBox):
             ) or (
                 # Disable Whisper and Faster Whisper options
                 # on Linux due to execstack errors on Snap
-                model_type in (ModelType.WHISPER, ModelType.FASTER_WHISPER)
-                and sys.platform == "Linux"
+                (
+                    model_type
+                    in (
+                        ModelType.WHISPER,
+                        ModelType.FASTER_WHISPER,
+                        ModelType.HUGGING_FACE,
+                    )
+                )
+                and sys.platform == "linux"
             ):
                 continue
             self.addItem(model_type.value)
