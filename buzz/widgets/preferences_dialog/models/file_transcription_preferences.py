@@ -45,7 +45,7 @@ class FileTranscriptionPreferences:
         word_level_timings = settings.value("word_level_timings", False)
         temperature = settings.value("temperature", DEFAULT_WHISPER_TEMPERATURE)
         initial_prompt = settings.value("initial_prompt", "")
-        output_formats = settings.value("output_formats", [])
+        output_formats = settings.value("output_formats", []) or []
         return FileTranscriptionPreferences(
             language=language,
             task=task,
