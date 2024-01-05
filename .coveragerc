@@ -5,6 +5,3 @@ omit =
 
 [html]
 directory = coverage/html
-
-[report]
-fail_under = 75
