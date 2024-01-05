@@ -9,7 +9,7 @@ import sounddevice
 from PyQt6.QtCore import QObject, pyqtSignal
 from sounddevice import PortAudioError
 
-from buzz import transformers_whisper
+from buzz import transformers_whisper, whisper_audio
 from buzz.model_loader import ModelType
 from buzz.transcriber import TranscriptionOptions, WhisperCpp, whisper_cpp_params
 from buzz.transformers_whisper import TransformersWhisper
@@ -23,6 +23,7 @@ class RecordingTranscriber(QObject):
     finished = pyqtSignal()
     error = pyqtSignal(str)
     is_running = False
+    SAMPLE_RATE = whisper_audio.SAMPLE_RATE
     MAX_QUEUE_SIZE = 10
 
     def __init__(
@@ -152,17 +153,15 @@ class RecordingTranscriber(QObject):
         provided by Whisper if the microphone supports it, or else it uses the device's default
         sample rate.
         """
-        whisper_sample_rate = whisper.audio.SAMPLE_RATE
+        sample_rate = whisper_audio.SAMPLE_RATE
         try:
-            sounddevice.check_input_settings(
-                device=device_id, samplerate=whisper_sample_rate
-            )
-            return whisper_sample_rate
+            sounddevice.check_input_settings(device=device_id, samplerate=sample_rate)
+            return sample_rate
         except PortAudioError:
             device_info = sounddevice.query_devices(device=device_id)
             if isinstance(device_info, dict):
-                return int(device_info.get("default_samplerate", whisper_sample_rate))
-            return whisper_sample_rate
+                return int(device_info.get("default_samplerate", sample_rate))
+            return sample_rate
 
     def stream_callback(self, in_data: np.ndarray, frame_count, time_info, status):
         # Try to enqueue the next block. If the queue is already full, drop the block.

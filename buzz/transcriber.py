@@ -23,6 +23,7 @@ import tqdm
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from dataclasses_json import dataclass_json, config, Exclude
 
+from buzz.model_loader import whisper_cpp
 from . import transformers_whisper
 from .conn import pipe_stderr
 from .locale import _
@@ -32,17 +33,6 @@ if sys.platform != "linux":
     import faster_whisper
     import whisper
     import stable_whisper
-
-# Catch exception from whisper.dll not getting loaded.
-# TODO: Remove flag and try-except when issue with loading
-# the DLL in some envs is fixed.
-LOADED_WHISPER_DLL = False
-try:
-    import buzz.whisper_cpp as whisper_cpp
-
-    LOADED_WHISPER_DLL = True
-except ImportError:
-    logging.exception("")
 
 DEFAULT_WHISPER_TEMPERATURE = (0.0, 0.2, 0.4, 0.6, 0.8, 1.0)
 
