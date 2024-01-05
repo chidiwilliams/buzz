@@ -20,9 +20,10 @@ class TestModelsPreferencesWidget:
     @pytest.fixture(scope="class")
     def clear_model_cache(self):
         for model_type in ModelType:
-            path = TranscriptionModel(model_type=model_type).get_local_model_path()
-            if path and os.path.isfile(path):
-                os.remove(path)
+            if model_type.is_available():
+                path = TranscriptionModel(model_type=model_type).get_local_model_path()
+                if path and os.path.isfile(path):
+                    os.remove(path)
 
     def test_should_show_model_list(self, qtbot):
         widget = ModelsPreferencesWidget()
