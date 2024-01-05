@@ -10,7 +10,6 @@ import warnings
 from dataclasses import dataclass
 from typing import Optional
 
-import huggingface_hub
 import requests
 from PyQt6.QtCore import QObject, pyqtSignal, QRunnable
 from platformdirs import user_cache_dir
@@ -19,6 +18,7 @@ from tqdm.auto import tqdm
 if sys.platform != "linux":
     import faster_whisper
     import whisper
+    import huggingface_hub
 
 # Catch exception from whisper.dll not getting loaded.
 # TODO: Remove flag and try-except when issue with loading
