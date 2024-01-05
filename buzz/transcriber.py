@@ -332,7 +332,7 @@ class WhisperCppFileTranscriber(FileTranscriber):
             self.word_level_timings,
         )
 
-        audio = whisper.audio.load_audio(self.file_path)
+        audio = whisper_audio.load_audio(self.file_path)
         self.duration_audio_ms = len(audio) * 1000 / whisper.audio.SAMPLE_RATE
 
         whisper_params = whisper_cpp_params(
