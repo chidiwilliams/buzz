@@ -1,7 +1,5 @@
-import sys
 from unittest.mock import Mock
 
-import pytest
 from PyQt6.QtCore import Qt
 from pytestqt.qtbot import QtBot
 
@@ -17,7 +15,6 @@ class TestFileTranscriberWidget:
         qtbot.add_widget(widget)
         assert widget.windowTitle() == "whisper-french.mp3"
 
-    @pytest.mark.skipif(sys.platform == "linux", reason="TODO")
     def test_should_emit_triggered_event(self, qtbot: QtBot):
         widget = FileTranscriberWidget(
             file_paths=["testdata/whisper-french.mp3"],
