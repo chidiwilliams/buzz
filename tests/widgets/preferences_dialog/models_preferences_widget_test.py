@@ -6,7 +6,6 @@ from PyQt6.QtWidgets import QComboBox, QPushButton
 from pytestqt.qtbot import QtBot
 
 from buzz.model_loader import (
-    WhisperModelSize,
     TranscriptionModel,
     ModelType,
 )
@@ -89,14 +88,14 @@ class TestModelsPreferencesWidget:
         qtbot.wait_until(callback=downloaded_model, timeout=60_000)
 
     @pytest.fixture(scope="class")
-    def whisper_tiny_model_path(self) -> str:
-        return get_model_path(
-            transcription_model=TranscriptionModel(
-                model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY
-            )
+    def default_model_path(self) -> str:
+        model_type = next(
+            model_type for model_type in ModelType if model_type.is_available()
         )
+        model = TranscriptionModel(model_type=model_type)
+        return get_model_path(transcription_model=model)
 
-    def test_should_show_downloaded_model(self, qtbot, whisper_tiny_model_path):
+    def test_should_show_downloaded_model(self, qtbot, default_model_path):
         widget = ModelsPreferencesWidget()
         widget.show()
         qtbot.add_widget(widget)
