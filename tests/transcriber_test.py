@@ -104,7 +104,6 @@ class TestOpenAIWhisperAPIFileTranscriber:
         assert called_segments[0].text == "Hello"
 
 
-@pytest.mark.skipif(sys.platform == "linux", reason="Avoid execstack errors on Snap")
 class TestWhisperCppFileTranscriber:
     @pytest.mark.parametrize(
         "word_level_timings,expected_segments",
