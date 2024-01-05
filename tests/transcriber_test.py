@@ -147,7 +147,7 @@ class TestWhisperCppFileTranscriber:
         transcriber.completed.connect(mock_completed)
         transcriber.error.connect(mock_error)
 
-        with qtbot.waitSignal(
+        with qtbot.wait_signals(
             [transcriber.completed, transcriber.error], timeout=10 * 60 * 1000
         ):
             transcriber.run()
