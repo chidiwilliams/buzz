@@ -42,7 +42,7 @@ class FileTranscriptionPreferences:
         model: TranscriptionModel = settings.value(
             "model", TranscriptionModel.default()
         )
-        word_level_timings = settings.value("word_level_timings", False)
+        word_level_timings = bool(settings.value("word_level_timings", False))
         temperature = settings.value("temperature", DEFAULT_WHISPER_TEMPERATURE)
         initial_prompt = settings.value("initial_prompt", "")
         output_formats = settings.value("output_formats", []) or []
