@@ -16,14 +16,13 @@ def load_model(model_name_or_path: str):
 
 
 class TransformersWhisper:
-    SAMPLE_RATE = whisper.audio.SAMPLE_RATE
-    N_SAMPLES_IN_CHUNK = whisper.audio.N_SAMPLES
-
     def __init__(
         self, processor: WhisperProcessor, model: WhisperForConditionalGeneration
     ):
         self.processor = processor
         self.model = model
+        self.SAMPLE_RATE = whisper.audio.SAMPLE_RATE
+        self.N_SAMPLES_IN_CHUNK = whisper.audio.N_SAMPLES
 
     # Patch implementation of transcribing with transformers' WhisperProcessor until long-form transcription and
     # timestamps are available. See: https://github.com/huggingface/transformers/issues/19887,
