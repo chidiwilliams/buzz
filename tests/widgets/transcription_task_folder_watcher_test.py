@@ -82,7 +82,7 @@ class TestTranscriptionTaskFolderWatcher:
                 file_transcription_options=FileTranscriptionPreferences(
                     language=None,
                     task=Task.TRANSCRIBE,
-                    model=TranscriptionModel(),
+                    model=self.default_model(),
                     word_level_timings=False,
                     temperature=DEFAULT_WHISPER_TEMPERATURE,
                     initial_prompt="",
