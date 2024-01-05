@@ -4,6 +4,7 @@ from typing import Optional, Union
 import numpy as np
 from tqdm import tqdm
 
+WhisperProcessor = WhisperForConditionalGeneration = None
 if sys.platform != "linux":
     import whisper
     from transformers import WhisperProcessor, WhisperForConditionalGeneration
