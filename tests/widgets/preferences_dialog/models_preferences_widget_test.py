@@ -89,11 +89,7 @@ class TestModelsPreferencesWidget:
 
     @pytest.fixture(scope="class")
     def default_model_path(self) -> str:
-        model_type = next(
-            model_type for model_type in ModelType if model_type.is_available()
-        )
-        model = TranscriptionModel(model_type=model_type)
-        return get_model_path(transcription_model=model)
+        return get_model_path(transcription_model=(TranscriptionModel.default()))
 
     def test_should_show_downloaded_model(self, qtbot, default_model_path):
         widget = ModelsPreferencesWidget()

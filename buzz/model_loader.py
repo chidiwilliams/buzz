@@ -125,6 +125,13 @@ class TranscriptionModel:
         self.open_path(path=os.path.dirname(model_path))
 
     @staticmethod
+    def default():
+        model_type = next(
+            model_type for model_type in ModelType if model_type.is_available()
+        )
+        return TranscriptionModel(model_type=model_type)
+
+    @staticmethod
     def open_path(path: str):
         if sys.platform == "win32":
             os.startfile(path)

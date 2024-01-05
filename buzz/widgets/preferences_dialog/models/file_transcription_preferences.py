@@ -39,7 +39,9 @@ class FileTranscriptionPreferences:
     def load(cls, settings: QSettings) -> "FileTranscriptionPreferences":
         language = settings.value("language", None)
         task = settings.value("task", Task.TRANSCRIBE)
-        model = settings.value("model", TranscriptionModel())
+        model: TranscriptionModel = settings.value(
+            "model", TranscriptionModel.default()
+        )
         word_level_timings = settings.value("word_level_timings", False)
         temperature = settings.value("temperature", DEFAULT_WHISPER_TEMPERATURE)
         initial_prompt = settings.value("initial_prompt", "")
@@ -47,7 +49,9 @@ class FileTranscriptionPreferences:
         return FileTranscriptionPreferences(
             language=language,
             task=task,
-            model=model,
+            model=model
+            if model.model_type.is_available()
+            else TranscriptionModel.default(),
             word_level_timings=word_level_timings,
             temperature=temperature,
             initial_prompt=initial_prompt,

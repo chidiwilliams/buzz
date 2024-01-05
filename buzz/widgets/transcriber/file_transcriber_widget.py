@@ -56,6 +56,7 @@ class FileTranscriberWidget(QWidget):
         self.file_paths = file_paths
 
         preferences = self.load_preferences()
+        print(preferences)
 
         (
             self.transcription_options,
