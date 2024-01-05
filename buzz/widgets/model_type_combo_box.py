@@ -4,7 +4,6 @@ from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QComboBox, QWidget
 
 from buzz.model_loader import ModelType
-from buzz.transcriber import LOADED_WHISPER_DLL
 
 
 class ModelTypeComboBox(QComboBox):
@@ -19,13 +18,11 @@ class ModelTypeComboBox(QComboBox):
         super().__init__(parent)
 
         if model_types is None:
-            model_types = [model_type for model_type in ModelType]
+            model_types = [
+                model_type for model_type in ModelType if model_type.is_available()
+            ]
 
         for model_type in model_types:
-            # Hide Whisper.cpp option is whisper.dll did not load correctly.
-            # See: https://github.com/chidiwilliams/buzz/issues/274, https://github.com/chidiwilliams/buzz/issues/197
-            if model_type == ModelType.WHISPER_CPP and LOADED_WHISPER_DLL is False:
-                continue
             self.addItem(model_type.value)
 
         self.currentTextChanged.connect(self.on_text_changed)

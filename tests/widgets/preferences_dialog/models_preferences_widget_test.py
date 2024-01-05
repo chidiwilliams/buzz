@@ -6,8 +6,6 @@ from PyQt6.QtWidgets import QComboBox, QPushButton
 from pytestqt.qtbot import QtBot
 
 from buzz.model_loader import (
-    get_whisper_file_path,
-    WhisperModelSize,
     TranscriptionModel,
     ModelType,
 )
@@ -20,9 +18,11 @@ from tests.model_loader import get_model_path
 class TestModelsPreferencesWidget:
     @pytest.fixture(scope="class")
     def clear_model_cache(self):
-        file_path = get_whisper_file_path(size=WhisperModelSize.TINY)
-        if os.path.isfile(file_path):
-            os.remove(file_path)
+        for model_type in ModelType:
+            if model_type.is_available():
+                path = TranscriptionModel(model_type=model_type).get_local_model_path()
+                if path and os.path.isfile(path):
+                    os.remove(path)
 
     def test_should_show_model_list(self, qtbot):
         widget = ModelsPreferencesWidget()
@@ -55,11 +55,7 @@ class TestModelsPreferencesWidget:
         )
         qtbot.add_widget(widget)
 
-        model = TranscriptionModel(
-            model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY
-        )
-
-        assert model.get_local_model_path() is None
+        assert widget.model.get_local_model_path() is None
 
         available_item = widget.model_list_widget.topLevelItem(1)
         assert available_item.text(0) == "Available for Download"
@@ -87,20 +83,15 @@ class TestModelsPreferencesWidget:
                 or _available_item.child(0).text(0) != "Tiny"
             )
 
-            # model file exists
-            assert os.path.isfile(get_whisper_file_path(size=model.whisper_model_size))
+            assert os.path.isfile(widget.model.get_local_model_path())
 
         qtbot.wait_until(callback=downloaded_model, timeout=60_000)
 
     @pytest.fixture(scope="class")
-    def whisper_tiny_model_path(self) -> str:
-        return get_model_path(
-            transcription_model=TranscriptionModel(
-                model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY
-            )
-        )
+    def default_model_path(self) -> str:
+        return get_model_path(transcription_model=(TranscriptionModel.default()))
 
-    def test_should_show_downloaded_model(self, qtbot, whisper_tiny_model_path):
+    def test_should_show_downloaded_model(self, qtbot, default_model_path):
         widget = ModelsPreferencesWidget()
         widget.show()
         qtbot.add_widget(widget)

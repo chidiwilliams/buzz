@@ -17,31 +17,22 @@ from random import randint
 from threading import Thread
 from typing import Any, List, Optional, Tuple, Union, Set
 
-import faster_whisper
 import numpy as np
 import openai
-import stable_whisper
 import tqdm
-import whisper
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from dataclasses_json import dataclass_json, config, Exclude
-from whisper import tokenizer
 
-from . import transformers_whisper
+from buzz.model_loader import whisper_cpp
+from . import transformers_whisper, whisper_audio
 from .conn import pipe_stderr
 from .locale import _
 from .model_loader import TranscriptionModel, ModelType
 
-# Catch exception from whisper.dll not getting loaded.
-# TODO: Remove flag and try-except when issue with loading
-# the DLL in some envs is fixed.
-LOADED_WHISPER_DLL = False
-try:
-    import buzz.whisper_cpp as whisper_cpp
-
-    LOADED_WHISPER_DLL = True
-except ImportError:
-    logging.exception("")
+if sys.platform != "linux":
+    import faster_whisper
+    import whisper
+    import stable_whisper
 
 DEFAULT_WHISPER_TEMPERATURE = (0.0, 0.2, 0.4, 0.6, 0.8, 1.0)
 
@@ -58,7 +49,108 @@ class Segment:
     text: str
 
 
-LANGUAGES = tokenizer.LANGUAGES
+LANGUAGES = {
+    "en": "english",
+    "zh": "chinese",
+    "de": "german",
+    "es": "spanish",
+    "ru": "russian",
+    "ko": "korean",
+    "fr": "french",
+    "ja": "japanese",
+    "pt": "portuguese",
+    "tr": "turkish",
+    "pl": "polish",
+    "ca": "catalan",
+    "nl": "dutch",
+    "ar": "arabic",
+    "sv": "swedish",
+    "it": "italian",
+    "id": "indonesian",
+    "hi": "hindi",
+    "fi": "finnish",
+    "vi": "vietnamese",
+    "he": "hebrew",
+    "uk": "ukrainian",
+    "el": "greek",
+    "ms": "malay",
+    "cs": "czech",
+    "ro": "romanian",
+    "da": "danish",
+    "hu": "hungarian",
+    "ta": "tamil",
+    "no": "norwegian",
+    "th": "thai",
+    "ur": "urdu",
+    "hr": "croatian",
+    "bg": "bulgarian",
+    "lt": "lithuanian",
+    "la": "latin",
+    "mi": "maori",
+    "ml": "malayalam",
+    "cy": "welsh",
+    "sk": "slovak",
+    "te": "telugu",
+    "fa": "persian",
+    "lv": "latvian",
+    "bn": "bengali",
+    "sr": "serbian",
+    "az": "azerbaijani",
+    "sl": "slovenian",
+    "kn": "kannada",
+    "et": "estonian",
+    "mk": "macedonian",
+    "br": "breton",
+    "eu": "basque",
+    "is": "icelandic",
+    "hy": "armenian",
+    "ne": "nepali",
+    "mn": "mongolian",
+    "bs": "bosnian",
+    "kk": "kazakh",
+    "sq": "albanian",
+    "sw": "swahili",
+    "gl": "galician",
+    "mr": "marathi",
+    "pa": "punjabi",
+    "si": "sinhala",
+    "km": "khmer",
+    "sn": "shona",
+    "yo": "yoruba",
+    "so": "somali",
+    "af": "afrikaans",
+    "oc": "occitan",
+    "ka": "georgian",
+    "be": "belarusian",
+    "tg": "tajik",
+    "sd": "sindhi",
+    "gu": "gujarati",
+    "am": "amharic",
+    "yi": "yiddish",
+    "lo": "lao",
+    "uz": "uzbek",
+    "fo": "faroese",
+    "ht": "haitian creole",
+    "ps": "pashto",
+    "tk": "turkmen",
+    "nn": "nynorsk",
+    "mt": "maltese",
+    "sa": "sanskrit",
+    "lb": "luxembourgish",
+    "my": "myanmar",
+    "bo": "tibetan",
+    "tl": "tagalog",
+    "mg": "malagasy",
+    "as": "assamese",
+    "tt": "tatar",
+    "haw": "hawaiian",
+    "ln": "lingala",
+    "ha": "hausa",
+    "ba": "bashkir",
+    "jw": "javanese",
+    "su": "sundanese",
+    "yue": "cantonese",
+}
 
 
 @dataclass()
@@ -168,6 +260,7 @@ class FileTranscriber(QObject):
         try:
             segments = self.transcribe()
         except Exception as exc:
+            logging.error(exc)
             self.error.emit(exc)
             return
 
@@ -230,8 +323,8 @@ class WhisperCppFileTranscriber(FileTranscriber):
         model_path = self.model_path
 
         logging.debug(
-            "Starting whisper_cpp file transcription, file path = %s, language = %s, task = %s, model_path = %s, "
-            "word level timings = %s",
+            "Starting whisper_cpp file transcription, file path = %s, language = %s, "
+            "task = %s, model_path = %s, word level timings = %s",
             self.file_path,
             self.language,
             self.task,
@@ -239,8 +332,8 @@ class WhisperCppFileTranscriber(FileTranscriber):
             self.word_level_timings,
         )
 
-        audio = whisper.audio.load_audio(self.file_path)
-        self.duration_audio_ms = len(audio) * 1000 / whisper.audio.SAMPLE_RATE
+        audio = whisper_audio.load_audio(self.file_path)
+        self.duration_audio_ms = len(audio) * 1000 / whisper_audio.SAMPLE_RATE
 
         whisper_params = whisper_cpp_params(
             language=self.language if self.language is not None else "",
@@ -722,7 +815,7 @@ class WhisperCpp:
 
     def transcribe(self, audio: Union[np.ndarray, str], params: Any):
         if isinstance(audio, str):
-            audio = whisper.audio.load_audio(audio)
+            audio = whisper_audio.load_audio(audio)
 
         logging.debug("Loaded audio with length = %s", len(audio))
 

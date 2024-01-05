@@ -22,7 +22,6 @@ from buzz.widgets.transcriber.hugging_face_search_line_edit import (
 from buzz.widgets.transcriber.languages_combo_box import LanguagesComboBox
 from buzz.widgets.transcriber.temperature_validator import TemperatureValidator
 from buzz.widgets.about_dialog import AboutDialog
-from buzz.model_loader import ModelType
 from buzz.settings.settings import Settings
 from buzz.transcriber import (
     TranscriptionOptions,
@@ -246,7 +245,4 @@ class TestTranscriptionOptionsGroupBox:
 
         widget.model_type_combo_box.setCurrentIndex(1)
 
-        transcription_options: TranscriptionOptions = (
-            mock_transcription_options_changed.call_args[0][0]
-        )
-        assert transcription_options.model.model_type == ModelType.WHISPER_CPP
+        mock_transcription_options_changed.assert_called()

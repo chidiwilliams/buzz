@@ -79,12 +79,11 @@ class TestMainWindow:
         assert open_transcript_action.isEnabled()
         window.close()
 
-    # @pytest.mark.skip(reason='Timing out or crashing')
     def test_should_run_and_cancel_transcription_task(self, qtbot, tasks_cache):
         window = MainWindow(tasks_cache=tasks_cache)
         qtbot.add_widget(window)
 
-        self._start_new_transcription(window)
+        self._start_new_transcription(window, long_audio=True)
 
         table_widget: QTableWidget = window.findChild(QTableWidget)
 
@@ -205,12 +204,16 @@ class TestMainWindow:
         window.close()
 
     @staticmethod
-    def _start_new_transcription(window: MainWindow):
+    def _start_new_transcription(window: MainWindow, long_audio: bool = False):
         with patch(
             "PyQt6.QtWidgets.QFileDialog.getOpenFileNames"
         ) as open_file_names_mock:
             open_file_names_mock.return_value = (
-                [get_test_asset("whisper-french.mp3")],
+                [
+                    get_test_asset(
+                        "audio-long.mp3" if long_audio else "whisper-french.mp3"
+                    )
+                ],
                 "",
             )
             new_transcription_action = TestMainWindow._get_toolbar_action(
@@ -226,11 +229,18 @@ class TestMainWindow:
 
     @staticmethod
     def get_assert_task_status_callback(
-        table_widget: QTableWidget, row_index: int, expected_status: str
+        table_widget: QTableWidget,
+        row_index: int,
+        expected_status: str,
+        long_audio: bool = False,
     ):
         def assert_task_status():
             assert table_widget.rowCount() > 0
-            assert table_widget.item(row_index, 1).text() == "whisper-french.mp3"
+            assert (
+                table_widget.item(row_index, 1).text() == "audio-long.mp3"
+                if long_audio
+                else "whisper-french.mp3"
+            )
             assert expected_status in table_widget.item(row_index, 4).text()
 
         return assert_task_status

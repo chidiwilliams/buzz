@@ -3,6 +3,7 @@ import os
 import pathlib
 import platform
 import shutil
+import sys
 import tempfile
 import time
 from typing import List
@@ -141,10 +142,15 @@ class TestWhisperCppFileTranscriber:
         )
         mock_progress = Mock(side_effect=lambda value: print("progress: ", value))
         mock_completed = Mock()
+        mock_error = Mock()
         transcriber.progress.connect(mock_progress)
         transcriber.completed.connect(mock_completed)
-        with qtbot.waitSignal(transcriber.completed, timeout=10 * 60 * 1000):
+        transcriber.error.connect(mock_error)
+
+        with qtbot.wait_signal(transcriber.completed, timeout=10 * 60 * 1000):
             transcriber.run()
+
+        mock_error.assert_not_called()
 
         mock_progress.assert_called()
         segments = [
@@ -307,6 +313,9 @@ class TestWhisperFileTranscriber:
             ),
         ],
     )
+    @pytest.mark.skipif(
+        sys.platform == "linux", reason="Avoid execstack errors on Snap"
+    )
     def test_transcribe(
         self,
         qtbot: QtBot,
@@ -356,6 +365,9 @@ class TestWhisperFileTranscriber:
             assert len(segments[i].text) > 0
             logging.debug(f"{segments[i].start} {segments[i].end} {segments[i].text}")
 
+    @pytest.mark.skipif(
+        sys.platform == "linux", reason="Avoid execstack errors on Snap"
+    )
     def test_transcribe_from_folder_watch_source(self, qtbot):
         file_path = tempfile.mktemp(suffix=".mp3")
         shutil.copy("testdata/whisper-french.mp3", file_path)

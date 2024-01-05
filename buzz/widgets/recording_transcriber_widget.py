@@ -12,14 +12,12 @@ from buzz.model_loader import (
     ModelDownloader,
     TranscriptionModel,
     ModelType,
-    WhisperModelSize,
 )
 from buzz.recording import RecordingAmplitudeListener
 from buzz.recording_transcriber import RecordingTranscriber
 from buzz.settings.settings import Settings
 from buzz.transcriber import (
     TranscriptionOptions,
-    LOADED_WHISPER_DLL,
     Task,
     DEFAULT_WHISPER_TEMPERATURE,
 )
@@ -65,15 +63,20 @@ class RecordingTranscriberWidget(QWidget):
         default_language = self.settings.value(
             key=Settings.Key.RECORDING_TRANSCRIBER_LANGUAGE, default_value=""
         )
+
+        model_types = [
+            model_type
+            for model_type in ModelType
+            if model_type.is_available() and model_type.supports_recording()
+        ]
+        default_model: Optional[TranscriptionModel] = None
+        if len(model_types) > 0:
+            default_model = TranscriptionModel(model_type=model_types[0])
+
         self.transcription_options = TranscriptionOptions(
             model=self.settings.value(
                 key=Settings.Key.RECORDING_TRANSCRIBER_MODEL,
-                default_value=TranscriptionModel(
-                    model_type=ModelType.WHISPER_CPP
-                    if LOADED_WHISPER_DLL
-                    else ModelType.WHISPER,
-                    whisper_model_size=WhisperModelSize.TINY,
-                ),
+                default_value=default_model,
             ),
             task=self.settings.value(
                 key=Settings.Key.RECORDING_TRANSCRIBER_TASK,
@@ -102,12 +105,7 @@ class RecordingTranscriberWidget(QWidget):
 
         transcription_options_group_box = TranscriptionOptionsGroupBox(
             default_transcription_options=self.transcription_options,
-            # Live transcription with OpenAI Whisper API not implemented
-            model_types=[
-                model_type
-                for model_type in ModelType
-                if model_type is not ModelType.OPEN_AI_WHISPER_API
-            ],
+            model_types=model_types,
             parent=self,
         )
         transcription_options_group_box.transcription_options_changed.connect(

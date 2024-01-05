@@ -1,9 +1,13 @@
+import sys
 from typing import Optional, Union
 
 import numpy as np
-import whisper
 from tqdm import tqdm
-from transformers import WhisperProcessor, WhisperForConditionalGeneration
+
+WhisperProcessor = WhisperForConditionalGeneration = None
+if sys.platform != "linux":
+    import whisper
+    from transformers import WhisperProcessor, WhisperForConditionalGeneration
 
 
 def load_model(model_name_or_path: str):
@@ -13,14 +17,13 @@ def load_model(model_name_or_path: str):
 
 
 class TransformersWhisper:
-    SAMPLE_RATE = whisper.audio.SAMPLE_RATE
-    N_SAMPLES_IN_CHUNK = whisper.audio.N_SAMPLES
-
     def __init__(
         self, processor: WhisperProcessor, model: WhisperForConditionalGeneration
     ):
         self.processor = processor
         self.model = model
+        self.SAMPLE_RATE = whisper.audio.SAMPLE_RATE
+        self.N_SAMPLES_IN_CHUNK = whisper.audio.N_SAMPLES
 
     # Patch implementation of transcribing with transformers' WhisperProcessor until long-form transcription and
     # timestamps are available. See: https://github.com/huggingface/transformers/issues/19887,

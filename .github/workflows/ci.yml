@@ -88,7 +88,6 @@ jobs:
         include:
           - os: macos-latest
           - os: windows-latest
-          - os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
         with:
@@ -298,7 +297,6 @@ jobs:
         include:
           - os: macos-latest
           - os: windows-latest
-          - os: ubuntu-20.04
     needs: [ build, test ]
     if: startsWith(github.ref, 'refs/tags/')
     steps:

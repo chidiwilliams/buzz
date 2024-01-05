@@ -2,21 +2,37 @@ import enum
 import hashlib
 import logging
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
 import warnings
 from dataclasses import dataclass
 from typing import Optional
-import shutil
 
-import faster_whisper
-import huggingface_hub
 import requests
-import whisper
 from PyQt6.QtCore import QObject, pyqtSignal, QRunnable
 from platformdirs import user_cache_dir
 from tqdm.auto import tqdm
+
+whisper = None
+faster_whisper = None
+huggingface_hub = None
+if sys.platform != "linux":
+    import faster_whisper
+    import whisper
+    import huggingface_hub
+
+# Catch exception from whisper.dll not getting loaded.
+# TODO: Remove flag and try-except when issue with loading
+# the DLL in some envs is fixed.
+LOADED_WHISPER_DLL = False
+try:
+    import buzz.whisper_cpp as whisper_cpp  # noqa: F401
+
+    LOADED_WHISPER_DLL = True
+except ImportError:
+    logging.exception("")
 
 
 class WhisperModelSize(str, enum.Enum):
@@ -41,6 +57,38 @@ class ModelType(enum.Enum):
     HUGGING_FACE = "Hugging Face"
     FASTER_WHISPER = "Faster Whisper"
     OPEN_AI_WHISPER_API = "OpenAI Whisper API"
+
+    def supports_recording(self):
+        # Live transcription with OpenAI Whisper API not supported
+        return self != ModelType.OPEN_AI_WHISPER_API
+
+    def is_available(self):
+        if (
+            # Hide Whisper.cpp option if whisper.dll did not load correctly.
+            # See: https://github.com/chidiwilliams/buzz/issues/274,
+            # https://github.com/chidiwilliams/buzz/issues/197
+            (self == ModelType.WHISPER_CPP and not LOADED_WHISPER_DLL)
+            # Disable Whisper and Faster Whisper options
+            # on Linux due to execstack errors on Snap
+            or (
+                sys.platform == "linux"
+                and self
+                in (
+                    ModelType.WHISPER,
+                    ModelType.FASTER_WHISPER,
+                    ModelType.HUGGING_FACE,
+                )
+            )
+        ):
+            return False
+        return True
+
+    def is_manually_downloadable(self):
+        return self in (
+            ModelType.WHISPER,
+            ModelType.WHISPER_CPP,
+            ModelType.FASTER_WHISPER,
+        )
 
 
 @dataclass()
@@ -75,6 +123,13 @@ class TranscriptionModel:
         if model_path is None:
             return
         self.open_path(path=os.path.dirname(model_path))
+
+    @staticmethod
+    def default():
+        model_type = next(
+            model_type for model_type in ModelType if model_type.is_available()
+        )
+        return TranscriptionModel(model_type=model_type)
 
     @staticmethod
     def open_path(path: str):

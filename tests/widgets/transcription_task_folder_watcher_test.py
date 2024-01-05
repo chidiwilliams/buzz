@@ -4,7 +4,7 @@ from tempfile import mkdtemp
 
 from pytestqt.qtbot import QtBot
 
-from buzz.model_loader import TranscriptionModel
+from buzz.model_loader import TranscriptionModel, ModelType
 from buzz.transcriber import (
     Task,
     DEFAULT_WHISPER_TEMPERATURE,
@@ -24,6 +24,12 @@ from buzz.widgets.transcription_task_folder_watcher import (
 
 
 class TestTranscriptionTaskFolderWatcher:
+    def default_model(self):
+        model_type = next(
+            model_type for model_type in ModelType if model_type.is_available()
+        )
+        return TranscriptionModel(model_type=model_type)
+
     def test_should_add_task_not_in_tasks(self, qtbot: QtBot):
         input_directory = mkdtemp()
         watcher = TranscriptionTaskFolderWatcher(
@@ -35,7 +41,7 @@ class TestTranscriptionTaskFolderWatcher:
                 file_transcription_options=FileTranscriptionPreferences(
                     language=None,
                     task=Task.TRANSCRIBE,
-                    model=TranscriptionModel(),
+                    model=self.default_model(),
                     word_level_timings=False,
                     temperature=DEFAULT_WHISPER_TEMPERATURE,
                     initial_prompt="",
@@ -76,7 +82,7 @@ class TestTranscriptionTaskFolderWatcher:
                 file_transcription_options=FileTranscriptionPreferences(
                     language=None,
                     task=Task.TRANSCRIBE,
-                    model=TranscriptionModel(),
+                    model=self.default_model(),
                     word_level_timings=False,
                     temperature=DEFAULT_WHISPER_TEMPERATURE,
                     initial_prompt="",

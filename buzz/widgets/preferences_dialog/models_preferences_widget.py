@@ -23,6 +23,8 @@ from buzz.widgets.model_type_combo_box import ModelTypeComboBox
 
 
 class ModelsPreferencesWidget(QWidget):
+    model: Optional[TranscriptionModel]
+
     def __init__(
         self,
         progress_dialog_modality=Qt.WindowModality.WindowModal,
@@ -31,8 +33,19 @@ class ModelsPreferencesWidget(QWidget):
         super().__init__(parent)
 
         self.model_downloader: Optional[ModelDownloader] = None
-        self.model = TranscriptionModel(
-            model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY
+
+        model_types = [
+            model_type
+            for model_type in ModelType
+            if model_type.is_available() and model_type.is_manually_downloadable()
+        ]
+
+        self.model = (
+            TranscriptionModel(
+                model_type=model_types[0], whisper_model_size=WhisperModelSize.TINY
+            )
+            if model_types[0] is not None
+            else None
         )
         self.progress_dialog_modality = progress_dialog_modality
 
@@ -40,12 +53,8 @@ class ModelsPreferencesWidget(QWidget):
 
         layout = QFormLayout()
         model_type_combo_box = ModelTypeComboBox(
-            model_types=[
-                ModelType.WHISPER,
-                ModelType.WHISPER_CPP,
-                ModelType.FASTER_WHISPER,
-            ],
-            default_model=self.model.model_type,
+            model_types=model_types,
+            default_model=self.model.model_type if self.model is not None else None,
             parent=self,
         )
         model_type_combo_box.changed.connect(self.on_model_type_changed)
@@ -119,6 +128,10 @@ class ModelsPreferencesWidget(QWidget):
         self.model_list_widget.expandToDepth(2)
         self.model_list_widget.setHeaderHidden(True)
         self.model_list_widget.setAlternatingRowColors(True)
+
+        if self.model is None:
+            return
+
         for model_size in WhisperModelSize:
             model = TranscriptionModel(
                 model_type=self.model.model_type, whisper_model_size=model_size

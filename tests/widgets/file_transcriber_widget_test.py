@@ -11,7 +11,6 @@ class TestFileTranscriberWidget:
         widget = FileTranscriberWidget(
             file_paths=["testdata/whisper-french.mp3"],
             default_output_file_name="",
-            parent=None,
         )
         qtbot.add_widget(widget)
         assert widget.windowTitle() == "whisper-french.mp3"
@@ -20,7 +19,6 @@ class TestFileTranscriberWidget:
         widget = FileTranscriberWidget(
             file_paths=["testdata/whisper-french.mp3"],
             default_output_file_name="",
-            parent=None,
         )
         qtbot.add_widget(widget)
 

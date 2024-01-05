@@ -25,7 +25,7 @@ class TestFolderWatchPreferencesWidget:
                 file_transcription_options=FileTranscriptionPreferences(
                     language=None,
                     task=Task.TRANSCRIBE,
-                    model=TranscriptionModel(),
+                    model=TranscriptionModel.default(),
                     word_level_timings=False,
                     temperature=DEFAULT_WHISPER_TEMPERATURE,
                     initial_prompt="",
