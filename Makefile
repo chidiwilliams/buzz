@@ -34,6 +34,7 @@ clean:
 COVERAGE_THRESHOLD := 75
 ifeq ($(UNAME_S),Linux)
 	COVERAGE_THRESHOLD := 70
+endif
 
 test: buzz/whisper_cpp.py translation_mo
 	pytest -vv --cov=buzz --cov-report=xml --cov-report=html --benchmark-skip --cov-fail-under=${COVERAGE_THRESHOLD}
