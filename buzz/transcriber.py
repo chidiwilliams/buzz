@@ -24,7 +24,7 @@ from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from dataclasses_json import dataclass_json, config, Exclude
 
 from buzz.model_loader import whisper_cpp
-from . import transformers_whisper
+from . import transformers_whisper, whisper_audio
 from .conn import pipe_stderr
 from .locale import _
 from .model_loader import TranscriptionModel, ModelType
@@ -814,7 +814,7 @@ class WhisperCpp:
 
     def transcribe(self, audio: Union[np.ndarray, str], params: Any):
         if isinstance(audio, str):
-            audio = whisper.audio.load_audio(audio)
+            audio = whisper_audio.load_audio(audio)
 
         logging.debug("Loaded audio with length = %s", len(audio))
 
