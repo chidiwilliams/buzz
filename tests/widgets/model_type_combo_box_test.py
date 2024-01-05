@@ -17,11 +17,15 @@ class TestModelTypeComboBox:
                     "Faster Whisper",
                     "OpenAI Whisper API",
                 ],
-                pytest.mark.skipif(sys.platform == "linux", reason="Skip on Linux"),
+                marks=pytest.mark.skipif(
+                    sys.platform == "linux", reason="Skip on Linux"
+                ),
             ),
             pytest.param(
                 ["Whisper.cpp", "OpenAI Whisper API"],
-                pytest.mark.skipif(sys.platform != "linux", reason="Skip on non-Linux"),
+                marks=pytest.mark.skipif(
+                    sys.platform != "linux", reason="Skip on non-Linux"
+                ),
             ),
         ],
     )
