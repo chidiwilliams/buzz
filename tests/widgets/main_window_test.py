@@ -83,7 +83,7 @@ class TestMainWindow:
         window = MainWindow(tasks_cache=tasks_cache)
         qtbot.add_widget(window)
 
-        self._start_new_transcription(window)
+        self._start_new_transcription(window, long_audio=True)
 
         table_widget: QTableWidget = window.findChild(QTableWidget)
 
@@ -204,12 +204,16 @@ class TestMainWindow:
         window.close()
 
     @staticmethod
-    def _start_new_transcription(window: MainWindow):
+    def _start_new_transcription(window: MainWindow, long_audio: bool = False):
         with patch(
             "PyQt6.QtWidgets.QFileDialog.getOpenFileNames"
         ) as open_file_names_mock:
             open_file_names_mock.return_value = (
-                [get_test_asset("whisper-french.mp3")],
+                [
+                    get_test_asset(
+                        "audio-long.mp3" if long_audio else "whisper-french.mp3"
+                    )
+                ],
                 "",
             )
             new_transcription_action = TestMainWindow._get_toolbar_action(
