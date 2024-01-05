@@ -93,6 +93,7 @@ class FileTranscriberWidget(QWidget):
     def load_preferences(self):
         self.settings.settings.beginGroup("file_transcriber")
         preferences = FileTranscriptionPreferences.load(settings=self.settings.settings)
+        print("preferences", preferences)
         self.settings.settings.endGroup()
         return preferences
 
