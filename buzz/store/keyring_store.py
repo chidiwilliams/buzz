@@ -18,7 +18,7 @@ class KeyringStore:
                 return ""
             return password
         except (KeyringLocked, KeyringError) as exc:
-            logging.warn("Unable to read from keyring: %s", exc)
+            logging.warning("Unable to read from keyring: %s", exc)
             return ""
 
     def set_password(self, username: Key, password: str) -> None:
