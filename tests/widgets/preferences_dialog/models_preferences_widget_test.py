@@ -6,7 +6,6 @@ from PyQt6.QtWidgets import QComboBox, QPushButton
 from pytestqt.qtbot import QtBot
 
 from buzz.model_loader import (
-    get_whisper_file_path,
     WhisperModelSize,
     TranscriptionModel,
     ModelType,
@@ -20,9 +19,10 @@ from tests.model_loader import get_model_path
 class TestModelsPreferencesWidget:
     @pytest.fixture(scope="class")
     def clear_model_cache(self):
-        file_path = get_whisper_file_path(size=WhisperModelSize.TINY)
-        if os.path.isfile(file_path):
-            os.remove(file_path)
+        for model_type in ModelType:
+            path = TranscriptionModel(model_type=model_type).get_local_model_path()
+            if path and os.path.isfile(path):
+                os.remove(path)
 
     def test_should_show_model_list(self, qtbot):
         widget = ModelsPreferencesWidget()
