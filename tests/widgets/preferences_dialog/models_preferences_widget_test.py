@@ -55,11 +55,7 @@ class TestModelsPreferencesWidget:
         )
         qtbot.add_widget(widget)
 
-        model = TranscriptionModel(
-            model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY
-        )
-
-        assert model.get_local_model_path() is None
+        assert widget.model.get_local_model_path() is None
 
         available_item = widget.model_list_widget.topLevelItem(1)
         assert available_item.text(0) == "Available for Download"
@@ -87,8 +83,7 @@ class TestModelsPreferencesWidget:
                 or _available_item.child(0).text(0) != "Tiny"
             )
 
-            # model file exists
-            assert os.path.isfile(get_whisper_file_path(size=model.whisper_model_size))
+            assert os.path.isfile(widget.model.get_local_model_path())
 
         qtbot.wait_until(callback=downloaded_model, timeout=60_000)
 
