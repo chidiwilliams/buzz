@@ -23,6 +23,7 @@ platformdirs = "^3.5.3"
 dataclasses-json = "^0.5.9"
 ffmpeg-python = "0.2.0"
 numpy = "^1.21.2"
+requests = "^2.31.0"
 
 # Only install on non-Linux to prevent execstack errors
 stable-ts = { version = "1.0.2", markers = "sys_platform != 'linux'" }
