@@ -163,12 +163,6 @@ jobs:
           elif [ "$RUNNER_OS" == "Windows" ]; then
 
             poetry run make bundle_windows
-
-          elif [ "$RUNNER_OS" == "Linux" ]; then
-
-            poetry run make bundle_linux
-
-          fi
         env:
           BUZZ_CODESIGN_IDENTITY: ${{ secrets.BUZZ_CODESIGN_IDENTITY }}
           BUZZ_KEYCHAIN_NOTARY_PROFILE: ${{ secrets.BUZZ_KEYCHAIN_NOTARY_PROFILE }}
@@ -186,7 +180,6 @@ jobs:
           path: |
             dist/Buzz*-windows.exe
             dist/Buzz*-mac.dmg
-            dist/buzz-*.deb
 
   publish-pypi:
     runs-on: ${{ matrix.os }}
@@ -242,7 +235,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            buzz-*.deb
             Buzz*-unix.tar.gz
             Buzz*-windows.exe
             Buzz*-mac.dmg
