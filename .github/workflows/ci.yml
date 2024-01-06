@@ -163,6 +163,8 @@ jobs:
           elif [ "$RUNNER_OS" == "Windows" ]; then
 
             poetry run make bundle_windows
+
+          fi
         env:
           BUZZ_CODESIGN_IDENTITY: ${{ secrets.BUZZ_CODESIGN_IDENTITY }}
           BUZZ_KEYCHAIN_NOTARY_PROFILE: ${{ secrets.BUZZ_KEYCHAIN_NOTARY_PROFILE }}

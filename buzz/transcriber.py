@@ -388,6 +388,9 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
         super().__init__(task=task, parent=parent)
         self.file_path = task.file_path
         self.task = task.transcription_options.task
+        self.openai_client = OpenAI(
+            api_key=self.transcription_task.transcription_options.openai_access_token
+        )
 
     def transcribe(self) -> List[Segment]:
         logging.debug(
@@ -471,13 +474,10 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
             "language": self.transcription_task.transcription_options.language,
         }
 
-        client = OpenAI(
-            api_key=self.transcription_task.transcription_options.openai_access_token
-        )
         transcript = (
-            client.audio.transcriptions.create(**kwargs)
+            self.openai_client.audio.transcriptions.create(**kwargs)
             if self.transcription_task.transcription_options.task == Task.TRANSLATE
-            else client.audio.translations.create(**kwargs)
+            else self.openai_client.audio.translations.create(**kwargs)
         )
 
         return [

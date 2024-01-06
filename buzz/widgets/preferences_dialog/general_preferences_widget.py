@@ -1,4 +1,3 @@
-import logging
 from typing import Optional
 
 from PyQt6.QtCore import QRunnable, QObject, pyqtSignal, QThreadPool
@@ -100,5 +99,4 @@ class TestOpenAIApiKeyJob(QRunnable):
             client.models.list()
             self.signals.success.emit()
         except AuthenticationError as exc:
-            logging.error(exc)
-            self.signals.failed.emit(str(exc))
+            self.signals.failed.emit(exc.body["message"])
