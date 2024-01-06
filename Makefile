@@ -5,9 +5,6 @@ mac_app_path := ./dist/Buzz.app
 mac_zip_path := ./dist/Buzz-${version}-mac.zip
 mac_dmg_path := ./dist/Buzz-${version}-mac.dmg
 
-bundle_linux: dist/Buzz
-	bash scripts/bundle_linux.sh
-
 bundle_windows: dist/Buzz
 	iscc //DAppVersion=${version} installer.iss
 

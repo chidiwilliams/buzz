@@ -17,10 +17,11 @@ sounddevice = "^0.4.5"
 appdirs = "^1.4.4"
 humanize = "^4.4.0"
 PyQt6 = "^6.4.0"
-openai = "^0.27.1"
+openai = "^1.6.1"
 keyring = "^23.13.1"
 platformdirs = "^3.5.3"
 dataclasses-json = "^0.5.9"
+ffmpeg-python = "0.2.0"
 numpy = "^1.21.2"
 
 # Only install on non-Linux to prevent execstack errors
