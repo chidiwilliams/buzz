@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from multiprocessing.connection import Connection
 from random import randint
 from threading import Thread
-from typing import Any, List, Optional, Tuple, Union, Set
+from typing import Any, List, Optional, Tuple, Union, Set, Callable
 
 import numpy as np
 from openai import OpenAI
@@ -33,6 +33,7 @@ if sys.platform != "linux":
     import faster_whisper
     import whisper
     import stable_whisper
+    from stable_whisper import WhisperResult
 
 DEFAULT_WHISPER_TEMPERATURE = (0.0, 0.2, 0.4, 0.6, 0.8, 1.0)
 
@@ -560,13 +561,18 @@ class WhisperFileTranscriber(FileTranscriber):
             ):
                 segments = cls.transcribe_faster_whisper(task)
             elif task.transcription_options.model.model_type == ModelType.WHISPER:
-                segments = cls.transcribe_openai_whisper(task)
+                segments = cls.transcribe_openai_whisper(
+                    task,
+                    progress_callback=lambda progress: sys.stderr.write(
+                        "progress = %s\n" % progress
+                    ),
+                )
             else:
                 raise Exception(
                     f"Invalid model type: {task.transcription_options.model.model_type}"
                 )
 
-            segments_json = json.dumps(segments, ensure_ascii=True, default=vars)
+            segments_json = json.dumps(segments, default=vars)
             sys.stderr.write(f"segments = {segments_json}\n")
             sys.stderr.write(WhisperFileTranscriber.READ_LINE_THREAD_STOP_TOKEN + "\n")
 
@@ -632,27 +638,30 @@ class WhisperFileTranscriber(FileTranscriber):
         return segments
 
     @classmethod
-    def transcribe_openai_whisper(cls, task: FileTranscriptionTask) -> List[Segment]:
+    def transcribe_openai_whisper(
+        cls, task: FileTranscriptionTask, progress_callback: Callable[[float], Any]
+    ) -> List[Segment]:
         model = whisper.load_model(task.model_path)
 
         if task.transcription_options.word_level_timings:
             stable_whisper.modify_model(model)
-            result = model.transcribe(
+            result: WhisperResult = model.transcribe(
                 audio=task.file_path,
                 language=task.transcription_options.language,
                 task=task.transcription_options.task.value,
                 temperature=task.transcription_options.temperature,
                 initial_prompt=task.transcription_options.initial_prompt,
-                pbar=True,
+                progress_callback=lambda seek, total: progress_callback(seek / total),
+                verbose=None,
             )
-            segments = stable_whisper.group_word_timestamps(result)
             return [
                 Segment(
-                    start=int(segment.get("start") * 1000),
-                    end=int(segment.get("end") * 1000),
-                    text=segment.get("text"),
+                    start=int(word.start * 1000),
+                    end=int(word.end * 1000),
+                    text=word.word,
                 )
-                for segment in segments
+                for segment in result.segments
+                for word in segment.words
             ]
 
         result = model.transcribe(
@@ -688,6 +697,11 @@ class WhisperFileTranscriber(FileTranscriber):
             if line == self.READ_LINE_THREAD_STOP_TOKEN:
                 return
 
+            if line.startswith("progress = "):
+                progress = float(line[11:])
+                self.progress.emit((progress, 1))
+                continue
+
             if line.startswith("segments = "):
                 segments_dict = json.loads(line[11:])
                 segments = [
@@ -705,7 +719,6 @@ class WhisperFileTranscriber(FileTranscriber):
                     self.progress.emit((progress, 100))
                 except ValueError:
                     logging.debug("whisper (stderr): %s", line)
-                    continue
 
 
 def write_output(path: str, segments: List[Segment], output_format: OutputFormat):

@@ -278,7 +278,7 @@ class TestWhisperFileTranscriber:
             ),
             (
                 True,
-                [Segment(40, 299, " Bien"), Segment(299, 329, "venue dans")],
+                [Segment(0, 620, " Bienvenue"), Segment(620, 780, " dans")],
                 TranscriptionModel(
                     model_type=ModelType.WHISPER,
                     whisper_model_size=WhisperModelSize.TINY,
@@ -353,14 +353,12 @@ class TestWhisperFileTranscriber:
         )
         transcriber.progress.connect(mock_progress)
         transcriber.completed.connect(mock_completed)
-        with qtbot.wait_signal(
-            transcriber.progress, timeout=10 * 6000
-        ), qtbot.wait_signal(transcriber.completed, timeout=10 * 6000):
+        with qtbot.wait_signals(
+            [transcriber.progress, transcriber.completed], timeout=10 * 1000
+        ):
             transcriber.run()
 
-        # Reports progress at 0, 0 <= progress <= 100, and 100
         assert mock_progress.call_count >= 2
-        assert mock_progress.call_args_list[0][0][0] == (0, 100)
 
         mock_completed.assert_called()
         segments = mock_completed.call_args[0][0]
