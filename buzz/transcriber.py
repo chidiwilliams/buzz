@@ -24,10 +24,11 @@ from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from dataclasses_json import dataclass_json, config, Exclude
 
 from buzz.model_loader import whisper_cpp
-from . import transformers_whisper, whisper_audio
+from . import whisper_audio
 from .conn import pipe_stderr
 from .locale import _
 from .model_loader import TranscriptionModel, ModelType
+from .transformers_whisper import TransformersWhisper
 
 if sys.platform != "linux":
     import faster_whisper
@@ -578,7 +579,7 @@ class WhisperFileTranscriber(FileTranscriber):
 
     @classmethod
     def transcribe_hugging_face(cls, task: FileTranscriptionTask) -> List[Segment]:
-        model = transformers_whisper.load_model(task.model_path)
+        model = TransformersWhisper(task.model_path)
         language = (
             task.transcription_options.language
             if task.transcription_options.language is not None

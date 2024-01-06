@@ -10,18 +10,10 @@ if sys.platform != "linux":
     from transformers import WhisperProcessor, WhisperForConditionalGeneration
 
 
-def load_model(model_name_or_path: str):
-    processor = WhisperProcessor.from_pretrained(model_name_or_path)
-    model = WhisperForConditionalGeneration.from_pretrained(model_name_or_path)
-    return TransformersWhisper(processor, model)
-
-
 class TransformersWhisper:
-    def __init__(
-        self, processor: WhisperProcessor, model: WhisperForConditionalGeneration
-    ):
-        self.processor = processor
-        self.model = model
+    def __init__(self, model_name_or_path: str):
+        self.processor = WhisperProcessor.from_pretrained(model_name_or_path)
+        self.model = WhisperForConditionalGeneration.from_pretrained(model_name_or_path)
         self.SAMPLE_RATE = whisper.audio.SAMPLE_RATE
         self.N_SAMPLES_IN_CHUNK = whisper.audio.N_SAMPLES
 
