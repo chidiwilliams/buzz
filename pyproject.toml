@@ -21,7 +21,6 @@ openai = "^0.27.1"
 keyring = "^23.13.1"
 platformdirs = "^3.5.3"
 dataclasses-json = "^0.5.9"
-ffmpeg-python = "0.2.0"
 numpy = "^1.21.2"
 
 # Only install on non-Linux to prevent execstack errors
