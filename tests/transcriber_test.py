@@ -93,7 +93,9 @@ class TestOpenAIWhisperAPIFileTranscriber:
         mock_completed = Mock()
         transcriber.completed.connect(mock_completed)
         mock_openai_result = {"segments": [{"start": 0, "end": 6.56, "text": "Hello"}]}
-        with patch("openai.Audio.transcribe", return_value=mock_openai_result):
+        with patch(
+            "openai.resources.Audio.transcribe", return_value=mock_openai_result
+        ):
             transcriber.run()
 
         called_segments = mock_completed.call_args[0][0]

@@ -28,8 +28,7 @@ requests = "^2.31.0"
 stable-ts = { version = "2.14.2", markers = "sys_platform != 'linux'" }
 faster-whisper = { version = "^0.10.0", markers = "sys_platform != 'linux'" }
 openai-whisper = { version = "v20231117", markers = "sys_platform != 'linux'" }
-torch = { version = "1.12.1", markers = "sys_platform != 'linux'" }
-transformers = { version = "~4.24.0", markers = "sys_platform != 'linux'" }
+transformers = { version = "^4.36.2", markers = "sys_platform != 'linux'" }
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"

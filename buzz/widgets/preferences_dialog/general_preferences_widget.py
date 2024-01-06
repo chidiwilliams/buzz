@@ -1,10 +1,10 @@
 import logging
 from typing import Optional
 
-import openai
 from PyQt6.QtCore import QRunnable, QObject, pyqtSignal, QThreadPool
 from PyQt6.QtWidgets import QWidget, QFormLayout, QPushButton, QMessageBox
 from openai import AuthenticationError
+from openai import OpenAI
 
 from buzz.store.keyring_store import KeyringStore
 from buzz.widgets.line_edit import LineEdit
@@ -96,7 +96,8 @@ class TestOpenAIApiKeyJob(QRunnable):
 
     def run(self):
         try:
-            openai.Model.list(api_key=self.api_key)
+            client = OpenAI(api_key=self.api_key)
+            client.models.list()
             self.signals.success.emit()
         except AuthenticationError as exc:
             logging.error(exc)
