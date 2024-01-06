@@ -18,7 +18,8 @@ from threading import Thread
 from typing import Any, List, Optional, Tuple, Union, Set
 
 import numpy as np
-import openai
+from openai import OpenAI
+
 import tqdm
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from dataclasses_json import dataclass_json, config, Exclude
@@ -388,6 +389,9 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
         super().__init__(task=task, parent=parent)
         self.file_path = task.file_path
         self.task = task.transcription_options.task
+        self.openai_client = OpenAI(
+            api_key=self.transcription_task.transcription_options.openai_access_token
+        )
 
     def transcribe(self) -> List[Segment]:
         logging.debug(
@@ -421,10 +425,6 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
 
         total_size = os.path.getsize(mp3_file)
         max_chunk_size = 25 * 1024 * 1024
-
-        openai.api_key = (
-            self.transcription_task.transcription_options.openai_access_token
-        )
 
         self.progress.emit((0, 100))
 
@@ -468,27 +468,26 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
         return segments
 
     def get_segments_for_file(self, file: str, offset_ms: int = 0):
-        with open(file, "rb") as audio_file:
-            kwargs = {
-                "model": "whisper-1",
-                "file": audio_file,
-                "response_format": "verbose_json",
-                "language": self.transcription_task.transcription_options.language,
-            }
-            transcript = (
-                openai.Audio.translate(**kwargs)
-                if self.transcription_task.transcription_options.task == Task.TRANSLATE
-                else openai.Audio.transcribe(**kwargs)
-            )
+        kwargs = {
+            "model": "whisper-1",
+            "file": file,
+            "response_format": "verbose_json",
+            "language": self.transcription_task.transcription_options.language,
+        }
+        transcript = (
+            self.openai_client.audio.transcriptions.create(**kwargs)
+            if self.transcription_task.transcription_options.task == Task.TRANSLATE
+            else self.openai_client.audio.translations.create(**kwargs)
+        )
 
-            return [
-                Segment(
-                    int(segment["start"] * 1000 + offset_ms),
-                    int(segment["end"] * 1000 + offset_ms),
-                    segment["text"],
-                )
-                for segment in transcript["segments"]
-            ]
+        return [
+            Segment(
+                int(segment["start"] * 1000 + offset_ms),
+                int(segment["end"] * 1000 + offset_ms),
+                segment["text"],
+            )
+            for segment in transcript["segments"]
+        ]
 
     def stop(self):
         pass
