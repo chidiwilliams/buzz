@@ -5,7 +5,8 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import QTableWidget, QWidget, QHeaderView, QTableWidgetItem
 
 from buzz.locale import _
-from buzz.transcriber import Segment, to_timestamp
+from buzz.transcriber.file_transcriber import to_timestamp
+from buzz.transcriber.transcriber import Segment
 
 
 class TranscriptionSegmentsEditorWidget(QTableWidget):

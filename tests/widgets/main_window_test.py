@@ -4,13 +4,19 @@ from unittest.mock import patch
 
 import pytest
 from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtGui import QKeyEvent
-from PyQt6.QtWidgets import QTableWidget, QMessageBox, QPushButton, QToolBar
+from PyQt6.QtGui import QKeyEvent, QAction
+from PyQt6.QtWidgets import (
+    QTableWidget,
+    QMessageBox,
+    QPushButton,
+    QToolBar,
+    QMenuBar,
+)
 from _pytest.fixtures import SubRequest
 from pytestqt.qtbot import QtBot
 
 from buzz.cache import TasksCache
-from buzz.transcriber import (
+from buzz.transcriber.transcriber import (
     FileTranscriptionTask,
     TranscriptionOptions,
     FileTranscriptionOptions,
@@ -59,10 +65,10 @@ class TestMainWindow:
         assert window.windowIcon().pixmap(QSize(64, 64)).isNull() is False
         window.close()
 
-    def test_should_run_transcription_task(self, qtbot: QtBot, tasks_cache):
+    def test_should_run_file_transcription_task(self, qtbot: QtBot, tasks_cache):
         window = MainWindow(tasks_cache=tasks_cache)
 
-        self._start_new_transcription(window)
+        self.import_file_and_start_transcription(window)
 
         open_transcript_action = self._get_toolbar_action(window, "Open Transcript")
         assert open_transcript_action.isEnabled() is False
@@ -79,11 +85,39 @@ class TestMainWindow:
         assert open_transcript_action.isEnabled()
         window.close()
 
+    def test_should_run_url_import_file_transcription_task(
+        self, qtbot: QtBot, tasks_cache
+    ):
+        window = MainWindow(tasks_cache=tasks_cache)
+        menu: QMenuBar = window.menuBar()
+        file_action = menu.actions()[0]
+        import_url_action: QAction = file_action.menu().actions()[1]
+
+        with patch(
+            "buzz.widgets.import_url_dialog.ImportURLDialog.prompt"
+        ) as prompt_mock:
+            prompt_mock.return_value = "https://github.com/chidiwilliams/buzz/raw/main/testdata/whisper-french.mp3"
+            import_url_action.trigger()
+
+        file_transcriber_widget: FileTranscriberWidget = window.findChild(
+            FileTranscriberWidget
+        )
+        run_button: QPushButton = file_transcriber_widget.findChild(QPushButton)
+        run_button.click()
+
+        table_widget: QTableWidget = window.findChild(QTableWidget)
+        qtbot.wait_until(
+            self.get_assert_task_status_callback(table_widget, 0, "Completed"),
+            timeout=2 * 60 * 1000,
+        )
+
+        window.close()
+
     def test_should_run_and_cancel_transcription_task(self, qtbot, tasks_cache):
         window = MainWindow(tasks_cache=tasks_cache)
         qtbot.add_widget(window)
 
-        self._start_new_transcription(window, long_audio=True)
+        self.import_file_and_start_transcription(window, long_audio=True)
 
         table_widget: QTableWidget = window.findChild(QTableWidget)
 
@@ -204,7 +238,9 @@ class TestMainWindow:
         window.close()
 
     @staticmethod
-    def _start_new_transcription(window: MainWindow, long_audio: bool = False):
+    def import_file_and_start_transcription(
+        window: MainWindow, long_audio: bool = False
+    ):
         with patch(
             "PyQt6.QtWidgets.QFileDialog.getOpenFileNames"
         ) as open_file_names_mock:

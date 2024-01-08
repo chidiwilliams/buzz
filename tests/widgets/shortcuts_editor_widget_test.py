@@ -24,6 +24,7 @@ class TestShortcutsEditorWidget:
         expected = (
             ("Open Record Window", "Ctrl+R"),
             ("Import File", "Ctrl+O"),
+            ("Import URL", "Ctrl+U"),
             ("Open Preferences Window", "Ctrl+,"),
             ("Open Transcript Viewer", "Ctrl+E"),
             ("Clear History", "Ctrl+S"),

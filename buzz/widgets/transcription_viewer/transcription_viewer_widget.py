@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import (
 from buzz.action import Action
 from buzz.locale import _
 from buzz.paths import file_path_as_title
-from buzz.transcriber import (
+from buzz.transcriber.transcriber import (
     FileTranscriptionTask,
     Segment,
 )

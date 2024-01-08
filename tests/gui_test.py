@@ -23,7 +23,7 @@ from buzz.widgets.transcriber.languages_combo_box import LanguagesComboBox
 from buzz.widgets.transcriber.temperature_validator import TemperatureValidator
 from buzz.widgets.about_dialog import AboutDialog
 from buzz.settings.settings import Settings
-from buzz.transcriber import (
+from buzz.transcriber.transcriber import (
     TranscriptionOptions,
 )
 from buzz.widgets.transcriber.transcription_options_group_box import (

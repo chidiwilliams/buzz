@@ -7,14 +7,13 @@ from typing import Optional, Tuple, List
 from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 
 from buzz.model_loader import ModelType
-from buzz.transcriber import (
-    FileTranscriptionTask,
-    FileTranscriber,
-    WhisperCppFileTranscriber,
+from buzz.transcriber.file_transcriber import FileTranscriber
+from buzz.transcriber.openai_whisper_api_file_transcriber import (
     OpenAIWhisperAPIFileTranscriber,
-    WhisperFileTranscriber,
-    Segment,
 )
+from buzz.transcriber.transcriber import FileTranscriptionTask, Segment
+from buzz.transcriber.whisper_cpp_file_transcriber import WhisperCppFileTranscriber
+from buzz.transcriber.whisper_file_transcriber import WhisperFileTranscriber
 
 
 class FileTranscriberQueueWorker(QObject):
@@ -81,6 +80,9 @@ class FileTranscriberQueueWorker(QObject):
         )
 
         self.current_transcriber.progress.connect(self.on_task_progress)
+        self.current_transcriber.download_progress.connect(
+            self.on_task_download_progress
+        )
         self.current_transcriber.error.connect(self.on_task_error)
 
         self.current_transcriber.completed.connect(self.on_task_completed)
@@ -107,14 +109,13 @@ class FileTranscriberQueueWorker(QObject):
             if self.current_transcriber is not None:
                 self.current_transcriber.stop()
 
-    @pyqtSlot(Exception)
-    def on_task_error(self, error: Exception):
+    def on_task_error(self, error: str):
         if (
             self.current_task is not None
             and self.current_task.id not in self.canceled_tasks
         ):
             self.current_task.status = FileTranscriptionTask.Status.FAILED
-            self.current_task.error = str(error)
+            self.current_task.error = error
             self.task_updated.emit(self.current_task)
 
     @pyqtSlot(tuple)
@@ -122,6 +123,12 @@ class FileTranscriberQueueWorker(QObject):
         if self.current_task is not None:
             self.current_task.status = FileTranscriptionTask.Status.IN_PROGRESS
             self.current_task.fraction_completed = progress[0] / progress[1]
+            self.task_updated.emit(self.current_task)
+
+    def on_task_download_progress(self, fraction_downloaded: float):
+        if self.current_task is not None:
+            self.current_task.status = FileTranscriptionTask.Status.IN_PROGRESS
+            self.current_task.fraction_downloaded = fraction_downloaded
             self.task_updated.emit(self.current_task)
 
     @pyqtSlot(list)

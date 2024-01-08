@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (
 )
 
 from buzz.store.keyring_store import KeyringStore
-from buzz.transcriber import (
+from buzz.transcriber.transcriber import (
     TranscriptionOptions,
     FileTranscriptionOptions,
 )

@@ -1,4 +1,4 @@
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple, List, Optional
 
 from PyQt6 import QtGui
 from PyQt6.QtCore import (
@@ -7,7 +7,11 @@ from PyQt6.QtCore import (
     QModelIndex,
 )
 from PyQt6.QtGui import QIcon
-from PyQt6.QtWidgets import QMainWindow, QMessageBox, QFileDialog
+from PyQt6.QtWidgets import (
+    QMainWindow,
+    QMessageBox,
+    QFileDialog,
+)
 
 from buzz.cache import TasksCache
 from buzz.file_transcriber_queue_worker import FileTranscriberQueueWorker
@@ -15,13 +19,14 @@ from buzz.locale import _
 from buzz.settings.settings import APP_NAME, Settings
 from buzz.settings.shortcut_settings import ShortcutSettings
 from buzz.store.keyring_store import KeyringStore
-from buzz.transcriber import (
+from buzz.transcriber.transcriber import (
     FileTranscriptionTask,
     TranscriptionOptions,
     FileTranscriptionOptions,
     SUPPORTED_AUDIO_FORMATS,
 )
 from buzz.widgets.icon import BUZZ_ICON_PATH
+from buzz.widgets.import_url_dialog import ImportURLDialog
 from buzz.widgets.main_window_toolbar import MainWindowToolbar
 from buzz.widgets.menu_bar import MenuBar
 from buzz.widgets.preferences_dialog.models.preferences import Preferences
@@ -86,6 +91,9 @@ class MainWindow(QMainWindow):
         )
         self.menu_bar.import_action_triggered.connect(
             self.on_new_transcription_action_triggered
+        )
+        self.menu_bar.import_url_action_triggered.connect(
+            self.on_new_url_transcription_action_triggered
         )
         self.menu_bar.shortcuts_changed.connect(self.on_shortcuts_changed)
         self.menu_bar.openai_api_key_changed.connect(
@@ -161,9 +169,24 @@ class MainWindow(QMainWindow):
         self, options: Tuple[TranscriptionOptions, FileTranscriptionOptions, str]
     ):
         transcription_options, file_transcription_options, model_path = options
-        for file_path in file_transcription_options.file_paths:
+
+        if file_transcription_options.file_paths is not None:
+            for file_path in file_transcription_options.file_paths:
+                task = FileTranscriptionTask(
+                    transcription_options=transcription_options,
+                    file_transcription_options=file_transcription_options,
+                    model_path=model_path,
+                    file_path=file_path,
+                    source=FileTranscriptionTask.Source.FILE_IMPORT,
+                )
+                self.add_task(task)
+        else:
             task = FileTranscriptionTask(
-                file_path, transcription_options, file_transcription_options, model_path
+                transcription_options=transcription_options,
+                file_transcription_options=file_transcription_options,
+                model_path=model_path,
+                url=file_transcription_options.url,
+                source=FileTranscriptionTask.Source.URL_IMPORT,
             )
             self.add_task(task)
 
@@ -225,9 +248,17 @@ class MainWindow(QMainWindow):
 
         self.open_file_transcriber_widget(file_paths)
 
-    def open_file_transcriber_widget(self, file_paths: List[str]):
+    def on_new_url_transcription_action_triggered(self):
+        url = ImportURLDialog.prompt(parent=self)
+        if url is not None:
+            self.open_file_transcriber_widget(url=url)
+
+    def open_file_transcriber_widget(
+        self, file_paths: Optional[List[str]] = None, url: Optional[str] = None
+    ):
         file_transcriber_window = FileTranscriberWidget(
             file_paths=file_paths,
+            url=url,
             default_output_file_name=self.default_export_file_name,
             parent=self,
             flags=Qt.WindowType.Window,

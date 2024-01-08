@@ -3,7 +3,7 @@ from typing import Optional
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QComboBox, QWidget
 
-from buzz.transcriber import Task
+from buzz.transcriber.transcriber import Task
 
 
 class TasksComboBox(QComboBox):

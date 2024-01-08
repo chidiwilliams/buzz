@@ -7,7 +7,7 @@ from PyQt6.QtCore import QCommandLineParser, QCommandLineOption
 from buzz.widgets.application import Application
 from buzz.model_loader import ModelType, WhisperModelSize, TranscriptionModel
 from buzz.store.keyring_store import KeyringStore
-from buzz.transcriber import (
+from buzz.transcriber.transcriber import (
     Task,
     FileTranscriptionTask,
     FileTranscriptionOptions,

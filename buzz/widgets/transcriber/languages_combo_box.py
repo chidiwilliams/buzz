@@ -4,7 +4,7 @@ from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QComboBox, QWidget
 
 from buzz.locale import _
-from buzz.transcriber import LANGUAGES
+from buzz.transcriber.transcriber import LANGUAGES
 
 
 class LanguagesComboBox(QComboBox):

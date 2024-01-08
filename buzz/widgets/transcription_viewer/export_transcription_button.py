@@ -2,11 +2,11 @@ from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QPushButton, QWidget, QMenu, QFileDialog
 
 from buzz.locale import _
-from buzz.transcriber import (
+from buzz.transcriber.file_transcriber import write_output
+from buzz.transcriber.transcriber import (
     FileTranscriptionTask,
     OutputFormat,
     get_output_file_path,
-    write_output,
 )
 from buzz.widgets.icon import FileDownloadIcon
 

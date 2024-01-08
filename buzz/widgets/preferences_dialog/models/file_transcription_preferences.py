@@ -4,7 +4,7 @@ from typing import Optional, Tuple, Set, List
 from PyQt6.QtCore import QSettings
 
 from buzz.model_loader import TranscriptionModel
-from buzz.transcriber import (
+from buzz.transcriber.transcriber import (
     Task,
     OutputFormat,
     DEFAULT_WHISPER_TEMPERATURE,
@@ -79,7 +79,8 @@ class FileTranscriptionPreferences:
     def to_transcription_options(
         self,
         openai_access_token: Optional[str],
-        file_paths: List[str],
+        file_paths: Optional[List[str]] = None,
+        url: Optional[str] = None,
         default_output_file_name: str = "",
     ) -> Tuple[TranscriptionOptions, FileTranscriptionOptions]:
         return (
@@ -95,6 +96,7 @@ class FileTranscriptionPreferences:
             FileTranscriptionOptions(
                 output_formats=self.output_formats,
                 file_paths=file_paths,
+                url=url,
                 default_output_file_name=default_output_file_name,
             ),
         )

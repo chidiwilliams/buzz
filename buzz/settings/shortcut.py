@@ -15,6 +15,7 @@ class Shortcut(str, enum.Enum):
 
     OPEN_RECORD_WINDOW = ("Ctrl+R", "Open Record Window")
     OPEN_IMPORT_WINDOW = ("Ctrl+O", "Import File")
+    OPEN_IMPORT_URL_WINDOW = ("Ctrl+U", "Import URL")
     OPEN_PREFERENCES_WINDOW = ("Ctrl+,", "Open Preferences Window")
 
     OPEN_TRANSCRIPT_EDITOR = ("Ctrl+E", "Open Transcript Viewer")

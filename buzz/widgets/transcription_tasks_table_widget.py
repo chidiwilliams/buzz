@@ -16,7 +16,7 @@ from PyQt6.QtWidgets import (
 
 from buzz.locale import _
 from buzz.settings.settings import Settings
-from buzz.transcriber import FileTranscriptionTask, humanize_language
+from buzz.transcriber.transcriber import FileTranscriptionTask, humanize_language
 
 
 @dataclass
@@ -61,10 +61,12 @@ class TranscriptionTasksTableWidget(QTableWidget):
             ),
             TableColDef(
                 id="file_name",
-                header=_("File Name"),
+                header=_("File Name/URL"),
                 column_index=self.Column.FILE_NAME.value,
-                value_getter=lambda task: os.path.basename(task.file_path),
-                width=250,
+                value_getter=lambda task: task.url
+                if task.url is not None
+                else os.path.basename(task.file_path),
+                width=300,
                 hidden_toggleable=False,
             ),
             TableColDef(

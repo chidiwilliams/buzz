@@ -10,7 +10,7 @@ from PyQt6.QtWidgets import (
 from buzz.widgets.transcriber.temperature_validator import TemperatureValidator
 from buzz.locale import _
 from buzz.model_loader import ModelType
-from buzz.transcriber import TranscriptionOptions
+from buzz.transcriber.transcriber import TranscriptionOptions
 from buzz.widgets.line_edit import LineEdit
 
 
