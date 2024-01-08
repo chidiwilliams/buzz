@@ -76,7 +76,9 @@ class TestRecordingTranscriber:
 class TestOpenAIWhisperAPIFileTranscriber:
     @pytest.fixture
     def mock_openai_client(self):
-        with patch("buzz.transcriber.transcriber.OpenAI") as mock:
+        with patch(
+            "buzz.transcriber.transcriber.openai_whisper_api_file_transcriber.OpenAI"
+        ) as mock:
             return_value = {"segments": [{"start": 0, "end": 6.56, "text": "Hello"}]}
             mock.return_value.audio.transcriptions.create.return_value = return_value
             mock.return_value.audio.translations.create.return_value = return_value
