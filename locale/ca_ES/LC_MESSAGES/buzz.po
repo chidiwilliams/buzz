@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# Jordi Mas i Hernàndez <jmas@softcatala.org>, 2022, 2023
+# Jordi Mas i Hernàndez <jmas@softcatala.org>, 2022, 2023, 2024
 #
 msgid ""
 msgstr ""
@@ -95,7 +95,7 @@ msgstr "Importa fitxer multimèdia..."
 
 #: buzz/widgets/menu_bar.py:35
 msgid "Preferences..."
-msgstr ""
+msgstr "Preferències..."
 
 #: buzz/widgets/menu_bar.py:43
 msgid "File"
@@ -131,27 +131,27 @@ msgstr "Cancel·lat"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:90
 msgid "Queued"
-msgstr ""
+msgstr "A la cua"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:30
 msgid "Start"
-msgstr ""
+msgstr "Inicia"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:30
 msgid "End"
-msgstr ""
+msgstr "Finalitza"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:30
 msgid "Text"
-msgstr ""
+msgstr "Text"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:87
 msgid "Undo"
-msgstr ""
+msgstr "Desfés"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:92
 msgid "Redo"
-msgstr ""
+msgstr "Refés"
 
 #: buzz/widgets/transcription_viewer/export_transcription_button.py:39
 msgid "Save File"
@@ -170,54 +170,48 @@ msgid "You're up to date!"
 msgstr "Estàs al dia!"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:61
-#, fuzzy
 msgid "Download"
-msgstr "S'està baixant el model"
+msgstr "Baixada"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:66
 msgid "Show file location"
-msgstr ""
+msgstr "Mostra la ubicació del fitxer"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:74
 msgid "Delete"
-msgstr ""
+msgstr "Suprimeix"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:111
-#, fuzzy
 msgid "Downloaded"
-msgstr "S'està baixant el model"
+msgstr "Baixat"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:116
 msgid "Available for Download"
-msgstr ""
+msgstr "Disponible per baixar"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:158
 msgid "Delete Model"
-msgstr ""
+msgstr "Suprimeix el model"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:159
-#, fuzzy
 msgid "Are you sure you want to delete the selected model?"
-msgstr ""
-"Esteu segur que voleu suprimir les transcripcions seleccionades? Aquesta "
-"acció no es pot desfer."
+msgstr "Esteu segur que voleu suprimir el model seleccionat?"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:178
 msgid "Error"
-msgstr ""
+msgstr "Error"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:43
 msgid "General"
-msgstr ""
+msgstr "General"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:46
-#, fuzzy
 msgid "Models"
-msgstr "Model:"
+msgstr "Models"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:50
 msgid "Shortcuts"
-msgstr ""
+msgstr "Dreceres"
 
 #: buzz/widgets/recording_transcriber_widget.py:62
 msgid "Live Recording"
@@ -240,17 +234,5 @@ msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
 msgstr ""
-"Comproveu els vostres dispositius d'àudio o els registres de l'aplicació per "
-"a més informació."
-
-#~ msgid "Downloading model (0%, unknown time remaining)"
-#~ msgstr "S'està baixant el model (0%, temps restant desconegut)"
-
-#~ msgid "Cancel"
-#~ msgstr "Cancel·la"
-
-#~ msgid "Export"
-#~ msgstr "Exporta"
-
-#~ msgid "Failed"
-#~ msgstr "Ha fallat"
+"Comproveu els vostres dispositius d'àudio o els registres de l'aplicació per"
+" a més informació."
