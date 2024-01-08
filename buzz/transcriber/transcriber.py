@@ -189,22 +189,24 @@ class FileTranscriptionTask:
     fraction_downloaded: float = 0.0
 
     def status_text(self) -> str:
-        if self.status == FileTranscriptionTask.Status.IN_PROGRESS:
-            return f'{_("In Progress")} ({self.fraction_completed :.0%})'
-        elif self.status == FileTranscriptionTask.Status.COMPLETED:
-            status = _("Completed")
-            if self.started_at is not None and self.completed_at is not None:
-                status += (
-                    f" ({self.format_timedelta(self.completed_at - self.started_at)})"
-                )
-            return status
-        elif self.status == FileTranscriptionTask.Status.FAILED:
-            return f'{_("Failed")} ({self.error})'
-        elif self.status == FileTranscriptionTask.Status.CANCELED:
-            return _("Canceled")
-        elif self.status == FileTranscriptionTask.Status.QUEUED:
-            return _("Queued")
-        return ""
+        match self.status:
+            case FileTranscriptionTask.Status.IN_PROGRESS:
+                if self.fraction_downloaded > 0 and self.fraction_completed == 0:
+                    return f'{_("Downloading")} ({self.fraction_downloaded :.0%})'
+                return f'{_("In Progress")} ({self.fraction_completed :.0%})'
+            case FileTranscriptionTask.Status.COMPLETED:
+                status = _("Completed")
+                if self.started_at is not None and self.completed_at is not None:
+                    status += f" ({self.format_timedelta(self.completed_at - self.started_at)})"
+                return status
+            case FileTranscriptionTask.Status.FAILED:
+                return f'{_("Failed")} ({self.error})'
+            case FileTranscriptionTask.Status.CANCELED:
+                return _("Canceled")
+            case FileTranscriptionTask.Status.QUEUED:
+                return _("Queued")
+            case _:
+                return ""
 
     @staticmethod
     def format_timedelta(delta: datetime.timedelta):

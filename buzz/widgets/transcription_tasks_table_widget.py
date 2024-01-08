@@ -63,9 +63,9 @@ class TranscriptionTasksTableWidget(QTableWidget):
                 id="file_name",
                 header=_("File Name/URL"),
                 column_index=self.Column.FILE_NAME.value,
-                value_getter=lambda task: os.path.basename(task.file_path)
-                if task.file_path
-                else task.url,
+                value_getter=lambda task: task.url
+                if task.url is not None
+                else os.path.basename(task.file_path),
                 width=300,
                 hidden_toggleable=False,
             ),
