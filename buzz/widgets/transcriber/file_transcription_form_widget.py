@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QCheckBox, QFormLayout, QHBoxL
 
 from buzz.locale import _
 from buzz.model_loader import ModelType
-from buzz.transcriber import (
+from buzz.transcriber.transcriber import (
     TranscriptionOptions,
     FileTranscriptionOptions,
     OutputFormat,

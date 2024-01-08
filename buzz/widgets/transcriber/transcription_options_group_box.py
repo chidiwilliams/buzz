@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import QGroupBox, QWidget, QFormLayout, QComboBox
 
 from buzz.locale import _
 from buzz.model_loader import ModelType, WhisperModelSize
-from buzz.transcriber import TranscriptionOptions, Task
+from buzz.transcriber.transcriber import TranscriptionOptions, Task
 from buzz.widgets.model_type_combo_box import ModelTypeComboBox
 from buzz.widgets.openai_api_key_line_edit import OpenAIAPIKeyLineEdit
 from buzz.widgets.transcriber.advanced_settings_button import AdvancedSettingsButton

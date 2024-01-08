@@ -6,7 +6,7 @@ from typing import List
 
 from platformdirs import user_cache_dir
 
-from .transcriber import FileTranscriptionTask
+from buzz.transcriber.transcriber import FileTranscriptionTask
 
 
 class TasksCache:
@@ -39,7 +39,7 @@ class TasksCache:
     def load_json_tasks(self) -> List[FileTranscriptionTask]:
         task_ids: List[int]
         try:
-            with open(self.tasks_list_file_path, "r") as file:
+            with open(self.tasks_list_file_path) as file:
                 task_ids = json.load(file)
         except json.JSONDecodeError:
             logging.debug(

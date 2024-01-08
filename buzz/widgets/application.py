@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import QApplication
 
 from buzz.__version__ import VERSION
 from buzz.settings.settings import APP_NAME
-from buzz.transcriber import FileTranscriptionTask
+from buzz.transcriber.transcriber import FileTranscriptionTask
 from buzz.widgets.main_window import MainWindow
 
 

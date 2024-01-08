@@ -14,23 +14,23 @@ from PyQt6.QtCore import QThread
 from pytestqt.qtbot import QtBot
 
 from buzz.model_loader import WhisperModelSize, ModelType, TranscriptionModel
-from buzz.transcriber import (
+from buzz.transcriber.file_transcriber import write_output, to_timestamp
+from buzz.transcriber.openai_whisper_api_file_transcriber import (
+    OpenAIWhisperAPIFileTranscriber,
+)
+from buzz.transcriber.recording_transcriber import RecordingTranscriber
+from buzz.transcriber.transcriber import (
     FileTranscriptionOptions,
     FileTranscriptionTask,
     OutputFormat,
     Segment,
     Task,
-    WhisperCpp,
-    WhisperCppFileTranscriber,
-    WhisperFileTranscriber,
     get_output_file_path,
-    to_timestamp,
-    whisper_cpp_params,
-    write_output,
     TranscriptionOptions,
-    OpenAIWhisperAPIFileTranscriber,
 )
-from buzz.recording_transcriber import RecordingTranscriber
+from buzz.transcriber.whisper_cpp import WhisperCpp, whisper_cpp_params
+from buzz.transcriber.whisper_cpp_file_transcriber import WhisperCppFileTranscriber
+from buzz.transcriber.whisper_file_transcriber import WhisperFileTranscriber
 from tests.mock_sounddevice import MockInputStream
 from tests.model_loader import get_model_path
 
@@ -76,7 +76,7 @@ class TestRecordingTranscriber:
 class TestOpenAIWhisperAPIFileTranscriber:
     @pytest.fixture
     def mock_openai_client(self):
-        with patch("buzz.transcriber.OpenAI") as mock:
+        with patch("buzz.transcriber.transcriber.OpenAI") as mock:
             return_value = {"segments": [{"start": 0, "end": 6.56, "text": "Hello"}]}
             mock.return_value.audio.transcriptions.create.return_value = return_value
             mock.return_value.audio.translations.create.return_value = return_value

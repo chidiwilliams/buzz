@@ -5,7 +5,7 @@ from tempfile import mkdtemp
 from pytestqt.qtbot import QtBot
 
 from buzz.model_loader import TranscriptionModel, ModelType
-from buzz.transcriber import (
+from buzz.transcriber.transcriber import (
     Task,
     DEFAULT_WHISPER_TEMPERATURE,
     FileTranscriptionTask,

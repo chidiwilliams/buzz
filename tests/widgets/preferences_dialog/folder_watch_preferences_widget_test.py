@@ -3,7 +3,7 @@ from unittest.mock import Mock
 from PyQt6.QtWidgets import QCheckBox, QLineEdit
 
 from buzz.model_loader import TranscriptionModel
-from buzz.transcriber import Task, DEFAULT_WHISPER_TEMPERATURE
+from buzz.transcriber.transcriber import Task, DEFAULT_WHISPER_TEMPERATURE
 from buzz.widgets.preferences_dialog.folder_watch_preferences_widget import (
     FolderWatchPreferencesWidget,
 )

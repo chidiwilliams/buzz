@@ -17,6 +17,7 @@ from buzz.widgets.preferences_dialog.preferences_dialog import (
 
 class MenuBar(QMenuBar):
     import_action_triggered = pyqtSignal()
+    import_url_action_triggered = pyqtSignal()
     shortcuts_changed = pyqtSignal(dict)
     openai_api_key_changed = pyqtSignal(str)
     default_export_file_name_changed = pyqtSignal(str)
@@ -36,8 +37,11 @@ class MenuBar(QMenuBar):
         self.default_export_file_name = default_export_file_name
         self.preferences = preferences
 
-        self.import_action = QAction(_("Import Media File..."), self)
-        self.import_action.triggered.connect(self.on_import_action_triggered)
+        self.import_action = QAction(_("Import File..."), self)
+        self.import_action.triggered.connect(self.import_action_triggered)
+
+        self.import_url_action = QAction(_("Import URL..."), self)
+        self.import_url_action.triggered.connect(self.import_url_action_triggered)
 
         about_action = QAction(f'{_("About")} {APP_NAME}', self)
         about_action.triggered.connect(self.on_about_action_triggered)
@@ -52,14 +56,12 @@ class MenuBar(QMenuBar):
 
         file_menu = self.addMenu(_("File"))
         file_menu.addAction(self.import_action)
+        file_menu.addAction(self.import_url_action)
 
         help_menu = self.addMenu(_("Help"))
         help_menu.addAction(about_action)
         help_menu.addAction(help_action)
         help_menu.addAction(self.preferences_action)
-
-    def on_import_action_triggered(self):
-        self.import_action_triggered.emit()
 
     def on_about_action_triggered(self):
         about_dialog = AboutDialog(parent=self)
@@ -96,6 +98,9 @@ class MenuBar(QMenuBar):
 
         self.import_action.setShortcut(
             QKeySequence.fromString(shortcuts[Shortcut.OPEN_IMPORT_WINDOW.name])
+        )
+        self.import_url_action.setShortcut(
+            QKeySequence.fromString(shortcuts[Shortcut.OPEN_IMPORT_URL_WINDOW.name])
         )
         self.preferences_action.setShortcut(
             QKeySequence.fromString(shortcuts[Shortcut.OPEN_PREFERENCES_WINDOW.name])

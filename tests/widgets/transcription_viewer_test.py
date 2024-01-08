@@ -5,7 +5,7 @@ import pytest
 from PyQt6.QtWidgets import QPushButton, QToolBar
 from pytestqt.qtbot import QtBot
 
-from buzz.transcriber import (
+from buzz.transcriber.transcriber import (
     FileTranscriptionTask,
     FileTranscriptionOptions,
     TranscriptionOptions,

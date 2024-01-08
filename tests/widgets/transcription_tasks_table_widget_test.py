@@ -2,7 +2,7 @@ import datetime
 
 from pytestqt.qtbot import QtBot
 
-from buzz.transcriber import (
+from buzz.transcriber.transcriber import (
     FileTranscriptionTask,
     TranscriptionOptions,
     FileTranscriptionOptions,

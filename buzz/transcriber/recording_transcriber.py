@@ -11,7 +11,8 @@ from sounddevice import PortAudioError
 
 from buzz import transformers_whisper, whisper_audio
 from buzz.model_loader import ModelType
-from buzz.transcriber import TranscriptionOptions, WhisperCpp, whisper_cpp_params
+from buzz.transcriber.transcriber import TranscriptionOptions
+from buzz.transcriber.whisper_cpp import WhisperCpp, whisper_cpp_params
 from buzz.transformers_whisper import TransformersWhisper
 
 if sys.platform != "linux":

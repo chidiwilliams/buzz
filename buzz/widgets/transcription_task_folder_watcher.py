@@ -5,7 +5,7 @@ from typing import Dict
 from PyQt6.QtCore import QFileSystemWatcher, pyqtSignal, QObject
 
 from buzz.store.keyring_store import KeyringStore
-from buzz.transcriber import FileTranscriptionTask
+from buzz.transcriber.transcriber import FileTranscriptionTask
 from buzz.widgets.preferences_dialog.models.folder_watch_preferences import (
     FolderWatchPreferences,
 )

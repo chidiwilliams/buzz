@@ -14,12 +14,12 @@ from buzz.model_loader import (
     ModelType,
 )
 from buzz.recording import RecordingAmplitudeListener
-from buzz.recording_transcriber import RecordingTranscriber
 from buzz.settings.settings import Settings
-from buzz.transcriber import (
+from buzz.transcriber.recording_transcriber import RecordingTranscriber
+from buzz.transcriber.transcriber import (
     TranscriptionOptions,
-    Task,
     DEFAULT_WHISPER_TEMPERATURE,
+    Task,
 )
 from buzz.widgets.audio_devices_combo_box import AudioDevicesComboBox
 from buzz.widgets.audio_meter_widget import AudioMeterWidget

@@ -11,10 +11,10 @@ from PyQt6.QtWidgets import (
 from buzz.dialogs import show_model_download_error_dialog
 from buzz.locale import _
 from buzz.model_loader import ModelDownloader
-from buzz.paths import file_paths_as_title
+from buzz.paths import file_path_as_title
 from buzz.settings.settings import Settings
 from buzz.store.keyring_store import KeyringStore
-from buzz.transcriber import (
+from buzz.transcriber.transcriber import (
     FileTranscriptionOptions,
     TranscriptionOptions,
 )
@@ -40,20 +40,22 @@ class FileTranscriberWidget(QWidget):
 
     def __init__(
         self,
-        file_paths: List[str],
         default_output_file_name: str,
+        file_paths: Optional[List[str]] = None,
+        url: Optional[str] = None,
         parent: Optional[QWidget] = None,
         flags: Qt.WindowType = Qt.WindowType.Widget,
     ) -> None:
         super().__init__(parent, flags)
 
-        self.setWindowTitle(file_paths_as_title(file_paths))
+        self.url = url
+        self.file_paths = file_paths
+
+        self.setWindowTitle(self.get_title())
 
         openai_access_token = KeyringStore().get_password(
             KeyringStore.Key.OPENAI_API_KEY
         )
-
-        self.file_paths = file_paths
 
         preferences = self.load_preferences()
 
@@ -63,6 +65,7 @@ class FileTranscriberWidget(QWidget):
         ) = preferences.to_transcription_options(
             openai_access_token=openai_access_token,
             file_paths=self.file_paths,
+            url=url,
             default_output_file_name=default_output_file_name,
         )
 
@@ -88,6 +91,13 @@ class FileTranscriberWidget(QWidget):
         self.setFixedSize(self.sizeHint())
 
         self.reset_transcriber_controls()
+
+    def get_title(self) -> str:
+        if self.file_paths is not None:
+            return ", ".join([file_path_as_title(path) for path in self.file_paths])
+        if self.url is not None:
+            return self.url
+        return ""
 
     def load_preferences(self):
         self.settings.settings.beginGroup("file_transcriber")

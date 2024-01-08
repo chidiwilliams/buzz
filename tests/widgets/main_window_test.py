@@ -10,7 +10,7 @@ from _pytest.fixtures import SubRequest
 from pytestqt.qtbot import QtBot
 
 from buzz.cache import TasksCache
-from buzz.transcriber import (
+from buzz.transcriber.transcriber import (
     FileTranscriptionTask,
     TranscriptionOptions,
     FileTranscriptionOptions,

@@ -1,5 +1,5 @@
 from buzz.cache import TasksCache
-from buzz.transcriber import (
+from buzz.transcriber.transcriber import (
     FileTranscriptionOptions,
     FileTranscriptionTask,
     TranscriptionOptions,
