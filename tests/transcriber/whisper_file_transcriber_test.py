@@ -24,6 +24,8 @@ from buzz.transcriber.transcriber import (
 from buzz.transcriber.whisper_file_transcriber import WhisperFileTranscriber
 from tests.model_loader import get_model_path
 
+UNSUPPORTED_ON_LINUX_REASON = "Whisper not supported on Linux"
+
 
 class TestWhisperFileTranscriber:
     @pytest.mark.parametrize(
@@ -174,9 +176,7 @@ class TestWhisperFileTranscriber:
             ),
         ],
     )
-    @pytest.mark.skipif(
-        sys.platform == "linux", reason="Avoid execstack errors on Snap"
-    )
+    @pytest.mark.skipif(sys.platform == "linux", reason=UNSUPPORTED_ON_LINUX_REASON)
     def test_transcribe_from_file(
         self,
         qtbot: QtBot,
@@ -226,6 +226,7 @@ class TestWhisperFileTranscriber:
             assert len(segments[i].text) > 0
             logging.debug(f"{segments[i].start} {segments[i].end} {segments[i].text}")
 
+    @pytest.mark.skipif(sys.platform == "linux", reason=UNSUPPORTED_ON_LINUX_REASON)
     def test_transcribe_from_url(self, qtbot):
         url = (
             "https://github.com/chidiwilliams/buzz/raw/main/testdata/whisper-french.mp3"
