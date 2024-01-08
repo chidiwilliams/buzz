@@ -249,9 +249,9 @@ class MainWindow(QMainWindow):
         self.open_file_transcriber_widget(file_paths)
 
     def on_new_url_transcription_action_triggered(self):
-        dialog = ImportURLDialog(parent=self)
-        if dialog.exec() == ImportURLDialog.DialogCode.Accepted:
-            self.open_file_transcriber_widget(url=dialog.url)
+        url = ImportURLDialog.prompt(parent=self)
+        if url is not None:
+            self.open_file_transcriber_widget(url=url)
 
     def open_file_transcriber_widget(
         self, file_paths: Optional[List[str]] = None, url: Optional[str] = None

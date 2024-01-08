@@ -43,3 +43,11 @@ class ImportURLDialog(QDialog):
             QMessageBox.critical(
                 self, _("Invalid URL"), _("The URL you entered is invalid.")
             )
+
+    @classmethod
+    def prompt(cls, parent: Optional[QWidget] = None) -> Optional[str]:
+        dialog = cls(parent=parent)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            return dialog.url
+        else:
+            return None
