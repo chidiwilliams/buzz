@@ -9,6 +9,9 @@ from buzz.widgets.line_edit import LineEdit
 
 class ImportURLDialog(QDialog):
     url: Optional[str] = None
+    url_regex = QRegularExpression(
+        "^((http|https)://)[-a-zA-Z0-9@:%._\\+~#?&//=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%._\\+~#?&//=]*)$"
+    )
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent=parent, flags=Qt.WindowType.Window)
@@ -33,10 +36,7 @@ class ImportURLDialog(QDialog):
         self.setMaximumSize(0, 0)
 
     def accept(self):
-        url_regex = QRegularExpression(
-            "^((http|https)://)[-a-zA-Z0-9@:%._\\+~#?&//=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%._\\+~#?&//=]*)$"
-        )
-        if url_regex.match(self.line_edit.text()).hasMatch():
+        if self.url_regex.match(self.line_edit.text()).hasMatch():
             self.url = self.line_edit.text()
             super().accept()
         else:

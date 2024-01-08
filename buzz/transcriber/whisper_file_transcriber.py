@@ -7,10 +7,7 @@ from multiprocessing.connection import Connection
 from threading import Thread
 from typing import Optional, List
 
-import faster_whisper
-import stable_whisper
 import tqdm
-import whisper
 from PyQt6.QtCore import QObject
 
 from buzz import transformers_whisper
@@ -18,6 +15,11 @@ from buzz.conn import pipe_stderr
 from buzz.model_loader import ModelType
 from buzz.transcriber.file_transcriber import FileTranscriber
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment
+
+if sys.platform != "linux":
+    import faster_whisper
+    import whisper
+    import stable_whisper
 
 
 class WhisperFileTranscriber(FileTranscriber):
