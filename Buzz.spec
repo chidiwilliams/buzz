@@ -24,6 +24,7 @@ datas += collect_data_files("whisper")
 datas += [
     ("buzz/whisper.dll" if platform.system() == "Windows" else "buzz/libwhisper.*", ".")
 ]
+datas += [("assets/*", "assets")]
 datas += [
     (file[1], os.path.dirname(file[1]))
     for file in Tree("./locale", prefix="locale", excludes=["*.po"])
