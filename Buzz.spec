@@ -21,22 +21,32 @@ datas += copy_metadata("tokenizers")
 datas += collect_data_files("transformers", include_py_files=True)
 
 datas += collect_data_files("whisper")
-datas += [
-    ("buzz/whisper.dll" if platform.system() == "Windows" else "buzz/libwhisper.*", ".")
-]
-datas += [("assets/*", "assets")]
+datas += [("buzz/assets/*", "assets")]
 datas += [
     (file[1], os.path.dirname(file[1]))
     for file in Tree("./locale", prefix="locale", excludes=["*.po"])
 ]
-datas += [(shutil.which("ffmpeg"), ".")]
 
 block_cipher = None
+
+DEBUG = os.environ.get("PYINSTALLER_DEBUG", "").lower() in ["1", "true"]
+if DEBUG:
+    options = [("v", None, "OPTION")]
+else:
+    options = []
+
+binaries = [
+    (
+        "buzz/whisper.dll" if platform.system() == "Windows" else "buzz/libwhisper.*",
+        ".",
+    ),
+    (shutil.which("ffmpeg"), "."),
+]
 
 a = Analysis(
     ["main.py"],
     pathex=[],
-    binaries=[],
+    binaries=binaries,
     datas=datas,
     hiddenimports=[],
     hookspath=[],
@@ -53,15 +63,15 @@ pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 exe = EXE(
     pyz,
     a.scripts,
-    [],
+    options,
     icon="./assets/buzz.ico",
     exclude_binaries=True,
     name="Buzz",
-    debug=True,
+    debug=DEBUG,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=False,
+    console=DEBUG,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,

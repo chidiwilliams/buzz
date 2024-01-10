@@ -47,6 +47,8 @@ def main():
         format=log_format,
     )
 
+    logging.debug("app_dir: %s", app_dir)
+
     if getattr(sys, "frozen", False) is False:
         stdout_handler = logging.StreamHandler(sys.stdout)
         stdout_handler.setLevel(logging.DEBUG)
