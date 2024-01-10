@@ -26,11 +26,11 @@ if sys.platform != "linux":
 # Catch exception from whisper.dll not getting loaded.
 # TODO: Remove flag and try-except when issue with loading
 # the DLL in some envs is fixed.
-LOADED_WHISPER_DLL = False
+LOADED_WHISPER_CPP_BINARY = False
 try:
     import buzz.whisper_cpp as whisper_cpp  # noqa: F401
 
-    LOADED_WHISPER_DLL = True
+    LOADED_WHISPER_CPP_BINARY = True
 except ImportError:
     logging.exception("")
 
@@ -67,7 +67,7 @@ class ModelType(enum.Enum):
             # Hide Whisper.cpp option if whisper.dll did not load correctly.
             # See: https://github.com/chidiwilliams/buzz/issues/274,
             # https://github.com/chidiwilliams/buzz/issues/197
-            (self == ModelType.WHISPER_CPP and not LOADED_WHISPER_DLL)
+            (self == ModelType.WHISPER_CPP and not LOADED_WHISPER_CPP_BINARY)
             # Disable Whisper and Faster Whisper options
             # on Linux due to execstack errors on Snap
             or (

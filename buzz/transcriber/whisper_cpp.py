@@ -4,8 +4,12 @@ from typing import Union, Any, List
 
 import numpy as np
 
-from buzz import whisper_cpp, whisper_audio
+from buzz import whisper_audio
+from buzz.model_loader import LOADED_WHISPER_CPP_BINARY
 from buzz.transcriber.transcriber import Segment, Task
+
+if LOADED_WHISPER_CPP_BINARY:
+    from buzz import whisper_cpp
 
 
 class WhisperCpp:

@@ -5,10 +5,14 @@ from typing import Optional, List
 
 from PyQt6.QtCore import QObject
 
-from buzz import whisper_cpp, whisper_audio
+from buzz import whisper_audio
+from buzz.model_loader import LOADED_WHISPER_CPP_BINARY
 from buzz.transcriber.file_transcriber import FileTranscriber
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment, Stopped
 from buzz.transcriber.whisper_cpp import WhisperCpp, whisper_cpp_params
+
+if LOADED_WHISPER_CPP_BINARY:
+    from buzz import whisper_cpp
 
 
 class WhisperCppFileTranscriber(FileTranscriber):
