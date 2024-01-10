@@ -1,7 +1,7 @@
 from typing import Optional
 
 from PyQt6.QtCore import Qt, QRegularExpression
-from PyQt6.QtWidgets import QDialog, QWidget, QDialogButtonBox, QVBoxLayout, QMessageBox
+from PyQt6.QtWidgets import QDialog, QWidget, QDialogButtonBox, QMessageBox, QFormLayout
 
 from buzz.locale import _
 from buzz.widgets.line_edit import LineEdit
@@ -19,7 +19,7 @@ class ImportURLDialog(QDialog):
         self.setWindowTitle(_("Import URL"))
 
         self.line_edit = LineEdit()
-        self.line_edit.setPlaceholderText(_("URL"))
+        self.line_edit.setPlaceholderText(_("https://example.com/audio.mp3"))
         self.line_edit.setMinimumWidth(350)
 
         self.button_box = QDialogButtonBox(
@@ -28,8 +28,8 @@ class ImportURLDialog(QDialog):
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
 
-        self.layout = QVBoxLayout()
-        self.layout.addWidget(self.line_edit)
+        self.layout = QFormLayout()
+        self.layout.addRow(_("URL:"), self.line_edit)
         self.layout.addWidget(self.button_box)
         self.setLayout(self.layout)
 
