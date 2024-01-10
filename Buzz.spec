@@ -41,6 +41,7 @@ binaries = [
         ".",
     ),
     (shutil.which("ffmpeg"), "."),
+    (shutil.which("ffprobe"), "."),
 ]
 
 a = Analysis(
