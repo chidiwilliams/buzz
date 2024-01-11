@@ -12,6 +12,8 @@ from buzz.transcriber.transcriber import (
     FileTranscriptionOptions,
 )
 
+from openai.types.audio import Transcription, Translation
+
 
 class TestOpenAIWhisperAPIFileTranscriber:
     @pytest.fixture
@@ -19,13 +21,23 @@ class TestOpenAIWhisperAPIFileTranscriber:
         with patch(
             "buzz.transcriber.openai_whisper_api_file_transcriber.OpenAI"
         ) as mock:
-            return_value = {"segments": [{"start": 0, "end": 6.56, "text": "Hello"}]}
-            mock.return_value.audio.transcriptions.create.return_value = return_value
-            mock.return_value.audio.translations.create.return_value = return_value
+            return_value = {
+                "text": "",
+                "segments": [{"start": 0, "end": 6.56, "text": "Hello"}],
+            }
+            mock.return_value.audio.transcriptions.create.return_value = Transcription(
+                **return_value
+            )
+            mock.return_value.audio.translations.create.return_value = Translation(
+                **return_value
+            )
             yield mock
 
     def test_transcribe(self, mock_openai_client):
-        file_path = "testdata/whisper-french.mp3"
+        file_path = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "../../testdata/whisper-french.mp3",
+        )
         transcriber = OpenAIWhisperAPIFileTranscriber(
             task=FileTranscriptionTask(
                 file_path=file_path,
@@ -43,6 +55,8 @@ class TestOpenAIWhisperAPIFileTranscriber:
         mock_completed = Mock()
         transcriber.completed.connect(mock_completed)
         transcriber.run()
+
+        mock_openai_client.return_value.audio.transcriptions.create.assert_called()
 
         called_segments = mock_completed.call_args[0][0]
 

@@ -103,7 +103,7 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
                     response_format="verbose_json",
                     language=self.transcription_task.transcription_options.language,
                 )
-                if self.transcription_task.transcription_options.task == Task.TRANSLATE
+                if self.transcription_task.transcription_options.task == Task.TRANSCRIBE
                 else self.openai_client.audio.translations.create(
                     model="whisper-1", file=file, response_format="verbose_json"
                 )
@@ -115,7 +115,7 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
                     int(segment["end"] * 1000 + offset_ms),
                     segment["text"],
                 )
-                for segment in transcript["segments"]
+                for segment in transcript.model_extra["segments"]
             ]
 
     def stop(self):
