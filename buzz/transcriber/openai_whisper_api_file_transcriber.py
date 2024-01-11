@@ -95,26 +95,28 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
         return segments
 
     def get_segments_for_file(self, file: str, offset_ms: int = 0):
-        kwargs = {
-            "model": "whisper-1",
-            "file": file,
-            "response_format": "verbose_json",
-            "language": self.transcription_task.transcription_options.language,
-        }
-        transcript = (
-            self.openai_client.audio.transcriptions.create(**kwargs)
-            if self.transcription_task.transcription_options.task == Task.TRANSLATE
-            else self.openai_client.audio.translations.create(**kwargs)
-        )
-
-        return [
-            Segment(
-                int(segment["start"] * 1000 + offset_ms),
-                int(segment["end"] * 1000 + offset_ms),
-                segment["text"],
+        with open(file, "rb") as file:
+            transcript = (
+                self.openai_client.audio.transcriptions.create(
+                    model="whisper-1",
+                    file=file,
+                    response_format="verbose_json",
+                    language=self.transcription_task.transcription_options.language,
+                )
+                if self.transcription_task.transcription_options.task == Task.TRANSLATE
+                else self.openai_client.audio.translations.create(
+                    model="whisper-1", file=file, response_format="verbose_json"
+                )
             )
-            for segment in transcript["segments"]
-        ]
+
+            return [
+                Segment(
+                    int(segment["start"] * 1000 + offset_ms),
+                    int(segment["end"] * 1000 + offset_ms),
+                    segment["text"],
+                )
+                for segment in transcript["segments"]
+            ]
 
     def stop(self):
         pass
