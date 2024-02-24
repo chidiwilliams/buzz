@@ -61,9 +61,61 @@ class TestWhisperFileTranscriber:
                 model_path="",
             ),
             output_format=output_format,
-            export_file_name_template="{{ input_file_name }}-{{ task }}-{{ language }}-{{ model_type }}-{{ model_size }}-{{ date_time }}",
+            export_file_name_template="{{ input_file_name }}-{{ task }}-{{ language }}-{{ model_type }}-{{ model_size }}",
         )
         assert file_path == expected_file_path
+
+    @pytest.mark.parametrize(
+        "file_path,expected_starts_with",
+        [
+            pytest.param(
+                "/a/b/c.mp4",
+                "/a/b/c (Translated on ",
+                marks=pytest.mark.skipif(platform.system() == "Windows", reason=""),
+            ),
+            pytest.param(
+                "C:\\a\\b\\c.mp4",
+                "C:\\a\\b\\c (Translated on ",
+                marks=pytest.mark.skipif(platform.system() != "Windows", reason=""),
+            ),
+        ],
+    )
+    def test_default_output_file_with_date(
+        self, file_path: str, expected_starts_with: str
+    ):
+        export_file_name_template = (
+            "{{ input_file_name }} (Translated on {{ date_time }})"
+        )
+        srt = get_output_file_path(
+            task=FileTranscriptionTask(
+                file_path=file_path,
+                transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
+                file_transcription_options=FileTranscriptionOptions(
+                    file_paths=[],
+                ),
+                model_path="",
+            ),
+            output_format=OutputFormat.TXT,
+            export_file_name_template=export_file_name_template,
+        )
+
+        assert srt.startswith(expected_starts_with)
+        assert srt.endswith(".txt")
+
+        srt = get_output_file_path(
+            task=FileTranscriptionTask(
+                file_path=file_path,
+                transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
+                file_transcription_options=FileTranscriptionOptions(
+                    file_paths=[],
+                ),
+                model_path="",
+            ),
+            output_format=OutputFormat.SRT,
+            export_file_name_template=export_file_name_template,
+        )
+        assert srt.startswith(expected_starts_with)
+        assert srt.endswith(".srt")
 
     @pytest.mark.parametrize(
         "word_level_timings,expected_segments,model",
