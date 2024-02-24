@@ -58,9 +58,7 @@ class TestWhisperFileTranscriber:
             task=FileTranscriptionTask(
                 file_path=file_path,
                 transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
-                file_transcription_options=FileTranscriptionOptions(
-                    file_paths=[], default_output_file_name=default_output_file_name
-                ),
+                file_transcription_options=FileTranscriptionOptions(file_paths=[]),
                 model_path="",
             ),
             output_format=output_format,
@@ -91,7 +89,6 @@ class TestWhisperFileTranscriber:
                 transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
                 file_transcription_options=FileTranscriptionOptions(
                     file_paths=[],
-                    default_output_file_name="{{ input_file_name }} (Translated on {{ date_time }})",
                 ),
                 model_path="",
             ),
@@ -107,7 +104,6 @@ class TestWhisperFileTranscriber:
                 transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
                 file_transcription_options=FileTranscriptionOptions(
                     file_paths=[],
-                    default_output_file_name="{{ input_file_name }} (Translated on {{ date_time }})",
                 ),
                 model_path="",
             ),
@@ -275,7 +271,6 @@ class TestWhisperFileTranscriber:
         file_transcription_options = FileTranscriptionOptions(
             file_paths=[file_path],
             output_formats={OutputFormat.TXT},
-            default_output_file_name="{{ input_file_name }}",
         )
         transcription_options = TranscriptionOptions()
         model_path = get_model_path(transcription_options.model)

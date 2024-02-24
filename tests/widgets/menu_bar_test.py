@@ -11,7 +11,6 @@ class TestMenuBar:
     def test_open_preferences_dialog(self, qtbot):
         menu_bar = MenuBar(
             shortcuts=ShortcutSettings(Settings()).load(),
-            default_export_file_name="",
             preferences=Preferences.load(QSettings()),
         )
         qtbot.add_widget(menu_bar)
