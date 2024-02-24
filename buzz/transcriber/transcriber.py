@@ -245,7 +245,7 @@ def get_output_file_path(
 
     export_file_name_template = (
         export_file_name_template
-        if not None
+        if export_file_name_template is not None
         else Settings().get_default_export_file_template()
     )
 
