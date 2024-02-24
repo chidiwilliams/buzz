@@ -235,11 +235,19 @@ SUPPORTED_AUDIO_FORMATS = "Audio files (*.mp3 *.wav *.m4a *.ogg);;\
 Video files (*.mp4 *.webm *.ogm *.mov);;All files (*.*)"
 
 
-def get_output_file_path(task: FileTranscriptionTask, output_format: OutputFormat):
+def get_output_file_path(
+    task: FileTranscriptionTask,
+    output_format: OutputFormat,
+    export_file_name_template: str | None = None,
+):
     input_file_name = os.path.splitext(os.path.basename(task.file_path))[0]
     date_time_now = datetime.datetime.now().strftime("%d-%b-%Y %H-%M-%S")
 
-    export_file_name_template = Settings().get_default_export_file_template()
+    export_file_name_template = (
+        export_file_name_template
+        if not None
+        else Settings().get_default_export_file_template()
+    )
 
     output_file_name = (
         export_file_name_template.replace("{{ input_file_name }}", input_file_name)

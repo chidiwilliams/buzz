@@ -31,20 +31,18 @@ UNSUPPORTED_ON_LINUX_REASON = "Whisper not supported on Linux"
 
 class TestWhisperFileTranscriber:
     @pytest.mark.parametrize(
-        "file_path,output_format,expected_file_path,default_output_file_name",
+        "file_path,output_format,expected_file_path",
         [
             pytest.param(
                 "/a/b/c.mp4",
                 OutputFormat.SRT,
                 "/a/b/c-translate--Whisper-tiny.srt",
-                "{{ input_file_name }}-{{ task }}-{{ language }}-{{ model_type }}-{{ model_size }}",
                 marks=pytest.mark.skipif(platform.system() == "Windows", reason=""),
             ),
             pytest.param(
                 "C:\\a\\b\\c.mp4",
                 OutputFormat.SRT,
                 "C:\\a\\b\\c-translate--Whisper-tiny.srt",
-                "{{ input_file_name }}-{{ task }}-{{ language }}-{{ model_type }}-{{ model_size }}",
                 marks=pytest.mark.skipif(platform.system() != "Windows", reason=""),
             ),
         ],
@@ -54,7 +52,6 @@ class TestWhisperFileTranscriber:
         file_path: str,
         output_format: OutputFormat,
         expected_file_path: str,
-        default_output_file_name: str,
     ):
         file_path = get_output_file_path(
             task=FileTranscriptionTask(
@@ -64,55 +61,9 @@ class TestWhisperFileTranscriber:
                 model_path="",
             ),
             output_format=output_format,
+            export_file_name_template="{{ input_file_name }}-{{ task }}-{{ language }}-{{ model_type }}-{{ model_size }}-{{ date_time }}",
         )
         assert file_path == expected_file_path
-
-    @pytest.mark.parametrize(
-        "file_path,expected_starts_with",
-        [
-            pytest.param(
-                "/a/b/c.mp4",
-                "/a/b/c (Translated on ",
-                marks=pytest.mark.skipif(platform.system() == "Windows", reason=""),
-            ),
-            pytest.param(
-                "C:\\a\\b\\c.mp4",
-                "C:\\a\\b\\c (Translated on ",
-                marks=pytest.mark.skipif(platform.system() != "Windows", reason=""),
-            ),
-        ],
-    )
-    def test_default_output_file_with_date(
-        self, file_path: str, expected_starts_with: str
-    ):
-        srt = get_output_file_path(
-            task=FileTranscriptionTask(
-                file_path=file_path,
-                transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
-                file_transcription_options=FileTranscriptionOptions(
-                    file_paths=[],
-                ),
-                model_path="",
-            ),
-            output_format=OutputFormat.TXT,
-        )
-
-        assert srt.startswith(expected_starts_with)
-        assert srt.endswith(".txt")
-
-        srt = get_output_file_path(
-            task=FileTranscriptionTask(
-                file_path=file_path,
-                transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
-                file_transcription_options=FileTranscriptionOptions(
-                    file_paths=[],
-                ),
-                model_path="",
-            ),
-            output_format=OutputFormat.SRT,
-        )
-        assert srt.startswith(expected_starts_with)
-        assert srt.endswith(".srt")
 
     @pytest.mark.parametrize(
         "word_level_timings,expected_segments,model",
