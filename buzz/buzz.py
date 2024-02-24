@@ -6,9 +6,7 @@ import platform
 import sys
 from typing import TextIO
 
-from PyQt6.QtSql import QSqlDatabase
 from appdirs import user_log_dir
-from platformdirs import user_data_path
 
 # Check for segfaults if not running in frozen mode
 if getattr(sys, "frozen", False) is False:
@@ -59,15 +57,6 @@ def main():
 
     from buzz.cli import parse_command_line
     from buzz.widgets.application import Application
-
-    conn = QSqlDatabase.addDatabase("QSQLITE")
-    conn.setDatabaseName(os.path.join(user_data_path("Buzz"), "buzz.sqlite"))
-    print(conn.databaseName())
-    if not conn.open():
-        logging.critical(
-            "Failed to open database connection: %s", conn.lastError().databaseText()
-        )
-        sys.exit(1)
 
     app = Application()
     parse_command_line(app)
