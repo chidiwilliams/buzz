@@ -239,10 +239,7 @@ def get_output_file_path(task: FileTranscriptionTask, output_format: OutputForma
     input_file_name = os.path.splitext(os.path.basename(task.file_path))[0]
     date_time_now = datetime.datetime.now().strftime("%d-%b-%Y %H-%M-%S")
 
-    export_file_name_template = Settings().value(
-        Settings.Key.DEFAULT_EXPORT_FILE_NAME,
-        "{{ input_file_name }} ({{ task }}d on {{ date_time }})",
-    )
+    export_file_name_template = Settings().get_default_export_file_template()
 
     output_file_name = (
         export_file_name_template.replace("{{ input_file_name }}", input_file_name)
