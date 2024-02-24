@@ -9,6 +9,7 @@ from dataclasses_json import dataclass_json, config, Exclude
 
 from buzz.locale import _
 from buzz.model_loader import TranscriptionModel
+from buzz.settings.settings import Settings
 
 DEFAULT_WHISPER_TEMPERATURE = (0.0, 0.2, 0.4, 0.6, 0.8, 1.0)
 
@@ -153,7 +154,6 @@ class FileTranscriptionOptions:
     file_paths: Optional[List[str]] = None
     url: Optional[str] = None
     output_formats: Set["OutputFormat"] = field(default_factory=set)
-    default_output_file_name: str = ""
 
 
 @dataclass_json
@@ -235,13 +235,22 @@ SUPPORTED_AUDIO_FORMATS = "Audio files (*.mp3 *.wav *.m4a *.ogg);;\
 Video files (*.mp4 *.webm *.ogm *.mov);;All files (*.*)"
 
 
-def get_output_file_path(task: FileTranscriptionTask, output_format: OutputFormat):
+def get_output_file_path(
+    task: FileTranscriptionTask,
+    output_format: OutputFormat,
+    export_file_name_template: str | None = None,
+):
     input_file_name = os.path.splitext(os.path.basename(task.file_path))[0]
     date_time_now = datetime.datetime.now().strftime("%d-%b-%Y %H-%M-%S")
+
+    export_file_name_template = (
+        export_file_name_template
+        if export_file_name_template is not None
+        else Settings().get_default_export_file_template()
+    )
+
     output_file_name = (
-        task.file_transcription_options.default_output_file_name.replace(
-            "{{ input_file_name }}", input_file_name
-        )
+        export_file_name_template.replace("{{ input_file_name }}", input_file_name)
         .replace("{{ task }}", task.transcription_options.task.value)
         .replace("{{ language }}", task.transcription_options.language or "")
         .replace("{{ model_type }}", task.transcription_options.model.model_type.value)

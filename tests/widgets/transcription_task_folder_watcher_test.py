@@ -48,7 +48,6 @@ class TestTranscriptionTaskFolderWatcher:
                     output_formats=set(),
                 ),
             ),
-            default_export_file_name="",
         )
 
         shutil.copy("testdata/whisper-french.mp3", input_directory)
@@ -89,7 +88,6 @@ class TestTranscriptionTaskFolderWatcher:
                     output_formats=set(),
                 ),
             ),
-            default_export_file_name="",
         )
 
         # Ignored because already in tasks

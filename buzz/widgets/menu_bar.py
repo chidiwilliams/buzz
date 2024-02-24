@@ -20,21 +20,18 @@ class MenuBar(QMenuBar):
     import_url_action_triggered = pyqtSignal()
     shortcuts_changed = pyqtSignal(dict)
     openai_api_key_changed = pyqtSignal(str)
-    default_export_file_name_changed = pyqtSignal(str)
     preferences_changed = pyqtSignal(Preferences)
     preferences_dialog: Optional[PreferencesDialog] = None
 
     def __init__(
         self,
         shortcuts: Dict[str, str],
-        default_export_file_name: str,
         preferences: Preferences,
         parent: Optional[QWidget] = None,
     ):
         super().__init__(parent)
 
         self.shortcuts = shortcuts
-        self.default_export_file_name = default_export_file_name
         self.preferences = preferences
 
         self.import_action = QAction(_("Import File..."), self)
@@ -70,15 +67,11 @@ class MenuBar(QMenuBar):
     def on_preferences_action_triggered(self):
         preferences_dialog = PreferencesDialog(
             shortcuts=self.shortcuts,
-            default_export_file_name=self.default_export_file_name,
             preferences=self.preferences,
             parent=self,
         )
         preferences_dialog.shortcuts_changed.connect(self.shortcuts_changed)
         preferences_dialog.openai_api_key_changed.connect(self.openai_api_key_changed)
-        preferences_dialog.default_export_file_name_changed.connect(
-            self.default_export_file_name_changed
-        )
         preferences_dialog.finished.connect(self.on_preferences_dialog_finished)
         preferences_dialog.open()
 

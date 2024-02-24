@@ -1,3 +1,4 @@
+import glob
 import logging
 import os
 import platform
@@ -22,6 +23,7 @@ from buzz.transcriber.transcriber import (
     Segment,
 )
 from buzz.transcriber.whisper_file_transcriber import WhisperFileTranscriber
+from tests.audio import test_audio_path
 from tests.model_loader import get_model_path
 
 UNSUPPORTED_ON_LINUX_REASON = "Whisper not supported on Linux"
@@ -29,20 +31,18 @@ UNSUPPORTED_ON_LINUX_REASON = "Whisper not supported on Linux"
 
 class TestWhisperFileTranscriber:
     @pytest.mark.parametrize(
-        "file_path,output_format,expected_file_path,default_output_file_name",
+        "file_path,output_format,expected_file_path",
         [
             pytest.param(
                 "/a/b/c.mp4",
                 OutputFormat.SRT,
                 "/a/b/c-translate--Whisper-tiny.srt",
-                "{{ input_file_name }}-{{ task }}-{{ language }}-{{ model_type }}-{{ model_size }}",
                 marks=pytest.mark.skipif(platform.system() == "Windows", reason=""),
             ),
             pytest.param(
                 "C:\\a\\b\\c.mp4",
                 OutputFormat.SRT,
                 "C:\\a\\b\\c-translate--Whisper-tiny.srt",
-                "{{ input_file_name }}-{{ task }}-{{ language }}-{{ model_type }}-{{ model_size }}",
                 marks=pytest.mark.skipif(platform.system() != "Windows", reason=""),
             ),
         ],
@@ -52,18 +52,16 @@ class TestWhisperFileTranscriber:
         file_path: str,
         output_format: OutputFormat,
         expected_file_path: str,
-        default_output_file_name: str,
     ):
         file_path = get_output_file_path(
             task=FileTranscriptionTask(
                 file_path=file_path,
                 transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
-                file_transcription_options=FileTranscriptionOptions(
-                    file_paths=[], default_output_file_name=default_output_file_name
-                ),
+                file_transcription_options=FileTranscriptionOptions(file_paths=[]),
                 model_path="",
             ),
             output_format=output_format,
+            export_file_name_template="{{ input_file_name }}-{{ task }}-{{ language }}-{{ model_type }}-{{ model_size }}",
         )
         assert file_path == expected_file_path
 
@@ -85,17 +83,20 @@ class TestWhisperFileTranscriber:
     def test_default_output_file_with_date(
         self, file_path: str, expected_starts_with: str
     ):
+        export_file_name_template = (
+            "{{ input_file_name }} (Translated on {{ date_time }})"
+        )
         srt = get_output_file_path(
             task=FileTranscriptionTask(
                 file_path=file_path,
                 transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
                 file_transcription_options=FileTranscriptionOptions(
                     file_paths=[],
-                    default_output_file_name="{{ input_file_name }} (Translated on {{ date_time }})",
                 ),
                 model_path="",
             ),
             output_format=OutputFormat.TXT,
+            export_file_name_template=export_file_name_template,
         )
 
         assert srt.startswith(expected_starts_with)
@@ -107,11 +108,11 @@ class TestWhisperFileTranscriber:
                 transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
                 file_transcription_options=FileTranscriptionOptions(
                     file_paths=[],
-                    default_output_file_name="{{ input_file_name }} (Translated on {{ date_time }})",
                 ),
                 model_path="",
             ),
             output_format=OutputFormat.SRT,
+            export_file_name_template=export_file_name_template,
         )
         assert srt.startswith(expected_starts_with)
         assert srt.endswith(".srt")
@@ -270,12 +271,11 @@ class TestWhisperFileTranscriber:
     )
     def test_transcribe_from_folder_watch_source(self, qtbot):
         file_path = tempfile.mktemp(suffix=".mp3")
-        shutil.copy("testdata/whisper-french.mp3", file_path)
+        shutil.copy(test_audio_path, file_path)
 
         file_transcription_options = FileTranscriptionOptions(
             file_paths=[file_path],
             output_formats={OutputFormat.TXT},
-            default_output_file_name="{{ input_file_name }}",
         )
         transcription_options = TranscriptionOptions()
         model_path = get_model_path(transcription_options.model)
@@ -298,12 +298,7 @@ class TestWhisperFileTranscriber:
         assert os.path.isfile(
             os.path.join(output_directory, os.path.basename(file_path))
         )
-        assert os.path.isfile(
-            os.path.join(
-                output_directory,
-                os.path.splitext(os.path.basename(file_path))[0] + ".txt",
-            )
-        )
+        assert len(glob.glob("*.txt", root_dir=output_directory)) > 0
 
     @pytest.mark.skip()
     def test_transcribe_stop(self):

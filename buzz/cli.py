@@ -4,7 +4,6 @@ import typing
 
 from PyQt6.QtCore import QCommandLineParser, QCommandLineOption
 
-from buzz.widgets.application import Application
 from buzz.model_loader import ModelType, WhisperModelSize, TranscriptionModel
 from buzz.store.keyring_store import KeyringStore
 from buzz.transcriber.transcriber import (
@@ -15,6 +14,7 @@ from buzz.transcriber.transcriber import (
     LANGUAGES,
     OutputFormat,
 )
+from buzz.widgets.application import Application
 
 
 class CommandLineError(Exception):
@@ -185,7 +185,8 @@ def parse(app: Application, parser: QCommandLineParser):
             openai_access_token=openai_access_token,
         )
         file_transcription_options = FileTranscriptionOptions(
-            file_paths=file_paths, output_formats=output_formats
+            file_paths=file_paths,
+            output_formats=output_formats,
         )
 
         for file_path in file_paths:

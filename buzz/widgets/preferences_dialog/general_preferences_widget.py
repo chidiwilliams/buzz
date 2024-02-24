@@ -4,6 +4,7 @@ from PyQt6.QtCore import QRunnable, QObject, pyqtSignal, QThreadPool
 from PyQt6.QtWidgets import QWidget, QFormLayout, QPushButton, QMessageBox
 from openai import AuthenticationError, OpenAI
 
+from buzz.settings.settings import Settings
 from buzz.store.keyring_store import KeyringStore
 from buzz.widgets.line_edit import LineEdit
 from buzz.widgets.openai_api_key_line_edit import OpenAIAPIKeyLineEdit
@@ -11,11 +12,9 @@ from buzz.widgets.openai_api_key_line_edit import OpenAIAPIKeyLineEdit
 
 class GeneralPreferencesWidget(QWidget):
     openai_api_key_changed = pyqtSignal(str)
-    default_export_file_name_changed = pyqtSignal(str)
 
     def __init__(
         self,
-        default_export_file_name: str,
         keyring_store=KeyringStore(),
         parent: Optional[QWidget] = None,
     ):
@@ -41,14 +40,21 @@ class GeneralPreferencesWidget(QWidget):
         layout.addRow("OpenAI API key", self.openai_api_key_line_edit)
         layout.addRow("", self.test_openai_api_key_button)
 
+        self.settings = Settings()
+
+        default_export_file_name = self.settings.get_default_export_file_template()
+
         default_export_file_name_line_edit = LineEdit(default_export_file_name, self)
         default_export_file_name_line_edit.textChanged.connect(
-            self.default_export_file_name_changed
+            self.on_default_export_file_name_changed
         )
         default_export_file_name_line_edit.setMinimumWidth(200)
         layout.addRow("Default export file name", default_export_file_name_line_edit)
 
         self.setLayout(layout)
+
+    def on_default_export_file_name_changed(self, text: str):
+        self.settings.set_value(Settings.Key.DEFAULT_EXPORT_FILE_NAME, text)
 
     def update_test_openai_api_key_button(self):
         self.test_openai_api_key_button.setEnabled(len(self.openai_api_key) > 0)
