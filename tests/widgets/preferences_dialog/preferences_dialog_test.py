@@ -10,7 +10,6 @@ class TestPreferencesDialog:
     def test_create(self, qtbot: QtBot):
         dialog = PreferencesDialog(
             shortcuts={},
-            default_export_file_name="",
             preferences=Preferences.load(QSettings()),
         )
         qtbot.add_widget(dialog)
