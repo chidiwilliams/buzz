@@ -10,7 +10,6 @@ class TestFileTranscriberWidget:
     def test_should_set_window_title(self, qtbot: QtBot):
         widget = FileTranscriberWidget(
             file_paths=["testdata/whisper-french.mp3"],
-            default_output_file_name="",
         )
         qtbot.add_widget(widget)
         assert widget.windowTitle() == "whisper-french.mp3"
@@ -18,7 +17,6 @@ class TestFileTranscriberWidget:
     def test_should_emit_triggered_event(self, qtbot: QtBot):
         widget = FileTranscriberWidget(
             file_paths=["testdata/whisper-french.mp3"],
-            default_output_file_name="",
         )
         qtbot.add_widget(widget)
 

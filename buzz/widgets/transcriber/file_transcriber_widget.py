@@ -40,7 +40,6 @@ class FileTranscriberWidget(QWidget):
 
     def __init__(
         self,
-        default_output_file_name: str,
         file_paths: Optional[List[str]] = None,
         url: Optional[str] = None,
         parent: Optional[QWidget] = None,
@@ -66,7 +65,6 @@ class FileTranscriberWidget(QWidget):
             openai_access_token=openai_access_token,
             file_paths=self.file_paths,
             url=url,
-            default_output_file_name=default_output_file_name,
         )
 
         layout = QVBoxLayout(self)

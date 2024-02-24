@@ -27,14 +27,12 @@ class PreferencesDialog(QDialog):
     shortcuts_changed = pyqtSignal(dict)
     openai_api_key_changed = pyqtSignal(str)
     folder_watch_config_changed = pyqtSignal(FolderWatchPreferences)
-    default_export_file_name_changed = pyqtSignal(str)
     preferences_changed = pyqtSignal(Preferences)
 
     def __init__(
         self,
         #     TODO: move shortcuts and default export file name into preferences
         shortcuts: Dict[str, str],
-        default_export_file_name: str,
         preferences: Preferences,
         parent: Optional[QWidget] = None,
     ) -> None:
@@ -47,13 +45,8 @@ class PreferencesDialog(QDialog):
         layout = QVBoxLayout(self)
         tab_widget = QTabWidget(self)
 
-        general_tab_widget = GeneralPreferencesWidget(
-            default_export_file_name=default_export_file_name, parent=self
-        )
+        general_tab_widget = GeneralPreferencesWidget(parent=self)
         general_tab_widget.openai_api_key_changed.connect(self.openai_api_key_changed)
-        general_tab_widget.default_export_file_name_changed.connect(
-            self.default_export_file_name_changed
-        )
         tab_widget.addTab(general_tab_widget, _("General"))
 
         models_tab_widget = ModelsPreferencesWidget(parent=self)

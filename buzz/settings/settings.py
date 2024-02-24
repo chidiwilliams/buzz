@@ -62,3 +62,9 @@ class Settings:
 
     def sync(self):
         self.settings.sync()
+
+    def get_default_export_file_template(self) -> str:
+        return self.value(
+            Settings.Key.DEFAULT_EXPORT_FILE_NAME,
+            "{{ input_file_name }} ({{ task }}d on {{ date_time }})",
+        )

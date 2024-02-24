@@ -10,9 +10,7 @@ from buzz.widgets.preferences_dialog.general_preferences_widget import (
 
 class TestGeneralPreferencesWidget:
     def test_should_disable_test_button_if_no_api_key(self, qtbot):
-        widget = GeneralPreferencesWidget(
-            keyring_store=self.get_keyring_store(""), default_export_file_name=""
-        )
+        widget = GeneralPreferencesWidget(keyring_store=self.get_keyring_store(""))
         qtbot.add_widget(widget)
 
         test_button = widget.findChild(QPushButton)
@@ -30,7 +28,6 @@ class TestGeneralPreferencesWidget:
     def test_should_test_openai_api_key(self, qtbot):
         widget = GeneralPreferencesWidget(
             keyring_store=self.get_keyring_store("wrong-api-key"),
-            default_export_file_name="",
         )
         qtbot.add_widget(widget)
 

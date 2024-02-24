@@ -19,12 +19,10 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
         self,
         tasks: Dict[int, FileTranscriptionTask],
         preferences: FolderWatchPreferences,
-        default_export_file_name: str,
         parent: QObject = None,
     ):
         super().__init__(parent)
         self.tasks = tasks
-        self.default_export_file_name = default_export_file_name
         self.set_preferences(preferences)
         self.directoryChanged.connect(self.find_tasks)
 
@@ -58,7 +56,6 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
                     file_transcription_options,
                 ) = self.preferences.file_transcription_options.to_transcription_options(
                     openai_access_token=openai_access_token,
-                    default_output_file_name=self.default_export_file_name,
                     file_paths=[file_path],
                 )
                 model_path = transcription_options.model.get_local_model_path()

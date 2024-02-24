@@ -81,7 +81,6 @@ class FileTranscriptionPreferences:
         openai_access_token: Optional[str],
         file_paths: Optional[List[str]] = None,
         url: Optional[str] = None,
-        default_output_file_name: str = "",
     ) -> Tuple[TranscriptionOptions, FileTranscriptionOptions]:
         return (
             TranscriptionOptions(
@@ -97,6 +96,5 @@ class FileTranscriptionPreferences:
                 output_formats=self.output_formats,
                 file_paths=file_paths,
                 url=url,
-                default_output_file_name=default_output_file_name,
             ),
         )

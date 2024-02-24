@@ -59,10 +59,6 @@ class MainWindow(QMainWindow):
 
         self.shortcut_settings = ShortcutSettings(settings=self.settings)
         self.shortcuts = self.shortcut_settings.load()
-        self.default_export_file_name = self.settings.value(
-            Settings.Key.DEFAULT_EXPORT_FILE_NAME,
-            "{{ input_file_name }} ({{ task }}d on {{ date_time }})",
-        )
 
         self.tasks = {}
 
@@ -85,7 +81,6 @@ class MainWindow(QMainWindow):
         self.preferences = self.load_preferences(settings=self.settings)
         self.menu_bar = MenuBar(
             shortcuts=self.shortcuts,
-            default_export_file_name=self.default_export_file_name,
             preferences=self.preferences,
             parent=self,
         )
@@ -98,9 +93,6 @@ class MainWindow(QMainWindow):
         self.menu_bar.shortcuts_changed.connect(self.on_shortcuts_changed)
         self.menu_bar.openai_api_key_changed.connect(
             self.on_openai_access_token_changed
-        )
-        self.menu_bar.default_export_file_name_changed.connect(
-            self.default_export_file_name_changed
         )
         self.menu_bar.preferences_changed.connect(self.on_preferences_changed)
         self.setMenuBar(self.menu_bar)
@@ -132,7 +124,6 @@ class MainWindow(QMainWindow):
         self.folder_watcher = TranscriptionTaskFolderWatcher(
             tasks=self.tasks,
             preferences=self.preferences.folder_watch,
-            default_export_file_name=self.default_export_file_name,
         )
         self.folder_watcher.task_found.connect(self.add_task)
         self.folder_watcher.find_tasks()
@@ -259,7 +250,6 @@ class MainWindow(QMainWindow):
         file_transcriber_window = FileTranscriberWidget(
             file_paths=file_paths,
             url=url,
-            default_output_file_name=self.default_export_file_name,
             parent=self,
             flags=Qt.WindowType.Window,
         )
@@ -272,13 +262,6 @@ class MainWindow(QMainWindow):
     @staticmethod
     def on_openai_access_token_changed(access_token: str):
         KeyringStore().set_password(KeyringStore.Key.OPENAI_API_KEY, access_token)
-
-    def default_export_file_name_changed(self, default_export_file_name: str):
-        self.default_export_file_name = default_export_file_name
-        self.settings.set_value(
-            Settings.Key.DEFAULT_EXPORT_FILE_NAME, default_export_file_name
-        )
-        self.folder_watcher.default_export_file_name = default_export_file_name
 
     def open_transcript_viewer(self):
         selected_rows = self.table_widget.selectionModel().selectedRows()
