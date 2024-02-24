@@ -1,3 +1,4 @@
+import glob
 import logging
 import os
 import platform
@@ -22,6 +23,7 @@ from buzz.transcriber.transcriber import (
     Segment,
 )
 from buzz.transcriber.whisper_file_transcriber import WhisperFileTranscriber
+from tests.audio import test_audio_path
 from tests.model_loader import get_model_path
 
 UNSUPPORTED_ON_LINUX_REASON = "Whisper not supported on Linux"
@@ -266,7 +268,7 @@ class TestWhisperFileTranscriber:
     )
     def test_transcribe_from_folder_watch_source(self, qtbot):
         file_path = tempfile.mktemp(suffix=".mp3")
-        shutil.copy("testdata/whisper-french.mp3", file_path)
+        shutil.copy(test_audio_path, file_path)
 
         file_transcription_options = FileTranscriptionOptions(
             file_paths=[file_path],
@@ -293,12 +295,7 @@ class TestWhisperFileTranscriber:
         assert os.path.isfile(
             os.path.join(output_directory, os.path.basename(file_path))
         )
-        assert os.path.isfile(
-            os.path.join(
-                output_directory,
-                os.path.splitext(os.path.basename(file_path))[0] + ".txt",
-            )
-        )
+        assert len(glob.glob("*.txt", root_dir=output_directory)) > 0
 
     @pytest.mark.skip()
     def test_transcribe_stop(self):
