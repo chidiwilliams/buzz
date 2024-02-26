@@ -191,39 +191,6 @@ class FileTranscriptionTask:
     url: Optional[str] = None
     fraction_downloaded: float = 0.0
 
-    # TODO: move to status delegate
-    def status_text(self) -> str:
-        match self.status:
-            case FileTranscriptionTask.Status.IN_PROGRESS:
-                if self.fraction_downloaded > 0 and self.fraction_completed == 0:
-                    return f'{_("Downloading")} ({self.fraction_downloaded :.0%})'
-                return f'{_("In Progress")} ({self.fraction_completed :.0%})'
-            case FileTranscriptionTask.Status.COMPLETED:
-                status = _("Completed")
-                if self.started_at is not None and self.completed_at is not None:
-                    status += f" ({self.format_timedelta(self.completed_at - self.started_at)})"
-                return status
-            case FileTranscriptionTask.Status.FAILED:
-                return f'{_("Failed")} ({self.error})'
-            case FileTranscriptionTask.Status.CANCELED:
-                return _("Canceled")
-            case FileTranscriptionTask.Status.QUEUED:
-                return _("Queued")
-            case _:
-                return ""
-
-    @staticmethod
-    def format_timedelta(delta: datetime.timedelta):
-        mm, ss = divmod(delta.seconds, 60)
-        result = f"{ss}s"
-        if mm == 0:
-            return result
-        hh, mm = divmod(mm, 60)
-        result = f"{mm}m {result}"
-        if hh == 0:
-            return result
-        return f"{hh}h {result}"
-
 
 class OutputFormat(enum.Enum):
     TXT = "txt"

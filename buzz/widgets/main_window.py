@@ -348,6 +348,7 @@ class MainWindow(QMainWindow):
     def on_task_download_progress(
         self, task: FileTranscriptionTask, fraction_downloaded: float
     ):
+        # TODO: Save download progress in the database
         pass
 
     def on_task_completed(self, task: FileTranscriptionTask, segments: List[Segment]):

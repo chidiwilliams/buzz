@@ -126,7 +126,6 @@ class FileTranscriberQueueWorker(QObject):
 
     def on_task_download_progress(self, fraction_downloaded: float):
         if self.current_task is not None:
-            # TODO: Save download progress in the database
             self.task_download_progress.emit(self.current_task, fraction_downloaded)
 
     @pyqtSlot(list)
