@@ -3,10 +3,12 @@ import logging
 import multiprocessing
 import os
 import platform
+import sqlite3
 import sys
 from typing import TextIO
 
-from appdirs import user_log_dir
+from PyQt6.QtSql import QSqlDatabase
+from platformdirs import user_data_dir, user_log_dir
 
 # Check for segfaults if not running in frozen mode
 if getattr(sys, "frozen", False) is False:
@@ -25,6 +27,9 @@ os.environ["PATH"] += os.pathsep + app_dir
 # Add the app directory to the DLL list: https://stackoverflow.com/a/64303856
 if platform.system() == "Windows":
     os.add_dll_directory(app_dir)
+
+DB_PATH = os.path.join(user_data_dir("Buzz"), "Buzz.sqlite")
+logging.debug("DB_PATH: %s", DB_PATH)
 
 
 def main():
@@ -55,8 +60,26 @@ def main():
         stdout_handler.setFormatter(logging.Formatter(log_format))
         logging.getLogger().addHandler(stdout_handler)
 
+    from buzz.db.helpers import (
+        copy_transcriptions_from_json_to_sqlite,
+        run_sqlite_migrations,
+        mark_in_progress_and_queued_transcriptions_as_canceled,
+    )
     from buzz.cli import parse_command_line
     from buzz.widgets.application import Application
+
+    # Setup SQLite
+    conn = sqlite3.connect(DB_PATH)
+    run_sqlite_migrations(conn)
+    copy_transcriptions_from_json_to_sqlite(conn)
+    mark_in_progress_and_queued_transcriptions_as_canceled(conn)
+    conn.close()
+
+    conn = QSqlDatabase.addDatabase("QSQLITE")
+    conn.setDatabaseName(DB_PATH)
+    if not conn.open():
+        logging.critical("Failed to open database connection: %s")
+        sys.exit(1)
 
     app = Application()
     parse_command_line(app)

@@ -1,135 +1,169 @@
 import enum
 import os
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from enum import auto
-from typing import Optional, Callable
+from typing import Optional, List
+from uuid import UUID
 
 from PyQt6 import QtGui
-from PyQt6.QtCore import pyqtSignal, Qt, QModelIndex
+from PyQt6.QtCore import Qt
+from PyQt6.QtCore import pyqtSignal, QModelIndex
+from PyQt6.QtSql import QSqlTableModel, QSqlRecord
 from PyQt6.QtWidgets import (
-    QTableWidget,
     QWidget,
-    QAbstractItemView,
-    QTableWidgetItem,
     QMenu,
+    QTableView,
+    QAbstractItemView,
+    QStyledItemDelegate,
 )
 
 from buzz.locale import _
 from buzz.settings.settings import Settings
-from buzz.transcriber.transcriber import FileTranscriptionTask, humanize_language
+from buzz.transcriber.transcriber import FileTranscriptionTask
+from buzz.widgets.record_delegate import RecordDelegate
+from buzz.widgets.transcription_record import TranscriptionRecord
+
+
+class Column(enum.Enum):
+    ID = 0
+    ERROR_MESSAGE = auto()
+    EXPORT_FORMATS = auto()
+    FILE = auto()
+    OUTPUT_FOLDER = auto()
+    PROGRESS = auto()
+    LANGUAGE = auto()
+    MODEL_TYPE = auto()
+    SOURCE = auto()
+    STATUS = auto()
+    TASK = auto()
+    TIME_ENDED = auto()
+    TIME_QUEUED = auto()
+    TIME_STARTED = auto()
+    URL = auto()
+    WHISPER_MODEL_SIZE = auto()
 
 
 @dataclass
-class TableColDef:
+class ColDef:
     id: str
     header: str
-    column_index: int
-    value_getter: Callable[[FileTranscriptionTask], str]
+    column: Column
     width: Optional[int] = None
-    hidden: bool = False
+    delegate: Optional[QStyledItemDelegate] = None
     hidden_toggleable: bool = True
 
 
-class TranscriptionTasksTableWidget(QTableWidget):
-    class Column(enum.Enum):
-        TASK_ID = 0
-        FILE_NAME = auto()
-        MODEL = auto()
-        TASK = auto()
-        STATUS = auto()
-        DATE_ADDED = auto()
-        DATE_COMPLETED = auto()
-
+class TranscriptionTasksTableWidget(QTableView):
     return_clicked = pyqtSignal()
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
 
-        self.setRowCount(0)
-        self.setAlternatingRowColors(True)
-        self.settings = Settings()
+        self._model = QSqlTableModel()
+        self._model.setTable("transcription")
+        self._model.setEditStrategy(QSqlTableModel.EditStrategy.OnManualSubmit)
+        self._model.setSort(Column.TIME_QUEUED.value, Qt.SortOrder.DescendingOrder)
 
-        self.column_definitions = [
-            TableColDef(
-                id="id",
-                header=_("ID"),
-                column_index=self.Column.TASK_ID.value,
-                value_getter=lambda task: str(task.id),
-                width=0,
-                hidden=True,
-                hidden_toggleable=False,
-            ),
-            TableColDef(
+        self.setModel(self._model)
+
+        self.column_definitions: List[ColDef] = [
+            ColDef(
                 id="file_name",
-                header=_("File Name/URL"),
-                column_index=self.Column.FILE_NAME.value,
-                value_getter=lambda task: task.url
-                if task.url is not None
-                else os.path.basename(task.file_path),
-                width=300,
+                header="File Name / URL",
+                column=Column.FILE,
+                width=400,
+                delegate=RecordDelegate(
+                    text_getter=lambda record: record.value("url")
+                    if record.value("url") != ""
+                    else os.path.basename(record.value("file"))
+                ),
                 hidden_toggleable=False,
             ),
-            TableColDef(
+            ColDef(
                 id="model",
-                header=_("Model"),
-                column_index=self.Column.MODEL.value,
-                value_getter=lambda task: str(task.transcription_options.model),
+                header="Model",
+                column=Column.MODEL_TYPE,
                 width=180,
-                hidden=True,
+                delegate=RecordDelegate(
+                    text_getter=lambda record: str(TranscriptionRecord.model(record))
+                ),
             ),
-            TableColDef(
+            ColDef(
                 id="task",
-                header=_("Task"),
-                column_index=self.Column.TASK.value,
-                value_getter=lambda task: self.get_task_label(task),
+                header="Task",
+                column=Column.SOURCE,
                 width=120,
-                hidden=True,
+                delegate=RecordDelegate(
+                    text_getter=lambda record: record.value("task").capitalize()
+                ),
             ),
-            TableColDef(
+            ColDef(
                 id="status",
-                header=_("Status"),
-                column_index=self.Column.STATUS.value,
-                value_getter=lambda task: task.status_text(),
+                header="Status",
+                column=Column.STATUS,
                 width=180,
+                delegate=RecordDelegate(
+                    text_getter=TranscriptionTasksTableWidget.format_record_status_text
+                ),
                 hidden_toggleable=False,
             ),
-            TableColDef(
+            ColDef(
                 id="date_added",
-                header=_("Date Added"),
-                column_index=self.Column.DATE_ADDED.value,
-                value_getter=lambda task: task.queued_at.strftime("%Y-%m-%d %H:%M:%S")
-                if task.queued_at is not None
-                else "",
+                header="Date Added",
+                column=Column.TIME_QUEUED,
                 width=180,
-                hidden=True,
+                delegate=RecordDelegate(
+                    text_getter=lambda record: datetime.fromisoformat(
+                        record.value("time_queued")
+                    ).strftime("%Y-%m-%d %H:%M:%S")
+                ),
             ),
-            TableColDef(
+            ColDef(
                 id="date_completed",
-                header=_("Date Completed"),
-                column_index=self.Column.DATE_COMPLETED.value,
-                value_getter=lambda task: task.completed_at.strftime(
-                    "%Y-%m-%d %H:%M:%S"
-                )
-                if task.completed_at is not None
-                else "",
+                header="Date Completed",
+                column=Column.TIME_ENDED,
                 width=180,
-                hidden=True,
+                delegate=RecordDelegate(
+                    text_getter=lambda record: datetime.fromisoformat(
+                        record.value("time_ended")
+                    ).strftime("%Y-%m-%d %H:%M:%S")
+                    if record.value("time_ended") != ""
+                    else ""
+                ),
             ),
         ]
 
-        self.setColumnCount(len(self.column_definitions))
-        self.verticalHeader().hide()
-        self.setHorizontalHeaderLabels(
-            [definition.header for definition in self.column_definitions]
+        for i in range(self.model().columnCount()):
+            self.hideColumn(i)
+
+        self.settings = Settings()
+
+        self.settings.begin_group(
+            Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY
         )
         for definition in self.column_definitions:
+            self.model().setHeaderData(
+                definition.column.value,
+                Qt.Orientation.Horizontal,
+                definition.header,
+            )
+
+            visible = self.settings.settings.value(definition.id, True)
+            self.setColumnHidden(definition.column.value, not visible)
             if definition.width is not None:
-                self.setColumnWidth(definition.column_index, definition.width)
-        self.load_column_visibility()
+                self.setColumnWidth(definition.column.value, definition.width)
+            if definition.delegate is not None:
+                self.setItemDelegateForColumn(
+                    definition.column.value, definition.delegate
+                )
+        self.settings.end_group()
 
-        self.horizontalHeader().setMinimumSectionSize(180)
-
+        self.model().select()
+        self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.verticalHeader().hide()
+        self.setAlternatingRowColors(True)
 
     def contextMenuEvent(self, event):
         menu = QMenu(self)
@@ -138,10 +172,10 @@ class TranscriptionTasksTableWidget(QTableWidget):
                 continue
             action = menu.addAction(definition.header)
             action.setCheckable(True)
-            action.setChecked(not self.isColumnHidden(definition.column_index))
+            action.setChecked(not self.isColumnHidden(definition.column.value))
             action.toggled.connect(
                 lambda checked,
-                column_index=definition.column_index: self.on_column_checked(
+                column_index=definition.column.value: self.on_column_checked(
                     column_index, checked
                 )
             )
@@ -157,64 +191,67 @@ class TranscriptionTasksTableWidget(QTableWidget):
         )
         for definition in self.column_definitions:
             self.settings.settings.setValue(
-                definition.id, not self.isColumnHidden(definition.column_index)
+                definition.id, not self.isColumnHidden(definition.column.value)
             )
         self.settings.end_group()
-
-    def load_column_visibility(self):
-        self.settings.begin_group(
-            Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY
-        )
-        for definition in self.column_definitions:
-            visible = self.settings.settings.value(definition.id, not definition.hidden)
-            self.setColumnHidden(definition.column_index, not visible)
-        self.settings.end_group()
-
-    def upsert_task(self, task: FileTranscriptionTask):
-        task_row_index = self.task_row_index(task.id)
-        if task_row_index is None:
-            self.insertRow(self.rowCount())
-
-            row_index = self.rowCount() - 1
-            for definition in self.column_definitions:
-                item = QTableWidgetItem(definition.value_getter(task))
-                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-                self.setItem(row_index, definition.column_index, item)
-        else:
-            for definition in self.column_definitions:
-                item = self.item(task_row_index, definition.column_index)
-                item.setText(definition.value_getter(task))
-
-    @staticmethod
-    def get_task_label(task: FileTranscriptionTask) -> str:
-        value = task.transcription_options.task.value.capitalize()
-        if task.transcription_options.language is not None:
-            value += f" ({humanize_language(task.transcription_options.language)})"
-        return value
-
-    def clear_task(self, task_id: int):
-        task_row_index = self.task_row_index(task_id)
-        if task_row_index is not None:
-            self.removeRow(task_row_index)
-
-    def task_row_index(self, task_id: int) -> int | None:
-        table_items_matching_task_id = [
-            item
-            for item in self.findItems(str(task_id), Qt.MatchFlag.MatchExactly)
-            if item.column() == self.Column.TASK_ID.value
-        ]
-        if len(table_items_matching_task_id) == 0:
-            return None
-        return table_items_matching_task_id[0].row()
-
-    @staticmethod
-    def find_task_id(index: QModelIndex):
-        sibling_index = index.siblingAtColumn(
-            TranscriptionTasksTableWidget.Column.TASK_ID.value
-        ).data()
-        return int(sibling_index) if sibling_index is not None else None
 
     def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
         if event.key() == Qt.Key.Key_Return:
             self.return_clicked.emit()
         super().keyPressEvent(event)
+
+    def selected_transcriptions(self) -> List[QSqlRecord]:
+        selected = self.selectionModel().selectedRows()
+        return [self.transcription(row) for row in selected]
+
+    def delete_transcriptions(self, rows: List[QModelIndex]):
+        for row in rows:
+            self.model().removeRow(row.row())
+        self.model().submitAll()
+
+    def transcription(self, index: QModelIndex) -> QSqlRecord:
+        return self.model().record(index.row())
+
+    def refresh_all(self):
+        self.model().select()
+
+    def refresh_row(self, id: UUID):
+        for i in range(self.model().rowCount()):
+            record = self.model().record(i)
+            if record.value("id") == str(id):
+                self.model().selectRow(i)
+                return
+
+    @staticmethod
+    def format_record_status_text(record: QSqlRecord) -> str:
+        status = FileTranscriptionTask.Status(record.value("status"))
+        match status:
+            case FileTranscriptionTask.Status.IN_PROGRESS:
+                return f'{_("In Progress")} ({record.value("progress") :.0%})'
+            case FileTranscriptionTask.Status.COMPLETED:
+                status = _("Completed")
+                started_at = record.value("time_started")
+                completed_at = record.value("time_ended")
+                if started_at != "" and completed_at != "":
+                    status += f" ({TranscriptionTasksTableWidget.format_timedelta(datetime.fromisoformat(completed_at) - datetime.fromisoformat(started_at))})"
+                return status
+            case FileTranscriptionTask.Status.FAILED:
+                return f'{_("Failed")} ({record.value("error_message")})'
+            case FileTranscriptionTask.Status.CANCELED:
+                return _("Canceled")
+            case FileTranscriptionTask.Status.QUEUED:
+                return _("Queued")
+            case _:
+                return ""
+
+    @staticmethod
+    def format_timedelta(delta: timedelta):
+        mm, ss = divmod(delta.seconds, 60)
+        result = f"{ss}s"
+        if mm == 0:
+            return result
+        hh, mm = divmod(mm, 60)
+        result = f"{mm}m {result}"
+        if hh == 0:
+            return result
+        return f"{hh}h {result}"

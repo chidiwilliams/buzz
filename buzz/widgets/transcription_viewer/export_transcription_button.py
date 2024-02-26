@@ -1,20 +1,20 @@
+from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QAction
-from PyQt6.QtWidgets import QPushButton, QWidget, QMenu, QFileDialog
+from PyQt6.QtSql import QSqlRecord
+from PyQt6.QtWidgets import QPushButton, QWidget, QMenu
 
-from buzz.locale import _
-from buzz.transcriber.file_transcriber import write_output
 from buzz.transcriber.transcriber import (
-    FileTranscriptionTask,
     OutputFormat,
-    get_output_file_path,
 )
 from buzz.widgets.icon import FileDownloadIcon
 
 
 class ExportTranscriptionButton(QPushButton):
-    def __init__(self, transcription_task: FileTranscriptionTask, parent: QWidget):
+    on_export_triggered = pyqtSignal(OutputFormat)
+
+    def __init__(self, transcription: QSqlRecord, parent: QWidget):
         super().__init__(parent)
-        self.transcription_task = transcription_task
+        self.transcription = transcription
 
         export_button_menu = QMenu()
         actions = [
@@ -29,23 +29,4 @@ class ExportTranscriptionButton(QPushButton):
 
     def on_menu_triggered(self, action: QAction):
         output_format = OutputFormat[action.text()]
-
-        default_path = get_output_file_path(
-            task=self.transcription_task, output_format=output_format
-        )
-
-        (output_file_path, nil) = QFileDialog.getSaveFileName(
-            self,
-            _("Save File"),
-            default_path,
-            _("Text files") + f" (*.{output_format.value})",
-        )
-
-        if output_file_path == "":
-            return
-
-        write_output(
-            path=output_file_path,
-            segments=self.transcription_task.segments,
-            output_format=output_format,
-        )
+        self.on_export_triggered.emit(output_format)

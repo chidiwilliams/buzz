@@ -1,72 +1,105 @@
 import enum
-from typing import List, Optional
+from dataclasses import dataclass
+from typing import Optional
+from uuid import UUID
 
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtWidgets import QTableWidget, QWidget, QHeaderView, QTableWidgetItem
+from PyQt6.QtCore import pyqtSignal, Qt, QModelIndex, QItemSelection
+from PyQt6.QtSql import QSqlTableModel, QSqlRecord
+from PyQt6.QtWidgets import (
+    QWidget,
+    QTableView,
+    QStyledItemDelegate,
+    QAbstractItemView,
+)
 
 from buzz.locale import _
 from buzz.transcriber.file_transcriber import to_timestamp
-from buzz.transcriber.transcriber import Segment
 
 
-class TranscriptionSegmentsEditorWidget(QTableWidget):
-    segment_text_changed = pyqtSignal(tuple)
-    segment_index_selected = pyqtSignal(int)
+class Column(enum.Enum):
+    ID = 0
+    END = enum.auto()
+    START = enum.auto()
+    TEXT = enum.auto()
+    TRANSCRIPTION_ID = enum.auto()
 
-    class Column(enum.Enum):
-        START = 0
-        END = enum.auto()
-        TEXT = enum.auto()
 
-    def __init__(self, segments: List[Segment], parent: Optional[QWidget]):
+@dataclass
+class ColDef:
+    id: str
+    header: str
+    column: Column
+    delegate: Optional[QStyledItemDelegate] = None
+
+
+class TimeStampDelegate(QStyledItemDelegate):
+    def displayText(self, value, locale):
+        return to_timestamp(value)
+
+
+class TranscriptionSegmentModel(QSqlTableModel):
+    def __init__(self, transcription_id: UUID):
+        super().__init__()
+        self.setTable("transcription_segment")
+        self.setEditStrategy(QSqlTableModel.EditStrategy.OnFieldChange)
+        self.setFilter(f"transcription_id = '{transcription_id}'")
+
+    def flags(self, index: QModelIndex):
+        flags = super().flags(index)
+        if index.column() in (Column.START.value, Column.END.value):
+            flags &= ~Qt.ItemFlag.ItemIsEditable
+        return flags
+
+
+class TranscriptionSegmentsEditorWidget(QTableView):
+    segment_selected = pyqtSignal(QSqlRecord)
+
+    def __init__(self, transcription_id: UUID, parent: Optional[QWidget]):
         super().__init__(parent)
 
-        self.segments = segments
+        model = TranscriptionSegmentModel(transcription_id=transcription_id)
+        self.setModel(model)
+
+        timestamp_delegate = TimeStampDelegate()
+
+        self.column_definitions: list[ColDef] = [
+            ColDef("start", _("Start"), Column.START, delegate=timestamp_delegate),
+            ColDef("end", _("End"), Column.END, delegate=timestamp_delegate),
+            ColDef("text", _("Text"), Column.TEXT),
+        ]
+
+        for i in range(model.columnCount()):
+            self.hideColumn(i)
+
+        for definition in self.column_definitions:
+            model.setHeaderData(
+                definition.column.value,
+                Qt.Orientation.Horizontal,
+                definition.header,
+            )
+            self.showColumn(definition.column.value)
+            if definition.delegate is not None:
+                self.setItemDelegateForColumn(
+                    definition.column.value, definition.delegate
+                )
 
         self.setAlternatingRowColors(True)
-
-        self.setColumnCount(3)
-
         self.verticalHeader().hide()
-        self.setHorizontalHeaderLabels([_("Start"), _("End"), _("Text")])
-        self.horizontalHeader().setSectionResizeMode(
-            2, QHeaderView.ResizeMode.ResizeToContents
-        )
-        self.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
+        self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.setSelectionMode(QTableView.SelectionMode.SingleSelection)
+        self.selectionModel().selectionChanged.connect(self.on_selection_changed)
+        model.select()
 
-        for segment in segments:
-            row_index = self.rowCount()
-            self.insertRow(row_index)
+        self.resizeColumnsToContents()
 
-            start_item = QTableWidgetItem(to_timestamp(segment.start))
-            start_item.setFlags(
-                start_item.flags()
-                & ~Qt.ItemFlag.ItemIsEditable
-                & ~Qt.ItemFlag.ItemIsSelectable
-            )
-            self.setItem(row_index, self.Column.START.value, start_item)
+    def on_selection_changed(
+        self, selected: QItemSelection, _deselected: QItemSelection
+    ):
+        if selected.indexes():
+            self.segment_selected.emit(self.segment(selected.indexes()[0]))
 
-            end_item = QTableWidgetItem(to_timestamp(segment.end))
-            end_item.setFlags(
-                end_item.flags()
-                & ~Qt.ItemFlag.ItemIsEditable
-                & ~Qt.ItemFlag.ItemIsSelectable
-            )
-            self.setItem(row_index, self.Column.END.value, end_item)
+    def segment(self, index: QModelIndex) -> QSqlRecord:
+        return self.model().record(index.row())
 
-            text_item = QTableWidgetItem(segment.text)
-            self.setItem(row_index, self.Column.TEXT.value, text_item)
-
-        self.itemChanged.connect(self.on_item_changed)
-        self.itemSelectionChanged.connect(self.on_item_selection_changed)
-
-    def on_item_changed(self, item: QTableWidgetItem):
-        if item.column() == self.Column.TEXT.value:
-            self.segment_text_changed.emit((item.row(), item.text()))
-
-    def set_segment_text(self, index: int, text: str):
-        self.item(index, self.Column.TEXT.value).setText(text)
-
-    def on_item_selection_changed(self):
-        ranges = self.selectedRanges()
-        self.segment_index_selected.emit(ranges[0].topRow() if len(ranges) > 0 else -1)
+    def segments(self) -> list[QSqlRecord]:
+        return [self.model().record(i) for i in range(self.model().rowCount())]

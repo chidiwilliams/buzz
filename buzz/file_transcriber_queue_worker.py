@@ -1,8 +1,8 @@
-import datetime
 import logging
 import multiprocessing
 import queue
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, Set
+from uuid import UUID
 
 from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 
@@ -21,13 +21,19 @@ class FileTranscriberQueueWorker(QObject):
     current_task: Optional[FileTranscriptionTask] = None
     current_transcriber: Optional[FileTranscriber] = None
     current_transcriber_thread: Optional[QThread] = None
-    task_updated = pyqtSignal(FileTranscriptionTask)
+
+    task_started = pyqtSignal(FileTranscriptionTask)
+    task_progress = pyqtSignal(FileTranscriptionTask, float)
+    task_download_progress = pyqtSignal(FileTranscriptionTask, float)
+    task_completed = pyqtSignal(FileTranscriptionTask, list)
+    task_error = pyqtSignal(FileTranscriptionTask, str)
+
     completed = pyqtSignal()
 
     def __init__(self, parent: Optional[QObject] = None):
         super().__init__(parent)
         self.tasks_queue = queue.Queue()
-        self.canceled_tasks = set()
+        self.canceled_tasks: Set[UUID] = set()
 
     @pyqtSlot()
     def run(self):
@@ -42,7 +48,7 @@ class FileTranscriberQueueWorker(QObject):
                 self.completed.emit()
                 return
 
-            if self.current_task.id in self.canceled_tasks:
+            if self.current_task.uid in self.canceled_tasks:
                 continue
 
             break
@@ -91,53 +97,42 @@ class FileTranscriberQueueWorker(QObject):
         self.current_transcriber.error.connect(self.run)
         self.current_transcriber.completed.connect(self.run)
 
-        self.current_task.started_at = datetime.datetime.now()
+        self.task_started.emit(self.current_task)
         self.current_transcriber_thread.start()
 
     def add_task(self, task: FileTranscriptionTask):
-        if task.queued_at is None:
-            task.queued_at = datetime.datetime.now()
-
         self.tasks_queue.put(task)
-        task.status = FileTranscriptionTask.Status.QUEUED
-        self.task_updated.emit(task)
 
-    def cancel_task(self, task_id: int):
+    def cancel_task(self, task_id: UUID):
         self.canceled_tasks.add(task_id)
 
-        if self.current_task.id == task_id:
+        if self.current_task.uid == task_id:
             if self.current_transcriber is not None:
                 self.current_transcriber.stop()
 
     def on_task_error(self, error: str):
         if (
             self.current_task is not None
-            and self.current_task.id not in self.canceled_tasks
+            and self.current_task.uid not in self.canceled_tasks
         ):
             self.current_task.status = FileTranscriptionTask.Status.FAILED
             self.current_task.error = error
-            self.task_updated.emit(self.current_task)
+            self.task_error.emit(self.current_task, error)
 
     @pyqtSlot(tuple)
     def on_task_progress(self, progress: Tuple[int, int]):
         if self.current_task is not None:
-            self.current_task.status = FileTranscriptionTask.Status.IN_PROGRESS
-            self.current_task.fraction_completed = progress[0] / progress[1]
-            self.task_updated.emit(self.current_task)
+            self.task_progress.emit(self.current_task, progress[0] / progress[1])
 
     def on_task_download_progress(self, fraction_downloaded: float):
         if self.current_task is not None:
-            self.current_task.status = FileTranscriptionTask.Status.IN_PROGRESS
-            self.current_task.fraction_downloaded = fraction_downloaded
-            self.task_updated.emit(self.current_task)
+            # TODO: Save download progress in the database
+            self.task_download_progress.emit(self.current_task, fraction_downloaded)
 
     @pyqtSlot(list)
     def on_task_completed(self, segments: List[Segment]):
         if self.current_task is not None:
-            self.current_task.status = FileTranscriptionTask.Status.COMPLETED
-            self.current_task.segments = segments
-            self.current_task.completed_at = datetime.datetime.now()
-            self.task_updated.emit(self.current_task)
+            self.task_completed.emit(self.current_task, segments)
 
     def stop(self):
         self.tasks_queue.put(None)
