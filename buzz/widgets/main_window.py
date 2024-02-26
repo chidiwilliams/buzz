@@ -1,4 +1,5 @@
-from typing import Dict, Tuple, List, Optional
+import logging
+from typing import Tuple, List, Optional
 
 from PyQt6 import QtGui
 from PyQt6.QtCore import (
@@ -14,15 +15,7 @@ from PyQt6.QtWidgets import (
     QFileDialog,
 )
 
-from buzz.cache import TasksCache
-from buzz.db.models.transcription import (
-    update_transcription_as_canceled,
-    update_transcription_as_completed,
-    update_transcription_as_started,
-    create_transcription,
-    update_transcription_progress,
-    update_transcription_as_failed,
-)
+from buzz.db.service.transcription_service import TranscriptionService
 from buzz.file_transcriber_queue_worker import FileTranscriberQueueWorker
 from buzz.locale import _
 from buzz.settings.settings import APP_NAME, Settings
@@ -55,9 +48,8 @@ from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
 
 class MainWindow(QMainWindow):
     table_widget: TranscriptionTasksTableWidget
-    tasks: Dict[int, "FileTranscriptionTask"]
 
-    def __init__(self, tasks_cache=TasksCache()):
+    def __init__(self, transcription_service: TranscriptionService):
         super().__init__(flags=Qt.WindowType.Window)
 
         self.setWindowTitle(APP_NAME)
@@ -66,14 +58,12 @@ class MainWindow(QMainWindow):
 
         self.setAcceptDrops(True)
 
-        self.tasks_cache = tasks_cache
-
         self.settings = Settings()
 
         self.shortcut_settings = ShortcutSettings(settings=self.settings)
         self.shortcuts = self.shortcut_settings.load()
 
-        self.tasks = {}
+        self.transcription_service = transcription_service
 
         self.toolbar = MainWindowToolbar(shortcuts=self.shortcuts, parent=self)
         self.toolbar.new_transcription_action_triggered.connect(
@@ -142,7 +132,7 @@ class MainWindow(QMainWindow):
         self.load_geometry()
 
         self.folder_watcher = TranscriptionTaskFolderWatcher(
-            tasks=self.tasks,
+            tasks={},
             preferences=self.preferences.folder_watch,
         )
         self.folder_watcher.task_found.connect(self.add_task)
@@ -222,8 +212,11 @@ class MainWindow(QMainWindow):
         for transcription in selected_transcriptions:
             transcription_id = TranscriptionRecord.id(transcription)
             self.transcriber_worker.cancel_task(transcription_id)
-            update_transcription_as_canceled(transcription_id)
+            self.transcription_service.update_transcription_as_canceled(
+                transcription_id
+            )
             self.table_widget.refresh_row(transcription_id)
+            logging.debug("Canceled!!!")
 
     def on_new_transcription_action_triggered(self):
         (file_paths, __) = QFileDialog.getOpenFileNames(
@@ -333,16 +326,16 @@ class MainWindow(QMainWindow):
         transcription_viewer_widget.show()
 
     def add_task(self, task: FileTranscriptionTask):
-        create_transcription(task)
+        self.transcription_service.create_transcription(task)
         self.table_widget.refresh_all()
         self.transcriber_worker.add_task(task)
 
     def on_task_started(self, task: FileTranscriptionTask):
-        update_transcription_as_started(task.uid)
+        self.transcription_service.update_transcription_as_started(task.uid)
         self.table_widget.refresh_row(task.uid)
 
     def on_task_progress(self, task: FileTranscriptionTask, progress: float):
-        update_transcription_progress(task.uid, progress)
+        self.transcription_service.update_transcription_progress(task.uid, progress)
         self.table_widget.refresh_row(task.uid)
 
     def on_task_download_progress(
@@ -352,11 +345,12 @@ class MainWindow(QMainWindow):
         pass
 
     def on_task_completed(self, task: FileTranscriptionTask, segments: List[Segment]):
-        update_transcription_as_completed(task.uid, segments)
+        self.transcription_service.update_transcription_as_completed(task.uid, segments)
         self.table_widget.refresh_row(task.uid)
 
     def on_task_error(self, task: FileTranscriptionTask, error: str):
-        update_transcription_as_failed(task.uid, error)
+        logging.debug("FAILED!!!!")
+        self.transcription_service.update_transcription_as_failed(task.uid, error)
         self.table_widget.refresh_row(task.uid)
 
     def on_shortcuts_changed(self, shortcuts: dict):
