@@ -33,13 +33,11 @@ class TranscriptionViewerWidget(QWidget):
     def __init__(
         self,
         transcription: QSqlRecord,
-        open_transcription_output=True,
         parent: Optional["QWidget"] = None,
         flags: Qt.WindowType = Qt.WindowType.Widget,
     ) -> None:
         super().__init__(parent, flags)
         self.transcription = transcription
-        self.open_transcription_output = open_transcription_output
 
         self.setMinimumWidth(800)
         self.setMinimumHeight(500)

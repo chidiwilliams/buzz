@@ -5,7 +5,6 @@ from unittest.mock import patch
 import pytest
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QKeyEvent, QAction
-from PyQt6.QtSql import QSqlDatabase
 from PyQt6.QtWidgets import (
     QMessageBox,
     QPushButton,
@@ -13,12 +12,8 @@ from PyQt6.QtWidgets import (
     QMenuBar,
     QTableView,
 )
-from _pytest.fixtures import SubRequest
 from pytestqt.qtbot import QtBot
 
-from buzz.db.dao.transcription_dao import TranscriptionDAO
-from buzz.db.dao.transcription_segment_dao import TranscriptionSegmentDAO
-from buzz.db.db import setup_test_db
 from buzz.db.entity.transcription import Transcription
 from buzz.db.service.transcription_service import TranscriptionService
 from buzz.widgets.main_window import MainWindow
@@ -39,8 +34,8 @@ def get_test_asset(filename: str):
 
 
 class TestMainWindow:
-    def test_should_set_window_title_and_icon(self, qtbot):
-        window = MainWindow()
+    def test_should_set_window_title_and_icon(self, qtbot, transcription_service):
+        window = MainWindow(transcription_service)
         qtbot.add_widget(window)
         assert window.windowTitle() == "Buzz"
         assert window.windowIcon().pixmap(QSize(64, 64)).isNull() is False
@@ -288,33 +283,3 @@ class TestMainWindow:
     def _get_toolbar_action(window: MainWindow, text: str):
         toolbar: QToolBar = window.findChild(QToolBar)
         return [action for action in toolbar.actions() if action.text() == text][0]
-
-
-@pytest.fixture()
-def db() -> QSqlDatabase:
-    db = setup_test_db()
-    yield db
-    db.close()
-    os.remove(db.databaseName())
-
-
-@pytest.fixture()
-def transcription_dao(db, request: SubRequest) -> TranscriptionDAO:
-    dao = TranscriptionDAO(db)
-    if request.param:
-        transcriptions = request.param
-        for transcription in transcriptions:
-            dao.insert(transcription)
-    return dao
-
-
-@pytest.fixture()
-def transcription_service(
-    transcription_dao, transcription_segment_dao
-) -> TranscriptionService:
-    return TranscriptionService(transcription_dao, transcription_segment_dao)
-
-
-@pytest.fixture()
-def transcription_segment_dao(db) -> TranscriptionSegmentDAO:
-    return TranscriptionSegmentDAO(db)

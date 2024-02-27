@@ -13,7 +13,7 @@ class TranscriptionDAO(DAO[Transcription]):
         super().__init__("transcription", db)
 
     def create_transcription(self, task: FileTranscriptionTask):
-        query = self.create_query()
+        query = self._create_query()
         query.prepare(
             """
             INSERT INTO transcription (
@@ -76,7 +76,7 @@ class TranscriptionDAO(DAO[Transcription]):
             raise Exception(query.lastError().text())
 
     def update_transcription_as_started(self, id: UUID):
-        query = self.create_query()
+        query = self._create_query()
         query.prepare(
             """
             UPDATE transcription
@@ -92,7 +92,7 @@ class TranscriptionDAO(DAO[Transcription]):
             raise Exception(query.lastError().text())
 
     def update_transcription_as_failed(self, id: UUID, error: str):
-        query = self.create_query()
+        query = self._create_query()
         query.prepare(
             """
             UPDATE transcription
@@ -109,7 +109,7 @@ class TranscriptionDAO(DAO[Transcription]):
             raise Exception(query.lastError().text())
 
     def update_transcription_as_canceled(self, id: UUID):
-        query = self.create_query()
+        query = self._create_query()
         query.prepare(
             """
             UPDATE transcription
@@ -125,7 +125,7 @@ class TranscriptionDAO(DAO[Transcription]):
             raise Exception(query.lastError().text())
 
     def update_transcription_progress(self, id: UUID, progress: float):
-        query = self.create_query()
+        query = self._create_query()
         query.prepare(
             """
             UPDATE transcription
@@ -141,7 +141,7 @@ class TranscriptionDAO(DAO[Transcription]):
             raise Exception(query.lastError().text())
 
     def update_transcription_as_completed(self, id: UUID):
-        query = self.create_query()
+        query = self._create_query()
         query.prepare(
             """
             UPDATE transcription

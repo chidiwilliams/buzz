@@ -1,6 +1,6 @@
-from typing import TypeVar, Generic
+from typing import TypeVar, Generic, Any
 
-from PyQt6.QtSql import QSqlDatabase, QSqlQuery
+from PyQt6.QtSql import QSqlDatabase, QSqlQuery, QSqlRecord
 
 from buzz.db.entity.entity import Entity
 
@@ -13,7 +13,7 @@ class DAO(Generic[T]):
         self.table = table
 
     def insert(self, record: T):
-        query = self.create_query()
+        query = self._create_query()
         keys = record.__dict__.keys()
         query.prepare(
             f"""
@@ -26,5 +26,15 @@ class DAO(Generic[T]):
         if not query.exec():
             raise Exception(query.lastError().text())
 
-    def create_query(self):
+    def find_by_id(self, id: Any) -> QSqlRecord | None:
+        query = self._create_query()
+        query.prepare(f"SELECT * FROM {self.table} WHERE id = :id")
+        query.bindValue(":id", id)
+        if not query.exec():
+            raise Exception(query.lastError().text())
+        if not query.first():
+            return None
+        return query.record()
+
+    def _create_query(self):
         return QSqlQuery(self.db)
