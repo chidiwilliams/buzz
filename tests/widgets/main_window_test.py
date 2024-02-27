@@ -1,4 +1,5 @@
 import os
+from typing import List
 from unittest.mock import patch
 
 import pytest
@@ -6,53 +7,30 @@ from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QKeyEvent, QAction
 from PyQt6.QtSql import QSqlDatabase
 from PyQt6.QtWidgets import (
-    QTableWidget,
     QMessageBox,
     QPushButton,
     QToolBar,
     QMenuBar,
     QTableView,
 )
+from _pytest.fixtures import SubRequest
 from pytestqt.qtbot import QtBot
 
 from buzz.db.dao.transcription_dao import TranscriptionDAO
 from buzz.db.dao.transcription_segment_dao import TranscriptionSegmentDAO
 from buzz.db.db import setup_test_db
+from buzz.db.entity.transcription import Transcription
 from buzz.db.service.transcription_service import TranscriptionService
-from buzz.transcriber.transcriber import (
-    FileTranscriptionTask,
-    TranscriptionOptions,
-    FileTranscriptionOptions,
-)
 from buzz.widgets.main_window import MainWindow
 from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
 from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
     TranscriptionViewerWidget,
 )
 
-mock_tasks = [
-    FileTranscriptionTask(
-        file_path="",
-        transcription_options=TranscriptionOptions(),
-        file_transcription_options=FileTranscriptionOptions(file_paths=[]),
-        model_path="",
-        status=FileTranscriptionTask.Status.COMPLETED,
-    ),
-    FileTranscriptionTask(
-        file_path="",
-        transcription_options=TranscriptionOptions(),
-        file_transcription_options=FileTranscriptionOptions(file_paths=[]),
-        model_path="",
-        status=FileTranscriptionTask.Status.CANCELED,
-    ),
-    FileTranscriptionTask(
-        file_path="",
-        transcription_options=TranscriptionOptions(),
-        file_transcription_options=FileTranscriptionOptions(file_paths=[]),
-        model_path="",
-        status=FileTranscriptionTask.Status.FAILED,
-        error="Error",
-    ),
+mock_transcriptions: List[Transcription] = [
+    Transcription(status="completed"),
+    Transcription(status="canceled"),
+    Transcription(status="failed", error_message="Error"),
 ]
 
 
@@ -73,14 +51,14 @@ class TestMainWindow:
     ):
         window = MainWindow(transcription_service)
 
-        self.import_file_and_start_transcription(window)
+        self._import_file_and_start_transcription(window)
 
         open_transcript_action = self._get_toolbar_action(window, "Open Transcript")
         assert open_transcript_action.isEnabled() is False
 
         table_widget = self._get_tasks_table(window)
         qtbot.wait_until(
-            self.get_assert_task_status_callback(table_widget, 0, "completed"),
+            self._get_assert_task_status_callback(table_widget, 0, "completed"),
             timeout=2 * 60 * 1000,
         )
 
@@ -114,7 +92,7 @@ class TestMainWindow:
 
         table_widget = self._get_tasks_table(window)
         qtbot.wait_until(
-            self.get_assert_task_status_callback(table_widget, 0, "completed"),
+            self._get_assert_task_status_callback(table_widget, 0, "completed"),
             timeout=2 * 60 * 1000,
         )
 
@@ -126,12 +104,12 @@ class TestMainWindow:
         window = MainWindow(transcription_service)
         qtbot.add_widget(window)
 
-        self.import_file_and_start_transcription(window, long_audio=True)
+        self._import_file_and_start_transcription(window, long_audio=True)
 
         table_widget = self._get_tasks_table(window)
 
         qtbot.wait_until(
-            self.get_assert_task_status_callback(table_widget, 0, "in_progress"),
+            self._get_assert_task_status_callback(table_widget, 0, "in_progress"),
             timeout=2 * 60 * 1000,
         )
 
@@ -140,72 +118,82 @@ class TestMainWindow:
         window.toolbar.stop_transcription_action.trigger()
 
         qtbot.wait_until(
-            self.get_assert_task_status_callback(table_widget, 0, "canceled"),
+            self._get_assert_task_status_callback(table_widget, 0, "canceled"),
             timeout=60 * 1000,
         )
 
-        # table_widget.selectRow(0)
-        # assert window.toolbar.stop_transcription_action.isEnabled() is False
-        # assert window.toolbar.open_transcript_action.isEnabled() is False
-        #
+        table_widget.selectRow(0)
+        assert window.toolbar.stop_transcription_action.isEnabled() is False
+        assert window.toolbar.open_transcript_action.isEnabled() is False
+
         window.close()
 
-    @pytest.mark.parametrize("tasks_cache", [mock_tasks], indirect=True)
-    def test_should_load_tasks_from_cache(self, qtbot, tasks_cache):
-        window = MainWindow(tasks_cache=tasks_cache)
+    @pytest.mark.parametrize("transcription_dao", [mock_transcriptions], indirect=True)
+    def test_should_load_tasks_from_cache(
+        self, qtbot, transcription_dao, transcription_segment_dao
+    ):
+        window = MainWindow(
+            TranscriptionService(transcription_dao, transcription_segment_dao)
+        )
         qtbot.add_widget(window)
 
-        table_widget: QTableWidget = self._get_tasks_table(window)
-        assert table_widget.rowCount() == 3
+        table_widget = self._get_tasks_table(window)
+        assert table_widget.model().rowCount() == 3
 
-        assert table_widget.item(0, 4).text() == "Completed"
+        assert self._get_status(table_widget, 0) == "completed"
         table_widget.selectRow(0)
         assert window.toolbar.open_transcript_action.isEnabled()
 
-        assert table_widget.item(1, 4).text() == "Canceled"
+        assert self._get_status(table_widget, 1) == "canceled"
         table_widget.selectRow(1)
         assert window.toolbar.open_transcript_action.isEnabled() is False
 
-        assert table_widget.item(2, 4).text() == "Failed (Error)"
+        assert self._get_status(table_widget, 2) == "failed"
         table_widget.selectRow(2)
         assert window.toolbar.open_transcript_action.isEnabled() is False
         window.close()
 
-    @pytest.mark.parametrize("tasks_cache", [mock_tasks], indirect=True)
-    def test_should_clear_history_with_rows_selected(self, qtbot, tasks_cache):
-        window = MainWindow(tasks_cache=tasks_cache)
+    @pytest.mark.parametrize("transcription_dao", [mock_transcriptions], indirect=True)
+    def test_should_clear_history_with_rows_selected(
+        self, qtbot, transcription_dao, transcription_segment_dao
+    ):
+        window = MainWindow(
+            TranscriptionService(transcription_dao, transcription_segment_dao)
+        )
+        qtbot.add_widget(window)
 
-        table_widget: QTableWidget = self._get_tasks_table(window)
+        table_widget = self._get_tasks_table(window)
         table_widget.selectAll()
 
         with patch("PyQt6.QtWidgets.QMessageBox.question") as question_message_box_mock:
             question_message_box_mock.return_value = QMessageBox.StandardButton.Yes
             window.toolbar.clear_history_action.trigger()
 
-        assert table_widget.rowCount() == 0
+        assert table_widget.model().rowCount() == 0
         window.close()
 
-    @pytest.mark.parametrize("tasks_cache", [mock_tasks], indirect=True)
+    @pytest.mark.parametrize("transcription_dao", [mock_transcriptions], indirect=True)
     def test_should_have_clear_history_action_disabled_with_no_rows_selected(
-        self, qtbot, tasks_cache
+        self, qtbot, transcription_dao, transcription_segment_dao
     ):
-        window = MainWindow(tasks_cache=tasks_cache)
+        window = MainWindow(
+            TranscriptionService(transcription_dao, transcription_segment_dao)
+        )
         qtbot.add_widget(window)
 
         assert window.toolbar.clear_history_action.isEnabled() is False
         window.close()
 
-    @pytest.mark.parametrize("tasks_cache", [mock_tasks], indirect=True)
+    @pytest.mark.parametrize("transcription_dao", [mock_transcriptions], indirect=True)
     def test_should_open_transcription_viewer_when_menu_action_is_clicked(
-        self, qtbot, tasks_cache, db
+        self, qtbot, transcription_dao, transcription_segment_dao
     ):
         window = MainWindow(
-            transcription_dao=TranscriptionDAO(db), tasks_cache=tasks_cache
+            TranscriptionService(transcription_dao, transcription_segment_dao)
         )
         qtbot.add_widget(window)
 
-        table_widget: QTableWidget = self._get_tasks_table(window)
-
+        table_widget = self._get_tasks_table(window)
         table_widget.selectRow(0)
 
         window.toolbar.open_transcript_action.trigger()
@@ -215,14 +203,16 @@ class TestMainWindow:
 
         window.close()
 
-    @pytest.mark.parametrize("tasks_cache", [mock_tasks], indirect=True)
+    @pytest.mark.parametrize("transcription_dao", [mock_transcriptions], indirect=True)
     def test_should_open_transcription_viewer_when_return_clicked(
-        self, qtbot, tasks_cache
+        self, qtbot, transcription_dao, transcription_segment_dao
     ):
-        window = MainWindow(tasks_cache=tasks_cache)
+        window = MainWindow(
+            TranscriptionService(transcription_dao, transcription_segment_dao)
+        )
         qtbot.add_widget(window)
 
-        table_widget: QTableWidget = self._get_tasks_table(window)
+        table_widget = self._get_tasks_table(window)
         table_widget.selectRow(0)
         table_widget.keyPressEvent(
             QKeyEvent(
@@ -238,18 +228,20 @@ class TestMainWindow:
 
         window.close()
 
-    @pytest.mark.parametrize("tasks_cache", [mock_tasks], indirect=True)
+    @pytest.mark.parametrize("transcription_dao", [mock_transcriptions], indirect=True)
     def test_should_have_open_transcript_action_disabled_with_no_rows_selected(
-        self, qtbot, tasks_cache
+        self, qtbot, transcription_dao, transcription_segment_dao
     ):
-        window = MainWindow(tasks_cache=tasks_cache)
+        window = MainWindow(
+            TranscriptionService(transcription_dao, transcription_segment_dao)
+        )
         qtbot.add_widget(window)
 
         assert window.toolbar.open_transcript_action.isEnabled() is False
         window.close()
 
     @staticmethod
-    def import_file_and_start_transcription(
+    def _import_file_and_start_transcription(
         window: MainWindow, long_audio: bool = False
     ):
         with patch(
@@ -275,17 +267,22 @@ class TestMainWindow:
         run_button.click()
 
     @staticmethod
-    def get_assert_task_status_callback(
+    def _get_assert_task_status_callback(
         table_widget: QTableView,
         row_index: int,
         expected_status: str,
     ):
         def assert_task_status():
             assert table_widget.model().rowCount() > 0
-            print(table_widget.model().index(row_index, 9).data(), expected_status)
-            assert expected_status in table_widget.model().index(row_index, 9).data()
+            assert expected_status in TestMainWindow._get_status(
+                table_widget, row_index
+            )
 
         return assert_task_status
+
+    @staticmethod
+    def _get_status(table_widget: QTableView, row_index: int):
+        return table_widget.model().index(row_index, 9).data()
 
     @staticmethod
     def _get_toolbar_action(window: MainWindow, text: str):
@@ -302,10 +299,22 @@ def db() -> QSqlDatabase:
 
 
 @pytest.fixture()
-def transcription_dao(db) -> TranscriptionDAO:
-    return TranscriptionDAO(db)
+def transcription_dao(db, request: SubRequest) -> TranscriptionDAO:
+    dao = TranscriptionDAO(db)
+    if request.param:
+        transcriptions = request.param
+        for transcription in transcriptions:
+            dao.insert(transcription)
+    return dao
 
 
 @pytest.fixture()
-def transcription_service(transcription_dao, db) -> TranscriptionService:
-    return TranscriptionService(transcription_dao, TranscriptionSegmentDAO(db))
+def transcription_service(
+    transcription_dao, transcription_segment_dao
+) -> TranscriptionService:
+    return TranscriptionService(transcription_dao, transcription_segment_dao)
+
+
+@pytest.fixture()
+def transcription_segment_dao(db) -> TranscriptionSegmentDAO:
+    return TranscriptionSegmentDAO(db)

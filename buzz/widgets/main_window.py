@@ -216,7 +216,7 @@ class MainWindow(QMainWindow):
                 transcription_id
             )
             self.table_widget.refresh_row(transcription_id)
-            logging.debug("Canceled!!!")
+            self.on_table_selection_changed()
 
     def on_new_transcription_action_triggered(self):
         (file_paths, __) = QFileDialog.getOpenFileNames(
