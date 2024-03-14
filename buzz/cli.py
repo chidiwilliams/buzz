@@ -4,7 +4,12 @@ import typing
 
 from PyQt6.QtCore import QCommandLineParser, QCommandLineOption
 
-from buzz.model_loader import ModelType, WhisperModelSize, TranscriptionModel
+from buzz.model_loader import (
+    ModelType,
+    WhisperModelSize,
+    TranscriptionModel,
+    ModelDownloader,
+)
 from buzz.store.keyring_store import KeyringStore
 from buzz.transcriber.transcriber import (
     Task,
@@ -148,6 +153,7 @@ def parse(app: Application, parser: QCommandLineParser):
             whisper_model_size=model_size,
             hugging_face_model_id=hugging_face_model_id,
         )
+        ModelDownloader(model=model).run()
         model_path = model.get_local_model_path()
 
         if model_path is None:
