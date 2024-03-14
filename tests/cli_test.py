@@ -1,4 +1,5 @@
 import os
+import sys
 from tempfile import mkdtemp
 
 import pytest
@@ -12,18 +13,23 @@ class TestCLI:
     @pytest.mark.parametrize(
         "qapp_args",
         [
-            [
-                "main.py",
-                "add",
-                "--task",
-                "transcribe",
-                "--model-size",
-                "small",
-                "--output-directory",
-                mkdtemp(),
-                "--txt",
-                test_audio_path,
-            ]
+            pytest.param(
+                [
+                    "main.py",
+                    "add",
+                    "--task",
+                    "transcribe",
+                    "--model-size",
+                    "small",
+                    "--output-directory",
+                    mkdtemp(),
+                    "--txt",
+                    test_audio_path,
+                ],
+                marks=pytest.mark.skipif(
+                    sys.platform == "linux", reason="Skip on Linux"
+                ),
+            )
         ],
         indirect=True,
     )
