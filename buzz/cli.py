@@ -10,7 +10,7 @@ from buzz.model_loader import (
     TranscriptionModel,
     ModelDownloader,
 )
-from buzz.store.keyring_store import KeyringStore
+from buzz.store.keyring_store import get_password, Key
 from buzz.transcriber.transcriber import (
     Task,
     FileTranscriptionTask,
@@ -180,9 +180,7 @@ def parse(app: Application, parser: QCommandLineParser):
             model.model_type == ModelType.OPEN_AI_WHISPER_API
             and openai_access_token == ""
         ):
-            openai_access_token = KeyringStore().get_password(
-                key=KeyringStore.Key.OPENAI_API_KEY
-            )
+            openai_access_token = get_password(key=Key.OPENAI_API_KEY)
 
             if openai_access_token == "":
                 raise CommandLineError("No OpenAI access token found")

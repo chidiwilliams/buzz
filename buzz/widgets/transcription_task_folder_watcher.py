@@ -4,7 +4,7 @@ from typing import Dict
 
 from PyQt6.QtCore import QFileSystemWatcher, pyqtSignal, QObject
 
-from buzz.store.keyring_store import KeyringStore
+from buzz.store.keyring_store import Key, get_password
 from buzz.transcriber.transcriber import FileTranscriptionTask
 from buzz.widgets.preferences_dialog.models.folder_watch_preferences import (
     FolderWatchPreferences,
@@ -49,9 +49,7 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
                 ):
                     continue
 
-                openai_access_token = KeyringStore().get_password(
-                    KeyringStore.Key.OPENAI_API_KEY
-                )
+                openai_access_token = get_password(Key.OPENAI_API_KEY)
                 (
                     transcription_options,
                     file_transcription_options,

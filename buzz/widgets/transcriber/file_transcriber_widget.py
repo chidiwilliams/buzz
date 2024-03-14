@@ -13,7 +13,7 @@ from buzz.locale import _
 from buzz.model_loader import ModelDownloader
 from buzz.paths import file_path_as_title
 from buzz.settings.settings import Settings
-from buzz.store.keyring_store import KeyringStore
+from buzz.store.keyring_store import get_password, Key
 from buzz.transcriber.transcriber import (
     FileTranscriptionOptions,
     TranscriptionOptions,
@@ -52,9 +52,7 @@ class FileTranscriberWidget(QWidget):
 
         self.setWindowTitle(self.get_title())
 
-        openai_access_token = KeyringStore().get_password(
-            KeyringStore.Key.OPENAI_API_KEY
-        )
+        openai_access_token = get_password(Key.OPENAI_API_KEY)
 
         preferences = self.load_preferences()
 
