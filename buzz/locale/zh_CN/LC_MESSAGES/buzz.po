@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-02 13:50+0100\n"
+"POT-Creation-Date: 2024-03-14 02:33+0000\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: lamb \n"
@@ -17,17 +17,17 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: buzz/widgets/main_window.py:157 buzz/widgets/main_window_toolbar.py:57
+#: buzz/widgets/main_window.py:200 buzz/widgets/main_window_toolbar.py:57
 msgid "Clear History"
 msgstr "清除历史纪录"
 
-#: buzz/widgets/main_window.py:159
+#: buzz/widgets/main_window.py:202
 msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
 msgstr "您确定要删除所选录制吗？此操作无法撤消。"
 
-#: buzz/widgets/main_window.py:185
+#: buzz/widgets/main_window.py:222
 msgid "Select audio file"
 msgstr "选择音频文件"
 
@@ -63,11 +63,11 @@ msgstr "语言:"
 msgid "Detect Language"
 msgstr "检测语言"
 
-#: buzz/widgets/transcriber/file_transcriber_widget.py:108
+#: buzz/widgets/transcriber/file_transcription_form_widget.py:42
 msgid "Word-level timings"
 msgstr "单字级别的时间表达"
 
-#: buzz/widgets/transcriber/file_transcriber_widget.py:137
+#: buzz/widgets/transcriber/file_transcriber_widget.py:81
 msgid "Run"
 msgstr "开始执行"
 
@@ -88,19 +88,25 @@ msgstr "打开转换结果"
 msgid "Cancel Transcription"
 msgstr "取消录制"
 
-#: buzz/widgets/menu_bar.py:29
-msgid "Import Media File..."
+#: buzz/widgets/menu_bar.py:37
+#, fuzzy
+msgid "Import File..."
 msgstr "导入媒体文件..."
 
-#: buzz/widgets/menu_bar.py:35
+#: buzz/widgets/menu_bar.py:40
+#, fuzzy
+msgid "Import URL..."
+msgstr "导入媒体文件..."
+
+#: buzz/widgets/menu_bar.py:46
 msgid "Preferences..."
 msgstr "偏好设定..."
 
-#: buzz/widgets/menu_bar.py:43
+#: buzz/widgets/menu_bar.py:54
 msgid "File"
 msgstr "文件"
 
-#: buzz/widgets/menu_bar.py:46
+#: buzz/widgets/menu_bar.py:58
 msgid "Help"
 msgstr "帮助"
 
@@ -108,56 +114,36 @@ msgstr "帮助"
 msgid "Stop"
 msgstr "停止"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:33
-msgid "ID"
-msgstr "ID"
-
-#: buzz/widgets/transcription_tasks_table_widget.py:33
-msgid "File Name"
-msgstr "文件名称"
-
-#: buzz/widgets/transcription_tasks_table_widget.py:33
-msgid "Status"
-msgstr "状态"
-
-#: buzz/widgets/transcription_tasks_table_widget.py:81
+#: buzz/widgets/transcription_tasks_table_widget.py:64
 msgid "Completed"
 msgstr "完成"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:88
+#: buzz/widgets/transcription_tasks_table_widget.py:73
 msgid "Canceled"
 msgstr "取消"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:90
+#: buzz/widgets/transcription_tasks_table_widget.py:75
 msgid "Queued"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:30
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:66
 msgid "Start"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:30
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:67
 msgid "End"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:30
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:68
 msgid "Text"
 msgstr ""
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:87
-msgid "Undo"
-msgstr ""
-
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:92
-msgid "Redo"
-msgstr ""
-
-#: buzz/widgets/transcription_viewer/export_transcription_button.py:39
 #, fuzzy
 msgid "Save File"
 msgstr "文件"
 
-#: buzz/widgets/transcription_viewer/export_transcription_button.py:41
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:89
 msgid "Text files"
 msgstr ""
 
@@ -169,75 +155,108 @@ msgstr "检查更新"
 msgid "You're up to date!"
 msgstr "你是最新的！"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:61
+#: buzz/widgets/import_url_dialog.py:19
+msgid "Import URL"
+msgstr ""
+
+#: buzz/widgets/import_url_dialog.py:22
+msgid "https://example.com/audio.mp3"
+msgstr ""
+
+#: buzz/widgets/import_url_dialog.py:32
+msgid "URL:"
+msgstr ""
+
+#: buzz/widgets/import_url_dialog.py:44
+msgid "Invalid URL"
+msgstr ""
+
+#: buzz/widgets/import_url_dialog.py:44
+msgid "The URL you entered is invalid."
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:70
 #, fuzzy
 msgid "Download"
 msgstr "下载模型"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:66
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:75
 msgid "Show file location"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:74
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:83
 msgid "Delete"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:111
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:120
 #, fuzzy
 msgid "Downloaded"
 msgstr "下载模型"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:116
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:125
 msgid "Available for Download"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:158
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:171
 msgid "Delete Model"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:159
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:172
 #, fuzzy
 msgid "Are you sure you want to delete the selected model?"
 msgstr "您确定要删除所选录制吗？此操作无法撤消。"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:178
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:191
 msgid "Error"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/preferences_dialog.py:43
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:50
 msgid "General"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/preferences_dialog.py:46
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:53
 #, fuzzy
 msgid "Models"
 msgstr "模型:"
 
-#: buzz/widgets/preferences_dialog/preferences_dialog.py:50
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:57
 msgid "Shortcuts"
 msgstr ""
 
-#: buzz/widgets/recording_transcriber_widget.py:62
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:63
+msgid "Folder Watch"
+msgstr ""
+
+#: buzz/widgets/recording_transcriber_widget.py:60
 msgid "Live Recording"
 msgstr "现场录制"
 
-#: buzz/widgets/recording_transcriber_widget.py:101
+#: buzz/widgets/recording_transcriber_widget.py:104
 msgid "Click Record to begin..."
 msgstr "点击开始录制"
 
-#: buzz/widgets/recording_transcriber_widget.py:118
+#: buzz/widgets/recording_transcriber_widget.py:116
 msgid "Microphone:"
 msgstr "麦克风:"
 
-#: buzz/widgets/recording_transcriber_widget.py:274
+#: buzz/widgets/recording_transcriber_widget.py:272
 msgid "An error occurred while starting a new recording:"
 msgstr "开始新录制出错"
 
-#: buzz/widgets/recording_transcriber_widget.py:278
+#: buzz/widgets/recording_transcriber_widget.py:276
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
 msgstr "请检查您的音频设备或检查应用程序日志以获取更多信息。"
+
+#~ msgid "ID"
+#~ msgstr "ID"
+
+#~ msgid "File Name"
+#~ msgstr "文件名称"
+
+#~ msgid "Status"
+#~ msgstr "状态"
 
 #~ msgid "Downloading model (0%, unknown time remaining)"
 #~ msgstr "正在下载模型 (0%, unknown 剩余时间)"

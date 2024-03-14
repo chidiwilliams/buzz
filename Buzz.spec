@@ -24,7 +24,7 @@ datas += collect_data_files("whisper")
 datas += [("buzz/assets/*", "assets")]
 datas += [
     (file[1], os.path.dirname(file[1]))
-    for file in Tree("./locale", prefix="locale", excludes=["*.po"])
+    for file in Tree("./buzz/locale", prefix="buzz/locale", excludes=["*.po"])
 ]
 
 block_cipher = None

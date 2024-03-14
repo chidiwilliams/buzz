@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-02 13:50+0100\n"
+"POT-Creation-Date: 2024-03-14 02:33+0000\n"
 "PO-Revision-Date: 2023-11-09 04:35-0600\n"
 "Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: \n"
@@ -18,21 +18,21 @@ msgstr ""
 "X-Generator: Poedit 3.4.1\n"
 
 # automatic translation
-#: buzz/widgets/main_window.py:157 buzz/widgets/main_window_toolbar.py:57
+#: buzz/widgets/main_window.py:200 buzz/widgets/main_window_toolbar.py:57
 msgid "Clear History"
 msgstr "Vaciar historial"
 
 # automatic translation
-#: buzz/widgets/main_window.py:159
+#: buzz/widgets/main_window.py:202
 msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
 msgstr ""
-"¿Confirma que quiere eliminar las transcripciones seleccionadas? Esta "
-"acción no se puede deshacer."
+"¿Confirma que quiere eliminar las transcripciones seleccionadas? Esta acción "
+"no se puede deshacer."
 
 # automatic translation
-#: buzz/widgets/main_window.py:185
+#: buzz/widgets/main_window.py:222
 msgid "Select audio file"
 msgstr "Seleccionar archivo de audio"
 
@@ -77,12 +77,12 @@ msgid "Detect Language"
 msgstr "Detectar idioma"
 
 # automatic translation
-#: buzz/widgets/transcriber/file_transcriber_widget.py:108
+#: buzz/widgets/transcriber/file_transcription_form_widget.py:42
 msgid "Word-level timings"
 msgstr "Tiempos a nivel de palabra"
 
 # automatic translation
-#: buzz/widgets/transcriber/file_transcriber_widget.py:137
+#: buzz/widgets/transcriber/file_transcriber_widget.py:81
 msgid "Run"
 msgstr "Ejecutar"
 
@@ -108,22 +108,29 @@ msgid "Cancel Transcription"
 msgstr "Cancelar transcripción"
 
 # automatic translation
-#: buzz/widgets/menu_bar.py:29
-msgid "Import Media File..."
+#: buzz/widgets/menu_bar.py:37
+#, fuzzy
+msgid "Import File..."
 msgstr "Importar archivo multimedia..."
 
 # automatic translation
-#: buzz/widgets/menu_bar.py:35
+#: buzz/widgets/menu_bar.py:40
+#, fuzzy
+msgid "Import URL..."
+msgstr "Importar archivo multimedia..."
+
+# automatic translation
+#: buzz/widgets/menu_bar.py:46
 msgid "Preferences..."
 msgstr "Preferencias..."
 
 # automatic translation
-#: buzz/widgets/menu_bar.py:43
+#: buzz/widgets/menu_bar.py:54
 msgid "File"
 msgstr "Archivo"
 
 # automatic translation
-#: buzz/widgets/menu_bar.py:46
+#: buzz/widgets/menu_bar.py:58
 msgid "Help"
 msgstr "Ayuda"
 
@@ -132,57 +139,36 @@ msgstr "Ayuda"
 msgid "Stop"
 msgstr "Detener"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:33
-msgid "ID"
-msgstr "Id."
-
-# automatic translation
-#: buzz/widgets/transcription_tasks_table_widget.py:33
-msgid "File Name"
-msgstr "Nombre de archivo"
-
-#: buzz/widgets/transcription_tasks_table_widget.py:33
-msgid "Status"
-msgstr "Estado"
-
-#: buzz/widgets/transcription_tasks_table_widget.py:81
+#: buzz/widgets/transcription_tasks_table_widget.py:64
 msgid "Completed"
 msgstr "Completado"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:88
+#: buzz/widgets/transcription_tasks_table_widget.py:73
 msgid "Canceled"
 msgstr "Cancelado"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:90
+#: buzz/widgets/transcription_tasks_table_widget.py:75
 msgid "Queued"
 msgstr "En cola"
 
-#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:30
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:66
 msgid "Start"
 msgstr "Inicio"
 
-#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:30
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:67
 msgid "End"
 msgstr "Fin"
 
-#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:30
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:68
 msgid "Text"
 msgstr "Texto"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:87
-msgid "Undo"
-msgstr "Deshacer"
-
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:92
-msgid "Redo"
-msgstr "Rehacer"
-
 # automatic translation
-#: buzz/widgets/transcription_viewer/export_transcription_button.py:39
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:87
 msgid "Save File"
 msgstr "Guardar archivo"
 
-#: buzz/widgets/transcription_viewer/export_transcription_button.py:41
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:89
 msgid "Text files"
 msgstr "Archivos de texto"
 
@@ -196,77 +182,117 @@ msgstr "Buscar actualizaciones"
 msgid "You're up to date!"
 msgstr "Está al día."
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:61
+#: buzz/widgets/import_url_dialog.py:19
+msgid "Import URL"
+msgstr ""
+
+#: buzz/widgets/import_url_dialog.py:22
+msgid "https://example.com/audio.mp3"
+msgstr ""
+
+#: buzz/widgets/import_url_dialog.py:32
+msgid "URL:"
+msgstr ""
+
+#: buzz/widgets/import_url_dialog.py:44
+msgid "Invalid URL"
+msgstr ""
+
+#: buzz/widgets/import_url_dialog.py:44
+msgid "The URL you entered is invalid."
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:70
 msgid "Download"
 msgstr "Descargar"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:66
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:75
 msgid "Show file location"
 msgstr "Mostrar ubicación de archivo"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:74
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:83
 msgid "Delete"
 msgstr "Eliminar"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:111
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:120
 msgid "Downloaded"
 msgstr "Descargado"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:116
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:125
 msgid "Available for Download"
 msgstr "Disponible para descarga"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:158
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:171
 msgid "Delete Model"
 msgstr "Eliminar modelo"
 
 # automatic translation
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:159
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:172
 msgid "Are you sure you want to delete the selected model?"
 msgstr "¿Confirma que quiere eliminar el modelo seleccionado?"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:178
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:191
 msgid "Error"
 msgstr "Error"
 
-#: buzz/widgets/preferences_dialog/preferences_dialog.py:43
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:50
 msgid "General"
 msgstr "Generales"
 
 # automatic translation
-#: buzz/widgets/preferences_dialog/preferences_dialog.py:46
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:53
 msgid "Models"
 msgstr "Modelos"
 
-#: buzz/widgets/preferences_dialog/preferences_dialog.py:50
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:57
 msgid "Shortcuts"
 msgstr "Atajos"
 
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:63
+msgid "Folder Watch"
+msgstr ""
+
 # automatic translation
-#: buzz/widgets/recording_transcriber_widget.py:62
+#: buzz/widgets/recording_transcriber_widget.py:60
 msgid "Live Recording"
 msgstr "Grabación en vivo"
 
 # automatic translation
-#: buzz/widgets/recording_transcriber_widget.py:101
+#: buzz/widgets/recording_transcriber_widget.py:104
 msgid "Click Record to begin..."
 msgstr "Pulse en Grabar para comenzar..."
 
 # automatic translation
-#: buzz/widgets/recording_transcriber_widget.py:118
+#: buzz/widgets/recording_transcriber_widget.py:116
 msgid "Microphone:"
 msgstr "Micrófono:"
 
 # automatic translation
-#: buzz/widgets/recording_transcriber_widget.py:274
+#: buzz/widgets/recording_transcriber_widget.py:272
 msgid "An error occurred while starting a new recording:"
 msgstr "Se produjo un error al iniciar una grabación nueva:"
 
 # automatic translation
-#: buzz/widgets/recording_transcriber_widget.py:278
+#: buzz/widgets/recording_transcriber_widget.py:276
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
 msgstr ""
 "Compruebe sus dispositivos de audio o consulte los registros de la "
 "aplicación para obtener más información."
+
+#~ msgid "ID"
+#~ msgstr "Id."
+
+# automatic translation
+#~ msgid "File Name"
+#~ msgstr "Nombre de archivo"
+
+#~ msgid "Status"
+#~ msgstr "Estado"
+
+#~ msgid "Undo"
+#~ msgstr "Deshacer"
+
+#~ msgid "Redo"
+#~ msgstr "Rehacer"

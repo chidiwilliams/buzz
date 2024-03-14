@@ -17,7 +17,7 @@ whisper.dll
 buzz/whisper_cpp.py
 
 # Internationalization - compiled binaries
-locale/**/*.mo
+*.mo
 
 benchmarks.json
 

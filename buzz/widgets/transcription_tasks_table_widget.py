@@ -80,7 +80,7 @@ def format_record_status_text(record: QSqlRecord) -> str:
 column_definitions = [
     ColDef(
         id="file_name",
-        header="File Name / URL",
+        header=_("File Name / URL"),
         column=Column.FILE,
         width=400,
         delegate=RecordDelegate(
@@ -92,7 +92,7 @@ column_definitions = [
     ),
     ColDef(
         id="model",
-        header="Model",
+        header=_("Model"),
         column=Column.MODEL_TYPE,
         width=180,
         delegate=RecordDelegate(
@@ -101,7 +101,7 @@ column_definitions = [
     ),
     ColDef(
         id="task",
-        header="Task",
+        header=_("Task"),
         column=Column.SOURCE,
         width=120,
         delegate=RecordDelegate(
@@ -110,7 +110,7 @@ column_definitions = [
     ),
     ColDef(
         id="status",
-        header="Status",
+        header=_("Status"),
         column=Column.STATUS,
         width=180,
         delegate=RecordDelegate(text_getter=format_record_status_text),
@@ -118,7 +118,7 @@ column_definitions = [
     ),
     ColDef(
         id="date_added",
-        header="Date Added",
+        header=_("Date Added"),
         column=Column.TIME_QUEUED,
         width=180,
         delegate=RecordDelegate(
@@ -129,7 +129,7 @@ column_definitions = [
     ),
     ColDef(
         id="date_completed",
-        header="Date Completed",
+        header=_("Date Completed"),
         column=Column.TIME_ENDED,
         width=180,
         delegate=RecordDelegate(
