@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import QWidget, QFormLayout, QPushButton, QMessageBox
 from openai import AuthenticationError, OpenAI
 
 from buzz.settings.settings import Settings
-from buzz.store.keyring_store import KeyringStore
+from buzz.store.keyring_store import get_password, Key
 from buzz.widgets.line_edit import LineEdit
 from buzz.widgets.openai_api_key_line_edit import OpenAIAPIKeyLineEdit
 
@@ -15,14 +15,11 @@ class GeneralPreferencesWidget(QWidget):
 
     def __init__(
         self,
-        keyring_store=KeyringStore(),
         parent: Optional[QWidget] = None,
     ):
         super().__init__(parent)
 
-        self.openai_api_key = keyring_store.get_password(
-            KeyringStore.Key.OPENAI_API_KEY
-        )
+        self.openai_api_key = get_password(Key.OPENAI_API_KEY)
 
         layout = QFormLayout(self)
 

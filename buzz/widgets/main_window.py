@@ -20,7 +20,7 @@ from buzz.file_transcriber_queue_worker import FileTranscriberQueueWorker
 from buzz.locale import _
 from buzz.settings.settings import APP_NAME, Settings
 from buzz.settings.shortcut_settings import ShortcutSettings
-from buzz.store.keyring_store import KeyringStore
+from buzz.store.keyring_store import set_password, Key
 from buzz.transcriber.transcriber import (
     FileTranscriptionTask,
     TranscriptionOptions,
@@ -248,7 +248,13 @@ class MainWindow(QMainWindow):
 
     @staticmethod
     def on_openai_access_token_changed(access_token: str):
-        KeyringStore().set_password(KeyringStore.Key.OPENAI_API_KEY, access_token)
+        try:
+            set_password(Key.OPENAI_API_KEY, access_token)
+        except Exception as exc:
+            logging.error("Unable to write to keyring: %s", exc)
+            QMessageBox.critical(
+                None, _("Error"), _("Unable to save OpenAI API key to keyring")
+            )
 
     def open_transcript_viewer(self):
         selected_rows = self.table_widget.selectionModel().selectedRows()

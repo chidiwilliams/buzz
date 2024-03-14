@@ -11,7 +11,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
 )
 
-from buzz.store.keyring_store import KeyringStore
+from buzz.store.keyring_store import Key, get_password
 from buzz.transcriber.transcriber import (
     TranscriptionOptions,
     FileTranscriptionOptions,
@@ -67,9 +67,7 @@ class FolderWatchPreferencesWidget(QWidget):
         output_folder_row.addWidget(self.output_folder_line_edit)
         output_folder_row.addWidget(output_folder_browse_button)
 
-        openai_access_token = KeyringStore().get_password(
-            KeyringStore.Key.OPENAI_API_KEY
-        )
+        openai_access_token = get_password(Key.OPENAI_API_KEY)
         (
             transcription_options,
             file_transcription_options,
