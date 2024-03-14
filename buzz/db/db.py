@@ -12,11 +12,11 @@ from buzz.db.helpers import (
     mark_in_progress_and_queued_transcriptions_as_canceled,
 )
 
-APP_DB_PATH = os.path.join(user_data_dir("Buzz"), "Buzz.sqlite")
-
 
 def setup_app_db() -> QSqlDatabase:
-    return _setup_db(APP_DB_PATH)
+    data_dir = user_data_dir("Buzz")
+    os.makedirs(data_dir, exist_ok=True)
+    return _setup_db(os.path.join(data_dir, "Buzz.sqlite"))
 
 
 def setup_test_db() -> QSqlDatabase:
