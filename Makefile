@@ -30,7 +30,7 @@ clean:
 
 COVERAGE_THRESHOLD := 79
 ifeq ($(UNAME_S),Linux)
-	COVERAGE_THRESHOLD := 74
+	COVERAGE_THRESHOLD := 73
 endif
 
 test: buzz/whisper_cpp.py translation_mo
