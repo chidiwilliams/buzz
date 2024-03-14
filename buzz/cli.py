@@ -95,6 +95,9 @@ def parse(app: Application, parser: QCommandLineParser):
             f"OpenAI access token. Use only when --model-type is {CommandLineModelType.OPEN_AI_WHISPER_API.value}. Defaults to your previously saved access token, if one exists.",
             "token",
         )
+        output_directory_option = QCommandLineOption(
+            ["d", "output-directory"], "Output directory", "directory"
+        )
         srt_option = QCommandLineOption(["srt"], "Output result in an SRT file.")
         vtt_option = QCommandLineOption(["vtt"], "Output result in a VTT file.")
         txt_option = QCommandLineOption("txt", "Output result in a TXT file.")
@@ -108,6 +111,7 @@ def parse(app: Application, parser: QCommandLineParser):
                 language_option,
                 initial_prompt_option,
                 open_ai_access_token_option,
+                output_directory_option,
                 srt_option,
                 vtt_option,
                 txt_option,
@@ -177,6 +181,8 @@ def parse(app: Application, parser: QCommandLineParser):
             if openai_access_token == "":
                 raise CommandLineError("No OpenAI access token found")
 
+        output_directory = parser.value(output_directory_option)
+
         transcription_options = TranscriptionOptions(
             model=model,
             task=task,
@@ -195,6 +201,7 @@ def parse(app: Application, parser: QCommandLineParser):
                 model_path=model_path,
                 transcription_options=transcription_options,
                 file_transcription_options=file_transcription_options,
+                output_directory=output_directory if output_directory != "" else None,
             )
             app.add_task(transcription_task)
 

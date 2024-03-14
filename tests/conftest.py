@@ -8,6 +8,7 @@ from buzz.db.dao.transcription_dao import TranscriptionDAO
 from buzz.db.dao.transcription_segment_dao import TranscriptionSegmentDAO
 from buzz.db.db import setup_test_db
 from buzz.db.service.transcription_service import TranscriptionService
+from buzz.widgets.application import Application
 
 
 @pytest.fixture()
@@ -38,3 +39,16 @@ def transcription_service(
 @pytest.fixture()
 def transcription_segment_dao(db) -> TranscriptionSegmentDAO:
     return TranscriptionSegmentDAO(db)
+
+
+@pytest.fixture(scope="session")
+def qapp_cls():
+    return Application
+
+
+@pytest.fixture(scope="session")
+def qapp_args(request):
+    if not hasattr(request, "param"):
+        return []
+
+    return request.param
