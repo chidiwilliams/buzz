@@ -9,6 +9,8 @@ from buzz.transcriber.transcriber import FileTranscriptionTask
 
 
 class TranscriptionDAO(DAO[Transcription]):
+    entity = Transcription
+
     def __init__(self, db: QSqlDatabase):
         super().__init__("transcription", db)
 

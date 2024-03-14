@@ -5,5 +5,7 @@ from buzz.db.entity.transcription_segment import TranscriptionSegment
 
 
 class TranscriptionSegmentDAO(DAO[TranscriptionSegment]):
+    entity = TranscriptionSegment
+
     def __init__(self, db: QSqlDatabase):
         super().__init__("transcription_segment", db)

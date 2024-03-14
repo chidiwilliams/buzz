@@ -18,6 +18,7 @@ from PyQt6.QtWidgets import (
     QStyledItemDelegate,
 )
 
+from buzz.db.entity.transcription import Transcription
 from buzz.locale import _
 from buzz.settings.settings import Settings
 from buzz.transcriber.transcriber import FileTranscriptionTask
@@ -54,6 +55,94 @@ class ColDef:
     hidden_toggleable: bool = True
 
 
+def format_record_status_text(record: QSqlRecord) -> str:
+    status = FileTranscriptionTask.Status(record.value("status"))
+    match status:
+        case FileTranscriptionTask.Status.IN_PROGRESS:
+            return f'{_("In Progress")} ({record.value("progress") :.0%})'
+        case FileTranscriptionTask.Status.COMPLETED:
+            status = _("Completed")
+            started_at = record.value("time_started")
+            completed_at = record.value("time_ended")
+            if started_at != "" and completed_at != "":
+                status += f" ({TranscriptionTasksTableWidget.format_timedelta(datetime.fromisoformat(completed_at) - datetime.fromisoformat(started_at))})"
+            return status
+        case FileTranscriptionTask.Status.FAILED:
+            return f'{_("Failed")} ({record.value("error_message")})'
+        case FileTranscriptionTask.Status.CANCELED:
+            return _("Canceled")
+        case FileTranscriptionTask.Status.QUEUED:
+            return _("Queued")
+        case _:
+            return ""
+
+
+column_definitions = [
+    ColDef(
+        id="file_name",
+        header="File Name / URL",
+        column=Column.FILE,
+        width=400,
+        delegate=RecordDelegate(
+            text_getter=lambda record: record.value("url")
+            if record.value("url") != ""
+            else os.path.basename(record.value("file"))
+        ),
+        hidden_toggleable=False,
+    ),
+    ColDef(
+        id="model",
+        header="Model",
+        column=Column.MODEL_TYPE,
+        width=180,
+        delegate=RecordDelegate(
+            text_getter=lambda record: str(TranscriptionRecord.model(record))
+        ),
+    ),
+    ColDef(
+        id="task",
+        header="Task",
+        column=Column.SOURCE,
+        width=120,
+        delegate=RecordDelegate(
+            text_getter=lambda record: record.value("task").capitalize()
+        ),
+    ),
+    ColDef(
+        id="status",
+        header="Status",
+        column=Column.STATUS,
+        width=180,
+        delegate=RecordDelegate(text_getter=format_record_status_text),
+        hidden_toggleable=False,
+    ),
+    ColDef(
+        id="date_added",
+        header="Date Added",
+        column=Column.TIME_QUEUED,
+        width=180,
+        delegate=RecordDelegate(
+            text_getter=lambda record: datetime.fromisoformat(
+                record.value("time_queued")
+            ).strftime("%Y-%m-%d %H:%M:%S")
+        ),
+    ),
+    ColDef(
+        id="date_completed",
+        header="Date Completed",
+        column=Column.TIME_ENDED,
+        width=180,
+        delegate=RecordDelegate(
+            text_getter=lambda record: datetime.fromisoformat(
+                record.value("time_ended")
+            ).strftime("%Y-%m-%d %H:%M:%S")
+            if record.value("time_ended") != ""
+            else ""
+        ),
+    ),
+]
+
+
 class TranscriptionTasksTableWidget(QTableView):
     return_clicked = pyqtSignal()
 
@@ -67,73 +156,6 @@ class TranscriptionTasksTableWidget(QTableView):
 
         self.setModel(self._model)
 
-        self.column_definitions: List[ColDef] = [
-            ColDef(
-                id="file_name",
-                header="File Name / URL",
-                column=Column.FILE,
-                width=400,
-                delegate=RecordDelegate(
-                    text_getter=lambda record: record.value("url")
-                    if record.value("url") != ""
-                    else os.path.basename(record.value("file"))
-                ),
-                hidden_toggleable=False,
-            ),
-            ColDef(
-                id="model",
-                header="Model",
-                column=Column.MODEL_TYPE,
-                width=180,
-                delegate=RecordDelegate(
-                    text_getter=lambda record: str(TranscriptionRecord.model(record))
-                ),
-            ),
-            ColDef(
-                id="task",
-                header="Task",
-                column=Column.SOURCE,
-                width=120,
-                delegate=RecordDelegate(
-                    text_getter=lambda record: record.value("task").capitalize()
-                ),
-            ),
-            ColDef(
-                id="status",
-                header="Status",
-                column=Column.STATUS,
-                width=180,
-                delegate=RecordDelegate(
-                    text_getter=TranscriptionTasksTableWidget.format_record_status_text
-                ),
-                hidden_toggleable=False,
-            ),
-            ColDef(
-                id="date_added",
-                header="Date Added",
-                column=Column.TIME_QUEUED,
-                width=180,
-                delegate=RecordDelegate(
-                    text_getter=lambda record: datetime.fromisoformat(
-                        record.value("time_queued")
-                    ).strftime("%Y-%m-%d %H:%M:%S")
-                ),
-            ),
-            ColDef(
-                id="date_completed",
-                header="Date Completed",
-                column=Column.TIME_ENDED,
-                width=180,
-                delegate=RecordDelegate(
-                    text_getter=lambda record: datetime.fromisoformat(
-                        record.value("time_ended")
-                    ).strftime("%Y-%m-%d %H:%M:%S")
-                    if record.value("time_ended") != ""
-                    else ""
-                ),
-            ),
-        ]
-
         for i in range(self.model().columnCount()):
             self.hideColumn(i)
 
@@ -142,7 +164,7 @@ class TranscriptionTasksTableWidget(QTableView):
         self.settings.begin_group(
             Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY
         )
-        for definition in self.column_definitions:
+        for definition in column_definitions:
             self.model().setHeaderData(
                 definition.column.value,
                 Qt.Orientation.Horizontal,
@@ -167,7 +189,7 @@ class TranscriptionTasksTableWidget(QTableView):
 
     def contextMenuEvent(self, event):
         menu = QMenu(self)
-        for definition in self.column_definitions:
+        for definition in column_definitions:
             if not definition.hidden_toggleable:
                 continue
             action = menu.addAction(definition.header)
@@ -189,7 +211,7 @@ class TranscriptionTasksTableWidget(QTableView):
         self.settings.begin_group(
             Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY
         )
-        for definition in self.column_definitions:
+        for definition in column_definitions:
             self.settings.settings.setValue(
                 definition.id, not self.isColumnHidden(definition.column.value)
             )
@@ -200,7 +222,7 @@ class TranscriptionTasksTableWidget(QTableView):
             self.return_clicked.emit()
         super().keyPressEvent(event)
 
-    def selected_transcriptions(self) -> List[QSqlRecord]:
+    def selected_transcriptions(self) -> List[Transcription]:
         selected = self.selectionModel().selectedRows()
         return [self.transcription(row) for row in selected]
 
@@ -209,8 +231,8 @@ class TranscriptionTasksTableWidget(QTableView):
             self.model().removeRow(row.row())
         self.model().submitAll()
 
-    def transcription(self, index: QModelIndex) -> QSqlRecord:
-        return self.model().record(index.row())
+    def transcription(self, index: QModelIndex) -> Transcription:
+        return Transcription.from_record(self.model().record(index.row()))
 
     def refresh_all(self):
         self.model().select()
@@ -221,28 +243,6 @@ class TranscriptionTasksTableWidget(QTableView):
             if record.value("id") == str(id):
                 self.model().selectRow(i)
                 return
-
-    @staticmethod
-    def format_record_status_text(record: QSqlRecord) -> str:
-        status = FileTranscriptionTask.Status(record.value("status"))
-        match status:
-            case FileTranscriptionTask.Status.IN_PROGRESS:
-                return f'{_("In Progress")} ({record.value("progress") :.0%})'
-            case FileTranscriptionTask.Status.COMPLETED:
-                status = _("Completed")
-                started_at = record.value("time_started")
-                completed_at = record.value("time_ended")
-                if started_at != "" and completed_at != "":
-                    status += f" ({TranscriptionTasksTableWidget.format_timedelta(datetime.fromisoformat(completed_at) - datetime.fromisoformat(started_at))})"
-                return status
-            case FileTranscriptionTask.Status.FAILED:
-                return f'{_("Failed")} ({record.value("error_message")})'
-            case FileTranscriptionTask.Status.CANCELED:
-                return _("Canceled")
-            case FileTranscriptionTask.Status.QUEUED:
-                return _("Queued")
-            case _:
-                return ""
 
     @staticmethod
     def format_timedelta(delta: timedelta):

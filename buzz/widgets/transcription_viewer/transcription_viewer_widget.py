@@ -13,12 +13,12 @@ from PyQt6.QtWidgets import (
     QFileDialog,
 )
 
+from buzz.db.entity.transcription import Transcription
 from buzz.locale import _
 from buzz.paths import file_path_as_title
 from buzz.transcriber.file_transcriber import write_output
-from buzz.transcriber.transcriber import OutputFormat, Segment, get_output_file_path
+from buzz.transcriber.transcriber import OutputFormat, Segment
 from buzz.widgets.audio_player import AudioPlayer
-from buzz.widgets.transcription_record import TranscriptionRecord
 from buzz.widgets.transcription_viewer.export_transcription_button import (
     ExportTranscriptionButton,
 )
@@ -28,11 +28,11 @@ from buzz.widgets.transcription_viewer.transcription_segments_editor_widget impo
 
 
 class TranscriptionViewerWidget(QWidget):
-    transcription: QSqlRecord
+    transcription: Transcription
 
     def __init__(
         self,
-        transcription: QSqlRecord,
+        transcription: Transcription,
         parent: Optional["QWidget"] = None,
         flags: Qt.WindowType = Qt.WindowType.Widget,
     ) -> None:
@@ -42,16 +42,16 @@ class TranscriptionViewerWidget(QWidget):
         self.setMinimumWidth(800)
         self.setMinimumHeight(500)
 
-        self.setWindowTitle(file_path_as_title(transcription.value("file")))
+        self.setWindowTitle(file_path_as_title(transcription.file))
 
         self.table_widget = TranscriptionSegmentsEditorWidget(
-            transcription_id=UUID(hex=transcription.value("id")), parent=self
+            transcription_id=UUID(hex=transcription.id), parent=self
         )
         self.table_widget.segment_selected.connect(self.on_segment_selected)
 
         self.audio_player: Optional[AudioPlayer] = None
         if platform.system() != "Linux":
-            self.audio_player = AudioPlayer(file_path=transcription.value("file"))
+            self.audio_player = AudioPlayer(file_path=transcription.file)
             self.audio_player.position_ms_changed.connect(
                 self.on_audio_player_position_ms_changed
             )
@@ -64,9 +64,7 @@ class TranscriptionViewerWidget(QWidget):
         buttons_layout = QHBoxLayout()
         buttons_layout.addStretch()
 
-        export_button = ExportTranscriptionButton(
-            transcription=transcription, parent=self
-        )
+        export_button = ExportTranscriptionButton(parent=self)
         export_button.on_export_triggered.connect(self.on_export_triggered)
 
         layout = QGridLayout(self)
@@ -80,12 +78,8 @@ class TranscriptionViewerWidget(QWidget):
         self.setLayout(layout)
 
     def on_export_triggered(self, output_format: OutputFormat) -> None:
-        default_path = get_output_file_path(
-            file_path=self.transcription.value("file"),
-            task=TranscriptionRecord.task(self.transcription),
-            language=self.transcription.value("language"),
-            model=TranscriptionRecord.model(self.transcription),
-            output_format=output_format,
+        default_path = self.transcription.get_output_file_path(
+            output_format=output_format
         )
 
         (output_file_path, nil) = QFileDialog.getSaveFileName(

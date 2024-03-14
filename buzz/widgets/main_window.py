@@ -8,13 +8,13 @@ from PyQt6.QtCore import (
     QModelIndex,
 )
 from PyQt6.QtGui import QIcon
-from PyQt6.QtSql import QSqlRecord
 from PyQt6.QtWidgets import (
     QMainWindow,
     QMessageBox,
     QFileDialog,
 )
 
+from buzz.db.entity.transcription import Transcription
 from buzz.db.service.transcription_service import TranscriptionService
 from buzz.file_transcriber_queue_worker import FileTranscriberQueueWorker
 from buzz.locale import _
@@ -34,7 +34,6 @@ from buzz.widgets.main_window_toolbar import MainWindowToolbar
 from buzz.widgets.menu_bar import MenuBar
 from buzz.widgets.preferences_dialog.models.preferences import Preferences
 from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
-from buzz.widgets.transcription_record import TranscriptionRecord
 from buzz.widgets.transcription_task_folder_watcher import (
     TranscriptionTaskFolderWatcher,
 )
@@ -210,7 +209,7 @@ class MainWindow(QMainWindow):
     def on_stop_transcription_action_triggered(self):
         selected_transcriptions = self.table_widget.selected_transcriptions()
         for transcription in selected_transcriptions:
-            transcription_id = TranscriptionRecord.id(transcription)
+            transcription_id = transcription.id_as_uuid
             self.transcriber_worker.cancel_task(transcription_id)
             self.transcription_service.update_transcription_as_canceled(
                 transcription_id
@@ -278,9 +277,9 @@ class MainWindow(QMainWindow):
         )
 
     @staticmethod
-    def can_open_transcript(transcription: QSqlRecord) -> bool:
+    def can_open_transcript(transcription: Transcription) -> bool:
         return (
-            FileTranscriptionTask.Status(transcription.value("status"))
+            FileTranscriptionTask.Status(transcription.status)
             == FileTranscriptionTask.Status.COMPLETED
         )
 
@@ -308,7 +307,7 @@ class MainWindow(QMainWindow):
 
         return all(
             [
-                FileTranscriptionTask.Status(transcription.value("status")) in statuses
+                transcription.status_as_status in statuses
                 for transcription in transcriptions
             ]
         )
@@ -319,7 +318,7 @@ class MainWindow(QMainWindow):
             return
         self.open_transcription_viewer(transcription)
 
-    def open_transcription_viewer(self, transcription: QSqlRecord):
+    def open_transcription_viewer(self, transcription: Transcription):
         transcription_viewer_widget = TranscriptionViewerWidget(
             transcription=transcription, parent=self, flags=Qt.WindowType.Window
         )

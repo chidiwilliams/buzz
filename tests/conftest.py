@@ -10,7 +10,7 @@ from buzz.db.db import setup_test_db
 from buzz.db.service.transcription_service import TranscriptionService
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def db() -> QSqlDatabase:
     db = setup_test_db()
     yield db
@@ -18,7 +18,7 @@ def db() -> QSqlDatabase:
     os.remove(db.databaseName())
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def transcription_dao(db, request: SubRequest) -> TranscriptionDAO:
     dao = TranscriptionDAO(db)
     if hasattr(request, "param"):
@@ -28,13 +28,13 @@ def transcription_dao(db, request: SubRequest) -> TranscriptionDAO:
     return dao
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def transcription_service(
     transcription_dao, transcription_segment_dao
 ) -> TranscriptionService:
     return TranscriptionService(transcription_dao, transcription_segment_dao)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def transcription_segment_dao(db) -> TranscriptionSegmentDAO:
     return TranscriptionSegmentDAO(db)

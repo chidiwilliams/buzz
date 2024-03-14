@@ -1,6 +1,5 @@
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QAction
-from PyQt6.QtSql import QSqlRecord
 from PyQt6.QtWidgets import QPushButton, QWidget, QMenu
 
 from buzz.transcriber.transcriber import (
@@ -12,9 +11,8 @@ from buzz.widgets.icon import FileDownloadIcon
 class ExportTranscriptionButton(QPushButton):
     on_export_triggered = pyqtSignal(OutputFormat)
 
-    def __init__(self, transcription: QSqlRecord, parent: QWidget):
+    def __init__(self, parent: QWidget):
         super().__init__(parent)
-        self.transcription = transcription
 
         export_button_menu = QMenu()
         actions = [
