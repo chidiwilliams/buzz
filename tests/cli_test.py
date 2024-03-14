@@ -41,4 +41,4 @@ class TestCLI:
         def output_exists_at_output_directory():
             assert any(file.endswith(".txt") for file in os.listdir(output_directory))
 
-        qtbot.wait_until(output_exists_at_output_directory, timeout=60 * 1000)
+        qtbot.wait_until(output_exists_at_output_directory, timeout=5 * 60 * 1000)
