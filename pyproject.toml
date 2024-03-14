@@ -14,7 +14,6 @@ packages = [
 [tool.poetry.dependencies]
 python = ">=3.9.13,<3.11"
 sounddevice = "^0.4.5"
-appdirs = "^1.4.4"
 humanize = "^4.4.0"
 PyQt6 = "^6.4.0"
 openai = "^1.6.1"
