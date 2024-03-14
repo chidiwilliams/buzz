@@ -1,25 +1,24 @@
 import platform
-from typing import List, Optional
+from typing import Optional
+from uuid import UUID
 
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QUndoCommand, QUndoStack, QKeySequence
+from PyQt6.QtCore import Qt
+from PyQt6.QtMultimedia import QMediaPlayer
+from PyQt6.QtSql import QSqlRecord
 from PyQt6.QtWidgets import (
     QWidget,
     QHBoxLayout,
     QLabel,
     QGridLayout,
+    QFileDialog,
 )
 
-from buzz.action import Action
+from buzz.db.entity.transcription import Transcription
 from buzz.locale import _
 from buzz.paths import file_path_as_title
-from buzz.transcriber.transcriber import (
-    FileTranscriptionTask,
-    Segment,
-)
+from buzz.transcriber.file_transcriber import write_output
+from buzz.transcriber.transcriber import OutputFormat, Segment
 from buzz.widgets.audio_player import AudioPlayer
-from buzz.widgets.icon import UndoIcon, RedoIcon
-from buzz.widgets.toolbar import ToolBar
 from buzz.widgets.transcription_viewer.export_transcription_button import (
     ExportTranscriptionButton,
 )
@@ -28,84 +27,31 @@ from buzz.widgets.transcription_viewer.transcription_segments_editor_widget impo
 )
 
 
-class ChangeSegmentTextCommand(QUndoCommand):
-    def __init__(
-        self,
-        table_widget: TranscriptionSegmentsEditorWidget,
-        segments: List[Segment],
-        segment_index: int,
-        segment_text: str,
-        task_changed: pyqtSignal,
-    ):
-        super().__init__()
-
-        self.table_widget = table_widget
-        self.segments = segments
-        self.segment_index = segment_index
-        self.segment_text = segment_text
-        self.task_changed = task_changed
-
-        self.previous_segment_text = self.segments[self.segment_index].text
-
-    def undo(self) -> None:
-        self.set_segment_text(self.previous_segment_text)
-
-    def redo(self) -> None:
-        self.set_segment_text(self.segment_text)
-
-    def set_segment_text(self, text: str):
-        # block signals before setting text so it doesn't re-trigger a new UndoCommand
-        self.table_widget.blockSignals(True)
-        self.table_widget.set_segment_text(self.segment_index, text)
-        self.table_widget.blockSignals(False)
-        self.segments[self.segment_index].text = text
-        self.task_changed.emit()
-
-
 class TranscriptionViewerWidget(QWidget):
-    transcription_task: FileTranscriptionTask
-    task_changed = pyqtSignal()
+    transcription: Transcription
 
     def __init__(
         self,
-        transcription_task: FileTranscriptionTask,
-        open_transcription_output=True,
+        transcription: Transcription,
         parent: Optional["QWidget"] = None,
         flags: Qt.WindowType = Qt.WindowType.Widget,
     ) -> None:
         super().__init__(parent, flags)
-        self.transcription_task = transcription_task
-        self.open_transcription_output = open_transcription_output
+        self.transcription = transcription
 
         self.setMinimumWidth(800)
         self.setMinimumHeight(500)
 
-        self.setWindowTitle(file_path_as_title(transcription_task.file_path))
-
-        self.undo_stack = QUndoStack()
-
-        undo_action = self.undo_stack.createUndoAction(self, _("Undo"))
-        undo_action.setShortcuts(QKeySequence.StandardKey.Undo)
-        undo_action.setIcon(UndoIcon(parent=self))
-        undo_action.setToolTip(Action.get_tooltip(undo_action))
-
-        redo_action = self.undo_stack.createRedoAction(self, _("Redo"))
-        redo_action.setShortcuts(QKeySequence.StandardKey.Redo)
-        redo_action.setIcon(RedoIcon(parent=self))
-        redo_action.setToolTip(Action.get_tooltip(redo_action))
-
-        toolbar = ToolBar()
-        toolbar.addActions([undo_action, redo_action])
+        self.setWindowTitle(file_path_as_title(transcription.file))
 
         self.table_widget = TranscriptionSegmentsEditorWidget(
-            segments=transcription_task.segments, parent=self
+            transcription_id=UUID(hex=transcription.id), parent=self
         )
-        self.table_widget.segment_text_changed.connect(self.on_segment_text_changed)
-        self.table_widget.segment_index_selected.connect(self.on_segment_index_selected)
+        self.table_widget.segment_selected.connect(self.on_segment_selected)
 
         self.audio_player: Optional[AudioPlayer] = None
         if platform.system() != "Linux":
-            self.audio_player = AudioPlayer(file_path=transcription_task.file_path)
+            self.audio_player = AudioPlayer(file_path=transcription.file)
             self.audio_player.position_ms_changed.connect(
                 self.on_audio_player_position_ms_changed
             )
@@ -118,12 +64,10 @@ class TranscriptionViewerWidget(QWidget):
         buttons_layout = QHBoxLayout()
         buttons_layout.addStretch()
 
-        export_button = ExportTranscriptionButton(
-            transcription_task=transcription_task, parent=self
-        )
+        export_button = ExportTranscriptionButton(parent=self)
+        export_button.on_export_triggered.connect(self.on_export_triggered)
 
         layout = QGridLayout(self)
-        layout.setMenuBar(toolbar)
         layout.addWidget(self.table_widget, 0, 0, 1, 2)
 
         if self.audio_player is not None:
@@ -133,33 +77,56 @@ class TranscriptionViewerWidget(QWidget):
 
         self.setLayout(layout)
 
-    def on_segment_text_changed(self, event: tuple):
-        segment_index, segment_text = event
-        self.undo_stack.push(
-            ChangeSegmentTextCommand(
-                table_widget=self.table_widget,
-                segments=self.transcription_task.segments,
-                segment_index=segment_index,
-                segment_text=segment_text,
-                task_changed=self.task_changed,
-            )
+    def on_export_triggered(self, output_format: OutputFormat) -> None:
+        default_path = self.transcription.get_output_file_path(
+            output_format=output_format
         )
 
-    def on_segment_index_selected(self, index: int):
-        selected_segment = self.transcription_task.segments[index]
-        if self.audio_player is not None:
-            self.audio_player.set_range((selected_segment.start, selected_segment.end))
+        (output_file_path, nil) = QFileDialog.getSaveFileName(
+            self,
+            _("Save File"),
+            default_path,
+            _("Text files") + f" (*.{output_format.value})",
+        )
+
+        if output_file_path == "":
+            return
+
+        segments = [
+            Segment(
+                start=segment.value("start_time"),
+                end=segment.value("end_time"),
+                text=segment.value("text"),
+            )
+            for segment in self.table_widget.segments()
+        ]
+
+        write_output(
+            path=output_file_path,
+            segments=segments,
+            output_format=output_format,
+        )
+
+    def on_segment_selected(self, segment: QSqlRecord):
+        if self.audio_player is not None and (
+            self.audio_player.media_player.playbackState()
+            == QMediaPlayer.PlaybackState.PlayingState
+        ):
+            self.audio_player.set_range(
+                (segment.value("start_time"), segment.value("end_time"))
+            )
 
     def on_audio_player_position_ms_changed(self, position_ms: int) -> None:
-        current_segment_index: Optional[int] = next(
+        segments = self.table_widget.segments()
+        current_segment = next(
             (
-                i
-                for i, segment in enumerate(self.transcription_task.segments)
-                if segment.start <= position_ms < segment.end
+                segment
+                for segment in segments
+                if segment.value("start_time")
+                <= position_ms
+                < segment.value("end_time")
             ),
             None,
         )
-        if current_segment_index is not None:
-            self.current_segment_label.setText(
-                self.transcription_task.segments[current_segment_index].text
-            )
+        if current_segment is not None:
+            self.current_segment_label.setText(current_segment.value("text"))

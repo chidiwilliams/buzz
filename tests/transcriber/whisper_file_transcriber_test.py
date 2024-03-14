@@ -54,13 +54,15 @@ class TestWhisperFileTranscriber:
         expected_file_path: str,
     ):
         file_path = get_output_file_path(
-            task=FileTranscriptionTask(
-                file_path=file_path,
-                transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
-                file_transcription_options=FileTranscriptionOptions(file_paths=[]),
-                model_path="",
+            file_path=file_path,
+            language=None,
+            task=Task.TRANSLATE,
+            model=TranscriptionModel(
+                model_type=ModelType.WHISPER,
+                whisper_model_size=WhisperModelSize.TINY,
             ),
             output_format=output_format,
+            output_directory="",
             export_file_name_template="{{ input_file_name }}-{{ task }}-{{ language }}-{{ model_type }}-{{ model_size }}",
         )
         assert file_path == expected_file_path
@@ -87,15 +89,15 @@ class TestWhisperFileTranscriber:
             "{{ input_file_name }} (Translated on {{ date_time }})"
         )
         srt = get_output_file_path(
-            task=FileTranscriptionTask(
-                file_path=file_path,
-                transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
-                file_transcription_options=FileTranscriptionOptions(
-                    file_paths=[],
-                ),
-                model_path="",
+            file_path=file_path,
+            language=None,
+            task=Task.TRANSLATE,
+            model=TranscriptionModel(
+                model_type=ModelType.WHISPER,
+                whisper_model_size=WhisperModelSize.TINY,
             ),
             output_format=OutputFormat.TXT,
+            output_directory="",
             export_file_name_template=export_file_name_template,
         )
 
@@ -103,15 +105,15 @@ class TestWhisperFileTranscriber:
         assert srt.endswith(".txt")
 
         srt = get_output_file_path(
-            task=FileTranscriptionTask(
-                file_path=file_path,
-                transcription_options=TranscriptionOptions(task=Task.TRANSLATE),
-                file_transcription_options=FileTranscriptionOptions(
-                    file_paths=[],
-                ),
-                model_path="",
+            file_path=file_path,
+            language=None,
+            task=Task.TRANSLATE,
+            model=TranscriptionModel(
+                model_type=ModelType.WHISPER,
+                whisper_model_size=WhisperModelSize.TINY,
             ),
             output_format=OutputFormat.SRT,
+            output_directory="",
             export_file_name_template=export_file_name_template,
         )
         assert srt.startswith(expected_starts_with)

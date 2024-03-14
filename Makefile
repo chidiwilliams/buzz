@@ -28,9 +28,9 @@ clean:
 	rm -f buzz/whisper_cpp.py
 	rm -rf dist/* || true
 
-COVERAGE_THRESHOLD := 76
+COVERAGE_THRESHOLD := 77
 ifeq ($(UNAME_S),Linux)
-	COVERAGE_THRESHOLD := 71
+	COVERAGE_THRESHOLD := 72
 endif
 
 test: buzz/whisper_cpp.py translation_mo

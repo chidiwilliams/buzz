@@ -15,6 +15,7 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
     preferences: FolderWatchPreferences
     task_found = pyqtSignal(FileTranscriptionTask)
 
+    # TODO: query db instead of passing tasks
     def __init__(
         self,
         tasks: Dict[int, FileTranscriptionTask],

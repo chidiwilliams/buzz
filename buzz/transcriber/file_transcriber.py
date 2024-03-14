@@ -68,7 +68,12 @@ class FileTranscriber(QObject):
             output_format
         ) in self.transcription_task.file_transcription_options.output_formats:
             default_path = get_output_file_path(
-                task=self.transcription_task, output_format=output_format
+                file_path=self.transcription_task.file_path,
+                output_format=output_format,
+                language=self.transcription_task.transcription_options.language,
+                output_directory=self.transcription_task.output_directory,
+                model=self.transcription_task.transcription_options.model,
+                task=self.transcription_task.transcription_options.task,
             )
 
             write_output(

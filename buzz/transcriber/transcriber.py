@@ -1,6 +1,7 @@
 import datetime
 import enum
 import os
+import uuid
 from dataclasses import dataclass, field
 from random import randint
 from typing import List, Optional, Tuple, Set
@@ -174,7 +175,9 @@ class FileTranscriptionTask:
     transcription_options: TranscriptionOptions
     file_transcription_options: FileTranscriptionOptions
     model_path: str
+    # deprecated: use uid
     id: int = field(default_factory=lambda: randint(0, 100_000_000))
+    uid: uuid.UUID = field(default_factory=uuid.uuid4)
     segments: List[Segment] = field(default_factory=list)
     status: Optional[Status] = None
     fraction_completed = 0.0
@@ -187,38 +190,6 @@ class FileTranscriptionTask:
     file_path: Optional[str] = None
     url: Optional[str] = None
     fraction_downloaded: float = 0.0
-
-    def status_text(self) -> str:
-        match self.status:
-            case FileTranscriptionTask.Status.IN_PROGRESS:
-                if self.fraction_downloaded > 0 and self.fraction_completed == 0:
-                    return f'{_("Downloading")} ({self.fraction_downloaded :.0%})'
-                return f'{_("In Progress")} ({self.fraction_completed :.0%})'
-            case FileTranscriptionTask.Status.COMPLETED:
-                status = _("Completed")
-                if self.started_at is not None and self.completed_at is not None:
-                    status += f" ({self.format_timedelta(self.completed_at - self.started_at)})"
-                return status
-            case FileTranscriptionTask.Status.FAILED:
-                return f'{_("Failed")} ({self.error})'
-            case FileTranscriptionTask.Status.CANCELED:
-                return _("Canceled")
-            case FileTranscriptionTask.Status.QUEUED:
-                return _("Queued")
-            case _:
-                return ""
-
-    @staticmethod
-    def format_timedelta(delta: datetime.timedelta):
-        mm, ss = divmod(delta.seconds, 60)
-        result = f"{ss}s"
-        if mm == 0:
-            return result
-        hh, mm = divmod(mm, 60)
-        result = f"{mm}m {result}"
-        if hh == 0:
-            return result
-        return f"{hh}h {result}"
 
 
 class OutputFormat(enum.Enum):
@@ -236,11 +207,15 @@ Video files (*.mp4 *.webm *.ogm *.mov);;All files (*.*)"
 
 
 def get_output_file_path(
-    task: FileTranscriptionTask,
+    file_path: str,
+    task: Task,
+    language: Optional[str],
+    model: TranscriptionModel,
     output_format: OutputFormat,
+    output_directory: str | None = None,
     export_file_name_template: str | None = None,
 ):
-    input_file_name = os.path.splitext(os.path.basename(task.file_path))[0]
+    input_file_name = os.path.splitext(os.path.basename(file_path))[0]
     date_time_now = datetime.datetime.now().strftime("%d-%b-%Y %H-%M-%S")
 
     export_file_name_template = (
@@ -251,18 +226,18 @@ def get_output_file_path(
 
     output_file_name = (
         export_file_name_template.replace("{{ input_file_name }}", input_file_name)
-        .replace("{{ task }}", task.transcription_options.task.value)
-        .replace("{{ language }}", task.transcription_options.language or "")
-        .replace("{{ model_type }}", task.transcription_options.model.model_type.value)
+        .replace("{{ task }}", task.value)
+        .replace("{{ language }}", language or "")
+        .replace("{{ model_type }}", model.model_type.value)
         .replace(
             "{{ model_size }}",
-            task.transcription_options.model.whisper_model_size.value
-            if task.transcription_options.model.whisper_model_size is not None
+            model.whisper_model_size.value
+            if model.whisper_model_size is not None
             else "",
         )
         .replace("{{ date_time }}", date_time_now)
         + f".{output_format.value}"
     )
 
-    output_directory = task.output_directory or os.path.dirname(task.file_path)
+    output_directory = output_directory or os.path.dirname(file_path)
     return os.path.join(output_directory, output_file_name)

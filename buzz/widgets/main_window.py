@@ -1,4 +1,5 @@
-from typing import Dict, Tuple, List, Optional
+import logging
+from typing import Tuple, List, Optional
 
 from PyQt6 import QtGui
 from PyQt6.QtCore import (
@@ -13,7 +14,8 @@ from PyQt6.QtWidgets import (
     QFileDialog,
 )
 
-from buzz.cache import TasksCache
+from buzz.db.entity.transcription import Transcription
+from buzz.db.service.transcription_service import TranscriptionService
 from buzz.file_transcriber_queue_worker import FileTranscriberQueueWorker
 from buzz.locale import _
 from buzz.settings.settings import APP_NAME, Settings
@@ -24,6 +26,7 @@ from buzz.transcriber.transcriber import (
     TranscriptionOptions,
     FileTranscriptionOptions,
     SUPPORTED_AUDIO_FORMATS,
+    Segment,
 )
 from buzz.widgets.icon import BUZZ_ICON_PATH
 from buzz.widgets.import_url_dialog import ImportURLDialog
@@ -34,7 +37,9 @@ from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidg
 from buzz.widgets.transcription_task_folder_watcher import (
     TranscriptionTaskFolderWatcher,
 )
-from buzz.widgets.transcription_tasks_table_widget import TranscriptionTasksTableWidget
+from buzz.widgets.transcription_tasks_table_widget import (
+    TranscriptionTasksTableWidget,
+)
 from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
     TranscriptionViewerWidget,
 )
@@ -42,9 +47,8 @@ from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
 
 class MainWindow(QMainWindow):
     table_widget: TranscriptionTasksTableWidget
-    tasks: Dict[int, "FileTranscriptionTask"]
 
-    def __init__(self, tasks_cache=TasksCache()):
+    def __init__(self, transcription_service: TranscriptionService):
         super().__init__(flags=Qt.WindowType.Window)
 
         self.setWindowTitle(APP_NAME)
@@ -53,14 +57,12 @@ class MainWindow(QMainWindow):
 
         self.setAcceptDrops(True)
 
-        self.tasks_cache = tasks_cache
-
         self.settings = Settings()
 
         self.shortcut_settings = ShortcutSettings(settings=self.settings)
         self.shortcuts = self.shortcut_settings.load()
 
-        self.tasks = {}
+        self.transcription_service = transcription_service
 
         self.toolbar = MainWindowToolbar(shortcuts=self.shortcuts, parent=self)
         self.toolbar.new_transcription_action_triggered.connect(
@@ -100,7 +102,9 @@ class MainWindow(QMainWindow):
         self.table_widget = TranscriptionTasksTableWidget(self)
         self.table_widget.doubleClicked.connect(self.on_table_double_clicked)
         self.table_widget.return_clicked.connect(self.open_transcript_viewer)
-        self.table_widget.itemSelectionChanged.connect(self.on_table_selection_changed)
+        self.table_widget.selectionModel().selectionChanged.connect(
+            self.on_table_selection_changed
+        )
 
         self.setCentralWidget(self.table_widget)
 
@@ -110,19 +114,24 @@ class MainWindow(QMainWindow):
         self.transcriber_worker = FileTranscriberQueueWorker()
         self.transcriber_worker.moveToThread(self.transcriber_thread)
 
-        self.transcriber_worker.task_updated.connect(self.update_task_table_row)
+        self.transcriber_worker.task_started.connect(self.on_task_started)
+        self.transcriber_worker.task_progress.connect(self.on_task_progress)
+        self.transcriber_worker.task_download_progress.connect(
+            self.on_task_download_progress
+        )
+        self.transcriber_worker.task_error.connect(self.on_task_error)
+        self.transcriber_worker.task_completed.connect(self.on_task_completed)
+
         self.transcriber_worker.completed.connect(self.transcriber_thread.quit)
 
         self.transcriber_thread.started.connect(self.transcriber_worker.run)
 
         self.transcriber_thread.start()
 
-        self.load_tasks_from_cache()
-
         self.load_geometry()
 
         self.folder_watcher = TranscriptionTaskFolderWatcher(
-            tasks=self.tasks,
+            tasks={},
             preferences=self.preferences.folder_watch,
         )
         self.folder_watcher.task_found.connect(self.add_task)
@@ -181,21 +190,6 @@ class MainWindow(QMainWindow):
             )
             self.add_task(task)
 
-    def upsert_task_in_table(self, task: FileTranscriptionTask):
-        self.table_widget.upsert_task(task)
-        self.tasks[task.id] = task
-
-    def update_task_table_row(self, task: FileTranscriptionTask):
-        self.upsert_task_in_table(task=task)
-        self.on_tasks_changed()
-
-    @staticmethod
-    def task_completed_or_errored(task: FileTranscriptionTask):
-        return (
-            task.status == FileTranscriptionTask.Status.COMPLETED
-            or task.status == FileTranscriptionTask.Status.FAILED
-        )
-
     def on_clear_history_action_triggered(self):
         selected_rows = self.table_widget.selectionModel().selectedRows()
         if len(selected_rows) == 0:
@@ -210,25 +204,18 @@ class MainWindow(QMainWindow):
             ),
         )
         if reply == QMessageBox.StandardButton.Yes:
-            task_ids = [
-                TranscriptionTasksTableWidget.find_task_id(selected_row)
-                for selected_row in selected_rows
-            ]
-            for task_id in task_ids:
-                self.table_widget.clear_task(task_id)
-                self.tasks.pop(task_id)
-                self.on_tasks_changed()
+            self.table_widget.delete_transcriptions(selected_rows)
 
     def on_stop_transcription_action_triggered(self):
-        selected_rows = self.table_widget.selectionModel().selectedRows()
-        for selected_row in selected_rows:
-            task_id = TranscriptionTasksTableWidget.find_task_id(selected_row)
-            task = self.tasks[task_id]
-
-            task.status = FileTranscriptionTask.Status.CANCELED
-            self.on_tasks_changed()
-            self.transcriber_worker.cancel_task(task_id)
-            self.table_widget.upsert_task(task)
+        selected_transcriptions = self.table_widget.selected_transcriptions()
+        for transcription in selected_transcriptions:
+            transcription_id = transcription.id_as_uuid
+            self.transcriber_worker.cancel_task(transcription_id)
+            self.transcription_service.update_transcription_as_canceled(
+                transcription_id
+            )
+            self.table_widget.refresh_row(transcription_id)
+            self.on_table_selection_changed()
 
     def on_new_transcription_action_triggered(self):
         (file_paths, __) = QFileDialog.getOpenFileNames(
@@ -266,8 +253,8 @@ class MainWindow(QMainWindow):
     def open_transcript_viewer(self):
         selected_rows = self.table_widget.selectionModel().selectedRows()
         for selected_row in selected_rows:
-            task_id = TranscriptionTasksTableWidget.find_task_id(selected_row)
-            self.open_transcription_viewer(task_id)
+            transcription = self.table_widget.transcription(selected_row)
+            self.open_transcription_viewer(transcription)
 
     def on_table_selection_changed(self):
         self.toolbar.set_open_transcript_action_enabled(
@@ -281,7 +268,20 @@ class MainWindow(QMainWindow):
         )
 
     def should_enable_open_transcript_action(self):
-        return self.selected_tasks_have_status([FileTranscriptionTask.Status.COMPLETED])
+        selected_transcriptions = self.table_widget.selected_transcriptions()
+        if len(selected_transcriptions) == 0:
+            return False
+        return all(
+            MainWindow.can_open_transcript(transcription)
+            for transcription in selected_transcriptions
+        )
+
+    @staticmethod
+    def can_open_transcript(transcription: Transcription) -> bool:
+        return (
+            FileTranscriptionTask.Status(transcription.status)
+            == FileTranscriptionTask.Status.COMPLETED
+        )
 
     def should_enable_stop_transcription_action(self):
         return self.selected_tasks_have_status(
@@ -301,63 +301,56 @@ class MainWindow(QMainWindow):
         )
 
     def selected_tasks_have_status(self, statuses: List[FileTranscriptionTask.Status]):
-        selected_rows = self.table_widget.selectionModel().selectedRows()
-        if len(selected_rows) == 0:
+        transcriptions = self.table_widget.selected_transcriptions()
+        if len(transcriptions) == 0:
             return False
+
         return all(
             [
-                self.tasks[
-                    TranscriptionTasksTableWidget.find_task_id(selected_row)
-                ].status
-                in statuses
-                for selected_row in selected_rows
+                transcription.status_as_status in statuses
+                for transcription in transcriptions
             ]
         )
 
     def on_table_double_clicked(self, index: QModelIndex):
-        task_id = TranscriptionTasksTableWidget.find_task_id(index)
-        self.open_transcription_viewer(task_id)
-
-    def open_transcription_viewer(self, task_id: int):
-        task = self.tasks[task_id]
-        if task.status != FileTranscriptionTask.Status.COMPLETED:
+        transcription = self.table_widget.transcription(index)
+        if not MainWindow.can_open_transcript(transcription):
             return
+        self.open_transcription_viewer(transcription)
 
+    def open_transcription_viewer(self, transcription: Transcription):
         transcription_viewer_widget = TranscriptionViewerWidget(
-            transcription_task=task, parent=self, flags=Qt.WindowType.Window
+            transcription=transcription, parent=self, flags=Qt.WindowType.Window
         )
-        transcription_viewer_widget.task_changed.connect(self.on_tasks_changed)
         transcription_viewer_widget.show()
 
     def add_task(self, task: FileTranscriptionTask):
+        self.transcription_service.create_transcription(task)
+        self.table_widget.refresh_all()
         self.transcriber_worker.add_task(task)
 
-    def load_tasks_from_cache(self):
-        tasks = self.tasks_cache.load()
-        for task in tasks:
-            if (
-                task.status == FileTranscriptionTask.Status.QUEUED
-                or task.status == FileTranscriptionTask.Status.IN_PROGRESS
-            ):
-                task.status = None
-                self.add_task(task)
-            else:
-                self.upsert_task_in_table(task=task)
+    def on_task_started(self, task: FileTranscriptionTask):
+        self.transcription_service.update_transcription_as_started(task.uid)
+        self.table_widget.refresh_row(task.uid)
 
-    def save_tasks_to_cache(self):
-        self.tasks_cache.save(list(self.tasks.values()))
+    def on_task_progress(self, task: FileTranscriptionTask, progress: float):
+        self.transcription_service.update_transcription_progress(task.uid, progress)
+        self.table_widget.refresh_row(task.uid)
 
-    def on_tasks_changed(self):
-        self.toolbar.set_open_transcript_action_enabled(
-            self.should_enable_open_transcript_action()
-        )
-        self.toolbar.set_stop_transcription_action_enabled(
-            self.should_enable_stop_transcription_action()
-        )
-        self.toolbar.set_clear_history_action_enabled(
-            self.should_enable_clear_history_action()
-        )
-        self.save_tasks_to_cache()
+    def on_task_download_progress(
+        self, task: FileTranscriptionTask, fraction_downloaded: float
+    ):
+        # TODO: Save download progress in the database
+        pass
+
+    def on_task_completed(self, task: FileTranscriptionTask, segments: List[Segment]):
+        self.transcription_service.update_transcription_as_completed(task.uid, segments)
+        self.table_widget.refresh_row(task.uid)
+
+    def on_task_error(self, task: FileTranscriptionTask, error: str):
+        logging.debug("FAILED!!!!")
+        self.transcription_service.update_transcription_as_failed(task.uid, error)
+        self.table_widget.refresh_row(task.uid)
 
     def on_shortcuts_changed(self, shortcuts: dict):
         self.shortcuts = shortcuts
@@ -374,7 +367,6 @@ class MainWindow(QMainWindow):
         self.transcriber_worker.stop()
         self.transcriber_thread.quit()
         self.transcriber_thread.wait()
-        self.save_tasks_to_cache()
         self.shortcut_settings.save(shortcuts=self.shortcuts)
         super().closeEvent(event)
 
