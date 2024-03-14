@@ -22,10 +22,7 @@ datas += collect_data_files("transformers", include_py_files=True)
 
 datas += collect_data_files("whisper")
 datas += [("buzz/assets/*", "assets")]
-datas += [
-    (file[1], os.path.dirname(file[1]))
-    for file in Tree("./buzz/locale", prefix="buzz/locale", excludes=["*.po"])
-]
+datas += [("buzz/locale", "locale")]
 
 block_cipher = None
 
