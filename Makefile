@@ -168,9 +168,8 @@ translation_po:
 	msgmerge -U ${PO_FILE_PATH} ${TMP_POT_FILE_PATH}
 
 translation_mo:
-	chmod +x msgfmt.py
 	for dir in buzz/locale/*/ ; do \
-		msgfmt.py -o $$dir/LC_MESSAGES/buzz.mo $$dir/LC_MESSAGES/buzz.po; \
+		python msgfmt.py -o $$dir/LC_MESSAGES/buzz.mo $$dir/LC_MESSAGES/buzz.po; \
 	done
 
 lint:
