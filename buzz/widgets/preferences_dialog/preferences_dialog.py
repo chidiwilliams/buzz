@@ -32,7 +32,6 @@ class PreferencesDialog(QDialog):
 
     def __init__(
         self,
-        #     TODO: move shortcuts and default export file name into preferences
         shortcuts: Shortcuts,
         preferences: Preferences,
         parent: Optional[QWidget] = None,
