@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-03-14 02:33+0000\n"
-"PO-Revision-Date: 2023-09-02 16:02+0200\n"
+"PO-Revision-Date: 2024-03-15 19:22+0100\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
 "MIME-Version: 1.0\n"
@@ -90,14 +90,12 @@ msgid "Cancel Transcription"
 msgstr "Annulla trascrizione"
 
 #: buzz/widgets/menu_bar.py:37
-#, fuzzy
 msgid "Import File..."
-msgstr "Importa file media…"
+msgstr "Importa file.."
 
 #: buzz/widgets/menu_bar.py:40
-#, fuzzy
 msgid "Import URL..."
-msgstr "Importa file media…"
+msgstr "Importa URL..."
 
 #: buzz/widgets/menu_bar.py:46
 msgid "Preferences..."
@@ -133,7 +131,7 @@ msgstr "Inizio"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:67
 msgid "End"
-msgstr "FIne"
+msgstr "Fine"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:68
 msgid "Text"
@@ -145,7 +143,7 @@ msgstr "Salva file"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:89
 msgid "Text files"
-msgstr "File testo"
+msgstr "File di testo"
 
 #: buzz/widgets/about_dialog.py:80
 msgid "Check for updates"
@@ -157,7 +155,7 @@ msgstr "Il programma è aggiornato!"
 
 #: buzz/widgets/import_url_dialog.py:19
 msgid "Import URL"
-msgstr ""
+msgstr "Importa URL"
 
 #: buzz/widgets/import_url_dialog.py:22
 msgid "https://example.com/audio.mp3"
@@ -169,11 +167,11 @@ msgstr ""
 
 #: buzz/widgets/import_url_dialog.py:44
 msgid "Invalid URL"
-msgstr ""
+msgstr "URL  non valido"
 
 #: buzz/widgets/import_url_dialog.py:44
 msgid "The URL you entered is invalid."
-msgstr ""
+msgstr "L'URL inserito non è valido."
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:70
 msgid "Download"
@@ -221,7 +219,7 @@ msgstr "Scorciatoie"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:63
 msgid "Folder Watch"
-msgstr ""
+msgstr "Guarda cartella"
 
 #: buzz/widgets/recording_transcriber_widget.py:60
 msgid "Live Recording"
