@@ -45,8 +45,6 @@ dist/Buzz dist/Buzz.app: buzz/whisper_cpp.py translation_mo
 version:
 	poetry version ${version}
 	echo "VERSION = \"${version}\"" > buzz/__version__.py
-	sed -i "" "s/version=.*,/version=\'${version_escaped}\',/" Buzz.spec
-	sed -i "" "s/\'version\':.*/'version': \'${version_escaped}\',/" setup.py
 
 CMAKE_FLAGS=
 ifeq ($(UNAME_S),Darwin)
