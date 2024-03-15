@@ -74,27 +74,6 @@ class FileDownloadIcon(Icon):
         super().__init__(get_path("assets/file_download_black_24dp.svg"), parent)
 
 
-class DescriptionIcon(Icon):
-    def __init__(self, parent: QWidget):
-        super().__init__(
-            get_path("assets/description_FILL0_wght700_GRAD0_opsz48.svg"), parent
-        )
-
-
-class ViewTimelineIcon(Icon):
-    def __init__(self, parent: QWidget):
-        super().__init__(
-            get_path("assets/view_timeline_FILL0_wght700_GRAD0_opsz48.svg"), parent
-        )
-
-
-class SettingsIcon(Icon):
-    def __init__(self, parent: QWidget):
-        super().__init__(
-            get_path("assets/settings_FILL0_wght700_GRAD0_opsz48.svg"), parent
-        )
-
-
 class VisibilityIcon(Icon):
     def __init__(self, parent: QWidget):
         super().__init__(
