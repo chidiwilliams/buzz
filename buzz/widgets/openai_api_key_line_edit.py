@@ -4,7 +4,7 @@ from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QWidget, QLineEdit
 
 from buzz.assets import get_path
-from buzz.widgets.icon import Icon
+from buzz.widgets.icon import Icon, VisibilityIcon
 from buzz.widgets.line_edit import LineEdit
 
 
@@ -16,9 +16,7 @@ class OpenAIAPIKeyLineEdit(LineEdit):
 
         self.key = key
 
-        self.visible_on_icon = Icon(
-            get_path("assets/visibility_FILL0_wght700_GRAD0_opsz48.svg"), self
-        )
+        self.visible_on_icon = VisibilityIcon(self)
         self.visible_off_icon = Icon(
             get_path("assets/visibility_off_FILL0_wght700_GRAD0_opsz48.svg"), self
         )

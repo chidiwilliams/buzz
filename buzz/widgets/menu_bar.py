@@ -1,5 +1,5 @@
 import webbrowser
-from typing import Dict, Optional
+from typing import Optional
 
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QAction, QKeySequence
@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import QMenuBar, QWidget
 from buzz.locale import _
 from buzz.settings.settings import APP_NAME
 from buzz.settings.shortcut import Shortcut
+from buzz.settings.shortcuts import Shortcuts
 from buzz.widgets.about_dialog import AboutDialog
 from buzz.widgets.preferences_dialog.models.preferences import Preferences
 from buzz.widgets.preferences_dialog.preferences_dialog import (
@@ -18,14 +19,14 @@ from buzz.widgets.preferences_dialog.preferences_dialog import (
 class MenuBar(QMenuBar):
     import_action_triggered = pyqtSignal()
     import_url_action_triggered = pyqtSignal()
-    shortcuts_changed = pyqtSignal(dict)
+    shortcuts_changed = pyqtSignal()
     openai_api_key_changed = pyqtSignal(str)
     preferences_changed = pyqtSignal(Preferences)
     preferences_dialog: Optional[PreferencesDialog] = None
 
     def __init__(
         self,
-        shortcuts: Dict[str, str],
+        shortcuts: Shortcuts,
         preferences: Preferences,
         parent: Optional[QWidget] = None,
     ):
@@ -49,7 +50,7 @@ class MenuBar(QMenuBar):
         help_action = QAction(f'{_("Help")}', self)
         help_action.triggered.connect(self.on_help_action_triggered)
 
-        self.set_shortcuts(shortcuts)
+        self.reset_shortcuts()
 
         file_menu = self.addMenu(_("File"))
         file_menu.addAction(self.import_action)
@@ -86,15 +87,15 @@ class MenuBar(QMenuBar):
     def on_help_action_triggered(self):
         webbrowser.open("https://chidiwilliams.github.io/buzz/docs")
 
-    def set_shortcuts(self, shortcuts: Dict[str, str]):
-        self.shortcuts = shortcuts
-
+    def reset_shortcuts(self):
         self.import_action.setShortcut(
-            QKeySequence.fromString(shortcuts[Shortcut.OPEN_IMPORT_WINDOW.name])
+            QKeySequence.fromString(self.shortcuts.get(Shortcut.OPEN_IMPORT_WINDOW))
         )
         self.import_url_action.setShortcut(
-            QKeySequence.fromString(shortcuts[Shortcut.OPEN_IMPORT_URL_WINDOW.name])
+            QKeySequence.fromString(self.shortcuts.get(Shortcut.OPEN_IMPORT_URL_WINDOW))
         )
         self.preferences_action.setShortcut(
-            QKeySequence.fromString(shortcuts[Shortcut.OPEN_PREFERENCES_WINDOW.name])
+            QKeySequence.fromString(
+                self.shortcuts.get(Shortcut.OPEN_PREFERENCES_WINDOW)
+            )
         )

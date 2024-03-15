@@ -187,6 +187,9 @@ class TranscriptionTasksTableWidget(QTableView):
         self.verticalHeader().hide()
         self.setAlternatingRowColors(True)
 
+        # Show date added before date completed
+        self.horizontalHeader().swapSections(11, 12)
+
     def contextMenuEvent(self, event):
         menu = QMenu(self)
         for definition in column_definitions:

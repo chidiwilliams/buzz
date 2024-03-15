@@ -7,10 +7,9 @@ from buzz.widgets.preferences_dialog.preferences_dialog import PreferencesDialog
 
 
 class TestPreferencesDialog:
-    def test_create(self, qtbot: QtBot):
+    def test_create(self, qtbot: QtBot, shortcuts):
         dialog = PreferencesDialog(
-            shortcuts={},
-            preferences=Preferences.load(QSettings()),
+            shortcuts=shortcuts, preferences=Preferences.load(QSettings())
         )
         qtbot.add_widget(dialog)
 

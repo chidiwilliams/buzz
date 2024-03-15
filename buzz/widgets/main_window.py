@@ -19,7 +19,7 @@ from buzz.db.service.transcription_service import TranscriptionService
 from buzz.file_transcriber_queue_worker import FileTranscriberQueueWorker
 from buzz.locale import _
 from buzz.settings.settings import APP_NAME, Settings
-from buzz.settings.shortcut_settings import ShortcutSettings
+from buzz.settings.shortcuts import Shortcuts
 from buzz.store.keyring_store import set_password, Key
 from buzz.transcriber.transcriber import (
     FileTranscriptionTask,
@@ -59,8 +59,7 @@ class MainWindow(QMainWindow):
 
         self.settings = Settings()
 
-        self.shortcut_settings = ShortcutSettings(settings=self.settings)
-        self.shortcuts = self.shortcut_settings.load()
+        self.shortcuts = Shortcuts(settings=self.settings)
 
         self.transcription_service = transcription_service
 
@@ -326,7 +325,11 @@ class MainWindow(QMainWindow):
 
     def open_transcription_viewer(self, transcription: Transcription):
         transcription_viewer_widget = TranscriptionViewerWidget(
-            transcription=transcription, parent=self, flags=Qt.WindowType.Window
+            transcription=transcription,
+            transcription_service=self.transcription_service,
+            shortcuts=self.shortcuts,
+            parent=self,
+            flags=Qt.WindowType.Window,
         )
         transcription_viewer_widget.show()
 
@@ -354,15 +357,12 @@ class MainWindow(QMainWindow):
         self.table_widget.refresh_row(task.uid)
 
     def on_task_error(self, task: FileTranscriptionTask, error: str):
-        logging.debug("FAILED!!!!")
         self.transcription_service.update_transcription_as_failed(task.uid, error)
         self.table_widget.refresh_row(task.uid)
 
-    def on_shortcuts_changed(self, shortcuts: dict):
-        self.shortcuts = shortcuts
-        self.menu_bar.set_shortcuts(shortcuts=self.shortcuts)
-        self.toolbar.set_shortcuts(shortcuts=self.shortcuts)
-        self.shortcut_settings.save(shortcuts=self.shortcuts)
+    def on_shortcuts_changed(self):
+        self.menu_bar.reset_shortcuts()
+        self.toolbar.reset_shortcuts()
 
     def resizeEvent(self, event):
         self.save_geometry()
@@ -373,7 +373,6 @@ class MainWindow(QMainWindow):
         self.transcriber_worker.stop()
         self.transcriber_thread.quit()
         self.transcriber_thread.wait()
-        self.shortcut_settings.save(shortcuts=self.shortcuts)
         super().closeEvent(event)
 
     def save_geometry(self):

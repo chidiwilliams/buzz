@@ -90,6 +90,8 @@ class TranscriptionSegmentsEditorWidget(QTableView):
         self.selectionModel().selectionChanged.connect(self.on_selection_changed)
         model.select()
 
+        # Show start before end
+        self.horizontalHeader().swapSections(1, 2)
         self.resizeColumnsToContents()
 
     def on_selection_changed(

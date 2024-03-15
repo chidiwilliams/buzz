@@ -7,8 +7,8 @@ APP_NAME = "Buzz"
 
 
 class Settings:
-    def __init__(self):
-        self.settings = QSettings(APP_NAME)
+    def __init__(self, application=""):
+        self.settings = QSettings(APP_NAME, application)
         self.settings.sync()
 
     class Key(enum.Enum):

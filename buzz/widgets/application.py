@@ -1,5 +1,6 @@
 import sys
 
+from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QApplication
 
 from buzz.__version__ import VERSION
@@ -22,7 +23,7 @@ class Application(QApplication):
         self.setApplicationVersion(VERSION)
 
         if sys.platform == "darwin":
-            self.setStyle("Fusion")
+            self.setFont(QFont("SF Pro", self.font().pointSize()))
 
         db = setup_app_db()
         transcription_service = TranscriptionService(

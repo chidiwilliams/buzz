@@ -42,3 +42,6 @@ class TranscriptionService:
                     transcription_id=str(id),
                 )
             )
+
+    def get_transcription_segments(self, transcription_id: UUID):
+        return self.transcription_segment_dao.get_segments(transcription_id)
