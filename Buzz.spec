@@ -23,6 +23,7 @@ datas += collect_data_files("transformers", include_py_files=True)
 datas += collect_data_files("whisper")
 datas += [("buzz/assets/*", "assets")]
 datas += [("buzz/locale", "locale")]
+datas += [("buzz/schema.sql", ".")]
 
 block_cipher = None
 

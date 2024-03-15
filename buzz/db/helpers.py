@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from sqlite3 import Connection
 
+from buzz.assets import get_path
 from buzz.cache import TasksCache
 from buzz.db.migrator import dumb_migrate_db
 
@@ -64,7 +65,7 @@ def copy_transcriptions_from_json_to_sqlite(conn: Connection):
 
 
 def run_sqlite_migrations(db: Connection):
-    schema_path = os.path.join(os.path.dirname(__file__), "schema.sql")
+    schema_path = get_path("schema.sql")
 
     with open(schema_path) as schema_file:
         schema = schema_file.read()

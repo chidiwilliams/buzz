@@ -1,7 +1,7 @@
 from PyQt6.QtGui import QIcon, QPixmap, QPainter, QColor
 from PyQt6.QtWidgets import QWidget
 
-from buzz.assets import get_asset_path
+from buzz.assets import get_path
 
 
 class Icon(QIcon):
@@ -51,38 +51,34 @@ class Icon(QIcon):
 
 class PlayIcon(Icon):
     def __init__(self, parent: QWidget):
-        super().__init__(get_asset_path("assets/play_arrow_black_24dp.svg"), parent)
+        super().__init__(get_path("assets/play_arrow_black_24dp.svg"), parent)
 
 
 class PauseIcon(Icon):
     def __init__(self, parent: QWidget):
-        super().__init__(get_asset_path("assets/pause_black_24dp.svg"), parent)
+        super().__init__(get_path("assets/pause_black_24dp.svg"), parent)
 
 
 class UndoIcon(Icon):
     def __init__(self, parent: QWidget):
-        super().__init__(
-            get_asset_path("assets/undo_FILL0_wght700_GRAD0_opsz48.svg"), parent
-        )
+        super().__init__(get_path("assets/undo_FILL0_wght700_GRAD0_opsz48.svg"), parent)
 
 
 class RedoIcon(Icon):
     def __init__(self, parent: QWidget):
-        super().__init__(
-            get_asset_path("assets/redo_FILL0_wght700_GRAD0_opsz48.svg"), parent
-        )
+        super().__init__(get_path("assets/redo_FILL0_wght700_GRAD0_opsz48.svg"), parent)
 
 
 class FileDownloadIcon(Icon):
     def __init__(self, parent: QWidget):
-        super().__init__(get_asset_path("assets/file_download_black_24dp.svg"), parent)
+        super().__init__(get_path("assets/file_download_black_24dp.svg"), parent)
 
 
-BUZZ_ICON_PATH = get_asset_path("assets/buzz.ico")
-BUZZ_LARGE_ICON_PATH = get_asset_path("assets/buzz-icon-1024.png")
+BUZZ_ICON_PATH = get_path("assets/buzz.ico")
+BUZZ_LARGE_ICON_PATH = get_path("assets/buzz-icon-1024.png")
 
-RECORD_ICON_PATH = get_asset_path("assets/mic_FILL0_wght700_GRAD0_opsz48.svg")
-EXPAND_ICON_PATH = get_asset_path("assets/open_in_full_FILL0_wght700_GRAD0_opsz48.svg")
-ADD_ICON_PATH = get_asset_path("assets/add_FILL0_wght700_GRAD0_opsz48.svg")
-TRASH_ICON_PATH = get_asset_path("assets/delete_FILL0_wght700_GRAD0_opsz48.svg")
-CANCEL_ICON_PATH = get_asset_path("assets/cancel_FILL0_wght700_GRAD0_opsz48.svg")
+RECORD_ICON_PATH = get_path("assets/mic_FILL0_wght700_GRAD0_opsz48.svg")
+EXPAND_ICON_PATH = get_path("assets/open_in_full_FILL0_wght700_GRAD0_opsz48.svg")
+ADD_ICON_PATH = get_path("assets/add_FILL0_wght700_GRAD0_opsz48.svg")
+TRASH_ICON_PATH = get_path("assets/delete_FILL0_wght700_GRAD0_opsz48.svg")
+CANCEL_ICON_PATH = get_path("assets/cancel_FILL0_wght700_GRAD0_opsz48.svg")
