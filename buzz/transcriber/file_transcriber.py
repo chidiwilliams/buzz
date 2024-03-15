@@ -102,6 +102,7 @@ class FileTranscriber(QObject):
         ...
 
 
+# TODO: Move to transcription service
 def write_output(path: str, segments: List[Segment], output_format: OutputFormat):
     logging.debug(
         "Writing transcription output, path = %s, output format = %s, number of segments = %s",

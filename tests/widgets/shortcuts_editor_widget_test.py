@@ -1,6 +1,5 @@
 from PyQt6.QtWidgets import QPushButton, QLabel
 
-from buzz.settings.shortcut import Shortcut
 from buzz.widgets.preferences_dialog.shortcuts_editor_preferences_widget import (
     ShortcutsEditorPreferencesWidget,
 )
@@ -8,10 +7,8 @@ from buzz.widgets.sequence_edit import SequenceEdit
 
 
 class TestShortcutsEditorWidget:
-    def test_should_reset_to_defaults(self, qtbot):
-        widget = ShortcutsEditorPreferencesWidget(
-            shortcuts=Shortcut.get_default_shortcuts()
-        )
+    def test_should_reset_to_defaults(self, qtbot, shortcuts):
+        widget = ShortcutsEditorPreferencesWidget(shortcuts=shortcuts)
         qtbot.add_widget(widget)
 
         reset_button = widget.findChild(QPushButton)
@@ -26,7 +23,8 @@ class TestShortcutsEditorWidget:
             ("Import File", "Ctrl+O"),
             ("Import URL", "Ctrl+U"),
             ("Open Preferences Window", "Ctrl+,"),
-            ("Open Transcript Viewer", "Ctrl+E"),
+            ("View Transcript Text", "Ctrl+E"),
+            ("View Transcript Timestamps", "Ctrl+T"),
             ("Clear History", "Ctrl+S"),
             ("Cancel Transcription", "Ctrl+X"),
         )

@@ -9,3 +9,4 @@ class TranscriptionSegment(Entity):
     end_time: int
     text: str
     transcription_id: str
+    id: int = -1

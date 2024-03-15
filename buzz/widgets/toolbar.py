@@ -14,9 +14,10 @@ class ToolBar(QToolBar):
         self.setStyleSheet("QToolButton{margin: 6px 3px;}")
         self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
 
-    def addAction(self, action: QtGui.QAction) -> None:
-        super().addAction(action)
+    def addAction(self, *args):
+        action = super().addAction(*args)
         self.fix_spacing_on_mac()
+        return action
 
     def addActions(self, actions: typing.Iterable[QtGui.QAction]) -> None:
         super().addActions(actions)

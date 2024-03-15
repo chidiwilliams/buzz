@@ -20,6 +20,13 @@ class Transcription(Entity):
     error_message: str | None = None
     file: str | None = None
     time_queued: str = datetime.datetime.now().isoformat()
+    progress: float = 0.0
+    time_ended: str | None = None
+    time_started: str | None = None
+    export_formats: str | None = None
+    output_folder: str | None = None
+    source: str | None = None
+    url: str | None = None
 
     @property
     def id_as_uuid(self):

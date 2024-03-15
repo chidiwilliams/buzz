@@ -1,4 +1,6 @@
 import os
+import random
+import string
 
 import pytest
 from PyQt6.QtSql import QSqlDatabase
@@ -8,6 +10,8 @@ from buzz.db.dao.transcription_dao import TranscriptionDAO
 from buzz.db.dao.transcription_segment_dao import TranscriptionSegmentDAO
 from buzz.db.db import setup_test_db
 from buzz.db.service.transcription_service import TranscriptionService
+from buzz.settings.settings import Settings
+from buzz.settings.shortcuts import Shortcuts
 from buzz.widgets.application import Application
 
 
@@ -52,3 +56,19 @@ def qapp_args(request):
         return []
 
     return request.param
+
+
+@pytest.fixture(scope="session")
+def settings():
+    application = "".join(
+        random.choice(string.ascii_letters + string.digits) for _ in range(6)
+    )
+
+    settings = Settings(application=application)
+    yield settings
+    settings.clear()
+
+
+@pytest.fixture(scope="session")
+def shortcuts(settings):
+    return Shortcuts(settings)

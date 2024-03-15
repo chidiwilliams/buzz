@@ -1,10 +1,14 @@
-from typing import Dict, Optional
+from typing import Optional
 
 from PyQt6.QtCore import pyqtSignal, Qt
 from PyQt6.QtGui import QKeySequence
 from PyQt6.QtWidgets import QWidget
 
 from buzz.action import Action
+from buzz.locale import _
+from buzz.settings.shortcut import Shortcut
+from buzz.settings.shortcuts import Shortcuts
+from buzz.widgets.icon import Icon
 from buzz.widgets.icon import (
     RECORD_ICON_PATH,
     ADD_ICON_PATH,
@@ -12,9 +16,6 @@ from buzz.widgets.icon import (
     CANCEL_ICON_PATH,
     TRASH_ICON_PATH,
 )
-from buzz.locale import _
-from buzz.settings.shortcut import Shortcut
-from buzz.widgets.icon import Icon
 from buzz.widgets.recording_transcriber_widget import RecordingTranscriberWidget
 from buzz.widgets.toolbar import ToolBar
 
@@ -26,8 +27,10 @@ class MainWindowToolbar(ToolBar):
     ICON_LIGHT_THEME_BACKGROUND = "#555"
     ICON_DARK_THEME_BACKGROUND = "#AAA"
 
-    def __init__(self, shortcuts: Dict[str, str], parent: Optional[QWidget]):
+    def __init__(self, shortcuts: Shortcuts, parent: Optional[QWidget]):
         super().__init__(parent)
+
+        self.shortcuts = shortcuts
 
         self.record_action = Action(Icon(RECORD_ICON_PATH, self), _("Record"), self)
         self.record_action.triggered.connect(self.on_record_action_triggered)
@@ -59,7 +62,7 @@ class MainWindowToolbar(ToolBar):
         self.clear_history_action_triggered = self.clear_history_action.triggered
         self.clear_history_action.setDisabled(True)
 
-        self.set_shortcuts(shortcuts)
+        self.reset_shortcuts()
 
         self.addAction(self.record_action)
         self.addSeparator()
@@ -74,21 +77,18 @@ class MainWindowToolbar(ToolBar):
         self.setMovable(False)
         self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
 
-    def set_shortcuts(self, shortcuts: Dict[str, str]):
+    def reset_shortcuts(self):
         self.record_action.setShortcut(
-            QKeySequence.fromString(shortcuts[Shortcut.OPEN_RECORD_WINDOW.name])
+            QKeySequence.fromString(self.shortcuts.get(Shortcut.OPEN_RECORD_WINDOW))
         )
         self.new_transcription_action.setShortcut(
-            QKeySequence.fromString(shortcuts[Shortcut.OPEN_IMPORT_WINDOW.name])
-        )
-        self.open_transcript_action.setShortcut(
-            QKeySequence.fromString(shortcuts[Shortcut.OPEN_TRANSCRIPT_EDITOR.name])
+            QKeySequence.fromString(self.shortcuts.get(Shortcut.OPEN_IMPORT_WINDOW))
         )
         self.stop_transcription_action.setShortcut(
-            QKeySequence.fromString(shortcuts[Shortcut.STOP_TRANSCRIPTION.name])
+            QKeySequence.fromString(self.shortcuts.get(Shortcut.STOP_TRANSCRIPTION))
         )
         self.clear_history_action.setShortcut(
-            QKeySequence.fromString(shortcuts[Shortcut.CLEAR_HISTORY.name])
+            QKeySequence.fromString(self.shortcuts.get(Shortcut.CLEAR_HISTORY))
         )
 
     def on_record_action_triggered(self):

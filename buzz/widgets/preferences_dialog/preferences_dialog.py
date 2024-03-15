@@ -1,10 +1,11 @@
 import copy
-from typing import Dict, Optional
+from typing import Optional
 
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QDialog, QWidget, QVBoxLayout, QTabWidget, QDialogButtonBox
 
 from buzz.locale import _
+from buzz.settings.shortcuts import Shortcuts
 from buzz.widgets.preferences_dialog.folder_watch_preferences_widget import (
     FolderWatchPreferencesWidget,
 )
@@ -24,7 +25,7 @@ from buzz.widgets.preferences_dialog.shortcuts_editor_preferences_widget import 
 
 
 class PreferencesDialog(QDialog):
-    shortcuts_changed = pyqtSignal(dict)
+    shortcuts_changed = pyqtSignal()
     openai_api_key_changed = pyqtSignal(str)
     folder_watch_config_changed = pyqtSignal(FolderWatchPreferences)
     preferences_changed = pyqtSignal(Preferences)
@@ -32,7 +33,7 @@ class PreferencesDialog(QDialog):
     def __init__(
         self,
         #     TODO: move shortcuts and default export file name into preferences
-        shortcuts: Dict[str, str],
+        shortcuts: Shortcuts,
         preferences: Preferences,
         parent: Optional[QWidget] = None,
     ) -> None:
