@@ -1,4 +1,5 @@
 from PyQt6.QtWidgets import QPushButton, QLabel
+from pytestqt.qtbot import QtBot
 
 from buzz.widgets.preferences_dialog.shortcuts_editor_preferences_widget import (
     ShortcutsEditorPreferencesWidget,
@@ -7,6 +8,15 @@ from buzz.widgets.sequence_edit import SequenceEdit
 
 
 class TestShortcutsEditorWidget:
+    def test_should_update_shortcuts(self, qtbot: QtBot, shortcuts):
+        widget = ShortcutsEditorPreferencesWidget(shortcuts=shortcuts)
+        qtbot.add_widget(widget)
+
+        sequence_edit = widget.findChild(SequenceEdit)
+        assert sequence_edit.keySequence().toString() == "Ctrl+R"
+        with qtbot.wait_signal(widget.shortcuts_changed, timeout=1000):
+            sequence_edit.setKeySequence("Ctrl+Shift+R")
+
     def test_should_reset_to_defaults(self, qtbot, shortcuts):
         widget = ShortcutsEditorPreferencesWidget(shortcuts=shortcuts)
         qtbot.add_widget(widget)
