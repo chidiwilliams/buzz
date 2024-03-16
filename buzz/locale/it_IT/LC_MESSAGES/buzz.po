@@ -270,4 +270,4 @@ msgstr ""
 #~ msgstr "Esporta"
 
 #~ msgid "Failed"
-#~ msgstr "Fallito"
+#~ msgstr "Non riuscito"
