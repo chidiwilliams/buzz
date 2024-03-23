@@ -13,6 +13,7 @@ from buzz.widgets.transcription_viewer.transcription_segments_editor_widget impo
 from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
     TranscriptionViewerWidget,
 )
+from tests.audio import test_audio_path
 
 
 class TestTranscriptionViewerWidget:
@@ -25,7 +26,7 @@ class TestTranscriptionViewerWidget:
             Transcription(
                 id=str(id),
                 status="completed",
-                file="testdata/whisper-french.mp3",
+                file=test_audio_path,
                 task=Task.TRANSCRIBE.value,
                 model_type=ModelType.WHISPER.value,
                 whisper_model_size=WhisperModelSize.SMALL.value,

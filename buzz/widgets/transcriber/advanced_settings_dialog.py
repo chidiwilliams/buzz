@@ -7,11 +7,11 @@ from PyQt6.QtWidgets import (
     QPlainTextEdit,
 )
 
-from buzz.widgets.transcriber.temperature_validator import TemperatureValidator
 from buzz.locale import _
 from buzz.model_loader import ModelType
 from buzz.transcriber.transcriber import TranscriptionOptions
 from buzz.widgets.line_edit import LineEdit
+from buzz.widgets.transcriber.temperature_validator import TemperatureValidator
 
 
 class AdvancedSettingsDialog(QDialog):
@@ -55,7 +55,7 @@ class AdvancedSettingsDialog(QDialog):
             self.on_initial_prompt_changed
         )
         self.initial_prompt_text_edit.setEnabled(
-            transcription_options.model.model_type == ModelType.WHISPER
+            transcription_options.model.model_type.supports_initial_prompt
         )
 
         layout.addRow(_("Temperature:"), self.temperature_line_edit)
@@ -63,7 +63,6 @@ class AdvancedSettingsDialog(QDialog):
         layout.addWidget(button_box)
 
         self.setLayout(layout)
-        self.setFixedSize(self.sizeHint())
 
     def on_temperature_changed(self, text: str):
         try:

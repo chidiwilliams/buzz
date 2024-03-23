@@ -21,6 +21,7 @@ from buzz.widgets.preferences_dialog.models.folder_watch_preferences import (
 from buzz.widgets.transcription_task_folder_watcher import (
     TranscriptionTaskFolderWatcher,
 )
+from tests.audio import test_audio_path
 
 
 class TestTranscriptionTaskFolderWatcher:
@@ -50,7 +51,7 @@ class TestTranscriptionTaskFolderWatcher:
             ),
         )
 
-        shutil.copy("testdata/whisper-french.mp3", input_directory)
+        shutil.copy(test_audio_path, input_directory)
 
         with qtbot.wait_signal(watcher.task_found, timeout=10_000) as blocker:
             pass
@@ -92,11 +93,11 @@ class TestTranscriptionTaskFolderWatcher:
 
         # Ignored because already in tasks
         shutil.copy(
-            "testdata/whisper-french.mp3",
+            test_audio_path,
             os.path.join(input_directory, "whisper-french.mp3"),
         )
         shutil.copy(
-            "testdata/whisper-french.mp3",
+            test_audio_path,
             os.path.join(input_directory, "whisper-french2.mp3"),
         )
 

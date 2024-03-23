@@ -58,6 +58,15 @@ class ModelType(enum.Enum):
     FASTER_WHISPER = "Faster Whisper"
     OPEN_AI_WHISPER_API = "OpenAI Whisper API"
 
+    @property
+    def supports_initial_prompt(self):
+        return self in (
+            ModelType.WHISPER,
+            ModelType.WHISPER_CPP,
+            ModelType.OPEN_AI_WHISPER_API,
+            ModelType.FASTER_WHISPER,
+        )
+
     def supports_recording(self):
         # Live transcription with OpenAI Whisper API not supported
         return self != ModelType.OPEN_AI_WHISPER_API

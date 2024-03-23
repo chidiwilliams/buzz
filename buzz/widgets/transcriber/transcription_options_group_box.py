@@ -141,6 +141,9 @@ class TranscriptionOptionsGroupBox(QGroupBox):
 
     def on_model_type_changed(self, model_type: ModelType):
         self.transcription_options.model.model_type = model_type
+        if not model_type.supports_initial_prompt:
+            self.transcription_options.initial_prompt = ""
+
         self.reset_visible_rows()
         self.transcription_options_changed.emit(self.transcription_options)
 
