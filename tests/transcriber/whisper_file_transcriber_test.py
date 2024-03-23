@@ -122,20 +122,20 @@ class TestWhisperFileTranscriber:
     @pytest.mark.parametrize(
         "word_level_timings,expected_segments,model",
         [
-            # (
-            #     False,
-            #     [
-            #         Segment(
-            #             0,
-            #             8400,
-            #             " Bienvenue dans Passe-Relle. Un podcast pensé pour évêiller",
-            #         )
-            #     ],
-            #     TranscriptionModel(
-            #         model_type=ModelType.WHISPER,
-            #         whisper_model_size=WhisperModelSize.TINY,
-            #     ),
-            # ),
+            (
+                False,
+                [
+                    Segment(
+                        0,
+                        8400,
+                        " Bienvenue dans Passe-Relle. Un podcast pensé pour évêiller",
+                    )
+                ],
+                TranscriptionModel(
+                    model_type=ModelType.WHISPER,
+                    whisper_model_size=WhisperModelSize.TINY,
+                ),
+            ),
             (
                 True,
                 [Segment(40, 299, " Bien"), Segment(299, 329, "venue dans")],
