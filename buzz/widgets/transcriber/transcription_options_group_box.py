@@ -1,4 +1,4 @@
-from typing import Optional, List, Tuple
+from typing import Optional, List
 
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QGroupBox, QWidget, QFormLayout, QComboBox
@@ -32,24 +32,6 @@ class TranscriptionOptionsGroupBox(QGroupBox):
 
         self.form_layout = QFormLayout(self)
 
-        self.tasks_combo_box = TasksComboBox(
-            default_task=self.transcription_options.task, parent=self
-        )
-        self.tasks_combo_box.taskChanged.connect(self.on_task_changed)
-
-        self.languages_combo_box = LanguagesComboBox(
-            default_language=self.transcription_options.language, parent=self
-        )
-        self.languages_combo_box.languageChanged.connect(self.on_language_changed)
-
-        self.advanced_settings_button = AdvancedSettingsButton(self)
-        self.advanced_settings_button.clicked.connect(self.open_advanced_settings)
-
-        self.hugging_face_search_line_edit = HuggingFaceSearchLineEdit()
-        self.hugging_face_search_line_edit.model_selected.connect(
-            self.on_hugging_face_model_changed
-        )
-
         self.model_type_combo_box = ModelTypeComboBox(
             model_types=model_types,
             default_model=default_transcription_options.model.model_type,
@@ -76,6 +58,24 @@ class TranscriptionOptionsGroupBox(QGroupBox):
             self.on_openai_access_token_edit_changed
         )
 
+        self.hugging_face_search_line_edit = HuggingFaceSearchLineEdit()
+        self.hugging_face_search_line_edit.model_selected.connect(
+            self.on_hugging_face_model_changed
+        )
+
+        self.tasks_combo_box = TasksComboBox(
+            default_task=self.transcription_options.task, parent=self
+        )
+        self.tasks_combo_box.taskChanged.connect(self.on_task_changed)
+
+        self.languages_combo_box = LanguagesComboBox(
+            default_language=self.transcription_options.language, parent=self
+        )
+        self.languages_combo_box.languageChanged.connect(self.on_language_changed)
+
+        self.advanced_settings_button = AdvancedSettingsButton(self)
+        self.advanced_settings_button.clicked.connect(self.open_advanced_settings)
+
         self.form_layout.addRow(_("Model:"), self.model_type_combo_box)
         self.form_layout.addRow("", self.whisper_model_size_combo_box)
         self.form_layout.addRow("", self.hugging_face_search_line_edit)
@@ -99,14 +99,6 @@ class TranscriptionOptionsGroupBox(QGroupBox):
 
     def on_task_changed(self, task: Task):
         self.transcription_options.task = task
-        self.transcription_options_changed.emit(self.transcription_options)
-
-    def on_temperature_changed(self, temperature: Tuple[float, ...]):
-        self.transcription_options.temperature = temperature
-        self.transcription_options_changed.emit(self.transcription_options)
-
-    def on_initial_prompt_changed(self, initial_prompt: str):
-        self.transcription_options.initial_prompt = initial_prompt
         self.transcription_options_changed.emit(self.transcription_options)
 
     def open_advanced_settings(self):

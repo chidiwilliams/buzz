@@ -84,7 +84,8 @@ class FileTranscriberWidget(QWidget):
         layout.addWidget(self.run_button, 0, Qt.AlignmentFlag.AlignRight)
 
         self.setLayout(layout)
-        self.setFixedSize(self.sizeHint())
+        self.setFixedWidth(self.sizeHint().width() + 50)
+        self.setFixedHeight(self.sizeHint().height())
 
         self.reset_transcriber_controls()
 
