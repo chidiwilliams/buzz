@@ -17,20 +17,19 @@ sounddevice = "^0.4.5"
 humanize = "^4.4.0"
 PyQt6 = "^6.4.0"
 openai = "^1.14.2"
-keyring = "^23.13.1"
-platformdirs = "^3.5.3"
-dataclasses-json = "^0.5.9"
+keyring = "^25.0.0"
+platformdirs = "^4.2.0"
+dataclasses-json = "^0.6.4"
 ffmpeg-python = "0.2.0"
 numpy = "^1.21.2"
 requests = "^2.31.0"
-yt-dlp = "2023.12.30"
+yt-dlp = "2024.3.10"
 
 # Only install on non-Linux to prevent execstack errors
-stable-ts = { version = "1.0.2", markers = "sys_platform != 'linux'" }
-faster-whisper = { version = "^0.10.0", markers = "sys_platform != 'linux'" }
+stable-ts = { version = "2.15.9", markers = "sys_platform != 'linux'" }
+faster-whisper = { version = "^1.0.1", markers = "sys_platform != 'linux'" }
 openai-whisper = { version = "v20231117", markers = "sys_platform != 'linux'" }
-torch = { version = "1.12.1", markers = "sys_platform != 'linux'" }
-transformers = { version = "~4.24.0", markers = "sys_platform != 'linux'" }
+transformers = { version = "^4.39.1", markers = "sys_platform != 'linux'" }
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
