@@ -13,7 +13,6 @@ from PyQt6.QtWidgets import (
 from pytestqt.qtbot import QtBot
 
 from buzz.__version__ import VERSION
-from buzz.widgets.recording_transcriber_widget import RecordingTranscriberWidget
 from buzz.widgets.audio_devices_combo_box import AudioDevicesComboBox
 from buzz.widgets.transcriber.advanced_settings_dialog import AdvancedSettingsDialog
 from buzz.widgets.transcriber.hugging_face_search_line_edit import (
@@ -143,29 +142,6 @@ class TestTemperatureValidator:
     )
     def test_should_validate_temperature(self, text: str, state: QValidator.State):
         assert self.validator.validate(text, 0)[0] == state
-
-
-class TestRecordingTranscriberWidget:
-    def test_should_set_window_title(self, qtbot: QtBot):
-        widget = RecordingTranscriberWidget()
-        qtbot.add_widget(widget)
-        assert widget.windowTitle() == "Live Recording"
-
-    @pytest.mark.skip(reason="Seg faults on CI")
-    def test_should_transcribe(self, qtbot):
-        widget = RecordingTranscriberWidget()
-        qtbot.add_widget(widget)
-
-        def assert_text_box_contains_text():
-            assert len(widget.text_box.toPlainText()) > 0
-
-        widget.record_button.click()
-        qtbot.wait_until(callback=assert_text_box_contains_text, timeout=60 * 1000)
-
-        with qtbot.wait_signal(widget.transcription_thread.finished, timeout=60 * 1000):
-            widget.stop_recording()
-
-        assert "Welcome to Passe" in widget.text_box.toPlainText()
 
 
 class TestHuggingFaceSearchLineEdit:

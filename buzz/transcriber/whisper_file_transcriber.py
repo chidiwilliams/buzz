@@ -65,7 +65,8 @@ class WhisperFileTranscriber(FileTranscriber):
         self.read_line_thread.join()
 
         logging.debug(
-            "whisper process completed with code = %s, time taken = %s, number of segments = %s",
+            "whisper process completed with code = %s, time taken = %s,"
+            " number of segments = %s",
             self.current_process.exitcode,
             datetime.datetime.now() - time_started,
             len(self.segments),

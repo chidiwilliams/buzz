@@ -13,6 +13,7 @@ from buzz.transcriber.transcriber import (
     FileTranscriptionTask,
 )
 from buzz.transcriber.whisper_cpp_file_transcriber import WhisperCppFileTranscriber
+from tests.audio import test_audio_path
 from tests.model_loader import get_model_path
 
 
@@ -31,7 +32,7 @@ class TestWhisperCppFileTranscriber:
         self, qtbot: QtBot, word_level_timings: bool, expected_segments: List[Segment]
     ):
         file_transcription_options = FileTranscriptionOptions(
-            file_paths=["testdata/whisper-french.mp3"]
+            file_paths=[test_audio_path]
         )
         transcription_options = TranscriptionOptions(
             language="fr",
@@ -46,7 +47,7 @@ class TestWhisperCppFileTranscriber:
         model_path = get_model_path(transcription_options.model)
         transcriber = WhisperCppFileTranscriber(
             task=FileTranscriptionTask(
-                file_path="testdata/whisper-french.mp3",
+                file_path=test_audio_path,
                 transcription_options=transcription_options,
                 file_transcription_options=file_transcription_options,
                 model_path=model_path,

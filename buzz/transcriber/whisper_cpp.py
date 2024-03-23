@@ -6,7 +6,7 @@ import numpy as np
 
 from buzz import whisper_audio
 from buzz.model_loader import LOADED_WHISPER_CPP_BINARY
-from buzz.transcriber.transcriber import Segment, Task
+from buzz.transcriber.transcriber import Segment, Task, TranscriptionOptions
 
 if LOADED_WHISPER_CPP_BINARY:
     from buzz import whisper_cpp
@@ -55,9 +55,7 @@ class WhisperCpp:
 
 
 def whisper_cpp_params(
-    language: str,
-    task: Task,
-    word_level_timings: bool,
+    transcription_options: TranscriptionOptions,
     print_realtime=False,
     print_progress=False,
 ):
@@ -66,9 +64,15 @@ def whisper_cpp_params(
     )
     params.print_realtime = print_realtime
     params.print_progress = print_progress
-    params.language = whisper_cpp.String(language.encode())
-    params.translate = task == Task.TRANSLATE
+
+    params.language = whisper_cpp.String(
+        (transcription_options.language or "en").encode()
+    )
+    params.translate = transcription_options.task == Task.TRANSLATE
     params.max_len = ctypes.c_int(1)
-    params.max_len = 1 if word_level_timings else 0
-    params.token_timestamps = word_level_timings
+    params.max_len = 1 if transcription_options.word_level_timings else 0
+    params.token_timestamps = transcription_options.word_level_timings
+    params.initial_prompt = whisper_cpp.String(
+        transcription_options.initial_prompt.encode()
+    )
     return params

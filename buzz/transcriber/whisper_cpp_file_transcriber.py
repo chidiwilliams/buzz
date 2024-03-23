@@ -27,10 +27,8 @@ class WhisperCppFileTranscriber(FileTranscriber):
     ) -> None:
         super().__init__(task, parent)
 
-        self.language = task.transcription_options.language
+        self.transcription_options = task.transcription_options
         self.model_path = task.model_path
-        self.task = task.transcription_options.task
-        self.word_level_timings = task.transcription_options.word_level_timings
         self.state = self.State()
 
     def transcribe(self) -> List[Segment]:
@@ -41,19 +39,17 @@ class WhisperCppFileTranscriber(FileTranscriber):
             "Starting whisper_cpp file transcription, file path = %s, language = %s, "
             "task = %s, model_path = %s, word level timings = %s",
             self.transcription_task.file_path,
-            self.language,
-            self.task,
+            self.transcription_options.language,
+            self.transcription_options.task,
             model_path,
-            self.word_level_timings,
+            self.transcription_options.word_level_timings,
         )
 
         audio = whisper_audio.load_audio(self.transcription_task.file_path)
         self.duration_audio_ms = len(audio) * 1000 / whisper_audio.SAMPLE_RATE
 
         whisper_params = whisper_cpp_params(
-            language=self.language if self.language is not None else "",
-            task=self.task,
-            word_level_timings=self.word_level_timings,
+            transcription_options=self.transcription_options
         )
         whisper_params.encoder_begin_callback_user_data = ctypes.c_void_p(
             id(self.state)
