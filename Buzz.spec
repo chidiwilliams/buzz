@@ -79,8 +79,8 @@ exe = EXE(
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
+    codesign_identity=os.environ.get("BUZZ_CODESIGN_IDENTITY"),
+    entitlements_file="entitlements.plist" if platform.system() == "Darwin" else None,
 )
 coll = COLLECT(
     exe,
