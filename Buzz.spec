@@ -17,6 +17,9 @@ datas += copy_metadata("packaging")
 datas += copy_metadata("filelock")
 datas += copy_metadata("numpy")
 datas += copy_metadata("tokenizers")
+datas += copy_metadata("huggingface-hub")
+datas += copy_metadata("safetensors")
+datas += copy_metadata("pyyaml")
 
 # Allow transformers package to load __init__.py file dynamically:
 # https://github.com/chidiwilliams/buzz/issues/272
