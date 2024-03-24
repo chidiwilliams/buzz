@@ -20,7 +20,6 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-          - os: macos-14
           - os: windows-latest
           - os: ubuntu-20.04
           - os: ubuntu-22.04
@@ -31,7 +30,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.10.11"
+          python-version: "3.10.7"
 
       - name: Install Poetry Action
         uses: snok/install-poetry@v1.3.1
@@ -88,7 +87,6 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-          - os: macos-14
           - os: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -96,7 +94,7 @@ jobs:
           submodules: recursive
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.10.11"
+          python-version: "3.10.7"
 
       - name: Install Poetry Action
         uses: snok/install-poetry@v1.3.1
@@ -203,7 +201,7 @@ jobs:
           submodules: recursive
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.10.11"
+          python-version: "3.10.7"
       - name: Install Poetry Action
         uses: snok/install-poetry@v1.3.1
         with:
