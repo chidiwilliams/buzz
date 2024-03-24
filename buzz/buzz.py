@@ -8,6 +8,8 @@ from typing import TextIO
 
 from platformdirs import user_log_dir
 
+from buzz.assets import APP_BASE_DIR
+
 # Check for segfaults if not running in frozen mode
 if getattr(sys, "frozen", False) is False:
     faulthandler.enable()
@@ -19,12 +21,11 @@ if sys.stderr is None:
 
 # Adds the current directory to the PATH, so the ffmpeg binary get picked up:
 # https://stackoverflow.com/a/44352931/9830227
-app_dir = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
-os.environ["PATH"] += os.pathsep + app_dir
+os.environ["PATH"] += os.pathsep + APP_BASE_DIR
 
 # Add the app directory to the DLL list: https://stackoverflow.com/a/64303856
 if platform.system() == "Windows":
-    os.add_dll_directory(app_dir)
+    os.add_dll_directory(APP_BASE_DIR)
 
 
 def main():
@@ -47,7 +48,7 @@ def main():
         format=log_format,
     )
 
-    logging.debug("app_dir: %s", app_dir)
+    logging.debug("app_dir: %s", APP_BASE_DIR)
 
     if getattr(sys, "frozen", False) is False:
         stdout_handler = logging.StreamHandler(sys.stdout)
