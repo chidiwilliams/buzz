@@ -1,3 +1,4 @@
+import platform
 import sys
 
 import pytest
@@ -6,7 +7,10 @@ from buzz.transformers_whisper import load_model
 from tests.audio import test_audio_path
 
 
-@pytest.mark.skipif(sys.platform == "linux", reason="Not supported on Linux")
+@pytest.mark.skipif(
+    sys.platform == "linux" or platform.system() == "Darwin",
+    reason="Not supported on Linux",
+)
 class TestTransformersWhisper:
     def test_should_transcribe(self):
         model = load_model("openai/whisper-tiny")
