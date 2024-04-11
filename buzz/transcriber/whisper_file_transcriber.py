@@ -2,6 +2,7 @@ import datetime
 import json
 import logging
 import multiprocessing
+import re
 import sys
 from multiprocessing.connection import Connection
 from threading import Thread
@@ -20,6 +21,9 @@ if sys.platform != "linux":
     import faster_whisper
     import whisper
     import stable_whisper
+    from stable_whisper import WhisperResult
+
+PROGRESS_REGEX = re.compile(r"\d+(\.\d+)?%")
 
 
 class WhisperFileTranscriber(FileTranscriber):
@@ -65,7 +69,8 @@ class WhisperFileTranscriber(FileTranscriber):
         self.read_line_thread.join()
 
         logging.debug(
-            "whisper process completed with code = %s, time taken = %s, number of segments = %s",
+            "whisper process completed with code = %s, time taken = %s,"
+            " number of segments = %s",
             self.current_process.exitcode,
             datetime.datetime.now() - time_started,
             len(self.segments),
@@ -165,25 +170,24 @@ class WhisperFileTranscriber(FileTranscriber):
 
         if task.transcription_options.word_level_timings:
             stable_whisper.modify_model(model)
-            result = model.transcribe(
+            result: WhisperResult = model.transcribe(
                 audio=task.file_path,
                 language=task.transcription_options.language,
                 task=task.transcription_options.task.value,
                 temperature=task.transcription_options.temperature,
                 initial_prompt=task.transcription_options.initial_prompt,
-                pbar=True,
             )
-            segments = stable_whisper.group_word_timestamps(result)
             return [
                 Segment(
-                    start=int(segment.get("start") * 1000),
-                    end=int(segment.get("end") * 1000),
-                    text=segment.get("text"),
+                    start=int(word.start * 1000),
+                    end=int(word.end * 1000),
+                    text=word.word.strip(),
                 )
-                for segment in segments
+                for segment in result.segments
+                for word in segment.words
             ]
 
-        result = model.transcribe(
+        result: dict = model.transcribe(
             audio=task.file_path,
             language=task.transcription_options.language,
             task=task.transcription_options.task.value,
@@ -229,8 +233,10 @@ class WhisperFileTranscriber(FileTranscriber):
                 self.segments = segments
             else:
                 try:
-                    progress = int(line.split("|")[0].strip().strip("%"))
-                    self.progress.emit((progress, 100))
+                    match = PROGRESS_REGEX.search(line)
+                    if match is not None:
+                        progress = int(match.group().strip("%"))
+                        self.progress.emit((progress, 100))
                 except ValueError:
                     logging.debug("whisper (stderr): %s", line)
                     continue

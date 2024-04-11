@@ -16,28 +16,26 @@ python = ">=3.9.13,<3.11"
 sounddevice = "^0.4.5"
 humanize = "^4.4.0"
 PyQt6 = "^6.4.0"
-openai = "^1.6.1"
-keyring = "^23.13.1"
-platformdirs = "^3.5.3"
-dataclasses-json = "^0.5.9"
-ffmpeg-python = "0.2.0"
+openai = "^1.14.2"
+keyring = "^25.0.0"
+platformdirs = "^4.2.0"
+dataclasses-json = "^0.6.4"
 numpy = "^1.21.2"
 requests = "^2.31.0"
-yt-dlp = "2023.12.30"
+yt-dlp = "2024.3.10"
 
 # Only install on non-Linux to prevent execstack errors
-stable-ts = { version = "1.0.2", markers = "sys_platform != 'linux'" }
-faster-whisper = { version = "^0.10.0", markers = "sys_platform != 'linux'" }
+stable-ts = { version = "2.15.9", markers = "sys_platform != 'linux'" }
+faster-whisper = { version = "^1.0.1", markers = "sys_platform != 'linux'" }
 openai-whisper = { version = "v20231117", markers = "sys_platform != 'linux'" }
-torch = { version = "1.12.1", markers = "sys_platform != 'linux'" }
-transformers = { version = "~4.24.0", markers = "sys_platform != 'linux'" }
+transformers = { version = "^4.39.1", markers = "sys_platform != 'linux'" }
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
-pyinstaller = "^5.4.1"
+pyinstaller = "^6.5.0"
 # Lock to 2023.11 to fix error in 2023.12:
 #    AttributeError: module 'dataclasses' has no attribute '__version__'
-pyinstaller-hooks-contrib = "2023.11"
+pyinstaller-hooks-contrib = "^2024.3"
 six = "^1.16.0"
 pytest = "^7.1.3"
 pytest-cov = "^4.0.0"

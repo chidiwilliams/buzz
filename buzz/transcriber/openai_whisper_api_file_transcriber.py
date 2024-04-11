@@ -96,17 +96,19 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
 
     def get_segments_for_file(self, file: str, offset_ms: int = 0):
         with open(file, "rb") as file:
+            options = {
+                "model": "whisper-1",
+                "file": file,
+                "response_format": "verbose_json",
+                "prompt": self.transcription_task.transcription_options.initial_prompt,
+            }
             transcript = (
                 self.openai_client.audio.transcriptions.create(
-                    model="whisper-1",
-                    file=file,
-                    response_format="verbose_json",
+                    **options,
                     language=self.transcription_task.transcription_options.language,
                 )
                 if self.transcription_task.transcription_options.task == Task.TRANSCRIBE
-                else self.openai_client.audio.translations.create(
-                    model="whisper-1", file=file, response_format="verbose_json"
-                )
+                else self.openai_client.audio.translations.create(**options)
             )
 
             return [

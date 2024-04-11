@@ -11,6 +11,7 @@ from buzz.transcriber.transcriber import Task
 from buzz.widgets.transcription_viewer.export_transcription_menu import (
     ExportTranscriptionMenu,
 )
+from tests.audio import test_audio_path
 
 
 class TestExportTranscriptionMenu:
@@ -23,7 +24,7 @@ class TestExportTranscriptionMenu:
             Transcription(
                 id=str(id),
                 status="completed",
-                file="testdata/whisper-french.mp3",
+                file=test_audio_path,
                 task=Task.TRANSCRIBE.value,
                 model_type=ModelType.WHISPER.value,
                 whisper_model_size=WhisperModelSize.SMALL.value,

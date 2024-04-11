@@ -196,7 +196,7 @@ class TestWhisperFileTranscriber:
             model=model,
         )
         model_path = get_model_path(transcription_options.model)
-        file_path = os.path.abspath("testdata/whisper-french.mp3")
+        file_path = os.path.abspath(test_audio_path)
         file_transcription_options = FileTranscriptionOptions(file_paths=[file_path])
 
         transcriber = WhisperFileTranscriber(
@@ -309,7 +309,7 @@ class TestWhisperFileTranscriber:
             os.remove(output_file_path)
 
         file_transcription_options = FileTranscriptionOptions(
-            file_paths=["testdata/whisper-french.mp3"]
+            file_paths=[test_audio_path]
         )
         transcription_options = TranscriptionOptions(
             language="fr",
@@ -327,7 +327,7 @@ class TestWhisperFileTranscriber:
                 model_path=model_path,
                 transcription_options=transcription_options,
                 file_transcription_options=file_transcription_options,
-                file_path="testdata/whisper-french.mp3",
+                file_path=test_audio_path,
             )
         )
         transcriber.run()

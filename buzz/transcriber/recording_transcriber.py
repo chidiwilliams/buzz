@@ -111,11 +111,7 @@ class RecordingTranscriber(QObject):
                             result = model.transcribe(
                                 audio=samples,
                                 params=whisper_cpp_params(
-                                    language=self.transcription_options.language
-                                    if self.transcription_options.language is not None
-                                    else "en",
-                                    task=self.transcription_options.task.value,
-                                    word_level_timings=False,
+                                    transcription_options=self.transcription_options
                                 ),
                             )
                         else:

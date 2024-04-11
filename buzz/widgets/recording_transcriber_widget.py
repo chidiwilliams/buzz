@@ -148,8 +148,9 @@ class RecordingTranscriberWidget(QWidget):
         if self.selected_device_id is None or self.selected_device_id == -1:
             return
 
-        # Get the device sample rate before starting the listener as the PortAudio function
-        # fails if you try to get the device's settings while recording is in progress.
+        # Get the device sample rate before starting the listener as the PortAudio
+        # function # fails if you try to get the device's settings while recording
+        # is in progress.
         self.device_sample_rate = RecordingTranscriber.get_device_sample_rate(
             self.selected_device_id
         )
