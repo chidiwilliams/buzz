@@ -1,4 +1,4 @@
-# SOME DESCRIPTIVE TITLE.
+# POLISH TRANSLATION.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-03-14 02:33+0000\n"
-"PO-Revision-Date: 2023-04-23 22:00+0200\n"
+"PO-Revision-Date: 2024-03-17 20:50+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pl_PL\n"
@@ -93,12 +93,12 @@ msgstr "Anuluj transkrypcję"
 #: buzz/widgets/menu_bar.py:37
 #, fuzzy
 msgid "Import File..."
-msgstr "Importuj plik multimediów..."
+msgstr "Importuj plik..."
 
 #: buzz/widgets/menu_bar.py:40
 #, fuzzy
 msgid "Import URL..."
-msgstr "Importuj plik multimediów..."
+msgstr "Importuj URL..."
 
 #: buzz/widgets/menu_bar.py:46
 msgid "Preferences..."
@@ -130,7 +130,7 @@ msgstr "Kolejka"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:66
 msgid "Start"
-msgstr "Roozpocznij"
+msgstr "Rozpocznij"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:67
 msgid "End"
@@ -159,23 +159,23 @@ msgstr "Posiadasz najnowszą wersję!"
 
 #: buzz/widgets/import_url_dialog.py:19
 msgid "Import URL"
-msgstr ""
+msgstr "Importuj URL"
 
 #: buzz/widgets/import_url_dialog.py:22
 msgid "https://example.com/audio.mp3"
-msgstr ""
+msgstr "https://przyklad.pl/audio.mp3"
 
 #: buzz/widgets/import_url_dialog.py:32
 msgid "URL:"
-msgstr ""
+msgstr "URL:"
 
 #: buzz/widgets/import_url_dialog.py:44
 msgid "Invalid URL"
-msgstr ""
+msgstr "Nieprawidłowy URL"
 
 #: buzz/widgets/import_url_dialog.py:44
 msgid "The URL you entered is invalid."
-msgstr ""
+msgstr "Wprowadzony URL nie jest prawidłowy"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:70
 #, fuzzy
@@ -223,11 +223,11 @@ msgstr "Model:"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:57
 msgid "Shortcuts"
-msgstr "Skruty"
+msgstr "Skróty"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:63
 msgid "Folder Watch"
-msgstr ""
+msgstr "Przeglądanie folderu"
 
 #: buzz/widgets/recording_transcriber_widget.py:60
 msgid "Live Recording"
