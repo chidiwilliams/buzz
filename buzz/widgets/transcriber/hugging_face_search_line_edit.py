@@ -14,10 +14,12 @@ from PyQt6.QtCore import (
     QEvent,
 )
 from PyQt6.QtGui import QKeyEvent
+from PyQt6.QtCore import QSettings
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from PyQt6.QtWidgets import QListWidget, QWidget, QAbstractItemView, QListWidgetItem
 
 from buzz.widgets.line_edit import LineEdit
+from buzz.settings.settings import APP_NAME
 
 
 # Adapted from https://github.com/ismailsunni/scripts/blob/master/autocomplete_from_url.py
@@ -30,10 +32,12 @@ class HuggingFaceSearchLineEdit(LineEdit):
         network_access_manager: Optional[QNetworkAccessManager] = None,
         parent: Optional[QWidget] = None,
     ):
-        super().__init__("", parent)
+        self.settings = QSettings(APP_NAME)
+        default_value = self.settings.value("hugging_face_model_id", "openai/whisper-tiny")
+
+        super().__init__(default_value, parent)
 
         self.setMinimumWidth(150)
-        self.setPlaceholderText("openai/whisper-tiny")
 
         self.timer = QTimer(self)
         self.timer.setSingleShot(True)
@@ -59,6 +63,10 @@ class HuggingFaceSearchLineEdit(LineEdit):
         self.popup.installEventFilter(self)
         self.popup.itemClicked.connect(self.on_select_item)
 
+    def focusInEvent(self, event):
+        super().focusInEvent(event)
+        self.clear()
+
     def on_text_edited(self, text: str):
         self.model_selected.emit(text)
 
@@ -68,6 +76,7 @@ class HuggingFaceSearchLineEdit(LineEdit):
 
         item = self.popup.currentItem()
         self.setText(item.text())
+        self.settings.setValue("hugging_face_model_id", item.text())
         QMetaObject.invokeMethod(self, "returnPressed")
         self.model_selected.emit(item.data(Qt.ItemDataRole.UserRole))
 
