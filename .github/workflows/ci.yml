@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-latest
+          - os: macos-13
           - os: windows-latest
           - os: ubuntu-20.04
           - os: ubuntu-22.04
