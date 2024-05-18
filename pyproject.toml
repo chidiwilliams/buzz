@@ -30,6 +30,7 @@ faster-whisper = { version = "^1.0.1", markers = "sys_platform != 'linux'" }
 openai-whisper = { version = "v20231117", markers = "sys_platform != 'linux'" }
 transformers = { version = "^4.39.1", markers = "sys_platform != 'linux'" }
 
+polib = "^1.2.0"
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
 pyinstaller = "^6.5.0"

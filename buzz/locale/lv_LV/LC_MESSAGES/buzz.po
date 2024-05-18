@@ -1,0 +1,286 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-05-18 09:04+0300\n"
+"PO-Revision-Date: 2024-05-18 10:26+0300\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: lv_LV\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.3\n"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:64
+msgid "Completed"
+msgstr "Pabeigts"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:73
+msgid "Canceled"
+msgstr "Atcelts"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:75
+msgid "Queued"
+msgstr "Ierindots"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:83
+msgid "File Name / URL"
+msgstr "Fails / URL"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:95
+msgid "Model"
+msgstr "Modelis"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:104
+msgid "Task"
+msgstr "Uzdevums"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:113
+msgid "Status"
+msgstr "Statuss"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:121
+msgid "Date Added"
+msgstr "Pievienots"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:132
+msgid "Date Completed"
+msgstr "Pabeigts"
+
+#: buzz/widgets/main_window_toolbar.py:35 buzz/widgets/record_button.py:10
+#: buzz/widgets/record_button.py:17
+msgid "Record"
+msgstr "Ierakstīt"
+
+#: buzz/widgets/main_window_toolbar.py:39
+msgid "New Transcription"
+msgstr "Jauna atpazīšanas"
+
+#: buzz/widgets/main_window_toolbar.py:46
+msgid "Open Transcript"
+msgstr "Atvērt transkriptu"
+
+#: buzz/widgets/main_window_toolbar.py:52
+msgid "Cancel Transcription"
+msgstr "Atcelt atpazīšanu"
+
+#: buzz/widgets/main_window_toolbar.py:60 buzz/widgets/main_window.py:199
+msgid "Clear History"
+msgstr "Notīrīt vēsturi"
+
+#: buzz/widgets/about_dialog.py:80
+msgid "Check for updates"
+msgstr "Pārbaudīt atjauninājumus"
+
+#: buzz/widgets/about_dialog.py:109
+msgid "You're up to date!"
+msgstr "Jums ir jaunākā versija!"
+
+#: buzz/widgets/import_url_dialog.py:19
+msgid "Import URL"
+msgstr "Importēt URL"
+
+#: buzz/widgets/import_url_dialog.py:22
+msgid "https://example.com/audio.mp3"
+msgstr "https://example.com/audio.mp3"
+
+#: buzz/widgets/import_url_dialog.py:32
+msgid "URL:"
+msgstr "URL:"
+
+#: buzz/widgets/import_url_dialog.py:44
+msgid "Invalid URL"
+msgstr "Adrese nav derīga"
+
+#: buzz/widgets/import_url_dialog.py:44
+msgid "The URL you entered is invalid."
+msgstr "Jūsu ievadītā URL adrese nav derīga"
+
+#: buzz/widgets/recording_transcriber_widget.py:60
+msgid "Live Recording"
+msgstr "Dzīvā ierakstīšana"
+
+#: buzz/widgets/recording_transcriber_widget.py:104
+msgid "Click Record to begin..."
+msgstr "Klikšķiniet Ierakstīt, lai sāktu..."
+
+#: buzz/widgets/recording_transcriber_widget.py:116
+msgid "Microphone:"
+msgstr "Mikrofons:"
+
+#: buzz/widgets/recording_transcriber_widget.py:273
+msgid "An error occurred while starting a new recording:"
+msgstr "Sākot jaunu ierakstu notikusi kļūda:"
+
+#: buzz/widgets/recording_transcriber_widget.py:277
+msgid ""
+"Please check your audio devices or check the application logs for more "
+"information."
+msgstr ""
+"Lūdzu pārbaudiet savas audio ierīces vai pārbaudiet lietotnes ziņojumu "
+"žurnālus, lai iegūtu papildu informāciju."
+
+#: buzz/widgets/menu_bar.py:38
+msgid "Import File..."
+msgstr "Importēt failu..."
+
+#: buzz/widgets/menu_bar.py:41
+msgid "Import URL..."
+msgstr "Importēt URL..."
+
+#: buzz/widgets/menu_bar.py:47
+msgid "Preferences..."
+msgstr "Iestatījumi..."
+
+#: buzz/widgets/menu_bar.py:55
+msgid "File"
+msgstr "Fails"
+
+#: buzz/widgets/menu_bar.py:59
+msgid "Help"
+msgstr "Palīdzība"
+
+#: buzz/widgets/main_window.py:201
+msgid ""
+"Are you sure you want to delete the selected transcription(s)? This action "
+"cannot be undone."
+msgstr ""
+"Vai tiešām vēlaties dzēst izvēlētos transkriptus? Šī ir neatgriezeniska "
+"darbība. "
+
+#: buzz/widgets/main_window.py:221
+msgid "Select audio file"
+msgstr "Izvēlieties audio failu"
+
+#: buzz/widgets/main_window.py:255
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:191
+msgid "Error"
+msgstr "Kļūda"
+
+#: buzz/widgets/main_window.py:255
+msgid "Unable to save OpenAI API key to keyring"
+msgstr "Neizdevās saglabāt OpenAI API atslēgu atslēgu saišķī"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:42
+msgid "Save File"
+msgstr "Saglabāt failu"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:44
+msgid "Text files"
+msgstr "Teksta faili"
+
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:27
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:68
+msgid "Text"
+msgstr "Teksts"
+
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:33
+msgid "Timestamps"
+msgstr "Laiks"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:66
+msgid "Start"
+msgstr "Sākums"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:67
+msgid "End"
+msgstr "Beigas"
+
+#: buzz/widgets/record_button.py:21
+msgid "Stop"
+msgstr "Apturēt"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:28
+msgid "Advanced Settings"
+msgstr "Papildu iestatījumi"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:42
+msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+msgstr "Atdalīti ar komatu, piemēram, \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:60
+msgid "Temperature:"
+msgstr "Temperatūra:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:61
+msgid "Initial Prompt:"
+msgstr "Sākotnējais vaicājums:"
+
+#: buzz/widgets/transcriber/file_transcription_form_widget.py:42
+msgid "Word-level timings"
+msgstr "Dalīt pa vārdiem"
+
+#: buzz/widgets/transcriber/initial_prompt_text_edit.py:10
+msgid "Enter prompt..."
+msgstr "Ievadiet vaicājumu..."
+
+#: buzz/widgets/transcriber/transcription_options_group_box.py:79
+msgid "Model:"
+msgstr "Modelis:"
+
+#: buzz/widgets/transcriber/transcription_options_group_box.py:83
+msgid "Task:"
+msgstr "Uzdevums:"
+
+#: buzz/widgets/transcriber/transcription_options_group_box.py:84
+msgid "Language:"
+msgstr "Valoda:"
+
+#: buzz/widgets/transcriber/languages_combo_box.py:25
+msgid "Detect Language"
+msgstr "Noteikt valodu"
+
+#: buzz/widgets/transcriber/file_transcriber_widget.py:79
+msgid "Run"
+msgstr "Palaist"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:70
+msgid "Download"
+msgstr "Lejupielādēt"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:75
+msgid "Show file location"
+msgstr "Rādīt faila atrašanos"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:83
+msgid "Delete"
+msgstr "Dzēst"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:120
+msgid "Downloaded"
+msgstr "Lejupielādēts"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:125
+msgid "Available for Download"
+msgstr "Pieejams lejupielādei"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:171
+msgid "Delete Model"
+msgstr "Dzēst modeli"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:172
+msgid "Are you sure you want to delete the selected model?"
+msgstr "Vai tiešām dzēst izvēlēto modeli?"
+
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:50
+msgid "General"
+msgstr "Vizpārīgi"
+
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:53
+msgid "Models"
+msgstr "Modelis"
+
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:57
+msgid "Shortcuts"
+msgstr "Īsinājumi"
+
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:63
+msgid "Folder Watch"
+msgstr "Mapes vērošana"
