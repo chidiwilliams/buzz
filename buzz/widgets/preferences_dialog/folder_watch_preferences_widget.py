@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
 )
 
+from buzz.locale import _
 from buzz.store.keyring_store import Key, get_password
 from buzz.transcriber.transcriber import (
     TranscriptionOptions,
@@ -38,15 +39,15 @@ class FolderWatchPreferencesWidget(QWidget):
 
         self.config = config
 
-        checkbox = QCheckBox("Enable folder watch")
+        checkbox = QCheckBox(_("Enable folder watch"))
         checkbox.setChecked(config.enabled)
         checkbox.setObjectName("EnableFolderWatchCheckbox")
         checkbox.stateChanged.connect(self.on_enable_changed)
 
-        input_folder_browse_button = QPushButton("Browse")
+        input_folder_browse_button = QPushButton(_("Browse"))
         input_folder_browse_button.clicked.connect(self.on_click_browse_input_folder)
 
-        output_folder_browse_button = QPushButton("Browse")
+        output_folder_browse_button = QPushButton(_("Browse"))
         output_folder_browse_button.clicked.connect(self.on_click_browse_output_folder)
 
         input_folder_row = QHBoxLayout()
@@ -90,8 +91,8 @@ class FolderWatchPreferencesWidget(QWidget):
         folders_form_layout = QFormLayout()
 
         folders_form_layout.addRow("", checkbox)
-        folders_form_layout.addRow("Input folder", input_folder_row)
-        folders_form_layout.addRow("Output folder", output_folder_row)
+        folders_form_layout.addRow(_("Input folder"), input_folder_row)
+        folders_form_layout.addRow(_("Output folder"), output_folder_row)
         folders_form_layout.addWidget(transcription_form_widget)
 
         layout.addLayout(folders_form_layout)
@@ -101,7 +102,7 @@ class FolderWatchPreferencesWidget(QWidget):
         self.setLayout(layout)
 
     def on_click_browse_input_folder(self):
-        folder = QFileDialog.getExistingDirectory(self, "Select Input Folder")
+        folder = QFileDialog.getExistingDirectory(self, _("Select Input Folder"))
         self.input_folder_line_edit.setText(folder)
         self.on_input_folder_changed(folder)
 
@@ -110,7 +111,7 @@ class FolderWatchPreferencesWidget(QWidget):
         self.config_changed.emit(self.config)
 
     def on_click_browse_output_folder(self):
-        folder = QFileDialog.getExistingDirectory(self, "Select Output Folder")
+        folder = QFileDialog.getExistingDirectory(self, _("Select Output Folder"))
         self.output_folder_line_edit.setText(folder)
         self.on_output_folder_changed(folder)
 

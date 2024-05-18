@@ -58,7 +58,7 @@ class ModelsPreferencesWidget(QWidget):
             parent=self,
         )
         model_type_combo_box.changed.connect(self.on_model_type_changed)
-        layout.addRow("Group", model_type_combo_box)
+        layout.addRow(_("Group"), model_type_combo_box)
 
         self.model_list_widget = QTreeWidget()
         self.model_list_widget.setColumnCount(1)
@@ -188,7 +188,7 @@ class ModelsPreferencesWidget(QWidget):
         self.progress_dialog = None
         self.download_button.setEnabled(True)
         self.reset()
-        QMessageBox.warning(self, _("Error"), f"Download failed: {error}")
+        QMessageBox.warning(self, _("Error"), f"{_('Download failed')}: {error}")
 
     def on_download_progress(self, progress: tuple):
         self.progress_dialog.set_value(float(progress[0]) / progress[1])

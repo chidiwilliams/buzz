@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-18 09:04+0300\n"
-"PO-Revision-Date: 2024-05-18 10:26+0300\n"
+"POT-Creation-Date: 2024-05-18 17:24+0300\n"
+"PO-Revision-Date: 2024-05-18 16:28+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -17,6 +17,39 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.4.3\n"
+
+#: buzz/settings/shortcut.py:17
+msgid "Open Record Window"
+msgstr "Atvērt ieraksta logu"
+
+#: buzz/settings/shortcut.py:18
+msgid "Import File"
+msgstr "Importēt failu"
+
+#: buzz/settings/shortcut.py:19 buzz/widgets/import_url_dialog.py:19
+msgid "Import URL"
+msgstr "Importēt URL"
+
+#: buzz/settings/shortcut.py:20
+msgid "Open Preferences Window"
+msgstr "Atvērt iestatījumu logu"
+
+#: buzz/settings/shortcut.py:22
+msgid "View Transcript Text"
+msgstr "Aplūkot atpazīto tekstu"
+
+#: buzz/settings/shortcut.py:23
+msgid "View Transcript Timestamps"
+msgstr "Aplūkot atpazīšanas laikus"
+
+#: buzz/settings/shortcut.py:25 buzz/widgets/main_window_toolbar.py:60
+#: buzz/widgets/main_window.py:199
+msgid "Clear History"
+msgstr "Notīrīt vēsturi"
+
+#: buzz/settings/shortcut.py:26 buzz/widgets/main_window_toolbar.py:52
+msgid "Cancel Transcription"
+msgstr "Atcelt atpazīšanu"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:64
 msgid "Completed"
@@ -67,14 +100,6 @@ msgstr "Jauna atpazīšanas"
 msgid "Open Transcript"
 msgstr "Atvērt transkriptu"
 
-#: buzz/widgets/main_window_toolbar.py:52
-msgid "Cancel Transcription"
-msgstr "Atcelt atpazīšanu"
-
-#: buzz/widgets/main_window_toolbar.py:60 buzz/widgets/main_window.py:199
-msgid "Clear History"
-msgstr "Notīrīt vēsturi"
-
 #: buzz/widgets/about_dialog.py:80
 msgid "Check for updates"
 msgstr "Pārbaudīt atjauninājumus"
@@ -82,10 +107,6 @@ msgstr "Pārbaudīt atjauninājumus"
 #: buzz/widgets/about_dialog.py:109
 msgid "You're up to date!"
 msgstr "Jums ir jaunākā versija!"
-
-#: buzz/widgets/import_url_dialog.py:19
-msgid "Import URL"
-msgstr "Importēt URL"
 
 #: buzz/widgets/import_url_dialog.py:22
 msgid "https://example.com/audio.mp3"
@@ -101,7 +122,7 @@ msgstr "Adrese nav derīga"
 
 #: buzz/widgets/import_url_dialog.py:44
 msgid "The URL you entered is invalid."
-msgstr "Jūsu ievadītā URL adrese nav derīga"
+msgstr "Jūsu ievadītā URL adrese nav derīga."
 
 #: buzz/widgets/recording_transcriber_widget.py:60
 msgid "Live Recording"
@@ -153,7 +174,7 @@ msgid ""
 "cannot be undone."
 msgstr ""
 "Vai tiešām vēlaties dzēst izvēlētos transkriptus? Šī ir neatgriezeniska "
-"darbība. "
+"darbība."
 
 #: buzz/widgets/main_window.py:221
 msgid "Select audio file"
@@ -193,6 +214,10 @@ msgstr "Sākums"
 msgid "End"
 msgstr "Beigas"
 
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:89
+msgid "Export"
+msgstr "Eksportēt"
+
 #: buzz/widgets/record_button.py:21
 msgid "Stop"
 msgstr "Apturēt"
@@ -217,6 +242,14 @@ msgstr "Sākotnējais vaicājums:"
 msgid "Word-level timings"
 msgstr "Dalīt pa vārdiem"
 
+#: buzz/widgets/transcriber/file_transcription_form_widget.py:66
+msgid "Export:"
+msgstr "Eksportēt:"
+
+#: buzz/widgets/transcriber/advanced_settings_button.py:9
+msgid "Advanced..."
+msgstr "Papildu iestatījumi..."
+
 #: buzz/widgets/transcriber/initial_prompt_text_edit.py:10
 msgid "Enter prompt..."
 msgstr "Ievadiet vaicājumu..."
@@ -234,12 +267,67 @@ msgid "Language:"
 msgstr "Valoda:"
 
 #: buzz/widgets/transcriber/languages_combo_box.py:25
+#: buzz/transcriber/transcriber.py:149
 msgid "Detect Language"
 msgstr "Noteikt valodu"
 
 #: buzz/widgets/transcriber/file_transcriber_widget.py:79
 msgid "Run"
-msgstr "Palaist"
+msgstr "Apstrādāt"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:42
+msgid "Enable folder watch"
+msgstr "Ieslēgt mapes vērošanu"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:47
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:50
+msgid "Browse"
+msgstr "Izvēlēties"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:94
+msgid "Input folder"
+msgstr "Vērojamā mape"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:95
+msgid "Output folder"
+msgstr "Rezultātu mape"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:105
+msgid "Select Input Folder"
+msgstr "Izvēlieties vērojamo mapi"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:114
+msgid "Select Output Folder"
+msgstr "Izvēlieties rezultātu mapi"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:31
+msgid "Test"
+msgstr "Pārbaudīt"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:37
+msgid "OpenAI API key"
+msgstr "OpenAI API atslēga"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:49
+msgid "Default export file name"
+msgstr "Eksporta faila nosaukums"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:74
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:80
+msgid "OpenAI API Key Test"
+msgstr "OpenAI API atslēgas pārbaude"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:75
+msgid ""
+"Your API key is valid. Buzz will use this key to perform Whisper API "
+"transcriptions."
+msgstr ""
+"Jūsu API atslēga ir derīga. Buzz izmantos to runas atpazīšanai ar Whisper "
+"API."
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:61
+msgid "Group"
+msgstr "Veids"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:70
 msgid "Download"
@@ -247,7 +335,7 @@ msgstr "Lejupielādēt"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:75
 msgid "Show file location"
-msgstr "Rādīt faila atrašanos"
+msgstr "Pādīt faila atrašanās vietu"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:83
 msgid "Delete"
@@ -269,13 +357,17 @@ msgstr "Dzēst modeli"
 msgid "Are you sure you want to delete the selected model?"
 msgstr "Vai tiešām dzēst izvēlēto modeli?"
 
+#: buzz/widgets/preferences_dialog/shortcuts_editor_preferences_widget.py:29
+msgid "Reset to Defaults"
+msgstr "Atjaunot noklusētos"
+
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:50
 msgid "General"
 msgstr "Vizpārīgi"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:53
 msgid "Models"
-msgstr "Modelis"
+msgstr "Modeļi"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:57
 msgid "Shortcuts"

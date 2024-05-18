@@ -63,7 +63,7 @@ class FileTranscriptionFormWidget(QWidget):
             )
             export_format_layout.addWidget(export_format_checkbox)
 
-        file_transcription_layout.addRow("Export:", export_format_layout)
+        file_transcription_layout.addRow(_("Export:"), export_format_layout)
 
         layout.addWidget(transcription_options_group_box)
         layout.addLayout(file_transcription_layout)

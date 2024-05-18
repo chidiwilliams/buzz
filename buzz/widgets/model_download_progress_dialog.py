@@ -37,7 +37,7 @@ class ModelDownloadProgressDialog(QProgressDialog):
         if fraction_completed > 0:
             time_spent = (datetime.now() - self.start_time).total_seconds()
             time_left = (time_spent / fraction_completed) - time_spent
-            label_text += f", {humanize.naturaldelta(time_left)} remaining"
+            label_text += f", {humanize.naturaldelta(time_left)} {_('remaining')}"
         label_text += ")"
 
         self.setLabelText(label_text)
