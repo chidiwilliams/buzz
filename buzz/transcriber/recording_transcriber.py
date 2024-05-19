@@ -2,6 +2,7 @@ import datetime
 import logging
 import sys
 import threading
+import whisper
 from typing import Optional
 
 import numpy as np
@@ -14,9 +15,6 @@ from buzz.model_loader import ModelType
 from buzz.transcriber.transcriber import TranscriptionOptions
 from buzz.transcriber.whisper_cpp import WhisperCpp, whisper_cpp_params
 from buzz.transformers_whisper import TransformersWhisper
-
-if sys.platform != "linux":
-    import whisper
 
 
 class RecordingTranscriber(QObject):

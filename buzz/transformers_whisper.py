@@ -2,12 +2,9 @@ import sys
 from typing import Optional, Union
 
 import numpy as np
+import whisper
 from tqdm import tqdm
-
-WhisperProcessor = WhisperForConditionalGeneration = None
-if sys.platform != "linux":
-    import whisper
-    from transformers import WhisperProcessor, WhisperForConditionalGeneration
+from transformers import WhisperProcessor, WhisperForConditionalGeneration
 
 
 def load_model(model_name_or_path: str):
