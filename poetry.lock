@@ -1691,7 +1691,7 @@ numpy = "*"
 tiktoken = "*"
 torch = "*"
 tqdm = "*"
-triton = {version = "2.2.0", markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and python_version < \"3.12\""}
+triton = { version = ">=2.0.0,<3", markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\"" }
 
 [package.extras]
 dev = ["black", "flake8", "isort", "pytest", "scipy"]
@@ -3394,4 +3394,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9.13,<3.11"
-content-hash = "6bf14757a6f7575cba194c4f8b820aad6337a114dc87a9f551aec2d521b0dc9c"
+content-hash = "76310fff48b11c0760d9e8e67978ff720f4893a3756d00a89aed2f5a5baafdf1"
