@@ -314,8 +314,6 @@ class RecordingTranscriberWidget(QWidget):
         self.stop_recording()
         if self.recording_amplitude_listener is not None:
             self.recording_amplitude_listener.stop_recording()
-
-        if self.recording_amplitude_listener is not None:
             self.recording_amplitude_listener.deleteLater()
             self.recording_amplitude_listener = None
 
