@@ -59,7 +59,9 @@ jobs:
       - uses: FedericoCarboni/setup-ffmpeg@v1
         id: setup-ffmpeg
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          ffmpeg-version: release
+          architecture: 'x64'
+          github-token: ${{ github.server_url == 'https://github.com' && github.token || '' }}
 
       - name: Install dependencies
         run: poetry install
