@@ -26,9 +26,6 @@ class TestCLI:
                     "--txt",
                     test_audio_path,
                 ],
-                marks=pytest.mark.skipif(
-                    sys.platform == "linux", reason="Skip on Linux"
-                ),
             )
         ],
         indirect=True,

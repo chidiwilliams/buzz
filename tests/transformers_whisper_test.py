@@ -8,8 +8,8 @@ from tests.audio import test_audio_path
 
 
 @pytest.mark.skipif(
-    sys.platform == "linux" or platform.system() == "Darwin",
-    reason="Not supported on Linux",
+    platform.system() == "Darwin",
+    reason="Not supported on Darwin",
 )
 class TestTransformersWhisper:
     def test_should_transcribe(self):
