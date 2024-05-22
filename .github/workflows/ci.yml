@@ -56,7 +56,7 @@ jobs:
             ~/AppData/Local/Buzz/Buzz/Cache
           key: whisper-models-${{ runner.os }}
 
-      - uses: FedericoCarboni/setup-ffmpeg@v1
+      - uses: FedericoCarboni/setup-ffmpeg@v3.1
         id: setup-ffmpeg
         with:
           ffmpeg-version: release
@@ -111,7 +111,7 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-2
 
-      - uses: FedericoCarboni/setup-ffmpeg@v1
+      - uses: FedericoCarboni/setup-ffmpeg@v3.1
         id: setup-ffmpeg
         with:
           ffmpeg-version: release
