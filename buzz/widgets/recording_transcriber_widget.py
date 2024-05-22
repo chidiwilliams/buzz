@@ -73,11 +73,16 @@ class RecordingTranscriberWidget(QWidget):
         if len(model_types) > 0:
             default_model = TranscriptionModel(model_type=model_types[0])
 
+        selected_model = self.settings.value(
+            key=Settings.Key.RECORDING_TRANSCRIBER_MODEL,
+            default_value=default_model,
+        )
+
+        if selected_model is None or selected_model.model_type not in model_types:
+            selected_model = default_model
+
         self.transcription_options = TranscriptionOptions(
-            model=self.settings.value(
-                key=Settings.Key.RECORDING_TRANSCRIBER_MODEL,
-                default_value=default_model,
-            ),
+            model=selected_model,
             task=self.settings.value(
                 key=Settings.Key.RECORDING_TRANSCRIBER_TASK,
                 default_value=Task.TRANSCRIBE,
