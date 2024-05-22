@@ -1691,7 +1691,7 @@ numpy = "*"
 tiktoken = "*"
 torch = "*"
 tqdm = "*"
-triton = ">=2.0.0,<3"
+triton = { version = ">=2.0.0,<3", markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\"" }
 
 [package.extras]
 dev = ["black", "flake8", "isort", "pytest", "scipy"]
