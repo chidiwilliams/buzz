@@ -99,6 +99,20 @@ class ModelType(enum.Enum):
             ModelType.FASTER_WHISPER,
         )
 
+HUGGING_FACE_MODEL_ALLOW_PATTERNS = [
+    "added_tokens.json",
+    "config.json",
+    "generation_config.json",
+    "merges.txt",
+    "model.safetensors",
+    "normalizer.json",
+    "preprocessor_config.json",
+    "special_tokens_map.json",
+    "tokenizer.json",
+    "tokenizer_config.json",
+    "vocab.json",
+]
+
 
 @dataclass()
 class TranscriptionModel:
@@ -179,7 +193,9 @@ class TranscriptionModel:
         if self.model_type == ModelType.HUGGING_FACE:
             try:
                 return huggingface_hub.snapshot_download(
-                    self.hugging_face_model_id, local_files_only=True
+                    self.hugging_face_model_id,
+                    allow_patterns=HUGGING_FACE_MODEL_ALLOW_PATTERNS,
+                    local_files_only=True
                 )
             except (ValueError, FileNotFoundError):
                 return None
@@ -296,7 +312,9 @@ class ModelDownloader(QRunnable):
 
         if self.model.model_type == ModelType.HUGGING_FACE:
             model_path = huggingface_hub.snapshot_download(
-                self.model.hugging_face_model_id, tqdm_class=_tqdm
+                self.model.hugging_face_model_id,
+                allow_patterns=HUGGING_FACE_MODEL_ALLOW_PATTERNS,
+                tqdm_class=_tqdm
             )
             self.signals.finished.emit(model_path)
             return
