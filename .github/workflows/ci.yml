@@ -30,7 +30,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.10.7"
+          python-version: "3.10.11"
 
       - name: Install Poetry Action
         uses: snok/install-poetry@v1.3.1
@@ -56,10 +56,12 @@ jobs:
             ~/AppData/Local/Buzz/Buzz/Cache
           key: whisper-models-${{ runner.os }}
 
-      - uses: FedericoCarboni/setup-ffmpeg@v1
+      - uses: FedericoCarboni/setup-ffmpeg@v3.1
         id: setup-ffmpeg
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          ffmpeg-version: release
+          architecture: 'x64'
+          github-token: ${{ github.server_url == 'https://github.com' && github.token || '' }}
 
       - name: Install dependencies
         run: poetry install
@@ -94,7 +96,7 @@ jobs:
           submodules: recursive
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.10.7"
+          python-version: "3.10.11"
 
       - name: Install Poetry Action
         uses: snok/install-poetry@v1.3.1
@@ -109,10 +111,12 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-2
 
-      - uses: FedericoCarboni/setup-ffmpeg@v1
+      - uses: FedericoCarboni/setup-ffmpeg@v3.1
         id: setup-ffmpeg
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          ffmpeg-version: release
+          architecture: 'x64'
+          github-token: ${{ github.server_url == 'https://github.com' && github.token || '' }}
 
       - name: Install dependencies
         run: poetry install
@@ -201,7 +205,7 @@ jobs:
           submodules: recursive
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.10.7"
+          python-version: "3.10.11"
       - name: Install Poetry Action
         uses: snok/install-poetry@v1.3.1
         with:
