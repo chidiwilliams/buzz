@@ -14,6 +14,7 @@ from PyQt6.QtWidgets import (
 )
 from pytestqt.qtbot import QtBot
 
+from buzz.locale import _
 from buzz.db.entity.transcription import Transcription
 from buzz.db.service.transcription_service import TranscriptionService
 from buzz.widgets.main_window import MainWindow
@@ -25,7 +26,7 @@ from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
 mock_transcriptions: List[Transcription] = [
     Transcription(status="completed"),
     Transcription(status="canceled"),
-    Transcription(status="failed", error_message="Error"),
+    Transcription(status="failed", error_message=_("Error")),
 ]
 
 
@@ -48,7 +49,7 @@ class TestMainWindow:
 
         self._import_file_and_start_transcription(window)
 
-        open_transcript_action = self._get_toolbar_action(window, "Open Transcript")
+        open_transcript_action = self._get_toolbar_action(window, _("Open Transcript"))
         assert open_transcript_action.isEnabled() is False
 
         table_widget = self._get_tasks_table(window)
@@ -251,7 +252,7 @@ class TestMainWindow:
                 "",
             )
             new_transcription_action = TestMainWindow._get_toolbar_action(
-                window, "New Transcription"
+                window, _("New Transcription")
             )
             new_transcription_action.trigger()
 

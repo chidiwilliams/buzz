@@ -1,5 +1,6 @@
 from pytestqt.qtbot import QtBot
 
+from buzz.locale import _
 from buzz.widgets.recording_transcriber_widget import RecordingTranscriberWidget
 import pytest
 
@@ -8,7 +9,7 @@ class TestRecordingTranscriberWidget:
     def test_should_set_window_title(self, qtbot: QtBot):
         widget = RecordingTranscriberWidget()
         qtbot.add_widget(widget)
-        assert widget.windowTitle() == "Live Recording"
+        assert widget.windowTitle() == _("Live Recording")
         widget.close()
 
     @pytest.mark.skip(reason="Seg faults on CI")

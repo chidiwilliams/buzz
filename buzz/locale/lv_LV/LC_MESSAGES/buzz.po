@@ -363,7 +363,7 @@ msgstr "Atjaunot noklusētos"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:50
 msgid "General"
-msgstr "Vizpārīgi"
+msgstr "Vispārīgi"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:53
 msgid "Models"

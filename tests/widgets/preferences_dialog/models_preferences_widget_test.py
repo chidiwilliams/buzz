@@ -5,6 +5,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QComboBox, QPushButton
 from pytestqt.qtbot import QtBot
 
+from buzz.locale import _
 from buzz.model_loader import (
     TranscriptionModel,
     ModelType,
@@ -29,10 +30,10 @@ class TestModelsPreferencesWidget:
         qtbot.add_widget(widget)
 
         first_item = widget.model_list_widget.topLevelItem(0)
-        assert first_item.text(0) == "Downloaded"
+        assert first_item.text(0) == _("Downloaded")
 
         second_item = widget.model_list_widget.topLevelItem(1)
-        assert second_item.text(0) == "Available for Download"
+        assert second_item.text(0) == _("Available for Download")
 
     def test_should_change_model_type(self, qtbot):
         widget = ModelsPreferencesWidget()
@@ -43,10 +44,10 @@ class TestModelsPreferencesWidget:
         combo_box.setCurrentText("Faster Whisper")
 
         first_item = widget.model_list_widget.topLevelItem(0)
-        assert first_item.text(0) == "Downloaded"
+        assert first_item.text(0) == _("Downloaded")
 
         second_item = widget.model_list_widget.topLevelItem(1)
-        assert second_item.text(0) == "Available for Download"
+        assert second_item.text(0) == _("Available for Download")
 
     def test_should_download_model(self, qtbot: QtBot, clear_model_cache):
         # make progress dialog non-modal to unblock qtbot.wait_until
@@ -58,7 +59,7 @@ class TestModelsPreferencesWidget:
         assert widget.model.get_local_model_path() is None
 
         available_item = widget.model_list_widget.topLevelItem(1)
-        assert available_item.text(0) == "Available for Download"
+        assert available_item.text(0) == _("Available for Download")
 
         tiny_item = available_item.child(0)
         assert tiny_item.text(0) == "Tiny"
@@ -67,7 +68,7 @@ class TestModelsPreferencesWidget:
         download_button = widget.findChild(QPushButton, "DownloadButton")
         assert isinstance(download_button, QPushButton)
 
-        assert download_button.text() == "Download"
+        assert download_button.text() == _("Download")
         download_button.click()
 
         def downloaded_model():
@@ -97,7 +98,7 @@ class TestModelsPreferencesWidget:
         qtbot.add_widget(widget)
 
         available_item = widget.model_list_widget.topLevelItem(0)
-        assert available_item.text(0) == "Downloaded"
+        assert available_item.text(0) == _("Downloaded")
 
         tiny_item = available_item.child(0)
         assert tiny_item.text(0) == "Tiny"
