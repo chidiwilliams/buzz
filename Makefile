@@ -158,11 +158,12 @@ translation_po_all:
 	$(MAKE) translation_po locale=zh_CN
 	$(MAKE) translation_po locale=zh_TW
 	$(MAKE) translation_po locale=it_IT
+	$(MAKE) translation_po locale=lv_LV
 
 TMP_POT_FILE_PATH := $(shell mktemp)
 PO_FILE_PATH := buzz/locale/${locale}/LC_MESSAGES/buzz.po
 translation_po:
-	xgettext --from-code=UTF-8 -o "${TMP_POT_FILE_PATH}" -l python $(shell find buzz/widgets -name '*.py')
+	xgettext --from-code=UTF-8 -o "${TMP_POT_FILE_PATH}" -l python $(shell find buzz -name '*.py')
 	sed -i.bak 's/CHARSET/UTF-8/' ${TMP_POT_FILE_PATH} && rm ${TMP_POT_FILE_PATH}.bak
 	msgmerge -U ${PO_FILE_PATH} ${TMP_POT_FILE_PATH}
 
