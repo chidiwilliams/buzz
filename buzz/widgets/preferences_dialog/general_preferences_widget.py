@@ -8,7 +8,7 @@ from buzz.settings.settings import Settings
 from buzz.store.keyring_store import get_password, Key
 from buzz.widgets.line_edit import LineEdit
 from buzz.widgets.openai_api_key_line_edit import OpenAIAPIKeyLineEdit
-
+from buzz.locale import _
 
 class GeneralPreferencesWidget(QWidget):
     openai_api_key_changed = pyqtSignal(str)
@@ -28,13 +28,13 @@ class GeneralPreferencesWidget(QWidget):
             self.on_openai_api_key_changed
         )
 
-        self.test_openai_api_key_button = QPushButton("Test")
+        self.test_openai_api_key_button = QPushButton(_("Test"))
         self.test_openai_api_key_button.clicked.connect(
             self.on_click_test_openai_api_key_button
         )
         self.update_test_openai_api_key_button()
 
-        layout.addRow("OpenAI API key", self.openai_api_key_line_edit)
+        layout.addRow(_("OpenAI API key"), self.openai_api_key_line_edit)
         layout.addRow("", self.test_openai_api_key_button)
 
         self.settings = Settings()
@@ -46,7 +46,7 @@ class GeneralPreferencesWidget(QWidget):
             self.on_default_export_file_name_changed
         )
         default_export_file_name_line_edit.setMinimumWidth(200)
-        layout.addRow("Default export file name", default_export_file_name_line_edit)
+        layout.addRow(_("Default export file name"), default_export_file_name_line_edit)
 
         self.setLayout(layout)
 
@@ -71,13 +71,13 @@ class GeneralPreferencesWidget(QWidget):
         self.test_openai_api_key_button.setEnabled(True)
         QMessageBox.information(
             self,
-            "OpenAI API Key Test",
-            "Your API key is valid. Buzz will use this key to perform Whisper API transcriptions.",
+            _("OpenAI API Key Test"),
+            _("Your API key is valid. Buzz will use this key to perform Whisper API transcriptions."),
         )
 
     def on_test_openai_api_key_failure(self, error: str):
         self.test_openai_api_key_button.setEnabled(True)
-        QMessageBox.warning(self, "OpenAI API Key Test", error)
+        QMessageBox.warning(self, _("OpenAI API Key Test"), error)
 
     def on_openai_api_key_changed(self, key: str):
         self.openai_api_key = key

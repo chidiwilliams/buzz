@@ -4,6 +4,7 @@ from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QKeySequence
 from PyQt6.QtWidgets import QWidget, QFormLayout, QPushButton
 
+from buzz.locale import _
 from buzz.settings.shortcut import Shortcut
 from buzz.settings.shortcuts import Shortcuts
 from buzz.widgets.sequence_edit import SequenceEdit
@@ -25,7 +26,7 @@ class ShortcutsEditorPreferencesWidget(QWidget):
             )
             self.layout.addRow(shortcut.description, sequence_edit)
 
-        reset_to_defaults_button = QPushButton("Reset to Defaults", self)
+        reset_to_defaults_button = QPushButton(_("Reset to Defaults"), self)
         reset_to_defaults_button.setDefault(False)
         reset_to_defaults_button.setAutoDefault(False)
         reset_to_defaults_button.clicked.connect(self.reset_to_defaults)

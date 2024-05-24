@@ -13,6 +13,7 @@ from PyQt6.QtWidgets import (
     QLabel,
 )
 
+from buzz.locale import _
 from buzz.db.entity.transcription import Transcription
 from buzz.db.service.transcription_service import TranscriptionService
 from buzz.paths import file_path_as_title
@@ -85,7 +86,7 @@ class TranscriptionViewerWidget(QWidget):
         toolbar.addWidget(view_mode_tool_button)
 
         export_tool_button = QToolButton()
-        export_tool_button.setText("Export")
+        export_tool_button.setText(_("Export"))
         export_tool_button.setIcon(FileDownloadIcon(self))
         export_tool_button.setToolButtonStyle(
             Qt.ToolButtonStyle.ToolButtonTextBesideIcon
