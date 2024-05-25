@@ -124,6 +124,9 @@ class MainWindow(QMainWindow):
         self.transcriber_worker.completed.connect(self.transcriber_thread.quit)
 
         self.transcriber_thread.started.connect(self.transcriber_worker.run)
+        self.transcriber_thread.finished.connect(
+            self.transcriber_thread_cleanup
+        )
 
         self.transcriber_thread.start()
 
@@ -367,12 +370,22 @@ class MainWindow(QMainWindow):
     def resizeEvent(self, event):
         self.save_geometry()
 
+    def transcriber_thread_cleanup(self):
+        if self.transcriber_thread is not None:
+            self.transcriber_thread.deleteLater()
+            self.transcriber_thread = None
+
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         self.save_geometry()
 
         self.transcriber_worker.stop()
-        self.transcriber_thread.quit()
-        self.transcriber_thread.wait()
+
+        if self.transcriber_thread is not None:
+            self.transcriber_thread.quit()
+            self.transcriber_thread.wait()
+            self.transcriber_thread.deleteLater()
+            self.transcriber_thread = None
+
         super().closeEvent(event)
 
     def save_geometry(self):
