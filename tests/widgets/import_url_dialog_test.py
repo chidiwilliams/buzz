@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from buzz.locale import _
 from buzz.widgets.import_url_dialog import ImportURLDialog
 
 
@@ -11,7 +12,7 @@ class TestImportURLDialog:
         with patch("PyQt6.QtWidgets.QMessageBox.critical") as mock_critical:
             dialog.button_box.button(dialog.button_box.StandardButton.Ok).click()
             mock_critical.assert_called_with(
-                dialog, "Invalid URL", "The URL you entered is invalid."
+                dialog, _("Invalid URL"), _("The URL you entered is invalid.")
             )
 
     def test_should_return_url_with_valid_url(self, qtbot):

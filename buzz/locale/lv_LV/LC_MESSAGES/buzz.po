@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-18 17:24+0300\n"
+"POT-Creation-Date: 2024-05-25 02:23+0300\n"
 "PO-Revision-Date: 2024-05-18 16:28+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -128,19 +128,19 @@ msgstr "Jūsu ievadītā URL adrese nav derīga."
 msgid "Live Recording"
 msgstr "Dzīvā ierakstīšana"
 
-#: buzz/widgets/recording_transcriber_widget.py:104
+#: buzz/widgets/recording_transcriber_widget.py:109
 msgid "Click Record to begin..."
 msgstr "Klikšķiniet Ierakstīt, lai sāktu..."
 
-#: buzz/widgets/recording_transcriber_widget.py:116
+#: buzz/widgets/recording_transcriber_widget.py:121
 msgid "Microphone:"
 msgstr "Mikrofons:"
 
-#: buzz/widgets/recording_transcriber_widget.py:273
+#: buzz/widgets/recording_transcriber_widget.py:278
 msgid "An error occurred while starting a new recording:"
 msgstr "Sākot jaunu ierakstu notikusi kļūda:"
 
-#: buzz/widgets/recording_transcriber_widget.py:277
+#: buzz/widgets/recording_transcriber_widget.py:282
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
@@ -361,9 +361,13 @@ msgstr "Vai tiešām dzēst izvēlēto modeli?"
 msgid "Reset to Defaults"
 msgstr "Atjaunot noklusētos"
 
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:43
+msgid "Preferences"
+msgstr "Iestatījumi"
+
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:50
 msgid "General"
-msgstr "Vizpārīgi"
+msgstr "Vispārīgi"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:53
 msgid "Models"
