@@ -25,20 +25,24 @@ class TestPreferencesDialog:
         assert tab_widget.tabText(2) == _("Shortcuts")
         assert tab_widget.tabText(3) == _("Folder Watch")
 
-    def test_create_localized(self, qtbot: QtBot, shortcuts):
-        with patch.object(QLocale, 'uiLanguages', return_value=['lv_LV']):
-            dialog = PreferencesDialog(
-                shortcuts=shortcuts, preferences=Preferences.load(QSettings())
-            )
-            qtbot.add_widget(dialog)
+    def test_create_localized(self, qtbot: QtBot, shortcuts, mocker):
+        mocker.patch(
+            "PyQt6.QtCore.QLocale.uiLanguages",
+            return_value=['lv_LV'],
+        )
 
-            assert _("Preferences") == "Iestatījumi"
-            assert dialog.windowTitle() == "Iestatījumi"
+        dialog = PreferencesDialog(
+            shortcuts=shortcuts, preferences=Preferences.load(QSettings())
+        )
+        qtbot.add_widget(dialog)
 
-            tab_widget = dialog.findChild(QTabWidget)
-            assert isinstance(tab_widget, QTabWidget)
-            assert tab_widget.count() == 4
-            assert tab_widget.tabText(0) == "Vispārīgi"
-            assert tab_widget.tabText(1) == "Modeļi"
-            assert tab_widget.tabText(2) == "Īsinājumi"
-            assert tab_widget.tabText(3) == "Mapes vērošana"
+        assert _("Preferences") == "Iestatījumi"
+        assert dialog.windowTitle() == "Iestatījumi"
+
+        tab_widget = dialog.findChild(QTabWidget)
+        assert isinstance(tab_widget, QTabWidget)
+        assert tab_widget.count() == 4
+        assert tab_widget.tabText(0) == "Vispārīgi"
+        assert tab_widget.tabText(1) == "Modeļi"
+        assert tab_widget.tabText(2) == "Īsinājumi"
+        assert tab_widget.tabText(3) == "Mapes vērošana"
