@@ -1,6 +1,5 @@
-from PyQt6.QtCore import QSettings
+from PyQt6.QtCore import QSettings, QLocale
 from PyQt6.QtWidgets import QTabWidget
-from PyQt6.QtCore import QLocale
 from unittest.mock import patch
 from pytestqt.qtbot import QtBot
 
