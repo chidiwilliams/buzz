@@ -1,6 +1,7 @@
-from PyQt6.QtCore import QSettings, QLocale
+import os
+
+from PyQt6.QtCore import QSettings
 from PyQt6.QtWidgets import QTabWidget
-from unittest.mock import patch
 from pytestqt.qtbot import QtBot
 
 from buzz.locale import _
@@ -9,6 +10,10 @@ from buzz.widgets.preferences_dialog.preferences_dialog import PreferencesDialog
 
 
 class TestPreferencesDialog:
+    locale_file_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../../../buzz/locale/lv_LV/LC_MESSAGES/buzz.mo")
+    )
+
     def test_create(self, qtbot: QtBot, shortcuts):
         dialog = PreferencesDialog(
             shortcuts=shortcuts, preferences=Preferences.load(QSettings())
@@ -31,11 +36,18 @@ class TestPreferencesDialog:
             return_value=['lv_LV'],
         )
 
+        # Reload the module after the patch
+        from importlib import reload
+        import buzz.locale
+        reload(buzz.locale)
+        from buzz.locale import _
+
         dialog = PreferencesDialog(
             shortcuts=shortcuts, preferences=Preferences.load(QSettings())
         )
         qtbot.add_widget(dialog)
 
+        assert os.path.isfile(self.locale_file_path), "File .mo file does not exist"
         assert _("Preferences") == "Iestatījumi"
         assert dialog.windowTitle() == "Iestatījumi"
 

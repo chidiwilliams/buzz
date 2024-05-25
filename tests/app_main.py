@@ -18,4 +18,4 @@ class TestMain:
             mock_application.assert_called_once_with(mock_sys.argv)
             mock_parse_command_line.assert_called_once_with(mock_application.return_value)
             mock_application.return_value.exec.assert_called_once()
-            assert os.path.isdir(mock_log_dir.return_value)
+            assert os.path.isdir(mock_log_dir.return_value), "Log dir was not created"
