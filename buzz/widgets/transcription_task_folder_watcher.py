@@ -25,14 +25,21 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
         super().__init__(parent)
         self.tasks = tasks
         self.set_preferences(preferences)
-        self.directoryChanged.connect(self.find_tasks)
+
+    def __del__(self):
+        if self.preferences.enabled:
+            self.directoryChanged.disconnect(self.find_tasks)
+            if len(self.directories()) > 0:
+                self.removePaths(self.directories())
 
     def set_preferences(self, preferences: FolderWatchPreferences):
         self.preferences = preferences
         if len(self.directories()) > 0:
+            self.directoryChanged.disconnect(self.find_tasks)
             self.removePaths(self.directories())
         if preferences.enabled:
             self.addPath(preferences.input_directory)
+            self.directoryChanged.connect(self.find_tasks)
             logging.debug(
                 'Watching for media files in "%s"', preferences.input_directory
             )
