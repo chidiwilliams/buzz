@@ -76,26 +76,26 @@ class FileTranscriberQueueWorker(QObject):
         self.current_transcriber.moveToThread(self.current_transcriber_thread)
 
         self.current_transcriber_thread.started.connect(self.current_transcriber.run)
-        self.current_transcriber.completed.connect(self.current_transcriber_thread.quit)
-        self.current_transcriber.error.connect(self.current_transcriber_thread.quit)
 
-        self.current_transcriber.completed.connect(self.current_transcriber.deleteLater)
-        self.current_transcriber.error.connect(self.current_transcriber.deleteLater)
+        self.current_transcriber.completed.connect(self.current_transcriber_thread_cleanup)
+        self.current_transcriber.error.connect(self.current_transcriber_thread_cleanup)
+
+        self.current_transcriber.completed.connect(self.current_transcriber_cleanup)
+        self.current_transcriber.error.connect(self.current_transcriber_cleanup)
         self.current_transcriber_thread.finished.connect(
-            self.current_transcriber_thread.deleteLater
+            self.current_transcriber_thread_cleanup
         )
 
         self.current_transcriber.progress.connect(self.on_task_progress)
         self.current_transcriber.download_progress.connect(
             self.on_task_download_progress
         )
+        self.current_transcriber.completed.connect(self.on_task_completed)
         self.current_transcriber.error.connect(self.on_task_error)
 
-        self.current_transcriber.completed.connect(self.on_task_completed)
-
         # Wait for next item on the queue
-        self.current_transcriber.error.connect(self.run)
         self.current_transcriber.completed.connect(self.run)
+        self.current_transcriber.error.connect(self.run)
 
         self.task_started.emit(self.current_task)
         self.current_transcriber_thread.start()
@@ -132,6 +132,18 @@ class FileTranscriberQueueWorker(QObject):
     def on_task_completed(self, segments: List[Segment]):
         if self.current_task is not None:
             self.task_completed.emit(self.current_task, segments)
+
+    def current_transcriber_cleanup(self):
+        if self.current_transcriber is not None:
+            self.current_transcriber.deleteLater()
+            self.current_transcriber = None
+
+    def current_transcriber_thread_cleanup(self):
+        if self.current_transcriber_thread is not None:
+            self.current_transcriber_thread.quit()
+            self.current_transcriber_thread.wait()
+            self.current_transcriber_thread.deleteLater()
+            self.current_transcriber_thread = None
 
     def stop(self):
         self.tasks_queue.put(None)

@@ -209,18 +209,18 @@ class RecordingTranscriberWidget(QWidget):
 
         self.transcription_thread.started.connect(self.transcriber.start)
         self.transcription_thread.finished.connect(
-            self.transcription_thread.deleteLater
+            self.transcriber_cleanup
         )
 
         self.transcriber.transcription.connect(self.on_next_transcription)
 
         self.transcriber.finished.connect(self.on_transcriber_finished)
-        self.transcriber.finished.connect(self.transcription_thread.quit)
-        self.transcriber.finished.connect(self.transcriber.deleteLater)
+        self.transcriber.finished.connect(self.transcription_thread_cleanup)
+        self.transcriber.finished.connect(self.transcriber_cleanup)
 
         self.transcriber.error.connect(self.on_transcriber_error)
-        self.transcriber.error.connect(self.transcription_thread.quit)
-        self.transcriber.error.connect(self.transcriber.deleteLater)
+        self.transcriber.error.connect(self.transcription_thread_cleanup)
+        self.transcriber.error.connect(self.transcriber_cleanup)
 
         self.transcription_thread.start()
 
@@ -306,6 +306,18 @@ class RecordingTranscriberWidget(QWidget):
 
     def on_recording_amplitude_changed(self, amplitude: float):
         self.audio_meter_widget.update_amplitude(amplitude)
+
+    def transcription_thread_cleanup(self):
+        if self.transcription_thread is not None:
+            self.transcription_thread.quit()
+            self.transcription_thread.wait()
+            self.transcription_thread.deleteLater()
+            self.transcription_thread = None
+
+    def transcriber_cleanup(self):
+        if self.transcriber is not None:
+            self.transcriber.deleteLater()
+            self.transcriber = None
 
     def closeEvent(self, event: QCloseEvent) -> None:
         if self.model_loader is not None:

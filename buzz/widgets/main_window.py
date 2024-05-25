@@ -121,12 +121,10 @@ class MainWindow(QMainWindow):
         self.transcriber_worker.task_error.connect(self.on_task_error)
         self.transcriber_worker.task_completed.connect(self.on_task_completed)
 
-        self.transcriber_worker.completed.connect(self.transcriber_thread.quit)
+        self.transcriber_worker.completed.connect(self.transcriber_thread_cleanup)
+        self.transcriber_thread.finished.connect(self.transcriber_thread_cleanup)
 
         self.transcriber_thread.started.connect(self.transcriber_worker.run)
-        self.transcriber_thread.finished.connect(
-            self.transcriber_thread_cleanup
-        )
 
         self.transcriber_thread.start()
 
@@ -372,6 +370,8 @@ class MainWindow(QMainWindow):
 
     def transcriber_thread_cleanup(self):
         if self.transcriber_thread is not None:
+            self.transcriber_thread.quit()
+            self.transcriber_thread.wait()
             self.transcriber_thread.deleteLater()
             self.transcriber_thread = None
 
@@ -379,12 +379,7 @@ class MainWindow(QMainWindow):
         self.save_geometry()
 
         self.transcriber_worker.stop()
-
-        if self.transcriber_thread is not None:
-            self.transcriber_thread.quit()
-            self.transcriber_thread.wait()
-            self.transcriber_thread.deleteLater()
-            self.transcriber_thread = None
+        self.transcriber_thread_cleanup()
 
         super().closeEvent(event)
 
