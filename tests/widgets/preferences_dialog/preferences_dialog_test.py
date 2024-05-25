@@ -39,8 +39,16 @@ class TestPreferencesDialog:
         # Reload the module after the patch
         from importlib import reload
         import buzz.locale
+        import buzz.widgets.preferences_dialog.models.preferences
+        import buzz.widgets.preferences_dialog.preferences_dialog
+
         reload(buzz.locale)
+        reload(buzz.widgets.preferences_dialog.models.preferences)
+        reload(buzz.widgets.preferences_dialog.preferences_dialog)
+
         from buzz.locale import _
+        from buzz.widgets.preferences_dialog.models.preferences import Preferences
+        from buzz.widgets.preferences_dialog.preferences_dialog import PreferencesDialog
 
         dialog = PreferencesDialog(
             shortcuts=shortcuts, preferences=Preferences.load(QSettings())
