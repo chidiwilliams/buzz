@@ -33,6 +33,7 @@ class TestPreferencesDialog:
             )
             qtbot.add_widget(dialog)
 
+            assert _("Preferences") == "Iestatījumi"
             assert dialog.windowTitle() == "Iestatījumi"
 
             tab_widget = dialog.findChild(QTabWidget)
