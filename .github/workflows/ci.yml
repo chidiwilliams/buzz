@@ -20,6 +20,7 @@ jobs:
       matrix:
         include:
           - os: macos-13
+          - os: macos-latest
           - os: windows-latest
           - os: ubuntu-20.04
           - os: ubuntu-22.04
