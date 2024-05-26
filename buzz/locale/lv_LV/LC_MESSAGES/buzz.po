@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-25 02:23+0300\n"
+"POT-Creation-Date: 2024-05-26 08:13+0300\n"
 "PO-Revision-Date: 2024-05-18 16:28+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -196,6 +196,10 @@ msgstr "Saglabāt failu"
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:44
 msgid "Text files"
 msgstr "Teksta faili"
+
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:19
+msgid "View"
+msgstr "Skats"
 
 #: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:27
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:68
