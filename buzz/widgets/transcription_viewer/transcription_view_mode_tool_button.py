@@ -16,7 +16,7 @@ class TranscriptionViewModeToolButton(QToolButton):
     def __init__(self, shortcuts: Shortcuts, parent: Optional[QWidget] = None):
         super().__init__(parent)
 
-        self.setText("View")
+        self.setText(_("View"))
         self.setIcon(VisibilityIcon(self))
         self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         self.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)

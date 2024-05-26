@@ -12,6 +12,7 @@ from PyQt6.QtWidgets import (
 )
 from pytestqt.qtbot import QtBot
 
+from buzz.locale import _
 from buzz.__version__ import VERSION
 from buzz.widgets.audio_devices_combo_box import AudioDevicesComboBox
 from buzz.widgets.transcriber.advanced_settings_dialog import AdvancedSettingsDialog
@@ -49,7 +50,7 @@ class TestLanguagesComboBox:
     def test_should_show_sorted_whisper_languages(self, qtbot):
         languages_combox_box = LanguagesComboBox("en")
         qtbot.add_widget(languages_combox_box)
-        assert languages_combox_box.itemText(0) == "Detect Language"
+        assert languages_combox_box.itemText(0) == _("Detect Language")
         assert languages_combox_box.itemText(10) == "Belarusian"
 
     def test_should_select_en_as_default_language(self, qtbot):
@@ -60,7 +61,7 @@ class TestLanguagesComboBox:
     def test_should_select_detect_language_as_default(self, qtbot):
         languages_combo_box = LanguagesComboBox(None)
         qtbot.add_widget(languages_combo_box)
-        assert languages_combo_box.currentText() == "Detect Language"
+        assert languages_combo_box.currentText() == _("Detect Language")
 
 
 class TestAudioDevicesComboBox:
@@ -102,7 +103,7 @@ class TestAboutDialog:
             dialog.check_updates_button.click()
 
         mock_message_box_information.assert_called_with(
-            dialog, "", "You're up to date!"
+            dialog, "", _("You're up to date!")
         )
 
 
@@ -118,7 +119,7 @@ class TestAdvancedSettingsDialog:
         transcription_options_mock = Mock()
         dialog.transcription_options_changed.connect(transcription_options_mock)
 
-        assert dialog.windowTitle() == "Advanced Settings"
+        assert dialog.windowTitle() == _("Advanced Settings")
         assert dialog.temperature_line_edit.text() == "0.0, 0.8"
         assert dialog.initial_prompt_text_edit.toPlainText() == "prompt"
 

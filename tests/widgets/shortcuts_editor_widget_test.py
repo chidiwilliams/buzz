@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import QPushButton, QLabel
 from pytestqt.qtbot import QtBot
 
+from buzz.locale import _
 from buzz.widgets.preferences_dialog.shortcuts_editor_preferences_widget import (
     ShortcutsEditorPreferencesWidget,
 )
@@ -29,14 +30,14 @@ class TestShortcutsEditorWidget:
         sequence_edits = widget.findChildren(SequenceEdit)
 
         expected = (
-            ("Open Record Window", "Ctrl+R"),
-            ("Import File", "Ctrl+O"),
-            ("Import URL", "Ctrl+U"),
-            ("Open Preferences Window", "Ctrl+,"),
-            ("View Transcript Text", "Ctrl+E"),
-            ("View Transcript Timestamps", "Ctrl+T"),
-            ("Clear History", "Ctrl+S"),
-            ("Cancel Transcription", "Ctrl+X"),
+            (_("Open Record Window"), "Ctrl+R"),
+            (_("Import File"), "Ctrl+O"),
+            (_("Import URL"), "Ctrl+U"),
+            (_("Open Preferences Window"), "Ctrl+,"),
+            (_("View Transcript Text"), "Ctrl+E"),
+            (_("View Transcript Timestamps"), "Ctrl+T"),
+            (_("Clear History"), "Ctrl+S"),
+            (_("Cancel Transcription"), "Ctrl+X"),
         )
 
         for i, (label, sequence_edit) in enumerate(zip(labels, sequence_edits)):

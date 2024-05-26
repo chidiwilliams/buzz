@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import QPushButton, QMessageBox, QLineEdit
 
+from buzz.locale import _
 from buzz.widgets.preferences_dialog.general_preferences_widget import (
     GeneralPreferencesWidget,
 )
@@ -18,7 +19,7 @@ class TestGeneralPreferencesWidget:
         test_button = widget.findChild(QPushButton)
         assert isinstance(test_button, QPushButton)
 
-        assert test_button.text() == "Test"
+        assert test_button.text() == _("Test")
         assert not test_button.isEnabled()
 
         line_edit = widget.findChild(QLineEdit)
@@ -46,7 +47,7 @@ class TestGeneralPreferencesWidget:
 
         def mock_called():
             message_box_warning_mock.assert_called()
-            assert message_box_warning_mock.call_args[0][1] == "OpenAI API Key Test"
+            assert message_box_warning_mock.call_args[0][1] == _("OpenAI API Key Test")
             assert (
                 message_box_warning_mock.call_args[0][2]
                 == "Incorrect API key provided: wrong-ap*-key. You can find your "
