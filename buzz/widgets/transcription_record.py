@@ -1,5 +1,5 @@
 from uuid import UUID
-
+import logging
 from PyQt6.QtSql import QSqlRecord
 
 from buzz.model_loader import TranscriptionModel, ModelType, WhisperModelSize
@@ -18,6 +18,9 @@ class TranscriptionRecord:
             whisper_model_size=WhisperModelSize(record.value("whisper_model_size"))
             if record.value("whisper_model_size")
             else None,
+            hugging_face_model_id=record.value("hugging_face_model_id")
+            if record.value("hugging_face_model_id")
+            else None
         )
 
     @staticmethod

@@ -15,6 +15,7 @@ class Transcription(Entity):
     task: str = Task.TRANSCRIBE.value
     model_type: str = ModelType.WHISPER.value
     whisper_model_size: str | None = None
+    hugging_face_model_id: str | None = None
     language: str | None = None
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     error_message: str | None = None

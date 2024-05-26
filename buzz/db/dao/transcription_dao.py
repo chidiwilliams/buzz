@@ -30,7 +30,8 @@ class TranscriptionDAO(DAO[Transcription]):
                 task,
                 time_queued,
                 url,
-                whisper_model_size
+                whisper_model_size,
+                hugging_face_model_id
             ) VALUES (
                 :id,
                 :export_formats,
@@ -43,7 +44,8 @@ class TranscriptionDAO(DAO[Transcription]):
                 :task,
                 :time_queued,
                 :url,
-                :whisper_model_size
+                :whisper_model_size,
+                :hugging_face_model_id
             )
         """
         )
@@ -72,6 +74,12 @@ class TranscriptionDAO(DAO[Transcription]):
             ":whisper_model_size",
             task.transcription_options.model.whisper_model_size.value
             if task.transcription_options.model.whisper_model_size
+            else None,
+        )
+        query.bindValue(
+            ":hugging_face_model_id",
+            task.transcription_options.model.hugging_face_model_id
+            if task.transcription_options.model.hugging_face_model_id
             else None,
         )
         if not query.exec():
