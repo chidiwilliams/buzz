@@ -15,8 +15,8 @@ def copy_transcriptions_from_json_to_sqlite(conn: Connection):
         for task in tasks:
             cursor.execute(
                 """
-                INSERT INTO transcription (id, error_message, export_formats, file, output_folder, progress, language, model_type, source, status, task, time_ended, time_queued, time_started, url, whisper_model_size)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO transcription (id, error_message, export_formats, file, output_folder, progress, language, model_type, source, status, task, time_ended, time_queued, time_started, url, whisper_model_size, hugging_face_model_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 RETURNING id;
                 """,
                 (
@@ -42,6 +42,9 @@ def copy_transcriptions_from_json_to_sqlite(conn: Connection):
                     task.url,
                     task.transcription_options.model.whisper_model_size.value
                     if task.transcription_options.model.whisper_model_size
+                    else None,
+                    task.transcription_options.model.hugging_face_model_id
+                    if task.transcription_options.model.hugging_face_model_id
                     else None,
                 ),
             )

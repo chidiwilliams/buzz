@@ -14,7 +14,8 @@ CREATE TABLE transcription (
     time_queued TIMESTAMP NOT NULL,
     time_started TIMESTAMP,
     url TEXT,
-    whisper_model_size TEXT
+    whisper_model_size TEXT,
+    hugging_face_model_id TEXT
 );
 
 CREATE TABLE transcription_segment (
