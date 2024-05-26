@@ -109,7 +109,9 @@ class MainWindow(QMainWindow):
 
         # Start transcriber thread
         self.transcriber_thread = QThread()
+        self.transcriber_thread_terminated = False
 
+        # TODO self.transcriber_worker does not get delete later call, is it needed???
         self.transcriber_worker = FileTranscriberQueueWorker()
         self.transcriber_worker.moveToThread(self.transcriber_thread)
 
@@ -369,11 +371,11 @@ class MainWindow(QMainWindow):
         self.save_geometry()
 
     def transcriber_thread_cleanup(self):
-        if self.transcriber_thread is not None:
+        if not self.transcriber_thread_terminated:
             self.transcriber_thread.quit()
             self.transcriber_thread.wait()
             self.transcriber_thread.deleteLater()
-            self.transcriber_thread = None
+            self.transcriber_thread_terminated = True
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         self.save_geometry()

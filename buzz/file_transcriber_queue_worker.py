@@ -35,6 +35,9 @@ class FileTranscriberQueueWorker(QObject):
         self.tasks_queue = queue.Queue()
         self.canceled_tasks: Set[UUID] = set()
 
+        self.current_transcriber_terminated = True
+        self.current_transcriber_thread_terminated = True
+
     @pyqtSlot()
     def run(self):
         logging.debug("Waiting for next transcription task")
@@ -58,25 +61,30 @@ class FileTranscriberQueueWorker(QObject):
         model_type = self.current_task.transcription_options.model.model_type
         if model_type == ModelType.WHISPER_CPP:
             self.current_transcriber = WhisperCppFileTranscriber(task=self.current_task)
+            self.current_transcriber_terminated = False
         elif model_type == ModelType.OPEN_AI_WHISPER_API:
             self.current_transcriber = OpenAIWhisperAPIFileTranscriber(
                 task=self.current_task
             )
+            self.current_transcriber_terminated = False
         elif (
             model_type == ModelType.HUGGING_FACE
             or model_type == ModelType.WHISPER
             or model_type == ModelType.FASTER_WHISPER
         ):
             self.current_transcriber = WhisperFileTranscriber(task=self.current_task)
+            self.current_transcriber_terminated = False
         else:
             raise Exception(f"Unknown model type: {model_type}")
 
         self.current_transcriber_thread = QThread(self)
+        self.current_transcriber_thread_terminated = False
 
         self.current_transcriber.moveToThread(self.current_transcriber_thread)
 
         self.current_transcriber_thread.started.connect(self.current_transcriber.run)
 
+        # TODO Can combine these two signals into one
         self.current_transcriber.completed.connect(self.current_transcriber_thread_cleanup)
         self.current_transcriber.error.connect(self.current_transcriber_thread_cleanup)
 
@@ -84,6 +92,9 @@ class FileTranscriberQueueWorker(QObject):
         self.current_transcriber.error.connect(self.current_transcriber_cleanup)
         self.current_transcriber_thread.finished.connect(
             self.current_transcriber_thread_cleanup
+        )
+        self.current_transcriber_thread.finished.connect(
+            self.current_transcriber_cleanup
         )
 
         self.current_transcriber.progress.connect(self.on_task_progress)
@@ -134,16 +145,16 @@ class FileTranscriberQueueWorker(QObject):
             self.task_completed.emit(self.current_task, segments)
 
     def current_transcriber_cleanup(self):
-        if self.current_transcriber is not None:
+        if not self.current_transcriber_terminated:
             self.current_transcriber.deleteLater()
-            self.current_transcriber = None
+            self.current_transcriber_terminated = True
 
     def current_transcriber_thread_cleanup(self):
-        if self.current_transcriber_thread is not None:
+        if not self.current_transcriber_thread_terminated:
             self.current_transcriber_thread.quit()
             self.current_transcriber_thread.wait()
             self.current_transcriber_thread.deleteLater()
-            self.current_transcriber_thread = None
+            self.current_transcriber_thread_terminated = True
 
     def stop(self):
         self.tasks_queue.put(None)

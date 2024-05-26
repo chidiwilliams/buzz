@@ -136,6 +136,9 @@ class RecordingTranscriberWidget(QWidget):
 
         self.reset_recording_amplitude_listener()
 
+        self.transcriber_terminated = True
+        self.transcription_thread_terminated = True
+
     def on_transcription_options_changed(
         self, transcription_options: TranscriptionOptions
     ):
@@ -196,6 +199,7 @@ class RecordingTranscriberWidget(QWidget):
         self.model_loader = None
 
         self.transcription_thread = QThread()
+        self.transcription_thread_terminated = False
 
         # TODO: make runnable
         self.transcriber = RecordingTranscriber(
@@ -204,6 +208,7 @@ class RecordingTranscriberWidget(QWidget):
             transcription_options=self.transcription_options,
             model_path=model_path,
         )
+        self.transcriber_terminated = False
 
         self.transcriber.moveToThread(self.transcription_thread)
 
@@ -308,16 +313,16 @@ class RecordingTranscriberWidget(QWidget):
         self.audio_meter_widget.update_amplitude(amplitude)
 
     def transcription_thread_cleanup(self):
-        if self.transcription_thread is not None:
+        if not self.transcription_thread_terminated:
             self.transcription_thread.quit()
             self.transcription_thread.wait()
             self.transcription_thread.deleteLater()
-            self.transcription_thread = None
+            self.transcription_thread_terminated = True
 
     def transcriber_cleanup(self):
-        if self.transcriber is not None:
+        if not self.transcriber_terminated:
             self.transcriber.deleteLater()
-            self.transcriber = None
+            self.transcriber_terminated = True
 
     def closeEvent(self, event: QCloseEvent) -> None:
         if self.model_loader is not None:
