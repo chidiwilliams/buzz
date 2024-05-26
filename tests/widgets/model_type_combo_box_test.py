@@ -17,15 +17,6 @@ class TestModelTypeComboBox:
                     "Faster Whisper",
                     "OpenAI Whisper API",
                 ],
-                marks=pytest.mark.skipif(
-                    sys.platform == "linux", reason="Skip on Linux"
-                ),
-            ),
-            pytest.param(
-                ["Whisper.cpp", "OpenAI Whisper API"],
-                marks=pytest.mark.skipif(
-                    sys.platform != "linux", reason="Skip on non-Linux"
-                ),
             ),
         ],
     )
