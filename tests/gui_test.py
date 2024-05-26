@@ -46,6 +46,12 @@ def audio_setup():
         yield
 
 
+# Fix for segmentation faults on macOS https://blog.xmatthias.com/post/pytest-debug-segfault/
+@pytest.fixture(autouse=True)
+def patch_torch_initlogs(mocker) -> None:
+    mocker.patch("torch._logging._init_logs")
+
+
 class TestLanguagesComboBox:
     def test_should_show_sorted_whisper_languages(self, qtbot):
         languages_combox_box = LanguagesComboBox("en")
