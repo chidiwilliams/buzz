@@ -15,13 +15,9 @@ from PyQt6.QtCore import QObject, pyqtSignal, QRunnable
 from platformdirs import user_cache_dir
 from tqdm.auto import tqdm
 
-whisper = None
-faster_whisper = None
-huggingface_hub = None
-if sys.platform != "linux":
-    import faster_whisper
-    import whisper
-    import huggingface_hub
+import faster_whisper
+import whisper
+import huggingface_hub
 
 # Catch exception from whisper.dll not getting loaded.
 # TODO: Remove flag and try-except when issue with loading
@@ -77,17 +73,6 @@ class ModelType(enum.Enum):
             # See: https://github.com/chidiwilliams/buzz/issues/274,
             # https://github.com/chidiwilliams/buzz/issues/197
             (self == ModelType.WHISPER_CPP and not LOADED_WHISPER_CPP_BINARY)
-            # Disable Whisper and Faster Whisper options
-            # on Linux due to execstack errors on Snap
-            or (
-                sys.platform == "linux"
-                and self
-                in (
-                    ModelType.WHISPER,
-                    ModelType.FASTER_WHISPER,
-                    ModelType.HUGGING_FACE,
-                )
-            )
         ):
             return False
         return True
@@ -98,6 +83,7 @@ class ModelType(enum.Enum):
             ModelType.WHISPER_CPP,
             ModelType.FASTER_WHISPER,
         )
+
 
 HUGGING_FACE_MODEL_ALLOW_PATTERNS = [
     "added_tokens.json",

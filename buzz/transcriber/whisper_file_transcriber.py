@@ -17,11 +17,10 @@ from buzz.model_loader import ModelType
 from buzz.transcriber.file_transcriber import FileTranscriber
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment
 
-if sys.platform != "linux":
-    import faster_whisper
-    import whisper
-    import stable_whisper
-    from stable_whisper import WhisperResult
+import faster_whisper
+import whisper
+import stable_whisper
+from stable_whisper import WhisperResult
 
 PROGRESS_REGEX = re.compile(r"\d+(\.\d+)?%")
 
