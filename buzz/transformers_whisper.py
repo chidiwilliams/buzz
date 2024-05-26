@@ -4,10 +4,8 @@ from typing import Optional, Union
 import numpy as np
 from tqdm import tqdm
 
-WhisperProcessor = WhisperForConditionalGeneration = None
-if sys.platform != "linux":
-    import whisper
-    from transformers import WhisperProcessor, WhisperForConditionalGeneration
+import whisper
+from transformers import WhisperProcessor, WhisperForConditionalGeneration
 
 
 def load_model(model_name_or_path: str):
