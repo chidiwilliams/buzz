@@ -53,7 +53,8 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(QIcon(BUZZ_ICON_PATH))
-        self.setMinimumSize(1240, 600)
+        self.setBaseSize(1240, 600)
+        self.resize(1240, 600)
 
         self.setAcceptDrops(True)
 
