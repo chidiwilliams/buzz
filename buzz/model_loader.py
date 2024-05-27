@@ -223,10 +223,12 @@ class HuggingfaceDownloadMonitor:
 
     @staticmethod
     def get_tmp_download_root(model_root):
-        index = model_root.find("huggingface/hub/")
+        normalized_model_root = os.path.normpath(model_root)
+        normalized_hub_path = os.path.normpath("huggingface/hub/")
+        index = normalized_model_root.find(normalized_hub_path)
         if index == -1:
-            raise ValueError("Invalid model_root, 'huggingface/hub/' not found")
-        return model_root[:index + len("huggingface/hub/")]
+            raise ValueError(f"Invalid model_root, '{normalized_hub_path}' not found")
+        return normalized_model_root[:index + len(normalized_hub_path)]
 
     def clean_tmp_files(self):
         for filename in os.listdir(self.tmp_download_root):
