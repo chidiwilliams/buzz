@@ -10,6 +10,8 @@ bundle_windows: dist/Buzz
 
 bundle_mac: dist/Buzz.app codesign_all_mac zip_mac notarize_zip staple_app_mac dmg_mac
 
+bundle_mac_unsigned: dist/Buzz.app zip_mac dmg_mac_unsigned
+
 UNAME_S := $(shell uname -s)
 
 LIBWHISPER :=
@@ -92,6 +94,20 @@ dmg_mac:
 		--app-drop-link 425 120 \
 		--codesign "$$BUZZ_CODESIGN_IDENTITY" \
 		--notarize "$$BUZZ_KEYCHAIN_NOTARY_PROFILE" \
+		"${mac_dmg_path}" \
+		"dist/dmg/"
+
+dmg_mac_unsigned:
+	ditto -x -k "${mac_zip_path}" dist/dmg
+	create-dmg \
+		--volname "Buzz" \
+		--volicon "./assets/buzz.icns" \
+		--window-pos 200 120 \
+		--window-size 600 300 \
+		--icon-size 100 \
+		--icon "Buzz.app" 175 120 \
+		--hide-extension "Buzz.app" \
+		--app-drop-link 425 120 \
 		"${mac_dmg_path}" \
 		"dist/dmg/"
 
