@@ -31,3 +31,35 @@ Log files contain valuable information about what the Buzz was doing before the 
 * Mac and Linux run the app from the terminal and check the output.
 * Windows paste this into the Windows Explorer address bar `%USERPROFILE%\AppData\Local\Buzz\Buzz\Logs` and check the logs file.
 
+## Running Buzz locally
+
+### Linux (Ubuntu)
+
+1. Clone the repository `git clone --recursive https://github.com/chidiwilliams/buzz.git`
+2. Enter repo folder `cd buzz`
+3. Install Poetry `apt-get install python3-poetry`
+4. Activate the virtual environment `poetry shell`
+5. Install the dependencies `poetry install`
+6. Install system dependencies you may be missing 
+```
+sudo apt-get install --no-install-recommends libyaml-dev libegl1-mesa libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0
+```
+7. Build Buzz `poetry build`
+8. Run Buzz `python -m buzz`
+
+### Windows
+
+1. Clone the repository `git clone --recursive https://github.com/chidiwilliams/buzz.git`
+2. Enter repo folder `cd buzz`
+3. Install Poetry, paste this info Windows PowerShell
+```
+(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
+```
+4. Activate the virtual environment `poetry shell`
+5. Install the dependencies `poetry install`
+6. Copy `whisper.dll` from the repo backup to `buzz` folder 
+```
+cp .\dll_backup\whisper.dll .\buzz\
+```
+7. Build Buzz `poetry build`
+8. Run Buzz `python -m buzz`
