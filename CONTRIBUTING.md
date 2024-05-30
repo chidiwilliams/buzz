@@ -49,30 +49,36 @@ sudo apt-get install --no-install-recommends libyaml-dev libegl1-mesa libxkbcomm
 
 ### Windows
 
-Assumes you have [Git](https://git-scm.com/downloads) and [python <3.11](https://www.python.org/downloads) installed.
+Assumes you have [Git](https://git-scm.com/downloads) and [python <3.11](https://www.python.org/downloads) installed and added to PATH.
 
 1. Install the chocolatey package manager for Windows. [More info](https://docs.chocolatey.org/en-us/choco/setup)
 ```
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 ```
 2. Install the GNU make. `choco install make`
-3. Install Poetry, paste this info Windows PowerShell line by line. [More info](https://python-poetry.org/docs/)
+3. Install the ffmpeg. `choco install ffmpeg`
+4. Install Poetry, paste this info Windows PowerShell line by line. [More info](https://python-poetry.org/docs/)
 ```
 (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
 
-[Environment]::SetEnvironmentVariable("Path", $env:Path + ";%APPDATA%\Python\Scripts", "User")
+[Environment]::SetEnvironmentVariable("Path", $env:Path + ";%APPDATA%\pypoetry\venv\Scripts", "User")
 
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
-4. Restart Windows.
+5. Restart Windows.
 
-5. Clone the repository `git clone --recursive https://github.com/chidiwilliams/buzz.git`
-6. Enter repo folder `cd buzz`
-7. Copy `whisper.dll` from the repo backup to `buzz` folder. 
+6. Clone the repository `git clone --recursive https://github.com/chidiwilliams/buzz.git`
+7. Enter repo folder `cd buzz`
+8. Copy `whisper.dll` from the repo backup to `buzz` folder. 
 ```
 cp .\dll_backup\whisper.dll .\buzz\
 ```
-8. Activate the virtual environment `poetry shell`
-9. Install the dependencies `poetry install`
-10. Build Buzz `poetry build`
-11. Run Buzz `python -m buzz`
+9. Activate the virtual environment `poetry shell`
+10. Install the dependencies `poetry install`
+11. Build Buzz `poetry build`
+12. Install Buzz 
+```
+$whlFile = Get-ChildItem .\dist\buzz*.whl | Select-Object -First 1
+pip install $whlFile
+```
+13. Run Buzz `python -m buzz`
