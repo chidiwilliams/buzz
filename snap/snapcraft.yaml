@@ -79,7 +79,6 @@ parts:
     source: .
     build-packages:
       - portaudio19-dev
-      - python3-poetry
     stage-packages:
       # Audio
       - ffmpeg
@@ -101,13 +100,15 @@ parts:
       - libxcb-cursor0
     override-build: |
       craftctl default
+      pip install poetry
       pip install .
-      # Use custom ctranslate2 that has no execstack issues
-      pip install https://github.com/raivisdejus/CTranslate2-no-execstack/releases/download/v4.2.1/ctranslate2-4.2.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       # Switch to CPU torch
       pip uninstall -y torch torchaudio nvidia-cublas-cu12 nvidia-cuda-cupti-cu12 nvidia-cuda-nvrtc-cu12 nvidia-cuda-runtime-cu12 nvidia-cudnn-cu12 nvidia-cufft-cu12 nvidia-curand-cu12 nvidia-cusolver-cu12 nvidia-cusparse-cu12 nvidia-nccl-cu12 nvidia-nvjitlink-cu12 nvidia-nvtx-cu12
-      python -m pip install torch torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
-      python build.py
+      python3 -m pip install torch torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
+      # Switch to ctranslate2 that has no execstack issues
+      pip uninstall -y ctranslate2
+      pip install https://github.com/raivisdejus/CTranslate2-no-execstack/releases/download/v4.2.1/ctranslate2-4.2.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+      python3 build.py
       mkdir $CRAFT_PART_INSTALL/buzz
       cp $CRAFT_PART_BUILD/buzz/whisper_cpp.py $CRAFT_PART_INSTALL/buzz/
       cp $CRAFT_PART_BUILD/buzz/libwhisper.so $CRAFT_PART_INSTALL/buzz/
