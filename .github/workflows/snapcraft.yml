@@ -18,7 +18,7 @@ jobs:
     outputs:
       snap: ${{ steps.snapcraft.outputs.snap }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
       - uses: snapcore/action-build@v1
@@ -30,7 +30,7 @@ jobs:
       - run: |
           cd $HOME
           xvfb-run buzz --version
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: snap
           path: ${{ steps.snapcraft.outputs.snap }}
@@ -40,7 +40,7 @@ jobs:
     needs: [ build ]
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: snap
       - uses: snapcore/action-publish@v1
@@ -55,7 +55,7 @@ jobs:
     needs: [ build ]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: snap
       - uses: snapcore/action-publish@v1
