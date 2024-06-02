@@ -99,7 +99,7 @@ parts:
       - libxcb-shape0
       - libxcb-cursor0
       # GPU
-      - libglu1-mesa
+      #- libglu1-mesa
     override-build: |
       craftctl default
       pip install poetry
