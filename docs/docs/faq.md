@@ -14,7 +14,7 @@ sidebar_position: 5
 
 3. **How to record system audio?**
 
-   To transcribe system audio you need to configure virtual audio device and connect output from the applications you want to transcribe to this virtual speaker. After that you can select it as source in the Buzz. See [Usage](https://chidiwilliams.github.io/buzz/docs/usage#live-recording) section for more details.
+   To transcribe system audio you need to configure virtual audio device and connect output from the applications you want to transcribe to this virtual speaker. After that you can select it as source in the Buzz. See [Usage](https://chidiwilliams.github.io/buzz/docs/usage/live_recording) section for more details.
 
    Relevant tools:
    - Mac OS - [BlackHole](https://github.com/ExistentialAudio/BlackHole).
