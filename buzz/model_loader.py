@@ -31,6 +31,11 @@ try:
 except ImportError:
     logging.exception("")
 
+model_root_dir = user_cache_dir("Buzz")
+model_root_dir = os.path.join(model_root_dir, "models")
+os.makedirs(model_root_dir, exist_ok=True)
+
+logging.debug("Model root directory: %s", model_root_dir)
 
 class WhisperModelSize(str, enum.Enum):
     TINY = "tiny"
@@ -182,7 +187,8 @@ class TranscriptionModel:
                 return huggingface_hub.snapshot_download(
                     self.hugging_face_model_id,
                     allow_patterns=HUGGING_FACE_MODEL_ALLOW_PATTERNS,
-                    local_files_only=True
+                    local_files_only=True,
+                    cache_dir=model_root_dir
                 )
             except (ValueError, FileNotFoundError):
                 return None
@@ -200,8 +206,7 @@ WHISPER_CPP_MODELS_SHA256 = {
 
 
 def get_whisper_cpp_file_path(size: WhisperModelSize) -> str:
-    root_dir = user_cache_dir("Buzz")
-    return os.path.join(root_dir, f"ggml-model-whisper-{size.value}.bin")
+    return os.path.join(model_root_dir, f"ggml-model-whisper-{size.value}.bin")
 
 
 def get_whisper_file_path(size: WhisperModelSize) -> str:
@@ -223,8 +228,11 @@ class HuggingfaceDownloadMonitor:
 
     @staticmethod
     def get_tmp_download_root(model_root):
+
+        logging.debug(f"=============== model_root: {model_root}")
+
         normalized_model_root = os.path.normpath(model_root)
-        normalized_hub_path = os.path.normpath("huggingface/hub/")
+        normalized_hub_path = os.path.normpath("Buzz/models/")
         index = normalized_model_root.find(normalized_hub_path)
         if index == -1:
             raise ValueError(f"Invalid model_root, '{normalized_hub_path}' not found")
@@ -272,6 +280,7 @@ def download_from_huggingface(
     model_root = huggingface_hub.snapshot_download(
         repo_id,
         allow_patterns=allow_patterns[1:],  # all, but largest
+        cache_dir=model_root_dir
     )
 
     progress.emit((1, 100))
@@ -285,6 +294,7 @@ def download_from_huggingface(
     huggingface_hub.snapshot_download(
         repo_id,
         allow_patterns=allow_patterns[:1],  # largest
+        cache_dir=model_root_dir
     )
 
     model_download_monitor.stop_monitoring()
@@ -315,6 +325,7 @@ def download_faster_whisper_model(
             repo_id,
             allow_patterns=allow_patterns,
             local_files_only=True,
+            cache_dir=model_root_dir
         )
 
     return download_from_huggingface(
