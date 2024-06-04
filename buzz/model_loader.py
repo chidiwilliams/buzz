@@ -232,7 +232,7 @@ class HuggingfaceDownloadMonitor:
         logging.debug(f"=============== model_root: {model_root}")
 
         normalized_model_root = os.path.normpath(model_root)
-        normalized_hub_path = os.path.normpath("Buzz/models/")
+        normalized_hub_path = os.path.normpath("/models/")
         index = normalized_model_root.find(normalized_hub_path)
         if index == -1:
             raise ValueError(f"Invalid model_root, '{normalized_hub_path}' not found")
