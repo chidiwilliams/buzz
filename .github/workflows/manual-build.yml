@@ -66,3 +66,25 @@ jobs:
           path: |
             dist/Buzz*-windows.exe
             dist/Buzz*-mac.dmg
+
+  build-snap:
+    runs-on: ubuntu-latest
+    outputs:
+      snap: ${{ steps.snapcraft.outputs.snap }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: snapcore/action-build@v1
+        id: snapcraft
+      - run: |
+          sudo apt-get update
+          sudo apt-get install libportaudio2
+      - run: sudo snap install --devmode *.snap
+      - run: |
+          cd $HOME
+          xvfb-run buzz --version
+      - uses: actions/upload-artifact@v4
+        with:
+          name: snap
+          path: ${{ steps.snapcraft.outputs.snap }}
