@@ -50,3 +50,20 @@ and [Virtual Audio Cable](https://vac.muzychenko.net/en/)).
 
 6. Open Buzz, select BlackHole as your microphone, and record as before to see transcriptions from the audio playing
    through BlackHole.
+
+### Record audio playing from computer (Windows)
+
+To transcribe system audio you need to configure virtual audio device and connect output from the applications you whant to transcribe to this virtual speaker. After that you can select it as source in the Buzz.
+
+1. Install [VB CABLE](https://vb-audio.com/Cable/) as virtual audio device. 
+
+2. Configure using Windows Sound settings. Right-click on the speaker icon in the system tray and select "Open Sound settings". In the "Choose your output device" dropdown select "CABLE Input" to send all system sound to the virtual device or use "Advanced sound options" to select application that will output their sound to this device.
+
+### Record audio playing from computer (Linux)
+
+As described on [Ubuntu Wiki](https://wiki.ubuntu.com/record_system_sound) on any Linux with pulse audio you can redirect application audio to a virtual speaker. After that you can select it as source in Buzz.
+
+Overall steps:
+1. Launch application that will produce the sound you want to transcribe and start the playback. For example start a video in a media player. 
+2. Launch Buzz and open Live recording screen, so you see the settings.
+3. Configure sound routing from the application you want to transcribe sound from to Buzz in `Recording tab` of the PulseAudio Volume Control (`pavucontrol`). 

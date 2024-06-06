@@ -24,7 +24,9 @@ class FolderWatchPreferences:
 
     @classmethod
     def load(cls, settings: QSettings) -> "FolderWatchPreferences":
-        enabled = settings.value("enabled", defaultValue=False, type=bool)
+        enabled_value = settings.value("enabled", False)
+        enabled = False if enabled_value == "false" else bool(enabled_value)
+
         input_folder = settings.value("input_folder", defaultValue="", type=str)
         output_folder = settings.value("output_directory", defaultValue="", type=str)
         settings.beginGroup("file_transcription_options")

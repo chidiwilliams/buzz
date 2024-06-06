@@ -1,5 +1,6 @@
 import enum
 import typing
+import logging
 
 from PyQt6.QtCore import QSettings
 
@@ -10,6 +11,7 @@ class Settings:
     def __init__(self, application=""):
         self.settings = QSettings(APP_NAME, application)
         self.settings.sync()
+        logging.debug(f"settings filename: {self.settings.fileName()}")
 
     class Key(enum.Enum):
         RECORDING_TRANSCRIBER_TASK = "recording-transcriber/task"
