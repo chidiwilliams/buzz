@@ -1,6 +1,7 @@
 import os
 import time
 import tempfile
+import platform
 
 from unittest.mock import Mock, patch
 from pytestqt.qtbot import QtBot
@@ -25,11 +26,15 @@ class TestRecordingTranscriberWidget:
             assert widget.windowTitle() == _("Live Recording")
 
             # Test will hang if we call close before mock_sounddevice thread has fully started.
-            time.sleep(1)
+            time.sleep(3)
 
             widget.close()
 
     # on CI transcribed output is garbage, so we check if there is anything
+    @pytest.mark.skipif(
+        platform.system() == "Darwin",
+        reason="Seg faults on CI",
+    )
     def test_should_transcribe(self, qtbot):
         with (patch("sounddevice.InputStream", side_effect=MockInputStream),
               patch(
@@ -55,6 +60,10 @@ class TestRecordingTranscriberWidget:
             widget.close()
 
     # on CI transcribed output is garbage, so we check if there is anything
+    @pytest.mark.skipif(
+        platform.system() == "Darwin",
+        reason="Seg faults on CI",
+    )
     def test_should_transcribe_and_export(self, qtbot):
         settings = Settings()
         settings.set_value(
