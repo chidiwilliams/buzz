@@ -83,6 +83,8 @@ jobs:
         with:
           flags: ${{ runner.os }}
           token: ${{ secrets.CODECOV_TOKEN }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   build:
     runs-on: ${{ matrix.os }}
