@@ -2,6 +2,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QPushButton, QMessageBox, QLineEdit, QCheckBox
 
 from buzz.locale import _
+from buzz.settings.settings import Settings
 from buzz.widgets.preferences_dialog.general_preferences_widget import (
     GeneralPreferencesWidget,
 )
@@ -86,3 +87,24 @@ class TestGeneralPreferencesWidget:
         assert widget.settings.value(
             key=widget.settings.Key.RECORDING_TRANSCRIBER_EXPORT_FOLDER,
             default_value='/home/user/documents') == '/path/to/export/folder'
+
+    def test_openai_base_url_preferences(self, qtbot, mocker):
+        widget = GeneralPreferencesWidget()
+        qtbot.add_widget(widget)
+
+        settings = Settings()
+
+        openai_base_url = settings.value(
+            key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value=""
+        )
+
+        assert openai_base_url == ""
+        assert widget.custom_openai_base_url_line_edit.text() == ""
+
+        widget.custom_openai_base_url_line_edit.setText("https://localhost:8000/v1")
+
+        updated_openai_base_url = settings.value(
+            key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value=""
+        )
+
+        assert updated_openai_base_url == "https://localhost:8000/v1"

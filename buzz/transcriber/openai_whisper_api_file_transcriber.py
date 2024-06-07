@@ -8,6 +8,7 @@ from typing import Optional, List
 from PyQt6.QtCore import QObject
 from openai import OpenAI
 
+from buzz.settings.settings import Settings
 from buzz.transcriber.file_transcriber import FileTranscriber
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment, Task
 
@@ -15,9 +16,14 @@ from buzz.transcriber.transcriber import FileTranscriptionTask, Segment, Task
 class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
     def __init__(self, task: FileTranscriptionTask, parent: Optional["QObject"] = None):
         super().__init__(task=task, parent=parent)
+        settings = Settings()
+        custom_openai_base_url = settings.value(
+            key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value=""
+        )
         self.task = task.transcription_options.task
         self.openai_client = OpenAI(
-            api_key=self.transcription_task.transcription_options.openai_access_token
+            api_key=self.transcription_task.transcription_options.openai_access_token,
+            base_url=custom_openai_base_url if custom_openai_base_url else None
         )
 
     def transcribe(self) -> List[Segment]:

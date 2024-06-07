@@ -30,6 +30,8 @@ class GeneralPreferencesWidget(QWidget):
     ):
         super().__init__(parent)
 
+        self.settings = Settings()
+
         self.openai_api_key = get_password(Key.OPENAI_API_KEY)
 
         layout = QFormLayout(self)
@@ -48,7 +50,17 @@ class GeneralPreferencesWidget(QWidget):
         layout.addRow(_("OpenAI API key"), self.openai_api_key_line_edit)
         layout.addRow("", self.test_openai_api_key_button)
 
-        self.settings = Settings()
+        self.custom_openai_base_url = self.settings.value(
+            key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value=""
+        )
+
+        self.custom_openai_base_url_line_edit = LineEdit(self.custom_openai_base_url, self)
+        self.custom_openai_base_url_line_edit.textChanged.connect(
+            self.on_custom_openai_base_url_changed
+        )
+        self.custom_openai_base_url_line_edit.setMinimumWidth(200)
+        self.custom_openai_base_url_line_edit.setPlaceholderText("https://api.openai.com/v1")
+        layout.addRow(_("OpenAI base url"), self.custom_openai_base_url_line_edit)
 
         default_export_file_name = self.settings.get_default_export_file_template()
 
@@ -125,6 +137,9 @@ class GeneralPreferencesWidget(QWidget):
         self.openai_api_key = key
         self.update_test_openai_api_key_button()
         self.openai_api_key_changed.emit(key)
+
+    def on_custom_openai_base_url_changed(self, text: str):
+        self.settings.set_value(Settings.Key.CUSTOM_OPENAI_BASE_URL, text)
 
     def on_recording_export_enable_changed(self, state: int):
         self.recording_export_enabled = state == 2
