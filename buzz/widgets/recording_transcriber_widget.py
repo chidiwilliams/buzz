@@ -1,4 +1,7 @@
+import os
 import enum
+import logging
+import datetime
 from enum import auto
 from typing import Optional, Tuple
 
@@ -136,6 +139,37 @@ class RecordingTranscriberWidget(QWidget):
 
         self.reset_recording_amplitude_listener()
 
+        self.export_file = None
+        self.export_enabled = self.settings.value(
+            key=Settings.Key.RECORDING_TRANSCRIBER_EXPORT_ENABLED,
+            default_value=False,
+        )
+
+    def setup_for_export(self):
+        export_folder = self.settings.value(
+            key=Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FOLDER,
+            default_value="",
+        )
+
+        date_time_now = datetime.datetime.now().strftime("%d-%b-%Y %H-%M-%S")
+
+        export_file_name_template = Settings().get_default_export_file_template()
+
+        export_file_name = (
+                export_file_name_template.replace("{{ input_file_name }}", "live recording")
+                .replace("{{ task }}", self.transcription_options.task.value)
+                .replace("{{ language }}", self.transcription_options.language or "")
+                .replace("{{ model_type }}", self.transcription_options.model.model_type.value)
+                .replace("{{ model_size }}", self.transcription_options.model.whisper_model_size or "")
+                .replace("{{ date_time }}", date_time_now)
+                + ".txt"
+        )
+
+        if not os.path.isdir(export_folder):
+            self.export_enabled = False
+
+        self.export_file = os.path.join(export_folder, export_file_name)
+
     def on_transcription_options_changed(
         self, transcription_options: TranscriptionOptions
     ):
@@ -179,6 +213,9 @@ class RecordingTranscriberWidget(QWidget):
 
     def start_recording(self):
         self.record_button.setDisabled(True)
+
+        if self.export_enabled:
+            self.setup_for_export()
 
         model_path = self.transcription_options.model.get_local_model_path()
         if model_path is not None:
@@ -259,6 +296,10 @@ class RecordingTranscriberWidget(QWidget):
                 self.text_box.insertPlainText("\n\n")
             self.text_box.insertPlainText(text)
             self.text_box.moveCursor(QTextCursor.MoveOperation.End)
+
+            if self.export_enabled:
+                with open(self.export_file, "a") as f:
+                    f.write(text + "\n\n")
 
     def stop_recording(self):
         if self.transcriber is not None:
