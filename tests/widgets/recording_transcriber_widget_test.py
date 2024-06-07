@@ -26,6 +26,7 @@ class TestRecordingTranscriberWidget:
                   return_value=16_000),
               patch("sounddevice.check_input_settings")):
             widget = RecordingTranscriberWidget()
+            widget.device_sample_rate = 16_000
             qtbot.add_widget(widget)
 
             def assert_text_box_contains_text():
@@ -62,6 +63,7 @@ class TestRecordingTranscriberWidget:
                   return_value='mock-export-file')):
 
             widget = RecordingTranscriberWidget()
+            widget.device_sample_rate = 16_000
             widget.export_enabled = True
             qtbot.add_widget(widget)
 

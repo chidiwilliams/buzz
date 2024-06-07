@@ -38,7 +38,7 @@ class RecordingTranscriber(QObject):
         self.transcription_options = transcription_options
         self.current_stream = None
         self.input_device_index = input_device_index
-        self.sample_rate = sample_rate
+        self.sample_rate = sample_rate if sample_rate is not None else whisper_audio.SAMPLE_RATE
         self.model_path = model_path
         self.n_batch_samples = 5 * self.sample_rate  # every 5 seconds
         # pause queueing if more than 3 batches behind
