@@ -1,7 +1,17 @@
+import logging
 from typing import Optional
+from platformdirs import user_documents_dir
 
 from PyQt6.QtCore import QRunnable, QObject, pyqtSignal, QThreadPool
-from PyQt6.QtWidgets import QWidget, QFormLayout, QPushButton, QMessageBox
+from PyQt6.QtWidgets import (
+    QWidget,
+    QFormLayout,
+    QPushButton,
+    QMessageBox,
+    QCheckBox,
+    QHBoxLayout,
+    QFileDialog
+)
 from openai import AuthenticationError, OpenAI
 
 from buzz.settings.settings import Settings
@@ -9,6 +19,7 @@ from buzz.store.keyring_store import get_password, Key
 from buzz.widgets.line_edit import LineEdit
 from buzz.widgets.openai_api_key_line_edit import OpenAIAPIKeyLineEdit
 from buzz.locale import _
+
 
 class GeneralPreferencesWidget(QWidget):
     openai_api_key_changed = pyqtSignal(str)
@@ -48,6 +59,37 @@ class GeneralPreferencesWidget(QWidget):
         default_export_file_name_line_edit.setMinimumWidth(200)
         layout.addRow(_("Default export file name"), default_export_file_name_line_edit)
 
+        self.recording_export_enabled = self.settings.value(
+            key=Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FOLDER, default_value=False
+        )
+
+        self.export_enabled_checkbox = QCheckBox(_("Enable live recording transcription export"))
+        self.export_enabled_checkbox.setChecked(self.recording_export_enabled)
+        self.export_enabled_checkbox.setObjectName("EnableRecordingExportCheckbox")
+        self.export_enabled_checkbox.stateChanged.connect(self.on_recording_export_enable_changed)
+        layout.addRow("", self.export_enabled_checkbox)
+
+        self.recording_export_folder_browse_button = QPushButton(_("Browse"))
+        self.recording_export_folder_browse_button.clicked.connect(self.on_click_browse_export_folder)
+        self.recording_export_folder_browse_button.setObjectName("RecordingExportFolderBrowseButton")
+
+        recording_export_folder = self.settings.value(
+            key=Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FOLDER, default_value=user_documents_dir()
+        )
+
+        recording_export_folder_row = QHBoxLayout()
+        self.recording_export_folder_line_edit = LineEdit(recording_export_folder, self)
+        self.recording_export_folder_line_edit.textChanged.connect(self.on_recording_export_folder_changed)
+        self.recording_export_folder_line_edit.setObjectName("RecordingExportFolderLineEdit")
+
+        self.recording_export_folder_line_edit.setEnabled(self.recording_export_enabled)
+        self.recording_export_folder_browse_button.setEnabled(self.recording_export_enabled)
+
+        recording_export_folder_row.addWidget(self.recording_export_folder_line_edit)
+        recording_export_folder_row.addWidget(self.recording_export_folder_browse_button)
+
+        layout.addRow(_("Export folder"), recording_export_folder_row)
+
         self.setLayout(layout)
 
     def on_default_export_file_name_changed(self, text: str):
@@ -83,6 +125,28 @@ class GeneralPreferencesWidget(QWidget):
         self.openai_api_key = key
         self.update_test_openai_api_key_button()
         self.openai_api_key_changed.emit(key)
+
+    def on_recording_export_enable_changed(self, state: int):
+        self.recording_export_enabled = state == 2
+
+        self.recording_export_folder_line_edit.setEnabled(self.recording_export_enabled)
+        self.recording_export_folder_browse_button.setEnabled(self.recording_export_enabled)
+
+        self.settings.set_value(
+            Settings.Key.RECORDING_TRANSCRIBER_EXPORT_ENABLED,
+            self.recording_export_enabled,
+        )
+
+    def on_click_browse_export_folder(self):
+        folder = QFileDialog.getExistingDirectory(self, _("Select Export Folder"))
+        self.recording_export_folder_line_edit.setText(folder)
+        self.on_recording_export_folder_changed(folder)
+
+    def on_recording_export_folder_changed(self, folder):
+        self.settings.set_value(
+            Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FOLDER,
+            folder,
+        )
 
 
 class TestOpenAIApiKeyJob(QRunnable):
