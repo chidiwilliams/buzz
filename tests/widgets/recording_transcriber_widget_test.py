@@ -21,6 +21,9 @@ class TestRecordingTranscriberWidget:
 
     def test_should_transcribe(self, qtbot):
         with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch(
+                  "buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                  return_value=16_000),
               patch("sounddevice.check_input_settings")):
             widget = RecordingTranscriberWidget()
             qtbot.add_widget(widget)
@@ -50,11 +53,13 @@ class TestRecordingTranscriberWidget:
             pass
 
         with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch(
+                  "buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                  return_value=16_000),
               patch("sounddevice.check_input_settings"),
               patch(
                   'buzz.settings.settings.Settings.get_default_export_file_template',
-                  return_value='mock-export-file'
-              )):
+                  return_value='mock-export-file')):
 
             widget = RecordingTranscriberWidget()
             widget.export_enabled = True
