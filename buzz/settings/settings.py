@@ -19,6 +19,8 @@ class Settings:
         RECORDING_TRANSCRIBER_LANGUAGE = "recording-transcriber/language"
         RECORDING_TRANSCRIBER_TEMPERATURE = "recording-transcriber/temperature"
         RECORDING_TRANSCRIBER_INITIAL_PROMPT = "recording-transcriber/initial-prompt"
+        RECORDING_TRANSCRIBER_EXPORT_ENABLED = "recording-transcriber/export-enabled"
+        RECORDING_TRANSCRIBER_EXPORT_FOLDER = "recording-transcriber/export-folder"
 
         FILE_TRANSCRIBER_TASK = "file-transcriber/task"
         FILE_TRANSCRIBER_MODEL = "file-transcriber/model"

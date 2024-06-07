@@ -28,6 +28,7 @@ class RecordingAmplitudeListener(QObject):
             )
             self.stream.start()
         except sounddevice.PortAudioError:
+            self.stop_recording()
             logging.exception("")
 
     def stop_recording(self):

@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-26 08:13+0300\n"
-"PO-Revision-Date: 2024-05-18 16:28+0300\n"
+"POT-Creation-Date: 2024-06-07 08:32+0300\n"
+"PO-Revision-Date: 2024-06-07 08:34+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -43,7 +43,7 @@ msgid "View Transcript Timestamps"
 msgstr "Aplūkot atpazīšanas laikus"
 
 #: buzz/settings/shortcut.py:25 buzz/widgets/main_window_toolbar.py:60
-#: buzz/widgets/main_window.py:199
+#: buzz/widgets/main_window.py:200
 msgid "Clear History"
 msgstr "Notīrīt vēsturi"
 
@@ -124,23 +124,23 @@ msgstr "Adrese nav derīga"
 msgid "The URL you entered is invalid."
 msgstr "Jūsu ievadītā URL adrese nav derīga."
 
-#: buzz/widgets/recording_transcriber_widget.py:60
+#: buzz/widgets/recording_transcriber_widget.py:61
 msgid "Live Recording"
 msgstr "Dzīvā ierakstīšana"
 
-#: buzz/widgets/recording_transcriber_widget.py:109
+#: buzz/widgets/recording_transcriber_widget.py:110
 msgid "Click Record to begin..."
 msgstr "Klikšķiniet Ierakstīt, lai sāktu..."
 
-#: buzz/widgets/recording_transcriber_widget.py:121
+#: buzz/widgets/recording_transcriber_widget.py:122
 msgid "Microphone:"
 msgstr "Mikrofons:"
 
-#: buzz/widgets/recording_transcriber_widget.py:278
+#: buzz/widgets/recording_transcriber_widget.py:290
 msgid "An error occurred while starting a new recording:"
 msgstr "Sākot jaunu ierakstu notikusi kļūda:"
 
-#: buzz/widgets/recording_transcriber_widget.py:282
+#: buzz/widgets/recording_transcriber_widget.py:294
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
@@ -168,7 +168,7 @@ msgstr "Fails"
 msgid "Help"
 msgstr "Palīdzība"
 
-#: buzz/widgets/main_window.py:201
+#: buzz/widgets/main_window.py:202
 msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
@@ -176,16 +176,16 @@ msgstr ""
 "Vai tiešām vēlaties dzēst izvēlētos transkriptus? Šī ir neatgriezeniska "
 "darbība."
 
-#: buzz/widgets/main_window.py:221
+#: buzz/widgets/main_window.py:222
 msgid "Select audio file"
 msgstr "Izvēlieties audio failu"
 
-#: buzz/widgets/main_window.py:255
+#: buzz/widgets/main_window.py:256
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:191
 msgid "Error"
 msgstr "Kļūda"
 
-#: buzz/widgets/main_window.py:255
+#: buzz/widgets/main_window.py:256
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "Neizdevās saglabāt OpenAI API atslēgu atslēgu saišķī"
 
@@ -285,6 +285,7 @@ msgstr "Ieslēgt mapes vērošanu"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:47
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:50
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:72
 msgid "Browse"
 msgstr "Izvēlēties"
 
@@ -304,30 +305,42 @@ msgstr "Izvēlieties vērojamo mapi"
 msgid "Select Output Folder"
 msgstr "Izvēlieties rezultātu mapi"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:31
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:42
 msgid "Test"
 msgstr "Pārbaudīt"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:37
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:48
 msgid "OpenAI API key"
 msgstr "OpenAI API atslēga"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:49
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:60
 msgid "Default export file name"
-msgstr "Eksporta faila nosaukums"
+msgstr "Eksporta fails"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:74
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:80
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:66
+msgid "Enable live recording transcription export"
+msgstr "Eksportēt dzīvā ieraksta transkriptus"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:91
+msgid "Export folder"
+msgstr "Eksportēt mapē"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:116
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:122
 msgid "OpenAI API Key Test"
 msgstr "OpenAI API atslēgas pārbaude"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:75
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:117
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions."
 msgstr ""
 "Jūsu API atslēga ir derīga. Buzz izmantos to runas atpazīšanai ar Whisper "
 "API."
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:141
+msgid "Select Export Folder"
+msgstr "Izvēlieties mapi kurā eksportēt"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:61
 msgid "Group"

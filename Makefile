@@ -31,9 +31,6 @@ clean:
 	rm -rf dist/* || true
 
 COVERAGE_THRESHOLD := 80
-ifeq ($(UNAME_S),Linux)
-	COVERAGE_THRESHOLD := 74
-endif
 
 test: buzz/whisper_cpp.py translation_mo
 	pytest -s -vv --cov=buzz --cov-report=xml --cov-report=html --benchmark-skip --cov-fail-under=${COVERAGE_THRESHOLD}
