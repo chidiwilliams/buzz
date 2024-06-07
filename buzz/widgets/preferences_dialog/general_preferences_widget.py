@@ -60,7 +60,7 @@ class GeneralPreferencesWidget(QWidget):
         layout.addRow(_("Default export file name"), default_export_file_name_line_edit)
 
         self.recording_export_enabled = self.settings.value(
-            key=Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FOLDER, default_value=False
+            key=Settings.Key.RECORDING_TRANSCRIBER_EXPORT_ENABLED, default_value=False
         )
 
         self.export_enabled_checkbox = QCheckBox(_("Enable live recording transcription export"))
