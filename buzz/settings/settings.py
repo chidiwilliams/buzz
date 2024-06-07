@@ -31,6 +31,7 @@ class Settings:
         FILE_TRANSCRIBER_EXPORT_FORMATS = "file-transcriber/export-formats"
 
         DEFAULT_EXPORT_FILE_NAME = "transcriber/default-export-file-name"
+        CUSTOM_OPENAI_BASE_URL = "transcriber/custom-openai-base-url"
 
         SHORTCUTS = "shortcuts"
 
