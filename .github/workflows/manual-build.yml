@@ -1,0 +1,90 @@
+---
+name: Manual Build
+on: workflow_dispatch
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+          - os: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10.11"
+
+      - name: Install Poetry Action
+        uses: snok/install-poetry@v1.3.1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-2
+
+      - uses: FedericoCarboni/setup-ffmpeg@v3.1
+        id: setup-ffmpeg
+        with:
+          ffmpeg-version: release
+          architecture: 'x64'
+          github-token: ${{ github.server_url == 'https://github.com' && github.token || '' }}
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Bundle
+        run: |
+          if [ "$RUNNER_OS" == "macOS" ]; then
+
+            brew install create-dmg
+            poetry run make bundle_mac_unsigned
+
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+
+            poetry run make bundle_windows
+
+          fi
+        shell: bash
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Buzz-${{ runner.os }}
+          path: |
+            dist/Buzz*-windows.exe
+            dist/Buzz*-mac.dmg
+
+  build-snap:
+    runs-on: ubuntu-latest
+    outputs:
+      snap: ${{ steps.snapcraft.outputs.snap }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: snapcore/action-build@v1
+        id: snapcraft
+      - run: |
+          sudo apt-get update
+          sudo apt-get install libportaudio2
+      - run: sudo snap install --devmode *.snap
+      - run: |
+          cd $HOME
+          xvfb-run buzz --version
+      - uses: actions/upload-artifact@v4
+        with:
+          name: snap
+          path: ${{ steps.snapcraft.outputs.snap }}
