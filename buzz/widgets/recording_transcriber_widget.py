@@ -24,6 +24,7 @@ from buzz.transcriber.transcriber import (
     DEFAULT_WHISPER_TEMPERATURE,
     Task,
 )
+from buzz.translator import Translator
 from buzz.widgets.audio_devices_combo_box import AudioDevicesComboBox
 from buzz.widgets.audio_meter_widget import AudioMeterWidget
 from buzz.widgets.model_download_progress_dialog import ModelDownloadProgressDialog
@@ -59,6 +60,8 @@ class RecordingTranscriberWidget(QWidget):
 
         layout = QVBoxLayout(self)
 
+        self.translation_thread = None
+        self.translator = None
         self.current_status = self.RecordingStatus.STOPPED
         self.setWindowTitle(_("Live Recording"))
 
@@ -149,7 +152,8 @@ class RecordingTranscriberWidget(QWidget):
 
         self.reset_recording_amplitude_listener()
 
-        self.export_file = None
+        self.transcript_export_file = None
+        self.translation_export_file = None
         self.export_enabled = self.settings.value(
             key=Settings.Key.RECORDING_TRANSCRIBER_EXPORT_ENABLED,
             default_value=False,
@@ -178,7 +182,8 @@ class RecordingTranscriberWidget(QWidget):
         if not os.path.isdir(export_folder):
             self.export_enabled = False
 
-        self.export_file = os.path.join(export_folder, export_file_name)
+        self.transcript_export_file = os.path.join(export_folder, export_file_name)
+        self.translation_export_file = self.transcript_export_file.replace(".txt", ".translated.txt")
 
     def on_transcription_options_changed(
         self, transcription_options: TranscriptionOptions
@@ -269,6 +274,25 @@ class RecordingTranscriberWidget(QWidget):
         self.transcriber.error.connect(self.transcription_thread.quit)
         self.transcriber.error.connect(self.transcriber.deleteLater)
 
+        if self.transcription_options.enable_llm_translation:
+            self.translation_thread = QThread()
+
+            self.translator = Translator(self.transcription_options)
+
+            self.translator.moveToThread(self.translation_thread)
+
+            self.translation_thread.started.connect(self.translator.start)
+            self.translation_thread.finished.connect(
+                self.translation_thread.deleteLater
+            )
+
+            self.translator.finished.connect(self.translation_thread.quit)
+            self.translator.finished.connect(self.translator.deleteLater)
+
+            self.translator.translation.connect(self.on_next_translation)
+
+            self.translation_thread.start()
+
         self.transcription_thread.start()
 
     def on_download_model_progress(self, progress: Tuple[float, float]):
@@ -301,6 +325,9 @@ class RecordingTranscriberWidget(QWidget):
     def on_next_transcription(self, text: str):
         text = text.strip()
         if len(text) > 0:
+            if self.translator is not None:
+                self.translator.enqueue(text)
+
             self.text_box.moveCursor(QTextCursor.MoveOperation.End)
             if len(self.text_box.toPlainText()) > 0:
                 self.text_box.insertPlainText("\n\n")
@@ -308,12 +335,29 @@ class RecordingTranscriberWidget(QWidget):
             self.text_box.moveCursor(QTextCursor.MoveOperation.End)
 
             if self.export_enabled:
-                with open(self.export_file, "a") as f:
+                with open(self.transcript_export_file, "a") as f:
+                    f.write(text + "\n\n")
+
+    def on_next_translation(self, text: str):
+        if len(text) > 0:
+            # TODO Hook up to the UI
+            # self.text_box.moveCursor(QTextCursor.MoveOperation.End)
+            # if len(self.text_box.toPlainText()) > 0:
+            #     self.text_box.insertPlainText("\n\n")
+            # self.text_box.insertPlainText(text)
+            # self.text_box.moveCursor(QTextCursor.MoveOperation.End)
+
+            if self.export_enabled:
+                with open(self.translation_export_file, "a") as f:
                     f.write(text + "\n\n")
 
     def stop_recording(self):
         if self.transcriber is not None:
             self.transcriber.stop_recording()
+
+        if self.translator is not None:
+            self.translator.stop()
+
         # Disable record button until the transcription is actually stopped in the background
         self.record_button.setDisabled(True)
 
@@ -370,6 +414,9 @@ class RecordingTranscriberWidget(QWidget):
             self.recording_amplitude_listener.stop_recording()
             self.recording_amplitude_listener.deleteLater()
             self.recording_amplitude_listener = None
+
+        if self.translator is not None:
+            self.translator.stop()
 
         self.settings.set_value(
             Settings.Key.RECORDING_TRANSCRIBER_LANGUAGE,

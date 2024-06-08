@@ -103,7 +103,7 @@ class TestRecordingTranscriberWidget:
 
             assert len(widget.text_box.toPlainText()) > 0
 
-            with open(widget.export_file, 'r') as file:
+            with open(widget.transcript_export_file, 'r') as file:
                 contents = file.read()
                 assert len(contents) > 0
 
