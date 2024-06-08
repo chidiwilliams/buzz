@@ -101,10 +101,10 @@ class TestGeneralPreferencesWidget:
         assert openai_base_url == ""
         assert widget.custom_openai_base_url_line_edit.text() == ""
 
-        widget.custom_openai_base_url_line_edit.setText("https://localhost:8000/v1")
+        widget.custom_openai_base_url_line_edit.setText("http://localhost:11434/v1")
 
         updated_openai_base_url = settings.value(
             key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value=""
         )
 
-        assert updated_openai_base_url == "https://localhost:8000/v1"
+        assert updated_openai_base_url == "http://localhost:11434/v1"

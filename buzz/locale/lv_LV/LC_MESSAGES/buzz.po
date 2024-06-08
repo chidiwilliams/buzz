@@ -124,23 +124,27 @@ msgstr "Adrese nav derīga"
 msgid "The URL you entered is invalid."
 msgstr "Jūsu ievadītā URL adrese nav derīga."
 
-#: buzz/widgets/recording_transcriber_widget.py:63
+#: buzz/widgets/recording_transcriber_widget.py:66
 msgid "Live Recording"
 msgstr "Dzīvā ierakstīšana"
 
-#: buzz/widgets/recording_transcriber_widget.py:112
+#: buzz/widgets/recording_transcriber_widget.py:125
 msgid "Click Record to begin..."
 msgstr "Klikšķiniet Ierakstīt, lai sāktu..."
 
-#: buzz/widgets/recording_transcriber_widget.py:124
+#: buzz/widgets/recording_transcriber_widget.py:128
+msgid "Waiting for AI translation..."
+msgstr "Gaida MI tulkojumu..."
+
+#: buzz/widgets/recording_transcriber_widget.py:140
 msgid "Microphone:"
 msgstr "Mikrofons:"
 
-#: buzz/widgets/recording_transcriber_widget.py:319
+#: buzz/widgets/recording_transcriber_widget.py:382
 msgid "An error occurred while starting a new recording:"
 msgstr "Sākot jaunu ierakstu notikusi kļūda:"
 
-#: buzz/widgets/recording_transcriber_widget.py:323
+#: buzz/widgets/recording_transcriber_widget.py:386
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
@@ -247,21 +251,39 @@ msgstr "Eksportēt"
 msgid "Stop"
 msgstr "Apturēt"
 
-#: buzz/widgets/transcriber/advanced_settings_dialog.py:28
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:32
 msgid "Advanced Settings"
 msgstr "Papildu iestatījumi"
 
-#: buzz/widgets/transcriber/advanced_settings_dialog.py:42
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:41
 msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
 msgstr "Atdalīti ar komatu, piemēram, \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
 
-#: buzz/widgets/transcriber/advanced_settings_dialog.py:60
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:50
 msgid "Temperature:"
 msgstr "Temperatūra:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:61
 msgid "Initial Prompt:"
-msgstr "Sākotnējais\nvaicājums:"
+msgstr ""
+"Sākotnējais\n"
+"vaicājums:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:63
+msgid "Enable AI translation"
+msgstr "Tulkot ar MI"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:75
+msgid "AI model:"
+msgstr "AI modelis:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:79
+msgid "Enter instructions for AI on how to translate..."
+msgstr "Ievadiet tulkošanas norādes mākslīgajam intelektam..."
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:83
+msgid "Instructions for AI:"
+msgstr "Norādes MI:"
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py:42
 msgid "Word-level timings"
@@ -292,7 +314,7 @@ msgid "Language:"
 msgstr "Valoda:"
 
 #: buzz/widgets/transcriber/languages_combo_box.py:25
-#: buzz/transcriber/transcriber.py:149
+#: buzz/transcriber/transcriber.py:152
 msgid "Detect Language"
 msgstr "Noteikt valodu"
 

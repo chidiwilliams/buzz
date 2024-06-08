@@ -121,8 +121,11 @@ class RecordingTranscriberWidget(QWidget):
         self.record_button = RecordButton(self)
         self.record_button.clicked.connect(self.on_record_button_clicked)
 
-        self.text_box = TextDisplayBox(self)
-        self.text_box.setPlaceholderText(_("Click Record to begin..."))
+        self.transcription_text_box = TextDisplayBox(self)
+        self.transcription_text_box.setPlaceholderText(_("Click Record to begin..."))
+
+        self.translation_text_box = TextDisplayBox(self)
+        self.translation_text_box.setPlaceholderText(_("Waiting for AI translation..."))
 
         transcription_options_group_box = TranscriptionOptionsGroupBox(
             default_transcription_options=self.transcription_options,
@@ -145,10 +148,14 @@ class RecordingTranscriberWidget(QWidget):
         layout.addWidget(transcription_options_group_box)
         layout.addLayout(recording_options_layout)
         layout.addLayout(record_button_layout)
-        layout.addWidget(self.text_box)
+        layout.addWidget(self.transcription_text_box)
+        layout.addWidget(self.translation_text_box)
+
+        if not self.transcription_options.enable_llm_translation:
+            self.translation_text_box.hide()
 
         self.setLayout(layout)
-        self.setFixedSize(self.sizeHint())
+        self.resize(450, 500)
 
         self.reset_recording_amplitude_listener()
 
@@ -189,6 +196,11 @@ class RecordingTranscriberWidget(QWidget):
         self, transcription_options: TranscriptionOptions
     ):
         self.transcription_options = transcription_options
+
+        if self.transcription_options.enable_llm_translation:
+            self.translation_text_box.show()
+        else:
+            self.translation_text_box.hide()
 
     def on_device_changed(self, device_id: int):
         self.selected_device_id = device_id
@@ -322,17 +334,21 @@ class RecordingTranscriberWidget(QWidget):
         self.set_recording_status_stopped()
         self.record_button.setDisabled(False)
 
+    @staticmethod
+    def strip_newlines(text):
+        return text.replace('\r\n', os.linesep).replace('\n', os.linesep)
+
     def on_next_transcription(self, text: str):
         text = text.strip()
         if len(text) > 0:
             if self.translator is not None:
                 self.translator.enqueue(text)
 
-            self.text_box.moveCursor(QTextCursor.MoveOperation.End)
-            if len(self.text_box.toPlainText()) > 0:
-                self.text_box.insertPlainText("\n\n")
-            self.text_box.insertPlainText(text)
-            self.text_box.moveCursor(QTextCursor.MoveOperation.End)
+            self.transcription_text_box.moveCursor(QTextCursor.MoveOperation.End)
+            if len(self.transcription_text_box.toPlainText()) > 0:
+                self.transcription_text_box.insertPlainText("\n\n")
+            self.transcription_text_box.insertPlainText(text)
+            self.transcription_text_box.moveCursor(QTextCursor.MoveOperation.End)
 
             if self.export_enabled:
                 with open(self.transcript_export_file, "a") as f:
@@ -340,12 +356,11 @@ class RecordingTranscriberWidget(QWidget):
 
     def on_next_translation(self, text: str):
         if len(text) > 0:
-            # TODO Hook up to the UI
-            # self.text_box.moveCursor(QTextCursor.MoveOperation.End)
-            # if len(self.text_box.toPlainText()) > 0:
-            #     self.text_box.insertPlainText("\n\n")
-            # self.text_box.insertPlainText(text)
-            # self.text_box.moveCursor(QTextCursor.MoveOperation.End)
+            self.translation_text_box.moveCursor(QTextCursor.MoveOperation.End)
+            if len(self.translation_text_box.toPlainText()) > 0:
+                self.translation_text_box.insertPlainText("\n\n")
+            self.translation_text_box.insertPlainText(self.strip_newlines(text))
+            self.translation_text_box.moveCursor(QTextCursor.MoveOperation.End)
 
             if self.export_enabled:
                 with open(self.translation_export_file, "a") as f:
@@ -395,7 +410,7 @@ class RecordingTranscriberWidget(QWidget):
 
     def reset_recording_controls(self):
         # Clear text box placeholder because the first chunk takes a while to process
-        self.text_box.setPlaceholderText("")
+        self.transcription_text_box.setPlaceholderText("")
         self.reset_record_button()
         self.reset_model_download()
 
