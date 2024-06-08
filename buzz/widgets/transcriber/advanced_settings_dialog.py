@@ -3,12 +3,15 @@ from PyQt6.QtWidgets import (
     QDialog,
     QWidget,
     QDialogButtonBox,
+    QCheckBox,
+    QPlainTextEdit,
     QFormLayout,
 )
 
 from buzz.locale import _
 from buzz.model_loader import ModelType
 from buzz.transcriber.transcriber import TranscriptionOptions
+from buzz.settings.settings import Settings
 from buzz.widgets.line_edit import LineEdit
 from buzz.widgets.transcriber.initial_prompt_text_edit import InitialPromptTextEdit
 from buzz.widgets.transcriber.temperature_validator import TemperatureValidator
@@ -24,13 +27,9 @@ class AdvancedSettingsDialog(QDialog):
         super().__init__(parent)
 
         self.transcription_options = transcription_options
+        self.settings = Settings()
 
         self.setWindowTitle(_("Advanced Settings"))
-
-        button_box = QDialogButtonBox(
-            QDialogButtonBox.StandardButton(QDialogButtonBox.StandardButton.Ok), self
-        )
-        button_box.accepted.connect(self.accept)
 
         layout = QFormLayout(self)
 
@@ -48,6 +47,8 @@ class AdvancedSettingsDialog(QDialog):
             transcription_options.model.model_type == ModelType.WHISPER
         )
 
+        layout.addRow(_("Temperature:"), self.temperature_line_edit)
+
         self.initial_prompt_text_edit = InitialPromptTextEdit(
             transcription_options.initial_prompt,
             transcription_options.model.model_type,
@@ -57,12 +58,39 @@ class AdvancedSettingsDialog(QDialog):
             self.on_initial_prompt_changed
         )
 
-        layout.addRow(_("Temperature:"), self.temperature_line_edit)
         layout.addRow(_("Initial Prompt:"), self.initial_prompt_text_edit)
+
+        self.enable_llm_translation_checkbox = QCheckBox(_("Enable AI translation"))
+        self.enable_llm_translation_checkbox.setChecked(self.transcription_options.enable_llm_translation)
+        self.enable_llm_translation_checkbox.stateChanged.connect(self.on_enable_llm_translation_changed)
+        layout.addRow("", self.enable_llm_translation_checkbox)
+
+        self.llm_model_line_edit = LineEdit(self.transcription_options.llm_model, self)
+        self.llm_model_line_edit.textChanged.connect(
+            self.on_llm_model_changed
+        )
+        self.llm_model_line_edit.setMinimumWidth(170)
+        self.llm_model_line_edit.setEnabled(self.transcription_options.enable_llm_translation)
+        self.llm_model_line_edit.setPlaceholderText("gpt-3.5-turbo")
+        layout.addRow(_("AI model:"), self.llm_model_line_edit)
+
+        self.llm_prompt_text_edit = QPlainTextEdit(self.transcription_options.llm_prompt)
+        self.llm_prompt_text_edit.setEnabled(self.transcription_options.enable_llm_translation)
+        self.llm_prompt_text_edit.setPlaceholderText(_("Enter instructions for AI on how to translate..."))
+        self.llm_prompt_text_edit.setMinimumWidth(170)
+        self.llm_prompt_text_edit.setFixedHeight(115)
+        self.llm_prompt_text_edit.textChanged.connect(self.on_llm_prompt_changed)
+        layout.addRow(_("Instructions for AI:"), self.llm_prompt_text_edit)
+
+        button_box = QDialogButtonBox(
+            QDialogButtonBox.StandardButton(QDialogButtonBox.StandardButton.Ok), self
+        )
+        button_box.accepted.connect(self.accept)
+
         layout.addWidget(button_box)
 
         self.setLayout(layout)
-        self.setFixedSize(self.sizeHint())
+        self.resize(self.sizeHint())
 
     def on_temperature_changed(self, text: str):
         try:
@@ -75,5 +103,22 @@ class AdvancedSettingsDialog(QDialog):
     def on_initial_prompt_changed(self):
         self.transcription_options.initial_prompt = (
             self.initial_prompt_text_edit.toPlainText()
+        )
+        self.transcription_options_changed.emit(self.transcription_options)
+
+    def on_enable_llm_translation_changed(self, state):
+        self.transcription_options.enable_llm_translation = state == 2
+        self.transcription_options_changed.emit(self.transcription_options)
+
+        self.llm_model_line_edit.setEnabled(self.transcription_options.enable_llm_translation)
+        self.llm_prompt_text_edit.setEnabled(self.transcription_options.enable_llm_translation)
+
+    def on_llm_model_changed(self, text: str):
+        self.transcription_options.llm_model = text
+        self.transcription_options_changed.emit(self.transcription_options)
+
+    def on_llm_prompt_changed(self):
+        self.transcription_options.llm_prompt = (
+            self.llm_prompt_text_edit.toPlainText()
         )
         self.transcription_options_changed.emit(self.transcription_options)

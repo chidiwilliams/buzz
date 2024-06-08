@@ -261,7 +261,7 @@ msgstr "Temperatūra:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:61
 msgid "Initial Prompt:"
-msgstr "Sākotnējais vaicājums:"
+msgstr "Sākotnējais\nvaicājums:"
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py:42
 msgid "Word-level timings"

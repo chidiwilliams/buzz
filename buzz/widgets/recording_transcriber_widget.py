@@ -99,6 +99,16 @@ class RecordingTranscriberWidget(QWidget):
                 default_value=DEFAULT_WHISPER_TEMPERATURE,
             ),
             word_level_timings=False,
+            enable_llm_translation=self.settings.value(
+                key=Settings.Key.RECORDING_TRANSCRIBER_ENABLE_LLM_TRANSLATION,
+                default_value=False,
+            ),
+            llm_model=self.settings.value(
+                key=Settings.Key.RECORDING_TRANSCRIBER_LLM_MODEL, default_value=""
+            ),
+            llm_prompt=self.settings.value(
+                key=Settings.Key.RECORDING_TRANSCRIBER_LLM_PROMPT, default_value=""
+            ),
         )
 
         self.audio_devices_combo_box = AudioDevicesComboBox(self)
@@ -378,6 +388,18 @@ class RecordingTranscriberWidget(QWidget):
         )
         self.settings.set_value(
             Settings.Key.RECORDING_TRANSCRIBER_MODEL, self.transcription_options.model
+        )
+        self.settings.set_value(
+            Settings.Key.RECORDING_TRANSCRIBER_ENABLE_LLM_TRANSLATION,
+            self.transcription_options.enable_llm_translation,
+        )
+        self.settings.set_value(
+            Settings.Key.RECORDING_TRANSCRIBER_LLM_MODEL,
+            self.transcription_options.llm_model,
+        )
+        self.settings.set_value(
+            Settings.Key.RECORDING_TRANSCRIBER_LLM_PROMPT,
+            self.transcription_options.llm_prompt,
         )
 
         return super().closeEvent(event)
