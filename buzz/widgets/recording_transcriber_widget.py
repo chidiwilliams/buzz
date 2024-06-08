@@ -333,6 +333,9 @@ class RecordingTranscriberWidget(QWidget):
 
     def reset_model_download(self):
         if self.model_download_progress_dialog is not None:
+            self.model_download_progress_dialog.canceled.disconnect(
+                self.on_cancel_model_progress_dialog
+            )
             self.model_download_progress_dialog.close()
             self.model_download_progress_dialog = None
 
