@@ -16,6 +16,7 @@ from buzz.transcriber.whisper_cpp import WhisperCpp, whisper_cpp_params
 from buzz.transformers_whisper import TransformersWhisper
 
 import whisper
+import faster_whisper
 
 
 class RecordingTranscriber(QObject):
@@ -53,6 +54,8 @@ class RecordingTranscriber(QObject):
             model = whisper.load_model(model_path)
         elif self.transcription_options.model.model_type == ModelType.WHISPER_CPP:
             model = WhisperCpp(model_path)
+        elif self.transcription_options.model.model_type == ModelType.FASTER_WHISPER:
+            model = faster_whisper.WhisperModel(model_path)
         else:  # ModelType.HUGGING_FACE
             model = transformers_whisper.load_model(model_path)
 
@@ -113,7 +116,24 @@ class RecordingTranscriber(QObject):
                                     transcription_options=self.transcription_options
                                 ),
                             )
-                        else:
+                        elif (
+                                self.transcription_options.model.model_type
+                                == ModelType.FASTER_WHISPER
+                        ):
+                            assert isinstance(model, faster_whisper.WhisperModel)
+                            whisper_segments, info = model.transcribe(
+                                audio=samples,
+                                language=self.transcription_options.language
+                                if self.transcription_options.language is not ""
+                                else None,
+                                task=self.transcription_options.task.value,
+                                temperature=self.transcription_options.temperature,
+                                initial_prompt=self.transcription_options.initial_prompt,
+                                word_timestamps=self.transcription_options.word_level_timings,
+                            )
+                            result = {"text": " ".join([segment.text for segment in whisper_segments])}
+
+                        else:  # ModelType.HUGGING_FACE
                             assert isinstance(model, TransformersWhisper)
                             result = model.transcribe(
                                 audio=samples,
