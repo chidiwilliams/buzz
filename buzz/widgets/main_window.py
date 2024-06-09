@@ -1,6 +1,7 @@
 import os
 import logging
 import sounddevice
+import keyring
 from typing import Tuple, List, Optional
 
 from PyQt6 import QtGui
@@ -141,6 +142,7 @@ class MainWindow(QMainWindow):
         self.folder_watcher.find_tasks()
 
         if os.environ.get('SNAP_NAME', '') == 'buzz':
+            logging.debug("Running in a snap environment")
             self.check_linux_permissions()
 
     def check_linux_permissions(self):
@@ -148,6 +150,12 @@ class MainWindow(QMainWindow):
         input_devices = [device for device in devices if device['max_input_channels'] > 0]
 
         if len(input_devices) == 0:
+            snap_notice = SnapNotice(self)
+            snap_notice.show()
+
+        try:
+            _ = keyring.get_password(APP_NAME, username="random")
+        except Exception:
             snap_notice = SnapNotice(self)
             snap_notice.show()
 
