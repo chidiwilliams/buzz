@@ -1,4 +1,6 @@
+import os
 import logging
+import sounddevice
 from typing import Tuple, List, Optional
 
 from PyQt6 import QtGui
@@ -32,6 +34,7 @@ from buzz.widgets.icon import BUZZ_ICON_PATH
 from buzz.widgets.import_url_dialog import ImportURLDialog
 from buzz.widgets.main_window_toolbar import MainWindowToolbar
 from buzz.widgets.menu_bar import MenuBar
+from buzz.widgets.snap_notice import SnapNotice
 from buzz.widgets.preferences_dialog.models.preferences import Preferences
 from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
 from buzz.widgets.transcription_task_folder_watcher import (
@@ -136,6 +139,17 @@ class MainWindow(QMainWindow):
         )
         self.folder_watcher.task_found.connect(self.add_task)
         self.folder_watcher.find_tasks()
+
+        if os.environ.get('SNAP_NAME', '') == 'buzz':
+            self.check_linux_permissions()
+
+    def check_linux_permissions(self):
+        devices = sounddevice.query_devices()
+        input_devices = [device for device in devices if device['max_input_channels'] > 0]
+
+        if len(input_devices) == 0:
+            snap_notice = SnapNotice(self)
+            snap_notice.show()
 
     def on_preferences_changed(self, preferences: Preferences):
         self.preferences = preferences

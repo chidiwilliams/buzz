@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-07 21:05+0300\n"
-"PO-Revision-Date: 2024-06-07 21:06+0300\n"
+"POT-Creation-Date: 2024-06-09 13:25+0300\n"
+"PO-Revision-Date: 2024-06-09 13:27+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -43,7 +43,7 @@ msgid "View Transcript Timestamps"
 msgstr "Aplūkot atpazīšanas laikus"
 
 #: buzz/settings/shortcut.py:25 buzz/widgets/main_window_toolbar.py:60
-#: buzz/widgets/main_window.py:200
+#: buzz/widgets/main_window.py:214
 msgid "Clear History"
 msgstr "Notīrīt vēsturi"
 
@@ -148,6 +148,26 @@ msgstr ""
 "Lūdzu pārbaudiet savas audio ierīces vai pārbaudiet lietotnes ziņojumu "
 "žurnālus, lai iegūtu papildu informāciju."
 
+#: buzz/widgets/snap_notice.py:9
+msgid "Snap permission notice"
+msgstr "Snap atļauju piezīme"
+
+#: buzz/widgets/snap_notice.py:13
+msgid ""
+"No input devices found, please check that snap permissions have been granted"
+msgstr ""
+"Nav atrasta neviena skaņas ievades ierīce, iespējams nav piešķirtas "
+"nepieciešamās snap atļaujas"
+
+#: buzz/widgets/snap_notice.py:16
+msgid ""
+"To enable necessary permissions run the following commands in the terminal"
+msgstr "Lai piešķirtu nepieciešamās atļaujas izpildiet šīs komandas"
+
+#: buzz/widgets/snap_notice.py:30
+msgid "Close"
+msgstr "Aizvērt"
+
 #: buzz/widgets/menu_bar.py:38
 msgid "Import File..."
 msgstr "Importēt failu..."
@@ -168,7 +188,7 @@ msgstr "Fails"
 msgid "Help"
 msgstr "Palīdzība"
 
-#: buzz/widgets/main_window.py:202
+#: buzz/widgets/main_window.py:216
 msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
@@ -176,16 +196,16 @@ msgstr ""
 "Vai tiešām vēlaties dzēst izvēlētos transkriptus? Šī ir neatgriezeniska "
 "darbība."
 
-#: buzz/widgets/main_window.py:222
+#: buzz/widgets/main_window.py:236
 msgid "Select audio file"
 msgstr "Izvēlieties audio failu"
 
-#: buzz/widgets/main_window.py:256
+#: buzz/widgets/main_window.py:270
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:191
 msgid "Error"
 msgstr "Kļūda"
 
-#: buzz/widgets/main_window.py:256
+#: buzz/widgets/main_window.py:270
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "Neizdevās saglabāt OpenAI API atslēgu atslēgu saišķī"
 
@@ -342,7 +362,7 @@ msgstr ""
 "Jūsu API atslēga ir derīga. Buzz izmantos to runas atpazīšanai ar Whisper "
 "API."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:157
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:156
 msgid "Select Export Folder"
 msgstr "Izvēlieties mapi kurā eksportēt"
 

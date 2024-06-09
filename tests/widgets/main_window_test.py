@@ -18,6 +18,7 @@ from buzz.locale import _
 from buzz.db.entity.transcription import Transcription
 from buzz.db.service.transcription_service import TranscriptionService
 from buzz.widgets.main_window import MainWindow
+from buzz.widgets.snap_notice import SnapNotice
 from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
 from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
     TranscriptionViewerWidget,
@@ -284,3 +285,12 @@ class TestMainWindow:
     def _get_toolbar_action(window: MainWindow, text: str):
         toolbar: QToolBar = window.findChild(QToolBar)
         return [action for action in toolbar.actions() if action.text() == text][0]
+
+    def test_snap_notice_dialog(self, qtbot: QtBot):
+        snap_notice = SnapNotice()
+        snap_notice.show()
+
+        qtbot.wait_until(lambda: snap_notice.isVisible(), timeout=1000)
+
+        snap_notice.close()
+        assert not snap_notice.isVisible()
