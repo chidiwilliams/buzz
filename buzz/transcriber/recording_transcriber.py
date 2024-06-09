@@ -49,7 +49,7 @@ class RecordingTranscriber(QObject):
 
     def start(self):
         model_path = self.model_path
-        keep_samples = int(0.25 * self.sample_rate)
+        keep_samples = int(0.15 * self.sample_rate)
 
         if self.transcription_options.model.model_type == ModelType.WHISPER:
             model = whisper.load_model(model_path)
