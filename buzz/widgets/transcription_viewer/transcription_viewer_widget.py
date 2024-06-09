@@ -66,16 +66,19 @@ class TranscriptionViewerWidget(QWidget):
         font = QFont(self.text_display_box.font().family(), 14)
         self.text_display_box.setFont(font)
 
-        self.audio_player: Optional[AudioPlayer] = None
-        if platform.system() != "Linux":
-            self.audio_player = AudioPlayer(file_path=transcription.file)
-            self.audio_player.position_ms_changed.connect(
-                self.on_audio_player_position_ms_changed
-            )
+        self.audio_player = AudioPlayer(file_path=transcription.file)
+        self.audio_player.position_ms_changed.connect(
+            self.on_audio_player_position_ms_changed
+        )
 
         self.current_segment_label = QLabel("", self)
         self.current_segment_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         self.current_segment_label.setContentsMargins(0, 0, 0, 10)
+        self.current_segment_label.setWordWrap(True)
+
+        font_metrics = self.current_segment_label.fontMetrics()
+        max_height = font_metrics.lineSpacing() * 3
+        self.current_segment_label.setMaximumHeight(max_height)
 
         layout = QVBoxLayout(self)
 
@@ -103,8 +106,7 @@ class TranscriptionViewerWidget(QWidget):
 
         layout.addWidget(self.table_widget)
         layout.addWidget(self.text_display_box)
-        if self.audio_player is not None:
-            layout.addWidget(self.audio_player)
+        layout.addWidget(self.audio_player)
         layout.addWidget(self.current_segment_label)
 
         self.setLayout(layout)
@@ -130,7 +132,7 @@ class TranscriptionViewerWidget(QWidget):
         self.reset_view()
 
     def on_segment_selected(self, segment: QSqlRecord):
-        if self.audio_player is not None and (
+        if (
             self.audio_player.media_player.playbackState()
             == QMediaPlayer.PlaybackState.PlayingState
         ):
