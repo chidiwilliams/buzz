@@ -31,10 +31,6 @@ class TestRecordingTranscriberWidget:
             widget.close()
 
     # on CI transcribed output is garbage, so we check if there is anything
-    @pytest.mark.skipif(
-        platform.system() == "Darwin",
-        reason="Seg faults on CI",
-    )
     def test_should_transcribe(self, qtbot):
         with (patch("sounddevice.InputStream", side_effect=MockInputStream),
               patch(
@@ -59,11 +55,10 @@ class TestRecordingTranscriberWidget:
             assert len(widget.text_box.toPlainText()) > 0
             widget.close()
 
+            # Wait for widget thread cleanup
+            time.sleep(3)
+
     # on CI transcribed output is garbage, so we check if there is anything
-    @pytest.mark.skipif(
-        platform.system() == "Darwin",
-        reason="Seg faults on CI",
-    )
     def test_should_transcribe_and_export(self, qtbot):
         settings = Settings()
         settings.set_value(
@@ -108,3 +103,6 @@ class TestRecordingTranscriberWidget:
                 assert len(contents) > 0
 
             widget.close()
+
+            # Wait for widget thread cleanup
+            time.sleep(3)
