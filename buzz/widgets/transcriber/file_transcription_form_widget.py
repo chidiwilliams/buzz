@@ -89,6 +89,10 @@ class FileTranscriptionFormWidget(QWidget):
             value == Qt.CheckState.Checked.value
         )
 
+        self.transcription_options_changed.emit(
+            (self.transcription_options, self.file_transcription_options)
+        )
+
     def get_on_checkbox_state_changed_callback(self, output_format: OutputFormat):
         def on_checkbox_state_changed(state: int):
             if state == Qt.CheckState.Checked.value:
