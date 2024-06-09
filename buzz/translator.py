@@ -13,7 +13,6 @@ from buzz.transcriber.transcriber import TranscriptionOptions
 class Translator(QObject):
     translation = pyqtSignal(str)
     finished = pyqtSignal()
-    error = pyqtSignal(str)
     is_running = False
 
     def __init__(
@@ -45,7 +44,7 @@ class Translator(QObject):
 
         while self.is_running:
             try:
-                transcript = self.queue.get(timeout=5)
+                transcript = self.queue.get(timeout=1)
             except queue.Empty:
                 continue
 
@@ -64,8 +63,6 @@ class Translator(QObject):
             else:
                 logging.error(f"Translation error! Server response: {completion}")
                 next_translation = "Translation error, see logs!"
-                # TODO is this needed?
-                # self.error.emit(str(exc))
 
             self.translation.emit(next_translation)
 
