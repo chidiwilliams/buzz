@@ -5,6 +5,7 @@ from uuid import UUID
 
 from PyQt6.QtCore import pyqtSignal, Qt, QModelIndex, QItemSelection
 from PyQt6.QtSql import QSqlTableModel, QSqlRecord
+from PyQt6.QtGui import QFontMetrics
 from PyQt6.QtWidgets import (
     QWidget,
     QTableView,
@@ -92,6 +93,14 @@ class TranscriptionSegmentsEditorWidget(QTableView):
 
         # Show start before end
         self.horizontalHeader().swapSections(1, 2)
+
+        font_metrics = QFontMetrics(self.font())
+        max_row_height = font_metrics.height() * 3
+        for row in range(self.model().rowCount()):
+            self.setRowHeight(row, max_row_height)
+
+        self.horizontalHeader().setStretchLastSection(True)
+        self.setWordWrap(True)
         self.resizeColumnsToContents()
 
     def on_selection_changed(
