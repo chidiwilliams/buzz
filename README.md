@@ -42,4 +42,8 @@ Download and run the `.exe` file in the [releases page](https://github.com/chidi
 ```shell
 sudo apt-get install libportaudio2
 sudo snap install buzz
+sudo snap connect buzz:audio-record
+sudo snap connect buzz:password-manager-service
+sudo snap connect buzz:pulseaudio
+sudo snap connect buzz:removable-media
 ```
