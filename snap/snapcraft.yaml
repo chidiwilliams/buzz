@@ -88,8 +88,17 @@ parts:
       - libpulse0
       - libasound2
       - libasound2-plugins
+      - libasound2-plugins-extra
       - libyaml-dev
       - libegl1-mesa
+      - gstreamer1.0-plugins-good
+      - gstreamer1.0-plugins-base-apps
+      - gstreamer1.0-pulseaudio
+      - libgstreamer1.0-0
+      - libgstreamer-plugins-base1.0-0
+      - libgstreamer-plugins-good1.0-0
+      - qt6-declarative-dev
+      - qt6-multimedia-dev
       # Display
       - libxkbcommon-x11-0
       - libxcb-icccm4
@@ -126,18 +135,20 @@ apps:
     desktop: usr/share/applications/buzz.desktop
     environment:
       PATH: $SNAP/usr/bin:$SNAP/bin:$PATH
-      LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/lapack:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/blas:$SNAP:$LD_LIBRARY_PATH
-      PYTHONPATH: $SNAP/usr/lib/python3/dist-packages:$SNAP/usr/lib/python3.10/site-packages:$SNAP/usr/local/lib/python3.10/dist-packages:$SNAP/usr/lib/python3.10/dist-packages:$PYTHONPATH
+      LD_LIBRARY_PATH: $SNAP/lib/python3.10/site-packages/PyQt6:$SNAP/lib/python3.10/site-packages/PyQt6/Qt6/lib:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/lapack:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/blas:$SNAP:$LD_LIBRARY_PATH
+      PYTHONPATH: $SNAP/lib/python3.10/site-packages/PyQt6:$SNAP/lib/python3.10/site-packages/PyQt6/Qt6/lib:$SNAP/usr/lib/python3/dist-packages:$SNAP/usr/lib/python3.10/site-packages:$SNAP/usr/local/lib/python3.10/dist-packages:$SNAP/usr/lib/python3.10/dist-packages:$PYTHONPATH
       # Fallback to XWayland if running in a Wayland session.
       DISABLE_WAYLAND: 1
       # Use GTK3 cursor theme, icon theme and open/save file dialogs.
       QT_QPA_PLATFORMTHEME: gtk3
+      QT_MEDIA_BACKEND: gstreamer
       ALSA_CONFIG_PATH: $SNAP/etc/asound.conf
       XDG_CONFIG_DIRS: $SNAP/etc/xdg:$XDG_CONFIG_DIRS
       XDG_DATA_DIRS: $SNAP/usr/share:$XDG_DATA_DIRS
     plugs:
       - x11
       - unity7
+      - wayland
       - home
       - network
       - network-bind
