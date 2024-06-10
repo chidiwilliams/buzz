@@ -10,7 +10,7 @@ class SnapNotice(QDialog):
 
         self.layout = QVBoxLayout(self)
 
-        self.notice_label = QLabel(_("No input devices found, please check that snap permissions have been granted"))
+        self.notice_label = QLabel(_("Detected missing permissions, please check that snap permissions have been granted"))
         self.layout.addWidget(self.notice_label)
 
         self.instruction_label = QLabel(_("To enable necessary permissions run the following commands in the terminal"))
