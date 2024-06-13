@@ -8,16 +8,18 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from buzz.settings.settings import Settings
 from buzz.store.keyring_store import get_password, Key
 from buzz.transcriber.transcriber import TranscriptionOptions
+from buzz.widgets.transcriber.advanced_settings_dialog import AdvancedSettingsDialog
 
 
 class Translator(QObject):
-    translation = pyqtSignal(str)
+    translation = pyqtSignal(str, int)
     finished = pyqtSignal()
     is_running = False
 
     def __init__(
         self,
         transcription_options: TranscriptionOptions,
+        advanced_settings_dialog: AdvancedSettingsDialog,
         parent: Optional[QObject] = None,
     ) -> None:
         super().__init__(parent)
@@ -25,6 +27,11 @@ class Translator(QObject):
         logging.debug(f"Translator init: {transcription_options}")
 
         self.transcription_options = transcription_options
+        self.advanced_settings_dialog = advanced_settings_dialog
+        self.advanced_settings_dialog.transcription_options_changed.connect(
+            self.on_transcription_options_changed
+        )
+
         self.queue = queue.Queue()
 
         settings = Settings()
@@ -44,7 +51,7 @@ class Translator(QObject):
 
         while self.is_running:
             try:
-                transcript = self.queue.get(timeout=1)
+                transcript, transcript_id = self.queue.get(timeout=1)
             except queue.Empty:
                 continue
 
@@ -64,13 +71,17 @@ class Translator(QObject):
                 logging.error(f"Translation error! Server response: {completion}")
                 next_translation = "Translation error, see logs!"
 
-            self.translation.emit(next_translation)
+            self.translation.emit(next_translation, transcript_id)
 
         self.finished.emit()
 
-    def enqueue(self, transcript: str):
-        if self.is_running:
-            self.queue.put(transcript)
+    def on_transcription_options_changed(
+        self, transcription_options: TranscriptionOptions
+    ):
+        self.transcription_options = transcription_options
+
+    def enqueue(self, transcript: str, transcript_id: Optional[int] = None):
+        self.queue.put((transcript, transcript_id))
 
     def stop(self):
         self.is_running = False

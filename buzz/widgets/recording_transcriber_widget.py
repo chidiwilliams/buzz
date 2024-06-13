@@ -127,12 +127,12 @@ class RecordingTranscriberWidget(QWidget):
         self.translation_text_box = TextDisplayBox(self)
         self.translation_text_box.setPlaceholderText(_("Waiting for AI translation..."))
 
-        transcription_options_group_box = TranscriptionOptionsGroupBox(
+        self.transcription_options_group_box = TranscriptionOptionsGroupBox(
             default_transcription_options=self.transcription_options,
             model_types=model_types,
             parent=self,
         )
-        transcription_options_group_box.transcription_options_changed.connect(
+        self.transcription_options_group_box.transcription_options_changed.connect(
             self.on_transcription_options_changed
         )
 
@@ -145,7 +145,7 @@ class RecordingTranscriberWidget(QWidget):
         record_button_layout.addWidget(self.audio_meter_widget)
         record_button_layout.addWidget(self.record_button)
 
-        layout.addWidget(transcription_options_group_box)
+        layout.addWidget(self.transcription_options_group_box)
         layout.addLayout(recording_options_layout)
         layout.addLayout(record_button_layout)
         layout.addWidget(self.transcription_text_box)
@@ -289,7 +289,10 @@ class RecordingTranscriberWidget(QWidget):
         if self.transcription_options.enable_llm_translation:
             self.translation_thread = QThread()
 
-            self.translator = Translator(self.transcription_options)
+            self.translator = Translator(
+                self.transcription_options,
+                self.transcription_options_group_box.advanced_settings_dialog,
+            )
 
             self.translator.moveToThread(self.translation_thread)
 
@@ -354,7 +357,7 @@ class RecordingTranscriberWidget(QWidget):
                 with open(self.transcript_export_file, "a") as f:
                     f.write(text + "\n\n")
 
-    def on_next_translation(self, text: str):
+    def on_next_translation(self, text: str, _: Optional[int] = None):
         if len(text) > 0:
             self.translation_text_box.moveCursor(QTextCursor.MoveOperation.End)
             if len(self.translation_text_box.toPlainText()) > 0:

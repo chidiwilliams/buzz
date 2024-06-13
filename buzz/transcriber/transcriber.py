@@ -25,6 +25,7 @@ class Segment:
     start: int  # start time in ms
     end: int  # end time in ms
     text: str
+    translation: str = ""
 
 
 LANGUAGES = {

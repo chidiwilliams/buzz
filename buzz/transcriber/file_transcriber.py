@@ -103,7 +103,12 @@ class FileTranscriber(QObject):
 
 
 # TODO: Move to transcription service
-def write_output(path: str, segments: List[Segment], output_format: OutputFormat):
+def write_output(
+    path: str,
+    segments: List[Segment],
+    output_format: OutputFormat,
+    segment_key: str = 'text'
+):
     logging.debug(
         "Writing transcription output, path = %s, output format = %s, number of segments = %s",
         path,
@@ -114,7 +119,7 @@ def write_output(path: str, segments: List[Segment], output_format: OutputFormat
     with open(path, "w", encoding="utf-8") as file:
         if output_format == OutputFormat.TXT:
             for i, segment in enumerate(segments):
-                file.write(segment.text)
+                file.write(getattr(segment, segment_key))
                 file.write("\n")
 
         elif output_format == OutputFormat.VTT:
@@ -123,7 +128,7 @@ def write_output(path: str, segments: List[Segment], output_format: OutputFormat
                 file.write(
                     f"{to_timestamp(segment.start)} --> {to_timestamp(segment.end)}\n"
                 )
-                file.write(f"{segment.text}\n\n")
+                file.write(f"{getattr(segment, segment_key)}\n\n")
 
         elif output_format == OutputFormat.SRT:
             for i, segment in enumerate(segments):
@@ -131,7 +136,7 @@ def write_output(path: str, segments: List[Segment], output_format: OutputFormat
                 file.write(
                     f'{to_timestamp(segment.start, ms_separator=",")} --> {to_timestamp(segment.end, ms_separator=",")}\n'
                 )
-                file.write(f"{segment.text}\n\n")
+                file.write(f"{getattr(segment, segment_key)}\n\n")
 
     logging.debug("Written transcription output")
 

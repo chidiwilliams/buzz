@@ -125,7 +125,7 @@ class RecordingTranscriber(QObject):
                             whisper_segments, info = model.transcribe(
                                 audio=samples,
                                 language=self.transcription_options.language
-                                if self.transcription_options.language is not ""
+                                if self.transcription_options.language != ""
                                 else None,
                                 task=self.transcription_options.task.value,
                                 temperature=self.transcription_options.temperature,

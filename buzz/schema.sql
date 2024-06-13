@@ -23,6 +23,7 @@ CREATE TABLE transcription_segment (
     end_time INT DEFAULT 0,
     start_time INT DEFAULT 0,
     text TEXT NOT NULL,
+    translation TEXT DEFAULT '',
     transcription_id TEXT,
     FOREIGN KEY (transcription_id) REFERENCES transcription(id) ON DELETE CASCADE
 );

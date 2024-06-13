@@ -267,6 +267,8 @@ class MainWindow(QMainWindow):
             self.on_openai_access_token_changed
         )
         file_transcriber_window.show()
+        file_transcriber_window.raise_()
+        file_transcriber_window.activateWindow()
 
     @staticmethod
     def on_openai_access_token_changed(access_token: str):

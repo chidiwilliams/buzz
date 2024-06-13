@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import (
     QCheckBox,
     QPlainTextEdit,
     QFormLayout,
+    QLabel,
 )
 
 from buzz.locale import _
@@ -33,6 +34,10 @@ class AdvancedSettingsDialog(QDialog):
 
         layout = QFormLayout(self)
 
+        transcription_settings_title= _("Speech recognition settings")
+        transcription_settings_title_label = QLabel(f"<h4>{transcription_settings_title}</h4>", self)
+        layout.addRow("", transcription_settings_title_label)
+
         default_temperature_text = ", ".join(
             [str(temp) for temp in transcription_options.temperature]
         )
@@ -59,6 +64,10 @@ class AdvancedSettingsDialog(QDialog):
         )
 
         layout.addRow(_("Initial Prompt:"), self.initial_prompt_text_edit)
+
+        translation_settings_title= _("Translation settings")
+        translation_settings_title_label = QLabel(f"<h4>{translation_settings_title}</h4>", self)
+        layout.addRow("", translation_settings_title_label)
 
         self.enable_llm_translation_checkbox = QCheckBox(_("Enable AI translation"))
         self.enable_llm_translation_checkbox.setChecked(self.transcription_options.enable_llm_translation)

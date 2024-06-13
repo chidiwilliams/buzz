@@ -39,9 +39,13 @@ class TranscriptionService:
                     start_time=segment.start,
                     end_time=segment.end,
                     text=segment.text,
+                    translation='',
                     transcription_id=str(id),
                 )
             )
 
     def get_transcription_segments(self, transcription_id: UUID):
         return self.transcription_segment_dao.get_segments(transcription_id)
+
+    def update_segment_translation(self, segment_id: int, translation: str):
+        return self.transcription_segment_dao.update_segment_translation(segment_id, translation)

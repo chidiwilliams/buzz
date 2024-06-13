@@ -39,6 +39,13 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         )
         self.model_type_combo_box.changed.connect(self.on_model_type_changed)
 
+        self.advanced_settings_dialog = AdvancedSettingsDialog(
+            transcription_options=self.transcription_options, parent=self
+        )
+        self.advanced_settings_dialog.transcription_options_changed.connect(
+            self.on_transcription_options_changed
+        )
+
         self.whisper_model_size_combo_box = QComboBox(self)
         self.whisper_model_size_combo_box.addItems(
             [size.value.title() for size in WhisperModelSize]
@@ -102,13 +109,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.transcription_options_changed.emit(self.transcription_options)
 
     def open_advanced_settings(self):
-        dialog = AdvancedSettingsDialog(
-            transcription_options=self.transcription_options, parent=self
-        )
-        dialog.transcription_options_changed.connect(
-            self.on_transcription_options_changed
-        )
-        dialog.exec()
+        self.advanced_settings_dialog.exec()
 
     def on_transcription_options_changed(
         self, transcription_options: TranscriptionOptions

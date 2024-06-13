@@ -74,6 +74,11 @@ class FileDownloadIcon(Icon):
         super().__init__(get_path("assets/file_download_black_24dp.svg"), parent)
 
 
+class TranslateIcon(Icon):
+    def __init__(self, parent: QWidget):
+        super().__init__(get_path("assets/translate_black.svg"), parent)
+
+
 class VisibilityIcon(Icon):
     def __init__(self, parent: QWidget):
         super().__init__(

@@ -7,6 +7,7 @@ from PyQt6.QtCore import QThread
 
 from buzz.translator import Translator
 from buzz.transcriber.transcriber import TranscriptionOptions
+from buzz.widgets.transcriber.advanced_settings_dialog import AdvancedSettingsDialog
 
 
 class TestTranslator:
@@ -59,12 +60,18 @@ class TestTranslator:
         )
 
         self.translation_thread = QThread()
-
-        self.translator = Translator(TranscriptionOptions(
+        self.transcription_options = TranscriptionOptions(
             enable_llm_translation=False,
             llm_model="llama3",
             llm_prompt="Please translate this text:",
-        ))
+        )
+
+        self.translator = Translator(
+            self.transcription_options,
+            AdvancedSettingsDialog(
+                transcription_options=self.transcription_options, parent=None
+            )
+        )
 
         self.translator.moveToThread(self.translation_thread)
 
