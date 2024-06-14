@@ -22,7 +22,7 @@ class TestTranslator:
 
             if side_effect.call_count < 3:
                 raise Empty
-            return 'Hello, how are you?'
+            return "Hello, how are you?", None
 
         side_effect.call_count = 0
 
@@ -32,11 +32,18 @@ class TestTranslator:
         mock_chat.completions.create.return_value = Mock(
             choices=[Mock(message=Mock(content="AI Translated: Hello, how are you?"))]
         )
-        translator = Translator(TranscriptionOptions(
+
+        transcription_options = TranscriptionOptions(
             enable_llm_translation=False,
             llm_model="llama3",
             llm_prompt="Please translate this text:",
-        ))
+        )
+        translator = Translator(
+            transcription_options,
+            AdvancedSettingsDialog(
+                transcription_options=transcription_options, parent=None
+            )
+        )
         translator.queue = mock_queue
 
         translator.start()

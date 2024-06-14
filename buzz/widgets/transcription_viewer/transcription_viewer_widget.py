@@ -262,9 +262,12 @@ class TranscriptionViewerWidget(QWidget):
             self.translator.enqueue(segment.value("text"), segment.value("id"))
 
     def closeEvent(self, event):
+        self.hide()
+
         self.translator.stop()
 
         if self.translation_thread.isRunning():
             self.translation_thread.quit()
+            self.translation_thread.wait()
 
         super().closeEvent(event)

@@ -141,6 +141,8 @@ class MainWindow(QMainWindow):
         self.folder_watcher.task_found.connect(self.add_task)
         self.folder_watcher.find_tasks()
 
+        self.transcription_viewer_widget = None
+
         if os.environ.get('SNAP_NAME', '') == 'buzz':
             logging.debug("Running in a snap environment")
             self.check_linux_permissions()
@@ -349,14 +351,14 @@ class MainWindow(QMainWindow):
         self.open_transcription_viewer(transcription)
 
     def open_transcription_viewer(self, transcription: Transcription):
-        transcription_viewer_widget = TranscriptionViewerWidget(
+        self.transcription_viewer_widget = TranscriptionViewerWidget(
             transcription=transcription,
             transcription_service=self.transcription_service,
             shortcuts=self.shortcuts,
             parent=self,
             flags=Qt.WindowType.Window,
         )
-        transcription_viewer_widget.show()
+        self.transcription_viewer_widget.show()
 
     def add_task(self, task: FileTranscriptionTask):
         self.transcription_service.create_transcription(task)
@@ -398,6 +400,10 @@ class MainWindow(QMainWindow):
         self.transcriber_worker.stop()
         self.transcriber_thread.quit()
         self.transcriber_thread.wait()
+
+        if self.transcription_viewer_widget is not None:
+            self.transcription_viewer_widget.close()
+
         super().closeEvent(event)
 
     def save_geometry(self):
