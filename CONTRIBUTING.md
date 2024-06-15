@@ -23,7 +23,7 @@ If you encounter any issues, please open an issue on the Buzz GitHub repository.
 
 **Provide details**
 
-What version of the Buzz are you using? On what OS? What are steps to reproduce it? What settings were selected.
+What version of the Buzz are you using? On what OS? What are steps to reproduce it? What settings were selected, like what model type and size was used.
 
 **Logs**
 
