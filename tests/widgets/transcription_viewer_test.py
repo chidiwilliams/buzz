@@ -62,7 +62,6 @@ class TestTranscriptionViewerWidget:
         assert editor.model().index(0, 2).data() == 40
         assert editor.model().index(0, 3).data() == "Bien"
         widget.close()
-        time.sleep(3)
 
     def test_should_update_segment_text(
         self, qtbot, transcription, transcription_service, shortcuts
@@ -77,7 +76,6 @@ class TestTranscriptionViewerWidget:
 
         editor.model().setData(editor.model().index(0, 3), "Biens")
         widget.close()
-        time.sleep(3)
 
     def test_text_button_changes_view_mode(
             self, qtbot, transcription, transcription_service, shortcuts
@@ -99,4 +97,3 @@ class TestTranscriptionViewerWidget:
         assert widget.view_mode == ViewMode.TRANSLATION
 
         widget.close()
-        time.sleep(3)

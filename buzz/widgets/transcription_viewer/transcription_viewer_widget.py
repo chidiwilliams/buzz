@@ -99,12 +99,6 @@ class TranscriptionViewerWidget(QWidget):
         self.translator.moveToThread(self.translation_thread)
 
         self.translation_thread.started.connect(self.translator.start)
-        self.translation_thread.finished.connect(
-            self.translation_thread.deleteLater
-        )
-
-        self.translator.finished.connect(self.translation_thread.quit)
-        self.translator.finished.connect(self.translator.deleteLater)
 
         self.translation_thread.start()
 
@@ -265,9 +259,7 @@ class TranscriptionViewerWidget(QWidget):
         self.hide()
 
         self.translator.stop()
-
-        if self.translation_thread.isRunning():
-            self.translation_thread.quit()
-            self.translation_thread.wait()
+        self.translation_thread.quit()
+        self.translation_thread.wait()
 
         super().closeEvent(event)
