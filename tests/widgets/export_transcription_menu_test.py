@@ -30,9 +30,9 @@ class TestExportTranscriptionMenu:
                 whisper_model_size=WhisperModelSize.SMALL.value,
             )
         )
-        transcription_segment_dao.insert(TranscriptionSegment(40, 299, "Bien", str(id)))
+        transcription_segment_dao.insert(TranscriptionSegment(40, 299, "Bien", "", str(id)))
         transcription_segment_dao.insert(
-            TranscriptionSegment(299, 329, "venue dans", str(id))
+            TranscriptionSegment(299, 329, "venue dans", "", str(id))
         )
 
         return transcription_dao.find_by_id(str(id))

@@ -20,6 +20,7 @@ class Shortcut(str, enum.Enum):
     OPEN_PREFERENCES_WINDOW = ("Ctrl+,", _("Open Preferences Window"))
 
     VIEW_TRANSCRIPT_TEXT = ("Ctrl+E", _("View Transcript Text"))
+    VIEW_TRANSCRIPT_TRANSLATION = ("Ctrl+L", _("View Transcript Translation"))
     VIEW_TRANSCRIPT_TIMESTAMPS = ("Ctrl+T", _("View Transcript Timestamps"))
 
     CLEAR_HISTORY = ("Ctrl+S", _("Clear History"))

@@ -25,6 +25,7 @@ class Segment:
     start: int  # start time in ms
     end: int  # end time in ms
     text: str
+    translation: str = ""
 
 
 LANGUAGES = {
@@ -142,6 +143,9 @@ class TranscriptionOptions:
     openai_access_token: str = field(
         default="", metadata=config(exclude=Exclude.ALWAYS)
     )
+    enable_llm_translation: bool = False
+    llm_prompt: str = ""
+    llm_model: str = ""
 
 
 def humanize_language(language: str) -> str:

@@ -35,6 +35,7 @@ class TestShortcutsEditorWidget:
             (_("Import URL"), "Ctrl+U"),
             (_("Open Preferences Window"), "Ctrl+,"),
             (_("View Transcript Text"), "Ctrl+E"),
+            (_("View Transcript Translation"), "Ctrl+L"),
             (_("View Transcript Timestamps"), "Ctrl+T"),
             (_("Clear History"), "Ctrl+S"),
             (_("Cancel Transcription"), "Ctrl+X"),

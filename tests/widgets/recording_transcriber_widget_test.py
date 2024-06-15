@@ -45,10 +45,10 @@ class TestRecordingTranscriberWidget:
             widget.device_sample_rate = 16_000
             qtbot.add_widget(widget)
 
-            assert len(widget.text_box.toPlainText()) == 0
+            assert len(widget.transcription_text_box.toPlainText()) == 0
 
             def assert_text_box_contains_text():
-                assert len(widget.text_box.toPlainText()) > 0
+                assert len(widget.transcription_text_box.toPlainText()) > 0
 
             widget.record_button.click()
             qtbot.wait_until(callback=assert_text_box_contains_text, timeout=60 * 1000)
@@ -56,7 +56,7 @@ class TestRecordingTranscriberWidget:
             with qtbot.wait_signal(widget.transcription_thread.finished, timeout=60 * 1000):
                 widget.stop_recording()
 
-            assert len(widget.text_box.toPlainText()) > 0
+            assert len(widget.transcription_text_box.toPlainText()) > 0
             widget.close()
 
     # on CI transcribed output is garbage, so we check if there is anything
@@ -90,10 +90,10 @@ class TestRecordingTranscriberWidget:
             widget.export_enabled = True
             qtbot.add_widget(widget)
 
-            assert len(widget.text_box.toPlainText()) == 0
+            assert len(widget.transcription_text_box.toPlainText()) == 0
 
             def assert_text_box_contains_text():
-                assert len(widget.text_box.toPlainText()) > 0
+                assert len(widget.transcription_text_box.toPlainText()) > 0
 
             widget.record_button.click()
             qtbot.wait_until(callback=assert_text_box_contains_text, timeout=60 * 1000)
@@ -101,9 +101,9 @@ class TestRecordingTranscriberWidget:
             with qtbot.wait_signal(widget.transcription_thread.finished, timeout=60 * 1000):
                 widget.stop_recording()
 
-            assert len(widget.text_box.toPlainText()) > 0
+            assert len(widget.transcription_text_box.toPlainText()) > 0
 
-            with open(widget.export_file, 'r') as file:
+            with open(widget.transcript_export_file, 'r') as file:
                 contents = file.read()
                 assert len(contents) > 0
 

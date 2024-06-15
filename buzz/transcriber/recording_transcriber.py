@@ -49,6 +49,7 @@ class RecordingTranscriber(QObject):
 
     def start(self):
         model_path = self.model_path
+        keep_samples = int(0.15 * self.sample_rate)
 
         if self.transcription_options.model.model_type == ModelType.WHISPER:
             model = whisper.load_model(model_path)
@@ -82,7 +83,7 @@ class RecordingTranscriber(QObject):
                     self.mutex.acquire()
                     if self.queue.size >= self.n_batch_samples:
                         samples = self.queue[: self.n_batch_samples]
-                        self.queue = self.queue[self.n_batch_samples :]
+                        self.queue = self.queue[self.n_batch_samples - keep_samples:]
                         self.mutex.release()
 
                         logging.debug(
@@ -124,7 +125,7 @@ class RecordingTranscriber(QObject):
                             whisper_segments, info = model.transcribe(
                                 audio=samples,
                                 language=self.transcription_options.language
-                                if self.transcription_options.language is not ""
+                                if self.transcription_options.language != ""
                                 else None,
                                 task=self.transcription_options.task.value,
                                 temperature=self.transcription_options.temperature,

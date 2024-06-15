@@ -1,8 +1,9 @@
+import logging
 import platform
 from typing import Optional
 from uuid import UUID
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QThread
 from PyQt6.QtGui import QFont
 from PyQt6.QtMultimedia import QMediaPlayer
 from PyQt6.QtSql import QSqlRecord
@@ -11,6 +12,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QToolButton,
     QLabel,
+    QMessageBox,
 )
 
 from buzz.locale import _
@@ -18,25 +20,36 @@ from buzz.db.entity.transcription import Transcription
 from buzz.db.service.transcription_service import TranscriptionService
 from buzz.paths import file_path_as_title
 from buzz.settings.shortcuts import Shortcuts
+from buzz.settings.settings import Settings
+from buzz.store.keyring_store import get_password, Key
 from buzz.widgets.audio_player import AudioPlayer
 from buzz.widgets.icon import (
     FileDownloadIcon,
+    TranslateIcon
 )
+from buzz.translator import Translator
 from buzz.widgets.text_display_box import TextDisplayBox
 from buzz.widgets.toolbar import ToolBar
+from buzz.transcriber.transcriber import TranscriptionOptions
+from buzz.widgets.transcriber.advanced_settings_dialog import AdvancedSettingsDialog
 from buzz.widgets.transcription_viewer.export_transcription_menu import (
     ExportTranscriptionMenu,
+)
+from buzz.widgets.preferences_dialog.models.file_transcription_preferences import (
+    FileTranscriptionPreferences,
 )
 from buzz.widgets.transcription_viewer.transcription_segments_editor_widget import (
     TranscriptionSegmentsEditorWidget,
 )
 from buzz.widgets.transcription_viewer.transcription_view_mode_tool_button import (
     TranscriptionViewModeToolButton,
+    ViewMode
 )
 
 
 class TranscriptionViewerWidget(QWidget):
     transcription: Transcription
+    settings = Settings()
 
     def __init__(
         self,
@@ -55,10 +68,45 @@ class TranscriptionViewerWidget(QWidget):
 
         self.setWindowTitle(file_path_as_title(transcription.file))
 
-        self.is_showing_timestamps = True
+        self.translation_thread = None
+        self.translator = None
+        self.view_mode = ViewMode.TIMESTAMPS
+
+        self.openai_access_token = get_password(Key.OPENAI_API_KEY)
+
+        preferences = self.load_preferences()
+
+        (
+            self.transcription_options,
+            self.file_transcription_options,
+        ) = preferences.to_transcription_options(
+            openai_access_token=self.openai_access_token,
+        )
+
+        self.transcription_options_dialog = AdvancedSettingsDialog(
+            transcription_options=self.transcription_options, parent=self
+        )
+        self.transcription_options_dialog.transcription_options_changed.connect(
+            self.on_transcription_options_changed
+        )
+
+        self.translator = Translator(
+            self.transcription_options,
+            self.transcription_options_dialog,
+        )
+
+        self.translation_thread = QThread()
+        self.translator.moveToThread(self.translation_thread)
+
+        self.translation_thread.started.connect(self.translator.start)
+
+        self.translation_thread.start()
 
         self.table_widget = TranscriptionSegmentsEditorWidget(
-            transcription_id=UUID(hex=transcription.id), parent=self
+            transcription_id=UUID(hex=transcription.id),
+            translator=self.translator,
+
+            parent=self
         )
         self.table_widget.segment_selected.connect(self.on_segment_selected)
 
@@ -102,6 +150,16 @@ class TranscriptionViewerWidget(QWidget):
         export_tool_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         toolbar.addWidget(export_tool_button)
 
+        translate_button = QToolButton()
+        translate_button.setText(_("Translate"))
+        translate_button.setIcon(TranslateIcon(self))
+        translate_button.setToolButtonStyle(
+            Qt.ToolButtonStyle.ToolButtonTextBesideIcon
+        )
+        translate_button.clicked.connect(self.on_translate_button_clicked)
+
+        toolbar.addWidget(translate_button)
+
         layout.setMenuBar(toolbar)
 
         layout.addWidget(self.table_widget)
@@ -114,10 +172,10 @@ class TranscriptionViewerWidget(QWidget):
         self.reset_view()
 
     def reset_view(self):
-        if self.is_showing_timestamps:
+        if self.view_mode == ViewMode.TIMESTAMPS:
             self.text_display_box.hide()
             self.table_widget.show()
-        else:
+        elif self.view_mode == ViewMode.TEXT:
             segments = self.transcription_service.get_transcription_segments(
                 transcription_id=self.transcription.id_as_uuid
             )
@@ -126,9 +184,19 @@ class TranscriptionViewerWidget(QWidget):
             )
             self.text_display_box.show()
             self.table_widget.hide()
+        else: # ViewMode.TRANSLATION
+            # TODO add check for if translation exists
+            segments = self.transcription_service.get_transcription_segments(
+                transcription_id=self.transcription.id_as_uuid
+            )
+            self.text_display_box.setPlainText(
+                " ".join(segment.translation.strip() for segment in segments)
+            )
+            self.text_display_box.show()
+            self.table_widget.hide()
 
-    def on_view_mode_changed(self, is_timestamps: bool) -> None:
-        self.is_showing_timestamps = is_timestamps
+    def on_view_mode_changed(self, view_mode: ViewMode) -> None:
+        self.view_mode = view_mode
         self.reset_view()
 
     def on_segment_selected(self, segment: QSqlRecord):
@@ -154,3 +222,44 @@ class TranscriptionViewerWidget(QWidget):
         )
         if current_segment is not None:
             self.current_segment_label.setText(current_segment.value("text"))
+
+    def load_preferences(self):
+        self.settings.settings.beginGroup("file_transcriber")
+        preferences = FileTranscriptionPreferences.load(settings=self.settings.settings)
+        self.settings.settings.endGroup()
+        return preferences
+
+    def open_advanced_settings(self):
+        self.transcription_options_dialog.show()
+
+    def on_transcription_options_changed(
+            self, transcription_options: TranscriptionOptions
+    ):
+        self.transcription_options = transcription_options
+
+    def on_translate_button_clicked(self):
+        if len(self.openai_access_token) == 0:
+            QMessageBox.information(
+                self,
+                _("API Key Required"),
+                _("Please enter OpenAI API Key in preferences")
+            )
+
+            return
+
+        if self.transcription_options.llm_model == "" or self.transcription_options.llm_prompt == "":
+            self.transcription_options_dialog.show()
+            return
+
+        segments = self.table_widget.segments()
+        for segment in segments:
+            self.translator.enqueue(segment.value("text"), segment.value("id"))
+
+    def closeEvent(self, event):
+        self.hide()
+
+        self.translator.stop()
+        self.translation_thread.quit()
+        self.translation_thread.wait()
+
+        super().closeEvent(event)

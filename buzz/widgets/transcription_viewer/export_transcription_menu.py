@@ -1,3 +1,4 @@
+import logging
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QWidget, QMenu, QFileDialog
 
@@ -23,15 +24,48 @@ class ExportTranscriptionMenu(QMenu):
         self.transcription = transcription
         self.transcription_service = transcription_service
 
-        actions = [
-            QAction(text=output_format.value.upper(), parent=self)
-            for output_format in OutputFormat
+        self.segments = [
+            Segment(
+                start=segment.start_time,
+                end=segment.end_time,
+                text=segment.text,
+                translation=segment.translation)
+            for segment in self.transcription_service.get_transcription_segments(
+                transcription_id=self.transcription.id_as_uuid
+            )
         ]
+
+        if self.segments and len(self.segments[0].translation) > 0:
+            text_label = _("Text")
+            translation_label = _("Translation")
+            actions = [
+                action
+                for output_format in OutputFormat
+                for action in [
+                    QAction(text=f"{output_format.value.upper()} - {text_label}", parent=self),
+                    QAction(text=f"{output_format.value.upper()} - {translation_label}", parent=self)
+                ]
+            ]
+        else:
+            actions = [
+                QAction(text=output_format.value.upper(), parent=self)
+                for output_format in OutputFormat
+            ]
         self.addActions(actions)
         self.triggered.connect(self.on_menu_triggered)
 
+    @staticmethod
+    def extract_format_and_segment_key(action_text: str):
+        parts = action_text.split('-')
+        output_format = parts[0].strip()
+        label = parts[1].strip() if len(parts) > 1 else None
+        segment_key = 'translation' if label == _('Translation') else 'text'
+
+        return output_format, segment_key
+
     def on_menu_triggered(self, action: QAction):
-        output_format = OutputFormat[action.text()]
+        output_format_value, segment_key = self.extract_format_and_segment_key(action.text())
+        output_format = OutputFormat[output_format_value]
 
         default_path = self.transcription.get_output_file_path(
             output_format=output_format
@@ -47,15 +81,9 @@ class ExportTranscriptionMenu(QMenu):
         if output_file_path == "":
             return
 
-        segments = [
-            Segment(start=segment.start_time, end=segment.end_time, text=segment.text)
-            for segment in self.transcription_service.get_transcription_segments(
-                transcription_id=self.transcription.id_as_uuid
-            )
-        ]
-
         write_output(
             path=output_file_path,
-            segments=segments,
+            segments=self.segments,
             output_format=output_format,
+            segment_key=segment_key
         )

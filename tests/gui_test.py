@@ -111,7 +111,11 @@ class TestAdvancedSettingsDialog:
     def test_should_update_advanced_settings(self, qtbot: QtBot):
         dialog = AdvancedSettingsDialog(
             transcription_options=TranscriptionOptions(
-                temperature=(0.0, 0.8), initial_prompt="prompt"
+                temperature=(0.0, 0.8),
+                initial_prompt="prompt",
+                enable_llm_translation=False,
+                llm_model="",
+                llm_prompt=""
             )
         )
         qtbot.add_widget(dialog)
@@ -122,12 +126,21 @@ class TestAdvancedSettingsDialog:
         assert dialog.windowTitle() == _("Advanced Settings")
         assert dialog.temperature_line_edit.text() == "0.0, 0.8"
         assert dialog.initial_prompt_text_edit.toPlainText() == "prompt"
+        assert dialog.enable_llm_translation_checkbox.isChecked() is False
+        assert dialog.llm_model_line_edit.text() == ""
+        assert dialog.llm_prompt_text_edit.toPlainText() == ""
 
         dialog.temperature_line_edit.setText("0.0, 0.8, 1.0")
         dialog.initial_prompt_text_edit.setPlainText("new prompt")
+        dialog.enable_llm_translation_checkbox.setChecked(True)
+        dialog.llm_model_line_edit.setText("model")
+        dialog.llm_prompt_text_edit.setPlainText("Please translate this text")
 
         assert transcription_options_mock.call_args[0][0].temperature == (0.0, 0.8, 1.0)
         assert transcription_options_mock.call_args[0][0].initial_prompt == "new prompt"
+        assert transcription_options_mock.call_args[0][0].enable_llm_translation is True
+        assert transcription_options_mock.call_args[0][0].llm_model == "model"
+        assert transcription_options_mock.call_args[0][0].llm_prompt == "Please translate this text"
 
 
 class TestTemperatureValidator:

@@ -24,3 +24,18 @@ class TranscriptionSegmentDAO(DAO[TranscriptionSegment]):
         )
         query.bindValue(":transcription_id", str(transcription_id))
         return self._execute_all(query)
+
+    def update_segment_translation(self, segment_id: int, translation: str):
+        query = self._create_query()
+        query.prepare(
+            """
+            UPDATE transcription_segment
+            SET translation = :translation
+            WHERE id = :id
+        """
+        )
+
+        query.bindValue(":id", segment_id)
+        query.bindValue(":translation", translation)
+        if not query.exec():
+            raise Exception(query.lastError().text())

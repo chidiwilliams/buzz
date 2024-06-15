@@ -121,6 +121,7 @@ class WhisperFileTranscriber(FileTranscriber):
                 start=int(segment.get("start") * 1000),
                 end=int(segment.get("end") * 1000),
                 text=segment.get("text"),
+                translation=""
             )
             for segment in result.get("segments")
         ]
@@ -149,6 +150,7 @@ class WhisperFileTranscriber(FileTranscriber):
                                 start=int(word.start * 1000),
                                 end=int(word.end * 1000),
                                 text=word.word,
+                                translation=""
                             )
                         )
                 else:
@@ -157,6 +159,7 @@ class WhisperFileTranscriber(FileTranscriber):
                             start=int(segment.start * 1000),
                             end=int(segment.end * 1000),
                             text=segment.text,
+                            translation=""
                         )
                     )
 
@@ -181,6 +184,7 @@ class WhisperFileTranscriber(FileTranscriber):
                     start=int(word.start * 1000),
                     end=int(word.end * 1000),
                     text=word.word.strip(),
+                    translation=""
                 )
                 for segment in result.segments
                 for word in segment.words
@@ -200,6 +204,7 @@ class WhisperFileTranscriber(FileTranscriber):
                 start=int(segment.get("start") * 1000),
                 end=int(segment.get("end") * 1000),
                 text=segment.get("text"),
+                translation=""
             )
             for segment in segments
         ]
@@ -226,6 +231,7 @@ class WhisperFileTranscriber(FileTranscriber):
                         start=segment.get("start"),
                         end=segment.get("end"),
                         text=segment.get("text"),
+                        translation=""
                     )
                     for segment in segments_dict
                 ]

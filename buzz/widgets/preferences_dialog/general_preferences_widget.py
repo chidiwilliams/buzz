@@ -126,7 +126,7 @@ class GeneralPreferencesWidget(QWidget):
         QMessageBox.information(
             self,
             _("OpenAI API Key Test"),
-            _("Your API key is valid. Buzz will use this key to perform Whisper API transcriptions."),
+            _("Your API key is valid. Buzz will use this key to perform Whisper API transcriptions and AI translations with ChatGPT."),
         )
 
     def on_test_openai_api_key_failure(self, error: str):
