@@ -18,7 +18,9 @@ class TestRecordingTranscriberWidget:
                   "buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
                   return_value=16_000),
               patch("sounddevice.check_input_settings")):
-            widget = RecordingTranscriberWidget()
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
             qtbot.add_widget(widget)
             assert widget.windowTitle() == _("Live Recording")
 

@@ -71,6 +71,9 @@ jobs:
       - name: Install apt dependencies
         run: |
           sudo apt-get update
+          if [ "$(lsb_release -rs)" != "24.04" ]; then
+            sudo apt-get install --no-install-recommends libegl1-mesa
+          fi
           sudo apt-get install --no-install-recommends libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0
         if: "startsWith(matrix.os, 'ubuntu-')"
 
@@ -135,6 +138,9 @@ jobs:
       - name: Install apt dependencies
         run: |
           sudo apt-get update
+          if [ "$(lsb_release -rs)" != "24.04" ]; then
+            sudo apt-get install --no-install-recommends libegl1-mesa
+          fi
           sudo apt-get install --no-install-recommends libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0
         if: "startsWith(matrix.os, 'ubuntu-')"
 

@@ -4,7 +4,7 @@ import logging
 import datetime
 import sounddevice
 from enum import auto
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Any
 
 from PyQt6.QtCore import QThread, Qt, QThreadPool
 from PyQt6.QtGui import QTextCursor, QCloseEvent
@@ -55,7 +55,7 @@ class RecordingTranscriberWidget(QWidget):
         self,
         parent: Optional[QWidget] = None,
         flags: Optional[Qt.WindowType] = None,
-        custom_sounddevice: Optional[sounddevice] = None,
+        custom_sounddevice: Optional[Any] = None,
     ) -> None:
         super().__init__(parent)
         self.sounddevice = custom_sounddevice or sounddevice
