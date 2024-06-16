@@ -1,7 +1,7 @@
 import os
-import sys
 import time
 import pytest
+import platform
 import tempfile
 
 from unittest.mock import patch
@@ -32,7 +32,7 @@ class TestRecordingTranscriberWidget:
             widget.close()
 
     @pytest.mark.skipif(
-        sys.platform == 'darwin' and os.uname().release == '13.0.0',
+        platform.system() == "Darwin" and platform.mac_ver()[0].startswith('13.'),
         reason="Does not pick up mock sound device")
     def test_should_transcribe(self, qtbot):
         with (patch(
@@ -60,7 +60,7 @@ class TestRecordingTranscriberWidget:
             widget.close()
 
     @pytest.mark.skipif(
-        sys.platform == 'darwin' and os.uname().release == '13.0.0',
+        platform.system() == "Darwin" and platform.mac_ver()[0].startswith('13.'),
         reason="Does not pick up mock sound device")
     def test_should_transcribe_and_export(self, qtbot):
         settings = Settings()
