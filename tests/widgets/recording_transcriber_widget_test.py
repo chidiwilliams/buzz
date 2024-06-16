@@ -1,23 +1,20 @@
 import os
 import time
 import tempfile
-import platform
 
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 from pytestqt.qtbot import QtBot
 
 from buzz.locale import _
 from buzz.widgets.recording_transcriber_widget import RecordingTranscriberWidget
 from buzz.settings.settings import Settings
 
-from tests.mock_sounddevice import MockInputStream
-import pytest
+from tests.mock_sounddevice import MockSoundDevice, MockInputStream
 
 
 class TestRecordingTranscriberWidget:
     def test_should_set_window_title(self, qtbot: QtBot):
-        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
-              patch(
+        with (patch(
                   "buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
                   return_value=16_000),
               patch("sounddevice.check_input_settings")):
@@ -31,17 +28,14 @@ class TestRecordingTranscriberWidget:
             widget.close()
 
     # on CI transcribed output is garbage, so we check if there is anything
-    @pytest.mark.skipif(
-        platform.system() == "Darwin",
-        reason="Seg faults on CI",
-    )
     def test_should_transcribe(self, qtbot):
-        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
-              patch(
+        with (patch(
                   "buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
-                  return_value=16_000),
-              patch("sounddevice.check_input_settings")):
-            widget = RecordingTranscriberWidget()
+                  return_value=16_000)):
+
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
             widget.device_sample_rate = 16_000
             qtbot.add_widget(widget)
 
@@ -60,10 +54,6 @@ class TestRecordingTranscriberWidget:
             widget.close()
 
     # on CI transcribed output is garbage, so we check if there is anything
-    @pytest.mark.skipif(
-        platform.system() == "Darwin",
-        reason="Seg faults on CI",
-    )
     def test_should_transcribe_and_export(self, qtbot):
         settings = Settings()
         settings.set_value(
@@ -76,16 +66,16 @@ class TestRecordingTranscriberWidget:
         except FileNotFoundError:
             pass
 
-        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
-              patch(
+        with (patch(
                   "buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
                   return_value=16_000),
-              patch("sounddevice.check_input_settings"),
               patch(
                   'buzz.settings.settings.Settings.get_default_export_file_template',
                   return_value='mock-export-file')):
 
-            widget = RecordingTranscriberWidget()
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
             widget.device_sample_rate = 16_000
             widget.export_enabled = True
             qtbot.add_widget(widget)
