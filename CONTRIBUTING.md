@@ -43,19 +43,19 @@ Linux versions get also pushed to the snap. To install latest development versio
 
 1. Clone the repository `git clone --recursive https://github.com/chidiwilliams/buzz.git`
 2. Enter repo folder `cd buzz`
-3. Install Poetry `apt-get install python3-poetry`
+3. Install Poetry `sudo apt-get install python3-poetry`
 4. Activate the virtual environment `poetry shell`
 5. Install the dependencies `poetry install`
 6. Install system dependencies you may be missing 
 ```
-sudo apt-get install --no-install-recommends libyaml-dev libegl1-mesa libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 ffmpeg
+sudo apt-get install --no-install-recommends libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 ffmpeg
 ```
 7. Build Buzz `poetry build`
 8. Run Buzz `python -m buzz`
 
 ### Windows
 
-Assumes you have [Git](https://git-scm.com/downloads) and [python <3.11](https://www.python.org/downloads) installed and added to PATH.
+Assumes you have [Git](https://git-scm.com/downloads) and [python](https://www.python.org/downloads) installed and added to PATH.
 
 1. Install the chocolatey package manager for Windows. [More info](https://docs.chocolatey.org/en-us/choco/setup)
 ```
