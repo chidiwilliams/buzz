@@ -14,9 +14,9 @@ from tests.mock_sounddevice import MockSoundDevice, MockInputStream
 
 class TestRecordingTranscriberWidget:
     def test_should_set_window_title(self, qtbot: QtBot):
-        with (patch(
-                  "buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
-                  return_value=16_000),
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
               patch("sounddevice.check_input_settings")):
             widget = RecordingTranscriberWidget(
                 custom_sounddevice=MockSoundDevice()
