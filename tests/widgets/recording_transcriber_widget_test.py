@@ -1,5 +1,7 @@
 import os
+import sys
 import time
+import pytest
 import tempfile
 
 from unittest.mock import patch
@@ -29,7 +31,9 @@ class TestRecordingTranscriberWidget:
 
             widget.close()
 
-    # on CI transcribed output is garbage, so we check if there is anything
+    @pytest.mark.skipif(
+        sys.platform == 'darwin' and os.uname().release == '13.0.0',
+        reason="Does not pick up mock sound device")
     def test_should_transcribe(self, qtbot):
         with (patch(
                   "buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
@@ -55,7 +59,9 @@ class TestRecordingTranscriberWidget:
             assert len(widget.transcription_text_box.toPlainText()) > 0
             widget.close()
 
-    # on CI transcribed output is garbage, so we check if there is anything
+    @pytest.mark.skipif(
+        sys.platform == 'darwin' and os.uname().release == '13.0.0',
+        reason="Does not pick up mock sound device")
     def test_should_transcribe_and_export(self, qtbot):
         settings = Settings()
         settings.set_value(
