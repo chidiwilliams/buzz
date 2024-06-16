@@ -5,46 +5,46 @@ from PyQt6.QtCore import QThread
 from buzz.model_loader import TranscriptionModel, ModelType, WhisperModelSize
 from buzz.transcriber.recording_transcriber import RecordingTranscriber
 from buzz.transcriber.transcriber import TranscriptionOptions, Task
-from tests.mock_sounddevice import MockInputStream
+from tests.mock_sounddevice import MockSoundDevice
 from tests.model_loader import get_model_path
 
 
 class TestRecordingTranscriber:
+
     def test_should_transcribe(self, qtbot):
-        thread = QThread()
+        with (patch("sounddevice.check_input_settings")):
+            thread = QThread()
 
-        transcription_model = TranscriptionModel(
-            model_type=ModelType.WHISPER_CPP, whisper_model_size=WhisperModelSize.TINY
-        )
+            transcription_model = TranscriptionModel(
+                model_type=ModelType.WHISPER_CPP, whisper_model_size=WhisperModelSize.TINY
+            )
 
-        model_path = get_model_path(transcription_model)
-        transcriber = RecordingTranscriber(
-            transcription_options=TranscriptionOptions(
-                model=transcription_model, language="fr", task=Task.TRANSCRIBE
-            ),
-            input_device_index=0,
-            sample_rate=16_000,
-            model_path=model_path,
-        )
-        transcriber.moveToThread(thread)
+            model_path = get_model_path(transcription_model)
 
-        thread.started.connect(transcriber.start)
-        thread.finished.connect(thread.deleteLater)
+            transcriber = RecordingTranscriber(
+                transcription_options=TranscriptionOptions(
+                    model=transcription_model, language="fr", task=Task.TRANSCRIBE
+                ),
+                input_device_index=0,
+                sample_rate=16_000,
+                model_path=model_path,
+                sounddevice=MockSoundDevice(),
+            )
+            transcriber.moveToThread(thread)
 
-        mock_transcription = Mock()
-        transcriber.transcription.connect(mock_transcription)
+            thread.started.connect(transcriber.start)
 
-        transcriber.finished.connect(thread.quit)
-        transcriber.finished.connect(transcriber.deleteLater)
+            mock_transcription = Mock()
+            transcriber.transcription.connect(mock_transcription)
 
-        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
-              patch("sounddevice.check_input_settings"),
-              qtbot.wait_signal(transcriber.transcription, timeout=60 * 1000)):
-            thread.start()
+            with qtbot.wait_signal(transcriber.transcription, timeout=60 * 1000):
+                thread.start()
 
-        with qtbot.wait_signal(thread.finished, timeout=60 * 1000):
-            if transcriber is not None:
-                transcriber.stop_recording()
+            transcriber.stop_recording()
 
-        text = mock_transcription.call_args[0][0]
-        assert "Bienvenue dans Passe" in text
+            text = mock_transcription.call_args[0][0]
+            assert "Bienvenue dans Passe" in text
+
+            # Wait for the thread to finish
+            thread.quit()
+            thread.wait()

@@ -12,7 +12,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.9.13,<3.11"
+python = ">=3.9.13,<3.13"
 sounddevice = "^0.4.5"
 humanize = "^4.4.0"
 PyQt6 = "^6.4.0"

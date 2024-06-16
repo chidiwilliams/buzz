@@ -98,7 +98,7 @@ mock_query_devices = [
 ]
 
 
-class MockInputStream(MagicMock):
+class MockInputStream:
     running = False
     thread: Thread
 
@@ -108,7 +108,6 @@ class MockInputStream(MagicMock):
         *args,
         **kwargs,
     ):
-        super().__init__(spec=sounddevice.InputStream)
         self.thread = Thread(target=self.target)
         self.callback = callback
 
@@ -143,10 +142,29 @@ class MockInputStream(MagicMock):
         self.thread.join()
 
     def close(self):
-        pass
+        self.stop()
 
     def __enter__(self):
         self.start()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.stop()
+
+
+class MockSoundDevice:
+    def __init__(self):
+        self.devices = mock_query_devices
+
+    def InputStream(self, *args, **kwargs):
+        return MockInputStream(*args, **kwargs)
+
+    def query_devices(self, device=None):
+        if device is None:
+            return self.devices
+        else:
+            return next((d for d in self.devices if d['index'] == device), None)
+
+    def check_input_settings(self, device=None, samplerate=None):
+        device_info = self.query_devices(device)
+        if device_info and samplerate and samplerate != device_info['default_samplerate']:
+            raise ValueError('Invalid sample rate for device')

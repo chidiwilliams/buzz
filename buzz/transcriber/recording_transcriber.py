@@ -33,6 +33,7 @@ class RecordingTranscriber(QObject):
         input_device_index: Optional[int],
         sample_rate: int,
         model_path: str,
+        sounddevice: sounddevice,
         parent: Optional[QObject] = None,
     ) -> None:
         super().__init__(parent)
@@ -46,6 +47,7 @@ class RecordingTranscriber(QObject):
         self.max_queue_size = 3 * self.n_batch_samples
         self.queue = np.ndarray([], dtype=np.float32)
         self.mutex = threading.Lock()
+        self.sounddevice = sounddevice
 
     def start(self):
         model_path = self.model_path
@@ -72,7 +74,7 @@ class RecordingTranscriber(QObject):
 
         self.is_running = True
         try:
-            with sounddevice.InputStream(
+            with self.sounddevice.InputStream(
                 samplerate=self.sample_rate,
                 device=self.input_device_index,
                 dtype="float32",
