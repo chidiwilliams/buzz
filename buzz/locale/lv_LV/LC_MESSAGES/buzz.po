@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-18 21:38+0300\n"
+"POT-Creation-Date: 2024-06-18 21:50+0300\n"
 "PO-Revision-Date: 2024-06-18 21:39+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -90,9 +90,8 @@ msgid "Select Export Folder"
 msgstr "Izvēlieties mapi kurā eksportēt"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:189
-#, python-format
-msgid "OpenAI API returned invalid response, status code: %s"
-msgstr "OpenAI API atbildēja ar nederīgu atbildi, statusa kods: %s"
+msgid "OpenAI API returned invalid response, status code: "
+msgstr "OpenAI API atbildēja ar nederīgu atbildi, statusa kods: "
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:42
 msgid "Enable folder watch"

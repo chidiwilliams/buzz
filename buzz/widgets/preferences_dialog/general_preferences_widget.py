@@ -186,7 +186,7 @@ class TestOpenAIApiKeyJob(QRunnable):
                 response = requests.get(custom_openai_base_url)
                 if response.status_code != 200:
                     self.signals.failed.emit(
-                        _("OpenAI API returned invalid response, status code: %s", response.status_code)
+                        _("OpenAI API returned invalid response, status code: ") + str(response.status_code)
                     )
                     return
             except requests.exceptions.RequestException as exc:
