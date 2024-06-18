@@ -1,4 +1,5 @@
 import logging
+import requests
 from typing import Optional
 from platformdirs import user_documents_dir
 
@@ -175,8 +176,28 @@ class TestOpenAIApiKeyJob(QRunnable):
         self.signals = self.Signals()
 
     def run(self):
+        settings = Settings()
+        custom_openai_base_url = settings.value(
+            key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value=""
+        )
+
+        if custom_openai_base_url:
+            try:
+                response = requests.get(custom_openai_base_url)
+                if response.status_code != 200:
+                    self.signals.failed.emit(
+                        _("OpenAI API returned invalid response, status code: ") + str(response.status_code)
+                    )
+                    return
+            except requests.exceptions.RequestException as exc:
+                self.signals.failed.emit(str(exc))
+                return
+
         try:
-            client = OpenAI(api_key=self.api_key)
+            client = OpenAI(
+                api_key=self.api_key,
+                base_url=custom_openai_base_url if custom_openai_base_url else None
+            )
             client.models.list()
             self.signals.success.emit()
         except AuthenticationError as exc:
