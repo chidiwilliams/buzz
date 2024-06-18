@@ -371,7 +371,7 @@ class ModelDownloader(QRunnable):
 
     def run(self) -> None:
         if self.model.model_type == ModelType.WHISPER_CPP:
-            model_name = self.model.whisper_model_size.value.to_whisper_cpp_model_size()
+            model_name = self.model.whisper_model_size.to_whisper_cpp_model_size()
             url = huggingface_hub.hf_hub_url(
                 repo_id="ggerganov/whisper.cpp",
                 filename=f"ggml-{model_name}.bin",
