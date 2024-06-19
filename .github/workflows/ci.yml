@@ -56,7 +56,7 @@ jobs:
             ~/.cache/whisper
             ~/.cache/huggingface
             ~/AppData/Local/Buzz/Buzz/Cache
-          key: whisper-models-${{ runner.os }}
+          key: whisper-models
 
       - uses: FedericoCarboni/setup-ffmpeg@v3.1
         id: setup-ffmpeg
