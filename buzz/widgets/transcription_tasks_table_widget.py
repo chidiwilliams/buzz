@@ -21,7 +21,7 @@ from PyQt6.QtWidgets import (
 from buzz.db.entity.transcription import Transcription
 from buzz.locale import _
 from buzz.settings.settings import Settings
-from buzz.transcriber.transcriber import FileTranscriptionTask, Task
+from buzz.transcriber.transcriber import FileTranscriptionTask, Task, TASK_LABEL_TRANSLATIONS
 from buzz.widgets.record_delegate import RecordDelegate
 from buzz.widgets.transcription_record import TranscriptionRecord
 
@@ -78,12 +78,6 @@ def format_record_status_text(record: QSqlRecord) -> str:
         case _:
             return ""
 
-
-task_label_translations = {
-    Task.TRANSLATE: _("Translate"),
-    Task.TRANSCRIBE: _("Tanscribe"),
-}
-
 column_definitions = [
     ColDef(
         id="file_name",
@@ -112,7 +106,7 @@ column_definitions = [
         column=Column.SOURCE,
         width=120,
         delegate=RecordDelegate(
-            text_getter=lambda record: task_label_translations[Task(record.value("task"))]
+            text_getter=lambda record: TASK_LABEL_TRANSLATIONS[Task(record.value("task"))]
         ),
     ),
     ColDef(

@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-18 21:50+0300\n"
-"PO-Revision-Date: 2024-06-18 21:39+0300\n"
+"POT-Creation-Date: 2024-06-19 21:34+0300\n"
+"PO-Revision-Date: 2024-06-19 21:34+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -26,15 +26,26 @@ msgstr "Importēt URL"
 msgid "https://example.com/audio.mp3"
 msgstr "https://example.com/audio.mp3"
 
-#: buzz/widgets/import_url_dialog.py:32
+#: buzz/widgets/import_url_dialog.py:28
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:69
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:97
+msgid "Ok"
+msgstr "Labi"
+
+#: buzz/widgets/import_url_dialog.py:29
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:70
+msgid "Cancel"
+msgstr "Atcelt"
+
+#: buzz/widgets/import_url_dialog.py:34
 msgid "URL:"
 msgstr "URL:"
 
-#: buzz/widgets/import_url_dialog.py:44
+#: buzz/widgets/import_url_dialog.py:46
 msgid "Invalid URL"
 msgstr "Adrese nav derīga"
 
-#: buzz/widgets/import_url_dialog.py:44
+#: buzz/widgets/import_url_dialog.py:46
 msgid "The URL you entered is invalid."
 msgstr "Jūsu ievadītā URL adrese nav derīga."
 
