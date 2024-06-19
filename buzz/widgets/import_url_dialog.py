@@ -25,6 +25,8 @@ class ImportURLDialog(QDialog):
         self.button_box = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         )
+        self.button_box.button(QDialogButtonBox.StandardButton.Ok).setText(_("Ok"))
+        self.button_box.button(QDialogButtonBox.StandardButton.Cancel).setText(_("Cancel"))
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
 

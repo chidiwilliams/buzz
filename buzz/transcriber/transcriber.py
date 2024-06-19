@@ -20,6 +20,12 @@ class Task(enum.Enum):
     TRANSCRIBE = "transcribe"
 
 
+TASK_LABEL_TRANSLATIONS = {
+    Task.TRANSLATE: _("Translate"),
+    Task.TRANSCRIBE: _("Tanscribe"),
+}
+
+
 @dataclass
 class Segment:
     start: int  # start time in ms

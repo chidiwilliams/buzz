@@ -94,6 +94,7 @@ class AdvancedSettingsDialog(QDialog):
         button_box = QDialogButtonBox(
             QDialogButtonBox.StandardButton(QDialogButtonBox.StandardButton.Ok), self
         )
+        button_box.button(QDialogButtonBox.StandardButton.Ok).setText(_("Ok"))
         button_box.accepted.connect(self.accept)
 
         layout.addWidget(button_box)
