@@ -203,6 +203,10 @@ msgstr "Apstrādāt"
 msgid "Model:"
 msgstr "Modelis:"
 
+#: buzz/widgets/transcriber/transcription_options_group_box.py:89
+msgid "Access Token:"
+msgstr "Pieejas atslēga:"
+
 #: buzz/widgets/transcriber/transcription_options_group_box.py:90
 msgid "Task:"
 msgstr "Uzdevums:"
