@@ -17,6 +17,7 @@ from buzz.model_loader import (
     TranscriptionModel,
     ModelType,
 )
+from buzz.store.keyring_store import get_password, Key
 from buzz.recording import RecordingAmplitudeListener
 from buzz.settings.settings import Settings
 from buzz.transcriber.recording_transcriber import RecordingTranscriber
@@ -78,7 +79,7 @@ class RecordingTranscriberWidget(QWidget):
         model_types = [
             model_type
             for model_type in ModelType
-            if model_type.is_available() and model_type.supports_recording()
+            if model_type.is_available()
         ]
         default_model: Optional[TranscriptionModel] = None
         if len(model_types) > 0:
@@ -92,6 +93,10 @@ class RecordingTranscriberWidget(QWidget):
         if selected_model is None or selected_model.model_type not in model_types:
             selected_model = default_model
 
+        openai_access_token = ""
+        if selected_model.model_type == ModelType.OPEN_AI_WHISPER_API:
+            openai_access_token = get_password(key=Key.OPENAI_API_KEY)
+
         self.transcription_options = TranscriptionOptions(
             model=selected_model,
             task=self.settings.value(
@@ -99,6 +104,7 @@ class RecordingTranscriberWidget(QWidget):
                 default_value=Task.TRANSCRIBE,
             ),
             language=default_language if default_language != "" else None,
+            openai_access_token=openai_access_token,
             initial_prompt=self.settings.value(
                 key=Settings.Key.RECORDING_TRANSCRIBER_INITIAL_PROMPT, default_value=""
             ),

@@ -76,10 +76,6 @@ class ModelType(enum.Enum):
             ModelType.FASTER_WHISPER,
         )
 
-    def supports_recording(self):
-        # Live transcription with OpenAI Whisper API not supported
-        return self != ModelType.OPEN_AI_WHISPER_API
-
     def is_available(self):
         if (
             # Hide Whisper.cpp option if whisper.dll did not load correctly.

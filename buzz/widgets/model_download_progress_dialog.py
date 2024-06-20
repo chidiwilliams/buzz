@@ -33,11 +33,13 @@ class ModelDownloadProgressDialog(QProgressDialog):
             self.setCancelButton(cancel_button)
 
     def update_label_text(self, fraction_completed: float):
-        label_text = f"{_('Downloading model')} ({fraction_completed:.0%}"
+        downloading_text = _("Downloading model")
+        remaining_text = _("remaining")
+        label_text = f"{downloading_text} ({fraction_completed:.0%}"
         if fraction_completed > 0:
             time_spent = (datetime.now() - self.start_time).total_seconds()
             time_left = (time_spent / fraction_completed) - time_spent
-            label_text += f", {humanize.naturaldelta(time_left)} {_('remaining')}"
+            label_text += f", {humanize.naturaldelta(time_left)} {remaining_text}"
         label_text += ")"
 
         self.setLabelText(label_text)

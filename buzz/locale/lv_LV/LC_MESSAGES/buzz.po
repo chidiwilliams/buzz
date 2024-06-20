@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-19 21:34+0300\n"
-"PO-Revision-Date: 2024-06-19 21:34+0300\n"
+"POT-Creation-Date: 2024-06-20 23:14+0300\n"
+"PO-Revision-Date: 2024-06-20 23:15+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -191,7 +191,7 @@ msgid "Stop"
 msgstr "Apturēt"
 
 #: buzz/widgets/transcriber/languages_combo_box.py:25
-#: buzz/transcriber/transcriber.py:153
+#: buzz/transcriber/transcriber.py:159
 msgid "Detect Language"
 msgstr "Noteikt valodu"
 
@@ -204,8 +204,8 @@ msgid "Model:"
 msgstr "Modelis:"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py:89
-msgid "Access Token:"
-msgstr "Pieejas atslēga:"
+msgid "Api Key:"
+msgstr "API atslēga:"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py:90
 msgid "Task:"
@@ -310,60 +310,51 @@ msgstr "Atcelts"
 msgid "Queued"
 msgstr "Ierindots"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:83
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:154
-msgid "Translate"
-msgstr "Tulkot"
-
 #: buzz/widgets/transcription_tasks_table_widget.py:84
-msgid "Tanscribe"
-msgstr "Atpazīt"
-
-#: buzz/widgets/transcription_tasks_table_widget.py:90
 msgid "File Name / URL"
 msgstr "Fails / URL"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:102
+#: buzz/widgets/transcription_tasks_table_widget.py:96
 msgid "Model"
 msgstr "Modelis"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:111
+#: buzz/widgets/transcription_tasks_table_widget.py:105
 msgid "Task"
 msgstr "Uzdevums"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:120
+#: buzz/widgets/transcription_tasks_table_widget.py:114
 msgid "Status"
 msgstr "Statuss"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:128
+#: buzz/widgets/transcription_tasks_table_widget.py:122
 msgid "Date Added"
 msgstr "Pievienots"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:139
+#: buzz/widgets/transcription_tasks_table_widget.py:133
 msgid "Date Completed"
 msgstr "Pabeigts"
 
-#: buzz/widgets/recording_transcriber_widget.py:71
+#: buzz/widgets/recording_transcriber_widget.py:72
 msgid "Live Recording"
 msgstr "Dzīvā ierakstīšana"
 
-#: buzz/widgets/recording_transcriber_widget.py:130
+#: buzz/widgets/recording_transcriber_widget.py:136
 msgid "Click Record to begin..."
 msgstr "Klikšķiniet Ierakstīt, lai sāktu..."
 
-#: buzz/widgets/recording_transcriber_widget.py:133
+#: buzz/widgets/recording_transcriber_widget.py:139
 msgid "Waiting for AI translation..."
 msgstr "Gaida MI tulkojumu..."
 
-#: buzz/widgets/recording_transcriber_widget.py:145
+#: buzz/widgets/recording_transcriber_widget.py:151
 msgid "Microphone:"
 msgstr "Mikrofons:"
 
-#: buzz/widgets/recording_transcriber_widget.py:397
+#: buzz/widgets/recording_transcriber_widget.py:403
 msgid "An error occurred while starting a new recording:"
 msgstr "Sākot jaunu ierakstu notikusi kļūda:"
 
-#: buzz/widgets/recording_transcriber_widget.py:401
+#: buzz/widgets/recording_transcriber_widget.py:407
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
@@ -412,6 +403,11 @@ msgstr "Laiks"
 msgid "Export"
 msgstr "Eksportēt"
 
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:154
+#: buzz/transcriber/transcriber.py:24
+msgid "Translate"
+msgstr "Tulkot"
+
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:244
 msgid "API Key Required"
 msgstr "API atslēgas kļūda"
@@ -449,6 +445,14 @@ msgstr "Lai piešķirtu nepieciešamās atļaujas izpildiet šīs komandas"
 msgid "Close"
 msgstr "Aizvērt"
 
+#: buzz/widgets/model_download_progress_dialog.py:36
+msgid "Downloading model"
+msgstr "Lejupielādē modeli"
+
+#: buzz/widgets/model_download_progress_dialog.py:37
+msgid "remaining"
+msgstr "atlicis"
+
 #: buzz/widgets/menu_bar.py:38
 msgid "Import File..."
 msgstr "Importēt failu..."
@@ -484,6 +488,10 @@ msgstr "Izvēlieties audio failu"
 #: buzz/widgets/main_window.py:282
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "Neizdevās saglabāt OpenAI API atslēgu atslēgu saišķī"
+
+#: buzz/transcriber/transcriber.py:25
+msgid "Tanscribe"
+msgstr "Atpazīt"
 
 #: buzz/settings/shortcut.py:17
 msgid "Open Record Window"

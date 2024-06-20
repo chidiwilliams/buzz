@@ -86,7 +86,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.form_layout.addRow(_("Model:"), self.model_type_combo_box)
         self.form_layout.addRow("", self.whisper_model_size_combo_box)
         self.form_layout.addRow("", self.hugging_face_search_line_edit)
-        self.form_layout.addRow(_("Access Token:"), self.openai_access_token_edit)
+        self.form_layout.addRow(_("Api Key:"), self.openai_access_token_edit)
         self.form_layout.addRow(_("Task:"), self.tasks_combo_box)
         self.form_layout.addRow(_("Language:"), self.languages_combo_box)
 

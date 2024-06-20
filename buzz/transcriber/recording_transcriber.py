@@ -1,17 +1,21 @@
 import datetime
 import logging
 import sys
+import io
+import wave
 import threading
 from typing import Optional
 
 import numpy as np
 import sounddevice
-from PyQt6.QtCore import QObject, pyqtSignal
 from sounddevice import PortAudioError
+from openai import OpenAI
+from PyQt6.QtCore import QObject, pyqtSignal
 
 from buzz import transformers_whisper, whisper_audio
 from buzz.model_loader import ModelType
-from buzz.transcriber.transcriber import TranscriptionOptions
+from buzz.settings.settings import Settings
+from buzz.transcriber.transcriber import TranscriptionOptions, Task
 from buzz.transcriber.whisper_cpp import WhisperCpp, whisper_cpp_params
 from buzz.transformers_whisper import TransformersWhisper
 
@@ -48,6 +52,7 @@ class RecordingTranscriber(QObject):
         self.queue = np.ndarray([], dtype=np.float32)
         self.mutex = threading.Lock()
         self.sounddevice = sounddevice
+        self.openai_client = None
 
     def start(self):
         model_path = self.model_path
@@ -59,6 +64,15 @@ class RecordingTranscriber(QObject):
             model = WhisperCpp(model_path)
         elif self.transcription_options.model.model_type == ModelType.FASTER_WHISPER:
             model = faster_whisper.WhisperModel(model_path)
+        elif self.transcription_options.model.model_type == ModelType.OPEN_AI_WHISPER_API:
+            settings = Settings()
+            custom_openai_base_url = settings.value(
+                key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value=""
+            )
+            self.openai_client = OpenAI(
+                api_key=self.transcription_options.openai_access_token,
+                base_url=custom_openai_base_url if custom_openai_base_url else None
+            )
         else:  # ModelType.HUGGING_FACE
             model = transformers_whisper.load_model(model_path)
 
@@ -135,8 +149,10 @@ class RecordingTranscriber(QObject):
                                 word_timestamps=self.transcription_options.word_level_timings,
                             )
                             result = {"text": " ".join([segment.text for segment in whisper_segments])}
-
-                        else:  # ModelType.HUGGING_FACE
+                        elif (
+                                self.transcription_options.model.model_type
+                                == ModelType.HUGGING_FACE
+                        ):
                             assert isinstance(model, TransformersWhisper)
                             result = model.transcribe(
                                 audio=samples,
@@ -145,6 +161,40 @@ class RecordingTranscriber(QObject):
                                 else "en",
                                 task=self.transcription_options.task.value,
                             )
+                        else:  # OPEN_AI_WHISPER_API
+                            assert self.openai_client is not None
+                            # scale samples to 16-bit PCM
+                            pcm_data = (samples * 32767).astype(np.int16).tobytes()
+
+                            in_memory_wav = io.BytesIO()
+                            with wave.open(in_memory_wav, 'wb') as wf:
+                                wf.setnchannels(1)
+                                wf.setsampwidth(2)
+                                wf.setframerate(self.sample_rate)
+                                wf.writeframes(pcm_data)
+
+                            in_memory_wav.seek(0)
+
+                            options = {
+                                "model": "whisper-1",
+                                "file": in_memory_wav,
+                                "response_format": "verbose_json",
+                                "prompt": self.transcription_options.initial_prompt,
+                            }
+
+                            try:
+                                transcript = (
+                                    self.openai_client.audio.transcriptions.create(
+                                        **options,
+                                        language=self.transcription_options.language,
+                                    )
+                                    if self.transcription_options.task == Task.TRANSCRIBE
+                                    else self.openai_client.audio.translations.create(**options)
+                                )
+
+                                result = {"text": " ".join([segment["text"] for segment in transcript.model_extra["segments"]])}
+                            except Exception as e:
+                                result = {"text": f"Error: {str(e)}"}
 
                         next_text: str = result.get("text")
 
