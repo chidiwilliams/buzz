@@ -7,6 +7,7 @@ import tempfile
 import threading
 from typing import Optional
 
+import torch
 import numpy as np
 import sounddevice
 from sounddevice import PortAudioError
@@ -60,7 +61,8 @@ class RecordingTranscriber(QObject):
         keep_samples = int(0.15 * self.sample_rate)
 
         if self.transcription_options.model.model_type == ModelType.WHISPER:
-            model = whisper.load_model(model_path)
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            model = whisper.load_model(model_path, device=device)
         elif self.transcription_options.model.model_type == ModelType.WHISPER_CPP:
             model = WhisperCpp(model_path)
         elif self.transcription_options.model.model_type == ModelType.FASTER_WHISPER:
