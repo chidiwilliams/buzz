@@ -37,6 +37,7 @@ os.makedirs(model_root_dir, exist_ok=True)
 
 logging.debug("Model root directory: %s", model_root_dir)
 
+
 class WhisperModelSize(str, enum.Enum):
     TINY = "tiny"
     BASE = "base"
@@ -215,9 +216,7 @@ def get_whisper_cpp_file_path(size: WhisperModelSize) -> str:
 
 
 def get_whisper_file_path(size: WhisperModelSize) -> str:
-    root_dir = os.getenv(
-        "XDG_CACHE_HOME", os.path.join(os.path.expanduser("~"), ".cache", "whisper")
-    )
+    root_dir = os.path.join(model_root_dir, "whisper")
     url = whisper._MODELS[size.value]
     return os.path.join(root_dir, os.path.basename(url))
 
