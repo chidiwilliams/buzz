@@ -4,6 +4,7 @@ import logging
 import multiprocessing
 import re
 import sys
+import torch
 from multiprocessing.connection import Connection
 from threading import Thread
 from typing import Optional, List
@@ -168,7 +169,8 @@ class WhisperFileTranscriber(FileTranscriber):
 
     @classmethod
     def transcribe_openai_whisper(cls, task: FileTranscriptionTask) -> List[Segment]:
-        model = whisper.load_model(task.model_path)
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        model = whisper.load_model(task.model_path, device=device)
 
         if task.transcription_options.word_level_timings:
             stable_whisper.modify_model(model)
