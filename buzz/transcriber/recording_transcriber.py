@@ -1,8 +1,9 @@
 import datetime
 import logging
 import sys
-import io
+import os
 import wave
+import tempfile
 import threading
 from typing import Optional
 
@@ -166,35 +167,39 @@ class RecordingTranscriber(QObject):
                             # scale samples to 16-bit PCM
                             pcm_data = (samples * 32767).astype(np.int16).tobytes()
 
-                            in_memory_wav = io.BytesIO()
-                            with wave.open(in_memory_wav, 'wb') as wf:
+                            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
+                            temp_filename = temp_file.name
+
+                            with wave.open(temp_filename, 'wb') as wf:
                                 wf.setnchannels(1)
                                 wf.setsampwidth(2)
                                 wf.setframerate(self.sample_rate)
                                 wf.writeframes(pcm_data)
 
-                            in_memory_wav.seek(0)
+                            with open(temp_filename, 'rb') as temp_file:
+                                options = {
+                                    "model": "whisper-1",
+                                    "file": temp_file,
+                                    "response_format": "verbose_json",
+                                    "prompt": self.transcription_options.initial_prompt,
+                                }
 
-                            options = {
-                                "model": "whisper-1",
-                                "file": in_memory_wav,
-                                "response_format": "verbose_json",
-                                "prompt": self.transcription_options.initial_prompt,
-                            }
-
-                            try:
-                                transcript = (
-                                    self.openai_client.audio.transcriptions.create(
-                                        **options,
-                                        language=self.transcription_options.language,
+                                try:
+                                    transcript = (
+                                        self.openai_client.audio.transcriptions.create(
+                                            **options,
+                                            language=self.transcription_options.language,
+                                        )
+                                        if self.transcription_options.task == Task.TRANSCRIBE
+                                        else self.openai_client.audio.translations.create(**options)
                                     )
-                                    if self.transcription_options.task == Task.TRANSCRIBE
-                                    else self.openai_client.audio.translations.create(**options)
-                                )
 
-                                result = {"text": " ".join([segment["text"] for segment in transcript.model_extra["segments"]])}
-                            except Exception as e:
-                                result = {"text": f"Error: {str(e)}"}
+                                    result = {"text": " ".join(
+                                        [segment["text"] for segment in transcript.model_extra["segments"]])}
+                                except Exception as e:
+                                    result = {"text": f"Error: {str(e)}"}
+
+                            os.unlink(temp_filename)
 
                         next_text: str = result.get("text")
 
