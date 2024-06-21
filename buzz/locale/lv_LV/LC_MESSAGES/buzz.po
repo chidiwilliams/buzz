@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-06-20 23:14+0300\n"
-"PO-Revision-Date: 2024-06-20 23:15+0300\n"
+"PO-Revision-Date: 2024-06-21 14:22+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -451,7 +451,7 @@ msgstr "Lejupielādē modeli"
 
 #: buzz/widgets/model_download_progress_dialog.py:37
 msgid "remaining"
-msgstr "atlicis"
+msgstr "!"
 
 #: buzz/widgets/menu_bar.py:38
 msgid "Import File..."
