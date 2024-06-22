@@ -161,6 +161,7 @@ class TestTemperatureValidator:
 class TestHuggingFaceSearchLineEdit:
     def test_should_update_selected_model_on_type(self, qtbot: QtBot):
         widget = HuggingFaceSearchLineEdit(
+            default_value="",
             network_access_manager=self.network_access_manager()
         )
         qtbot.add_widget(widget)
@@ -173,6 +174,7 @@ class TestHuggingFaceSearchLineEdit:
 
     def test_should_show_list_of_models(self, qtbot: QtBot):
         widget = HuggingFaceSearchLineEdit(
+            default_value="",
             network_access_manager=self.network_access_manager()
         )
         qtbot.add_widget(widget)
@@ -184,6 +186,7 @@ class TestHuggingFaceSearchLineEdit:
 
     def test_should_select_model_from_list(self, qtbot: QtBot):
         widget = HuggingFaceSearchLineEdit(
+            default_value="",
             network_access_manager=self.network_access_manager()
         )
         qtbot.add_widget(widget)

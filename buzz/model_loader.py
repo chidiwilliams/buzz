@@ -114,7 +114,7 @@ HUGGING_FACE_MODEL_ALLOW_PATTERNS = [
 class TranscriptionModel:
     model_type: ModelType = ModelType.WHISPER
     whisper_model_size: Optional[WhisperModelSize] = WhisperModelSize.TINY
-    hugging_face_model_id: Optional[str] = None
+    hugging_face_model_id: Optional[str] = "openai/whisper-tiny"
 
     def __str__(self):
         match self.model_type:
