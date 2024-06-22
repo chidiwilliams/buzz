@@ -93,9 +93,7 @@ class RecordingTranscriberWidget(QWidget):
         if selected_model is None or selected_model.model_type not in model_types:
             selected_model = default_model
 
-        openai_access_token = ""
-        if selected_model.model_type == ModelType.OPEN_AI_WHISPER_API:
-            openai_access_token = get_password(key=Key.OPENAI_API_KEY)
+        openai_access_token = get_password(key=Key.OPENAI_API_KEY)
 
         self.transcription_options = TranscriptionOptions(
             model=selected_model,
