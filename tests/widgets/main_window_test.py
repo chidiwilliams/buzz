@@ -162,7 +162,7 @@ class TestMainWindow:
         table_widget = self._get_tasks_table(window)
         table_widget.selectAll()
 
-        with patch("PyQt6.QtWidgets.QMessageBox.question") as question_message_box_mock:
+        with patch("PyQt6.QtWidgets.QMessageBox.exec") as question_message_box_mock:
             question_message_box_mock.return_value = QMessageBox.StandardButton.Yes
             window.toolbar.clear_history_action.trigger()
 

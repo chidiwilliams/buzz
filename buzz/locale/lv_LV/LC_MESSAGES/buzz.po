@@ -451,7 +451,7 @@ msgstr "Lejupielādē modeli"
 
 #: buzz/widgets/model_download_progress_dialog.py:37
 msgid "remaining"
-msgstr "!"
+msgstr "..."
 
 #: buzz/widgets/menu_bar.py:38
 msgid "Import File..."
