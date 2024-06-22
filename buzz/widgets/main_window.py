@@ -219,14 +219,23 @@ class MainWindow(QMainWindow):
         if len(selected_rows) == 0:
             return
 
-        reply = QMessageBox.question(
-            self,
-            _("Clear History"),
+        question_box = QMessageBox()
+        question_box.setWindowTitle(_("Clear History"))
+        question_box.setIcon(QMessageBox.Icon.Question)
+        question_box.setText(
             _(
                 "Are you sure you want to delete the selected transcription(s)? "
                 "This action cannot be undone."
             ),
         )
+        question_box.setStandardButtons(
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        question_box.button(QMessageBox.StandardButton.Yes).setText(_("Ok"))
+        question_box.button(QMessageBox.StandardButton.No).setText(_("Cancel"))
+
+        reply = question_box.exec()
+
         if reply == QMessageBox.StandardButton.Yes:
             self.table_widget.delete_transcriptions(selected_rows)
 
