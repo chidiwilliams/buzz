@@ -481,3 +481,10 @@ class ModelDownloader(QRunnable):
 
     def cancel(self):
         self.stopped = True
+
+
+def get_custom_api_whisper_model(base_url: str):
+    if "api.groq.com" in base_url:
+        return "whisper-large-v3"
+
+    return "whisper-1"

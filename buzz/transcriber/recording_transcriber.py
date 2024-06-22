@@ -15,7 +15,7 @@ from openai import OpenAI
 from PyQt6.QtCore import QObject, pyqtSignal
 
 from buzz import transformers_whisper, whisper_audio
-from buzz.model_loader import ModelType
+from buzz.model_loader import ModelType, get_custom_api_whisper_model
 from buzz.settings.settings import Settings
 from buzz.transcriber.transcriber import TranscriptionOptions, Task
 from buzz.transcriber.whisper_cpp import WhisperCpp, whisper_cpp_params
@@ -55,6 +55,7 @@ class RecordingTranscriber(QObject):
         self.mutex = threading.Lock()
         self.sounddevice = sounddevice
         self.openai_client = None
+        self.whisper_api_model = get_custom_api_whisper_model("")
 
     def start(self):
         model_path = self.model_path
@@ -72,10 +73,13 @@ class RecordingTranscriber(QObject):
             custom_openai_base_url = settings.value(
                 key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value=""
             )
+            self.whisper_api_model = get_custom_api_whisper_model(custom_openai_base_url)
             self.openai_client = OpenAI(
                 api_key=self.transcription_options.openai_access_token,
                 base_url=custom_openai_base_url if custom_openai_base_url else None
             )
+            logging.debug("Will use whisper API on %s, %s",
+                          custom_openai_base_url, self.whisper_api_model)
         else:  # ModelType.HUGGING_FACE
             model = transformers_whisper.load_model(model_path)
 
@@ -180,7 +184,7 @@ class RecordingTranscriber(QObject):
 
                             with open(temp_filename, 'rb') as temp_file:
                                 options = {
-                                    "model": "whisper-1",
+                                    "model": self.whisper_api_model,
                                     "file": temp_file,
                                     "response_format": "verbose_json",
                                     "prompt": self.transcription_options.initial_prompt,
