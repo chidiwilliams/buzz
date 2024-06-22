@@ -89,3 +89,15 @@ $whlFile = Get-ChildItem .\dist\buzz*.whl | Select-Object -First 1
 pip install $whlFile
 ```
 13. Run Buzz `python -m buzz`
+
+#### GPU Support
+
+To enable GPU support first ensure CUDA 12.1 is installed - https://developer.nvidia.com/cuda-12-1-0-download-archive
+
+Switch torch library to GPU version
+```
+pip3 unstall torch torchaudio  
+pip3 install torch==2.2.1+cu121 torchaudio==2.2.1+cu121 --index-url https://download.pytorch.org/whl/cu121
+```
+
+Run Buzz `python -m buzz`
