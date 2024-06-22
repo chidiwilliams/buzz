@@ -54,6 +54,14 @@ On versions prior to Ubuntu 24.04 install `sudo apt-get install --no-install-rec
 7. Build Buzz `poetry build`
 8. Run Buzz `python -m buzz`
 
+#### Error for Faster Whisper on GPU `Could not load library libcudnn_ops_infer.so.8`
+
+You need to add path to the library to the `LD_LIBRARY_PATH` environment variable.
+Check exact path to your poetry virtual environment, it may be different for you.
+
+```
+  export LD_LIBRARY_PATH=/home/PutYourUserNameHere/.cache/pypoetry/virtualenvs/buzz-captions-JjGFxAW6-py3.12/lib/python3.12/site-packages/nvidia/cudnn/lib/:$LD_LIBRARY_PATH
+```
 ### Windows
 
 Assumes you have [Git](https://git-scm.com/downloads) and [python](https://www.python.org/downloads) installed and added to PATH.

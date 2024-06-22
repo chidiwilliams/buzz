@@ -1,3 +1,4 @@
+import logging
 from typing import Optional, List
 
 from PyQt6.QtCore import pyqtSignal
@@ -65,7 +66,9 @@ class TranscriptionOptionsGroupBox(QGroupBox):
             self.on_openai_access_token_edit_changed
         )
 
-        self.hugging_face_search_line_edit = HuggingFaceSearchLineEdit()
+        self.hugging_face_search_line_edit = HuggingFaceSearchLineEdit(
+            default_value=default_transcription_options.model.hugging_face_model_id
+        )
         self.hugging_face_search_line_edit.model_selected.connect(
             self.on_hugging_face_model_changed
         )

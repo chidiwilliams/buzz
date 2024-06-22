@@ -29,12 +29,10 @@ class HuggingFaceSearchLineEdit(LineEdit):
 
     def __init__(
         self,
+        default_value: str,
         network_access_manager: Optional[QNetworkAccessManager] = None,
         parent: Optional[QWidget] = None,
     ):
-        self.settings = QSettings(APP_NAME)
-        default_value = self.settings.value("hugging_face_model_id", "openai/whisper-tiny")
-
         super().__init__(default_value, parent)
 
         self.setMinimumWidth(150)
@@ -76,7 +74,6 @@ class HuggingFaceSearchLineEdit(LineEdit):
 
         item = self.popup.currentItem()
         self.setText(item.text())
-        self.settings.setValue("hugging_face_model_id", item.text())
         QMetaObject.invokeMethod(self, "returnPressed")
         self.model_selected.emit(item.data(Qt.ItemDataRole.UserRole))
 
