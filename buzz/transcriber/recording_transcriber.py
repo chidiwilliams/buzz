@@ -81,7 +81,7 @@ class RecordingTranscriber(QObject):
             logging.debug("Will use whisper API on %s, %s",
                           custom_openai_base_url, self.whisper_api_model)
         else:  # ModelType.HUGGING_FACE
-            model = transformers_whisper.load_model(model_path)
+            model = TransformersWhisper(model_path)
 
         initial_prompt = self.transcription_options.initial_prompt
 

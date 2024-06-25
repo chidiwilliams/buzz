@@ -12,9 +12,9 @@ from typing import Optional, List
 import tqdm
 from PyQt6.QtCore import QObject
 
-from buzz import transformers_whisper
 from buzz.conn import pipe_stderr
 from buzz.model_loader import ModelType
+from buzz.transformers_whisper import TransformersWhisper
 from buzz.transcriber.file_transcriber import FileTranscriber
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment
 
@@ -87,7 +87,10 @@ class WhisperFileTranscriber(FileTranscriber):
     ) -> None:
         with pipe_stderr(stderr_conn):
             if task.transcription_options.model.model_type == ModelType.HUGGING_FACE:
+                # TODO Find a way to emmit real progress
+                sys.stderr.write("0%\n")
                 segments = cls.transcribe_hugging_face(task)
+                sys.stderr.write("100%\n")
             elif (
                 task.transcription_options.model.model_type == ModelType.FASTER_WHISPER
             ):
@@ -105,7 +108,7 @@ class WhisperFileTranscriber(FileTranscriber):
 
     @classmethod
     def transcribe_hugging_face(cls, task: FileTranscriptionTask) -> List[Segment]:
-        model = transformers_whisper.load_model(task.model_path)
+        model = TransformersWhisper(task.model_path)
         language = (
             task.transcription_options.language
             if task.transcription_options.language is not None
@@ -115,7 +118,6 @@ class WhisperFileTranscriber(FileTranscriber):
             audio=task.file_path,
             language=language,
             task=task.transcription_options.task.value,
-            verbose=False,
         )
         return [
             Segment(
