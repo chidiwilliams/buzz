@@ -15,7 +15,7 @@ from openai import OpenAI
 from PyQt6.QtCore import QObject, pyqtSignal
 
 from buzz import transformers_whisper, whisper_audio
-from buzz.model_loader import ModelType, get_custom_api_whisper_model
+from buzz.model_loader import WhisperModelSize, ModelType, get_custom_api_whisper_model
 from buzz.settings.settings import Settings
 from buzz.transcriber.transcriber import TranscriptionOptions, Task
 from buzz.transcriber.whisper_cpp import WhisperCpp, whisper_cpp_params
@@ -68,6 +68,12 @@ class RecordingTranscriber(QObject):
             model = WhisperCpp(model_path)
         elif self.transcription_options.model.model_type == ModelType.FASTER_WHISPER:
             model = faster_whisper.WhisperModel(model_path)
+
+            # Fix for large-v3 https://github.com/guillaumekln/faster-whisper/issues/547#issuecomment-1797962599
+            if self.transcription_options.model.whisper_model_size == WhisperModelSize.LARGEV3:
+                model.feature_extractor.mel_filters = model.feature_extractor.get_mel_filters(
+                    model.feature_extractor.sampling_rate, model.feature_extractor.n_fft, n_mels=128
+                )
         elif self.transcription_options.model.model_type == ModelType.OPEN_AI_WHISPER_API:
             settings = Settings()
             custom_openai_base_url = settings.value(

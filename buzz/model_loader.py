@@ -334,6 +334,7 @@ def download_faster_whisper_model(
         "config.json",
         "tokenizer.json",
         "vocabulary.txt",
+        "vocabulary.json",
     ]
 
     if local_files_only:
