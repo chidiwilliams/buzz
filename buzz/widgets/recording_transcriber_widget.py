@@ -1,4 +1,5 @@
 import os
+import re
 import enum
 import logging
 import datetime
@@ -351,8 +352,19 @@ class RecordingTranscriberWidget(QWidget):
     def strip_newlines(text):
         return text.replace('\r\n', os.linesep).replace('\n', os.linesep)
 
-    def on_next_transcription(self, text: str):
+    @staticmethod
+    def filter_text(text: str):
         text = text.strip()
+
+        # no real characters
+        if not re.search(r'\w', text):
+            return ""
+
+        return text
+
+    def on_next_transcription(self, text: str):
+        text = self.filter_text(text)
+
         if len(text) > 0:
             if self.translator is not None:
                 self.translator.enqueue(text)
