@@ -13,7 +13,7 @@ import tqdm
 from PyQt6.QtCore import QObject
 
 from buzz.conn import pipe_stderr
-from buzz.model_loader import ModelType
+from buzz.model_loader import ModelType, WhisperModelSize
 from buzz.transformers_whisper import TransformersWhisper
 from buzz.transcriber.file_transcriber import FileTranscriber
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment
@@ -131,8 +131,13 @@ class WhisperFileTranscriber(FileTranscriber):
 
     @classmethod
     def transcribe_faster_whisper(cls, task: FileTranscriptionTask) -> List[Segment]:
+        if task.transcription_options.model.whisper_model_size == WhisperModelSize.CUSTOM:
+            model_size_or_path = task.transcription_options.model.hugging_face_model_id
+        else:
+            model_size_or_path = task.transcription_options.model.whisper_model_size.to_faster_whisper_model_size()
+
         model = faster_whisper.WhisperModel(
-            model_size_or_path=task.transcription_options.model.whisper_model_size.to_faster_whisper_model_size()
+            model_size_or_path=model_size_or_path
         )
         whisper_segments, info = model.transcribe(
             audio=task.file_path,

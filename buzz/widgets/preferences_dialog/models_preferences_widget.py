@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from PyQt6.QtCore import Qt, QThreadPool
@@ -18,8 +19,13 @@ from buzz.model_loader import (
     TranscriptionModel,
     ModelDownloader,
 )
+from buzz.settings.settings import Settings
 from buzz.widgets.model_download_progress_dialog import ModelDownloadProgressDialog
 from buzz.widgets.model_type_combo_box import ModelTypeComboBox
+from buzz.widgets.line_edit import LineEdit
+from buzz.widgets.transcriber.hugging_face_search_line_edit import (
+    HuggingFaceSearchLineEdit,
+)
 
 
 class ModelsPreferencesWidget(QWidget):
@@ -32,6 +38,7 @@ class ModelsPreferencesWidget(QWidget):
     ):
         super().__init__(parent)
 
+        self.settings = Settings()
         self.model_downloader: Optional[ModelDownloader] = None
 
         model_types = [
@@ -67,6 +74,20 @@ class ModelsPreferencesWidget(QWidget):
 
         buttons_layout = QHBoxLayout()
 
+        self.custom_model_id_input = HuggingFaceSearchLineEdit()
+        self.custom_model_id_input.setObjectName("ModelIdInput")
+
+        self.custom_model_id_input.setPlaceholderText(_("Huggingface ID of a Faster whisper model"))
+        self.custom_model_id_input.textChanged.connect(self.on_custom_model_id_input_changed)
+        layout.addRow("", self.custom_model_id_input)
+        self.custom_model_id_input.hide()
+
+        self.custom_model_link_input = LineEdit()
+        self.custom_model_link_input.setObjectName("ModelLinkInput")
+        self.custom_model_link_input.textChanged.connect(self.on_custom_model_link_input_changed)
+        layout.addRow("", self.custom_model_link_input)
+        self.custom_model_link_input.hide()
+
         self.download_button = QPushButton(_("Download"))
         self.download_button.setObjectName("DownloadButton")
         self.download_button.clicked.connect(self.on_download_button_clicked)
@@ -100,17 +121,11 @@ class ModelsPreferencesWidget(QWidget):
         self.model.whisper_model_size = item_data
         self.reset()
 
-    @staticmethod
-    def can_delete_model(model: TranscriptionModel):
-        return (
-            model.model_type == ModelType.WHISPER
-            or model.model_type == ModelType.WHISPER_CPP
-        ) and model.get_local_model_path() is not None
-
     def reset(self):
         # reset buttons
         path = self.model.get_local_model_path()
         self.download_button.setVisible(path is None)
+        self.download_button.setEnabled(self.model.whisper_model_size != WhisperModelSize.CUSTOM)
         self.delete_button.setVisible(self.model.is_deletable())
         self.show_file_location_button.setVisible(self.model.is_deletable())
 
@@ -129,12 +144,45 @@ class ModelsPreferencesWidget(QWidget):
         self.model_list_widget.setHeaderHidden(True)
         self.model_list_widget.setAlternatingRowColors(True)
 
+        self.model.hugging_face_model_id = self.settings.load_custom_model_id(self.model)
+        self.custom_model_id_input.setText(self.model.hugging_face_model_id)
+
+        if (self.model.whisper_model_size == WhisperModelSize.CUSTOM
+                and self.model.model_type == ModelType.FASTER_WHISPER):
+            self.custom_model_id_input.show()
+            self.download_button.setEnabled(
+                self.model.hugging_face_model_id != ""
+            )
+        else:
+            self.custom_model_id_input.hide()
+
+        if self.model.model_type == ModelType.WHISPER_CPP:
+            self.custom_model_link_input.setPlaceholderText(
+                _("Download link to Whisper.cpp ggml model file")
+            )
+
+        if (self.model.whisper_model_size == WhisperModelSize.CUSTOM
+                and self.model.model_type == ModelType.WHISPER_CPP
+                and path is None):
+            self.custom_model_link_input.show()
+            self.download_button.setEnabled(
+                self.custom_model_link_input.text() != "")
+        else:
+            self.custom_model_link_input.hide()
+
         if self.model is None:
             return
 
         for model_size in WhisperModelSize:
+            # Skip custom size for OpenAI Whisper
+            if (self.model.model_type == ModelType.WHISPER and
+                    model_size == WhisperModelSize.CUSTOM):
+                continue
+
             model = TranscriptionModel(
-                model_type=self.model.model_type, whisper_model_size=model_size
+                model_type=self.model.model_type,
+                whisper_model_size=WhisperModelSize(model_size),
+                hugging_face_model_id=self.model.hugging_face_model_id,
             )
             model_path = model.get_local_model_path()
             parent = downloaded_item if model_path is not None else available_item
@@ -149,6 +197,16 @@ class ModelsPreferencesWidget(QWidget):
         self.model.model_type = model_type
         self.reset()
 
+    def on_custom_model_id_input_changed(self, text):
+        self.model.hugging_face_model_id = text
+        self.settings.save_custom_model_id(self.model)
+        self.download_button.setEnabled(
+            self.model.hugging_face_model_id != ""
+        )
+
+    def on_custom_model_link_input_changed(self, text):
+        self.download_button.setEnabled(text != "")
+
     def on_download_button_clicked(self):
         self.progress_dialog = ModelDownloadProgressDialog(
             model_type=self.model.model_type,
@@ -159,7 +217,15 @@ class ModelsPreferencesWidget(QWidget):
 
         self.download_button.setEnabled(False)
 
-        self.model_downloader = ModelDownloader(model=self.model)
+        if (self.model.whisper_model_size == WhisperModelSize.CUSTOM and
+                self.model.model_type == ModelType.WHISPER_CPP):
+            self.model_downloader = ModelDownloader(
+                model=self.model,
+                custom_model_url=self.custom_model_link_input.text()
+            )
+        else:
+            self.model_downloader = ModelDownloader(model=self.model)
+
         self.model_downloader.signals.finished.connect(self.on_download_completed)
         self.model_downloader.signals.progress.connect(self.on_download_progress)
         self.model_downloader.signals.error.connect(self.on_download_error)
@@ -185,10 +251,12 @@ class ModelsPreferencesWidget(QWidget):
 
     def on_download_error(self, error: str):
         self.progress_dialog.cancel()
+        self.progress_dialog.close()
         self.progress_dialog = None
         self.download_button.setEnabled(True)
         self.reset()
-        QMessageBox.warning(self, _("Error"), f"{_('Download failed')}: {error}")
+        download_failed_label = _('Download failed')
+        QMessageBox.warning(self, _("Error"), f"{download_failed_label}: {error}")
 
     def on_download_progress(self, progress: tuple):
         self.progress_dialog.set_value(float(progress[0]) / progress[1])

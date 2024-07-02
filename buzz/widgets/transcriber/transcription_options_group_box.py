@@ -5,6 +5,7 @@ from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QGroupBox, QWidget, QFormLayout, QComboBox
 
 from buzz.locale import _
+from buzz.settings.settings import Settings
 from buzz.model_loader import ModelType, WhisperModelSize
 from buzz.transcriber.transcriber import TranscriptionOptions, Task
 from buzz.widgets.model_type_combo_box import ModelTypeComboBox
@@ -29,6 +30,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         parent: Optional[QWidget] = None,
     ):
         super().__init__(title="", parent=parent)
+        self.settings = Settings()
         self.transcription_options = default_transcription_options
 
         self.form_layout = QFormLayout(self)
@@ -49,12 +51,8 @@ class TranscriptionOptionsGroupBox(QGroupBox):
 
         self.whisper_model_size_combo_box = QComboBox(self)
         self.whisper_model_size_combo_box.addItems(
-            [size.value.title() for size in WhisperModelSize]
+            [size.value.title() for size in WhisperModelSize if size != WhisperModelSize.CUSTOM]
         )
-        if default_transcription_options.model.whisper_model_size is not None:
-            self.whisper_model_size_combo_box.setCurrentText(
-                default_transcription_options.model.whisper_model_size.value.title()
-            )
         self.whisper_model_size_combo_box.currentTextChanged.connect(
             self.on_whisper_model_size_changed
         )
@@ -72,6 +70,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.hugging_face_search_line_edit.model_selected.connect(
             self.on_hugging_face_model_changed
         )
+        self.hugging_face_search_line_edit.setVisible(False)
 
         self.tasks_combo_box = TasksComboBox(
             default_task=self.transcription_options.task, parent=self
@@ -122,9 +121,40 @@ class TranscriptionOptionsGroupBox(QGroupBox):
 
     def reset_visible_rows(self):
         model_type = self.transcription_options.model.model_type
+        whisper_model_size = self.transcription_options.model.whisper_model_size
+
+        if (model_type == ModelType.HUGGING_FACE
+            or (whisper_model_size == WhisperModelSize.CUSTOM
+                and model_type == ModelType.FASTER_WHISPER)):
+            self.transcription_options.model.hugging_face_model_id = (
+                self.settings.load_custom_model_id(self.transcription_options.model))
+            self.hugging_face_search_line_edit.setText(
+                self.transcription_options.model.hugging_face_model_id)
+
         self.form_layout.setRowVisible(
-            self.hugging_face_search_line_edit, model_type == ModelType.HUGGING_FACE
+            self.hugging_face_search_line_edit,
+            (model_type == ModelType.HUGGING_FACE)
+            or (model_type == ModelType.FASTER_WHISPER
+                and whisper_model_size == WhisperModelSize.CUSTOM),
+            )
+
+        custom_model_index = (self.whisper_model_size_combo_box
+                              .findText(WhisperModelSize.CUSTOM.value.title()))
+        if (model_type == ModelType.WHISPER
+                and whisper_model_size == WhisperModelSize.CUSTOM
+                and custom_model_index != -1):
+            self.whisper_model_size_combo_box.removeItem(custom_model_index)
+
+        if ((model_type == ModelType.WHISPER_CPP or model_type == ModelType.FASTER_WHISPER)
+                and custom_model_index == -1):
+            self.whisper_model_size_combo_box.addItem(
+                WhisperModelSize.CUSTOM.value.title()
+            )
+
+        self.whisper_model_size_combo_box.setCurrentText(
+            self.transcription_options.model.whisper_model_size.value.title()
         )
+
         self.form_layout.setRowVisible(
             self.whisper_model_size_combo_box,
             (model_type == ModelType.WHISPER)
@@ -146,8 +176,13 @@ class TranscriptionOptionsGroupBox(QGroupBox):
     def on_whisper_model_size_changed(self, text: str):
         model_size = WhisperModelSize(text.lower())
         self.transcription_options.model.whisper_model_size = model_size
+
+        self.reset_visible_rows()
+
         self.transcription_options_changed.emit(self.transcription_options)
 
     def on_hugging_face_model_changed(self, model: str):
         self.transcription_options.model.hugging_face_model_id = model
         self.transcription_options_changed.emit(self.transcription_options)
+
+        self.settings.save_custom_model_id(self.transcription_options.model)
