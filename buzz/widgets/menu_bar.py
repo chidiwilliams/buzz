@@ -41,13 +41,15 @@ class MenuBar(QMenuBar):
         self.import_url_action = QAction(_("Import URL..."), self)
         self.import_url_action.triggered.connect(self.import_url_action_triggered)
 
-        about_action = QAction(f'{_("About")} {APP_NAME}', self)
+        about_label = _("About")
+        about_action = QAction(f'{about_label} {APP_NAME}', self)
         about_action.triggered.connect(self.on_about_action_triggered)
 
         self.preferences_action = QAction(_("Preferences..."), self)
         self.preferences_action.triggered.connect(self.on_preferences_action_triggered)
 
-        help_action = QAction(f'{_("Help")}', self)
+        help_label = _("Help")
+        help_action = QAction(f'{help_label}', self)
         help_action.triggered.connect(self.on_help_action_triggered)
 
         self.reset_shortcuts()
