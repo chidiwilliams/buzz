@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-02 20:57+0300\n"
-"PO-Revision-Date: 2024-07-02 21:00+0300\n"
+"POT-Creation-Date: 2024-07-02 22:07+0300\n"
+"PO-Revision-Date: 2024-07-02 22:09+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -55,42 +55,46 @@ msgstr "Jūsu ievadītā URL adrese nav derīga."
 msgid "Reset to Defaults"
 msgstr "Atjaunot noklusētos"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:45
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:47
+msgid "Font Size"
+msgstr "Fonta izmērs"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:54
 msgid "Test"
 msgstr "Pārbaudīt"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:51
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:60
 msgid "OpenAI API key"
 msgstr "OpenAI API atslēga"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:64
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:73
 msgid "OpenAI base url"
 msgstr "OpenAI adrese"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:73
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:82
 msgid "Default export file name"
 msgstr "Eksporta fails"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:79
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:88
 msgid "Enable live recording transcription export"
 msgstr "Eksportēt dzīvā ieraksta transkriptus"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:85
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:94
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:47
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:50
 msgid "Browse"
 msgstr "Izvēlēties"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:104
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:113
 msgid "Export folder"
 msgstr "Eksportēt mapē"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:129
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:135
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:138
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:144
 msgid "OpenAI API Key Test"
 msgstr "OpenAI API atslēgas pārbaude"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:130
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:139
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations with ChatGPT."
@@ -98,11 +102,11 @@ msgstr ""
 "Jūsu API atslēga ir derīga. Buzz izmantos to runas atpazīšanai ar Whisper "
 "API un tulkošanai ar ChatGPT."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:157
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:166
 msgid "Select Export Folder"
 msgstr "Izvēlieties mapi kurā eksportēt"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:189
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:207
 msgid "OpenAI API returned invalid response, status code: "
 msgstr "OpenAI API atbildēja ar nederīgu atbildi, statusa kods: "
 
