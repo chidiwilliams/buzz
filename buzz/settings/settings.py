@@ -38,6 +38,8 @@ class Settings:
 
         DEFAULT_EXPORT_FILE_NAME = "transcriber/default-export-file-name"
         CUSTOM_OPENAI_BASE_URL = "transcriber/custom-openai-base-url"
+        CUSTOM_FASTER_WHISPER_ID = "transcriber/custom-faster-whisper-id"
+        HUGGINGFACE_MODEL_ID = "transcriber/huggingface-model-id"
 
         SHORTCUTS = "shortcuts"
 
@@ -49,6 +51,36 @@ class Settings:
 
     def set_value(self, key: Key, value: typing.Any) -> None:
         self.settings.setValue(key.value, value)
+
+    def save_custom_model_id(self, model) -> None:
+        from buzz.model_loader import ModelType
+        match model.model_type:
+            case ModelType.FASTER_WHISPER:
+                self.set_value(
+                    Settings.Key.CUSTOM_FASTER_WHISPER_ID,
+                    model.hugging_face_model_id,
+                )
+            case ModelType.HUGGING_FACE:
+                self.set_value(
+                    Settings.Key.HUGGINGFACE_MODEL_ID,
+                    model.hugging_face_model_id,
+                )
+
+    def load_custom_model_id(self, model) -> str:
+        from buzz.model_loader import ModelType
+        match model.model_type:
+            case ModelType.FASTER_WHISPER:
+                return self.value(
+                    Settings.Key.CUSTOM_FASTER_WHISPER_ID,
+                    "",
+                )
+            case ModelType.HUGGING_FACE:
+                return self.value(
+                    Settings.Key.HUGGINGFACE_MODEL_ID,
+                    "",
+                )
+
+        return ""
 
     def value(
         self,

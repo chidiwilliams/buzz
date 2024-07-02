@@ -14,12 +14,11 @@ from PyQt6.QtCore import (
     QEvent,
 )
 from PyQt6.QtGui import QKeyEvent
-from PyQt6.QtCore import QSettings
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from PyQt6.QtWidgets import QListWidget, QWidget, QAbstractItemView, QListWidgetItem
 
+from buzz.locale import _
 from buzz.widgets.line_edit import LineEdit
-from buzz.settings.settings import APP_NAME
 
 
 # Adapted from https://github.com/ismailsunni/scripts/blob/master/autocomplete_from_url.py
@@ -29,11 +28,12 @@ class HuggingFaceSearchLineEdit(LineEdit):
 
     def __init__(
         self,
-        default_value: str,
+        default_value: str = "",
         network_access_manager: Optional[QNetworkAccessManager] = None,
         parent: Optional[QWidget] = None,
     ):
         super().__init__(default_value, parent)
+        self.setPlaceholderText(_("Huggingface ID of a model"))
 
         self.setMinimumWidth(150)
 
