@@ -11,7 +11,8 @@ from PyQt6.QtWidgets import (
     QMessageBox,
     QCheckBox,
     QHBoxLayout,
-    QFileDialog
+    QFileDialog,
+    QSpinBox,
 )
 from openai import AuthenticationError, OpenAI
 
@@ -36,6 +37,14 @@ class GeneralPreferencesWidget(QWidget):
         self.openai_api_key = get_password(Key.OPENAI_API_KEY)
 
         layout = QFormLayout(self)
+
+        self.font_size_spin_box = QSpinBox(self)
+        self.font_size_spin_box.setMinimum(8)
+        self.font_size_spin_box.setMaximum(32)
+        self.font_size_spin_box.setValue(self.font().pointSize())
+        self.font_size_spin_box.valueChanged.connect(self.on_font_size_changed)
+
+        layout.addRow(_("Font Size"), self.font_size_spin_box)
 
         self.openai_api_key_line_edit = OpenAIAPIKeyLineEdit(self.openai_api_key, self)
         self.openai_api_key_line_edit.key_changed.connect(
@@ -163,6 +172,15 @@ class GeneralPreferencesWidget(QWidget):
             Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FOLDER,
             folder,
         )
+
+    def on_font_size_changed(self, value):
+        from buzz.widgets.application import Application
+        font = self.font()
+        font.setPointSize(value)
+        self.setFont(font)
+        Application.instance().setFont(font)
+
+        self.settings.set_value(Settings.Key.FONT_SIZE, value)
 
 
 class TestOpenAIApiKeyJob(QRunnable):
