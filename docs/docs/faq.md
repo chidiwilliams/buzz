@@ -10,7 +10,9 @@ sidebar_position: 5
 
 2. **What can I try if the transcription runs too slowly?**
 
-   Try using a lower Whisper model size or using a Whisper.cpp model.
+   Speech recognition requires large amount of computation, so one option is to try using a lower Whisper model size or using a Whisper.cpp model to run speech recognition of your computer. If you have access to a computer with GPU that has at least 6GB of VRAM you can try using the Faster Whisper model.
+
+   Buzz also supports using OpenAI API to do speech recognition on a remote server. To use this feature you need to set OpenAI API key in Preferences. See [Preferences](https://chidiwilliams.github.io/buzz/docs/preferences) section for more details.
 
 3. **How to record system audio?**
 

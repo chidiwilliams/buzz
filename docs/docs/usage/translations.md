@@ -2,9 +2,7 @@
 title: Translations
 ---
 
-Latest development versions support AI translations. 
-
-To get latest development version of the Buzz log into GitHub and get it from Artifacts section of some latest [action run](https://github.com/chidiwilliams/buzz/actions).  Linux users can get the latest version from latest snap edge channel `sudo snap install buzz --channel latest/edge`
+Default `Translation` task uses Whisper model ability to translate to English. Since version `1.0.0` Buzz supports additional AI translations to any other language. 
 
 To use translation feature you will need to configure OpenAI API key and translation settings. Set OpenAI API ket in Preferences. Buzz also supports custom locally running translation AIs that support OpenAI API. For more information on locally running AIs see [ollama](https://ollama.com/blog/openai-compatibility) or [LM Studio](https://lmstudio.ai/). 
 
@@ -15,3 +13,5 @@ For AI to know how to translate enter translation instructions in the "Instructi
 > You are a professional translator, skilled in translating English to Spanish. You will only translate each sentence sent to you into Spanish and not add any notes or comments.
 
 If you enable "Enable live recording transcription export" in Preferences, Live text transcripts will be exported to a text file as they get generated and translated. This file can be used to further integrate Live transcripts with other applications like OBS Studio.
+
+Approximate cost of translation for 1 hour long audio with ChatGPT `gpt-4o` model is around 0.50$
