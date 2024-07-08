@@ -27,6 +27,7 @@ stable-ts = "2.15.9"
 faster-whisper = "^1.0.1"
 openai-whisper = "v20231117"
 transformers = "^4.39.1"
+polib = "^1.2.0"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
