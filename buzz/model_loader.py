@@ -316,13 +316,14 @@ def download_from_huggingface(
         repo_id: str,
         allow_patterns: List[str],
         progress: pyqtSignal(tuple),
+        num_large_files: int = 1
 ):
     progress.emit((0, 100))
 
     try:
         model_root = huggingface_hub.snapshot_download(
             repo_id,
-            allow_patterns=allow_patterns[1:],  # all, but largest
+            allow_patterns=allow_patterns[num_large_files:],  # all, but largest
             cache_dir=model_root_dir
         )
     except Exception as exc:
@@ -331,16 +332,25 @@ def download_from_huggingface(
 
     progress.emit((1, 100))
 
-    largest_file_url = huggingface_hub.hf_hub_url(repo_id, allow_patterns[0])
-    total_file_size = get_file_size(largest_file_url)
+    largest_file_size = 0
+    for pattern in allow_patterns[:num_large_files]:
+        try:
+            file_url = huggingface_hub.hf_hub_url(repo_id, pattern)
+            file_size = get_file_size(file_url)
 
-    model_download_monitor = HuggingfaceDownloadMonitor(model_root, progress, total_file_size)
+            if file_size > largest_file_size:
+                largest_file_size = file_size
+
+        except requests.exceptions.RequestException as e:
+            continue
+
+    model_download_monitor = HuggingfaceDownloadMonitor(model_root, progress, largest_file_size)
     model_download_monitor.start_monitoring()
 
     try:
         huggingface_hub.snapshot_download(
             repo_id,
-            allow_patterns=allow_patterns[:1],  # largest
+            allow_patterns=allow_patterns[:num_large_files],  # largest
             cache_dir=model_root_dir
         )
     except Exception as exc:
@@ -377,6 +387,7 @@ def download_faster_whisper_model(
 
     allow_patterns = [
         "model.bin",  # largest by size first
+        "pytorch_model.bin",  # possible alternative model filename
         "config.json",
         "tokenizer.json",
         "vocabulary.txt",
@@ -395,6 +406,7 @@ def download_faster_whisper_model(
         repo_id,
         allow_patterns=allow_patterns,
         progress=progress,
+        num_large_files=2
     )
 
 
