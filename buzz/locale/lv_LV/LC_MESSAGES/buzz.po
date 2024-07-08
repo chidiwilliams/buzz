@@ -516,7 +516,7 @@ msgid "Unable to save OpenAI API key to keyring"
 msgstr "Neizdevās saglabāt OpenAI API atslēgu atslēgu saišķī"
 
 #: buzz/transcriber/transcriber.py:25
-msgid "Tanscribe"
+msgid "Transcribe"
 msgstr "Atpazīt"
 
 #: buzz/model_loader.py:478

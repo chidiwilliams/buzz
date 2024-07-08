@@ -22,7 +22,7 @@ class Task(enum.Enum):
 
 TASK_LABEL_TRANSLATIONS = {
     Task.TRANSLATE: _("Translate"),
-    Task.TRANSCRIBE: _("Tanscribe"),
+    Task.TRANSCRIBE: _("Transcribe"),
 }
 
 
