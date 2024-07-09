@@ -66,8 +66,8 @@ else
 endif
 
 buzz/$(LIBWHISPER):
-	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS)
-	cmake --build whisper.cpp/build --verbose
+	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS) --config Release
+	cmake --build whisper.cpp/build --verbose --config Release
 	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) buzz || true
 	cp whisper.cpp/build/$(LIBWHISPER) buzz || true
 
