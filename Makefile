@@ -61,7 +61,7 @@ ifeq ($(UNAME_S),Darwin)
 	endif
 else
 	ifeq ($(OS), Windows_NT)
-		CMAKE_FLAGS += -DBUILD_SHARED_LIBS=ON
+		CMAKE_FLAGS += -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release
 	endif
 endif
 
