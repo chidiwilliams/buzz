@@ -72,7 +72,7 @@ buzz/$(LIBWHISPER):
 	cp whisper.cpp/build/$(LIBWHISPER) buzz || true
 
 buzz/whisper_cpp.py: buzz/$(LIBWHISPER)
-	cd buzz && ctypesgen ../whisper.cpp/whisper.h -lwhisper -o whisper_cpp.py
+	cd buzz && ctypesgen -I ../whisper.cpp/ggml/include ../whisper.cpp/include/whisper.h -lwhisper -o whisper_cpp.py
 
 # Prints all the Mac developer identities used for code signing
 print_identities_mac:
