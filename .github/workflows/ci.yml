@@ -98,6 +98,7 @@ jobs:
         include:
           - os: macos-latest
           - os: windows-latest
+          - os: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -148,6 +149,9 @@ jobs:
       - name: Install FPM
         run: gem install fpm
         if: "startsWith(matrix.os, 'ubuntu-')"
+
+      - name: Build Wheels
+        run: poetry build
 
       - name: Bundle
         run: |
