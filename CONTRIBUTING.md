@@ -86,7 +86,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 7. Enter repo folder `cd buzz`
 8. Copy `whisper.dll` from the repo backup to `buzz` folder. 
 ```
-cp .\dll_backup\whisper.dll .\buzz\
+cp .\dll_backup\*.dll .\buzz\
 ```
 9. Activate the virtual environment `poetry shell`
 10. Install the dependencies `poetry install`
