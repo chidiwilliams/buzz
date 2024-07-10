@@ -102,6 +102,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11.9"
@@ -197,7 +198,7 @@ jobs:
           path: |
             dist/Buzz*-windows.exe
             dist/Buzz*-mac.dmg
-            dist/buzz-*.deb
+            dist/buzz_*.whl
 
   publish-pypi:
     runs-on: ${{ matrix.os }}
