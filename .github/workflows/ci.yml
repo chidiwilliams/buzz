@@ -198,7 +198,7 @@ jobs:
           path: |
             dist/Buzz*-windows.exe
             dist/Buzz*-mac.dmg
-            dist/buzz-*.deb
+            dist/buzz_*.whl
 
   publish-pypi:
     runs-on: ${{ matrix.os }}
