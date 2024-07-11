@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "buzz-captions"
-version = "1.0.0"
+version = "1.0.1"
 description = ""
 authors = ["Chidi Williams <williamschidi1@gmail.com>"]
 license = "MIT"
