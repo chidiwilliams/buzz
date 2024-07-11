@@ -136,7 +136,7 @@ class GeneralPreferencesWidget(QWidget):
         QMessageBox.information(
             self,
             _("OpenAI API Key Test"),
-            _("Your API key is valid. Buzz will use this key to perform Whisper API transcriptions and AI translations with ChatGPT."),
+            _("Your API key is valid. Buzz will use this key to perform Whisper API transcriptions and AI translations."),
         )
 
     def on_test_openai_api_key_failure(self, error: str):
@@ -201,10 +201,20 @@ class TestOpenAIApiKeyJob(QRunnable):
 
         if custom_openai_base_url:
             try:
-                response = requests.get(custom_openai_base_url)
+                if not custom_openai_base_url.endswith("/"):
+                    custom_openai_base_url += "/"
+
+                headers = {
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json"
+                }
+
+                response = requests.get(custom_openai_base_url + "models", headers=headers, timeout=5)
+
                 if response.status_code != 200:
                     self.signals.failed.emit(
-                        _("OpenAI API returned invalid response, status code: ") + str(response.status_code)
+                        _("OpenAI API returned invalid response. Please check the API url or your key. "
+                          "Transcription and translation may still work if the API does not support key validation.")
                     )
                     return
             except requests.exceptions.RequestException as exc:
@@ -214,7 +224,8 @@ class TestOpenAIApiKeyJob(QRunnable):
         try:
             client = OpenAI(
                 api_key=self.api_key,
-                base_url=custom_openai_base_url if custom_openai_base_url else None
+                base_url=custom_openai_base_url if custom_openai_base_url else None,
+                timeout=5,
             )
             client.models.list()
             self.signals.success.emit()
