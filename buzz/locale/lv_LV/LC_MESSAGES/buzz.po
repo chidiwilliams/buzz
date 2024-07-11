@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-02 22:07+0300\n"
-"PO-Revision-Date: 2024-07-02 22:09+0300\n"
+"POT-Creation-Date: 2024-07-11 19:46+0300\n"
+"PO-Revision-Date: 2024-07-11 19:48+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -97,18 +97,24 @@ msgstr "OpenAI API atslēgas pārbaude"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:139
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
-"transcriptions and AI translations with ChatGPT."
+"transcriptions and AI translations."
 msgstr ""
 "Jūsu API atslēga ir derīga. Buzz izmantos to runas atpazīšanai ar Whisper "
-"API un tulkošanai ar ChatGPT."
+"API un tulkošanai."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:166
 msgid "Select Export Folder"
 msgstr "Izvēlieties mapi kurā eksportēt"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:207
-msgid "OpenAI API returned invalid response, status code: "
-msgstr "OpenAI API atbildēja ar nederīgu atbildi, statusa kods: "
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:216
+msgid ""
+"OpenAI API returned invalid response. Please check the API url or your key. "
+"Transcription and translation may still work if the API does not support key "
+"validation."
+msgstr ""
+"OpenAI API atbilde ir nederīga. Lūdzu pārbaudiet API Adresi un savu atslēgu. "
+"Atpazīšana un tulkošana joprojām var strādāt, ja API neatbalsta atslēgu "
+"pārbaudi. "
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:42
 msgid "Enable folder watch"
@@ -195,7 +201,7 @@ msgid "Download failed"
 msgstr "Lejupielāde neizdevās"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:259
-#: buzz/widgets/main_window.py:291 buzz/model_loader.py:450
+#: buzz/widgets/main_window.py:291 buzz/model_loader.py:462
 msgid "Error"
 msgstr "Kļūda"
 
@@ -519,7 +525,7 @@ msgstr "Neizdevās saglabāt OpenAI API atslēgu atslēgu saišķī"
 msgid "Transcribe"
 msgstr "Atpazīt"
 
-#: buzz/model_loader.py:478
+#: buzz/model_loader.py:490
 msgid "A connection error occurred"
 msgstr "Notika savienojuma kļūda"
 
