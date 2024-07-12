@@ -76,7 +76,7 @@ else
 	cp whisper.cpp/build/$(LIBWHISPER) buzz || true
 endif
 
-buzz/whisper_cpp.py: buzz/$(LIBWHISPER)
+buzz/whisper_cpp.py: buzz/$(LIBWHISPER) translation_mo
 	cd buzz && ctypesgen ../whisper.cpp/whisper.h -lwhisper -o whisper_cpp.py
 
 # Prints all the Mac developer identities used for code signing

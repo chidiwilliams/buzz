@@ -98,7 +98,6 @@ jobs:
         include:
           - os: macos-latest
           - os: windows-latest
-          - os: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -150,9 +149,6 @@ jobs:
         run: gem install fpm
         if: "startsWith(matrix.os, 'ubuntu-')"
 
-      - name: Build Wheels
-        run: poetry build
-
       - name: Bundle
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
@@ -202,7 +198,43 @@ jobs:
           path: |
             dist/Buzz*-windows.exe
             dist/Buzz*-mac.dmg
-            dist/buzz_*.whl
+
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # macos-13 is an intel runner, macos-14 is apple silicon
+        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Poetry Action
+        uses: snok/install-poetry@v1.3.1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.19.2
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          path: ./wheelhouse/*.whl
 
   publish-pypi:
     runs-on: ${{ matrix.os }}
@@ -219,14 +251,17 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11.9"
+
       - name: Install Poetry Action
         uses: snok/install-poetry@v1.3.1
         with:
           virtualenvs-create: true
           virtualenvs-in-project: true
+
       - name: Publish to PyPI
         run: |
           poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
@@ -255,7 +290,7 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             buzz-*.deb
