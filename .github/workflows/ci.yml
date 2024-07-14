@@ -213,6 +213,9 @@ jobs:
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.19.2
+        env:
+          CIBW_ARCHS_WINDOWS: AMD64
+          CIBW_BUILD_VERBOSITY_WINDOWS: 3
 
       - uses: actions/upload-artifact@v4
         with:
