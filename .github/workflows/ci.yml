@@ -211,18 +211,15 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Clean old library files
-        run: make clean
-
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.19.2
 
       - uses: actions/upload-artifact@v4
         with:
-          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          name: cibw-wheels-${{ matrix.os }}
           path: ./wheelhouse/*.whl
 
-  publish-pypi:
+  publish_pypi:
     needs: [ build_wheels, test ]
     runs-on: ubuntu-latest
     environment: pypi
