@@ -8,6 +8,7 @@ build/
 htmlcov/
 coverage.xml
 .idea/
+.venv/
 
 # whisper_cpp
 libwhisper.*
