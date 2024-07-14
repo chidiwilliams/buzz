@@ -103,6 +103,9 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.transcription_options_changed.emit(self.transcription_options)
 
     def on_language_changed(self, language: str):
+        if language == "":
+            language = None
+
         self.transcription_options.language = language
         self.transcription_options_changed.emit(self.transcription_options)
 
