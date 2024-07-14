@@ -11,8 +11,11 @@ packages = [
     { include = "buzz" },
 ]
 
+[project]
+requires-python = ">=3.9,<3.13"
+
 [tool.poetry.dependencies]
-python = ">=3.9.13,<3.13"
+python = ">=3.9,<3.13"
 sounddevice = "^0.4.5"
 humanize = "^4.4.0"
 PyQt6 = "^6.4.0"
@@ -52,7 +55,7 @@ cmake = "^3.26.4"
 polib = "^1.2.0"
 
 [build-system]
-requires = ["poetry-core", "ctypesgen", "setuptools", "cmake"]
+requires = ["poetry-core", "ctypesgen", "setuptools", "cmake", "polib"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.build]

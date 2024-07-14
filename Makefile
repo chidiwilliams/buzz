@@ -28,6 +28,7 @@ endif
 clean:
 	rm -f buzz/$(LIBWHISPER)
 	rm -f buzz/whisper_cpp.py
+	rm -rf whisper.cpp/build || true
 	rm -rf dist/* || true
 
 COVERAGE_THRESHOLD := 80

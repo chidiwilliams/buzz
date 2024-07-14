@@ -24,3 +24,4 @@ benchmarks.json
 .eggs
 *.egg-info
 /coverage/
+/wheelhouse/
