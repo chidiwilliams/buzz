@@ -177,6 +177,7 @@ translation_po_all:
 	$(MAKE) translation_po locale=zh_TW
 	$(MAKE) translation_po locale=it_IT
 	$(MAKE) translation_po locale=lv_LV
+	$(MAKE) translation_po locale=uk_UA
 
 TMP_POT_FILE_PATH := $(shell mktemp)
 PO_FILE_PATH := buzz/locale/${locale}/LC_MESSAGES/buzz.po
