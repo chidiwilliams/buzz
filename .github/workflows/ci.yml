@@ -98,7 +98,6 @@ jobs:
         include:
           - os: macos-latest
           - os: windows-latest
-          - os: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -255,10 +254,9 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
-            buzz-*.deb
             Buzz*-unix.tar.gz
             Buzz*-windows.exe
             Buzz*-mac.dmg
