@@ -216,7 +216,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.19.2
         env:
           CIBW_ARCHS_WINDOWS: "AMD64"
-          CIBW_ARCHS_MACOS: "auto universal2"
+          CIBW_ARCHS_MACOS: "universal2"
           CIBW_ARCHS_LINUX: "auto aarch64"
           # Repair windows wheel
           CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
