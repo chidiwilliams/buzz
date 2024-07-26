@@ -18,8 +18,10 @@ class TestWhisperCpp:
         )
         model_path = get_model_path(transcription_options.model)
 
-        whisper_cpp = WhisperCpp(model=model_path)
-        params = whisper_cpp_params(transcription_options=transcription_options)
-        result = whisper_cpp.transcribe(audio=test_audio_path, params=params)
+        whisper_params = whisper_cpp_params(
+            transcription_options=transcription_options
+        )
+        model = WhisperCpp(model=model_path, whisper_params=whisper_params)
+        result = model.transcribe(audio=test_audio_path, params=whisper_params)
 
         assert "Bienvenue dans Passe" in result["text"]

@@ -1985,6 +1985,17 @@ files = [
 typing-extensions = ">=4.6.0,<4.7.0 || >4.7.0"
 
 [[package]]
+name = "pydub"
+version = "0.25.1"
+description = "Manipulate audio with an simple and easy high level interface"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pydub-0.25.1-py2.py3-none-any.whl", hash = "sha256:65617e33033874b59d87db603aa1ed450633288aefead953b30bded59cb599a6"},
+    {file = "pydub-0.25.1.tar.gz", hash = "sha256:980a33ce9949cab2a569606b65674d748ecbca4f0796887fd6f46173a7b0d30f"},
+]
+
+[[package]]
 name = "pyinstaller"
 version = "6.5.0"
 description = "PyInstaller bundles a Python application and all its dependencies into a single package."
@@ -2256,6 +2267,78 @@ files = [
     {file = "PyVirtualDisplay-3.0-py3-none-any.whl", hash = "sha256:40d4b8dfe4b8de8552e28eb367647f311f88a130bf837fe910e7f180d5477f0e"},
     {file = "PyVirtualDisplay-3.0.tar.gz", hash = "sha256:09755bc3ceb6eb725fb07eca5425f43f2358d3bf08e00d2a9b792a1aedd16159"},
 ]
+
+[[package]]
+name = "pywhispercpp"
+version = "1.2.0"
+description = "Python bindings for whisper.cpp"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "pywhispercpp-1.2.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:3e8a627e3c52d1335ac33b780b1d39cd577e960b05c5ae06d66bd735984b89c6"},
+    {file = "pywhispercpp-1.2.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:e20a3d6cdf4feb5229324625e904ea5578df967e101c583e50f53749c8f2cf95"},
+    {file = "pywhispercpp-1.2.0-cp310-cp310-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:41f98ae21929277031a83653b9f78a76ad8fb3fb2079eee049ef17fe7d7694a7"},
+    {file = "pywhispercpp-1.2.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ff485cce822b88969ece4c62a81a8d064f8447ad805f60e354b7ec519bc74f94"},
+    {file = "pywhispercpp-1.2.0-cp310-cp310-musllinux_1_1_i686.whl", hash = "sha256:8bcd164d202a9535ede40ae473c20305e98a47c3d611c4c9b549e300a8dd475a"},
+    {file = "pywhispercpp-1.2.0-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:2ec1acb252e640d2af12315f58c0fa54ba4b13bc0ab7c6779de9fe3cceb88093"},
+    {file = "pywhispercpp-1.2.0-cp310-cp310-win32.whl", hash = "sha256:7014df097eed5b189ceccc827166aab2881c15bdccb1037ffe02c4a7c4860fc5"},
+    {file = "pywhispercpp-1.2.0-cp310-cp310-win_amd64.whl", hash = "sha256:2e4a237f0ccf6a5387dce76f52e9196732f7f59e973ed51b1b4d1f77772e7e92"},
+    {file = "pywhispercpp-1.2.0-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:c28cdbc2259d3a47b3d65fb83db37f30c42831b00e04384ef57a327426f91ba9"},
+    {file = "pywhispercpp-1.2.0-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:7eb33365165424b3d023ca901f1f88bc6fb54fc9acf2d1992f6ff4876de83c6e"},
+    {file = "pywhispercpp-1.2.0-cp311-cp311-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:0ba6aa0618eaea9bc64810b416c87b883a5abac0a11484ec789a0fddeb443c18"},
+    {file = "pywhispercpp-1.2.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:cb76c63c98a63f4d501c76d32fba1cbd9ae0faf01b9dc233c82dc8269343af3f"},
+    {file = "pywhispercpp-1.2.0-cp311-cp311-musllinux_1_1_i686.whl", hash = "sha256:ce3362fbc40c728b613bf952b4808757632821feee4707bcd9fd2986aea67715"},
+    {file = "pywhispercpp-1.2.0-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:c5e1f4b09ea493138f8a6fa1f2d1408a9bf6e8cc9bac29ecc0911008210946c4"},
+    {file = "pywhispercpp-1.2.0-cp311-cp311-win32.whl", hash = "sha256:339e63b8c753c2491be6cf963038ec75df695c02c3bece0695e7a5b65dd32479"},
+    {file = "pywhispercpp-1.2.0-cp311-cp311-win_amd64.whl", hash = "sha256:964fe61c4ac9f83012ebbe90bed3ebd67821c9521de3bd66af02bd66b3ac6717"},
+    {file = "pywhispercpp-1.2.0-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:148c84315e1511c03e2f0887078615842fb8a9ae145a75b30d168e4a25852a0a"},
+    {file = "pywhispercpp-1.2.0-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:a5964f9681a0c904429c33e65898a2bef131a70d61587966b27f5582d92973d1"},
+    {file = "pywhispercpp-1.2.0-cp312-cp312-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:f915b3276dbd2fb29700f2ddfa6fd99dc464b8f19c52ef8ecfb62f94e73f2932"},
+    {file = "pywhispercpp-1.2.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:6e67a62b4a90653037f8a845e66ebd36475c28af85d126fa1c7f7fd44c1a7b15"},
+    {file = "pywhispercpp-1.2.0-cp312-cp312-musllinux_1_1_i686.whl", hash = "sha256:5b6c2eaf4d68fb01a04f3969a2d5543ec60d20b809d67713aa020b4029b4e6e9"},
+    {file = "pywhispercpp-1.2.0-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:76657796b680feb5b728f4aee90d4b3f7995d0daa294a746c7f29a436d8d6797"},
+    {file = "pywhispercpp-1.2.0-cp312-cp312-win32.whl", hash = "sha256:6cabe0e499ef5721e32f91014a70a89ede3503a4dd0ae54626bd21f37fe9ffe7"},
+    {file = "pywhispercpp-1.2.0-cp312-cp312-win_amd64.whl", hash = "sha256:2fb81edc212d69289ed6f0008afe7deb5fa9eb23043e9a8bfe37b7964fd76a91"},
+    {file = "pywhispercpp-1.2.0-cp38-cp38-macosx_10_9_universal2.whl", hash = "sha256:09d64aae9890edc39962b557b25b19619b1c30d37a9558e7bcba3aba651ee1c8"},
+    {file = "pywhispercpp-1.2.0-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:a789328d24d4ddaf3a9195488bc5e777e1ac151f4352a8c88a9157d96bc7d411"},
+    {file = "pywhispercpp-1.2.0-cp38-cp38-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:0726734e4f6b169e1188078625f1ba34758b340b2f9e21d01e16b2d8119fc722"},
+    {file = "pywhispercpp-1.2.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c643c09c46d36a5dd11dbac77e6c9e7b4d4f93318fcf9469f614a9e64c66a077"},
+    {file = "pywhispercpp-1.2.0-cp38-cp38-musllinux_1_1_i686.whl", hash = "sha256:ba575fb119b7028eedd1be2accf24bfb01a63f867d64b4acb8fef49244c79795"},
+    {file = "pywhispercpp-1.2.0-cp38-cp38-musllinux_1_1_x86_64.whl", hash = "sha256:7f06e003b4a1243dfd59609de91c93c60e3b8943db9ab1de8f82e2cc049ee7c1"},
+    {file = "pywhispercpp-1.2.0-cp38-cp38-win32.whl", hash = "sha256:5feaf77bf0c0902e4d50591d6757a6a8235ac40905b7d94d1d363abb7320f830"},
+    {file = "pywhispercpp-1.2.0-cp38-cp38-win_amd64.whl", hash = "sha256:0ae25f64997bfe4586727a418ff773894733b20758dfaba01e63ebe51357c4fa"},
+    {file = "pywhispercpp-1.2.0-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:732a52714f16ce0e6d49730445b3135a7c9eac9d74af24f2c9e051bd356ae1b2"},
+    {file = "pywhispercpp-1.2.0-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:e32fa87ffab6189ce2b9fa85c55f33626de6d96c397aa81169f168522416995c"},
+    {file = "pywhispercpp-1.2.0-cp39-cp39-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:d570e1c255ee05501f39ada012b045260cb7480e3e745cfaca3334aa8a144c0c"},
+    {file = "pywhispercpp-1.2.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ef15d84bad1fab94a758e3edb7365af7f1f3c244bfa7877009a43fd30b5388b9"},
+    {file = "pywhispercpp-1.2.0-cp39-cp39-musllinux_1_1_i686.whl", hash = "sha256:85a3f371b2a9c7313470b54e7f1b87bb2304b0abc20a0241f19eaead2c7f1f43"},
+    {file = "pywhispercpp-1.2.0-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:a5ddece59922acd22d5824e889e5abafcdac575032a827d66e435f7d8fb8043c"},
+    {file = "pywhispercpp-1.2.0-cp39-cp39-win32.whl", hash = "sha256:e3b426bf9ddb94b63146a574cb3ec79483d049eded7288f9d828b05c5f2a0634"},
+    {file = "pywhispercpp-1.2.0-cp39-cp39-win_amd64.whl", hash = "sha256:674bcf9fea6229259cefa6bf25dc762f009e02aa929518d5725f0fcb2cac642e"},
+    {file = "pywhispercpp-1.2.0-pp310-pypy310_pp73-macosx_10_9_x86_64.whl", hash = "sha256:4ce78c05a7edded9349900873a59a6bc534591b56c9435634408f69f69f4cc43"},
+    {file = "pywhispercpp-1.2.0-pp310-pypy310_pp73-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:7144cc2903ecb6db4d9312f80113f9839b389b4ed1d26a6b34261592decbd1f5"},
+    {file = "pywhispercpp-1.2.0-pp310-pypy310_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d6c136b885a88ce3aec59fb8f024393d73d02a10a6b0144f8b097f20ee0f66e8"},
+    {file = "pywhispercpp-1.2.0-pp310-pypy310_pp73-win_amd64.whl", hash = "sha256:661f85dac22c8395431c563f35948858f89fced2573f62213ada3a0bed921e63"},
+    {file = "pywhispercpp-1.2.0-pp38-pypy38_pp73-macosx_10_9_x86_64.whl", hash = "sha256:251360ca61fe710fcc455ae47a0e40c55879a62a9cb2b433d35b3226f858074c"},
+    {file = "pywhispercpp-1.2.0-pp38-pypy38_pp73-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:90d6df210a9b9084dd4be014305b0a67fefac3056d91bdd5952abd15d1287ed2"},
+    {file = "pywhispercpp-1.2.0-pp38-pypy38_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5d07452120773f87050855cf54aa0aafefe3e055f9b493952876be0b9cf72247"},
+    {file = "pywhispercpp-1.2.0-pp38-pypy38_pp73-win_amd64.whl", hash = "sha256:e39c1ec86e99709b4ee5da2f9ca185cf1580d31bc2e40a6ac32eedf382b18e31"},
+    {file = "pywhispercpp-1.2.0-pp39-pypy39_pp73-macosx_10_9_x86_64.whl", hash = "sha256:a5388039cf2c3a0156341fa44f95a5420c3a76bb53a3846d0f9c3c4bbca4ea0d"},
+    {file = "pywhispercpp-1.2.0-pp39-pypy39_pp73-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:cd7e97da6a292ef451ce736c2d42477f70754671af8e69e9d9fc4748d4551844"},
+    {file = "pywhispercpp-1.2.0-pp39-pypy39_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8d80fba568f668f0e2706a264ece25bc239d7f00dfd02d882e3f4a91f843b91c"},
+    {file = "pywhispercpp-1.2.0-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:6a63cc13de825952f1023a055e4462e95c8e2f0278b9994db556b9b6e5b60b17"},
+    {file = "pywhispercpp-1.2.0.tar.gz", hash = "sha256:d0c4a6c06ca7d35f4af55f75000006c3039043b0b2ba7eee42abed1d4ea63ccf"},
+]
+
+[package.dependencies]
+numpy = "*"
+platformdirs = "*"
+pydub = "*"
+requests = "*"
+tqdm = "*"
+
+[package.extras]
+examples = ["sounddevice", "webrtcvad"]
 
 [[package]]
 name = "pywin32-ctypes"
@@ -3399,5 +3482,5 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 
 [metadata]
 lock-version = "2.0"
-python-versions = ">=3.9.13,<3.13"
-content-hash = "fcdb182782521a49b7eeeff8f6c92021c48709c8f0dcac14ad8879c62987bbbe"
+python-versions = ">=3.9,<3.13"
+content-hash = "78ddd72aeb027e33ec12a65b8edc8da2ff69722fcab847ea8221d79a4ce4c96e"

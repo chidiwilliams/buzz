@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import shutil
 import tempfile
 from abc import abstractmethod
@@ -23,6 +24,9 @@ class FileTranscriber(QObject):
     download_progress = pyqtSignal(float)
     completed = pyqtSignal(list)  # List[Segment]
     error = pyqtSignal(str)
+
+    PROGRESS_REGEX = re.compile(r"\d+(\.\d+)?%")
+    READ_LINE_THREAD_STOP_TOKEN = "--STOP--"
 
     def __init__(self, task: FileTranscriptionTask, parent: Optional["QObject"] = None):
         super().__init__(parent)

@@ -23,17 +23,13 @@ import whisper
 import stable_whisper
 from stable_whisper import WhisperResult
 
-PROGRESS_REGEX = re.compile(r"\d+(\.\d+)?%")
-
 
 class WhisperFileTranscriber(FileTranscriber):
     """WhisperFileTranscriber transcribes an audio file to text, writes the text to a file, and then opens the file
     using the default program for opening txt files."""
 
     current_process: multiprocessing.Process
-    running = False
-    read_line_thread: Optional[Thread] = None
-    READ_LINE_THREAD_STOP_TOKEN = "--STOP--"
+    read_line_thread: Thread
 
     def __init__(
         self, task: FileTranscriptionTask, parent: Optional["QObject"] = None
@@ -104,7 +100,7 @@ class WhisperFileTranscriber(FileTranscriber):
 
             segments_json = json.dumps(segments, ensure_ascii=True, default=vars)
             sys.stderr.write(f"segments = {segments_json}\n")
-            sys.stderr.write(WhisperFileTranscriber.READ_LINE_THREAD_STOP_TOKEN + "\n")
+            sys.stderr.write(cls.READ_LINE_THREAD_STOP_TOKEN + "\n")
 
     @classmethod
     def transcribe_hugging_face(cls, task: FileTranscriptionTask) -> List[Segment]:
@@ -247,7 +243,7 @@ class WhisperFileTranscriber(FileTranscriber):
                 self.segments = segments
             else:
                 try:
-                    match = PROGRESS_REGEX.search(line)
+                    match = self.PROGRESS_REGEX.search(line)
                     if match is not None:
                         progress = int(match.group().strip("%"))
                         self.progress.emit((progress, 100))

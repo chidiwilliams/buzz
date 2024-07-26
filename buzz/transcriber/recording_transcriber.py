@@ -65,7 +65,12 @@ class RecordingTranscriber(QObject):
             device = "cuda" if torch.cuda.is_available() else "cpu"
             model = whisper.load_model(model_path, device=device)
         elif self.transcription_options.model.model_type == ModelType.WHISPER_CPP:
-            model = WhisperCpp(model_path)
+            model = WhisperCpp(
+                model=model_path,
+                whisper_params=whisper_cpp_params(
+                    transcription_options=self.transcription_options
+                )
+            )
         elif self.transcription_options.model.model_type == ModelType.FASTER_WHISPER:
             model = faster_whisper.WhisperModel(model_path)
 

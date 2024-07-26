@@ -27,11 +27,11 @@ from buzz.locale import _
 # the DLL in some envs is fixed.
 LOADED_WHISPER_CPP_BINARY = False
 try:
-    import buzz.whisper_cpp as whisper_cpp  # noqa: F401
+    import _pywhispercpp as whisper_cpp  # noqa: F401
 
     LOADED_WHISPER_CPP_BINARY = True
 except ImportError:
-    logging.exception("")
+    logging.exception("Failed to import whisper_cpp")
 
 model_root_dir = user_cache_dir("Buzz")
 model_root_dir = os.path.join(model_root_dir, "models")
