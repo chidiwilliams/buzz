@@ -1,0 +1,545 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Yevhen Popok <xalt7x.service@gmail.com>\n"
+"Language-Team: \n"
+"Language: uk_UA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=n==1 ? 3 : n%10==1 && n%100!=11 ? 0 : "
+"n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Poedit 3.4.4\n"
+
+#: buzz/model_loader.py:462 buzz/widgets/main_window.py:291
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:259
+msgid "Error"
+msgstr "Помилка"
+
+#: buzz/model_loader.py:490
+msgid "A connection error occurred"
+msgstr "Виникла помилка зʼєднання"
+
+#: buzz/settings/shortcut.py:17
+msgid "Open Record Window"
+msgstr "Відкрити вікно запису"
+
+#: buzz/settings/shortcut.py:18
+msgid "Import File"
+msgstr "Імпортувати файл"
+
+#: buzz/settings/shortcut.py:19 buzz/widgets/import_url_dialog.py:19
+msgid "Import URL"
+msgstr "Імпортувати адресу"
+
+#: buzz/settings/shortcut.py:20
+msgid "Open Preferences Window"
+msgstr "Відкрити вікно налаштувань"
+
+#: buzz/settings/shortcut.py:22
+msgid "View Transcript Text"
+msgstr "Переглянути текст транскрипції"
+
+#: buzz/settings/shortcut.py:23
+msgid "View Transcript Translation"
+msgstr "Переглянути переклад транскрипції"
+
+#: buzz/settings/shortcut.py:24
+msgid "View Transcript Timestamps"
+msgstr "Переглянути позначки часу в транскрипції"
+
+#: buzz/settings/shortcut.py:26 buzz/widgets/main_window.py:223
+#: buzz/widgets/main_window_toolbar.py:60
+msgid "Clear History"
+msgstr "Очистити історію"
+
+#: buzz/settings/shortcut.py:27 buzz/widgets/main_window_toolbar.py:52
+msgid "Cancel Transcription"
+msgstr "Скасувати транскрипцію"
+
+#: buzz/transcriber/transcriber.py:24
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:154
+msgid "Translate"
+msgstr "Перекласти"
+
+#: buzz/transcriber/transcriber.py:25
+msgid "Transcribe"
+msgstr "Розпізнати"
+
+#: buzz/transcriber/transcriber.py:159
+#: buzz/widgets/transcriber/languages_combo_box.py:25
+msgid "Detect Language"
+msgstr "Визначити мову"
+
+#: buzz/widgets/about_dialog.py:80
+msgid "Check for updates"
+msgstr "Перевірити оновлення"
+
+#: buzz/widgets/about_dialog.py:109
+msgid "You're up to date!"
+msgstr "У вас актуальна версія!"
+
+#: buzz/widgets/import_url_dialog.py:22
+msgid "https://example.com/audio.mp3"
+msgstr "https://example.com/audio.mp3"
+
+#: buzz/widgets/import_url_dialog.py:28 buzz/widgets/main_window.py:234
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:69
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:97
+msgid "Ok"
+msgstr "Гаразд"
+
+#: buzz/widgets/import_url_dialog.py:29 buzz/widgets/main_window.py:235
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:70
+msgid "Cancel"
+msgstr "Скасувати"
+
+#: buzz/widgets/import_url_dialog.py:34
+msgid "URL:"
+msgstr "Адреса:"
+
+#: buzz/widgets/import_url_dialog.py:46
+msgid "Invalid URL"
+msgstr "Недійсна адреса"
+
+#: buzz/widgets/import_url_dialog.py:46
+msgid "The URL you entered is invalid."
+msgstr "Адреса, яку ви ввели, є недійсною"
+
+#: buzz/widgets/main_window.py:227
+msgid ""
+"Are you sure you want to delete the selected transcription(s)? This action "
+"cannot be undone."
+msgstr ""
+"Ви впевнені, що хочете видалити вибрані транскрипції? Це незворотна дія."
+
+#: buzz/widgets/main_window.py:255
+msgid "Select audio file"
+msgstr "Вибрати аудіофайл"
+
+#: buzz/widgets/main_window.py:291
+msgid "Unable to save OpenAI API key to keyring"
+msgstr "Не вдається додати до звʼязки ключів API-ключ OpenAI"
+
+#: buzz/widgets/main_window_toolbar.py:35 buzz/widgets/record_button.py:10
+#: buzz/widgets/record_button.py:17
+msgid "Record"
+msgstr "Записати"
+
+#: buzz/widgets/main_window_toolbar.py:39
+msgid "New Transcription"
+msgstr "Нова транскрипція"
+
+#: buzz/widgets/main_window_toolbar.py:46
+msgid "Open Transcript"
+msgstr "Відкрити транскрипцію"
+
+#: buzz/widgets/menu_bar.py:38
+msgid "Import File..."
+msgstr "Імпортувати файл..."
+
+#: buzz/widgets/menu_bar.py:41
+msgid "Import URL..."
+msgstr "Імпортувати адресу..."
+
+#: buzz/widgets/menu_bar.py:44
+msgid "About"
+msgstr "Про застосунок"
+
+#: buzz/widgets/menu_bar.py:48
+msgid "Preferences..."
+msgstr "Налаштування..."
+
+#: buzz/widgets/menu_bar.py:51 buzz/widgets/menu_bar.py:61
+msgid "Help"
+msgstr "Допомога"
+
+#: buzz/widgets/menu_bar.py:57
+msgid "File"
+msgstr "Файл"
+
+#: buzz/widgets/model_download_progress_dialog.py:36
+msgid "Downloading model"
+msgstr "Завантаження моделі"
+
+#: buzz/widgets/model_download_progress_dialog.py:37
+msgid "remaining"
+msgstr "залишилось"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:42
+msgid "Enable folder watch"
+msgstr "Увімкнути стеження за текою"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:47
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:50
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:94
+msgid "Browse"
+msgstr "Огляд"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:94
+msgid "Input folder"
+msgstr "Тека введення"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:95
+msgid "Output folder"
+msgstr "Тека виведення"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:105
+msgid "Select Input Folder"
+msgstr "Виберіть теку введення"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:114
+msgid "Select Output Folder"
+msgstr "Виберіть теку виведення"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:47
+msgid "Font Size"
+msgstr "Розмір шрифту"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:54
+msgid "Test"
+msgstr "Тест"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:60
+msgid "OpenAI API key"
+msgstr "API-ключ OpenAI"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:73
+msgid "OpenAI base url"
+msgstr "Базова адреса OpenAI"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:82
+msgid "Default export file name"
+msgstr "Типова назва файлу експорту"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:88
+msgid "Enable live recording transcription export"
+msgstr "Увімкнути експорт транскрипції з живого запису"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:113
+msgid "Export folder"
+msgstr "Тека для експорту"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:138
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:144
+msgid "OpenAI API Key Test"
+msgstr "Тест API-ключа OpenAI"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:139
+msgid ""
+"Your API key is valid. Buzz will use this key to perform Whisper API "
+"transcriptions and AI translations."
+msgstr ""
+"Ваш API-ключ дійсний. Buzz використає цей ключ для транскрипції з Whisper "
+"API та перекладу ШІ."
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:166
+msgid "Select Export Folder"
+msgstr "Виберіть теку для експорту"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:216
+msgid ""
+"OpenAI API returned invalid response. Please check the API url or your key. "
+"Transcription and translation may still work if the API does not support key "
+"validation."
+msgstr ""
+"OpenAI API повернув недійсну відповідь. Будь ласка, перевірте адресу вашого "
+"API-ключа. Транскрипція та переклад можуть продовжити працювати, якщо API не "
+"підтримує перевірку ключа."
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:68
+msgid "Group"
+msgstr "Група"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:80
+msgid "Huggingface ID of a Faster whisper model"
+msgstr "Huggingface ID для моделі Faster Whisper"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:91
+msgid "Download"
+msgstr "Завантажити"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:96
+msgid "Show file location"
+msgstr "Показати розташування файлу"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:104
+msgid "Delete"
+msgstr "Видалити"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:135
+msgid "Downloaded"
+msgstr "Завантажене"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:140
+msgid "Available for Download"
+msgstr "Доступно для завантаження"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:161
+msgid "Download link to Whisper.cpp ggml model file"
+msgstr "Посилання на завантаження файлу ggml моделі Whisper.cpp"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:237
+msgid "Delete Model"
+msgstr "Видалити модель"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:238
+msgid "Are you sure you want to delete the selected model?"
+msgstr "Ви впевнені, що хочете видалити вибрану модель?"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:258
+msgid "Download failed"
+msgstr "Невдале завантаження"
+
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:43
+msgid "Preferences"
+msgstr "Налаштування"
+
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:50
+msgid "General"
+msgstr "Загальне"
+
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:53
+msgid "Models"
+msgstr "Моделі"
+
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:57
+msgid "Shortcuts"
+msgstr "Клавіатурні скорочення"
+
+#: buzz/widgets/preferences_dialog/preferences_dialog.py:63
+msgid "Folder Watch"
+msgstr "Нагляд за текою"
+
+#: buzz/widgets/preferences_dialog/shortcuts_editor_preferences_widget.py:29
+msgid "Reset to Defaults"
+msgstr "Типові значення"
+
+#: buzz/widgets/record_button.py:21
+msgid "Stop"
+msgstr "Зупинити"
+
+#: buzz/widgets/recording_transcriber_widget.py:73
+msgid "Live Recording"
+msgstr "Живий запис"
+
+#: buzz/widgets/recording_transcriber_widget.py:135
+msgid "Click Record to begin..."
+msgstr "Натисніть на Запис, щоб розпочати..."
+
+#: buzz/widgets/recording_transcriber_widget.py:138
+msgid "Waiting for AI translation..."
+msgstr "Очікування перекладу від ШІ..."
+
+#: buzz/widgets/recording_transcriber_widget.py:150
+msgid "Microphone:"
+msgstr "Мікрофон:"
+
+#: buzz/widgets/recording_transcriber_widget.py:413
+msgid "An error occurred while starting a new recording:"
+msgstr "При старті нового запису виникла помилка:"
+
+#: buzz/widgets/recording_transcriber_widget.py:417
+msgid ""
+"Please check your audio devices or check the application logs for more "
+"information."
+msgstr ""
+"Будь ласка, перевірте свої аудіопристрої або пошукайте додаткову інформацію "
+"в звітах програми."
+
+#: buzz/widgets/snap_notice.py:9
+msgid "Snap permission notice"
+msgstr "Попередження щодо дозволів Snap"
+
+#: buzz/widgets/snap_notice.py:13
+msgid ""
+"Detected missing permissions, please check that snap permissions have been "
+"granted"
+msgstr ""
+"Виявлено нестачу повноважень. Будь ласка, перевірте, чи були надані дозволи "
+"для Snap"
+
+#: buzz/widgets/snap_notice.py:16
+msgid ""
+"To enable necessary permissions run the following commands in the terminal"
+msgstr ""
+"Для активації необхідних дозволів, запустіть наступну команду в терміналі"
+
+#: buzz/widgets/snap_notice.py:30
+msgid "Close"
+msgstr "Закрити"
+
+#: buzz/widgets/transcriber/advanced_settings_button.py:9
+msgid "Advanced..."
+msgstr "Додатково..."
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:33
+msgid "Advanced Settings"
+msgstr "Додаткові налаштування"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:37
+msgid "Speech recognition settings"
+msgstr "Параметри розпізнавання мовлення"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:46
+msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+msgstr "Значення розділені комами, напр., \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:55
+msgid "Temperature:"
+msgstr "Температура:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:66
+msgid "Initial Prompt:"
+msgstr "Початкова підказка:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:68
+msgid "Translation settings"
+msgstr "Налаштування перекладу"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:72
+msgid "Enable AI translation"
+msgstr "Увімкнути переклад ШІ"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:84
+msgid "AI model:"
+msgstr "Модель ШІ"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:88
+msgid "Enter instructions for AI on how to translate..."
+msgstr "Введіть інструкції для перекладу ШІ..."
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py:92
+msgid "Instructions for AI:"
+msgstr "Інструкції для ШІ:"
+
+#: buzz/widgets/transcriber/file_transcriber_widget.py:79
+msgid "Run"
+msgstr "Запуск"
+
+#: buzz/widgets/transcriber/file_transcription_form_widget.py:42
+msgid "Word-level timings"
+msgstr "Хронометраж на рівні слів"
+
+#: buzz/widgets/transcriber/file_transcription_form_widget.py:66
+msgid "Export:"
+msgstr "Експорт:"
+
+#: buzz/widgets/transcriber/hugging_face_search_line_edit.py:36
+msgid "Huggingface ID of a model"
+msgstr "ID чи модель Huggingface"
+
+#: buzz/widgets/transcriber/initial_prompt_text_edit.py:10
+msgid "Enter prompt..."
+msgstr "Введіть підказку..."
+
+#: buzz/widgets/transcriber/transcription_options_group_box.py:88
+msgid "Model:"
+msgstr "Модель:"
+
+#: buzz/widgets/transcriber/transcription_options_group_box.py:91
+msgid "Api Key:"
+msgstr "API-ключ:"
+
+#: buzz/widgets/transcriber/transcription_options_group_box.py:92
+msgid "Task:"
+msgstr "Завдання:"
+
+#: buzz/widgets/transcriber/transcription_options_group_box.py:93
+msgid "Language:"
+msgstr "Мова:"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:62
+msgid "In Progress"
+msgstr "В процесі"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:65
+msgid "Completed"
+msgstr "Завершено"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:72
+msgid "Failed"
+msgstr "Невдача"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:75
+msgid "Canceled"
+msgstr "Скасовано"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:77
+msgid "Queued"
+msgstr "У черзі"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:84
+msgid "File Name / URL"
+msgstr "Назва файлу / посилання"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:96
+msgid "Model"
+msgstr "Модель"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:105
+msgid "Task"
+msgstr "Завдання"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:114
+msgid "Status"
+msgstr "Стан"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:122
+msgid "Date Added"
+msgstr "Дата додавання"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:133
+msgid "Date Completed"
+msgstr "Дата завершення"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:39
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:95
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:34
+msgid "Text"
+msgstr "Текст"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:40
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:62
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:96
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:40
+msgid "Translation"
+msgstr "Переклад"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:76
+msgid "Save File"
+msgstr "Зберегти файл"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:78
+msgid "Text files"
+msgstr "Текстові файли"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:93
+msgid "Start"
+msgstr "Початок"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:94
+msgid "End"
+msgstr "Кінець"
+
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:26
+msgid "View"
+msgstr "Вигляд"
+
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:46
+msgid "Timestamps"
+msgstr "Позначки часу"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:140
+msgid "Export"
+msgstr "Експорт"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:244
+msgid "API Key Required"
+msgstr "Потрібен API-ключ"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:245
+msgid "Please enter OpenAI API Key in preferences"
+msgstr "Будь ласка, введіть API-ключ OpenAI в налаштуваннях"
