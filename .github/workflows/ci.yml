@@ -212,13 +212,19 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Copy Windows DLL backup
+        run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            cp -r .\dll_backup\ .\buzz\
+          fi
+        shell: bash
+
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.19.2
         env:
-          CIBW_BUILD_VERBOSITY: 1
           CIBW_ARCHS_WINDOWS: "auto"
           CIBW_ARCHS_MACOS: "universal2"
-          CIBW_ARCHS_LINUX: "auto aarch64"
+          CIBW_ARCHS_LINUX: "auto"
           # Repair windows wheel
           CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -w {dest_dir} {wheel}"

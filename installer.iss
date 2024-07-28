@@ -35,6 +35,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: {#AppSourcePath}; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "dll_backup\*"; DestDir: "{app}\dll_backup"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
