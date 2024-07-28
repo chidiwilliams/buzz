@@ -214,7 +214,7 @@ jobs:
 
       - name: Copy Windows DLL backup
         if: runner.os == 'Windows'
-        run: cp -r .\dll_backup\ .\buzz\
+        run: xcopy .\dll_backup\* .\buzz\ /E /I
         shell: bash
 
       - name: Build wheels
