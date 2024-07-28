@@ -178,6 +178,7 @@ jobs:
 
           elif [ "$RUNNER_OS" == "Windows" ]; then
 
+            cp -r ./dll_backup/* ./buzz/
             poetry run make bundle_windows
 
           fi
@@ -211,6 +212,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+
+      - name: Copy Windows DLLs
+        run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            cp -r ./dll_backup/* ./buzz/
+          fi
+        shell: bash
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.19.2

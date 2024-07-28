@@ -67,9 +67,6 @@ else
 endif
 
 buzz/$(LIBWHISPER):
-ifeq ($(OS),Windows_NT)
-	xcopy .\dll_backup\* .\buzz\ /E /I /Y
-endif
 	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS)
 	cmake --build whisper.cpp/build --verbose
 	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) buzz || true
