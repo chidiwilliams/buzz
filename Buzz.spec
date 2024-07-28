@@ -47,6 +47,10 @@ binaries = [
     (shutil.which("ffprobe"), "."),
 ]
 
+# Include dll_backup folder and its contents on Windows
+if platform.system() == "Windows":
+    binaries.append(("dll_backup/*", "dll_backup"))
+
 a = Analysis(
     ["main.py"],
     pathex=[],
