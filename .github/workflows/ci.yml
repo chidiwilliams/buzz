@@ -215,7 +215,7 @@ jobs:
       - name: Copy Windows DLL backup
         if: runner.os == 'Windows'
         run: xcopy .\dll_backup\* .\buzz\ /E /I
-        shell: bash
+        shell: cmd
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.19.2
