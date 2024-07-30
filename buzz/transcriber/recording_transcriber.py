@@ -6,6 +6,7 @@ import wave
 import tempfile
 import threading
 from typing import Optional
+from platformdirs import user_cache_dir
 
 import torch
 import numpy as np
@@ -67,7 +68,13 @@ class RecordingTranscriber(QObject):
         elif self.transcription_options.model.model_type == ModelType.WHISPER_CPP:
             model = WhisperCpp(model_path)
         elif self.transcription_options.model.model_type == ModelType.FASTER_WHISPER:
-            model = faster_whisper.WhisperModel(model_path)
+            model_root_dir = user_cache_dir("Buzz")
+            model_root_dir = os.path.join(model_root_dir, "models")
+
+            model = faster_whisper.WhisperModel(
+                model_size_or_path=model_path,
+                download_root=model_root_dir
+            )
 
             # Fix for large-v3 https://github.com/guillaumekln/faster-whisper/issues/547#issuecomment-1797962599
             if self.transcription_options.model.whisper_model_size == WhisperModelSize.LARGEV3:
