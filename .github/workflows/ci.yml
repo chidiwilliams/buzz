@@ -216,7 +216,9 @@ jobs:
       - name: Copy Windows DLLs
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then
+            ls -lah ./
             cp -r ./dll_backup/* ./buzz/
+            ls -lah ./buzz/
           fi
         shell: bash
 
@@ -226,9 +228,6 @@ jobs:
           CIBW_ARCHS_WINDOWS: "auto"
           CIBW_ARCHS_MACOS: "universal2"
           CIBW_ARCHS_LINUX: "auto"
-          # Repair windows wheel
-#          CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel && xcopy .\\dll_backup\\* .\\buzz\\ /E /I /Y"
-#          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -w {dest_dir} {wheel} -vv --add-dll whisper.dll --add-path \".;dll_backup;D:\\a\\buzz\\buzz;D:\\a\\buzz\\buzz\\dll_backup\""
 
       - uses: actions/upload-artifact@v4
         with:
