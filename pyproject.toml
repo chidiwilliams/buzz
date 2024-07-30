@@ -7,7 +7,7 @@ license = "MIT"
 readme = "README.md"
 include = [
     "buzz/libwhisper.*", "buzz/*.dll", "buzz/whisper_cpp.py", "buzz/locale/*/LC_MESSAGES/buzz.mo",
-    { include = "buzz/dll_backup/*", condition = "sys_platform.startswith('win')" }
+    "buzz/dll_backup/*",
 ]
 repository = "https://github.com/chidiwilliams/buzz"
 packages = [
