@@ -104,25 +104,28 @@ class HuggingFaceSearchLineEdit(LineEdit):
 
         models = json.loads(network_reply.readAll().data())
 
-        self.popup.setUpdatesEnabled(False)
-        self.popup.clear()
+        # TODO Possibly need to include text entered in the search box as item in popup
+        #      as not all models are tagged with 'whisper'
+        if len(models) > 0:
+            self.popup.setUpdatesEnabled(False)
+            self.popup.clear()
 
-        for model in models:
-            model_id = model.get("id")
+            for model in models:
+                model_id = model.get("id")
 
-            item = QListWidgetItem(self.popup)
-            item.setText(model_id)
-            item.setData(Qt.ItemDataRole.UserRole, model_id)
+                item = QListWidgetItem(self.popup)
+                item.setText(model_id)
+                item.setData(Qt.ItemDataRole.UserRole, model_id)
 
-        self.popup.setCurrentItem(self.popup.item(0))
-        self.popup.setFixedWidth(self.popup.sizeHintForColumn(0) + 20)
-        self.popup.setFixedHeight(
-            self.popup.sizeHintForRow(0) * min(len(models), 8)
-        )  # show max 8 models, then scroll
-        self.popup.setUpdatesEnabled(True)
-        self.popup.move(self.mapToGlobal(QPoint(0, self.height())))
-        self.popup.setFocus()
-        self.popup.show()
+            self.popup.setCurrentItem(self.popup.item(0))
+            self.popup.setFixedWidth(self.popup.sizeHintForColumn(0) + 20)
+            self.popup.setFixedHeight(
+                self.popup.sizeHintForRow(0) * min(len(models), 8)
+            )  # show max 8 models, then scroll
+            self.popup.setUpdatesEnabled(True)
+            self.popup.move(self.mapToGlobal(QPoint(0, self.height())))
+            self.popup.setFocus()
+            self.popup.show()
 
     def eventFilter(self, target: QObject, event: QEvent):
         if hasattr(self, "popup") is False or target != self.popup:
