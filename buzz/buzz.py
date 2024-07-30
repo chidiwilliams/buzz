@@ -26,6 +26,8 @@ os.environ["PATH"] += os.pathsep + APP_BASE_DIR
 # Add the app directory to the DLL list: https://stackoverflow.com/a/64303856
 if platform.system() == "Windows":
     os.add_dll_directory(APP_BASE_DIR)
+    os.add_dll_directory(os.path.join(APP_BASE_DIR, "dll_backup"))
+    os.add_dll_directory(os.path.join(APP_BASE_DIR, "dll_backup", "win32"))
 
 
 def main():

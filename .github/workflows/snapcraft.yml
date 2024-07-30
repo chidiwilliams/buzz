@@ -25,7 +25,7 @@ jobs:
         id: snapcraft
       - run: |
           sudo apt-get update
-          sudo apt-get install libportaudio2
+          sudo apt-get install libportaudio2 libtbb-dev
       - run: sudo snap install --devmode *.snap
       - run: |
           cd $HOME

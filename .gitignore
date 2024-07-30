@@ -8,6 +8,7 @@ build/
 htmlcov/
 coverage.xml
 .idea/
+.venv/
 
 # whisper_cpp
 libwhisper.*
@@ -24,3 +25,4 @@ benchmarks.json
 .eggs
 *.egg-info
 /coverage/
+/wheelhouse/
