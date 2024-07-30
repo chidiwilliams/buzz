@@ -178,7 +178,7 @@ jobs:
 
           elif [ "$RUNNER_OS" == "Windows" ]; then
 
-            cp -r ./dll_backup/* ./buzz/
+            cp -r ./dll_backup ./buzz/
             poetry run make bundle_windows
 
           fi
@@ -216,9 +216,7 @@ jobs:
       - name: Copy Windows DLLs
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then
-            ls -lah ./
             cp -r ./dll_backup ./buzz/
-            ls -lah ./buzz/
           fi
         shell: bash
 
