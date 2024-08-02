@@ -100,6 +100,9 @@ class ModelType(enum.Enum):
 
 HUGGING_FACE_MODEL_ALLOW_PATTERNS = [
     "model.safetensors",  # largest by size first
+    "model-00001-of-00002.safetensors",
+    "model-00002-of-00002.safetensors",
+    "model.safetensors.index.json",
     "added_tokens.json",
     "config.json",
     "generation_config.json",
@@ -218,7 +221,8 @@ class TranscriptionModel:
                     self.hugging_face_model_id,
                     allow_patterns=HUGGING_FACE_MODEL_ALLOW_PATTERNS,
                     local_files_only=True,
-                    cache_dir=model_root_dir
+                    cache_dir=model_root_dir,
+                    etag_timeout=60
                 )
             except (ValueError, FileNotFoundError):
                 return None
@@ -324,7 +328,8 @@ def download_from_huggingface(
         model_root = huggingface_hub.snapshot_download(
             repo_id,
             allow_patterns=allow_patterns[num_large_files:],  # all, but largest
-            cache_dir=model_root_dir
+            cache_dir=model_root_dir,
+            etag_timeout=60
         )
     except Exception as exc:
         logging.exception(exc)
@@ -351,7 +356,8 @@ def download_from_huggingface(
         huggingface_hub.snapshot_download(
             repo_id,
             allow_patterns=allow_patterns[:num_large_files],  # largest
-            cache_dir=model_root_dir
+            cache_dir=model_root_dir,
+            etag_timeout=60
         )
     except Exception as exc:
         logging.exception(exc)
@@ -399,7 +405,8 @@ def download_faster_whisper_model(
             repo_id,
             allow_patterns=allow_patterns,
             local_files_only=True,
-            cache_dir=model_root_dir
+            cache_dir=model_root_dir,
+            etag_timeout=60
         )
 
     return download_from_huggingface(
@@ -469,6 +476,7 @@ class ModelDownloader(QRunnable):
                 self.model.hugging_face_model_id,
                 allow_patterns=HUGGING_FACE_MODEL_ALLOW_PATTERNS,
                 progress=self.signals.progress,
+                num_large_files=3
             )
             self.signals.finished.emit(model_path)
             return
