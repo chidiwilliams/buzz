@@ -1,7 +1,7 @@
-from typing import Optional, Union
-
+import os
 import numpy as np
 import torch
+from typing import Optional, Union
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 
 
@@ -17,12 +17,14 @@ class TransformersWhisper:
         language: str,
         task: str,
     ):
-
         device = "cuda" if torch.cuda.is_available() else "cpu"
         torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 
+        safetensors_path = os.path.join(self.model_id, "model.safetensors")
+        use_safetensors = os.path.exists(safetensors_path)
+
         model = AutoModelForSpeechSeq2Seq.from_pretrained(
-            self.model_id, torch_dtype=torch_dtype, use_safetensors=True
+            self.model_id, torch_dtype=torch_dtype, use_safetensors=use_safetensors
         )
 
         model.generation_config.language = language
