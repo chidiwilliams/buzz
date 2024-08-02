@@ -53,7 +53,6 @@ if platform.system() == "Windows":
 
     binaries.append(("dll_backup/SDL2.dll", "dll_backup"))
     binaries.append(("dll_backup/whisper.dll", "dll_backup"))
-    binaries.append(("dll_backup/win32/whisper.dll", "dll_backup/win32"))
 
 a = Analysis(
     ["main.py"],
