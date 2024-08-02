@@ -18,6 +18,13 @@ jobs:
     outputs:
       snap: ${{ steps.snapcraft.outputs.snap }}
     steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
       - uses: actions/checkout@v4
         with:
           submodules: recursive
@@ -26,10 +33,6 @@ jobs:
       - run: |
           sudo apt-get update
           sudo apt-get install libportaudio2 libtbb-dev
-      - name: Instance cleanup
-        run: |
-          snapcraft clean
-          sudo apt-get clean
       - run: sudo snap install --devmode *.snap
       - run: |
           cd $HOME
