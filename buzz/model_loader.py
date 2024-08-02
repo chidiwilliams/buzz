@@ -100,6 +100,7 @@ class ModelType(enum.Enum):
 
 HUGGING_FACE_MODEL_ALLOW_PATTERNS = [
     "model.safetensors",  # largest by size first
+    "pytorch_model.bin",
     "model-00001-of-00002.safetensors",
     "model-00002-of-00002.safetensors",
     "model.safetensors.index.json",
@@ -476,7 +477,7 @@ class ModelDownloader(QRunnable):
                 self.model.hugging_face_model_id,
                 allow_patterns=HUGGING_FACE_MODEL_ALLOW_PATTERNS,
                 progress=self.signals.progress,
-                num_large_files=3
+                num_large_files=4
             )
             self.signals.finished.emit(model_path)
             return
