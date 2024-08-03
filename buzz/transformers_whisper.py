@@ -10,7 +10,7 @@ from transformers.pipelines.audio_utils import ffmpeg_read
 from transformers.pipelines.automatic_speech_recognition import is_torchaudio_available
 
 
-class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):
+class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no cover
     # Copy of transformers `AutomaticSpeechRecognitionPipeline.chunk_iter` method with custom progress output
     @staticmethod
     def chunk_iter(inputs, feature_extractor, chunk_len, stride_left, stride_right, dtype=None):
