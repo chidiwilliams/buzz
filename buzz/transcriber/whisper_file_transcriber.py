@@ -6,6 +6,7 @@ import re
 import os
 import sys
 import torch
+import platform
 from platformdirs import user_cache_dir
 from multiprocessing.connection import Connection
 from threading import Thread
@@ -141,9 +142,15 @@ class WhisperFileTranscriber(FileTranscriber):
         model_root_dir = user_cache_dir("Buzz")
         model_root_dir = os.path.join(model_root_dir, "models")
 
+        device = "auto"
+        if platform.system() == "Windows":
+            logging.debug("CUDA GPUs are currently no supported on Running on Windows, using CPU")
+            device = "cpu"
+
         model = faster_whisper.WhisperModel(
             model_size_or_path=model_size_or_path,
-            download_root=model_root_dir
+            download_root=model_root_dir,
+            device=device,
         )
         whisper_segments, info = model.transcribe(
             audio=task.file_path,
