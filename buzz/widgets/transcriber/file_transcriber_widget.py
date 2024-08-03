@@ -157,6 +157,7 @@ class FileTranscriberWidget(QWidget):
         self.run_button.setDisabled(False)
 
     def on_cancel_model_progress_dialog(self):
+        self.reset_transcriber_controls()
         if self.model_loader is not None:
             self.model_loader.cancel()
         self.reset_model_download()
