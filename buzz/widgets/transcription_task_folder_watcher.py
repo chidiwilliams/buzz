@@ -24,6 +24,7 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
     ):
         super().__init__(parent)
         self.tasks = tasks
+        self.paths_emitted = set()
         self.set_preferences(preferences)
         self.directoryChanged.connect(self.find_tasks)
 
@@ -46,6 +47,7 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
                 if (
                     filename.startswith(".")  # hidden files
                     or file_path in tasks  # file already in tasks
+                    or file_path in self.paths_emitted  # file already emitted
                 ):
                     continue
 
@@ -67,6 +69,7 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
                     source=FileTranscriptionTask.Source.FOLDER_WATCH,
                 )
                 self.task_found.emit(task)
+                self.paths_emitted.add(file_path)
 
             # Don't traverse into subdirectories
             break
