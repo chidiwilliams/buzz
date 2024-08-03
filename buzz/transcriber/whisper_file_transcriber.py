@@ -90,7 +90,6 @@ class WhisperFileTranscriber(FileTranscriber):
     ) -> None:
         with pipe_stderr(stderr_conn):
             if task.transcription_options.model.model_type == ModelType.HUGGING_FACE:
-                # TODO Find a way to emmit real progress
                 sys.stderr.write("0%\n")
                 segments = cls.transcribe_hugging_face(task)
                 sys.stderr.write("100%\n")
