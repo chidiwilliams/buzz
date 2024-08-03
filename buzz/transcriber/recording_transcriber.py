@@ -1,6 +1,6 @@
 import datetime
 import logging
-import sys
+import platform
 import os
 import wave
 import tempfile
@@ -71,9 +71,15 @@ class RecordingTranscriber(QObject):
             model_root_dir = user_cache_dir("Buzz")
             model_root_dir = os.path.join(model_root_dir, "models")
 
+            device = "auto"
+            if platform.system() == "Windows":
+                logging.debug("CUDA GPUs are currently no supported on Running on Windows, using CPU")
+                device = "cpu"
+
             model = faster_whisper.WhisperModel(
                 model_size_or_path=model_path,
-                download_root=model_root_dir
+                download_root=model_root_dir,
+                device=device,
             )
 
             # Fix for large-v3 https://github.com/guillaumekln/faster-whisper/issues/547#issuecomment-1797962599
