@@ -102,7 +102,7 @@ pip install $whlFile
 
 GPU support on Windows is possible for Buzz that ir installed from the source code or with `pip`.
 
-Use the instructions above to install the Buzz from the source code or run and then follow the instructions below
+Use the instructions above to install the Buzz from the source code or run the command below and then follow the instructions below
 to enable CUDA GPU support.
 ```
 pip install buzz-captions
