@@ -31,6 +31,6 @@ sidebar_position: 5
 
 4. **How to get GPU acceleration for faster transcription?**
 
-   On Linux GPU acceleration is supported out of the box on Nvidia GPUs with [CUDA installed](https://developer.nvidia.com/cuda-downloads).
+   On Linux GPU acceleration is supported out of the box on Nvidia GPUs with [CUDA 12](https://developer.nvidia.com/cuda-downloads), [cuBLASS](https://developer.nvidia.com/cublas) and [cuDNN](https://developer.nvidia.com/cudnn) libraries installed.
 
    On Windows see [this note](https://github.com/chidiwilliams/buzz/blob/main/CONTRIBUTING.md#gpu-support) on enabling CUDA GPU support.
