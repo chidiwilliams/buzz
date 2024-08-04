@@ -54,6 +54,11 @@ On versions prior to Ubuntu 24.04 install `sudo apt-get install --no-install-rec
 7. Build Buzz `poetry build`
 8. Run Buzz `python -m buzz`
 
+#### Necessary dependencies for Faster Whisper on GPU
+
+All the dependencies for GPU support should be included in the dependency packages already installed, 
+but if you get issues running Faster Whisper on GPU, install [CUDA 12](https://developer.nvidia.com/cuda-downloads), [cuBLASS](https://developer.nvidia.com/cublas) and [cuDNN](https://developer.nvidia.com/cudnn).
+
 #### Error for Faster Whisper on GPU `Could not load library libcudnn_ops_infer.so.8`
 
 You need to add path to the library to the `LD_LIBRARY_PATH` environment variable.
