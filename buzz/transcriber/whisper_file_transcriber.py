@@ -52,6 +52,9 @@ class WhisperFileTranscriber(FileTranscriber):
             "Starting whisper file transcription, task = %s", self.transcription_task
         )
 
+        if torch.cuda.is_available():
+            logging.debug(f"CUDA version detected: {torch.version.cuda}")
+
         recv_pipe, send_pipe = multiprocessing.Pipe(duplex=False)
 
         self.current_process = multiprocessing.Process(
@@ -144,6 +147,10 @@ class WhisperFileTranscriber(FileTranscriber):
         device = "auto"
         if platform.system() == "Windows":
             logging.debug("CUDA GPUs are currently no supported on Running on Windows, using CPU")
+            device = "cpu"
+
+        if torch.cuda.is_available() and torch.version.cuda < "12":
+            logging.debug("Unsupported CUDA version (<12), using CPU")
             device = "cpu"
 
         model = faster_whisper.WhisperModel(
