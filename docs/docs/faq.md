@@ -29,8 +29,16 @@ sidebar_position: 5
 
    When choosing among large models consider the following. "Large" is the first released older model, "Large-V2" is later updated model with better accuracy, for some languages considered the most robust and stable. "Large-V3" is the latest model with the best accuracy in many cases, but some times can hallucinate or invent words that were never in the audio. The only sure way to know what model best suits your needs is to test them all in your language. 
 
-4. **How to get GPU acceleration for faster transcription?**
+5. **How to get GPU acceleration for faster transcription?**
 
    On Linux GPU acceleration is supported out of the box on Nvidia GPUs. If you still get any issues install [CUDA 12](https://developer.nvidia.com/cuda-downloads), [cuBLASS](https://developer.nvidia.com/cublas) and [cuDNN](https://developer.nvidia.com/cudnn).
 
    On Windows see [this note](https://github.com/chidiwilliams/buzz/blob/main/CONTRIBUTING.md#gpu-support) on enabling CUDA GPU support.
+
+6. **How to fix `Unanticipated host error[PaErrorCode-9999]`?**
+
+   Check if there are any system settings preventing apps from accessing the microphone.
+
+   On Windows, see if Buzz has permission to use the microphone in Settings -> Privacy -> Microphone.
+   See method 1 in this video https://www.youtube.com/watch?v=eRcCYgOuSYQ
+   For method 2 there is no need to uninstall the antivirus, but see if you can temporarily disable it or if there are settings that may prevent Buzz from accessing the microphone.

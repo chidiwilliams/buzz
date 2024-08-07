@@ -230,6 +230,7 @@ class RecordingTranscriberWidget(QWidget):
         self.device_sample_rate = RecordingTranscriber.get_device_sample_rate(
             self.selected_device_id
         )
+        logging.debug(f"Device sample rate: {self.device_sample_rate}")
 
         self.recording_amplitude_listener = RecordingAmplitudeListener(
             input_device_index=self.selected_device_id, parent=self
