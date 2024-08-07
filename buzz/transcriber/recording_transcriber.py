@@ -62,6 +62,9 @@ class RecordingTranscriber(QObject):
         model_path = self.model_path
         keep_samples = int(0.15 * self.sample_rate)
 
+        if torch.cuda.is_available():
+            logging.debug(f"CUDA version detected: {torch.version.cuda}")
+
         if self.transcription_options.model.model_type == ModelType.WHISPER:
             device = "cuda" if torch.cuda.is_available() else "cpu"
             model = whisper.load_model(model_path, device=device)
@@ -74,6 +77,10 @@ class RecordingTranscriber(QObject):
             device = "auto"
             if platform.system() == "Windows":
                 logging.debug("CUDA GPUs are currently no supported on Running on Windows, using CPU")
+                device = "cpu"
+
+            if torch.cuda.is_available() and torch.version.cuda < "12":
+                logging.debug("Unsupported CUDA version (<12), using CPU")
                 device = "cpu"
 
             model = faster_whisper.WhisperModel(
