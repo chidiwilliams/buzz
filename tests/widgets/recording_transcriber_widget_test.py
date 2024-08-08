@@ -79,7 +79,10 @@ class TestRecordingTranscriberWidget:
                   return_value=16_000),
               patch(
                   'buzz.settings.settings.Settings.get_default_export_file_template',
-                  return_value='mock-export-file')):
+                  return_value='mock-export-file'),
+              patch("sounddevice.query_devices", side_effect=MockSoundDevice().query_devices),
+              patch("sounddevice.check_input_settings", side_effect=MockSoundDevice().check_input_settings),
+              patch("sounddevice.InputStream", side_effect=MockSoundDevice().InputStream)):
 
             widget = RecordingTranscriberWidget(
                 custom_sounddevice=MockSoundDevice()
