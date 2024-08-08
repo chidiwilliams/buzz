@@ -3,6 +3,7 @@ import gc
 import pytest
 import threading
 import psutil
+import time
 
 from buzz.model_loader import ModelDownloader,TranscriptionModel, ModelType, WhisperModelSize
 
@@ -43,3 +44,6 @@ class TestModelLoader:
         assert len(os.listdir(model_path)) > 0, "Model directory is empty"
 
         model_loader.cancel()
+        gc.collect()
+        time.sleep(3)
+
