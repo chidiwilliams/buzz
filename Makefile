@@ -67,10 +67,15 @@ else
 endif
 
 buzz/$(LIBWHISPER):
+ifeq ($(OS),Windows_NT)
+	cp dll_backup/whisper.dll buzz || true
+	cp dll_backup/SDL2.dll buzz || true
+else
 	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS)
 	cmake --build whisper.cpp/build --verbose
 	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) buzz || true
 	cp whisper.cpp/build/$(LIBWHISPER) buzz || true
+endif
 
 buzz/whisper_cpp.py: buzz/$(LIBWHISPER) translation_mo
 	cd buzz && ctypesgen ../whisper.cpp/whisper.h -lwhisper -o whisper_cpp.py
