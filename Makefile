@@ -40,7 +40,11 @@ benchmarks: buzz/whisper_cpp.py translation_mo
 	pytest -s -vv --benchmark-only --benchmark-json benchmarks.json
 
 dist/Buzz dist/Buzz.app: buzz/whisper_cpp.py translation_mo
+ifeq ($(UNAME_S), Darwin)
+	pyinstaller --noconfirm --target-arch universal2 Buzz.spec
+else
 	pyinstaller --noconfirm Buzz.spec
+endif
 	./dist/Buzz/Buzz --version
 
 version:
