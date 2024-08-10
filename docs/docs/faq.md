@@ -35,10 +35,14 @@ sidebar_position: 5
 
    On Windows see [this note](https://github.com/chidiwilliams/buzz/blob/main/CONTRIBUTING.md#gpu-support) on enabling CUDA GPU support.
 
+   For Faster whisper CUDA 12 is required, computers with older CUDA versions will use CPU.   
+
 6. **How to fix `Unanticipated host error[PaErrorCode-9999]`?**
 
    Check if there are any system settings preventing apps from accessing the microphone.
 
    On Windows, see if Buzz has permission to use the microphone in Settings -> Privacy -> Microphone.
+
    See method 1 in this video https://www.youtube.com/watch?v=eRcCYgOuSYQ
+
    For method 2 there is no need to uninstall the antivirus, but see if you can temporarily disable it or if there are settings that may prevent Buzz from accessing the microphone.
