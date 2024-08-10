@@ -22,6 +22,9 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
 
 **PyPI**:
 
+Install [ffmpeg](https://www.ffmpeg.org/download.html)
+
+Install Buzz
 ```shell
 pip install buzz-captions
 python -m buzz

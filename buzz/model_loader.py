@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import warnings
+import platform
 from dataclasses import dataclass
 from typing import Optional, List
 
@@ -86,6 +87,13 @@ class ModelType(enum.Enum):
             # See: https://github.com/chidiwilliams/buzz/issues/274,
             # https://github.com/chidiwilliams/buzz/issues/197
             (self == ModelType.WHISPER_CPP and not LOADED_WHISPER_CPP_BINARY)
+        ):
+            return False
+        elif (
+            # Hide Faster Whisper option on macOS x86_64
+            # See: https://github.com/SYSTRAN/faster-whisper/issues/541
+            (self == ModelType.FASTER_WHISPER
+                and platform.system() == "Darwin" and platform.machine() == "x86_64")
         ):
             return False
         return True

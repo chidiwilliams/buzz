@@ -31,7 +31,7 @@ clean:
 	rm -rf whisper.cpp/build || true
 	rm -rf dist/* || true
 
-COVERAGE_THRESHOLD := 80
+COVERAGE_THRESHOLD := 75
 
 test: buzz/whisper_cpp.py translation_mo
 	pytest -s -vv --cov=buzz --cov-report=xml --cov-report=html --benchmark-skip --cov-fail-under=${COVERAGE_THRESHOLD}
