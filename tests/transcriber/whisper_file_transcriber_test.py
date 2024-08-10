@@ -171,7 +171,7 @@ class TestWhisperFileTranscriber:
                     whisper_model_size=WhisperModelSize.TINY,
                 ),
                 marks=pytest.mark.skipif(
-                    platform.system() == "Darwin",
+                    platform.system() == "Darwin" and platform.machine() == "x86_64",
                     reason="Error with libiomp5 already initialized on GH action runner: https://github.com/chidiwilliams/buzz/actions/runs/4657331262/jobs/8241832087",
                 ),
             ),
