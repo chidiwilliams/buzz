@@ -33,9 +33,11 @@ Log files contain valuable information about what the Buzz was doing before the 
 
 **Test on latest version**
 
-To see if your issue has already been fixed, try running the latest version of the Buzz. To get it log in to the GitHub and go to [Actions section](https://github.com/chidiwilliams/buzz/actions?query=branch%3Amain). Latest development versions attached to Artifacts section of successful builds. 
+To see if your issue has already been fixed, try running the latest version of the Buzz. To get it log in to the GitHub and go to [Actions section](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml?query=branch%3Amain). Latest development versions attached to Artifacts section of successful builds. 
 
 Linux versions get also pushed to the snap. To install latest development version use `snap install buzz --channel latest/edge`
+
+
 
 ## Running Buzz locally
 
@@ -54,6 +56,21 @@ On versions prior to Ubuntu 24.04 install `sudo apt-get install --no-install-rec
 7. Build Buzz `poetry build`
 8. Run Buzz `python -m buzz`
 
+#### Necessary dependencies for Faster Whisper on GPU
+
+   All the dependencies for GPU support should be included in the dependency packages already installed, 
+   but if you get issues running Faster Whisper on GPU, install [CUDA 12](https://developer.nvidia.com/cuda-downloads), [cuBLASS](https://developer.nvidia.com/cublas) and [cuDNN](https://developer.nvidia.com/cudnn).
+
+#### Error for Faster Whisper on GPU `Could not load library libcudnn_ops_infer.so.8`
+
+   You need to add path to the library to the `LD_LIBRARY_PATH` environment variable.
+   Check exact path to your poetry virtual environment, it may be different for you.
+
+```
+  export LD_LIBRARY_PATH=/home/PutYourUserNameHere/.cache/pypoetry/virtualenvs/buzz-captions-JjGFxAW6-py3.12/lib/python3.12/site-packages/nvidia/cudnn/lib/:$LD_LIBRARY_PATH
+```
+
+
 ### Mac
 
 1. Clone the repository `git clone --recursive https://github.com/chidiwilliams/buzz.git`
@@ -65,19 +82,8 @@ On versions prior to Ubuntu 24.04 install `sudo apt-get install --no-install-rec
 7. Build Buzz `poetry build`
 8. Run Buzz `python -m buzz`
 
-#### Necessary dependencies for Faster Whisper on GPU
 
-All the dependencies for GPU support should be included in the dependency packages already installed, 
-but if you get issues running Faster Whisper on GPU, install [CUDA 12](https://developer.nvidia.com/cuda-downloads), [cuBLASS](https://developer.nvidia.com/cublas) and [cuDNN](https://developer.nvidia.com/cudnn).
 
-#### Error for Faster Whisper on GPU `Could not load library libcudnn_ops_infer.so.8`
-
-You need to add path to the library to the `LD_LIBRARY_PATH` environment variable.
-Check exact path to your poetry virtual environment, it may be different for you.
-
-```
-  export LD_LIBRARY_PATH=/home/PutYourUserNameHere/.cache/pypoetry/virtualenvs/buzz-captions-JjGFxAW6-py3.12/lib/python3.12/site-packages/nvidia/cudnn/lib/:$LD_LIBRARY_PATH
-```
 ### Windows
 
 Assumes you have [Git](https://git-scm.com/downloads) and [python](https://www.python.org/downloads) installed and added to PATH.
