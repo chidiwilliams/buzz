@@ -54,6 +54,17 @@ On versions prior to Ubuntu 24.04 install `sudo apt-get install --no-install-rec
 7. Build Buzz `poetry build`
 8. Run Buzz `python -m buzz`
 
+### Mac
+
+1. Clone the repository `git clone --recursive https://github.com/chidiwilliams/buzz.git`
+2. Enter repo folder `cd buzz`
+3. Install Poetry `brew install poetry`
+4. Activate the virtual environment `poetry shell`
+5. Install the dependencies `poetry install`
+6. Install system dependencies you may be missing `brew install ffmpeg`
+7. Build Buzz `poetry build`
+8. Run Buzz `python -m buzz`
+
 #### Necessary dependencies for Faster Whisper on GPU
 
 All the dependencies for GPU support should be included in the dependency packages already installed, 
