@@ -96,6 +96,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - os: macos-13
           - os: macos-latest
           - os: windows-latest
     steps:
@@ -160,7 +161,7 @@ jobs:
             KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
             # import certificate and provisioning profile from secrets
-            echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
+            echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
 
             # create temporary keychain
             security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
@@ -195,7 +196,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Buzz-${{ runner.os }}
+          name: Buzz-${{ runner.os }}-${{ runner.arch }}
           path: |
             dist/Buzz*-windows.exe
             dist/Buzz*-mac.dmg
@@ -257,6 +258,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - os: macos-13
           - os: macos-latest
           - os: windows-latest
     needs: [ build, test ]
@@ -268,7 +270,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: Buzz-${{ runner.os }}
+          name: Buzz-${{ runner.os }}-${{ runner.arch }}
 
       - name: Install Poetry Action
         uses: snok/install-poetry@v1.3.1

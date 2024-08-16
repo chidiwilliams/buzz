@@ -60,6 +60,7 @@ ifeq ($(UNAME_S),Darwin)
 	ifeq (,$(findstring AVX2,$(AVX2_M)))
 		CMAKE_FLAGS += -DWHISPER_NO_AVX2=ON
 	endif
+	CMAKE_FLAGS += -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"
 else
 	ifeq ($(OS), Windows_NT)
 		CMAKE_FLAGS += -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release
