@@ -37,6 +37,8 @@ To see if your issue has already been fixed, try running the latest version of t
 
 Linux versions get also pushed to the snap. To install latest development version use `snap install buzz --channel latest/edge`
 
+
+
 ## Running Buzz locally
 
 ### Linux (Ubuntu)
@@ -68,6 +70,7 @@ On versions prior to Ubuntu 24.04 install `sudo apt-get install --no-install-rec
   export LD_LIBRARY_PATH=/home/PutYourUserNameHere/.cache/pypoetry/virtualenvs/buzz-captions-JjGFxAW6-py3.12/lib/python3.12/site-packages/nvidia/cudnn/lib/:$LD_LIBRARY_PATH
 ```
 
+
 ### Mac
 
 1. Clone the repository `git clone --recursive https://github.com/chidiwilliams/buzz.git`
@@ -78,6 +81,8 @@ On versions prior to Ubuntu 24.04 install `sudo apt-get install --no-install-rec
 6. Install system dependencies you may be missing `brew install ffmpeg`
 7. Build Buzz `poetry build`
 8. Run Buzz `python -m buzz`
+
+
 
 ### Windows
 
