@@ -33,7 +33,7 @@ Log files contain valuable information about what the Buzz was doing before the 
 
 **Test on latest version**
 
-To see if your issue has already been fixed, try running the latest version of the Buzz. To get it log in to the GitHub and go to [Actions section](https://github.com/chidiwilliams/buzz/actions?query=branch%3Amain). Latest development versions attached to Artifacts section of successful builds. 
+To see if your issue has already been fixed, try running the latest version of the Buzz. To get it log in to the GitHub and go to [Actions section](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml?query=branch%3Amain). Latest development versions attached to Artifacts section of successful builds. 
 
 Linux versions get also pushed to the snap. To install latest development version use `snap install buzz --channel latest/edge`
 
