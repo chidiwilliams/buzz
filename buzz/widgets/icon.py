@@ -78,6 +78,9 @@ class TranslateIcon(Icon):
     def __init__(self, parent: QWidget):
         super().__init__(get_path("assets/translate_black.svg"), parent)
 
+class ResizeIcon(Icon):
+    def __init__(self, parent: QWidget):
+        super().__init__(get_path("assets/resize_black.svg"), parent)
 
 class VisibilityIcon(Icon):
     def __init__(self, parent: QWidget):

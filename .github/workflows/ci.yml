@@ -155,6 +155,10 @@ jobs:
           if [ "$RUNNER_OS" == "macOS" ]; then
 
             brew install create-dmg
+          
+            # kill XProtect to prevent https://github.com/actions/runner-images/issues/7522 
+            sudo pkill -9 XProtect >/dev/null || true;
+            while pgrep XProtect; do sleep 3; done;
 
             # create variables
             CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12

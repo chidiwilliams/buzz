@@ -1,10 +1,9 @@
 import logging
-import platform
 from typing import Optional
 from uuid import UUID
 
-from PyQt6.QtCore import Qt, QThread
-from PyQt6.QtGui import QFont
+from PyQt6.QtCore import Qt, QThread, pyqtSignal
+from PyQt6.QtGui import QFont, QShowEvent
 from PyQt6.QtMultimedia import QMediaPlayer
 from PyQt6.QtSql import QSqlRecord
 from PyQt6.QtWidgets import (
@@ -13,7 +12,12 @@ from PyQt6.QtWidgets import (
     QToolButton,
     QLabel,
     QMessageBox,
+    QInputDialog,
+    QDialogButtonBox,
 )
+
+import srt
+from srt_equalizer import srt_equalizer
 
 from buzz.locale import _
 from buzz.db.entity.transcription import Transcription
@@ -25,12 +29,13 @@ from buzz.store.keyring_store import get_password, Key
 from buzz.widgets.audio_player import AudioPlayer
 from buzz.widgets.icon import (
     FileDownloadIcon,
-    TranslateIcon
+    TranslateIcon,
+    ResizeIcon,
 )
 from buzz.translator import Translator
 from buzz.widgets.text_display_box import TextDisplayBox
 from buzz.widgets.toolbar import ToolBar
-from buzz.transcriber.transcriber import TranscriptionOptions
+from buzz.transcriber.transcriber import TranscriptionOptions, Segment
 from buzz.widgets.transcriber.advanced_settings_dialog import AdvancedSettingsDialog
 from buzz.widgets.transcription_viewer.export_transcription_menu import (
     ExportTranscriptionMenu,
@@ -47,7 +52,18 @@ from buzz.widgets.transcription_viewer.transcription_view_mode_tool_button impor
 )
 
 
+class OkEnabledInputDialog(QInputDialog):
+    def showEvent(self, event: QShowEvent) -> None:
+        super().showEvent(event)
+        button_box = self.findChild(QDialogButtonBox)
+        if button_box:
+            ok_button = button_box.button(QDialogButtonBox.StandardButton.Ok)
+            if ok_button:
+                ok_button.setEnabled(True)
+
+
 class TranscriptionViewerWidget(QWidget):
+    resize_button_clicked = pyqtSignal()
     transcription: Transcription
     settings = Settings()
 
@@ -160,6 +176,17 @@ class TranscriptionViewerWidget(QWidget):
 
         toolbar.addWidget(translate_button)
 
+        resize_button = QToolButton()
+        resize_button.setText(_("Resize"))
+        resize_button.setObjectName("resize_button")
+        resize_button.setIcon(ResizeIcon(self))
+        resize_button.setToolButtonStyle(
+            Qt.ToolButtonStyle.ToolButtonTextBesideIcon
+        )
+        resize_button.clicked.connect(self.on_resize_button_clicked)
+
+        toolbar.addWidget(resize_button)
+
         layout.setMenuBar(toolbar)
 
         layout.addWidget(self.table_widget)
@@ -254,6 +281,63 @@ class TranscriptionViewerWidget(QWidget):
         segments = self.table_widget.segments()
         for segment in segments:
             self.translator.enqueue(segment.value("text"), segment.value("id"))
+
+    def on_resize_button_clicked(self):
+        target_chars_dialog = OkEnabledInputDialog(self)
+        target_chars_dialog.setOkButtonText(_("Ok"))
+        target_chars_dialog.setCancelButtonText(_("Cancel"))
+        target_chars_dialog.setWindowTitle(_("Desired subtitle length"))
+        target_chars_dialog.setLabelText(_("Enter target characters per subtitle:"))
+        target_chars_dialog.setIntValue(42)
+        target_chars_dialog.setIntMaximum(100)
+        target_chars_dialog.setIntMinimum(1)
+        target_chars_dialog.setIntStep(1)
+        target_chars_dialog.setInputMode(QInputDialog.InputMode.IntInput)
+
+        if target_chars_dialog.exec() == QInputDialog.DialogCode.Accepted:
+            target_chars = target_chars_dialog.intValue()
+        else:
+            return
+
+        segments = self.table_widget.segments()
+        subs = []
+        for segment in segments:
+            subtitle = srt.Subtitle(
+                index=segment.value("id"),
+                start=segment.value("start_time"),
+                end=segment.value("end_time"),
+                content=segment.value("text")
+            )
+            subs.append(subtitle)
+
+        resized_subs = []
+        last_index = 0
+
+        # Limit each subtitle to a maximum character length, splitting into
+        # multiple subtitle items if necessary.
+        for sub in subs:
+            new_subs = srt_equalizer.split_subtitle(
+                sub=sub, target_chars=target_chars, start_from_index=last_index, method="punctuation")
+            last_index = new_subs[-1].index
+            resized_subs.extend(new_subs)
+
+        segments = [
+            Segment(
+                round(sub.start),
+                round(sub.end),
+                sub.content
+            )
+            for sub in resized_subs
+            if round(sub.start) != round(sub.end)
+        ]
+
+        self.transcription_service.replace_transcription_segments(
+            UUID(hex=self.transcription.id),
+            segments
+        )
+
+        self.table_widget.model().select()
+        self.table_widget.init_row_height()
 
     def closeEvent(self, event):
         self.hide()

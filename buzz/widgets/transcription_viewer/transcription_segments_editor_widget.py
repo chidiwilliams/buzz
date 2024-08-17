@@ -123,15 +123,18 @@ class TranscriptionSegmentsEditorWidget(QTableView):
         # Show start before end
         self.horizontalHeader().swapSections(1, 2)
 
-        font_metrics = QFontMetrics(self.font())
-        max_row_height = font_metrics.height() * 4
-        for row in range(self.model().rowCount()):
-            self.setRowHeight(row, max_row_height)
+        self.init_row_height()
 
         self.setColumnWidth(Column.START.value, 95)
         self.setColumnWidth(Column.END.value, 95)
 
         self.setWordWrap(True)
+
+    def init_row_height(self):
+        font_metrics = QFontMetrics(self.font())
+        max_row_height = font_metrics.height() * 4
+        for row in range(self.model().rowCount()):
+            self.setRowHeight(row, max_row_height)
 
     def has_non_empty_translation(self) -> bool:
         for i in range(self.model().rowCount()):
