@@ -25,7 +25,7 @@ class TestWhisperCppFileTranscriber:
                 False,
                 [Segment(0, 6560, "Bienvenue dans Passe-Relle. Un podcast pensé pour")],
             ),
-            (True, [Segment(30, 740, "Bienvenue"), Segment(740, 1070, " dans")]),
+            (True, [Segment(30, 740, "Bienvenue"), Segment(740, 1070, "dans")]),
         ],
     )
     def test_transcribe(
@@ -81,9 +81,9 @@ class TestWhisperCppFileTranscriber:
         [
             (
                 False,
-                [Segment(0, 7000, " Mani uzstrauts, laikabstākļi, tapēc uz jūru, es diezvajī braukša.")],
+                [Segment(0, 7000, "Mani uzstrauts, laikabstākļi, tapēc uz jūru, es diezvajī braukša.")],
             ),
-            (True, [Segment(380, 500, " Mani"), Segment(500, 1880, " uzstrauts,"), Segment(1880, 3920, " laikabstākļi")]),
+            (True, [Segment(380, 500, "Mani"), Segment(500, 1880, "uzstrauts,"), Segment(1880, 3920, "laikabstākļi")]),
         ],
     )
     # Problematic part is in "laikabstākļi" where "ļ" gets returned from whisper.cpp in two segments
