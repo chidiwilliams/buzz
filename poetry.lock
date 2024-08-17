@@ -2683,6 +2683,30 @@ CFFI = ">=1.0"
 numpy = ["NumPy"]
 
 [[package]]
+name = "srt"
+version = "3.5.3"
+description = "A tiny library for parsing, modifying, and composing SRT files."
+optional = false
+python-versions = ">=2.7"
+files = [
+    {file = "srt-3.5.3.tar.gz", hash = "sha256:4884315043a4f0740fd1f878ed6caa376ac06d70e135f306a6dc44632eed0cc0"},
+]
+
+[[package]]
+name = "srt-equalizer"
+version = "0.1.10"
+description = "Transform subtitle line lengths, splitting into multiple subtitle fragments if necessary. "
+optional = false
+python-versions = "<4.0,>=3.8"
+files = [
+    {file = "srt_equalizer-0.1.10-py3-none-any.whl", hash = "sha256:7b0cca73374ff7351badf2dc5266cabefdfd36b91ff736a535445562036cf8ed"},
+    {file = "srt_equalizer-0.1.10.tar.gz", hash = "sha256:5f6b1b2c48b12bb1caab13822d7ddd0a54a87772b824a0aa2ba64c033d379353"},
+]
+
+[package.dependencies]
+srt = ">=3.5.3,<4.0.0"
+
+[[package]]
 name = "stable-ts"
 version = "2.15.9"
 description = "Modifies OpenAI's Whisper to produce more reliable timestamps."
@@ -3400,4 +3424,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.13"
-content-hash = "c62d3e0a79ed56cccbbd28548655a072ca9e144fc5700260f788f1b88057faa7"
+content-hash = "3997325c46fdc5fe89d1467778f846a19eced146d7879c3ae3658ccdc8861ada"

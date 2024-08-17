@@ -35,5 +35,6 @@ def _setup_db(path: str) -> QSqlDatabase:
     db.setDatabaseName(path)
     if not db.open():
         raise RuntimeError(f"Failed to open database connection: {db.databaseName()}")
+    db.exec('PRAGMA foreign_keys = ON')
     logging.debug("Database connection opened: %s", db.databaseName())
     return db

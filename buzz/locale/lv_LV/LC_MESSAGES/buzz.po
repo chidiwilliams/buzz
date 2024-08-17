@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-11 19:46+0300\n"
-"PO-Revision-Date: 2024-07-11 19:48+0300\n"
+"POT-Creation-Date: 2024-08-17 11:00+0300\n"
+"PO-Revision-Date: 2024-08-17 11:02+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -29,12 +29,14 @@ msgstr "https://example.com/audio.mp3"
 #: buzz/widgets/import_url_dialog.py:28
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:69
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:97
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:290
 #: buzz/widgets/main_window.py:234
 msgid "Ok"
 msgstr "Labi"
 
 #: buzz/widgets/import_url_dialog.py:29
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:70
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:291
 #: buzz/widgets/main_window.py:235
 msgid "Cancel"
 msgstr "Atcelt"
@@ -114,7 +116,7 @@ msgid ""
 msgstr ""
 "OpenAI API atbilde ir nederīga. Lūdzu pārbaudiet API Adresi un savu atslēgu. "
 "Atpazīšana un tulkošana joprojām var strādāt, ja API neatbalsta atslēgu "
-"pārbaudi. "
+"pārbaudi."
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:42
 msgid "Enable folder watch"
@@ -201,7 +203,7 @@ msgid "Download failed"
 msgstr "Lejupielāde neizdevās"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:259
-#: buzz/widgets/main_window.py:291 buzz/model_loader.py:462
+#: buzz/widgets/main_window.py:291 buzz/model_loader.py:478
 msgid "Error"
 msgstr "Kļūda"
 
@@ -378,11 +380,11 @@ msgstr "Gaida MI tulkojumu..."
 msgid "Microphone:"
 msgstr "Mikrofons:"
 
-#: buzz/widgets/recording_transcriber_widget.py:413
+#: buzz/widgets/recording_transcriber_widget.py:414
 msgid "An error occurred while starting a new recording:"
 msgstr "Sākot jaunu ierakstu notikusi kļūda:"
 
-#: buzz/widgets/recording_transcriber_widget.py:417
+#: buzz/widgets/recording_transcriber_widget.py:418
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
@@ -427,22 +429,34 @@ msgstr "Skats"
 msgid "Timestamps"
 msgstr "Laiks"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:140
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:160
 msgid "Export"
 msgstr "Eksportēt"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:154
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:174
 #: buzz/transcriber/transcriber.py:24
 msgid "Translate"
 msgstr "Tulkot"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:244
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:184
+msgid "Resize"
+msgstr "Mainīt garumu"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:274
 msgid "API Key Required"
 msgstr "API atslēgas kļūda"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:245
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:275
 msgid "Please enter OpenAI API Key in preferences"
 msgstr "Lūdzu ievadiet OpenAI API atslēgu iestatījumos"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:292
+msgid "Desired subtitle length"
+msgstr "Vēlamais teksta garums"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:293
+msgid "Enter target characters per subtitle:"
+msgstr "Ievadiet vēlamo simbolu skaitu tekstā:"
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:76
 msgid "Save File"
@@ -525,7 +539,7 @@ msgstr "Neizdevās saglabāt OpenAI API atslēgu atslēgu saišķī"
 msgid "Transcribe"
 msgstr "Atpazīt"
 
-#: buzz/model_loader.py:490
+#: buzz/model_loader.py:507
 msgid "A connection error occurred"
 msgstr "Notika savienojuma kļūda"
 

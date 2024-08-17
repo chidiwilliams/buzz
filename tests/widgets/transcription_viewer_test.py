@@ -1,8 +1,8 @@
 import uuid
 
-import time
 import pytest
 from pytestqt.qtbot import QtBot
+from unittest.mock import patch
 
 from buzz.locale import _
 from buzz.db.entity.transcription import Transcription
@@ -12,6 +12,11 @@ from buzz.transcriber.transcriber import Task
 from buzz.widgets.transcription_viewer.transcription_view_mode_tool_button import (
     TranscriptionViewModeToolButton,
     ViewMode
+)
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import (
+    QToolButton,
+    QInputDialog,
 )
 from buzz.widgets.transcription_viewer.transcription_segments_editor_widget import (
     TranscriptionSegmentsEditorWidget,
@@ -75,6 +80,40 @@ class TestTranscriptionViewerWidget:
         assert isinstance(editor, TranscriptionSegmentsEditorWidget)
 
         editor.model().setData(editor.model().index(0, 3), "Biens")
+        widget.close()
+
+    @patch('buzz.widgets.transcription_viewer.transcription_viewer_widget.OkEnabledInputDialog')
+    def test_should_resize_segment_text(self, mock_dialog, qtbot, transcription, transcription_service, shortcuts):
+        mock_dialog.return_value.exec.return_value = QInputDialog.DialogCode.Accepted
+        mock_dialog.return_value.intValue.return_value = 5
+
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        editor = widget.findChild(TranscriptionSegmentsEditorWidget)
+
+        assert editor.model().index(1, 1).data() == 329
+        assert editor.model().index(1, 2).data() == 299
+        assert editor.model().index(1, 3).data() == "venue dans"
+
+        with qtbot.waitSignal(widget.resize_button_clicked, timeout=1000):
+            qtbot.mouseClick(widget.findChild(QToolButton, "resize_button"), Qt.MouseButton.LeftButton)
+            widget.resize_button_clicked.emit()
+
+        assert editor.model().index(0, 1).data() == 299
+        assert editor.model().index(0, 2).data() == 40
+        assert editor.model().index(0, 3).data() == "Bien"
+
+        assert editor.model().index(1, 1).data() == 314
+        assert editor.model().index(1, 2).data() == 299
+        assert editor.model().index(1, 3).data() == "venue"
+
+        assert editor.model().index(2, 1).data() == 329
+        assert editor.model().index(2, 2).data() == 314
+        assert editor.model().index(2, 3).data() == "dans"
+
         widget.close()
 
     def test_text_button_changes_view_mode(

@@ -44,6 +44,19 @@ class TranscriptionService:
                 )
             )
 
+    def replace_transcription_segments(self, id: UUID, segments: List[Segment]):
+        self.transcription_segment_dao.delete_segments(id)
+        for segment in segments:
+            self.transcription_segment_dao.insert(
+                TranscriptionSegment(
+                    start_time=segment.start,
+                    end_time=segment.end,
+                    text=segment.text,
+                    translation='',
+                    transcription_id=str(id),
+                )
+            )
+
     def get_transcription_segments(self, transcription_id: UUID):
         return self.transcription_segment_dao.get_segments(transcription_id)
 
