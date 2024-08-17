@@ -62,6 +62,9 @@ class FileTranscriber(QObject):
             self.error.emit(str(exc))
             return
 
+        for segment in segments:
+            segment.text = segment.text.strip()
+
         self.completed.emit(segments)
 
         for (
