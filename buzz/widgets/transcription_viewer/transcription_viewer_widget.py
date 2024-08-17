@@ -206,9 +206,17 @@ class TranscriptionViewerWidget(QWidget):
             segments = self.transcription_service.get_transcription_segments(
                 transcription_id=self.transcription.id_as_uuid
             )
-            self.text_display_box.setPlainText(
-                " ".join(segment.text.strip() for segment in segments)
-            )
+
+            combined_text = ""
+            previous_end_time = None
+
+            for segment in segments:
+                if previous_end_time is not None and (segment.start_time - previous_end_time) >= 2000:
+                    combined_text += "\n\n"
+                combined_text += segment.text.strip() + " "
+                previous_end_time = segment.end_time
+
+            self.text_display_box.setPlainText(combined_text.strip())
             self.text_display_box.show()
             self.table_widget.hide()
         else: # ViewMode.TRANSLATION

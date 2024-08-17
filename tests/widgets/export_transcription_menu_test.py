@@ -61,4 +61,4 @@ class TestExportTranscriptionMenu:
         widget.actions()[0].trigger()
 
         with open(output_file_path, encoding="utf-8") as output_file:
-            assert "Bien\nvenue dans" in output_file.read()
+            assert "Bien venue dans" in output_file.read()

@@ -118,9 +118,16 @@ def write_output(
 
     with open(path, "w", encoding="utf-8") as file:
         if output_format == OutputFormat.TXT:
-            for i, segment in enumerate(segments):
-                file.write(getattr(segment, segment_key))
-                file.write("\n")
+            combined_text = ""
+            previous_end_time = None
+
+            for segment in segments:
+                if previous_end_time is not None and (segment.start - previous_end_time) >= 2000:
+                    combined_text += "\n\n"
+                combined_text += getattr(segment, segment_key).strip() + " "
+                previous_end_time = segment.end
+
+            file.write(combined_text)
 
         elif output_format == OutputFormat.VTT:
             file.write("WEBVTT\n\n")
