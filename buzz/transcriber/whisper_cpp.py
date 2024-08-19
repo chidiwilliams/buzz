@@ -37,6 +37,8 @@ class WhisperCpp:
             return False
 
     def transcribe(self, audio: Union[np.ndarray, str], params: Any):
+        self.segments = []
+
         if isinstance(audio, str):
             audio = whisper_audio.load_audio(audio)
 
