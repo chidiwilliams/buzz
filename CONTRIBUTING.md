@@ -107,19 +107,10 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 7. Clone the repository `git clone --recursive https://github.com/chidiwilliams/buzz.git`
 8. Enter repo folder `cd buzz`
-9. Copy `whisper.dll` from the repo backup to `buzz` folder. 
-```
-cp -r .\dll_backup\ .\buzz\
-```
-10. Activate the virtual environment `poetry shell`
-11. Install the dependencies `poetry install`
-12. Build Buzz `poetry build`
-13. Install Buzz 
-```
-$whlFile = Get-ChildItem .\dist\buzz*.whl | Select-Object -First 1
-pip install $whlFile
-```
-14. Run Buzz `python -m buzz`
+9. Activate the virtual environment `poetry shell`
+10. Install the dependencies `poetry install`
+11. Build Buzz `poetry build`
+12. Run Buzz `python -m buzz`
 
 #### GPU Support
 
