@@ -75,13 +75,9 @@ else
 endif
 
 buzz/$(LIBWHISPER):
-ifeq ($(OS),Windows_NT)
-	# For CI
-	cp dll_backup/whisper.dll buzz || true
-	cp dll_backup/SDL2.dll buzz || true
-	# For Local builds
-	copy dll_backup\whisper.dll buzz\whisper.dll
-	copy dll_backup\SDL2.dll buzz\SDL2.dll
+ifeq ($(OS), Windows_NT)
+	cp dll_backup/whisper.dll buzz || copy dll_backup\whisper.dll buzz\whisper.dll
+	cp dll_backup/SDL2.dll buzz || copy dll_backup\SDL2.dll buzz\SDL2.dll
 else
 	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS)
 	cmake --build whisper.cpp/build --verbose
@@ -200,9 +196,14 @@ translation_po:
 	sed -i.bak 's/CHARSET/UTF-8/' ${TMP_POT_FILE_PATH} && rm ${TMP_POT_FILE_PATH}.bak
 	msgmerge -U ${PO_FILE_PATH} ${TMP_POT_FILE_PATH}
 
+# On windows we can have two ways to compile locales, one for CI the other for local builds
+# Will try both and ignore errors if they fail
 translation_mo:
 ifeq ($(OS), Windows_NT)
-	forfiles /p buzz\locale /c "cmd /c python ..\..\msgfmt.py -o @path\LC_MESSAGES\buzz.mo @path\LC_MESSAGES\buzz.po"
+	-forfiles /p buzz\locale /c "cmd /c python ..\..\msgfmt.py -o @path\LC_MESSAGES\buzz.mo @path\LC_MESSAGES\buzz.po"
+	-for dir in buzz/locale/*/ ; do \
+		python msgfmt.py -o $$dir/LC_MESSAGES/buzz.mo $$dir/LC_MESSAGES/buzz.po; \
+	done
 else
 	for dir in buzz/locale/*/ ; do \
 		python msgfmt.py -o $$dir/LC_MESSAGES/buzz.mo $$dir/LC_MESSAGES/buzz.po; \
