@@ -55,7 +55,7 @@ On Windows crete `run_buzz.bat` with the following content:
 @echo off
 set VARIABLE=value
 set SOME_OTHER_VARIABLE=some_other_value
-Buzz.exe
+"C:\Program Files (x86)\Buzz\Buzz.exe"
 ```
 
 ### Available variables

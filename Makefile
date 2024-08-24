@@ -26,10 +26,17 @@ else
 endif
 
 clean:
+ifeq ($(OS), Windows_NT)
+	del /f buzz\$(LIBWHISPER) 2> nul
+	del /f buzz\whisper_cpp.py 2> nul
+	rmdir /s /q whisper.cpp\build 2> nul
+	rmdir /s /q dist 2> nul
+else
 	rm -f buzz/$(LIBWHISPER)
 	rm -f buzz/whisper_cpp.py
 	rm -rf whisper.cpp/build || true
 	rm -rf dist/* || true
+endif
 
 COVERAGE_THRESHOLD := 75
 
@@ -69,8 +76,8 @@ endif
 
 buzz/$(LIBWHISPER):
 ifeq ($(OS),Windows_NT)
-	cp dll_backup/whisper.dll buzz || true
-	cp dll_backup/SDL2.dll buzz || true
+	copy dll_backup\whisper.dll buzz\whisper.dll
+	copy dll_backup\SDL2.dll buzz\SDL2.dll
 else
 	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS)
 	cmake --build whisper.cpp/build --verbose
@@ -190,9 +197,13 @@ translation_po:
 	msgmerge -U ${PO_FILE_PATH} ${TMP_POT_FILE_PATH}
 
 translation_mo:
+ifeq ($(OS), Windows_NT)
+	forfiles /p buzz\locale /c "cmd /c python ..\..\msgfmt.py -o @path\LC_MESSAGES\buzz.mo @path\LC_MESSAGES\buzz.po"
+else
 	for dir in buzz/locale/*/ ; do \
 		python msgfmt.py -o $$dir/LC_MESSAGES/buzz.mo $$dir/LC_MESSAGES/buzz.po; \
 	done
+endif
 
 lint:
 	ruff check . --fix

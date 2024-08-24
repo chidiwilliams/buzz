@@ -94,7 +94,8 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 ```
 2. Install the GNU make. `choco install make`
 3. Install the ffmpeg. `choco install ffmpeg`
-4. Install Poetry, paste this info Windows PowerShell line by line. [More info](https://python-poetry.org/docs/)
+4. Install [MSYS2](https://www.msys2.org/), follow [this guide](https://sajidifti.medium.com/how-to-install-gcc-and-gdb-on-windows-using-msys2-tutorial-0fceb7e66454).
+5. Install Poetry, paste this info Windows PowerShell line by line. [More info](https://python-poetry.org/docs/)
 ```
 (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
 
@@ -102,23 +103,23 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
-5. Restart Windows.
+6. Restart Windows.
 
-6. Clone the repository `git clone --recursive https://github.com/chidiwilliams/buzz.git`
-7. Enter repo folder `cd buzz`
-8. Copy `whisper.dll` from the repo backup to `buzz` folder. 
+7. Clone the repository `git clone --recursive https://github.com/chidiwilliams/buzz.git`
+8. Enter repo folder `cd buzz`
+9. Copy `whisper.dll` from the repo backup to `buzz` folder. 
 ```
 cp -r .\dll_backup\ .\buzz\
 ```
-9. Activate the virtual environment `poetry shell`
-10. Install the dependencies `poetry install`
-11. Build Buzz `poetry build`
-12. Install Buzz 
+10. Activate the virtual environment `poetry shell`
+11. Install the dependencies `poetry install`
+12. Build Buzz `poetry build`
+13. Install Buzz 
 ```
 $whlFile = Get-ChildItem .\dist\buzz*.whl | Select-Object -First 1
 pip install $whlFile
 ```
-13. Run Buzz `python -m buzz`
+14. Run Buzz `python -m buzz`
 
 #### GPU Support
 
