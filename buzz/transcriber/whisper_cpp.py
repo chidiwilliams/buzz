@@ -1,3 +1,4 @@
+import os
 import ctypes
 import logging
 from typing import Union, Any, List
@@ -109,6 +110,7 @@ def whisper_cpp_params(
     params = whisper_cpp.whisper_full_default_params(
         whisper_cpp.WHISPER_SAMPLING_GREEDY
     )
+    params.n_threads = int(os.getenv("BUZZ_WHISPERCPP_N_THREADS", 4))
     params.print_realtime = print_realtime
     params.print_progress = print_progress
 
