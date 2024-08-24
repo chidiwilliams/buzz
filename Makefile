@@ -76,6 +76,10 @@ endif
 
 buzz/$(LIBWHISPER):
 ifeq ($(OS),Windows_NT)
+	# For CI
+	cp dll_backup/whisper.dll buzz || true
+	cp dll_backup/SDL2.dll buzz || true
+	# For Local builds
 	copy dll_backup\whisper.dll buzz\whisper.dll
 	copy dll_backup\SDL2.dll buzz\SDL2.dll
 else
