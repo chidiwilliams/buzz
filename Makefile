@@ -98,6 +98,7 @@ dmg_mac:
 		--app-drop-link 425 120 \
 		--codesign "$$BUZZ_CODESIGN_IDENTITY" \
 		--notarize "$$BUZZ_KEYCHAIN_NOTARY_PROFILE" \
+		--filesystem APFS \
 		"${mac_dmg_path}" \
 		"dist/dmg/"
 
