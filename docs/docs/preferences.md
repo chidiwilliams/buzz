@@ -35,3 +35,33 @@ Available variables:
 Live transcription export can be used to integrate Buzz with other applications like OBS Studio. When enabled, live text transcripts will be exported to a text file as they get generated and translated.
 
 If AI translation is enabled for live recordings, the translated text will also be exported to the text file. Filename for the translated text will end with `.translated.txt`. 
+
+## Advanced Preferences
+
+To keep preferences section simple for new users, some more advanced preferences are settable via OS environment variables. Set the necessary environment variables in your OS before starting Buzz or create a script to set them.
+
+On MacOS and Linux crete `run_buzz.sh` with the following content:
+
+```bash
+#!/bin/bash
+export VARIABLE=value
+export SOME_OTHER_VARIABLE=some_other_value
+buzz
+```
+
+On Windows crete `run_buzz.bat` with the following content:
+
+```bat
+@echo off
+set VARIABLE=value
+set SOME_OTHER_VARIABLE=some_other_value
+"C:\Program Files (x86)\Buzz\Buzz.exe"
+```
+
+### Available variables
+
+**BUZZ_WHISPERCPP_N_THREADS** - Number of threads to use for Whisper.cpp model. Default is `4`. Available from `v1.0.2`. 
+
+On a laptop with 16 threads setting `BUZZ_WHISPERCPP_N_THREADS=8` leads to some 15% speedup in transcription time. 
+Increasing number of threads even more will lead in slower transcription time as results from parallel threads has to be 
+combined to produce the final answer.
