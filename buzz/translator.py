@@ -1,3 +1,4 @@
+import os
 import logging
 import queue
 
@@ -35,10 +36,16 @@ class Translator(QObject):
         self.queue = queue.Queue()
 
         settings = Settings()
-        custom_openai_base_url = settings.value(
-            key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value=""
+        custom_openai_base_url = os.getenv(
+            "BUZZ_TRANSLATION_API_BASE_URl",
+            settings.value(
+                key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value=""
+            )
         )
-        openai_api_key = get_password(Key.OPENAI_API_KEY)
+        openai_api_key = os.getenv(
+            "BUZZ_TRANSLATION_API_KEY",
+            get_password(Key.OPENAI_API_KEY)
+        )
         self.openai_client = OpenAI(
             api_key=openai_api_key,
             base_url=custom_openai_base_url if custom_openai_base_url else None

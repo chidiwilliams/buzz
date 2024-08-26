@@ -27,10 +27,14 @@ endif
 
 clean:
 ifeq ($(OS), Windows_NT)
-	del /f buzz\$(LIBWHISPER) 2> nul
-	del /f buzz\whisper_cpp.py 2> nul
-	rmdir /s /q whisper.cpp\build 2> nul
-	rmdir /s /q dist 2> nul
+	-del /f buzz\$(LIBWHISPER) 2> nul
+	-del /f buzz\whisper_cpp.py 2> nul
+	-rmdir /s /q whisper.cpp\build 2> nul
+	-rmdir /s /q dist 2> nul
+	-rm -f buzz/$(LIBWHISPER)
+	-rm -f buzz/whisper_cpp.py
+	-rm -rf whisper.cpp/build || true
+	-rm -rf dist/* || true
 else
 	rm -f buzz/$(LIBWHISPER)
 	rm -f buzz/whisper_cpp.py
