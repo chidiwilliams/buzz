@@ -69,3 +69,5 @@ combined to produce the final answer.
 **BUZZ_TRANSLATION_API_BASE_URl** - Base URL of OpenAI compatible API to use for translation. Available from `v1.0.2`.
 
 **BUZZ_TRANSLATION_API_KEY** - Api key of OpenAI compatible API to use for translation. Available from `v1.0.2`.
+
+**BUZZ_MODEL_ROOT** - Root directory to store model files. Defaults to [user_cache_dir](https://pypi.org/project/platformdirs/). Available from `v1.0.2`.

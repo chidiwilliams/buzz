@@ -73,6 +73,7 @@ class RecordingTranscriber(QObject):
         elif self.transcription_options.model.model_type == ModelType.FASTER_WHISPER:
             model_root_dir = user_cache_dir("Buzz")
             model_root_dir = os.path.join(model_root_dir, "models")
+            model_root_dir = os.getenv("BUZZ_MODEL_ROOT", model_root_dir)
 
             device = "auto"
             if platform.system() == "Windows":
