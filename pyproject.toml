@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "buzz-captions"
-version = "1.0.2"
+version = "1.1.0"
 description = ""
 authors = ["Chidi Williams <williamschidi1@gmail.com>"]
 license = "MIT"
@@ -63,6 +63,7 @@ polib = "^1.2.0"
 [build-system]
 requires = ["poetry-core", "ctypesgen", "setuptools", "cmake", "polib"]
 build-backend = "poetry.core.masonry.api"
+
 
 [tool.poetry.build]
 script = "build.py"
