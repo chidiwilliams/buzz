@@ -64,7 +64,6 @@ polib = "^1.2.0"
 requires = ["poetry-core", "ctypesgen", "setuptools", "cmake", "polib"]
 build-backend = "poetry.core.masonry.api"
 
-
 [tool.poetry.build]
 script = "build.py"
 
