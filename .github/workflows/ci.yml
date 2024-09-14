@@ -276,6 +276,12 @@ jobs:
         with:
           name: Buzz-${{ runner.os }}-${{ runner.arch }}
 
+      - name: Rename .dmg files
+        run: |
+          for file in Buzz*.dmg; do
+            mv "$file" "${file%.dmg}-${{ runner.arch }}.dmg"
+          done
+
       - name: Install Poetry Action
         uses: snok/install-poetry@v1.3.1
         with:
