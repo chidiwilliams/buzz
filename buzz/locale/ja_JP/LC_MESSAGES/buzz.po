@@ -1,7 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-09-27 11:58+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: nunawa <71294849+nunawa@users.noreply.github.com>\n"
 "Language-Team: \n"
@@ -11,69 +12,9 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.5\n"
 
-#: buzz/settings/shortcut.py:17
-msgid "Open Record Window"
-msgstr "録音画面を開く"
-
-#: buzz/settings/shortcut.py:18
-msgid "Import File"
-msgstr "ファイルをインポートする"
-
-#: buzz/settings/shortcut.py:19 buzz/widgets/import_url_dialog.py:19
+#: buzz/widgets/import_url_dialog.py:19 buzz/settings/shortcut.py:19
 msgid "Import URL"
 msgstr "URLをインポートする"
-
-#: buzz/settings/shortcut.py:20
-msgid "Open Preferences Window"
-msgstr "設定画面を開く"
-
-#: buzz/settings/shortcut.py:22
-msgid "View Transcript Text"
-msgstr "文字起こしを表示する"
-
-#: buzz/settings/shortcut.py:23
-msgid "View Transcript Translation"
-msgstr "文字起こしの翻訳を表示する"
-
-#: buzz/settings/shortcut.py:24
-msgid "View Transcript Timestamps"
-msgstr "文字起こしのタイムスタンプを表示する"
-
-#: buzz/settings/shortcut.py:26 buzz/widgets/main_window_toolbar.py:60
-#: buzz/widgets/main_window.py:223
-msgid "Clear History"
-msgstr "履歴を削除する"
-
-#: buzz/settings/shortcut.py:27 buzz/widgets/main_window_toolbar.py:52
-msgid "Cancel Transcription"
-msgstr "文字起こしをキャンセルする"
-
-#: buzz/transcriber/transcriber.py:24
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:170
-msgid "Translate"
-msgstr "翻訳"
-
-#: buzz/transcriber/transcriber.py:25
-msgid "Transcribe"
-msgstr "文字起こし"
-
-#: buzz/transcriber/transcriber.py:159
-#: buzz/widgets/transcriber/languages_combo_box.py:25
-msgid "Detect Language"
-msgstr "自動検出"
-
-#: buzz/widgets/main_window_toolbar.py:35 buzz/widgets/record_button.py:10
-#: buzz/widgets/record_button.py:17
-msgid "Record"
-msgstr "録音する"
-
-#: buzz/widgets/main_window_toolbar.py:39
-msgid "New Transcription"
-msgstr "新しい文字起こし"
-
-#: buzz/widgets/main_window_toolbar.py:46
-msgid "Open Transcript"
-msgstr "文字起こしを開く"
 
 #: buzz/widgets/import_url_dialog.py:22
 msgid "https://example.com/audio.mp3"
@@ -106,13 +47,9 @@ msgstr "無効なURL"
 msgid "The URL you entered is invalid."
 msgstr "入力されたURLは無効です。"
 
-#: buzz/widgets/about_dialog.py:80
-msgid "Check for updates"
-msgstr "アップデートを確認する"
-
-#: buzz/widgets/about_dialog.py:109
-msgid "You're up to date!"
-msgstr "最新の状態です!"
+#: buzz/widgets/preferences_dialog/shortcuts_editor_preferences_widget.py:29
+msgid "Reset to Defaults"
+msgstr "デフォルトに戻す"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:47
 msgid "Font Size"
@@ -174,6 +111,26 @@ msgstr ""
 "OpenAI APIが無効な応答を返しました。APIのURLまたはキーを確認してください。API"
 "がキーの検証をサポートしていない場合でも、文字起こしや翻訳は動作する場合があ"
 "ります。"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:42
+msgid "Enable folder watch"
+msgstr "フォルダ監視を有効にする"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:94
+msgid "Input folder"
+msgstr "入力フォルダ"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:95
+msgid "Output folder"
+msgstr "出力フォルダ"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:105
+msgid "Select Input Folder"
+msgstr "入力フォルダを選択"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:114
+msgid "Select Output Folder"
+msgstr "出力フォルダを選択"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:43
 msgid "Preferences"
@@ -244,92 +201,23 @@ msgstr "ダウンロード失敗"
 msgid "Error"
 msgstr "エラー"
 
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:42
-msgid "Enable folder watch"
-msgstr "フォルダ監視を有効にする"
+#: buzz/widgets/record_button.py:10 buzz/widgets/record_button.py:17
+#: buzz/widgets/main_window_toolbar.py:35
+msgid "Record"
+msgstr "録音する"
 
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:94
-msgid "Input folder"
-msgstr "入力フォルダ"
+#: buzz/widgets/record_button.py:21
+msgid "Stop"
+msgstr "停止する"
 
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:95
-msgid "Output folder"
-msgstr "出力フォルダ"
+#: buzz/widgets/transcriber/languages_combo_box.py:25
+#: buzz/transcriber/transcriber.py:159
+msgid "Detect Language"
+msgstr "自動検出"
 
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:105
-msgid "Select Input Folder"
-msgstr "入力フォルダを選択"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:114
-msgid "Select Output Folder"
-msgstr "出力フォルダを選択"
-
-#: buzz/widgets/preferences_dialog/shortcuts_editor_preferences_widget.py:29
-msgid "Reset to Defaults"
-msgstr "デフォルトに戻す"
-
-#: buzz/widgets/snap_notice.py:9
-msgid "Snap permission notice"
-msgstr "Snap権限通知"
-
-#: buzz/widgets/snap_notice.py:13
-msgid ""
-"Detected missing permissions, please check that snap permissions have been "
-"granted"
-msgstr ""
-"不足している権限が検出されました。Snapパッケージに権限が付与されていることを"
-"確認してください"
-
-#: buzz/widgets/snap_notice.py:16
-msgid ""
-"To enable necessary permissions run the following commands in the terminal"
-msgstr ""
-"必要なパーミッションを有効にするには、ターミナルで以下のコマンドを実行してく"
-"ださい"
-
-#: buzz/widgets/snap_notice.py:30
-msgid "Close"
-msgstr "閉じる"
-
-#: buzz/widgets/recording_transcriber_widget.py:73
-msgid "Live Recording"
-msgstr "ライブ録音"
-
-#: buzz/widgets/recording_transcriber_widget.py:135
-msgid "Click Record to begin..."
-msgstr "クリックで録音を開始..."
-
-#: buzz/widgets/recording_transcriber_widget.py:138
-msgid "Waiting for AI translation..."
-msgstr "AI翻訳を待っています..."
-
-#: buzz/widgets/recording_transcriber_widget.py:150
-msgid "Microphone:"
-msgstr "マイク:"
-
-#: buzz/widgets/recording_transcriber_widget.py:414
-msgid "An error occurred while starting a new recording:"
-msgstr "新規録音開始時にエラーが発生しました:"
-
-#: buzz/widgets/recording_transcriber_widget.py:418
-msgid ""
-"Please check your audio devices or check the application logs for more "
-"information."
-msgstr ""
-"オーディオデバイスを確認するか、詳細をアプリケーションのログで確認してくださ"
-"い。"
-
-#: buzz/widgets/model_download_progress_dialog.py:36
-msgid "Downloading model"
-msgstr "モデルをダウンロード中"
-
-#: buzz/widgets/model_download_progress_dialog.py:37
-msgid "remaining"
-msgstr "残り"
-
-#: buzz/widgets/transcriber/advanced_settings_button.py:9
-msgid "Advanced..."
-msgstr "高度な設定..."
+#: buzz/widgets/transcriber/file_transcriber_widget.py:79
+msgid "Run"
+msgstr "実行"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py:88
 msgid "Model:"
@@ -347,17 +235,9 @@ msgstr "タスク:"
 msgid "Language:"
 msgstr "言語:"
 
-#: buzz/widgets/transcriber/file_transcription_form_widget.py:42
-msgid "Word-level timings"
-msgstr "単語レベルでのタイミング"
-
-#: buzz/widgets/transcriber/file_transcription_form_widget.py:66
-msgid "Export:"
-msgstr "出力形式:"
-
-#: buzz/widgets/transcriber/hugging_face_search_line_edit.py:36
-msgid "Huggingface ID of a model"
-msgstr "モデルのHuggingface ID"
+#: buzz/widgets/transcriber/initial_prompt_text_edit.py:10
+msgid "Enter prompt..."
+msgstr "プロンプトを入力..."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:33
 msgid "Advanced Settings"
@@ -399,37 +279,38 @@ msgstr "AIのための翻訳方法の指示を入力..."
 msgid "Instructions for AI:"
 msgstr "AIへの指示:"
 
-#: buzz/widgets/transcriber/initial_prompt_text_edit.py:10
-msgid "Enter prompt..."
-msgstr "プロンプトを入力..."
+#: buzz/widgets/transcriber/file_transcription_form_widget.py:42
+msgid "Word-level timings"
+msgstr "単語レベルでのタイミング"
 
-#: buzz/widgets/transcriber/file_transcriber_widget.py:79
-msgid "Run"
-msgstr "実行"
+#: buzz/widgets/transcriber/file_transcription_form_widget.py:66
+msgid "Export:"
+msgstr "出力形式:"
 
-#: buzz/widgets/menu_bar.py:38
-msgid "Import File..."
-msgstr "ファイルをインポートする..."
+#: buzz/widgets/transcriber/hugging_face_search_line_edit.py:36
+msgid "Huggingface ID of a model"
+msgstr "モデルのHuggingface ID"
 
-#: buzz/widgets/menu_bar.py:41
-msgid "Import URL..."
-msgstr "URLをインポートする..."
+#: buzz/widgets/transcriber/advanced_settings_button.py:9
+msgid "Advanced..."
+msgstr "高度な設定..."
 
-#: buzz/widgets/menu_bar.py:44
-msgid "About"
-msgstr "About"
+#: buzz/widgets/main_window_toolbar.py:39
+msgid "New Transcription"
+msgstr "新しい文字起こし"
 
-#: buzz/widgets/menu_bar.py:48
-msgid "Preferences..."
-msgstr "設定..."
+#: buzz/widgets/main_window_toolbar.py:46
+msgid "Open Transcript"
+msgstr "文字起こしを開く"
 
-#: buzz/widgets/menu_bar.py:51 buzz/widgets/menu_bar.py:61
-msgid "Help"
-msgstr "ヘルプ"
+#: buzz/widgets/main_window_toolbar.py:52 buzz/settings/shortcut.py:27
+msgid "Cancel Transcription"
+msgstr "文字起こしをキャンセルする"
 
-#: buzz/widgets/menu_bar.py:57
-msgid "File"
-msgstr "ファイル"
+#: buzz/widgets/main_window_toolbar.py:60 buzz/widgets/main_window.py:223
+#: buzz/settings/shortcut.py:26
+msgid "Clear History"
+msgstr "履歴を削除する"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:62
 msgid "In Progress"
@@ -475,6 +356,42 @@ msgstr "追加日"
 msgid "Date Completed"
 msgstr "完了日"
 
+#: buzz/widgets/recording_transcriber_widget.py:73
+msgid "Live Recording"
+msgstr "ライブ録音"
+
+#: buzz/widgets/recording_transcriber_widget.py:135
+msgid "Click Record to begin..."
+msgstr "クリックで録音を開始..."
+
+#: buzz/widgets/recording_transcriber_widget.py:138
+msgid "Waiting for AI translation..."
+msgstr "AI翻訳を待っています..."
+
+#: buzz/widgets/recording_transcriber_widget.py:150
+msgid "Microphone:"
+msgstr "マイク:"
+
+#: buzz/widgets/recording_transcriber_widget.py:414
+msgid "An error occurred while starting a new recording:"
+msgstr "新規録音開始時にエラーが発生しました:"
+
+#: buzz/widgets/recording_transcriber_widget.py:418
+msgid ""
+"Please check your audio devices or check the application logs for more "
+"information."
+msgstr ""
+"オーディオデバイスを確認するか、詳細をアプリケーションのログで確認してくださ"
+"い。"
+
+#: buzz/widgets/about_dialog.py:80
+msgid "Check for updates"
+msgstr "アップデートを確認する"
+
+#: buzz/widgets/about_dialog.py:109
+msgid "You're up to date!"
+msgstr "最新の状態です!"
+
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:93
 msgid "Start"
 msgstr "開始"
@@ -504,17 +421,14 @@ msgstr "表示"
 msgid "Timestamps"
 msgstr "タイムスタンプ"
 
-#: buzz/widgets/transcription_viewer/export_transcription_menu.py:76
-msgid "Save File"
-msgstr "ファイルを保存"
-
-#: buzz/widgets/transcription_viewer/export_transcription_menu.py:78
-msgid "Text files"
-msgstr "テキストファイル"
-
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:156
 msgid "Export"
 msgstr "出力"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:170
+#: buzz/transcriber/transcriber.py:24
+msgid "Translate"
+msgstr "翻訳"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:180
 msgid "Resize"
@@ -536,6 +450,69 @@ msgstr "希望する字幕の長さ"
 msgid "Enter target characters per subtitle:"
 msgstr "字幕の目標文字数を入力してください:"
 
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:76
+msgid "Save File"
+msgstr "ファイルを保存"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:78
+msgid "Text files"
+msgstr "テキストファイル"
+
+#: buzz/widgets/snap_notice.py:9
+msgid "Snap permission notice"
+msgstr "Snap権限通知"
+
+#: buzz/widgets/snap_notice.py:13
+msgid ""
+"Detected missing permissions, please check that snap permissions have been "
+"granted"
+msgstr ""
+"不足している権限が検出されました。Snapパッケージに権限が付与されていることを"
+"確認してください"
+
+#: buzz/widgets/snap_notice.py:16
+msgid ""
+"To enable necessary permissions run the following commands in the terminal"
+msgstr ""
+"必要なパーミッションを有効にするには、ターミナルで以下のコマンドを実行してく"
+"ださい"
+
+#: buzz/widgets/snap_notice.py:30
+msgid "Close"
+msgstr "閉じる"
+
+#: buzz/widgets/model_download_progress_dialog.py:36
+msgid "Downloading model"
+msgstr "モデルをダウンロード中"
+
+#: buzz/widgets/model_download_progress_dialog.py:37
+msgid "remaining"
+msgstr "残り"
+
+#: buzz/widgets/menu_bar.py:38
+msgid "Import File..."
+msgstr "ファイルをインポートする..."
+
+#: buzz/widgets/menu_bar.py:41
+msgid "Import URL..."
+msgstr "URLをインポートする..."
+
+#: buzz/widgets/menu_bar.py:44
+msgid "About"
+msgstr "About"
+
+#: buzz/widgets/menu_bar.py:48
+msgid "Preferences..."
+msgstr "設定..."
+
+#: buzz/widgets/menu_bar.py:51 buzz/widgets/menu_bar.py:61
+msgid "Help"
+msgstr "ヘルプ"
+
+#: buzz/widgets/menu_bar.py:57
+msgid "File"
+msgstr "ファイル"
+
 #: buzz/widgets/main_window.py:227
 msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
@@ -550,10 +527,34 @@ msgstr "音声ファイルを選択"
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "OpenAI API キーをkeyringに保存できません"
 
-#: buzz/widgets/record_button.py:21
-msgid "Stop"
-msgstr "停止する"
+#: buzz/transcriber/transcriber.py:25
+msgid "Transcribe"
+msgstr "文字起こし"
 
 #: buzz/model_loader.py:502
 msgid "A connection error occurred"
 msgstr "接続エラーが発生しました"
+
+#: buzz/settings/shortcut.py:17
+msgid "Open Record Window"
+msgstr "録音画面を開く"
+
+#: buzz/settings/shortcut.py:18
+msgid "Import File"
+msgstr "ファイルをインポートする"
+
+#: buzz/settings/shortcut.py:20
+msgid "Open Preferences Window"
+msgstr "設定画面を開く"
+
+#: buzz/settings/shortcut.py:22
+msgid "View Transcript Text"
+msgstr "文字起こしを表示する"
+
+#: buzz/settings/shortcut.py:23
+msgid "View Transcript Translation"
+msgstr "文字起こしの翻訳を表示する"
+
+#: buzz/settings/shortcut.py:24
+msgid "View Transcript Timestamps"
+msgstr "文字起こしのタイムスタンプを表示する"

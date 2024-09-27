@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-17 11:00+0300\n"
+"POT-Creation-Date: 2024-09-27 11:58+0300\n"
 "PO-Revision-Date: 2024-08-17 11:02+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -29,14 +29,14 @@ msgstr "https://example.com/audio.mp3"
 #: buzz/widgets/import_url_dialog.py:28
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:69
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:97
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:290
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:295
 #: buzz/widgets/main_window.py:234
 msgid "Ok"
 msgstr "Labi"
 
 #: buzz/widgets/import_url_dialog.py:29
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:70
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:291
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:296
 #: buzz/widgets/main_window.py:235
 msgid "Cancel"
 msgstr "Atcelt"
@@ -203,7 +203,7 @@ msgid "Download failed"
 msgstr "Lejupielāde neizdevās"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:259
-#: buzz/widgets/main_window.py:291 buzz/model_loader.py:478
+#: buzz/widgets/main_window.py:291 buzz/model_loader.py:473
 msgid "Error"
 msgstr "Kļūda"
 
@@ -429,32 +429,32 @@ msgstr "Skats"
 msgid "Timestamps"
 msgstr "Laiks"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:160
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:156
 msgid "Export"
 msgstr "Eksportēt"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:174
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:170
 #: buzz/transcriber/transcriber.py:24
 msgid "Translate"
 msgstr "Tulkot"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:184
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:180
 msgid "Resize"
 msgstr "Mainīt garumu"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:274
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:279
 msgid "API Key Required"
 msgstr "API atslēgas kļūda"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:275
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:280
 msgid "Please enter OpenAI API Key in preferences"
 msgstr "Lūdzu ievadiet OpenAI API atslēgu iestatījumos"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:292
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:297
 msgid "Desired subtitle length"
 msgstr "Vēlamais teksta garums"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:293
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:298
 msgid "Enter target characters per subtitle:"
 msgstr "Ievadiet vēlamo simbolu skaitu tekstā:"
 
@@ -539,7 +539,7 @@ msgstr "Neizdevās saglabāt OpenAI API atslēgu atslēgu saišķī"
 msgid "Transcribe"
 msgstr "Atpazīt"
 
-#: buzz/model_loader.py:507
+#: buzz/model_loader.py:502
 msgid "A connection error occurred"
 msgstr "Notika savienojuma kļūda"
 
