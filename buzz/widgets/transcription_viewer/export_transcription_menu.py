@@ -23,17 +23,8 @@ class ExportTranscriptionMenu(QMenu):
 
         self.transcription = transcription
         self.transcription_service = transcription_service
-
-        self.segments = [
-            Segment(
-                start=segment.start_time,
-                end=segment.end_time,
-                text=segment.text,
-                translation=segment.translation)
-            for segment in self.transcription_service.get_transcription_segments(
-                transcription_id=self.transcription.id_as_uuid
-            )
-        ]
+        self.segments = []
+        self.load_segments()
 
         if self.segments and len(self.segments[0].translation) > 0:
             text_label = _("Text")
@@ -54,6 +45,17 @@ class ExportTranscriptionMenu(QMenu):
         self.addActions(actions)
         self.triggered.connect(self.on_menu_triggered)
 
+    def load_segments(self):
+        self.segments = [
+            Segment(
+                start=segment.start_time,
+                end=segment.end_time,
+                text=segment.text,
+                translation=segment.translation)
+            for segment in self.transcription_service.get_transcription_segments(
+                transcription_id=self.transcription.id_as_uuid
+            )
+        ]
     @staticmethod
     def extract_format_and_segment_key(action_text: str):
         parts = action_text.split('-')
@@ -80,6 +82,9 @@ class ExportTranscriptionMenu(QMenu):
 
         if output_file_path == "":
             return
+
+        # Reload segments in case they were resized
+        self.load_segments()
 
         write_output(
             path=output_file_path,
