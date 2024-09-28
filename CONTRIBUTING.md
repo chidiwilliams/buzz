@@ -103,33 +103,38 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
-6. Restart Windows.
-
-7. Clone the repository `git clone --recursive https://github.com/chidiwilliams/buzz.git`
-8. Enter repo folder `cd buzz`
-9. Activate the virtual environment `poetry shell`
-10. Install the dependencies `poetry install`
-11. Build Buzz `poetry build`
-12. Run Buzz `python -m buzz`
+6. Add poetry to PATH. `%APPDATA%\Python\Scripts`
+7. Restart Windows.
+8. Clone the repository `git clone --recursive https://github.com/chidiwilliams/buzz.git`
+9. Enter repo folder `cd buzz`
+10. Activate the virtual environment `poetry shell`
+11. Install the dependencies `poetry install`
+12. Build Buzz `poetry build`
+13. Run Buzz `python -m buzz`
 
 #### GPU Support
 
 GPU support on Windows is possible for Buzz that ir installed from the source code or with `pip`.
 Use the instructions above to install the Buzz from the source code or run `pip install buzz-captions` 
-and then follow the instructions below to enable CUDA GPU support.
+and then follow the instructions below to enable CUDA GPU support. For pip installation it is recommended to use 
+a separate [virtual environment](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/).
 
 To enable GPU support first ensure CUDA 12.1 is installed - https://developer.nvidia.com/cuda-12-1-0-download-archive 
 Other versions of CUDA 12 should also work.
 
 Switch torch library to GPU version. It must match the CUDA version installed, see https://pytorch.org/get-started/locally/ .
 ```
-pip3 unstall torch torchaudio  
+pip3 uninstall torch torchaudio  
 pip3 install torch==2.2.1+cu121 torchaudio==2.2.1+cu121 --index-url https://download.pytorch.org/whl/cu121
 ```
 
+To use Faster Whisper on GPU, install the following libraries:
+* [cuBLAS](https://developer.nvidia.com/cublas)
+* [cuDNN](https://developer.nvidia.com/cudnn)
+
 Ensure ffmpeg dependencies are installed
 ```
-pip3 unstall ffmpeg ffmpeg-python  
+pip3 uninstall ffmpeg ffmpeg-python  
 pip3 install ffmpeg
 pip3 install ffmpeg-python
 ```
