@@ -93,7 +93,10 @@ def parse(app: Application, parser: QCommandLineParser):
             "",
         )
         initial_prompt_option = QCommandLineOption(
-            ["p", "prompt"], "Initial prompt", "prompt", ""
+            ["p", "prompt"], "Initial prompt.", "prompt", ""
+        )
+        word_timestamp_option = QCommandLineOption(
+            ["wt", "word-timestamps"], "Generate word-level timestamps."
         )
         open_ai_access_token_option = QCommandLineOption(
             "openai-token",
@@ -115,6 +118,7 @@ def parse(app: Application, parser: QCommandLineParser):
                 hugging_face_model_id_option,
                 language_option,
                 initial_prompt_option,
+                word_timestamp_option,
                 open_ai_access_token_option,
                 output_directory_option,
                 srt_option,
@@ -167,6 +171,8 @@ def parse(app: Application, parser: QCommandLineParser):
 
         initial_prompt = parser.value(initial_prompt_option)
 
+        word_timestamps = parser.isSet(word_timestamp_option)
+
         output_formats: typing.Set[OutputFormat] = set()
         if parser.isSet(srt_option):
             output_formats.add(OutputFormat.SRT)
@@ -192,6 +198,7 @@ def parse(app: Application, parser: QCommandLineParser):
             task=task,
             language=language,
             initial_prompt=initial_prompt,
+            word_level_timings=word_timestamps,
             openai_access_token=openai_access_token,
         )
         file_transcription_options = FileTranscriptionOptions(
