@@ -109,8 +109,9 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 9. Enter repo folder `cd buzz`
 10. Activate the virtual environment `poetry shell`
 11. Install the dependencies `poetry install`
-12. Build Buzz `poetry build`
-13. Run Buzz `python -m buzz`
+12. `cp -r .\dll_backup\ .\buzz\`
+13. Build Buzz `poetry build`
+14. Run Buzz `python -m buzz`
 
 #### GPU Support
 
