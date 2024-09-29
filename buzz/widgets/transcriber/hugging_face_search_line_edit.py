@@ -15,7 +15,7 @@ from PyQt6.QtCore import (
 )
 from PyQt6.QtGui import QKeyEvent
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
-from PyQt6.QtWidgets import QListWidget, QWidget, QAbstractItemView, QListWidgetItem
+from PyQt6.QtWidgets import QListWidget, QWidget, QAbstractItemView, QListWidgetItem, QSizePolicy
 
 from buzz.locale import _
 from buzz.widgets.line_edit import LineEdit
@@ -33,6 +33,7 @@ class HuggingFaceSearchLineEdit(LineEdit):
         parent: Optional[QWidget] = None,
     ):
         super().__init__(default_value, parent)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.setPlaceholderText(_("Huggingface ID of a model"))
 
         self.setMinimumWidth(150)

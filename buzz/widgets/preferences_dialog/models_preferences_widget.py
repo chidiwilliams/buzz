@@ -232,12 +232,19 @@ class ModelsPreferencesWidget(QWidget):
         QThreadPool().globalInstance().start(self.model_downloader)
 
     def on_delete_button_clicked(self):
-        reply = QMessageBox.question(
-            self,
-            _("Delete Model"),
-            _("Are you sure you want to delete the selected model?"),
-        )
-        if reply == QMessageBox.StandardButton.Yes:
+        reply = QMessageBox(self)
+        reply.setWindowTitle(_("Delete Model"))
+        reply.setText(_("Are you sure you want to delete the selected model?"))
+        reply.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+
+        ok_button = reply.button(QMessageBox.StandardButton.Yes)
+        cancel_button = reply.button(QMessageBox.StandardButton.No)
+        ok_button.setText(_("Ok"))
+        cancel_button.setText(_("Cancel"))
+
+        user_choice = reply.exec()
+
+        if user_choice == QMessageBox.StandardButton.Yes:
             self.model.delete_local_file()
             self.reset()
 

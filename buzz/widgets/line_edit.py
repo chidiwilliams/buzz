@@ -1,7 +1,7 @@
 import platform
 from typing import Optional
 
-from PyQt6.QtWidgets import QLineEdit, QWidget
+from PyQt6.QtWidgets import QLineEdit, QWidget, QSizePolicy
 
 
 class LineEdit(QLineEdit):
@@ -9,3 +9,4 @@ class LineEdit(QLineEdit):
         super().__init__(default_text, parent)
         if platform.system() == "Darwin":
             self.setStyleSheet("QLineEdit { padding: 4px }")
+            self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
