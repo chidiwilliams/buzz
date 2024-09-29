@@ -32,13 +32,17 @@ python -m buzz
 
 **macOS**:
 
+Install with [brew utility](https://brew.sh/)
+
 ```shell
 brew install --cask buzz
 ```
 
+Or download the `.dmg` from the [releases page](https://github.com/chidiwilliams/buzz/releases/latest).
+
 **Windows**:
 
-Download and run the `.exe` file in the [releases page](https://github.com/chidiwilliams/buzz/releases/latest).
+Download and run the `.exe` from the [releases page](https://github.com/chidiwilliams/buzz/releases/latest).
 
 **Linux**:
 
