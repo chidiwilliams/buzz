@@ -1,7 +1,9 @@
 from typing import Optional
+import os
 
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal, Qt
 from PyQt6.QtWidgets import QComboBox, QWidget
+from PyQt6.QtGui import QStandardItem, QStandardItemModel
 
 from buzz.locale import _
 from buzz.transcriber.transcriber import LANGUAGES
@@ -18,13 +20,28 @@ class LanguagesComboBox(QComboBox):
     ) -> None:
         super().__init__(parent)
 
+        favorite_languages = os.getenv("BUZZ_FAVORITE_LANGUAGES", '')
+        favorite_languages = favorite_languages.split(",")
+        favorite_languages = [(lang, LANGUAGES[lang].title()) for lang in favorite_languages
+                              if lang in LANGUAGES]
+        if favorite_languages:
+            favorite_languages.insert(0, ("-------", "-------"))
+            favorite_languages.append(("-------", "-------"))
+
         whisper_languages = sorted(
             [(lang, LANGUAGES[lang].title()) for lang in LANGUAGES],
             key=lambda lang: lang[1],
         )
-        self.languages = [("", _("Detect Language"))] + whisper_languages
+        self.languages = [("", _("Detect Language"))] + favorite_languages + whisper_languages
 
-        self.addItems([lang[1] for lang in self.languages])
+        model = QStandardItemModel()
+        for lang in self.languages:
+            item = QStandardItem(lang[1])
+            if lang[0] == "-------":
+                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsSelectable & ~Qt.ItemFlag.ItemIsEnabled)
+            model.appendRow(item)
+
+        self.setModel(model)
         self.currentIndexChanged.connect(self.on_index_changed)
 
         default_language_key = default_language if default_language != "" else None

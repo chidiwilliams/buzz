@@ -60,14 +60,17 @@ set SOME_OTHER_VARIABLE=some_other_value
 
 ### Available variables
 
-**BUZZ_WHISPERCPP_N_THREADS** - Number of threads to use for Whisper.cpp model. Default is `4`. Available from `v1.0.2`. 
+**BUZZ_WHISPERCPP_N_THREADS** - Number of threads to use for Whisper.cpp model. Default is `4`. 
 
 On a laptop with 16 threads setting `BUZZ_WHISPERCPP_N_THREADS=8` leads to some 15% speedup in transcription time. 
 Increasing number of threads even more will lead in slower transcription time as results from parallel threads has to be 
 combined to produce the final answer.
 
-**BUZZ_TRANSLATION_API_BASE_URl** - Base URL of OpenAI compatible API to use for translation. Available from `v1.0.2`.
+**BUZZ_TRANSLATION_API_BASE_URl** - Base URL of OpenAI compatible API to use for translation.
 
-**BUZZ_TRANSLATION_API_KEY** - Api key of OpenAI compatible API to use for translation. Available from `v1.0.2`.
+**BUZZ_TRANSLATION_API_KEY** - Api key of OpenAI compatible API to use for translation.
 
-**BUZZ_MODEL_ROOT** - Root directory to store model files. Defaults to [user_cache_dir](https://pypi.org/project/platformdirs/). Available from `v1.0.2`.
+**BUZZ_MODEL_ROOT** - Root directory to store model files. 
+Defaults to [user_cache_dir](https://pypi.org/project/platformdirs/).
+
+**BUZZ_FAVORITE_LANGUAGES** - Coma separated list of supported language codes to show on top of language list.
