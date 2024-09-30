@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QMessageBox,
     QHBoxLayout,
+    QLayout
 )
 
 from buzz.locale import _
@@ -59,6 +60,7 @@ class ModelsPreferencesWidget(QWidget):
         self.progress_dialog: Optional[ModelDownloadProgressDialog] = None
 
         layout = QFormLayout()
+        layout.setSizeConstraint(QLayout.SizeConstraint.SetNoConstraint)
         model_type_combo_box = ModelTypeComboBox(
             model_types=model_types,
             default_model=self.model.model_type if self.model is not None else None,
