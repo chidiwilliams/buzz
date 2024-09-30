@@ -77,6 +77,12 @@ jobs:
           sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev
         if: "startsWith(matrix.os, 'ubuntu-')"
 
+      - name: Upgrade torch to GPU version for Windows
+        run: |
+          pip3 uninstall -y torch torchaudio
+          pip3 install torch==2.2.1+cu121 torchaudio==2.2.1+cu121 --index-url https://download.pytorch.org/whl/cu121
+        if: startsWith(matrix.os, 'windows-')
+
       - name: Test
         run: |
           poetry run make test
@@ -145,6 +151,12 @@ jobs:
           fi
           sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev
         if: "startsWith(matrix.os, 'ubuntu-')"
+
+      - name: Upgrade torch to GPU version for Windows
+        run: |
+          pip3 uninstall -y torch torchaudio
+          pip3 install torch==2.2.1+cu121 torchaudio==2.2.1+cu121 --index-url https://download.pytorch.org/whl/cu121
+        if: startsWith(matrix.os, 'windows-')
 
       - name: Install FPM
         run: gem install fpm
