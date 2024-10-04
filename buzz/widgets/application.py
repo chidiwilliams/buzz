@@ -47,8 +47,6 @@ class Application(QApplication):
             palette.setColor(QPalette.ColorRole.Button, QColor("#1e1e1e"))
             palette.setColor(QPalette.ColorRole.ButtonText, QColor("#ffffff"))
             palette.setColor(QPalette.ColorRole.BrightText, QColor("#ff0000"))
-            palette.setColor(QPalette.ColorRole.Link, QColor("#9f9f9f"))
-            palette.setColor(QPalette.ColorRole.Highlight, QColor("#9f9f9f"))
             palette.setColor(QPalette.ColorRole.HighlightedText, QColor("#000000"))
 
             self.setPalette(palette)
