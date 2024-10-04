@@ -1,6 +1,7 @@
-from subprocess import CalledProcessError, run
+from subprocess import run
 
 import numpy as np
+import logging
 
 SAMPLE_RATE = 16000
 
@@ -39,12 +40,17 @@ def load_audio(file: str, sr: int = SAMPLE_RATE):
         "-ac", "1",
         "-acodec", "pcm_s16le",
         "-ar", str(sr),
+        "-loglevel", "error",
         "-"
     ]
     # fmt: on
-    try:
-        out = run(cmd, capture_output=True, check=True).stdout
-    except CalledProcessError as e:
-        raise RuntimeError(f"Failed to load audio: {e.stderr.decode()}") from e
+    result = run(cmd, capture_output=True)
 
-    return np.frombuffer(out, np.int16).flatten().astype(np.float32) / 32768.0
+    if result.returncode != 0:
+        logging.warning(f"FFMPEG audio load warning. Process return code was not zero: {result.returncode}")
+
+    if len(result.stderr):
+        logging.warning(f"FFMPEG audio load error. Error: {result.stderr.decode()}")
+        raise RuntimeError(f"FFMPEG Failed to load audio: {result.stderr.decode()}")
+
+    return np.frombuffer(result.stdout, np.int16).flatten().astype(np.float32) / 32768.0

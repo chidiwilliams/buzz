@@ -15,6 +15,7 @@ from typing import Optional, List
 import tqdm
 from PyQt6.QtCore import QObject
 
+from buzz import whisper_audio
 from buzz.conn import pipe_stderr
 from buzz.model_loader import ModelType, WhisperModelSize
 from buzz.transformers_whisper import TransformersWhisper
@@ -202,7 +203,7 @@ class WhisperFileTranscriber(FileTranscriber):
         if task.transcription_options.word_level_timings:
             stable_whisper.modify_model(model)
             result: WhisperResult = model.transcribe(
-                audio=task.file_path,
+                audio=whisper_audio.load_audio(task.file_path),
                 language=task.transcription_options.language,
                 task=task.transcription_options.task.value,
                 temperature=task.transcription_options.temperature,
