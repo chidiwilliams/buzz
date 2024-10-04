@@ -50,6 +50,7 @@ torchaudio = [
     {version = "2.2.1", source = "pypi", markers = "sys_platform != 'win32' and sys_platform != 'msys'"},
     {version = "2.2.1+cu121", source = "torch", markers = "sys_platform == 'win32' or sys_platform == 'msys'"},
 ]
+darkdetect = "^0.8.0"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
