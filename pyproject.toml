@@ -43,19 +43,13 @@ transformers = "4.39.1"
 polib = "^1.2.0"
 srt-equalizer = "^0.1.10"
 torch = [
-    {version = "2.2.1+cu121", source = "torch", markers = "sys_platform == 'win32'"},
-    # Default linux version is already CUDA enabled
-    {version = "2.2.1", markers = "sys_platform == 'linux'"},
-    {version = "2.2.1", markers = "sys_platform == 'darwin'"}
+    {version = "2.2.1", source = "pypi", markers = "sys_platform != 'win32' and sys_platform != 'msys'"},
+    {version = "2.2.1+cu121", source = "torch", markers = "sys_platform == 'win32' or sys_platform == 'msys'"},
 ]
 torchaudio = [
-    {version = "2.2.1+cu121", source = "torch", markers = "sys_platform == 'win32'"},
-    # Default linux version is already CUDA enabled
-    {version = "2.2.1", markers = "sys_platform == 'linux'"},
-    {version = "2.2.1", markers = "sys_platform == 'darwin'"}
+    {version = "2.2.1", source = "pypi", markers = "sys_platform != 'win32' and sys_platform != 'msys'"},
+    {version = "2.2.1+cu121", source = "torch", markers = "sys_platform == 'win32' or sys_platform == 'msys'"},
 ]
-triton = {version = "2.2.0", markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and python_version < \"3.12\""}
-
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
