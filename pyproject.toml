@@ -14,6 +14,11 @@ packages = [
     { include = "buzz" },
 ]
 
+[[tool.poetry.source]]
+name = "torch"
+url = "https://download.pytorch.org/whl/cu121"
+priority = "supplemental"
+
 [project]
 requires-python = ">=3.9,<3.13"
 
@@ -30,13 +35,21 @@ platformdirs = "^4.2.0"
 dataclasses-json = "^0.6.4"
 numpy = "^1.21.2"
 requests = "^2.31.0"
-yt-dlp = "2024.3.10"
+yt-dlp = "2024.9.27"
 stable-ts = "2.15.9"
 faster-whisper = "1.0.1"
 openai-whisper = "v20231117"
 transformers = "4.39.1"
 polib = "^1.2.0"
 srt-equalizer = "^0.1.10"
+torch = [
+    {version = "2.2.1", source = "pypi", markers = "sys_platform != 'win32' and sys_platform != 'msys'"},
+    {version = "2.2.1+cu121", source = "torch", markers = "sys_platform == 'win32' or sys_platform == 'msys'"},
+]
+torchaudio = [
+    {version = "2.2.1", source = "pypi", markers = "sys_platform != 'win32' and sys_platform != 'msys'"},
+    {version = "2.2.1+cu121", source = "torch", markers = "sys_platform == 'win32' or sys_platform == 'msys'"},
+]
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
