@@ -44,7 +44,7 @@ Or download the `.dmg` from the [releases page](https://github.com/chidiwilliams
 
 Download and run the `.exe` from the [releases page](https://github.com/chidiwilliams/buzz/releases/latest).
 
-App is not signed, you will get a warning when you install it, run it anyway.
+App is not signed, you will get a warning when you install it. Select `More info` -> `Run anyway`.
 
 **Linux**:
 
