@@ -1,7 +1,9 @@
 import sys
+import darkdetect
 
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QPalette, QColor
 
 from buzz.__version__ import VERSION
 from buzz.db.dao.transcription_dao import TranscriptionDAO
@@ -33,6 +35,23 @@ class Application(QApplication):
         else:
             self.setFont(QFont(self.font().family(), font_size))
 
+        if darkdetect.isDark():
+            palette = QPalette()
+            palette.setColor(QPalette.ColorRole.Window, QColor("#121212"))
+            palette.setColor(QPalette.ColorRole.WindowText, QColor("#ffffff"))
+            palette.setColor(QPalette.ColorRole.Base, QColor("#1e1e1e"))
+            palette.setColor(QPalette.ColorRole.AlternateBase, QColor("#2e2e2e"))
+            palette.setColor(QPalette.ColorRole.ToolTipBase, QColor("#ffffff"))
+            palette.setColor(QPalette.ColorRole.ToolTipText, QColor("#000000"))
+            palette.setColor(QPalette.ColorRole.Text, QColor("#ffffff"))
+            palette.setColor(QPalette.ColorRole.Button, QColor("#1e1e1e"))
+            palette.setColor(QPalette.ColorRole.ButtonText, QColor("#ffffff"))
+            palette.setColor(QPalette.ColorRole.BrightText, QColor("#ff0000"))
+            palette.setColor(QPalette.ColorRole.Link, QColor("#9f9f9f"))
+            palette.setColor(QPalette.ColorRole.Highlight, QColor("#9f9f9f"))
+            palette.setColor(QPalette.ColorRole.HighlightedText, QColor("#000000"))
+
+            self.setPalette(palette)
 
         db = setup_app_db()
         transcription_service = TranscriptionService(
