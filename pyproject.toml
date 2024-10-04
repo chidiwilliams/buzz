@@ -54,6 +54,8 @@ torchaudio = [
     {version = "2.2.1", markers = "sys_platform == 'linux'"},
     {version = "2.2.1", markers = "sys_platform == 'darwin'"}
 ]
+triton = {version = "2.2.0", markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and python_version < \"3.12\""}
+
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
