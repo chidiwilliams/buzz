@@ -14,6 +14,11 @@ packages = [
     { include = "buzz" },
 ]
 
+[[tool.poetry.source]]
+name = "torch"
+url = "https://download.pytorch.org/whl/cu121"
+priority = "supplemental"
+
 [project]
 requires-python = ">=3.9,<3.13"
 
@@ -37,6 +42,18 @@ openai-whisper = "v20231117"
 transformers = "4.39.1"
 polib = "^1.2.0"
 srt-equalizer = "^0.1.10"
+torch = [
+    {version = "2.2.1+cu121", source = "torch", markers = "sys_platform == 'win32'"},
+    # Default linux version is already CUDA enabled
+    {version = "2.2.1", markers = "sys_platform == 'linux'"},
+    {version = "2.2.1", markers = "sys_platform == 'darwin'"}
+]
+torchaudio = [
+    {version = "2.2.1+cu121", source = "torch", markers = "sys_platform == 'win32'"},
+    # Default linux version is already CUDA enabled
+    {version = "2.2.1", markers = "sys_platform == 'linux'"},
+    {version = "2.2.1", markers = "sys_platform == 'darwin'"}
+]
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
