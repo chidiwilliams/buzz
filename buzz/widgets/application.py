@@ -35,7 +35,7 @@ class Application(QApplication):
         else:
             self.setFont(QFont(self.font().family(), font_size))
 
-        if darkdetect.isDark():
+        if sys.platform.startswith("win") and darkdetect.isDark():
             palette = QPalette()
             palette.setColor(QPalette.ColorRole.Window, QColor("#121212"))
             palette.setColor(QPalette.ColorRole.WindowText, QColor("#ffffff"))
