@@ -1,4 +1,5 @@
 import enum
+import logging
 import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -13,6 +14,7 @@ from PyQt6.QtSql import QSqlTableModel, QSqlRecord
 from PyQt6.QtWidgets import (
     QWidget,
     QMenu,
+    QHeaderView,
     QTableView,
     QAbstractItemView,
     QStyledItemDelegate,
@@ -143,12 +145,36 @@ column_definitions = [
     ),
 ]
 
+class TranscriptionTasksTableHeaderView(QHeaderView):
+    def __init__(self, orientation, parent=None):
+        super().__init__(orientation, parent)
+
+    def contextMenuEvent(self, event):
+        menu = QMenu(self)
+        for definition in column_definitions:
+            if not definition.hidden_toggleable:
+                continue
+            action = menu.addAction(definition.header)
+            action.setCheckable(True)
+            action.setChecked(not self.isSectionHidden(definition.column.value))
+            action.toggled.connect(
+                lambda checked, column_index=definition.column.value: self.on_column_checked(
+                    column_index, checked
+                )
+            )
+        menu.exec(event.globalPos())
+
+    def on_column_checked(self, column_index: int, checked: bool):
+        self.setSectionHidden(column_index, not checked)
+        self.parent().save_column_visibility()
 
 class TranscriptionTasksTableWidget(QTableView):
     return_clicked = pyqtSignal()
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
+
+        self.setHorizontalHeader(TranscriptionTasksTableHeaderView(Qt.Orientation.Horizontal, self))
 
         self._model = QSqlTableModel()
         self._model.setTable("transcription")
@@ -172,7 +198,8 @@ class TranscriptionTasksTableWidget(QTableView):
                 definition.header,
             )
 
-            visible = self.settings.settings.value(definition.id, True)
+            visible = self.settings.settings.value(definition.id, "true") == "true"
+
             self.setColumnHidden(definition.column.value, not visible)
             if definition.width is not None:
                 self.setColumnWidth(definition.column.value, definition.width)
