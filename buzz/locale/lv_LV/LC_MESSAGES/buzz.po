@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-10-06 13:55+0300\n"
-"PO-Revision-Date: 2024-10-06 12:19+0300\n"
+"PO-Revision-Date: 2024-10-06 14:00+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -97,7 +97,7 @@ msgstr "Eksportēt mapē"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:126
 msgid "Live recording mode"
 msgstr ""
-"Dzīvās ieraksta\n"
+"Dzīvā ieraksta\n"
 "režīms"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:151
