@@ -77,4 +77,4 @@ class PreferencesDialog(QDialog):
         self.setLayout(layout)
 
         self.setMinimumHeight(500)
-        self.setMinimumWidth(550)
+        self.setMinimumWidth(650)

@@ -32,9 +32,25 @@ Available variables:
 
 ### Live transcript exports
 
-Live transcription export can be used to integrate Buzz with other applications like OBS Studio. When enabled, live text transcripts will be exported to a text file as they get generated and translated.
+Live transcription export can be used to integrate Buzz with other applications like OBS Studio. 
+When enabled, live text transcripts will be exported to a text file as they get generated and translated.
 
-If AI translation is enabled for live recordings, the translated text will also be exported to the text file. Filename for the translated text will end with `.translated.txt`. 
+If AI translation is enabled for live recordings, the translated text will also be exported to the text file. 
+Filename for the translated text will end with `.translated.txt`. 
+
+### Live transcription mode
+
+Three transcription modes are available:
+
+**Append below** - New sentences will be added below existing with an empty space between them. 
+Last sentence will be at the bottom.
+
+**Append above** - New sentences will be added above existing with an empty space between them. 
+Last sentence will be at the top.
+
+**Append and correct** - New sentences will be added at the end of existing transcript without extra spaces between. 
+This mode will also try to correct errors at the end of previously transcribed sentences. This mode requires more
+processing power and more powerful hardware to work.
 
 ## Advanced Preferences
 

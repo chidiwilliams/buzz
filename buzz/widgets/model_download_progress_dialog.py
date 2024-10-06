@@ -26,11 +26,11 @@ class ModelDownloadProgressDialog(QProgressDialog):
         self.setMinimumDuration(0)
         self.setWindowModality(modality)
         self.update_label_text(0)
+        cancel_button = QPushButton(_("Cancel"), self)
+        self.setCancelButton(cancel_button)
 
         if not self.cancelable:
-            cancel_button = QPushButton("Cancel", self)
             cancel_button.setEnabled(False)
-            self.setCancelButton(cancel_button)
 
     def update_label_text(self, fraction_completed: float):
         downloading_text = _("Downloading model")

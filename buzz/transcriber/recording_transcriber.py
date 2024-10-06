@@ -21,6 +21,7 @@ from buzz.settings.settings import Settings
 from buzz.transcriber.transcriber import TranscriptionOptions, Task
 from buzz.transcriber.whisper_cpp import WhisperCpp, whisper_cpp_params
 from buzz.transformers_whisper import TransformersWhisper
+from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
 
 import whisper
 import faster_whisper
@@ -32,7 +33,6 @@ class RecordingTranscriber(QObject):
     error = pyqtSignal(str)
     is_running = False
     SAMPLE_RATE = whisper_audio.SAMPLE_RATE
-    MAX_QUEUE_SIZE = 10
 
     def __init__(
         self,
@@ -44,14 +44,21 @@ class RecordingTranscriber(QObject):
         parent: Optional[QObject] = None,
     ) -> None:
         super().__init__(parent)
+        self.settings = Settings()
+        self.transcriber_mode = list(RecordingTranscriberMode)[
+            self.settings.value(key=Settings.Key.RECORDING_TRANSCRIBER_MODE, default_value=0)]
         self.transcription_options = transcription_options
         self.current_stream = None
         self.input_device_index = input_device_index
         self.sample_rate = sample_rate if sample_rate is not None else whisper_audio.SAMPLE_RATE
         self.model_path = model_path
         self.n_batch_samples = 5 * self.sample_rate  # every 5 seconds
-        # pause queueing if more than 3 batches behind
-        self.max_queue_size = 3 * self.n_batch_samples
+        self.keep_sample_seconds = 0.15
+        if self.transcriber_mode == RecordingTranscriberMode.APPEND_AND_CORRECT:
+            self.n_batch_samples = 3 * self.sample_rate  # every 3 seconds
+            self.keep_sample_seconds = 1.5
+        # pause queueing if more than 5 batches behind
+        self.max_queue_size = 5 * self.n_batch_samples
         self.queue = np.ndarray([], dtype=np.float32)
         self.mutex = threading.Lock()
         self.sounddevice = sounddevice
@@ -60,7 +67,7 @@ class RecordingTranscriber(QObject):
 
     def start(self):
         model_path = self.model_path
-        keep_samples = int(0.15 * self.sample_rate)
+        keep_samples = int(self.keep_sample_seconds * self.sample_rate)
 
         if torch.cuda.is_available():
             logging.debug(f"CUDA version detected: {torch.version.cuda}")
@@ -96,8 +103,7 @@ class RecordingTranscriber(QObject):
                     model.feature_extractor.sampling_rate, model.feature_extractor.n_fft, n_mels=128
                 )
         elif self.transcription_options.model.model_type == ModelType.OPEN_AI_WHISPER_API:
-            settings = Settings()
-            custom_openai_base_url = settings.value(
+            custom_openai_base_url = self.settings.value(
                 key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value=""
             )
             self.whisper_api_model = get_custom_api_whisper_model(custom_openai_base_url)
@@ -143,6 +149,8 @@ class RecordingTranscriber(QObject):
                             self.amplitude(samples),
                         )
                         time_started = datetime.datetime.now()
+
+                        # TODO Filter out silent audio
 
                         if (
                             self.transcription_options.model.model_type

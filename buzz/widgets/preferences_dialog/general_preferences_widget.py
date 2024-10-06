@@ -13,6 +13,7 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QFileDialog,
     QSpinBox,
+    QComboBox,
 )
 from openai import AuthenticationError, OpenAI
 
@@ -21,6 +22,7 @@ from buzz.store.keyring_store import get_password, Key
 from buzz.widgets.line_edit import LineEdit
 from buzz.widgets.openai_api_key_line_edit import OpenAIAPIKeyLineEdit
 from buzz.locale import _
+from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
 
 
 class GeneralPreferencesWidget(QWidget):
@@ -112,6 +114,17 @@ class GeneralPreferencesWidget(QWidget):
 
         layout.addRow(_("Export folder"), recording_export_folder_row)
 
+        self.recording_transcriber_mode = QComboBox(self)
+        for mode in RecordingTranscriberMode:
+            self.recording_transcriber_mode.addItem(mode.value)
+
+        self.recording_transcriber_mode.setCurrentIndex(
+            self.settings.value(Settings.Key.RECORDING_TRANSCRIBER_MODE, 0)
+        )
+        self.recording_transcriber_mode.currentIndexChanged.connect(self.on_recording_transcriber_mode_changed)
+
+        layout.addRow(_("Live recording mode"), self.recording_transcriber_mode)
+
         self.setLayout(layout)
 
     def on_default_export_file_name_changed(self, text: str):
@@ -182,6 +195,8 @@ class GeneralPreferencesWidget(QWidget):
 
         self.settings.set_value(Settings.Key.FONT_SIZE, value)
 
+    def on_recording_transcriber_mode_changed(self, value):
+        self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_MODE, value)
 
 class TestOpenAIApiKeyJob(QRunnable):
     class Signals(QObject):

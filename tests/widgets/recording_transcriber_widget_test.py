@@ -109,3 +109,32 @@ class TestRecordingTranscriberWidget:
                 assert len(contents) > 0
 
             widget.close()
+
+    def test_find_common_part_exact_match(self):
+        assert RecordingTranscriberWidget.find_common_part("hello world", "hello world") == "hello world"
+
+    def test_find_common_part_partial_match(self):
+        assert (RecordingTranscriberWidget.find_common_part(
+            "hello great and beautiful world",
+            "hello great and beautiful butterfly")
+                == "hello great and beautiful ")
+        assert (RecordingTranscriberWidget.find_common_part(
+            "Alice said hello world",
+            "salad said hello world")
+                == " said hello world")
+        assert (RecordingTranscriberWidget.find_common_part(
+            "To kauls nav paņemts no mājām. Ja varēsim rīt iet, es ļoti priecāšos. Mani uztrauc laikapstākļi.",
+            "Kauls nav paņemts no mājām. Ja varēsim rīt iet, es ļoti priecāšos. Mani uztrauc laikapstākļi, tāpēc...")
+                == "auls nav paņemts no mājām. Ja varēsim rīt iet, es ļoti priecāšos. Mani uztrauc laikapstākļi")
+
+    def test_find_common_part_no_match(self):
+        assert RecordingTranscriberWidget.find_common_part("hello world", "goodbye evil") == ""
+
+    def test_find_common_part_different_start(self):
+        assert RecordingTranscriberWidget.find_common_part("abc hello world", "xyz hello world") == " hello world"
+
+    def test_find_common_part_empty_strings(self):
+        assert RecordingTranscriberWidget.find_common_part("", "hello world") == ""
+        assert RecordingTranscriberWidget.find_common_part("hello world", "") == ""
+        assert RecordingTranscriberWidget.find_common_part("", "") == ""
+

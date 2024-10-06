@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-27 11:58+0300\n"
-"PO-Revision-Date: 2024-08-17 11:02+0300\n"
+"POT-Creation-Date: 2024-10-06 13:55+0300\n"
+"PO-Revision-Date: 2024-10-06 14:00+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -28,6 +28,7 @@ msgstr "https://example.com/audio.mp3"
 
 #: buzz/widgets/import_url_dialog.py:28
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:69
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:244
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:97
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:295
 #: buzz/widgets/main_window.py:234
@@ -36,7 +37,9 @@ msgstr "Labi"
 
 #: buzz/widgets/import_url_dialog.py:29
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:70
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:245
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:296
+#: buzz/widgets/model_download_progress_dialog.py:29
 #: buzz/widgets/main_window.py:235
 msgid "Cancel"
 msgstr "Atcelt"
@@ -57,46 +60,52 @@ msgstr "Jūsu ievadītā URL adrese nav derīga."
 msgid "Reset to Defaults"
 msgstr "Atjaunot noklusētos"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:47
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:49
 msgid "Font Size"
 msgstr "Fonta izmērs"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:54
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:56
 msgid "Test"
 msgstr "Pārbaudīt"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:60
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:62
 msgid "OpenAI API key"
 msgstr "OpenAI API atslēga"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:73
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:75
 msgid "OpenAI base url"
 msgstr "OpenAI adrese"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:82
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:84
 msgid "Default export file name"
 msgstr "Eksporta fails"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:88
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:90
 msgid "Enable live recording transcription export"
 msgstr "Eksportēt dzīvā ieraksta transkriptus"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:94
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:96
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:47
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:50
 msgid "Browse"
 msgstr "Izvēlēties"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:113
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:115
 msgid "Export folder"
 msgstr "Eksportēt mapē"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:138
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:144
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:126
+msgid "Live recording mode"
+msgstr ""
+"Dzīvā ieraksta\n"
+"režīms"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:151
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:157
 msgid "OpenAI API Key Test"
 msgstr "OpenAI API atslēgas pārbaude"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:139
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:152
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
@@ -104,11 +113,11 @@ msgstr ""
 "Jūsu API atslēga ir derīga. Buzz izmantos to runas atpazīšanai ar Whisper "
 "API un tulkošanai."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:166
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:179
 msgid "Select Export Folder"
 msgstr "Izvēlieties mapi kurā eksportēt"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:216
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:231
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
@@ -158,51 +167,51 @@ msgstr "Īsinājumi"
 msgid "Folder Watch"
 msgstr "Mapes vērošana"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:68
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:70
 msgid "Group"
 msgstr "Veids"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:80
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:82
 msgid "Huggingface ID of a Faster whisper model"
 msgstr "Faster Whisper modeļa Huggingface ID"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:91
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:93
 msgid "Download"
 msgstr "Lejupielādēt"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:96
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:98
 msgid "Show file location"
 msgstr "Pādīt faila atrašanās vietu"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:104
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:106
 msgid "Delete"
 msgstr "Dzēst"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:135
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:137
 msgid "Downloaded"
 msgstr "Lejupielādēts"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:140
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:142
 msgid "Available for Download"
 msgstr "Pieejams lejupielādei"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:161
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:163
 msgid "Download link to Whisper.cpp ggml model file"
 msgstr "Whisper.cpp ggml modeļa datnes lejupielādes saite"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:237
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:238
 msgid "Delete Model"
 msgstr "Dzēst modeli"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:238
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:239
 msgid "Are you sure you want to delete the selected model?"
 msgstr "Vai tiešām dzēst izvēlēto modeli?"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:258
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:267
 msgid "Download failed"
 msgstr "Lejupielāde neizdevās"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:259
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:268
 #: buzz/widgets/main_window.py:291 buzz/model_loader.py:473
 msgid "Error"
 msgstr "Kļūda"
@@ -216,7 +225,7 @@ msgstr "Ierakstīt"
 msgid "Stop"
 msgstr "Apturēt"
 
-#: buzz/widgets/transcriber/languages_combo_box.py:25
+#: buzz/widgets/transcriber/languages_combo_box.py:35
 #: buzz/transcriber/transcriber.py:159
 msgid "Detect Language"
 msgstr "Noteikt valodu"
@@ -295,7 +304,7 @@ msgstr "Dalīt pa vārdiem"
 msgid "Export:"
 msgstr "Eksportēt:"
 
-#: buzz/widgets/transcriber/hugging_face_search_line_edit.py:36
+#: buzz/widgets/transcriber/hugging_face_search_line_edit.py:37
 msgid "Huggingface ID of a model"
 msgstr "Modeļa Huggingface ID"
 
@@ -320,71 +329,71 @@ msgstr "Atcelt atpazīšanu"
 msgid "Clear History"
 msgstr "Notīrīt vēsturi"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:62
+#: buzz/widgets/transcription_tasks_table_widget.py:64
 msgid "In Progress"
 msgstr "Apstrādā"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:65
+#: buzz/widgets/transcription_tasks_table_widget.py:67
 msgid "Completed"
 msgstr "Pabeigts"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:72
+#: buzz/widgets/transcription_tasks_table_widget.py:74
 msgid "Failed"
 msgstr "Neizdevās"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:75
+#: buzz/widgets/transcription_tasks_table_widget.py:77
 msgid "Canceled"
 msgstr "Atcelts"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:77
+#: buzz/widgets/transcription_tasks_table_widget.py:79
 msgid "Queued"
 msgstr "Ierindots"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:84
+#: buzz/widgets/transcription_tasks_table_widget.py:86
 msgid "File Name / URL"
 msgstr "Fails / URL"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:96
+#: buzz/widgets/transcription_tasks_table_widget.py:98
 msgid "Model"
 msgstr "Modelis"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:105
+#: buzz/widgets/transcription_tasks_table_widget.py:107
 msgid "Task"
 msgstr "Uzdevums"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:114
+#: buzz/widgets/transcription_tasks_table_widget.py:116
 msgid "Status"
 msgstr "Statuss"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:122
+#: buzz/widgets/transcription_tasks_table_widget.py:124
 msgid "Date Added"
 msgstr "Pievienots"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:133
+#: buzz/widgets/transcription_tasks_table_widget.py:135
 msgid "Date Completed"
 msgstr "Pabeigts"
 
-#: buzz/widgets/recording_transcriber_widget.py:73
+#: buzz/widgets/recording_transcriber_widget.py:79
 msgid "Live Recording"
 msgstr "Dzīvā ierakstīšana"
 
-#: buzz/widgets/recording_transcriber_widget.py:135
+#: buzz/widgets/recording_transcriber_widget.py:144
 msgid "Click Record to begin..."
 msgstr "Klikšķiniet Ierakstīt, lai sāktu..."
 
-#: buzz/widgets/recording_transcriber_widget.py:138
+#: buzz/widgets/recording_transcriber_widget.py:147
 msgid "Waiting for AI translation..."
 msgstr "Gaida MI tulkojumu..."
 
-#: buzz/widgets/recording_transcriber_widget.py:150
+#: buzz/widgets/recording_transcriber_widget.py:159
 msgid "Microphone:"
 msgstr "Mikrofons:"
 
-#: buzz/widgets/recording_transcriber_widget.py:414
+#: buzz/widgets/recording_transcriber_widget.py:523
 msgid "An error occurred while starting a new recording:"
 msgstr "Sākot jaunu ierakstu notikusi kļūda:"
 
-#: buzz/widgets/recording_transcriber_widget.py:418
+#: buzz/widgets/recording_transcriber_widget.py:527
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
@@ -410,14 +419,14 @@ msgstr "Beigas"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:95
 #: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:34
-#: buzz/widgets/transcription_viewer/export_transcription_menu.py:39
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:30
 msgid "Text"
 msgstr "Teksts"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:96
 #: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:40
-#: buzz/widgets/transcription_viewer/export_transcription_menu.py:40
-#: buzz/widgets/transcription_viewer/export_transcription_menu.py:62
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:31
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:64
 msgid "Translation"
 msgstr "Tulkojums"
 
@@ -458,11 +467,11 @@ msgstr "Vēlamais teksta garums"
 msgid "Enter target characters per subtitle:"
 msgstr "Ievadiet vēlamo simbolu skaitu tekstā:"
 
-#: buzz/widgets/transcription_viewer/export_transcription_menu.py:76
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:78
 msgid "Save File"
 msgstr "Saglabāt failu"
 
-#: buzz/widgets/transcription_viewer/export_transcription_menu.py:78
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:80
 msgid "Text files"
 msgstr "Teksta faili"
 
@@ -566,3 +575,15 @@ msgstr "Aplūkot tulkojumu"
 #: buzz/settings/shortcut.py:24
 msgid "View Transcript Timestamps"
 msgstr "Aplūkot atpazīšanas laikus"
+
+#: buzz/settings/recording_transcriber_mode.py:5
+msgid "Append below"
+msgstr "Jaunie teikumi apakšā"
+
+#: buzz/settings/recording_transcriber_mode.py:6
+msgid "Append above"
+msgstr "Jaunie teikumi augšā"
+
+#: buzz/settings/recording_transcriber_mode.py:7
+msgid "Append and correct"
+msgstr "Papildināt un labot esošo"
