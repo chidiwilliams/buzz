@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-06 12:21+0300\n"
+"POT-Creation-Date: 2024-10-06 13:55+0300\n"
 "PO-Revision-Date: 2024-10-06 12:19+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -39,6 +39,7 @@ msgstr "Labi"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:70
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:245
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:296
+#: buzz/widgets/model_download_progress_dialog.py:29
 #: buzz/widgets/main_window.py:235
 msgid "Cancel"
 msgstr "Atcelt"
@@ -372,27 +373,27 @@ msgstr "Pievienots"
 msgid "Date Completed"
 msgstr "Pabeigts"
 
-#: buzz/widgets/recording_transcriber_widget.py:78
+#: buzz/widgets/recording_transcriber_widget.py:79
 msgid "Live Recording"
 msgstr "Dzīvā ierakstīšana"
 
-#: buzz/widgets/recording_transcriber_widget.py:143
+#: buzz/widgets/recording_transcriber_widget.py:144
 msgid "Click Record to begin..."
 msgstr "Klikšķiniet Ierakstīt, lai sāktu..."
 
-#: buzz/widgets/recording_transcriber_widget.py:146
+#: buzz/widgets/recording_transcriber_widget.py:147
 msgid "Waiting for AI translation..."
 msgstr "Gaida MI tulkojumu..."
 
-#: buzz/widgets/recording_transcriber_widget.py:158
+#: buzz/widgets/recording_transcriber_widget.py:159
 msgid "Microphone:"
 msgstr "Mikrofons:"
 
-#: buzz/widgets/recording_transcriber_widget.py:475
+#: buzz/widgets/recording_transcriber_widget.py:523
 msgid "An error occurred while starting a new recording:"
 msgstr "Sākot jaunu ierakstu notikusi kļūda:"
 
-#: buzz/widgets/recording_transcriber_widget.py:479
+#: buzz/widgets/recording_transcriber_widget.py:527
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."

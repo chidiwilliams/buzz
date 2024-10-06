@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-06 12:21+0300\n"
+"POT-Creation-Date: 2024-10-06 13:55+0300\n"
 "PO-Revision-Date: 2023-11-09 04:35-0600\n"
 "Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: \n"
@@ -38,6 +38,7 @@ msgstr ""
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:70
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:245
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:296
+#: buzz/widgets/model_download_progress_dialog.py:29
 #: buzz/widgets/main_window.py:235
 #, fuzzy
 msgid "Cancel"
@@ -398,31 +399,31 @@ msgid "Date Completed"
 msgstr "Completado"
 
 # automatic translation
-#: buzz/widgets/recording_transcriber_widget.py:78
+#: buzz/widgets/recording_transcriber_widget.py:79
 msgid "Live Recording"
 msgstr "Grabación en vivo"
 
 # automatic translation
-#: buzz/widgets/recording_transcriber_widget.py:143
+#: buzz/widgets/recording_transcriber_widget.py:144
 msgid "Click Record to begin..."
 msgstr "Pulse en Grabar para comenzar..."
 
-#: buzz/widgets/recording_transcriber_widget.py:146
+#: buzz/widgets/recording_transcriber_widget.py:147
 msgid "Waiting for AI translation..."
 msgstr ""
 
 # automatic translation
-#: buzz/widgets/recording_transcriber_widget.py:158
+#: buzz/widgets/recording_transcriber_widget.py:159
 msgid "Microphone:"
 msgstr "Micrófono:"
 
 # automatic translation
-#: buzz/widgets/recording_transcriber_widget.py:475
+#: buzz/widgets/recording_transcriber_widget.py:523
 msgid "An error occurred while starting a new recording:"
 msgstr "Se produjo un error al iniciar una grabación nueva:"
 
 # automatic translation
-#: buzz/widgets/recording_transcriber_widget.py:479
+#: buzz/widgets/recording_transcriber_widget.py:527
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."

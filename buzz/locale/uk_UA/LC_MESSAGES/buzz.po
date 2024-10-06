@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-06 12:21+0300\n"
+"POT-Creation-Date: 2024-10-06 13:55+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Yevhen Popok <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -35,6 +35,7 @@ msgstr "Гаразд"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:70
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:245
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:296
+#: buzz/widgets/model_download_progress_dialog.py:29
 #: buzz/widgets/main_window.py:235
 msgid "Cancel"
 msgstr "Скасувати"
@@ -365,27 +366,27 @@ msgstr "Дата додавання"
 msgid "Date Completed"
 msgstr "Дата завершення"
 
-#: buzz/widgets/recording_transcriber_widget.py:78
+#: buzz/widgets/recording_transcriber_widget.py:79
 msgid "Live Recording"
 msgstr "Живий запис"
 
-#: buzz/widgets/recording_transcriber_widget.py:143
+#: buzz/widgets/recording_transcriber_widget.py:144
 msgid "Click Record to begin..."
 msgstr "Натисніть на Запис, щоб розпочати..."
 
-#: buzz/widgets/recording_transcriber_widget.py:146
+#: buzz/widgets/recording_transcriber_widget.py:147
 msgid "Waiting for AI translation..."
 msgstr "Очікування перекладу від ШІ..."
 
-#: buzz/widgets/recording_transcriber_widget.py:158
+#: buzz/widgets/recording_transcriber_widget.py:159
 msgid "Microphone:"
 msgstr "Мікрофон:"
 
-#: buzz/widgets/recording_transcriber_widget.py:475
+#: buzz/widgets/recording_transcriber_widget.py:523
 msgid "An error occurred while starting a new recording:"
 msgstr "При старті нового запису виникла помилка:"
 
-#: buzz/widgets/recording_transcriber_widget.py:479
+#: buzz/widgets/recording_transcriber_widget.py:527
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."

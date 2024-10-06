@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-06 12:21+0300\n"
+"POT-Creation-Date: 2024-10-06 13:55+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: nunawa <71294849+nunawa@users.noreply.github.com>\n"
 "Language-Team: \n"
@@ -33,6 +33,7 @@ msgstr "Ok"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:70
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:245
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:296
+#: buzz/widgets/model_download_progress_dialog.py:29
 #: buzz/widgets/main_window.py:235
 msgid "Cancel"
 msgstr "キャンセル"
@@ -363,27 +364,27 @@ msgstr "追加日"
 msgid "Date Completed"
 msgstr "完了日"
 
-#: buzz/widgets/recording_transcriber_widget.py:78
+#: buzz/widgets/recording_transcriber_widget.py:79
 msgid "Live Recording"
 msgstr "ライブ録音"
 
-#: buzz/widgets/recording_transcriber_widget.py:143
+#: buzz/widgets/recording_transcriber_widget.py:144
 msgid "Click Record to begin..."
 msgstr "クリックで録音を開始..."
 
-#: buzz/widgets/recording_transcriber_widget.py:146
+#: buzz/widgets/recording_transcriber_widget.py:147
 msgid "Waiting for AI translation..."
 msgstr "AI翻訳を待っています..."
 
-#: buzz/widgets/recording_transcriber_widget.py:158
+#: buzz/widgets/recording_transcriber_widget.py:159
 msgid "Microphone:"
 msgstr "マイク:"
 
-#: buzz/widgets/recording_transcriber_widget.py:475
+#: buzz/widgets/recording_transcriber_widget.py:523
 msgid "An error occurred while starting a new recording:"
 msgstr "新規録音開始時にエラーが発生しました:"
 
-#: buzz/widgets/recording_transcriber_widget.py:479
+#: buzz/widgets/recording_transcriber_widget.py:527
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
