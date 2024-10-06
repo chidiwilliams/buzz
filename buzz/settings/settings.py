@@ -24,6 +24,7 @@ class Settings:
         RECORDING_TRANSCRIBER_LLM_PROMPT = "recording-transcriber/llm-prompt"
         RECORDING_TRANSCRIBER_EXPORT_ENABLED = "recording-transcriber/export-enabled"
         RECORDING_TRANSCRIBER_EXPORT_FOLDER = "recording-transcriber/export-folder"
+        RECORDING_TRANSCRIBER_MODE = "recording-transcriber/mode"
 
         FILE_TRANSCRIBER_TASK = "file-transcriber/task"
         FILE_TRANSCRIBER_MODEL = "file-transcriber/model"

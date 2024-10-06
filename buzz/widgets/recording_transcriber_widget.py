@@ -21,6 +21,7 @@ from buzz.model_loader import (
 from buzz.store.keyring_store import get_password, Key
 from buzz.recording import RecordingAmplitudeListener
 from buzz.settings.settings import Settings
+from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
 from buzz.transcriber.recording_transcriber import RecordingTranscriber
 from buzz.transcriber.transcriber import (
     TranscriptionOptions,
@@ -36,6 +37,9 @@ from buzz.widgets.text_display_box import TextDisplayBox
 from buzz.widgets.transcriber.transcription_options_group_box import (
     TranscriptionOptionsGroupBox,
 )
+
+REAL_CHARS_REGEX = re.compile(r'\w')
+NO_SPACE_BETWEEN_SENTENCES = re.compile(r'([.!?])([A-Z])')
 
 
 class RecordingTranscriberWidget(QWidget):
@@ -69,10 +73,15 @@ class RecordingTranscriberWidget(QWidget):
 
         self.translation_thread = None
         self.translator = None
+        self.transcripts = []
+        self.translations = []
         self.current_status = self.RecordingStatus.STOPPED
         self.setWindowTitle(_("Live Recording"))
 
         self.settings = Settings()
+        self.transcriber_mode = list(RecordingTranscriberMode)[
+            self.settings.value(key=Settings.Key.RECORDING_TRANSCRIBER_MODE, default_value=0)]
+
         default_language = self.settings.value(
             key=Settings.Key.RECORDING_TRANSCRIBER_LANGUAGE, default_value=""
         )
@@ -251,6 +260,8 @@ class RecordingTranscriberWidget(QWidget):
 
     def start_recording(self):
         self.record_button.setDisabled(True)
+        self.transcripts = []
+        self.translations = []
 
         if self.export_enabled:
             self.setup_for_export()
@@ -357,19 +368,78 @@ class RecordingTranscriberWidget(QWidget):
     def filter_text(text: str):
         text = text.strip()
 
-        # no real characters
-        if not re.search(r'\w', text):
+        if not REAL_CHARS_REGEX.search(text):
             return ""
 
         return text
 
+    # Copilot magic implementation of a sliding window approach to find the longest common substring between two texts,
+    # ignoring the initial differences.
+    @staticmethod
+    def find_common_part(text1: str, text2: str) -> str:
+        len1, len2 = len(text1), len(text2)
+        max_len = 0
+        end_index = 0
+
+        lcsuff = [[0] * (len2 + 1) for _ in range(len1 + 1)]
+
+        for i in range(1, len1 + 1):
+            for j in range(1, len2 + 1):
+                if text1[i - 1] == text2[j - 1]:
+                    lcsuff[i][j] = lcsuff[i - 1][j - 1] + 1
+                    if lcsuff[i][j] > max_len:
+                        max_len = lcsuff[i][j]
+                        end_index = i
+                else:
+                    lcsuff[i][j] = 0
+
+        common_part = text1[end_index - max_len:end_index]
+
+        return common_part if len(common_part) >= 5 else ""
+
+    @staticmethod
+    def merge_text_no_overlap(text1: str, text2: str) -> str:
+        overlap_start = 0
+        for i in range(1, min(len(text1), len(text2)) + 1):
+            if text1[-i:] == text2[:i]:
+                overlap_start = i
+
+        return text1 + text2[overlap_start:]
+
+    def process_transcription_merge(self, text: str, texts, text_box, export_file):
+        texts.append(text)
+
+        # Remove possibly errorous parts from overlapping audio chunks
+        for i in range(len(texts) - 1):
+            common_part = self.find_common_part(texts[i], texts[i + 1])
+            if common_part:
+                common_length = len(common_part)
+                texts[i] = texts[i][:texts[i].rfind(common_part) + common_length]
+                texts[i + 1] = texts[i + 1][texts[i + 1].find(common_part):]
+
+        merged_texts = ""
+        for text in texts:
+            merged_texts = self.merge_text_no_overlap(merged_texts, text)
+
+        merged_texts = NO_SPACE_BETWEEN_SENTENCES.sub(r'\1 \2', merged_texts)
+
+        text_box.setPlainText(merged_texts)
+        text_box.moveCursor(QTextCursor.MoveOperation.End)
+
+        if self.export_enabled:
+            with open(export_file, "w") as f:
+                f.write(merged_texts)
+
     def on_next_transcription(self, text: str):
         text = self.filter_text(text)
 
-        if len(text) > 0:
-            if self.translator is not None:
-                self.translator.enqueue(text)
+        if len(text) == 0:
+            return
 
+        if self.translator is not None:
+            self.translator.enqueue(text)
+
+        if self.transcriber_mode == RecordingTranscriberMode.APPEND_BELOW:
             self.transcription_text_box.moveCursor(QTextCursor.MoveOperation.End)
             if len(self.transcription_text_box.toPlainText()) > 0:
                 self.transcription_text_box.insertPlainText("\n\n")
@@ -380,8 +450,29 @@ class RecordingTranscriberWidget(QWidget):
                 with open(self.transcript_export_file, "a") as f:
                     f.write(text + "\n\n")
 
+        elif self.transcriber_mode == RecordingTranscriberMode.APPEND_ABOVE:
+            self.transcription_text_box.moveCursor(QTextCursor.MoveOperation.Start)
+            self.transcription_text_box.insertPlainText(text)
+            self.transcription_text_box.insertPlainText("\n\n")
+            self.transcription_text_box.moveCursor(QTextCursor.MoveOperation.Start)
+
+            if self.export_enabled:
+                with open(self.transcript_export_file, "r") as f:
+                    existing_content = f.read()
+
+                new_content = text + "\n\n" + existing_content
+
+                with open(self.transcript_export_file, "w") as f:
+                    f.write(new_content)
+
+        elif self.transcriber_mode == RecordingTranscriberMode.APPEND_AND_CORRECT:
+            self.process_transcription_merge(text, self.transcripts, self.transcription_text_box, self.transcript_export_file)
+
     def on_next_translation(self, text: str, _: Optional[int] = None):
-        if len(text) > 0:
+        if len(text) == 0:
+            return
+
+        if self.transcriber_mode == RecordingTranscriberMode.APPEND_BELOW:
             self.translation_text_box.moveCursor(QTextCursor.MoveOperation.End)
             if len(self.translation_text_box.toPlainText()) > 0:
                 self.translation_text_box.insertPlainText("\n\n")
@@ -391,6 +482,24 @@ class RecordingTranscriberWidget(QWidget):
             if self.export_enabled:
                 with open(self.translation_export_file, "a") as f:
                     f.write(text + "\n\n")
+
+        elif self.transcriber_mode == RecordingTranscriberMode.APPEND_ABOVE:
+            self.translation_text_box.moveCursor(QTextCursor.MoveOperation.Start)
+            self.translation_text_box.insertPlainText(self.strip_newlines(text))
+            self.translation_text_box.insertPlainText("\n\n")
+            self.translation_text_box.moveCursor(QTextCursor.MoveOperation.Start)
+
+            if self.export_enabled:
+                with open(self.translation_export_file, "r") as f:
+                    existing_content = f.read()
+
+                new_content = text + "\n\n" + existing_content
+
+                with open(self.translation_export_file, "w") as f:
+                    f.write(new_content)
+
+        elif self.transcriber_mode == RecordingTranscriberMode.APPEND_AND_CORRECT:
+            self.process_transcription_merge(text, self.translations, self.translation_text_box, self.translation_export_file)
 
     def stop_recording(self):
         if self.transcriber is not None:

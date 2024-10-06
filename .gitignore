@@ -19,6 +19,7 @@ buzz/whisper_cpp.py
 
 # Internationalization - compiled binaries
 *.mo
+*.po~
 
 benchmarks.json
 
