@@ -35,8 +35,6 @@ class ImportURLDialog(QDialog):
         self.layout.addWidget(self.button_box)
         self.setLayout(self.layout)
 
-        self.setMaximumSize(0, 0)
-
     def accept(self):
         if self.url_regex.match(self.line_edit.text()).hasMatch():
             self.url = self.line_edit.text()
