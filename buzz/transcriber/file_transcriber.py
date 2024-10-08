@@ -48,12 +48,15 @@ class FileTranscriber(QObject):
             )
 
             try:
+                logging.debug(f"Downloading audio file from URL: {self.transcription_task.url}")
                 ydl.download([self.transcription_task.url])
             except DownloadError as exc:
+                logging.debug(f"Error downloading audio: {exc.msg}")
                 self.error.emit(exc.msg)
                 return
 
             self.transcription_task.file_path = temp_output_path + ".wav"
+            logging.debug(f"Downloaded audio to file: {self.transcription_task.file_path}")
 
         try:
             segments = self.transcribe()
