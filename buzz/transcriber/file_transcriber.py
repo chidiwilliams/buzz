@@ -38,6 +38,7 @@ class FileTranscriber(QObject):
                     "format": "wav/bestaudio/best",
                     "progress_hooks": [self.on_download_progress],
                     "outtmpl": temp_output_path,
+                    "logger": logging.getLogger(),
                     "postprocessors": [
                         {
                             "key": "FFmpegExtractAudio",
