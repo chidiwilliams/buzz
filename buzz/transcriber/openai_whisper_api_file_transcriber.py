@@ -39,13 +39,21 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
 
         mp3_file = tempfile.mktemp() + ".mp3"
 
-        cmd = ["ffmpeg", "-i", self.transcription_task.file_path, mp3_file]
+        cmd = [
+            "ffmpeg",
+            "-threads", "0",
+            "-loglevel", "panic",
+            "-i", self.transcription_task.file_path, mp3_file
+        ]
 
-        try:
-            subprocess.run(cmd, capture_output=True, check=True)
-        except subprocess.CalledProcessError as exc:
-            logging.exception("")
-            raise Exception(exc.stderr.decode("utf-8"))
+        result = subprocess.run(cmd, capture_output=True)
+
+        if result.returncode != 0:
+            logging.warning(f"FFMPEG audio load warning. Process return code was not zero: {result.returncode}")
+
+        if len(result.stderr):
+            logging.warning(f"FFMPEG audio load error. Error: {result.stderr.decode()}")
+            raise Exception(f"FFMPEG Failed to load audio: {result.stderr.decode()}")
 
         # fmt: off
         cmd = [
