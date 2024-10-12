@@ -61,14 +61,14 @@ class FileTranscriber(QObject):
                 "-ac", "1",
                 "-acodec", "pcm_s16le",
                 "-ar", str(SAMPLE_RATE),
-                "-loglevel", "error",
+                "-loglevel", "panic",
                 "-i", temp_output_path, wav_file]
 
-            try:
-                subprocess.run(cmd, capture_output=True, check=True)
-            except subprocess.CalledProcessError as exc:
-                logging.debug(f"Error processing downloaded audio: {exc.msg}")
-                raise Exception(exc.stderr.decode("utf-8"))
+            result = subprocess.run(cmd, capture_output=True)
+
+            if len(result.stderr):
+                logging.warning(f"Error processing downloaded audio. Error: {result.stderr.decode()}")
+                raise Exception(f"Error processing downloaded audio: {result.stderr.decode()}")
 
             self.transcription_task.file_path = wav_file
             logging.debug(f"Downloaded audio to file: {self.transcription_task.file_path}")

@@ -40,7 +40,7 @@ def load_audio(file: str, sr: int = SAMPLE_RATE):
         "-ac", "1",
         "-acodec", "pcm_s16le",
         "-ar", str(sr),
-        "-loglevel", "error",
+        "-loglevel", "panic",
         "-"
     ]
     # fmt: on
