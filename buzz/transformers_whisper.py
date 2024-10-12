@@ -164,8 +164,8 @@ class TransformersWhisper:
         device = "cuda" if torch.cuda.is_available() else "cpu"
         torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 
-        safetensors_path = os.path.join(self.model_id, "model.safetensors")
-        use_safetensors = os.path.exists(safetensors_path)
+        safetensors_files = [f for f in os.listdir(self.model_id) if f.endswith(".safetensors")]
+        use_safetensors = len(safetensors_files) > 0
 
         model = AutoModelForSpeechSeq2Seq.from_pretrained(
             self.model_id, torch_dtype=torch_dtype, use_safetensors=use_safetensors
