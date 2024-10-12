@@ -1,6 +1,6 @@
 import logging
 import os
-import sys
+import subprocess
 import shutil
 import tempfile
 from abc import abstractmethod
@@ -10,7 +10,7 @@ from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from yt_dlp import YoutubeDL
 from yt_dlp.utils import DownloadError
 
-from buzz.assets import APP_BASE_DIR
+from buzz.whisper_audio import SAMPLE_RATE
 from buzz.transcriber.transcriber import (
     FileTranscriptionTask,
     get_output_file_path,
@@ -34,33 +34,41 @@ class FileTranscriber(QObject):
     def run(self):
         if self.transcription_task.source == FileTranscriptionTask.Source.URL_IMPORT:
             temp_output_path = tempfile.mktemp()
+            wav_file = temp_output_path + ".wav"
 
             ydl = YoutubeDL(
                 {
                     "format": "wav/bestaudio/best",
                     "progress_hooks": [self.on_download_progress],
                     "outtmpl": temp_output_path,
-                    "logger": logging.getLogger(),
-                    "ffmpeg_location": APP_BASE_DIR if getattr(sys, "frozen", False) else None,
-                    "postprocessors": [
-                        {
-                            "key": "FFmpegExtractAudio",
-                            "preferredcodec": "wav",
-                        }
-                    ],
+                    "logger": logging.getLogger()
                 }
             )
 
             try:
-                logging.debug(f"Downloading audio file from URL: {self.transcription_task.url}")
                 ydl.download([self.transcription_task.url])
             except DownloadError as exc:
-                logging.debug(f"Error downloading audio: {exc.msg}")
                 self.error.emit(exc.msg)
                 return
 
-            self.transcription_task.file_path = temp_output_path + ".wav"
-            logging.debug(f"Downloaded audio to file: {self.transcription_task.file_path}")
+            cmd = [
+                "ffmpeg",
+                "-nostdin",
+                "-threads", "0",
+                "-f", "s16le",
+                "-ac", "1",
+                "-acodec", "pcm_s16le",
+                "-ar", str(SAMPLE_RATE),
+                "-loglevel", "error",
+                "-i", temp_output_path, wav_file]
+
+            try:
+                subprocess.run(cmd, capture_output=True, check=True)
+            except subprocess.CalledProcessError as exc:
+                logging.exception("")
+                raise Exception(exc.stderr.decode("utf-8"))
+
+            self.transcription_task.file_path = wav_file
 
         try:
             segments = self.transcribe()
