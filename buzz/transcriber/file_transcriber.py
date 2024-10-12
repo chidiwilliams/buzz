@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 import shutil
 import tempfile
 from abc import abstractmethod
@@ -9,6 +10,7 @@ from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from yt_dlp import YoutubeDL
 from yt_dlp.utils import DownloadError
 
+from buzz.assets import APP_BASE_DIR
 from buzz.transcriber.transcriber import (
     FileTranscriptionTask,
     get_output_file_path,
@@ -39,6 +41,7 @@ class FileTranscriber(QObject):
                     "progress_hooks": [self.on_download_progress],
                     "outtmpl": temp_output_path,
                     "logger": logging.getLogger(),
+                    "ffmpeg_location": APP_BASE_DIR if getattr(sys, "frozen", False) else None,
                     "postprocessors": [
                         {
                             "key": "FFmpegExtractAudio",
