@@ -67,7 +67,7 @@ class FileTranscriber(QObject):
             try:
                 subprocess.run(cmd, capture_output=True, check=True)
             except subprocess.CalledProcessError as exc:
-                logging.debug(f"Error processing downloades audio: {exc.msg}")
+                logging.debug(f"Error processing downloaded audio: {exc.msg}")
                 raise Exception(exc.stderr.decode("utf-8"))
 
             self.transcription_task.file_path = wav_file
