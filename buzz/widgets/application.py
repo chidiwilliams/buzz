@@ -25,16 +25,6 @@ class Application(QApplication):
         self.setApplicationName(APP_NAME)
         self.setApplicationVersion(VERSION)
 
-        self.settings = Settings()
-        font_size = self.settings.value(
-            key=Settings.Key.FONT_SIZE, default_value=self.font().pointSize()
-        )
-
-        if sys.platform == "darwin":
-            self.setFont(QFont("SF Pro", font_size))
-        else:
-            self.setFont(QFont(self.font().family(), font_size))
-
         if sys.platform.startswith("win") and darkdetect.isDark():
             palette = QPalette()
             palette.setColor(QPalette.ColorRole.Window, QColor("#121212"))
@@ -166,6 +156,16 @@ class Application(QApplication):
             }           
             """
             self.setStyleSheet(stylesheet)
+
+        self.settings = Settings()
+        font_size = self.settings.value(
+            key=Settings.Key.FONT_SIZE, default_value=self.font().pointSize()
+        )
+
+        if sys.platform == "darwin":
+            self.setFont(QFont("SF Pro", font_size))
+        else:
+            self.setFont(QFont(self.font().family(), font_size))
 
         db = setup_app_db()
         transcription_service = TranscriptionService(
