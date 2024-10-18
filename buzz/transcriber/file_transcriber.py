@@ -8,7 +8,6 @@ from typing import Optional, List
 
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from yt_dlp import YoutubeDL
-from yt_dlp.utils import DownloadError
 
 from buzz.whisper_audio import SAMPLE_RATE
 from buzz.transcriber.transcriber import (

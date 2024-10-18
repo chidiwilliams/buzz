@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-06 13:55+0300\n"
-"PO-Revision-Date: 2024-10-06 14:00+0300\n"
+"POT-Creation-Date: 2024-10-18 08:41+0300\n"
+"PO-Revision-Date: 2024-10-18 08:43+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -48,11 +48,11 @@ msgstr "Atcelt"
 msgid "URL:"
 msgstr "URL:"
 
-#: buzz/widgets/import_url_dialog.py:46
+#: buzz/widgets/import_url_dialog.py:44
 msgid "Invalid URL"
 msgstr "Adrese nav derīga"
 
-#: buzz/widgets/import_url_dialog.py:46
+#: buzz/widgets/import_url_dialog.py:44
 msgid "The URL you entered is invalid."
 msgstr "Jūsu ievadītā URL adrese nav derīga."
 
@@ -60,52 +60,52 @@ msgstr "Jūsu ievadītā URL adrese nav derīga."
 msgid "Reset to Defaults"
 msgstr "Atjaunot noklusētos"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:49
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:52
 msgid "Font Size"
 msgstr "Fonta izmērs"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:56
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:60
 msgid "Test"
 msgstr "Pārbaudīt"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:62
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:66
 msgid "OpenAI API key"
 msgstr "OpenAI API atslēga"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:75
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:79
 msgid "OpenAI base url"
 msgstr "OpenAI adrese"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:84
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:88
 msgid "Default export file name"
 msgstr "Eksporta fails"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:90
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:94
 msgid "Enable live recording transcription export"
 msgstr "Eksportēt dzīvā ieraksta transkriptus"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:96
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:100
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:47
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:50
 msgid "Browse"
 msgstr "Izvēlēties"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:115
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:119
 msgid "Export folder"
 msgstr "Eksportēt mapē"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:126
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:130
 msgid "Live recording mode"
 msgstr ""
 "Dzīvā ieraksta\n"
 "režīms"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:151
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:157
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:155
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:161
 msgid "OpenAI API Key Test"
 msgstr "OpenAI API atslēgas pārbaude"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:152
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:156
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
@@ -113,11 +113,23 @@ msgstr ""
 "Jūsu API atslēga ir derīga. Buzz izmantos to runas atpazīšanai ar Whisper "
 "API un tulkošanai."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:179
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:172
+msgid "Invalid API key"
+msgstr "Nederīga API atslēga"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:173
+msgid ""
+"API supports only base64 characters (A-Za-z0-9+/=). Other characters in API "
+"key may cause errors."
+msgstr ""
+"API atbalsta tikai base64 simbolus (A-Za-z0-9+/=). Citi simboli API atslēgā "
+"var radīt kļūdas."
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:191
 msgid "Select Export Folder"
 msgstr "Izvēlieties mapi kurā eksportēt"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:231
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:243
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
