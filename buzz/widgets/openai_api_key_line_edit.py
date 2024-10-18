@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from PyQt6.QtCore import pyqtSignal
@@ -10,6 +11,7 @@ from buzz.widgets.line_edit import LineEdit
 
 class OpenAIAPIKeyLineEdit(LineEdit):
     key_changed = pyqtSignal(str)
+    focus_out = pyqtSignal()
 
     def __init__(self, key: str, parent: Optional[QWidget] = None):
         super().__init__(key, parent)
@@ -30,6 +32,10 @@ class OpenAIAPIKeyLineEdit(LineEdit):
         self.toggle_show_openai_api_key_action.triggered.connect(
             self.on_toggle_show_action_triggered
         )
+
+    def focusOutEvent(self, event):
+        super().focusOutEvent(event)
+        self.focus_out.emit()
 
     def on_toggle_show_action_triggered(self):
         if self.echoMode() == QLineEdit.EchoMode.Password:

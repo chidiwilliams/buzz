@@ -1,3 +1,4 @@
+import re
 import logging
 import requests
 from typing import Optional
@@ -23,6 +24,8 @@ from buzz.widgets.line_edit import LineEdit
 from buzz.widgets.openai_api_key_line_edit import OpenAIAPIKeyLineEdit
 from buzz.locale import _
 from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
+
+base64_pattern = re.compile(r'^[A-Za-z0-9+/=]*$')
 
 
 class GeneralPreferencesWidget(QWidget):
@@ -52,6 +55,7 @@ class GeneralPreferencesWidget(QWidget):
         self.openai_api_key_line_edit.key_changed.connect(
             self.on_openai_api_key_changed
         )
+        self.openai_api_key_line_edit.focus_out.connect(self.on_openai_api_key_focus_out)
 
         self.test_openai_api_key_button = QPushButton(_("Test"))
         self.test_openai_api_key_button.clicked.connect(
@@ -160,6 +164,14 @@ class GeneralPreferencesWidget(QWidget):
         self.openai_api_key = key
         self.update_test_openai_api_key_button()
         self.openai_api_key_changed.emit(key)
+
+    def on_openai_api_key_focus_out(self):
+        if not base64_pattern.match(self.openai_api_key):
+            QMessageBox.warning(
+                self,
+                _("Invalid API key"),
+                _("API supports only base64 characters (A-Za-z0-9+/=). Other characters in API key may cause errors."),
+            )
 
     def on_custom_openai_base_url_changed(self, text: str):
         self.settings.set_value(Settings.Key.CUSTOM_OPENAI_BASE_URL, text)
