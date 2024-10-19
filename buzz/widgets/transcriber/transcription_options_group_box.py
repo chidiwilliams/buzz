@@ -51,7 +51,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
 
         self.whisper_model_size_combo_box = QComboBox(self)
         self.whisper_model_size_combo_box.addItems(
-            [size.value.title() for size in WhisperModelSize if size != WhisperModelSize.CUSTOM]
+            [size.value.title() for size in WhisperModelSize if size not in {WhisperModelSize.CUSTOM, WhisperModelSize.LARGEV3TURBO}]
         )
         self.whisper_model_size_combo_box.currentTextChanged.connect(
             self.on_whisper_model_size_changed
@@ -141,12 +141,24 @@ class TranscriptionOptionsGroupBox(QGroupBox):
                 and whisper_model_size == WhisperModelSize.CUSTOM),
             )
 
+        if model_type == ModelType.WHISPER:
+            if self.whisper_model_size_combo_box.findText(WhisperModelSize.LARGEV3TURBO.value.title()) == -1:
+                self.whisper_model_size_combo_box.addItem(WhisperModelSize.LARGEV3TURBO.value.title())
+
+        # remove custom model size for whisper_cpp and faster_whisper
         custom_model_index = (self.whisper_model_size_combo_box
                               .findText(WhisperModelSize.CUSTOM.value.title()))
         if (model_type == ModelType.WHISPER
                 and whisper_model_size == WhisperModelSize.CUSTOM
                 and custom_model_index != -1):
             self.whisper_model_size_combo_box.removeItem(custom_model_index)
+
+        # Remove turbo model size for whisper_cpp and faster_whisper
+        turbo_model_index = (self.whisper_model_size_combo_box
+                             .findText(WhisperModelSize.LARGEV3TURBO.value.title()))
+        if ((model_type == ModelType.WHISPER_CPP or model_type == ModelType.FASTER_WHISPER)
+            and  turbo_model_index != -1):
+            self.whisper_model_size_combo_box.removeItem(turbo_model_index)
 
         if ((model_type == ModelType.WHISPER_CPP or model_type == ModelType.FASTER_WHISPER)
                 and custom_model_index == -1):
