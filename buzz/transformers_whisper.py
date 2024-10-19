@@ -170,7 +170,7 @@ class TransformersWhisper:
             use_safetensors = len(safetensors_files) > 0
 
         model = AutoModelForSpeechSeq2Seq.from_pretrained(
-            self.model_id, torch_dtype=torch_dtype, use_safetensors=use_safetensors
+            self.model_id, torch_dtype=torch_dtype, low_cpu_mem_usage=True, use_safetensors=use_safetensors
         )
 
         model.generation_config.language = language

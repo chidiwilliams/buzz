@@ -50,6 +50,7 @@ class WhisperModelSize(str, enum.Enum):
     LARGE = "large"
     LARGEV2 = "large-v2"
     LARGEV3 = "large-v3"
+    LARGEV3TURBO = "large-v3-turbo"
     CUSTOM = "custom"
 
     def to_faster_whisper_model_size(self) -> str:
