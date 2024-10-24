@@ -1,3 +1,4 @@
+import os
 import logging
 from typing import Optional, List
 
@@ -6,7 +7,7 @@ from PyQt6.QtWidgets import QGroupBox, QWidget, QFormLayout, QComboBox
 
 from buzz.locale import _
 from buzz.settings.settings import Settings
-from buzz.model_loader import ModelType, WhisperModelSize
+from buzz.model_loader import ModelType, WhisperModelSize, get_whisper_cpp_file_path
 from buzz.transcriber.transcriber import TranscriptionOptions, Task
 from buzz.widgets.model_type_combo_box import ModelTypeComboBox
 from buzz.widgets.openai_api_key_line_edit import OpenAIAPIKeyLineEdit
@@ -141,16 +142,15 @@ class TranscriptionOptionsGroupBox(QGroupBox):
                 and whisper_model_size == WhisperModelSize.CUSTOM),
             )
 
+        # Add turbo model size for whisper
         if model_type == ModelType.WHISPER:
             if self.whisper_model_size_combo_box.findText(WhisperModelSize.LARGEV3TURBO.value.title()) == -1:
                 self.whisper_model_size_combo_box.addItem(WhisperModelSize.LARGEV3TURBO.value.title())
 
-        # remove custom model size for whisper_cpp and faster_whisper
+        # Remove custom model size for whisper
         custom_model_index = (self.whisper_model_size_combo_box
                               .findText(WhisperModelSize.CUSTOM.value.title()))
-        if (model_type == ModelType.WHISPER
-                and whisper_model_size == WhisperModelSize.CUSTOM
-                and custom_model_index != -1):
+        if model_type == ModelType.WHISPER and custom_model_index != -1:
             self.whisper_model_size_combo_box.removeItem(custom_model_index)
 
         # Remove turbo model size for whisper_cpp and faster_whisper
@@ -160,8 +160,20 @@ class TranscriptionOptionsGroupBox(QGroupBox):
             and  turbo_model_index != -1):
             self.whisper_model_size_combo_box.removeItem(turbo_model_index)
 
-        if ((model_type == ModelType.WHISPER_CPP or model_type == ModelType.FASTER_WHISPER)
+        # Add custom model size for whisper_cpp
+        custom_model_index = (self.whisper_model_size_combo_box
+                              .findText(WhisperModelSize.CUSTOM.value.title()))
+        if (model_type == ModelType.WHISPER_CPP
+                and os.path.isfile(get_whisper_cpp_file_path(size=WhisperModelSize.CUSTOM))
                 and custom_model_index == -1):
+            self.whisper_model_size_combo_box.addItem(
+                WhisperModelSize.CUSTOM.value.title()
+            )
+
+        # Add custom model size for faster_whisper
+        custom_model_index = (self.whisper_model_size_combo_box
+                              .findText(WhisperModelSize.CUSTOM.value.title()))
+        if model_type == ModelType.FASTER_WHISPER and custom_model_index == -1:
             self.whisper_model_size_combo_box.addItem(
                 WhisperModelSize.CUSTOM.value.title()
             )
