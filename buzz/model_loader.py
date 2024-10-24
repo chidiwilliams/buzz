@@ -367,6 +367,9 @@ def download_from_huggingface(
     except Exception as exc:
         logging.exception(exc)
         model_download_monitor.stop_monitoring()
+        # Cleanup to prevent incomplete downloads errors
+        if os.path.exists(model_root):
+            shutil.rmtree(model_root)
         return ""
 
     model_download_monitor.stop_monitoring()
@@ -501,9 +504,13 @@ class ModelDownloader(QRunnable):
                 self.signals.finished.emit(file_path)
         except requests.RequestException:
             self.signals.error.emit(_("A connection error occurred"))
+            if os.path.exists(file_path):
+                os.remove(file_path)
             logging.exception("")
         except Exception as exc:
             self.signals.error.emit(str(exc))
+            if os.path.exists(file_path):
+                os.remove(file_path)
             logging.exception(exc)
 
     def download_model(
