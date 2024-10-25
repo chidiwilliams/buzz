@@ -193,7 +193,7 @@ msgstr "Lejupielādēt"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:98
 msgid "Show file location"
-msgstr "Pādīt faila atrašanās vietu"
+msgstr "Rādīt faila atrašanās vietu"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:106
 msgid "Delete"
