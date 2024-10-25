@@ -46,3 +46,7 @@ sidebar_position: 5
    See method 1 in this video https://www.youtube.com/watch?v=eRcCYgOuSYQ
 
    For method 2 there is no need to uninstall the antivirus, but see if you can temporarily disable it or if there are settings that may prevent Buzz from accessing the microphone.
+
+7. **Can I use Buzz on a computer without internet?**
+
+    Yes, Buzz can be used without internet connection if you download the necessary models on some other computer that has the internet and manually move them to the offline computer. The easiest way to find where the models are stored is to go to Help -> Preferences -> Models. Then download some model, and push "Show file location" button. This will open the folder where the models are stored. Copy the models folder to the same location on the offline computer. F.e. for Linux it is `.cache/Buzz/models` in your home directory.
