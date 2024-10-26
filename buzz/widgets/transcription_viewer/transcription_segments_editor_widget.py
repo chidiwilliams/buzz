@@ -117,6 +117,7 @@ class TranscriptionSegmentsEditorWidget(QTableView):
         self.setSelectionMode(QTableView.SelectionMode.SingleSelection)
         self.selectionModel().selectionChanged.connect(self.on_selection_changed)
         model.select()
+        model.rowsInserted.connect(self.init_row_height)
 
         self.has_translations = self.has_non_empty_translation()
 
@@ -133,7 +134,9 @@ class TranscriptionSegmentsEditorWidget(QTableView):
     def init_row_height(self):
         font_metrics = QFontMetrics(self.font())
         max_row_height = font_metrics.height() * 4
-        for row in range(self.model().rowCount()):
+        row_count = self.model().rowCount()
+
+        for row in range(row_count):
             self.setRowHeight(row, max_row_height)
 
     def has_non_empty_translation(self) -> bool:
