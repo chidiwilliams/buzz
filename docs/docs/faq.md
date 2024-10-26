@@ -5,8 +5,10 @@ sidebar_position: 5
 
 1. **Where are the models stored?**
 
-   The Whisper models are stored in `~/.cache/whisper`. The Whisper.cpp models are stored in `~/Library/Caches/Buzz`
-   (Mac OS), `~/.cache/Buzz` (Unix), or `C:\Users\<username>\AppData\Local\Buzz\Buzz\Cache` (Windows).
+   The models are stored in `~/.cache/Buzz` (Linux), `~/Library/Caches/Buzz`
+   (Mac OS) or `%USERPROFILE%\AppData\Local\Buzz\Buzz\Cache` (Windows).
+
+   Paste the location in your file manager to access the models.
 
 2. **What can I try if the transcription runs too slowly?**
 
@@ -27,7 +29,7 @@ sidebar_position: 5
 
    Model size to use will depend on your hardware and use case. Smaller models will work faster but will have more inaccuracies. Larger models will be more accurate but will require more powerful hardware or longer time to transcribe. 
 
-   When choosing among large models consider the following. "Large" is the first released older model, "Large-V2" is later updated model with better accuracy, for some languages considered the most robust and stable. "Large-V3" is the latest model with the best accuracy in many cases, but some times can hallucinate or invent words that were never in the audio. The only sure way to know what model best suits your needs is to test them all in your language. 
+   When choosing among large models consider the following. "Large" is the first released older model, "Large-V2" is later updated model with better accuracy, for some languages considered the most robust and stable. "Large-V3" is the latest model with the best accuracy in many cases, but some times can hallucinate or invent words that were never in the audio. "Turbo" model tries to get a good balance between speed and accuracy. The only sure way to know what model best suits your needs is to test them all in your language. 
 
 5. **How to get GPU acceleration for faster transcription?**
 
@@ -49,4 +51,10 @@ sidebar_position: 5
 
 7. **Can I use Buzz on a computer without internet?**
 
-    Yes, Buzz can be used without internet connection if you download the necessary models on some other computer that has the internet and manually move them to the offline computer. The easiest way to find where the models are stored is to go to Help -> Preferences -> Models. Then download some model, and push "Show file location" button. This will open the folder where the models are stored. Copy the models folder to the same location on the offline computer. F.e. for Linux it is `.cache/Buzz/models` in your home directory.
+   Yes, Buzz can be used without internet connection if you download the necessary models on some other computer that has the internet and manually move them to the offline computer. The easiest way to find where the models are stored is to go to Help -> Preferences -> Models. Then download some model, and push "Show file location" button. This will open the folder where the models are stored. Copy the models folder to the same location on the offline computer. F.e. for Linux it is `.cache/Buzz/models` in your home directory.
+
+8. **Buzz crashes, what to do?**
+
+   If a model download was incomplete or corrupted, Buzz may crash. Try to delete the downloaded model files in `Help -> Preferences -> Models` and re-download them.
+
+   If that does not help, check the log file for errors and [report the issue](https://github.com/chidiwilliams/buzz/issues) so we can fix it. The log file is located in `~/Library/Logs/Buzz` (Mac OS) or `%USERPROFILE%\AppData\Local\Buzz\Buzz\Logs` (Windows). On Linux run the Buzz from the command line to see the relevant messages.
