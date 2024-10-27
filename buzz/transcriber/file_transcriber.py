@@ -37,7 +37,7 @@ class FileTranscriber(QObject):
 
             ydl = YoutubeDL(
                 {
-                    "format": "wav/bestaudio/best",
+                    "format": "bestaudio/best",
                     "progress_hooks": [self.on_download_progress],
                     "outtmpl": temp_output_path,
                     "logger": logging.getLogger()
@@ -56,12 +56,12 @@ class FileTranscriber(QObject):
                 "ffmpeg",
                 "-nostdin",
                 "-threads", "0",
-                "-f", "s16le",
+                "-i", temp_output_path,
                 "-ac", "1",
-                "-acodec", "pcm_s16le",
                 "-ar", str(SAMPLE_RATE),
+                "-acodec", "pcm_s16le",
                 "-loglevel", "panic",
-                "-i", temp_output_path, wav_file]
+                wav_file]
 
             result = subprocess.run(cmd, capture_output=True)
 
