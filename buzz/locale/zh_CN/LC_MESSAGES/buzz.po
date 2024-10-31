@@ -45,63 +45,63 @@ msgstr "取消"
 
 #: buzz/widgets/import_url_dialog.py:34
 msgid "URL:"
-msgstr ""
+msgstr "网址"
 
 #: buzz/widgets/import_url_dialog.py:44
 msgid "Invalid URL"
-msgstr ""
+msgstr "无效的网址"
 
 #: buzz/widgets/import_url_dialog.py:44
 msgid "The URL you entered is invalid."
-msgstr ""
+msgstr "输入的网址无效"
 
 #: buzz/widgets/preferences_dialog/shortcuts_editor_preferences_widget.py:29
 msgid "Reset to Defaults"
-msgstr ""
+msgstr "恢复默认"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:52
 msgid "Font Size"
-msgstr ""
+msgstr "字体大小"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:60
 msgid "Test"
-msgstr ""
+msgstr "测试"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:66
 msgid "OpenAI API key"
-msgstr ""
+msgstr "OpenAI API key"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:79
 msgid "OpenAI base url"
-msgstr ""
+msgstr "OpenAI base url"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:88
 msgid "Default export file name"
-msgstr ""
+msgstr "默认输出文件名"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:94
 msgid "Enable live recording transcription export"
-msgstr ""
+msgstr "启用实时录制转录导出"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:100
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:47
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:50
 msgid "Browse"
-msgstr ""
+msgstr "浏览"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:119
 msgid "Export folder"
-msgstr ""
+msgstr "导出文件夹"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:130
 #, fuzzy
 msgid "Live recording mode"
-msgstr "现场录制"
+msgstr "现场录制模式"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:155
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:161
 msgid "OpenAI API Key Test"
-msgstr ""
+msgstr "测试OpenAI API Key"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:156
 msgid ""
@@ -111,7 +111,7 @@ msgstr ""
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:172
 msgid "Invalid API key"
-msgstr ""
+msgstr "无效的API key"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:173
 msgid ""
@@ -121,7 +121,7 @@ msgstr ""
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:191
 msgid "Select Export Folder"
-msgstr ""
+msgstr "选择输出文件夹"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:243
 msgid ""
@@ -132,42 +132,42 @@ msgstr ""
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:42
 msgid "Enable folder watch"
-msgstr ""
+msgstr "开启文件夹查看"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:94
 msgid "Input folder"
-msgstr ""
+msgstr "导入文件夹"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:95
 msgid "Output folder"
-msgstr ""
+msgstr "导出文件夹"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:105
 #, fuzzy
 msgid "Select Input Folder"
-msgstr "选择音频文件"
+msgstr "选择导入文件夹"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:114
 msgid "Select Output Folder"
-msgstr ""
+msgstr "选择输出文件夹"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:43
 #, fuzzy
 msgid "Preferences"
-msgstr "偏好设定..."
+msgstr "偏好设置..."
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:50
 msgid "General"
-msgstr ""
+msgstr "通用"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:53
 #, fuzzy
 msgid "Models"
-msgstr "模型:"
+msgstr "模型"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:57
 msgid "Shortcuts"
-msgstr ""
+msgstr "快捷键"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:63
 msgid "Folder Watch"
@@ -184,11 +184,11 @@ msgstr ""
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:93
 #, fuzzy
 msgid "Download"
-msgstr "下载模型"
+msgstr "下载"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:98
 msgid "Show file location"
-msgstr ""
+msgstr "查看文件位置"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:106
 msgid "Delete"
@@ -201,7 +201,7 @@ msgstr "下载模型"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:142
 msgid "Available for Download"
-msgstr ""
+msgstr "删除"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:163
 msgid "Download link to Whisper.cpp ggml model file"
@@ -209,7 +209,7 @@ msgstr ""
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:238
 msgid "Delete Model"
-msgstr ""
+msgstr "删除模型"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:239
 #, fuzzy
