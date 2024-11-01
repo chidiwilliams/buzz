@@ -249,6 +249,7 @@ WHISPER_CPP_MODELS_SHA256 = {
     "large-v1": "7d99f41a10525d0206bddadd86760181fa920438b6b33237e3118ff6c83bb53d",
     "large-v2": "9a423fe4d40c82774b6af34115b8b935f34152246eb19e80e376071d3f999487",
     "large-v3": "64d182b440b98d5203c4f9bd541544d84c605196c4f7b845dfa11fb23594d1e2",
+    "large-v3-turbo": "1fc70f774d38eb169993ac391eea357ef47c88757ef72ee5943879b7e8e2bc69",
     "custom": None,
 }
 
@@ -383,12 +384,6 @@ def download_faster_whisper_model(
     size = model.whisper_model_size.to_faster_whisper_model_size()
     custom_repo_id = model.hugging_face_model_id
 
-    if size != WhisperModelSize.CUSTOM and size not in faster_whisper.utils._MODELS:
-        raise ValueError(
-            "Invalid model size '%s', expected one of: %s"
-            % (size, ", ".join(faster_whisper.utils._MODELS))
-        )
-
     if size == WhisperModelSize.CUSTOM and custom_repo_id == "":
         raise ValueError("Custom model id is not provided")
 
@@ -396,6 +391,11 @@ def download_faster_whisper_model(
         repo_id = custom_repo_id
     elif size == WhisperModelSize.LARGEV3:
         repo_id = "Systran/faster-whisper-large-v3"
+    # Maybe switch to 'mobiuslabsgmbh/faster-whisper-large-v3-turbo', seems to be used in
+    #  faster-whisper code https://github.com/SYSTRAN/faster-whisper/blob/master/faster_whisper/utils.py#L29
+    #  If so changes needed also in whisper_file_transcriber.py
+    elif size == WhisperModelSize.LARGEV3TURBO:
+        repo_id = "deepdml/faster-whisper-large-v3-turbo-ct2"
     else:
         repo_id = "guillaumekln/faster-whisper-%s" % size
 
