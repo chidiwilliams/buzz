@@ -181,11 +181,6 @@ class ModelsPreferencesWidget(QWidget):
                     model_size == WhisperModelSize.CUSTOM):
                 continue
 
-            # Skip turbo model for Faste Whisper and Whisper.cpp
-            if (self.model.model_type in {ModelType.FASTER_WHISPER, ModelType.WHISPER_CPP} and
-                    model_size == WhisperModelSize.LARGEV3TURBO):
-                continue
-
             model = TranscriptionModel(
                 model_type=self.model.model_type,
                 whisper_model_size=WhisperModelSize(model_size),
