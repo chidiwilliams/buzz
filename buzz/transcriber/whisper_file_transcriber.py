@@ -124,6 +124,7 @@ class WhisperFileTranscriber(FileTranscriber):
             audio=task.file_path,
             language=language,
             task=task.transcription_options.task.value,
+            word_timestamps=task.transcription_options.word_level_timings,
         )
         return [
             Segment(

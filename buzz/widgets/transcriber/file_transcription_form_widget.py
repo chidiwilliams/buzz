@@ -108,7 +108,6 @@ class FileTranscriptionFormWidget(QWidget):
 
     def reset_word_level_timings(self):
         self.word_level_timings_checkbox.setDisabled(
-            self.transcription_options.model.model_type == ModelType.HUGGING_FACE
-            or self.transcription_options.model.model_type
+            self.transcription_options.model.model_type
             == ModelType.OPEN_AI_WHISPER_API
         )
