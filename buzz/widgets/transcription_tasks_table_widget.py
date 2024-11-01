@@ -198,7 +198,9 @@ class TranscriptionTasksTableWidget(QTableView):
                 definition.header,
             )
 
-            visible = self.settings.settings.value(definition.id, "true") == "true"
+            visible = True
+            if definition.hidden_toggleable:
+                visible = self.settings.settings.value(definition.id, "true") in {"true", "True", True}
 
             self.setColumnHidden(definition.column.value, not visible)
             if definition.width is not None:
