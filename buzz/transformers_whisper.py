@@ -160,6 +160,7 @@ class TransformersWhisper:
         audio: Union[str, np.ndarray],
         language: str,
         task: str,
+        word_timestamps: bool = False,
     ):
         device = "cuda" if torch.cuda.is_available() else "cpu"
         torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
@@ -190,7 +191,7 @@ class TransformersWhisper:
             device=device,
         )
 
-        transcript = pipe(audio, return_timestamps=True)
+        transcript = pipe(audio, return_timestamps="word" if word_timestamps else True)
 
         segments = []
         for chunk in transcript['chunks']:
