@@ -530,6 +530,7 @@ msgstr "导入媒体文件..."
 msgid "About"
 msgstr ""
 
+
 #: buzz/widgets/menu_bar.py:48
 msgid "Preferences..."
 msgstr "偏好设定..."
@@ -610,4 +611,4 @@ msgstr ""
 #~ msgstr "ID"
 
 #~ msgid "Downloading model (0%, unknown time remaining)"
-#~ msgstr "正在下载模型 (0%, unknown 剩余时间)"
+#~ msgstr "正在下载模型 (0%, 未知剩余时间)"
