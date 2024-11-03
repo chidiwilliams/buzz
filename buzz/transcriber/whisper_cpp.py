@@ -16,8 +16,13 @@ if LOADED_WHISPER_CPP_BINARY:
 
 IS_COREML_SUPPORTED = False
 if platform.system() == "Darwin" and platform.machine() == "arm64":
-    from buzz import whisper_cpp_coreml
-    IS_COREML_SUPPORTED = True
+    try:
+        from buzz import whisper_cpp_coreml  # noqa: F401
+
+        IS_COREML_SUPPORTED = True
+    except ImportError:
+        logging.exception("")
+
 
 class WhisperCpp:
     def __init__(self, model: str) -> None:
