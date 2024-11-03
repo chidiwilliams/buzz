@@ -107,6 +107,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
             self.form_layout.addRow("", self.whisper_model_size_layout)
         else:
             self.load_note_tooltip_icon = None
+            self.whisper_model_size_layout = None
             self.form_layout.addRow("", self.whisper_model_size_combo_box)
 
         self.form_layout.addRow("", self.hugging_face_search_line_edit)
@@ -197,6 +198,14 @@ class TranscriptionOptionsGroupBox(QGroupBox):
             or (model_type == ModelType.WHISPER_CPP)
             or (model_type == ModelType.FASTER_WHISPER),
         )
+        if self.whisper_model_size_layout is not None:
+            self.form_layout.setRowVisible(
+                self.whisper_model_size_layout,
+                (model_type == ModelType.WHISPER)
+                or (model_type == ModelType.WHISPER_CPP)
+                or (model_type == ModelType.FASTER_WHISPER),
+            )
+
         self.form_layout.setRowVisible(
             self.openai_access_token_edit, model_type == ModelType.OPEN_AI_WHISPER_API
         )
