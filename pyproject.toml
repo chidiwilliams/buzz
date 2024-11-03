@@ -6,7 +6,7 @@ authors = ["Chidi Williams <williamschidi1@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 include = [
-    "buzz/libwhisper.*", "buzz/*.dll", "buzz/whisper_cpp.py", "buzz/locale/*/LC_MESSAGES/buzz.mo",
+    "buzz/libwhisper.*", "buzz/libwhisper-coreml.*", "buzz/*.dll", "buzz/whisper_cpp.py", "buzz/locale/*/LC_MESSAGES/buzz.mo",
     "buzz/dll_backup/*",
 ]
 repository = "https://github.com/chidiwilliams/buzz"
