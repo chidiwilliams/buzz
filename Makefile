@@ -97,6 +97,7 @@ ifeq ($(shell uname -s), Darwin)
 	rm -rf whisper.cpp/build || true
 	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS) -DWHISPER_COREML=1 -DCMAKE_OSX_ARCHITECTURES="arm64"
 	cmake --build whisper.cpp/build --verbose
+	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) buzz/libwhisper-coreml.dylib || true
 	cp whisper.cpp/build/$(LIBWHISPER) buzz/libwhisper-coreml.dylib || true
 endif
 endif
