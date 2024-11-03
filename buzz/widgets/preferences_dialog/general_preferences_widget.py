@@ -56,6 +56,7 @@ class GeneralPreferencesWidget(QWidget):
             self.on_openai_api_key_changed
         )
         self.openai_api_key_line_edit.focus_out.connect(self.on_openai_api_key_focus_out)
+        self.openai_api_key_line_edit.setMinimumWidth(200)
 
         self.test_openai_api_key_button = QPushButton(_("Test"))
         self.test_openai_api_key_button.clicked.connect(

@@ -15,11 +15,11 @@ from sounddevice import PortAudioError
 from openai import OpenAI
 from PyQt6.QtCore import QObject, pyqtSignal
 
-from buzz import transformers_whisper, whisper_audio
+from buzz import whisper_audio
 from buzz.model_loader import WhisperModelSize, ModelType, get_custom_api_whisper_model
 from buzz.settings.settings import Settings
 from buzz.transcriber.transcriber import TranscriptionOptions, Task
-from buzz.transcriber.whisper_cpp import WhisperCpp, whisper_cpp_params
+from buzz.transcriber.whisper_cpp import WhisperCpp
 from buzz.transformers_whisper import TransformersWhisper
 from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
 
@@ -171,7 +171,7 @@ class RecordingTranscriber(QObject):
                             assert isinstance(model, WhisperCpp)
                             result = model.transcribe(
                                 audio=samples,
-                                params=whisper_cpp_params(
+                                params=model.get_params(
                                     transcription_options=self.transcription_options
                                 ),
                             )

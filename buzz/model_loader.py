@@ -10,16 +10,16 @@ import sys
 import tempfile
 import warnings
 import platform
+import requests
+import whisper
+import huggingface_hub
+import zipfile
 from dataclasses import dataclass
 from typing import Optional, List
 
-import requests
 from PyQt6.QtCore import QObject, pyqtSignal, QRunnable
 from platformdirs import user_cache_dir
-
-import faster_whisper
-import whisper
-import huggingface_hub
+from huggingface_hub.errors import LocalEntryNotFoundError
 
 from buzz.locale import _
 
@@ -205,7 +205,7 @@ class TranscriptionModel:
     def get_local_model_path(self) -> Optional[str]:
         if self.model_type == ModelType.WHISPER_CPP:
             file_path = get_whisper_cpp_file_path(size=self.whisper_model_size)
-            if not os.path.exists(file_path) or not os.path.isfile(file_path):
+            if not file_path or not os.path.exists(file_path) or not os.path.isfile(file_path):
                 return None
             return file_path
 
@@ -241,21 +241,27 @@ class TranscriptionModel:
         raise Exception("Unknown model type")
 
 
-WHISPER_CPP_MODELS_SHA256 = {
-    "tiny": "be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21",
-    "base": "60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe",
-    "small": "1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b",
-    "medium": "6c14d5adee5f86394037b4e4e8b59f1673b6cee10e3cf0b11bbdbee79c156208",
-    "large-v1": "7d99f41a10525d0206bddadd86760181fa920438b6b33237e3118ff6c83bb53d",
-    "large-v2": "9a423fe4d40c82774b6af34115b8b935f34152246eb19e80e376071d3f999487",
-    "large-v3": "64d182b440b98d5203c4f9bd541544d84c605196c4f7b845dfa11fb23594d1e2",
-    "large-v3-turbo": "1fc70f774d38eb169993ac391eea357ef47c88757ef72ee5943879b7e8e2bc69",
-    "custom": None,
-}
+WHISPER_CPP_REPO_ID = "ggerganov/whisper.cpp"
 
 
 def get_whisper_cpp_file_path(size: WhisperModelSize) -> str:
-    return os.path.join(model_root_dir, f"ggml-model-whisper-{size.value}.bin")
+    if size == WhisperModelSize.CUSTOM:
+        return os.path.join(model_root_dir, f"ggml-model-whisper-custom.bin")
+
+    model_filename = f"ggml-{size.to_whisper_cpp_model_size()}.bin"
+
+    try:
+        model_path =  huggingface_hub.snapshot_download(
+            repo_id=WHISPER_CPP_REPO_ID,
+            allow_patterns=[model_filename],
+            local_files_only=True,
+            cache_dir=model_root_dir,
+            etag_timeout=60
+        )
+
+        return os.path.join(model_path, model_filename)
+    except LocalEntryNotFoundError:
+        return ''
 
 
 def get_whisper_file_path(size: WhisperModelSize) -> str:
@@ -434,6 +440,7 @@ class ModelDownloader(QRunnable):
     def __init__(self, model: TranscriptionModel, custom_model_url: Optional[str] = None):
         super().__init__()
 
+        self.is_coreml_supported = platform.system() == "Darwin" and platform.machine() == "arm64"
         self.signals = self.Signals()
         self.model = model
         self.stopped = False
@@ -443,21 +450,40 @@ class ModelDownloader(QRunnable):
         logging.debug("Downloading model: %s, %s", self.model, self.model.hugging_face_model_id)
 
         if self.model.model_type == ModelType.WHISPER_CPP:
-            model_name = self.model.whisper_model_size.to_whisper_cpp_model_size()
-
             if self.custom_model_url:
                 url = self.custom_model_url
-            else:
-                url = huggingface_hub.hf_hub_url(
-                    repo_id="ggerganov/whisper.cpp",
-                    filename=f"ggml-{model_name}.bin",
-                )
+                file_path = get_whisper_cpp_file_path(size=self.model.whisper_model_size)
+                return self.download_model_to_path(url=url, file_path=file_path)
 
-            file_path = get_whisper_cpp_file_path(size=self.model.whisper_model_size)
-            expected_sha256 = WHISPER_CPP_MODELS_SHA256[model_name]
-            return self.download_model_to_path(
-                url=url, file_path=file_path, expected_sha256=expected_sha256
+            model_name = self.model.whisper_model_size.to_whisper_cpp_model_size()
+
+            whisper_cpp_model_files = [
+                f"ggml-{model_name}.bin",
+                "README.md"
+            ]
+            num_large_files = 1
+            if self.is_coreml_supported:
+                whisper_cpp_model_files = [
+                        f"ggml-{model_name}.bin",
+                        f"ggml-{model_name}-encoder.mlmodelc.zip",
+                        "README.md"
+                ]
+                num_large_files = 2
+
+            model_path = download_from_huggingface(
+                repo_id=WHISPER_CPP_REPO_ID,
+                allow_patterns=whisper_cpp_model_files,
+                progress=self.signals.progress,
+                num_large_files=num_large_files
             )
+
+            if self.is_coreml_supported:
+                with zipfile.ZipFile(
+                        os.path.join(model_path, f"ggml-{model_name}-encoder.mlmodelc.zip"), 'r') as zip_ref:
+                    zip_ref.extractall(model_path)
+
+            self.signals.finished.emit(os.path.join(model_path, f"ggml-{model_name}.bin"))
+            return
 
         if self.model.model_type == ModelType.WHISPER:
             url = whisper._MODELS[self.model.whisper_model_size.value]
@@ -496,7 +522,7 @@ class ModelDownloader(QRunnable):
         raise Exception("Invalid model type: " + self.model.model_type.value)
 
     def download_model_to_path(
-        self, url: str, file_path: str, expected_sha256: Optional[str]
+        self, url: str, file_path: str, expected_sha256: Optional[str] = None
     ):
         try:
             downloaded = self.download_model(url, file_path, expected_sha256)

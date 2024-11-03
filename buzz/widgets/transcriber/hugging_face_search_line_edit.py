@@ -36,7 +36,7 @@ class HuggingFaceSearchLineEdit(LineEdit):
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.setPlaceholderText(_("Huggingface ID of a model"))
 
-        self.setMinimumWidth(150)
+        self.setMinimumWidth(255)
 
         self.timer = QTimer(self)
         self.timer.setSingleShot(True)
