@@ -1,8 +1,9 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# FIRST AUTHOR <lichenghao011@gmail.com>, 2024.
+# 'transcript'  as '识别'
+
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
@@ -108,6 +109,9 @@ msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
 msgstr ""
+“您的API密钥有效。Buzz将使用此密钥执行Whisper API”
+“转录和人工智能翻译。”
+
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:172
 msgid "Invalid API key"
@@ -129,6 +133,8 @@ msgid ""
 "Transcription and translation may still work if the API does not support key "
 "validation."
 msgstr ""
+"OpenAI API返回无效响应。请检查API网址或您的密钥。"
+“如果API不支持密钥，识别和翻译可能仍然有效”
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:42
 msgid "Enable folder watch"
@@ -154,7 +160,7 @@ msgstr "选择输出文件夹"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:43
 #, fuzzy
 msgid "Preferences"
-msgstr "偏好设置..."
+msgstr "偏好设置"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:50
 msgid "General"
@@ -171,15 +177,15 @@ msgstr "快捷键"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:63
 msgid "Folder Watch"
-msgstr ""
+msgstr "文档查看"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:70
 msgid "Group"
-msgstr ""
+msgstr "组"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:82
 msgid "Huggingface ID of a Faster whisper model"
-msgstr ""
+msgstr "更快的Whisper模型的Huggingface ID"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:93
 #, fuzzy
@@ -224,7 +230,7 @@ msgstr "下载模型"
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:268
 #: buzz/widgets/main_window.py:291 buzz/model_loader.py:473
 msgid "Error"
-msgstr ""
+msgstr "错误"
 
 #: buzz/widgets/record_button.py:10 buzz/widgets/record_button.py:17
 #: buzz/widgets/main_window_toolbar.py:35
@@ -250,7 +256,7 @@ msgstr "模型:"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py:91
 msgid "Api Key:"
-msgstr ""
+msgstr "Api Key:"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py:92
 msgid "Task:"
@@ -262,15 +268,15 @@ msgstr "语言:"
 
 #: buzz/widgets/transcriber/initial_prompt_text_edit.py:10
 msgid "Enter prompt..."
-msgstr ""
+msgstr "请输入文本..."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:33
 msgid "Advanced Settings"
-msgstr "进阶设定"
+msgstr "高级设置"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:37
 msgid "Speech recognition settings"
-msgstr ""
+msgstr "语音识别设置"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:46
 msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
@@ -286,11 +292,11 @@ msgstr "初始提示："
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:68
 msgid "Translation settings"
-msgstr ""
+msgstr "翻译设置"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:72
 msgid "Enable AI translation"
-msgstr ""
+msgstr "启用AI翻译"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:84
 #, fuzzy
@@ -299,39 +305,39 @@ msgstr "模型:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:88
 msgid "Enter instructions for AI on how to translate..."
-msgstr ""
+msgstr "输入AI如何翻译的说明..."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:92
 msgid "Instructions for AI:"
-msgstr ""
+msgstr "AI说明:"
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py:42
 msgid "Word-level timings"
-msgstr "单字级别的时间表达"
+msgstr "逐词识别"
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py:66
 msgid "Export:"
-msgstr ""
+msgstr "导出:"
 
 #: buzz/widgets/transcriber/hugging_face_search_line_edit.py:37
 msgid "Huggingface ID of a model"
-msgstr ""
+msgstr "模型的Huggingface ID "
 
 #: buzz/widgets/transcriber/advanced_settings_button.py:9
 msgid "Advanced..."
-msgstr ""
+msgstr "高级设置"
 
 #: buzz/widgets/main_window_toolbar.py:39
 msgid "New Transcription"
-msgstr "新录制"
+msgstr "新识别"
 
 #: buzz/widgets/main_window_toolbar.py:46
 msgid "Open Transcript"
-msgstr "打开转换结果"
+msgstr "打开识别结果"
 
 #: buzz/widgets/main_window_toolbar.py:52 buzz/settings/shortcut.py:27
 msgid "Cancel Transcription"
-msgstr "取消录制"
+msgstr "取消识别"
 
 #: buzz/widgets/main_window_toolbar.py:60 buzz/widgets/main_window.py:223
 #: buzz/settings/shortcut.py:26
@@ -340,7 +346,7 @@ msgstr "清除历史纪录"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:64
 msgid "In Progress"
-msgstr ""
+msgstr "运行中"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:67
 msgid "Completed"
@@ -348,7 +354,7 @@ msgstr "完成"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:74
 msgid "Failed"
-msgstr ""
+msgstr "失败"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:77
 msgid "Canceled"
@@ -379,16 +385,16 @@ msgstr "状态"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:124
 msgid "Date Added"
-msgstr ""
+msgstr "添加日期"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:135
 #, fuzzy
 msgid "Date Completed"
-msgstr "完成"
+msgstr "完成时间"
 
 #: buzz/widgets/recording_transcriber_widget.py:79
 msgid "Live Recording"
-msgstr "现场录制"
+msgstr "实时录制"
 
 #: buzz/widgets/recording_transcriber_widget.py:144
 msgid "Click Record to begin..."
@@ -396,7 +402,7 @@ msgstr "点击开始录制"
 
 #: buzz/widgets/recording_transcriber_widget.py:147
 msgid "Waiting for AI translation..."
-msgstr ""
+msgstr "等待AI翻译"
 
 #: buzz/widgets/recording_transcriber_widget.py:159
 msgid "Microphone:"
@@ -404,7 +410,7 @@ msgstr "麦克风:"
 
 #: buzz/widgets/recording_transcriber_widget.py:523
 msgid "An error occurred while starting a new recording:"
-msgstr "开始新录制出错"
+msgstr "开始新录制时出错"
 
 #: buzz/widgets/recording_transcriber_widget.py:527
 msgid ""
@@ -418,21 +424,21 @@ msgstr "检查更新"
 
 #: buzz/widgets/about_dialog.py:109
 msgid "You're up to date!"
-msgstr "你是最新的！"
+msgstr "已经是最新版本"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:93
 msgid "Start"
-msgstr ""
+msgstr "开始"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:94
 msgid "End"
-msgstr ""
+msgstr "结束"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:95
 #: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:34
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:30
 msgid "Text"
-msgstr ""
+msgstr "文本"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:96
 #: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:40
@@ -440,11 +446,11 @@ msgstr ""
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:64
 #, fuzzy
 msgid "Translation"
-msgstr "新录制"
+msgstr "翻译"
 
 #: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:26
 msgid "View"
-msgstr ""
+msgstr "查看"
 
 #: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:46
 msgid "Timestamps"
@@ -452,24 +458,24 @@ msgstr ""
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:156
 msgid "Export"
-msgstr ""
+msgstr "导出"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:170
 #: buzz/transcriber/transcriber.py:24
 msgid "Translate"
-msgstr ""
+msgstr "翻译"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:180
 msgid "Resize"
-msgstr ""
+msgstr "调整大小"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:279
 msgid "API Key Required"
-msgstr ""
+msgstr "需要API Key"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:280
 msgid "Please enter OpenAI API Key in preferences"
-msgstr ""
+msgstr "请在偏好设置中输入OpenAI API Key"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:297
 msgid "Desired subtitle length"
@@ -482,11 +488,11 @@ msgstr ""
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:78
 #, fuzzy
 msgid "Save File"
-msgstr "文件"
+msgstr "保存文件"
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:80
 msgid "Text files"
-msgstr ""
+msgstr "文本文件"
 
 #: buzz/widgets/snap_notice.py:9
 msgid "Snap permission notice"
@@ -514,7 +520,7 @@ msgstr "下载模型"
 
 #: buzz/widgets/model_download_progress_dialog.py:37
 msgid "remaining"
-msgstr ""
+msgstr "剩余"
 
 #: buzz/widgets/menu_bar.py:38
 #, fuzzy
@@ -554,60 +560,60 @@ msgstr "选择音频文件"
 
 #: buzz/widgets/main_window.py:291
 msgid "Unable to save OpenAI API key to keyring"
-msgstr ""
+msgstr "无法将OpenAI API密钥保存到密钥串"
 
 #: buzz/transcriber/transcriber.py:25
 #, fuzzy
 msgid "Transcribe"
-msgstr "打开转换结果"
+msgstr "转换"
 
 #: buzz/model_loader.py:502
 msgid "A connection error occurred"
-msgstr ""
+msgstr "连接发生错误"
 
 #: buzz/settings/shortcut.py:17
 #, fuzzy
 msgid "Open Record Window"
-msgstr "现场录制"
+msgstr "打开录制窗口"
 
 #: buzz/settings/shortcut.py:18
 #, fuzzy
 msgid "Import File"
-msgstr "导入媒体文件..."
+msgstr "导入文件"
 
 #: buzz/settings/shortcut.py:20
 msgid "Open Preferences Window"
-msgstr ""
+msgstr "打开偏好设置窗口"
 
 #: buzz/settings/shortcut.py:22
 #, fuzzy
 msgid "View Transcript Text"
-msgstr "新录制"
+msgstr ""
 
 #: buzz/settings/shortcut.py:23
 #, fuzzy
 msgid "View Transcript Translation"
-msgstr "新录制"
+msgstr "查看识别的翻译"
 
 #: buzz/settings/shortcut.py:24
 #, fuzzy
 msgid "View Transcript Timestamps"
-msgstr "新录制"
+msgstr "查看转录时间戳"
 
 #: buzz/settings/recording_transcriber_mode.py:5
 msgid "Append below"
-msgstr ""
+msgstr "增加下方"
 
 #: buzz/settings/recording_transcriber_mode.py:6
 msgid "Append above"
-msgstr ""
+msgstr "增加上方"
 
 #: buzz/settings/recording_transcriber_mode.py:7
 msgid "Append and correct"
-msgstr ""
+msgstr "增加并纠正"
 
 #~ msgid "ID"
 #~ msgstr "ID"
 
 #~ msgid "Downloading model (0%, unknown time remaining)"
-#~ msgstr "正在下载模型 (0%, unknown 剩余时间)"
+#~ msgstr "正在下载模型 (0%, 剩余时间未知)"
