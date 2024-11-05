@@ -3,6 +3,7 @@ import logging
 import platform
 import os
 import wave
+import time
 import tempfile
 import threading
 from typing import Optional
@@ -52,13 +53,13 @@ class RecordingTranscriber(QObject):
         self.input_device_index = input_device_index
         self.sample_rate = sample_rate if sample_rate is not None else whisper_audio.SAMPLE_RATE
         self.model_path = model_path
-        self.n_batch_samples = 5 * self.sample_rate  # every 5 seconds
+        self.n_batch_samples = 5 * self.sample_rate  # 5 seconds
         self.keep_sample_seconds = 0.15
         if self.transcriber_mode == RecordingTranscriberMode.APPEND_AND_CORRECT:
-            self.n_batch_samples = 3 * self.sample_rate  # every 3 seconds
+            self.n_batch_samples = 3 * self.sample_rate  # 3 seconds
             self.keep_sample_seconds = 1.5
-        # pause queueing if more than 5 batches behind
-        self.max_queue_size = 5 * self.n_batch_samples
+        # pause queueing if more than 3 batches behind
+        self.max_queue_size = 3 * self.n_batch_samples
         self.queue = np.ndarray([], dtype=np.float32)
         self.mutex = threading.Lock()
         self.sounddevice = sounddevice
@@ -136,8 +137,8 @@ class RecordingTranscriber(QObject):
                 callback=self.stream_callback,
             ):
                 while self.is_running:
-                    self.mutex.acquire()
                     if self.queue.size >= self.n_batch_samples:
+                        self.mutex.acquire()
                         samples = self.queue[: self.n_batch_samples]
                         self.queue = self.queue[self.n_batch_samples - keep_samples:]
                         self.mutex.release()
@@ -153,8 +154,8 @@ class RecordingTranscriber(QObject):
                         # TODO Filter out silent audio
 
                         if (
-                            self.transcription_options.model.model_type
-                            == ModelType.WHISPER
+                                self.transcription_options.model.model_type
+                                == ModelType.WHISPER
                         ):
                             assert isinstance(model, whisper.Whisper)
                             result = model.transcribe(
@@ -165,8 +166,8 @@ class RecordingTranscriber(QObject):
                                 temperature=self.transcription_options.temperature,
                             )
                         elif (
-                            self.transcription_options.model.model_type
-                            == ModelType.WHISPER_CPP
+                                self.transcription_options.model.model_type
+                                == ModelType.WHISPER_CPP
                         ):
                             assert isinstance(model, WhisperCpp)
                             result = model.transcribe(
@@ -254,7 +255,8 @@ class RecordingTranscriber(QObject):
                         )
                         self.transcription.emit(next_text)
                     else:
-                        self.mutex.release()
+                        time.sleep(0.5)
+
         except PortAudioError as exc:
             self.error.emit(str(exc))
             logging.exception("")
