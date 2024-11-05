@@ -1,12 +1,15 @@
 import os
 import logging
+import platform
 from typing import Optional, List
 
 from PyQt6.QtCore import pyqtSignal
-from PyQt6.QtWidgets import QGroupBox, QWidget, QFormLayout, QComboBox
+from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import QGroupBox, QWidget, QFormLayout, QComboBox, QLabel, QHBoxLayout
 
 from buzz.locale import _
 from buzz.settings.settings import Settings
+from buzz.widgets.icon import INFO_ICON_PATH
 from buzz.model_loader import ModelType, WhisperModelSize, get_whisper_cpp_file_path
 from buzz.transcriber.transcriber import TranscriptionOptions, Task
 from buzz.widgets.model_type_combo_box import ModelTypeComboBox
@@ -87,7 +90,26 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.advanced_settings_button.clicked.connect(self.open_advanced_settings)
 
         self.form_layout.addRow(_("Model:"), self.model_type_combo_box)
-        self.form_layout.addRow("", self.whisper_model_size_combo_box)
+
+        if platform.system() == "Darwin" and platform.machine() == "arm64":
+            self.whisper_model_size_layout = QHBoxLayout()
+            self.whisper_model_size_layout.setContentsMargins(0, 0, 0, 0)
+            self.whisper_model_size_layout.setSpacing(0)
+
+            self.whisper_model_size_layout.addWidget(self.whisper_model_size_combo_box)
+
+            self.load_note_tooltip_icon = QLabel()
+            self.load_note_tooltip_icon.setPixmap(QIcon(INFO_ICON_PATH).pixmap(23, 23))
+            self.load_note_tooltip_icon.setToolTip(
+                _("First time use of a model may take up to several minutest to load."))
+            self.whisper_model_size_layout.addWidget(self.load_note_tooltip_icon)
+
+            self.form_layout.addRow("", self.whisper_model_size_layout)
+        else:
+            self.load_note_tooltip_icon = None
+            self.whisper_model_size_layout = None
+            self.form_layout.addRow("", self.whisper_model_size_combo_box)
+
         self.form_layout.addRow("", self.hugging_face_search_line_edit)
         self.form_layout.addRow(_("Api Key:"), self.openai_access_token_edit)
         self.form_layout.addRow(_("Task:"), self.tasks_combo_box)
@@ -176,9 +198,23 @@ class TranscriptionOptionsGroupBox(QGroupBox):
             or (model_type == ModelType.WHISPER_CPP)
             or (model_type == ModelType.FASTER_WHISPER),
         )
+        if self.whisper_model_size_layout is not None:
+            self.form_layout.setRowVisible(
+                self.whisper_model_size_layout,
+                (model_type == ModelType.WHISPER)
+                or (model_type == ModelType.WHISPER_CPP)
+                or (model_type == ModelType.FASTER_WHISPER),
+            )
+
         self.form_layout.setRowVisible(
             self.openai_access_token_edit, model_type == ModelType.OPEN_AI_WHISPER_API
         )
+
+        # Note on Apple Silicon Macs
+        if self.load_note_tooltip_icon is not None:
+            self.load_note_tooltip_icon.setVisible(
+                self.transcription_options.model.model_type == ModelType.WHISPER_CPP
+            )
 
     def on_model_type_changed(self, model_type: ModelType):
         self.transcription_options.model.model_type = model_type

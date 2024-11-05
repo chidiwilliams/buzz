@@ -6,13 +6,9 @@ from typing import Optional, List
 from PyQt6.QtCore import QObject
 
 from buzz import whisper_audio
-from buzz.model_loader import LOADED_WHISPER_CPP_BINARY
 from buzz.transcriber.file_transcriber import FileTranscriber
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment, Stopped
-from buzz.transcriber.whisper_cpp import WhisperCpp, whisper_cpp_params
-
-if LOADED_WHISPER_CPP_BINARY:
-    from buzz import whisper_cpp
+from buzz.transcriber.whisper_cpp import WhisperCpp
 
 
 class WhisperCppFileTranscriber(FileTranscriber):
@@ -29,11 +25,11 @@ class WhisperCppFileTranscriber(FileTranscriber):
 
         self.transcription_options = task.transcription_options
         self.model_path = task.model_path
+        self.model = WhisperCpp(model=self.model_path)
         self.state = self.State()
 
     def transcribe(self) -> List[Segment]:
         self.state.running = True
-        model_path = self.model_path
 
         logging.debug(
             "Starting whisper_cpp file transcription, file path = %s, language = %s, "
@@ -41,29 +37,28 @@ class WhisperCppFileTranscriber(FileTranscriber):
             self.transcription_task.file_path,
             self.transcription_options.language,
             self.transcription_options.task,
-            model_path,
+            self.model_path,
             self.transcription_options.word_level_timings,
         )
 
         audio = whisper_audio.load_audio(self.transcription_task.file_path)
         self.duration_audio_ms = len(audio) * 1000 / whisper_audio.SAMPLE_RATE
 
-        whisper_params = whisper_cpp_params(
+        whisper_params = self.model.get_params(
             transcription_options=self.transcription_options
         )
         whisper_params.encoder_begin_callback_user_data = ctypes.c_void_p(
             id(self.state)
         )
         whisper_params.encoder_begin_callback = (
-            whisper_cpp.whisper_encoder_begin_callback(self.encoder_begin_callback)
+            self.model.get_instance().get_encoder_begin_callback(self.encoder_begin_callback)
         )
         whisper_params.new_segment_callback_user_data = ctypes.c_void_p(id(self.state))
-        whisper_params.new_segment_callback = whisper_cpp.whisper_new_segment_callback(
+        whisper_params.new_segment_callback = self.model.get_instance().get_new_segment_callback(
             self.new_segment_callback
         )
 
-        model = WhisperCpp(model=model_path)
-        result = model.transcribe(
+        result = self.model.transcribe(
             audio=self.transcription_task.file_path, params=whisper_params
         )
 
@@ -74,8 +69,8 @@ class WhisperCppFileTranscriber(FileTranscriber):
         return result["segments"]
 
     def new_segment_callback(self, ctx, _state, _n_new, user_data):
-        n_segments = whisper_cpp.whisper_full_n_segments(ctx)
-        t1 = whisper_cpp.whisper_full_get_segment_t1(ctx, n_segments - 1)
+        n_segments = self.model.get_instance().full_n_segments(ctx)
+        t1 = self.model.get_instance().full_get_segment_t1(ctx, n_segments - 1)
         # t1 seems to sometimes be larger than the duration when the
         # audio ends in silence. Trim to fix the displayed progress.
         progress = min(t1 * 10, self.duration_audio_ms)

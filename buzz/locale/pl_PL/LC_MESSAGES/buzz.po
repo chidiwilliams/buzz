@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-18 08:41+0300\n"
+"POT-Creation-Date: 2024-11-03 08:32+0200\n"
 "PO-Revision-Date: 2024-03-17 20:50+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -27,7 +27,7 @@ msgstr "https://przyklad.pl/audio.mp3"
 
 #: buzz/widgets/import_url_dialog.py:28
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:69
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:244
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:245
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:97
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:295
 #: buzz/widgets/main_window.py:234
@@ -36,7 +36,7 @@ msgstr ""
 
 #: buzz/widgets/import_url_dialog.py:29
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:70
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:245
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:246
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:296
 #: buzz/widgets/model_download_progress_dialog.py:29
 #: buzz/widgets/main_window.py:235
@@ -63,68 +63,68 @@ msgstr ""
 msgid "Font Size"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:60
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:61
 msgid "Test"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:66
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:67
 msgid "OpenAI API key"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:79
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:80
 msgid "OpenAI base url"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:88
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:89
 msgid "Default export file name"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:94
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:95
 msgid "Enable live recording transcription export"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:100
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:101
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:47
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:50
 msgid "Browse"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:119
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:120
 msgid "Export folder"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:130
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:131
 #, fuzzy
 msgid "Live recording mode"
 msgstr "Nagrywanie na żywo"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:155
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:161
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:156
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:162
 msgid "OpenAI API Key Test"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:156
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:157
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:172
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:173
 #, fuzzy
 msgid "Invalid API key"
 msgstr "Nieprawidłowy URL"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:173
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:174
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=). Other characters in API "
 "key may cause errors."
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:191
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:192
 msgid "Select Export Folder"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:243
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:244
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
@@ -183,48 +183,48 @@ msgstr ""
 msgid "Huggingface ID of a Faster whisper model"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:93
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:94
 #, fuzzy
 msgid "Download"
 msgstr "Pobierz"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:98
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:99
 msgid "Show file location"
 msgstr "Pokaż lokalizacje pliku"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:106
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:107
 msgid "Delete"
 msgstr "Usuń"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:137
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:138
 #, fuzzy
 msgid "Downloaded"
 msgstr "Pobrany"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:142
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:143
 msgid "Available for Download"
 msgstr "Dostępne do pobrania"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:163
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:164
 msgid "Download link to Whisper.cpp ggml model file"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:238
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:239
 msgid "Delete Model"
 msgstr "Usuń model"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:239
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:240
 #, fuzzy
 msgid "Are you sure you want to delete the selected model?"
 msgstr "Czy na pewno chcesz usunąć zaznaczoną transkrypcję?"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:267
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:268
 #, fuzzy
 msgid "Download failed"
 msgstr "Pobrany"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:268
-#: buzz/widgets/main_window.py:291 buzz/model_loader.py:473
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:269
+#: buzz/widgets/main_window.py:291 buzz/model_loader.py:503
 msgid "Error"
 msgstr "Błąd"
 
@@ -246,19 +246,23 @@ msgstr "Wykryj język"
 msgid "Run"
 msgstr "Rozpocznij"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:88
+#: buzz/widgets/transcriber/transcription_options_group_box.py:92
 msgid "Model:"
 msgstr "Model:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:91
+#: buzz/widgets/transcriber/transcription_options_group_box.py:104
+msgid "First time use of a model may take up to several minutest to load."
+msgstr ""
+
+#: buzz/widgets/transcriber/transcription_options_group_box.py:113
 msgid "Api Key:"
 msgstr ""
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:92
+#: buzz/widgets/transcriber/transcription_options_group_box.py:114
 msgid "Task:"
 msgstr "Zadanie:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:93
+#: buzz/widgets/transcriber/transcription_options_group_box.py:115
 msgid "Language:"
 msgstr "Język:"
 
@@ -567,7 +571,7 @@ msgstr ""
 msgid "Transcribe"
 msgstr "Otwórz transkrypt"
 
-#: buzz/model_loader.py:502
+#: buzz/model_loader.py:532
 msgid "A connection error occurred"
 msgstr ""
 

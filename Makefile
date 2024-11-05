@@ -13,6 +13,7 @@ bundle_mac: dist/Buzz.app codesign_all_mac zip_mac notarize_zip staple_app_mac d
 bundle_mac_unsigned: dist/Buzz.app zip_mac dmg_mac_unsigned
 
 UNAME_S := $(shell uname -s)
+UNAME_M := $(shell uname -m)
 
 LIBWHISPER :=
 ifeq ($(OS), Windows_NT)
@@ -38,6 +39,8 @@ ifeq ($(OS), Windows_NT)
 else
 	rm -f buzz/$(LIBWHISPER)
 	rm -f buzz/whisper_cpp.py
+	rm -f buzz/libwhisper-coreml.dylib || true
+	rm -f buzz/whisper_cpp_coreml.py || true
 	rm -rf whisper.cpp/build || true
 	rm -rf dist/* || true
 endif
@@ -88,9 +91,24 @@ else
 	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) buzz || true
 	cp whisper.cpp/build/$(LIBWHISPER) buzz || true
 endif
+# Build CoreML support on ARM Macs
+ifeq ($(shell uname -m), arm64)
+ifeq ($(shell uname -s), Darwin)
+	rm -rf whisper.cpp/build || true
+	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS) -DWHISPER_COREML=1
+	cmake --build whisper.cpp/build --verbose
+	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) buzz/libwhisper-coreml.dylib || true
+	cp whisper.cpp/build/$(LIBWHISPER) buzz/libwhisper-coreml.dylib || true
+endif
+endif
 
 buzz/whisper_cpp.py: buzz/$(LIBWHISPER) translation_mo
 	cd buzz && ctypesgen ../whisper.cpp/whisper.h -lwhisper -o whisper_cpp.py
+ifeq ($(shell uname -m), arm64)
+ifeq ($(shell uname -s), Darwin)
+	cd buzz && ctypesgen ../whisper.cpp/whisper.h -lwhisper-coreml -o whisper_cpp_coreml.py
+endif
+endif
 
 # Prints all the Mac developer identities used for code signing
 print_identities_mac:
