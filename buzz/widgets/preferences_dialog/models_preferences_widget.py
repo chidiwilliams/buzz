@@ -85,6 +85,7 @@ class ModelsPreferencesWidget(QWidget):
         self.custom_model_id_input.hide()
 
         self.custom_model_link_input = LineEdit()
+        self.custom_model_link_input.setMinimumWidth(255)
         self.custom_model_link_input.setObjectName("ModelLinkInput")
         self.custom_model_link_input.textChanged.connect(self.on_custom_model_link_input_changed)
         layout.addRow("", self.custom_model_link_input)

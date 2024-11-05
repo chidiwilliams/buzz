@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-18 08:41+0300\n"
+"POT-Creation-Date: 2024-11-03 08:32+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Yevhen Popok <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -24,7 +24,7 @@ msgstr "https://example.com/audio.mp3"
 
 #: buzz/widgets/import_url_dialog.py:28
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:69
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:244
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:245
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:97
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:295
 #: buzz/widgets/main_window.py:234
@@ -33,7 +33,7 @@ msgstr "Гаразд"
 
 #: buzz/widgets/import_url_dialog.py:29
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:70
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:245
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:246
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:296
 #: buzz/widgets/model_download_progress_dialog.py:29
 #: buzz/widgets/main_window.py:235
@@ -60,47 +60,47 @@ msgstr "Типові значення"
 msgid "Font Size"
 msgstr "Розмір шрифту"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:60
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:61
 msgid "Test"
 msgstr "Тест"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:66
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:67
 msgid "OpenAI API key"
 msgstr "API-ключ OpenAI"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:79
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:80
 msgid "OpenAI base url"
 msgstr "Базова адреса OpenAI"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:88
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:89
 msgid "Default export file name"
 msgstr "Типова назва файлу експорту"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:94
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:95
 msgid "Enable live recording transcription export"
 msgstr "Увімкнути експорт транскрипції з живого запису"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:100
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:101
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:47
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:50
 msgid "Browse"
 msgstr "Огляд"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:119
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:120
 msgid "Export folder"
 msgstr "Тека для експорту"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:130
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:131
 #, fuzzy
 msgid "Live recording mode"
 msgstr "Живий запис"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:155
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:161
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:156
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:162
 msgid "OpenAI API Key Test"
 msgstr "Тест API-ключа OpenAI"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:156
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:157
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
@@ -108,22 +108,22 @@ msgstr ""
 "Ваш API-ключ дійсний. Buzz використає цей ключ для транскрипції з Whisper "
 "API та перекладу ШІ."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:172
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:173
 #, fuzzy
 msgid "Invalid API key"
 msgstr "API-ключ OpenAI"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:173
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:174
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=). Other characters in API "
 "key may cause errors."
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:191
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:192
 msgid "Select Export Folder"
 msgstr "Виберіть теку для експорту"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:243
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:244
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
@@ -181,44 +181,44 @@ msgstr "Група"
 msgid "Huggingface ID of a Faster whisper model"
 msgstr "Huggingface ID для моделі Faster Whisper"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:93
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:94
 msgid "Download"
 msgstr "Завантажити"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:98
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:99
 msgid "Show file location"
 msgstr "Показати розташування файлу"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:106
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:107
 msgid "Delete"
 msgstr "Видалити"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:137
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:138
 msgid "Downloaded"
 msgstr "Завантажене"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:142
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:143
 msgid "Available for Download"
 msgstr "Доступно для завантаження"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:163
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:164
 msgid "Download link to Whisper.cpp ggml model file"
 msgstr "Посилання на завантаження файлу ggml моделі Whisper.cpp"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:238
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:239
 msgid "Delete Model"
 msgstr "Видалити модель"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:239
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:240
 msgid "Are you sure you want to delete the selected model?"
 msgstr "Ви впевнені, що хочете видалити вибрану модель?"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:267
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:268
 msgid "Download failed"
 msgstr "Невдале завантаження"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:268
-#: buzz/widgets/main_window.py:291 buzz/model_loader.py:473
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:269
+#: buzz/widgets/main_window.py:291 buzz/model_loader.py:503
 msgid "Error"
 msgstr "Помилка"
 
@@ -240,19 +240,23 @@ msgstr "Визначити мову"
 msgid "Run"
 msgstr "Запуск"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:88
+#: buzz/widgets/transcriber/transcription_options_group_box.py:92
 msgid "Model:"
 msgstr "Модель:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:91
+#: buzz/widgets/transcriber/transcription_options_group_box.py:104
+msgid "First time use of a model may take up to several minutest to load."
+msgstr ""
+
+#: buzz/widgets/transcriber/transcription_options_group_box.py:113
 msgid "Api Key:"
 msgstr "API-ключ:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:92
+#: buzz/widgets/transcriber/transcription_options_group_box.py:114
 msgid "Task:"
 msgstr "Завдання:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:93
+#: buzz/widgets/transcriber/transcription_options_group_box.py:115
 msgid "Language:"
 msgstr "Мова:"
 
@@ -552,7 +556,7 @@ msgstr "Не вдається додати до звʼязки ключів API-
 msgid "Transcribe"
 msgstr "Розпізнати"
 
-#: buzz/model_loader.py:502
+#: buzz/model_loader.py:532
 msgid "A connection error occurred"
 msgstr "Виникла помилка зʼєднання"
 

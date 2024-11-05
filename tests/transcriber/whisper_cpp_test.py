@@ -1,6 +1,6 @@
 from buzz.model_loader import TranscriptionModel, ModelType, WhisperModelSize
 from buzz.transcriber.transcriber import TranscriptionOptions, Task
-from buzz.transcriber.whisper_cpp import WhisperCpp, whisper_cpp_params
+from buzz.transcriber.whisper_cpp import WhisperCpp
 from tests.audio import test_audio_path
 from tests.model_loader import get_model_path
 
@@ -19,7 +19,7 @@ class TestWhisperCpp:
         model_path = get_model_path(transcription_options.model)
 
         whisper_cpp = WhisperCpp(model=model_path)
-        params = whisper_cpp_params(transcription_options=transcription_options)
+        params = whisper_cpp.get_params(transcription_options=transcription_options)
         result = whisper_cpp.transcribe(audio=test_audio_path, params=params)
 
         assert "Bienvenue dans Passe" in result["text"]

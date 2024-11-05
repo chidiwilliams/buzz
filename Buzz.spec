@@ -47,6 +47,10 @@ binaries = [
     (shutil.which("ffprobe"), "."),
 ]
 
+# Include libwhisper-coreml.dylib on Apple Silicon
+if platform.system() == "Darwin" and platform.machine() == "arm64":
+    binaries.append(("buzz/libwhisper-coreml.dylib", "."))
+
 # Include dll_backup folder and its contents on Windows
 if platform.system() == "Windows":
     datas += [("dll_backup", "dll_backup")]

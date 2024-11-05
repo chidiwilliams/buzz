@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-18 08:41+0300\n"
+"POT-Creation-Date: 2024-11-03 08:32+0200\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: lamb \n"
@@ -28,7 +28,7 @@ msgstr "https://example.com/audio.mp3"
 
 #: buzz/widgets/import_url_dialog.py:28
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:69
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:244
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:245
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:97
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:295
 #: buzz/widgets/main_window.py:234
@@ -37,7 +37,7 @@ msgstr "Ok"
 
 #: buzz/widgets/import_url_dialog.py:29
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:70
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:245
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:246
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:296
 #: buzz/widgets/model_download_progress_dialog.py:29
 #: buzz/widgets/main_window.py:235
@@ -64,70 +64,69 @@ msgstr "恢复默认"
 msgid "Font Size"
 msgstr "字体大小"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:60
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:61
 msgid "Test"
 msgstr "测试"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:66
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:67
 msgid "OpenAI API key"
 msgstr "OpenAI API key"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:79
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:80
 msgid "OpenAI base url"
 msgstr "OpenAI 基于 url"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:88
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:89
 msgid "Default export file name"
 msgstr "默认输出文件名"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:94
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:95
 msgid "Enable live recording transcription export"
 msgstr "启用实时录制转录导出"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:100
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:101
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:47
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:50
 msgid "Browse"
 msgstr "浏览"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:119
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:120
 msgid "Export folder"
 msgstr "导出文件夹"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:130
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:131
 #, fuzzy
 msgid "Live recording mode"
 msgstr "现场录制模式"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:155
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:161
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:156
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:162
 msgid "OpenAI API Key Test"
 msgstr "测试OpenAI API Key"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:156
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:157
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
 msgstr ""
 “您的API密钥有效。Buzz将使用此密钥执行 Whisper API 识别和 AI 翻译。”
 
-
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:172
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:173
 msgid "Invalid API key"
 msgstr "无效的API key"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:173
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:174
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=). Other characters in API "
 "key may cause errors."
 msgstr ""
 "API只支持 base64字符（A-Za-z0-9+/=）。其他字符在API密钥中可能导致错误。"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:191
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:192
 msgid "Select Export Folder"
 msgstr "选择输出文件夹"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:243
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:244
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
@@ -187,48 +186,48 @@ msgstr "组"
 msgid "Huggingface ID of a Faster whisper model"
 msgstr "较快的Whisper模型的Huggingface ID"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:93
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:94
 #, fuzzy
 msgid "Download"
 msgstr "下载"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:98
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:99
 msgid "Show file location"
 msgstr "查看文件位置"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:106
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:107
 msgid "Delete"
 msgstr "删除"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:137
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:138
 #, fuzzy
 msgid "Downloaded"
 msgstr "已下载的"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:142
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:143
 msgid "Available for Download"
 msgstr "可用的下载"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:163
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:164
 msgid "Download link to Whisper.cpp ggml model file"
 msgstr "Whisper.cpp ggml 模型文件的下载链接"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:238
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:239
 msgid "Delete Model"
 msgstr "删除模型"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:239
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:240
 #, fuzzy
 msgid "Are you sure you want to delete the selected model?"
 msgstr "您确定要删除所选录制吗？"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:267
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:268
 #, fuzzy
 msgid "Download failed"
 msgstr "下载模型失败"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:268
-#: buzz/widgets/main_window.py:291 buzz/model_loader.py:473
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:269
+#: buzz/widgets/main_window.py:291 buzz/model_loader.py:503
 msgid "Error"
 msgstr "错误"
 
@@ -250,19 +249,23 @@ msgstr "检测语言"
 msgid "Run"
 msgstr "开始执行"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:88
+#: buzz/widgets/transcriber/transcription_options_group_box.py:92
 msgid "Model:"
 msgstr "模型:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:91
+#: buzz/widgets/transcriber/transcription_options_group_box.py:104
+msgid "First time use of a model may take up to several minutest to load."
+msgstr ""
+
+#: buzz/widgets/transcriber/transcription_options_group_box.py:113
 msgid "Api Key:"
 msgstr "Api Key:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:92
+#: buzz/widgets/transcriber/transcription_options_group_box.py:114
 msgid "Task:"
 msgstr "任务:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:93
+#: buzz/widgets/transcriber/transcription_options_group_box.py:115
 msgid "Language:"
 msgstr "语言:"
 
@@ -567,7 +570,7 @@ msgstr "无法将OpenAI API密钥保存到密钥串"
 msgid "Transcribe"
 msgstr "识别"
 
-#: buzz/model_loader.py:502
+#: buzz/model_loader.py:532
 msgid "A connection error occurred"
 msgstr "连接发生错误"
 
