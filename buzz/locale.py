@@ -1,3 +1,4 @@
+import os
 import logging
 import gettext
 
@@ -9,10 +10,14 @@ from buzz.settings.settings import APP_NAME
 locale_dir = get_path("locale")
 gettext.bindtextdomain("buzz", locale_dir)
 
-logging.debug(f"UI locales {QLocale().uiLanguages()}")
+custom_locale = os.getenv("BUZZ_LOCALE")
+
+languages = [custom_locale] if custom_locale else QLocale().uiLanguages()
+
+logging.debug(f"UI locales {languages}")
 
 translate = gettext.translation(
-    APP_NAME.lower(), locale_dir, languages=QLocale().uiLanguages(), fallback=True
+    APP_NAME.lower(), locale_dir, languages=languages, fallback=True
 )
 
 _ = translate.gettext
