@@ -11,7 +11,9 @@ from PyQt6 import QtGui
 from PyQt6.QtCore import Qt
 from PyQt6.QtCore import pyqtSignal, QModelIndex
 from PyQt6.QtSql import QSqlTableModel, QSqlRecord
+from PyQt6.QtGui import QKeySequence
 from PyQt6.QtWidgets import (
+    QApplication,
     QWidget,
     QMenu,
     QHeaderView,
@@ -250,9 +252,26 @@ class TranscriptionTasksTableWidget(QTableView):
             )
         self.settings.end_group()
 
+    def copy_selected_fields(self):
+        selected_text = ""
+        for row in self.selectionModel().selectedRows():
+            row_index = row.row()
+            file_name = self.model().data(self.model().index(row_index, 3))
+            url = self.model().data(self.model().index(row_index, 14))
+
+            selected_text += f"{file_name}{url}\n"
+
+        selected_text = selected_text.rstrip("\n")
+        QApplication.clipboard().setText(selected_text)
+
     def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
         if event.key() == Qt.Key.Key_Return:
             self.return_clicked.emit()
+
+        if event.matches(QKeySequence.StandardKey.Copy):
+            self.copy_selected_fields()
+            return
+
         super().keyPressEvent(event)
 
     def selected_transcriptions(self) -> List[Transcription]:
