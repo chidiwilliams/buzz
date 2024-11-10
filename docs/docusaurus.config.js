@@ -31,7 +31,22 @@ const config = {
   // to replace "en" with "zh-Hans".
   i18n: {
     defaultLocale: 'en',
-    locales: ['en'],
+    locales: ['en', 'zh'],
+    path: 'i18n',
+    localeConfigs: {
+      en: {
+        label: 'English',
+        direction: 'ltr',
+        htmlLang: 'en-US',
+        path: 'en',
+      },
+      zh: {
+        label: 'Chinese',
+        direction: 'ltr',
+        htmlLang: 'zh-CN',
+        path: 'zh',
+      },
+    },
   },
 
   presets: [
@@ -70,11 +85,14 @@ const config = {
             position: 'left',
             label: 'Docs',
           },
-//          {to: '/blog', label: 'Blog', position: 'left'},
           {
             href: 'https://github.com/chidiwilliams/buzz',
             label: 'GitHub',
             position: 'right',
+          },
+          {
+            type: 'localeDropdown',
+            position: 'left',
           },
         ],
       },
