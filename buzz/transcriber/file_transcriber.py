@@ -35,14 +35,19 @@ class FileTranscriber(QObject):
             temp_output_path = tempfile.mktemp()
             wav_file = temp_output_path + ".wav"
 
-            ydl = YoutubeDL(
-                {
-                    "format": "bestaudio/best",
-                    "progress_hooks": [self.on_download_progress],
-                    "outtmpl": temp_output_path,
-                    "logger": logging.getLogger()
-                }
-            )
+            cookiefile = os.getenv("BUZZ_DOWNLOAD_COOKIEFILE")
+
+            options = {
+                "format": "bestaudio/best",
+                "progress_hooks": [self.on_download_progress],
+                "outtmpl": temp_output_path,
+                "logger": logging.getLogger(),
+            }
+
+            if cookiefile:
+                options["cookiefile"] = cookiefile
+
+            ydl = YoutubeDL(options)
 
             try:
                 logging.debug(f"Downloading audio file from URL: {self.transcription_task.url}")
