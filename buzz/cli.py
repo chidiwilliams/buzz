@@ -214,7 +214,7 @@ def parse(app: Application, parser: QCommandLineParser):
                 file_transcription_options=file_transcription_options,
                 output_directory=output_directory if output_directory != "" else None,
             )
-            app.add_task(transcription_task)
+            app.add_task(transcription_task, quit_on_complete=True)
 
 
 T = typing.TypeVar("T", bound=enum.Enum)

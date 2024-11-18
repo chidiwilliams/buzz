@@ -175,5 +175,6 @@ class Application(QApplication):
         self.window = MainWindow(transcription_service)
         self.window.show()
 
-    def add_task(self, task: FileTranscriptionTask):
+    def add_task(self, task: FileTranscriptionTask, quit_on_complete: bool = False):
+        self.window.quit_on_complete = quit_on_complete
         self.window.add_task(task)
