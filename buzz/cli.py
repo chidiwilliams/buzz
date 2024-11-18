@@ -109,6 +109,7 @@ def parse(app: Application, parser: QCommandLineParser):
         srt_option = QCommandLineOption(["srt"], "Output result in an SRT file.")
         vtt_option = QCommandLineOption(["vtt"], "Output result in a VTT file.")
         txt_option = QCommandLineOption("txt", "Output result in a TXT file.")
+        hide_gui_option = QCommandLineOption("hide-gui", "Hide the main application window.")
 
         parser.addOptions(
             [
@@ -124,6 +125,7 @@ def parse(app: Application, parser: QCommandLineParser):
                 srt_option,
                 vtt_option,
                 txt_option,
+                hide_gui_option,
             ]
         )
 
@@ -216,6 +218,8 @@ def parse(app: Application, parser: QCommandLineParser):
             )
             app.add_task(transcription_task, quit_on_complete=True)
 
+        if parser.isSet(hide_gui_option):
+            app.hide_main_window = True
 
 T = typing.TypeVar("T", bound=enum.Enum)
 

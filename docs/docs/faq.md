@@ -58,3 +58,15 @@ sidebar_position: 5
    If a model download was incomplete or corrupted, Buzz may crash. Try to delete the downloaded model files in `Help -> Preferences -> Models` and re-download them.
 
    If that does not help, check the log file for errors and [report the issue](https://github.com/chidiwilliams/buzz/issues) so we can fix it. The log file is located in `~/Library/Logs/Buzz` (Mac OS) or `%USERPROFILE%\AppData\Local\Buzz\Buzz\Logs` (Windows). On Linux run the Buzz from the command line to see the relevant messages.
+
+9. **Where can I get latest development version?**
+
+   Latest development version will have latest bug fixes and most recent features. If you feel a bit adventurous it is recommended to try the latest development version as they needs some testing before they get released to everybody. 
+
+   Linux users can get the latest version with this command `sudo snap install buzz --edge`
+
+   For other platforms do the following:
+    - Go to the [build section](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml?query=branch%3Amain)
+    - Click on the link to the latest build
+    - Scroll down to the artifacts section in the build page
+    - Download the installation file. Please note that you need to be logged in the Github to see the download links.
