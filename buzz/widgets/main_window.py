@@ -12,6 +12,7 @@ from PyQt6.QtCore import (
 )
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
+    QApplication,
     QMainWindow,
     QMessageBox,
     QFileDialog,
@@ -395,6 +396,7 @@ class MainWindow(QMainWindow):
 
         if self.quit_on_complete:
             self.close()
+            QApplication.quit()
 
 
     def on_task_error(self, task: FileTranscriptionTask, error: str):
@@ -403,6 +405,7 @@ class MainWindow(QMainWindow):
 
         if self.quit_on_complete:
             self.close()
+            QApplication.quit()
 
     def on_shortcuts_changed(self):
         self.menu_bar.reset_shortcuts()
