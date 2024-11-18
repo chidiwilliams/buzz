@@ -66,6 +66,7 @@ class MainWindow(QMainWindow):
 
         self.shortcuts = Shortcuts(settings=self.settings)
 
+        self.quit_on_complete = False
         self.transcription_service = transcription_service
 
         self.toolbar = MainWindowToolbar(shortcuts=self.shortcuts, parent=self)
@@ -392,9 +393,16 @@ class MainWindow(QMainWindow):
         self.transcription_service.update_transcription_as_completed(task.uid, segments)
         self.table_widget.refresh_row(task.uid)
 
+        if self.quit_on_complete:
+            self.close()
+
+
     def on_task_error(self, task: FileTranscriptionTask, error: str):
         self.transcription_service.update_transcription_as_failed(task.uid, error)
         self.table_widget.refresh_row(task.uid)
+
+        if self.quit_on_complete:
+            self.close()
 
     def on_shortcuts_changed(self):
         self.menu_bar.reset_shortcuts()
