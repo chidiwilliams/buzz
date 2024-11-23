@@ -55,7 +55,6 @@ benchmarks: buzz/whisper_cpp.py translation_mo
 
 dist/Buzz dist/Buzz.app: buzz/whisper_cpp.py translation_mo
 	pyinstaller --noconfirm Buzz.spec
-	./dist/Buzz/Buzz --version
 
 version:
 	poetry version ${version}
