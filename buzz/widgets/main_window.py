@@ -74,6 +74,9 @@ class MainWindow(QMainWindow):
         self.toolbar.new_transcription_action_triggered.connect(
             self.on_new_transcription_action_triggered
         )
+        self.toolbar.new_url_transcription_action_triggered.connect(
+            self.on_new_url_transcription_action_triggered
+        )
         self.toolbar.open_transcript_action_triggered.connect(
             self.open_transcript_viewer
         )

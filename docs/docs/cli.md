@@ -67,7 +67,7 @@ Options:
   --srt                          Output result in an SRT file.
   --vtt                          Output result in a VTT file.
   --txt                          Output result in a TXT file.
-  --hide-gui                     Hide the main application window.
+  --hide-gui                     Hide the main application window. (available since 1.2.0)
   -h, --help                     Displays help on commandline options.
   --help-all                     Displays help including Qt specific options.
   -v, --version                  Displays version information.
