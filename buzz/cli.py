@@ -1,6 +1,7 @@
 import enum
 import sys
 import typing
+import urllib.parse
 
 from PyQt6.QtCore import QCommandLineParser, QCommandLineOption
 
@@ -44,6 +45,9 @@ def parse_command_line(app: Application):
         print(parser.helpText())
         sys.exit(1)
 
+def is_url(path: str) -> bool:
+    parsed = urllib.parse.urlparse(path)
+    return all([parsed.scheme, parsed.netloc])
 
 def parse(app: Application, parser: QCommandLineParser):
     parser.addPositionalArgument("<command>", "One of the following commands:\n- add")
@@ -203,14 +207,20 @@ def parse(app: Application, parser: QCommandLineParser):
             word_level_timings=word_timestamps,
             openai_access_token=openai_access_token,
         )
-        file_transcription_options = FileTranscriptionOptions(
-            file_paths=file_paths,
-            output_formats=output_formats,
-        )
 
         for file_path in file_paths:
+            path_is_url = is_url(file_path)
+
+            file_transcription_options = FileTranscriptionOptions(
+                file_paths=[file_path] if not path_is_url else None,
+                url=file_path if path_is_url else None,
+                output_formats=output_formats,
+            )
+
             transcription_task = FileTranscriptionTask(
-                file_path=file_path,
+                file_path=file_path if not path_is_url else None,
+                url=file_path if path_is_url else None,
+                source=FileTranscriptionTask.Source.FILE_IMPORT if not path_is_url else FileTranscriptionTask.Source.URL_IMPORT,
                 model_path=model_path,
                 transcription_options=transcription_options,
                 file_transcription_options=file_transcription_options,
