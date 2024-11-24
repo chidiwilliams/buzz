@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-11-23 22:17+0200\n"
-"PO-Revision-Date: 2024-11-03 11:22+0100\n"
+"PO-Revision-Date: 2024-11-24 13:22+0100\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
 "MIME-Version: 1.0\n"
@@ -248,7 +248,7 @@ msgstr "Modello:"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py:104
 msgid "First time use of a model may take up to several minutest to load."
-msgstr ""
+msgstr "Il caricamento di un modello al primo utilizzo potrebbe richiedere diversi minuti."
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py:114
 msgid "Api Key:"
@@ -323,14 +323,12 @@ msgid "Advanced..."
 msgstr "Avanzate..."
 
 #: buzz/widgets/main_window_toolbar.py:41
-#, fuzzy
 msgid "New File Transcription"
-msgstr "Nuova trascrizione"
+msgstr "Nuova trascrizione del file"
 
 #: buzz/widgets/main_window_toolbar.py:48
-#, fuzzy
 msgid "New URL Transcription"
-msgstr "Nuova trascrizione"
+msgstr "Nuova trascrizione URL"
 
 #: buzz/widgets/main_window_toolbar.py:55
 msgid "Open Transcript"
@@ -443,9 +441,8 @@ msgstr "Testo"
 #: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:40
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:31
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:64
-#, fuzzy
 msgid "Translation"
-msgstr "Nuova trascrizione"
+msgstr "Traduzione"
 
 #: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:26
 msgid "View"
