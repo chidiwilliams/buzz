@@ -58,3 +58,23 @@ begin
         RegDeleteKeyIncludingSubkeys(HKEY_CURRENT_USER, '{#AppRegKey}');
   end;
 end;
+procedure DeleteFileOrFolder(FilePath: string);
+begin
+  if FileExists(FilePath) then
+  begin
+    DeleteFile(FilePath);
+  end
+  else if DirExists(FilePath) then
+  begin
+    DelTree(FilePath, True, True, True);
+  end;
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssInstall then
+  begin
+    DeleteFileOrFolder(ExpandConstant('{app}\Buzz.exe'));
+    DeleteFileOrFolder(ExpandConstant('{app}\_internal'));
+  end;
+end;
