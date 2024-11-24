@@ -253,7 +253,7 @@ class TestMainWindow:
                 "",
             )
             new_transcription_action = TestMainWindow._get_toolbar_action(
-                window, _("New Transcription")
+                window, _("New File Transcription")
             )
             new_transcription_action.trigger()
 

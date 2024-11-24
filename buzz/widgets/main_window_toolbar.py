@@ -37,6 +37,8 @@ class MainWindowToolbar(ToolBar):
         self.record_action = Action(Icon(RECORD_ICON_PATH, self), _("Record"), self)
         self.record_action.triggered.connect(self.on_record_action_triggered)
 
+        # Note: Changes to "New File Transcription" need to be reflected
+        # also in tests/widgets/main_window_test.py
         self.new_transcription_action = Action(
             Icon(ADD_ICON_PATH, self), _("New File Transcription"), self
         )
