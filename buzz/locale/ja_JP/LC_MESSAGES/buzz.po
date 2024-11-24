@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-03 08:32+0200\n"
+"POT-Creation-Date: 2024-11-23 22:17+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: nunawa <71294849+nunawa@users.noreply.github.com>\n"
 "Language-Team: \n"
@@ -25,7 +25,7 @@ msgstr "https://example.com/audio.mp3"
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:245
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:97
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:295
-#: buzz/widgets/main_window.py:234
+#: buzz/widgets/main_window.py:239
 msgid "Ok"
 msgstr "Ok"
 
@@ -34,7 +34,7 @@ msgstr "Ok"
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:246
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:296
 #: buzz/widgets/model_download_progress_dialog.py:29
-#: buzz/widgets/main_window.py:235
+#: buzz/widgets/main_window.py:240
 msgid "Cancel"
 msgstr "キャンセル"
 
@@ -216,12 +216,12 @@ msgid "Download failed"
 msgstr "ダウンロード失敗"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:269
-#: buzz/widgets/main_window.py:291 buzz/model_loader.py:503
+#: buzz/widgets/main_window.py:296 buzz/model_loader.py:503
 msgid "Error"
 msgstr "エラー"
 
 #: buzz/widgets/record_button.py:10 buzz/widgets/record_button.py:17
-#: buzz/widgets/main_window_toolbar.py:35
+#: buzz/widgets/main_window_toolbar.py:37
 msgid "Record"
 msgstr "録音する"
 
@@ -246,15 +246,15 @@ msgstr "モデル:"
 msgid "First time use of a model may take up to several minutest to load."
 msgstr ""
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:113
+#: buzz/widgets/transcriber/transcription_options_group_box.py:114
 msgid "Api Key:"
 msgstr "APIキー:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:114
+#: buzz/widgets/transcriber/transcription_options_group_box.py:115
 msgid "Task:"
 msgstr "タスク:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:115
+#: buzz/widgets/transcriber/transcription_options_group_box.py:116
 msgid "Language:"
 msgstr "言語:"
 
@@ -318,64 +318,70 @@ msgstr "モデルのHuggingface ID"
 msgid "Advanced..."
 msgstr "高度な設定..."
 
-#: buzz/widgets/main_window_toolbar.py:39
-msgid "New Transcription"
+#: buzz/widgets/main_window_toolbar.py:41
+#, fuzzy
+msgid "New File Transcription"
 msgstr "新しい文字起こし"
 
-#: buzz/widgets/main_window_toolbar.py:46
+#: buzz/widgets/main_window_toolbar.py:48
+#, fuzzy
+msgid "New URL Transcription"
+msgstr "新しい文字起こし"
+
+#: buzz/widgets/main_window_toolbar.py:55
 msgid "Open Transcript"
 msgstr "文字起こしを開く"
 
-#: buzz/widgets/main_window_toolbar.py:52 buzz/settings/shortcut.py:27
+#: buzz/widgets/main_window_toolbar.py:61 buzz/settings/shortcut.py:27
 msgid "Cancel Transcription"
 msgstr "文字起こしをキャンセルする"
 
-#: buzz/widgets/main_window_toolbar.py:60 buzz/widgets/main_window.py:223
+#: buzz/widgets/main_window_toolbar.py:69 buzz/widgets/main_window.py:228
 #: buzz/settings/shortcut.py:26
 msgid "Clear History"
 msgstr "履歴を削除する"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:64
+#: buzz/widgets/transcription_tasks_table_widget.py:66
 msgid "In Progress"
 msgstr "進行中"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:67
+#: buzz/widgets/transcription_tasks_table_widget.py:69
 msgid "Completed"
 msgstr "完了"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:74
+#: buzz/widgets/transcription_tasks_table_widget.py:76
 msgid "Failed"
 msgstr "失敗"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:77
+#: buzz/widgets/transcription_tasks_table_widget.py:79
 msgid "Canceled"
 msgstr "キャンセル済み"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:79
+#: buzz/widgets/transcription_tasks_table_widget.py:81
 msgid "Queued"
 msgstr "キュー済み"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:86
+#: buzz/widgets/transcription_tasks_table_widget.py:88
 msgid "File Name / URL"
 msgstr "ファイル名 / URL"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:98
+#: buzz/widgets/transcription_tasks_table_widget.py:100
 msgid "Model"
 msgstr "モデル"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:107
+#: buzz/widgets/transcription_tasks_table_widget.py:109
 msgid "Task"
 msgstr "タスク"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:116
+#: buzz/widgets/transcription_tasks_table_widget.py:118
 msgid "Status"
 msgstr "ステータス"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:124
+#: buzz/widgets/transcription_tasks_table_widget.py:126
 msgid "Date Added"
 msgstr "追加日"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:135
+#: buzz/widgets/transcription_tasks_table_widget.py:137
 msgid "Date Completed"
 msgstr "完了日"
 
@@ -536,17 +542,17 @@ msgstr "ヘルプ"
 msgid "File"
 msgstr "ファイル"
 
-#: buzz/widgets/main_window.py:227
+#: buzz/widgets/main_window.py:232
 msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
 msgstr "本当に選択された文字起こしを削除しますか？ この操作は元に戻せません。"
 
-#: buzz/widgets/main_window.py:255
+#: buzz/widgets/main_window.py:260
 msgid "Select audio file"
 msgstr "音声ファイルを選択"
 
-#: buzz/widgets/main_window.py:291
+#: buzz/widgets/main_window.py:296
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "OpenAI API キーをkeyringに保存できません"
 

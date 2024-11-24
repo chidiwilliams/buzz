@@ -12,6 +12,7 @@ from buzz.widgets.icon import Icon
 from buzz.widgets.icon import (
     RECORD_ICON_PATH,
     ADD_ICON_PATH,
+    URL_ICON_PATH,
     EXPAND_ICON_PATH,
     CANCEL_ICON_PATH,
     TRASH_ICON_PATH,
@@ -22,6 +23,7 @@ from buzz.widgets.toolbar import ToolBar
 
 class MainWindowToolbar(ToolBar):
     new_transcription_action_triggered: pyqtSignal
+    new_url_transcription_action_triggered: pyqtSignal
     open_transcript_action_triggered: pyqtSignal
     clear_history_action_triggered: pyqtSignal
     ICON_LIGHT_THEME_BACKGROUND = "#555"
@@ -35,11 +37,20 @@ class MainWindowToolbar(ToolBar):
         self.record_action = Action(Icon(RECORD_ICON_PATH, self), _("Record"), self)
         self.record_action.triggered.connect(self.on_record_action_triggered)
 
+        # Note: Changes to "New File Transcription" need to be reflected
+        # also in tests/widgets/main_window_test.py
         self.new_transcription_action = Action(
-            Icon(ADD_ICON_PATH, self), _("New Transcription"), self
+            Icon(ADD_ICON_PATH, self), _("New File Transcription"), self
         )
         self.new_transcription_action_triggered = (
             self.new_transcription_action.triggered
+        )
+
+        self.new_url_transcription_action = Action(
+            Icon(URL_ICON_PATH, self), _("New URL Transcription"), self
+        )
+        self.new_url_transcription_action_triggered = (
+            self.new_url_transcription_action.triggered
         )
 
         self.open_transcript_action = Action(
@@ -69,6 +80,7 @@ class MainWindowToolbar(ToolBar):
         self.addActions(
             [
                 self.new_transcription_action,
+                self.new_url_transcription_action,
                 self.open_transcript_action,
                 self.stop_transcription_action,
                 self.clear_history_action,
@@ -83,6 +95,9 @@ class MainWindowToolbar(ToolBar):
         )
         self.new_transcription_action.setShortcut(
             QKeySequence.fromString(self.shortcuts.get(Shortcut.OPEN_IMPORT_WINDOW))
+        )
+        self.new_url_transcription_action.setShortcut(
+            QKeySequence.fromString(self.shortcuts.get(Shortcut.OPEN_IMPORT_URL_WINDOW))
         )
         self.stop_transcription_action.setShortcut(
             QKeySequence.fromString(self.shortcuts.get(Shortcut.STOP_TRANSCRIPTION))

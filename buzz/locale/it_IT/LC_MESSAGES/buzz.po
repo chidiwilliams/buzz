@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-03 08:32+0200\n"
+"POT-Creation-Date: 2024-11-23 22:17+0200\n"
 "PO-Revision-Date: 2024-11-03 11:22+0100\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
@@ -29,7 +29,7 @@ msgstr "https://esempio.com/audio.mp3"
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:245
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:97
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:295
-#: buzz/widgets/main_window.py:234
+#: buzz/widgets/main_window.py:239
 msgid "Ok"
 msgstr "Ok"
 
@@ -38,7 +38,7 @@ msgstr "Ok"
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:246
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:296
 #: buzz/widgets/model_download_progress_dialog.py:29
-#: buzz/widgets/main_window.py:235
+#: buzz/widgets/main_window.py:240
 msgid "Cancel"
 msgstr "Annulla"
 
@@ -88,11 +88,11 @@ msgstr "Abilita l'esportazione della trascrizione della registrazione live"
 msgid "Browse"
 msgstr "Sfoglia"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:119
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:120
 msgid "Export folder"
 msgstr "Esporta cartella"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:130
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:131
 msgid "Live recording mode"
 msgstr "Modalità di registrazione in diretta"
 
@@ -109,7 +109,7 @@ msgstr ""
 "La tua chiave API è valida. Buzz utilizzerà questa chiave per eseguire le "
 "trascrizioni API Whisper e le traduzioni AI."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:172
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:173
 msgid "Invalid API key"
 msgstr "Chiave API non valida"
 
@@ -118,8 +118,8 @@ msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=). Other characters in API "
 "key may cause errors."
 msgstr ""
-"L'API supporta solo caratteri base64 (A-Za-z0-9+/=). Altri caratteri nella chiave API "
-"potrebbero causare errori."
+"L'API supporta solo caratteri base64 (A-Za-z0-9+/=). Altri caratteri nella "
+"chiave API potrebbero causare errori."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:192
 msgid "Select Export Folder"
@@ -131,8 +131,9 @@ msgid ""
 "Transcription and translation may still work if the API does not support key "
 "validation."
 msgstr ""
-"L'API OpenAI ha restituito una risposta non valida. Controlla l'URL dell'API o la tua chiave."
-"La trascrizione e la traduzione potrebbero comunque funzionare se l'API non supporta la convalida della chiave."
+"L'API OpenAI ha restituito una risposta non valida. Controlla l'URL dell'API "
+"o la tua chiave.La trascrizione e la traduzione potrebbero comunque "
+"funzionare se l'API non supporta la convalida della chiave."
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:42
 msgid "Enable folder watch"
@@ -214,17 +215,17 @@ msgstr "Elimina modello"
 msgid "Are you sure you want to delete the selected model?"
 msgstr "Sei sicuro di voler eliminare il modello selezionato?"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:267
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:268
 msgid "Download failed"
 msgstr "Download non riuscito"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:269
-#: buzz/widgets/main_window.py:291 buzz/model_loader.py:503
+#: buzz/widgets/main_window.py:296 buzz/model_loader.py:503
 msgid "Error"
 msgstr "Errore"
 
 #: buzz/widgets/record_button.py:10 buzz/widgets/record_button.py:17
-#: buzz/widgets/main_window_toolbar.py:35
+#: buzz/widgets/main_window_toolbar.py:37
 msgid "Record"
 msgstr "Registra"
 
@@ -249,15 +250,15 @@ msgstr "Modello:"
 msgid "First time use of a model may take up to several minutest to load."
 msgstr ""
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:113
+#: buzz/widgets/transcriber/transcription_options_group_box.py:114
 msgid "Api Key:"
 msgstr "Chiave API:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:114
+#: buzz/widgets/transcriber/transcription_options_group_box.py:115
 msgid "Task:"
 msgstr "Compito:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:115
+#: buzz/widgets/transcriber/transcription_options_group_box.py:116
 msgid "Language:"
 msgstr "Lingua:"
 
@@ -321,64 +322,70 @@ msgstr "ID Huggingface di un modello"
 msgid "Advanced..."
 msgstr "Avanzate..."
 
-#: buzz/widgets/main_window_toolbar.py:39
-msgid "New Transcription"
+#: buzz/widgets/main_window_toolbar.py:41
+#, fuzzy
+msgid "New File Transcription"
 msgstr "Nuova trascrizione"
 
-#: buzz/widgets/main_window_toolbar.py:46
+#: buzz/widgets/main_window_toolbar.py:48
+#, fuzzy
+msgid "New URL Transcription"
+msgstr "Nuova trascrizione"
+
+#: buzz/widgets/main_window_toolbar.py:55
 msgid "Open Transcript"
 msgstr "Apri trascrizione"
 
-#: buzz/widgets/main_window_toolbar.py:52 buzz/settings/shortcut.py:27
+#: buzz/widgets/main_window_toolbar.py:61 buzz/settings/shortcut.py:27
 msgid "Cancel Transcription"
 msgstr "Annulla trascrizione"
 
-#: buzz/widgets/main_window_toolbar.py:60 buzz/widgets/main_window.py:223
+#: buzz/widgets/main_window_toolbar.py:69 buzz/widgets/main_window.py:228
 #: buzz/settings/shortcut.py:26
 msgid "Clear History"
 msgstr "Elimina la cronologia"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:64
+#: buzz/widgets/transcription_tasks_table_widget.py:66
 msgid "In Progress"
 msgstr "In corso"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:67
+#: buzz/widgets/transcription_tasks_table_widget.py:69
 msgid "Completed"
 msgstr "Completato"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:74
+#: buzz/widgets/transcription_tasks_table_widget.py:76
 msgid "Failed"
 msgstr "Non riuscito"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:77
+#: buzz/widgets/transcription_tasks_table_widget.py:79
 msgid "Canceled"
 msgstr "Annullato"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:79
+#: buzz/widgets/transcription_tasks_table_widget.py:81
 msgid "Queued"
 msgstr "In coda"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:86
+#: buzz/widgets/transcription_tasks_table_widget.py:88
 msgid "File Name / URL"
 msgstr "Nome file / URL"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:98
+#: buzz/widgets/transcription_tasks_table_widget.py:100
 msgid "Model"
 msgstr "Modello"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:107
+#: buzz/widgets/transcription_tasks_table_widget.py:109
 msgid "Task"
 msgstr "Compito"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:116
+#: buzz/widgets/transcription_tasks_table_widget.py:118
 msgid "Status"
 msgstr "Stato"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:124
+#: buzz/widgets/transcription_tasks_table_widget.py:126
 msgid "Date Added"
 msgstr "Data aggiunta"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:135
+#: buzz/widgets/transcription_tasks_table_widget.py:137
 msgid "Date Completed"
 msgstr "Data completata"
 
@@ -494,14 +501,15 @@ msgid ""
 "Detected missing permissions, please check that snap permissions have been "
 "granted"
 msgstr ""
-"Rilevate autorizzazioni mancanti, verificare che le autorizzazioni snap siano state "
-"concesse"
+"Rilevate autorizzazioni mancanti, verificare che le autorizzazioni snap "
+"siano state concesse"
 
 #: buzz/widgets/snap_notice.py:16
 msgid ""
 "To enable necessary permissions run the following commands in the terminal"
 msgstr ""
-"Per abilitare le autorizzazioni necessarie, eseguire i seguenti comandi nel terminale"
+"Per abilitare le autorizzazioni necessarie, eseguire i seguenti comandi nel "
+"terminale"
 
 #: buzz/widgets/snap_notice.py:30
 msgid "Close"
@@ -539,7 +547,7 @@ msgstr "Aiuto"
 msgid "File"
 msgstr "File"
 
-#: buzz/widgets/main_window.py:227
+#: buzz/widgets/main_window.py:232
 msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
@@ -547,11 +555,11 @@ msgstr ""
 "Sei certo di voler eliminare le trascrizioni selezionate? Questa azione non "
 "può essere annullata."
 
-#: buzz/widgets/main_window.py:255
+#: buzz/widgets/main_window.py:260
 msgid "Select audio file"
 msgstr "Seleziona file audio"
 
-#: buzz/widgets/main_window.py:291
+#: buzz/widgets/main_window.py:296
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "Impossibile salvare la chiave API OpenAI nel portachiavi"
 
