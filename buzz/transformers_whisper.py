@@ -162,8 +162,10 @@ class TransformersWhisper:
         task: str,
         word_timestamps: bool = False,
     ):
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-        torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+        force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
+        use_cuda = torch.cuda.is_available() and force_cpu == "false"
+        device = "cuda" if use_cuda else "cpu"
+        torch_dtype = torch.float16 if use_cuda else torch.float32
 
         use_safetensors = True
         if os.path.exists(self.model_id):
