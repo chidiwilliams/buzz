@@ -151,10 +151,6 @@ class WhisperFileTranscriber(FileTranscriber):
         force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
 
         device = "auto"
-        if platform.system() == "Windows":
-            logging.debug("CUDA GPUs are currently no supported on Running on Windows, using CPU")
-            device = "cpu"
-
         if torch.cuda.is_available() and torch.version.cuda < "12":
             logging.debug("Unsupported CUDA version (<12), using CPU")
             device = "cpu"
