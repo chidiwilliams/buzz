@@ -283,7 +283,14 @@ class TranscriptionViewerWidget(QWidget):
             return
 
         if self.transcription_options.llm_model == "" or self.transcription_options.llm_prompt == "":
+            self.transcription_options_dialog.accepted.connect(self.run_translation)
             self.transcription_options_dialog.show()
+            return
+
+        self.run_translation()
+
+    def run_translation(self):
+        if self.transcription_options.llm_model == "" or self.transcription_options.llm_prompt == "":
             return
 
         segments = self.table_widget.segments()
