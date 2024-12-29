@@ -294,6 +294,8 @@ class TranscriptionViewerWidget(QWidget):
             transcriptions_updated_signal=self.transcriptions_updated_signal,
         )
 
+        self.transcriptions_updated_signal.connect(self.close)
+
         self.transcription_resizer_dialog.show()
 
     def closeEvent(self, event):
