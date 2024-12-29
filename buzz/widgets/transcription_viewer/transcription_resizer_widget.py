@@ -1,11 +1,12 @@
 import re
+import os
 import logging
 import stable_whisper
 
 import srt
 from srt_equalizer import srt_equalizer
 from typing import Optional
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtCore import Qt, QThread, QObject, pyqtSignal
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import (
     QWidget,
@@ -34,6 +35,69 @@ from buzz.widgets.preferences_dialog.models.file_transcription_preferences impor
 
 SENTENCE_END = re.compile(r'.*[.!?。！？]')
 
+class TranscriptionWorker(QObject):
+    finished = pyqtSignal()
+    result_ready = pyqtSignal(list)
+
+    def __init__(self, transcription, transcription_service, regroup_string: str):
+        super().__init__()
+        self.transcription = transcription
+        self.transcription_service = transcription_service
+        self.regroup_string = regroup_string
+
+    def get_transcript(self, audio, **kwargs) -> dict:
+        buzz_segments = self.transcription_service.get_transcription_segments(
+            transcription_id=self.transcription.id_as_uuid
+        )
+
+        segments = []
+        words = []
+        text = ""
+        for buzz_segment in buzz_segments:
+            words.append({
+                'word': buzz_segment.text + " ",
+                'start': buzz_segment.start_time / 100,
+                'end': buzz_segment.end_time / 100,
+            })
+            text += buzz_segment.text + " "
+
+            if SENTENCE_END.match(buzz_segment.text):
+                segments.append({
+                    'text': text,
+                    'words': words
+                })
+                words = []
+                text = ""
+
+        return {
+            'language': self.transcription.language,
+            'segments': segments
+        }
+
+    def run(self):
+        result = stable_whisper.transcribe_any(
+            self.get_transcript,
+            self.transcription.file,
+            vad=os.path.exists(self.transcription.file),
+            suppress_silence=os.path.exists(self.transcription.file),
+            regroup=self.regroup_string,
+            check_sorted=False,
+        )
+
+        segments = []
+        for segment in result.segments:
+            segments.append(
+                Segment(
+                    start=int(segment.start * 100),
+                    end=int(segment.end * 100),
+                    text=segment.text
+                )
+            )
+
+        self.result_ready.emit(segments)
+        self.finished.emit()
+
+
 class TranscriptionResizerWidget(QWidget):
     resize_button_clicked = pyqtSignal()
     transcription: Transcription
@@ -51,6 +115,10 @@ class TranscriptionResizerWidget(QWidget):
         self.transcription = transcription
         self.transcription_service = transcription_service
         self.transcriptions_updated_signal = transcriptions_updated_signal
+
+        self.new_transcript_id = None
+        self.thread = None
+        self.worker = None
 
         self.setMinimumWidth(600)
         self.setMinimumHeight(300)
@@ -119,7 +187,7 @@ class TranscriptionResizerWidget(QWidget):
         self.merge_by_gap = QCheckBox(_("Merge by gap"))
         self.merge_by_gap.setChecked(True)
         self.merge_by_gap.setMinimumWidth(250)
-        self.merge_by_gap_input = LineEdit("0.1", self)
+        self.merge_by_gap_input = LineEdit("0.2", self)
         merge_by_gap_layout = QHBoxLayout()
         merge_by_gap_layout.addWidget(self.merge_by_gap)
         merge_by_gap_layout.addWidget(self.merge_by_gap_input)
@@ -207,40 +275,21 @@ class TranscriptionResizerWidget(QWidget):
         if self.transcriptions_updated_signal:
             self.transcriptions_updated_signal.emit(new_transcript_id)
 
-    def get_transcript(self, audio, **kwargs) -> dict:
-        buzz_segments = self.transcription_service.get_transcription_segments(
-            transcription_id=self.transcription.id_as_uuid
-        )
-
-        segments = []
-        words = []
-        text = ""
-        for buzz_segment in buzz_segments:
-            words.append({
-                'word': buzz_segment.text + " ",
-                'start': buzz_segment.start_time / 100,
-                'end': buzz_segment.end_time / 100,
-            })
-            text += buzz_segment.text + " "
-
-            if SENTENCE_END.match(buzz_segment.text):
-                segments.append({
-                    'text': text,
-                    'words': words
-                })
-                words = []
-                text = ""
-
-        return {
-            'language': self.transcription.language,
-            'segments': segments
-        }
-
-
     def on_merge_button_clicked(self):
+        self.new_transcript_id = self.transcription_service.copy_transcription(
+            self.transcription.id_as_uuid
+        )
+        self.transcription_service.update_transcription_progress(self.new_transcript_id, 0.0)
+
+        if self.transcriptions_updated_signal:
+            self.transcriptions_updated_signal.emit(self.new_transcript_id)
+
         regroup_string = ''
         if self.merge_by_gap.isChecked():
             regroup_string += f'mg={self.merge_by_gap_input.text()}'
+
+            if self.split_by_max_length.isChecked():
+                regroup_string += f'++{self.split_by_max_length_input.text()}+1'
 
         if self.split_by_punctuation.isChecked():
             if regroup_string:
@@ -252,32 +301,43 @@ class TranscriptionResizerWidget(QWidget):
                 regroup_string += '_'
             regroup_string += f'sl={self.split_by_max_length_input.text()}'
 
-        result = stable_whisper.transcribe_any(
-            self.get_transcript,
-            self.transcription.file,
-            vad=True,
-            suppress_silence=True,
-            regroup=regroup_string,
+        if self.merge_by_gap.isChecked():
+            if regroup_string:
+                regroup_string += '_'
+            regroup_string += f'mg={self.merge_by_gap_input.text()}'
+
+            if self.split_by_max_length.isChecked():
+                regroup_string += f'++{self.split_by_max_length_input.text()}+1'
+
+        regroup_string = os.getenv("BUZZ_MERGE_REGROUP_RULE", regroup_string)
+
+        self.hide()
+
+        self.thread = QThread()
+        self.worker = TranscriptionWorker(
+            self.transcription,
+            self.transcription_service,
+            regroup_string
         )
+        self.worker.moveToThread(self.thread)
+        self.thread.started.connect(self.worker.run)
+        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+        self.worker.result_ready.connect(self.on_transcription_completed)
 
-        segments = []
-        for segment in result.segments:
-            segments.append(
-                Segment(
-                    start=int(segment.start * 100),
-                    end=int(segment.end * 100),
-                    text=segment.text
-                )
-            )
+        self.thread.start()
 
-        new_transcript_id = self.transcription_service.copy_transcription(
-            self.transcription.id_as_uuid
-        )
-        self.transcription_service.update_transcription_as_completed(new_transcript_id, segments)
+    def on_transcription_completed(self, segments):
+        if self.new_transcript_id is not None:
+            self.transcription_service.update_transcription_as_completed(self.new_transcript_id, segments)
 
-        if self.transcriptions_updated_signal:
-            self.transcriptions_updated_signal.emit(new_transcript_id)
+            if self.transcriptions_updated_signal:
+                self.transcriptions_updated_signal.emit(self.new_transcript_id)
+
+        self.close()
 
     def closeEvent(self, event):
         self.hide()
+
         super().closeEvent(event)

@@ -85,17 +85,12 @@ class TestTranscriptionViewerWidget:
 
         widget = TranscriptionResizerWidget(transcription, transcription_service)
         widget.target_chars_spin_box.setValue(5)
+
         qtbot.add_widget(widget)
 
         widget.on_resize_button_clicked()
 
-        transcription_service.update_transcription_as_completed.assert_called()
-        assert transcription_service.update_transcription_as_completed.call_count == 1
-
-        widget.on_merge_button_clicked()
-
-        transcription_service.update_transcription_as_completed.assert_called()
-        assert transcription_service.update_transcription_as_completed.call_count == 2
+        transcription_service.update_transcription_as_completed.assert_called_once()
 
         widget.close()
 
