@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-23 22:17+0200\n"
+"POT-Creation-Date: 2024-12-28 22:29+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Yevhen Popok <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -26,17 +26,15 @@ msgstr "https://example.com/audio.mp3"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:69
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:245
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:97
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:295
-#: buzz/widgets/main_window.py:239
+#: buzz/widgets/main_window.py:244
 msgid "Ok"
 msgstr "Гаразд"
 
 #: buzz/widgets/import_url_dialog.py:29
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:70
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:246
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:296
 #: buzz/widgets/model_download_progress_dialog.py:29
-#: buzz/widgets/main_window.py:240
+#: buzz/widgets/main_window.py:245
 msgid "Cancel"
 msgstr "Скасувати"
 
@@ -218,7 +216,7 @@ msgid "Download failed"
 msgstr "Невдале завантаження"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:269
-#: buzz/widgets/main_window.py:296 buzz/model_loader.py:503
+#: buzz/widgets/main_window.py:301 buzz/model_loader.py:503
 msgid "Error"
 msgstr "Помилка"
 
@@ -320,25 +318,25 @@ msgstr "ID чи модель Huggingface"
 msgid "Advanced..."
 msgstr "Додатково..."
 
-#: buzz/widgets/main_window_toolbar.py:41
+#: buzz/widgets/main_window_toolbar.py:43
 #, fuzzy
 msgid "New File Transcription"
 msgstr "Нова транскрипція"
 
-#: buzz/widgets/main_window_toolbar.py:48
+#: buzz/widgets/main_window_toolbar.py:50
 #, fuzzy
 msgid "New URL Transcription"
 msgstr "Нова транскрипція"
 
-#: buzz/widgets/main_window_toolbar.py:55
+#: buzz/widgets/main_window_toolbar.py:57
 msgid "Open Transcript"
 msgstr "Відкрити транскрипцію"
 
-#: buzz/widgets/main_window_toolbar.py:61 buzz/settings/shortcut.py:27
+#: buzz/widgets/main_window_toolbar.py:63 buzz/settings/shortcut.py:27
 msgid "Cancel Transcription"
 msgstr "Скасувати транскрипцію"
 
-#: buzz/widgets/main_window_toolbar.py:69 buzz/widgets/main_window.py:228
+#: buzz/widgets/main_window_toolbar.py:71 buzz/widgets/main_window.py:233
 #: buzz/settings/shortcut.py:26
 msgid "Clear History"
 msgstr "Очистити історію"
@@ -452,33 +450,54 @@ msgstr "Вигляд"
 msgid "Timestamps"
 msgstr "Позначки часу"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:156
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:158
 msgid "Export"
 msgstr "Експорт"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:170
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:172
 #: buzz/transcriber/transcriber.py:24
 msgid "Translate"
 msgstr "Перекласти"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:180
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:182
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:90
 msgid "Resize"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:279
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:281
 msgid "API Key Required"
 msgstr "Потрібен API-ключ"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:280
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:282
 msgid "Please enter OpenAI API Key in preferences"
 msgstr "Будь ласка, введіть API-ключ OpenAI в налаштуваннях"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:297
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:72
+msgid "Resize Options"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:83
 msgid "Desired subtitle length"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:298
-msgid "Enter target characters per subtitle:"
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:108
+msgid "Merge Options"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:119
+msgid "Merge by gap"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:127
+msgid "Split by punctuation"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:135
+msgid "Split by max length"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:147
+msgid "Merge"
 msgstr ""
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:78
@@ -543,18 +562,18 @@ msgstr "Допомога"
 msgid "File"
 msgstr "Файл"
 
-#: buzz/widgets/main_window.py:232
+#: buzz/widgets/main_window.py:237
 msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
 msgstr ""
 "Ви впевнені, що хочете видалити вибрані транскрипції? Це незворотна дія."
 
-#: buzz/widgets/main_window.py:260
+#: buzz/widgets/main_window.py:265
 msgid "Select audio file"
 msgstr "Вибрати аудіофайл"
 
-#: buzz/widgets/main_window.py:296
+#: buzz/widgets/main_window.py:301
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "Не вдається додати до звʼязки ключів API-ключ OpenAI"
 
