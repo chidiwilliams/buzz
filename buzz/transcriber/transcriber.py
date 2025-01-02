@@ -144,6 +144,7 @@ class TranscriptionOptions:
     task: Task = Task.TRANSCRIBE
     model: TranscriptionModel = field(default_factory=TranscriptionModel)
     word_level_timings: bool = False
+    extract_speech: bool = False
     temperature: Tuple[float, ...] = DEFAULT_WHISPER_TEMPERATURE
     initial_prompt: str = ""
     openai_access_token: str = field(

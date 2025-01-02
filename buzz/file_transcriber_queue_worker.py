@@ -1,6 +1,8 @@
 import logging
 import multiprocessing
 import queue
+import demucs.api
+from pathlib import Path
 from typing import Optional, Tuple, List, Set
 from uuid import UUID
 
@@ -52,6 +54,22 @@ class FileTranscriberQueueWorker(QObject):
                 continue
 
             break
+
+        if self.current_task.transcription_options.extract_speech:
+            def separator_progress_callback(progress):
+                self.task_progress.emit(self.current_task, int(progress["segment_offset"] * 100) / int(progress["audio_length"] * 100))
+
+            separator = demucs.api.Separator(
+                progress=True,
+                callback=separator_progress_callback,
+            )
+            _, separated = separator.separate_audio_file(Path(self.current_task.file_path))
+
+            task_file_path = Path(self.current_task.file_path)
+            speech_path = task_file_path.with_name(f"{task_file_path.stem}_speech.flac")
+            demucs.api.save_audio(separated["vocals"], speech_path, samplerate=separator.samplerate)
+
+            self.current_task.file_path = str(speech_path)
 
         logging.debug("Starting next transcription task")
 

@@ -16,7 +16,8 @@ CREATE TABLE transcription (
     url TEXT,
     whisper_model_size TEXT,
     hugging_face_model_id TEXT,
-    word_level_timings BOOLEAN DEFAULT FALSE
+    word_level_timings BOOLEAN DEFAULT FALSE,
+    extract_speech BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE transcription_segment (

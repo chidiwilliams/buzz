@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-28 22:29+0200\n"
+"POT-Creation-Date: 2025-01-02 11:39+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: nunawa <71294849+nunawa@users.noreply.github.com>\n"
 "Language-Team: \n"
@@ -24,7 +24,7 @@ msgstr "https://example.com/audio.mp3"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:69
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:245
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:97
-#: buzz/widgets/main_window.py:244
+#: buzz/widgets/main_window.py:246
 msgid "Ok"
 msgstr "Ok"
 
@@ -32,7 +32,7 @@ msgstr "Ok"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:70
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:246
 #: buzz/widgets/model_download_progress_dialog.py:29
-#: buzz/widgets/main_window.py:245
+#: buzz/widgets/main_window.py:247
 msgid "Cancel"
 msgstr "キャンセル"
 
@@ -214,7 +214,7 @@ msgid "Download failed"
 msgstr "ダウンロード失敗"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:269
-#: buzz/widgets/main_window.py:301 buzz/model_loader.py:503
+#: buzz/widgets/main_window.py:303 buzz/model_loader.py:503
 msgid "Error"
 msgstr "エラー"
 
@@ -228,7 +228,7 @@ msgid "Stop"
 msgstr "停止する"
 
 #: buzz/widgets/transcriber/languages_combo_box.py:35
-#: buzz/transcriber/transcriber.py:159
+#: buzz/transcriber/transcriber.py:160
 msgid "Detect Language"
 msgstr "自動検出"
 
@@ -300,11 +300,15 @@ msgstr "AIのための翻訳方法の指示を入力..."
 msgid "Instructions for AI:"
 msgstr "AIへの指示:"
 
-#: buzz/widgets/transcriber/file_transcription_form_widget.py:42
+#: buzz/widgets/transcriber/file_transcription_form_widget.py:43
 msgid "Word-level timings"
 msgstr "単語レベルでのタイミング"
 
-#: buzz/widgets/transcriber/file_transcription_form_widget.py:66
+#: buzz/widgets/transcriber/file_transcription_form_widget.py:54
+msgid "Extract speech"
+msgstr ""
+
+#: buzz/widgets/transcriber/file_transcription_form_widget.py:77
 msgid "Export:"
 msgstr "出力形式:"
 
@@ -334,7 +338,7 @@ msgstr "文字起こしを開く"
 msgid "Cancel Transcription"
 msgstr "文字起こしをキャンセルする"
 
-#: buzz/widgets/main_window_toolbar.py:71 buzz/widgets/main_window.py:233
+#: buzz/widgets/main_window_toolbar.py:71 buzz/widgets/main_window.py:235
 #: buzz/settings/shortcut.py:26
 msgid "Clear History"
 msgstr "履歴を削除する"
@@ -448,54 +452,54 @@ msgstr "表示"
 msgid "Timestamps"
 msgstr "タイムスタンプ"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:158
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:146
 msgid "Export"
 msgstr "出力"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:172
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:160
 #: buzz/transcriber/transcriber.py:24
 msgid "Translate"
 msgstr "翻訳"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:182
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:90
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:170
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:168
 msgid "Resize"
 msgstr "リサイズ"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:281
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:269
 msgid "API Key Required"
 msgstr "APIキーが必要"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:282
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:270
 msgid "Please enter OpenAI API Key in preferences"
 msgstr "設定画面でOpenAI APIキーを入力してください"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:72
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:150
 #, fuzzy
 msgid "Resize Options"
 msgstr "リサイズ"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:83
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:161
 msgid "Desired subtitle length"
 msgstr "希望する字幕の長さ"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:108
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:186
 msgid "Merge Options"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:119
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:197
 msgid "Merge by gap"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:127
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:205
 msgid "Split by punctuation"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:135
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:213
 msgid "Split by max length"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:147
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:225
 msgid "Merge"
 msgstr ""
 
@@ -562,17 +566,17 @@ msgstr "ヘルプ"
 msgid "File"
 msgstr "ファイル"
 
-#: buzz/widgets/main_window.py:237
+#: buzz/widgets/main_window.py:239
 msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
 msgstr "本当に選択された文字起こしを削除しますか？ この操作は元に戻せません。"
 
-#: buzz/widgets/main_window.py:265
+#: buzz/widgets/main_window.py:267
 msgid "Select audio file"
 msgstr "音声ファイルを選択"
 
-#: buzz/widgets/main_window.py:301
+#: buzz/widgets/main_window.py:303
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "OpenAI API キーをkeyringに保存できません"
 

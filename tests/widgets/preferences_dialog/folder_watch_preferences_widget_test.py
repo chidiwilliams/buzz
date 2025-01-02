@@ -27,6 +27,7 @@ class TestFolderWatchPreferencesWidget:
                     task=Task.TRANSCRIBE,
                     model=TranscriptionModel.default(),
                     word_level_timings=False,
+                    extract_speech=False,
                     temperature=DEFAULT_WHISPER_TEMPERATURE,
                     initial_prompt="",
                     enable_llm_translation=False,
