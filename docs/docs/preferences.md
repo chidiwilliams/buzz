@@ -74,6 +74,8 @@ set SOME_OTHER_VARIABLE=some_other_value
 "C:\Program Files (x86)\Buzz\Buzz.exe"
 ```
 
+Alternatively you can set environment variables in your OS settings. See [this guide](https://phoenixnap.com/kb/windows-set-environment-variable#ftoc-heading-4) or [this video](https://www.youtube.com/watch?v=bEroNNzqlF4) more information.
+
 ### Available variables
 
 **BUZZ_WHISPERCPP_N_THREADS** - Number of threads to use for Whisper.cpp model. Default is `4`. 

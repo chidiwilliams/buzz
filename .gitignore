@@ -5,6 +5,7 @@ build/
 .coverage*
 !.coveragerc
 .env
+.DS_Store
 htmlcov/
 coverage.xml
 .idea/
