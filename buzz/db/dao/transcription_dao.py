@@ -33,7 +33,8 @@ class TranscriptionDAO(DAO[Transcription]):
                 url,
                 whisper_model_size,
                 hugging_face_model_id,
-                word_level_timings
+                word_level_timings,
+                extract_speech
             ) VALUES (
                 :id,
                 :export_formats,
@@ -48,7 +49,8 @@ class TranscriptionDAO(DAO[Transcription]):
                 :url,
                 :whisper_model_size,
                 :hugging_face_model_id,
-                :word_level_timings
+                :word_level_timings,
+                :extract_speech
             )
             """
         )
@@ -89,6 +91,10 @@ class TranscriptionDAO(DAO[Transcription]):
             ":word_level_timings",
             task.transcription_options.word_level_timings
         )
+        query.bindValue(
+            ":extract_speech",
+            task.transcription_options.extract_speech
+        )
         if not query.exec():
             raise Exception(query.lastError().text())
 
@@ -125,7 +131,8 @@ class TranscriptionDAO(DAO[Transcription]):
                 url,
                 whisper_model_size,
                 hugging_face_model_id,
-                word_level_timings
+                word_level_timings,
+                extract_speech
             ) VALUES (
                 :id,
                 :export_formats,
@@ -140,7 +147,8 @@ class TranscriptionDAO(DAO[Transcription]):
                 :url,
                 :whisper_model_size,
                 :hugging_face_model_id,
-                :word_level_timings
+                :word_level_timings,
+                :extract_speech
             )
             """
         )

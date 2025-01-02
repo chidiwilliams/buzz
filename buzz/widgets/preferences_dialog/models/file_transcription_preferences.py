@@ -19,6 +19,7 @@ class FileTranscriptionPreferences:
     task: Task
     model: TranscriptionModel
     word_level_timings: bool
+    extract_speech: bool
     temperature: Tuple[float, ...]
     initial_prompt: str
     enable_llm_translation: bool
@@ -31,6 +32,7 @@ class FileTranscriptionPreferences:
         settings.setValue("task", self.task)
         settings.setValue("model", self.model)
         settings.setValue("word_level_timings", self.word_level_timings)
+        settings.setValue("extract_speech", self.extract_speech)
         settings.setValue("temperature", self.temperature)
         settings.setValue("initial_prompt", self.initial_prompt)
         settings.setValue("enable_llm_translation", self.enable_llm_translation)
@@ -53,6 +55,10 @@ class FileTranscriptionPreferences:
         word_level_timings = False if word_level_timings_value == "false" \
             else bool(word_level_timings_value)
 
+        extract_speech_value = settings.value("extract_speech", False)
+        extract_speech = False if extract_speech_value == "false" \
+            else bool(extract_speech_value)
+
         temperature = settings.value("temperature", DEFAULT_WHISPER_TEMPERATURE)
         initial_prompt = settings.value("initial_prompt", "")
         enable_llm_translation_value = settings.value("enable_llm_translation", False)
@@ -68,6 +74,7 @@ class FileTranscriptionPreferences:
             if model.model_type.is_available()
             else TranscriptionModel.default(),
             word_level_timings=word_level_timings,
+            extract_speech=extract_speech,
             temperature=temperature,
             initial_prompt=initial_prompt,
             enable_llm_translation=enable_llm_translation,
@@ -93,6 +100,7 @@ class FileTranscriptionPreferences:
             llm_model=transcription_options.llm_model,
             llm_prompt=transcription_options.llm_prompt,
             word_level_timings=transcription_options.word_level_timings,
+            extract_speech=transcription_options.extract_speech,
             model=transcription_options.model,
             output_formats=file_transcription_options.output_formats,
         )
@@ -113,6 +121,7 @@ class FileTranscriptionPreferences:
                 llm_model=self.llm_model,
                 llm_prompt=self.llm_prompt,
                 word_level_timings=self.word_level_timings,
+                extract_speech=self.extract_speech,
                 model=self.model,
                 openai_access_token=openai_access_token,
             ),

@@ -118,9 +118,10 @@ class TestWhisperFileTranscriber:
         assert srt.endswith(".srt")
 
     @pytest.mark.parametrize(
-        "word_level_timings,expected_segments,model",
+        "word_level_timings,extract_speech,expected_segments,model",
         [
             (
+                False,
                 False,
                 [
                     Segment(
@@ -136,6 +137,7 @@ class TestWhisperFileTranscriber:
             ),
             (
                 True,
+                True,
                 [Segment(40, 299, " Bien"), Segment(299, 329, "venue dans")],
                 TranscriptionModel(
                     model_type=ModelType.WHISPER,
@@ -143,6 +145,7 @@ class TestWhisperFileTranscriber:
                 ),
             ),
             (
+                False,
                 False,
                 [
                     Segment(
@@ -158,6 +161,7 @@ class TestWhisperFileTranscriber:
                 ),
             ),
             pytest.param(
+                False,
                 False,
                 [
                     Segment(
@@ -181,6 +185,7 @@ class TestWhisperFileTranscriber:
         self,
         qtbot: QtBot,
         word_level_timings: bool,
+        extract_speech: bool,
         expected_segments: List[Segment],
         model: TranscriptionModel,
     ):
@@ -190,6 +195,7 @@ class TestWhisperFileTranscriber:
             language="fr",
             task=Task.TRANSCRIBE,
             word_level_timings=word_level_timings,
+            extract_speech=extract_speech,
             model=model,
         )
         model_path = get_model_path(transcription_options.model)

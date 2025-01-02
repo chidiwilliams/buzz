@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from PyQt6.QtCore import pyqtSignal, Qt
@@ -50,6 +51,16 @@ class FileTranscriptionFormWidget(QWidget):
         file_transcription_layout = QFormLayout()
         file_transcription_layout.addRow("", self.word_level_timings_checkbox)
 
+        self.extract_speech_checkbox = QCheckBox(_("Extract speech"))
+        self.extract_speech_checkbox.setChecked(
+            self.transcription_options.extract_speech
+        )
+        self.extract_speech_checkbox.stateChanged.connect(
+            self.on_extract_speech_changed
+        )
+
+        file_transcription_layout.addRow("", self.extract_speech_checkbox)
+
         export_format_layout = QHBoxLayout()
         for output_format in OutputFormat:
             export_format_checkbox = QCheckBox(
@@ -86,6 +97,15 @@ class FileTranscriptionFormWidget(QWidget):
 
     def on_word_level_timings_changed(self, value: int):
         self.transcription_options.word_level_timings = (
+            value == Qt.CheckState.Checked.value
+        )
+
+        self.transcription_options_changed.emit(
+            (self.transcription_options, self.file_transcription_options)
+        )
+
+    def on_extract_speech_changed(self, value: int):
+        self.transcription_options.extract_speech = (
             value == Qt.CheckState.Checked.value
         )
 

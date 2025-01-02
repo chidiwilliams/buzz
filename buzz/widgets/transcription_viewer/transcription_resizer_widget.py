@@ -2,8 +2,8 @@ import re
 import os
 import logging
 import stable_whisper
-
 import srt
+from pathlib import Path
 from srt_equalizer import srt_equalizer
 from typing import Optional
 from PyQt6.QtCore import Qt, QThread, QObject, pyqtSignal
@@ -39,9 +39,10 @@ class TranscriptionWorker(QObject):
     finished = pyqtSignal()
     result_ready = pyqtSignal(list)
 
-    def __init__(self, transcription, transcription_service, regroup_string: str):
+    def __init__(self, transcription, transcription_options, transcription_service, regroup_string: str):
         super().__init__()
         self.transcription = transcription
+        self.transcription_options = transcription_options
         self.transcription_service = transcription_service
         self.regroup_string = regroup_string
 
@@ -75,11 +76,20 @@ class TranscriptionWorker(QObject):
         }
 
     def run(self):
+        transcription_file = self.transcription.file
+        transcription_file_exists = os.path.exists(transcription_file)
+
+        transcription_file_path = Path(transcription_file)
+        speech_path = transcription_file_path.with_name(f"{transcription_file_path.stem}_speech.flac")
+        if self.transcription_options.extract_speech and os.path.exists(speech_path):
+            transcription_file = str(speech_path)
+            transcription_file_exists = True
+
         result = stable_whisper.transcribe_any(
             self.get_transcript,
-            self.transcription.file,
-            vad=os.path.exists(self.transcription.file),
-            suppress_silence=os.path.exists(self.transcription.file),
+            transcription_file,
+            vad=transcription_file_exists,
+            suppress_silence=transcription_file_exists,
             regroup=self.regroup_string,
             check_sorted=False,
         )
@@ -316,6 +326,7 @@ class TranscriptionResizerWidget(QWidget):
         self.thread = QThread()
         self.worker = TranscriptionWorker(
             self.transcription,
+            self.transcription_options,
             self.transcription_service,
             regroup_string
         )

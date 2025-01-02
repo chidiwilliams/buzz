@@ -15,6 +15,7 @@ To import a file:
 |--------------------|---------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Export As          | "TXT", "SRT", "VTT" | "TXT"   | Export file format                                                                                                                                       |
 | Word-Level Timings | Off / On            | Off     | If checked, the transcription will generate a separate subtitle line for each word in the audio. Enabled only when "Export As" is set to "SRT" or "VTT". |
+| Extract speech     | Off / On            | Off     | If checked, speech will be extracted to a separate audio tack to improve accuracy. Available since 1.3.0.                                                |
 
 (See the [Live Recording section](#live-recording) for more information about the task, language, and quality settings.)
 
