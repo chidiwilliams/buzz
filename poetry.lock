@@ -6,6 +6,8 @@ version = "1.0.1"
 description = "Accelerate"
 optional = false
 python-versions = ">=3.8.0"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "accelerate-1.0.1-py3-none-any.whl", hash = "sha256:c6aa0c7b8a797cb150471e90e3ca36ac41f5d4b40512cdd6f058b8bf25589467"},
     {file = "accelerate-1.0.1.tar.gz", hash = "sha256:e8f95fc2db14915dc0a9182edfcf3068e5ddb2fa310b583717ad44e5c442399c"},
@@ -37,6 +39,8 @@ version = "0.17.4"
 description = "Python graph (network) package"
 optional = false
 python-versions = "*"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "altgraph-0.17.4-py2.py3-none-any.whl", hash = "sha256:642743b4750de17e655e6711601b077bc6598dbfa3ba5fa2b2a35ce12b508dff"},
     {file = "altgraph-0.17.4.tar.gz", hash = "sha256:1b5afbb98f6c4dcadb2e2ae6ab9fa994bbb8c1d75f4fa96d340f9437ae454406"},
@@ -48,6 +52,8 @@ version = "0.6.0"
 description = "Reusable constraint types to use with typing.Annotated"
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "annotated_types-0.6.0-py3-none-any.whl", hash = "sha256:0641064de18ba7a25dee8f96403ebc39113d0cb953a01429249d5c7564666a43"},
     {file = "annotated_types-0.6.0.tar.gz", hash = "sha256:563339e807e53ffd9c267e99fc6d9ea23eb8443c08f112651963e24e22f84a5d"},
@@ -59,6 +65,8 @@ version = "4.9.3"
 description = "ANTLR 4.9.3 runtime for Python 3.7"
 optional = false
 python-versions = "*"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "antlr4-python3-runtime-4.9.3.tar.gz", hash = "sha256:f224469b4168294902bb1efa80a8bf7855f24c99aef99cbefc1bcd3cce77881b"},
 ]
@@ -69,6 +77,8 @@ version = "4.3.0"
 description = "High level compatibility layer for multiple asynchronous event loop implementations"
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "anyio-4.3.0-py3-none-any.whl", hash = "sha256:048e05d0f6caeed70d731f3db756d35dcc1f35747c8c403364a8332c630441b8"},
     {file = "anyio-4.3.0.tar.gz", hash = "sha256:f75253795a87df48568485fd18cdd2a3fa5c4f7c5be8e5e36637733fce06fed6"},
@@ -91,6 +101,8 @@ version = "2.15.8"
 description = "An abstract syntax tree for Python with inference support."
 optional = false
 python-versions = ">=3.7.2"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "astroid-2.15.8-py3-none-any.whl", hash = "sha256:1aa149fc5c6589e3d0ece885b4491acd80af4f087baafa3fb5203b113e68cd3c"},
     {file = "astroid-2.15.8.tar.gz", hash = "sha256:6c107453dffee9055899705de3c9ead36e74119cee151e5a9aaf7f0b0e020a6a"},
@@ -110,6 +122,8 @@ version = "1.7.0"
 description = "A tool that automatically formats Python code to conform to the PEP 8 style guide"
 optional = false
 python-versions = "*"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "autopep8-1.7.0-py2.py3-none-any.whl", hash = "sha256:6f09e90a2be784317e84dc1add17ebfc7abe3924239957a37e5040e27d812087"},
     {file = "autopep8-1.7.0.tar.gz", hash = "sha256:ca9b1a83e53a7fad65d731dc7a2a2d50aa48f43850407c59f6a1a306c4201142"},
@@ -125,6 +139,8 @@ version = "11.0.0"
 description = "Pythonic bindings for FFmpeg's libraries."
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "av-11.0.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:a01f13b37eb6d181e03bbbbda29093fe2d68f10755795188220acdc89560ec27"},
     {file = "av-11.0.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:b2236faee1b5d71dff3cdef81ef6eec22cc8b71dbfb45eb037e6437fe80f24e7"},
@@ -179,6 +195,8 @@ version = "1.1.0"
 description = "Python bindings for the Brotli compression library"
 optional = false
 python-versions = "*"
+groups = ["main"]
+markers = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and implementation_name == \"cpython\""
 files = [
     {file = "Brotli-1.1.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:e1140c64812cb9b06c922e77f1c26a75ec5e3f0fb2bf92cc8c58720dec276752"},
     {file = "Brotli-1.1.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:c8fd5270e906eef71d4a8d19b7c6a43760c6abcfcc10c9101d14eb2357418de9"},
@@ -313,6 +331,8 @@ version = "1.1.0.0"
 description = "Python CFFI bindings to the Brotli library"
 optional = false
 python-versions = ">=3.7"
+groups = ["main"]
+markers = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and implementation_name != \"cpython\""
 files = [
     {file = "brotlicffi-1.1.0.0-cp37-abi3-macosx_10_9_x86_64.whl", hash = "sha256:9b7ae6bd1a3f0df532b6d67ff674099a96d22bc0948955cb338488c31bfb8851"},
     {file = "brotlicffi-1.1.0.0-cp37-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:19ffc919fa4fc6ace69286e0a23b3789b4219058313cf9b45625016bf7ff996b"},
@@ -352,6 +372,8 @@ version = "2024.2.2"
 description = "Python package for providing Mozilla's CA Bundle."
 optional = false
 python-versions = ">=3.6"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "certifi-2024.2.2-py3-none-any.whl", hash = "sha256:dc383c07b76109f368f6106eee2b593b04a011ea4d55f652c6ca24a754d1cdd1"},
     {file = "certifi-2024.2.2.tar.gz", hash = "sha256:0569859f95fc761b18b45ef421b1290a0f65f147e92a1e5eb3e635f9a5e4e66f"},
@@ -363,6 +385,8 @@ version = "1.16.0"
 description = "Foreign Function Interface for Python calling C code."
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "cffi-1.16.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:6b3d6606d369fc1da4fd8c357d026317fbb9c9b75d36dc16e90e84c26854b088"},
     {file = "cffi-1.16.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:ac0f5edd2360eea2f1daa9e26a41db02dd4b0451b48f7c318e217ee092a213e9"},
@@ -427,6 +451,8 @@ version = "3.4.0"
 description = "Validate configuration and produce human readable error messages."
 optional = false
 python-versions = ">=3.8"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "cfgv-3.4.0-py2.py3-none-any.whl", hash = "sha256:b7265b1f29fd3316bfcd2b330d63d024f2bfd8bcb8b0272f8e19a504856c48f9"},
     {file = "cfgv-3.4.0.tar.gz", hash = "sha256:e52591d4c5f5dead8e0f673fb16db7949d2cfb3f7da4582893288f0ded8fe560"},
@@ -438,6 +464,8 @@ version = "3.3.2"
 description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
 optional = false
 python-versions = ">=3.7.0"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "charset-normalizer-3.3.2.tar.gz", hash = "sha256:f30c3cb33b24454a82faecaf01b19c18562b1e89558fb6c56de4d9118a032fd5"},
     {file = "charset_normalizer-3.3.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:25baf083bf6f6b341f4121c2f3c548875ee6f5339300e08be3f2b2ba1721cdd3"},
@@ -537,6 +565,8 @@ version = "3.1.0"
 description = "Pickler class to extend the standard pickle.Pickler functionality"
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "cloudpickle-3.1.0-py3-none-any.whl", hash = "sha256:fe11acda67f61aaaec473e3afe030feb131d78a43461b718185363384f1ba12e"},
     {file = "cloudpickle-3.1.0.tar.gz", hash = "sha256:81a929b6e3c7335c863c771d673d105f02efdb89dfaba0c90495d1c64796601b"},
@@ -548,6 +578,8 @@ version = "3.28.4"
 description = "CMake is an open-source, cross-platform family of tools designed to build, test and package software"
 optional = false
 python-versions = "*"
+groups = ["build"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "cmake-3.28.4-py2.py3-none-macosx_10_10_universal2.macosx_10_10_x86_64.macosx_11_0_arm64.macosx_11_0_universal2.whl", hash = "sha256:d642ee5e0f8e7252c75968bae3a1729dbbff6965f9dfb76d2f1611c583de14fd"},
     {file = "cmake-3.28.4-py2.py3-none-manylinux2010_i686.manylinux_2_12_i686.whl", hash = "sha256:b45bc5d881727a6319d7f4b2b44e68e479ac76f18923a8eb551eb3869f2fe82a"},
@@ -577,10 +609,12 @@ version = "0.4.6"
 description = "Cross-platform colored terminal text."
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
+groups = ["main", "dev"]
 files = [
     {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
     {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
 ]
+markers = {main = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and platform_system == \"Windows\"", dev = "sys_platform == \"win32\""}
 
 [[package]]
 name = "coloredlogs"
@@ -588,6 +622,8 @@ version = "15.0.1"
 description = "Colored terminal output for Python's logging module"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "coloredlogs-15.0.1-py2.py3-none-any.whl", hash = "sha256:612ee75c546f53e92e70049c9dbfcc18c935a2b9a53b66085ce9ef6a6e5c0934"},
     {file = "coloredlogs-15.0.1.tar.gz", hash = "sha256:7c991aa71a4577af2f82600d8f8f3a89f936baeaf9b50a9c197da014e5bf16b0"},
@@ -605,6 +641,8 @@ version = "7.4.4"
 description = "Code coverage measurement for Python"
 optional = false
 python-versions = ">=3.8"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "coverage-7.4.4-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:e0be5efd5127542ef31f165de269f77560d6cdef525fffa446de6f7e9186cfb2"},
     {file = "coverage-7.4.4-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:ccd341521be3d1b3daeb41960ae94a5e87abe2f46f17224ba5d6f2b8398016cf"},
@@ -672,6 +710,8 @@ version = "42.0.5"
 description = "cryptography is a package which provides cryptographic recipes and primitives to Python developers."
 optional = false
 python-versions = ">=3.7"
+groups = ["main"]
+markers = "sys_platform == \"linux\""
 files = [
     {file = "cryptography-42.0.5-cp37-abi3-macosx_10_12_universal2.whl", hash = "sha256:a30596bae9403a342c978fb47d9b0ee277699fa53bbafad14706af51fe543d16"},
     {file = "cryptography-42.0.5-cp37-abi3-macosx_10_12_x86_64.whl", hash = "sha256:b7ffe927ee6531c78f81aa17e684e2ff617daeba7f189f911065b2ea2d526dec"},
@@ -726,6 +766,8 @@ version = "4.1.0"
 description = "Fast inference engine for Transformer models"
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "ctranslate2-4.1.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:8b3154cb8bfd4f320ee6dcc5ec2962c020a649eb2311e0edb90bc720f0eab529"},
     {file = "ctranslate2-4.1.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:7e06cf9a0c6cf4e91c9edb1bdcb0c78fa9cd3fe5b18d7a380194e82f5881917c"},
@@ -765,6 +807,8 @@ version = "1.1.1"
 description = "Python wrapper generator for ctypes"
 optional = false
 python-versions = ">=3.7"
+groups = ["build"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "ctypesgen-1.1.1-py3-none-any.whl", hash = "sha256:94cc6c89ccdd93a72a4c915266cde9a82bfe693331d9d880f66fe9d82af1fc87"},
     {file = "ctypesgen-1.1.1.tar.gz", hash = "sha256:deaa2d64a95d90196a2e8a689cf9b952be6f3366f81e835245354bf9dbac92f6"},
@@ -776,6 +820,8 @@ version = "0.8.0"
 description = "Detect OS Dark Mode from Python"
 optional = false
 python-versions = ">=3.6"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "darkdetect-0.8.0-py3-none-any.whl", hash = "sha256:a7509ccf517eaad92b31c214f593dbcf138ea8a43b2935406bbd565e15527a85"},
     {file = "darkdetect-0.8.0.tar.gz", hash = "sha256:b5428e1170263eb5dea44c25dc3895edd75e6f52300986353cd63533fe7df8b1"},
@@ -790,6 +836,8 @@ version = "0.6.4"
 description = "Easily serialize dataclasses to and from JSON."
 optional = false
 python-versions = ">=3.7,<4.0"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "dataclasses_json-0.6.4-py3-none-any.whl", hash = "sha256:f90578b8a3177f7552f4e1a6e535e84293cd5da421fcce0642d49c0d7bdf8df2"},
     {file = "dataclasses_json-0.6.4.tar.gz", hash = "sha256:73696ebf24936560cca79a2430cbc4f3dd23ac7bf46ed17f38e5e5e7657a6377"},
@@ -805,6 +853,8 @@ version = "4.1.0a2"
 description = "Music source separation in the waveform domain."
 optional = false
 python-versions = ">=3.8.0"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = []
 develop = false
 
@@ -834,6 +884,8 @@ version = "0.3.8"
 description = "serialize all of Python"
 optional = false
 python-versions = ">=3.8"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "dill-0.3.8-py3-none-any.whl", hash = "sha256:c36ca9ffb54365bdd2f8eb3eff7d2a21237f8452b57ace88b1ac615b7e815bd7"},
     {file = "dill-0.3.8.tar.gz", hash = "sha256:3ebe3c479ad625c4553aca177444d89b486b1d84982eeacded644afc0cf797ca"},
@@ -849,6 +901,8 @@ version = "0.3.8"
 description = "Distribution utilities"
 optional = false
 python-versions = "*"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "distlib-0.3.8-py2.py3-none-any.whl", hash = "sha256:034db59a0b96f8ca18035f36290806a9a6e6bd9d1ff91e45a7f172eb17e51784"},
     {file = "distlib-0.3.8.tar.gz", hash = "sha256:1530ea13e350031b6312d8580ddb6b27a104275a31106523b8f123787f494f64"},
@@ -860,6 +914,8 @@ version = "1.9.0"
 description = "Distro - an OS platform information API"
 optional = false
 python-versions = ">=3.6"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "distro-1.9.0-py3-none-any.whl", hash = "sha256:7bffd925d65168f85027d8da9af6bddab658135b840670a223589bc0c8ef02b2"},
     {file = "distro-1.9.0.tar.gz", hash = "sha256:2fa77c6fd8940f116ee1d6b94a2f90b13b5ea8d019b98bc8bafdcabcdd9bdbed"},
@@ -871,6 +927,8 @@ version = "0.1.12"
 description = "Easy grid searches for ML."
 optional = false
 python-versions = ">=3.7.0"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "dora_search-0.1.12.tar.gz", hash = "sha256:2956fd2c4c7e4b9a4830e83f0d4cf961be45cfba1a2f0570281e91d15ac516fb"},
 ]
@@ -891,6 +949,8 @@ version = "0.8.0"
 description = "A new flavour of deep learning operations"
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "einops-0.8.0-py3-none-any.whl", hash = "sha256:9572fb63046264a862693b0a87088af3bdc8c068fde03de63453cbbde245465f"},
     {file = "einops-0.8.0.tar.gz", hash = "sha256:63486517fed345712a8385c100cb279108d9d47e6ae59099b07657e983deae85"},
@@ -902,6 +962,8 @@ version = "1.2.0"
 description = "Backport of PEP 654 (exception groups)"
 optional = false
 python-versions = ">=3.7"
+groups = ["main", "dev"]
+markers = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and python_version < \"3.11\""
 files = [
     {file = "exceptiongroup-1.2.0-py3-none-any.whl", hash = "sha256:4bfd3996ac73b41e9b9628b04e079f193850720ea5945fc96a08633c66912f14"},
     {file = "exceptiongroup-1.2.0.tar.gz", hash = "sha256:91f5c769735f051a4290d52edd0858999b57e5876e9f85937691bd4c9fa3ed68"},
@@ -916,6 +978,8 @@ version = "1.1.0"
 description = "Faster Whisper transcription with CTranslate2"
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "faster-whisper-1.1.0.tar.gz", hash = "sha256:cea4bba5d4527173fdbacafa56f2ffb17dd322688f6c3fdf5fd7b6b6c193ce17"},
     {file = "faster_whisper-1.1.0-py3-none-any.whl", hash = "sha256:0f2d025676bbff1e46c4108b6f9a82578d6e33826c174af2990e45b33fab6182"},
@@ -939,6 +1003,8 @@ version = "3.13.1"
 description = "A platform independent file lock."
 optional = false
 python-versions = ">=3.8"
+groups = ["main", "dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "filelock-3.13.1-py3-none-any.whl", hash = "sha256:57dbda9b35157b05fb3e58ee91448612eb674172fab98ee235ccb0b5bee19a1c"},
     {file = "filelock-3.13.1.tar.gz", hash = "sha256:521f5f56c50f8426f5e03ad3b281b490a87ef15bc6c526f168290f0c7148d44e"},
@@ -955,6 +1021,8 @@ version = "24.3.7"
 description = "The FlatBuffers serialization format for Python"
 optional = false
 python-versions = "*"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "flatbuffers-24.3.7-py2.py3-none-any.whl", hash = "sha256:80c4f5dcad0ee76b7e349671a0d657f2fbba927a0244f88dd3f5ed6a3694e1fc"},
     {file = "flatbuffers-24.3.7.tar.gz", hash = "sha256:0895c22b9a6019ff2f4de2e5e2f7cd15914043e6e7033a94c0c6369422690f22"},
@@ -966,6 +1034,8 @@ version = "2024.3.1"
 description = "File-system specification"
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "fsspec-2024.3.1-py3-none-any.whl", hash = "sha256:918d18d41bf73f0e2b261824baeb1b124bcf771767e3a26425cd7dec3332f512"},
     {file = "fsspec-2024.3.1.tar.gz", hash = "sha256:f39780e282d7d117ffb42bb96992f8a90795e4d0fb0f661a70ca39fe9c43ded9"},
@@ -1001,6 +1071,8 @@ version = "0.14.0"
 description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
 optional = false
 python-versions = ">=3.7"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "h11-0.14.0-py3-none-any.whl", hash = "sha256:e3fe4ac4b851c468cc8363d500db52c2ead036020723024a109d37346efaa761"},
     {file = "h11-0.14.0.tar.gz", hash = "sha256:8f19fbbe99e72420ff35c00b27a34cb9937e902a8b810e2c88300c6f0a3b699d"},
@@ -1012,6 +1084,8 @@ version = "1.0.4"
 description = "A minimal low-level HTTP client."
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "httpcore-1.0.4-py3-none-any.whl", hash = "sha256:ac418c1db41bade2ad53ae2f3834a3a0f5ae76b56cf5aa497d2d033384fc7d73"},
     {file = "httpcore-1.0.4.tar.gz", hash = "sha256:cb2839ccfcba0d2d3c1131d3c3e26dfc327326fbe7a5dc0dbfe9f6c9151bb022"},
@@ -1033,6 +1107,8 @@ version = "0.27.0"
 description = "The next generation HTTP client."
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "httpx-0.27.0-py3-none-any.whl", hash = "sha256:71d5465162c13681bff01ad59b2cc68dd838ea1f10e51574bac27103f00c91a5"},
     {file = "httpx-0.27.0.tar.gz", hash = "sha256:a0cb88a46f32dc874e04ee956e4c2764aba2aa228f650b06788ba6bda2962ab5"},
@@ -1057,6 +1133,8 @@ version = "0.26.2"
 description = "Client library to download and publish models, datasets and other repos on the huggingface.co hub"
 optional = false
 python-versions = ">=3.8.0"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "huggingface_hub-0.26.2-py3-none-any.whl", hash = "sha256:98c2a5a8e786c7b2cb6fdeb2740893cba4d53e312572ed3d8afafda65b128c46"},
     {file = "huggingface_hub-0.26.2.tar.gz", hash = "sha256:b100d853465d965733964d123939ba287da60a547087783ddff8a323f340332b"},
@@ -1091,6 +1169,8 @@ version = "10.0"
 description = "Human friendly output for text interfaces using Python"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "humanfriendly-10.0-py2.py3-none-any.whl", hash = "sha256:1697e1a8a8f550fd43c2865cd84542fc175a61dcb779b6fee18cf6b6ccba1477"},
     {file = "humanfriendly-10.0.tar.gz", hash = "sha256:6b0b831ce8f15f7300721aa49829fc4e83921a9a301cc7f606be6686a2288ddc"},
@@ -1105,6 +1185,8 @@ version = "4.9.0"
 description = "Python humanize utilities"
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "humanize-4.9.0-py3-none-any.whl", hash = "sha256:ce284a76d5b1377fd8836733b983bfb0b76f1aa1c090de2566fcf008d7f6ab16"},
     {file = "humanize-4.9.0.tar.gz", hash = "sha256:582a265c931c683a7e9b8ed9559089dea7edcf6cc95be39a3cbc2c5d5ac2bcfa"},
@@ -1119,6 +1201,8 @@ version = "2.5.35"
 description = "File identification library for Python"
 optional = false
 python-versions = ">=3.8"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "identify-2.5.35-py2.py3-none-any.whl", hash = "sha256:c4de0081837b211594f8e877a6b4fad7ca32bbfc1a9307fdd61c28bfe923f13e"},
     {file = "identify-2.5.35.tar.gz", hash = "sha256:10a7ca245cfcd756a554a7288159f72ff105ad233c7c4b9c6f0f4d108f5f6791"},
@@ -1133,6 +1217,8 @@ version = "3.6"
 description = "Internationalized Domain Names in Applications (IDNA)"
 optional = false
 python-versions = ">=3.5"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "idna-3.6-py3-none-any.whl", hash = "sha256:c05567e9c24a6b9faaa835c4821bad0590fbb9d5779e7caa6e1cc4978e7eb24f"},
     {file = "idna-3.6.tar.gz", hash = "sha256:9ecdbbd083b06798ae1e86adcbfe8ab1479cf864e4ee30fe4e46a003d12491ca"},
@@ -1144,10 +1230,12 @@ version = "7.1.0"
 description = "Read metadata from Python packages"
 optional = false
 python-versions = ">=3.8"
+groups = ["main", "dev"]
 files = [
     {file = "importlib_metadata-7.1.0-py3-none-any.whl", hash = "sha256:30962b96c0c223483ed6cc7280e7f0199feb01a0e40cfae4d4450fc6fab1f570"},
     {file = "importlib_metadata-7.1.0.tar.gz", hash = "sha256:b78938b926ee8d5f020fc4772d487045805a55ddbad2ecf21c6d60938dc7fcd2"},
 ]
+markers = {main = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and python_version < \"3.12\"", dev = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and python_version < \"3.10\""}
 
 [package.dependencies]
 zipp = ">=0.5"
@@ -1163,6 +1251,8 @@ version = "2.0.0"
 description = "brain-dead simple config-ini parsing"
 optional = false
 python-versions = ">=3.7"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "iniconfig-2.0.0-py3-none-any.whl", hash = "sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374"},
     {file = "iniconfig-2.0.0.tar.gz", hash = "sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3"},
@@ -1174,6 +1264,8 @@ version = "5.13.2"
 description = "A Python utility / library to sort Python imports."
 optional = false
 python-versions = ">=3.8.0"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "isort-5.13.2-py3-none-any.whl", hash = "sha256:8ca5e72a8d85860d5a3fa69b8745237f2939afe12dbf656afbcb47fe72d947a6"},
     {file = "isort-5.13.2.tar.gz", hash = "sha256:48fdfcb9face5d58a4f6dde2e72a1fb8dcaf8ab26f95ab49fab84c2ddefb0109"},
@@ -1188,6 +1280,8 @@ version = "3.3.1"
 description = "Utility functions for Python class constructs"
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "jaraco.classes-3.3.1-py3-none-any.whl", hash = "sha256:86b534de565381f6b3c1c830d13f931d7be1a75f0081c57dff615578676e2206"},
     {file = "jaraco.classes-3.3.1.tar.gz", hash = "sha256:cb28a5ebda8bc47d8c8015307d93163464f9f2b91ab4006e09ff0ce07e8bfb30"},
@@ -1206,6 +1300,8 @@ version = "4.3.0"
 description = "Context managers by jaraco"
 optional = false
 python-versions = ">=3.7"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "jaraco.context-4.3.0-py3-none-any.whl", hash = "sha256:5d9e95ca0faa78943ed66f6bc658dd637430f16125d86988e77844c741ff2f11"},
     {file = "jaraco.context-4.3.0.tar.gz", hash = "sha256:4dad2404540b936a20acedec53355bdaea223acb88fd329fa6de9261c941566e"},
@@ -1221,6 +1317,8 @@ version = "4.0.0"
 description = "Functools like those found in stdlib"
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "jaraco.functools-4.0.0-py3-none-any.whl", hash = "sha256:daf276ddf234bea897ef14f43c4e1bf9eefeac7b7a82a4dd69228ac20acff68d"},
     {file = "jaraco.functools-4.0.0.tar.gz", hash = "sha256:c279cb24c93d694ef7270f970d499cab4d3813f4e08273f95398651a634f0925"},
@@ -1239,6 +1337,8 @@ version = "0.8.0"
 description = "Low-level, pure Python DBus protocol wrapper."
 optional = false
 python-versions = ">=3.7"
+groups = ["main"]
+markers = "sys_platform == \"linux\""
 files = [
     {file = "jeepney-0.8.0-py3-none-any.whl", hash = "sha256:c0a454ad016ca575060802ee4d590dd912e35c122fa04e70306de3d076cce755"},
     {file = "jeepney-0.8.0.tar.gz", hash = "sha256:5efe48d255973902f6badc3ce55e2aa6c5c3b3bc642059ef3a91247bcfcc5806"},
@@ -1254,6 +1354,8 @@ version = "3.1.3"
 description = "A very fast and expressive template engine."
 optional = false
 python-versions = ">=3.7"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "Jinja2-3.1.3-py3-none-any.whl", hash = "sha256:7d6d50dd97d52cbc355597bd845fabfbac3f551e1f99619e39a35ce8c370b5fa"},
     {file = "Jinja2-3.1.3.tar.gz", hash = "sha256:ac8bd6544d4bb2c9792bf3a159e80bba8fda7f07e81bc3aed565432d5925ba90"},
@@ -1271,6 +1373,8 @@ version = "0.2.7"
 description = "Nice DSP sweets: resampling, FFT Convolutions. All with PyTorch, differentiable and with CUDA support."
 optional = false
 python-versions = ">=3.6.0"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "julius-0.2.7.tar.gz", hash = "sha256:3c0f5f5306d7d6016fcc95196b274cae6f07e2c9596eed314e4e7641554fbb08"},
 ]
@@ -1287,6 +1391,8 @@ version = "25.0.0"
 description = "Store and access your passwords safely."
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "keyring-25.0.0-py3-none-any.whl", hash = "sha256:9a15cd280338920388e8c1787cb8792b9755dabb3e7c61af5ac1f8cd437cefde"},
     {file = "keyring-25.0.0.tar.gz", hash = "sha256:fc024ed53c7ea090e30723e6bd82f58a39dc25d9a6797d866203ecd0ee6306cb"},
@@ -1312,6 +1418,8 @@ version = "1.7.0"
 description = "LAME encoding bindings"
 optional = false
 python-versions = "*"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "lameenc-1.7.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:666dae5544b82b7c7e2d45ee82b0b74a3b5d46c62f79df603a30f4b633c78556"},
     {file = "lameenc-1.7.0-cp310-cp310-macosx_11_0_x86_64.whl", hash = "sha256:73ba7b02685d9c17a3b083622b85c859f9db35254d4ea9ee8305d4a8d321876b"},
@@ -1390,6 +1498,8 @@ version = "1.10.0"
 description = "A fast and thorough lazy object proxy."
 optional = false
 python-versions = ">=3.8"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "lazy-object-proxy-1.10.0.tar.gz", hash = "sha256:78247b6d45f43a52ef35c25b5581459e85117225408a4128a3daf8bf9648ac69"},
     {file = "lazy_object_proxy-1.10.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:855e068b0358ab916454464a884779c7ffa312b8925c6f7401e952dcf3b89977"},
@@ -1436,6 +1546,8 @@ version = "0.42.0"
 description = "lightweight wrapper around basic LLVM functionality"
 optional = false
 python-versions = ">=3.9"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "llvmlite-0.42.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:3366938e1bf63d26c34fbfb4c8e8d2ded57d11e0567d5bb243d89aab1eb56098"},
     {file = "llvmlite-0.42.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:c35da49666a21185d21b551fc3caf46a935d54d66969d32d72af109b5e7d2b6f"},
@@ -1466,6 +1578,8 @@ version = "1.16.3"
 description = "Mach-O header analysis and editing"
 optional = false
 python-versions = "*"
+groups = ["dev"]
+markers = "sys_platform == \"darwin\""
 files = [
     {file = "macholib-1.16.3-py2.py3-none-any.whl", hash = "sha256:0e315d7583d38b8c77e815b1ecbdbf504a8258d8b3e17b61165c6feb60d18f2c"},
     {file = "macholib-1.16.3.tar.gz", hash = "sha256:07ae9e15e8e4cd9a788013d81f5908b3609aa76f9b1421bae9c4d7606ec86a30"},
@@ -1480,6 +1594,8 @@ version = "2.1.5"
 description = "Safely add untrusted strings to HTML/XML markup."
 optional = false
 python-versions = ">=3.7"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "MarkupSafe-2.1.5-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:a17a92de5231666cfbe003f0e4b9b3a7ae3afb1ec2845aadc2bacc93ff85febc"},
     {file = "MarkupSafe-2.1.5-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:72b6be590cc35924b02c78ef34b467da4ba07e4e0f0454a2c5907f473fc50ce5"},
@@ -1549,6 +1665,8 @@ version = "3.21.1"
 description = "A lightweight library for converting complex datatypes to and from native Python datatypes."
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "marshmallow-3.21.1-py3-none-any.whl", hash = "sha256:f085493f79efb0644f270a9bf2892843142d80d7174bbbd2f3713f2a589dc633"},
     {file = "marshmallow-3.21.1.tar.gz", hash = "sha256:4e65e9e0d80fc9e609574b9983cf32579f305c718afb30d7233ab818571768c3"},
@@ -1568,6 +1686,8 @@ version = "0.7.0"
 description = "McCabe checker, plugin for flake8"
 optional = false
 python-versions = ">=3.6"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "mccabe-0.7.0-py2.py3-none-any.whl", hash = "sha256:6c2d30ab6be0e4a46919781807b4f0d834ebdd6c6e3dca0bda5a15f863427b6e"},
     {file = "mccabe-0.7.0.tar.gz", hash = "sha256:348e0240c33b60bbdf4e523192ef919f28cb2c3d7d5c7794f74009290f236325"},
@@ -1579,6 +1699,8 @@ version = "10.2.0"
 description = "More routines for operating on iterables, beyond itertools"
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "more-itertools-10.2.0.tar.gz", hash = "sha256:8fccb480c43d3e99a00087634c06dd02b0d50fbf088b380de5a41a015ec239e1"},
     {file = "more_itertools-10.2.0-py3-none-any.whl", hash = "sha256:686b06abe565edfab151cb8fd385a05651e1fdf8f0a14191e4439283421f8684"},
@@ -1590,6 +1712,8 @@ version = "1.3.0"
 description = "Python library for arbitrary-precision floating-point arithmetic"
 optional = false
 python-versions = "*"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "mpmath-1.3.0-py3-none-any.whl", hash = "sha256:a0b2b9fe80bbcd81a6647ff13108738cfb482d481d826cc0e02f5b35e5c88d2c"},
     {file = "mpmath-1.3.0.tar.gz", hash = "sha256:7a28eb2a9774d00c7bc92411c19a89209d5da7c4c9a9e227be8330a23a25b91f"},
@@ -1607,6 +1731,8 @@ version = "1.47.0"
 description = "read and write audio tags for many formats"
 optional = false
 python-versions = ">=3.7"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "mutagen-1.47.0-py3-none-any.whl", hash = "sha256:edd96f50c5907a9539d8e5bba7245f62c9f520aef333d13392a79a4f70aca719"},
     {file = "mutagen-1.47.0.tar.gz", hash = "sha256:719fadef0a978c31b4cf3c956261b3c58b6948b32023078a2117b1de09f0fc99"},
@@ -1618,6 +1744,8 @@ version = "1.0.0"
 description = "Type system extensions for programs checked with the mypy type checker."
 optional = false
 python-versions = ">=3.5"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "mypy_extensions-1.0.0-py3-none-any.whl", hash = "sha256:4392f6c0eb8a5668a69e23d168ffa70f0be9ccfd32b5cc2d26a34ae5b844552d"},
     {file = "mypy_extensions-1.0.0.tar.gz", hash = "sha256:75dbf8955dc00442a438fc4d0666508a9a97b6bd41aa2f0ffe9d2f2725af0782"},
@@ -1629,6 +1757,8 @@ version = "3.2.1"
 description = "Python package for creating and manipulating graphs and networks"
 optional = false
 python-versions = ">=3.9"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "networkx-3.2.1-py3-none-any.whl", hash = "sha256:f18c69adc97877c42332c170849c96cefa91881c99a7cb3e95b7c659ebdc1ec2"},
     {file = "networkx-3.2.1.tar.gz", hash = "sha256:9f1bb5cf3409bf324e0a722c20bdb4c20ee39bf1c30ce8ae499c8502b0b5e0c6"},
@@ -1647,6 +1777,8 @@ version = "1.8.0"
 description = "Node.js virtual environment builder"
 optional = false
 python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "nodeenv-1.8.0-py2.py3-none-any.whl", hash = "sha256:df865724bb3c3adc86b3876fa209771517b0cfe596beff01a92700e0e8be4cec"},
     {file = "nodeenv-1.8.0.tar.gz", hash = "sha256:d51e0c37e64fbf47d017feac3145cdbb58836d7eee8c6f6d3b6880c5456227d2"},
@@ -1661,6 +1793,8 @@ version = "0.59.1"
 description = "compiling Python code using LLVM"
 optional = false
 python-versions = ">=3.9"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "numba-0.59.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:97385a7f12212c4f4bc28f648720a92514bee79d7063e40ef66c2d30600fd18e"},
     {file = "numba-0.59.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:0b77aecf52040de2a1eb1d7e314497b9e56fba17466c80b457b971a25bb1576d"},
@@ -1695,6 +1829,8 @@ version = "1.26.4"
 description = "Fundamental package for array computing in Python"
 optional = false
 python-versions = ">=3.9"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "numpy-1.26.4-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:9ff0f4f29c51e2803569d7a51c2304de5554655a60c5d776e35b4a41413830d0"},
     {file = "numpy-1.26.4-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:2e4ee3380d6de9c9ec04745830fd9e2eccb3e6cf790d39d7b98ffd19b0dd754a"},
@@ -1740,6 +1876,8 @@ version = "12.1.3.1"
 description = "CUBLAS native runtime libraries"
 optional = false
 python-versions = ">=3"
+groups = ["main"]
+markers = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and platform_system == \"Linux\" and platform_machine == \"x86_64\""
 files = [
     {file = "nvidia_cublas_cu12-12.1.3.1-py3-none-manylinux1_x86_64.whl", hash = "sha256:ee53ccca76a6fc08fb9701aa95b6ceb242cdaab118c3bb152af4e579af792728"},
     {file = "nvidia_cublas_cu12-12.1.3.1-py3-none-win_amd64.whl", hash = "sha256:2b964d60e8cf11b5e1073d179d85fa340c120e99b3067558f3cf98dd69d02906"},
@@ -1751,6 +1889,8 @@ version = "12.1.105"
 description = "CUDA profiling tools runtime libs."
 optional = false
 python-versions = ">=3"
+groups = ["main"]
+markers = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and platform_system == \"Linux\" and platform_machine == \"x86_64\""
 files = [
     {file = "nvidia_cuda_cupti_cu12-12.1.105-py3-none-manylinux1_x86_64.whl", hash = "sha256:e54fde3983165c624cb79254ae9818a456eb6e87a7fd4d56a2352c24ee542d7e"},
     {file = "nvidia_cuda_cupti_cu12-12.1.105-py3-none-win_amd64.whl", hash = "sha256:bea8236d13a0ac7190bd2919c3e8e6ce1e402104276e6f9694479e48bb0eb2a4"},
@@ -1762,6 +1902,8 @@ version = "12.1.105"
 description = "NVRTC native runtime libraries"
 optional = false
 python-versions = ">=3"
+groups = ["main"]
+markers = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and platform_system == \"Linux\" and platform_machine == \"x86_64\""
 files = [
     {file = "nvidia_cuda_nvrtc_cu12-12.1.105-py3-none-manylinux1_x86_64.whl", hash = "sha256:339b385f50c309763ca65456ec75e17bbefcbbf2893f462cb8b90584cd27a1c2"},
     {file = "nvidia_cuda_nvrtc_cu12-12.1.105-py3-none-win_amd64.whl", hash = "sha256:0a98a522d9ff138b96c010a65e145dc1b4850e9ecb75a0172371793752fd46ed"},
@@ -1773,6 +1915,8 @@ version = "12.1.105"
 description = "CUDA Runtime native Libraries"
 optional = false
 python-versions = ">=3"
+groups = ["main"]
+markers = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and platform_system == \"Linux\" and platform_machine == \"x86_64\""
 files = [
     {file = "nvidia_cuda_runtime_cu12-12.1.105-py3-none-manylinux1_x86_64.whl", hash = "sha256:6e258468ddf5796e25f1dc591a31029fa317d97a0a94ed93468fc86301d61e40"},
     {file = "nvidia_cuda_runtime_cu12-12.1.105-py3-none-win_amd64.whl", hash = "sha256:dfb46ef84d73fababab44cf03e3b83f80700d27ca300e537f85f636fac474344"},
@@ -1784,6 +1928,8 @@ version = "8.9.2.26"
 description = "cuDNN runtime libraries"
 optional = false
 python-versions = ">=3"
+groups = ["main"]
+markers = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and platform_system == \"Linux\" and platform_machine == \"x86_64\""
 files = [
     {file = "nvidia_cudnn_cu12-8.9.2.26-py3-none-manylinux1_x86_64.whl", hash = "sha256:5ccb288774fdfb07a7e7025ffec286971c06d8d7b4fb162525334616d7629ff9"},
 ]
@@ -1797,6 +1943,8 @@ version = "11.0.2.54"
 description = "CUFFT native runtime libraries"
 optional = false
 python-versions = ">=3"
+groups = ["main"]
+markers = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and platform_system == \"Linux\" and platform_machine == \"x86_64\""
 files = [
     {file = "nvidia_cufft_cu12-11.0.2.54-py3-none-manylinux1_x86_64.whl", hash = "sha256:794e3948a1aa71fd817c3775866943936774d1c14e7628c74f6f7417224cdf56"},
     {file = "nvidia_cufft_cu12-11.0.2.54-py3-none-win_amd64.whl", hash = "sha256:d9ac353f78ff89951da4af698f80870b1534ed69993f10a4cf1d96f21357e253"},
@@ -1808,6 +1956,8 @@ version = "10.3.2.106"
 description = "CURAND native runtime libraries"
 optional = false
 python-versions = ">=3"
+groups = ["main"]
+markers = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and platform_system == \"Linux\" and platform_machine == \"x86_64\""
 files = [
     {file = "nvidia_curand_cu12-10.3.2.106-py3-none-manylinux1_x86_64.whl", hash = "sha256:9d264c5036dde4e64f1de8c50ae753237c12e0b1348738169cd0f8a536c0e1e0"},
     {file = "nvidia_curand_cu12-10.3.2.106-py3-none-win_amd64.whl", hash = "sha256:75b6b0c574c0037839121317e17fd01f8a69fd2ef8e25853d826fec30bdba74a"},
@@ -1819,6 +1969,8 @@ version = "11.4.5.107"
 description = "CUDA solver native runtime libraries"
 optional = false
 python-versions = ">=3"
+groups = ["main"]
+markers = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and platform_system == \"Linux\" and platform_machine == \"x86_64\""
 files = [
     {file = "nvidia_cusolver_cu12-11.4.5.107-py3-none-manylinux1_x86_64.whl", hash = "sha256:8a7ec542f0412294b15072fa7dab71d31334014a69f953004ea7a118206fe0dd"},
     {file = "nvidia_cusolver_cu12-11.4.5.107-py3-none-win_amd64.whl", hash = "sha256:74e0c3a24c78612192a74fcd90dd117f1cf21dea4822e66d89e8ea80e3cd2da5"},
@@ -1835,6 +1987,8 @@ version = "12.1.0.106"
 description = "CUSPARSE native runtime libraries"
 optional = false
 python-versions = ">=3"
+groups = ["main"]
+markers = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and platform_system == \"Linux\" and platform_machine == \"x86_64\""
 files = [
     {file = "nvidia_cusparse_cu12-12.1.0.106-py3-none-manylinux1_x86_64.whl", hash = "sha256:f3b50f42cf363f86ab21f720998517a659a48131e8d538dc02f8768237bd884c"},
     {file = "nvidia_cusparse_cu12-12.1.0.106-py3-none-win_amd64.whl", hash = "sha256:b798237e81b9719373e8fae8d4f091b70a0cf09d9d85c95a557e11df2d8e9a5a"},
@@ -1849,6 +2003,8 @@ version = "2.19.3"
 description = "NVIDIA Collective Communication Library (NCCL) Runtime"
 optional = false
 python-versions = ">=3"
+groups = ["main"]
+markers = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and platform_system == \"Linux\" and platform_machine == \"x86_64\""
 files = [
     {file = "nvidia_nccl_cu12-2.19.3-py3-none-manylinux1_x86_64.whl", hash = "sha256:a9734707a2c96443331c1e48c717024aa6678a0e2a4cb66b2c364d18cee6b48d"},
 ]
@@ -1859,6 +2015,8 @@ version = "12.4.99"
 description = "Nvidia JIT LTO Library"
 optional = false
 python-versions = ">=3"
+groups = ["main"]
+markers = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and platform_system == \"Linux\" and platform_machine == \"x86_64\""
 files = [
     {file = "nvidia_nvjitlink_cu12-12.4.99-py3-none-manylinux2014_aarch64.whl", hash = "sha256:75d6498c96d9adb9435f2bbdbddb479805ddfb97b5c1b32395c694185c20ca57"},
     {file = "nvidia_nvjitlink_cu12-12.4.99-py3-none-manylinux2014_x86_64.whl", hash = "sha256:c6428836d20fe7e327191c175791d38570e10762edc588fb46749217cd444c74"},
@@ -1871,6 +2029,8 @@ version = "12.1.105"
 description = "NVIDIA Tools Extension"
 optional = false
 python-versions = ">=3"
+groups = ["main"]
+markers = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and platform_system == \"Linux\" and platform_machine == \"x86_64\""
 files = [
     {file = "nvidia_nvtx_cu12-12.1.105-py3-none-manylinux1_x86_64.whl", hash = "sha256:dc21cf308ca5691e7c04d962e213f8a4aa9bbfa23d95412f452254c2caeb09e5"},
     {file = "nvidia_nvtx_cu12-12.1.105-py3-none-win_amd64.whl", hash = "sha256:65f4d98982b31b60026e0e6de73fbdfc09d08a96f4656dd3665ca616a11e1e82"},
@@ -1882,6 +2042,8 @@ version = "2.3.0"
 description = "A flexible configuration library"
 optional = false
 python-versions = ">=3.6"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "omegaconf-2.3.0-py3-none-any.whl", hash = "sha256:7b4df175cdb08ba400f45cae3bdcae7ba8365db4d165fc65fd04b050ab63b46b"},
     {file = "omegaconf-2.3.0.tar.gz", hash = "sha256:d5d4b6d29955cc50ad50c46dc269bcd92c6e00f5f90d23ab5fee7bfca4ba4cc7"},
@@ -1897,6 +2059,8 @@ version = "1.17.1"
 description = "ONNX Runtime is a runtime accelerator for Machine Learning models"
 optional = false
 python-versions = "*"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "onnxruntime-1.17.1-cp310-cp310-macosx_11_0_universal2.whl", hash = "sha256:d43ac17ac4fa3c9096ad3c0e5255bb41fd134560212dc124e7f52c3159af5d21"},
     {file = "onnxruntime-1.17.1-cp310-cp310-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:55b5e92a4c76a23981c998078b9bf6145e4fb0b016321a8274b1607bd3c6bd35"},
@@ -1939,6 +2103,8 @@ version = "1.14.2"
 description = "The official Python library for the openai API"
 optional = false
 python-versions = ">=3.7.1"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "openai-1.14.2-py3-none-any.whl", hash = "sha256:a48b3c4d635b603952189ac5a0c0c9b06c025b80eb2900396939f02bb2104ac3"},
     {file = "openai-1.14.2.tar.gz", hash = "sha256:e5642f7c02cf21994b08477d7bb2c1e46d8f335d72c26f0396c5f89b15b5b153"},
@@ -1962,6 +2128,8 @@ version = "20240930"
 description = "Robust Speech Recognition via Large-Scale Weak Supervision"
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "openai-whisper-20240930.tar.gz", hash = "sha256:b7178e9c1615576807a300024f4daa6353f7e1a815dac5e38c33f1ef055dd2d2"},
 ]
@@ -1984,6 +2152,8 @@ version = "1.3.0"
 description = "PyTorch-based music source separation toolkit"
 optional = false
 python-versions = ">=3.9"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "openunmix-1.3.0-py3-none-any.whl", hash = "sha256:e893ae22c5b8001a6107022499c2587b70d5c2e4777cc7c9ed6272b68a69534e"},
     {file = "openunmix-1.3.0.tar.gz", hash = "sha256:cc9245ce728700f5d0b72c67f01be4162777e617cdc47f9b035963afac180fc8"},
@@ -2007,6 +2177,8 @@ version = "24.0"
 description = "Core utilities for Python packages"
 optional = false
 python-versions = ">=3.7"
+groups = ["main", "dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "packaging-24.0-py3-none-any.whl", hash = "sha256:2ddfb553fdf02fb784c234c7ba6ccc288296ceabec964ad2eae3777778130bc5"},
     {file = "packaging-24.0.tar.gz", hash = "sha256:eb82c5e3e56209074766e6885bb04b8c38a0c015d0a30036ebe7ece34c9989e9"},
@@ -2018,6 +2190,8 @@ version = "2023.2.7"
 description = "Python PE parsing module"
 optional = false
 python-versions = ">=3.6.0"
+groups = ["dev"]
+markers = "sys_platform == \"win32\""
 files = [
     {file = "pefile-2023.2.7-py3-none-any.whl", hash = "sha256:da185cd2af68c08a6cd4481f7325ed600a88f6a813bad9dea07ab3ef73d8d8d6"},
     {file = "pefile-2023.2.7.tar.gz", hash = "sha256:82e6114004b3d6911c77c3953e3838654b04511b8b66e8583db70c65998017dc"},
@@ -2029,6 +2203,8 @@ version = "4.2.0"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
 optional = false
 python-versions = ">=3.8"
+groups = ["main", "dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "platformdirs-4.2.0-py3-none-any.whl", hash = "sha256:0614df2a2f37e1a662acbd8e2b25b92ccf8632929bc6d43467e17fe89c75e068"},
     {file = "platformdirs-4.2.0.tar.gz", hash = "sha256:ef0cc731df711022c174543cb70a9b5bd22e5a9337c8624ef2c2ceb8ddad8768"},
@@ -2044,6 +2220,8 @@ version = "1.4.0"
 description = "plugin and hook calling mechanisms for python"
 optional = false
 python-versions = ">=3.8"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "pluggy-1.4.0-py3-none-any.whl", hash = "sha256:7db9f7b503d67d1c5b95f59773ebb58a8c1c288129a88665838012cfb07b8981"},
     {file = "pluggy-1.4.0.tar.gz", hash = "sha256:8c85c2876142a764e5b7548e7d9a0e0ddb46f5185161049a79b7e974454223be"},
@@ -2059,6 +2237,8 @@ version = "1.2.0"
 description = "A library to manipulate gettext files (po and mo files)."
 optional = false
 python-versions = "*"
+groups = ["main", "build"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "polib-1.2.0-py2.py3-none-any.whl", hash = "sha256:1c77ee1b81feb31df9bca258cbc58db1bbb32d10214b173882452c73af06d62d"},
     {file = "polib-1.2.0.tar.gz", hash = "sha256:f3ef94aefed6e183e342a8a269ae1fc4742ba193186ad76f175938621dbfc26b"},
@@ -2070,6 +2250,8 @@ version = "2.21.0"
 description = "A framework for managing and maintaining multi-language pre-commit hooks."
 optional = false
 python-versions = ">=3.7"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "pre_commit-2.21.0-py2.py3-none-any.whl", hash = "sha256:e2f91727039fc39a92f58a588a25b87f936de6567eed4f0e673e0507edc75bad"},
     {file = "pre_commit-2.21.0.tar.gz", hash = "sha256:31ef31af7e474a8d8995027fefdfcf509b5c913ff31f2015b4ec4beb26a6f658"},
@@ -2088,6 +2270,8 @@ version = "5.26.0"
 description = ""
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "protobuf-5.26.0-cp310-abi3-win32.whl", hash = "sha256:f9ecc8eb6f18037e0cbf43256db0325d4723f429bca7ef5cd358b7c29d65f628"},
     {file = "protobuf-5.26.0-cp310-abi3-win_amd64.whl", hash = "sha256:dfd29f6eb34107dccf289a93d44fb6b131e68888d090b784b691775ac84e8213"},
@@ -2108,6 +2292,8 @@ version = "6.1.0"
 description = "Cross-platform lib for process and system monitoring in Python."
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "psutil-6.1.0-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:ff34df86226c0227c52f38b919213157588a678d049688eded74c76c8ba4a5d0"},
     {file = "psutil-6.1.0-cp27-cp27m-manylinux2010_i686.whl", hash = "sha256:c0e0c00aa18ca2d3b2b991643b799a15fc8f0563d2ebb6040f64ce8dc027b942"},
@@ -2138,6 +2324,8 @@ version = "9.0.0"
 description = "Get CPU info with pure Python"
 optional = false
 python-versions = "*"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "py-cpuinfo-9.0.0.tar.gz", hash = "sha256:3cdbbf3fac90dc6f118bfd64384f309edeadd902d7c8fb17f02ffa1fc3f49690"},
     {file = "py_cpuinfo-9.0.0-py3-none-any.whl", hash = "sha256:859625bc251f64e21f077d099d4162689c762b5d6a4c3c97553d56241c9674d5"},
@@ -2149,6 +2337,8 @@ version = "2.11.1"
 description = "Python style guide checker"
 optional = false
 python-versions = ">=3.8"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "pycodestyle-2.11.1-py2.py3-none-any.whl", hash = "sha256:44fe31000b2d866f2e41841b18528a505fbd7fef9017b04eff4e2648a0fadc67"},
     {file = "pycodestyle-2.11.1.tar.gz", hash = "sha256:41ba0e7afc9752dfb53ced5489e89f8186be00e599e712660695b7a75ff2663f"},
@@ -2160,6 +2350,8 @@ version = "2.21"
 description = "C parser in Python"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "pycparser-2.21-py2.py3-none-any.whl", hash = "sha256:8ee45429555515e1f6b185e78100aea234072576aa43ab53aefcae078162fca9"},
     {file = "pycparser-2.21.tar.gz", hash = "sha256:e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206"},
@@ -2171,6 +2363,8 @@ version = "3.20.0"
 description = "Cryptographic library for Python"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "pycryptodomex-3.20.0-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:645bd4ca6f543685d643dadf6a856cc382b654cc923460e3a10a49c1b3832aeb"},
     {file = "pycryptodomex-3.20.0-cp27-cp27m-manylinux2010_i686.whl", hash = "sha256:ff5c9a67f8a4fba4aed887216e32cbc48f2a6fb2673bb10a99e43be463e15913"},
@@ -2212,6 +2406,8 @@ version = "2.6.4"
 description = "Data validation using Python type hints"
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "pydantic-2.6.4-py3-none-any.whl", hash = "sha256:cc46fce86607580867bdc3361ad462bab9c222ef042d3da86f2fb333e1d916c5"},
     {file = "pydantic-2.6.4.tar.gz", hash = "sha256:b1704e0847db01817624a6b86766967f552dd9dbf3afba4004409f908dcc84e6"},
@@ -2231,6 +2427,8 @@ version = "2.16.3"
 description = ""
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "pydantic_core-2.16.3-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:75b81e678d1c1ede0785c7f46690621e4c6e63ccd9192af1f0bd9d504bbb6bf4"},
     {file = "pydantic_core-2.16.3-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:9c865a7ee6f93783bd5d781af5a4c43dadc37053a5b42f7d18dc019f8c9d2bd1"},
@@ -2322,6 +2520,8 @@ version = "6.5.0"
 description = "PyInstaller bundles a Python application and all its dependencies into a single package."
 optional = false
 python-versions = "<3.13,>=3.8"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "pyinstaller-6.5.0-py3-none-macosx_10_13_universal2.whl", hash = "sha256:81ec15c0deb8c7a0f95bea85b49eecc2df1bdeaf5fe487a41d97de6b0ad29dff"},
     {file = "pyinstaller-6.5.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:5f432f3fdef053989e0a44134e483131c533dab7637e6afd80c3f7c26e6dbcc9"},
@@ -2357,6 +2557,8 @@ version = "2024.3"
 description = "Community maintained hooks for PyInstaller"
 optional = false
 python-versions = ">=3.7"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "pyinstaller-hooks-contrib-2024.3.tar.gz", hash = "sha256:d18657c29267c63563a96b8fc78db6ba9ae40af6702acb2f8c871df12c75b60b"},
     {file = "pyinstaller_hooks_contrib-2024.3-py2.py3-none-any.whl", hash = "sha256:6701752d525e1f4eda1eaec2c2affc206171e15c7a4e188a152fcf3ed3308024"},
@@ -2373,6 +2575,8 @@ version = "2.17.7"
 description = "python code static checker"
 optional = false
 python-versions = ">=3.7.2"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "pylint-2.17.7-py3-none-any.whl", hash = "sha256:27a8d4c7ddc8c2f8c18aa0050148f89ffc09838142193fdbe98f172781a3ff87"},
     {file = "pylint-2.17.7.tar.gz", hash = "sha256:f4fcac7ae74cfe36bc8451e931d8438e4a476c20314b1101c458ad0f05191fad"},
@@ -2402,6 +2606,8 @@ version = "6.6.1"
 description = "Python bindings for the Qt cross platform application toolkit"
 optional = false
 python-versions = ">=3.6.1"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "PyQt6-6.6.1-cp38-abi3-macosx_10_14_universal2.whl", hash = "sha256:6b43878d0bbbcf8b7de165d305ec0cb87113c8930c92de748a11c473a6db5085"},
     {file = "PyQt6-6.6.1-cp38-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:5aa0e833cb5a79b93813f8181d9f145517dd5a46f4374544bcd1e93a8beec537"},
@@ -2419,6 +2625,8 @@ version = "6.6.2"
 description = "The subset of a Qt installation needed by PyQt6."
 optional = false
 python-versions = "*"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "PyQt6_Qt6-6.6.2-py3-none-macosx_10_14_x86_64.whl", hash = "sha256:7ef446d3ffc678a8586ff6dc9f0d27caf4dff05dea02c353540d2f614386faf9"},
     {file = "PyQt6_Qt6-6.6.2-py3-none-macosx_11_0_arm64.whl", hash = "sha256:b8363d88623342a72ac17da9127dc12f259bb3148796ea029762aa2d499778d9"},
@@ -2432,6 +2640,8 @@ version = "13.6.0"
 description = "The sip module support for PyQt6"
 optional = false
 python-versions = ">=3.7"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "PyQt6_sip-13.6.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:d6b5f699aaed0ac1fcd23e8fbca70d8a77965831b7c1ce474b81b1678817a49d"},
     {file = "PyQt6_sip-13.6.0-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:8c282062125eea5baf830c6998587d98c50be7c3a817a057fb95fef647184012"},
@@ -2462,6 +2672,8 @@ version = "3.4.1"
 description = "A python implementation of GNU readline."
 optional = false
 python-versions = "*"
+groups = ["main"]
+markers = "sys_platform == \"win32\""
 files = [
     {file = "pyreadline3-3.4.1-py3-none-any.whl", hash = "sha256:b0efb6516fd4fb07b45949053826a62fa4cb353db5be2bbb4a7aa1fdd1e345fb"},
     {file = "pyreadline3-3.4.1.tar.gz", hash = "sha256:6f3d1f7b8a31ba32b73917cefc1f28cc660562f39aea8646d30bd6eff21f7bae"},
@@ -2473,6 +2685,8 @@ version = "7.4.4"
 description = "pytest: simple powerful testing with Python"
 optional = false
 python-versions = ">=3.7"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "pytest-7.4.4-py3-none-any.whl", hash = "sha256:b090cdf5ed60bf4c45261be03239c2c1c22df034fbffe691abe93cd80cea01d8"},
     {file = "pytest-7.4.4.tar.gz", hash = "sha256:2cf0005922c6ace4a3e2ec8b4080eb0d9753fdc93107415332f50ce9e7994280"},
@@ -2495,6 +2709,8 @@ version = "4.0.0"
 description = "A ``pytest`` fixture for benchmarking code. It will group the tests into rounds that are calibrated to the chosen timer."
 optional = false
 python-versions = ">=3.7"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "pytest-benchmark-4.0.0.tar.gz", hash = "sha256:fb0785b83efe599a6a956361c0691ae1dbb5318018561af10f3e915caa0048d1"},
     {file = "pytest_benchmark-4.0.0-py3-none-any.whl", hash = "sha256:fdb7db64e31c8b277dff9850d2a2556d8b60bcb0ea6524e36e28ffd7c87f71d6"},
@@ -2515,6 +2731,8 @@ version = "4.1.0"
 description = "Pytest plugin for measuring coverage."
 optional = false
 python-versions = ">=3.7"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "pytest-cov-4.1.0.tar.gz", hash = "sha256:3904b13dfbfec47f003b8e77fd5b589cd11904a21ddf1ab38a64f204d6a10ef6"},
     {file = "pytest_cov-4.1.0-py3-none-any.whl", hash = "sha256:6ba70b9e97e69fcc3fb45bfeab2d0a138fb65c4d0d6a41ef33983ad114be8c3a"},
@@ -2533,6 +2751,8 @@ version = "3.14.0"
 description = "Thin-wrapper around the mock package for easier use with pytest"
 optional = false
 python-versions = ">=3.8"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "pytest-mock-3.14.0.tar.gz", hash = "sha256:2719255a1efeceadbc056d6bf3df3d1c5015530fb40cf347c0f9afac88410bd0"},
     {file = "pytest_mock-3.14.0-py3-none-any.whl", hash = "sha256:0b72c38033392a5f4621342fe11e9219ac11ec9d375f8e2a0c164539e0d70f6f"},
@@ -2550,6 +2770,8 @@ version = "4.4.0"
 description = "pytest support for PyQt and PySide applications"
 optional = false
 python-versions = ">=3.8"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "pytest-qt-4.4.0.tar.gz", hash = "sha256:76896142a940a4285339008d6928a36d4be74afec7e634577e842c9cc5c56844"},
     {file = "pytest_qt-4.4.0-py3-none-any.whl", hash = "sha256:001ed2f8641764b394cf286dc8a4203e40eaf9fff75bf0bfe5103f7f8d0c591d"},
@@ -2569,6 +2791,8 @@ version = "2.0.0"
 description = "A pytest plugin to run Xvfb for tests."
 optional = false
 python-versions = ">=3.5"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "pytest-xvfb-2.0.0.tar.gz", hash = "sha256:c4ba642de05499940db7f65ee111621939be513e3e75c3da9156b7235e2ed8cf"},
     {file = "pytest_xvfb-2.0.0-py3-none-any.whl", hash = "sha256:6d21b46f099c06d6b8b200e73341da3adb73d67e9139c55d617930881779360b"},
@@ -2584,6 +2808,8 @@ version = "3.0"
 description = "python wrapper for Xvfb, Xephyr and Xvnc"
 optional = false
 python-versions = "*"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "PyVirtualDisplay-3.0-py3-none-any.whl", hash = "sha256:40d4b8dfe4b8de8552e28eb367647f311f88a130bf837fe910e7f180d5477f0e"},
     {file = "PyVirtualDisplay-3.0.tar.gz", hash = "sha256:09755bc3ceb6eb725fb07eca5425f43f2358d3bf08e00d2a9b792a1aedd16159"},
@@ -2595,6 +2821,8 @@ version = "0.2.2"
 description = "A (partial) reimplementation of pywin32 using ctypes/cffi"
 optional = false
 python-versions = ">=3.6"
+groups = ["main", "dev"]
+markers = "sys_platform == \"win32\""
 files = [
     {file = "pywin32-ctypes-0.2.2.tar.gz", hash = "sha256:3426e063bdd5fd4df74a14fa3cf80a0b42845a87e1d1e81f6549f9daec593a60"},
     {file = "pywin32_ctypes-0.2.2-py3-none-any.whl", hash = "sha256:bf490a1a709baf35d688fe0ecf980ed4de11d2b3e37b51e5442587a75d9957e7"},
@@ -2606,6 +2834,8 @@ version = "6.0.1"
 description = "YAML parser and emitter for Python"
 optional = false
 python-versions = ">=3.6"
+groups = ["main", "dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "PyYAML-6.0.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:d858aa552c999bc8a8d57426ed01e40bef403cd8ccdd0fc5f6f04a00414cac2a"},
     {file = "PyYAML-6.0.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:fd66fc5d0da6d9815ba2cebeb4205f95818ff4b79c3ebe268e75d961704af52f"},
@@ -2666,6 +2896,8 @@ version = "2023.12.25"
 description = "Alternative regular expression module, to replace re."
 optional = false
 python-versions = ">=3.7"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "regex-2023.12.25-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:0694219a1d54336fd0445ea382d49d36882415c0134ee1e8332afd1529f0baa5"},
     {file = "regex-2023.12.25-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:b014333bd0217ad3d54c143de9d4b9a3ca1c5a29a6d0d554952ea071cff0f1f8"},
@@ -2768,6 +3000,8 @@ version = "2.32.3"
 description = "Python HTTP for Humans."
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "requests-2.32.3-py3-none-any.whl", hash = "sha256:70761cfe03c773ceb22aa2f671b4757976145175cdfca038c02654d061d6dcc6"},
     {file = "requests-2.32.3.tar.gz", hash = "sha256:55365417734eb18255590a9ff9eb97e9e1da868d4ccd6402399eaf68af20a760"},
@@ -2789,6 +3023,8 @@ version = "1.3.4"
 description = "Retrying"
 optional = false
 python-versions = "*"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "retrying-1.3.4-py3-none-any.whl", hash = "sha256:8cc4d43cb8e1125e0ff3344e9de678fefd85db3b750b81b2240dc0183af37b35"},
     {file = "retrying-1.3.4.tar.gz", hash = "sha256:345da8c5765bd982b1d1915deb9102fd3d1f7ad16bd84a9700b85f64d24e8f3e"},
@@ -2803,6 +3039,8 @@ version = "0.1.15"
 description = "An extremely fast Python linter and code formatter, written in Rust."
 optional = false
 python-versions = ">=3.7"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "ruff-0.1.15-py3-none-macosx_10_12_x86_64.macosx_11_0_arm64.macosx_10_12_universal2.whl", hash = "sha256:5fe8d54df166ecc24106db7dd6a68d44852d14eb0729ea4672bb4d96c320b7df"},
     {file = "ruff-0.1.15-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:6f0bfbb53c4b4de117ac4d6ddfd33aa5fc31beeaa21d23c45c6dd249faf9126f"},
@@ -2829,6 +3067,8 @@ version = "0.4.5"
 description = ""
 optional = false
 python-versions = ">=3.7"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "safetensors-0.4.5-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:a63eaccd22243c67e4f2b1c3e258b257effc4acd78f3b9d397edc8cf8f1298a7"},
     {file = "safetensors-0.4.5-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:23fc9b4ec7b602915cbb4ec1a7c1ad96d2743c322f20ab709e2c35d1b66dad27"},
@@ -2961,6 +3201,8 @@ version = "3.3.3"
 description = "Python bindings to FreeDesktop.org Secret Service API"
 optional = false
 python-versions = ">=3.6"
+groups = ["main"]
+markers = "sys_platform == \"linux\""
 files = [
     {file = "SecretStorage-3.3.3-py3-none-any.whl", hash = "sha256:f356e6628222568e3af06f2eba8df495efa13b3b63081dafd4f7d9a7b7bc9f99"},
     {file = "SecretStorage-3.3.3.tar.gz", hash = "sha256:2403533ef369eca6d2ba81718576c5e0f564d5cca1b58f73a8b23e7d4eeebd77"},
@@ -2976,6 +3218,8 @@ version = "69.2.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 optional = false
 python-versions = ">=3.8"
+groups = ["main", "dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "setuptools-69.2.0-py3-none-any.whl", hash = "sha256:c21c49fb1042386df081cb5d86759792ab89efca84cf114889191cd09aacc80c"},
     {file = "setuptools-69.2.0.tar.gz", hash = "sha256:0ff4183f8f42cd8fa3acea16c45205521a4ef28f73c6391d8a25e92893134f2e"},
@@ -2992,6 +3236,8 @@ version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
+groups = ["main", "dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
     {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
@@ -3003,6 +3249,8 @@ version = "1.3.1"
 description = "Sniff out which async library your code is running under"
 optional = false
 python-versions = ">=3.7"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "sniffio-1.3.1-py3-none-any.whl", hash = "sha256:2f6da418d1f1e0fddd844478f41680e794e6051915791a034ff65e5f100525a2"},
     {file = "sniffio-1.3.1.tar.gz", hash = "sha256:f4324edc670a0f49750a81b895f35c3adb843cca46f0530f79fc1babb23789dc"},
@@ -3014,6 +3262,8 @@ version = "0.4.6"
 description = "Play and Record Sound with Python"
 optional = false
 python-versions = ">=3.7"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "sounddevice-0.4.6-py3-none-any.whl", hash = "sha256:5de768ba6fe56ad2b5aaa2eea794b76b73e427961c95acad2ee2ed7f866a4b20"},
     {file = "sounddevice-0.4.6-py3-none-macosx_10_6_x86_64.macosx_10_6_universal2.whl", hash = "sha256:8b0b806c205dd3e3cd5a97262b2482624fd21db7d47083b887090148a08051c8"},
@@ -3034,6 +3284,8 @@ version = "3.5.3"
 description = "A tiny library for parsing, modifying, and composing SRT files."
 optional = false
 python-versions = ">=2.7"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "srt-3.5.3.tar.gz", hash = "sha256:4884315043a4f0740fd1f878ed6caa376ac06d70e135f306a6dc44632eed0cc0"},
 ]
@@ -3044,6 +3296,8 @@ version = "0.1.10"
 description = "Transform subtitle line lengths, splitting into multiple subtitle fragments if necessary. "
 optional = false
 python-versions = "<4.0,>=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "srt_equalizer-0.1.10-py3-none-any.whl", hash = "sha256:7b0cca73374ff7351badf2dc5266cabefdfd36b91ff736a535445562036cf8ed"},
     {file = "srt_equalizer-0.1.10.tar.gz", hash = "sha256:5f6b1b2c48b12bb1caab13822d7ddd0a54a87772b824a0aa2ba64c033d379353"},
@@ -3058,6 +3312,8 @@ version = "2.17.5"
 description = "Modifies OpenAI's Whisper to produce more reliable timestamps."
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "stable-ts-2.17.5.tar.gz", hash = "sha256:6b41af9753bf8678248c70f030d281b972529d52f9b42cd4c0016826df379e89"},
 ]
@@ -3079,6 +3335,8 @@ version = "1.5.2"
 description = "\"Python 3.8+ toolbox for submitting jobs to Slurm"
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "submitit-1.5.2-py3-none-any.whl", hash = "sha256:c6d5867fbcc78588d0ded3338436903f8db9fdb759f80e9639e6025a9ea32ade"},
     {file = "submitit-1.5.2.tar.gz", hash = "sha256:36a8a54ad4e10171111e7618eefe28fe819f931a89c9cd1f6d2770900c013f12"},
@@ -3097,6 +3355,8 @@ version = "1.12"
 description = "Computer algebra system (CAS) in Python"
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "sympy-1.12-py3-none-any.whl", hash = "sha256:c3588cd4295d0c0f603d0f2ae780587e64e2efeedb3521e46b9bb1d08d184fa5"},
     {file = "sympy-1.12.tar.gz", hash = "sha256:ebf595c8dac3e0fdc4152c51878b498396ec7f30e7a914d6071e674d49420fb8"},
@@ -3111,6 +3371,8 @@ version = "0.6.0"
 description = "tiktoken is a fast BPE tokeniser for use with OpenAI's models"
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "tiktoken-0.6.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:277de84ccd8fa12730a6b4067456e5cf72fef6300bea61d506c09e45658d41ac"},
     {file = "tiktoken-0.6.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:9c44433f658064463650d61387623735641dcc4b6c999ca30bc0f8ba3fccaf5c"},
@@ -3163,6 +3425,8 @@ version = "0.20.1"
 description = ""
 optional = false
 python-versions = ">=3.7"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "tokenizers-0.20.1-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:439261da7c0a5c88bda97acb284d49fbdaf67e9d3b623c0bfd107512d22787a9"},
     {file = "tokenizers-0.20.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:03dae629d99068b1ea5416d50de0fea13008f04129cc79af77a2a6392792d93c"},
@@ -3280,6 +3544,8 @@ version = "0.10.2"
 description = "Python Library for Tom's Obvious, Minimal Language"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
     {file = "toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f"},
@@ -3291,6 +3557,8 @@ version = "2.0.1"
 description = "A lil' TOML parser"
 optional = false
 python-versions = ">=3.7"
+groups = ["dev"]
+markers = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and python_version < \"3.11\""
 files = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
     {file = "tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
@@ -3302,6 +3570,8 @@ version = "0.12.4"
 description = "Style preserving TOML library"
 optional = false
 python-versions = ">=3.7"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "tomlkit-0.12.4-py3-none-any.whl", hash = "sha256:5cd82d48a3dd89dee1f9d64420aa20ae65cfbd00668d6f094d7578a78efbb77b"},
     {file = "tomlkit-0.12.4.tar.gz", hash = "sha256:7ca1cfc12232806517a8515047ba66a19369e71edf2439d0f5824f91032b6cc3"},
@@ -3309,68 +3579,12 @@ files = [
 
 [[package]]
 name = "torch"
-version = "2.2.1"
-description = "Tensors and Dynamic neural networks in Python with strong GPU acceleration"
-optional = false
-python-versions = ">=3.8.0"
-files = [
-    {file = "torch-2.2.1-cp310-cp310-manylinux1_x86_64.whl", hash = "sha256:8d3bad336dd2c93c6bcb3268e8e9876185bda50ebde325ef211fb565c7d15273"},
-    {file = "torch-2.2.1-cp310-cp310-manylinux2014_aarch64.whl", hash = "sha256:5297f13370fdaca05959134b26a06a7f232ae254bf2e11a50eddec62525c9006"},
-    {file = "torch-2.2.1-cp310-cp310-win_amd64.whl", hash = "sha256:5f5dee8433798888ca1415055f5e3faf28a3bad660e4c29e1014acd3275ab11a"},
-    {file = "torch-2.2.1-cp310-none-macosx_10_9_x86_64.whl", hash = "sha256:b6d78338acabf1fb2e88bf4559d837d30230cf9c3e4337261f4d83200df1fcbe"},
-    {file = "torch-2.2.1-cp310-none-macosx_11_0_arm64.whl", hash = "sha256:6ab3ea2e29d1aac962e905142bbe50943758f55292f1b4fdfb6f4792aae3323e"},
-    {file = "torch-2.2.1-cp311-cp311-manylinux1_x86_64.whl", hash = "sha256:d86664ec85902967d902e78272e97d1aff1d331f7619d398d3ffab1c9b8e9157"},
-    {file = "torch-2.2.1-cp311-cp311-manylinux2014_aarch64.whl", hash = "sha256:d6227060f268894f92c61af0a44c0d8212e19cb98d05c20141c73312d923bc0a"},
-    {file = "torch-2.2.1-cp311-cp311-win_amd64.whl", hash = "sha256:77e990af75fb1675490deb374d36e726f84732cd5677d16f19124934b2409ce9"},
-    {file = "torch-2.2.1-cp311-none-macosx_10_9_x86_64.whl", hash = "sha256:46085e328d9b738c261f470231e987930f4cc9472d9ffb7087c7a1343826ac51"},
-    {file = "torch-2.2.1-cp311-none-macosx_11_0_arm64.whl", hash = "sha256:2d9e7e5ecbb002257cf98fae13003abbd620196c35f85c9e34c2adfb961321ec"},
-    {file = "torch-2.2.1-cp312-cp312-manylinux1_x86_64.whl", hash = "sha256:ada53aebede1c89570e56861b08d12ba4518a1f8b82d467c32665ec4d1f4b3c8"},
-    {file = "torch-2.2.1-cp312-cp312-manylinux2014_aarch64.whl", hash = "sha256:be21d4c41ecebed9e99430dac87de1439a8c7882faf23bba7fea3fea7b906ac1"},
-    {file = "torch-2.2.1-cp312-cp312-win_amd64.whl", hash = "sha256:79848f46196750367dcdf1d2132b722180b9d889571e14d579ae82d2f50596c5"},
-    {file = "torch-2.2.1-cp312-none-macosx_10_9_x86_64.whl", hash = "sha256:7ee804847be6be0032fbd2d1e6742fea2814c92bebccb177f0d3b8e92b2d2b18"},
-    {file = "torch-2.2.1-cp312-none-macosx_11_0_arm64.whl", hash = "sha256:84b2fb322ab091039fdfe74e17442ff046b258eb5e513a28093152c5b07325a7"},
-    {file = "torch-2.2.1-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:5c0c83aa7d94569997f1f474595e808072d80b04d34912ce6f1a0e1c24b0c12a"},
-    {file = "torch-2.2.1-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:91a1b598055ba06b2c386415d2e7f6ac818545e94c5def597a74754940188513"},
-    {file = "torch-2.2.1-cp38-cp38-win_amd64.whl", hash = "sha256:8f93ddf3001ecec16568390b507652644a3a103baa72de3ad3b9c530e3277098"},
-    {file = "torch-2.2.1-cp38-none-macosx_10_9_x86_64.whl", hash = "sha256:0e8bdd4c77ac2584f33ee14c6cd3b12767b4da508ec4eed109520be7212d1069"},
-    {file = "torch-2.2.1-cp38-none-macosx_11_0_arm64.whl", hash = "sha256:6a21bcd7076677c97ca7db7506d683e4e9db137e8420eb4a68fb67c3668232a7"},
-    {file = "torch-2.2.1-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:f1b90ac61f862634039265cd0f746cc9879feee03ff962c803486301b778714b"},
-    {file = "torch-2.2.1-cp39-cp39-manylinux2014_aarch64.whl", hash = "sha256:ed9e29eb94cd493b36bca9cb0b1fd7f06a0688215ad1e4b3ab4931726e0ec092"},
-    {file = "torch-2.2.1-cp39-cp39-win_amd64.whl", hash = "sha256:c47bc25744c743f3835831a20efdcfd60aeb7c3f9804a213f61e45803d16c2a5"},
-    {file = "torch-2.2.1-cp39-none-macosx_10_9_x86_64.whl", hash = "sha256:0952549bcb43448c8d860d5e3e947dd18cbab491b14638e21750cb3090d5ad3e"},
-    {file = "torch-2.2.1-cp39-none-macosx_11_0_arm64.whl", hash = "sha256:26bd2272ec46fc62dcf7d24b2fb284d44fcb7be9d529ebf336b9860350d674ed"},
-]
-
-[package.dependencies]
-filelock = "*"
-fsspec = "*"
-jinja2 = "*"
-networkx = "*"
-nvidia-cublas-cu12 = {version = "12.1.3.1", markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\""}
-nvidia-cuda-cupti-cu12 = {version = "12.1.105", markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\""}
-nvidia-cuda-nvrtc-cu12 = {version = "12.1.105", markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\""}
-nvidia-cuda-runtime-cu12 = {version = "12.1.105", markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\""}
-nvidia-cudnn-cu12 = {version = "8.9.2.26", markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\""}
-nvidia-cufft-cu12 = {version = "11.0.2.54", markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\""}
-nvidia-curand-cu12 = {version = "10.3.2.106", markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\""}
-nvidia-cusolver-cu12 = {version = "11.4.5.107", markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\""}
-nvidia-cusparse-cu12 = {version = "12.1.0.106", markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\""}
-nvidia-nccl-cu12 = {version = "2.19.3", markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\""}
-nvidia-nvtx-cu12 = {version = "12.1.105", markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\""}
-sympy = "*"
-triton = {version = "2.2.0", markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and python_version < \"3.12\""}
-typing-extensions = ">=4.8.0"
-
-[package.extras]
-opt-einsum = ["opt-einsum (>=3.3)"]
-optree = ["optree (>=0.9.1)"]
-
-[[package]]
-name = "torch"
 version = "2.2.1+cu121"
 description = "Tensors and Dynamic neural networks in Python with strong GPU acceleration"
 optional = false
 python-versions = ">=3.8.0"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "torch-2.2.1+cu121-cp310-cp310-linux_x86_64.whl", hash = "sha256:1adf430f01ff649c848ac021785e18007b0714fdde68e4e65bd0c640bf3fb8e1"},
     {file = "torch-2.2.1+cu121-cp310-cp310-win_amd64.whl", hash = "sha256:d4491bea61043ad053d0a0d6423008f6333dfb68f366160bf1aa7dfb2c0f2e9c"},
@@ -3415,47 +3629,12 @@ reference = "torch"
 
 [[package]]
 name = "torchaudio"
-version = "2.2.1"
-description = "An audio package for PyTorch"
-optional = false
-python-versions = "*"
-files = [
-    {file = "torchaudio-2.2.1-cp310-cp310-macosx_10_13_x86_64.whl", hash = "sha256:580eefd764a01a64d5b6aa260c0c47974be6a6964892d54029a73b17f4611fcd"},
-    {file = "torchaudio-2.2.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:8ad55c2069b27bbe18e14783a202e3f3f8082fe9e59281436ba797edb0fc94d5"},
-    {file = "torchaudio-2.2.1-cp310-cp310-manylinux1_x86_64.whl", hash = "sha256:55d23986254f7af689695f3fc214c4aa3e73dc931289ecdba7262d73fea7af7a"},
-    {file = "torchaudio-2.2.1-cp310-cp310-manylinux2014_aarch64.whl", hash = "sha256:b916b7764698ba9319aa3b25519139892de8665d84438969bac5e1d8578c6a11"},
-    {file = "torchaudio-2.2.1-cp310-cp310-win_amd64.whl", hash = "sha256:281cd4bdb9e65c0618a028b809df9e06f9bd9592aeef8f2b37b4d8a788ce5f2b"},
-    {file = "torchaudio-2.2.1-cp311-cp311-macosx_10_13_x86_64.whl", hash = "sha256:274cb8474bc1e56b768ef347d3188661c5a9d5e68e2df56fc0aff11cc73c916a"},
-    {file = "torchaudio-2.2.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:1e62c27b17672cc2bdd9663681e533000f9c0984e6a0f3d455f7051bc005bb02"},
-    {file = "torchaudio-2.2.1-cp311-cp311-manylinux1_x86_64.whl", hash = "sha256:7df7d5d9100116be38ff7b27b628820dca4a9e3fe79394605141d339e3b3e46d"},
-    {file = "torchaudio-2.2.1-cp311-cp311-manylinux2014_aarch64.whl", hash = "sha256:20b2965db4f843021636f53d3fab1075c3f8959c450c647629124d24c7e6cbb0"},
-    {file = "torchaudio-2.2.1-cp311-cp311-win_amd64.whl", hash = "sha256:63dd0e840bcf2e4aceb7a98daccfaf7a2a5b3a927647b98bbef449b0b190f2cc"},
-    {file = "torchaudio-2.2.1-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:2c232dc8bee97d303b90833ba934d8905eb7326456236efcd9fa71ccb92fd363"},
-    {file = "torchaudio-2.2.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:2419387cf04d33047369337bf09c00c2a7673a8f52f80258454c7eca7d205d23"},
-    {file = "torchaudio-2.2.1-cp312-cp312-manylinux1_x86_64.whl", hash = "sha256:2483c0620a68a136359ae90c893608ad5cd73091fb0351b94d33af126a0e3d67"},
-    {file = "torchaudio-2.2.1-cp312-cp312-manylinux2014_aarch64.whl", hash = "sha256:bd389f33b7dbfc44e5f4070fc6db00cc560992bea8378a952889acfd772b7022"},
-    {file = "torchaudio-2.2.1-cp312-cp312-win_amd64.whl", hash = "sha256:d5af725a327b79f3bd8389c53ec51554ee003c18434fc47e68da49b09900132e"},
-    {file = "torchaudio-2.2.1-cp38-cp38-macosx_10_13_x86_64.whl", hash = "sha256:81ef88d7693e3b99007d1ee742fd81b9a92399ecbf88eb7ed69949443005ffba"},
-    {file = "torchaudio-2.2.1-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:f487a7d3177ae6af016750850ee93788e880218a1a310bc6c76901e212f91cd3"},
-    {file = "torchaudio-2.2.1-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:bee5478ec2cb7d0eaa97023d817aa4914010e1ab0c266f64ef1b0db893aceb49"},
-    {file = "torchaudio-2.2.1-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:a4462b3f214f60b6b8f78e12a4cf1291c9bc353deed709ac3dfdedbed513a7a3"},
-    {file = "torchaudio-2.2.1-cp38-cp38-win_amd64.whl", hash = "sha256:4bc43d11d9e086f0dfb29f6ea99517d8ec06fa80d97283f2c8b83c4cd467dd1a"},
-    {file = "torchaudio-2.2.1-cp39-cp39-macosx_10_13_x86_64.whl", hash = "sha256:0339fe78ed9c29f704296761b28bb055b5350625ff503ad781704397934e6b58"},
-    {file = "torchaudio-2.2.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:68b1d9f8ffe9b26ef04e80d82ae2dc2f74b1a1eb64c3e8ad21b525802b3bc7ac"},
-    {file = "torchaudio-2.2.1-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:3962fea5d2511c9ab2b1dd515b45ec44d0c28e51f3b05c0b9fa7bbcc3c213bc1"},
-    {file = "torchaudio-2.2.1-cp39-cp39-manylinux2014_aarch64.whl", hash = "sha256:cb2da08abb7b68dc7b0105748b1a736dd33329f841374013ec02c54e04bedf29"},
-    {file = "torchaudio-2.2.1-cp39-cp39-win_amd64.whl", hash = "sha256:54996977ab1c875729e8dedc4695609ca58f876c23756c79979c6b50136b3385"},
-]
-
-[package.dependencies]
-torch = "2.2.1"
-
-[[package]]
-name = "torchaudio"
 version = "2.2.1+cu121"
 description = "An audio package for PyTorch"
 optional = false
 python-versions = "*"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "torchaudio-2.2.1+cu121-cp310-cp310-linux_x86_64.whl", hash = "sha256:23f6236429e2bf676b820e8e7221a1d58aaf908bff2ba2665aa852df71a97961"},
     {file = "torchaudio-2.2.1+cu121-cp310-cp310-win_amd64.whl", hash = "sha256:cd8495e5dfdd21bf28c95c731768fdea62b24977388b95805739cda538b75a44"},
@@ -3483,6 +3662,8 @@ version = "4.66.2"
 description = "Fast, Extensible Progress Meter"
 optional = false
 python-versions = ">=3.7"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "tqdm-4.66.2-py3-none-any.whl", hash = "sha256:1ee4f8a893eb9bef51c6e35730cebf234d5d0b6bd112b0271e10ed7c24a02bd9"},
     {file = "tqdm-4.66.2.tar.gz", hash = "sha256:6cd52cdf0fef0e0f543299cfc96fec90d7b8a7e88745f411ec33eb44d5ed3531"},
@@ -3503,6 +3684,8 @@ version = "4.46.1"
 description = "State-of-the-art Machine Learning for JAX, PyTorch and TensorFlow"
 optional = false
 python-versions = ">=3.8.0"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "transformers-4.46.1-py3-none-any.whl", hash = "sha256:f77b251a648fd32e3d14b5e7e27c913b7c29154940f519e4c8c3aa6061df0f05"},
     {file = "transformers-4.46.1.tar.gz", hash = "sha256:16d79927d772edaf218820a96f9254e2211f9cd7fb3c308562d2d636c964a68c"},
@@ -3572,6 +3755,8 @@ version = "0.2.5"
 description = "Helper to pretty print an ascii table with atree-like structure"
 optional = false
 python-versions = ">=3.6.0"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "treetable-0.2.5.tar.gz", hash = "sha256:29c95b797a8ecff4bb894cb7b103e39a78c905ab78a88a9a247de30c87743a2f"},
 ]
@@ -3582,6 +3767,8 @@ version = "2.2.0"
 description = "A language and compiler for custom Deep Learning operations"
 optional = false
 python-versions = "*"
+groups = ["main"]
+markers = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"linux\" or sys_platform == \"linux2\" or sys_platform == \"win32\" or sys_platform == \"msys\") and (platform_system == \"Linux\" or sys_platform == \"linux\" or sys_platform == \"linux2\") and (platform_machine == \"x86_64\" or sys_platform == \"linux2\") and (python_version < \"3.12\" or sys_platform == \"linux\" or sys_platform == \"linux2\")"
 files = [
     {file = "triton-2.2.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a2294514340cfe4e8f4f9e5c66c702744c4a117d25e618bd08469d0bfed1e2e5"},
     {file = "triton-2.2.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:da58a152bddb62cafa9a857dd2bc1f886dbf9f9c90a2b5da82157cd2b34392b0"},
@@ -3605,10 +3792,12 @@ version = "4.10.0"
 description = "Backported and Experimental Type Hints for Python 3.8+"
 optional = false
 python-versions = ">=3.8"
+groups = ["main", "dev"]
 files = [
     {file = "typing_extensions-4.10.0-py3-none-any.whl", hash = "sha256:69b1a937c3a517342112fb4c6df7e72fc39a38e7891a5730ed4985b5214b5475"},
     {file = "typing_extensions-4.10.0.tar.gz", hash = "sha256:b0abd7c89e8fb96f98db18d86106ff1d90ab692004eb746cf6eda2682f91b3cb"},
 ]
+markers = {main = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\"", dev = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and python_version < \"3.11\""}
 
 [[package]]
 name = "typing-inspect"
@@ -3616,6 +3805,8 @@ version = "0.9.0"
 description = "Runtime inspection utilities for typing module."
 optional = false
 python-versions = "*"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "typing_inspect-0.9.0-py3-none-any.whl", hash = "sha256:9ee6fc59062311ef8547596ab6b955e1b8aa46242d854bfc78f4f6b0eff35f9f"},
     {file = "typing_inspect-0.9.0.tar.gz", hash = "sha256:b23fc42ff6f6ef6954e4852c1fb512cdd18dbea03134f91f856a95ccc9461f78"},
@@ -3631,6 +3822,8 @@ version = "2.2.1"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "urllib3-2.2.1-py3-none-any.whl", hash = "sha256:450b20ec296a467077128bff42b73080516e71b56ff59a60a02bef2232c4fa9d"},
     {file = "urllib3-2.2.1.tar.gz", hash = "sha256:d0570876c61ab9e520d776c38acbbb5b05a776d3f9ff98a5c8fd5162a444cf19"},
@@ -3648,6 +3841,8 @@ version = "20.25.1"
 description = "Virtual Python Environment builder"
 optional = false
 python-versions = ">=3.7"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "virtualenv-20.25.1-py3-none-any.whl", hash = "sha256:961c026ac520bac5f69acb8ea063e8a4f071bcc9457b9c1f28f6b085c511583a"},
     {file = "virtualenv-20.25.1.tar.gz", hash = "sha256:e08e13ecdca7a0bd53798f356d5831434afa5b07b93f0abdf0797b7a06ffe197"},
@@ -3668,6 +3863,8 @@ version = "13.1"
 description = "An implementation of the WebSocket Protocol (RFC 6455 & 7692)"
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "websockets-13.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:f48c749857f8fb598fb890a75f540e3221d0976ed0bf879cf3c7eef34151acee"},
     {file = "websockets-13.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:c7e72ce6bda6fb9409cc1e8164dd41d7c91466fb599eb047cfda72fe758a34a7"},
@@ -3763,6 +3960,8 @@ version = "1.16.0"
 description = "Module for decorators, wrappers and monkey patching."
 optional = false
 python-versions = ">=3.6"
+groups = ["dev"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "wrapt-1.16.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:ffa565331890b90056c01db69c0fe634a776f8019c143a5ae265f9c6bc4bd6d4"},
     {file = "wrapt-1.16.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:e4fdb9275308292e880dcbeb12546df7f3e0f96c6b41197e0cf37d2826359020"},
@@ -3842,6 +4041,8 @@ version = "2024.9.27"
 description = "A feature-rich command-line audio/video downloader"
 optional = false
 python-versions = ">=3.8"
+groups = ["main"]
+markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
 files = [
     {file = "yt_dlp-2024.9.27-py3-none-any.whl", hash = "sha256:2717468dd697fcfcf9a89f493ba30a3830cdfb276c09750e5b561b08b9ef5f69"},
     {file = "yt_dlp-2024.9.27.tar.gz", hash = "sha256:86605542e17e2e23ad23145b637ec308133762a15a5dedac4ae50b7973237026"},
@@ -3873,10 +4074,12 @@ version = "3.18.1"
 description = "Backport of pathlib-compatible object wrapper for zip files"
 optional = false
 python-versions = ">=3.8"
+groups = ["main", "dev"]
 files = [
     {file = "zipp-3.18.1-py3-none-any.whl", hash = "sha256:206f5a15f2af3dbaee80769fb7dc6f249695e940acca08dfb2a4769fe61e538b"},
     {file = "zipp-3.18.1.tar.gz", hash = "sha256:2884ed22e7d8961de1c9a05142eb69a247f120291bc0206a00a7642f09b5b715"},
 ]
+markers = {main = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and python_version < \"3.12\"", dev = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and python_version < \"3.10\""}
 
 [package.extras]
 docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
@@ -3885,4 +4088,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<3.13"
-content-hash = "2cfea0570f9ee0d63ed65a354b85cc59f4c1628c024832e6a5b4dbd08b4ec299"
+content-hash = "8401c8b228c5a1dad4c416aa8e599cac19c92cc33becc7905e75fdfea76455f1"

@@ -6,19 +6,26 @@ authors = [
     {name = "Chidi Williams", email = "williamschidi1@gmail.com"}
 ]
 readme = "README.md"
+license = { text = "MIT" }
+repository = "https://github.com/chidiwilliams/buzz"
+documentation = "https://chidiwilliams.github.io/buzz/docs"
 requires-python = ">=3.9,<3.13"
+dynamic = [ "dependencies" ]
 
-
+[project.scripts]
+buzz = "buzz.buzz:main"
 
 [tool.poetry]
-license = "MIT"
-include = [
-    "buzz/libwhisper.*", "buzz/libwhisper-coreml.*", "buzz/*.dll", "buzz/whisper_cpp.py", "buzz/locale/*/LC_MESSAGES/buzz.mo",
-    "buzz/dll_backup/*",
-]
-repository = "https://github.com/chidiwilliams/buzz"
 packages = [
     { include = "buzz" },
+]
+include = [
+    { path = "buzz/libwhisper.*", format = ["sdist", "wheel"] },
+    { path = "buzz/libwhisper-coreml.*", format = ["sdist", "wheel"] },
+    { path = "buzz/*.dll", format = ["sdist", "wheel"] },
+    { path = "buzz/whisper_cpp.py", format = ["sdist", "wheel"] },
+    { path = "buzz/locale/*/LC_MESSAGES/buzz.mo", format = ["sdist", "wheel"] },
+    { path = "buzz/dll_backup/*", format = ["sdist", "wheel"] },
 ]
 
 [[tool.poetry.source]]
@@ -48,11 +55,11 @@ accelerate = "^1.0.1"
 polib = "^1.2.0"
 srt-equalizer = "^0.1.10"
 torch = [
-    {version = "2.2.1", source = "pypi", markers = "sys_platform != 'win32' and sys_platform != 'msys'"},
+    {version = "2.2.1", markers = "sys_platform != 'win32' and sys_platform != 'msys'"},
     {version = "2.2.1+cu121", source = "torch", markers = "sys_platform == 'win32' or sys_platform == 'msys'"},
 ]
 torchaudio = [
-    {version = "2.2.1", source = "pypi", markers = "sys_platform != 'win32' and sys_platform != 'msys'"},
+    {version = "2.2.1", markers = "sys_platform != 'win32' and sys_platform != 'msys'"},
     {version = "2.2.1+cu121", source = "torch", markers = "sys_platform == 'win32' or sys_platform == 'msys'"},
 ]
 darkdetect = "^0.8.0"
@@ -86,9 +93,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.build]
 script = "build.py"
-
-[tool.poetry.scripts]
-buzz = "buzz.buzz:main"
 
 [tool.ruff]
 exclude = [
