@@ -277,6 +277,7 @@ jobs:
           name: Buzz-${{ runner.os }}-${{ runner.arch }}
 
       - name: Rename .dmg files
+        if: runner.os == 'macOS'
         run: |
           for file in Buzz*.dmg; do
             mv "$file" "${file%.dmg}-${{ runner.arch }}.dmg"

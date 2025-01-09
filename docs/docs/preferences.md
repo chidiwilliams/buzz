@@ -74,6 +74,8 @@ set SOME_OTHER_VARIABLE=some_other_value
 "C:\Program Files (x86)\Buzz\Buzz.exe"
 ```
 
+Alternatively you can set environment variables in your OS settings. See [this guide](https://phoenixnap.com/kb/windows-set-environment-variable#ftoc-heading-4) or [this video](https://www.youtube.com/watch?v=bEroNNzqlF4) more information.
+
 ### Available variables
 
 **BUZZ_WHISPERCPP_N_THREADS** - Number of threads to use for Whisper.cpp model. Default is `4`. 
@@ -90,3 +92,11 @@ combined to produce the final answer.
 Defaults to [user_cache_dir](https://pypi.org/project/platformdirs/).
 
 **BUZZ_FAVORITE_LANGUAGES** - Coma separated list of supported language codes to show on top of language list.
+
+**BUZZ_LOCALE** - Buzz UI locale to use. Defaults to one of supported system locales.
+
+**BUZZ_DOWNLOAD_COOKIEFILE** - Location of a [cookiefile](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp) to use for downloading private videos or as workaround for anti-bot protection.
+
+**BUZZ_FORCE_CPU** - Will force Buzz to use CPU and not GPU, useful for setups with older GPU if that is slower than GPU or GPU has issues. Example usage `BUZZ_FORCE_CPU=true`. Available since `1.2.1`
+
+**BUZZ_MERGE_REGROUP_RULE** - Custom regroup merge rule to use when combining transcripts with word-level timings. More information on available options [in stable-ts repo](https://github.com/jianfch/stable-ts?tab=readme-ov-file#regrouping-methods). Available since `1.3.0`

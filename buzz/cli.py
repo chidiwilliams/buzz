@@ -1,6 +1,7 @@
 import enum
 import sys
 import typing
+import urllib.parse
 
 from PyQt6.QtCore import QCommandLineParser, QCommandLineOption
 
@@ -44,6 +45,9 @@ def parse_command_line(app: Application):
         print(parser.helpText())
         sys.exit(1)
 
+def is_url(path: str) -> bool:
+    parsed = urllib.parse.urlparse(path)
+    return all([parsed.scheme, parsed.netloc])
 
 def parse(app: Application, parser: QCommandLineParser):
     parser.addPositionalArgument("<command>", "One of the following commands:\n- add")
@@ -109,6 +113,7 @@ def parse(app: Application, parser: QCommandLineParser):
         srt_option = QCommandLineOption(["srt"], "Output result in an SRT file.")
         vtt_option = QCommandLineOption(["vtt"], "Output result in a VTT file.")
         txt_option = QCommandLineOption("txt", "Output result in a TXT file.")
+        hide_gui_option = QCommandLineOption("hide-gui", "Hide the main application window.")
 
         parser.addOptions(
             [
@@ -124,6 +129,7 @@ def parse(app: Application, parser: QCommandLineParser):
                 srt_option,
                 vtt_option,
                 txt_option,
+                hide_gui_option,
             ]
         )
 
@@ -201,21 +207,29 @@ def parse(app: Application, parser: QCommandLineParser):
             word_level_timings=word_timestamps,
             openai_access_token=openai_access_token,
         )
-        file_transcription_options = FileTranscriptionOptions(
-            file_paths=file_paths,
-            output_formats=output_formats,
-        )
 
         for file_path in file_paths:
+            path_is_url = is_url(file_path)
+
+            file_transcription_options = FileTranscriptionOptions(
+                file_paths=[file_path] if not path_is_url else None,
+                url=file_path if path_is_url else None,
+                output_formats=output_formats,
+            )
+
             transcription_task = FileTranscriptionTask(
-                file_path=file_path,
+                file_path=file_path if not path_is_url else None,
+                url=file_path if path_is_url else None,
+                source=FileTranscriptionTask.Source.FILE_IMPORT if not path_is_url else FileTranscriptionTask.Source.URL_IMPORT,
                 model_path=model_path,
                 transcription_options=transcription_options,
                 file_transcription_options=file_transcription_options,
                 output_directory=output_directory if output_directory != "" else None,
             )
-            app.add_task(transcription_task)
+            app.add_task(transcription_task, quit_on_complete=True)
 
+        if parser.isSet(hide_gui_option):
+            app.hide_main_window = True
 
 T = typing.TypeVar("T", bound=enum.Enum)
 

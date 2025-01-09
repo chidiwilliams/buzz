@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-03 08:32+0200\n"
+"POT-Creation-Date: 2025-01-09 08:48+0200\n"
 "PO-Revision-Date: 2024-03-17 20:50+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -29,17 +29,15 @@ msgstr "https://przyklad.pl/audio.mp3"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:69
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:245
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:97
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:295
-#: buzz/widgets/main_window.py:234
+#: buzz/widgets/main_window.py:246
 msgid "Ok"
 msgstr ""
 
 #: buzz/widgets/import_url_dialog.py:29
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:70
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:246
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:296
 #: buzz/widgets/model_download_progress_dialog.py:29
-#: buzz/widgets/main_window.py:235
+#: buzz/widgets/main_window.py:247
 msgid "Cancel"
 msgstr "Anuluj"
 
@@ -109,22 +107,22 @@ msgid ""
 "transcriptions and AI translations."
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:173
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:178
 #, fuzzy
 msgid "Invalid API key"
 msgstr "Nieprawidłowy URL"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:174
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:179
 msgid ""
-"API supports only base64 characters (A-Za-z0-9+/=). Other characters in API "
-"key may cause errors."
+"API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
+"API key may cause errors."
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:192
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:197
 msgid "Select Export Folder"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:244
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:249
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
@@ -224,12 +222,12 @@ msgid "Download failed"
 msgstr "Pobrany"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:269
-#: buzz/widgets/main_window.py:291 buzz/model_loader.py:503
+#: buzz/widgets/main_window.py:303 buzz/model_loader.py:503
 msgid "Error"
 msgstr "Błąd"
 
 #: buzz/widgets/record_button.py:10 buzz/widgets/record_button.py:17
-#: buzz/widgets/main_window_toolbar.py:35
+#: buzz/widgets/main_window_toolbar.py:37
 msgid "Record"
 msgstr "Nagraj"
 
@@ -238,7 +236,7 @@ msgid "Stop"
 msgstr "Zatrzymaj"
 
 #: buzz/widgets/transcriber/languages_combo_box.py:35
-#: buzz/transcriber/transcriber.py:159
+#: buzz/transcriber/transcriber.py:160
 msgid "Detect Language"
 msgstr "Wykryj język"
 
@@ -254,15 +252,15 @@ msgstr "Model:"
 msgid "First time use of a model may take up to several minutest to load."
 msgstr ""
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:113
+#: buzz/widgets/transcriber/transcription_options_group_box.py:114
 msgid "Api Key:"
 msgstr ""
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:114
+#: buzz/widgets/transcriber/transcription_options_group_box.py:115
 msgid "Task:"
 msgstr "Zadanie:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:115
+#: buzz/widgets/transcriber/transcription_options_group_box.py:116
 msgid "Language:"
 msgstr "Język:"
 
@@ -311,11 +309,15 @@ msgstr ""
 msgid "Instructions for AI:"
 msgstr ""
 
-#: buzz/widgets/transcriber/file_transcription_form_widget.py:42
+#: buzz/widgets/transcriber/file_transcription_form_widget.py:43
 msgid "Word-level timings"
 msgstr "Znaczniki dla słów"
 
-#: buzz/widgets/transcriber/file_transcription_form_widget.py:66
+#: buzz/widgets/transcriber/file_transcription_form_widget.py:54
+msgid "Extract speech"
+msgstr ""
+
+#: buzz/widgets/transcriber/file_transcription_form_widget.py:77
 msgid "Export:"
 msgstr ""
 
@@ -327,67 +329,73 @@ msgstr ""
 msgid "Advanced..."
 msgstr ""
 
-#: buzz/widgets/main_window_toolbar.py:39
-msgid "New Transcription"
+#: buzz/widgets/main_window_toolbar.py:43
+#, fuzzy
+msgid "New File Transcription"
 msgstr "Nowa transkrypcja"
 
-#: buzz/widgets/main_window_toolbar.py:46
+#: buzz/widgets/main_window_toolbar.py:50
+#, fuzzy
+msgid "New URL Transcription"
+msgstr "Nowa transkrypcja"
+
+#: buzz/widgets/main_window_toolbar.py:57
 msgid "Open Transcript"
 msgstr "Otwórz transkrypt"
 
-#: buzz/widgets/main_window_toolbar.py:52 buzz/settings/shortcut.py:27
+#: buzz/widgets/main_window_toolbar.py:63 buzz/settings/shortcut.py:27
 msgid "Cancel Transcription"
 msgstr "Anuluj transkrypcję"
 
-#: buzz/widgets/main_window_toolbar.py:60 buzz/widgets/main_window.py:223
+#: buzz/widgets/main_window_toolbar.py:71 buzz/widgets/main_window.py:235
 #: buzz/settings/shortcut.py:26
 msgid "Clear History"
 msgstr "Wyczyść historię"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:64
+#: buzz/widgets/transcription_tasks_table_widget.py:66
 msgid "In Progress"
 msgstr ""
 
-#: buzz/widgets/transcription_tasks_table_widget.py:67
+#: buzz/widgets/transcription_tasks_table_widget.py:69
 msgid "Completed"
 msgstr "Ukończono"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:74
+#: buzz/widgets/transcription_tasks_table_widget.py:76
 msgid "Failed"
 msgstr ""
 
-#: buzz/widgets/transcription_tasks_table_widget.py:77
+#: buzz/widgets/transcription_tasks_table_widget.py:79
 msgid "Canceled"
 msgstr "Anulowano"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:79
+#: buzz/widgets/transcription_tasks_table_widget.py:81
 msgid "Queued"
 msgstr "Kolejka"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:86
+#: buzz/widgets/transcription_tasks_table_widget.py:88
 #, fuzzy
 msgid "File Name / URL"
 msgstr "Nazwa pliku"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:98
+#: buzz/widgets/transcription_tasks_table_widget.py:100
 #, fuzzy
 msgid "Model"
 msgstr "Model:"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:107
+#: buzz/widgets/transcription_tasks_table_widget.py:109
 #, fuzzy
 msgid "Task"
 msgstr "Zadanie:"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:116
+#: buzz/widgets/transcription_tasks_table_widget.py:118
 msgid "Status"
 msgstr "Status"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:124
+#: buzz/widgets/transcription_tasks_table_widget.py:126
 msgid "Date Added"
 msgstr ""
 
-#: buzz/widgets/transcription_tasks_table_widget.py:135
+#: buzz/widgets/transcription_tasks_table_widget.py:137
 #, fuzzy
 msgid "Date Completed"
 msgstr "Ukończono"
@@ -458,33 +466,54 @@ msgstr ""
 msgid "Timestamps"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:156
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:146
 msgid "Export"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:170
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:160
 #: buzz/transcriber/transcriber.py:24
 msgid "Translate"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:180
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:170
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:168
 msgid "Resize"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:279
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:269
 msgid "API Key Required"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:280
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:270
 msgid "Please enter OpenAI API Key in preferences"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:297
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:150
+msgid "Resize Options"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:161
 msgid "Desired subtitle length"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:298
-msgid "Enter target characters per subtitle:"
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:186
+msgid "Merge Options"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:197
+msgid "Merge by gap"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:205
+msgid "Split by punctuation"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:213
+msgid "Split by max length"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:225
+msgid "Merge"
 msgstr ""
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:78
@@ -550,7 +579,7 @@ msgstr "Pomoc"
 msgid "File"
 msgstr "Plik"
 
-#: buzz/widgets/main_window.py:227
+#: buzz/widgets/main_window.py:239
 msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
@@ -558,11 +587,11 @@ msgstr ""
 "Czy na pewno chcesz usunąć zaznaczone transkrypcje? Tej operacji nie można "
 "cofnąć."
 
-#: buzz/widgets/main_window.py:255
+#: buzz/widgets/main_window.py:267
 msgid "Select audio file"
 msgstr "Wybierz plik audio"
 
-#: buzz/widgets/main_window.py:291
+#: buzz/widgets/main_window.py:303
 msgid "Unable to save OpenAI API key to keyring"
 msgstr ""
 

@@ -19,6 +19,9 @@ class TranscriptionService:
     def create_transcription(self, task):
         self.transcription_dao.create_transcription(task)
 
+    def copy_transcription(self, id: UUID) -> UUID:
+        return self.transcription_dao.copy_transcription(id)
+
     def update_transcription_as_started(self, id: UUID):
         self.transcription_dao.update_transcription_as_started(id)
 

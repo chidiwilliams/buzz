@@ -1,10 +1,17 @@
-[tool.poetry]
+[project]
 name = "buzz-captions"
-version = "1.2.0"
+version = "1.3.0"
 description = ""
-authors = ["Chidi Williams <williamschidi1@gmail.com>"]
-license = "MIT"
+authors = [
+    {name = "Chidi Williams", email = "williamschidi1@gmail.com"}
+]
 readme = "README.md"
+requires-python = ">=3.9,<3.13"
+
+
+
+[tool.poetry]
+license = "MIT"
 include = [
     "buzz/libwhisper.*", "buzz/libwhisper-coreml.*", "buzz/*.dll", "buzz/whisper_cpp.py", "buzz/locale/*/LC_MESSAGES/buzz.mo",
     "buzz/dll_backup/*",
@@ -18,9 +25,6 @@ packages = [
 name = "torch"
 url = "https://download.pytorch.org/whl/cu121"
 priority = "supplemental"
-
-[project]
-requires-python = ">=3.9,<3.13"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.13"
@@ -37,7 +41,7 @@ numpy = "^1.21.2"
 requests = "^2.31.0"
 yt-dlp = "2024.9.27"
 stable-ts = "2.17.5"
-faster-whisper = "1.0.3"
+faster-whisper = "1.1.0"
 openai-whisper = "v20240930"
 transformers = "4.46.1"
 accelerate = "^1.0.1"
@@ -52,6 +56,7 @@ torchaudio = [
     {version = "2.2.1+cu121", source = "torch", markers = "sys_platform == 'win32' or sys_platform == 'msys'"},
 ]
 darkdetect = "^0.8.0"
+demucs = {git = "https://github.com/raivisdejus/demucs", rev = "27c6425"}
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"

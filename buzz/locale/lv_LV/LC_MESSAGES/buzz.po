@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-03 08:32+0200\n"
-"PO-Revision-Date: 2024-11-03 08:33+0200\n"
+"POT-Creation-Date: 2025-01-09 08:48+0200\n"
+"PO-Revision-Date: 2025-01-09 08:49+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -30,17 +30,15 @@ msgstr "https://example.com/audio.mp3"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:69
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:245
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:97
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:295
-#: buzz/widgets/main_window.py:234
+#: buzz/widgets/main_window.py:246
 msgid "Ok"
 msgstr "Labi"
 
 #: buzz/widgets/import_url_dialog.py:29
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:70
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:246
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:296
 #: buzz/widgets/model_download_progress_dialog.py:29
-#: buzz/widgets/main_window.py:235
+#: buzz/widgets/main_window.py:247
 msgid "Cancel"
 msgstr "Atcelt"
 
@@ -113,23 +111,23 @@ msgstr ""
 "Jūsu API atslēga ir derīga. Buzz izmantos to runas atpazīšanai ar Whisper "
 "API un tulkošanai."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:173
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:178
 msgid "Invalid API key"
 msgstr "Nederīga API atslēga"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:174
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:179
 msgid ""
-"API supports only base64 characters (A-Za-z0-9+/=). Other characters in API "
-"key may cause errors."
+"API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
+"API key may cause errors."
 msgstr ""
-"API atbalsta tikai base64 simbolus (A-Za-z0-9+/=). Citi simboli API atslēgā "
-"var radīt kļūdas."
+"API atbalsta tikai base64 simbolus (A-Za-z0-9+/=_-). Citi simboli API "
+"atslēgā var radīt kļūdas."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:192
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:197
 msgid "Select Export Folder"
 msgstr "Izvēlieties mapi kurā eksportēt"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:244
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:249
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
@@ -224,12 +222,12 @@ msgid "Download failed"
 msgstr "Lejupielāde neizdevās"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:269
-#: buzz/widgets/main_window.py:291 buzz/model_loader.py:503
+#: buzz/widgets/main_window.py:303 buzz/model_loader.py:503
 msgid "Error"
 msgstr "Kļūda"
 
 #: buzz/widgets/record_button.py:10 buzz/widgets/record_button.py:17
-#: buzz/widgets/main_window_toolbar.py:35
+#: buzz/widgets/main_window_toolbar.py:37
 msgid "Record"
 msgstr "Ierakstīt"
 
@@ -238,7 +236,7 @@ msgid "Stop"
 msgstr "Apturēt"
 
 #: buzz/widgets/transcriber/languages_combo_box.py:35
-#: buzz/transcriber/transcriber.py:159
+#: buzz/transcriber/transcriber.py:160
 msgid "Detect Language"
 msgstr "Noteikt valodu"
 
@@ -254,15 +252,15 @@ msgstr "Modelis:"
 msgid "First time use of a model may take up to several minutest to load."
 msgstr "Pirmā modeļa ielādes reize var aizņemt pat vairākas minūtes."
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:113
+#: buzz/widgets/transcriber/transcription_options_group_box.py:114
 msgid "Api Key:"
 msgstr "API atslēga:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:114
+#: buzz/widgets/transcriber/transcription_options_group_box.py:115
 msgid "Task:"
 msgstr "Uzdevums:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:115
+#: buzz/widgets/transcriber/transcription_options_group_box.py:116
 msgid "Language:"
 msgstr "Valoda:"
 
@@ -312,11 +310,15 @@ msgstr "Ievadiet tulkošanas norādes mākslīgajam intelektam..."
 msgid "Instructions for AI:"
 msgstr "Norādes MI:"
 
-#: buzz/widgets/transcriber/file_transcription_form_widget.py:42
+#: buzz/widgets/transcriber/file_transcription_form_widget.py:43
 msgid "Word-level timings"
 msgstr "Dalīt pa vārdiem"
 
-#: buzz/widgets/transcriber/file_transcription_form_widget.py:66
+#: buzz/widgets/transcriber/file_transcription_form_widget.py:54
+msgid "Extract speech"
+msgstr "Atdalīt runu"
+
+#: buzz/widgets/transcriber/file_transcription_form_widget.py:77
 msgid "Export:"
 msgstr "Eksportēt:"
 
@@ -328,64 +330,68 @@ msgstr "Modeļa Huggingface ID"
 msgid "Advanced..."
 msgstr "Papildu iestatījumi..."
 
-#: buzz/widgets/main_window_toolbar.py:39
-msgid "New Transcription"
-msgstr "Jauna atpazīšanas"
+#: buzz/widgets/main_window_toolbar.py:43
+msgid "New File Transcription"
+msgstr "Jauna faila atpazīšana"
 
-#: buzz/widgets/main_window_toolbar.py:46
+#: buzz/widgets/main_window_toolbar.py:50
+msgid "New URL Transcription"
+msgstr "Jauna saites atpazīšana"
+
+#: buzz/widgets/main_window_toolbar.py:57
 msgid "Open Transcript"
 msgstr "Atvērt transkriptu"
 
-#: buzz/widgets/main_window_toolbar.py:52 buzz/settings/shortcut.py:27
+#: buzz/widgets/main_window_toolbar.py:63 buzz/settings/shortcut.py:27
 msgid "Cancel Transcription"
 msgstr "Atcelt atpazīšanu"
 
-#: buzz/widgets/main_window_toolbar.py:60 buzz/widgets/main_window.py:223
+#: buzz/widgets/main_window_toolbar.py:71 buzz/widgets/main_window.py:235
 #: buzz/settings/shortcut.py:26
 msgid "Clear History"
 msgstr "Notīrīt vēsturi"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:64
+#: buzz/widgets/transcription_tasks_table_widget.py:66
 msgid "In Progress"
 msgstr "Apstrādā"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:67
+#: buzz/widgets/transcription_tasks_table_widget.py:69
 msgid "Completed"
 msgstr "Pabeigts"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:74
+#: buzz/widgets/transcription_tasks_table_widget.py:76
 msgid "Failed"
 msgstr "Neizdevās"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:77
+#: buzz/widgets/transcription_tasks_table_widget.py:79
 msgid "Canceled"
 msgstr "Atcelts"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:79
+#: buzz/widgets/transcription_tasks_table_widget.py:81
 msgid "Queued"
 msgstr "Ierindots"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:86
+#: buzz/widgets/transcription_tasks_table_widget.py:88
 msgid "File Name / URL"
 msgstr "Fails / URL"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:98
+#: buzz/widgets/transcription_tasks_table_widget.py:100
 msgid "Model"
 msgstr "Modelis"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:107
+#: buzz/widgets/transcription_tasks_table_widget.py:109
 msgid "Task"
 msgstr "Uzdevums"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:116
+#: buzz/widgets/transcription_tasks_table_widget.py:118
 msgid "Status"
 msgstr "Statuss"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:124
+#: buzz/widgets/transcription_tasks_table_widget.py:126
 msgid "Date Added"
 msgstr "Pievienots"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:135
+#: buzz/widgets/transcription_tasks_table_widget.py:137
 msgid "Date Completed"
 msgstr "Pabeigts"
 
@@ -454,34 +460,55 @@ msgstr "Skats"
 msgid "Timestamps"
 msgstr "Laiks"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:156
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:146
 msgid "Export"
 msgstr "Eksportēt"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:170
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:160
 #: buzz/transcriber/transcriber.py:24
 msgid "Translate"
 msgstr "Tulkot"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:180
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:170
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:168
 msgid "Resize"
 msgstr "Mainīt garumu"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:279
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:269
 msgid "API Key Required"
 msgstr "API atslēgas kļūda"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:280
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:270
 msgid "Please enter OpenAI API Key in preferences"
 msgstr "Lūdzu ievadiet OpenAI API atslēgu iestatījumos"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:297
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:150
+msgid "Resize Options"
+msgstr "Garuma maiņas iestatījumi"
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:161
 msgid "Desired subtitle length"
 msgstr "Vēlamais teksta garums"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:298
-msgid "Enter target characters per subtitle:"
-msgstr "Ievadiet vēlamo simbolu skaitu tekstā:"
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:186
+msgid "Merge Options"
+msgstr "Apvienošanas iestatījumi"
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:197
+msgid "Merge by gap"
+msgstr "Apvienot pēc attāluma"
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:205
+msgid "Split by punctuation"
+msgstr "Dalīt pie pieturzīmēm"
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:213
+msgid "Split by max length"
+msgstr "Dalīt pie maksimālā garuma"
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:225
+msgid "Merge"
+msgstr "Apvienot"
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:78
 msgid "Save File"
@@ -544,7 +571,7 @@ msgstr "Palīdzība"
 msgid "File"
 msgstr "Fails"
 
-#: buzz/widgets/main_window.py:227
+#: buzz/widgets/main_window.py:239
 msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
@@ -552,11 +579,11 @@ msgstr ""
 "Vai tiešām vēlaties dzēst izvēlētos transkriptus? Šī ir neatgriezeniska "
 "darbība."
 
-#: buzz/widgets/main_window.py:255
+#: buzz/widgets/main_window.py:267
 msgid "Select audio file"
 msgstr "Izvēlieties audio failu"
 
-#: buzz/widgets/main_window.py:291
+#: buzz/widgets/main_window.py:303
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "Neizdevās saglabāt OpenAI API atslēgu atslēgu saišķī"
 
@@ -603,3 +630,6 @@ msgstr "Jaunie teikumi augšā"
 #: buzz/settings/recording_transcriber_mode.py:7
 msgid "Append and correct"
 msgstr "Papildināt un labot esošo"
+
+#~ msgid "Enter target characters per subtitle:"
+#~ msgstr "Ievadiet vēlamo simbolu skaitu tekstā:"

@@ -56,3 +56,8 @@ sudo snap connect buzz:password-manager-service
 sudo snap connect buzz:pulseaudio
 sudo snap connect buzz:removable-media
 ```
+
+
+### Latest development version
+
+For info on how to get latest development version with latest features and bug fixes see [FAQ](https://chidiwilliams.github.io/buzz/docs/faq#9-where-can-i-get-latest-development-version).

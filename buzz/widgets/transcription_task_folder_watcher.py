@@ -41,6 +41,10 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
     def find_tasks(self):
         input_directory = self.preferences.input_directory
         tasks = {task.file_path: task for task in self.tasks.values()}
+
+        if not self.preferences.enabled:
+            return
+
         for dirpath, dirnames, filenames in os.walk(input_directory):
             for filename in filenames:
                 file_path = os.path.join(dirpath, filename)

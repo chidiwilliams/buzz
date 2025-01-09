@@ -12,12 +12,7 @@ from PyQt6.QtWidgets import (
     QToolButton,
     QLabel,
     QMessageBox,
-    QInputDialog,
-    QDialogButtonBox,
 )
-
-import srt
-from srt_equalizer import srt_equalizer
 
 from buzz.locale import _
 from buzz.db.entity.transcription import Transcription
@@ -50,16 +45,7 @@ from buzz.widgets.transcription_viewer.transcription_view_mode_tool_button impor
     TranscriptionViewModeToolButton,
     ViewMode
 )
-
-
-class OkEnabledInputDialog(QInputDialog):
-    def showEvent(self, event: QShowEvent) -> None:
-        super().showEvent(event)
-        button_box = self.findChild(QDialogButtonBox)
-        if button_box:
-            ok_button = button_box.button(QDialogButtonBox.StandardButton.Ok)
-            if ok_button:
-                ok_button.setEnabled(True)
+from buzz.widgets.transcription_viewer.transcription_resizer_widget import TranscriptionResizerWidget
 
 
 class TranscriptionViewerWidget(QWidget):
@@ -74,6 +60,7 @@ class TranscriptionViewerWidget(QWidget):
         shortcuts: Shortcuts,
         parent: Optional["QWidget"] = None,
         flags: Qt.WindowType = Qt.WindowType.Widget,
+        transcriptions_updated_signal: Optional[pyqtSignal] = None,
     ) -> None:
         super().__init__(parent, flags)
         self.transcription = transcription
@@ -83,6 +70,9 @@ class TranscriptionViewerWidget(QWidget):
         self.setMinimumHeight(500)
 
         self.setWindowTitle(file_path_as_title(transcription.file))
+
+        self.transcription_resizer_dialog = None
+        self.transcriptions_updated_signal = transcriptions_updated_signal
 
         self.translation_thread = None
         self.translator = None
@@ -283,7 +273,14 @@ class TranscriptionViewerWidget(QWidget):
             return
 
         if self.transcription_options.llm_model == "" or self.transcription_options.llm_prompt == "":
+            self.transcription_options_dialog.accepted.connect(self.run_translation)
             self.transcription_options_dialog.show()
+            return
+
+        self.run_translation()
+
+    def run_translation(self):
+        if self.transcription_options.llm_model == "" or self.transcription_options.llm_prompt == "":
             return
 
         segments = self.table_widget.segments()
@@ -291,64 +288,21 @@ class TranscriptionViewerWidget(QWidget):
             self.translator.enqueue(segment.value("text"), segment.value("id"))
 
     def on_resize_button_clicked(self):
-        target_chars_dialog = OkEnabledInputDialog(self)
-        target_chars_dialog.setOkButtonText(_("Ok"))
-        target_chars_dialog.setCancelButtonText(_("Cancel"))
-        target_chars_dialog.setWindowTitle(_("Desired subtitle length"))
-        target_chars_dialog.setLabelText(_("Enter target characters per subtitle:"))
-        target_chars_dialog.setIntValue(42)
-        target_chars_dialog.setIntMaximum(100)
-        target_chars_dialog.setIntMinimum(1)
-        target_chars_dialog.setIntStep(1)
-        target_chars_dialog.setInputMode(QInputDialog.InputMode.IntInput)
-
-        if target_chars_dialog.exec() == QInputDialog.DialogCode.Accepted:
-            target_chars = target_chars_dialog.intValue()
-        else:
-            return
-
-        segments = self.table_widget.segments()
-        subs = []
-        for segment in segments:
-            subtitle = srt.Subtitle(
-                index=segment.value("id"),
-                start=segment.value("start_time"),
-                end=segment.value("end_time"),
-                content=segment.value("text")
-            )
-            subs.append(subtitle)
-
-        resized_subs = []
-        last_index = 0
-
-        # Limit each subtitle to a maximum character length, splitting into
-        # multiple subtitle items if necessary.
-        for sub in subs:
-            new_subs = srt_equalizer.split_subtitle(
-                sub=sub, target_chars=target_chars, start_from_index=last_index, method="punctuation")
-            last_index = new_subs[-1].index
-            resized_subs.extend(new_subs)
-
-        segments = [
-            Segment(
-                round(sub.start),
-                round(sub.end),
-                sub.content
-            )
-            for sub in resized_subs
-            if round(sub.start) != round(sub.end)
-        ]
-
-        self.transcription_service.replace_transcription_segments(
-            UUID(hex=self.transcription.id),
-            segments
+        self.transcription_resizer_dialog = TranscriptionResizerWidget(
+            transcription=self.transcription,
+            transcription_service=self.transcription_service,
+            transcriptions_updated_signal=self.transcriptions_updated_signal,
         )
 
-        self.table_widget.model().select()
-        self.table_widget.init_row_height()
+        self.transcriptions_updated_signal.connect(self.close)
+
+        self.transcription_resizer_dialog.show()
 
     def closeEvent(self, event):
         self.hide()
+
+        if self.transcription_resizer_dialog:
+            self.transcription_resizer_dialog.close()
 
         self.translator.stop()
         self.translation_thread.quit()

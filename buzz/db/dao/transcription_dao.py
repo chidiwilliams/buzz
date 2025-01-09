@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 from uuid import UUID
 
@@ -31,7 +32,9 @@ class TranscriptionDAO(DAO[Transcription]):
                 time_queued,
                 url,
                 whisper_model_size,
-                hugging_face_model_id
+                hugging_face_model_id,
+                word_level_timings,
+                extract_speech
             ) VALUES (
                 :id,
                 :export_formats,
@@ -45,9 +48,11 @@ class TranscriptionDAO(DAO[Transcription]):
                 :time_queued,
                 :url,
                 :whisper_model_size,
-                :hugging_face_model_id
+                :hugging_face_model_id,
+                :word_level_timings,
+                :extract_speech
             )
-        """
+            """
         )
         query.bindValue(":id", str(task.uid))
         query.bindValue(
@@ -82,8 +87,77 @@ class TranscriptionDAO(DAO[Transcription]):
             if task.transcription_options.model.hugging_face_model_id
             else None,
         )
+        query.bindValue(
+            ":word_level_timings",
+            task.transcription_options.word_level_timings
+        )
+        query.bindValue(
+            ":extract_speech",
+            task.transcription_options.extract_speech
+        )
         if not query.exec():
             raise Exception(query.lastError().text())
+
+    def copy_transcription(self, id: UUID) -> UUID:
+        query = self._create_query()
+        query.prepare("SELECT * FROM transcription WHERE id = :id")
+        query.bindValue(":id", str(id))
+        if not query.exec():
+            raise Exception(query.lastError().text())
+        if not query.next():
+            raise Exception("Transcription not found")
+
+        transcription_data = {field.name: query.value(field.name) for field in
+                              self.entity.__dataclass_fields__.values()}
+
+        new_id = uuid.uuid4()
+        transcription_data["id"] = str(new_id)
+        transcription_data["time_queued"] = datetime.now().isoformat()
+        transcription_data["status"] = FileTranscriptionTask.Status.QUEUED.value
+
+        query.prepare(
+            """
+            INSERT INTO transcription (
+                id,
+                export_formats,
+                file,
+                output_folder,
+                language,
+                model_type,
+                source,
+                status,
+                task,
+                time_queued,
+                url,
+                whisper_model_size,
+                hugging_face_model_id,
+                word_level_timings,
+                extract_speech
+            ) VALUES (
+                :id,
+                :export_formats,
+                :file,
+                :output_folder,
+                :language,
+                :model_type,
+                :source,
+                :status,
+                :task,
+                :time_queued,
+                :url,
+                :whisper_model_size,
+                :hugging_face_model_id,
+                :word_level_timings,
+                :extract_speech
+            )
+            """
+        )
+        for key, value in transcription_data.items():
+            query.bindValue(f":{key}", value)
+        if not query.exec():
+            raise Exception(query.lastError().text())
+
+        return new_id
 
     def update_transcription_as_started(self, id: UUID):
         query = self._create_query()

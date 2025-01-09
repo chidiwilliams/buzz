@@ -24,6 +24,7 @@ class Application(QApplication):
 
         self.setApplicationName(APP_NAME)
         self.setApplicationVersion(VERSION)
+        self.hide_main_window = False
 
         if sys.platform.startswith("win") and darkdetect.isDark():
             palette = QPalette()
@@ -173,7 +174,11 @@ class Application(QApplication):
         )
 
         self.window = MainWindow(transcription_service)
-        self.window.show()
 
-    def add_task(self, task: FileTranscriptionTask):
+    def show_main_window(self):
+        if not self.hide_main_window:
+            self.window.show()
+
+    def add_task(self, task: FileTranscriptionTask, quit_on_complete: bool = False):
+        self.window.quit_on_complete = quit_on_complete
         self.window.add_task(task)

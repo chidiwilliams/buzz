@@ -3,15 +3,19 @@ import logging
 import sounddevice
 import keyring
 from typing import Tuple, List, Optional
+from uuid import UUID
 
 from PyQt6 import QtGui
 from PyQt6.QtCore import (
     Qt,
     QThread,
     QModelIndex,
+    pyqtSignal
 )
+
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
+    QApplication,
     QMainWindow,
     QMessageBox,
     QFileDialog,
@@ -51,6 +55,7 @@ from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
 
 class MainWindow(QMainWindow):
     table_widget: TranscriptionTasksTableWidget
+    transcriptions_updated = pyqtSignal(UUID)
 
     def __init__(self, transcription_service: TranscriptionService):
         super().__init__(flags=Qt.WindowType.Window)
@@ -66,11 +71,15 @@ class MainWindow(QMainWindow):
 
         self.shortcuts = Shortcuts(settings=self.settings)
 
+        self.quit_on_complete = False
         self.transcription_service = transcription_service
 
         self.toolbar = MainWindowToolbar(shortcuts=self.shortcuts, parent=self)
         self.toolbar.new_transcription_action_triggered.connect(
             self.on_new_transcription_action_triggered
+        )
+        self.toolbar.new_url_transcription_action_triggered.connect(
+            self.on_new_url_transcription_action_triggered
         )
         self.toolbar.open_transcript_action_triggered.connect(
             self.open_transcript_viewer
@@ -108,6 +117,9 @@ class MainWindow(QMainWindow):
         self.table_widget.return_clicked.connect(self.open_transcript_viewer)
         self.table_widget.selectionModel().selectionChanged.connect(
             self.on_table_selection_changed
+        )
+        self.transcriptions_updated.connect(
+            self.on_transcriptions_updated
         )
 
         self.setCentralWidget(self.table_widget)
@@ -366,6 +378,7 @@ class MainWindow(QMainWindow):
             shortcuts=self.shortcuts,
             parent=self,
             flags=Qt.WindowType.Window,
+            transcriptions_updated_signal=self.transcriptions_updated,
         )
         self.transcription_viewer_widget.show()
 
@@ -373,6 +386,9 @@ class MainWindow(QMainWindow):
         self.transcription_service.create_transcription(task)
         self.table_widget.refresh_all()
         self.transcriber_worker.add_task(task)
+
+    def on_transcriptions_updated(self):
+        self.table_widget.refresh_all()
 
     def on_task_started(self, task: FileTranscriptionTask):
         self.transcription_service.update_transcription_as_started(task.uid)
@@ -392,9 +408,18 @@ class MainWindow(QMainWindow):
         self.transcription_service.update_transcription_as_completed(task.uid, segments)
         self.table_widget.refresh_row(task.uid)
 
+        if self.quit_on_complete:
+            self.close()
+            QApplication.quit()
+
+
     def on_task_error(self, task: FileTranscriptionTask, error: str):
         self.transcription_service.update_transcription_as_failed(task.uid, error)
         self.table_widget.refresh_row(task.uid)
+
+        if self.quit_on_complete:
+            self.close()
+            QApplication.quit()
 
     def on_shortcuts_changed(self):
         self.menu_bar.reset_shortcuts()

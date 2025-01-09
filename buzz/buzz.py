@@ -65,4 +65,5 @@ def main():
 
     app = Application(sys.argv)
     parse_command_line(app)
+    app.show_main_window()
     sys.exit(app.exec())
