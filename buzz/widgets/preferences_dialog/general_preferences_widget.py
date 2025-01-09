@@ -25,7 +25,7 @@ from buzz.widgets.openai_api_key_line_edit import OpenAIAPIKeyLineEdit
 from buzz.locale import _
 from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
 
-BASE64_PATTERN = re.compile(r'^[A-Za-z0-9+/=]*$')
+BASE64_PATTERN = re.compile(r'^[A-Za-z0-9+/=_-]*$')
 
 
 class GeneralPreferencesWidget(QWidget):
@@ -171,7 +171,7 @@ class GeneralPreferencesWidget(QWidget):
             QMessageBox.warning(
                 self,
                 _("Invalid API key"),
-                _("API supports only base64 characters (A-Za-z0-9+/=). Other characters in API key may cause errors."),
+                _("API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in API key may cause errors."),
             )
 
     def on_custom_openai_base_url_changed(self, text: str):

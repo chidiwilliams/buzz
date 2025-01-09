@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-02 11:39+0200\n"
+"POT-Creation-Date: 2025-01-09 08:48+0200\n"
 "PO-Revision-Date: 2024-11-24 13:22+0100\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
@@ -107,23 +107,24 @@ msgstr ""
 "La tua chiave API è valida. Buzz utilizzerà questa chiave per eseguire le "
 "trascrizioni API Whisper e le traduzioni AI."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:173
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:178
 msgid "Invalid API key"
 msgstr "Chiave API non valida"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:174
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:179
+#, fuzzy
 msgid ""
-"API supports only base64 characters (A-Za-z0-9+/=). Other characters in API "
-"key may cause errors."
+"API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
+"API key may cause errors."
 msgstr ""
 "L'API supporta solo caratteri base64 (A-Za-z0-9+/=). Altri caratteri nella "
 "chiave API potrebbero causare errori."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:192
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:197
 msgid "Select Export Folder"
 msgstr "Seleziona la cartella di esportazione"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:244
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:249
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
