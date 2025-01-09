@@ -105,7 +105,9 @@ msgstr "测试OpenAI API Key"
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
-msgstr "您的API密钥有效。Buzz将使用此密钥执行 Whisper API 识别和 AI 翻译。"
+
+msgstr ""
+“您的API密钥有效。Buzz将使用此密钥执行 Whisper API 识别和 AI 翻译。”
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:178
 msgid "Invalid API key"
@@ -336,6 +338,7 @@ msgstr "高级..."
 msgid "New File Transcription"
 msgstr "新识别"
 
+
 #: buzz/widgets/main_window_toolbar.py:50
 #, fuzzy
 msgid "New URL Transcription"
@@ -497,6 +500,10 @@ msgstr "调整大小"
 msgid "Desired subtitle length"
 msgstr "所需字幕长度"
 
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:298
+msgid "Enter target characters per subtitle:"
+msgstr "为每个字幕输入目标字符："
+
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:186
 msgid "Merge Options"
 msgstr ""
@@ -516,6 +523,7 @@ msgstr ""
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:225
 msgid "Merge"
 msgstr ""
+
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:78
 #, fuzzy
