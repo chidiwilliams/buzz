@@ -45,7 +45,7 @@ Linux versions get also pushed to the snap. To install latest development versio
 
 1. Clone the repository `git clone --recursive https://github.com/chidiwilliams/buzz.git`
 2. Enter repo folder `cd buzz`
-3. Install Poetry `sudo apt-get install python3-poetry`
+3. Install Poetry `pipx install poetry`
 4. Activate the virtual environment `poetry shell`
 5. Install the dependencies `poetry install`
 6. Install system dependencies you may be missing 

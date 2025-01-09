@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-02 11:39+0200\n"
+"POT-Creation-Date: 2025-01-09 08:48+0200\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: Lamb\n"
@@ -107,21 +107,21 @@ msgid ""
 "transcriptions and AI translations."
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:173
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:178
 msgid "Invalid API key"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:174
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:179
 msgid ""
-"API supports only base64 characters (A-Za-z0-9+/=). Other characters in API "
-"key may cause errors."
+"API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
+"API key may cause errors."
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:192
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:197
 msgid "Select Export Folder"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:244
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:249
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
