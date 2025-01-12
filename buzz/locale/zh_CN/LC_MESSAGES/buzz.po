@@ -136,20 +136,20 @@ msgstr ""
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:42
 msgid "Enable folder watch"
-msgstr "开启文件夹查看"
+msgstr "开启文件夹监控"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:94
 msgid "Input folder"
-msgstr "导入文件夹"
+msgstr "输入文件夹"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:95
 msgid "Output folder"
-msgstr "导出文件夹"
+msgstr "输出文件夹"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:105
 #, fuzzy
 msgid "Select Input Folder"
-msgstr "选择导入文件夹"
+msgstr "选择输入文件夹"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:114
 msgid "Select Output Folder"
@@ -175,7 +175,7 @@ msgstr "快捷键"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:63
 msgid "Folder Watch"
-msgstr "文档查看"
+msgstr "文件夹查看"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:70
 msgid "Group"
@@ -254,7 +254,7 @@ msgstr "模型:"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py:104
 msgid "First time use of a model may take up to several minutest to load."
-msgstr ""
+msgstr "首次使用模型可能需要几分钟的时间才能加载"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py:114
 msgid "Api Key:"
@@ -286,7 +286,7 @@ msgstr "逗号分隔，例如\"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:55
 msgid "Temperature:"
-msgstr ""
+msgstr "间隔"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:66
 msgid "Initial Prompt:"
@@ -319,7 +319,7 @@ msgstr "逐词识别"
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py:54
 msgid "Extract speech"
-msgstr ""
+msgstr "提取语音"
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py:77
 msgid "Export:"
@@ -336,13 +336,13 @@ msgstr "高级..."
 #: buzz/widgets/main_window_toolbar.py:43
 #, fuzzy
 msgid "New File Transcription"
-msgstr "新识别"
+msgstr "新增文件识别"
 
 
 #: buzz/widgets/main_window_toolbar.py:50
 #, fuzzy
 msgid "New URL Transcription"
-msgstr "新识别"
+msgstr "新增URL识别"
 
 #: buzz/widgets/main_window_toolbar.py:57
 msgid "Open Transcript"
@@ -390,7 +390,7 @@ msgstr "模型"
 #: buzz/widgets/transcription_tasks_table_widget.py:109
 #, fuzzy
 msgid "Task"
-msgstr "任务:"
+msgstr "任务"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:118
 msgid "Status"
@@ -415,7 +415,7 @@ msgstr "点击开始录制"
 
 #: buzz/widgets/recording_transcriber_widget.py:147
 msgid "Waiting for AI translation..."
-msgstr "等待AI翻译"
+msgstr "等待AI翻译..."
 
 #: buzz/widgets/recording_transcriber_widget.py:159
 msgid "Microphone:"
@@ -506,23 +506,23 @@ msgstr "为每个字幕输入目标字符："
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:186
 msgid "Merge Options"
-msgstr ""
+msgstr "合并选项"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:197
 msgid "Merge by gap"
-msgstr ""
+msgstr "按间隔合并"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:205
 msgid "Split by punctuation"
-msgstr ""
+msgstr "按标点符号拆分"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:213
 msgid "Split by max length"
-msgstr ""
+msgstr "按最大长度拆分"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:225
 msgid "Merge"
-msgstr ""
+msgstr "合并"
 
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:78
@@ -556,7 +556,7 @@ msgstr "关闭"
 #: buzz/widgets/model_download_progress_dialog.py:36
 #, fuzzy
 msgid "Downloading model"
-msgstr "下载模型"
+msgstr "模型下载中"
 
 #: buzz/widgets/model_download_progress_dialog.py:37
 msgid "remaining"
@@ -578,7 +578,7 @@ msgstr "关于"
 
 #: buzz/widgets/menu_bar.py:48
 msgid "Preferences..."
-msgstr "偏好设定..."
+msgstr "偏好设置..."
 
 #: buzz/widgets/menu_bar.py:51 buzz/widgets/menu_bar.py:61
 msgid "Help"
