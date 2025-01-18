@@ -131,8 +131,9 @@ msgid ""
 "Transcription and translation may still work if the API does not support key "
 "validation."
 msgstr ""
-"OpenAI API返回无效响应。请检查API网址或您的密钥。如果API不支持密钥，识别和翻"
-"译可能仍然有效"
+"OpenAI API返回无效响应。请检查API网址或您的密钥。“
+”如果API不支持密钥验证，转录和翻译可能仍然有效翻"
+
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:42
 msgid "Enable folder watch"
@@ -254,7 +255,7 @@ msgstr "模型:"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py:104
 msgid "First time use of a model may take up to several minutest to load."
-msgstr ""
+msgstr "首次使用一个模型可能需要花费几分钟加载"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py:114
 msgid "Api Key:"
