@@ -131,8 +131,9 @@ msgid ""
 "Transcription and translation may still work if the API does not support key "
 "validation."
 msgstr ""
-"OpenAI API返回无效响应。请检查API网址或您的密钥。如果API不支持密钥，识别和翻"
-"译可能仍然有效"
+"OpenAI API返回无效响应。请检查API网址或您的密钥。“
+”如果API不支持密钥验证，转录和翻译可能仍然有效翻"
+
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:42
 msgid "Enable folder watch"
@@ -339,6 +340,7 @@ msgid "New File Transcription"
 msgstr "新增文件识别"
 
 
+
 #: buzz/widgets/main_window_toolbar.py:50
 #, fuzzy
 msgid "New URL Transcription"
@@ -523,6 +525,7 @@ msgstr "按最大长度拆分"
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:225
 msgid "Merge"
 msgstr "合并"
+
 
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:78

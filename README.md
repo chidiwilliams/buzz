@@ -1,3 +1,5 @@
+[简体中文](readme/README.zh_CN.md) - 查看中文页面。
+
 # Buzz
 
 [Documentation](https://chidiwilliams.github.io/buzz/) | [Buzz Captions on the App Store](https://apps.apple.com/us/app/buzz-captions/id6446018936?mt=12&itsct=apps_box_badge&itscg=30200)
@@ -25,6 +27,7 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
 Install [ffmpeg](https://www.ffmpeg.org/download.html)
 
 Install Buzz
+
 ```shell
 pip install buzz-captions
 python -m buzz
@@ -56,7 +59,6 @@ sudo snap connect buzz:password-manager-service
 sudo snap connect buzz:pulseaudio
 sudo snap connect buzz:removable-media
 ```
-
 
 ### Latest development version
 
