@@ -579,6 +579,7 @@ msgstr "导入媒体文件..."
 msgid "About"
 msgstr "关于"
 
+
 #: buzz/widgets/menu_bar.py:48
 msgid "Preferences..."
 msgstr "偏好设置..."
