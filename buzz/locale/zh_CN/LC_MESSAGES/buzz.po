@@ -339,8 +339,6 @@ msgstr "高级..."
 msgid "New File Transcription"
 msgstr "新增文件识别"
 
-
-
 #: buzz/widgets/main_window_toolbar.py:50
 #, fuzzy
 msgid "New URL Transcription"
@@ -525,7 +523,6 @@ msgstr "按最大长度拆分"
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:225
 msgid "Merge"
 msgstr "合并"
-
 
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:78
