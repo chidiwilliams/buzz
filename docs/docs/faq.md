@@ -5,8 +5,11 @@ sidebar_position: 5
 
 ### 1. Where are the models stored?
 
-The models are stored in `~/.cache/Buzz` (Linux), `~/Library/Caches/Buzz`
-(Mac OS) or `%USERPROFILE%\AppData\Local\Buzz\Buzz\Cache` (Windows).
+The models are stored:
+
+- Linux: `~/.cache/Buzz`
+- Mac OS: `~/Library/Caches/Buzz`
+- Windows: `%USERPROFILE%\AppData\Local\Buzz\Buzz\Cache`
 
 Paste the location in your file manager to access the models.
 
@@ -21,15 +24,16 @@ Buzz also supports using OpenAI API to do speech recognition on a remote server.
 To transcribe system audio you need to configure virtual audio device and connect output from the applications you want to transcribe to this virtual speaker. After that you can select it as source in the Buzz. See [Usage](https://chidiwilliams.github.io/buzz/docs/usage/live_recording) section for more details.
 
 Relevant tools:
+
 - Mac OS - [BlackHole](https://github.com/ExistentialAudio/BlackHole).
 - Windows - [VB CABLE](https://vb-audio.com/Cable/)
 - Linux - [PulseAudio Volume Control](https://wiki.ubuntu.com/record_system_sound)
 
 ### 4. What model should I use?
 
-Model size to use will depend on your hardware and use case. Smaller models will work faster but will have more inaccuracies. Larger models will be more accurate but will require more powerful hardware or longer time to transcribe. 
+Model size to use will depend on your hardware and use case. Smaller models will work faster but will have more inaccuracies. Larger models will be more accurate but will require more powerful hardware or longer time to transcribe.
 
-When choosing among large models consider the following. "Large" is the first released older model, "Large-V2" is later updated model with better accuracy, for some languages considered the most robust and stable. "Large-V3" is the latest model with the best accuracy in many cases, but some times can hallucinate or invent words that were never in the audio. "Turbo" model tries to get a good balance between speed and accuracy. The only sure way to know what model best suits your needs is to test them all in your language. 
+When choosing among large models consider the following. "Large" is the first released older model, "Large-V2" is later updated model with better accuracy, for some languages considered the most robust and stable. "Large-V3" is the latest model with the best accuracy in many cases, but some times can hallucinate or invent words that were never in the audio. "Turbo" model tries to get a good balance between speed and accuracy. The only sure way to know what model best suits your needs is to test them all in your language.
 
 ### 5. How to get GPU acceleration for faster transcription?
 
@@ -61,12 +65,12 @@ If that does not help, check the log file for errors and [report the issue](http
 
 ### 9. Where can I get latest development version?
 
-Latest development version will have latest bug fixes and most recent features. If you feel a bit adventurous it is recommended to try the latest development version as they needs some testing before they get released to everybody. 
+Latest development version will have latest bug fixes and most recent features. If you feel a bit adventurous it is recommended to try the latest development version as they needs some testing before they get released to everybody.
 
-Linux users can get the latest version with this command `sudo snap install buzz --edge`
+- **Linux** users can get the latest version with this command `sudo snap install buzz --edge`
 
-For other platforms do the following:
-- Go to the [build section](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml?query=branch%3Amain)
-- Click on the link to the latest build
-- Scroll down to the artifacts section in the build page
-- Download the installation file. Please note that you need to be logged in the Github to see the download links.
+- **For other** platforms do the following:
+  1. Go to the [build section](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml?query=branch%3Amain)
+  2. Click on the link to the latest build
+  3. Scroll down to the artifacts section in the build page
+  4. Download the installation file. Please note that you need to be logged in the Github to see the download links.
