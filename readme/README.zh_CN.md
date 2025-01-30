@@ -4,7 +4,7 @@
 
 [项目文档](https://chidiwilliams.github.io/buzz/) | [苹果应用商店的 Buzz Captions 页面](https://apps.apple.com/us/app/buzz-captions/id6446018936?mt=12&itsct=apps_box_badge&itscg=30200)
 
-在个人电脑上离线转录和翻译音频。技术模型来源 OpenAI [Whisper](https://github.com/openai/whisper).
+在您的个人电脑上离线转录和翻译音频。由 OpenAI 的 [Whisper](https://github.com/openai/whisper) 提供支持。
 
 ![MIT License](https://img.shields.io/badge/license-MIT-green)
 [![CI](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml/badge.svg)](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml)

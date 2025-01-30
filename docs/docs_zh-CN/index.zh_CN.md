@@ -3,6 +3,19 @@ title: Introduction
 sidebar_position: 1
 ---
 
+在您的个人电脑上离线转录和翻译音频。由 OpenAI 的 [Whisper](https://github.com/openai/whisper) 提供支持。
+
+![MIT License](https://img.shields.io/badge/license-MIT-green)
+[![CI](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml/badge.svg)](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/github/chidiwilliams/buzz/branch/main/graph/badge.svg?token=YJSB8S2VEP)](https://codecov.io/github/chidiwilliams/buzz)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/chidiwilliams/buzz)
+[![Github all releases](https://img.shields.io/github/downloads/chidiwilliams/buzz/total.svg)](https://GitHub.com/chidiwilliams/buzz/releases/)
+
+<blockquote>
+<p>在 App Store 下载运行的性能更佳。 获得外观更整洁、音频播放、拖放导入、转录编辑、搜索等功能的原生Mac版本。</p>
+<a href="https://apps.apple.com/cn/app/buzz-captions/id6446018936?mt=12&amp;itsct=apps_box_badge&amp;itscg=30200"><img src="https://toolbox.marketingtools.apple.com/api/badges/download-on-the-mac-app-store/black/zh-cn?size=250x83" alt="Download on the Mac App Store" /></a>
+</blockquote>
+
 Transcribe and translate audio offline on your personal computer. Powered by
 OpenAI's [Whisper](https://github.com/openai/whisper).
 
