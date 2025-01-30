@@ -3,8 +3,6 @@ title: 偏好设置
 sidebar_position: 4
 ---
 
-Open the Preferences window from the Menu bar, or click `Ctrl/Cmd + ,`.
-
 从菜单栏打开偏好设置窗口，或点击 `Ctrl/Cmd + ,`。
 
 ## 常规偏好设置
