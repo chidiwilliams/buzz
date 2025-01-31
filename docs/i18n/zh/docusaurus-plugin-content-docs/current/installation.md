@@ -1,29 +1,26 @@
 ---
-title: Installation
+title: 安装
 sidebar_position: 2
 ---
 
-To install Buzz, download the [latest version](https://github.com/chidiwilliams/buzz/releases/latest) for your operating
-system. Buzz is available on **Mac** (Intel), **Windows**, and **Linux**. (For Apple Silicon, please see
-the [App Store version](https://apps.apple.com/us/app/buzz-captions/id6446018936?mt=12&itsct=apps_box_badge&itscg=30200).)
+要安装 Buzz，请下载适用于您操作系统的[最新版本](https://github.com/chidiwilliams/buzz/releases/latest)。Buzz 支持 **Mac**（Intel）、**Windows** 和 **Linux** 系统。（对于 Apple Silicon 用户，请参阅 [App Store 版本](https://apps.apple.com/us/app/buzz-captions/id6446018936?mt=12&itsct=apps_box_badge&itscg=30200)。）
 
-## macOS (Intel, macOS 11.7 and later)
+## macOS（Intel，macOS 11.7 及更高版本）
 
-Install via [brew](https://brew.sh/):
+通过 [brew](https://brew.sh/) 安装：
 
 ```shell
 brew install --cask buzz
 ```
 
-Alternatively, download and run the `Buzz-x.y.z.dmg` file.
+或者，下载并运行 `Buzz-x.y.z.dmg` 文件。
 
-For Mac Silicon (and for a better experience on Mac Intel),
-download [Buzz Captions](https://apps.apple.com/us/app/buzz-captions/id6446018936?mt=12&amp;itsct=apps_box_badge&amp;itscg=30200)
-on the App Store.
+对于 Mac Silicon 用户（以及希望在 Mac Intel 上获得更好体验的用户），  
+请从 App Store 下载 [Buzz Captions](https://apps.apple.com/us/app/buzz-captions/id6446018936?mt=12&itsct=apps_box_badge&itscg=30200)。
 
-## Windows (Windows 10 and later)
+## Windows（Windows 10 及更高版本）
 
-Download and run the `Buzz-x.y.z.exe` file.
+下载并运行 `Buzz-x.y.z.exe` 文件。
 
 ## Linux
 
@@ -36,15 +33,15 @@ sudo snap connect buzz:pulseaudio
 sudo snap connect buzz:removable-media
 ```
 
-[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/buzz)
+[![从 Snap Store 获取](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/buzz)
 
-Alternatively, on Ubuntu 20.04 and later, install the dependencies:
+或者，在 Ubuntu 20.04 及更高版本上，安装依赖项：
 
 ```shell
 sudo apt-get install libportaudio2
 ```
 
-Then, download and extract the `Buzz-x.y.z-unix.tar.gz` file
+然后，下载并解压 `Buzz-x.y.z-unix.tar.gz` 文件。
 
 ## PyPI
 

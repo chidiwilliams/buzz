@@ -1,62 +1,56 @@
 ---
-title: Preferences
+title: 偏好设置
 sidebar_position: 4
 ---
 
-Open the Preferences window from the Menu bar, or click `Ctrl/Cmd + ,`.
+从菜单栏打开偏好设置窗口，或点击 `Ctrl/Cmd + ,`。
 
-## General Preferences
+## 常规偏好设置
 
-### OpenAI API preferences
+### OpenAI API 偏好设置
 
-**API Key** - key to authenticate your requests to OpenAI API. To get API key from OpenAI see [this article](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key). 
+**API 密钥** - 用于验证 OpenAI API 请求的密钥。要获取 OpenAI 的 API 密钥，请参阅 [此文章](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key)。
 
-**Base Url** - By default all requests are sent to API provided by OpenAI company. Their api url is `https://api.openai.com/v1/`. Compatible APIs are also provided by other companies. List of available API urls you can find on [discussion page](https://github.com/chidiwilliams/buzz/discussions/827)
+**基础 URL** - 默认情况下，所有请求都会发送到 OpenAI 公司提供的 API。他们的 API URL 是 `https://api.openai.com/v1/`。其他公司也提供了兼容的 API。你可以在 [讨论页面](https://github.com/chidiwilliams/buzz/discussions/827) 找到可用的 API URL 列表。
 
-### Default export file name
+### 默认导出文件名
 
-Sets the default export file name for file transcriptions. For
-example, a value of `{{ input_file_name }} ({{ task }}d on {{ date_time }})` will save TXT exports
-as `Input Filename (transcribed on 19-Sep-2023 20-39-25).txt` by default.
+设置文件识别的默认导出文件名。例如，值为 `{{ input_file_name }} ({{ task }}d on {{ date_time }})` 时，TXT 导出文件将默认保存为`Input Filename (transcribed on 19-Sep-2023 20-39-25).txt`（输入文件名 (转录于 19-Sep-2023 20-39-25).txt）。
 
-Available variables:
+可用变量：
 
-| Key               | Description                               | Example                                                        |
-|-------------------|-------------------------------------------|----------------------------------------------------------------|
-| `input_file_name` | File name of the imported file            | `audio` (e.g. if the imported file path was `/path/to/audio.wav` |
-| `task`            | Transcription task                        | `transcribe`, `translate`                                      |
-| `language`        | Language code                             | `en`, `fr`, `yo`, etc.                                         |
-| `model_type`      | Model type                                | `Whisper`, `Whisper.cpp`, `Faster Whisper`, etc.               |
-| `model_size`      | Model size                                | `tiny`, `base`, `small`, `medium`, `large`, etc.               |
-| `date_time`       | Export time (format: `%d-%b-%Y %H-%M-%S`) | `19-Sep-2023 20-39-25`                                         |
+| 键                | 描述                                  | 示例                                                       |
+| ----------------- | ------------------------------------- | ---------------------------------------------------------- |
+| `input_file_name` | 导入文件的文件名                      | `audio`（例如，如果导入的文件路径是 `/path/to/audio.wav`） |
+| `task`            | 转录任务                              | `transcribe`, `translate`                                  |
+| `language`        | 语言代码                              | `en`, `fr`, `yo` 等                                        |
+| `model_type`      | 模型类型                              | `Whisper`, `Whisper.cpp`, `Faster Whisper` 等              |
+| `model_size`      | 模型大小                              | `tiny`, `base`, `small`, `medium`, `large` 等              |
+| `date_time`       | 导出时间（格式：`%d-%b-%Y %H-%M-%S`） | `19-Sep-2023 20-39-25`                                     |
 
-### Live transcript exports
+### 实时识别导出
 
-Live transcription export can be used to integrate Buzz with other applications like OBS Studio. 
-When enabled, live text transcripts will be exported to a text file as they get generated and translated.
+实时识别导出可用于将 Buzz 与其他应用程序（如 OBS Studio）集成。  
+启用后，实时文本识别将在生成和翻译时导出到文本文件。
 
-If AI translation is enabled for live recordings, the translated text will also be exported to the text file. 
-Filename for the translated text will end with `.translated.txt`. 
+如果为实时录音启用了 AI 翻译，翻译后的文本也将导出到文本文件。  
+翻译文本的文件名将以 `.translated.txt` 结尾。
 
-### Live transcription mode
+### 实时识别模式
 
-Three transcription modes are available:
+有三种转识别式可用：
 
-**Append below** - New sentences will be added below existing with an empty space between them. 
-Last sentence will be at the bottom.
+**下方追加** - 新句子将在现有内容下方添加，并在它们之间留有空行。最后一句话将位于底部。
 
-**Append above** - New sentences will be added above existing with an empty space between them. 
-Last sentence will be at the top.
+**上方追加** - 新句子将在现有内容上方添加，并在它们之间留有空行。最后一句话将位于顶部。
 
-**Append and correct** - New sentences will be added at the end of existing transcript without extra spaces between. 
-This mode will also try to correct errors at the end of previously transcribed sentences. This mode requires more
-processing power and more powerful hardware to work.
+**追加并修正** - 新句子将在现有转录内容的末尾添加，中间不留空行。此模式还会尝试修正之前转录句子末尾的错误。此模式需要更多的处理能力和更强大的硬件支持。
 
-## Advanced Preferences
+## 高级偏好设置
 
-To keep preferences section simple for new users, some more advanced preferences are settable via OS environment variables. Set the necessary environment variables in your OS before starting Buzz or create a script to set them.
+为了简化新用户的偏好设置部分，一些更高级的设置可以通过操作系统环境变量进行配置。在启动 Buzz 之前，请在操作系统中设置必要的环境变量，或创建一个脚本来设置它们。
 
-On MacOS and Linux crete `run_buzz.sh` with the following content:
+在 MacOS 和 Linux 上，创建 `run_buzz.sh`，内容如下：
 
 ```bash
 #!/bin/bash
@@ -65,7 +59,7 @@ export SOME_OTHER_VARIABLE=some_other_value
 buzz
 ```
 
-On Windows crete `run_buzz.bat` with the following content:
+在 Windows 上，创建 `run_buzz.bat`，内容如下：
 
 ```bat
 @echo off
@@ -74,23 +68,27 @@ set SOME_OTHER_VARIABLE=some_other_value
 "C:\Program Files (x86)\Buzz\Buzz.exe"
 ```
 
-### Available variables
+或者，你可以在操作系统设置中设置环境变量。更多信息请参阅 [此指南](https://phoenixnap.com/kb/windows-set-environment-variable#ftoc-heading-4) 或 [此视频](https://www.youtube.com/watch?v=bEroNNzqlF4)。
 
-**BUZZ_WHISPERCPP_N_THREADS** - Number of threads to use for Whisper.cpp model. Default is `4`. 
+### 可用变量
 
-On a laptop with 16 threads setting `BUZZ_WHISPERCPP_N_THREADS=8` leads to some 15% speedup in transcription time. 
-Increasing number of threads even more will lead in slower transcription time as results from parallel threads has to be 
-combined to produce the final answer.
+**BUZZ_WHISPERCPP_N_THREADS** - Whisper.cpp 模型使用的线程数。默认为 `4`。  
+在具有 16 线程的笔记本电脑上，设置 `BUZZ_WHISPERCPP_N_THREADS=8` 可以使转录时间加快约 15%。  
+进一步增加线程数会导致转录时间变慢，因为并行线程的结果需要合并以生成最终答案。
 
-**BUZZ_TRANSLATION_API_BASE_URl** - Base URL of OpenAI compatible API to use for translation.
+**BUZZ_TRANSLATION_API_BASE_URl** - 用于翻译的 OpenAI 兼容 API 的基础 URL。
 
-**BUZZ_TRANSLATION_API_KEY** - Api key of OpenAI compatible API to use for translation.
+**BUZZ_TRANSLATION_API_KEY** - 用于翻译的 OpenAI 兼容 API 的密钥。
 
-**BUZZ_MODEL_ROOT** - Root directory to store model files. 
-Defaults to [user_cache_dir](https://pypi.org/project/platformdirs/).
+**BUZZ_MODEL_ROOT** - 存储模型文件的根目录。  
+默认为 [user_cache_dir](https://pypi.org/project/platformdirs/)。
 
-**BUZZ_FAVORITE_LANGUAGES** - Coma separated list of supported language codes to show on top of language list.
+**BUZZ_FAVORITE_LANGUAGES** - 以逗号分隔的支持语言代码列表，显示在语言列表顶部。
 
-**BUZZ_LOCALE** - Buzz UI locale to use. Defaults to one of supported system locales.
+**BUZZ_LOCALE** - Buzz 用户界面使用的语言环境。默认为系统支持的语言环境之一。
 
-**BUZZ_NETRC_LOCATION** - Location of [netrc](https://everything.curl.dev/usingcurl/netrc.html) file to use for login data when importing audio from a URL.
+**BUZZ_DOWNLOAD_COOKIEFILE** - 用于下载私有视频或绕过反机器人保护的 [cookiefile](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp) 的位置。
+
+**BUZZ_FORCE_CPU** - 强制 Buzz 使用 CPU 而不是 GPU，适用于旧 GPU 较慢或 GPU 有问题的设置。示例用法：`BUZZ_FORCE_CPU=true`。自 `1.2.1` 版本起可用。
+
+**BUZZ_MERGE_REGROUP_RULE** - 合并带有单词级时间戳的转录时使用的自定义重新分组规则。更多可用选项的信息请参阅 [stable-ts 仓库](https://github.com/jianfch/stable-ts?tab=readme-ov-file#regrouping-methods)。自 `1.3.0` 版本起可用。

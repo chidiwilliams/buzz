@@ -1,16 +1,16 @@
 ---
-title: CLI
+title: 命令行界面 (CLI)
 sidebar_position: 5
 ---
 
-## Commands
+## 命令
 
-### `add`
+### `增加`
 
-Start a new transcription task.
+启动一个新的转录任务。
 
 ```
-Usage: buzz add [options] [file file file...]
+Usage: buzz add [options] [file url file...]
 
 Options:
   -t, --task <task>              The task to perform. Allowed: translate,
@@ -60,27 +60,28 @@ Options:
                                  (Yiddish), yo (Yoruba), zh (Chinese). Leave
                                  empty to detect language.
   -p, --prompt <prompt>          Initial prompt.
-  -wt, --word-timestamps         Generate word-level timestamps.
+  -wt, --word-timestamps         Generate word-level timestamps. (available since 1.2.0)
   --openai-token <token>         OpenAI access token. Use only when
                                  --model-type is openaiapi. Defaults to your
                                  previously saved access token, if one exists.
   --srt                          Output result in an SRT file.
   --vtt                          Output result in a VTT file.
   --txt                          Output result in a TXT file.
+  --hide-gui                     Hide the main application window. (available since 1.2.0)
   -h, --help                     Displays help on commandline options.
   --help-all                     Displays help including Qt specific options.
   -v, --version                  Displays version information.
 
 Arguments:
-  files                          Input file paths
+  files or urls                  Input file paths or urls. Url import availalbe since 1.2.0.
 ```
 
-**Examples**:
+**示例**:
 
 ```shell
-# Translate two MP3 files from French to English using OpenAI Whisper API
+# 使用 OpenAI Whisper API 将两个 MP3 文件从法语翻译为英语
 buzz add --task translate --language fr --model-type openaiapi /Users/user/Downloads/1b3b03e4-8db5-ea2c-ace5-b71ff32e3304.mp3 /Users/user/Downloads/koaf9083k1lkpsfdi0.mp3
 
-# Transcribe an MP4 using Whisper.cpp "small" model and immediately export to SRT and VTT files
-buzz add --task transcribe --model-type whispercpp --model-size small --prompt "My initial prompt" --srt --vtt /Users/user/Downloads/buzz/1b3b03e4-8db5-ea2c-ace5-b71ff32e3304.mp4
+# 使用 Whisper.cpp "small" 模型转录一个 MP4 文件，并立即导出为 SRT 和 VTT 文件
+buzz add --task transcribe --model-type whispercpp --model-size small --prompt "My initial prompt（我的初始提示）" --srt --vtt /Users/user/Downloads/buzz/1b3b03e4-8db5-ea2c-ace5-b71ff32e3304.mp4
 ```

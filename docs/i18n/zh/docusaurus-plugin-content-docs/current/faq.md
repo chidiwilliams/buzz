@@ -1,60 +1,94 @@
 ---
-title: FAQ
+title: 常见问题（FAQ）
 sidebar_position: 5
 ---
 
-1. **Where are the models stored?**
+### 1. 模型存储在哪里？
 
-   The models are stored in `~/.cache/Buzz` (Linux), `~/Library/Caches/Buzz`
-   (Mac OS) or `%USERPROFILE%\AppData\Local\Buzz\Buzz\Cache` (Windows).
+模型存储在以下位置：
 
-   Paste the location in your file manager to access the models.
+- Linux: `~/.cache/Buzz`
+- Mac OS: `~/Library/Caches/Buzz`
+- Windows: `%USERPROFILE%\AppData\Local\Buzz\Buzz\Cache`
 
-2. **What can I try if the transcription runs too slowly?**
+将上述路径粘贴到文件管理器中即可访问模型。
 
-   Speech recognition requires large amount of computation, so one option is to try using a lower Whisper model size or using a Whisper.cpp model to run speech recognition of your computer. If you have access to a computer with GPU that has at least 6GB of VRAM you can try using the Faster Whisper model.
+### 2. 如果转录速度太慢，我可以尝试什么？
 
-   Buzz also supports using OpenAI API to do speech recognition on a remote server. To use this feature you need to set OpenAI API key in Preferences. See [Preferences](https://chidiwilliams.github.io/buzz/docs/preferences) section for more details.
+语音识别需要大量计算资源，您可以尝试使用较小的 Whisper 模型，或者使用 Whisper.cpp 模型在本地计算机上运行语音识别。如果您的计算机配备了至少 6GB VRAM 的 GPU，可以尝试使用 Faster Whisper 模型。
 
-3. **How to record system audio?**
+Buzz 还支持使用 OpenAI API 在远程服务器上进行语音识别。要使用此功能，您需要在“偏好设置”中设置 OpenAI API 密钥。详情请参见 [偏好设置](https://chidiwilliams.github.io/buzz/docs/preferences) 部分。
 
-   To transcribe system audio you need to configure virtual audio device and connect output from the applications you want to transcribe to this virtual speaker. After that you can select it as source in the Buzz. See [Usage](https://chidiwilliams.github.io/buzz/docs/usage/live_recording) section for more details.
+### 3. 如何录制系统音频？
 
-   Relevant tools:
-   - Mac OS - [BlackHole](https://github.com/ExistentialAudio/BlackHole).
-   - Windows - [VB CABLE](https://vb-audio.com/Cable/)
-   - Linux - [PulseAudio Volume Control](https://wiki.ubuntu.com/record_system_sound)
+要转录系统音频，您需要配置虚拟音频设备，并将希望转录的应用程序输出连接到该虚拟扬声器。然后，您可以在 Buzz 中选择该设备作为音源。详情请参见 [使用指南](https://chidiwilliams.github.io/buzz/docs/usage/live_recording) 部分。
 
-4. **What model should I use?**
+相关工具：
 
-   Model size to use will depend on your hardware and use case. Smaller models will work faster but will have more inaccuracies. Larger models will be more accurate but will require more powerful hardware or longer time to transcribe. 
+- Mac OS - [BlackHole](https://github.com/ExistentialAudio/BlackHole)
+- Windows - [VB CABLE](https://vb-audio.com/Cable/)
+- Linux - [PulseAudio Volume Control](https://wiki.ubuntu.com/record_system_sound)
 
-   When choosing among large models consider the following. "Large" is the first released older model, "Large-V2" is later updated model with better accuracy, for some languages considered the most robust and stable. "Large-V3" is the latest model with the best accuracy in many cases, but some times can hallucinate or invent words that were never in the audio. "Turbo" model tries to get a good balance between speed and accuracy. The only sure way to know what model best suits your needs is to test them all in your language. 
+### 4. 我应该使用哪个模型？
 
-5. **How to get GPU acceleration for faster transcription?**
+选择模型大小取决于您的硬件和使用场景。较小的模型运行速度更快，但准确性较低；较大的模型更准确，但需要更强的硬件或更长的转录时间。
 
-   On Linux GPU acceleration is supported out of the box on Nvidia GPUs. If you still get any issues install [CUDA 12](https://developer.nvidia.com/cuda-downloads), [cuBLASS](https://developer.nvidia.com/cublas) and [cuDNN](https://developer.nvidia.com/cudnn).
+在选择大模型时，请参考以下信息：
 
-   On Windows see [this note](https://github.com/chidiwilliams/buzz/blob/main/CONTRIBUTING.md#gpu-support) on enabling CUDA GPU support.
+- **“Large”** 是最早发布的模型
+- **“Large-V2”** 是后续改进版，准确率更高，被认为是某些语言中最稳定的选择
+- **“Large-V3”** 是最新版本，在许多情况下准确性最佳，但有时可能会产生错误的单词
+- **“Turbo”** 模型在速度和准确性之间取得了良好平衡
 
-   For Faster whisper CUDA 12 is required, computers with older CUDA versions will use CPU.   
+最好的方法是测试所有模型，以找到最适合您语言的选项。
 
-6. **How to fix `Unanticipated host error[PaErrorCode-9999]`?**
+### 5. 如何使用 GPU 加速以提高转录速度？
 
-   Check if there are any system settings preventing apps from accessing the microphone.
+- 在 **Linux** 上，Nvidia GPU 受支持，可直接使用 GPU 加速。如果遇到问题，请安装 [CUDA 12](https://developer.nvidia.com/cuda-downloads)、[cuBLAS](https://developer.nvidia.com/cublas) 和 [cuDNN](https://developer.nvidia.com/cudnn)。
+- 在 **Windows** 上，请参阅[此说明](https://github.com/chidiwilliams/buzz/blob/main/CONTRIBUTING.md#gpu-support) 以启用 CUDA GPU 支持。
+- **Faster Whisper** 需要 CUDA 12，使用旧版 CUDA 的计算机将默认使用 CPU。
 
-   On Windows, see if Buzz has permission to use the microphone in Settings -> Privacy -> Microphone.
+### 6. 如何修复 `Unanticipated host error[PaErrorCode-9999]`？
 
-   See method 1 in this video https://www.youtube.com/watch?v=eRcCYgOuSYQ
+请检查系统设置，确保没有阻止应用访问麦克风。
 
-   For method 2 there is no need to uninstall the antivirus, but see if you can temporarily disable it or if there are settings that may prevent Buzz from accessing the microphone.
+- **Windows** 用户请检查“设置 -> 隐私 -> 麦克风”，确保 Buzz 有权限使用麦克风。
+- 参考此视频的 [方法 1](https://www.youtube.com/watch?v=eRcCYgOuSYQ)。
+- **方法 2** 无需卸载防病毒软件，但可以尝试暂时禁用，或检查是否有相关设置阻止 Buzz 访问麦克风。
 
-7. **Can I use Buzz on a computer without internet?**
+### 7. 可以在没有互联网的计算机上使用 Buzz 吗？
 
-   Yes, Buzz can be used without internet connection if you download the necessary models on some other computer that has the internet and manually move them to the offline computer. The easiest way to find where the models are stored is to go to Help -> Preferences -> Models. Then download some model, and push "Show file location" button. This will open the folder where the models are stored. Copy the models folder to the same location on the offline computer. F.e. for Linux it is `.cache/Buzz/models` in your home directory.
+是的，您可以在离线计算机上使用 Buzz，但需要在另一台联网计算机上下载所需模型，并手动将其移动到离线计算机。
 
-8. **Buzz crashes, what to do?**
+最简单的方法是：
 
-   If a model download was incomplete or corrupted, Buzz may crash. Try to delete the downloaded model files in `Help -> Preferences -> Models` and re-download them.
+1. 打开“帮助 -> 偏好设置 -> 模型”
+2. 下载所需的模型
+3. 点击“显示文件位置”按钮，打开存储模型的文件夹
+4. 将该模型文件夹复制到离线计算机的相同位置
 
-   If that does not help, check the log file for errors and [report the issue](https://github.com/chidiwilliams/buzz/issues) so we can fix it. The log file is located in `~/Library/Logs/Buzz` (Mac OS) or `%USERPROFILE%\AppData\Local\Buzz\Buzz\Logs` (Windows). On Linux run the Buzz from the command line to see the relevant messages.
+例如，在 Linux 上，模型存储在 `~/.cache/Buzz/models` 目录中。
+
+### 8. Buzz 崩溃了，怎么办？
+
+如果模型下载不完整或损坏，Buzz 可能会崩溃。尝试删除已下载的模型文件，然后重新下载。
+
+如果问题仍然存在，请检查日志文件并[报告问题](https://github.com/chidiwilliams/buzz/issues)，以便我们修复。日志文件位置如下：
+
+- Mac OS: `~/Library/Logs/Buzz`
+- Windows: `%USERPROFILE%\AppData\Local\Buzz\Buzz\Logs`
+- Linux: 在终端运行 Buzz 查看相关错误信息。
+
+### 9. 哪里可以获取最新的开发版本？
+
+最新的开发版本包含最新的错误修复和新功能。如果您喜欢尝试新功能，可以下载最新的开发版本进行测试。
+
+- **Linux** 用户可以运行以下命令获取最新版本：
+  ```sh
+  sudo snap install buzz --edge
+  ```
+- **其他平台** 请按以下步骤操作：
+  1. 访问 [构建页面](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml?query=branch%3Amain)
+  2. 点击最新构建的链接
+  3. 在构建页面向下滚动到“Artifacts”部分
+  4. 下载安装文件（请注意，您需要登录 GitHub 才能看到下载链接）
