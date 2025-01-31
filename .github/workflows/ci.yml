@@ -62,7 +62,6 @@ jobs:
         id: setup-ffmpeg
         with:
           ffmpeg-version: release
-          architecture: 'x64'
           github-token: ${{ github.server_url == 'https://github.com' && github.token || '' }}
 
       - name: Install dependencies
@@ -125,7 +124,6 @@ jobs:
         id: setup-ffmpeg
         with:
           ffmpeg-version: release
-          architecture: 'x64'
           github-token: ${{ github.server_url == 'https://github.com' && github.token || '' }}
 
       - name: Install dependencies

@@ -269,7 +269,8 @@ class ModelsPreferencesWidget(QWidget):
         QMessageBox.warning(self, _("Error"), f"{download_failed_label}: {error}")
 
     def on_download_progress(self, progress: tuple):
-        self.progress_dialog.set_value(float(progress[0]) / progress[1])
+        if progress[1] != 0:
+            self.progress_dialog.set_value(float(progress[0]) / progress[1])
 
     def on_progress_dialog_canceled(self):
         self.model_downloader.cancel()
