@@ -58,12 +58,8 @@ jobs:
             ~/AppData/Local/Buzz/Buzz/Cache
           key: whisper-models
 
-      - uses: FedericoCarboni/setup-ffmpeg@v3.1
+      - uses: AnimMouse/setup-ffmpeg@v1
         id: setup-ffmpeg
-        with:
-          ffmpeg-version: release
-          architecture: 'x64'
-          github-token: ${{ github.server_url == 'https://github.com' && github.token || '' }}
 
       - name: Install dependencies
         run: poetry install
@@ -121,12 +117,8 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/poetry.lock') }}
 
-      - uses: FedericoCarboni/setup-ffmpeg@v3.1
+      - uses: AnimMouse/setup-ffmpeg@v1
         id: setup-ffmpeg
-        with:
-          ffmpeg-version: release
-          architecture: 'x64'
-          github-token: ${{ github.server_url == 'https://github.com' && github.token || '' }}
 
       - name: Install dependencies
         run: poetry install
