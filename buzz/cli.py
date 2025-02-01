@@ -100,7 +100,7 @@ def parse(app: Application, parser: QCommandLineParser):
             ["p", "prompt"], "Initial prompt.", "prompt", ""
         )
         word_timestamp_option = QCommandLineOption(
-            ["wt", "word-timestamps"], "Generate word-level timestamps."
+            ["w", "word-timestamps"], "Generate word-level timestamps."
         )
         open_ai_access_token_option = QCommandLineOption(
             "openai-token",
