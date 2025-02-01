@@ -60,6 +60,18 @@ jobs:
 
       - uses: AnimMouse/setup-ffmpeg@v1
         id: setup-ffmpeg
+        if: matrix.os != 'macos-13'
+
+      - uses: FedericoCarboni/setup-ffmpeg@v3.1
+        id: setup-ffmpeg-macos-13
+        if: matrix.os == 'macos-13'
+        with:
+          ffmpeg-version: release
+          architecture: 'x64'
+          github-token: ${{ github.server_url == 'https://github.com' && github.token || '' }}
+
+      - name: Test ffmpeg
+        run: ffmpeg -i ./testdata/audio-long.mp3 ./testdata/audio-long.wav
 
       - name: Install dependencies
         run: poetry install
@@ -119,14 +131,23 @@ jobs:
 
       - uses: AnimMouse/setup-ffmpeg@v1
         id: setup-ffmpeg
+        if: matrix.os != 'macos-13'
+
+      - uses: FedericoCarboni/setup-ffmpeg@v3.1
+        id: setup-ffmpeg-macos-13
+        if: matrix.os == 'macos-13'
+        with:
+          ffmpeg-version: release
+          architecture: 'x64'
+          github-token: ${{ github.server_url == 'https://github.com' && github.token || '' }}
 
       - name: Install dependencies
         run: poetry install
 
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.0" # Not needed with a .ruby-version file
-          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+          ruby-version: "3.0"  # Not needed with a .ruby-version file
+          bundler-cache: true  # runs 'bundle install' and caches installed gems automatically
         if: "startsWith(matrix.os, 'ubuntu-')"
 
       - name: Install apt dependencies
@@ -147,8 +168,8 @@ jobs:
           if [ "$RUNNER_OS" == "macOS" ]; then
 
             brew install create-dmg
-          
-            # kill XProtect to prevent https://github.com/actions/runner-images/issues/7522 
+
+            # kill XProtect to prevent https://github.com/actions/runner-images/issues/7522
             sudo pkill -9 XProtect >/dev/null || true;
             while pgrep XProtect; do sleep 3; done;
 
@@ -230,7 +251,7 @@ jobs:
           path: ./wheelhouse/*.whl
 
   publish_pypi:
-    needs: [ build_wheels, test ]
+    needs: [build_wheels, test]
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
@@ -257,7 +278,7 @@ jobs:
           - os: macos-13
           - os: macos-latest
           - os: windows-latest
-    needs: [ build, test ]
+    needs: [build, test]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v4
@@ -291,7 +312,7 @@ jobs:
 
   deploy_brew_cask:
     runs-on: macos-latest
-    needs: [ release ]
+    needs: [release]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v4
