@@ -60,7 +60,7 @@ Options:
                                  (Yiddish), yo (Yoruba), zh (Chinese). Leave
                                  empty to detect language.
   -p, --prompt <prompt>          Initial prompt.
-  -wt, --word-timestamps         Generate word-level timestamps. (available since 1.2.0)
+  -w, --word-timestamps         Generate word-level timestamps. (available since 1.2.0)
   --openai-token <token>         OpenAI access token. Use only when
                                  --model-type is openaiapi. Defaults to your
                                  previously saved access token, if one exists.
