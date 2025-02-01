@@ -16,7 +16,7 @@ title: 实时录制
 | 质量   | "极低"、"低"、"中"、"高"                                                                                  | "极低"           | 转录质量决定了用于转录的 Whisper 模型。"极低"使用"tiny"模型；"低"使用"base"模型；"中"使用"small"模型；"高"使用"medium"模型。模型越大，转录质量越高，但所需的系统资源也越多。更多关于模型的信息请参阅 [Whisper 文档](https://github.com/openai/whisper#available-models-and-languages)。 |
 | 麦克风 | [系统可用麦克风]                                                                                          | [系统默认麦克风] | 用于录制输入音频的麦克风。                                                                                                                                                                                                                                                              |
 
-[![Buzz 实时录制](https://cdn.loom.com/sessions/thumbnails/564b753eb4d44b55b985b8abd26b55f7-with-play.gif)](https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7 "Live Recording on Buzz")
+[![Buzz 实时录制](https://cdn.loom.com/sessions/thumbnails/564b753eb4d44b55b985b8abd26b55f7-with-play.gif)](https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7 "在Buzz 上实时转录")
 
 ### 录制电脑播放的音频（macOS）
 
@@ -28,53 +28,35 @@ title: 实时录制
    brew install blackhole-2ch
    ```
 
-### 2. 通过聚焦搜索（Spotlight）或直接打开 `/Applications/Utilities/Audio Midi Setup.app` 来启动“音频 MIDI 设置”。
+2. 通过聚焦搜索（Spotlight）或直接打开 `/Applications/Utilities/Audio Midi Setup.app` 来启动“音频 MIDI 设置”。
 
 ![通过聚焦搜索打开音频MIDI设置](https://existential.audio/howto/img/spotlight.png)
 
-### 3. 点击窗口左下角的“+”图标，然后选择“创建多输出设备”。
+3. 点击窗口左下角的“+”图标，然后选择“创建多输出设备”。
 
 ![创建多输出设备](https://existential.audio/howto/img/createmulti-output.png)
 
-### 4. 将你的默认扬声器和 BlackHole 添加到这个多输出设备中。
+4. 将你的默认扬声器和 BlackHole 添加到这个多输出设备中。
 
 ![多输出设备截图](https://existential.audio/howto/img/multi-output.png)
 
-### 5. 将此多输出设备设置为你的扬声器（可在应用程序内或系统全局进行设置），这样音频就会被输送到 BlackHole 中。
+5. 将此多输出设备设置为你的扬声器（可在应用程序内或系统全局进行设置），这样音频就会被输送到 BlackHole 中。
 
-### 6. 打开 Buzz 软件，选择 BlackHole 作为录音的麦克风，接着像平常一样进行录制，你就能看到通过 BlackHole 播放的音频的转录文本了。
+6. 打开 Buzz 软件，选择 BlackHole 作为录音的麦克风，接着像平常一样进行录制，你就能看到通过 BlackHole 播放的音频的转录文本了。
 
-2. Open Audio MIDI Setup from Spotlight or from `/Applications/Utilities/Audio Midi Setup.app`.
+### 录制电脑播放的音频（Windows）
 
-   ![Open Audio MIDI Setup from Spotlight](https://existential.audio/howto/img/spotlight.png)
+若要转录系统音频，你需要配置虚拟音频设备，并将你想要转录的应用程序的音频输出连接到该虚拟扬声器。之后，你就可以在 Buzz 中选择它作为音频源。
 
-3. Click the '+' icon at the lower left corner and select 'Create Multi-Output Device'.
+1. 安装 [VB CABLE](https://vb - audio.com/Cable/) 作为虚拟音频设备。
+2. 使用 Windows 声音设置进行配置。右键单击系统托盘里的扬声器图标，然后选择“打开声音设置”。在“选择你的输出设备”下拉菜单中，选择“CABLE Input”，将所有系统声音发送到虚拟设备；或者使用“高级声音选项”，选择要将声音输出到该设备的应用程序。
 
-   ![Create multi-output device](https://existential.audio/howto/img/createmulti-output.png)
+### 录制电脑播放的音频（Linux）
 
-4. Add your default speaker and BlackHole to the multi-output device.
+正如 [Ubuntu 维基](https://wiki.ubuntu.com/record_system_sound?uselang=zh) 中所述，在任何使用 PulseAudio 的 Linux 系统上，你可以将应用程序的音频重定向到虚拟扬声器。之后，你可以在 Buzz 中选择它作为音频源。
 
-   ![Screenshot of multi-output device](https://existential.audio/howto/img/multi-output.png)
+总体步骤如下：
 
-5. Select this multi-output device as your speaker (application or system-wide) to play audio into BlackHole.
-
-6. Open Buzz, select BlackHole as your microphone, and record as before to see transcriptions from the audio playing
-   through BlackHole.
-
-### Record audio playing from computer (Windows)
-
-To transcribe system audio you need to configure virtual audio device and connect output from the applications you whant to transcribe to this virtual speaker. After that you can select it as source in the Buzz.
-
-1. Install [VB CABLE](https://vb-audio.com/Cable/) as virtual audio device.
-
-2. Configure using Windows Sound settings. Right-click on the speaker icon in the system tray and select "Open Sound settings". In the "Choose your output device" dropdown select "CABLE Input" to send all system sound to the virtual device or use "Advanced sound options" to select application that will output their sound to this device.
-
-### Record audio playing from computer (Linux)
-
-As described on [Ubuntu Wiki](https://wiki.ubuntu.com/record_system_sound) on any Linux with pulse audio you can redirect application audio to a virtual speaker. After that you can select it as source in Buzz.
-
-Overall steps:
-
-1. Launch application that will produce the sound you want to transcribe and start the playback. For example start a video in a media player.
-2. Launch Buzz and open Live recording screen, so you see the settings.
-3. Configure sound routing from the application you want to transcribe sound from to Buzz in `Recording tab` of the PulseAudio Volume Control (`pavucontrol`).
+1. 启动会产生你想要转录的声音的应用程序，并开始播放。例如，在媒体播放器中播放视频。
+2. 启动 Buzz 并打开实时录制界面，以便查看设置。
+3. 在 PulseAudio 音量控制（`pavucontrol`）的“录制”选项卡中，配置从你想要转录声音的应用程序到 Buzz 的声音路由。
