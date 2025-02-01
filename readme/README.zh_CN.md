@@ -2,7 +2,7 @@
 
 # Buzz
 
-[项目文档](https://chidiwilliams.github.io/buzz/) | [苹果应用商店的 Buzz Captions 页面](https://apps.apple.com/us/app/buzz-captions/id6446018936?mt=12&itsct=apps_box_badge&itscg=30200)
+[项目文档](https://chidiwilliams.github.io/buzz/zh/docs) | [苹果应用商店的 Buzz Captions 页面](https://apps.apple.com/us/app/buzz-captions/id6446018936?mt=12&itsct=apps_box_badge&itscg=30200)
 
 在个人电脑上离线转录和翻译音频。技术模型来源 OpenAI [Whisper](https://github.com/openai/whisper).
 
