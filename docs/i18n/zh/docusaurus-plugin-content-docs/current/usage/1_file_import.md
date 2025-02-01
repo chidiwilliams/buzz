@@ -1,22 +1,21 @@
 ---
-title: File Import
+title: 文件导入
 ---
 
-To import a file:
+若要导入文件：
 
-- Click Import Media File on the File menu (or the '+' icon on the toolbar, or **Command/Ctrl + O**).
-- Choose an audio or video file.
-- Select a task, language, and the model settings.
-- Click Run.
-- When the transcription status shows 'Completed', double-click on the row (or select the row and click the '⤢' icon) to
-  open the transcription.
+- 点击“文件”菜单中的“导入媒体文件”（或者点击工具栏上的“+”图标，也可以使用快捷键 **Command/Ctrl + O**）。
+- 选择一个音频或视频文件。
+- 选择任务、语言和模型设置。
+- 点击“运行”。
+- 当转录状态显示为“已完成”时，双击该行（或者选中该行后点击“⤢”图标）即可打开转录内容。
 
-| Field              | Options             | Default | Description                                                                                                                                              |
-|--------------------|---------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Export As          | "TXT", "SRT", "VTT" | "TXT"   | Export file format                                                                                                                                       |
-| Word-Level Timings | Off / On            | Off     | If checked, the transcription will generate a separate subtitle line for each word in the audio. Enabled only when "Export As" is set to "SRT" or "VTT". |
-| Extract speech     | Off / On            | Off     | If checked, speech will be extracted to a separate audio tack to improve accuracy. Available since 1.3.0.                                                |
+| 字段         | 选项                | 默认值 | 描述                                                                                                     |
+| ------------ | ------------------- | ------ | -------------------------------------------------------------------------------------------------------- |
+| 导出格式     | "TXT"、"SRT"、"VTT" | "TXT"  | 导出文件的格式                                                                                           |
+| 单词级时间戳 | 关闭 / 开启         | 关闭   | 若勾选此项，转录内容将为音频中的每个单词生成单独的字幕行。仅当“导出格式”设置为“SRT”或“VTT”时此选项可用。 |
+| 提取语音     | 关闭 / 开启         | 关闭   | 若勾选此项，语音将被提取到单独的音轨中以提高转录准确性。此功能自 1.3.0 版本起可用。                      |
 
-(See the [Live Recording section](#live-recording) for more information about the task, language, and quality settings.)
+（有关任务、语言和质量设置的更多信息，请参阅[实时录制部分](https://chidiwilliams.github.io/buzz/zh/docs/usage/live_recording)。）
 
-[![Media File Import on Buzz](https://cdn.loom.com/sessions/thumbnails/cf263b099ac3481082bb56d19b7c87fe-with-play.gif)](https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe "Media File Import on Buzz")
+[![Buzz 中的媒体文件导入](https://cdn.loom.com/sessions/thumbnails/cf263b099ac3481082bb56d19b7c87fe-with-play.gif)](https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe "Buzz 中的媒体文件导入")
