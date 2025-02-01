@@ -60,6 +60,15 @@ jobs:
 
       - uses: AnimMouse/setup-ffmpeg@v1
         id: setup-ffmpeg
+        if: matrix.os != 'macos-13'
+
+      - uses: FedericoCarboni/setup-ffmpeg@v3.1
+        id: setup-ffmpeg
+        if: matrix.os == 'macos-13'
+        with:
+          ffmpeg-version: release
+          architecture: 'x64'
+          github-token: ${{ github.server_url == 'https://github.com' && github.token || '' }}
 
       - name: Install dependencies
         run: poetry install
@@ -119,6 +128,15 @@ jobs:
 
       - uses: AnimMouse/setup-ffmpeg@v1
         id: setup-ffmpeg
+        if: matrix.os != 'macos-13'
+
+      - uses: FedericoCarboni/setup-ffmpeg@v3.1
+        id: setup-ffmpeg
+        if: matrix.os == 'macos-13'
+        with:
+          ffmpeg-version: release
+          architecture: 'x64'
+          github-token: ${{ github.server_url == 'https://github.com' && github.token || '' }}
 
       - name: Install dependencies
         run: poetry install
