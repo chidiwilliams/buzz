@@ -1,3 +1,6 @@
+# Development notes:
+# - To build the snap run `snapcraft clean` and `snapcraft`
+# - To install local snap `snap install ./buzz_*.snap --dangerous`
 name: buzz
 base: core22
 version: git
@@ -158,7 +161,6 @@ apps:
       - gsettings
       - opengl
       - removable-media
-      - pulseaudio
       - audio-playback
       - audio-record
       - password-manager-service

@@ -115,12 +115,9 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 #### GPU Support
 
-GPU support on Windows is possible for Buzz that ir installed from the source code or with `pip`.
-Use the instructions above to install the Buzz from the source code or run `pip install buzz-captions` 
-and then follow the instructions below to enable CUDA GPU support. For pip installation it is recommended to use 
-a separate [virtual environment](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/).
+GPU support on Windows with Nvidia GPUs is included out of the box in the `.exe` installer. 
 
-To enable GPU support first ensure CUDA 12.1 is installed - https://developer.nvidia.com/cuda-12-1-0-download-archive 
+To add GPU support for source or `pip` installed version first ensure CUDA 12.1 is installed - https://developer.nvidia.com/cuda-12-1-0-download-archive 
 Other versions of CUDA 12 should also work.
 
 Switch torch library to GPU version. It must match the CUDA version installed, see https://pytorch.org/get-started/locally/ .
