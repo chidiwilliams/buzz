@@ -580,6 +580,7 @@ msgstr "关于"
 msgid "Preferences..."
 msgstr "偏好设置..."
 
+
 #: buzz/widgets/menu_bar.py:51 buzz/widgets/menu_bar.py:61
 msgid "Help"
 msgstr "帮助"
