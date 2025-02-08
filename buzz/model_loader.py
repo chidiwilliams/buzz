@@ -395,23 +395,19 @@ def download_faster_whisper_model(
 
     if size == WhisperModelSize.CUSTOM:
         repo_id = custom_repo_id
-    elif size == WhisperModelSize.LARGEV3:
-        repo_id = "Systran/faster-whisper-large-v3"
-    # Maybe switch to 'mobiuslabsgmbh/faster-whisper-large-v3-turbo', seems to be used in
-    #  faster-whisper code https://github.com/SYSTRAN/faster-whisper/blob/master/faster_whisper/utils.py#L29
-    #  If so changes needed also in whisper_file_transcriber.py
+    # Replicating models from faster-whisper code https://github.com/SYSTRAN/faster-whisper/blob/master/faster_whisper/utils.py#L29
+    # Changes to turbo model also in whisper_file_transcriber.py
     elif size == WhisperModelSize.LARGEV3TURBO:
-        repo_id = "deepdml/faster-whisper-large-v3-turbo-ct2"
+        repo_id = "mobiuslabsgmbh/faster-whisper-large-v3-turbo"
     else:
-        repo_id = "guillaumekln/faster-whisper-%s" % size
+        repo_id = "Systran/faster-whisper-%s" % size
 
     allow_patterns = [
         "model.bin",  # largest by size first
         "pytorch_model.bin",  # possible alternative model filename
         "config.json",
         "tokenizer.json",
-        "vocabulary.txt",
-        "vocabulary.json",
+        "vocabulary.*",
     ]
 
     if local_files_only:

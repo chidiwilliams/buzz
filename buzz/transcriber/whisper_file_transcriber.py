@@ -141,7 +141,7 @@ class WhisperFileTranscriber(FileTranscriber):
         if task.transcription_options.model.whisper_model_size == WhisperModelSize.CUSTOM:
             model_size_or_path = task.transcription_options.model.hugging_face_model_id
         elif task.transcription_options.model.whisper_model_size == WhisperModelSize.LARGEV3TURBO:
-            model_size_or_path = "deepdml/faster-whisper-large-v3-turbo-ct2"
+            model_size_or_path = "mobiuslabsgmbh/faster-whisper-large-v3-turbo"
         else:
             model_size_or_path = task.transcription_options.model.whisper_model_size.to_faster_whisper_model_size()
 
