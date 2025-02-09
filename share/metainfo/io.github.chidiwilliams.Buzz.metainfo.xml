@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.chidiwilliams.Buzz</id>
+
+  <name>Buzz</name>
+  <summary>Transcribe and translate audio</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <developer_name>Chidi Williams</developer_name>
+
+  <description>
+    <p>
+      Buzz transcribes and translates audio to text offline using OpenAI&apos;s Whisper. Import audio and video files into Buzz and export them as TXT, SRT, or VTT files. Buzz supports Whisper, Whisper.cpp, Faster Whisper, Whisper-compatible models from the Hugging Face repository, and the OpenAI Whisper API.
+    </p>
+  </description>
+
+  <categories>
+    <category>AudioVideo</category>
+  </categories>
+
+  <url type="bugtracker">https://github.com/chidiwilliams/buzz/issues</url>
+  <url type="homepage">https://github.com/chidiwilliams/buzz</url>
+  <url type="faq">https://chidiwilliams.github.io/buzz/docs</url>
+
+  <branding>
+    <color type="primary" scheme_preference="light">#f66151</color>
+    <color type="primary" scheme_preference="dark">#45124d</color>
+  </branding>
+
+  <requires>
+    <control>keyboard</control>
+    <control>pointing</control>
+  </requires>
+  <launchable type="desktop-id">io.github.chidiwilliams.Buzz.desktop</launchable>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://dashboard.snapcraft.io/site_media/appmedia/2023/06/Screenshot_from_2023-06-04_17-56-16_LAGuXny.png</image>
+      <caption>Transcription options</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://dashboard.snapcraft.io/site_media/appmedia/2023/06/Screenshot_from_2023-06-04_17-57-03_3rU4VXe.png</image>
+      <caption>Main screen</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://dashboard.snapcraft.io/site_media/appmedia/2023/06/Screenshot_from_2023-06-04_17-57-20_IEqBjkl.png</image>
+      <caption>Live recording options</caption>
+    </screenshot>
+  </screenshots>
+
+  <content_rating type="oars-1.1"/>
+
+  <releases>
+    <release version="1.2.0" date="2024-11-24">
+      <url type="details">https://github.com/chidiwilliams/buzz/releases/tag/v1.2.0</url>
+      <description>
+        <p>Changes in 1.2.0</p>
+          <ul>
+            <li>Dark mode support</li>
+            <li>Improved support for GPUs and Apple Core ML</li>
+            <li>Sliding window mode for live transcriptions</li>
+            <li>Bugfixes and other small improvements</li>
+          </ul>
+      </description>
+    </release>
+  </releases>
+</component>
