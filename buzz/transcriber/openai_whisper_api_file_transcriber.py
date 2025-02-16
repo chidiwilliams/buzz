@@ -50,6 +50,7 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
         if sys.platform == "win32":
             si = subprocess.STARTUPINFO()
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            si.wShowWindow = subprocess.SW_HIDE
             result = subprocess.run(cmd, capture_output=True, startupinfo=si)
         else:
             result = subprocess.run(cmd, capture_output=True)
@@ -74,6 +75,7 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
         if sys.platform == "win32":
             si = subprocess.STARTUPINFO()
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            si.wShowWindow = subprocess.SW_HIDE
 
             duration_secs = float(
                 subprocess.run(cmd, capture_output=True, check=True, startupinfo=si).stdout.decode("utf-8")
@@ -117,6 +119,7 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
             if sys.platform == "win32":
                 si = subprocess.STARTUPINFO()
                 si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                si.wShowWindow = subprocess.SW_HIDE
                 subprocess.run(cmd, capture_output=True, check=True, startupinfo=si)
             else:
                 subprocess.run(cmd, capture_output=True, check=True)
