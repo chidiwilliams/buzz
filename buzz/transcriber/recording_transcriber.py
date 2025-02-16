@@ -87,10 +87,6 @@ class RecordingTranscriber(QObject):
             model_root_dir = os.getenv("BUZZ_MODEL_ROOT", model_root_dir)
 
             device = "auto"
-            if platform.system() == "Windows":
-                logging.debug("CUDA GPUs are currently no supported on Running on Windows, using CPU")
-                device = "cpu"
-
             if torch.cuda.is_available() and torch.version.cuda < "12":
                 logging.debug("Unsupported CUDA version (<12), using CPU")
                 device = "cpu"
