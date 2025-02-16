@@ -47,11 +47,11 @@ modules:
       - type: file
         dest-filename: buzz.snap
         # Stable
-        #url: https://api.snapcraft.io/api/v1/snaps/download/RSpCVxCNDwoTXHPXhlYQnziD0jQhVnKA_362.snap
-        #sha256: fbc045426c867b1d7ee01178d4f53d785c161709e2a9db6854cefec29aa510d7
+        url: https://api.snapcraft.io/api/v1/snaps/download/RSpCVxCNDwoTXHPXhlYQnziD0jQhVnKA_362.snap
+        sha256: fbc045426c867b1d7ee01178d4f53d785c161709e2a9db6854cefec29aa510d7
         # Edge
-        url: https://api.snapcraft.io/api/v1/snaps/download/RSpCVxCNDwoTXHPXhlYQnziD0jQhVnKA_402.snap
-        sha256: 0acecacf8fa476bf6d7afcd98b7b557829b70cfa8b1d57e6ff5248737b63ab60
+        #url: https://api.snapcraft.io/api/v1/snaps/download/RSpCVxCNDwoTXHPXhlYQnziD0jQhVnKA_402.snap
+        #sha256: 0acecacf8fa476bf6d7afcd98b7b557829b70cfa8b1d57e6ff5248737b63ab60
 
   # Borrowed from https://github.com/flathub/org.audacityteam.Audacity/blob/master/org.audacityteam.Audacity.yaml
   - name: portaudio
