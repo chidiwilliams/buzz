@@ -62,3 +62,11 @@ sudo snap connect buzz:removable-media
 ### Latest development version
 
 For info on how to get latest development version with latest features and bug fixes see [FAQ](https://chidiwilliams.github.io/buzz/docs/faq#9-where-can-i-get-latest-development-version).
+
+### Screenshots
+
+<img alt="File import" src="share/screenshots/buzz-1-import.png" width="18%"/>
+<img alt="Main screen" src="share/screenshots/buzz-2-main_screen.png" width="18%"/>
+<img alt="Preferences" src="share/screenshots/buzz-3-preferences.png" width="18%"/>
+<img alt="Transcript" src="share/screenshots/buzz-4-transcript.png" width="18%"/>
+<img alt="Live recording" src="share/screenshots/buzz-5-live_recording.png" width="18%"/>

@@ -34,16 +34,24 @@
   <launchable type="desktop-id">io.github.chidiwilliams.Buzz.desktop</launchable>
   <screenshots>
     <screenshot type="default">
-      <image>https://dashboard.snapcraft.io/site_media/appmedia/2023/06/Screenshot_from_2023-06-04_17-56-16_LAGuXny.png</image>
-      <caption>Transcription options</caption>
+      <image>https://github.com/chidiwilliams/buzz/raw/main/share/screenshots/buzz-1-import.png</image>
+      <caption>File and url import options</caption>
     </screenshot>
     <screenshot>
-      <image>https://dashboard.snapcraft.io/site_media/appmedia/2023/06/Screenshot_from_2023-06-04_17-57-03_3rU4VXe.png</image>
-      <caption>Main screen</caption>
+      <image>https://github.com/chidiwilliams/buzz/raw/main/share/screenshots/buzz-2-main_screen.png</image>
+      <caption>Main screen with transcription results</caption>
     </screenshot>
     <screenshot>
-      <image>https://dashboard.snapcraft.io/site_media/appmedia/2023/06/Screenshot_from_2023-06-04_17-57-20_IEqBjkl.png</image>
-      <caption>Live recording options</caption>
+      <image>https://github.com/chidiwilliams/buzz/raw/main/share/screenshots/buzz-3-preferences.png</image>
+      <caption>Application preferences</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/chidiwilliams/buzz/raw/main/share/screenshots/buzz-4-transcript.png</image>
+      <caption>Transcript with options for further processing and export</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/chidiwilliams/buzz/raw/main/share/screenshots/buzz-5-live_recording.png</image>
+      <caption>Live recording transcription and translation options</caption>
     </screenshot>
   </screenshots>
 
