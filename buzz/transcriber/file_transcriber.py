@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 import subprocess
 import shutil
 import tempfile
@@ -68,7 +69,12 @@ class FileTranscriber(QObject):
                 "-loglevel", "panic",
                 wav_file]
 
-            result = subprocess.run(cmd, capture_output=True)
+            if sys.platform == "win32":
+                si = subprocess.STARTUPINFO()
+                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                result = subprocess.run(cmd, capture_output=True, startupinfo=si)
+            else:
+                result = subprocess.run(cmd, capture_output=True)
 
             if len(result.stderr):
                 logging.warning(f"Error processing downloaded audio. Error: {result.stderr.decode()}")
