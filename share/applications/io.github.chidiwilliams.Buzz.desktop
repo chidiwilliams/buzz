@@ -1,0 +1,15 @@
+[Desktop Entry]
+
+Type=Application
+
+Encoding=UTF-8
+
+Name=Buzz
+
+Comment=Transcribe and translate audio
+
+Exec=run-buzz.sh
+
+Icon=io.github.chidiwilliams.Buzz
+
+Terminal=false

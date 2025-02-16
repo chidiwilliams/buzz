@@ -30,3 +30,5 @@ benchmarks.json
 *.egg-info
 /coverage/
 /wheelhouse/
+/.flatpak-builder
+/repo
