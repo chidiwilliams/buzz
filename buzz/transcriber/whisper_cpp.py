@@ -144,7 +144,7 @@ class WhisperCpp:
         return params
 
     def __del__(self):
-        if self.instance:
+        if self.instance and self.ctx:
             self.instance.free(self.ctx)
 
 
@@ -215,7 +215,8 @@ class WhisperCppCpu(WhisperCppInterface):
         return whisper_cpp.whisper_full_get_segment_t1(ctx, i)
 
     def free(self, ctx):
-        return whisper_cpp.whisper_free(ctx)
+        if ctx and whisper_cpp is not None:
+            return whisper_cpp.whisper_free(ctx)
 
 
 class WhisperCppCoreML(WhisperCppInterface):

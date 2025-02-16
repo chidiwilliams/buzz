@@ -1,6 +1,6 @@
-from subprocess import run
-
+import subprocess
 import numpy as np
+import sys
 import logging
 
 SAMPLE_RATE = 16000
@@ -44,7 +44,13 @@ def load_audio(file: str, sr: int = SAMPLE_RATE):
         "-"
     ]
     # fmt: on
-    result = run(cmd, capture_output=True)
+    if sys.platform == "win32":
+        si = subprocess.STARTUPINFO()
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        si.wShowWindow = subprocess.SW_HIDE
+        result = subprocess.run(cmd, capture_output=True, startupinfo=si)
+    else:
+        result = subprocess.run(cmd, capture_output=True)
 
     if result.returncode != 0:
         logging.warning(f"FFMPEG audio load warning. Process return code was not zero: {result.returncode}")

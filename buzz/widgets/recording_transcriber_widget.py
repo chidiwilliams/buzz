@@ -263,6 +263,9 @@ class RecordingTranscriberWidget(QWidget):
         self.transcripts = []
         self.translations = []
 
+        self.transcription_text_box.clear()
+        self.translation_text_box.clear()
+
         if self.export_enabled:
             self.setup_for_export()
 

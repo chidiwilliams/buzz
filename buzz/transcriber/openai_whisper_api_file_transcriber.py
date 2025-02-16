@@ -1,6 +1,7 @@
 import logging
 import math
 import os
+import sys
 import subprocess
 import tempfile
 from typing import Optional, List
@@ -46,7 +47,13 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
             "-i", self.transcription_task.file_path, mp3_file
         ]
 
-        result = subprocess.run(cmd, capture_output=True)
+        if sys.platform == "win32":
+            si = subprocess.STARTUPINFO()
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            si.wShowWindow = subprocess.SW_HIDE
+            result = subprocess.run(cmd, capture_output=True, startupinfo=si)
+        else:
+            result = subprocess.run(cmd, capture_output=True)
 
         if result.returncode != 0:
             logging.warning(f"FFMPEG audio load warning. Process return code was not zero: {result.returncode}")
@@ -63,10 +70,20 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
             "-of", "default=noprint_wrappers=1:nokey=1",
             mp3_file,
         ]
+
         # fmt: on
-        duration_secs = float(
-            subprocess.run(cmd, capture_output=True, check=True).stdout.decode("utf-8")
-        )
+        if sys.platform == "win32":
+            si = subprocess.STARTUPINFO()
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            si.wShowWindow = subprocess.SW_HIDE
+
+            duration_secs = float(
+                subprocess.run(cmd, capture_output=True, check=True, startupinfo=si).stdout.decode("utf-8")
+            )
+        else:
+            duration_secs = float(
+                subprocess.run(cmd, capture_output=True, check=True).stdout.decode("utf-8")
+            )
 
         total_size = os.path.getsize(mp3_file)
         max_chunk_size = 25 * 1024 * 1024
@@ -99,7 +116,14 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
                 chunk_file,
             ]
             # fmt: on
-            subprocess.run(cmd, capture_output=True, check=True)
+            if sys.platform == "win32":
+                si = subprocess.STARTUPINFO()
+                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                si.wShowWindow = subprocess.SW_HIDE
+                subprocess.run(cmd, capture_output=True, check=True, startupinfo=si)
+            else:
+                subprocess.run(cmd, capture_output=True, check=True)
+
             logging.debug('Created chunk file "%s"', chunk_file)
 
             segments.extend(
