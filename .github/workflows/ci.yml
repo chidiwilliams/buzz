@@ -58,17 +58,8 @@ jobs:
             ~/AppData/Local/Buzz/Buzz/Cache
           key: whisper-models
 
-      - uses: AnimMouse/setup-ffmpeg@v1
+      - uses: AnimMouse/setup-ffmpeg@v1.2.0
         id: setup-ffmpeg
-        if: matrix.os != 'macos-13'
-
-      - uses: FedericoCarboni/setup-ffmpeg@v3.1
-        id: setup-ffmpeg-macos-13
-        if: matrix.os == 'macos-13'
-        with:
-          ffmpeg-version: release
-          architecture: 'x64'
-          github-token: ${{ github.server_url == 'https://github.com' && github.token || '' }}
 
       - name: Test ffmpeg
         run: ffmpeg -i ./testdata/audio-long.mp3 ./testdata/audio-long.wav
@@ -129,17 +120,8 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/poetry.lock') }}
 
-      - uses: AnimMouse/setup-ffmpeg@v1
+      - uses: AnimMouse/setup-ffmpeg@v1.2.0
         id: setup-ffmpeg
-        if: matrix.os != 'macos-13'
-
-      - uses: FedericoCarboni/setup-ffmpeg@v3.1
-        id: setup-ffmpeg-macos-13
-        if: matrix.os == 'macos-13'
-        with:
-          ffmpeg-version: release
-          architecture: 'x64'
-          github-token: ${{ github.server_url == 'https://github.com' && github.token || '' }}
 
       - name: Install dependencies
         run: poetry install
