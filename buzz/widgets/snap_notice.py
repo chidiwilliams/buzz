@@ -18,9 +18,7 @@ class SnapNotice(QDialog):
 
         self.text_edit = QTextEdit(self)
         self.text_edit.setPlainText(
-            "sudo snap connect buzz:audio-record\n"
             "sudo snap connect buzz:password-manager-service\n"
-            "sudo snap connect buzz:removable-media"
         )
         self.text_edit.setReadOnly(True)
         self.text_edit.setFixedHeight(80)

@@ -1,6 +1,5 @@
 import os
 import logging
-import sounddevice
 import keyring
 from typing import Tuple, List, Optional
 from uuid import UUID
@@ -155,18 +154,13 @@ class MainWindow(QMainWindow):
 
         self.transcription_viewer_widget = None
 
+        # TODO Move this to the first user interaction with OpenAI api Key field
+        #  that is the only place that needs access to password manager service
         if os.environ.get('SNAP_NAME', '') == 'buzz':
             logging.debug("Running in a snap environment")
             self.check_linux_permissions()
 
     def check_linux_permissions(self):
-        devices = sounddevice.query_devices()
-        input_devices = [device for device in devices if device['max_input_channels'] > 0]
-
-        if len(input_devices) == 0:
-            snap_notice = SnapNotice(self)
-            snap_notice.show()
-
         try:
             _ = keyring.get_password(APP_NAME, username="random")
         except Exception:
