@@ -61,13 +61,14 @@
     <release version="1.2.0" date="2024-11-24">
       <url type="details">https://github.com/chidiwilliams/buzz/releases/tag/v1.2.0</url>
       <description>
-        <p>Changes in 1.2.0</p>
-          <ul>
-            <li>Dark mode support</li>
-            <li>Improved support for GPUs and Apple Core ML</li>
-            <li>Sliding window mode for live transcriptions</li>
-            <li>Bugfixes and other small improvements</li>
-          </ul>
+        <p>Main improvements:</p>
+        <ul>
+          <li>Dark mode support</li>
+          <li>Improved support for GPUs and Apple Core ML</li>
+          <li>Added support for the Turbo models</li>
+          <li>Sliding window mode for live transcriptions</li>
+          <li>Bugfixes and other small improvements</li>
+        </ul>
       </description>
     </release>
   </releases>

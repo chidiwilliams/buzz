@@ -16,7 +16,7 @@ finish-args:
   - --socket=pulseaudio
   - --talk-name=org.freedesktop.secrets
   - --device=dri
-  # TODO switch to input when it is available
+  # TODO switch 'all' to input when it is widely available
   #- --device=input
   - --device=all
   - --share=network
@@ -46,7 +46,7 @@ modules:
     sources:
       - type: file
         dest-filename: buzz.snap
-        # Stable
+        # Stable 1.2.0
         url: https://api.snapcraft.io/api/v1/snaps/download/RSpCVxCNDwoTXHPXhlYQnziD0jQhVnKA_362.snap
         sha256: fbc045426c867b1d7ee01178d4f53d785c161709e2a9db6854cefec29aa510d7
         # Edge
