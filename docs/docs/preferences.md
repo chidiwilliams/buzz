@@ -93,8 +93,6 @@ Defaults to [user_cache_dir](https://pypi.org/project/platformdirs/).
 
 **BUZZ_FAVORITE_LANGUAGES** - Coma separated list of supported language codes to show on top of language list.
 
-**BUZZ_LOCALE** - Buzz UI locale to use. Defaults to one of supported system locales.
-
 **BUZZ_DOWNLOAD_COOKIEFILE** - Location of a [cookiefile](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp) to use for downloading private videos or as workaround for anti-bot protection.
 
 **BUZZ_FORCE_CPU** - Will force Buzz to use CPU and not GPU, useful for setups with older GPU if that is slower than GPU or GPU has issues. Example usage `BUZZ_FORCE_CPU=true`. Available since `1.2.1`

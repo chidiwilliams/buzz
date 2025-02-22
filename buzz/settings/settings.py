@@ -46,6 +46,8 @@ class Settings:
 
         FONT_SIZE = "font-size"
 
+        UI_LOCALE = "ui-locale"
+
         TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY = (
             "transcription-tasks-table/column-visibility"
         )
