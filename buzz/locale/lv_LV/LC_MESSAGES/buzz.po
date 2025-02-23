@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-09 08:48+0200\n"
-"PO-Revision-Date: 2025-01-09 08:49+0200\n"
+"POT-Creation-Date: 2025-02-22 23:16+0200\n"
+"PO-Revision-Date: 2025-02-22 23:44+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -30,7 +30,7 @@ msgstr "https://example.com/audio.mp3"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:69
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:245
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:97
-#: buzz/widgets/main_window.py:246
+#: buzz/widgets/main_window.py:240
 msgid "Ok"
 msgstr "Labi"
 
@@ -38,7 +38,7 @@ msgstr "Labi"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:70
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:246
 #: buzz/widgets/model_download_progress_dialog.py:29
-#: buzz/widgets/main_window.py:247
+#: buzz/widgets/main_window.py:241
 msgid "Cancel"
 msgstr "Atcelt"
 
@@ -58,52 +58,113 @@ msgstr "Jūsu ievadītā URL adrese nav derīga."
 msgid "Reset to Defaults"
 msgstr "Atjaunot noklusētos"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:52
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:35
+#: buzz/transcriber/transcriber.py:38
+msgid "English"
+msgstr "Angļu"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:36
+#: buzz/transcriber/transcriber.py:49
+msgid "Catalan"
+msgstr "Katalāņu"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:37
+#: buzz/transcriber/transcriber.py:64
+msgid "Danish"
+msgstr "Dāņu"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:38
+#: buzz/transcriber/transcriber.py:41
+msgid "Spanish"
+msgstr "Spāņu"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:39
+#: buzz/transcriber/transcriber.py:53
+msgid "Italian"
+msgstr "Itāļu"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:40
+#: buzz/transcriber/transcriber.py:45
+msgid "Japanese"
+msgstr "Japāņu"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:41
+#: buzz/transcriber/transcriber.py:80
+msgid "Latvian"
+msgstr "Latviešu"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:42
+#: buzz/transcriber/transcriber.py:48
+msgid "Polish"
+msgstr "Poļu"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:43
+#: buzz/transcriber/transcriber.py:59
+msgid "Ukrainian"
+msgstr "Ukraiņu"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:44
+msgid "Chinese (Simplified)"
+msgstr "Ķīniešu (vienkāršotā)"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:45
+msgid "Chinese (Traditional)"
+msgstr "Ķīniešu (tradicionālā)"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:83
+msgid "Restart required!"
+msgstr "Jāpārstartē!"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:87
+msgid "Ui Language"
+msgstr "Programmas valoda"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:103
 msgid "Font Size"
 msgstr "Fonta izmērs"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:61
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:112
 msgid "Test"
 msgstr "Pārbaudīt"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:67
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:118
 msgid "OpenAI API key"
 msgstr "OpenAI API atslēga"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:80
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:131
 msgid "OpenAI base url"
 msgstr "OpenAI adrese"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:89
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:140
 msgid "Default export file name"
 msgstr "Eksporta fails"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:95
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:146
 msgid "Enable live recording transcription export"
 msgstr "Eksportēt dzīvā ieraksta transkriptus"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:101
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:152
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:47
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:50
 msgid "Browse"
 msgstr "Izvēlēties"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:120
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:171
 msgid "Export folder"
 msgstr "Eksportēt mapē"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:131
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:182
 msgid "Live recording mode"
 msgstr ""
 "Dzīvā ieraksta\n"
 "režīms"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:156
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:162
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:207
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:213
 msgid "OpenAI API Key Test"
 msgstr "OpenAI API atslēgas pārbaude"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:157
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:208
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
@@ -111,11 +172,11 @@ msgstr ""
 "Jūsu API atslēga ir derīga. Buzz izmantos to runas atpazīšanai ar Whisper "
 "API un tulkošanai."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:178
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:224
 msgid "Invalid API key"
 msgstr "Nederīga API atslēga"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:179
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:225
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
@@ -123,11 +184,11 @@ msgstr ""
 "API atbalsta tikai base64 simbolus (A-Za-z0-9+/=_-). Citi simboli API "
 "atslēgā var radīt kļūdas."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:197
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:243
 msgid "Select Export Folder"
 msgstr "Izvēlieties mapi kurā eksportēt"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:249
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:303
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
@@ -222,7 +283,7 @@ msgid "Download failed"
 msgstr "Lejupielāde neizdevās"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:269
-#: buzz/widgets/main_window.py:303 buzz/model_loader.py:503
+#: buzz/widgets/main_window.py:297 buzz/model_loader.py:499
 msgid "Error"
 msgstr "Kļūda"
 
@@ -346,7 +407,7 @@ msgstr "Atvērt transkriptu"
 msgid "Cancel Transcription"
 msgstr "Atcelt atpazīšanu"
 
-#: buzz/widgets/main_window_toolbar.py:71 buzz/widgets/main_window.py:235
+#: buzz/widgets/main_window_toolbar.py:71 buzz/widgets/main_window.py:229
 #: buzz/settings/shortcut.py:26
 msgid "Clear History"
 msgstr "Notīrīt vēsturi"
@@ -411,11 +472,11 @@ msgstr "Gaida MI tulkojumu..."
 msgid "Microphone:"
 msgstr "Mikrofons:"
 
-#: buzz/widgets/recording_transcriber_widget.py:523
+#: buzz/widgets/recording_transcriber_widget.py:526
 msgid "An error occurred while starting a new recording:"
 msgstr "Sākot jaunu ierakstu notikusi kļūda:"
 
-#: buzz/widgets/recording_transcriber_widget.py:527
+#: buzz/widgets/recording_transcriber_widget.py:530
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
@@ -535,7 +596,7 @@ msgid ""
 "To enable necessary permissions run the following commands in the terminal"
 msgstr "Lai piešķirtu nepieciešamās atļaujas izpildiet šīs komandas"
 
-#: buzz/widgets/snap_notice.py:30
+#: buzz/widgets/snap_notice.py:27
 msgid "Close"
 msgstr "Aizvērt"
 
@@ -571,7 +632,7 @@ msgstr "Palīdzība"
 msgid "File"
 msgstr "Fails"
 
-#: buzz/widgets/main_window.py:239
+#: buzz/widgets/main_window.py:233
 msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
@@ -579,11 +640,11 @@ msgstr ""
 "Vai tiešām vēlaties dzēst izvēlētos transkriptus? Šī ir neatgriezeniska "
 "darbība."
 
-#: buzz/widgets/main_window.py:267
+#: buzz/widgets/main_window.py:261
 msgid "Select audio file"
 msgstr "Izvēlieties audio failu"
 
-#: buzz/widgets/main_window.py:303
+#: buzz/widgets/main_window.py:297
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "Neizdevās saglabāt OpenAI API atslēgu atslēgu saišķī"
 
@@ -591,7 +652,371 @@ msgstr "Neizdevās saglabāt OpenAI API atslēgu atslēgu saišķī"
 msgid "Transcribe"
 msgstr "Atpazīt"
 
-#: buzz/model_loader.py:532
+#: buzz/transcriber/transcriber.py:39
+msgid "Chinese"
+msgstr "Ķīniešu"
+
+#: buzz/transcriber/transcriber.py:40
+msgid "German"
+msgstr "Vācu"
+
+#: buzz/transcriber/transcriber.py:42
+msgid "Russian"
+msgstr "Krievu"
+
+#: buzz/transcriber/transcriber.py:43
+msgid "Korean"
+msgstr "Korejiešu"
+
+#: buzz/transcriber/transcriber.py:44
+msgid "French"
+msgstr "Franču"
+
+#: buzz/transcriber/transcriber.py:46
+msgid "Portuguese"
+msgstr "Portugāļu"
+
+#: buzz/transcriber/transcriber.py:47
+msgid "Turkish"
+msgstr "Turku"
+
+#: buzz/transcriber/transcriber.py:50
+msgid "Dutch"
+msgstr "Holandiešu"
+
+#: buzz/transcriber/transcriber.py:51
+msgid "Arabic"
+msgstr "Arābu"
+
+#: buzz/transcriber/transcriber.py:52
+msgid "Swedish"
+msgstr "Zviedru"
+
+#: buzz/transcriber/transcriber.py:54
+msgid "Indonesian"
+msgstr "Indonēziešu"
+
+#: buzz/transcriber/transcriber.py:55
+msgid "Hindi"
+msgstr "Hindi"
+
+#: buzz/transcriber/transcriber.py:56
+msgid "Finnish"
+msgstr "Somu"
+
+#: buzz/transcriber/transcriber.py:57
+msgid "Vietnamese"
+msgstr "Vjetnamiešu"
+
+#: buzz/transcriber/transcriber.py:58
+msgid "Hebrew"
+msgstr "Ebreju"
+
+#: buzz/transcriber/transcriber.py:60
+msgid "Greek"
+msgstr "Grieķu"
+
+#: buzz/transcriber/transcriber.py:61
+msgid "Malay"
+msgstr "Malajiešu"
+
+#: buzz/transcriber/transcriber.py:62
+msgid "Czech"
+msgstr "Čehu"
+
+#: buzz/transcriber/transcriber.py:63
+msgid "Romanian"
+msgstr "Rumāņu"
+
+#: buzz/transcriber/transcriber.py:65
+msgid "Hungarian"
+msgstr "Ungāru"
+
+#: buzz/transcriber/transcriber.py:66
+msgid "Tamil"
+msgstr "Tamilu"
+
+#: buzz/transcriber/transcriber.py:67
+msgid "Norwegian"
+msgstr "Norvēģu"
+
+#: buzz/transcriber/transcriber.py:68
+msgid "Thai"
+msgstr "Taju"
+
+#: buzz/transcriber/transcriber.py:69
+msgid "Urdu"
+msgstr "Urdu"
+
+#: buzz/transcriber/transcriber.py:70
+msgid "Croatian"
+msgstr "Horvātu"
+
+#: buzz/transcriber/transcriber.py:71
+msgid "Bulgarian"
+msgstr "Bulgāru"
+
+#: buzz/transcriber/transcriber.py:72
+msgid "Lithuanian"
+msgstr "Lietuviešu"
+
+#: buzz/transcriber/transcriber.py:73
+msgid "Latin"
+msgstr "Latīņu"
+
+#: buzz/transcriber/transcriber.py:74
+msgid "Maori"
+msgstr "Maori"
+
+#: buzz/transcriber/transcriber.py:75
+msgid "Malayalam"
+msgstr "Malajalu"
+
+#: buzz/transcriber/transcriber.py:76
+msgid "Welsh"
+msgstr "Velsiešu"
+
+#: buzz/transcriber/transcriber.py:77
+msgid "Slovak"
+msgstr "Slovāku"
+
+#: buzz/transcriber/transcriber.py:78
+msgid "Telugu"
+msgstr "Telugu"
+
+#: buzz/transcriber/transcriber.py:79
+msgid "Persian"
+msgstr "Persiešu"
+
+#: buzz/transcriber/transcriber.py:81
+msgid "Bengali"
+msgstr "Bengāļu"
+
+#: buzz/transcriber/transcriber.py:82
+msgid "Serbian"
+msgstr "Serbu"
+
+#: buzz/transcriber/transcriber.py:83
+msgid "Azerbaijani"
+msgstr "Azerbaidžāņu"
+
+#: buzz/transcriber/transcriber.py:84
+msgid "Slovenian"
+msgstr "Slovēņu"
+
+#: buzz/transcriber/transcriber.py:85
+msgid "Kannada"
+msgstr "Kannada"
+
+#: buzz/transcriber/transcriber.py:86
+msgid "Estonian"
+msgstr "Igauņu"
+
+#: buzz/transcriber/transcriber.py:87
+msgid "Macedonian"
+msgstr "Maķedoniešu"
+
+#: buzz/transcriber/transcriber.py:88
+msgid "Breton"
+msgstr "Bretoņu"
+
+#: buzz/transcriber/transcriber.py:89
+msgid "Basque"
+msgstr "Basku"
+
+#: buzz/transcriber/transcriber.py:90
+msgid "Icelandic"
+msgstr "Islandiešu"
+
+#: buzz/transcriber/transcriber.py:91
+msgid "Armenian"
+msgstr "Armēņu"
+
+#: buzz/transcriber/transcriber.py:92
+msgid "Nepali"
+msgstr "Nepāliešu"
+
+#: buzz/transcriber/transcriber.py:93
+msgid "Mongolian"
+msgstr "Mongoļu"
+
+#: buzz/transcriber/transcriber.py:94
+msgid "Bosnian"
+msgstr "Bosniešu"
+
+#: buzz/transcriber/transcriber.py:95
+msgid "Kazakh"
+msgstr "Kazahu"
+
+#: buzz/transcriber/transcriber.py:96
+msgid "Albanian"
+msgstr "Albaņu"
+
+#: buzz/transcriber/transcriber.py:97
+msgid "Swahili"
+msgstr "Svahili"
+
+#: buzz/transcriber/transcriber.py:98
+msgid "Galician"
+msgstr "Galisiešu"
+
+#: buzz/transcriber/transcriber.py:99
+msgid "Marathi"
+msgstr "Maratu"
+
+#: buzz/transcriber/transcriber.py:100
+msgid "Punjabi"
+msgstr "Pandžabu"
+
+#: buzz/transcriber/transcriber.py:101
+msgid "Sinhala"
+msgstr "Singalu"
+
+#: buzz/transcriber/transcriber.py:102
+msgid "Khmer"
+msgstr "Khmeru"
+
+#: buzz/transcriber/transcriber.py:103
+msgid "Shona"
+msgstr "Shona"
+
+#: buzz/transcriber/transcriber.py:104
+msgid "Yoruba"
+msgstr "Joruba"
+
+#: buzz/transcriber/transcriber.py:105
+msgid "Somali"
+msgstr "Somāliešu"
+
+#: buzz/transcriber/transcriber.py:106
+msgid "Afrikaans"
+msgstr "Afrikāņu"
+
+#: buzz/transcriber/transcriber.py:107
+msgid "Occitan"
+msgstr "Okitāņu"
+
+#: buzz/transcriber/transcriber.py:108
+msgid "Georgian"
+msgstr "Gruzīnu"
+
+#: buzz/transcriber/transcriber.py:109
+msgid "Belarusian"
+msgstr "Baltkrievu"
+
+#: buzz/transcriber/transcriber.py:110
+msgid "Tajik"
+msgstr "Tadžiku"
+
+#: buzz/transcriber/transcriber.py:111
+msgid "Sindhi"
+msgstr "Sindhu"
+
+#: buzz/transcriber/transcriber.py:112
+msgid "Gujarati"
+msgstr "Gudžaratu"
+
+#: buzz/transcriber/transcriber.py:113
+msgid "Amharic"
+msgstr "Amharu"
+
+#: buzz/transcriber/transcriber.py:114
+msgid "Yiddish"
+msgstr "Jidiša"
+
+#: buzz/transcriber/transcriber.py:115
+msgid "Lao"
+msgstr "Laosiešu"
+
+#: buzz/transcriber/transcriber.py:116
+msgid "Uzbek"
+msgstr "Uzbeku"
+
+#: buzz/transcriber/transcriber.py:117
+msgid "Faroese"
+msgstr "Fēru"
+
+#: buzz/transcriber/transcriber.py:118
+msgid "Haitian Creole"
+msgstr "Haiti kreoliešu"
+
+#: buzz/transcriber/transcriber.py:119
+msgid "Pashto"
+msgstr "Puštu"
+
+#: buzz/transcriber/transcriber.py:120
+msgid "Turkmen"
+msgstr "Turkmēņu"
+
+#: buzz/transcriber/transcriber.py:121
+msgid "Nynorsk"
+msgstr "Nynorsk"
+
+#: buzz/transcriber/transcriber.py:122
+msgid "Maltese"
+msgstr "Maltiešu"
+
+#: buzz/transcriber/transcriber.py:123
+msgid "Sanskrit"
+msgstr "Sanskrita"
+
+#: buzz/transcriber/transcriber.py:124
+msgid "Luxembourgish"
+msgstr "Luksemburgu"
+
+#: buzz/transcriber/transcriber.py:125
+msgid "Myanmar"
+msgstr "Mjanmas"
+
+#: buzz/transcriber/transcriber.py:126
+msgid "Tibetan"
+msgstr "Tibetiešu"
+
+#: buzz/transcriber/transcriber.py:127
+msgid "Tagalog"
+msgstr "Tagalogu"
+
+#: buzz/transcriber/transcriber.py:128
+msgid "Malagasy"
+msgstr "Malagasu"
+
+#: buzz/transcriber/transcriber.py:129
+msgid "Assamese"
+msgstr "Asamiešu"
+
+#: buzz/transcriber/transcriber.py:130
+msgid "Tatar"
+msgstr "Tatāru"
+
+#: buzz/transcriber/transcriber.py:131
+msgid "Hawaiian"
+msgstr "Havajiešu"
+
+#: buzz/transcriber/transcriber.py:132
+msgid "Lingala"
+msgstr "Lingalu"
+
+#: buzz/transcriber/transcriber.py:133
+msgid "Hausa"
+msgstr "Hausu"
+
+#: buzz/transcriber/transcriber.py:134
+msgid "Bashkir"
+msgstr "Baškīru"
+
+#: buzz/transcriber/transcriber.py:135
+msgid "Javanese"
+msgstr "Japāņu"
+
+#: buzz/transcriber/transcriber.py:136
+msgid "Sundanese"
+msgstr "Sundāņu"
+
+#: buzz/transcriber/transcriber.py:137
+msgid "Cantonese"
+msgstr "Kantonas"
+
+#: buzz/model_loader.py:528
 msgid "A connection error occurred"
 msgstr "Notika savienojuma kļūda"
 

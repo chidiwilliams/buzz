@@ -85,8 +85,6 @@ set SOME_OTHER_VARIABLE=some_other_value
 
 **BUZZ_FAVORITE_LANGUAGES** - 以逗号分隔的支持语言代码列表，显示在语言列表顶部。
 
-**BUZZ_LOCALE** - Buzz 用户界面使用的语言环境。默认为系统支持的语言环境之一。
-
 **BUZZ_DOWNLOAD_COOKIEFILE** - 用于下载私有视频或绕过反机器人保护的 [cookiefile](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp) 的位置。
 
 **BUZZ_FORCE_CPU** - 强制 Buzz 使用 CPU 而不是 GPU，适用于旧 GPU 较慢或 GPU 有问题的设置。示例用法：`BUZZ_FORCE_CPU=true`。自 `1.2.1` 版本起可用。

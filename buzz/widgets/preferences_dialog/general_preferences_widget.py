@@ -4,7 +4,7 @@ import requests
 from typing import Optional
 from platformdirs import user_documents_dir
 
-from PyQt6.QtCore import QRunnable, QObject, pyqtSignal, QThreadPool
+from PyQt6.QtCore import QRunnable, QObject, pyqtSignal, QThreadPool, QLocale
 from PyQt6.QtWidgets import (
     QWidget,
     QFormLayout,
@@ -15,7 +15,10 @@ from PyQt6.QtWidgets import (
     QFileDialog,
     QSpinBox,
     QComboBox,
+    QLabel,
+    QSizePolicy,
 )
+from PyQt6.QtGui import QIcon
 from openai import AuthenticationError, OpenAI
 
 from buzz.settings.settings import Settings
@@ -23,9 +26,24 @@ from buzz.store.keyring_store import get_password, Key
 from buzz.widgets.line_edit import LineEdit
 from buzz.widgets.openai_api_key_line_edit import OpenAIAPIKeyLineEdit
 from buzz.locale import _
+from buzz.widgets.icon import INFO_ICON_PATH
 from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
 
 BASE64_PATTERN = re.compile(r'^[A-Za-z0-9+/=_-]*$')
+
+ui_locales = {
+    "en_US": _("English"),
+    "ca_ES": _("Catalan"),
+    "da_DK": _("Danish"),
+    "es_ES": _("Spanish"),
+    "it_IT": _("Italian"),
+    "ja_JP": _("Japanese"),
+    "lv_LV": _("Latvian"),
+    "pl_PL": _("Polish"),
+    "uk_UA": _("Ukrainian"),
+    "zh_CN": _("Chinese (Simplified)"),
+    "zh_TW": _("Chinese (Traditional)")
+}
 
 
 class GeneralPreferencesWidget(QWidget):
@@ -42,6 +60,31 @@ class GeneralPreferencesWidget(QWidget):
         self.openai_api_key = get_password(Key.OPENAI_API_KEY)
 
         layout = QFormLayout(self)
+
+        self.ui_language_combo_box = QComboBox(self)
+        self.ui_language_combo_box.addItems(ui_locales.values())
+        system_locale = self.settings.value(Settings.Key.UI_LOCALE, QLocale().name())
+        locale_index = 0
+        for i, (code, language) in enumerate(ui_locales.items()):
+            if code == system_locale:
+                locale_index = i
+                break
+        self.ui_language_combo_box.setCurrentIndex(locale_index)
+        self.ui_language_combo_box.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.ui_language_combo_box.currentIndexChanged.connect(self.on_language_changed)
+
+        self.ui_locale_layout = QHBoxLayout()
+        self.ui_locale_layout.setContentsMargins(0, 0, 0, 0)
+        self.ui_locale_layout.setSpacing(0)
+        self.ui_locale_layout.addWidget(self.ui_language_combo_box)
+
+        self.load_note_tooltip_icon = QLabel()
+        self.load_note_tooltip_icon.setPixmap(QIcon(INFO_ICON_PATH).pixmap(23, 23))
+        self.load_note_tooltip_icon.setToolTip(_("Restart required!"))
+        self.load_note_tooltip_icon.setVisible(False)
+        self.ui_locale_layout.addWidget(self.load_note_tooltip_icon)
+
+        layout.addRow(_("Ui Language"), self.ui_locale_layout)
 
         self.font_size_spin_box = QSpinBox(self)
         self.font_size_spin_box.setMinimum(8)
@@ -198,6 +241,14 @@ class GeneralPreferencesWidget(QWidget):
             Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FOLDER,
             folder,
         )
+
+    def on_language_changed(self, index):
+        selected_language = self.ui_language_combo_box.itemText(index)
+        locale_code = next((code for code, lang in ui_locales.items() if lang == selected_language), "en_US")
+
+        self.load_note_tooltip_icon.setVisible(True)
+
+        self.settings.set_value(Settings.Key.UI_LOCALE, locale_code)
 
     def on_font_size_changed(self, value):
         from buzz.widgets.application import Application
