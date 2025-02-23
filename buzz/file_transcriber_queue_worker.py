@@ -56,20 +56,25 @@ class FileTranscriberQueueWorker(QObject):
             break
 
         if self.current_task.transcription_options.extract_speech:
+            logging.debug("Will extract speech")
+
             def separator_progress_callback(progress):
                 self.task_progress.emit(self.current_task, int(progress["segment_offset"] * 100) / int(progress["audio_length"] * 100))
 
-            separator = demucs.api.Separator(
-                progress=True,
-                callback=separator_progress_callback,
-            )
-            _, separated = separator.separate_audio_file(Path(self.current_task.file_path))
+            try:
+                separator = demucs.api.Separator(
+                    progress=True,
+                    callback=separator_progress_callback,
+                )
+                _, separated = separator.separate_audio_file(Path(self.current_task.file_path))
 
-            task_file_path = Path(self.current_task.file_path)
-            speech_path = task_file_path.with_name(f"{task_file_path.stem}_speech.flac")
-            demucs.api.save_audio(separated["vocals"], speech_path, samplerate=separator.samplerate)
+                task_file_path = Path(self.current_task.file_path)
+                speech_path = task_file_path.with_name(f"{task_file_path.stem}_speech.flac")
+                demucs.api.save_audio(separated["vocals"], speech_path, samplerate=separator.samplerate)
 
-            self.current_task.file_path = str(speech_path)
+                self.current_task.file_path = str(speech_path)
+            except Exception as e:
+                logging.error(f"Error during speech extraction: {e}")
 
         logging.debug("Starting next transcription task")
 
