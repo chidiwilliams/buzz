@@ -2,6 +2,7 @@
 omit =
   buzz/whisper_cpp.py
   *_test.py
+  demucs/*
 
 [html]
 directory = coverage/html

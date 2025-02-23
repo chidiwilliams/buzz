@@ -1,0 +1,8 @@
+# @package _global_
+
+# Musdb + extra tracks
+dset:
+  wav: /checkpoint/defossez/datasets/allstems_44/
+  samplerate: 44100
+  channels: 2
+epochs: 320

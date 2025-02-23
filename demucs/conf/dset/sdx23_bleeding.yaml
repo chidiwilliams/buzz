@@ -1,0 +1,10 @@
+# @package _global_
+
+# Musdb + extra tracks
+dset:
+  wav: /shared/home/defossez/data/datasets/moisesdb23_bleeding_v1.0/
+  use_musdb: false
+  samplerate: 44100
+  channels: 2
+  backend: soundfile   # must use soundfile as some mixture would clip with sox.
+epochs: 320
