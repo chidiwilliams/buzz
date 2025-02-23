@@ -32,8 +32,8 @@ class TestPreferencesDialog:
 
     def test_create_localized(self, qtbot: QtBot, shortcuts, mocker):
         mocker.patch(
-            "PyQt6.QtCore.QLocale.uiLanguages",
-            return_value=['lv_LV'],
+            "PyQt6.QtCore.QLocale.name",
+            return_value='lv_LV',
         )
 
         # Reload the module after the patch

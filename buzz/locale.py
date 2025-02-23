@@ -11,11 +11,10 @@ locale_dir = get_path("locale")
 gettext.bindtextdomain("buzz", locale_dir)
 
 settings = Settings()
+
 languages = [
     settings.value(settings.Key.UI_LOCALE, QLocale().name())
-] + QLocale().uiLanguages()
-
-logging.debug(f"UI locales {languages}")
+]
 
 translate = gettext.translation(
     APP_NAME.lower(), locale_dir, languages=languages, fallback=True
