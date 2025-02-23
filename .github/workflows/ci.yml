@@ -22,9 +22,8 @@ jobs:
           - os: macos-13
           - os: macos-latest
           - os: windows-latest
-          - os: ubuntu-20.04
           - os: ubuntu-22.04
-          - os: ubuntu-24.04
+          - os: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
