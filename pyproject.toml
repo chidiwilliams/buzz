@@ -84,6 +84,7 @@ submitit = "^1.5.2"
 tqdm = "^4.67.1"
 treetable = "^0.2.5"
 soundfile = "^0.13.1"
+demucs = {path = "demucs"}
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"

@@ -1,0 +1,12 @@
+# @package _global_
+
+# Musdb + extra tracks
+dset:
+  wav: /checkpoint/defossez/datasets/allstems_44/
+  wav2: /checkpoint/defossez/datasets/mmi44_goodclean
+  samplerate: 44100
+  channels: 2
+  wav2_weight: null
+  wav2_valid: false
+  valid_samples: 100
+epochs: 1200

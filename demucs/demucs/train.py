@@ -15,6 +15,7 @@ from dora import hydra_main
 import hydra
 from hydra.core.global_hydra import GlobalHydra
 from omegaconf import OmegaConf
+from . import audio_legacy
 import torch
 from torch import nn
 import torchaudio

@@ -7,7 +7,8 @@ from uuid import UUID
 
 from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 
-from buzz.demucs import api as demucsApi
+from demucs import api as demucsApi
+
 from buzz.model_loader import ModelType
 from buzz.transcriber.file_transcriber import FileTranscriber
 from buzz.transcriber.openai_whisper_api_file_transcriber import (
@@ -62,6 +63,7 @@ class FileTranscriberQueueWorker(QObject):
                 self.task_progress.emit(self.current_task, int(progress["segment_offset"] * 100) / int(progress["audio_length"] * 100))
 
             try:
+                # This will fail on Windows 10 and Mac with SSL cert error
                 separator = demucsApi.Separator(
                     progress=True,
                     callback=separator_progress_callback,
@@ -70,11 +72,11 @@ class FileTranscriberQueueWorker(QObject):
 
                 task_file_path = Path(self.current_task.file_path)
                 speech_path = task_file_path.with_name(f"{task_file_path.stem}_speech.flac")
-                demucsApi.save_audio(separated["vocals"], speech_path, samplerate=separator.samplerate)
+                demucsApi.save_audio(separated["vocals"], speech_path, separator.samplerate)
 
                 self.current_task.file_path = str(speech_path)
             except Exception as e:
-                logging.error(f"Error during speech extraction: {e}")
+                logging.error(f"Error during speech extraction: {e}", exc_info=True)
 
         logging.debug("Starting next transcription task")
 

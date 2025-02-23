@@ -9,6 +9,7 @@ import random
 import subprocess as sp
 import tempfile
 
+from . import audio_legacy
 import torch
 import torchaudio as ta
 

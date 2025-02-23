@@ -963,6 +963,35 @@ marshmallow = ">=3.18.0,<4.0.0"
 typing-inspect = ">=0.4.0,<1"
 
 [[package]]
+name = "demucs"
+version = "4.1.0a3"
+description = "Music source separation in the waveform domain."
+optional = false
+python-versions = ">=3.8.0"
+groups = ["main"]
+markers = "(sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\") and (python_version <= \"3.11\" or python_version >= \"3.12\")"
+files = []
+develop = false
+
+[package.dependencies]
+dora-search = "*"
+einops = "*"
+julius = ">=0.2.3"
+lameenc = ">=1.2"
+openunmix = "*"
+pyyaml = "*"
+torch = ">=1.8.1"
+torchaudio = ">=0.8,<2.3.1"
+tqdm = "*"
+
+[package.extras]
+dev = ["diffq (>=0.2.1)", "dora-search (>=0.1.12)", "einops", "flake8", "hydra-colorlog (>=1.1)", "hydra-core (>=1.1)", "julius (>=0.2.3)", "lameenc (>=1.2)", "museval", "mypy", "openunmix", "pyyaml", "soundfile (>=0.10.3)", "submitit", "torch (>=1.8.1)", "torchaudio (>=0.8,<2.3.1)", "tqdm", "treetable"]
+
+[package.source]
+type = "directory"
+url = "demucs"
+
+[[package]]
 name = "diffq"
 version = "0.2.4"
 description = "Differentiable quantization framework for PyTorch."
@@ -5044,4 +5073,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<3.13"
-content-hash = "8001d26d710fc33b1116040055aee22cd8f7c6ca8c8c8720b4600a98a4860a68"
+content-hash = "9dda865e501977f181c2e4926e9cfbacfe007fd4443000c2b8cd1b3c07d32b96"

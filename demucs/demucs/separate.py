@@ -41,7 +41,13 @@ def get_parser():
                         'Default is "{track}/{stem}.{ext}".')
     parser.add_argument("-d",
                         "--device",
-                        default="cuda" if th.cuda.is_available() else "cpu",
+                        default=(
+                            "cuda"
+                            if th.cuda.is_available()
+                            else "mps"
+                            if th.backends.mps.is_available()
+                            else "cpu"
+                        ),
                         help="Device to use, default is cuda if available else cpu")
     parser.add_argument("--shifts",
                         default=1,

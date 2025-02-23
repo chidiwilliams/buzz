@@ -51,7 +51,7 @@ class BagOfModels(nn.Module):
             assert other.samplerate == first.samplerate
             assert other.audio_channels == first.audio_channels
             if segment is not None:
-                if not isinstance(other, HTDemucs) and segment > other.segment:
+                if not isinstance(other, HTDemucs) or segment <= other.segment:
                     other.segment = segment
 
         self.audio_channels = first.audio_channels

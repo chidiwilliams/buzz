@@ -15,6 +15,7 @@ import tqdm
 
 import musdb
 import julius
+from . import audio_legacy
 import torch as th
 from torch import distributed
 import torchaudio as ta
