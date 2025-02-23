@@ -67,6 +67,23 @@ torchaudio = [
     {version = "2.2.1+cu121", source = "torch", markers = "sys_platform == 'win32' or sys_platform == 'msys'"},
 ]
 darkdetect = "^0.8.0"
+# requirements for demucs
+dora-search = "^0.1.12"
+diffq = "^0.2.4"
+einops = "^0.8.1"
+flake8 = "^7.1.2"
+hydra-colorlog = "^1.2.0"
+hydra-core = "^1.3.2"
+julius = "^0.2.7"
+lameenc = "^1.8.1"
+museval = "^0.4.1"
+mypy = "^1.15.0"
+openunmix = "^1.3.0"
+pyyaml = "^6.0.2"
+submitit = "^1.5.2"
+tqdm = "^4.67.1"
+treetable = "^0.2.5"
+soundfile = "^0.13.1"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
