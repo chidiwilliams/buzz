@@ -1,5 +1,7 @@
 # Demucs Music Source Separation
 
+Repo: https://github.com/adefossez/demucs
+
 ![tests badge](https://github.com/facebookresearch/demucs/workflows/tests/badge.svg)
 ![linter badge](https://github.com/facebookresearch/demucs/workflows/linter/badge.svg)
 
