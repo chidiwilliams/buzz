@@ -1,7 +1,7 @@
 [run]
 omit =
   buzz/whisper_cpp.py
-  buzz/demucs/*
+  demucs/*
   *_test.py
 
 [html]
