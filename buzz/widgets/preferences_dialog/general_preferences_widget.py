@@ -86,14 +86,6 @@ class GeneralPreferencesWidget(QWidget):
 
         layout.addRow(_("Ui Language"), self.ui_locale_layout)
 
-
-
-
-        logging.debug(f"LATVIAN TRANSLATION: {_("Latvian")}")
-
-
-
-
         self.font_size_spin_box = QSpinBox(self)
         self.font_size_spin_box.setMinimum(8)
         self.font_size_spin_box.setMaximum(32)
