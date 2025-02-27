@@ -48,7 +48,7 @@ endif
 COVERAGE_THRESHOLD := 75
 
 test: buzz/whisper_cpp.py translation_mo
-	pytest -s -vv --cov=buzz --cov-report=xml --cov-report=html --benchmark-skip --cov-fail-under=${COVERAGE_THRESHOLD}
+	pytest -s -vv --cov=buzz --cov-report=xml --cov-report=html --benchmark-skip --cov-fail-under=${COVERAGE_THRESHOLD} --cov-config=.coveragerc
 
 benchmarks: buzz/whisper_cpp.py translation_mo
 	pytest -s -vv --benchmark-only --benchmark-json benchmarks.json

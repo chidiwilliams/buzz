@@ -1,0 +1,14 @@
+# @package _global_
+
+svd:
+  penalty: 0
+  min_size: 1
+  dim: 100
+  niters: 4
+  powm: false
+  proba: 1
+  conv_only: false
+  convtr: true
+
+optim:
+  beta2: 0.9998

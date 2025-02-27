@@ -9,8 +9,10 @@ from buzz.__version__ import VERSION
 
 datas = []
 datas += collect_data_files("torch")
+datas += collect_data_files("demucs")
 datas += copy_metadata("tqdm")
 datas += copy_metadata("torch")
+datas += copy_metadata("demucs")
 datas += copy_metadata("regex")
 datas += copy_metadata("requests")
 datas += copy_metadata("packaging")
@@ -26,6 +28,7 @@ datas += copy_metadata("pyyaml")
 datas += collect_data_files("transformers", include_py_files=True)
 
 datas += collect_data_files("whisper")
+datas += [("demucs", "demucs")]
 datas += [("buzz/assets/*", "assets")]
 datas += [("buzz/locale", "locale")]
 datas += [("buzz/schema.sql", ".")]
