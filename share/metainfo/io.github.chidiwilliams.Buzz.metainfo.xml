@@ -34,23 +34,23 @@
   <launchable type="desktop-id">io.github.chidiwilliams.Buzz.desktop</launchable>
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/chidiwilliams/buzz/09519db946f900607945cd238ae668b42b2354b9/share/screenshots/buzz-1-import.png</image>
+      <image>https://raw.githubusercontent.com/chidiwilliams/buzz/8a8588213ff84c80677e5227756f21b9b32669d6/share/screenshots/buzz-1-import.png</image>
       <caption>File and url import options</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/chidiwilliams/buzz/09519db946f900607945cd238ae668b42b2354b9/share/screenshots/buzz-2-main_screen.png</image>
+      <image>https://raw.githubusercontent.com/chidiwilliams/buzz/8a8588213ff84c80677e5227756f21b9b32669d6/share/screenshots/buzz-2-main_screen.png</image>
       <caption>Main screen with transcription results</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/chidiwilliams/buzz/09519db946f900607945cd238ae668b42b2354b9/share/screenshots/buzz-3-preferences.png</image>
+      <image>https://raw.githubusercontent.com/chidiwilliams/buzz/8a8588213ff84c80677e5227756f21b9b32669d6/share/screenshots/buzz-3-preferences.png</image>
       <caption>Application preferences</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/chidiwilliams/buzz/09519db946f900607945cd238ae668b42b2354b9/share/screenshots/buzz-4-transcript.png</image>
+      <image>https://raw.githubusercontent.com/chidiwilliams/buzz/8a8588213ff84c80677e5227756f21b9b32669d6/share/screenshots/buzz-4-transcript.png</image>
       <caption>Transcript with options for further processing and export</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/chidiwilliams/buzz/09519db946f900607945cd238ae668b42b2354b9/share/screenshots/buzz-5-live_recording.png</image>
+      <image>https://raw.githubusercontent.com/chidiwilliams/buzz/8a8588213ff84c80677e5227756f21b9b32669d6/share/screenshots/buzz-5-live_recording.png</image>
       <caption>Live recording transcription and translation options</caption>
     </screenshot>
   </screenshots>
