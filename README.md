@@ -51,6 +51,14 @@ App is not signed, you will get a warning when you install it. Select `More info
 
 **Linux**:
 
+Buzz is available as a [Flatpak](https://flathub.org/apps/io.github.chidiwilliams.Buzz) or a [Snap](https://snapcraft.io/buzz). 
+
+To install flatpak, run:
+```shell
+flatpak install flathub io.github.chidiwilliams.Buzz
+```
+
+To install snap, run:
 ```shell
 sudo apt-get install libportaudio2 libcanberra-gtk-module libcanberra-gtk3-module
 sudo snap install buzz
@@ -63,8 +71,10 @@ For info on how to get latest development version with latest features and bug f
 
 ### Screenshots
 
-<img alt="File import" src="share/screenshots/buzz-1-import.png" width="18%"/>
-<img alt="Main screen" src="share/screenshots/buzz-2-main_screen.png" width="18%"/>
-<img alt="Preferences" src="share/screenshots/buzz-3-preferences.png" width="18%"/>
-<img alt="Transcript" src="share/screenshots/buzz-4-transcript.png" width="18%"/>
-<img alt="Live recording" src="share/screenshots/buzz-5-live_recording.png" width="18%"/>
+<div style="display: flex; flex-wrap: wrap;">
+    <img alt="File import" src="share/screenshots/buzz-1-import.png" style="max-width: 18%; margin-right: 1%;" />
+    <img alt="Main screen" src="share/screenshots/buzz-2-main_screen.png" style="max-width: 18%; margin-right: 1%; height:auto;" />
+    <img alt="Preferences" src="share/screenshots/buzz-3-preferences.png" style="max-width: 18%; margin-right: 1%; height:auto;" />
+    <img alt="Transcript" src="share/screenshots/buzz-4-transcript.png" style="max-width: 18%; margin-right: 1%; height:auto;" />
+    <img alt="Live recording" src="share/screenshots/buzz-5-live_recording.png" style="max-width: 18%;" />
+</div>
