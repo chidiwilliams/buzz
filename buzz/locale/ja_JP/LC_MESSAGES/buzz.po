@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-22 23:16+0200\n"
+"POT-Creation-Date: 2025-03-04 20:44+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: nunawa <71294849+nunawa@users.noreply.github.com>\n"
 "Language-Team: \n"
@@ -115,51 +115,51 @@ msgstr ""
 msgid "Ui Language"
 msgstr "言語:"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:103
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:95
 msgid "Font Size"
 msgstr "フォントサイズ"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:112
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:104
 msgid "Test"
 msgstr "テスト"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:118
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:110
 msgid "OpenAI API key"
 msgstr "OpenAI APIキー"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:131
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:123
 msgid "OpenAI base url"
 msgstr "OpenAI ベースURL"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:140
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:132
 msgid "Default export file name"
 msgstr "デフォルトの出力ファイル名"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:146
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:138
 msgid "Enable live recording transcription export"
 msgstr "ライブ録音書き起こしの出力を有効にする"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:152
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:144
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:47
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:50
 msgid "Browse"
 msgstr "参照"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:171
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:163
 msgid "Export folder"
 msgstr "出力フォルダ"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:182
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:174
 #, fuzzy
 msgid "Live recording mode"
 msgstr "ライブ録音"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:207
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:213
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:199
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:205
 msgid "OpenAI API Key Test"
 msgstr "OpenAI APIキー テスト"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:208
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:200
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
@@ -167,22 +167,22 @@ msgstr ""
 "あなたのAPIキーは有効です。Buzzはこのキーを使ってWhisper APIの書き起こしとAI"
 "翻訳を行います。"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:224
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:216
 #, fuzzy
 msgid "Invalid API key"
 msgstr "OpenAI APIキー"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:225
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:217
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:243
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:235
 msgid "Select Export Folder"
 msgstr "出力フォルダを選択"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:303
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:295
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "

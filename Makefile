@@ -201,6 +201,7 @@ gh_upgrade_pr:
 # Internationalization
 
 translation_po_all:
+	$(MAKE) translation_po locale=en_US
 	$(MAKE) translation_po locale=ca_ES
 	$(MAKE) translation_po locale=es_ES
 	$(MAKE) translation_po locale=pl_PL
@@ -215,8 +216,13 @@ translation_po_all:
 TMP_POT_FILE_PATH := $(shell mktemp)
 PO_FILE_PATH := buzz/locale/${locale}/LC_MESSAGES/buzz.po
 translation_po:
+	mkdir -p buzz/locale/${locale}/LC_MESSAGES
 	xgettext --from-code=UTF-8 -o "${TMP_POT_FILE_PATH}" -l python $(shell find buzz -name '*.py')
-	sed -i.bak 's/CHARSET/UTF-8/' ${TMP_POT_FILE_PATH} && rm ${TMP_POT_FILE_PATH}.bak
+	sed -i.bak 's/CHARSET/UTF-8/' ${TMP_POT_FILE_PATH}
+	if [ ! -f ${PO_FILE_PATH} ]; then \
+		msginit --no-translator --input=${TMP_POT_FILE_PATH} --output-file=${PO_FILE_PATH}; \
+	fi
+	rm ${TMP_POT_FILE_PATH}.bak
 	msgmerge -U ${PO_FILE_PATH} ${TMP_POT_FILE_PATH}
 
 # On windows we can have two ways to compile locales, one for CI the other for local builds
