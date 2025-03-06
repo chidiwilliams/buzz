@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-04 20:43+0200\n"
+"POT-Creation-Date: 2025-03-06 19:12+0200\n"
 "PO-Revision-Date: 2025-02-22 23:44+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -74,97 +74,102 @@ msgid "Danish"
 msgstr "Dāņu"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:38
+#: buzz/transcriber/transcriber.py:40
+msgid "German"
+msgstr "Vācu"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:39
 #: buzz/transcriber/transcriber.py:41
 msgid "Spanish"
 msgstr "Spāņu"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:39
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:40
 #: buzz/transcriber/transcriber.py:53
 msgid "Italian"
 msgstr "Itāļu"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:40
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:41
 #: buzz/transcriber/transcriber.py:45
 msgid "Japanese"
 msgstr "Japāņu"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:41
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:42
 #: buzz/transcriber/transcriber.py:80
 msgid "Latvian"
 msgstr "Latviešu"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:42
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:43
 #: buzz/transcriber/transcriber.py:48
 msgid "Polish"
 msgstr "Poļu"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:43
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:44
 #: buzz/transcriber/transcriber.py:59
 msgid "Ukrainian"
 msgstr "Ukraiņu"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:44
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:45
 msgid "Chinese (Simplified)"
 msgstr "Ķīniešu (vienkāršotā)"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:45
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:46
 msgid "Chinese (Traditional)"
 msgstr "Ķīniešu (tradicionālā)"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:83
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:84
 msgid "Restart required!"
 msgstr "Jāpārstartē!"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:87
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:88
 msgid "Ui Language"
 msgstr "Programmas valoda"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:95
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:96
 msgid "Font Size"
 msgstr "Fonta izmērs"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:104
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:105
 msgid "Test"
 msgstr "Pārbaudīt"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:110
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:111
 msgid "OpenAI API key"
 msgstr "OpenAI API atslēga"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:123
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:124
 msgid "OpenAI base url"
 msgstr "OpenAI adrese"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:132
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:133
 msgid "Default export file name"
 msgstr "Eksporta fails"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:138
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:139
 msgid "Enable live recording transcription export"
 msgstr "Eksportēt dzīvā ieraksta transkriptus"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:144
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:145
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:47
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:50
 msgid "Browse"
 msgstr "Izvēlēties"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:163
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:164
 msgid "Export folder"
 msgstr "Eksportēt mapē"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:174
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:175
 msgid "Live recording mode"
 msgstr ""
 "Dzīvā ieraksta\n"
 "režīms"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:199
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:205
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:200
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:206
 msgid "OpenAI API Key Test"
 msgstr "OpenAI API atslēgas pārbaude"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:200
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:201
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
@@ -172,11 +177,11 @@ msgstr ""
 "Jūsu API atslēga ir derīga. Buzz izmantos to runas atpazīšanai ar Whisper "
 "API un tulkošanai."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:216
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:217
 msgid "Invalid API key"
 msgstr "Nederīga API atslēga"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:217
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:218
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
@@ -184,11 +189,11 @@ msgstr ""
 "API atbalsta tikai base64 simbolus (A-Za-z0-9+/=_-). Citi simboli API "
 "atslēgā var radīt kļūdas."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:235
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:236
 msgid "Select Export Folder"
 msgstr "Izvēlieties mapi kurā eksportēt"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:295
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:296
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
@@ -655,10 +660,6 @@ msgstr "Atpazīt"
 #: buzz/transcriber/transcriber.py:39
 msgid "Chinese"
 msgstr "Ķīniešu"
-
-#: buzz/transcriber/transcriber.py:40
-msgid "German"
-msgstr "Vācu"
 
 #: buzz/transcriber/transcriber.py:42
 msgid "Russian"

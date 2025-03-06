@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-04 20:44+0200\n"
+"POT-Creation-Date: 2025-03-06 19:12+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Ole Guldberg2 <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -70,98 +70,103 @@ msgid "Danish"
 msgstr ""
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:38
+#: buzz/transcriber/transcriber.py:40
+msgid "German"
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:39
 #: buzz/transcriber/transcriber.py:41
 msgid "Spanish"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:39
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:40
 #: buzz/transcriber/transcriber.py:53
 msgid "Italian"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:40
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:41
 #: buzz/transcriber/transcriber.py:45
 msgid "Japanese"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:41
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:42
 #: buzz/transcriber/transcriber.py:80
 msgid "Latvian"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:42
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:43
 #: buzz/transcriber/transcriber.py:48
 msgid "Polish"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:43
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:44
 #: buzz/transcriber/transcriber.py:59
 #, fuzzy
 msgid "Ukrainian"
 msgstr "tilbageværende"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:44
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:45
 msgid "Chinese (Simplified)"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:45
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:46
 msgid "Chinese (Traditional)"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:83
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:84
 msgid "Restart required!"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:87
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:88
 #, fuzzy
 msgid "Ui Language"
 msgstr "Sprog:"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:95
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:96
 msgid "Font Size"
 msgstr "Skriftypestørrelse"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:104
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:105
 msgid "Test"
 msgstr "Test"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:110
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:111
 msgid "OpenAI API key"
 msgstr "OpenAI API-nøgle"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:123
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:124
 msgid "OpenAI base url"
 msgstr "OpenAI base-URL"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:132
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:133
 msgid "Default export file name"
 msgstr "Standard eksport filnavn"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:138
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:139
 msgid "Enable live recording transcription export"
 msgstr "Slå transkription af live optagelse eksport til"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:144
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:145
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:47
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:50
 msgid "Browse"
 msgstr "Gennemse"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:163
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:164
 msgid "Export folder"
 msgstr "Eksportmappe"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:174
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:175
 #, fuzzy
 msgid "Live recording mode"
 msgstr "Live optagelsesmode"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:199
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:205
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:200
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:206
 msgid "OpenAI API Key Test"
 msgstr "OpenAI API Nøgle test"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:200
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:201
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
@@ -169,12 +174,12 @@ msgstr ""
 "Din API nøgle er gyldig. Buzz vil benytte nøglen til at anvende Whisper API "
 "transkription og AI oversættelser."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:216
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:217
 #, fuzzy
 msgid "Invalid API key"
 msgstr "Ugyldig API-nøgle"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:217
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:218
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
@@ -182,11 +187,11 @@ msgstr ""
 "API supporterer kun base64 tegn (A-Za-z0-9+/=_-). Andre tegn i API-nøglen "
 "kan guve fejl. "
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:235
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:236
 msgid "Select Export Folder"
 msgstr "Vælg eksport-mappe"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:295
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:296
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
@@ -654,10 +659,6 @@ msgstr "Transkriber"
 
 #: buzz/transcriber/transcriber.py:39
 msgid "Chinese"
-msgstr ""
-
-#: buzz/transcriber/transcriber.py:40
-msgid "German"
 msgstr ""
 
 #: buzz/transcriber/transcriber.py:42
