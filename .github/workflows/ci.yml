@@ -58,7 +58,7 @@ jobs:
             ~/AppData/Local/Buzz/Buzz/Cache
           key: whisper-models
 
-      - uses: AnimMouse/setup-ffmpeg@v1.2.0
+      - uses: AnimMouse/setup-ffmpeg@v1.2.1
         id: setup-ffmpeg
 
       - name: Test ffmpeg
@@ -120,7 +120,7 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/poetry.lock') }}
 
-      - uses: AnimMouse/setup-ffmpeg@v1.2.0
+      - uses: AnimMouse/setup-ffmpeg@v1.2.1
         id: setup-ffmpeg
 
       - name: Install dependencies
