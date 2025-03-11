@@ -67,8 +67,8 @@ torchaudio = [
     {version = "2.2.2", source = "PyPI", markers = "sys_platform != 'win32' and sys_platform != 'msys'"},
     {version = "2.2.2+cu121", source = "torch", markers = "sys_platform == 'win32' or sys_platform == 'msys'"},
 ]
-# ctranslate2 4.4.0 is last with intel macOS support
-ctranslate2 = "4.4.0"
+# ctranslate2 4.3.1 is last with intel macOS support
+ctranslate2 = "4.3.1"
 darkdetect = "^0.8.0"
 # requirements for demucs
 dora-search = "^0.1.12"
