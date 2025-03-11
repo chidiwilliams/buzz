@@ -123,7 +123,7 @@ Other versions of CUDA 12 should also work.
 Switch torch library to GPU version. It must match the CUDA version installed, see https://pytorch.org/get-started/locally/ .
 ```
 pip3 uninstall torch torchaudio  
-pip3 install torch==2.6.0+cu126 torchaudio==2.6.0+cu126 --index-url https://download.pytorch.org/whl/cu126
+pip3 install torch==2.2.2+cu121 torchaudio==2.2.2+cu121 --index-url https://download.pytorch.org/whl/cu121
 ```
 
 To use Faster Whisper on GPU, install the following libraries:
