@@ -13,7 +13,7 @@ openunmix
 pyyaml
 submitit
 torch>=1.8.1
-torchaudio>=0.8,<2.3.1
+torchaudio>=0.8
 tqdm
 treetable
 soundfile>=0.10.3
