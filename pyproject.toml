@@ -70,7 +70,7 @@ torchaudio = [
 # ctranslate2 4.3.1 is last with intel macOS support
 ctranslate2 = "4.3.1"
 darkdetect = "^0.8.0"
-# requirements for demucs
+# requirements for demucs - TODO maybe remove
 dora-search = "^0.1.12"
 diffq = "^0.2.4"
 einops = "^0.8.1"
