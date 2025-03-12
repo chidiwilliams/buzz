@@ -877,8 +877,9 @@ optional = false
 python-versions = ">=3.8.0"
 groups = ["main"]
 markers = "sys_platform != \"win32\" and sys_platform != \"msys\" or sys_platform == \"win32\" or sys_platform == \"msys\""
-files = []
-develop = false
+files = [
+    {file = "demucs-4.1.0a3-py3-none-any.whl", hash = "sha256:3c52712c0b6022f7e26a00b0cfb4e4ed04ed9994f78f06cfa485dc7006cbef60"},
+]
 
 [package.dependencies]
 dora-search = "*"
@@ -895,8 +896,8 @@ tqdm = "*"
 dev = ["diffq (>=0.2.1)", "dora-search (>=0.1.12)", "einops", "flake8", "hydra-colorlog (>=1.1)", "hydra-core (>=1.1)", "julius (>=0.2.3)", "lameenc (>=1.2)", "museval", "mypy", "openunmix", "pyyaml", "soundfile (>=0.10.3)", "submitit", "torch (>=1.8.1)", "torchaudio (>=0.8)", "tqdm", "treetable"]
 
 [package.source]
-type = "directory"
-url = "demucs"
+type = "url"
+url = "https://github.com/raivisdejus/demucs/releases/download/4.1.0a3/demucs-4.1.0a3-py3-none-any.whl"
 
 [[package]]
 name = "diffq"
@@ -5024,4 +5025,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<3.13"
-content-hash = "71bc9f192c40274b6ce04bcb0aa98a1937218f19311f98e2d45c56461c534aa5"
+content-hash = "f4908674daf0c9b2df2e206086c3a379fa994a5eb6c351b73b10442b5e9bed11"

@@ -1,5 +1,0 @@
-# @package _global_
-
-model: hdemucs
-hdemucs:
-  channels: 32
