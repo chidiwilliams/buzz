@@ -41,33 +41,36 @@ priority = "supplemental"
 python = ">=3.9,<3.13"
 sounddevice = "^0.4.5"
 humanize = "^4.4.0"
-PyQt6 = "6.6.1"
-PyQt6-Qt6 = "6.6.2"
-PyQt6-sip = "13.6.0"
+PyQt6 = "6.7.0"
+PyQt6-Qt6 = "6.7.3"
+PyQt6-sip = "13.10.0"
 openai = "^1.14.2"
 keyring = "^25.0.0"
 platformdirs = "^4.2.0"
 dataclasses-json = "^0.6.4"
 numpy = "^1.21.2"
 requests = "^2.31.0"
-yt-dlp = "2024.9.27"
-stable-ts = "2.17.5"
-faster-whisper = "1.1.0"
-openai-whisper = "v20240930"
-transformers = "4.46.1"
+yt-dlp = "^2025.2.19"
+stable-ts = "^2.18.3"
+faster-whisper = "^1.1.1"
+openai-whisper = "^20240930"
+transformers = "^4.49.0"
 accelerate = "^1.0.1"
 polib = "^1.2.0"
 srt-equalizer = "^0.1.10"
+# torch 2.2.2 is last with intel macOS support
 torch = [
-    {version = "2.2.1", source = "PyPI", markers = "sys_platform != 'win32' and sys_platform != 'msys'"},
-    {version = "2.2.1+cu121", source = "torch", markers = "sys_platform == 'win32' or sys_platform == 'msys'"},
+    {version = "2.2.2", source = "PyPI", markers = "sys_platform != 'win32' and sys_platform != 'msys'"},
+    {version = "2.2.2+cu121", source = "torch", markers = "sys_platform == 'win32' or sys_platform == 'msys'"},
 ]
 torchaudio = [
-    {version = "2.2.1", source = "PyPI", markers = "sys_platform != 'win32' and sys_platform != 'msys'"},
-    {version = "2.2.1+cu121", source = "torch", markers = "sys_platform == 'win32' or sys_platform == 'msys'"},
+    {version = "2.2.2", source = "PyPI", markers = "sys_platform != 'win32' and sys_platform != 'msys'"},
+    {version = "2.2.2+cu121", source = "torch", markers = "sys_platform == 'win32' or sys_platform == 'msys'"},
 ]
+# ctranslate2 4.3.1 is last with intel macOS support
+ctranslate2 = "4.3.1"
 darkdetect = "^0.8.0"
-# requirements for demucs
+# requirements for demucs - TODO maybe remove
 dora-search = "^0.1.12"
 diffq = "^0.2.4"
 einops = "^0.8.1"
@@ -84,7 +87,8 @@ submitit = "^1.5.2"
 tqdm = "^4.67.1"
 treetable = "^0.2.5"
 soundfile = "^0.13.1"
-demucs = {path = "demucs"}
+urllib3 = "^2.3.0"
+demucs = {url = "https://github.com/raivisdejus/demucs/releases/download/4.1.0a3/demucs-4.1.0a3-py3-none-any.whl"}
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
