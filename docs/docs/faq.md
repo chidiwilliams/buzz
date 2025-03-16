@@ -76,5 +76,13 @@ Latest development version will have latest bug fixes and most recent features. 
   4. Download the installation file. Please note that you need to be logged in the Github to see the download links.
 
 ### 10. Why is my system theme not applied to Buzz installed from Flatpak?
+ 
+For dark themes on Gnome environments you may need to install `gnome-themes-extra` package and set the following preferences:
+```
+gsettings set org.gnome.desktop.interface gtk-theme Adwaita-dark
+gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+```
 
-If your system theme is not applied to Buzz installed from Flatpak Linux app store, ensure the system theme is in `~/.themes` folder. You may need to copy the system themes to this folder `cp -r /usr/share/themes ~/.themes`.
+If your system theme is not applied to Buzz installed from Flatpak Linux app store, ensure the desired theme is in `~/.themes` folder.
+
+You may need to copy the system themes to this folder `cp -r /usr/share/themes/ ~/.themes/`.
