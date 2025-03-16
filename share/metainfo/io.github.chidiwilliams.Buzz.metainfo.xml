@@ -13,7 +13,7 @@
       Buzz transcribes and translates audio to text offline using OpenAI&apos;s Whisper. Import audio and video files into Buzz and export them as TXT, SRT, or VTT files. Buzz supports Whisper, Whisper.cpp, Faster Whisper, Whisper-compatible models from the Hugging Face repository, and the OpenAI Whisper API.
     </p>
     <p>
-      Note: If your system theme is not applied to Buzz, ensure it is in <pre>~/.themes</pre> folder. You may need to copy the system themes to this folder <pre>cp -r /usr/share/themes ~/.themes</pre>.
+      Note: If your system theme is not applied to Buzz, ensure it is in <code>~/.themes</code> folder. You may need to copy the system themes to this folder <code>cp -r /usr/share/themes ~/.themes</code>.
     </p>
   </description>
 
