@@ -558,13 +558,10 @@ class ModelDownloader(QRunnable):
                     f"{file_path} exists, but the SHA256 checksum does not match; re-downloading the file"
                 )
 
-        tmp_file = tempfile.mktemp()
-        logging.debug("Downloading to temporary file = %s", tmp_file)
-
         # Downloads the model using the requests module instead of urllib to
         # use the certs from certifi when the app is running in frozen mode
         with requests.get(url, stream=True, timeout=15) as source, open(
-            tmp_file, "wb"
+            file_path, "wb"
         ) as output:
             source.raise_for_status()
             total_size = float(source.headers.get("Content-Length", 0))
@@ -578,7 +575,7 @@ class ModelDownloader(QRunnable):
                 self.signals.progress.emit((current, total_size))
 
         if expected_sha256 is not None:
-            model_bytes = open(tmp_file, "rb").read()
+            model_bytes = open(file_path, "rb").read()
             if hashlib.sha256(model_bytes).hexdigest() != expected_sha256:
                 raise RuntimeError(
                     "Model has been downloaded but the SHA256 checksum does not match. Please retry loading the "
@@ -587,9 +584,6 @@ class ModelDownloader(QRunnable):
 
         logging.debug("Downloaded model")
 
-        # https://github.com/chidiwilliams/buzz/issues/454
-        shutil.move(tmp_file, file_path)
-        logging.debug("Moved file from %s to %s", tmp_file, file_path)
         return True
 
     def cancel(self):
