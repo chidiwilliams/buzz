@@ -71,7 +71,7 @@ Latest development version will have latest bug fixes and most recent features. 
 
 - **For other** platforms do the following:
   1. Go to the [build section](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml?query=branch%3Amain)
-  2. Click on the link to the latest build
+  2. Click on the link to the latest build, the most recent successful build entry in the list
   3. Scroll down to the artifacts section in the build page
   4. Download the installation file. Please note that you need to be logged in the Github to see the download links.
 
