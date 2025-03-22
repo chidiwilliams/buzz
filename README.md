@@ -22,7 +22,7 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
 
 ## Installation
 
-**PyPI**:
+### PyPI
 
 Install [ffmpeg](https://www.ffmpeg.org/download.html)
 
@@ -33,7 +33,7 @@ pip install buzz-captions
 python -m buzz
 ```
 
-**macOS**:
+### macOS
 
 Install with [brew utility](https://brew.sh/)
 
@@ -43,7 +43,7 @@ brew install --cask buzz
 
 Or download the `.dmg` from the [releases page](https://github.com/chidiwilliams/buzz/releases/latest).
 
-**Windows**:
+### Windows
 
 Download and run the `.exe` from the [releases page](https://github.com/chidiwilliams/buzz/releases/latest).
 
@@ -55,7 +55,16 @@ App is not signed, you will get a warning when you install it. Select `More info
 winget install ChidiWilliams.Buzz
 ```
 
-**Linux**:
+**GPU support for PyPI**
+
+To have GPU support for Nvidia GPUS on Windows, for PyPI installed version ensure, CUDA support for [torch](https://pytorch.org/get-started/locally/) 
+
+```
+pip3 uninstall torch torchaudio  
+pip3 install torch==2.2.2+cu121 torchaudio==2.2.2+cu121 --index-url https://download.pytorch.org/whl/cu121
+```
+
+### Linux
 
 Buzz is available as a [Flatpak](https://flathub.org/apps/io.github.chidiwilliams.Buzz) or a [Snap](https://snapcraft.io/buzz). 
 
