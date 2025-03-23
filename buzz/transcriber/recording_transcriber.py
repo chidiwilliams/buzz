@@ -153,8 +153,6 @@ class RecordingTranscriber(QObject):
                         )
                         time_started = datetime.datetime.now()
 
-                        # TODO Filter out silent audio
-
                         if (
                                 self.transcription_options.model.model_type
                                 == ModelType.WHISPER
@@ -166,6 +164,7 @@ class RecordingTranscriber(QObject):
                                 task=self.transcription_options.task.value,
                                 initial_prompt=initial_prompt,
                                 temperature=self.transcription_options.temperature,
+                                no_speech_threshold=0.4
                             )
                         elif (
                                 self.transcription_options.model.model_type
@@ -192,6 +191,7 @@ class RecordingTranscriber(QObject):
                                 temperature=self.transcription_options.temperature,
                                 initial_prompt=self.transcription_options.initial_prompt,
                                 word_timestamps=self.transcription_options.word_level_timings,
+                                no_speech_threshold=0.4,
                             )
                             result = {"text": " ".join([segment.text for segment in whisper_segments])}
                         elif (
