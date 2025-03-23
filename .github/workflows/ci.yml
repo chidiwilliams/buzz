@@ -129,12 +129,8 @@ jobs:
       - name: Install CUDA torch for Windows
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then
-            installed_version=$(python -c "import torch; print(torch.__version__)")
-            desired_version="2.2.2+cu121"
-            if [ "$installed_version" != "$desired_version" ]; then
-              pip3 uninstall -y torch torchaudio
-              pip3 install torch==$desired_version torchaudio==$desired_version --index-url https://download.pytorch.org/whl/cu121
-            fi
+            pip3 uninstall -y torch torchaudio
+            pip3 install torch==$desired_version torchaudio==$desired_version --index-url https://download.pytorch.org/whl/cu121
           fi
         shell: bash
 
