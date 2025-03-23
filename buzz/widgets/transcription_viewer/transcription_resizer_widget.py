@@ -80,7 +80,7 @@ class TranscriptionWorker(QObject):
         transcription_file_exists = os.path.exists(transcription_file)
 
         transcription_file_path = Path(transcription_file)
-        speech_path = transcription_file_path.with_name(f"{transcription_file_path.stem}_speech.flac")
+        speech_path = transcription_file_path.with_name(f"{transcription_file_path.stem}_speech.mp3")
         if self.transcription_options.extract_speech and os.path.exists(speech_path):
             transcription_file = str(speech_path)
             transcription_file_exists = True
