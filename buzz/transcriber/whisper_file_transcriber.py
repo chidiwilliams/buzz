@@ -170,6 +170,7 @@ class WhisperFileTranscriber(FileTranscriber):
             temperature=task.transcription_options.temperature,
             initial_prompt=task.transcription_options.initial_prompt,
             word_timestamps=task.transcription_options.word_level_timings,
+            no_speech_threshold=0.4,
         )
         segments = []
         with tqdm.tqdm(total=round(info.duration, 2), unit=" seconds") as pbar:
@@ -214,6 +215,7 @@ class WhisperFileTranscriber(FileTranscriber):
                 task=task.transcription_options.task.value,
                 temperature=task.transcription_options.temperature,
                 initial_prompt=task.transcription_options.initial_prompt,
+                no_speech_threshold=0.4,
             )
             return [
                 Segment(
