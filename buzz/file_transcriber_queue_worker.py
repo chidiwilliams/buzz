@@ -71,7 +71,7 @@ class FileTranscriberQueueWorker(QObject):
                 _, separated = separator.separate_audio_file(Path(self.current_task.file_path))
 
                 task_file_path = Path(self.current_task.file_path)
-                speech_path = task_file_path.with_name(f"{task_file_path.stem}_speech.flac")
+                speech_path = task_file_path.with_name(f"{task_file_path.stem}_speech.mp3")
                 demucsApi.save_audio(separated["vocals"], speech_path, separator.samplerate)
 
                 self.current_task.file_path = str(speech_path)
