@@ -129,7 +129,6 @@ jobs:
       - name: Install CUDA torch for Windows
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then
-          if [ "$RUNNER_OS" == "Windows" ]; then
             pip3 install torch==2.2.2+cu121 torchaudio==2.2.2+cu121 --index-url https://download.pytorch.org/whl/cu121
           fi
         shell: bash
