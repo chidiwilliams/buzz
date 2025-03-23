@@ -32,11 +32,6 @@ include = [
 name = "PyPI"
 priority = "primary"
 
-[[tool.poetry.source]]
-name = "torch"
-url = "https://download.pytorch.org/whl/cu121"
-priority = "supplemental"
-
 [tool.poetry.dependencies]
 python = ">=3.9,<3.13"
 sounddevice = "^0.4.5"
@@ -60,14 +55,8 @@ accelerate = "^1.0.1"
 polib = "^1.2.0"
 srt-equalizer = "^0.1.10"
 # torch 2.2.2 is last with intel macOS support
-torch = [
-    {version = "2.2.2", source = "PyPI", markers = "sys_platform != 'win32' and sys_platform != 'msys'"},
-    {version = "2.2.2+cu121", source = "torch", markers = "sys_platform == 'win32' or sys_platform == 'msys'"},
-]
-torchaudio = [
-    {version = "2.2.2", source = "PyPI", markers = "sys_platform != 'win32' and sys_platform != 'msys'"},
-    {version = "2.2.2+cu121", source = "torch", markers = "sys_platform == 'win32' or sys_platform == 'msys'"},
-]
+torch = "2.2.2"
+torchaudio = "2.2.2"
 # ctranslate2 4.3.1 is last with intel macOS support
 ctranslate2 = "4.3.1"
 darkdetect = "^0.8.0"
