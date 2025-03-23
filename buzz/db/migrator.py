@@ -105,7 +105,6 @@ class DBMigrator:
             # > A VACUUM will fail if there is an open transaction on the database
             # > connection that is attempting to run the VACUUM.
             if self.n_changes:
-                self.db.execute("COMMIT")
                 self.db.execute("VACUUM")
         else:
             if self.orig_foreign_keys:
