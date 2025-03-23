@@ -136,6 +136,7 @@ jobs:
               pip3 install torch==$desired_version torchaudio==$desired_version --index-url https://download.pytorch.org/whl/cu121
             fi
           fi
+        shell: bash
 
       - uses: ruby/setup-ruby@v1
         with:
