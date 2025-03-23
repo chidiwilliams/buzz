@@ -117,8 +117,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 GPU support on Windows with Nvidia GPUs is included out of the box in the `.exe` installer. 
 
-To add GPU support for source or `pip` installed version first ensure CUDA 12.1 is installed - https://developer.nvidia.com/cuda-12-1-0-download-archive 
-Other versions of CUDA 12 should also work.
+To add GPU support for source or `pip` installed version first ensure at least CUDA 12.1 is installed - https://developer.nvidia.com/cuda-12-1-0-download-archive
 
 Switch torch library to GPU version. It must match the CUDA version installed, see https://pytorch.org/get-started/locally/ .
 ```
