@@ -1,0 +1,32 @@
+# MDX Models
+root: mdx_final/
+0d19c1c6-0f06f20e.th
+5d2d6c55-db83574e.th
+7d865c68-3d5dd56b.th
+7ecf8ec1-70f50cc9.th
+a1d90b5c-ae9d2452.th
+c511e2ab-fe698775.th
+cfa93e08-61801ae1.th
+e51eebcc-c1b80bdd.th
+6b9c2ca1-3fd82607.th
+b72baf4e-8778635e.th
+42e558d4-196e0e1b.th
+305bc58f-18378783.th
+14fc6a69-a89dd0ee.th
+464b36d7-e5a9386e.th
+7fd6ef75-a905dd85.th
+83fc094f-4a16d450.th
+1ef250f1-592467ce.th
+902315c2-b39ce9c9.th
+9a6b4851-03af0aa6.th
+fa0cb7f9-100d8bf4.th
+# Hybrid Transformer models
+root: hybrid_transformer/
+955717e8-8726e21a.th
+f7e0c4bc-ba3fe64a.th
+d12395a8-e57c48e6.th
+92cfc3b6-ef3bcb9c.th
+04573f0d-f3cf25b2.th
+75fc33f5-1941ce65.th
+# Experimental 6 sources model
+5c90dfd2-34c22ccb.th

@@ -39,9 +39,7 @@ When choosing among large models consider the following. "Large" is the first re
 
 On Linux GPU acceleration is supported out of the box on Nvidia GPUs. If you still get any issues install [CUDA 12](https://developer.nvidia.com/cuda-downloads), [cuBLASS](https://developer.nvidia.com/cublas) and [cuDNN](https://developer.nvidia.com/cudnn).
 
-On Windows see [this note](https://github.com/chidiwilliams/buzz/blob/main/CONTRIBUTING.md#gpu-support) on enabling CUDA GPU support.
-
-For Faster whisper CUDA 12 is required, computers with older CUDA versions will use CPU.
+On Windows GPU support is included in the installation `.exe`. CUDA 12 required, computers with older CUDA versions will use CPU. See [this note](https://github.com/chidiwilliams/buzz/blob/main/CONTRIBUTING.md#gpu-support) on enabling CUDA GPU support.
 
 ### 6. How to fix `Unanticipated host error[PaErrorCode-9999]`?
 
