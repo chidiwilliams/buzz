@@ -130,7 +130,7 @@ jobs:
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then
             pip3 uninstall -y torch torchaudio
-            pip3 install torch==$desired_version torchaudio==$desired_version --index-url https://download.pytorch.org/whl/cu121
+            pip3 install torch==2.2.2+cu121 torchaudio==2.2.2+cu121 --index-url https://download.pytorch.org/whl/cu121
           fi
         shell: bash
 
