@@ -72,6 +72,7 @@ Latest development version will have latest bug fixes and most recent features. 
   2. Click on the link to the latest build, the most recent successful build entry in the list
   3. Scroll down to the artifacts section in the build page
   4. Download the installation file. Please note that you need to be logged in the Github to see the download links.
+  ![Latest build example](https://chidiwilliams.github.io/buzz/img/latest-development-build.jpeg "Latest build example")
 
 ### 10. Why is my system theme not applied to Buzz installed from Flatpak?
  

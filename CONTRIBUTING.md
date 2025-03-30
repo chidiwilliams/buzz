@@ -113,6 +113,8 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 13. Build Buzz `poetry build`
 14. Run Buzz `python -m buzz`
 
+Note: It should be safe to ignore any "syntax errors" you see during the build. Buzz will work. Also you can ignore any errors for FFmpeg. Buzz tries to load FFmpeg by several different means and some of them throw errors, but FFmpeg should eventually be found and work. 
+
 #### GPU Support
 
 GPU support on Windows with Nvidia GPUs is included out of the box in the `.exe` installer. 
