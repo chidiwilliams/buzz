@@ -1,6 +1,7 @@
 import enum
 import typing
 import logging
+import uuid
 
 from PyQt6.QtCore import QSettings
 
@@ -48,11 +49,20 @@ class Settings:
 
         UI_LOCALE = "ui-locale"
 
+        USER_IDENTIFIER = "user-identifier"
+
         TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY = (
             "transcription-tasks-table/column-visibility"
         )
 
         MAIN_WINDOW = "main-window"
+
+    def get_user_identifier(self) -> str:
+        user_id = self.value(self.Key.USER_IDENTIFIER, "")
+        if not user_id:
+            user_id = str(uuid.uuid4())
+            self.set_value(self.Key.USER_IDENTIFIER, user_id)
+        return user_id
 
     def set_value(self, key: Key, value: typing.Any) -> None:
         self.settings.setValue(key.value, value)
