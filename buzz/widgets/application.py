@@ -1,5 +1,10 @@
+import logging
 import sys
+import locale
+import platform
 import darkdetect
+
+from posthog import Posthog
 
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QApplication
@@ -174,6 +179,24 @@ class Application(QApplication):
         )
 
         self.window = MainWindow(transcription_service)
+
+        posthog = Posthog(project_api_key='phc_NqZQUw8NcxfSXsbtk5eCFylmCQpp4FuNnd6ocPAzg2f',
+                          host='https://us.i.posthog.com')
+        posthog.capture(distinct_id=self.settings.get_user_identifier(), event="app_launched", properties={
+            "app": VERSION,
+            "locale": locale.getdefaultlocale(),
+            "system": platform.system(),
+            "release": platform.release(),
+            "machine": platform.machine(),
+            "version": platform.version(),
+        })
+
+        logging.debug(f"Launching Buzz: {VERSION}, " 
+                      f"locale: {locale.getdefaultlocale()}, "
+                      f"system: {platform.system()}, "
+                      f"release: {platform.release()}, "
+                      f"machine: {platform.machine()}, "
+                      f"version: {platform.version()}, ")
 
     def show_main_window(self):
         if not self.hide_main_window:

@@ -79,6 +79,7 @@ treetable = "^0.2.5"
 soundfile = "^0.13.1"
 urllib3 = "^2.3.0"
 demucs = {url = "https://github.com/raivisdejus/demucs/releases/download/4.1.0a3/demucs-4.1.0a3-py3-none-any.whl"}
+posthog = "^3.23.0"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
