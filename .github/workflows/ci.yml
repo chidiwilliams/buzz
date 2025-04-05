@@ -67,6 +67,12 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
+      - name: Downgrade torch for Intel macOS
+        run: |
+          pip uninstall -y torch torchaudio
+          pip install -y torch==2.2.2 torchaudio==2.2.2
+        if: "matrix.os == 'macos-13'"
+
       - name: Install apt dependencies
         run: |
           sudo apt-get update
@@ -154,6 +160,12 @@ jobs:
           bundler-cache: true  # runs 'bundle install' and caches installed gems automatically
         if: "startsWith(matrix.os, 'ubuntu-')"
 
+      - name: Downgrade torch for Intel macOS
+        run: |
+          pip uninstall -y torch torchaudio
+          pip install -y torch==2.2.2 torchaudio==2.2.2
+        if: "matrix.os == 'macos-13'"
+
       - name: Install apt dependencies
         run: |
           sudo apt-get update
@@ -227,8 +239,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # macos-13 is an intel runner, macos-14 is apple silicon
-        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v4

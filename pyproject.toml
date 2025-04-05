@@ -54,9 +54,9 @@ transformers = "4.49.0"
 accelerate = "^1.0.1"
 polib = "^1.2.0"
 srt-equalizer = "^0.1.10"
-# torch 2.2.2 is last with intel macOS support
-torch = "2.2.2"
-torchaudio = "2.2.2"
+# torch 2.2.2 is last with intel macOS support, during build torch will be downgraded
+torch = "2.6.0"
+torchaudio = "2.6.0"
 # ctranslate2 4.3.1 is last with intel macOS support
 ctranslate2 = "4.3.1"
 darkdetect = "^0.8.0"
