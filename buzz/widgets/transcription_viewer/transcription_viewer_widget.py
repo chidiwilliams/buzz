@@ -26,6 +26,7 @@ from buzz.widgets.icon import (
     FileDownloadIcon,
     TranslateIcon,
     ResizeIcon,
+    SpeakerIdentificationIcon,
 )
 from buzz.translator import Translator
 from buzz.widgets.text_display_box import TextDisplayBox
@@ -46,6 +47,7 @@ from buzz.widgets.transcription_viewer.transcription_view_mode_tool_button impor
     ViewMode
 )
 from buzz.widgets.transcription_viewer.transcription_resizer_widget import TranscriptionResizerWidget
+from buzz.widgets.transcription_viewer.speaker_identification_widget import SpeakerIdentificationWidget
 
 
 class TranscriptionViewerWidget(QWidget):
@@ -72,6 +74,7 @@ class TranscriptionViewerWidget(QWidget):
         self.setWindowTitle(file_path_as_title(transcription.file))
 
         self.transcription_resizer_dialog = None
+        self.speaker_identification_dialog = None
         self.transcriptions_updated_signal = transcriptions_updated_signal
 
         self.translation_thread = None
@@ -190,6 +193,17 @@ class TranscriptionViewerWidget(QWidget):
         resize_button.clicked.connect(self.on_resize_button_clicked)
 
         toolbar.addWidget(resize_button)
+
+        speaker_identification_button = QToolButton()
+        speaker_identification_button.setText(_("Identify Speakers"))
+        speaker_identification_button.setObjectName("speaker_identification_button")
+        speaker_identification_button.setIcon(SpeakerIdentificationIcon(self))
+        speaker_identification_button.setToolButtonStyle(
+            Qt.ToolButtonStyle.ToolButtonTextBesideIcon
+        )
+        speaker_identification_button.clicked.connect(self.on_speaker_identification_button_clicked)
+
+        toolbar.addWidget(speaker_identification_button)
 
         layout.setMenuBar(toolbar)
 
@@ -314,11 +328,25 @@ class TranscriptionViewerWidget(QWidget):
 
         self.transcription_resizer_dialog.show()
 
+    def on_speaker_identification_button_clicked(self):
+        self.speaker_identification_dialog = SpeakerIdentificationWidget(
+            transcription=self.transcription,
+            transcription_service=self.transcription_service,
+            transcriptions_updated_signal=self.transcriptions_updated_signal,
+        )
+
+        self.transcriptions_updated_signal.connect(self.close)
+
+        self.speaker_identification_dialog.show()
+
     def closeEvent(self, event):
         self.hide()
 
         if self.transcription_resizer_dialog:
             self.transcription_resizer_dialog.close()
+
+        if self.speaker_identification_dialog:
+            self.speaker_identification_dialog.close()
 
         self.translator.stop()
         self.translation_thread.quit()

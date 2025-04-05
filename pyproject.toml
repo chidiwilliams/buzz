@@ -9,7 +9,7 @@ readme = "README.md"
 license = { text = "MIT" }
 repository = "https://github.com/chidiwilliams/buzz"
 documentation = "https://chidiwilliams.github.io/buzz/docs"
-requires-python = ">=3.9,<3.13"
+requires-python = ">=3.10,<3.13"
 dynamic = [ "dependencies" ]
 
 [project.scripts]
@@ -33,7 +33,7 @@ name = "PyPI"
 priority = "primary"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.13"
+python = ">=3.10,<3.13"
 sounddevice = "^0.4.5"
 humanize = "^4.4.0"
 PyQt6 = "6.8.1"
@@ -49,8 +49,7 @@ yt-dlp = "^2025.2.19"
 stable-ts = "^2.18.3"
 faster-whisper = "^1.1.1"
 openai-whisper = "^20240930"
-# transformers 4.50.0 has some bug
-transformers = "4.49.0"
+transformers = "4.48.3"
 accelerate = "^1.0.1"
 polib = "^1.2.0"
 srt-equalizer = "^0.1.10"
@@ -80,6 +79,9 @@ soundfile = "^0.13.1"
 urllib3 = "^2.3.0"
 demucs = {url = "https://github.com/raivisdejus/demucs/releases/download/4.1.0a3/demucs-4.1.0a3-py3-none-any.whl"}
 posthog = "^3.23.0"
+deepmultilingualpunctuation = {git = "https://github.com/oliverguhr/deepmultilingualpunctuation.git"}
+ctc-forced-aligner = {git = "https://github.com/MahmoudAshraf97/ctc-forced-aligner.git"}
+nemo-toolkit = {extras = ["asr"], version = "^2.2.1"}
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
