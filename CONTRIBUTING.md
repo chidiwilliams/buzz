@@ -119,19 +119,20 @@ Note: It should be safe to ignore any "syntax errors" you see during the build. 
 
 GPU support on Windows with Nvidia GPUs is included out of the box in the `.exe` installer. 
 
-To add GPU support for source or `pip` installed version first ensure at least CUDA 12.1 is installed - https://developer.nvidia.com/cuda-12-1-0-download-archive
-
-Switch torch library to GPU version. It must match the CUDA version installed, see https://pytorch.org/get-started/locally/ .
+To add GPU support for source or `pip` installed version switch torch library to GPU version. For more info see https://pytorch.org/get-started/locally/ .
 ```
-pip3 uninstall torch torchaudio  
-pip3 install torch==2.2.2+cu121 torchaudio==2.2.2+cu121 --index-url https://download.pytorch.org/whl/cu121
+poetry source add --priority=supplemental torch https://download.pytorch.org/whl/cu124
+poetry source add --priority=supplemental nvidia https://pypi.ngc.nvidia.com
+
+poetry add torch==2.6.0+cu124 torchaudio==2.6.0+cu124
+poetry add nvidia-cublas-cu12==12.4.5.8 nvidia-cuda-cupti-cu12==12.4.127 nvidia-cuda-nvrtc-cu12==12.4.127 nvidia-cuda-runtime-cu12==12.4.127 nvidia-cufft-cu12==11.2.1.3 nvidia-curand-cu12==10.3.5.147 nvidia-cusolver-cu12==11.6.1.9 nvidia-cusparse-cu12==12.3.1.170 nvidia-nvtx-cu12==12.4.127
 ```
 
 To use Faster Whisper on GPU, install the following libraries:
 * [cuBLAS](https://developer.nvidia.com/cublas)
 * [cuDNN](https://developer.nvidia.com/cudnn)
 
-Ensure ffmpeg dependencies are installed
+If you run into issues with FFmpeg, ensure ffmpeg dependencies are installed
 ```
 pip3 uninstall ffmpeg ffmpeg-python  
 pip3 install ffmpeg
