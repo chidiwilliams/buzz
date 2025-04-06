@@ -37,8 +37,7 @@ from buzz.widgets.preferences_dialog.models.file_transcription_preferences impor
 SENTENCE_END = re.compile(r'.*[.!?。！？]')
 
 class TranscriptionWorker(QObject):
-    finished = pyqtSignal()
-    result_ready = pyqtSignal(list)
+    finished = pyqtSignal(list)
 
     def __init__(self, transcription, transcription_options, transcription_service, regroup_string: str):
         super().__init__()
@@ -113,8 +112,7 @@ class TranscriptionWorker(QObject):
                 )
             )
 
-        self.result_ready.emit(segments)
-        self.finished.emit()
+        self.finished.emit(segments)
 
 
 class TranscriptionResizerWidget(QWidget):
@@ -336,7 +334,7 @@ class TranscriptionResizerWidget(QWidget):
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
-        self.worker.result_ready.connect(self.on_transcription_completed)
+        self.worker.finished.connect(self.on_transcription_completed)
 
         self.thread.start()
 
