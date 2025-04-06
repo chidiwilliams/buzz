@@ -1,4 +1,5 @@
 import logging
+import platform
 from typing import Optional
 from uuid import UUID
 
@@ -194,16 +195,18 @@ class TranscriptionViewerWidget(QWidget):
 
         toolbar.addWidget(resize_button)
 
-        speaker_identification_button = QToolButton()
-        speaker_identification_button.setText(_("Identify Speakers"))
-        speaker_identification_button.setObjectName("speaker_identification_button")
-        speaker_identification_button.setIcon(SpeakerIdentificationIcon(self))
-        speaker_identification_button.setToolButtonStyle(
-            Qt.ToolButtonStyle.ToolButtonTextBesideIcon
-        )
-        speaker_identification_button.clicked.connect(self.on_speaker_identification_button_clicked)
+        # Underlying libs do not support intel Macs
+        if not (platform.system() == "Darwin" and platform.machine() == "x86_64"):
+            speaker_identification_button = QToolButton()
+            speaker_identification_button.setText(_("Identify Speakers"))
+            speaker_identification_button.setObjectName("speaker_identification_button")
+            speaker_identification_button.setIcon(SpeakerIdentificationIcon(self))
+            speaker_identification_button.setToolButtonStyle(
+                Qt.ToolButtonStyle.ToolButtonTextBesideIcon
+            )
+            speaker_identification_button.clicked.connect(self.on_speaker_identification_button_clicked)
 
-        toolbar.addWidget(speaker_identification_button)
+            toolbar.addWidget(speaker_identification_button)
 
         layout.setMenuBar(toolbar)
 

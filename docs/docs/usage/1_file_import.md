@@ -20,3 +20,5 @@ To import a file:
 (See the [Live Recording section](https://chidiwilliams.github.io/buzz/docs/usage/live_recording) for more information about the task, language, and quality settings.)
 
 [![Media File Import on Buzz](https://cdn.loom.com/sessions/thumbnails/cf263b099ac3481082bb56d19b7c87fe-with-play.gif)](https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe "Media File Import on Buzz")
+
+**💡 Tip:** It is recommended to always select language to transcribe to as automatic language detection may result in unexpected results.
