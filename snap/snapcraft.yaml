@@ -121,6 +121,14 @@ parts:
       pip install .
       pip uninstall -y ctranslate2
       pip install https://github.com/raivisdejus/CTranslate2-no-execstack/releases/download/v4.2.1/ctranslate2-4.2.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+      
+      # Clean caches to reclaim space on CI
+      apt-get autoremove -y
+      apt-get clean
+      pip cache purge
+      echo "yes" | poetry cache clear --all . 
+      
+      # Build
       python3 build.py
       mkdir $CRAFT_PART_INSTALL/buzz
       cp $CRAFT_PART_BUILD/buzz/whisper_cpp.py $CRAFT_PART_INSTALL/buzz/

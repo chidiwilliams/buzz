@@ -18,6 +18,18 @@ jobs:
     outputs:
       snap: ${{ steps.snapcraft.outputs.snap }}
     steps:
+      # Ideas from https://github.com/orgs/community/discussions/25678
+      - name: Remove unused build tools
+        run: |
+          sudo apt-get remove -y '^ghc-8.*'
+          sudo apt-get remove -y '^dotnet-.*'
+          sudo apt-get remove -y '^llvm-.*'
+          sudo apt-get remove -y 'php.*'
+          sudo apt-get remove -y azure-cli google-cloud-sdk hhvm google-chrome-stable firefox powershell mono-devel
+          sudo apt-get autoremove -y
+          sudo apt-get clean
+          python -m pip cache purge
+          rm -rf /opt/hostedtoolcache
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
         with:
@@ -27,6 +39,7 @@ jobs:
           remove-android: 'true'
           remove-haskell: 'true'
           remove-codeql: 'true'
+          remove-docker-images: 'true'
       - uses: actions/checkout@v4
         with:
           submodules: recursive
