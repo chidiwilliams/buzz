@@ -373,6 +373,8 @@ class SpeakerIdentificationWidget(QWidget):
         return preferences
 
     def on_identify_button_clicked(self):
+        self.step_1_button.setEnabled(False)
+
         self.thread = QThread()
         self.worker = IdentificationWorker(
             self.transcription,
@@ -520,6 +522,8 @@ class SpeakerIdentificationWidget(QWidget):
 
         self.transcription_service.update_transcription_as_completed(new_transcript_id, segments)
 
+        # TODO - See if we can get rows in the transcription viewer to be of variable height
+        #        If text is longer they should expand
         if self.transcriptions_updated_signal:
             self.transcriptions_updated_signal.emit(new_transcript_id)
 
