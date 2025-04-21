@@ -26,6 +26,8 @@ include = [
     { path = "buzz/whisper_cpp.py", format = ["sdist", "wheel"] },
     { path = "buzz/locale/*/LC_MESSAGES/buzz.mo", format = ["sdist", "wheel"] },
     { path = "buzz/dll_backup/*", format = ["sdist", "wheel"] },
+    { path = "demucs/*", format = ["sdist", "wheel"] },
+    { path = "whisper_diarization/*", format = ["sdist", "wheel"] },
 ]
 
 [[tool.poetry.source]]
@@ -82,6 +84,7 @@ posthog = "^3.23.0"
 deepmultilingualpunctuation = {git = "https://github.com/oliverguhr/deepmultilingualpunctuation.git"}
 ctc-forced-aligner = {git = "https://github.com/MahmoudAshraf97/ctc-forced-aligner.git"}
 nemo-toolkit = {extras = ["asr"], version = "^2.2.1"}
+multidict = "6.4.3"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"

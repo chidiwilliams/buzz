@@ -237,7 +237,7 @@ ifeq ($(OS), Windows_NT)
 	done
 else
 	for dir in buzz/locale/*/ ; do \
-		python msgfmt.py -o $$dir/LC_MESSAGES/buzz.mo $$dir/LC_MESSAGES/buzz.po; \
+		python3 msgfmt.py -o $$dir/LC_MESSAGES/buzz.mo $$dir/LC_MESSAGES/buzz.po; \
 	done
 endif
 

@@ -1,6 +1,7 @@
 # Development notes:
-# - To build the snap run `snapcraft clean` and `snapcraft`
+# - To build the snap run `snapcraft clean` and `snapcraft --debug --verbosity verbose`
 # - To install local snap `snap install ./buzz_*.snap --dangerous`
+# - To check for issues `snapcraft lint buzz_*.snap`
 name: buzz
 base: core22
 version: git
@@ -22,43 +23,6 @@ architectures:
   - build-on: amd64
 
 parts:
-  desktop-qt5:
-    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
-    source-subdir: qt
-    plugin: make
-    make-parameters: [ "FLAVOR=qt5" ]
-    build-packages:
-      - build-essential
-      - qtbase5-dev
-      - dpkg-dev
-    stage-packages:
-      - libxkbcommon0
-      - fonts-ubuntu
-      - dmz-cursor-theme
-      - light-themes
-      - adwaita-icon-theme
-      - gnome-themes-standard
-      - shared-mime-info
-      - libqt5gui5
-      - libgdk-pixbuf2.0-0
-      - libqt5svg5 # for loading icon themes which are svg
-      - libglib2.0-0
-      - xdg-user-dirs
-    override-prime: |
-      craftctl default
-      glib-compile-schemas usr/share/glib-2.0/schemas
-
-  platform-modules:
-    plugin: nil
-    stage-packages:
-      - appmenu-gtk3-module
-      - libcanberra-gtk3-module
-
-  qt5-gtk-platform:
-    plugin: nil
-    stage-packages:
-      - qt5-gtk-platformtheme
-
   alsa-pulseaudio:
     plugin: dump
     source: .
@@ -81,19 +45,30 @@ parts:
 
   buzz:
     plugin: python
+    python-packages:
+      - numpy==1.26.4  # version from .lock file so sox can install
+      - typing-extensions==4.12.2  # version from .lock file so sox can install
     source: .
     build-packages:
       - portaudio19-dev
+      - build-essential
+      - git
+      - sox
     stage-packages:
+      # Theme support and platform modules
+      - qt5-gtk-platformtheme
+      - qt6-gtk-platformtheme
+      - appmenu-gtk3-module
+      - appmenu-gtk-module-common
+      - libcanberra-gtk3-module
       # Audio
       - ffmpeg
       - libportaudio2
       - libpulse0
-      - libasound2
       - libasound2-plugins
       - libasound2-plugins-extra
       - libyaml-dev
-      - libegl1-mesa
+      - libegl1
       - gstreamer1.0-plugins-good
       - gstreamer1.0-plugins-base-apps
       - gstreamer1.0-pulseaudio
@@ -114,45 +89,62 @@ parts:
       - libxcb-cursor0
       # GPU
       - libglu1-mesa
-    override-build: |
+    override-build: |     
+      # Run default build commands     
       craftctl default
-      pip install poetry
-      make translation_mo
-      pip install .
+      
+      # Update ctranslate to ensure it has no execstack issues
       pip uninstall -y ctranslate2
-      pip install https://github.com/raivisdejus/CTranslate2-no-execstack/releases/download/v4.2.1/ctranslate2-4.2.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+      pip install ctranslate2==4.6.0
       
       # Clean caches to reclaim space on CI
       apt-get autoremove -y
       apt-get clean
       pip cache purge
-      echo "yes" | poetry cache clear --all . 
       
-      # Build
-      python3 build.py
       mkdir $CRAFT_PART_INSTALL/buzz
       cp $CRAFT_PART_BUILD/buzz/whisper_cpp.py $CRAFT_PART_INSTALL/buzz/
       cp $CRAFT_PART_BUILD/buzz/libwhisper.so $CRAFT_PART_INSTALL/buzz/
-    after: [ desktop-qt5 ]
+      
+      mkdir -p $SNAPCRAFT_PRIME/bin
+      cp $CRAFT_PART_BUILD/flatpak/run-buzz.sh $SNAPCRAFT_PRIME/bin/run-buzz.sh
+      chmod +x $SNAPCRAFT_PRIME/bin/run-buzz.sh
+      
+      mkdir -p $SNAPCRAFT_PRIME/usr/share/applications/
+      cp buzz.desktop $SNAPCRAFT_PRIME/usr/share/applications/buzz.desktop
 
-  desktop-file:
-    plugin: dump
-    source: .
-    organize:
-      buzz.desktop: usr/share/applications/buzz.desktop
+  # This part removes all the files in this snap which already exist in
+  # connected content and base snaps. Since these files will be available
+  # at runtime from the content and base snaps, they do not need to be
+  # included in this snap itself.
+  #
+  # More info: https://forum.snapcraft.io/t/reducing-the-size-of-desktop-snaps/17280#heading--cleanup-part
+  cleanup:
+    after:  # Make this part run last; list all your other parts here
+      - buzz
+      - alsa-pulseaudio
+    plugin: nil
+    build-snaps:  # List all content-snaps and base snaps you're using here
+      - core22
+      - gnome-42-2204-sdk
+    override-prime: |
+      set -eux
+      for snap in core22 gnome-42-2204-sdk; do  # List all content-snaps and base snaps you're using here
+        cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$CRAFT_PRIME/{}" \;
+      done
 
 apps:
   buzz:
-    command: bin/desktop-launch python3 -m buzz
+    extensions: [gnome]
+    command: bin/run-buzz.sh
     desktop: usr/share/applications/buzz.desktop
     environment:
       PATH: $SNAP/usr/bin:$SNAP/bin:$PATH
-      LD_LIBRARY_PATH: $SNAP/lib/python3.10/site-packages/nvidia/cudnn/lib:$SNAP/lib/python3.10/site-packages/PyQt6:$SNAP/lib/python3.10/site-packages/PyQt6/Qt6/lib:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/lapack:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/blas:$SNAP:$LD_LIBRARY_PATH
-      PYTHONPATH: $SNAP/lib/python3.10/site-packages/PyQt6:$SNAP/lib/python3.10/site-packages/PyQt6/Qt6/lib:$SNAP/usr/lib/python3/dist-packages:$SNAP/usr/lib/python3.10/site-packages:$SNAP/usr/local/lib/python3.10/dist-packages:$SNAP/usr/lib/python3.10/dist-packages:$PYTHONPATH
-      # Fallback to XWayland if running in a Wayland session.
-      DISABLE_WAYLAND: 1
-      # Use GTK3 cursor theme, icon theme and open/save file dialogs.
-      QT_QPA_PLATFORMTHEME: gtk3
+      LD_LIBRARY_PATH: $SNAP/lib/python3.10/site-packages/nvidia/cudnn/lib:$SNAP/lib/python3.10/site-packages/PyQt6:$SNAP/lib/python3.10/site-packages/PyQt6/Qt6/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/lapack:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/blas:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pulseaudio:$SNAP:$LD_LIBRARY_PATH
+      PYTHONPATH: $SNAP/lib/python3.10/site-packages/PyQt6:$SNAP/lib/python3.10/site-packages/PyQt6/Qt6/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pulseaudio:$SNAP/usr/lib/python3/dist-packages:$SNAP/usr/lib/python3.10/site-packages:$SNAP/usr/local/lib/python3.10/dist-packages:$SNAP/usr/lib/python3.10/dist-packages:$PYTHONPATH
+      QT_QPA_PLATFORMTHEME: 'gnome'
+      GTK_USE_PORTAL: '1'
+      GDK_DEBUG: 'portals'
       QT_MEDIA_BACKEND: gstreamer
       ALSA_CONFIG_PATH: $SNAP/etc/asound.conf
       XDG_CONFIG_DIRS: $SNAP/etc/xdg:$XDG_CONFIG_DIRS
