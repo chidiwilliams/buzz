@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-06 20:58+0300\n"
+"POT-Creation-Date: 2025-04-24 19:34+0300\n"
 "PO-Revision-Date: 2025-03-20 18:30+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: none\n"
@@ -607,48 +607,52 @@ msgstr "Transcriptie openen"
 msgid "6/9 Converting audio"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:174
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:173
 msgid "7/9 Identifying speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:184
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:181
+msgid "0/0 Error identifying speakers"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:189
 msgid "8/9 Mapping speakers to transcripts"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:233
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:238
 msgid "9/9 Identification done"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:278
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:283
 msgid "Step 1: Identify speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:290
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:295
 msgid "Identify"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:300
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:305
 msgid "Ready to identify speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:302
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:307
 msgid "Audio file not found"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:318
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:323
 msgid "Step 2: Name speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:333
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:431
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:338
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:438
 msgid "Play sample"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:348
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:353
 msgid "Merge speaker sentences"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:353
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:358
 #, fuzzy
 msgid "Save"
 msgstr "Bestand opslaan"

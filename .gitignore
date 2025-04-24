@@ -33,3 +33,4 @@ benchmarks.json
 /wheelhouse/
 /.flatpak-builder
 /repo
+/nemo_msdd_configs
