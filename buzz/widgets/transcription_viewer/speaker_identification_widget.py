@@ -173,11 +173,17 @@ class IdentificationWorker(QObject):
         self.progress_update.emit(_("7/9 Identifying speakers"))
         logging.basicConfig(level=logging.INFO)
         logging.getLogger("nemo_logger").setLevel(logging.ERROR)
-        msdd_model = NeuralDiarizer(cfg=create_config(temp_path)).to(device)
-        msdd_model.diarize()
 
-        del msdd_model
-        torch.cuda.empty_cache()
+        try:
+            msdd_model = NeuralDiarizer(cfg=create_config(temp_path)).to(device)
+            msdd_model.diarize()
+        except Exception as e:
+            self.progress_update.emit(_("0/0 Error identifying speakers"))
+            logging.error(f"Error during diarization: {e}")
+            return
+        finally:
+            del msdd_model
+            torch.cuda.empty_cache()
 
         # Step 4 - Reading timestamps <> Speaker Labels mapping
         self.progress_update.emit(_("8/9 Mapping speakers to transcripts"))
