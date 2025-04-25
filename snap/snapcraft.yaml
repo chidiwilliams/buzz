@@ -89,6 +89,10 @@ parts:
       - libxcb-cursor0
       # GPU
       - libglu1-mesa
+      # Speaker identification
+      - perl
+      - perl-base
+      - perl-modules-5.34
     override-build: |     
       # Run default build commands     
       craftctl default
@@ -113,26 +117,6 @@ parts:
       mkdir -p $SNAPCRAFT_PRIME/usr/share/applications/
       cp buzz.desktop $SNAPCRAFT_PRIME/usr/share/applications/buzz.desktop
 
-  # This part removes all the files in this snap which already exist in
-  # connected content and base snaps. Since these files will be available
-  # at runtime from the content and base snaps, they do not need to be
-  # included in this snap itself.
-  #
-  # More info: https://forum.snapcraft.io/t/reducing-the-size-of-desktop-snaps/17280#heading--cleanup-part
-  cleanup:
-    after:  # Make this part run last; list all your other parts here
-      - buzz
-      - alsa-pulseaudio
-    plugin: nil
-    build-snaps:  # List all content-snaps and base snaps you're using here
-      - core22
-      - gnome-42-2204-sdk
-    override-prime: |
-      set -eux
-      for snap in core22 gnome-42-2204-sdk; do  # List all content-snaps and base snaps you're using here
-        cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$CRAFT_PRIME/{}" \;
-      done
-
 apps:
   buzz:
     extensions: [gnome]
@@ -142,6 +126,7 @@ apps:
       PATH: $SNAP/usr/bin:$SNAP/bin:$PATH
       LD_LIBRARY_PATH: $SNAP/lib/python3.10/site-packages/nvidia/cudnn/lib:$SNAP/lib/python3.10/site-packages/PyQt6:$SNAP/lib/python3.10/site-packages/PyQt6/Qt6/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/lapack:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/blas:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pulseaudio:$SNAP:$LD_LIBRARY_PATH
       PYTHONPATH: $SNAP/lib/python3.10/site-packages/PyQt6:$SNAP/lib/python3.10/site-packages/PyQt6/Qt6/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pulseaudio:$SNAP/usr/lib/python3/dist-packages:$SNAP/usr/lib/python3.10/site-packages:$SNAP/usr/local/lib/python3.10/dist-packages:$SNAP/usr/lib/python3.10/dist-packages:$PYTHONPATH
+      PERL5LIB: $SNAP/usr/share/perl/5.34.0:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/perl/5.34.0:$PERL5LIB
       QT_QPA_PLATFORMTHEME: 'gnome'
       GTK_USE_PORTAL: '1'
       GDK_DEBUG: 'portals'

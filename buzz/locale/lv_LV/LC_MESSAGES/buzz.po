@@ -652,7 +652,7 @@ msgstr "Atskaņot paraugu"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py:353
 msgid "Merge speaker sentences"
-msgstr "Apvienot runātāju teikumus"
+msgstr "Apvienot secīgus runātāja teikumus"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py:358
 msgid "Save"
