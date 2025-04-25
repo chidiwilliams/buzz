@@ -78,6 +78,12 @@ class TranscriptionViewerWidget(QWidget):
         self.translator = None
         self.view_mode = ViewMode.TIMESTAMPS
 
+        # Can't reuse this globally, as transcripts may get translated, so need to get them each time
+        segments = self.transcription_service.get_transcription_segments(
+            transcription_id=self.transcription.id_as_uuid
+        )
+        self.has_translations = any(segment.translation.strip() for segment in segments)
+
         self.openai_access_token = get_password(Key.OPENAI_API_KEY)
 
         preferences = self.load_preferences()
@@ -138,7 +144,11 @@ class TranscriptionViewerWidget(QWidget):
 
         toolbar = ToolBar(self)
 
-        view_mode_tool_button = TranscriptionViewModeToolButton(shortcuts, self)
+        view_mode_tool_button = TranscriptionViewModeToolButton(
+            shortcuts,
+            self.has_translations,
+            self.translator.translation,
+        )
         view_mode_tool_button.view_mode_changed.connect(self.on_view_mode_changed)
         toolbar.addWidget(view_mode_tool_button)
 
@@ -150,7 +160,11 @@ class TranscriptionViewerWidget(QWidget):
         )
 
         export_transcription_menu = ExportTranscriptionMenu(
-            transcription, transcription_service, self
+            transcription,
+            transcription_service,
+            self.has_translations,
+            self.translator.translation,
+            self
         )
         export_tool_button.setMenu(export_transcription_menu)
         export_tool_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
@@ -192,6 +206,7 @@ class TranscriptionViewerWidget(QWidget):
         if self.view_mode == ViewMode.TIMESTAMPS:
             self.text_display_box.hide()
             self.table_widget.show()
+            self.audio_player.show()
         elif self.view_mode == ViewMode.TEXT:
             segments = self.transcription_service.get_transcription_segments(
                 transcription_id=self.transcription.id_as_uuid
@@ -209,8 +224,8 @@ class TranscriptionViewerWidget(QWidget):
             self.text_display_box.setPlainText(combined_text.strip())
             self.text_display_box.show()
             self.table_widget.hide()
+            self.audio_player.hide()
         else: # ViewMode.TRANSLATION
-            # TODO add check for if translation exists
             segments = self.transcription_service.get_transcription_segments(
                 transcription_id=self.transcription.id_as_uuid
             )
@@ -219,6 +234,7 @@ class TranscriptionViewerWidget(QWidget):
             )
             self.text_display_box.show()
             self.table_widget.hide()
+            self.audio_player.hide()
 
     def on_view_mode_changed(self, view_mode: ViewMode) -> None:
         self.view_mode = view_mode

@@ -1,3 +1,4 @@
+import logging
 from enum import Enum
 from typing import Optional
 
@@ -20,13 +21,21 @@ class ViewMode(Enum):
 class TranscriptionViewModeToolButton(QToolButton):
     view_mode_changed = pyqtSignal(ViewMode)
 
-    def __init__(self, shortcuts: Shortcuts, parent: Optional[QWidget] = None):
+    def __init__(
+            self,
+            shortcuts: Shortcuts,
+            has_translation: bool,
+            translation: pyqtSignal,
+            parent: Optional[QWidget] = None
+    ):
         super().__init__(parent)
 
         self.setText(_("View"))
         self.setIcon(VisibilityIcon(self))
         self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         self.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+
+        translation.connect(self.on_translation_available)
 
         menu = QMenu(self)
 
@@ -36,11 +45,12 @@ class TranscriptionViewModeToolButton(QToolButton):
             lambda: self.view_mode_changed.emit(ViewMode.TEXT),
         )
 
-        menu.addAction(
+        self.translation_action = menu.addAction(
             _("Translation"),
             QKeySequence(shortcuts.get(Shortcut.VIEW_TRANSCRIPT_TRANSLATION)),
             lambda: self.view_mode_changed.emit(ViewMode.TRANSLATION)
         )
+        self.translation_action.setVisible(has_translation)
 
         menu.addAction(
             _("Timestamps"),
@@ -49,3 +59,6 @@ class TranscriptionViewModeToolButton(QToolButton):
         )
 
         self.setMenu(menu)
+
+    def on_translation_available(self):
+        self.translation_action.setVisible(True)
