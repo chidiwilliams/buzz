@@ -2,6 +2,7 @@ import pathlib
 import uuid
 
 import pytest
+from PyQt6.QtCore import QObject, pyqtSignal
 from pytestqt.qtbot import QtBot
 
 from buzz.db.entity.transcription import Transcription
@@ -12,6 +13,10 @@ from buzz.widgets.transcription_viewer.export_transcription_menu import (
     ExportTranscriptionMenu,
 )
 from tests.audio import test_audio_path
+
+
+class TranslationSignal(QObject):
+    translation = pyqtSignal(str, int)
 
 
 class TestExportTranscriptionMenu:
@@ -52,9 +57,13 @@ class TestExportTranscriptionMenu:
             return_value=(str(output_file_path), ""),
         )
 
+        translation_signal = TranslationSignal()
+
         widget = ExportTranscriptionMenu(
             transcription,
             transcription_service,
+            False,
+            translation_signal.translation
         )
         qtbot.add_widget(widget)
 
