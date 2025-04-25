@@ -15,6 +15,8 @@ concurrency:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
+    env:
+      BUZZ_DISABLE_TELEMETRY: true
     strategy:
       fail-fast: false
       matrix:
@@ -95,6 +97,9 @@ jobs:
 
   build:
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    env:
+      BUZZ_DISABLE_TELEMETRY: true
     strategy:
       fail-fast: false
       matrix:
@@ -224,6 +229,8 @@ jobs:
 
   build_wheels:
     runs-on: ${{ matrix.os }}
+    env:
+      BUZZ_DISABLE_TELEMETRY: true
     strategy:
       fail-fast: false
       matrix:
@@ -256,6 +263,8 @@ jobs:
   publish_pypi:
     needs: [build_wheels, test]
     runs-on: ubuntu-latest
+    env:
+      BUZZ_DISABLE_TELEMETRY: true
     environment: pypi
     permissions:
       id-token: write
@@ -274,6 +283,8 @@ jobs:
 
   release:
     runs-on: ${{ matrix.os }}
+    env:
+      BUZZ_DISABLE_TELEMETRY: true
     strategy:
       fail-fast: false
       matrix:
@@ -315,6 +326,8 @@ jobs:
 
   deploy_brew_cask:
     runs-on: macos-latest
+    env:
+      BUZZ_DISABLE_TELEMETRY: true
     needs: [release]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
