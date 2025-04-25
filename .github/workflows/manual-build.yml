@@ -9,6 +9,8 @@ concurrency:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    env:
+      BUZZ_DISABLE_TELEMETRY: true
     strategy:
       fail-fast: false
       matrix:
@@ -69,6 +71,8 @@ jobs:
 
   build-snap:
     runs-on: ubuntu-latest
+    env:
+      BUZZ_DISABLE_TELEMETRY: true
     outputs:
       snap: ${{ steps.snapcraft.outputs.snap }}
     steps:

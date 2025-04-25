@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 import locale
 import platform
@@ -180,16 +181,19 @@ class Application(QApplication):
 
         self.window = MainWindow(transcription_service)
 
-        posthog = Posthog(project_api_key='phc_NqZQUw8NcxfSXsbtk5eCFylmCQpp4FuNnd6ocPAzg2f',
-                          host='https://us.i.posthog.com')
-        posthog.capture(distinct_id=self.settings.get_user_identifier(), event="app_launched", properties={
-            "app": VERSION,
-            "locale": locale.getdefaultlocale(),
-            "system": platform.system(),
-            "release": platform.release(),
-            "machine": platform.machine(),
-            "version": platform.version(),
-        })
+        disable_telemetry = os.getenv("BUZZ_DISABLE_TELEMETRY", None)
+
+        if not disable_telemetry:
+            posthog = Posthog(project_api_key='phc_NqZQUw8NcxfSXsbtk5eCFylmCQpp4FuNnd6ocPAzg2f',
+                              host='https://us.i.posthog.com')
+            posthog.capture(distinct_id=self.settings.get_user_identifier(), event="app_launched", properties={
+                "app": VERSION,
+                "locale": locale.getdefaultlocale(),
+                "system": platform.system(),
+                "release": platform.release(),
+                "machine": platform.machine(),
+                "version": platform.version(),
+            })
 
         logging.debug(f"Launching Buzz: {VERSION}, " 
                       f"locale: {locale.getdefaultlocale()}, "
