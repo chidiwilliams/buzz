@@ -62,10 +62,9 @@ class IdentificationWorker(QObject):
     finished = pyqtSignal(list)
     progress_update = pyqtSignal(str)
 
-    def __init__(self, transcription, transcription_options, transcription_service):
+    def __init__(self, transcription, transcription_service):
         super().__init__()
         self.transcription = transcription
-        self.transcription_options = transcription_options
         self.transcription_service = transcription_service
 
     def get_transcript(self, audio, **kwargs) -> dict:
@@ -267,15 +266,6 @@ class SpeakerIdentificationWidget(QWidget):
 
         self.setWindowTitle(file_path_as_title(transcription.file))
 
-        preferences = self.load_preferences()
-
-        (
-            self.transcription_options,
-            self.file_transcription_options,
-        ) = preferences.to_transcription_options(
-            openai_access_token=''
-        )
-
         layout = QFormLayout(self)
         layout.setSizeConstraint(QLayout.SizeConstraint.SetMinAndMaxSize)
 
@@ -372,19 +362,12 @@ class SpeakerIdentificationWidget(QWidget):
         self.player.setSource(url)
         self.player_timer = None
 
-    def load_preferences(self):
-        self.settings.settings.beginGroup("file_transcriber")
-        preferences = FileTranscriptionPreferences.load(settings=self.settings.settings)
-        self.settings.settings.endGroup()
-        return preferences
-
     def on_identify_button_clicked(self):
         self.step_1_button.setEnabled(False)
 
         self.thread = QThread()
         self.worker = IdentificationWorker(
             self.transcription,
-            self.transcription_options,
             self.transcription_service
         )
         self.worker.moveToThread(self.thread)
@@ -542,5 +525,13 @@ class SpeakerIdentificationWidget(QWidget):
 
     def closeEvent(self, event):
         self.hide()
+
+        if self.worker is not None:
+            self.worker.stop()
+            self.worker.deleteLater()
+
+        if self.thread is not None:
+            self.thread.quit()
+            self.thread.wait()
 
         super().closeEvent(event)

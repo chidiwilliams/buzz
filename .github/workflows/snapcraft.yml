@@ -15,6 +15,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      BUZZ_DISABLE_TELEMETRY: true
     outputs:
       snap: ${{ steps.snapcraft.outputs.snap }}
     steps:
