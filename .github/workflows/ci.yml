@@ -147,7 +147,7 @@ jobs:
 
       - name: Downgrade torch for Intel macOS
         run: |
-          poetry add torch==2.2.2 torchaudio==2.2.2
+          poetry add torch==2.2.2 torchaudio==2.2.2 nemo_toolkit[asr]==2.0.0
         if: "matrix.os == 'macos-13'"
 
       - name: Install dependencies

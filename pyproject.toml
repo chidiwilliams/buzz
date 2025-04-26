@@ -56,8 +56,8 @@ accelerate = "^1.0.1"
 polib = "^1.2.0"
 srt-equalizer = "^0.1.10"
 # torch 2.2.2 is last with intel macOS support, during build torch will be downgraded
-torch = "2.6.0"
-torchaudio = "2.6.0"
+torch = "2.7.0"
+torchaudio = "2.7.0"
 # ctranslate2 4.3.1 is last with intel macOS support
 ctranslate2 = "4.3.1"
 darkdetect = "^0.8.0"
@@ -83,6 +83,7 @@ demucs = {url = "https://github.com/raivisdejus/demucs/releases/download/4.1.0a3
 posthog = "^3.23.0"
 deepmultilingualpunctuation = {git = "https://github.com/oliverguhr/deepmultilingualpunctuation.git"}
 ctc-forced-aligner = {git = "https://github.com/MahmoudAshraf97/ctc-forced-aligner.git"}
+# Will be downgraded to 2.0.0 on intel macOS
 nemo-toolkit = {extras = ["asr"], version = "^2.2.1"}
 multidict = "6.4.3"
 

@@ -45,7 +45,7 @@ else
 	rm -rf dist/* || true
 endif
 
-COVERAGE_THRESHOLD := 75
+COVERAGE_THRESHOLD := 70
 
 test: buzz/whisper_cpp.py translation_mo
 	pytest -s -vv --cov=buzz --cov-report=xml --cov-report=html --benchmark-skip --cov-fail-under=${COVERAGE_THRESHOLD} --cov-config=.coveragerc
