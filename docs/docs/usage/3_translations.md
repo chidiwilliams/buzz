@@ -2,7 +2,7 @@
 title: Translations
 ---
 
-Default `Translation` task uses Whisper model ability to translate to English. Since version `1.0.0` Buzz supports additional AI translations to any other language.
+Default `Translation` task uses Whisper model ability to translate to English, however `Large-V3-Turbo` is not compatible with this standard. Since version `1.0.0` Buzz supports additional AI translations to any other language.
 
 To use translation feature you will need to configure OpenAI API key and translation settings. Set OpenAI API ket in Preferences. Buzz also supports custom locally running translation AIs that support OpenAI API. For more information on locally running AIs see [ollama](https://ollama.com/blog/openai-compatibility) or [LM Studio](https://lmstudio.ai/). For information on available custom APIs see this [discussion thread](https://github.com/chidiwilliams/buzz/discussions/827).
 
