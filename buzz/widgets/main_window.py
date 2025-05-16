@@ -61,8 +61,6 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(QIcon(BUZZ_ICON_PATH))
-        self.setBaseSize(1240, 600)
-        self.resize(1240, 600)
 
         self.setAcceptDrops(True)
 
@@ -444,4 +442,7 @@ class MainWindow(QMainWindow):
         geometry = self.settings.settings.value("geometry")
         if geometry is not None:
             self.restoreGeometry(geometry)
+        else:
+            self.setBaseSize(1240, 600)
+            self.resize(1240, 600)
         self.settings.end_group()
