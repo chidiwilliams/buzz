@@ -1,0 +1,17 @@
+[Desktop Entry]
+
+Type=Application
+
+Encoding=UTF-8
+
+Name=Buzz
+
+Comment=Buzz transcribes and translates audio offline on your personal computer.
+
+Path=/opt/buzz
+
+Exec=/opt/buzz/Buzz
+
+Icon=buzz
+
+Terminal=false
