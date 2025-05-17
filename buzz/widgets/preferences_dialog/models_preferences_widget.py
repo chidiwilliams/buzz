@@ -182,6 +182,10 @@ class ModelsPreferencesWidget(QWidget):
                     model_size == WhisperModelSize.CUSTOM):
                 continue
 
+            # Skip LUMII size for all non Latvians
+            if model_size == WhisperModelSize.LUMII:
+                continue
+
             model = TranscriptionModel(
                 model_type=self.model.model_type,
                 whisper_model_size=WhisperModelSize(model_size),

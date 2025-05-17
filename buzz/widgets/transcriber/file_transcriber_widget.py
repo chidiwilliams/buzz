@@ -1,3 +1,4 @@
+import logging
 from typing import Optional, List, Tuple
 
 from PyQt6 import QtGui
@@ -10,7 +11,7 @@ from PyQt6.QtWidgets import (
 
 from buzz.dialogs import show_model_download_error_dialog
 from buzz.locale import _
-from buzz.model_loader import ModelDownloader
+from buzz.model_loader import ModelDownloader, WhisperModelSize, ModelType
 from buzz.paths import file_path_as_title
 from buzz.settings.settings import Settings
 from buzz.store.keyring_store import get_password, Key
@@ -74,6 +75,10 @@ class FileTranscriberWidget(QWidget):
         )
         self.form_widget.openai_access_token_changed.connect(
             self.openai_access_token_changed
+        )
+
+        self.form_widget.transcription_options_changed.connect(
+            self.reset_transcriber_controls
         )
 
         self.run_button = QPushButton(_("Run"), self)
@@ -154,7 +159,17 @@ class FileTranscriberWidget(QWidget):
         self.reset_transcriber_controls()
 
     def reset_transcriber_controls(self):
-        self.run_button.setDisabled(False)
+        button_enabled = True
+        if (self.transcription_options.model.model_type == ModelType.FASTER_WHISPER
+                and self.transcription_options.model.whisper_model_size == WhisperModelSize.CUSTOM
+                and self.transcription_options.model.hugging_face_model_id == ""):
+            button_enabled = False
+
+        if (self.transcription_options.model.model_type == ModelType.HUGGING_FACE
+                and self.transcription_options.model.hugging_face_model_id == ""):
+            button_enabled = False
+
+        self.run_button.setEnabled(button_enabled)
 
     def on_cancel_model_progress_dialog(self):
         self.reset_transcriber_controls()

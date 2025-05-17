@@ -3,7 +3,7 @@ import logging
 import platform
 from typing import Optional, List
 
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal, QLocale
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QGroupBox, QWidget, QFormLayout, QComboBox, QLabel, QHBoxLayout
 
@@ -35,6 +35,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
     ):
         super().__init__(title="", parent=parent)
         self.settings = Settings()
+        self.ui_locale = self.settings.value(Settings.Key.UI_LOCALE, QLocale().name())
         self.transcription_options = default_transcription_options
 
         self.form_layout = QFormLayout(self)
@@ -55,7 +56,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
 
         self.whisper_model_size_combo_box = QComboBox(self)
         self.whisper_model_size_combo_box.addItems(
-            [size.value.title() for size in WhisperModelSize if size not in {WhisperModelSize.CUSTOM}]
+            [size.value.title() for size in WhisperModelSize if size not in {WhisperModelSize.CUSTOM, WhisperModelSize.LUMII}]
         )
         self.whisper_model_size_combo_box.currentTextChanged.connect(
             self.on_whisper_model_size_changed
@@ -188,6 +189,18 @@ class TranscriptionOptionsGroupBox(QGroupBox):
                 WhisperModelSize.CUSTOM.value.title()
             )
 
+        # Leave LUMII model only for Latvian whisper_cpp
+        lumii_model_index = (self.whisper_model_size_combo_box
+                              .findText(WhisperModelSize.LUMII.value.title()))
+
+        if lumii_model_index != -1 and (model_type != ModelType.WHISPER_CPP or self.ui_locale != "lv_LV"):
+            self.whisper_model_size_combo_box.removeItem(lumii_model_index)
+
+        if lumii_model_index == -1 and model_type == ModelType.WHISPER_CPP and self.ui_locale == "lv_LV":
+            self.whisper_model_size_combo_box.addItem(
+                WhisperModelSize.LUMII.value.title()
+            )
+
         self.whisper_model_size_combo_box.setCurrentText(
             self.transcription_options.model.whisper_model_size.value.title()
         )
@@ -220,6 +233,10 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.transcription_options.model.model_type = model_type
         if not model_type.supports_initial_prompt:
             self.transcription_options.initial_prompt = ""
+
+        if (self.transcription_options.model.whisper_model_size == WhisperModelSize.LUMII
+                and model_type != ModelType.WHISPER_CPP):
+            self.transcription_options.model.whisper_model_size = WhisperModelSize.LARGEV3TURBO
 
         self.reset_visible_rows()
         self.transcription_options_changed.emit(self.transcription_options)
