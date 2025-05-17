@@ -44,14 +44,19 @@ logging.debug("Model root directory: %s", model_root_dir)
 
 class WhisperModelSize(str, enum.Enum):
     TINY = "tiny"
+    TINYEN = "tiny.en"
     BASE = "base"
+    BASEEN = "base.en"
     SMALL = "small"
+    SMALLEN = "small.en"
     MEDIUM = "medium"
+    MEDIUMEN = "medium.en"
     LARGE = "large"
     LARGEV2 = "large-v2"
     LARGEV3 = "large-v3"
     LARGEV3TURBO = "large-v3-turbo"
     CUSTOM = "custom"
+    LUMII = "lumii"
 
     def to_faster_whisper_model_size(self) -> str:
         if self == WhisperModelSize.LARGE:
@@ -242,17 +247,23 @@ class TranscriptionModel:
 
 
 WHISPER_CPP_REPO_ID = "ggerganov/whisper.cpp"
+WHISPER_CPP_LUMII_REPO_ID = "RaivisDejus/whisper.cpp-lv"
 
 
 def get_whisper_cpp_file_path(size: WhisperModelSize) -> str:
     if size == WhisperModelSize.CUSTOM:
         return os.path.join(model_root_dir, f"ggml-model-whisper-custom.bin")
 
+    repo_id = WHISPER_CPP_REPO_ID
+
+    if size == WhisperModelSize.LUMII:
+        repo_id = WHISPER_CPP_LUMII_REPO_ID
+
     model_filename = f"ggml-{size.to_whisper_cpp_model_size()}.bin"
 
     try:
         model_path =  huggingface_hub.snapshot_download(
-            repo_id=WHISPER_CPP_REPO_ID,
+            repo_id=repo_id,
             allow_patterns=[model_filename],
             local_files_only=True,
             cache_dir=model_root_dir,
@@ -451,6 +462,11 @@ class ModelDownloader(QRunnable):
                 file_path = get_whisper_cpp_file_path(size=self.model.whisper_model_size)
                 return self.download_model_to_path(url=url, file_path=file_path)
 
+            repo_id = WHISPER_CPP_REPO_ID
+
+            if self.model.whisper_model_size == WhisperModelSize.LUMII:
+                repo_id = WHISPER_CPP_LUMII_REPO_ID
+
             model_name = self.model.whisper_model_size.to_whisper_cpp_model_size()
 
             whisper_cpp_model_files = [
@@ -467,7 +483,7 @@ class ModelDownloader(QRunnable):
                 num_large_files = 2
 
             model_path = download_from_huggingface(
-                repo_id=WHISPER_CPP_REPO_ID,
+                repo_id=repo_id,
                 allow_patterns=whisper_cpp_model_files,
                 progress=self.signals.progress,
                 num_large_files=num_large_files

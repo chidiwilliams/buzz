@@ -45,16 +45,17 @@ Linux versions get also pushed to the snap. To install latest development versio
 
 1. Clone the repository `git clone --recursive https://github.com/chidiwilliams/buzz.git`
 2. Enter repo folder `cd buzz`
-3. Install Poetry `pipx install poetry`
-4. Activate the virtual environment `poetry shell`
-5. Install the dependencies `poetry install`
-6. Install system dependencies you may be missing 
+3. Create virtual environment `python -m venv venv` (needs to be done only the first time)
+4. Activate the virtual environment `source venv/bin/activate`
+5. Install Poetry `pip install poetry`
+6. Install the dependencies `poetry install`
+7. Install system dependencies you may be missing 
 ```
 sudo apt-get install --no-install-recommends libyaml-dev libtbb-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 ffmpeg
 ```
 On versions prior to Ubuntu 24.04 install `sudo apt-get install --no-install-recommends libegl1-mesa`
-7. Build Buzz `poetry build`
-8. Run Buzz `python -m buzz`
+8. Build Buzz `poetry build`
+9. Run Buzz `python -m buzz`
 
 #### Necessary dependencies for Faster Whisper on GPU
 
@@ -75,12 +76,13 @@ On versions prior to Ubuntu 24.04 install `sudo apt-get install --no-install-rec
 
 1. Clone the repository `git clone --recursive https://github.com/chidiwilliams/buzz.git`
 2. Enter repo folder `cd buzz`
-3. Install Poetry `brew install poetry`
-4. Activate the virtual environment `poetry shell`
-5. Install the dependencies `poetry install`
-6. Install system dependencies you may be missing `brew install ffmpeg`
-7. Build Buzz `poetry build`
-8. Run Buzz `python -m buzz`
+3. Create virtual environment `python -m venv venv` (needs to be done only the first time)
+4. Activate the virtual environment `source venv/bin/activate`
+5. Install Poetry `pip install poetry`
+6. Install the dependencies `poetry install`
+7. Install system dependencies you may be missing `brew install ffmpeg`
+8. Build Buzz `poetry build`
+9. Run Buzz `python -m buzz`
 
 
 
