@@ -8,22 +8,22 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-03-06 19:12+0200\n"
-"PO-Revision-Date: 2023-11-09 04:35-0600\n"
-"Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
+"PO-Revision-Date: 2025-05-17 18:27+0200\n"
+"Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: \n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.4.1\n"
+"X-Generator: Poedit 3.6\n"
 
 #: buzz/widgets/import_url_dialog.py:19 buzz/settings/shortcut.py:19
 msgid "Import URL"
-msgstr ""
+msgstr "URL de importación"
 
 #: buzz/widgets/import_url_dialog.py:22
 msgid "https://example.com/audio.mp3"
-msgstr ""
+msgstr "https://ejemplo.com/audio.mp3"
 
 #: buzz/widgets/import_url_dialog.py:28
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:69
@@ -31,165 +31,166 @@ msgstr ""
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:97
 #: buzz/widgets/main_window.py:240
 msgid "Ok"
-msgstr ""
+msgstr "Ok"
 
 #: buzz/widgets/import_url_dialog.py:29
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:70
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:246
 #: buzz/widgets/model_download_progress_dialog.py:29
 #: buzz/widgets/main_window.py:241
-#, fuzzy
 msgid "Cancel"
-msgstr "Cancelado"
+msgstr "Cancelar"
 
 #: buzz/widgets/import_url_dialog.py:34
 msgid "URL:"
-msgstr ""
+msgstr "URL:"
 
 #: buzz/widgets/import_url_dialog.py:44
 msgid "Invalid URL"
-msgstr ""
+msgstr "URL inválido"
 
 #: buzz/widgets/import_url_dialog.py:44
 msgid "The URL you entered is invalid."
-msgstr ""
+msgstr "La URL que has introducido no es válida."
 
 #: buzz/widgets/preferences_dialog/shortcuts_editor_preferences_widget.py:29
 msgid "Reset to Defaults"
-msgstr ""
+msgstr "Reestablecer los Valores por Defecto"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:35
 #: buzz/transcriber/transcriber.py:38
 msgid "English"
-msgstr ""
+msgstr "Inglés"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:36
 #: buzz/transcriber/transcriber.py:49
 msgid "Catalan"
-msgstr ""
+msgstr "Catalán"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:37
 #: buzz/transcriber/transcriber.py:64
 msgid "Danish"
-msgstr ""
+msgstr "Danés"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:38
 #: buzz/transcriber/transcriber.py:40
 msgid "German"
-msgstr ""
+msgstr "Alemán"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:39
 #: buzz/transcriber/transcriber.py:41
 msgid "Spanish"
-msgstr ""
+msgstr "Español"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:40
 #: buzz/transcriber/transcriber.py:53
 msgid "Italian"
-msgstr ""
+msgstr "Italiano"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:41
 #: buzz/transcriber/transcriber.py:45
 msgid "Japanese"
-msgstr ""
+msgstr "Japonés"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:42
 #: buzz/transcriber/transcriber.py:80
 msgid "Latvian"
-msgstr ""
+msgstr "Letón"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:43
 #: buzz/transcriber/transcriber.py:48
 msgid "Polish"
-msgstr ""
+msgstr "Polaco"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:44
 #: buzz/transcriber/transcriber.py:59
 msgid "Ukrainian"
-msgstr ""
+msgstr "Ucraniano"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:45
 msgid "Chinese (Simplified)"
-msgstr ""
+msgstr "Chino (simplificado)"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:46
 msgid "Chinese (Traditional)"
-msgstr ""
+msgstr "Chino (tradicional)"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:84
 msgid "Restart required!"
-msgstr ""
+msgstr "¡Es necesario reiniciar!"
 
 # automatic translation
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:88
-#, fuzzy
 msgid "Ui Language"
-msgstr "Idioma:"
+msgstr "Lenguaje de interfaz de usuario"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:96
 msgid "Font Size"
-msgstr ""
+msgstr "Tamaño de fuente"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:105
 msgid "Test"
-msgstr ""
+msgstr "Prueba"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:111
 msgid "OpenAI API key"
-msgstr ""
+msgstr "Clave API de OpenAI"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:124
 msgid "OpenAI base url"
-msgstr ""
+msgstr "URL base de OpenAI"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:133
 msgid "Default export file name"
-msgstr ""
+msgstr "Nombre de archivo de exportación predeterminado"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:139
 msgid "Enable live recording transcription export"
-msgstr ""
+msgstr "Habilitar la exportación de transcripción de grabación en vivo"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:145
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:47
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:50
 msgid "Browse"
-msgstr ""
+msgstr "Navegar"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:164
 msgid "Export folder"
-msgstr ""
+msgstr "Carpeta de exportación"
 
 # automatic translation
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:175
-#, fuzzy
 msgid "Live recording mode"
-msgstr "Grabación en vivo"
+msgstr "Modo de grabación en directo"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:200
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:206
 msgid "OpenAI API Key Test"
-msgstr ""
+msgstr "Prueba de la clave API de OpenAI"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:201
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
 msgstr ""
+"Tu clave API es válida. Buzz usará esta clave para realizar transcripciones "
+"de la API de Whisper y traducciones de IA."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:217
 msgid "Invalid API key"
-msgstr ""
+msgstr "Clave API no válida"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:218
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
 msgstr ""
+"La API solo admite caracteres base64 (A-Za-z0-9+/=_-). Otros caracteres de "
+"la clave de API pueden causar errores."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:236
 msgid "Select Export Folder"
-msgstr ""
+msgstr "Seleccione Exportar carpeta"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:296
 msgid ""
@@ -197,38 +198,39 @@ msgid ""
 "Transcription and translation may still work if the API does not support key "
 "validation."
 msgstr ""
+"La API de OpenAI devolvió una respuesta no válida. Compruebe la URL de la "
+"API o su clave. Es posible que la transcripción y la traducción sigan "
+"funcionando si la API no admite la validación de claves."
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:42
 msgid "Enable folder watch"
-msgstr ""
+msgstr "Habilitar la inspección de carpetas"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:94
 msgid "Input folder"
-msgstr ""
+msgstr "Carpeta de entrada"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:95
 msgid "Output folder"
-msgstr ""
+msgstr "Carpeta de salida"
 
 # automatic translation
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:105
-#, fuzzy
 msgid "Select Input Folder"
-msgstr "Seleccionar archivo de audio"
+msgstr "Seleccione la carpeta de entrada"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:114
 msgid "Select Output Folder"
-msgstr ""
+msgstr "Seleccione la carpeta de salida"
 
 # automatic translation
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:43
-#, fuzzy
 msgid "Preferences"
-msgstr "Preferencias..."
+msgstr "Preferencias"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:50
 msgid "General"
-msgstr "Generales"
+msgstr "General"
 
 # automatic translation
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:53
@@ -241,15 +243,15 @@ msgstr "Atajos"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:63
 msgid "Folder Watch"
-msgstr ""
+msgstr "Vigilancia de carpetas"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:70
 msgid "Group"
-msgstr ""
+msgstr "Grupo"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:82
 msgid "Huggingface ID of a Faster whisper model"
-msgstr ""
+msgstr "Identificación de un modelo Más rápido whisper"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:94
 msgid "Download"
@@ -273,7 +275,7 @@ msgstr "Disponible para descarga"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:164
 msgid "Download link to Whisper.cpp ggml model file"
-msgstr ""
+msgstr "Enlace de descarga a Whisper.cpp archivo de modelo ggml"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:239
 msgid "Delete Model"
@@ -285,9 +287,8 @@ msgid "Are you sure you want to delete the selected model?"
 msgstr "¿Confirma que quiere eliminar el modelo seleccionado?"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:268
-#, fuzzy
 msgid "Download failed"
-msgstr "Descargado"
+msgstr "Descarga fallida"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:269
 #: buzz/widgets/main_window.py:297 buzz/model_loader.py:499
@@ -324,10 +325,11 @@ msgstr "Modelo:"
 #: buzz/widgets/transcriber/transcription_options_group_box.py:104
 msgid "First time use of a model may take up to several minutest to load."
 msgstr ""
+"El uso por primera vez de un modelo puede tardar varios minutos en cargarse."
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py:114
 msgid "Api Key:"
-msgstr ""
+msgstr "Clave API:"
 
 # automatic translation
 #: buzz/widgets/transcriber/transcription_options_group_box.py:115
@@ -341,7 +343,7 @@ msgstr "Idioma:"
 
 #: buzz/widgets/transcriber/initial_prompt_text_edit.py:10
 msgid "Enter prompt..."
-msgstr ""
+msgstr "Introducir prompt..."
 
 # automatic translation
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:33
@@ -350,7 +352,7 @@ msgstr "Configuración avanzada"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:37
 msgid "Speech recognition settings"
-msgstr ""
+msgstr "Configuración de reconocimiento de voz"
 
 # automatic translation
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:46
@@ -369,25 +371,24 @@ msgstr "Indicación inicial:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:68
 msgid "Translation settings"
-msgstr ""
+msgstr "Ajustes de traducción"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:72
 msgid "Enable AI translation"
-msgstr ""
+msgstr "Habilite la traducción con IA"
 
 # automatic translation
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:84
-#, fuzzy
 msgid "AI model:"
-msgstr "Modelo:"
+msgstr "Modelo de IA:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:88
 msgid "Enter instructions for AI on how to translate..."
-msgstr ""
+msgstr "Introduzca instrucciones para la IA sobre cómo traducir..."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:92
 msgid "Instructions for AI:"
-msgstr ""
+msgstr "Instrucciones para la IA:"
 
 # automatic translation
 #: buzz/widgets/transcriber/file_transcription_form_widget.py:43
@@ -396,31 +397,29 @@ msgstr "Tiempos a nivel de palabra"
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py:54
 msgid "Extract speech"
-msgstr ""
+msgstr "Extraer voz"
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py:77
 msgid "Export:"
-msgstr ""
+msgstr "Exportar:"
 
 #: buzz/widgets/transcriber/hugging_face_search_line_edit.py:37
 msgid "Huggingface ID of a model"
-msgstr ""
+msgstr "Huggingface ID de un modelo"
 
 #: buzz/widgets/transcriber/advanced_settings_button.py:9
 msgid "Advanced..."
-msgstr ""
+msgstr "Avanzado..."
 
 # automatic translation
 #: buzz/widgets/main_window_toolbar.py:43
-#, fuzzy
 msgid "New File Transcription"
-msgstr "Transcripción nueva"
+msgstr "Nueva transcripción de archivos"
 
 # automatic translation
 #: buzz/widgets/main_window_toolbar.py:50
-#, fuzzy
 msgid "New URL Transcription"
-msgstr "Transcripción nueva"
+msgstr "Nueva transcripción de URL"
 
 # automatic translation
 #: buzz/widgets/main_window_toolbar.py:57
@@ -440,7 +439,7 @@ msgstr "Vaciar historial"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:66
 msgid "In Progress"
-msgstr ""
+msgstr "En Progreso"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:69
 msgid "Completed"
@@ -448,7 +447,7 @@ msgstr "Completado"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:76
 msgid "Failed"
-msgstr ""
+msgstr "Fallido"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:79
 msgid "Canceled"
@@ -460,21 +459,18 @@ msgstr "En cola"
 
 # automatic translation
 #: buzz/widgets/transcription_tasks_table_widget.py:88
-#, fuzzy
 msgid "File Name / URL"
-msgstr "Nombre de archivo"
+msgstr "Nombre de archivo / URL"
 
 # automatic translation
 #: buzz/widgets/transcription_tasks_table_widget.py:100
-#, fuzzy
 msgid "Model"
-msgstr "Modelo:"
+msgstr "Modelo"
 
 # automatic translation
 #: buzz/widgets/transcription_tasks_table_widget.py:109
-#, fuzzy
 msgid "Task"
-msgstr "Tarea:"
+msgstr "Tarea"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:118
 msgid "Status"
@@ -482,12 +478,11 @@ msgstr "Estado"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:126
 msgid "Date Added"
-msgstr ""
+msgstr "Fecha de adición"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:137
-#, fuzzy
 msgid "Date Completed"
-msgstr "Completado"
+msgstr "Fecha de finalización"
 
 # automatic translation
 #: buzz/widgets/recording_transcriber_widget.py:79
@@ -501,7 +496,7 @@ msgstr "Pulse en Grabar para comenzar..."
 
 #: buzz/widgets/recording_transcriber_widget.py:147
 msgid "Waiting for AI translation..."
-msgstr ""
+msgstr "A la espera de la traducción de la IA..."
 
 # automatic translation
 #: buzz/widgets/recording_transcriber_widget.py:159
@@ -530,7 +525,7 @@ msgstr "Buscar actualizaciones"
 # automatic translation
 #: buzz/widgets/about_dialog.py:109
 msgid "You're up to date!"
-msgstr "Está al día."
+msgstr "¡Estás al día!"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:93
 msgid "Start"
@@ -551,67 +546,66 @@ msgstr "Texto"
 #: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:40
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:31
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:64
-#, fuzzy
 msgid "Translation"
-msgstr "Transcripción nueva"
+msgstr "Traducción"
 
 #: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:26
 msgid "View"
-msgstr ""
+msgstr "Ver"
 
 #: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:46
 msgid "Timestamps"
-msgstr ""
+msgstr "Marcas de tiempo"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:146
 msgid "Export"
-msgstr ""
+msgstr "Exportar"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:160
 #: buzz/transcriber/transcriber.py:24
 msgid "Translate"
-msgstr ""
+msgstr "Traducir"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:170
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:168
 msgid "Resize"
-msgstr ""
+msgstr "Cambiar el tamaño"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:269
 msgid "API Key Required"
-msgstr ""
+msgstr "Clave de API requerida"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:270
 msgid "Please enter OpenAI API Key in preferences"
-msgstr ""
+msgstr "Ingrese la clave API de OpenAI en las preferencias"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:150
 msgid "Resize Options"
-msgstr ""
+msgstr "Opciones de cambio de tamaño"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:161
 msgid "Desired subtitle length"
-msgstr ""
+msgstr "Longitud deseada de los subtítulos"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:186
 msgid "Merge Options"
-msgstr ""
+msgstr "Opciones de fusión"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:197
 msgid "Merge by gap"
-msgstr ""
+msgstr "Fusión por hueco"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:205
 msgid "Split by punctuation"
-msgstr ""
+msgstr "Dividido por puntuación"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:213
 msgid "Split by max length"
-msgstr ""
+msgstr "Dividido por la longitud máxima"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:225
 msgid "Merge"
-msgstr ""
+msgstr "Fusión"
 
 # automatic translation
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:78
@@ -624,47 +618,48 @@ msgstr "Archivos de texto"
 
 #: buzz/widgets/snap_notice.py:9
 msgid "Snap permission notice"
-msgstr ""
+msgstr "Aviso de permiso Snap"
 
 #: buzz/widgets/snap_notice.py:13
 msgid ""
 "Detected missing permissions, please check that snap permissions have been "
 "granted"
 msgstr ""
+"Se ha detectado que faltan permisos, compruebe que se han concedido los "
+"permisos snap"
 
 #: buzz/widgets/snap_notice.py:16
 msgid ""
 "To enable necessary permissions run the following commands in the terminal"
 msgstr ""
+"Para habilitar los permisos necesarios ejecute los siguientes comandos en el "
+"terminal"
 
 #: buzz/widgets/snap_notice.py:27
 msgid "Close"
-msgstr ""
+msgstr "Cerrar"
 
 #: buzz/widgets/model_download_progress_dialog.py:36
-#, fuzzy
 msgid "Downloading model"
-msgstr "Descargado"
+msgstr "Descargando modelo"
 
 #: buzz/widgets/model_download_progress_dialog.py:37
 msgid "remaining"
-msgstr ""
+msgstr "restantes"
 
 # automatic translation
 #: buzz/widgets/menu_bar.py:38
-#, fuzzy
 msgid "Import File..."
-msgstr "Importar archivo multimedia..."
+msgstr "Importar archivo..."
 
 # automatic translation
 #: buzz/widgets/menu_bar.py:41
-#, fuzzy
 msgid "Import URL..."
-msgstr "Importar archivo multimedia..."
+msgstr "Importar URL..."
 
 #: buzz/widgets/menu_bar.py:44
 msgid "About"
-msgstr ""
+msgstr "Acerca de"
 
 # automatic translation
 #: buzz/widgets/menu_bar.py:48
@@ -697,423 +692,417 @@ msgstr "Seleccionar archivo de audio"
 
 #: buzz/widgets/main_window.py:297
 msgid "Unable to save OpenAI API key to keyring"
-msgstr ""
+msgstr "No se puede guardar la clave de la API de OpenAI en el llavero"
 
 # automatic translation
 #: buzz/transcriber/transcriber.py:25
-#, fuzzy
 msgid "Transcribe"
-msgstr "Abrir transcripción"
+msgstr "Transcribir"
 
 #: buzz/transcriber/transcriber.py:39
 msgid "Chinese"
-msgstr ""
+msgstr "China"
 
 #: buzz/transcriber/transcriber.py:42
 msgid "Russian"
-msgstr ""
+msgstr "Ruso"
 
 #: buzz/transcriber/transcriber.py:43
 msgid "Korean"
-msgstr ""
+msgstr "Coreano"
 
 #: buzz/transcriber/transcriber.py:44
 msgid "French"
-msgstr ""
+msgstr "Francés"
 
 #: buzz/transcriber/transcriber.py:46
 msgid "Portuguese"
-msgstr ""
+msgstr "Portugués"
 
 #: buzz/transcriber/transcriber.py:47
 msgid "Turkish"
-msgstr ""
+msgstr "Turco"
 
 #: buzz/transcriber/transcriber.py:50
 msgid "Dutch"
-msgstr ""
+msgstr "Holandés"
 
 #: buzz/transcriber/transcriber.py:51
 msgid "Arabic"
-msgstr ""
+msgstr "Árabe"
 
 #: buzz/transcriber/transcriber.py:52
 msgid "Swedish"
-msgstr ""
+msgstr "Sueco"
 
 #: buzz/transcriber/transcriber.py:54
 msgid "Indonesian"
-msgstr ""
+msgstr "Indones"
 
 #: buzz/transcriber/transcriber.py:55
 msgid "Hindi"
-msgstr ""
+msgstr "Hindi"
 
 #: buzz/transcriber/transcriber.py:56
 msgid "Finnish"
-msgstr ""
+msgstr "Finlandés"
 
 #: buzz/transcriber/transcriber.py:57
 msgid "Vietnamese"
-msgstr ""
+msgstr "Vietnamita"
 
 #: buzz/transcriber/transcriber.py:58
 msgid "Hebrew"
-msgstr ""
+msgstr "Hebreo"
 
 #: buzz/transcriber/transcriber.py:60
 msgid "Greek"
-msgstr ""
+msgstr "Griego"
 
 #: buzz/transcriber/transcriber.py:61
 msgid "Malay"
-msgstr ""
+msgstr "Malayo"
 
 #: buzz/transcriber/transcriber.py:62
 msgid "Czech"
-msgstr ""
+msgstr "República Checa"
 
 #: buzz/transcriber/transcriber.py:63
 msgid "Romanian"
-msgstr ""
+msgstr "Rumano"
 
 #: buzz/transcriber/transcriber.py:65
 msgid "Hungarian"
-msgstr ""
+msgstr "Húngaro"
 
 #: buzz/transcriber/transcriber.py:66
 msgid "Tamil"
-msgstr ""
+msgstr "Tamil"
 
 #: buzz/transcriber/transcriber.py:67
 msgid "Norwegian"
-msgstr ""
+msgstr "Noruego"
 
 #: buzz/transcriber/transcriber.py:68
 msgid "Thai"
-msgstr ""
+msgstr "Tailandés"
 
 #: buzz/transcriber/transcriber.py:69
 msgid "Urdu"
-msgstr ""
+msgstr "Urdu"
 
 #: buzz/transcriber/transcriber.py:70
 msgid "Croatian"
-msgstr ""
+msgstr "Croata"
 
 #: buzz/transcriber/transcriber.py:71
 msgid "Bulgarian"
-msgstr ""
+msgstr "Búlgaro"
 
 #: buzz/transcriber/transcriber.py:72
 msgid "Lithuanian"
-msgstr ""
+msgstr "Lituano"
 
 #: buzz/transcriber/transcriber.py:73
 msgid "Latin"
-msgstr ""
+msgstr "Latin"
 
 #: buzz/transcriber/transcriber.py:74
 msgid "Maori"
-msgstr ""
+msgstr "Maori"
 
 #: buzz/transcriber/transcriber.py:75
 msgid "Malayalam"
-msgstr ""
+msgstr "Malayo"
 
 #: buzz/transcriber/transcriber.py:76
 msgid "Welsh"
-msgstr ""
+msgstr "Galés"
 
 #: buzz/transcriber/transcriber.py:77
 msgid "Slovak"
-msgstr ""
+msgstr "Eslovaco"
 
 #: buzz/transcriber/transcriber.py:78
 msgid "Telugu"
-msgstr ""
+msgstr "Telugu"
 
 #: buzz/transcriber/transcriber.py:79
 msgid "Persian"
-msgstr ""
+msgstr "Persa"
 
 #: buzz/transcriber/transcriber.py:81
 msgid "Bengali"
-msgstr ""
+msgstr "Bengalí"
 
 #: buzz/transcriber/transcriber.py:82
 msgid "Serbian"
-msgstr ""
+msgstr "Serbian"
 
 #: buzz/transcriber/transcriber.py:83
 msgid "Azerbaijani"
-msgstr ""
+msgstr "Azerbaiyano"
 
 #: buzz/transcriber/transcriber.py:84
 msgid "Slovenian"
-msgstr ""
+msgstr "Esloveno"
 
 #: buzz/transcriber/transcriber.py:85
 msgid "Kannada"
-msgstr ""
+msgstr "Kannada"
 
 #: buzz/transcriber/transcriber.py:86
 msgid "Estonian"
-msgstr ""
+msgstr "Estonio"
 
 #: buzz/transcriber/transcriber.py:87
 msgid "Macedonian"
-msgstr ""
+msgstr "Macedonio"
 
 #: buzz/transcriber/transcriber.py:88
 msgid "Breton"
-msgstr ""
+msgstr "Breton"
 
 #: buzz/transcriber/transcriber.py:89
 msgid "Basque"
-msgstr ""
+msgstr "Vasco"
 
 #: buzz/transcriber/transcriber.py:90
 msgid "Icelandic"
-msgstr ""
+msgstr "Islandés"
 
 #: buzz/transcriber/transcriber.py:91
 msgid "Armenian"
-msgstr ""
+msgstr "Ermeni"
 
 #: buzz/transcriber/transcriber.py:92
 msgid "Nepali"
-msgstr ""
+msgstr "Nepalí"
 
 #: buzz/transcriber/transcriber.py:93
 msgid "Mongolian"
-msgstr ""
+msgstr "Mongol"
 
 #: buzz/transcriber/transcriber.py:94
 msgid "Bosnian"
-msgstr ""
+msgstr "Bosnio"
 
 #: buzz/transcriber/transcriber.py:95
 msgid "Kazakh"
-msgstr ""
+msgstr "Kazako"
 
 #: buzz/transcriber/transcriber.py:96
 msgid "Albanian"
-msgstr ""
+msgstr "Arnavut"
 
 #: buzz/transcriber/transcriber.py:97
 msgid "Swahili"
-msgstr ""
+msgstr "Suahili"
 
 #: buzz/transcriber/transcriber.py:98
 msgid "Galician"
-msgstr ""
+msgstr "Gallego"
 
 #: buzz/transcriber/transcriber.py:99
 msgid "Marathi"
-msgstr ""
+msgstr "Maratí"
 
 #: buzz/transcriber/transcriber.py:100
 msgid "Punjabi"
-msgstr ""
+msgstr "Punjabi"
 
 #: buzz/transcriber/transcriber.py:101
 msgid "Sinhala"
-msgstr ""
+msgstr "Cingalés"
 
 #: buzz/transcriber/transcriber.py:102
 msgid "Khmer"
-msgstr ""
+msgstr "Khmer"
 
 #: buzz/transcriber/transcriber.py:103
 msgid "Shona"
-msgstr ""
+msgstr "Shona"
 
 #: buzz/transcriber/transcriber.py:104
 msgid "Yoruba"
-msgstr ""
+msgstr "Yoruba"
 
 #: buzz/transcriber/transcriber.py:105
 msgid "Somali"
-msgstr ""
+msgstr "Somalí"
 
 #: buzz/transcriber/transcriber.py:106
 msgid "Afrikaans"
-msgstr ""
+msgstr "Africaans"
 
 #: buzz/transcriber/transcriber.py:107
 msgid "Occitan"
-msgstr ""
+msgstr "Occitano"
 
 #: buzz/transcriber/transcriber.py:108
 msgid "Georgian"
-msgstr ""
+msgstr "Georgiano"
 
 #: buzz/transcriber/transcriber.py:109
 msgid "Belarusian"
-msgstr ""
+msgstr "Belorusia"
 
 #: buzz/transcriber/transcriber.py:110
 msgid "Tajik"
-msgstr ""
+msgstr "Tajik"
 
 #: buzz/transcriber/transcriber.py:111
 msgid "Sindhi"
-msgstr ""
+msgstr "Sindhi"
 
 #: buzz/transcriber/transcriber.py:112
 msgid "Gujarati"
-msgstr ""
+msgstr "Gujarati"
 
 #: buzz/transcriber/transcriber.py:113
 msgid "Amharic"
-msgstr ""
+msgstr "Amharca"
 
 #: buzz/transcriber/transcriber.py:114
 msgid "Yiddish"
-msgstr ""
+msgstr "Yiddish"
 
 #: buzz/transcriber/transcriber.py:115
 msgid "Lao"
-msgstr ""
+msgstr "República Popular Democrática de Laos"
 
 #: buzz/transcriber/transcriber.py:116
 msgid "Uzbek"
-msgstr ""
+msgstr "Uzbeko"
 
 #: buzz/transcriber/transcriber.py:117
 msgid "Faroese"
-msgstr ""
+msgstr "Faroe"
 
 #: buzz/transcriber/transcriber.py:118
 msgid "Haitian Creole"
-msgstr ""
+msgstr "Haitian Creole"
 
 #: buzz/transcriber/transcriber.py:119
 msgid "Pashto"
-msgstr ""
+msgstr "Pastún"
 
 #: buzz/transcriber/transcriber.py:120
 msgid "Turkmen"
-msgstr ""
+msgstr "Turcomano"
 
 #: buzz/transcriber/transcriber.py:121
 msgid "Nynorsk"
-msgstr ""
+msgstr "Nynorsk"
 
 #: buzz/transcriber/transcriber.py:122
 msgid "Maltese"
-msgstr ""
+msgstr "Maltés"
 
 #: buzz/transcriber/transcriber.py:123
 msgid "Sanskrit"
-msgstr ""
+msgstr "Sánscrito"
 
 #: buzz/transcriber/transcriber.py:124
 msgid "Luxembourgish"
-msgstr ""
+msgstr "Luxemburgo"
 
 #: buzz/transcriber/transcriber.py:125
 msgid "Myanmar"
-msgstr ""
+msgstr "Myanmar"
 
 #: buzz/transcriber/transcriber.py:126
 msgid "Tibetan"
-msgstr ""
+msgstr "Tibetano"
 
 #: buzz/transcriber/transcriber.py:127
 msgid "Tagalog"
-msgstr ""
+msgstr "Tagalog"
 
 #: buzz/transcriber/transcriber.py:128
 msgid "Malagasy"
-msgstr ""
+msgstr "Madagascar"
 
 #: buzz/transcriber/transcriber.py:129
 msgid "Assamese"
-msgstr ""
+msgstr "Asamés"
 
 #: buzz/transcriber/transcriber.py:130
 msgid "Tatar"
-msgstr ""
+msgstr "Tátaro"
 
 #: buzz/transcriber/transcriber.py:131
 msgid "Hawaiian"
-msgstr ""
+msgstr "Hawaiano"
 
 #: buzz/transcriber/transcriber.py:132
 msgid "Lingala"
-msgstr ""
+msgstr "Lingala"
 
 #: buzz/transcriber/transcriber.py:133
 msgid "Hausa"
-msgstr ""
+msgstr "Hausa"
 
 #: buzz/transcriber/transcriber.py:134
 msgid "Bashkir"
-msgstr ""
+msgstr "Baskir"
 
 #: buzz/transcriber/transcriber.py:135
 msgid "Javanese"
-msgstr ""
+msgstr "Javanés"
 
 #: buzz/transcriber/transcriber.py:136
 msgid "Sundanese"
-msgstr ""
+msgstr "Sundanés"
 
 #: buzz/transcriber/transcriber.py:137
 msgid "Cantonese"
-msgstr ""
+msgstr "Cantonés"
 
 #: buzz/model_loader.py:528
 msgid "A connection error occurred"
-msgstr ""
+msgstr "Se ha producido un error de conexión"
 
 # automatic translation
 #: buzz/settings/shortcut.py:17
-#, fuzzy
 msgid "Open Record Window"
-msgstr "Grabación en vivo"
+msgstr "Abrir ventana de grabación"
 
 # automatic translation
 #: buzz/settings/shortcut.py:18
-#, fuzzy
 msgid "Import File"
-msgstr "Importar archivo multimedia..."
+msgstr "Importar archivo"
 
 #: buzz/settings/shortcut.py:20
 msgid "Open Preferences Window"
-msgstr ""
+msgstr "Abrir ventana de preferencias"
 
 # automatic translation
 #: buzz/settings/shortcut.py:22
-#, fuzzy
 msgid "View Transcript Text"
-msgstr "Transcripción nueva"
+msgstr "Ver el texto de la transcripción"
 
 # automatic translation
 #: buzz/settings/shortcut.py:23
-#, fuzzy
 msgid "View Transcript Translation"
-msgstr "Transcripción nueva"
+msgstr "Ver la traducción de la transcripción"
 
 # automatic translation
 #: buzz/settings/shortcut.py:24
-#, fuzzy
 msgid "View Transcript Timestamps"
-msgstr "Transcripción nueva"
+msgstr "Ver marcas de tiempo de la transcripción"
 
 #: buzz/settings/recording_transcriber_mode.py:5
 msgid "Append below"
-msgstr ""
+msgstr "Añadir a continuación"
 
 #: buzz/settings/recording_transcriber_mode.py:6
 msgid "Append above"
-msgstr ""
+msgstr "Añadir arriba"
 
 #: buzz/settings/recording_transcriber_mode.py:7
 msgid "Append and correct"
-msgstr ""
+msgstr "Añadir y corregir"
 
 #~ msgid "ID"
 #~ msgstr "Id."
