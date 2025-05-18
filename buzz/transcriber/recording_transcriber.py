@@ -100,11 +100,14 @@ class RecordingTranscriber(QObject):
                 device=device,
             )
 
+            # This was commented out as it was causing issues. On the other hand some users are reporting errors without
+            # this. It is possible isseus were present in older model versions without some config files and now are fixed
+            #
             # Fix for large-v3 https://github.com/guillaumekln/faster-whisper/issues/547#issuecomment-1797962599
-            if self.transcription_options.model.whisper_model_size == WhisperModelSize.LARGEV3:
-                model.feature_extractor.mel_filters = model.feature_extractor.get_mel_filters(
-                    model.feature_extractor.sampling_rate, model.feature_extractor.n_fft, n_mels=128
-                )
+            # if self.transcription_options.model.whisper_model_size in {WhisperModelSize.LARGEV3, WhisperModelSize.LARGEV3TURBO}:
+            #     model.feature_extractor.mel_filters = model.feature_extractor.get_mel_filters(
+            #         model.feature_extractor.sampling_rate, model.feature_extractor.n_fft, n_mels=128
+            #     )
         elif self.transcription_options.model.model_type == ModelType.OPEN_AI_WHISPER_API:
             custom_openai_base_url = self.settings.value(
                 key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value=""
@@ -190,7 +193,8 @@ class RecordingTranscriber(QObject):
                                 task=self.transcription_options.task.value,
                                 temperature=self.transcription_options.temperature,
                                 initial_prompt=self.transcription_options.initial_prompt,
-                                word_timestamps=self.transcription_options.word_level_timings,
+                                word_timestamps=False,
+                                without_timestamps=True,
                                 no_speech_threshold=0.4,
                             )
                             result = {"text": " ".join([segment.text for segment in whisper_segments])}

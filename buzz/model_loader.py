@@ -417,6 +417,7 @@ def download_faster_whisper_model(
         "model.bin",  # largest by size first
         "pytorch_model.bin",  # possible alternative model filename
         "config.json",
+        "preprocessor_config.json",
         "tokenizer.json",
         "vocabulary.*",
     ]
