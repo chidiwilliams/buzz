@@ -148,7 +148,7 @@ def write_output(
         len(segments),
     )
 
-    with open(path, "w", encoding="utf-8") as file:
+    with open(os.fsencode(path), "w", encoding="utf-8") as file:
         if output_format == OutputFormat.TXT:
             combined_text = ""
             previous_end_time = None
