@@ -347,7 +347,7 @@ class RecordingTranscriberWidget(QWidget):
                 self.on_cancel_model_progress_dialog
             )
 
-        if self.model_download_progress_dialog is not None:
+        if self.model_download_progress_dialog is not None and total_size > 0:
             self.model_download_progress_dialog.set_value(
                 fraction_completed=current_size / total_size
             )
