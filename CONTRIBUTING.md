@@ -97,23 +97,15 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 2. Install the GNU make. `choco install make`
 3. Install the ffmpeg. `choco install ffmpeg`
 4. Install [MSYS2](https://www.msys2.org/), follow [this guide](https://sajidifti.medium.com/how-to-install-gcc-and-gdb-on-windows-using-msys2-tutorial-0fceb7e66454).
-5. Install Poetry, paste this info Windows PowerShell line by line. [More info](https://python-poetry.org/docs/)
-```
-(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
-
-[Environment]::SetEnvironmentVariable("Path", $env:Path + ";%APPDATA%\pypoetry\venv\Scripts", "User")
-
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
-6. Add poetry to PATH. `%APPDATA%\Python\Scripts`
-7. Restart Windows.
-8. Clone the repository `git clone --recursive https://github.com/chidiwilliams/buzz.git`
-9. Enter repo folder `cd buzz`
-10. Activate the virtual environment `poetry shell`
-11. Install the dependencies `poetry install`
-12. `cp -r .\dll_backup\ .\buzz\`
-13. Build Buzz `poetry build`
-14. Run Buzz `python -m buzz`
+5. Clone the repository `git clone --recursive https://github.com/chidiwilliams/buzz.git`
+6. Enter repo folder `cd buzz`
+7. Create virtual environment `python -m venv venv` (needs to be done only the first time)
+8. Activate the virtual environment `.\venv\Scripts\activate`
+9. Install Poetry `pip install poetry`
+10. Install the dependencies `poetry install`
+11. `cp -r .\dll_backup\ .\buzz\`
+12. Build Buzz `poetry build`
+13. Run Buzz `python -m buzz`
 
 Note: It should be safe to ignore any "syntax errors" you see during the build. Buzz will work. Also you can ignore any errors for FFmpeg. Buzz tries to load FFmpeg by several different means and some of them throw errors, but FFmpeg should eventually be found and work. 
 
