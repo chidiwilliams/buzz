@@ -101,7 +101,7 @@ class RecordingTranscriber(QObject):
             )
 
             # This was commented out as it was causing issues. On the other hand some users are reporting errors without
-            # this. It is possible isseus were present in older model versions without some config files and now are fixed
+            # this. It is possible issues were present in older model versions without some config files and now are fixed
             #
             # Fix for large-v3 https://github.com/guillaumekln/faster-whisper/issues/547#issuecomment-1797962599
             # if self.transcription_options.model.whisper_model_size in {WhisperModelSize.LARGEV3, WhisperModelSize.LARGEV3TURBO}:

@@ -1,6 +1,7 @@
 import os
 import re
 import enum
+import requests
 import logging
 import datetime
 import sounddevice
@@ -65,6 +66,8 @@ class RecordingTranscriberWidget(QWidget):
     ) -> None:
         super().__init__(parent)
         self.sounddevice = custom_sounddevice or sounddevice
+
+        self.upload_url = os.getenv("BUZZ_UPLOAD_URL", "")
 
         if flags is not None:
             self.setWindowFlags(flags)
@@ -471,6 +474,18 @@ class RecordingTranscriberWidget(QWidget):
         elif self.transcriber_mode == RecordingTranscriberMode.APPEND_AND_CORRECT:
             self.process_transcription_merge(text, self.transcripts, self.transcription_text_box, self.transcript_export_file)
 
+        # Upload to server
+        if self.upload_url:
+            try:
+                requests.post(
+                    url=self.upload_url,
+                    json={"kind": "transcript", "text": text},
+                    headers={'Content-Type': 'application/json'},
+                    timeout=15
+                )
+            except Exception as e:
+                logging.error(f"Transcript upload failed: {str(e)}")
+
     def on_next_translation(self, text: str, _: Optional[int] = None):
         if len(text) == 0:
             return
@@ -503,6 +518,18 @@ class RecordingTranscriberWidget(QWidget):
 
         elif self.transcriber_mode == RecordingTranscriberMode.APPEND_AND_CORRECT:
             self.process_transcription_merge(text, self.translations, self.translation_text_box, self.translation_export_file)
+
+        # Upload to server
+        if self.upload_url:
+            try:
+                requests.post(
+                    url=self.upload_url,
+                    json={"kind": "translation", "text": text},
+                    headers={'Content-Type': 'application/json'},
+                    timeout=15
+                )
+            except Exception as e:
+                logging.error(f"Translation upload failed: {str(e)}")
 
     def stop_recording(self):
         if self.transcriber is not None:
