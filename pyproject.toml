@@ -55,10 +55,10 @@ accelerate = "^1.0.1"
 polib = "^1.2.0"
 srt-equalizer = "^0.1.10"
 # torch 2.2.2 is last with intel macOS support, during build torch will be downgraded
-torch = "2.6.0"
-torchaudio = "2.6.0"
-# ctranslate2 4.3.1 is last with intel macOS support
-ctranslate2 = "4.3.1"
+torch = "2.7.0"
+torchaudio = "2.7.0"
+# ctranslate2 4.3.1 is last with intel macOS support, during build ctranslate2 will be downgraded
+ctranslate2 = "4.6.0"
 darkdetect = "^0.8.0"
 # requirements for demucs - TODO maybe remove
 dora-search = "^0.1.12"

@@ -46,10 +46,14 @@ Linux versions get also pushed to the snap. To install latest development versio
 1. Clone the repository `git clone --recursive https://github.com/chidiwilliams/buzz.git`
 2. Enter repo folder `cd buzz`
 3. Create virtual environment `python -m venv venv` (needs to be done only the first time)
-4. Activate the virtual environment `source venv/bin/activate`
-5. Install Poetry `pip install poetry`
-6. Install the dependencies `poetry install`
-7. Install system dependencies you may be missing 
+4. Add fix for nvidia cudnn library path to the virtual environment
+```
+echo 'export LD_LIBRARY_PATH="$VIRTUAL_ENV/lib/python3.12/site-packages/nvidia/cudnn/lib:$LD_LIBRARY_PATH"' >> venv/bin/activate
+```
+5. Activate the virtual environment `source venv/bin/activate`
+6. Install Poetry `pip install poetry`
+7. Install the dependencies `poetry install`
+8. Install system dependencies you may be missing 
 ```
 sudo apt-get install --no-install-recommends libyaml-dev libtbb-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 ffmpeg
 ```
