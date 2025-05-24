@@ -407,7 +407,6 @@ def download_faster_whisper_model(
     if size == WhisperModelSize.CUSTOM:
         repo_id = custom_repo_id
     # Replicating models from faster-whisper code https://github.com/SYSTRAN/faster-whisper/blob/master/faster_whisper/utils.py#L29
-    # Changes to turbo model also in whisper_file_transcriber.py
     elif size == WhisperModelSize.LARGEV3TURBO:
         repo_id = "mobiuslabsgmbh/faster-whisper-large-v3-turbo"
     else:

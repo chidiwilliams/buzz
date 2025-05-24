@@ -98,6 +98,7 @@ class RecordingTranscriber(QObject):
                 model_size_or_path=model_path,
                 download_root=model_root_dir,
                 device=device,
+                cpu_threads=(os.cpu_count() or 8)//2,
             )
 
             # This was commented out as it was causing issues. On the other hand some users are reporting errors without
