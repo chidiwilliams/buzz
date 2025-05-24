@@ -140,8 +140,6 @@ class WhisperFileTranscriber(FileTranscriber):
     def transcribe_faster_whisper(cls, task: FileTranscriptionTask) -> List[Segment]:
         if task.transcription_options.model.whisper_model_size == WhisperModelSize.CUSTOM:
             model_size_or_path = task.transcription_options.model.hugging_face_model_id
-        elif task.transcription_options.model.whisper_model_size == WhisperModelSize.LARGEV3TURBO:
-            model_size_or_path = "mobiuslabsgmbh/faster-whisper-large-v3-turbo"
         else:
             model_size_or_path = task.transcription_options.model.whisper_model_size.to_faster_whisper_model_size()
 
@@ -163,7 +161,9 @@ class WhisperFileTranscriber(FileTranscriber):
             download_root=model_root_dir,
             device=device,
         )
-        whisper_segments, info = model.transcribe(
+
+        batched_model = faster_whisper.BatchedInferencePipeline(model=model)
+        whisper_segments, info = batched_model.transcribe(
             audio=task.file_path,
             language=task.transcription_options.language,
             task=task.transcription_options.task.value,
