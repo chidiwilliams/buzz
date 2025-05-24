@@ -160,6 +160,7 @@ class WhisperFileTranscriber(FileTranscriber):
             model_size_or_path=model_size_or_path,
             download_root=model_root_dir,
             device=device,
+            cpu_threads=(os.cpu_count() or 8)//2,
         )
 
         batched_model = faster_whisper.BatchedInferencePipeline(model=model)
