@@ -256,6 +256,10 @@ class WhisperFileTranscriber(FileTranscriber):
         while True:
             try:
                 line = pipe.recv().strip()
+
+                # Uncomment to debug
+                # print(f"*** DEBUG ***: {line}")
+
             except EOFError:  # Connection closed
                 break
 
