@@ -27,6 +27,7 @@ datas += copy_metadata("pyyaml")
 # https://github.com/chidiwilliams/buzz/issues/272
 datas += collect_data_files("transformers", include_py_files=True)
 
+datas += collect_data_files("faster_whisper", include_py_files=True)
 datas += collect_data_files("whisper")
 datas += [("demucs", "demucs")]
 datas += [("buzz/assets/*", "assets")]
@@ -57,6 +58,7 @@ if platform.system() == "Darwin" and platform.machine() == "arm64":
 # Include dll_backup folder and its contents on Windows
 if platform.system() == "Windows":
     datas += [("dll_backup", "dll_backup")]
+    datas += collect_data_files("msvc-runtime")
 
     binaries.append(("dll_backup/SDL2.dll", "dll_backup"))
     binaries.append(("dll_backup/whisper.dll", "dll_backup"))
