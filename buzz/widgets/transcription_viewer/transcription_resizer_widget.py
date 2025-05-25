@@ -22,6 +22,7 @@ from PyQt6.QtWidgets import (
     QSizePolicy,
 )
 from buzz.locale import _, languages
+from buzz import whisper_audio
 from buzz.db.entity.transcription import Transcription
 from buzz.db.service.transcription_service import TranscriptionService
 from buzz.paths import file_path_as_title
@@ -85,14 +86,19 @@ class TranscriptionWorker(QObject):
             transcription_file = str(speech_path)
             transcription_file_exists = True
 
-        result = stable_whisper.transcribe_any(
-            self.get_transcript,
-            transcription_file,
-            vad=transcription_file_exists,
-            suppress_silence=transcription_file_exists,
-            regroup=self.regroup_string,
-            check_sorted=False,
-        )
+        try:
+            result = stable_whisper.transcribe_any(
+                self.get_transcript,
+                audio = whisper_audio.load_audio(transcription_file),
+                input_sr=whisper_audio.SAMPLE_RATE,
+                vad=transcription_file_exists,
+                suppress_silence=transcription_file_exists,
+                regroup=self.regroup_string,
+                check_sorted=False,
+            )
+        except Exception as e:
+            logging.error(f"Error in TranscriptionWorker: {e}")
+            return
 
         segments = []
         for segment in result.segments:
