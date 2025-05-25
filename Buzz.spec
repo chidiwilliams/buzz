@@ -28,6 +28,7 @@ datas += copy_metadata("pyyaml")
 datas += collect_data_files("transformers", include_py_files=True)
 
 datas += collect_data_files("faster_whisper", include_py_files=True)
+datas += collect_data_files("stable_whisper", include_py_files=True)
 datas += collect_data_files("whisper")
 datas += [("demucs", "demucs")]
 datas += [("buzz/assets/*", "assets")]
