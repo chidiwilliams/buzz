@@ -175,7 +175,7 @@ class WhisperFileTranscriber(FileTranscriber):
         )
         segments = []
         with tqdm.tqdm(total=round(info.duration, 2), unit=" seconds") as pbar:
-            for segment in list(whisper_segments):
+            for segment in whisper_segments:
                 # Segment will contain words if word-level timings is True
                 if segment.words:
                     for word in segment.words:
