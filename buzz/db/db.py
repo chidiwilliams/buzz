@@ -25,11 +25,14 @@ def setup_test_db() -> QSqlDatabase:
 
 def _setup_db(path: str) -> QSqlDatabase:
     # Run migrations
-    db = sqlite3.connect(path, isolation_level=None)
-    run_sqlite_migrations(db)
-    copy_transcriptions_from_json_to_sqlite(db)
-    mark_in_progress_and_queued_transcriptions_as_canceled(db)
-    db.close()
+    db = sqlite3.connect(path, isolation_level=None, timeout=10.0)
+    try:
+        run_sqlite_migrations(db)
+        copy_transcriptions_from_json_to_sqlite(db)
+        mark_in_progress_and_queued_transcriptions_as_canceled(db)
+        db.commit()
+    finally:
+        db.close()
 
     db = QSqlDatabase.addDatabase("QSQLITE")
     db.setDatabaseName(path)
