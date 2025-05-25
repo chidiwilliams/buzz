@@ -172,32 +172,31 @@ class WhisperFileTranscriber(FileTranscriber):
             initial_prompt=task.transcription_options.initial_prompt,
             word_timestamps=task.transcription_options.word_level_timings,
             no_speech_threshold=0.4,
+            log_progress=True,
         )
         segments = []
-        with tqdm.tqdm(total=round(info.duration, 2), unit=" seconds") as pbar:
-            for segment in whisper_segments:
-                # Segment will contain words if word-level timings is True
-                if segment.words:
-                    for word in segment.words:
-                        segments.append(
-                            Segment(
-                                start=int(word.start * 1000),
-                                end=int(word.end * 1000),
-                                text=word.word,
-                                translation=""
-                            )
-                        )
-                else:
+        for segment in whisper_segments:
+            # Segment will contain words if word-level timings is True
+            if segment.words:
+                for word in segment.words:
                     segments.append(
                         Segment(
-                            start=int(segment.start * 1000),
-                            end=int(segment.end * 1000),
-                            text=segment.text,
+                            start=int(word.start * 1000),
+                            end=int(word.end * 1000),
+                            text=word.word,
                             translation=""
                         )
                     )
+            else:
+                segments.append(
+                    Segment(
+                        start=int(segment.start * 1000),
+                        end=int(segment.end * 1000),
+                        text=segment.text,
+                        translation=""
+                    )
+                )
 
-                pbar.update(segment.end - segment.start)
         return segments
 
     @classmethod
