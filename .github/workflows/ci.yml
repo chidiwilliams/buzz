@@ -132,6 +132,13 @@ jobs:
       - uses: AnimMouse/setup-ffmpeg@v1.2.1
         id: setup-ffmpeg
 
+      - name: Prepare Vulkan SDK
+        uses: humbletim/setup-vulkan-sdk@v1.2.1
+        with:
+          vulkan-query-version: 1.4.304.1
+          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-use-cache: true
+
       # Adding windows Nvidia CUDA torch and its dependencies
       # Linux only packages were removed from the list.
       - name: Install CUDA torch for Windows

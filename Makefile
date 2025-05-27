@@ -76,36 +76,63 @@ ifeq ($(UNAME_S),Darwin)
 	CMAKE_FLAGS += -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"
 else
 	ifeq ($(OS), Windows_NT)
-		CMAKE_FLAGS += -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release
+		#CMAKE_FLAGS += -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release
+		CMAKE_FLAGS += -DCMAKE_BUILD_TYPE=Release
 	endif
 endif
 
 buzz/$(LIBWHISPER):
+#TODO - Remove this and build from source??
+#TODO - Alternatively get from 1.7.5 release of whisper
 ifeq ($(OS), Windows_NT)
-	cp dll_backup/whisper.dll buzz || copy dll_backup\whisper.dll buzz\whisper.dll
+	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS) -DGGML_VULKAN=1
+	cmake --build whisper.cpp/build -j --config Release --verbose
+
+	#cp dll_backup/whisper.dll buzz || copy dll_backup\whisper.dll buzz\whisper.dll
 	cp dll_backup/SDL2.dll buzz || copy dll_backup\SDL2.dll buzz\SDL2.dll
+	cp whisper.cpp/build/bin/Release/whisper.dll buzz || copy whisper.cpp\build\bin\Release\whisper.dll buzz\whisper.dll
+	cp whisper.cpp/build/bin/Release/ggml.dll buzz || copy whisper.cpp\build\bin\Release\ggml.dll buzz\ggml.dll
+	cp whisper.cpp/build/bin/Release/ggml-gase.dll buzz || copy whisper.cpp\build\bin\Release\ggml-gase.dll buzz\ggml-gase.dll
+	cp whisper.cpp/build/bin/Release/ggml-cpu.dll buzz || copy whisper.cpp\build\bin\Release\ggml-cpu.dll buzz\ggml-cpu.dll
+	cp whisper.cpp/build/bin/Release/ggml-vulkan.dll buzz || copy whisper.cpp\build\bin\Release\ggml-vulkan.dll buzz\ggml-vulkan.dll
 else
+	# Build Whisper for CPU
 	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS)
-	cmake --build whisper.cpp/build --verbose
-	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) buzz || true
-	cp whisper.cpp/build/$(LIBWHISPER) buzz || true
+	cmake --build whisper.cpp/build -j --config Release --verbose
+	cp whisper.cpp/build/src/$(LIBWHISPER) buzz || true
+
+	# Build Whisper for Vulkan
+	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS) -DGGML_VULKAN=1
+	cmake --build whisper.cpp/build -j --config Release --verbose
+	cp whisper.cpp/build/src/$(LIBWHISPER) buzz/$(subst libwhisper,libwhisper-vulkan,$(LIBWHISPER)) || true
+
+	# TODO Check where whisper lib is located on WINDOWS
+	#TODO - Remove if issues during CI builds
+	#cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) buzz || true
+	#cp whisper.cpp/build/src/$(LIBWHISPER) buzz || true
 endif
 # Build CoreML support on ARM Macs
 ifeq ($(shell uname -m), arm64)
 ifeq ($(shell uname -s), Darwin)
+	# TODO - Vulkan support on MACS?? Maybe only for X64?
+
 	rm -rf whisper.cpp/build || true
 	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS) -DWHISPER_COREML=1
 	cmake --build whisper.cpp/build --verbose
-	cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) buzz/libwhisper-coreml.dylib || true
-	cp whisper.cpp/build/$(LIBWHISPER) buzz/libwhisper-coreml.dylib || true
+	#TODO - Remove if issues during CI builds
+	#cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) buzz/libwhisper-coreml.dylib || true
+	cp whisper.cpp/build/src/$(LIBWHISPER) buzz/libwhisper-coreml.dylib || true
 endif
 endif
 
 buzz/whisper_cpp.py: buzz/$(LIBWHISPER) translation_mo
-	cd buzz && ctypesgen ../whisper.cpp/whisper.h -lwhisper -o whisper_cpp.py
+	cd buzz && ctypesgen ../whisper.cpp/include/whisper.h -I../whisper.cpp/ggml/include -lwhisper -o whisper_cpp.py
+
+	#TODO - Do not build Vulkan support on Intel MACS, or ignore if it fails???
+	cd buzz && ctypesgen ../whisper.cpp/include/whisper.h -I../whisper.cpp/ggml/include -lwhisper-vulkan -o whisper_cpp_vulkan.py
 ifeq ($(shell uname -m), arm64)
 ifeq ($(shell uname -s), Darwin)
-	cd buzz && ctypesgen ../whisper.cpp/whisper.h -lwhisper-coreml -o whisper_cpp_coreml.py
+	cd buzz && ctypesgen ../whisper.cpp/include/whisper.h -I../whisper.cpp/ggml/include -lwhisper-coreml -o whisper_cpp_coreml.py
 endif
 endif
 
