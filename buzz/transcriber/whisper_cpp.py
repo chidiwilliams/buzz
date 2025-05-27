@@ -21,20 +21,36 @@ if platform.system() == "Darwin" and platform.machine() == "arm64":
 
         IS_COREML_SUPPORTED = True
     except ImportError:
-        logging.exception("")
+        pass
+
+
+IS_VULKAN_SUPPORTED = False
+try:
+    import vulkan
+
+    instance = vulkan.vkCreateInstance(vulkan.VkInstanceCreateInfo(), None)
+    vulkan.vkDestroyInstance(instance, None)
+    IS_VULKAN_SUPPORTED = True
+
+    from buzz import whisper_cpp_vulkan
+
+except (ImportError, Exception):
+    pass
 
 
 class WhisperCpp:
     def __init__(self, model: str) -> None:
 
         self.is_coreml_supported = IS_COREML_SUPPORTED
+        self.is_vulkan_supported = IS_VULKAN_SUPPORTED
 
         if self.is_coreml_supported:
             coreml_model = model.replace(".bin", "-encoder.mlmodelc")
             if not os.path.exists(coreml_model):
                 self.is_coreml_supported = False
 
-        logging.debug(f"WhisperCpp model {model}, (Core ML: {self.is_coreml_supported})")
+        logging.debug(f"WhisperCpp model {model}, "
+                      f"(Core ML: {self.is_coreml_supported}, Vulkan: {self.is_vulkan_supported})")
 
         self.instance = self.get_instance()
         self.ctx = self.instance.init_from_file(model)
@@ -123,6 +139,8 @@ class WhisperCpp:
     def get_instance(self):
         if self.is_coreml_supported:
             return WhisperCppCoreML()
+        if self.is_vulkan_supported:
+            return WhisperCppVulkan()
         return WhisperCppCpu()
 
     def get_params(
@@ -252,3 +270,38 @@ class WhisperCppCoreML(WhisperCppInterface):
 
     def free(self, ctx):
         return whisper_cpp_coreml.whisper_free(ctx)
+
+
+class WhisperCppVulkan(WhisperCppInterface):
+    def full_default_params(self, sampling: int):
+        return whisper_cpp_vulkan.whisper_full_default_params(sampling)
+
+    def get_string(self, string: str):
+        return whisper_cpp_vulkan.String(string.encode())
+
+    def get_encoder_begin_callback(self, callback):
+        return whisper_cpp_vulkan.whisper_encoder_begin_callback(callback)
+
+    def get_new_segment_callback(self, callback):
+        return whisper_cpp_vulkan.whisper_new_segment_callback(callback)
+
+    def init_from_file(self, model: str):
+        return whisper_cpp_vulkan.whisper_init_from_file(model.encode())
+
+    def full(self, ctx, params, audio, length):
+        return whisper_cpp_vulkan.whisper_full(ctx, params, audio, length)
+
+    def full_n_segments(self, ctx):
+        return whisper_cpp_vulkan.whisper_full_n_segments(ctx)
+
+    def full_get_segment_text(self, ctx, i):
+        return whisper_cpp_vulkan.whisper_full_get_segment_text(ctx, i)
+
+    def full_get_segment_t0(self, ctx, i):
+        return whisper_cpp_vulkan.whisper_full_get_segment_t0(ctx, i)
+
+    def full_get_segment_t1(self, ctx, i):
+        return whisper_cpp_vulkan.whisper_full_get_segment_t1(ctx, i)
+
+    def free(self, ctx):
+        return whisper_cpp_vulkan.whisper_free(ctx)
