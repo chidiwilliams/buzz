@@ -118,9 +118,10 @@ ifeq ($(shell uname -s), Darwin)
 
 	rm -rf whisper.cpp/build || true
 	cmake -S whisper.cpp -B whisper.cpp/build/ $(CMAKE_FLAGS) -DWHISPER_COREML=1
-	cmake --build whisper.cpp/build --verbose
+	cmake --build whisper.cpp/build -j --config Release --verbose
 	#TODO - Remove if issues during CI builds
 	#cp whisper.cpp/build/bin/Debug/$(LIBWHISPER) buzz/libwhisper-coreml.dylib || true
+	cp whisper.cpp/build/bin/Release/$(LIBWHISPER) buzz/libwhisper-coreml.dylib || true
 	cp whisper.cpp/build/src/$(LIBWHISPER) buzz/libwhisper-coreml.dylib || true
 endif
 endif
