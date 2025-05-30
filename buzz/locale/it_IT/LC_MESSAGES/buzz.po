@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-03-06 19:12+0200\n"
-"PO-Revision-Date: 2024-11-24 13:22+0100\n"
+"PO-Revision-Date: 2025-05-30 15:22+0100\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
 "MIME-Version: 1.0\n"
@@ -59,70 +59,68 @@ msgstr "Ripristina impostazioni predefinite"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:35
 #: buzz/transcriber/transcriber.py:38
 msgid "English"
-msgstr ""
+msgstr "Inglese"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:36
 #: buzz/transcriber/transcriber.py:49
 msgid "Catalan"
-msgstr ""
+msgstr "Catalano"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:37
 #: buzz/transcriber/transcriber.py:64
 msgid "Danish"
-msgstr ""
+msgstr "Danese"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:38
 #: buzz/transcriber/transcriber.py:40
 msgid "German"
-msgstr ""
+msgstr "Tedesco"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:39
 #: buzz/transcriber/transcriber.py:41
 msgid "Spanish"
-msgstr ""
+msgstr "Spagnolo"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:40
 #: buzz/transcriber/transcriber.py:53
 msgid "Italian"
-msgstr ""
+msgstr "Italiano"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:41
 #: buzz/transcriber/transcriber.py:45
 msgid "Japanese"
-msgstr ""
+msgstr "Giapponese"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:42
 #: buzz/transcriber/transcriber.py:80
 msgid "Latvian"
-msgstr ""
+msgstr "Lettone"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:43
 #: buzz/transcriber/transcriber.py:48
 msgid "Polish"
-msgstr ""
+msgstr "Polacco"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:44
 #: buzz/transcriber/transcriber.py:59
-#, fuzzy
 msgid "Ukrainian"
-msgstr "rimanente"
+msgstr "Ucraino"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:45
 msgid "Chinese (Simplified)"
-msgstr ""
+msgstr "Cinese (semplificato)"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:46
 msgid "Chinese (Traditional)"
-msgstr ""
+msgstr "Cinese (tradizionale)"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:84
 msgid "Restart required!"
-msgstr ""
+msgstr "Riavvio richiesto!"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:88
-#, fuzzy
 msgid "Ui Language"
-msgstr "Lingua:"
+msgstr "Lingua UI:"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:96
 msgid "Font Size"
@@ -180,7 +178,6 @@ msgid "Invalid API key"
 msgstr "Chiave API non valida"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:218
-#, fuzzy
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
@@ -381,7 +378,7 @@ msgstr "Tempistiche a livello di parola"
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py:54
 msgid "Extract speech"
-msgstr ""
+msgstr "Estrai il parlato"
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py:77
 msgid "Export:"
@@ -548,9 +545,8 @@ msgid "Please enter OpenAI API Key in preferences"
 msgstr "Inserisci la chiave API OpenAI nelle preferenze"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:150
-#, fuzzy
 msgid "Resize Options"
-msgstr "Ridimensionare"
+msgstr "Opzioni di ridimensionamento"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:161
 msgid "Desired subtitle length"
@@ -558,23 +554,23 @@ msgstr "Lunghezza desiderata dei sottotitoli"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:186
 msgid "Merge Options"
-msgstr ""
+msgstr "Opzioni di unione"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:197
 msgid "Merge by gap"
-msgstr ""
+msgstr "Unito per spazio"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:205
 msgid "Split by punctuation"
-msgstr ""
+msgstr "Diviso per punteggiatura"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:213
 msgid "Split by max length"
-msgstr ""
+msgstr "Diviso per lunghezza massima"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:225
 msgid "Merge"
-msgstr ""
+msgstr "Unione"
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:78
 msgid "Save File"
@@ -661,363 +657,363 @@ msgstr "Trascrivere"
 
 #: buzz/transcriber/transcriber.py:39
 msgid "Chinese"
-msgstr ""
+msgstr "Cinese"
 
 #: buzz/transcriber/transcriber.py:42
 msgid "Russian"
-msgstr ""
+msgstr "Russo"
 
 #: buzz/transcriber/transcriber.py:43
 msgid "Korean"
-msgstr ""
+msgstr "Coreano"
 
 #: buzz/transcriber/transcriber.py:44
 msgid "French"
-msgstr ""
+msgstr "Francese"
 
 #: buzz/transcriber/transcriber.py:46
 msgid "Portuguese"
-msgstr ""
+msgstr "Portoghese"
 
 #: buzz/transcriber/transcriber.py:47
 msgid "Turkish"
-msgstr ""
+msgstr "Turco"
 
 #: buzz/transcriber/transcriber.py:50
 msgid "Dutch"
-msgstr ""
+msgstr "Olandese"
 
 #: buzz/transcriber/transcriber.py:51
 msgid "Arabic"
-msgstr ""
+msgstr "Arabo"
 
 #: buzz/transcriber/transcriber.py:52
 msgid "Swedish"
-msgstr ""
+msgstr "Svedese"
 
 #: buzz/transcriber/transcriber.py:54
 msgid "Indonesian"
-msgstr ""
+msgstr "Indonesiano"
 
 #: buzz/transcriber/transcriber.py:55
 msgid "Hindi"
-msgstr ""
+msgstr "Hindi"
 
 #: buzz/transcriber/transcriber.py:56
 msgid "Finnish"
-msgstr ""
+msgstr "Finlandese"
 
 #: buzz/transcriber/transcriber.py:57
 msgid "Vietnamese"
-msgstr ""
+msgstr "Vietnamita"
 
 #: buzz/transcriber/transcriber.py:58
 msgid "Hebrew"
-msgstr ""
+msgstr "Ebraico"
 
 #: buzz/transcriber/transcriber.py:60
 msgid "Greek"
-msgstr ""
+msgstr "Greco"
 
 #: buzz/transcriber/transcriber.py:61
 msgid "Malay"
-msgstr ""
+msgstr "Malese"
 
 #: buzz/transcriber/transcriber.py:62
 msgid "Czech"
-msgstr ""
+msgstr "Ceco"
 
 #: buzz/transcriber/transcriber.py:63
 msgid "Romanian"
-msgstr ""
+msgstr "Rumeno"
 
 #: buzz/transcriber/transcriber.py:65
 msgid "Hungarian"
-msgstr ""
+msgstr "Ungherese"
 
 #: buzz/transcriber/transcriber.py:66
 msgid "Tamil"
-msgstr ""
+msgstr "Tamil"
 
 #: buzz/transcriber/transcriber.py:67
 msgid "Norwegian"
-msgstr ""
+msgstr "Norvegese"
 
 #: buzz/transcriber/transcriber.py:68
 msgid "Thai"
-msgstr ""
+msgstr "Tailandese"
 
 #: buzz/transcriber/transcriber.py:69
 msgid "Urdu"
-msgstr ""
+msgstr "Urdu"
 
 #: buzz/transcriber/transcriber.py:70
 msgid "Croatian"
-msgstr ""
+msgstr "Croato"
 
 #: buzz/transcriber/transcriber.py:71
 msgid "Bulgarian"
-msgstr ""
+msgstr "Bulgaro"
 
 #: buzz/transcriber/transcriber.py:72
 msgid "Lithuanian"
-msgstr ""
+msgstr "Lituano"
 
 #: buzz/transcriber/transcriber.py:73
 msgid "Latin"
-msgstr ""
+msgstr "Latino"
 
 #: buzz/transcriber/transcriber.py:74
 msgid "Maori"
-msgstr ""
+msgstr "Maori"
 
 #: buzz/transcriber/transcriber.py:75
 msgid "Malayalam"
-msgstr ""
+msgstr "Malayalam"
 
 #: buzz/transcriber/transcriber.py:76
 msgid "Welsh"
-msgstr ""
+msgstr "Gallese"
 
 #: buzz/transcriber/transcriber.py:77
 msgid "Slovak"
-msgstr ""
+msgstr "Slovacco"
 
 #: buzz/transcriber/transcriber.py:78
 msgid "Telugu"
-msgstr ""
+msgstr "Telugu"
 
 #: buzz/transcriber/transcriber.py:79
 msgid "Persian"
-msgstr ""
+msgstr "Persiano"
 
 #: buzz/transcriber/transcriber.py:81
 msgid "Bengali"
-msgstr ""
+msgstr "Bengalese"
 
 #: buzz/transcriber/transcriber.py:82
 msgid "Serbian"
-msgstr ""
+msgstr "Serbo"
 
 #: buzz/transcriber/transcriber.py:83
 msgid "Azerbaijani"
-msgstr ""
+msgstr "Azerbaijani"
 
 #: buzz/transcriber/transcriber.py:84
 msgid "Slovenian"
-msgstr ""
+msgstr "Sloveno"
 
 #: buzz/transcriber/transcriber.py:85
 msgid "Kannada"
-msgstr ""
+msgstr "Kannada"
 
 #: buzz/transcriber/transcriber.py:86
 msgid "Estonian"
-msgstr ""
+msgstr "Estone"
 
 #: buzz/transcriber/transcriber.py:87
 msgid "Macedonian"
-msgstr ""
+msgstr "Macedone"
 
 #: buzz/transcriber/transcriber.py:88
 msgid "Breton"
-msgstr ""
+msgstr "Bretone"
 
 #: buzz/transcriber/transcriber.py:89
 msgid "Basque"
-msgstr ""
+msgstr "Basco"
 
 #: buzz/transcriber/transcriber.py:90
 msgid "Icelandic"
-msgstr ""
+msgstr "Islandese"
 
 #: buzz/transcriber/transcriber.py:91
 msgid "Armenian"
-msgstr ""
+msgstr "Armeno"
 
 #: buzz/transcriber/transcriber.py:92
 msgid "Nepali"
-msgstr ""
+msgstr "Nepalese"
 
 #: buzz/transcriber/transcriber.py:93
 msgid "Mongolian"
-msgstr ""
+msgstr "Mongola"
 
 #: buzz/transcriber/transcriber.py:94
 msgid "Bosnian"
-msgstr ""
+msgstr "Bosniaco"
 
 #: buzz/transcriber/transcriber.py:95
 msgid "Kazakh"
-msgstr ""
+msgstr "kazako"
 
 #: buzz/transcriber/transcriber.py:96
 msgid "Albanian"
-msgstr ""
+msgstr "Albanese"
 
 #: buzz/transcriber/transcriber.py:97
 msgid "Swahili"
-msgstr ""
+msgstr "Swahili"
 
 #: buzz/transcriber/transcriber.py:98
 msgid "Galician"
-msgstr ""
+msgstr "Galiziano"
 
 #: buzz/transcriber/transcriber.py:99
 msgid "Marathi"
-msgstr ""
+msgstr "Marathi"
 
 #: buzz/transcriber/transcriber.py:100
 msgid "Punjabi"
-msgstr ""
+msgstr "Punjabi"
 
 #: buzz/transcriber/transcriber.py:101
 msgid "Sinhala"
-msgstr ""
+msgstr "Singalese"
 
 #: buzz/transcriber/transcriber.py:102
 msgid "Khmer"
-msgstr ""
+msgstr "Khmer"
 
 #: buzz/transcriber/transcriber.py:103
 msgid "Shona"
-msgstr ""
+msgstr "Shona"
 
 #: buzz/transcriber/transcriber.py:104
 msgid "Yoruba"
-msgstr ""
+msgstr "Yoruba"
 
 #: buzz/transcriber/transcriber.py:105
 msgid "Somali"
-msgstr ""
+msgstr "Somalo"
 
 #: buzz/transcriber/transcriber.py:106
 msgid "Afrikaans"
-msgstr ""
+msgstr "Afrikaans"
 
 #: buzz/transcriber/transcriber.py:107
 msgid "Occitan"
-msgstr ""
+msgstr "Occitano"
 
 #: buzz/transcriber/transcriber.py:108
 msgid "Georgian"
-msgstr ""
+msgstr "Georgiano"
 
 #: buzz/transcriber/transcriber.py:109
 msgid "Belarusian"
-msgstr ""
+msgstr "Biellorusso"
 
 #: buzz/transcriber/transcriber.py:110
 msgid "Tajik"
-msgstr ""
+msgstr "Tagiko"
 
 #: buzz/transcriber/transcriber.py:111
 msgid "Sindhi"
-msgstr ""
+msgstr "Sindhi"
 
 #: buzz/transcriber/transcriber.py:112
 msgid "Gujarati"
-msgstr ""
+msgstr "Gujarati"
 
 #: buzz/transcriber/transcriber.py:113
 msgid "Amharic"
-msgstr ""
+msgstr "Amarico"
 
 #: buzz/transcriber/transcriber.py:114
 msgid "Yiddish"
-msgstr ""
+msgstr "Yiddish"
 
 #: buzz/transcriber/transcriber.py:115
 msgid "Lao"
-msgstr ""
+msgstr "Lao"
 
 #: buzz/transcriber/transcriber.py:116
 msgid "Uzbek"
-msgstr ""
+msgstr "Uzbeko"
 
 #: buzz/transcriber/transcriber.py:117
 msgid "Faroese"
-msgstr ""
+msgstr "Faroese"
 
 #: buzz/transcriber/transcriber.py:118
 msgid "Haitian Creole"
-msgstr ""
+msgstr "Creolo haitiano"
 
 #: buzz/transcriber/transcriber.py:119
 msgid "Pashto"
-msgstr ""
+msgstr "Pashtu"
 
 #: buzz/transcriber/transcriber.py:120
 msgid "Turkmen"
-msgstr ""
+msgstr "Turkmen"
 
 #: buzz/transcriber/transcriber.py:121
 msgid "Nynorsk"
-msgstr ""
+msgstr "Nynorsk"
 
 #: buzz/transcriber/transcriber.py:122
 msgid "Maltese"
-msgstr ""
+msgstr "Maltese"
 
 #: buzz/transcriber/transcriber.py:123
 msgid "Sanskrit"
-msgstr ""
+msgstr "Sanscrito"
 
 #: buzz/transcriber/transcriber.py:124
 msgid "Luxembourgish"
-msgstr ""
+msgstr "Lussemburghese"
 
 #: buzz/transcriber/transcriber.py:125
 msgid "Myanmar"
-msgstr ""
+msgstr "Birmano"
 
 #: buzz/transcriber/transcriber.py:126
 msgid "Tibetan"
-msgstr ""
+msgstr "Tibetano"
 
 #: buzz/transcriber/transcriber.py:127
 msgid "Tagalog"
-msgstr ""
+msgstr "Tagalog"
 
 #: buzz/transcriber/transcriber.py:128
 msgid "Malagasy"
-msgstr ""
+msgstr "Malgascio"
 
 #: buzz/transcriber/transcriber.py:129
 msgid "Assamese"
-msgstr ""
+msgstr "Assamese"
 
 #: buzz/transcriber/transcriber.py:130
 msgid "Tatar"
-msgstr ""
+msgstr "Tartaro"
 
 #: buzz/transcriber/transcriber.py:131
 msgid "Hawaiian"
-msgstr ""
+msgstr "Hawaiano"
 
 #: buzz/transcriber/transcriber.py:132
 msgid "Lingala"
-msgstr ""
+msgstr "Lingala"
 
 #: buzz/transcriber/transcriber.py:133
 msgid "Hausa"
-msgstr ""
+msgstr "Hausa"
 
 #: buzz/transcriber/transcriber.py:134
 msgid "Bashkir"
-msgstr ""
+msgstr "Baschiro"
 
 #: buzz/transcriber/transcriber.py:135
 msgid "Javanese"
-msgstr ""
+msgstr "Giavanese"
 
 #: buzz/transcriber/transcriber.py:136
 msgid "Sundanese"
-msgstr ""
+msgstr "Sundanese"
 
 #: buzz/transcriber/transcriber.py:137
 msgid "Cantonese"
-msgstr ""
+msgstr "Cantonese"
 
 #: buzz/model_loader.py:528
 msgid "A connection error occurred"
