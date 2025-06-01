@@ -67,24 +67,24 @@ ifeq ($(OS), Windows_NT)
 	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
 	cmake --build whisper.cpp/build -j --config Release --verbose
 
-	mkdir buzz\whisper_cpp 2>nul || true
-	cp dll_backup/SDL2.dll buzz/whisper_cpp || copy dll_backup\SDL2.dll buzz\whisper_cpp\SDL2.dll
-	cp whisper.cpp/build/bin/Release/whisper.dll buzz/whisper_cpp || copy whisper.cpp\build\bin\Release\whisper.dll buzz\whisper_cpp\whisper.dll
-	cp whisper.cpp/build/bin/Release/ggml.dll buzz/whisper_cpp || copy whisper.cpp\build\bin\Release\ggml.dll buzz\whisper_cpp\ggml.dll
-	cp whisper.cpp/build/bin/Release/ggml-base.dll buzz/whisper_cpp || copy whisper.cpp\build\bin\Release\ggml-base.dll buzz\whisper_cpp\ggml-gase.dll
-	cp whisper.cpp/build/bin/Release/ggml-cpu.dll buzz/whisper_cpp || copy whisper.cpp\build\bin\Release\ggml-cpu.dll buzz\whisper_cpp\ggml-cpu.dll
+	mkdir buzz\whisper_cpp || true
+	cp dll_backup/SDL2.dll buzz/whisper_cpp
+	cp whisper.cpp/build/bin/Release/whisper.dll buzz/whisper_cpp
+	cp whisper.cpp/build/bin/Release/ggml.dll buzz/whisper_cpp
+	cp whisper.cpp/build/bin/Release/ggml-base.dll buzz/whisper_cpp
+	cp whisper.cpp/build/bin/Release/ggml-cpu.dll buzz/whisper_cpp
 
 	# Build Whisper for Vulkan
 	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DGGML_VULKAN=1
 	cmake --build whisper.cpp/build -j --config Release --verbose
 
-	mkdir buzz\whisper_cpp_vulkan 2>nul || true
-	cp dll_backup/SDL2.dll buzz/whisper_cpp_vulkan || copy dll_backup\SDL2.dll buzz\whisper_cpp_vulkan\SDL2.dll
-	cp whisper.cpp/build/bin/Release/whisper.dll buzz/whisper_cpp_vulkan || copy whisper.cpp\build\bin\Release\whisper.dll buzz\whisper_cpp_vulkan\whisper.dll
-	cp whisper.cpp/build/bin/Release/ggml.dll buzz/whisper_cpp_vulkan || copy whisper.cpp\build\bin\Release\ggml.dll buzz\whisper_cpp_vulkan\ggml.dll
-	cp whisper.cpp/build/bin/Release/ggml-base.dll buzz/whisper_cpp_vulkan || copy whisper.cpp\build\bin\Release\ggml-base.dll buzz\whisper_cpp_vulkan\ggml-gase.dll
-	cp whisper.cpp/build/bin/Release/ggml-cpu.dll buzz/whisper_cpp_vulkan || copy whisper.cpp\build\bin\Release\ggml-cpu.dll buzz\whisper_cpp_vulkan\ggml-cpu.dll
-	cp whisper.cpp/build/bin/Release/ggml-vulkan.dll buzz/whisper_cpp_vulkan || copy whisper.cpp\build\bin\Release\ggml-vulkan.dll buzz\whisper_cpp_vulkan\ggml-vulkan.dll
+	mkdir buzz\whisper_cpp_vulkan || true
+	cp dll_backup/SDL2.dll buzz/whisper_cpp_vulkan
+	cp whisper.cpp/build/bin/Release/whisper.dll buzz/whisper_cpp_vulkan/whisper-vulkan.dll
+	cp whisper.cpp/build/bin/Release/ggml.dll buzz/whisper_cpp_vulkan
+	cp whisper.cpp/build/bin/Release/ggml-base.dll buzz/whisper_cpp_vulkan
+	cp whisper.cpp/build/bin/Release/ggml-cpu.dll buzz/whisper_cpp_vulkan
+	cp whisper.cpp/build/bin/Release/ggml-vulkan.dll buzz/whisper_cpp_vulkan
 else
 	# Build Whisper for CPU
 	rm -rf whisper.cpp/build || true

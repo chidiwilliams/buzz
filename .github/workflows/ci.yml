@@ -254,18 +254,11 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Copy Windows DLLs
-        run: |
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            cp -r ./dll_backup ./buzz/
-          fi
-        shell: bash
-
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.22.0
         env:
           CIBW_ARCHS_WINDOWS: "auto64"
-          CIBW_ARCHS_MACOS: "universal2"
+          CIBW_ARCHS_MACOS: "auto64"
           CIBW_ARCHS_LINUX: "auto64"
 
       - uses: actions/upload-artifact@v4
