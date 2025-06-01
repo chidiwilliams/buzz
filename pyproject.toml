@@ -20,12 +20,10 @@ packages = [
     { include = "buzz" },
 ]
 include = [
-    { path = "buzz/libwhisper.*", format = ["sdist", "wheel"] },
-    { path = "buzz/libwhisper-coreml.*", format = ["sdist", "wheel"] },
-    { path = "buzz/*.dll", format = ["sdist", "wheel"] },
-    { path = "buzz/whisper_cpp.py", format = ["sdist", "wheel"] },
+    { path = "buzz/whisper_cpp/*", format = ["sdist", "wheel"] },
+    { path = "buzz/whisper_cpp_vulkan/*", format = ["sdist", "wheel"] },
+    { path = "buzz/whisper_cpp_coreml/*", format = ["sdist", "wheel"] },
     { path = "buzz/locale/*/LC_MESSAGES/buzz.mo", format = ["sdist", "wheel"] },
-    { path = "buzz/dll_backup/*", format = ["sdist", "wheel"] },
 ]
 
 [[tool.poetry.source]]
