@@ -44,25 +44,26 @@ else:
     options = []
 
 binaries = [
-    (
-        "buzz/whisper.dll" if platform.system() == "Windows" else "buzz/libwhisper.*",
-        ".",
-    ),
     (shutil.which("ffmpeg"), "."),
     (shutil.which("ffprobe"), "."),
 ]
 
-# Include libwhisper-coreml.dylib on Apple Silicon
-if platform.system() == "Darwin" and platform.machine() == "arm64":
-    binaries.append(("buzz/libwhisper-coreml.dylib", "."))
+if platform.system() != "Windows":
+    binaries.append(("buzz/whisper_cpp/*.so", "buzz/whisper_cpp"))
+    binaries.append(("buzz/whisper_cpp_vulkan/*.so", "buzz/whisper_cpp_vulkan"))
+    binaries.append(("buzz/whisper_cpp/*.dylib", "buzz/whisper_cpp"))
+    binaries.append(("buzz/whisper_cpp_vulkan/*.dylib", "buzz/whisper_cpp_vulkan"))
 
-# Include dll_backup folder and its contents on Windows
+if platform.system() == "Darwin" and platform.machine() == "arm64":
+    binaries.append(("buzz/whisper_cpp_coreml/*.dylib", "buzz/whisper_cpp_coreml"))
+
 if platform.system() == "Windows":
     datas += [("dll_backup", "dll_backup")]
     datas += collect_data_files("msvc-runtime")
 
     binaries.append(("dll_backup/SDL2.dll", "dll_backup"))
-    binaries.append(("dll_backup/whisper.dll", "dll_backup"))
+    binaries.append(("buzz/whisper_cpp/*.dll", "buzz/whisper_cpp"))
+    binaries.append(("buzz/whisper_cpp_vulkan/*.dll", "buzz/whisper_cpp_vulkan"))
 
 a = Analysis(
     ["main.py"],

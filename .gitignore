@@ -13,19 +13,14 @@ coverage.xml
 venv/
 
 # whisper_cpp
-libwhisper.*
-libwhisper-vulkan.*
-libwhisper-coreml.*
 whisper_cpp
 whisper_cpp.exe
-whisper.dll
-ggml.dll
-ggml-gase.dll
-ggml-cpu.dll
-ggml-vulkan.dll
-buzz/whisper_cpp.py
-buzz/whisper_cpp_coreml.py
-buzz/whisper_cpp_vulkan.py
+*.dll
+*.dylib
+*.so
+buzz/whisper_cpp/*
+buzz/whisper_cpp_vulkan/*
+buzz/whisper_cpp_coreml/*
 
 # Internationalization - compiled binaries
 *.mo

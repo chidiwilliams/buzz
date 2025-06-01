@@ -1,5 +1,5 @@
 # Development notes:
-# - To build the snap run `snapcraft clean` and `snapcraft`
+# - To build the snap run `snapcraft clean` and `snapcraft --verbose`
 # - To install local snap `snap install ./buzz_*.snap --dangerous`
 name: buzz
 base: core22
@@ -83,7 +83,12 @@ parts:
     plugin: python
     source: .
     build-packages:
+      - wget
       - portaudio19-dev
+      - qt6-declarative-dev
+      - qt6-multimedia-dev
+      - libvulkan-dev
+      - cmake
     stage-packages:
       # Audio
       - ffmpeg
@@ -100,8 +105,6 @@ parts:
       - libgstreamer1.0-0
       - libgstreamer-plugins-base1.0-0
       - libgstreamer-plugins-good1.0-0
-      - qt6-declarative-dev
-      - qt6-multimedia-dev
       # Display
       - libxkbcommon-x11-0
       - libxcb-icccm4
@@ -114,27 +117,40 @@ parts:
       - libxcb-cursor0
       # GPU
       - libglu1-mesa
+      - libvulkan1
+      - mesa-vulkan-drivers
+    python-packages:
+      - ctypesgen
+      - setuptools
+      - cmake
+      - polib
     override-build: |
-      craftctl default
-      pip install poetry
-      make translation_mo
-      pip install .
-      pip uninstall -y ctranslate2
-      pip install https://github.com/raivisdejus/CTranslate2-no-execstack/releases/download/v4.2.1/ctranslate2-4.2.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-      python3 build.py
-      mkdir $CRAFT_PART_INSTALL/buzz
-      cp $CRAFT_PART_BUILD/buzz/whisper_cpp.py $CRAFT_PART_INSTALL/buzz/
-      cp $CRAFT_PART_BUILD/buzz/libwhisper.so $CRAFT_PART_INSTALL/buzz/
-    after: [ desktop-qt5 ]
+      # https://vulkan.lunarg.com/doc/view/latest/linux/getting_started_ubuntu.html      
+      wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | tee /etc/apt/trusted.gpg.d/lunarg.asc
+      wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list http://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
+      apt update
+      apt install -y vulkan-sdk
 
-  desktop-file:
+      craftctl default
+      
+      # Create desktop file
+      mkdir -p $CRAFT_PART_INSTALL/usr/share/applications
+      cp $CRAFT_PART_BUILD/buzz.desktop $CRAFT_PART_INSTALL/usr/share/applications/
+    after: [ desktop-qt5 ]
+  graphics-core22:
+    after: [ buzz ]
+    source: https://github.com/canonical/gpu-snap.git
     plugin: dump
-    source: .
-    organize:
-      buzz.desktop: usr/share/applications/buzz.desktop
+    override-prime: |
+      craftctl default
+      ${CRAFT_PART_SRC}/bin/graphics-core22-cleanup mesa-core22 nvidia-core22
+    prime:
+      - bin/graphics-core22-wrapper
 
 apps:
   buzz:
+    command-chain:
+      - bin/graphics-core22-wrapper
     command: bin/desktop-launch python3 -m buzz
     desktop: usr/share/applications/buzz.desktop
     environment:
@@ -182,7 +198,19 @@ plugs:
     interface: content
     target: $SNAP/share/sounds
     default-provider: gtk-common-themes
+  graphics-core22:
+    interface: content
+    target: $SNAP/graphics
+    default-provider: mesa-core22
 
 layout:
   /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/alsa-lib:
     bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/alsa-lib
+  /usr/share/libdrm:
+    bind: $SNAP/graphics/libdrm
+  /usr/share/drirc.d:
+    symlink: $SNAP/graphics/drirc.d
+  /usr/share/X11/XErrorDB:
+    symlink: $SNAP/graphics/X11/XErrorDB
+  /usr/share/X11/locale:
+    symlink: $SNAP/graphics/X11/locale
