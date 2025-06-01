@@ -67,6 +67,7 @@ ifeq ($(OS), Windows_NT)
 	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
 	cmake --build whisper.cpp/build -j --config Release --verbose
 
+	mkdir buzz\whisper_cpp 2>nul || true
 	cp dll_backup/SDL2.dll buzz/whisper_cpp || copy dll_backup\SDL2.dll buzz\whisper_cpp\SDL2.dll
 	cp whisper.cpp/build/bin/Release/whisper.dll buzz/whisper_cpp || copy whisper.cpp\build\bin\Release\whisper.dll buzz\whisper_cpp\whisper.dll
 	cp whisper.cpp/build/bin/Release/ggml.dll buzz/whisper_cpp || copy whisper.cpp\build\bin\Release\ggml.dll buzz\whisper_cpp\ggml.dll
@@ -77,7 +78,8 @@ ifeq ($(OS), Windows_NT)
 	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DGGML_VULKAN=1
 	cmake --build whisper.cpp/build -j --config Release --verbose
 
-	cp dll_backup/SDL2.dll buzz/whisper_cpp || copy dll_backup\SDL2.dll buzz\whisper_cpp\SDL2.dll
+	mkdir buzz\whisper_cpp_vulkan 2>nul || true
+	cp dll_backup/SDL2.dll buzz/whisper_cpp_vulkan || copy dll_backup\SDL2.dll buzz\whisper_cpp_vulkan\SDL2.dll
 	cp whisper.cpp/build/bin/Release/whisper.dll buzz/whisper_cpp_vulkan || copy whisper.cpp\build\bin\Release\whisper.dll buzz\whisper_cpp_vulkan\whisper.dll
 	cp whisper.cpp/build/bin/Release/ggml.dll buzz/whisper_cpp_vulkan || copy whisper.cpp\build\bin\Release\ggml.dll buzz\whisper_cpp_vulkan\ggml.dll
 	cp whisper.cpp/build/bin/Release/ggml-base.dll buzz/whisper_cpp_vulkan || copy whisper.cpp\build\bin\Release\ggml-base.dll buzz\whisper_cpp_vulkan\ggml-gase.dll
@@ -109,6 +111,7 @@ endif
 ifeq ($(shell uname -m), arm64)
 ifeq ($(shell uname -s), Darwin)
 	rm -rf whisper.cpp/build || true
+	mkdir -p buzz/whisper_cpp_coreml
 	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_OSX_ARCHITECTURES="arm64" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DWHISPER_COREML=1
 	cmake --build whisper.cpp/build -j --config Release --verbose
 	cp whisper.cpp/build/src/libwhisper$(LIBEXT) buzz/whisper_cpp_coreml/libwhisper-vulkan$(LIBEXT) || true
