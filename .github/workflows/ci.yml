@@ -82,6 +82,12 @@ jobs:
           sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev
         if: "startsWith(matrix.os, 'ubuntu-')"
 
+      - name: Install Vulkan SDK
+        uses: humbletim/install-vulkan-sdk@v1.2
+        with:
+          version: 1.4.309.0
+          cache: true
+
       - name: Test
         run: |
           poetry run make test
@@ -131,6 +137,12 @@ jobs:
 
       - uses: AnimMouse/setup-ffmpeg@v1.2.1
         id: setup-ffmpeg
+
+      - name: Install Vulkan SDK
+        uses: humbletim/install-vulkan-sdk@v1.2
+        with:
+          version: 1.4.309.0
+          cache: true
 
       # Adding windows Nvidia CUDA torch and its dependencies
       # Linux only packages were removed from the list.
@@ -242,19 +254,12 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Copy Windows DLLs
-        run: |
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            cp -r ./dll_backup ./buzz/
-          fi
-        shell: bash
-
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.22.0
         env:
-          CIBW_ARCHS_WINDOWS: "auto"
-          CIBW_ARCHS_MACOS: "universal2"
-          CIBW_ARCHS_LINUX: "auto"
+          CIBW_ARCHS_WINDOWS: "auto64"
+          CIBW_ARCHS_MACOS: "auto64"
+          CIBW_ARCHS_LINUX: "auto64"
 
       - uses: actions/upload-artifact@v4
         with:
