@@ -30,18 +30,18 @@ endif
 
 clean:
 ifeq ($(OS), Windows_NT)
-	rmdir /s /q buzz\whisper_cpp 2> nul
-	rmdir /s /q buzz\whisper_cpp_vulkan 2> nul
-	rmdir /s /q whisper.cpp\build 2> nul
-	rmdir /s /q dist 2> nul
-	Remove-Item -Recurse -Force buzz\whisper_cpp
-	Remove-Item -Recurse -Force buzz\whisper_cpp_vulkan
-	Remove-Item -Recurse -Force whisper.cpp\build
-	Remove-Item -Recurse -Force dist\*
-	rm -rf buzz/whisper_cpp || true
-	rm -fr buzz/whisper_cpp_vulkan || true
-	rm -rf whisper.cpp/build || true
-	rm -rf dist/* || true
+	-rmdir /s /q buzz\whisper_cpp 2> nul
+	-rmdir /s /q buzz\whisper_cpp_vulkan 2> nul
+	-rmdir /s /q whisper.cpp\build 2> nul
+	-rmdir /s /q dist 2> nul
+	-Remove-Item -Recurse -Force buzz\whisper_cpp
+	-Remove-Item -Recurse -Force buzz\whisper_cpp_vulkan
+	-Remove-Item -Recurse -Force whisper.cpp\build
+	-Remove-Item -Recurse -Force dist\*
+	-rm -rf buzz/whisper_cpp
+	-rm -fr buzz/whisper_cpp_vulkan
+	-rm -rf whisper.cpp/build
+	-rm -rf dist/*
 else
 	rm -rf buzz/whisper_cpp || true
 	rm -fr buzz/whisper_cpp_vulkan || true
@@ -71,7 +71,7 @@ ifeq ($(OS), Windows_NT)
 	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
 	cmake --build whisper.cpp/build -j --config Release --verbose
 
-	mkdir buzz/whisper_cpp
+	-mkdir buzz/whisper_cpp
 	cp dll_backup/SDL2.dll buzz/whisper_cpp
 	cp whisper.cpp/build/bin/Release/whisper.dll buzz/whisper_cpp
 	cp whisper.cpp/build/bin/Release/ggml.dll buzz/whisper_cpp
@@ -82,7 +82,7 @@ ifeq ($(OS), Windows_NT)
 	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DGGML_VULKAN=1
 	cmake --build whisper.cpp/build -j --config Release --verbose
 
-	mkdir buzz/whisper_cpp_vulkan
+	-mkdir buzz/whisper_cpp_vulkan
 	cp dll_backup/SDL2.dll buzz/whisper_cpp_vulkan
 	cp whisper.cpp/build/bin/Release/whisper.dll buzz/whisper_cpp_vulkan/whisper-vulkan.dll
 	cp whisper.cpp/build/bin/Release/ggml.dll buzz/whisper_cpp_vulkan
