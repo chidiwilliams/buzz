@@ -48,9 +48,11 @@ binaries = [
     (shutil.which("ffprobe"), "."),
 ]
 
-if platform.system() != "Windows":
+if platform.system() == "Linux":
     binaries.append(("buzz/whisper_cpp/*.so", "buzz/whisper_cpp"))
     binaries.append(("buzz/whisper_cpp_vulkan/*.so", "buzz/whisper_cpp_vulkan"))
+
+if platform.system() == "Darwin"
     binaries.append(("buzz/whisper_cpp/*.dylib", "buzz/whisper_cpp"))
     binaries.append(("buzz/whisper_cpp_vulkan/*.dylib", "buzz/whisper_cpp_vulkan"))
 

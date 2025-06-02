@@ -11,6 +11,8 @@ from buzz.model_loader import LOADED_WHISPER_CPP_BINARY
 from buzz.transcriber.transcriber import Segment, Task, TranscriptionOptions
 
 
+# TODO - Test and maybe refactor to https://github.com/fann1993814/whisper.cpy
+
 IS_COREML_SUPPORTED = False
 if platform.system() == "Darwin" and platform.machine() == "arm64":
     try:
