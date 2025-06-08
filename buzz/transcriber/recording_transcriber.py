@@ -134,6 +134,7 @@ class RecordingTranscriber(QObject):
         )
 
         self.is_running = True
+        amplitude = 0.0
         try:
             with self.sounddevice.InputStream(
                 samplerate=self.sample_rate,
@@ -149,12 +150,19 @@ class RecordingTranscriber(QObject):
                         self.queue = self.queue[self.n_batch_samples - keep_samples:]
                         self.mutex.release()
 
+                        amplitude = self.amplitude(samples)
+
                         logging.debug(
                             "Processing next frame, sample size = %s, queue size = %s, amplitude = %s",
                             samples.size,
                             self.queue.size,
-                            self.amplitude(samples),
+                            amplitude,
                         )
+
+                        if amplitude < 0.01:
+                            time.sleep(0.5)
+                            continue
+
                         time_started = datetime.datetime.now()
 
                         if (
