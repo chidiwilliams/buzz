@@ -80,13 +80,10 @@ class FileTranscriptionFormWidget(QWidget):
         layout.addLayout(file_transcription_layout)
         self.setLayout(layout)
 
-        self.reset_word_level_timings()
-
     def on_transcription_options_changed(
         self, transcription_options: TranscriptionOptions
     ):
         self.transcription_options = transcription_options
-        self.reset_word_level_timings()
         self.transcription_options_changed.emit(
             (self.transcription_options, self.file_transcription_options)
         )
@@ -125,9 +122,3 @@ class FileTranscriptionFormWidget(QWidget):
             )
 
         return on_checkbox_state_changed
-
-    def reset_word_level_timings(self):
-        self.word_level_timings_checkbox.setDisabled(
-            self.transcription_options.model.model_type
-            == ModelType.OPEN_AI_WHISPER_API
-        )

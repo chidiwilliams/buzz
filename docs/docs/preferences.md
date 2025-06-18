@@ -11,7 +11,7 @@ Open the Preferences window from the Menu bar, or click `Ctrl/Cmd + ,`.
 
 **API Key** - key to authenticate your requests to OpenAI API. To get API key from OpenAI see [this article](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key).
 
-**Base URL** - By default all requests are sent to API provided by OpenAI company. Their API URL is `https://api.openai.com/v1/`. Compatible APIs are also provided by other companies. List of available API URLs you can find on [discussion page](https://github.com/chidiwilliams/buzz/discussions/827)
+**Base URL** - By default all requests are sent to API provided by OpenAI company. Their API URL is `https://api.openai.com/v1/`. Compatible APIs are also provided by other companies. List of available API URLs and services to run yourself are available on [discussion page](https://github.com/chidiwilliams/buzz/discussions/827)
 
 ### Default export file name
 
