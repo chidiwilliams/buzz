@@ -62,17 +62,20 @@ class Translator(QObject):
             except queue.Empty:
                 continue
 
-            completion = self.openai_client.chat.completions.create(
-                model=self.transcription_options.llm_model,
-                messages=[
-                    {"role": "system", "content": self.transcription_options.llm_prompt},
-                    {"role": "user", "content": transcript}
-                ]
-            )
+            try:
+                completion = self.openai_client.chat.completions.create(
+                    model=self.transcription_options.llm_model,
+                    messages=[
+                        {"role": "system", "content": self.transcription_options.llm_prompt},
+                        {"role": "user", "content": transcript}
+                    ]
+                )
+            except Exception as e:
+                completion = None
+                logging.error(f"Translation error! Server response: {e}")
 
-            logging.debug(f"Received translation response: {completion}")
-
-            if completion.choices and completion.choices[0].message:
+            if completion and completion.choices and completion.choices[0].message:
+                logging.debug(f"Received translation response: {completion}")
                 next_translation = completion.choices[0].message.content
             else:
                 logging.error(f"Translation error! Server response: {completion}")

@@ -524,6 +524,10 @@ class ModelDownloader(QRunnable):
                 progress=self.signals.progress,
                 num_large_files=4
             )
+
+            if model_path == "":
+                self.signals.error.emit(_("Error"))
+
             self.signals.finished.emit(model_path)
             return
 

@@ -49,16 +49,15 @@ yt-dlp = "^2025.2.19"
 stable-ts = "^2.18.3"
 faster-whisper = "^1.1.1"
 openai-whisper = "^20240930"
-# transformers 4.50.0 has some bug
-transformers = "4.49.0"
+transformers = "^4.49.0"
 accelerate = "^1.0.1"
 polib = "^1.2.0"
 srt-equalizer = "^0.1.10"
 # torch 2.2.2 is last with intel macOS support, during build torch will be downgraded
-torch = "2.7.0"
-torchaudio = "2.7.0"
+torch = "^2.7.1"
+torchaudio = "^2.7.1"
 # ctranslate2 4.3.1 is last with intel macOS support, during build ctranslate2 will be downgraded
-ctranslate2 = "4.6.0"
+ctranslate2 = "^4.6.0"
 darkdetect = "^0.8.0"
 # requirements for demucs - TODO maybe remove
 dora-search = "^0.1.12"
@@ -80,7 +79,7 @@ soundfile = "^0.13.1"
 urllib3 = "^2.3.0"
 demucs = {url = "https://github.com/raivisdejus/demucs/releases/download/4.1.0a3/demucs-4.1.0a3-py3-none-any.whl"}
 posthog = "^3.23.0"
-onnxruntime = "1.18.0"
+onnxruntime = "^1.18.0"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
