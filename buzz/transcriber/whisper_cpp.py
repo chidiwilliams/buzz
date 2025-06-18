@@ -23,6 +23,24 @@ if platform.system() == "Darwin" and platform.machine() == "arm64":
     except ImportError:
         logging.exception("")
 
+def append_segment(result, txt: bytes, start: int, end: int):
+    if txt == b'':
+        return True
+
+    # try-catch will guard against multi-byte utf-8 characters
+    # https://github.com/ggerganov/whisper.cpp/issues/1798
+    try:
+        result.append(
+            Segment(
+                start=start * 10,  # centisecond to ms
+                end=end * 10,  # centisecond to ms
+                text=txt.decode("utf-8"),
+            )
+        )
+
+        return True
+    except UnicodeDecodeError:
+        return False
 
 class WhisperCpp:
     def __init__(self, model: str) -> None:
@@ -39,25 +57,6 @@ class WhisperCpp:
         self.instance = self.get_instance()
         self.ctx = self.instance.init_from_file(model)
         self.segments: List[Segment] = []
-
-    def append_segment(self, txt: bytes, start: int, end: int):
-        if txt == b'':
-            return True
-
-        # try-catch will guard against multi-byte utf-8 characters
-        # https://github.com/ggerganov/whisper.cpp/issues/1798
-        try:
-            self.segments.append(
-                Segment(
-                    start=start * 10,  # centisecond to ms
-                    end=end * 10,  # centisecond to ms
-                    text=txt.decode("utf-8"),
-                )
-            )
-
-            return True
-        except UnicodeDecodeError:
-            return False
 
     def transcribe(self, audio: Union[np.ndarray, str], params: Any):
         self.segments = []
@@ -87,7 +86,7 @@ class WhisperCpp:
                 start = self.instance.full_get_segment_t0(self.ctx, i)
                 end = self.instance.full_get_segment_t1(self.ctx, i)
 
-                if txt.startswith(b' ') and self.append_segment(txt_buffer, txt_start, txt_end):
+                if txt.startswith(b' ') and append_segment(self.segments, txt_buffer, txt_start, txt_end):
                     txt_buffer = txt
                     txt_start = start
                     txt_end = end
@@ -95,7 +94,7 @@ class WhisperCpp:
 
                 if txt.startswith(b', '):
                     txt_buffer += b','
-                    self.append_segment(txt_buffer, txt_start, txt_end)
+                    append_segment(self.segments, txt_buffer, txt_start, txt_end)
                     txt_buffer = txt.lstrip(b',')
                     txt_start = start
                     txt_end = end
@@ -105,7 +104,7 @@ class WhisperCpp:
                 txt_end = end
 
             # Append the last segment
-            self.append_segment(txt_buffer, txt_start, txt_end)
+            append_segment(self.segments, txt_buffer, txt_start, txt_end)
 
         else:
             for i in range(n_segments):
@@ -113,7 +112,7 @@ class WhisperCpp:
                 start = self.instance.full_get_segment_t0(self.ctx, i)
                 end = self.instance.full_get_segment_t1(self.ctx, i)
 
-                self.append_segment(txt, start, end)
+                append_segment(self.segments, txt, start, end)
 
         return {
             "segments": self.segments,
