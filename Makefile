@@ -125,7 +125,7 @@ else
 endif
 ifeq ($(shell uname -m), arm64)
 ifeq ($(shell uname -s), Darwin)
-	cd buzz && ctypesgen ../whisper.cpp/whisper.h -lwhisper-coreml -o whisper_cpp_coreml.py
+	cd buzz && ctypesgen ../whisper.cpp/include/whisper.h -I../whisper.cpp/ggml/include -lwhisper-coreml -o ./whisper_cpp_coreml/whisper_cpp_coreml.py
 endif
 endif
 
