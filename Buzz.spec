@@ -1,4 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
+import os
 import os.path
 import platform
 import shutil
@@ -43,16 +44,41 @@ if DEBUG:
 else:
     options = []
 
-binaries = [
-    (shutil.which("ffmpeg"), "."),
-    (shutil.which("ffprobe"), "."),
-]
+def find_dependency(name: str) -> str:
+    paths = os.environ["PATH"].split(os.pathsep)
+    candidates = []
+    for path in paths:
+        exe_path = os.path.join(path, name)
+        if os.path.isfile(exe_path):
+            candidates.append(exe_path)
+
+        # Check for chocolatery shims
+        shim_path = os.path.normpath(os.path.join(path, "..", "lib", "ffmpeg", "tools", "ffmpeg", "bin", name))
+        if os.path.isfile(shim_path):
+            candidates.append(shim_path)
+
+    if not candidates:
+        return None
+
+    # Pick the largest file
+    return max(candidates, key=lambda f: os.path.getsize(f))
+
+if platform.system() == "Windows":
+    binaries = [
+        (find_dependency("ffmpeg.exe"), "."),
+        (find_dependency("ffprobe.exe"), "."),
+    ]
+else:
+    binaries = [
+        (shutil.which("ffmpeg"), "."),
+        (shutil.which("ffprobe"), "."),
+    ]
 
 if platform.system() == "Linux":
     binaries.append(("buzz/whisper_cpp/*.so", "buzz/whisper_cpp"))
     binaries.append(("buzz/whisper_cpp_vulkan/*.so", "buzz/whisper_cpp_vulkan"))
 
-if platform.system() == "Darwin"
+if platform.system() == "Darwin":
     binaries.append(("buzz/whisper_cpp/*.dylib", "buzz/whisper_cpp"))
     binaries.append(("buzz/whisper_cpp_vulkan/*.dylib", "buzz/whisper_cpp_vulkan"))
 
@@ -65,7 +91,7 @@ if platform.system() == "Windows":
 
     binaries.append(("dll_backup/SDL2.dll", "dll_backup"))
     binaries.append(("buzz/whisper_cpp/*.dll", "buzz/whisper_cpp"))
-    binaries.append(("buzz/whisper_cpp_vulkan/*.dll", "buzz/whisper_cpp_vulkan"))
+    binaries.append(("buzz/*.exe", "."))
 
 a = Analysis(
     ["main.py"],

@@ -14,7 +14,7 @@ venv/
 
 # whisper_cpp
 whisper_cpp
-whisper_cpp.exe
+*.exe
 *.dll
 *.dylib
 *.so

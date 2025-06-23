@@ -80,6 +80,7 @@ demucs = {url = "https://github.com/raivisdejus/demucs/releases/download/4.1.0a3
 posthog = "^3.23.0"
 onnxruntime = "1.18.0"
 vulkan = "^1.3.275.1"
+hf-xet = "^1.1.5"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"

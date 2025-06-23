@@ -1,5 +1,6 @@
 import platform
 import os
+import sys
 import ctypes
 import logging
 from typing import Union, Any, List
@@ -11,15 +12,14 @@ from buzz.model_loader import LOADED_WHISPER_CPP_BINARY
 from buzz.transcriber.transcriber import Segment, Task, TranscriptionOptions
 
 
-# TODO - Test and maybe refactor to https://github.com/fann1993814/whisper.cpy
-
 IS_COREML_SUPPORTED = False
 if platform.system() == "Darwin" and platform.machine() == "arm64":
     try:
         from buzz.whisper_cpp_coreml import whisper_cpp_coreml  # noqa: F401
 
         IS_COREML_SUPPORTED = True
-    except ImportError:
+    except ImportError as e:
+        logging.exception("whisper_cpp_coreml  load error: %s", e)
         IS_COREML_SUPPORTED = False
 
 
@@ -29,11 +29,22 @@ try:
 
     instance = vulkan.vkCreateInstance(vulkan.VkInstanceCreateInfo(), None)
     vulkan.vkDestroyInstance(instance, None)
-    IS_VULKAN_SUPPORTED = True
+    vulkan_version = vulkan.vkEnumerateInstanceVersion()
+    major = (vulkan_version >> 22) & 0x3FF
+    minor = (vulkan_version >> 12) & 0x3FF
 
-    from buzz.whisper_cpp_vulkan import whisper_cpp_vulkan
+    logging.debug("Vulkan version = %s.%s", major, minor)
 
-except (ImportError, Exception):
+    # On Windows we will use whisper-server
+    # On MacOS we will use Core ML
+    if (sys.platform != "win32") and ((major > 1) or (major == 1 and minor >= 2)):
+        IS_VULKAN_SUPPORTED = True
+
+        from buzz.whisper_cpp_vulkan import whisper_cpp_vulkan
+
+except (ImportError, Exception) as e:
+    logging.debug(f"Vulkan import error: {e}")
+
     IS_VULKAN_SUPPORTED = False
 
 if not IS_VULKAN_SUPPORTED and not IS_COREML_SUPPORTED and LOADED_WHISPER_CPP_BINARY:

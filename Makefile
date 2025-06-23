@@ -12,18 +12,12 @@ bundle_mac: dist/Buzz.app codesign_all_mac zip_mac notarize_zip staple_app_mac d
 
 bundle_mac_unsigned: dist/Buzz.app zip_mac dmg_mac_unsigned
 
-UNAME_S := $(shell uname -s)
-
-LIBWHISPER :=
 ifeq ($(OS), Windows_NT)
-	LIBWHISPER=whisper.dll
 	LIBEXT=.dll
 else
-	ifeq ($(UNAME_S), Darwin)
-		LIBWHISPER=libwhisper.dylib
+	ifeq ($(shell uname -s), Darwin)
 		LIBEXT=.dylib
 	else
-		LIBWHISPER=libwhisper.so
 		LIBEXT=.so
 	endif
 endif
@@ -31,15 +25,15 @@ endif
 clean:
 ifeq ($(OS), Windows_NT)
 	-rmdir /s /q buzz\whisper_cpp 2> nul
-	-rmdir /s /q buzz\whisper_cpp_vulkan 2> nul
+	-rmdir /s /q buzz\whisper-server.exe 2> nul
 	-rmdir /s /q whisper.cpp\build 2> nul
 	-rmdir /s /q dist 2> nul
 	-Remove-Item -Recurse -Force buzz\whisper_cpp
-	-Remove-Item -Recurse -Force buzz\whisper_cpp_vulkan
+	-Remove-Item -Recurse -Force buzz\whisper-server.exe
 	-Remove-Item -Recurse -Force whisper.cpp\build
 	-Remove-Item -Recurse -Force dist\*
 	-rm -rf buzz/whisper_cpp
-	-rm -fr buzz/whisper_cpp_vulkan
+	-rm -fr buzz/whisper-server.exe
 	-rm -rf whisper.cpp/build
 	-rm -rf dist/*
 else
@@ -65,10 +59,12 @@ version:
 	poetry version ${version}
 	echo "VERSION = \"${version}\"" > buzz/__version__.py
 
-buzz/$(LIBWHISPER):
+buzz/whisper_cpp:
 ifeq ($(OS), Windows_NT)
 	# Build Whisper for CPU
-	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
+	# The _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR is needed to prevent mutex lock issues on Windows
+	# https://github.com/actions/runner-images/issues/10004#issuecomment-2156109231
+	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR=ON -DCMAKE_CXX_FLAGS="/D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" -DCMAKE_C_FLAGS="/D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR"
 	cmake --build whisper.cpp/build -j --config Release --verbose
 
 	-mkdir buzz/whisper_cpp
@@ -78,38 +74,35 @@ ifeq ($(OS), Windows_NT)
 	cp whisper.cpp/build/bin/Release/ggml-base.dll buzz/whisper_cpp
 	cp whisper.cpp/build/bin/Release/ggml-cpu.dll buzz/whisper_cpp
 
-	# Build Whisper for Vulkan
-	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DGGML_VULKAN=1
+	# Build Whisper with Vulkan support. On Windows whisper-server.exe wil lbe used as dll approach is unreliable,
+	# it often does not see the GPU
+	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR=ON -DCMAKE_CXX_FLAGS="/D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" -DCMAKE_C_FLAGS="/D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" -DGGML_VULKAN=1
 	cmake --build whisper.cpp/build -j --config Release --verbose
 
-	-mkdir buzz/whisper_cpp_vulkan
-	cp dll_backup/SDL2.dll buzz/whisper_cpp_vulkan
-	cp whisper.cpp/build/bin/Release/whisper.dll buzz/whisper_cpp_vulkan/whisper-vulkan.dll
-	cp whisper.cpp/build/bin/Release/ggml.dll buzz/whisper_cpp_vulkan
-	cp whisper.cpp/build/bin/Release/ggml-base.dll buzz/whisper_cpp_vulkan
-	cp whisper.cpp/build/bin/Release/ggml-cpu.dll buzz/whisper_cpp_vulkan
-	cp whisper.cpp/build/bin/Release/ggml-vulkan.dll buzz/whisper_cpp_vulkan
+	cp whisper.cpp/build/bin/Release/whisper-server.exe buzz/
 else
 	# Build Whisper for CPU
-	rm -rf whisper.cpp/build || true
-	mkdir -p buzz/whisper_cpp
+	-rm -rf whisper.cpp/build || true
+	-mkdir -p buzz/whisper_cpp
 	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
 	cmake --build whisper.cpp/build -j --config Release --verbose
-	cp whisper.cpp/build/src/libwhisper$(LIBEXT) buzz/whisper_cpp || true
-	cp whisper.cpp/build/ggml/src/libggml$(LIBEXT) buzz/whisper_cpp || true
-	cp whisper.cpp/build/ggml/src/libggml-base$(LIBEXT) buzz/whisper_cpp || true
-	cp whisper.cpp/build/ggml/src/libggml-cpu$(LIBEXT) buzz/whisper_cpp || true
+	cp whisper.cpp/build/bin/Release/whisper$(LIBEXT) buzz/whisper_cpp || true
+	cp whisper.cpp/build/bin/Release/ggml$(LIBEXT) buzz/whisper_cpp || true
+	cp whisper.cpp/build/bin/Release/ggml-base$(LIBEXT) buzz/whisper_cpp || true
+	cp whisper.cpp/build/bin/Release/ggml-cpu$(LIBEXT) buzz/whisper_cpp || true
 
 	# Build Whisper for Vulkan
-	rm -rf whisper.cpp/build || true
-	mkdir -p buzz/whisper_cpp_vulkan
-	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DGGML_VULKAN=1
-	cmake --build whisper.cpp/build -j --config Release --verbose
-	cp whisper.cpp/build/src/libwhisper$(LIBEXT) buzz/whisper_cpp_vulkan/libwhisper-vulkan$(LIBEXT) || true
-	cp whisper.cpp/build/ggml/src/libggml$(LIBEXT) buzz/whisper_cpp_vulkan || true
-	cp whisper.cpp/build/ggml/src/libggml-base$(LIBEXT) buzz/whisper_cpp_vulkan || true
-	cp whisper.cpp/build/ggml/src/libggml-cpu$(LIBEXT) buzz/whisper_cpp_vulkan || true
-	cp whisper.cpp/build/ggml/src/ggml-vulkan/libggml-vulkan$(LIBEXT) buzz/whisper_cpp_vulkan || true
+	ifeq ($(shell uname -s), Linux)
+		rm -rf whisper.cpp/build || true
+		-mkdir -p buzz/whisper_cpp_vulkan
+		cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DGGML_VULKAN=1
+		cmake --build whisper.cpp/build -j --config Release --verbose
+		cp whisper.cpp/build/bin/Release/whisper$(LIBEXT) buzz/whisper_cpp_vulkan/whisper-vulkan$(LIBEXT) || true
+		cp whisper.cpp/build/bin/Release/ggml$(LIBEXT) buzz/whisper_cpp_vulkan || true
+		cp whisper.cpp/build/bin/Release/ggml-base$(LIBEXT) buzz/whisper_cpp_vulkan || true
+		cp whisper.cpp/build/bin/Release/ggml-cpu$(LIBEXT) buzz/whisper_cpp_vulkan || true
+		cp whisper.cpp/build/bin/Release/ggml-vulkan/libggml-vulkan$(LIBEXT) buzz/whisper_cpp_vulkan || true
+	endif
 endif
 # Build CoreML support on ARM Macs
 ifeq ($(shell uname -m), arm64)
@@ -118,22 +111,18 @@ ifeq ($(shell uname -s), Darwin)
 	mkdir -p buzz/whisper_cpp_coreml
 	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_OSX_ARCHITECTURES="arm64" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DWHISPER_COREML=1
 	cmake --build whisper.cpp/build -j --config Release --verbose
-	cp whisper.cpp/build/src/libwhisper$(LIBEXT) buzz/whisper_cpp_coreml/libwhisper-vulkan$(LIBEXT) || true
-	cp whisper.cpp/build/ggml/src/libggml$(LIBEXT) buzz/whisper_cpp_coreml || true
-	cp whisper.cpp/build/ggml/src/libggml-base$(LIBEXT) buzz/whisper_cpp_coreml || true
-	cp whisper.cpp/build/ggml/src/libggml-cpu$(LIBEXT) buzz/whisper_cpp_coreml || true
-	cp whisper.cpp/build/ggml/src/ggml-vulkan/libggml-vulkan$(LIBEXT) buzz/whisper_cpp_coreml || true
-
-	# TODO Check where macs build the dylibs
-	#cp whisper.cpp/build/bin/Release/$(LIBWHISPER) buzz/whisper_cpp_coreml/libwhisper-coreml.dylib || true
-	#cp whisper.cpp/build/src/$(LIBWHISPER) buzz/whisper_cpp_coreml/libwhisper-coreml.dylib || true
+	cp whisper.cpp/build/src/libwhisper.* buzz/whisper_cpp_coreml/ || true
+	cp whisper.cpp/build/ggml/src/libggml.* buzz/whisper_cpp_coreml/ || true
 endif
 endif
 
-buzz/whisper_cpp.py: buzz/$(LIBWHISPER) translation_mo
+buzz/whisper_cpp.py: buzz/whisper_cpp translation_mo
+ifeq ($(OS), Windows_NT)
 	cd buzz && ctypesgen ../whisper.cpp/include/whisper.h -I../whisper.cpp/ggml/include -lwhisper -o ./whisper_cpp/whisper_cpp.py
-
+else
+	cd buzz && ctypesgen ../whisper.cpp/include/whisper.h -I../whisper.cpp/ggml/include -lwhisper -o ./whisper_cpp/whisper_cpp.py
 	cd buzz && ctypesgen ../whisper.cpp/include/whisper.h -I../whisper.cpp/ggml/include -lwhisper-vulkan -o ./whisper_cpp_vulkan/whisper_cpp_vulkan.py
+endif
 ifeq ($(shell uname -m), arm64)
 ifeq ($(shell uname -s), Darwin)
 	cd buzz && ctypesgen ../whisper.cpp/include/whisper.h -I../whisper.cpp/ggml/include -lwhisper-coreml -o ./whisper_cpp_coreml/whisper_cpp_coreml.py
