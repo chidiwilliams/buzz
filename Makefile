@@ -64,7 +64,7 @@ ifeq ($(OS), Windows_NT)
 	# Build Whisper for CPU
 	# The _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR is needed to prevent mutex lock issues on Windows
 	# https://github.com/actions/runner-images/issues/10004#issuecomment-2156109231
-	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR=ON -DCMAKE_CXX_FLAGS="/D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" -DCMAKE_C_FLAGS="/D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR"
+	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DCMAKE_CXX_FLAGS="/D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" -DCMAKE_C_FLAGS="/D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR"
 	cmake --build whisper.cpp/build -j --config Release --verbose
 
 	-mkdir buzz/whisper_cpp
@@ -76,7 +76,7 @@ ifeq ($(OS), Windows_NT)
 
 	# Build Whisper with Vulkan support. On Windows whisper-server.exe wil lbe used as dll approach is unreliable,
 	# it often does not see the GPU
-	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR=ON -DCMAKE_CXX_FLAGS="/D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" -DCMAKE_C_FLAGS="/D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" -DGGML_VULKAN=1
+	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DCMAKE_CXX_FLAGS="/D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" -DCMAKE_C_FLAGS="/D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" -DGGML_VULKAN=1
 	cmake --build whisper.cpp/build -j --config Release --verbose
 
 	cp whisper.cpp/build/bin/Release/whisper-server.exe buzz/
