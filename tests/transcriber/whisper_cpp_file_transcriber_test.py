@@ -1,3 +1,4 @@
+import os
 from typing import List
 from unittest.mock import Mock
 from pathlib import Path
@@ -18,7 +19,6 @@ from tests.audio import test_audio_path, test_multibyte_utf8_audio_path
 from tests.model_loader import get_model_path
 
 
-# TODO Add test for CPU mode (BUZZ_FORCE_CPU=true)
 class TestWhisperCppFileTranscriber:
     @pytest.mark.parametrize(
         "word_level_timings,expected_segments",
@@ -33,6 +33,7 @@ class TestWhisperCppFileTranscriber:
     def test_transcribe(
         self, qtbot: QtBot, word_level_timings: bool, expected_segments: List[Segment]
     ):
+        os.environ["BUZZ_FORCE_CPU"] = "true"
         file_transcription_options = FileTranscriptionOptions(
             file_paths=[str(Path(test_audio_path).resolve())]
         )
@@ -93,6 +94,7 @@ class TestWhisperCppFileTranscriber:
     def test_transcribe_latvian(
         self, qtbot: QtBot, word_level_timings: bool, expected_segments: List[Segment]
     ):
+        os.environ["BUZZ_FORCE_CPU"] = "true"
         file_transcription_options = FileTranscriptionOptions(
             file_paths=[str(Path(test_multibyte_utf8_audio_path).resolve())]
         )
