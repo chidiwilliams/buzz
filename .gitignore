@@ -20,7 +20,6 @@ whisper_cpp
 *.so
 buzz/whisper_cpp/*
 buzz/whisper_cpp_vulkan/*
-buzz/whisper_cpp_coreml/*
 
 # Internationalization - compiled binaries
 *.mo

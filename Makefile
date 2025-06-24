@@ -12,16 +12,6 @@ bundle_mac: dist/Buzz.app codesign_all_mac zip_mac notarize_zip staple_app_mac d
 
 bundle_mac_unsigned: dist/Buzz.app zip_mac dmg_mac_unsigned
 
-ifeq ($(OS), Windows_NT)
-	LIBEXT=.dll
-else
-	ifeq ($(shell uname -s), Darwin)
-		LIBEXT=.dylib
-	else
-		LIBEXT=.so
-	endif
-endif
-
 clean:
 ifeq ($(OS), Windows_NT)
 	-rmdir /s /q buzz\whisper_cpp 2> nul
@@ -39,7 +29,6 @@ ifeq ($(OS), Windows_NT)
 else
 	rm -rf buzz/whisper_cpp || true
 	rm -fr buzz/whisper_cpp_vulkan || true
-	rm -fr buzz/whisper_cpp_coreml || true
 	rm -rf whisper.cpp/build || true
 	rm -rf dist/* || true
 endif
@@ -104,45 +93,28 @@ ifeq ($(shell uname -s), Linux)
 	cp whisper.cpp/build/ggml/src/libggml-cpu.so buzz/whisper_cpp_vulkan || true
 	cp whisper.cpp/build/ggml/src/ggml-vulkan/libggml-vulkan.so buzz/whisper_cpp_vulkan || true
 endif
+
 # Build on Macs
 ifeq ($(shell uname -s), Darwin)
-
-	# Build Whisper for CPU
 	-rm -rf whisper.cpp/build || true
 	-mkdir -p buzz/whisper_cpp
-	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
-	cmake --build whisper.cpp/build -j --config Release --verbose
-	cp whisper.cpp/build/src/libwhisper.so.1.7.5 buzz/whisper_cpp/libwhisper.so || true
-	cp whisper.cpp/build/ggml/src/libggml.so buzz/whisper_cpp || true
-	cp whisper.cpp/build/ggml/src/libggml-base.so buzz/whisper_cpp || true
-	cp whisper.cpp/build/ggml/src/libggml-cpu.so buzz/whisper_cpp || true
 
-# Build CoreML support on ARM Macs
 ifeq ($(shell uname -m), arm64)
-	rm -rf whisper.cpp/build || true
-	mkdir -p buzz/whisper_cpp_coreml
-	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_OSX_ARCHITECTURES="arm64" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DWHISPER_COREML=1
-	cmake --build whisper.cpp/build -j --config Release --verbose
-	cp whisper.cpp/build/src/libwhisper.* buzz/whisper_cpp_coreml/ || true
-	cp whisper.cpp/build/ggml/src/libggml.* buzz/whisper_cpp_coreml/ || true
+	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DWHISPER_COREML=1
+else
+	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
 endif
+
+	cmake --build whisper.cpp/build -j --config Release --verbose
+	cp whisper.cpp/build/src/libwhisper.dylib buzz/whisper_cpp/ || true
+	cp whisper.cpp/build/ggml/src/libggml* buzz/whisper_cpp/ || true
 endif
 
 buzz/whisper_cpp.py: buzz/whisper_cpp translation_mo
-ifeq ($(OS), Windows_NT)
 	cd buzz && ctypesgen ../whisper.cpp/include/whisper.h -I../whisper.cpp/ggml/include -lwhisper -o ./whisper_cpp/whisper_cpp.py
-endif
 
 ifeq ($(shell uname -s), Linux)
-	cd buzz && ctypesgen ../whisper.cpp/include/whisper.h -I../whisper.cpp/ggml/include -lwhisper -o ./whisper_cpp/whisper_cpp.py
 	cd buzz && ctypesgen ../whisper.cpp/include/whisper.h -I../whisper.cpp/ggml/include -lwhisper-vulkan -o ./whisper_cpp_vulkan/whisper_cpp_vulkan.py
-endif
-
-ifeq ($(shell uname -s), Darwin)
-	cd buzz && ctypesgen ../whisper.cpp/include/whisper.h -I../whisper.cpp/ggml/include -lwhisper -o ./whisper_cpp/whisper_cpp.py
-ifeq ($(shell uname -m), arm64)
-	cd buzz && ctypesgen ../whisper.cpp/include/whisper.h -I../whisper.cpp/ggml/include -lwhisper-coreml -o ./whisper_cpp_coreml/whisper_cpp_coreml.py
-endif
 endif
 
 # Prints all the Mac developer identities used for code signing

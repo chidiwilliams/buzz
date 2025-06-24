@@ -2,7 +2,6 @@
 omit =
   buzz/whisper_cpp/*
   buzz/whisper_cpp_vulkan/*
-  buzz/whisper_cpp_coreml/*
   *_test.py
   demucs/*
 

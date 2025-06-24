@@ -82,9 +82,6 @@ if platform.system() == "Darwin":
     binaries.append(("buzz/whisper_cpp/*.dylib", "buzz/whisper_cpp"))
     binaries.append(("buzz/whisper_cpp_vulkan/*.dylib", "buzz/whisper_cpp_vulkan"))
 
-if platform.system() == "Darwin" and platform.machine() == "arm64":
-    binaries.append(("buzz/whisper_cpp_coreml/*.dylib", "buzz/whisper_cpp_coreml"))
-
 if platform.system() == "Windows":
     datas += [("dll_backup", "dll_backup")]
     datas += collect_data_files("msvc-runtime")
