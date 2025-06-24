@@ -70,6 +70,10 @@ jobs:
           poetry add torch==2.2.2 torchaudio==2.2.2
         if: "matrix.os == 'macos-13'"
 
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+        if: runner.os == 'Windows'
+
       - name: Install dependencies
         run: poetry install
 
@@ -162,6 +166,10 @@ jobs:
         run: |
           poetry add torch==2.2.2 torchaudio==2.2.2 ctranslate2==4.3.1
         if: "matrix.os == 'macos-13'"
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+        if: runner.os == 'Windows'
 
       - name: Install dependencies
         run: poetry install
