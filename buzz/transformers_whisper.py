@@ -213,7 +213,7 @@ class TransformersWhisper:
                 segments.append({
                     "start": 0 if start is None else start,
                     "end": 0 if end is None else end,
-                    "text": text,
+                    "text": text.strip(),
                     "translation": ""
                 })
 
