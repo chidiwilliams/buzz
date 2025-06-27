@@ -108,17 +108,6 @@ jobs:
           - os: macos-latest
           - os: windows-latest
     steps:
-      - name: Maximize build space
-        uses: easimon/maximize-build-space@master
-        with:
-          root-reserve-mb: 20000
-          swap-size-mb: 1024
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
-          remove-docker-images: 'true'
-
       - uses: actions/checkout@v4
         with:
           submodules: recursive
@@ -154,6 +143,8 @@ jobs:
             poetry add msvc-runtime
             poetry add torch==2.7.1+cu128 torchaudio==2.7.1+cu128
             poetry add nvidia-cublas-cu12==12.8.3.14 nvidia-cuda-cupti-cu12==12.8.57 nvidia-cuda-nvrtc-cu12==12.8.61 nvidia-cuda-runtime-cu12==12.8.57 nvidia-cudnn-cu12==9.7.1.26 nvidia-cufft-cu12==11.3.3.41 nvidia-curand-cu12==10.3.9.55 nvidia-cusolver-cu12==11.7.2.55 nvidia-cusparse-cu12==12.5.7.53 nvidia-cusparselt-cu12==0.6.3 nvidia-nvjitlink-cu12==12.8.61 nvidia-nvtx-cu12==12.8.55
+          
+            poetry cache clear --all .
           fi
         shell: bash
 
@@ -183,6 +174,18 @@ jobs:
       - name: Install FPM
         run: gem install fpm
         if: "startsWith(matrix.os, 'ubuntu-')"
+
+      - name: Clear space on Windows
+        if: runner.os == 'Windows'
+        run: |         
+          Remove-Item -Path `
+            'C:\Android\android-sdk\', `
+            'C:\Program Files (x86)\Google\', `
+            'C:\tools\kotlinc\' `
+            'C:\tools\php\' `
+            'C:\selenium\' `
+            -Recurse -Force
+        shell: pwsh
 
       - name: Bundle
         run: |
