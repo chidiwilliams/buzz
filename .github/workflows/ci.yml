@@ -238,6 +238,7 @@ jobs:
           name: Buzz-${{ runner.os }}-${{ runner.arch }}
           path: |
             dist/Buzz*-windows.exe
+            dist/Buzz*-windows-*.bin
             dist/Buzz*-mac.dmg
 
   build_wheels:
