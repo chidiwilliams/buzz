@@ -178,13 +178,11 @@ jobs:
       - name: Clear space on Windows
         if: runner.os == 'Windows'
         run: |         
-          Remove-Item -Path `
-            'C:\Android\android-sdk\', `
-            'C:\Program Files (x86)\Google\', `
-            'C:\tools\kotlinc\' `
-            'C:\tools\php\' `
-            'C:\selenium\' `
-            -Recurse -Force
+          rm 'C:\Android\android-sdk\' -r -force
+          rm 'C:\Program Files (x86)\Google\' -r -force
+          rm 'C:\tools\kotlinc\' -r -force
+          rm 'C:\tools\php\' -r -force
+          rm 'C:\selenium\' -r -force
         shell: pwsh
 
       - name: Bundle
