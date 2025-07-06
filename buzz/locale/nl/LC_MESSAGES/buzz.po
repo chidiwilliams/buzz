@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-27 12:27+0300\n"
+"POT-Creation-Date: 2025-07-06 20:16+0300\n"
 "PO-Revision-Date: 2025-03-20 18:30+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: none\n"
@@ -110,70 +110,75 @@ msgid "Polish"
 msgstr "Pools"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:45
+#, fuzzy
+msgid "Portuguese (Brazil)"
+msgstr "Portugees"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:46
 #: buzz/transcriber/transcriber.py:59
 msgid "Ukrainian"
 msgstr "Oekraïens"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:46
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:47
 msgid "Chinese (Simplified)"
 msgstr "Chinees (Vereenvoudigd)"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:47
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:48
 msgid "Chinese (Traditional)"
 msgstr "Chinees (Traditioneel)"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:85
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:86
 msgid "Restart required!"
 msgstr "Herstart vereist!"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:89
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:90
 msgid "Ui Language"
 msgstr "Programmataal"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:97
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:98
 msgid "Font Size"
 msgstr "Tekstgrootte"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:106
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:107
 msgid "Test"
 msgstr "Uitproberen"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:112
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:113
 msgid "OpenAI API key"
 msgstr "OpenAI-api-sleutel"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:125
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:126
 msgid "OpenAI base url"
 msgstr "OpenAI-hoofd-url"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:134
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:135
 msgid "Default export file name"
 msgstr "Standaardnaam van export"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:140
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:141
 msgid "Enable live recording transcription export"
 msgstr "Transcripties van opnames onmiddelijk exporteren"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:146
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:147
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:47
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:50
 msgid "Browse"
 msgstr "Bladeren"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:165
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:166
 msgid "Export folder"
 msgstr "Exportmap"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:176
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:177
 msgid "Live recording mode"
 msgstr "Live-opnamemodus"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:201
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:207
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:202
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:208
 msgid "OpenAI API Key Test"
 msgstr "OpenAI-api-sleuteltest"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:202
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:203
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
@@ -181,11 +186,11 @@ msgstr ""
 "De api-sleutel is geldig. Buzz zal deze sleutel gebruiken om transcripties "
 "en AI-vertalingen op te vragen bij Whisper."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:218
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:219
 msgid "Invalid API key"
 msgstr "Ongeldige api-sleutel"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:219
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:220
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
@@ -193,11 +198,11 @@ msgstr ""
 "De api ondersteunt alleen base64-tekens (A–Za–z0–9+/=_-). Andere tekens "
 "kunnen problemen veroorzaken."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:237
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:238
 msgid "Select Export Folder"
 msgstr "Kies een exportmap"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:297
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:298
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
@@ -424,71 +429,71 @@ msgstr "Transcriptie wissen"
 msgid "Clear History"
 msgstr "Geschiedenis wissen"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:66
+#: buzz/widgets/transcription_tasks_table_widget.py:69
 msgid "In Progress"
 msgstr "In behandeling"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:69
+#: buzz/widgets/transcription_tasks_table_widget.py:72
 msgid "Completed"
 msgstr "Afgerond"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:76
+#: buzz/widgets/transcription_tasks_table_widget.py:79
 msgid "Failed"
 msgstr "Mislukt"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:79
+#: buzz/widgets/transcription_tasks_table_widget.py:82
 msgid "Canceled"
 msgstr "Afgebroken"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:81
+#: buzz/widgets/transcription_tasks_table_widget.py:84
 msgid "Queued"
 msgstr "In wachtrij"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:88
+#: buzz/widgets/transcription_tasks_table_widget.py:91
 msgid "File Name / URL"
 msgstr "Bestandsnaam/Url"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:100
+#: buzz/widgets/transcription_tasks_table_widget.py:103
 msgid "Model"
 msgstr "Model"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:109
+#: buzz/widgets/transcription_tasks_table_widget.py:112
 msgid "Task"
 msgstr "Taak"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:118
+#: buzz/widgets/transcription_tasks_table_widget.py:121
 msgid "Status"
 msgstr "Status"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:126
+#: buzz/widgets/transcription_tasks_table_widget.py:129
 msgid "Date Added"
 msgstr "Toegevoegd op"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:137
+#: buzz/widgets/transcription_tasks_table_widget.py:140
 msgid "Date Completed"
 msgstr "Afgerond op"
 
-#: buzz/widgets/recording_transcriber_widget.py:84
+#: buzz/widgets/recording_transcriber_widget.py:83
 msgid "Live Recording"
 msgstr "Live-opname"
 
-#: buzz/widgets/recording_transcriber_widget.py:150
+#: buzz/widgets/recording_transcriber_widget.py:149
 msgid "Click Record to begin..."
 msgstr "Klik op de opnameknop om te beginnen…"
 
-#: buzz/widgets/recording_transcriber_widget.py:153
+#: buzz/widgets/recording_transcriber_widget.py:152
 msgid "Waiting for AI translation..."
 msgstr "Bezig met wachten op AI-vertaling…"
 
-#: buzz/widgets/recording_transcriber_widget.py:165
+#: buzz/widgets/recording_transcriber_widget.py:164
 msgid "Microphone:"
 msgstr "Microfoon:"
 
-#: buzz/widgets/recording_transcriber_widget.py:578
+#: buzz/widgets/recording_transcriber_widget.py:577
 msgid "An error occurred while starting a new recording:"
 msgstr "Er is een fout opgetreden tijdens het starten van de opname:"
 
-#: buzz/widgets/recording_transcriber_widget.py:582
+#: buzz/widgets/recording_transcriber_widget.py:581
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
@@ -1059,8 +1064,8 @@ msgstr "Bovenaan toevoegen"
 msgid "Append and correct"
 msgstr "Toevoegen en corrigeren"
 
-#~ msgid "Version"
-#~ msgstr "Versie"
-
 #~ msgid "Enter instructions for AI on how to translate..."
 #~ msgstr "Voer vertaalinstructies in…"
+
+#~ msgid "Version"
+#~ msgstr "Versie"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-27 12:27+0300\n"
+"POT-Creation-Date: 2025-07-06 20:16+0300\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: lamb \n"
@@ -108,83 +108,87 @@ msgid "Polish"
 msgstr ""
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:45
+msgid "Portuguese (Brazil)"
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:46
 #: buzz/transcriber/transcriber.py:59
 #, fuzzy
 msgid "Ukrainian"
 msgstr "剩余"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:46
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:47
 msgid "Chinese (Simplified)"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:47
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:48
 msgid "Chinese (Traditional)"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:85
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:86
 msgid "Restart required!"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:89
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:90
 #, fuzzy
 msgid "Ui Language"
 msgstr "语言:"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:97
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:98
 msgid "Font Size"
 msgstr "字体大小"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:106
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:107
 msgid "Test"
 msgstr "测试"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:112
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:113
 msgid "OpenAI API key"
 msgstr "OpenAI API key"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:125
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:126
 msgid "OpenAI base url"
 msgstr "OpenAI 基于 url"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:134
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:135
 msgid "Default export file name"
 msgstr "默认输出文件名"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:140
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:141
 msgid "Enable live recording transcription export"
 msgstr "启用实时录制转录导出"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:146
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:147
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:47
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:50
 msgid "Browse"
 msgstr "浏览"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:165
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:166
 msgid "Export folder"
 msgstr "导出文件夹"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:176
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:177
 #, fuzzy
 msgid "Live recording mode"
 msgstr "现场录制模式"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:201
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:207
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:202
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:208
 msgid "OpenAI API Key Test"
 msgstr "测试OpenAI API Key"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:202
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:203
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
 msgstr "您的API密钥有效。Buzz将使用此密钥执行 Whisper API 识别和 AI 翻译。"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:218
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:219
 msgid "Invalid API key"
 msgstr "无效的API key"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:219
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:220
 #, fuzzy
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
@@ -192,11 +196,11 @@ msgid ""
 msgstr ""
 "API只支持 base64字符（A-Za-z0-9+/=）。其他字符在API密钥中可能导致错误。"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:237
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:238
 msgid "Select Export Folder"
 msgstr "选择输出文件夹"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:297
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:298
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
@@ -430,75 +434,75 @@ msgstr "取消识别"
 msgid "Clear History"
 msgstr "清除历史纪录"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:66
+#: buzz/widgets/transcription_tasks_table_widget.py:69
 msgid "In Progress"
 msgstr "运行中"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:69
+#: buzz/widgets/transcription_tasks_table_widget.py:72
 msgid "Completed"
 msgstr "完成"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:76
+#: buzz/widgets/transcription_tasks_table_widget.py:79
 msgid "Failed"
 msgstr "失败"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:79
+#: buzz/widgets/transcription_tasks_table_widget.py:82
 msgid "Canceled"
 msgstr "取消"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:81
+#: buzz/widgets/transcription_tasks_table_widget.py:84
 msgid "Queued"
 msgstr "队列中"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:88
+#: buzz/widgets/transcription_tasks_table_widget.py:91
 #, fuzzy
 msgid "File Name / URL"
 msgstr "文件名称/URL"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:100
+#: buzz/widgets/transcription_tasks_table_widget.py:103
 #, fuzzy
 msgid "Model"
 msgstr "模型"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:109
+#: buzz/widgets/transcription_tasks_table_widget.py:112
 #, fuzzy
 msgid "Task"
 msgstr "任务"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:118
+#: buzz/widgets/transcription_tasks_table_widget.py:121
 msgid "Status"
 msgstr "状态"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:126
+#: buzz/widgets/transcription_tasks_table_widget.py:129
 msgid "Date Added"
 msgstr "添加日期"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:137
+#: buzz/widgets/transcription_tasks_table_widget.py:140
 #, fuzzy
 msgid "Date Completed"
 msgstr "完成时间"
 
-#: buzz/widgets/recording_transcriber_widget.py:84
+#: buzz/widgets/recording_transcriber_widget.py:83
 msgid "Live Recording"
 msgstr "实时录制"
 
-#: buzz/widgets/recording_transcriber_widget.py:150
+#: buzz/widgets/recording_transcriber_widget.py:149
 msgid "Click Record to begin..."
 msgstr "点击开始录制"
 
-#: buzz/widgets/recording_transcriber_widget.py:153
+#: buzz/widgets/recording_transcriber_widget.py:152
 msgid "Waiting for AI translation..."
 msgstr "等待AI翻译..."
 
-#: buzz/widgets/recording_transcriber_widget.py:165
+#: buzz/widgets/recording_transcriber_widget.py:164
 msgid "Microphone:"
 msgstr "麦克风:"
 
-#: buzz/widgets/recording_transcriber_widget.py:578
+#: buzz/widgets/recording_transcriber_widget.py:577
 msgid "An error occurred while starting a new recording:"
 msgstr "开始新录制时出错"
 
-#: buzz/widgets/recording_transcriber_widget.py:582
+#: buzz/widgets/recording_transcriber_widget.py:581
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-27 12:27+0300\n"
+"POT-Creation-Date: 2025-07-06 20:16+0300\n"
 "PO-Revision-Date: 2025-05-30 15:22+0100\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
@@ -107,70 +107,75 @@ msgid "Polish"
 msgstr "Polacco"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:45
+#, fuzzy
+msgid "Portuguese (Brazil)"
+msgstr "Portoghese"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:46
 #: buzz/transcriber/transcriber.py:59
 msgid "Ukrainian"
 msgstr "Ucraino"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:46
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:47
 msgid "Chinese (Simplified)"
 msgstr "Cinese (semplificato)"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:47
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:48
 msgid "Chinese (Traditional)"
 msgstr "Cinese (tradizionale)"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:85
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:86
 msgid "Restart required!"
 msgstr "Riavvio richiesto!"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:89
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:90
 msgid "Ui Language"
 msgstr "Lingua UI:"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:97
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:98
 msgid "Font Size"
 msgstr "Dimensione del carattere"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:106
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:107
 msgid "Test"
 msgstr "Test"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:112
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:113
 msgid "OpenAI API key"
 msgstr "Chiave API OpenAI"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:125
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:126
 msgid "OpenAI base url"
 msgstr "URL di base di OpenAI"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:134
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:135
 msgid "Default export file name"
 msgstr "Nome file di esportazione predefinito"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:140
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:141
 msgid "Enable live recording transcription export"
 msgstr "Abilita l'esportazione della trascrizione della registrazione live"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:146
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:147
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:47
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:50
 msgid "Browse"
 msgstr "Sfoglia"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:165
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:166
 msgid "Export folder"
 msgstr "Esporta cartella"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:176
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:177
 msgid "Live recording mode"
 msgstr "Modalità di registrazione in diretta"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:201
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:207
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:202
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:208
 msgid "OpenAI API Key Test"
 msgstr "Test della chiave API OpenAI"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:202
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:203
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
@@ -178,11 +183,11 @@ msgstr ""
 "La tua chiave API è valida. Buzz utilizzerà questa chiave per eseguire le "
 "trascrizioni API Whisper e le traduzioni AI."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:218
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:219
 msgid "Invalid API key"
 msgstr "Chiave API non valida"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:219
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:220
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
@@ -190,11 +195,11 @@ msgstr ""
 "L'API supporta solo caratteri base64 (A-Za-z0-9+/=). Altri caratteri nella "
 "chiave API potrebbero causare errori."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:237
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:238
 msgid "Select Export Folder"
 msgstr "Seleziona la cartella di esportazione"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:297
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:298
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
@@ -421,71 +426,71 @@ msgstr "Annulla trascrizione"
 msgid "Clear History"
 msgstr "Elimina la cronologia"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:66
+#: buzz/widgets/transcription_tasks_table_widget.py:69
 msgid "In Progress"
 msgstr "In corso"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:69
+#: buzz/widgets/transcription_tasks_table_widget.py:72
 msgid "Completed"
 msgstr "Completato"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:76
+#: buzz/widgets/transcription_tasks_table_widget.py:79
 msgid "Failed"
 msgstr "Non riuscito"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:79
+#: buzz/widgets/transcription_tasks_table_widget.py:82
 msgid "Canceled"
 msgstr "Annullato"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:81
+#: buzz/widgets/transcription_tasks_table_widget.py:84
 msgid "Queued"
 msgstr "In coda"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:88
+#: buzz/widgets/transcription_tasks_table_widget.py:91
 msgid "File Name / URL"
 msgstr "Nome file / URL"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:100
+#: buzz/widgets/transcription_tasks_table_widget.py:103
 msgid "Model"
 msgstr "Modello"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:109
+#: buzz/widgets/transcription_tasks_table_widget.py:112
 msgid "Task"
 msgstr "Compito"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:118
+#: buzz/widgets/transcription_tasks_table_widget.py:121
 msgid "Status"
 msgstr "Stato"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:126
+#: buzz/widgets/transcription_tasks_table_widget.py:129
 msgid "Date Added"
 msgstr "Data aggiunta"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:137
+#: buzz/widgets/transcription_tasks_table_widget.py:140
 msgid "Date Completed"
 msgstr "Data completata"
 
-#: buzz/widgets/recording_transcriber_widget.py:84
+#: buzz/widgets/recording_transcriber_widget.py:83
 msgid "Live Recording"
 msgstr "Registrazione in diretta"
 
-#: buzz/widgets/recording_transcriber_widget.py:150
+#: buzz/widgets/recording_transcriber_widget.py:149
 msgid "Click Record to begin..."
 msgstr "Fai clic su Registra per iniziare..."
 
-#: buzz/widgets/recording_transcriber_widget.py:153
+#: buzz/widgets/recording_transcriber_widget.py:152
 msgid "Waiting for AI translation..."
 msgstr "In attesa della traduzione AI..."
 
-#: buzz/widgets/recording_transcriber_widget.py:165
+#: buzz/widgets/recording_transcriber_widget.py:164
 msgid "Microphone:"
 msgstr "Microfono:"
 
-#: buzz/widgets/recording_transcriber_widget.py:578
+#: buzz/widgets/recording_transcriber_widget.py:577
 msgid "An error occurred while starting a new recording:"
 msgstr "Si è verificato un errore durante l'avvio della nuova registrazione:"
 
-#: buzz/widgets/recording_transcriber_widget.py:582
+#: buzz/widgets/recording_transcriber_widget.py:581
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."

@@ -42,6 +42,7 @@ ui_locales = {
     "ja_JP": _("Japanese"),
     "lv_LV": _("Latvian"),
     "pl_PL": _("Polish"),
+    "pt_BR": _("Portuguese (Brazil)"),
     "uk_UA": _("Ukrainian"),
     "zh_CN": _("Chinese (Simplified)"),
     "zh_TW": _("Chinese (Traditional)")
