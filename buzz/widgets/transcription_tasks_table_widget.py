@@ -32,21 +32,24 @@ from buzz.widgets.transcription_record import TranscriptionRecord
 
 class Column(enum.Enum):
     ID = 0
-    ERROR_MESSAGE = auto()
-    EXPORT_FORMATS = auto()
-    FILE = auto()
-    OUTPUT_FOLDER = auto()
-    PROGRESS = auto()
-    LANGUAGE = auto()
-    MODEL_TYPE = auto()
-    SOURCE = auto()
-    STATUS = auto()
-    TASK = auto()
-    TIME_ENDED = auto()
-    TIME_QUEUED = auto()
-    TIME_STARTED = auto()
-    URL = auto()
-    WHISPER_MODEL_SIZE = auto()
+    ERROR_MESSAGE = 1
+    EXPORT_FORMATS = 2
+    FILE = 3
+    OUTPUT_FOLDER = 4
+    PROGRESS = 5
+    LANGUAGE = 6
+    MODEL_TYPE = 7
+    SOURCE = 8
+    STATUS = 9
+    TASK = 10
+    TIME_ENDED = 11
+    TIME_QUEUED = 12
+    TIME_STARTED = 13
+    URL = 14
+    WHISPER_MODEL_SIZE = 15
+    HUGGING_FACE_MODEL_ID = 16
+    WORD_LEVEL_TIMINGS = 17
+    EXTRACT_SPEECH = 18
 
 
 @dataclass
@@ -79,7 +82,7 @@ def format_record_status_text(record: QSqlRecord) -> str:
             return _("Canceled")
         case FileTranscriptionTask.Status.QUEUED:
             return _("Queued")
-        case _:
+        case _: # Case to handle UNKNOWN status
             return ""
 
 column_definitions = [
@@ -107,7 +110,7 @@ column_definitions = [
     ColDef(
         id="task",
         header=_("Task"),
-        column=Column.SOURCE,
+        column=Column.TASK,
         width=120,
         delegate=RecordDelegate(
             text_getter=lambda record: TASK_LABEL_TRANSLATIONS[Task(record.value("task"))]
@@ -256,8 +259,8 @@ class TranscriptionTasksTableWidget(QTableView):
         selected_text = ""
         for row in self.selectionModel().selectedRows():
             row_index = row.row()
-            file_name = self.model().data(self.model().index(row_index, 3))
-            url = self.model().data(self.model().index(row_index, 14))
+            file_name = self.model().data(self.model().index(row_index, Column.FILE.value))
+            url = self.model().data(self.model().index(row_index, Column.URL.value))
 
             selected_text += f"{file_name}{url}\n"
 

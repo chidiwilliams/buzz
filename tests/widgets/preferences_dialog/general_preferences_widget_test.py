@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import QPushButton, QMessageBox, QLineEdit, QCheckBox
 from buzz.locale import _
 from buzz.settings.settings import Settings
 from buzz.widgets.preferences_dialog.general_preferences_widget import (
-    GeneralPreferencesWidget,
+    GeneralPreferencesWidget, TestOpenAIApiKeyJob
 )
 
 
@@ -108,3 +108,46 @@ class TestGeneralPreferencesWidget:
         )
 
         assert updated_openai_base_url == "http://localhost:11434/v1"
+
+
+class TestTestOpenAIApiKeyJob:
+    # No error = success
+    def test_run_success(self, mocker):
+        mock_client = mocker.Mock()
+        mock_client.models.list.return_value = None
+        mocker.patch('buzz.widgets.preferences_dialog.general_preferences_widget.OpenAI', return_value=mock_client)
+        mocker.patch('buzz.settings.settings.Settings.value', return_value="") # No custom base URL
+
+        job = TestOpenAIApiKeyJob(api_key="test_key")
+        mock_success = mocker.Mock()
+        mock_failed = mocker.Mock()
+        job.signals.success.connect(mock_success)
+        job.signals.failed.connect(mock_failed)
+
+        job.run()
+
+        mock_success.assert_called_once()
+        mock_failed.assert_not_called()
+        mock_client.models.list.assert_called_once()
+
+    # Has error = failure
+    def test_run_authentication_error(self, mocker):
+        from openai import AuthenticationError
+        mock_client = mocker.Mock()
+        mock_client.models.list.side_effect = AuthenticationError(
+            message="Incorrect API key provided", response=mocker.Mock(), body={"message": "Incorrect API key provided"}
+        )
+        mocker.patch('buzz.widgets.preferences_dialog.general_preferences_widget.OpenAI', return_value=mock_client)
+        mocker.patch('buzz.settings.settings.Settings.value', return_value="") # No custom base URL
+
+        job = TestOpenAIApiKeyJob(api_key="wrong_key")
+        mock_success = mocker.Mock()
+        mock_failed = mocker.Mock()
+        job.signals.success.connect(mock_success)
+        job.signals.failed.connect(mock_failed)
+
+        job.run()
+
+        mock_success.assert_not_called()
+        mock_failed.assert_called_once_with("Incorrect API key provided")
+        mock_client.models.list.assert_called_once()

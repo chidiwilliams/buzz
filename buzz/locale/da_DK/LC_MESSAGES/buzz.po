@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-06 19:12+0200\n"
+"POT-Creation-Date: 2025-07-06 20:16+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Ole Guldberg2 <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -24,17 +24,17 @@ msgstr "https://example.com/audio.mp3"
 
 #: buzz/widgets/import_url_dialog.py:28
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:69
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:245
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:249
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:97
-#: buzz/widgets/main_window.py:240
+#: buzz/widgets/main_window.py:238
 msgid "Ok"
 msgstr "OK"
 
 #: buzz/widgets/import_url_dialog.py:29
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:70
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:246
-#: buzz/widgets/model_download_progress_dialog.py:29
-#: buzz/widgets/main_window.py:241
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:250
+#: buzz/widgets/model_download_progress_dialog.py:30
+#: buzz/widgets/main_window.py:239
 msgid "Cancel"
 msgstr "Afbryd"
 
@@ -70,103 +70,112 @@ msgid "Danish"
 msgstr ""
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:38
+#: buzz/transcriber/transcriber.py:50
+msgid "Dutch"
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:39
 #: buzz/transcriber/transcriber.py:40
 msgid "German"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:39
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:40
 #: buzz/transcriber/transcriber.py:41
 msgid "Spanish"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:40
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:41
 #: buzz/transcriber/transcriber.py:53
 msgid "Italian"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:41
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:42
 #: buzz/transcriber/transcriber.py:45
 msgid "Japanese"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:42
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:43
 #: buzz/transcriber/transcriber.py:80
 msgid "Latvian"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:43
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:44
 #: buzz/transcriber/transcriber.py:48
 msgid "Polish"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:44
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:45
+msgid "Portuguese (Brazil)"
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:46
 #: buzz/transcriber/transcriber.py:59
 #, fuzzy
 msgid "Ukrainian"
 msgstr "tilbageværende"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:45
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:47
 msgid "Chinese (Simplified)"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:46
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:48
 msgid "Chinese (Traditional)"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:84
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:86
 msgid "Restart required!"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:88
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:90
 #, fuzzy
 msgid "Ui Language"
 msgstr "Sprog:"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:96
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:98
 msgid "Font Size"
 msgstr "Skriftypestørrelse"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:105
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:107
 msgid "Test"
 msgstr "Test"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:111
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:113
 msgid "OpenAI API key"
 msgstr "OpenAI API-nøgle"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:124
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:126
 msgid "OpenAI base url"
 msgstr "OpenAI base-URL"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:133
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:135
 msgid "Default export file name"
 msgstr "Standard eksport filnavn"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:139
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:141
 msgid "Enable live recording transcription export"
 msgstr "Slå transkription af live optagelse eksport til"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:145
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:147
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:47
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:50
 msgid "Browse"
 msgstr "Gennemse"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:164
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:166
 msgid "Export folder"
 msgstr "Eksportmappe"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:175
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:177
 #, fuzzy
 msgid "Live recording mode"
 msgstr "Live optagelsesmode"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:200
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:206
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:202
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:208
 msgid "OpenAI API Key Test"
 msgstr "OpenAI API Nøgle test"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:201
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:203
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
@@ -174,12 +183,12 @@ msgstr ""
 "Din API nøgle er gyldig. Buzz vil benytte nøglen til at anvende Whisper API "
 "transkription og AI oversættelser."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:217
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:219
 #, fuzzy
 msgid "Invalid API key"
 msgstr "Ugyldig API-nøgle"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:218
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:220
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
@@ -187,11 +196,11 @@ msgstr ""
 "API supporterer kun base64 tegn (A-Za-z0-9+/=_-). Andre tegn i API-nøglen "
 "kan guve fejl. "
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:236
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:238
 msgid "Select Export Folder"
 msgstr "Vælg eksport-mappe"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:296
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:298
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
@@ -273,20 +282,21 @@ msgstr "Tilgængelige til download"
 msgid "Download link to Whisper.cpp ggml model file"
 msgstr "Download link til Whisper.cpp ggml model-fil"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:239
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:243
 msgid "Delete Model"
 msgstr "Slet model"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:240
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:244
 msgid "Are you sure you want to delete the selected model?"
 msgstr "Er du sikker på at du vil slette den valgte model?"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:268
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:272
 msgid "Download failed"
 msgstr "Download mislykkedes"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:269
-#: buzz/widgets/main_window.py:297 buzz/model_loader.py:499
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:273
+#: buzz/widgets/main_window.py:295 buzz/model_loader.py:515
+#: buzz/model_loader.py:529
 msgid "Error"
 msgstr "Fejl"
 
@@ -304,27 +314,27 @@ msgstr "Stop"
 msgid "Detect Language"
 msgstr "Detekter sprog"
 
-#: buzz/widgets/transcriber/file_transcriber_widget.py:79
+#: buzz/widgets/transcriber/file_transcriber_widget.py:84
 msgid "Run"
 msgstr "Kør"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:92
+#: buzz/widgets/transcriber/transcription_options_group_box.py:93
 msgid "Model:"
 msgstr "Model:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:104
+#: buzz/widgets/transcriber/transcription_options_group_box.py:105
 msgid "First time use of a model may take up to several minutest to load."
 msgstr "Først gang kan brug af en model tage flere minutter at indlæse."
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:114
+#: buzz/widgets/transcriber/transcription_options_group_box.py:115
 msgid "Api Key:"
 msgstr "API-nøgle:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:115
+#: buzz/widgets/transcriber/transcription_options_group_box.py:116
 msgid "Task:"
 msgstr "Opgave:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:116
+#: buzz/widgets/transcriber/transcription_options_group_box.py:117
 msgid "Language:"
 msgstr "Sprog:"
 
@@ -365,8 +375,10 @@ msgid "AI model:"
 msgstr "AI model:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:88
-msgid "Enter instructions for AI on how to translate..."
-msgstr "Indtast instruktioner til AI om hvordan den skal oversætte..."
+msgid ""
+"Enter instructions for AI on how to translate, for example 'Please translate "
+"each text sent to you from English to Spanish.'"
+msgstr ""
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:92
 msgid "Instructions for AI:"
@@ -410,76 +422,76 @@ msgstr "Åben transkription"
 msgid "Cancel Transcription"
 msgstr "Afbryd transkription"
 
-#: buzz/widgets/main_window_toolbar.py:71 buzz/widgets/main_window.py:229
+#: buzz/widgets/main_window_toolbar.py:71 buzz/widgets/main_window.py:227
 #: buzz/settings/shortcut.py:26
 msgid "Clear History"
 msgstr "Ryd historik"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:66
+#: buzz/widgets/transcription_tasks_table_widget.py:69
 msgid "In Progress"
 msgstr "Arbejder"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:69
+#: buzz/widgets/transcription_tasks_table_widget.py:72
 msgid "Completed"
 msgstr "Færdig"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:76
+#: buzz/widgets/transcription_tasks_table_widget.py:79
 msgid "Failed"
 msgstr "Mislykkedes"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:79
+#: buzz/widgets/transcription_tasks_table_widget.py:82
 msgid "Canceled"
 msgstr "Afbrudt"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:81
+#: buzz/widgets/transcription_tasks_table_widget.py:84
 msgid "Queued"
 msgstr "Sat i kø"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:88
+#: buzz/widgets/transcription_tasks_table_widget.py:91
 msgid "File Name / URL"
 msgstr "Filnavn / URL"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:100
+#: buzz/widgets/transcription_tasks_table_widget.py:103
 msgid "Model"
 msgstr "Model"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:109
+#: buzz/widgets/transcription_tasks_table_widget.py:112
 msgid "Task"
 msgstr "Opgave"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:118
+#: buzz/widgets/transcription_tasks_table_widget.py:121
 msgid "Status"
 msgstr "Status"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:126
+#: buzz/widgets/transcription_tasks_table_widget.py:129
 msgid "Date Added"
 msgstr "Dato for tilføjelse"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:137
+#: buzz/widgets/transcription_tasks_table_widget.py:140
 msgid "Date Completed"
 msgstr "Dato for færdiggørelse"
 
-#: buzz/widgets/recording_transcriber_widget.py:79
+#: buzz/widgets/recording_transcriber_widget.py:83
 msgid "Live Recording"
 msgstr "Live optagelse"
 
-#: buzz/widgets/recording_transcriber_widget.py:144
+#: buzz/widgets/recording_transcriber_widget.py:149
 msgid "Click Record to begin..."
 msgstr "Klik Optage for at begynde..."
 
-#: buzz/widgets/recording_transcriber_widget.py:147
+#: buzz/widgets/recording_transcriber_widget.py:152
 msgid "Waiting for AI translation..."
 msgstr "Venter på AI oversættelse..."
 
-#: buzz/widgets/recording_transcriber_widget.py:159
+#: buzz/widgets/recording_transcriber_widget.py:164
 msgid "Microphone:"
 msgstr "Mikrofon:"
 
-#: buzz/widgets/recording_transcriber_widget.py:526
+#: buzz/widgets/recording_transcriber_widget.py:577
 msgid "An error occurred while starting a new recording:"
 msgstr "Der skete en fejl ved opstart af en ny optagelse:"
 
-#: buzz/widgets/recording_transcriber_widget.py:530
+#: buzz/widgets/recording_transcriber_widget.py:581
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
@@ -504,81 +516,81 @@ msgid "End"
 msgstr "Slut"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:95
-#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:34
-#: buzz/widgets/transcription_viewer/export_transcription_menu.py:30
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:43
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:32
 msgid "Text"
 msgstr "Tekst"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:96
-#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:40
-#: buzz/widgets/transcription_viewer/export_transcription_menu.py:31
-#: buzz/widgets/transcription_viewer/export_transcription_menu.py:64
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:49
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:33
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:53
 msgid "Translation"
 msgstr "Oversættelse"
 
-#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:26
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:33
 msgid "View"
 msgstr "Vis"
 
-#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:46
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:56
 msgid "Timestamps"
 msgstr "Tidsstempler"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:146
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:156
 msgid "Export"
 msgstr "Eksporter"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:160
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:174
 #: buzz/transcriber/transcriber.py:24
 msgid "Translate"
 msgstr "Oversæt"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:170
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:168
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:184
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:174
 msgid "Resize"
 msgstr "Behandel størrelse"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:269
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:285
 msgid "API Key Required"
 msgstr "API-nøgle påkrævet"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:270
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:286
 msgid "Please enter OpenAI API Key in preferences"
 msgstr "Indtast venligst OpenAI API-nøgle i indstillinger"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:150
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:156
 msgid "Resize Options"
 msgstr "Størrelsesindstillinger"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:161
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:167
 msgid "Desired subtitle length"
 msgstr "Ønskede undertekst længde"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:186
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:192
 msgid "Merge Options"
 msgstr "Sammenfletningsindstillinger"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:197
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:203
 msgid "Merge by gap"
 msgstr "Sammenflet ved hul"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:205
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:211
 msgid "Split by punctuation"
 msgstr "Split ved punktum"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:213
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:219
 msgid "Split by max length"
 msgstr "Split ved max længde"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:225
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:231
 msgid "Merge"
 msgstr "Sammenflet"
 
-#: buzz/widgets/transcription_viewer/export_transcription_menu.py:78
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:82
 msgid "Save File"
 msgstr "Gem fil"
 
-#: buzz/widgets/transcription_viewer/export_transcription_menu.py:80
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:84
 msgid "Text files"
 msgstr "Tekst filer"
 
@@ -605,11 +617,11 @@ msgstr ""
 msgid "Close"
 msgstr "Luk"
 
-#: buzz/widgets/model_download_progress_dialog.py:36
+#: buzz/widgets/model_download_progress_dialog.py:37
 msgid "Downloading model"
 msgstr "Downloader model"
 
-#: buzz/widgets/model_download_progress_dialog.py:37
+#: buzz/widgets/model_download_progress_dialog.py:38
 msgid "remaining"
 msgstr "tilbageværende"
 
@@ -637,7 +649,7 @@ msgstr "Hjælp"
 msgid "File"
 msgstr "Fil"
 
-#: buzz/widgets/main_window.py:233
+#: buzz/widgets/main_window.py:231
 msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
@@ -645,11 +657,11 @@ msgstr ""
 "Er du sikker på at du vil slette den valgte transkription? Denne handling "
 "kan ikke fortrydes."
 
-#: buzz/widgets/main_window.py:261
+#: buzz/widgets/main_window.py:259
 msgid "Select audio file"
 msgstr "Vælg audio-fil"
 
-#: buzz/widgets/main_window.py:297
+#: buzz/widgets/main_window.py:295
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "Kan ikke gemme OpenAI API-nøgle i nøgleringen"
 
@@ -679,10 +691,6 @@ msgstr ""
 
 #: buzz/transcriber/transcriber.py:47
 msgid "Turkish"
-msgstr ""
-
-#: buzz/transcriber/transcriber.py:50
-msgid "Dutch"
 msgstr ""
 
 #: buzz/transcriber/transcriber.py:51
@@ -1017,7 +1025,7 @@ msgstr ""
 msgid "Cantonese"
 msgstr ""
 
-#: buzz/model_loader.py:528
+#: buzz/model_loader.py:548
 msgid "A connection error occurred"
 msgstr "Der er opstået en forbindelsesfejl"
 
@@ -1056,3 +1064,6 @@ msgstr "Tilføj herover"
 #: buzz/settings/recording_transcriber_mode.py:7
 msgid "Append and correct"
 msgstr "Tilføj og ret"
+
+#~ msgid "Enter instructions for AI on how to translate..."
+#~ msgstr "Indtast instruktioner til AI om hvordan den skal oversætte..."

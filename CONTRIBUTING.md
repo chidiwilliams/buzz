@@ -119,11 +119,11 @@ GPU support on Windows with Nvidia GPUs is included out of the box in the `.exe`
 
 To add GPU support for source or `pip` installed version switch torch library to GPU version. For more info see https://pytorch.org/get-started/locally/ .
 ```
-poetry source add --priority=supplemental torch https://download.pytorch.org/whl/cu124
+poetry source add --priority=supplemental torch https://download.pytorch.org/whl/cu128
 poetry source add --priority=supplemental nvidia https://pypi.ngc.nvidia.com
 
-poetry add torch==2.6.0+cu124 torchaudio==2.6.0+cu124
-poetry add nvidia-cublas-cu12==12.4.5.8 nvidia-cuda-cupti-cu12==12.4.127 nvidia-cuda-nvrtc-cu12==12.4.127 nvidia-cuda-runtime-cu12==12.4.127 nvidia-cufft-cu12==11.2.1.3 nvidia-curand-cu12==10.3.5.147 nvidia-cusolver-cu12==11.6.1.9 nvidia-cusparse-cu12==12.3.1.170 nvidia-nvtx-cu12==12.4.127
+poetry add torch==2.7.1+cu128 torchaudio==2.7.1+cu128
+poetry add nvidia-cublas-cu12==12.8.3.14 nvidia-cuda-cupti-cu12==12.8.57 nvidia-cuda-nvrtc-cu12==12.8.61 nvidia-cuda-runtime-cu12==12.8.57 nvidia-cudnn-cu12==9.7.1.26 nvidia-cufft-cu12==11.3.3.41 nvidia-curand-cu12==10.3.9.55 nvidia-cusolver-cu12==11.7.2.55 nvidia-cusparse-cu12==12.5.4.2 nvidia-cusparselt-cu12==0.6.3 nvidia-nvjitlink-cu12==12.8.61 nvidia-nvtx-cu12==12.8.55
 ```
 
 To use Faster Whisper on GPU, install the following libraries:

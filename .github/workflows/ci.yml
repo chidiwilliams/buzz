@@ -153,12 +153,14 @@ jobs:
       - name: Install CUDA torch for Windows
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then
-            poetry source add --priority=supplemental torch https://download.pytorch.org/whl/cu126
+            poetry source add --priority=supplemental torch https://download.pytorch.org/whl/cu128
             poetry source add --priority=supplemental nvidia https://pypi.ngc.nvidia.com
 
             poetry add msvc-runtime
-            poetry add torch==2.7.0+cu126 torchaudio==2.7.0+cu126
-            poetry add nvidia-cublas-cu12==12.6.4.1 nvidia-cuda-cupti-cu12==12.6.80 nvidia-cuda-nvrtc-cu12==12.6.77 nvidia-cuda-runtime-cu12==12.6.77 nvidia-cudnn-cu12==9.5.1.17 nvidia-cufft-cu12==11.3.0.4 nvidia-curand-cu12==10.3.7.77 nvidia-cusolver-cu12==11.7.1.2 nvidia-cusparse-cu12==12.5.4.2 nvidia-cusparselt-cu12==0.6.3 nvidia-nvjitlink-cu12==12.6.85 nvidia-nvtx-cu12==12.6.77
+            poetry add torch==2.7.1+cu128 torchaudio==2.7.1+cu128
+            poetry add nvidia-cublas-cu12==12.8.3.14 nvidia-cuda-cupti-cu12==12.8.57 nvidia-cuda-nvrtc-cu12==12.8.61 nvidia-cuda-runtime-cu12==12.8.57 nvidia-cudnn-cu12==9.7.1.26 nvidia-cufft-cu12==11.3.3.41 nvidia-curand-cu12==10.3.9.55 nvidia-cusolver-cu12==11.7.2.55 nvidia-cusparse-cu12==12.5.7.53 nvidia-cusparselt-cu12==0.6.3 nvidia-nvjitlink-cu12==12.8.61 nvidia-nvtx-cu12==12.8.55
+          
+            echo yes | poetry cache clear --all .
           fi
         shell: bash
 
@@ -192,6 +194,16 @@ jobs:
       - name: Install FPM
         run: gem install fpm
         if: "startsWith(matrix.os, 'ubuntu-')"
+
+      - name: Clear space on Windows
+        if: runner.os == 'Windows'
+        run: |         
+          rm 'C:\Android\android-sdk\' -r -force
+          rm 'C:\Program Files (x86)\Google\' -r -force
+          rm 'C:\tools\kotlinc\' -r -force
+          rm 'C:\tools\php\' -r -force
+          rm 'C:\selenium\' -r -force
+        shell: pwsh
 
       - name: Bundle
         run: |
@@ -246,6 +258,7 @@ jobs:
           name: Buzz-${{ runner.os }}-${{ runner.arch }}
           path: |
             dist/Buzz*-windows.exe
+            dist/Buzz*-windows-*.bin
             dist/Buzz*-mac.dmg
 
   build_wheels:

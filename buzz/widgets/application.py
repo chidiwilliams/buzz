@@ -188,7 +188,7 @@ class Application(QApplication):
                               host='https://us.i.posthog.com')
             posthog.capture(distinct_id=self.settings.get_user_identifier(), event="app_launched", properties={
                 "app": VERSION,
-                "locale": locale.getdefaultlocale(),
+                "locale": locale.getlocale(),
                 "system": platform.system(),
                 "release": platform.release(),
                 "machine": platform.machine(),
@@ -196,7 +196,7 @@ class Application(QApplication):
             })
 
         logging.debug(f"Launching Buzz: {VERSION}, " 
-                      f"locale: {locale.getdefaultlocale()}, "
+                      f"locale: {locale.getlocale()}, "
                       f"system: {platform.system()}, "
                       f"release: {platform.release()}, "
                       f"machine: {platform.machine()}, "

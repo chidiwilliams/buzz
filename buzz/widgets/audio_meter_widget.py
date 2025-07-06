@@ -28,7 +28,7 @@ class AudioMeterWidget(QWidget):
         self.current_amplitude = 0.0
 
         self.MINIMUM_AMPLITUDE = 0.00005  # minimum amplitude to show the first bar
-        self.AMPLITUDE_SCALE_FACTOR = 15  # scale the amplitudes such that 1/AMPLITUDE_SCALE_FACTOR will show all bars
+        self.AMPLITUDE_SCALE_FACTOR = 10  # scale the amplitudes such that 1/AMPLITUDE_SCALE_FACTOR will show all bars
 
         if self.palette().window().color().black() > 127:
             self.BAR_INACTIVE_COLOR = QColor("#555")

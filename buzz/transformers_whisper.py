@@ -188,23 +188,34 @@ class TransformersWhisper:
             model=model,
             tokenizer=processor.tokenizer,
             feature_extractor=processor.feature_extractor,
-            chunk_length_s=30,
+            # pipeline has built in chunking, works faster, but we loose progress output
+            # needed for word level timestamps, otherwise there is huge RAM usage on longer audios
+            chunk_length_s=30 if word_timestamps else None,
             torch_dtype=torch_dtype,
             device=device,
         )
 
-        transcript = pipe(audio, return_timestamps="word" if word_timestamps else True)
+        transcript = pipe(
+            audio,
+            return_timestamps="word" if word_timestamps else True,
+        )
 
         segments = []
         for chunk in transcript['chunks']:
             start, end = chunk['timestamp']
             text = chunk['text']
-            segments.append({
-                "start": 0 if start is None else start,
-                "end": 0 if end is None else end,
-                "text": text,
-                "translation": ""
-            })
+
+            # Last segment may not have an end timestamp
+            if end is None:
+                end = start + 0.1
+
+            if end > start and text.strip() != "":
+                segments.append({
+                    "start": 0 if start is None else start,
+                    "end": 0 if end is None else end,
+                    "text": text.strip(),
+                    "translation": ""
+                })
 
         return {
             "text": transcript['text'],

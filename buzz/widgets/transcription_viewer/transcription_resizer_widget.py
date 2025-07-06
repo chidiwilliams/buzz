@@ -317,14 +317,6 @@ class TranscriptionResizerWidget(QWidget):
                 regroup_string += '_'
             regroup_string += f'sl={self.split_by_max_length_input.text()}'
 
-        if self.merge_by_gap.isChecked():
-            if regroup_string:
-                regroup_string += '_'
-            regroup_string += f'mg={self.merge_by_gap_input.text()}'
-
-            if self.split_by_max_length.isChecked():
-                regroup_string += f'++{self.split_by_max_length_input.text()}+1'
-
         regroup_string = os.getenv("BUZZ_MERGE_REGROUP_RULE", regroup_string)
 
         self.hide()

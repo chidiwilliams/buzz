@@ -18,6 +18,7 @@ from buzz.model_loader import (
     ModelDownloader,
     TranscriptionModel,
     ModelType,
+    WhisperModelSize
 )
 from buzz.store.keyring_store import get_password, Key
 from buzz.recording import RecordingAmplitudeListener
@@ -142,6 +143,7 @@ class RecordingTranscriberWidget(QWidget):
 
         self.record_button = RecordButton(self)
         self.record_button.clicked.connect(self.on_record_button_clicked)
+        self.reset_transcriber_controls()
 
         self.transcription_text_box = TextDisplayBox(self)
         self.transcription_text_box.setPlaceholderText(_("Click Record to begin..."))
@@ -224,6 +226,21 @@ class RecordingTranscriberWidget(QWidget):
         else:
             self.translation_text_box.hide()
 
+        self.reset_transcriber_controls()
+
+    def reset_transcriber_controls(self):
+        button_enabled = True
+        if (self.transcription_options.model.model_type == ModelType.FASTER_WHISPER
+                and self.transcription_options.model.whisper_model_size == WhisperModelSize.CUSTOM
+                and self.transcription_options.model.hugging_face_model_id == ""):
+            button_enabled = False
+
+        if (self.transcription_options.model.model_type == ModelType.HUGGING_FACE
+                and self.transcription_options.model.hugging_face_model_id == ""):
+            button_enabled = False
+
+        self.record_button.setEnabled(button_enabled)
+
     def on_device_changed(self, device_id: int):
         self.selected_device_id = device_id
         self.reset_recording_amplitude_listener()
@@ -248,7 +265,7 @@ class RecordingTranscriberWidget(QWidget):
             input_device_index=self.selected_device_id, parent=self
         )
         self.recording_amplitude_listener.amplitude_changed.connect(
-            self.on_recording_amplitude_changed
+            self.on_recording_amplitude_changed, Qt.ConnectionType.QueuedConnection
         )
         self.recording_amplitude_listener.start_recording()
 
@@ -257,6 +274,8 @@ class RecordingTranscriberWidget(QWidget):
             self.start_recording()
             self.current_status = self.RecordingStatus.RECORDING
             self.record_button.set_recording()
+            self.transcription_options_group_box.setEnabled(False)
+            self.audio_devices_combo_box.setEnabled(False)
         else:  # RecordingStatus.RECORDING
             self.stop_recording()
             self.set_recording_status_stopped()
@@ -286,6 +305,9 @@ class RecordingTranscriberWidget(QWidget):
     def on_model_loaded(self, model_path: str):
         self.reset_recording_controls()
         self.model_loader = None
+
+        if model_path == "":
+            return
 
         self.transcription_thread = QThread()
 
@@ -358,6 +380,8 @@ class RecordingTranscriberWidget(QWidget):
     def set_recording_status_stopped(self):
         self.record_button.set_stopped()
         self.current_status = self.RecordingStatus.STOPPED
+        self.transcription_options_group_box.setEnabled(True)
+        self.audio_devices_combo_box.setEnabled(True)
 
     def on_download_model_error(self, error: str):
         self.reset_model_download()
@@ -432,7 +456,7 @@ class RecordingTranscriberWidget(QWidget):
         text_box.setPlainText(merged_texts)
         text_box.moveCursor(QTextCursor.MoveOperation.End)
 
-        if self.export_enabled:
+        if self.export_enabled and export_file:
             with open(export_file, "w") as f:
                 f.write(merged_texts)
 
@@ -452,7 +476,7 @@ class RecordingTranscriberWidget(QWidget):
             self.transcription_text_box.insertPlainText(text)
             self.transcription_text_box.moveCursor(QTextCursor.MoveOperation.End)
 
-            if self.export_enabled:
+            if self.export_enabled and self.transcript_export_file:
                 with open(self.transcript_export_file, "a") as f:
                     f.write(text + "\n\n")
 
@@ -462,7 +486,7 @@ class RecordingTranscriberWidget(QWidget):
             self.transcription_text_box.insertPlainText("\n\n")
             self.transcription_text_box.moveCursor(QTextCursor.MoveOperation.Start)
 
-            if self.export_enabled:
+            if self.export_enabled and self.transcript_export_file:
                 with open(self.transcript_export_file, "r") as f:
                     existing_content = f.read()
 
