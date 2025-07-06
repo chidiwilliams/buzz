@@ -248,7 +248,7 @@ class RecordingTranscriberWidget(QWidget):
             input_device_index=self.selected_device_id, parent=self
         )
         self.recording_amplitude_listener.amplitude_changed.connect(
-            self.on_recording_amplitude_changed
+            self.on_recording_amplitude_changed, Qt.ConnectionType.QueuedConnection
         )
         self.recording_amplitude_listener.start_recording()
 
@@ -432,7 +432,7 @@ class RecordingTranscriberWidget(QWidget):
         text_box.setPlainText(merged_texts)
         text_box.moveCursor(QTextCursor.MoveOperation.End)
 
-        if self.export_enabled:
+        if self.export_enabled and export_file:
             with open(export_file, "w") as f:
                 f.write(merged_texts)
 
@@ -452,7 +452,7 @@ class RecordingTranscriberWidget(QWidget):
             self.transcription_text_box.insertPlainText(text)
             self.transcription_text_box.moveCursor(QTextCursor.MoveOperation.End)
 
-            if self.export_enabled:
+            if self.export_enabled and self.transcript_export_file:
                 with open(self.transcript_export_file, "a") as f:
                     f.write(text + "\n\n")
 
@@ -462,7 +462,7 @@ class RecordingTranscriberWidget(QWidget):
             self.transcription_text_box.insertPlainText("\n\n")
             self.transcription_text_box.moveCursor(QTextCursor.MoveOperation.Start)
 
-            if self.export_enabled:
+            if self.export_enabled and self.transcript_export_file:
                 with open(self.transcript_export_file, "r") as f:
                     existing_content = f.read()
 
