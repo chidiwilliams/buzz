@@ -160,3 +160,28 @@ class TestRecordingTranscriberWidget:
         assert RecordingTranscriberWidget.find_common_part("", "hello world") == ""
         assert RecordingTranscriberWidget.find_common_part("hello world", "") == ""
         assert RecordingTranscriberWidget.find_common_part("", "") == ""
+
+    def test_on_next_transcription_append_and_correct(self, qtbot: QtBot):
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            qtbot.add_widget(widget)
+
+            widget.transcriber_mode = RecordingTranscriberMode.APPEND_AND_CORRECT
+
+            widget.on_next_transcription('Bienvenue dans la transcription en direct de Buzz.')
+            assert widget.transcription_text_box.toPlainText() == 'Bienvenue dans la transcription en direct de Buzz.'
+
+            widget.on_next_transcription('transcription en direct de Buzz. Ceci est la deuxième phrase.')
+            assert widget.transcription_text_box.toPlainText() == 'Bienvenue dans la transcription en direct de Buzz. Ceci est la deuxième phrase.'
+
+            widget.on_next_transcription('Ceci est la deuxième phrase. Et voici la troisième.')
+            assert widget.transcription_text_box.toPlainText() == 'Bienvenue dans la transcription en direct de Buzz. Ceci est la deuxième phrase. Et voici la troisième.'
+
+            qtbot.wait(200)
+
+            widget.close()

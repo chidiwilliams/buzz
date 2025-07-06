@@ -432,7 +432,7 @@ class RecordingTranscriberWidget(QWidget):
         text_box.setPlainText(merged_texts)
         text_box.moveCursor(QTextCursor.MoveOperation.End)
 
-        if self.export_enabled:
+        if self.export_enabled and export_file:
             with open(export_file, "w") as f:
                 f.write(merged_texts)
 
