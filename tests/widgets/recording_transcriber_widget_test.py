@@ -8,6 +8,7 @@ from unittest.mock import patch
 from pytestqt.qtbot import QtBot
 
 from buzz.locale import _
+from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
 from buzz.widgets.recording_transcriber_widget import RecordingTranscriberWidget
 from buzz.settings.settings import Settings
 
@@ -110,6 +111,28 @@ class TestRecordingTranscriberWidget:
 
             widget.close()
 
+    def test_on_next_transcription_append_above(self, qtbot: QtBot):
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            qtbot.add_widget(widget)
+
+            widget.transcriber_mode = RecordingTranscriberMode.APPEND_ABOVE
+
+            widget.on_next_transcription('test1')
+            assert widget.transcription_text_box.toPlainText() == 'test1\n\n'
+
+            widget.on_next_transcription('test2')
+            assert widget.transcription_text_box.toPlainText() == 'test2\n\ntest1\n\n'
+
+            qtbot.wait(200)
+
+            widget.close()
+
     def test_find_common_part_exact_match(self):
         assert RecordingTranscriberWidget.find_common_part("hello world", "hello world") == "hello world"
 
@@ -137,4 +160,3 @@ class TestRecordingTranscriberWidget:
         assert RecordingTranscriberWidget.find_common_part("", "hello world") == ""
         assert RecordingTranscriberWidget.find_common_part("hello world", "") == ""
         assert RecordingTranscriberWidget.find_common_part("", "") == ""
-
