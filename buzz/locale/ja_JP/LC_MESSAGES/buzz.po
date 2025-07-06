@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-06 19:12+0200\n"
+"POT-Creation-Date: 2025-07-06 20:16+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: nunawa <71294849+nunawa@users.noreply.github.com>\n"
 "Language-Team: \n"
@@ -22,17 +22,17 @@ msgstr "https://example.com/audio.mp3"
 
 #: buzz/widgets/import_url_dialog.py:28
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:69
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:245
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:249
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:97
-#: buzz/widgets/main_window.py:240
+#: buzz/widgets/main_window.py:238
 msgid "Ok"
 msgstr "Ok"
 
 #: buzz/widgets/import_url_dialog.py:29
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:70
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:246
-#: buzz/widgets/model_download_progress_dialog.py:29
-#: buzz/widgets/main_window.py:241
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:250
+#: buzz/widgets/model_download_progress_dialog.py:30
+#: buzz/widgets/main_window.py:239
 msgid "Cancel"
 msgstr "キャンセル"
 
@@ -68,103 +68,112 @@ msgid "Danish"
 msgstr ""
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:38
+#: buzz/transcriber/transcriber.py:50
+msgid "Dutch"
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:39
 #: buzz/transcriber/transcriber.py:40
 msgid "German"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:39
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:40
 #: buzz/transcriber/transcriber.py:41
 msgid "Spanish"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:40
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:41
 #: buzz/transcriber/transcriber.py:53
 msgid "Italian"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:41
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:42
 #: buzz/transcriber/transcriber.py:45
 msgid "Japanese"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:42
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:43
 #: buzz/transcriber/transcriber.py:80
 msgid "Latvian"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:43
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:44
 #: buzz/transcriber/transcriber.py:48
 msgid "Polish"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:44
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:45
+msgid "Portuguese (Brazil)"
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:46
 #: buzz/transcriber/transcriber.py:59
 #, fuzzy
 msgid "Ukrainian"
 msgstr "残り"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:45
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:47
 msgid "Chinese (Simplified)"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:46
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:48
 msgid "Chinese (Traditional)"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:84
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:86
 msgid "Restart required!"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:88
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:90
 #, fuzzy
 msgid "Ui Language"
 msgstr "言語:"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:96
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:98
 msgid "Font Size"
 msgstr "フォントサイズ"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:105
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:107
 msgid "Test"
 msgstr "テスト"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:111
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:113
 msgid "OpenAI API key"
 msgstr "OpenAI APIキー"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:124
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:126
 msgid "OpenAI base url"
 msgstr "OpenAI ベースURL"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:133
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:135
 msgid "Default export file name"
 msgstr "デフォルトの出力ファイル名"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:139
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:141
 msgid "Enable live recording transcription export"
 msgstr "ライブ録音書き起こしの出力を有効にする"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:145
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:147
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:47
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:50
 msgid "Browse"
 msgstr "参照"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:164
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:166
 msgid "Export folder"
 msgstr "出力フォルダ"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:175
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:177
 #, fuzzy
 msgid "Live recording mode"
 msgstr "ライブ録音"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:200
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:206
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:202
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:208
 msgid "OpenAI API Key Test"
 msgstr "OpenAI APIキー テスト"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:201
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:203
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
@@ -172,22 +181,22 @@ msgstr ""
 "あなたのAPIキーは有効です。Buzzはこのキーを使ってWhisper APIの書き起こしとAI"
 "翻訳を行います。"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:217
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:219
 #, fuzzy
 msgid "Invalid API key"
 msgstr "OpenAI APIキー"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:218
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:220
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:236
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:238
 msgid "Select Export Folder"
 msgstr "出力フォルダを選択"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:296
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:298
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
@@ -269,20 +278,21 @@ msgstr "ダウンロード可能"
 msgid "Download link to Whisper.cpp ggml model file"
 msgstr "Whisper.cpp ggmlモデルファイルのダウンロードリンク"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:239
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:243
 msgid "Delete Model"
 msgstr "モデルを削除"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:240
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:244
 msgid "Are you sure you want to delete the selected model?"
 msgstr "選択したモデルを本当に削除しますか?"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:268
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:272
 msgid "Download failed"
 msgstr "ダウンロード失敗"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py:269
-#: buzz/widgets/main_window.py:297 buzz/model_loader.py:499
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py:273
+#: buzz/widgets/main_window.py:295 buzz/model_loader.py:515
+#: buzz/model_loader.py:529
 msgid "Error"
 msgstr "エラー"
 
@@ -300,27 +310,27 @@ msgstr "停止する"
 msgid "Detect Language"
 msgstr "自動検出"
 
-#: buzz/widgets/transcriber/file_transcriber_widget.py:79
+#: buzz/widgets/transcriber/file_transcriber_widget.py:84
 msgid "Run"
 msgstr "実行"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:92
+#: buzz/widgets/transcriber/transcription_options_group_box.py:93
 msgid "Model:"
 msgstr "モデル:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:104
+#: buzz/widgets/transcriber/transcription_options_group_box.py:105
 msgid "First time use of a model may take up to several minutest to load."
 msgstr ""
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:114
+#: buzz/widgets/transcriber/transcription_options_group_box.py:115
 msgid "Api Key:"
 msgstr "APIキー:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:115
+#: buzz/widgets/transcriber/transcription_options_group_box.py:116
 msgid "Task:"
 msgstr "タスク:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:116
+#: buzz/widgets/transcriber/transcription_options_group_box.py:117
 msgid "Language:"
 msgstr "言語:"
 
@@ -361,8 +371,10 @@ msgid "AI model:"
 msgstr "AIのモデル:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:88
-msgid "Enter instructions for AI on how to translate..."
-msgstr "AIのための翻訳方法の指示を入力..."
+msgid ""
+"Enter instructions for AI on how to translate, for example 'Please translate "
+"each text sent to you from English to Spanish.'"
+msgstr ""
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:92
 msgid "Instructions for AI:"
@@ -406,76 +418,76 @@ msgstr "文字起こしを開く"
 msgid "Cancel Transcription"
 msgstr "文字起こしをキャンセルする"
 
-#: buzz/widgets/main_window_toolbar.py:71 buzz/widgets/main_window.py:229
+#: buzz/widgets/main_window_toolbar.py:71 buzz/widgets/main_window.py:227
 #: buzz/settings/shortcut.py:26
 msgid "Clear History"
 msgstr "履歴を削除する"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:66
+#: buzz/widgets/transcription_tasks_table_widget.py:69
 msgid "In Progress"
 msgstr "進行中"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:69
+#: buzz/widgets/transcription_tasks_table_widget.py:72
 msgid "Completed"
 msgstr "完了"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:76
+#: buzz/widgets/transcription_tasks_table_widget.py:79
 msgid "Failed"
 msgstr "失敗"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:79
+#: buzz/widgets/transcription_tasks_table_widget.py:82
 msgid "Canceled"
 msgstr "キャンセル済み"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:81
+#: buzz/widgets/transcription_tasks_table_widget.py:84
 msgid "Queued"
 msgstr "キュー済み"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:88
+#: buzz/widgets/transcription_tasks_table_widget.py:91
 msgid "File Name / URL"
 msgstr "ファイル名 / URL"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:100
+#: buzz/widgets/transcription_tasks_table_widget.py:103
 msgid "Model"
 msgstr "モデル"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:109
+#: buzz/widgets/transcription_tasks_table_widget.py:112
 msgid "Task"
 msgstr "タスク"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:118
+#: buzz/widgets/transcription_tasks_table_widget.py:121
 msgid "Status"
 msgstr "ステータス"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:126
+#: buzz/widgets/transcription_tasks_table_widget.py:129
 msgid "Date Added"
 msgstr "追加日"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:137
+#: buzz/widgets/transcription_tasks_table_widget.py:140
 msgid "Date Completed"
 msgstr "完了日"
 
-#: buzz/widgets/recording_transcriber_widget.py:79
+#: buzz/widgets/recording_transcriber_widget.py:83
 msgid "Live Recording"
 msgstr "ライブ録音"
 
-#: buzz/widgets/recording_transcriber_widget.py:144
+#: buzz/widgets/recording_transcriber_widget.py:149
 msgid "Click Record to begin..."
 msgstr "クリックで録音を開始..."
 
-#: buzz/widgets/recording_transcriber_widget.py:147
+#: buzz/widgets/recording_transcriber_widget.py:152
 msgid "Waiting for AI translation..."
 msgstr "AI翻訳を待っています..."
 
-#: buzz/widgets/recording_transcriber_widget.py:159
+#: buzz/widgets/recording_transcriber_widget.py:164
 msgid "Microphone:"
 msgstr "マイク:"
 
-#: buzz/widgets/recording_transcriber_widget.py:526
+#: buzz/widgets/recording_transcriber_widget.py:577
 msgid "An error occurred while starting a new recording:"
 msgstr "新規録音開始時にエラーが発生しました:"
 
-#: buzz/widgets/recording_transcriber_widget.py:530
+#: buzz/widgets/recording_transcriber_widget.py:581
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
@@ -500,82 +512,82 @@ msgid "End"
 msgstr "終了"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:95
-#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:34
-#: buzz/widgets/transcription_viewer/export_transcription_menu.py:30
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:43
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:32
 msgid "Text"
 msgstr "テキスト"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:96
-#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:40
-#: buzz/widgets/transcription_viewer/export_transcription_menu.py:31
-#: buzz/widgets/transcription_viewer/export_transcription_menu.py:64
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:49
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:33
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:53
 msgid "Translation"
 msgstr "翻訳"
 
-#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:26
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:33
 msgid "View"
 msgstr "表示"
 
-#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:46
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:56
 msgid "Timestamps"
 msgstr "タイムスタンプ"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:146
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:156
 msgid "Export"
 msgstr "出力"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:160
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:174
 #: buzz/transcriber/transcriber.py:24
 msgid "Translate"
 msgstr "翻訳"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:170
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:168
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:184
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:174
 msgid "Resize"
 msgstr "リサイズ"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:269
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:285
 msgid "API Key Required"
 msgstr "APIキーが必要"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:270
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:286
 msgid "Please enter OpenAI API Key in preferences"
 msgstr "設定画面でOpenAI APIキーを入力してください"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:150
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:156
 #, fuzzy
 msgid "Resize Options"
 msgstr "リサイズ"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:161
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:167
 msgid "Desired subtitle length"
 msgstr "希望する字幕の長さ"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:186
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:192
 msgid "Merge Options"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:197
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:203
 msgid "Merge by gap"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:205
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:211
 msgid "Split by punctuation"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:213
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:219
 msgid "Split by max length"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:225
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:231
 msgid "Merge"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/export_transcription_menu.py:78
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:82
 msgid "Save File"
 msgstr "ファイルを保存"
 
-#: buzz/widgets/transcription_viewer/export_transcription_menu.py:80
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py:84
 msgid "Text files"
 msgstr "テキストファイル"
 
@@ -602,11 +614,11 @@ msgstr ""
 msgid "Close"
 msgstr "閉じる"
 
-#: buzz/widgets/model_download_progress_dialog.py:36
+#: buzz/widgets/model_download_progress_dialog.py:37
 msgid "Downloading model"
 msgstr "モデルをダウンロード中"
 
-#: buzz/widgets/model_download_progress_dialog.py:37
+#: buzz/widgets/model_download_progress_dialog.py:38
 msgid "remaining"
 msgstr "残り"
 
@@ -634,17 +646,17 @@ msgstr "ヘルプ"
 msgid "File"
 msgstr "ファイル"
 
-#: buzz/widgets/main_window.py:233
+#: buzz/widgets/main_window.py:231
 msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
 msgstr "本当に選択された文字起こしを削除しますか？ この操作は元に戻せません。"
 
-#: buzz/widgets/main_window.py:261
+#: buzz/widgets/main_window.py:259
 msgid "Select audio file"
 msgstr "音声ファイルを選択"
 
-#: buzz/widgets/main_window.py:297
+#: buzz/widgets/main_window.py:295
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "OpenAI API キーをkeyringに保存できません"
 
@@ -674,10 +686,6 @@ msgstr ""
 
 #: buzz/transcriber/transcriber.py:47
 msgid "Turkish"
-msgstr ""
-
-#: buzz/transcriber/transcriber.py:50
-msgid "Dutch"
 msgstr ""
 
 #: buzz/transcriber/transcriber.py:51
@@ -1012,7 +1020,7 @@ msgstr ""
 msgid "Cantonese"
 msgstr ""
 
-#: buzz/model_loader.py:528
+#: buzz/model_loader.py:548
 msgid "A connection error occurred"
 msgstr "接続エラーが発生しました"
 
@@ -1051,6 +1059,9 @@ msgstr ""
 #: buzz/settings/recording_transcriber_mode.py:7
 msgid "Append and correct"
 msgstr ""
+
+#~ msgid "Enter instructions for AI on how to translate..."
+#~ msgstr "AIのための翻訳方法の指示を入力..."
 
 #~ msgid "Enter target characters per subtitle:"
 #~ msgstr "字幕の目標文字数を入力してください:"

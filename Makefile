@@ -214,6 +214,7 @@ translation_po_all:
 	$(MAKE) translation_po locale=da_DK
 	$(MAKE) translation_po locale=de_DE
 	$(MAKE) translation_po locale=nl
+	$(MAKE) translation_po locale=pt_BR
 
 TMP_POT_FILE_PATH := $(shell mktemp)
 PO_FILE_PATH := buzz/locale/${locale}/LC_MESSAGES/buzz.po

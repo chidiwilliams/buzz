@@ -16,4 +16,4 @@ class TestTransformersWhisper:
             audio=test_audio_path, language="fr", task="transcribe"
         )
 
-        assert "Bienvenue dans Passe" in result["text"]
+        assert "Bienvenue dans Passrel" in result["text"]

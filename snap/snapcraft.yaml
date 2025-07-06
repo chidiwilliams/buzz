@@ -1,5 +1,5 @@
 # Development notes:
-# - To build the snap run `snapcraft clean` and `snapcraft`
+# - To build the snap run `snapcraft clean` and `snapcraft --debug --verbosity verbose`
 # - To install local snap `snap install ./buzz_*.snap --dangerous`
 name: buzz
 base: core22
@@ -115,12 +115,29 @@ parts:
       # GPU
       - libglu1-mesa
     override-build: |
+      # Clear cache to save space on CI
+      apt clean
+      
       craftctl default
       pip install poetry
       make translation_mo
       pip install .
       pip uninstall -y ctranslate2
+      pip uninstall -y torch torchaudio nvidia-cublas-cu12 nvidia-cuda-cupti-cu12 nvidia-cuda-nvrtc-cu12 nvidia-cuda-runtime-cu12 nvidia-cudnn-cu12 nvidia-cufft-cu12 nvidia-cufile-cu12 nvidia-curand-cu12 nvidia-cusolver-cu12 nvidia-cusparse-cu12 nvidia-cusparselt-cu12 nvidia-nccl-cu12 nvidia-nvjitlink-cu12 nvidia-nvtx-cu12 
+      pip cache purge
+      
       pip install https://github.com/raivisdejus/CTranslate2-no-execstack/releases/download/v4.2.1/ctranslate2-4.2.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+      pip install -U torch==2.7.1+cu128 torchaudio==2.7.1+cu128 --index-url https://download.pytorch.org/whl/cu128
+      pip cache purge
+      pip install nvidia-cublas-cu12==12.8.3.14 nvidia-cuda-cupti-cu12==12.8.57 nvidia-cuda-nvrtc-cu12==12.8.61 --extra-index-url https://pypi.ngc.nvidia.com 
+      pip cache purge
+      pip install nvidia-cuda-runtime-cu12==12.8.57 nvidia-cudnn-cu12==9.7.1.26 nvidia-cufft-cu12==11.3.3.41 --extra-index-url https://pypi.ngc.nvidia.com
+      pip cache purge
+      pip install nvidia-curand-cu12==10.3.9.55 nvidia-cusolver-cu12==11.7.2.55 nvidia-cusparse-cu12==12.5.4.2  --extra-index-url https://pypi.ngc.nvidia.com
+      pip cache purge
+      pip install nvidia-cusparselt-cu12==0.6.3 nvidia-nvjitlink-cu12==12.8.61 nvidia-nvtx-cu12==12.8.55 --extra-index-url https://pypi.ngc.nvidia.com
+      pip cache purge
+      
       python3 build.py
       mkdir $CRAFT_PART_INSTALL/buzz
       cp $CRAFT_PART_BUILD/buzz/whisper_cpp.py $CRAFT_PART_INSTALL/buzz/
@@ -132,6 +149,9 @@ parts:
     source: .
     organize:
       buzz.desktop: usr/share/applications/buzz.desktop
+    # To prevent error of the same file having different permissions
+    stage:
+      - -buzz/whisper_cpp.py
 
 apps:
   buzz:
