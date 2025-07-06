@@ -21,6 +21,7 @@ from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
 )
 from buzz.widgets.transcription_viewer.transcription_resizer_widget import (
     TranscriptionResizerWidget,
+    TranscriptionWorker,
 )
 from tests.audio import test_audio_path
 
@@ -173,3 +174,53 @@ class TestTranscriptionViewerWidget:
         assert widget.view_mode == ViewMode.TRANSLATION
 
         widget.close()
+
+    def test_transcription_worker_calls_stable_whisper(self, qtbot: QtBot, transcription, transcription_service):
+        mock_transcription_options = MagicMock()
+        mock_transcription_options.extract_speech = False
+        regroup_string = "mg=0.2"
+
+        worker = TranscriptionWorker(
+            transcription=transcription,
+            transcription_options=mock_transcription_options,
+            transcription_service=transcription_service,
+            regroup_string=regroup_string,
+        )
+
+        mock_result_segment = MagicMock()
+        mock_result_segment.start = 1.0
+        mock_result_segment.end = 2.0
+        mock_result_segment.text = "Hello"
+
+        mock_result = MagicMock()
+        mock_result.segments = [mock_result_segment]
+
+        with patch('buzz.widgets.transcription_viewer.transcription_resizer_widget.stable_whisper.transcribe_any', return_value=mock_result) as mock_transcribe_any, \
+             patch('buzz.widgets.transcription_viewer.transcription_resizer_widget.whisper_audio.load_audio') as mock_load_audio:
+
+            result_ready_spy = MagicMock()
+            finished_spy = MagicMock()
+            worker.result_ready.connect(result_ready_spy)
+            worker.finished.connect(finished_spy)
+
+            worker.run()
+
+            mock_load_audio.assert_called_with(transcription.file)
+            
+            mock_transcribe_any.assert_called_once()
+            call_args, call_kwargs = mock_transcribe_any.call_args
+            
+            assert call_args[0] == worker.get_transcript
+            assert call_kwargs['audio'] == mock_load_audio.return_value
+            assert call_kwargs['regroup'] == regroup_string
+            assert call_kwargs['vad'] is True
+            assert call_kwargs['suppress_silence'] is True
+
+            result_ready_spy.assert_called_once()
+            emitted_segments = result_ready_spy.call_args[0][0]
+            assert len(emitted_segments) == 1
+            assert emitted_segments[0].start == 100
+            assert emitted_segments[0].end == 200
+            assert emitted_segments[0].text == "Hello"
+            
+            finished_spy.assert_called_once()
