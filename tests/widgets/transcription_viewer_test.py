@@ -1,5 +1,5 @@
 import uuid
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 from pytestqt.qtbot import QtBot
@@ -93,6 +93,65 @@ class TestTranscriptionViewerWidget:
         transcription_service.update_transcription_as_completed.assert_called_once()
 
         widget.close()
+
+    def test_on_merge_button_clicked(self, qtbot: QtBot, transcription, transcription_service):
+        # Prerequisite: Merge button is only enabled if word_level_timings is True
+        transcription.word_level_timings = True
+
+        # Mock services and signals
+        transcription_service.copy_transcription = MagicMock(return_value=uuid.uuid4())
+        transcription_service.update_transcription_progress = MagicMock()
+
+        mock_signal = MagicMock()
+
+        widget = TranscriptionResizerWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+            transcriptions_updated_signal=mock_signal)
+        qtbot.add_widget(widget)
+
+        # Patch the worker and thread to prevent actual background processing
+        with patch('buzz.widgets.transcription_viewer.transcription_resizer_widget.QThread') as mock_thread_class, \
+                patch(
+                    'buzz.widgets.transcription_viewer.transcription_resizer_widget.TranscriptionWorker') as mock_worker_class:
+            mock_worker_instance = MagicMock()
+            mock_worker_class.return_value = mock_worker_instance
+
+            mock_thread_instance = MagicMock()
+            mock_thread_class.return_value = mock_thread_instance
+
+            # Action: click the merge button
+            widget.merge_button.click()
+
+            # Assertions
+            # 1. A new transcription is copied
+            transcription_service.copy_transcription.assert_called_once_with(transcription.id_as_uuid)
+            new_transcript_id = transcription_service.copy_transcription.return_value
+
+            # 2. Progress is updated for the new transcription
+            transcription_service.update_transcription_progress.assert_called_once_with(new_transcript_id, 0.0)
+
+            # 3. Signal is emitted to notify of the new transcription
+            mock_signal.emit.assert_called_once_with(new_transcript_id)
+
+            # 4. The regroup string is constructed.
+            expected_regroup_string_with_bug = 'mg=0.2++42+1_sp=.* /./. /。/?/? /？/!/! /！/,/, _sl=42'
+
+            # 5. Worker is created with the correct arguments
+            mock_worker_class.assert_called_once()
+            called_args, _ = mock_worker_class.call_args
+            assert called_args[0] == transcription
+            assert called_args[2] == transcription_service
+            assert called_args[3] == expected_regroup_string_with_bug
+
+            # 6. Worker is moved to a new thread and the thread is started
+            mock_worker_instance.moveToThread.assert_called_once_with(mock_thread_instance)
+            mock_thread_instance.start.assert_called_once()
+
+            # 7. Widget is hidden after starting the process
+            assert not widget.isVisible()
+
+            widget.close()
 
     def test_text_button_changes_view_mode(
             self, qtbot, transcription, transcription_service, shortcuts
