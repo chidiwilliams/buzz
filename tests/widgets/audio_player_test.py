@@ -14,7 +14,9 @@ class TestAudioPlayer:
         widget = AudioPlayer(test_audio_path)
         qtbot.add_widget(widget)
 
-        assert widget.media_player.source().toLocalFile() == test_audio_path
+        actual = os.path.normpath(widget.media_player.source().toLocalFile())
+        expected = os.path.normpath(test_audio_path)
+        assert actual == expected
 
     def test_should_update_time_label(self, qtbot: QtBot):
         widget = AudioPlayer(test_audio_path)
