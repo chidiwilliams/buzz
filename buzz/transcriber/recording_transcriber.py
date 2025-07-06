@@ -159,7 +159,7 @@ class RecordingTranscriber(QObject):
                             amplitude,
                         )
 
-                        if amplitude < 0.01:
+                        if amplitude < 0.025:
                             time.sleep(0.5)
                             continue
 

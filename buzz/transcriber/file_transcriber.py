@@ -6,17 +6,22 @@ import shutil
 import tempfile
 from abc import abstractmethod
 from typing import Optional, List
+from pathlib import Path
 
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from yt_dlp import YoutubeDL
 
-from buzz.whisper_audio import SAMPLE_RATE
+from buzz import whisper_audio
+from buzz.assets import APP_BASE_DIR
 from buzz.transcriber.transcriber import (
     FileTranscriptionTask,
     get_output_file_path,
     Segment,
     OutputFormat,
 )
+
+app_env = os.environ.copy()
+app_env['PATH'] = os.pathsep.join([os.path.join(APP_BASE_DIR, "_internal")] + [app_env['PATH']])
 
 
 class FileTranscriber(QObject):
@@ -35,6 +40,7 @@ class FileTranscriber(QObject):
         if self.transcription_task.source == FileTranscriptionTask.Source.URL_IMPORT:
             temp_output_path = tempfile.mktemp()
             wav_file = temp_output_path + ".wav"
+            wav_file = str(Path(wav_file).resolve())
 
             cookiefile = os.getenv("BUZZ_DOWNLOAD_COOKIEFILE")
 
@@ -64,16 +70,17 @@ class FileTranscriber(QObject):
                 "-threads", "0",
                 "-i", temp_output_path,
                 "-ac", "1",
-                "-ar", str(SAMPLE_RATE),
+                "-ar", str(whisper_audio.SAMPLE_RATE),
                 "-acodec", "pcm_s16le",
                 "-loglevel", "panic",
-                wav_file]
+                wav_file
+            ]
 
             if sys.platform == "win32":
                 si = subprocess.STARTUPINFO()
                 si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
                 si.wShowWindow = subprocess.SW_HIDE
-                result = subprocess.run(cmd, capture_output=True, startupinfo=si)
+                result = subprocess.run(cmd, capture_output=True, startupinfo=si, env=app_env)
             else:
                 result = subprocess.run(cmd, capture_output=True)
 

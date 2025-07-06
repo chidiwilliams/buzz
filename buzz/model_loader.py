@@ -7,7 +7,6 @@ import threading
 import shutil
 import subprocess
 import sys
-import tempfile
 import warnings
 import platform
 import requests
@@ -24,15 +23,14 @@ from huggingface_hub.errors import LocalEntryNotFoundError
 from buzz.locale import _
 
 # Catch exception from whisper.dll not getting loaded.
-# TODO: Remove flag and try-except when issue with loading
-# the DLL in some envs is fixed.
 LOADED_WHISPER_CPP_BINARY = False
 try:
     import buzz.whisper_cpp as whisper_cpp  # noqa: F401
 
     LOADED_WHISPER_CPP_BINARY = True
-except ImportError:
-    logging.exception("")
+
+except ImportError as e:
+    logging.exception("whisper_cpp load error: %s", e)
 
 model_root_dir = user_cache_dir("Buzz")
 model_root_dir = os.path.join(model_root_dir, "models")

@@ -1,6 +1,7 @@
 import ctypes
 import logging
 import sys
+import os
 from typing import Optional, List
 
 from PyQt6.QtCore import QObject
@@ -9,6 +10,7 @@ from buzz import whisper_audio
 from buzz.transcriber.file_transcriber import FileTranscriber
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment, Stopped
 from buzz.transcriber.whisper_cpp import WhisperCpp
+from buzz.transcriber.local_whisper_cpp_server_transcriber import LocalWhisperCppServerTranscriber
 
 
 class WhisperCppFileTranscriber(FileTranscriber):
@@ -25,7 +27,16 @@ class WhisperCppFileTranscriber(FileTranscriber):
 
         self.transcription_options = task.transcription_options
         self.model_path = task.model_path
-        self.model = WhisperCpp(model=self.model_path)
+        self.transcriber = None
+        self.model = None
+        is_windows = sys.platform == "win32"
+        force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
+
+        # As DLL mode on Windows is somewhat unreliable, will use local whisper-server
+        if is_windows and force_cpu == "false":
+            self.transcriber = LocalWhisperCppServerTranscriber(task, parent)
+        else:
+            self.model = WhisperCpp(model=self.model_path)
         self.state = self.State()
 
     def transcribe(self) -> List[Segment]:
@@ -41,32 +52,42 @@ class WhisperCppFileTranscriber(FileTranscriber):
             self.transcription_options.word_level_timings,
         )
 
-        audio = whisper_audio.load_audio(self.transcription_task.file_path)
-        self.duration_audio_ms = len(audio) * 1000 / whisper_audio.SAMPLE_RATE
+        if self.model:
+            audio = whisper_audio.load_audio(self.transcription_task.file_path)
+            self.duration_audio_ms = len(audio) * 1000 / whisper_audio.SAMPLE_RATE
 
-        whisper_params = self.model.get_params(
-            transcription_options=self.transcription_options
-        )
-        whisper_params.encoder_begin_callback_user_data = ctypes.c_void_p(
-            id(self.state)
-        )
-        whisper_params.encoder_begin_callback = (
-            self.model.get_instance().get_encoder_begin_callback(self.encoder_begin_callback)
-        )
-        whisper_params.new_segment_callback_user_data = ctypes.c_void_p(id(self.state))
-        whisper_params.new_segment_callback = self.model.get_instance().get_new_segment_callback(
-            self.new_segment_callback
-        )
+            whisper_params = self.model.get_params(
+                transcription_options=self.transcription_options
+            )
+            whisper_params.encoder_begin_callback_user_data = ctypes.c_void_p(
+                id(self.state)
+            )
+            whisper_params.encoder_begin_callback = (
+                self.model.get_instance().get_encoder_begin_callback(self.encoder_begin_callback)
+            )
+            whisper_params.new_segment_callback_user_data = ctypes.c_void_p(id(self.state))
+            whisper_params.new_segment_callback = self.model.get_instance().get_new_segment_callback(
+                self.new_segment_callback
+            )
 
-        result = self.model.transcribe(
-            audio=self.transcription_task.file_path, params=whisper_params
-        )
+            result = self.model.transcribe(
+                audio=self.transcription_task.file_path, params=whisper_params
+            )
+
+            if not self.state.running:
+                raise Stopped
+
+            self.state.running = False
+            return result["segments"]
+
+        # On Windows we use the local whisper server
+        if self.transcriber is not None:
+            return self.transcriber.transcribe()
 
         if not self.state.running:
             raise Stopped
 
-        self.state.running = False
-        return result["segments"]
+        return []
 
     def new_segment_callback(self, ctx, _state, _n_new, user_data):
         n_segments = self.model.get_instance().full_n_segments(ctx)
