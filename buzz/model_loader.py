@@ -25,7 +25,7 @@ from buzz.locale import _
 # Catch exception from whisper.dll not getting loaded.
 LOADED_WHISPER_CPP_BINARY = False
 try:
-    import buzz.whisper_cpp as whisper_cpp  # noqa: F401
+    from buzz.whisper_cpp import whisper_cpp  # noqa: F401
 
     LOADED_WHISPER_CPP_BINARY = True
 
