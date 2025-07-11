@@ -365,7 +365,7 @@ class RecordingTranscriber(QObject):
             stderr_output = self.process.stderr.read().decode()
             logging.error(f"Whisper server failed to start. Error: {stderr_output}")
 
-            self.transcription.emit(_("Whisper server failed to start, check logs for details."))
+            self.transcription.emit(_("Whisper server failed to start. Check logs for details."))
 
             if "ErrorOutOfDeviceMemory" in stderr_output:
                 message = _("Whisper server failed to start due to insufficient memory. "

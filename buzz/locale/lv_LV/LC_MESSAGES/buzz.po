@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-06 20:16+0300\n"
-"PO-Revision-Date: 2025-07-06 20:11+0300\n"
+"POT-Creation-Date: 2025-07-11 21:32+0300\n"
+"PO-Revision-Date: 2025-07-11 21:32+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -297,8 +297,8 @@ msgid "Download failed"
 msgstr "Lejupielāde neizdevās"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:273
-#: buzz/widgets/main_window.py:295 buzz/model_loader.py:515
-#: buzz/model_loader.py:529
+#: buzz/widgets/main_window.py:295 buzz/model_loader.py:505
+#: buzz/model_loader.py:519
 msgid "Error"
 msgstr "Kļūda"
 
@@ -383,6 +383,8 @@ msgid ""
 "Enter instructions for AI on how to translate, for example 'Please translate "
 "each text sent to you from English to Spanish.'"
 msgstr ""
+"Ievadiet instrukcijas mākslīgajam intelektam, piemēram, 'Lūdzu, iztulko "
+"katru tev atsūtīto tekstu no angļu valodas latviski'"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:92
 msgid "Instructions for AI:"
@@ -489,11 +491,11 @@ msgstr "Gaida MI tulkojumu..."
 msgid "Microphone:"
 msgstr "Mikrofons:"
 
-#: buzz/widgets/recording_transcriber_widget.py:577
+#: buzz/widgets/recording_transcriber_widget.py:579
 msgid "An error occurred while starting a new recording:"
 msgstr "Sākot jaunu ierakstu notikusi kļūda:"
 
-#: buzz/widgets/recording_transcriber_widget.py:581
+#: buzz/widgets/recording_transcriber_widget.py:583
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
@@ -664,6 +666,24 @@ msgstr "Izvēlieties audio failu"
 #: buzz/widgets/main_window.py:295
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "Neizdevās saglabāt OpenAI API atslēgu atslēgu saišķī"
+
+#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:49
+#: buzz/transcriber/recording_transcriber.py:368
+msgid "Whisper server failed to start. Check logs for details."
+msgstr ""
+"Whisper serverim neizdevās ieslēgties. Lūdzu pārbaudiet lietotnes žurnāla "
+"ierakstus."
+
+#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:52
+#: buzz/transcriber/recording_transcriber.py:371
+msgid ""
+"Whisper server failed to start due to insufficient memory. Please try again "
+"with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
+"variable."
+msgstr ""
+"Whisper serverim neizdevās ieslēgties, jo nepietika atmiņas. Lūdzu mēģiniet "
+"vēlreiz ar mazāku modeli. Lai izmantotu tikai CPU iestatiet "
+"BUZZ_FORCE_CPU=TRUE vides mainīgo."
 
 #: buzz/transcriber/transcriber.py:25
 msgid "Transcribe"
@@ -1025,7 +1045,11 @@ msgstr "Sundāņu"
 msgid "Cantonese"
 msgstr "Kantonas"
 
-#: buzz/model_loader.py:548
+#: buzz/transcriber/recording_transcriber.py:338
+msgid "Starting Whisper.cpp..."
+msgstr "Palaiž Whisper.cpp..."
+
+#: buzz/model_loader.py:538
 msgid "A connection error occurred"
 msgstr "Notika savienojuma kļūda"
 
