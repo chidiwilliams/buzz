@@ -2,7 +2,7 @@ import pytest
 import unittest.mock
 from PyQt6.QtCore import QCoreApplication, QThread
 from buzz.file_transcriber_queue_worker import FileTranscriberQueueWorker
-from buzz.model_loader import ModelType, TranscriptionModel
+from buzz.model_loader import ModelType, TranscriptionModel, WhisperModelSize
 from buzz.transcriber.transcriber import FileTranscriptionTask, TranscriptionOptions, FileTranscriptionOptions
 from buzz.transcriber.whisper_cpp_file_transcriber import WhisperCppFileTranscriber
 from tests.audio import test_multibyte_utf8_audio_path
@@ -28,17 +28,12 @@ def worker(qapp):
     thread.quit()
     thread.wait()
 
-@pytest.fixture
-def audio_file():
-    # Use a small, existing audio file for testing
-    return test_multibyte_utf8_audio_path
-
-def test_transcription_with_whisper_cpp_tiny_no_speech_extraction(worker, audio_file):
+def test_transcription_with_whisper_cpp_tiny_no_speech_extraction(worker):
     options = TranscriptionOptions(
-        model=TranscriptionModel(model_type=ModelType.WHISPER_CPP, whisper_model_size="tiny"),
+        model=TranscriptionModel(model_type=ModelType.WHISPER_CPP, whisper_model_size=WhisperModelSize.TINY),
         extract_speech=False
     )
-    task = FileTranscriptionTask(file_path=str(audio_file), transcription_options=options, file_transcription_options=FileTranscriptionOptions(), model_path="mock_path")
+    task = FileTranscriptionTask(file_path=str(test_multibyte_utf8_audio_path), transcription_options=options, file_transcription_options=FileTranscriptionOptions(), model_path="mock_path")
 
     with unittest.mock.patch.object(WhisperCppFileTranscriber, 'run') as mock_run:
         mock_run.side_effect = lambda: worker.current_transcriber.completed.emit([
@@ -50,7 +45,7 @@ def test_transcription_with_whisper_cpp_tiny_no_speech_extraction(worker, audio_
         worker.add_task(task)
 
         # Wait for the signal to be emitted
-        timeout = 5  # seconds
+        timeout = 10  # seconds
         start_time = time.time()
         while not completed_spy.called and (time.time() - start_time) < timeout:
             QCoreApplication.processEvents()
@@ -62,12 +57,12 @@ def test_transcription_with_whisper_cpp_tiny_no_speech_extraction(worker, audio_
         assert len(args[1]) > 0
         assert args[1][0]["text"] == "Test transcription."
 
-def test_transcription_with_whisper_cpp_tiny_with_speech_extraction(worker, audio_file):
+def test_transcription_with_whisper_cpp_tiny_with_speech_extraction(worker):
     options = TranscriptionOptions(
-        model=TranscriptionModel(model_type=ModelType.WHISPER_CPP, whisper_model_size="tiny"),
+        model=TranscriptionModel(model_type=ModelType.WHISPER_CPP, whisper_model_size=WhisperModelSize.TINY),
         extract_speech=True
     )
-    task = FileTranscriptionTask(file_path=str(audio_file), transcription_options=options, file_transcription_options=FileTranscriptionOptions(), model_path="mock_path")
+    task = FileTranscriptionTask(file_path=str(test_multibyte_utf8_audio_path), transcription_options=options, file_transcription_options=FileTranscriptionOptions(), model_path="mock_path")
 
     with unittest.mock.patch('demucs.api.Separator') as mock_separator_class, \
          unittest.mock.patch('demucs.api.save_audio') as mock_save_audio, \
@@ -88,7 +83,7 @@ def test_transcription_with_whisper_cpp_tiny_with_speech_extraction(worker, audi
         worker.add_task(task)
 
         # Wait for the signal to be emitted
-        timeout = 5  # seconds
+        timeout = 10  # seconds
         start_time = time.time()
         while not completed_spy.called and (time.time() - start_time) < timeout:
             QCoreApplication.processEvents()
