@@ -545,7 +545,7 @@ msgstr "Eksportēt"
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:174
 #: buzz/transcriber/transcriber.py:24
 msgid "Translate"
-msgstr "Tulkot"
+msgstr "Tulkot angliski"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:184
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:174

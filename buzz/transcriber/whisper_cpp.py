@@ -24,9 +24,9 @@ try:
 
     logging.debug("Vulkan version = %s.%s", major, minor)
 
-    # On Windows we will use whisper-server
-    # On MacOS we will use Core ML
-    if (sys.platform != "win32") and ((major > 1) or (major == 1 and minor >= 2)):
+    # On macOS, default whisper_cpp is compiled with CoreML (Apple Silicon) or Vulkan (Intel).
+    # On Windows whisper-server.exe subprocess will be used
+    if (platform.system() == "Linux") and ((major > 1) or (major == 1 and minor >= 2)):
         from buzz.whisper_cpp_vulkan import whisper_cpp_vulkan
 
         IS_VULKAN_SUPPORTED = True

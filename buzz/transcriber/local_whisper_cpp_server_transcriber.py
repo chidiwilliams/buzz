@@ -31,7 +31,7 @@ class LocalWhisperCppServerTranscriber(OpenAIWhisperAPIFileTranscriber):
 
         self.process = subprocess.Popen(
             command,
-            stdout=subprocess.PIPE,
+            stdout=subprocess.DEVNULL,  # For debug set to subprocess.PIPE,
             stderr=subprocess.PIPE,
             shell=False,
             creationflags=subprocess.CREATE_NO_WINDOW

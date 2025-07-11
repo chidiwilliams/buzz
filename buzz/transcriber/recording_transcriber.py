@@ -2,10 +2,12 @@ import datetime
 import logging
 import platform
 import os
+import sys
 import wave
 import time
 import tempfile
 import threading
+import subprocess
 from typing import Optional
 from platformdirs import user_cache_dir
 
@@ -17,7 +19,9 @@ from openai import OpenAI
 from PyQt6.QtCore import QObject, pyqtSignal
 
 from buzz import whisper_audio
-from buzz.model_loader import WhisperModelSize, ModelType, get_custom_api_whisper_model
+from buzz.locale import _
+from buzz.assets import APP_BASE_DIR
+from buzz.model_loader import ModelType, get_custom_api_whisper_model
 from buzz.settings.settings import Settings
 from buzz.transcriber.transcriber import TranscriptionOptions, Task
 from buzz.transcriber.whisper_cpp import WhisperCpp
@@ -65,8 +69,11 @@ class RecordingTranscriber(QObject):
         self.sounddevice = sounddevice
         self.openai_client = None
         self.whisper_api_model = get_custom_api_whisper_model("")
+        self.is_windows = sys.platform == "win32"
+        self.process = None
 
     def start(self):
+        model = None
         model_path = self.model_path
         keep_samples = int(self.keep_sample_seconds * self.sample_rate)
 
@@ -80,7 +87,11 @@ class RecordingTranscriber(QObject):
             device = "cuda" if use_cuda else "cpu"
             model = whisper.load_model(model_path, device=device)
         elif self.transcription_options.model.model_type == ModelType.WHISPER_CPP:
-            model = WhisperCpp(model_path)
+            # As DLL mode on Windows is somewhat unreliable, will use local whisper-server
+            if self.is_windows:
+                self.start_local_whisper_server()
+            else:
+                model = WhisperCpp(model_path)
         elif self.transcription_options.model.model_type == ModelType.FASTER_WHISPER:
             model_root_dir = user_cache_dir("Buzz")
             model_root_dir = os.path.join(model_root_dir, "models")
@@ -180,6 +191,8 @@ class RecordingTranscriber(QObject):
                         elif (
                                 self.transcription_options.model.model_type
                                 == ModelType.WHISPER_CPP
+                                # On Windows we use the local whisper server via OpenAI API
+                                and not self.is_windows
                         ):
                             assert isinstance(model, WhisperCpp)
                             result = model.transcribe(
@@ -236,7 +249,7 @@ class RecordingTranscriber(QObject):
                                 options = {
                                     "model": self.whisper_api_model,
                                     "file": temp_file,
-                                    "response_format": "verbose_json",
+                                    "response_format": "json",
                                     "prompt": self.transcription_options.initial_prompt,
                                 }
 
@@ -250,8 +263,12 @@ class RecordingTranscriber(QObject):
                                         else self.openai_client.audio.translations.create(**options)
                                     )
 
-                                    result = {"text": " ".join(
-                                        [segment["text"] for segment in transcript.model_extra["segments"]])}
+                                    if "segments" in transcript.model_extra:
+                                        result = {"text": " ".join(
+                                            [segment["text"] for segment in transcript.model_extra["segments"]])}
+                                    else:
+                                        result = {"text": transcript.text}
+
                                 except Exception as e:
                                     result = {"text": f"Error: {str(e)}"}
 
@@ -277,6 +294,12 @@ class RecordingTranscriber(QObject):
             return
 
         self.finished.emit()
+
+        # Cleanup
+        if model:
+            del model
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
 
     @staticmethod
     def get_device_sample_rate(device_id: Optional[int]) -> int:
@@ -307,3 +330,56 @@ class RecordingTranscriber(QObject):
 
     def stop_recording(self):
         self.is_running = False
+        if self.process and self.process.poll() is None:
+            self.process.terminate()
+            self.process.wait()
+
+    def start_local_whisper_server(self):
+        self.transcription.emit(_("Starting Whisper.cpp..."))
+
+        self.process = None
+        command = [
+            os.path.join(APP_BASE_DIR, "whisper-server.exe"),
+            "--port", "3000",
+            "--inference-path", "/audio/transcriptions",
+            "--threads", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8)//2)),
+            "--language", self.transcription_options.language,
+            "--model", self.model_path
+        ]
+
+        self.process = subprocess.Popen(
+            command,
+            stdout=subprocess.DEVNULL,  # For debug set to subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=False,
+            creationflags=subprocess.CREATE_NO_WINDOW
+        )
+
+        # Wait for server to start and load model
+        time.sleep(10)
+
+        if self.process is not None and self.process.poll() is None:
+            logging.debug(f"Whisper server started successfully.")
+            logging.debug(f"Model: {self.model_path}")
+        else:
+            stderr_output = self.process.stderr.read().decode()
+            logging.error(f"Whisper server failed to start. Error: {stderr_output}")
+
+            self.transcription.emit(_("Whisper server failed to start, check logs for details."))
+
+            if "ErrorOutOfDeviceMemory" in stderr_output:
+                message = _("Whisper server failed to start due to insufficient memory. "
+                            "Please try again with a smaller model. "
+                            "To force CPU mode use BUZZ_FORCE_CPU=TRUE environment variable.")
+                logging.error(message)
+                self.transcription.emit(message)
+
+        self.openai_client = OpenAI(
+            api_key="not-used",
+            base_url="http://127.0.0.1:3000"
+        )
+
+    def __del__(self):
+        if self.process and self.process.poll() is None:
+            self.process.terminate()
+            self.process.wait()
