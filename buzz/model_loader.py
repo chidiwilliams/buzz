@@ -22,15 +22,6 @@ from huggingface_hub.errors import LocalEntryNotFoundError
 
 from buzz.locale import _
 
-# Catch exception from whisper.dll not getting loaded.
-LOADED_WHISPER_CPP_BINARY = False
-try:
-    from buzz.whisper_cpp import whisper_cpp  # noqa: F401
-
-    LOADED_WHISPER_CPP_BINARY = True
-
-except ImportError as e:
-    logging.exception("whisper_cpp load error: %s", e)
 
 model_root_dir = user_cache_dir("Buzz")
 model_root_dir = os.path.join(model_root_dir, "models")
@@ -87,6 +78,7 @@ class ModelType(enum.Enum):
         )
 
     def is_available(self):
+        from buzz.transcriber.whisper_cpp import LOADED_WHISPER_CPP_BINARY
         if (
             # Hide Whisper.cpp option if whisper.dll did not load correctly.
             # See: https://github.com/chidiwilliams/buzz/issues/274,

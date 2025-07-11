@@ -8,10 +8,10 @@ from typing import Union, Any, List
 import numpy as np
 
 from buzz import whisper_audio
-from buzz.model_loader import LOADED_WHISPER_CPP_BINARY
 from buzz.transcriber.transcriber import Segment, Task, TranscriptionOptions
 
 
+LOADED_WHISPER_CPP_BINARY = False
 IS_VULKAN_SUPPORTED = False
 try:
     import vulkan
@@ -27,17 +27,24 @@ try:
     # On Windows we will use whisper-server
     # On MacOS we will use Core ML
     if (sys.platform != "win32") and ((major > 1) or (major == 1 and minor >= 2)):
-        IS_VULKAN_SUPPORTED = True
-
         from buzz.whisper_cpp_vulkan import whisper_cpp_vulkan
+
+        IS_VULKAN_SUPPORTED = True
+        LOADED_WHISPER_CPP_BINARY = True
 
 except (ImportError, Exception) as e:
     logging.debug(f"Vulkan import error: {e}")
 
     IS_VULKAN_SUPPORTED = False
 
-if not IS_VULKAN_SUPPORTED and LOADED_WHISPER_CPP_BINARY:
-    from buzz.whisper_cpp import whisper_cpp
+if not IS_VULKAN_SUPPORTED:
+    try:
+        from buzz.whisper_cpp import whisper_cpp  # noqa: F401
+
+        LOADED_WHISPER_CPP_BINARY = True
+
+    except ImportError as e:
+        logging.exception("whisper_cpp load error: %s", e)
 
 def append_segment(result, txt: bytes, start: int, end: int):
     if txt == b'':
