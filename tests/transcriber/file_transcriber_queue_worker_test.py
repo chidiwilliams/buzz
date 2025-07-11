@@ -8,6 +8,7 @@ from buzz.transcriber.whisper_cpp_file_transcriber import WhisperCppFileTranscri
 from tests.audio import test_multibyte_utf8_audio_path
 import time
 
+
 @pytest.fixture(scope="session")
 def qapp():
     app = QCoreApplication.instance()
@@ -15,6 +16,7 @@ def qapp():
         app = QCoreApplication([])
     yield app
     app.quit()
+
 
 @pytest.fixture
 def worker(qapp):
@@ -28,18 +30,21 @@ def worker(qapp):
     thread.quit()
     thread.wait()
 
+
 def test_transcription_with_whisper_cpp_tiny_no_speech_extraction(worker):
     options = TranscriptionOptions(
         model=TranscriptionModel(model_type=ModelType.WHISPER_CPP, whisper_model_size=WhisperModelSize.TINY),
         extract_speech=False
     )
-    task = FileTranscriptionTask(file_path=str(test_multibyte_utf8_audio_path), transcription_options=options, file_transcription_options=FileTranscriptionOptions(), model_path="mock_path")
+    task = FileTranscriptionTask(file_path=str(test_multibyte_utf8_audio_path), transcription_options=options,
+                                 file_transcription_options=FileTranscriptionOptions(), model_path="mock_path")
 
-    with unittest.mock.patch.object(WhisperCppFileTranscriber, 'run') as mock_run:
+    with unittest.mock.patch('buzz.transcriber.whisper_cpp_file_transcriber.LocalWhisperCppServerTranscriber'), \
+            unittest.mock.patch.object(WhisperCppFileTranscriber, 'run') as mock_run:
         mock_run.side_effect = lambda: worker.current_transcriber.completed.emit([
             {"start": 0, "end": 1000, "text": "Test transcription."}
         ])
-        
+
         completed_spy = unittest.mock.Mock()
         worker.task_completed.connect(completed_spy)
         worker.add_task(task)
@@ -57,17 +62,19 @@ def test_transcription_with_whisper_cpp_tiny_no_speech_extraction(worker):
         assert len(args[1]) > 0
         assert args[1][0]["text"] == "Test transcription."
 
+
 def test_transcription_with_whisper_cpp_tiny_with_speech_extraction(worker):
     options = TranscriptionOptions(
         model=TranscriptionModel(model_type=ModelType.WHISPER_CPP, whisper_model_size=WhisperModelSize.TINY),
         extract_speech=True
     )
-    task = FileTranscriptionTask(file_path=str(test_multibyte_utf8_audio_path), transcription_options=options, file_transcription_options=FileTranscriptionOptions(), model_path="mock_path")
+    task = FileTranscriptionTask(file_path=str(test_multibyte_utf8_audio_path), transcription_options=options,
+                                 file_transcription_options=FileTranscriptionOptions(), model_path="mock_path")
 
-    with unittest.mock.patch('demucs.api.Separator') as mock_separator_class, \
-         unittest.mock.patch('demucs.api.save_audio') as mock_save_audio, \
-         unittest.mock.patch.object(WhisperCppFileTranscriber, 'run') as mock_run:
-
+    with unittest.mock.patch('buzz.transcriber.whisper_cpp_file_transcriber.LocalWhisperCppServerTranscriber'), \
+            unittest.mock.patch('demucs.api.Separator') as mock_separator_class, \
+            unittest.mock.patch('demucs.api.save_audio') as mock_save_audio, \
+            unittest.mock.patch.object(WhisperCppFileTranscriber, 'run') as mock_run:
         # Mock demucs.api.Separator and save_audio
         mock_separator_instance = unittest.mock.Mock()
         mock_separator_instance.separate_audio_file.return_value = (None, {"vocals": "mock_vocals_data"})
