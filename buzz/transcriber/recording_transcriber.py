@@ -134,7 +134,6 @@ class RecordingTranscriber(QObject):
         )
 
         self.is_running = True
-        amplitude = 0.0
         try:
             with self.sounddevice.InputStream(
                 samplerate=self.sample_rate,

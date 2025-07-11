@@ -187,7 +187,7 @@ class GeneralPreferencesWidget(QWidget):
     def on_click_test_openai_api_key_button(self):
         self.test_openai_api_key_button.setEnabled(False)
 
-        job = TestOpenAIApiKeyJob(api_key=self.openai_api_key)
+        job = ValidateOpenAIApiKeyJob(api_key=self.openai_api_key)
         job.signals.success.connect(self.on_test_openai_api_key_success)
         job.signals.failed.connect(self.on_test_openai_api_key_failure)
         job.setAutoDelete(True)
@@ -265,7 +265,7 @@ class GeneralPreferencesWidget(QWidget):
     def on_recording_transcriber_mode_changed(self, value):
         self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_MODE, value)
 
-class TestOpenAIApiKeyJob(QRunnable):
+class ValidateOpenAIApiKeyJob(QRunnable):
     class Signals(QObject):
         success = pyqtSignal()
         failed = pyqtSignal(str)
