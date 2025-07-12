@@ -340,17 +340,21 @@ class RecordingTranscriber(QObject):
         self.process = None
         command = [
             os.path.join(APP_BASE_DIR, "whisper-server.exe"),
-            "--port", "3000",
+            "--port", "3003",
             "--inference-path", "/audio/transcriptions",
             "--threads", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8)//2)),
             "--language", self.transcription_options.language,
-            "--model", self.model_path
+            "--model", self.model_path,
+            "--no-timestamps",
+            "--no-context",  # on Windows context causes duplications of last message
         ]
+
+        logging.debug(f"Starting Whisper server with command: {' '.join(command)}")
 
         self.process = subprocess.Popen(
             command,
-            stdout=subprocess.DEVNULL,  # For debug set to subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stdout=subprocess.DEVNULL,  # For debug set to subprocess.PIPE, but it will freeze on Windows after ~30 seconds
+            stderr=subprocess.DEVNULL,
             shell=False,
             creationflags=subprocess.CREATE_NO_WINDOW
         )
@@ -376,7 +380,9 @@ class RecordingTranscriber(QObject):
 
         self.openai_client = OpenAI(
             api_key="not-used",
-            base_url="http://127.0.0.1:3000"
+            base_url="http://127.0.0.1:3003",
+            timeout=10.0,
+            max_retries=0
         )
 
     def __del__(self):

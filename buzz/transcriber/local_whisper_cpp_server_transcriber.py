@@ -29,10 +29,12 @@ class LocalWhisperCppServerTranscriber(OpenAIWhisperAPIFileTranscriber):
             "--model", task.model_path
         ]
 
+        logging.debug(f"Starting Whisper server with command: {' '.join(command)}")
+
         self.process = subprocess.Popen(
             command,
-            stdout=subprocess.DEVNULL,  # For debug set to subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stdout=subprocess.DEVNULL,  # For debug set to subprocess.PIPE, but it will freeze on Windows after ~30 seconds
+            stderr=subprocess.DEVNULL,
             shell=False,
             creationflags=subprocess.CREATE_NO_WINDOW
         )
