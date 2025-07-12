@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-06 20:16+0300\n"
+"POT-Creation-Date: 2025-07-11 21:32+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Yevhen Popok <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -293,8 +293,8 @@ msgid "Download failed"
 msgstr "Невдале завантаження"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:273
-#: buzz/widgets/main_window.py:295 buzz/model_loader.py:515
-#: buzz/model_loader.py:529
+#: buzz/widgets/main_window.py:295 buzz/model_loader.py:505
+#: buzz/model_loader.py:519
 msgid "Error"
 msgstr "Помилка"
 
@@ -485,11 +485,11 @@ msgstr "Очікування перекладу від ШІ..."
 msgid "Microphone:"
 msgstr "Мікрофон:"
 
-#: buzz/widgets/recording_transcriber_widget.py:577
+#: buzz/widgets/recording_transcriber_widget.py:579
 msgid "An error occurred while starting a new recording:"
 msgstr "При старті нового запису виникла помилка:"
 
-#: buzz/widgets/recording_transcriber_widget.py:581
+#: buzz/widgets/recording_transcriber_widget.py:583
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
@@ -660,6 +660,19 @@ msgstr "Вибрати аудіофайл"
 #: buzz/widgets/main_window.py:295
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "Не вдається додати до звʼязки ключів API-ключ OpenAI"
+
+#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:49
+#: buzz/transcriber/recording_transcriber.py:368
+msgid "Whisper server failed to start. Check logs for details."
+msgstr ""
+
+#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:52
+#: buzz/transcriber/recording_transcriber.py:371
+msgid ""
+"Whisper server failed to start due to insufficient memory. Please try again "
+"with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
+"variable."
+msgstr ""
 
 #: buzz/transcriber/transcriber.py:25
 msgid "Transcribe"
@@ -1021,7 +1034,11 @@ msgstr ""
 msgid "Cantonese"
 msgstr ""
 
-#: buzz/model_loader.py:548
+#: buzz/transcriber/recording_transcriber.py:338
+msgid "Starting Whisper.cpp..."
+msgstr ""
+
+#: buzz/model_loader.py:538
 msgid "A connection error occurred"
 msgstr "Виникла помилка зʼєднання"
 

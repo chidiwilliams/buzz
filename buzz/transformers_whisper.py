@@ -17,7 +17,8 @@ class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no co
         inputs_len = inputs.shape[0]
         step = chunk_len - stride_left - stride_right
         for chunk_start_idx in range(0, inputs_len, step):
-            # Print progress to stderr
+
+            # Buzz will print progress to stderr
             progress = int((chunk_start_idx / inputs_len) * 100)
             sys.stderr.write(f"{progress}%\n")
 
@@ -27,8 +28,7 @@ class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no co
             if dtype is not None:
                 processed = processed.to(dtype=dtype)
             _stride_left = 0 if chunk_start_idx == 0 else stride_left
-            # all right strides must be full, otherwise it is the last item
-            is_last = chunk_end_idx > inputs_len if stride_right > 0 else chunk_end_idx >= inputs_len
+            is_last = chunk_end_idx >= inputs_len
             _stride_right = 0 if is_last else stride_right
 
             chunk_len = chunk.shape[0]
@@ -98,7 +98,7 @@ class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no co
                 # of the original length in the stride so we can cut properly.
                 stride = (inputs.shape[0], int(round(stride[0] * ratio)), int(round(stride[1] * ratio)))
         if not isinstance(inputs, np.ndarray):
-            raise ValueError(f"We expect a numpy ndarray as input, got `{type(inputs)}`")
+            raise TypeError(f"We expect a numpy ndarray as input, got `{type(inputs)}`")
         if len(inputs.shape) != 1:
             raise ValueError("We expect a single channel audio input for AutomaticSpeechRecognitionPipeline")
 
@@ -109,7 +109,7 @@ class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no co
             if isinstance(stride_length_s, (int, float)):
                 stride_length_s = [stride_length_s, stride_length_s]
 
-            # XXX: Carefuly, this variable will not exist in `seq2seq` setting.
+            # XXX: Carefully, this variable will not exist in `seq2seq` setting.
             # Currently chunking is not possible at this level for `seq2seq` so
             # it's ok.
             align_to = getattr(self.model.config, "inputs_to_logits_ratio", 1)
@@ -120,11 +120,11 @@ class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no co
             if chunk_len < stride_left + stride_right:
                 raise ValueError("Chunk length must be superior to stride length")
 
-            # Will use our custom chunk_iter with progress
+            # Buzz use our custom chunk_iter with progress
             for item in self.chunk_iter(
                 inputs, self.feature_extractor, chunk_len, stride_left, stride_right, self.torch_dtype
             ):
-                yield item
+                yield {**item, **extra}
         else:
             if self.type == "seq2seq_whisper" and inputs.shape[0] > self.feature_extractor.n_samples:
                 processed = self.feature_extractor(
@@ -133,12 +133,25 @@ class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no co
                     truncation=False,
                     padding="longest",
                     return_tensors="pt",
+                    return_attention_mask=True,
                 )
             else:
-                processed = self.feature_extractor(
-                    inputs, sampling_rate=self.feature_extractor.sampling_rate, return_tensors="pt"
-                )
-
+                if self.type == "seq2seq_whisper" and stride is None:
+                    processed = self.feature_extractor(
+                        inputs,
+                        sampling_rate=self.feature_extractor.sampling_rate,
+                        return_tensors="pt",
+                        return_token_timestamps=True,
+                        return_attention_mask=True,
+                    )
+                    extra["num_frames"] = processed.pop("num_frames")
+                else:
+                    processed = self.feature_extractor(
+                        inputs,
+                        sampling_rate=self.feature_extractor.sampling_rate,
+                        return_tensors="pt",
+                        return_attention_mask=True,
+                    )
             if self.torch_dtype is not None:
                 processed = processed.to(dtype=self.torch_dtype)
             if stride is not None:
@@ -193,7 +206,8 @@ class TransformersWhisper:
             chunk_length_s=30 if word_timestamps else None,
             torch_dtype=torch_dtype,
             device=device,
-        )
+            ignore_warning=True  # Ignore warning about chunk_length_s being experimental for seq2seq models
+         )
 
         transcript = pipe(
             audio,

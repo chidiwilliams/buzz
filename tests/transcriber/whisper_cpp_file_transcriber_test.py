@@ -1,5 +1,7 @@
+import os
 from typing import List
 from unittest.mock import Mock
+from pathlib import Path
 
 import pytest
 from pytestqt.qtbot import QtBot
@@ -31,8 +33,9 @@ class TestWhisperCppFileTranscriber:
     def test_transcribe(
         self, qtbot: QtBot, word_level_timings: bool, expected_segments: List[Segment]
     ):
+        os.environ["BUZZ_FORCE_CPU"] = "true"
         file_transcription_options = FileTranscriptionOptions(
-            file_paths=[test_audio_path]
+            file_paths=[str(Path(test_audio_path).resolve())]
         )
         transcription_options = TranscriptionOptions(
             language="fr",
@@ -47,7 +50,7 @@ class TestWhisperCppFileTranscriber:
         model_path = get_model_path(transcription_options.model)
         transcriber = WhisperCppFileTranscriber(
             task=FileTranscriptionTask(
-                file_path=test_audio_path,
+                file_path=str(Path(test_audio_path).resolve()),
                 transcription_options=transcription_options,
                 file_transcription_options=file_transcription_options,
                 model_path=model_path,
@@ -91,8 +94,9 @@ class TestWhisperCppFileTranscriber:
     def test_transcribe_latvian(
         self, qtbot: QtBot, word_level_timings: bool, expected_segments: List[Segment]
     ):
+        os.environ["BUZZ_FORCE_CPU"] = "true"
         file_transcription_options = FileTranscriptionOptions(
-            file_paths=[test_multibyte_utf8_audio_path]
+            file_paths=[str(Path(test_multibyte_utf8_audio_path).resolve())]
         )
         transcription_options = TranscriptionOptions(
             language="lv",
@@ -107,7 +111,7 @@ class TestWhisperCppFileTranscriber:
         model_path = get_model_path(transcription_options.model)
         transcriber = WhisperCppFileTranscriber(
             task=FileTranscriptionTask(
-                file_path=test_multibyte_utf8_audio_path,
+                file_path=str(Path(test_multibyte_utf8_audio_path).resolve()),
                 transcription_options=transcription_options,
                 file_transcription_options=file_transcription_options,
                 model_path=model_path,

@@ -1,4 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
+import os
 import os.path
 import platform
 import shutil
@@ -43,26 +44,50 @@ if DEBUG:
 else:
     options = []
 
-binaries = [
-    (
-        "buzz/whisper.dll" if platform.system() == "Windows" else "buzz/libwhisper.*",
-        ".",
-    ),
-    (shutil.which("ffmpeg"), "."),
-    (shutil.which("ffprobe"), "."),
-]
+def find_dependency(name: str) -> str:
+    paths = os.environ["PATH"].split(os.pathsep)
+    candidates = []
+    for path in paths:
+        exe_path = os.path.join(path, name)
+        if os.path.isfile(exe_path):
+            candidates.append(exe_path)
 
-# Include libwhisper-coreml.dylib on Apple Silicon
-if platform.system() == "Darwin" and platform.machine() == "arm64":
-    binaries.append(("buzz/libwhisper-coreml.dylib", "."))
+        # Check for chocolatery shims
+        shim_path = os.path.normpath(os.path.join(path, "..", "lib", "ffmpeg", "tools", "ffmpeg", "bin", name))
+        if os.path.isfile(shim_path):
+            candidates.append(shim_path)
 
-# Include dll_backup folder and its contents on Windows
+    if not candidates:
+        return None
+
+    # Pick the largest file
+    return max(candidates, key=lambda f: os.path.getsize(f))
+
+if platform.system() == "Windows":
+    binaries = [
+        (find_dependency("ffmpeg.exe"), "."),
+        (find_dependency("ffprobe.exe"), "."),
+    ]
+else:
+    binaries = [
+        (shutil.which("ffmpeg"), "."),
+        (shutil.which("ffprobe"), "."),
+    ]
+
+if platform.system() == "Linux":
+    binaries.append(("buzz/whisper_cpp/*.so", "buzz/whisper_cpp"))
+    binaries.append(("buzz/whisper_cpp_vulkan/*.so", "buzz/whisper_cpp_vulkan"))
+
+if platform.system() == "Darwin":
+    binaries.append(("buzz/whisper_cpp/*.dylib", "buzz/whisper_cpp"))
+
 if platform.system() == "Windows":
     datas += [("dll_backup", "dll_backup")]
     datas += collect_data_files("msvc-runtime")
 
     binaries.append(("dll_backup/SDL2.dll", "dll_backup"))
-    binaries.append(("dll_backup/whisper.dll", "dll_backup"))
+    binaries.append(("buzz/whisper_cpp/*.dll", "buzz/whisper_cpp"))
+    binaries.append(("buzz/*.exe", "."))
 
 a = Analysis(
     ["main.py"],

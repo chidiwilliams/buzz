@@ -306,7 +306,9 @@ class RecordingTranscriberWidget(QWidget):
         self.reset_recording_controls()
         self.model_loader = None
 
-        if model_path == "":
+        if model_path == "" and self.transcription_options.model.model_type != ModelType.OPEN_AI_WHISPER_API:
+            self.on_transcriber_error("")
+            logging.error("Model path is empty, cannot start recording.")
             return
 
         self.transcription_thread = QThread()
