@@ -14,10 +14,10 @@ bundle_mac_unsigned: dist/Buzz.app zip_mac dmg_mac_unsigned
 
 clean:
 ifeq ($(OS), Windows_NT)
-	-rmdir /s /q buzz\whisper_cpp 2> nul
-	-rmdir /s /q buzz\whisper-server.exe 2> nul
-	-rmdir /s /q whisper.cpp\build 2> nul
-	-rmdir /s /q dist 2> nul
+	-rmdir /s /q buzz\whisper_cpp
+	-rmdir /s /q buzz\whisper-server.exe
+	-rmdir /s /q whisper.cpp\build
+	-rmdir /s /q dist
 	-Remove-Item -Recurse -Force buzz\whisper_cpp
 	-Remove-Item -Recurse -Force buzz\whisper-server.exe
 	-Remove-Item -Recurse -Force whisper.cpp\build

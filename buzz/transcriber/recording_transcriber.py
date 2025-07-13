@@ -340,7 +340,7 @@ class RecordingTranscriber(QObject):
         self.process = None
         command = [
             os.path.join(APP_BASE_DIR, "whisper-server.exe"),
-            "--port", "3003",
+            "--port", "3004",
             "--inference-path", "/audio/transcriptions",
             "--threads", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8)//2)),
             "--language", self.transcription_options.language,
@@ -380,7 +380,7 @@ class RecordingTranscriber(QObject):
 
         self.openai_client = OpenAI(
             api_key="not-used",
-            base_url="http://127.0.0.1:3003",
+            base_url="http://127.0.0.1:3004",
             timeout=10.0,
             max_retries=0
         )
