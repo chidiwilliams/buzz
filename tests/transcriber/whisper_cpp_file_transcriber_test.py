@@ -81,7 +81,6 @@ class TestWhisperCppFileTranscriber:
             assert expected_segment.text in segments[i].text
 
         transcriber.stop()
-        time.sleep(3)
 
     @pytest.mark.parametrize(
         "word_level_timings,expected_segments",
@@ -145,4 +144,3 @@ class TestWhisperCppFileTranscriber:
             assert expected_segment.text in segments[i].text
 
         transcriber.stop()
-        time.sleep(3)
