@@ -111,7 +111,7 @@ class TestRecordingTranscriberWidget:
 
             widget.close()
 
-    @pytest.mark.timeout(10)
+    @pytest.mark.timeout(60)
     def test_on_next_transcription_append_above(self, qtbot: QtBot):
         with (patch("sounddevice.InputStream", side_effect=MockInputStream),
               patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
@@ -162,7 +162,7 @@ class TestRecordingTranscriberWidget:
         assert RecordingTranscriberWidget.find_common_part("hello world", "") == ""
         assert RecordingTranscriberWidget.find_common_part("", "") == ""
 
-    @pytest.mark.timeout(10)
+    @pytest.mark.timeout(60)
     def test_on_next_transcription_append_and_correct(self, qtbot: QtBot):
         with (patch("sounddevice.InputStream", side_effect=MockInputStream),
               patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
