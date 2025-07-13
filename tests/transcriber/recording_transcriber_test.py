@@ -53,3 +53,4 @@ class TestRecordingTranscriber:
             transcriber.stop_recording()
             thread.quit()
             thread.wait()
+            time.sleep(5)
