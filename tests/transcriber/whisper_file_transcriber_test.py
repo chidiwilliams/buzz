@@ -230,6 +230,9 @@ class TestWhisperFileTranscriber:
             assert len(segments[i].text) > 0
             logging.debug(f"{segments[i].start} {segments[i].end} {segments[i].text}")
 
+        transcriber.stop()
+        time.sleep(3)
+
     def test_transcribe_from_url(self, qtbot):
         url = (
             "https://github.com/chidiwilliams/buzz/raw/main/testdata/whisper-french.mp3"
