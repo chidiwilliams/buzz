@@ -102,6 +102,10 @@ class RecordingTranscriber(QObject):
                 logging.debug("Unsupported CUDA version (<12), using CPU")
                 device = "cpu"
 
+            if not torch.cuda.is_available():
+                logging.debug("CUDA is not available, using CPU")
+                device = "cpu"
+
             if force_cpu != "false":
                 device = "cpu"
 

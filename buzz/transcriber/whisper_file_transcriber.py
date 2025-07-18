@@ -155,6 +155,10 @@ class WhisperFileTranscriber(FileTranscriber):
             logging.debug("Unsupported CUDA version (<12), using CPU")
             device = "cpu"
 
+        if not torch.cuda.is_available():
+            logging.debug("CUDA is not available, using CPU")
+            device = "cpu"
+
         if force_cpu != "false":
             device = "cpu"
 
@@ -170,7 +174,8 @@ class WhisperFileTranscriber(FileTranscriber):
             audio=task.file_path,
             language=task.transcription_options.language,
             task=task.transcription_options.task.value,
-            temperature=task.transcription_options.temperature,
+            # Prevent crash on Windows https://github.com/SYSTRAN/faster-whisper/issues/71#issuecomment-1526263764
+            temperature = 0 if platform.system() == "Windows" else task.transcription_options.temperature,
             initial_prompt=task.transcription_options.initial_prompt,
             word_timestamps=task.transcription_options.word_level_timings,
             no_speech_threshold=0.4,
