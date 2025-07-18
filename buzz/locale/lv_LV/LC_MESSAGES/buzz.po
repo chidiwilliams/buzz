@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 21:32+0300\n"
-"PO-Revision-Date: 2025-07-11 21:32+0300\n"
+"POT-Creation-Date: 2025-07-18 09:13+0300\n"
+"PO-Revision-Date: 2025-07-18 09:14+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -545,9 +545,8 @@ msgid "Export"
 msgstr "Eksportēt"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:174
-#: buzz/transcriber/transcriber.py:24
 msgid "Translate"
-msgstr "Tulkot angliski"
+msgstr "Tulkot"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:184
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:174
@@ -667,15 +666,15 @@ msgstr "Izvēlieties audio failu"
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "Neizdevās saglabāt OpenAI API atslēgu atslēgu saišķī"
 
-#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:49
-#: buzz/transcriber/recording_transcriber.py:368
+#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:51
+#: buzz/transcriber/recording_transcriber.py:372
 msgid "Whisper server failed to start. Check logs for details."
 msgstr ""
 "Whisper serverim neizdevās ieslēgties. Lūdzu pārbaudiet lietotnes žurnāla "
 "ierakstus."
 
-#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:52
-#: buzz/transcriber/recording_transcriber.py:371
+#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:54
+#: buzz/transcriber/recording_transcriber.py:375
 msgid ""
 "Whisper server failed to start due to insufficient memory. Please try again "
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
@@ -684,6 +683,10 @@ msgstr ""
 "Whisper serverim neizdevās ieslēgties, jo nepietika atmiņas. Lūdzu mēģiniet "
 "vēlreiz ar mazāku modeli. Lai izmantotu tikai CPU iestatiet "
 "BUZZ_FORCE_CPU=TRUE vides mainīgo."
+
+#: buzz/transcriber/transcriber.py:24
+msgid "Translate to English"
+msgstr "Tulkot angliski"
 
 #: buzz/transcriber/transcriber.py:25
 msgid "Transcribe"

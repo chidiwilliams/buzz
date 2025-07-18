@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 21:32+0300\n"
+"POT-Creation-Date: 2025-07-18 09:13+0300\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: lamb \n"
@@ -551,7 +551,6 @@ msgid "Export"
 msgstr "导出"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:174
-#: buzz/transcriber/transcriber.py:24
 msgid "Translate"
 msgstr "翻译"
 
@@ -674,18 +673,23 @@ msgstr "选择音频文件"
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "无法将OpenAI API密钥保存到密钥串"
 
-#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:49
-#: buzz/transcriber/recording_transcriber.py:368
+#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:51
+#: buzz/transcriber/recording_transcriber.py:372
 msgid "Whisper server failed to start. Check logs for details."
 msgstr ""
 
-#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:52
-#: buzz/transcriber/recording_transcriber.py:371
+#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:54
+#: buzz/transcriber/recording_transcriber.py:375
 msgid ""
 "Whisper server failed to start due to insufficient memory. Please try again "
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
 "variable."
 msgstr ""
+
+#: buzz/transcriber/transcriber.py:24
+#, fuzzy
+msgid "Translate to English"
+msgstr "翻译设置"
 
 #: buzz/transcriber/transcriber.py:25
 #, fuzzy
