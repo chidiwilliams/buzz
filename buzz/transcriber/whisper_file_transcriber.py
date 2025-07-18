@@ -249,9 +249,11 @@ class WhisperFileTranscriber(FileTranscriber):
 
     def stop(self):
         self.stopped = True
-        if self.started_process:
-            self.current_process.terminate()
-            self.current_process.join()
+
+        self.current_process.terminate()
+        self.current_process.join()
+
+        self.read_line_thread.join()
 
     def read_line(self, pipe: Connection):
         while True:
