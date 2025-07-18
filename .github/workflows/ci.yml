@@ -74,9 +74,6 @@ jobs:
         uses: microsoft/setup-msbuild@v2
         if: runner.os == 'Windows'
 
-      - name: Install dependencies
-        run: poetry install
-
       - name: Install apt dependencies
         run: |
           sudo apt-get update
@@ -91,6 +88,9 @@ jobs:
         with:
           version: 1.4.309.0
           cache: true
+
+      - name: Install dependencies
+        run: poetry install
 
       - name: Test
         run: |

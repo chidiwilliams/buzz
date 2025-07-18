@@ -1,9 +1,12 @@
+import os
+import sys
 import time
 from unittest.mock import Mock, patch
 
 from PyQt6.QtCore import QThread
 
 from buzz.locale import _
+from buzz.assets import APP_BASE_DIR
 from buzz.model_loader import TranscriptionModel, ModelType, WhisperModelSize
 from buzz.transcriber.recording_transcriber import RecordingTranscriber
 from buzz.transcriber.transcriber import TranscriptionOptions, Task
@@ -22,6 +25,10 @@ class TestRecordingTranscriber:
             )
 
             model_path = get_model_path(transcription_model)
+
+            model_exe_path = os.path.join(APP_BASE_DIR, "whisper-server.exe")
+            if sys.platform.startswith("win"):
+                assert os.path.exists(model_exe_path), f"{model_exe_path} does not exist"
 
             transcriber = RecordingTranscriber(
                 transcription_options=TranscriptionOptions(
