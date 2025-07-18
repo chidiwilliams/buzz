@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import List
 from unittest.mock import patch
@@ -107,8 +108,10 @@ class TestMainWindow:
 
         qtbot.wait_until(
             self._get_assert_task_status_callback(table_widget, 0, "in_progress"),
-            timeout=2 * 60 * 1000,
+            timeout=30 * 1000,
         )
+
+        logging.debug("Will cancel transcription task")
 
         # Stop task in progress
         table_widget.selectRow(0)
@@ -116,8 +119,10 @@ class TestMainWindow:
 
         qtbot.wait_until(
             self._get_assert_task_status_callback(table_widget, 0, "canceled"),
-            timeout=60 * 1000,
+            timeout=30 * 1000,
         )
+
+        logging.debug("Task canceled")
 
         table_widget.selectRow(0)
         assert window.toolbar.stop_transcription_action.isEnabled() is False

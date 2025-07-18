@@ -75,6 +75,8 @@ class WhisperFileTranscriber(FileTranscriber):
 
         self.read_line_thread.join()
 
+        self.started_process = False
+
         logging.debug(
             "whisper process completed with code = %s, time taken = %s,"
             " number of segments = %s",
@@ -250,10 +252,10 @@ class WhisperFileTranscriber(FileTranscriber):
     def stop(self):
         self.stopped = True
 
-        self.current_process.terminate()
-        self.current_process.join()
-
-        self.read_line_thread.join()
+        if self.started_process:
+            self.current_process.terminate()
+            self.current_process.join()
+            self.read_line_thread.join()
 
     def read_line(self, pipe: Connection):
         while True:

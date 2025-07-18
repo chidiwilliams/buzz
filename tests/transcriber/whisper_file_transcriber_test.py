@@ -231,6 +231,7 @@ class TestWhisperFileTranscriber:
             logging.debug(f"{segments[i].start} {segments[i].end} {segments[i].text}")
 
         transcriber.stop()
+        time.sleep(3)
 
     def test_transcribe_from_url(self, qtbot):
         url = (
@@ -273,6 +274,7 @@ class TestWhisperFileTranscriber:
             logging.debug(f"{segments[i].start} {segments[i].end} {segments[i].text}")
 
         transcriber.stop()
+        time.sleep(3)
 
     def test_transcribe_from_folder_watch_source(self, qtbot):
         file_path = tempfile.mktemp(suffix=".mp3")
@@ -306,6 +308,7 @@ class TestWhisperFileTranscriber:
         assert len(glob.glob("*.txt", root_dir=output_directory)) > 0
 
         transcriber.stop()
+        time.sleep(3)
 
     @pytest.mark.skip()
     def test_transcribe_stop(self):
@@ -341,3 +344,5 @@ class TestWhisperFileTranscriber:
 
         # Assert that file was not created
         assert os.path.isfile(output_file_path) is False
+
+        time.sleep(3)
