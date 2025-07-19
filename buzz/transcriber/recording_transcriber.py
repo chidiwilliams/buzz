@@ -236,7 +236,11 @@ class RecordingTranscriber(QObject):
                                 task=self.transcription_options.task.value,
                             )
                         else:  # OPEN_AI_WHISPER_API
-                            assert self.openai_client is not None
+                            if self.openai_client is None:
+                                self.transcription.emit(_("A connection error occurred"))
+                                self.stop_recording()
+                                return
+
                             # scale samples to 16-bit PCM
                             pcm_data = (samples * 32767).astype(np.int16).tobytes()
 
@@ -381,6 +385,9 @@ class RecordingTranscriber(QObject):
                             "To force CPU mode use BUZZ_FORCE_CPU=TRUE environment variable.")
                 logging.error(message)
                 self.transcription.emit(message)
+
+            self.transcription.emit(_("Whisper server failed to start. Check logs for details."))
+            return
 
         self.openai_client = OpenAI(
             api_key="not-used",

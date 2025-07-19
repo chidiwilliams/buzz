@@ -54,6 +54,7 @@ class LocalWhisperCppServerTranscriber(OpenAIWhisperAPIFileTranscriber):
                 self.initialization_error = _("Whisper server failed to start due to insufficient memory. "
                                               "Please try again with a smaller model. "
                                               "To force CPU mode use BUZZ_FORCE_CPU=TRUE environment variable.")
+            return
 
         self.openai_client = OpenAI(
             api_key="not-used",

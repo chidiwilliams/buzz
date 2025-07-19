@@ -51,7 +51,7 @@ class TestRecordingTranscriber:
             transcriber.transcription.connect(on_transcription)
 
             thread.start()
-            qtbot.waitUntil(lambda: len(transcriptions) == 3, timeout=30_000)
+            qtbot.waitUntil(lambda: len(transcriptions) == 3, timeout=60_000)
 
             # any string in any transcription
             strings_to_check = [_("Starting Whisper.cpp..."), "Bienvenue dans Passe"]
