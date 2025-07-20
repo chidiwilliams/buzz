@@ -121,6 +121,8 @@ class TestMainWindow:
         table_widget.selectRow(0)
         window.toolbar.stop_transcription_action.trigger()
 
+        logging.debug("Will wait for task to reach 'canceled' status")
+
         try:
             qtbot.wait_until(
                 self._get_assert_task_status_callback(table_widget, 0, "canceled"),
