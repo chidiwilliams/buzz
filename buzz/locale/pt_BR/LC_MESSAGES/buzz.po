@@ -73,6 +73,11 @@ msgid "Danish"
 msgstr "Dinamarquês"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:38
+#: buzz/transcriber/transcriber.py:50
+msgid "Dutch"
+msgstr "Holandês"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:38
 #: buzz/transcriber/transcriber.py:40
 msgid "German"
 msgstr "Alemão"
@@ -101,6 +106,10 @@ msgstr "Letão"
 #: buzz/transcriber/transcriber.py:48
 msgid "Polish"
 msgstr "Polonês"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:45
+msgid "Portuguese (Brazil)"
+msgstr "Português (Brasil)"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:44
 #: buzz/transcriber/transcriber.py:59
