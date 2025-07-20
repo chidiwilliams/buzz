@@ -139,6 +139,11 @@ class FileTranscriberQueueWorker(QObject):
         if self.current_task is not None and self.current_task.uid == task_id:
             if self.current_transcriber is not None:
                 self.current_transcriber.stop()
+                
+            if self.current_transcriber_thread is not None:
+                if not self.current_transcriber_thread.wait(3000):
+                    logging.warning("Transcriber thread did not terminate gracefully")
+                    self.current_transcriber_thread.terminate()
 
     def on_task_error(self, error: str):
         if (

@@ -119,20 +119,32 @@ class TestMainWindow:
         logging.debug("Will cancel transcription task")
 
         table_widget.selectRow(0)
+        
+        # Force immediate processing of pending events before triggering cancellation
+        qtbot.wait(100)
+        
         window.toolbar.stop_transcription_action.trigger()
+        
+        # Give some time for the cancellation to be processed
+        qtbot.wait(500)
 
         logging.debug("Will wait for task to reach 'canceled' status")
 
         try:
             qtbot.wait_until(
                 self._get_assert_task_status_callback(table_widget, 0, "canceled"),
-                timeout=60 * 1000,
+                timeout=30 * 1000,
             )
         except Exception:
-            logging.error("Task never reached 'canceled' status")
-            assert False, "Task did not cancel as expected"
+            # On Windows, the cancellation might be slower, check final state
+            final_status = self._get_status(table_widget, 0)
+            logging.error(f"Task status after timeout: {final_status}")
+            if "canceled" not in final_status.lower():
+                assert False, f"Task did not cancel as expected. Final status: {final_status}"
 
         logging.debug("Task canceled")
+
+        qtbot.wait(200)
 
         table_widget.selectRow(0)
         assert window.toolbar.stop_transcription_action.isEnabled() is False

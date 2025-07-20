@@ -69,8 +69,19 @@ class LocalWhisperCppServerTranscriber(OpenAIWhisperAPIFileTranscriber):
 
     def stop(self):
         if self.process and self.process.poll() is None:
-            self.process.terminate()
-            self.process.wait()
+            try:
+                self.process.terminate()
+                self.process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                # Force kill if terminate doesn't work within 5 seconds
+                logging.warning("Whisper server didn't terminate gracefully, force killing")
+                self.process.kill()
+                try:
+                    self.process.wait(timeout=2)
+                except subprocess.TimeoutExpired:
+                    logging.error("Failed to kill whisper server process")
+            except Exception as e:
+                logging.error(f"Error stopping whisper server: {e}")
 
     def __del__(self):
         self.stop()
