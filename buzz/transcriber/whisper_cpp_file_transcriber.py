@@ -110,3 +110,9 @@ class WhisperCppFileTranscriber(FileTranscriber):
 
     def stop(self):
         self.state.running = False
+
+        if self.transcriber is not None:
+            self.transcriber.stop()
+
+    def __del__(self):
+        self.stop()

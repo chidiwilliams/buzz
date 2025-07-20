@@ -67,8 +67,10 @@ class LocalWhisperCppServerTranscriber(OpenAIWhisperAPIFileTranscriber):
 
         return super().transcribe()
 
-
-    def __del__(self):
+    def stop(self):
         if self.process and self.process.poll() is None:
             self.process.terminate()
             self.process.wait()
+
+    def __del__(self):
+        self.stop()

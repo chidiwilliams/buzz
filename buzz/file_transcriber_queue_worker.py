@@ -37,10 +37,15 @@ class FileTranscriberQueueWorker(QObject):
         super().__init__(parent)
         self.tasks_queue = queue.Queue()
         self.canceled_tasks: Set[UUID] = set()
+        self.current_transcriber = None
 
     @pyqtSlot()
     def run(self):
         logging.debug("Waiting for next transcription task")
+
+        # Clean up of previous run.
+        if self.current_transcriber is not None:
+            self.current_transcriber.stop()
 
         # Get next non-canceled task from queue
         while True:
