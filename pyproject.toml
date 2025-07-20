@@ -20,12 +20,9 @@ packages = [
     { include = "buzz" },
 ]
 include = [
-    { path = "buzz/libwhisper.*", format = ["sdist", "wheel"] },
-    { path = "buzz/libwhisper-coreml.*", format = ["sdist", "wheel"] },
-    { path = "buzz/*.dll", format = ["sdist", "wheel"] },
-    { path = "buzz/whisper_cpp.py", format = ["sdist", "wheel"] },
+    { path = "buzz/whisper_cpp/*", format = ["sdist", "wheel"] },
+    { path = "buzz/whisper_cpp_vulkan/*", format = ["sdist", "wheel"] },
     { path = "buzz/locale/*/LC_MESSAGES/buzz.mo", format = ["sdist", "wheel"] },
-    { path = "buzz/dll_backup/*", format = ["sdist", "wheel"] },
 ]
 
 [[tool.poetry.source]]
@@ -80,6 +77,8 @@ urllib3 = "^2.3.0"
 demucs = {url = "https://github.com/raivisdejus/demucs/releases/download/4.1.0a3/demucs-4.1.0a3-py3-none-any.whl"}
 posthog = "^3.23.0"
 onnxruntime = "^1.18.0"
+vulkan = "^1.3.275.1"
+hf-xet = "^1.1.5"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^1.7.0"
@@ -91,6 +90,7 @@ pytest-cov = "^4.0.0"
 pytest-qt = "^4.1.0"
 pytest-xvfb = "^2.0.0"
 pytest-mock = "^3.12.0"
+pytest-timeout = "^2.4.0"
 pylint = "^2.15.5"
 pre-commit = "^2.20.0"
 pytest-benchmark = "^4.0.0"

@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import QPushButton, QMessageBox, QLineEdit, QCheckBox
 from buzz.locale import _
 from buzz.settings.settings import Settings
 from buzz.widgets.preferences_dialog.general_preferences_widget import (
-    GeneralPreferencesWidget, TestOpenAIApiKeyJob
+    GeneralPreferencesWidget, ValidateOpenAIApiKeyJob
 )
 
 
@@ -118,7 +118,7 @@ class TestTestOpenAIApiKeyJob:
         mocker.patch('buzz.widgets.preferences_dialog.general_preferences_widget.OpenAI', return_value=mock_client)
         mocker.patch('buzz.settings.settings.Settings.value', return_value="") # No custom base URL
 
-        job = TestOpenAIApiKeyJob(api_key="test_key")
+        job = ValidateOpenAIApiKeyJob(api_key="test_key")
         mock_success = mocker.Mock()
         mock_failed = mocker.Mock()
         job.signals.success.connect(mock_success)
@@ -140,7 +140,7 @@ class TestTestOpenAIApiKeyJob:
         mocker.patch('buzz.widgets.preferences_dialog.general_preferences_widget.OpenAI', return_value=mock_client)
         mocker.patch('buzz.settings.settings.Settings.value', return_value="") # No custom base URL
 
-        job = TestOpenAIApiKeyJob(api_key="wrong_key")
+        job = ValidateOpenAIApiKeyJob(api_key="wrong_key")
         mock_success = mocker.Mock()
         mock_failed = mocker.Mock()
         job.signals.success.connect(mock_success)

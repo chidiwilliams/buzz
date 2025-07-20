@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-06 20:16+0300\n"
+"POT-Creation-Date: 2025-07-18 09:13+0300\n"
 "PO-Revision-Date: 2025-06-29 22:23-0300\n"
 "Last-Translator: Paulo Schopf <pschopf@gmail.com>\n"
 "Language-Team: none\n"
@@ -295,8 +295,8 @@ msgid "Download failed"
 msgstr "Falha ao baixar"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:273
-#: buzz/widgets/main_window.py:295 buzz/model_loader.py:515
-#: buzz/model_loader.py:529
+#: buzz/widgets/main_window.py:295 buzz/model_loader.py:505
+#: buzz/model_loader.py:519
 msgid "Error"
 msgstr "Erro"
 
@@ -485,11 +485,11 @@ msgstr "Aguardando tradução da IA..."
 msgid "Microphone:"
 msgstr "Microfone:"
 
-#: buzz/widgets/recording_transcriber_widget.py:577
+#: buzz/widgets/recording_transcriber_widget.py:579
 msgid "An error occurred while starting a new recording:"
 msgstr "Ocorreu um erro ao iniciar uma nova gravação:"
 
-#: buzz/widgets/recording_transcriber_widget.py:581
+#: buzz/widgets/recording_transcriber_widget.py:583
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
@@ -539,7 +539,6 @@ msgid "Export"
 msgstr "Exportar"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:174
-#: buzz/transcriber/transcriber.py:24
 msgid "Translate"
 msgstr "Traduzir"
 
@@ -662,6 +661,24 @@ msgstr "Selecionar arquivo de áudio"
 #: buzz/widgets/main_window.py:295
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "Não foi possível salvar a chave da API OpenAI no cofre de chaves"
+
+#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:51
+#: buzz/transcriber/recording_transcriber.py:372
+msgid "Whisper server failed to start. Check logs for details."
+msgstr ""
+
+#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:54
+#: buzz/transcriber/recording_transcriber.py:375
+msgid ""
+"Whisper server failed to start due to insufficient memory. Please try again "
+"with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
+"variable."
+msgstr ""
+
+#: buzz/transcriber/transcriber.py:24
+#, fuzzy
+msgid "Translate to English"
+msgstr "Configurações de tradução"
 
 #: buzz/transcriber/transcriber.py:25
 msgid "Transcribe"
@@ -1023,7 +1040,11 @@ msgstr "Sundanês"
 msgid "Cantonese"
 msgstr "Cantonês"
 
-#: buzz/model_loader.py:548
+#: buzz/transcriber/recording_transcriber.py:338
+msgid "Starting Whisper.cpp..."
+msgstr ""
+
+#: buzz/model_loader.py:538
 msgid "A connection error occurred"
 msgstr "Ocorreu um erro de conexão"
 

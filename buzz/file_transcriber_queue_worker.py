@@ -37,10 +37,15 @@ class FileTranscriberQueueWorker(QObject):
         super().__init__(parent)
         self.tasks_queue = queue.Queue()
         self.canceled_tasks: Set[UUID] = set()
+        self.current_transcriber = None
 
     @pyqtSlot()
     def run(self):
         logging.debug("Waiting for next transcription task")
+
+        # Clean up of previous run.
+        if self.current_transcriber is not None:
+            self.current_transcriber.stop()
 
         # Get next non-canceled task from queue
         while True:
@@ -131,9 +136,14 @@ class FileTranscriberQueueWorker(QObject):
     def cancel_task(self, task_id: UUID):
         self.canceled_tasks.add(task_id)
 
-        if self.current_task.uid == task_id:
+        if self.current_task is not None and self.current_task.uid == task_id:
             if self.current_transcriber is not None:
                 self.current_transcriber.stop()
+                
+            if self.current_transcriber_thread is not None:
+                if not self.current_transcriber_thread.wait(3000):
+                    logging.warning("Transcriber thread did not terminate gracefully")
+                    self.current_transcriber_thread.terminate()
 
     def on_task_error(self, error: str):
         if (

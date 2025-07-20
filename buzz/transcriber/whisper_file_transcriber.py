@@ -46,6 +46,8 @@ class WhisperFileTranscriber(FileTranscriber):
         self.segments = []
         self.started_process = False
         self.stopped = False
+        self.recv_pipe = None
+        self.send_pipe = None
 
     def transcribe(self) -> List[Segment]:
         time_started = datetime.datetime.now()
@@ -56,24 +58,30 @@ class WhisperFileTranscriber(FileTranscriber):
         if torch.cuda.is_available():
             logging.debug(f"CUDA version detected: {torch.version.cuda}")
 
-        recv_pipe, send_pipe = multiprocessing.Pipe(duplex=False)
+        self.recv_pipe, self.send_pipe = multiprocessing.Pipe(duplex=False)
 
         self.current_process = multiprocessing.Process(
-            target=self.transcribe_whisper, args=(send_pipe, self.transcription_task)
+            target=self.transcribe_whisper, args=(self.send_pipe, self.transcription_task)
         )
         if not self.stopped:
             self.current_process.start()
             self.started_process = True
 
-        self.read_line_thread = Thread(target=self.read_line, args=(recv_pipe,))
+        self.read_line_thread = Thread(target=self.read_line, args=(self.recv_pipe,))
         self.read_line_thread.start()
 
         self.current_process.join()
 
         if self.current_process.exitcode != 0:
-            send_pipe.close()
+            self.send_pipe.close()
 
-        self.read_line_thread.join()
+        # Join read_line_thread with timeout to prevent hanging
+        if self.read_line_thread and self.read_line_thread.is_alive():
+            self.read_line_thread.join(timeout=3)
+            if self.read_line_thread.is_alive():
+                logging.warning("Read line thread didn't terminate gracefully in transcribe()")
+
+        self.started_process = False
 
         logging.debug(
             "whisper process completed with code = %s, time taken = %s,"
@@ -153,6 +161,10 @@ class WhisperFileTranscriber(FileTranscriber):
             logging.debug("Unsupported CUDA version (<12), using CPU")
             device = "cpu"
 
+        if not torch.cuda.is_available():
+            logging.debug("CUDA is not available, using CPU")
+            device = "cpu"
+
         if force_cpu != "false":
             device = "cpu"
 
@@ -168,7 +180,8 @@ class WhisperFileTranscriber(FileTranscriber):
             audio=task.file_path,
             language=task.transcription_options.language,
             task=task.transcription_options.task.value,
-            temperature=task.transcription_options.temperature,
+            # Prevent crash on Windows https://github.com/SYSTRAN/faster-whisper/issues/71#issuecomment-1526263764
+            temperature = 0 if platform.system() == "Windows" else task.transcription_options.temperature,
             initial_prompt=task.transcription_options.initial_prompt,
             word_timestamps=task.transcription_options.word_level_timings,
             no_speech_threshold=0.4,
@@ -249,8 +262,30 @@ class WhisperFileTranscriber(FileTranscriber):
 
     def stop(self):
         self.stopped = True
+
         if self.started_process:
             self.current_process.terminate()
+            # Use timeout to avoid hanging indefinitely
+            self.current_process.join(timeout=5)
+            if self.current_process.is_alive():
+                logging.warning("Process didn't terminate gracefully, force killing")
+                self.current_process.kill()
+                self.current_process.join(timeout=2)
+            
+            # Close pipes to unblock the read_line thread
+            try:
+                if hasattr(self, 'send_pipe'):
+                    self.send_pipe.close()
+                if hasattr(self, 'recv_pipe'):
+                    self.recv_pipe.close()
+            except Exception as e:
+                logging.debug(f"Error closing pipes: {e}")
+            
+            # Join read_line_thread with timeout to prevent hanging
+            if self.read_line_thread and self.read_line_thread.is_alive():
+                self.read_line_thread.join(timeout=3)
+                if self.read_line_thread.is_alive():
+                    logging.warning("Read line thread didn't terminate gracefully")
 
     def read_line(self, pipe: Connection):
         while True:
@@ -260,7 +295,10 @@ class WhisperFileTranscriber(FileTranscriber):
                 # Uncomment to debug
                 # print(f"*** DEBUG ***: {line}")
 
-            except EOFError:  # Connection closed
+            except (EOFError, BrokenPipeError, ConnectionResetError):  # Connection closed or broken
+                break
+            except Exception as e:
+                logging.debug(f"Error reading from pipe: {e}")
                 break
 
             if line == self.READ_LINE_THREAD_STOP_TOKEN:

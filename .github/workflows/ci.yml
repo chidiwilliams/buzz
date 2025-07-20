@@ -70,8 +70,9 @@ jobs:
           poetry add torch==2.2.2 torchaudio==2.2.2
         if: "matrix.os == 'macos-13'"
 
-      - name: Install dependencies
-        run: poetry install
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+        if: runner.os == 'Windows'
 
       - name: Install apt dependencies
         run: |
@@ -81,6 +82,15 @@ jobs:
           fi
           sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev
         if: "startsWith(matrix.os, 'ubuntu-')"
+
+      - name: Install Vulkan SDK
+        uses: humbletim/install-vulkan-sdk@v1.2
+        with:
+          version: 1.4.309.0
+          cache: true
+
+      - name: Install dependencies
+        run: poetry install
 
       - name: Test
         run: |
@@ -132,6 +142,12 @@ jobs:
       - uses: AnimMouse/setup-ffmpeg@v1.2.1
         id: setup-ffmpeg
 
+      - name: Install Vulkan SDK
+        uses: humbletim/install-vulkan-sdk@v1.2
+        with:
+          version: 1.4.309.0
+          cache: true
+
       # Adding windows Nvidia CUDA torch and its dependencies
       # Linux only packages were removed from the list.
       - name: Install CUDA torch for Windows
@@ -152,6 +168,10 @@ jobs:
         run: |
           poetry add torch==2.2.2 torchaudio==2.2.2 ctranslate2==4.3.1
         if: "matrix.os == 'macos-13'"
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+        if: runner.os == 'Windows'
 
       - name: Install dependencies
         run: poetry install
@@ -255,19 +275,12 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Copy Windows DLLs
-        run: |
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            cp -r ./dll_backup ./buzz/
-          fi
-        shell: bash
-
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.22.0
         env:
-          CIBW_ARCHS_WINDOWS: "auto"
-          CIBW_ARCHS_MACOS: "universal2"
-          CIBW_ARCHS_LINUX: "auto"
+          CIBW_ARCHS_WINDOWS: "auto64"
+          CIBW_ARCHS_MACOS: "auto64"
+          CIBW_ARCHS_LINUX: "auto64"
 
       - uses: actions/upload-artifact@v4
         with:
