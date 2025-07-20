@@ -278,7 +278,10 @@ class RecordingTranscriber(QObject):
                                         result = {"text": transcript.text}
 
                                 except Exception as e:
-                                    result = {"text": f"Error: {str(e)}"}
+                                    if self.is_running:
+                                        result = {"text": f"Error: {str(e)}"}
+                                    else:
+                                        result = {"text": ""}
 
                             os.unlink(temp_filename)
 
@@ -362,7 +365,7 @@ class RecordingTranscriber(QObject):
         self.process = subprocess.Popen(
             command,
             stdout=subprocess.DEVNULL,  # For debug set to subprocess.PIPE, but it will freeze on Windows after ~30 seconds
-            stderr=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
             shell=False,
             creationflags=subprocess.CREATE_NO_WINDOW
         )

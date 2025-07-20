@@ -34,7 +34,7 @@ class LocalWhisperCppServerTranscriber(OpenAIWhisperAPIFileTranscriber):
         self.process = subprocess.Popen(
             command,
             stdout=subprocess.DEVNULL,  # For debug set to subprocess.PIPE, but it will freeze on Windows after ~30 seconds
-            stderr=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
             shell=False,
             creationflags=subprocess.CREATE_NO_WINDOW
         )
