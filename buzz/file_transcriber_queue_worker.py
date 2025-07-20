@@ -136,7 +136,7 @@ class FileTranscriberQueueWorker(QObject):
     def cancel_task(self, task_id: UUID):
         self.canceled_tasks.add(task_id)
 
-        if self.current_task.uid == task_id:
+        if self.current_task is not None and self.current_task.uid == task_id:
             if self.current_transcriber is not None:
                 self.current_transcriber.stop()
 

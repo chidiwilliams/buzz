@@ -286,11 +286,9 @@ class TestMainWindow:
     ):
         def assert_task_status():
             assert table_widget.model().rowCount() > 0
-
-            row_status = TestMainWindow._get_status(table_widget, row_index)
-            logging.debug(f"Row status: {row_status}")
-
-            assert expected_status in row_status
+            assert expected_status in TestMainWindow._get_status(
+                table_widget, row_index
+            )
 
         return assert_task_status
 
