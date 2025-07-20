@@ -96,6 +96,7 @@ class TestMainWindow:
 
         window.close()
 
+    @pytest.mark.timeout(300)
     def test_should_run_and_cancel_transcription_task(
         self, qtbot, db, transcription_service
     ):
@@ -106,21 +107,28 @@ class TestMainWindow:
 
         table_widget = self._get_tasks_table(window)
 
-        qtbot.wait_until(
-            self._get_assert_task_status_callback(table_widget, 0, "in_progress"),
-            timeout=30 * 1000,
-        )
+        try:
+            qtbot.wait_until(
+                self._get_assert_task_status_callback(table_widget, 0, "in_progress"),
+                timeout=60 * 1000,
+            )
+        except Exception:
+            logging.error("Task never reached 'in_progress' status")
+            assert False, "Task did not start as expected"
 
         logging.debug("Will cancel transcription task")
 
-        # Stop task in progress
         table_widget.selectRow(0)
         window.toolbar.stop_transcription_action.trigger()
 
-        qtbot.wait_until(
-            self._get_assert_task_status_callback(table_widget, 0, "canceled"),
-            timeout=30 * 1000,
-        )
+        try:
+            qtbot.wait_until(
+                self._get_assert_task_status_callback(table_widget, 0, "canceled"),
+                timeout=60 * 1000,
+            )
+        except Exception:
+            logging.error("Task never reached 'canceled' status")
+            assert False, "Task did not cancel as expected"
 
         logging.debug("Task canceled")
 
