@@ -430,6 +430,8 @@ class MainWindow(QMainWindow):
         if self.transcription_viewer_widget is not None:
             self.transcription_viewer_widget.close()
 
+        logging.debug("Closing MainWindow")
+
         super().closeEvent(event)
 
     def save_geometry(self):

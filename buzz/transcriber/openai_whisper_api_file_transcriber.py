@@ -4,6 +4,8 @@ import os
 import sys
 import subprocess
 import tempfile
+
+from pathlib import Path
 from typing import Optional, List
 
 from PyQt6.QtCore import QObject
@@ -11,7 +13,7 @@ from openai import OpenAI
 
 from buzz.settings.settings import Settings
 from buzz.model_loader import get_custom_api_whisper_model
-from buzz.transcriber.file_transcriber import FileTranscriber
+from buzz.transcriber.file_transcriber import FileTranscriber, app_env
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment, Task
 from buzz.transcriber.whisper_cpp import append_segment
 
@@ -41,6 +43,7 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
         )
 
         mp3_file = tempfile.mktemp() + ".mp3"
+        mp3_file = str(Path(mp3_file).resolve())
 
         cmd = [
             "ffmpeg",
@@ -53,7 +56,7 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
             si = subprocess.STARTUPINFO()
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             si.wShowWindow = subprocess.SW_HIDE
-            result = subprocess.run(cmd, capture_output=True, startupinfo=si)
+            result = subprocess.run(cmd, capture_output=True, startupinfo=si, env=app_env)
         else:
             result = subprocess.run(cmd, capture_output=True)
 
@@ -80,7 +83,7 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
             si.wShowWindow = subprocess.SW_HIDE
 
             duration_secs = float(
-                subprocess.run(cmd, capture_output=True, check=True, startupinfo=si).stdout.decode("utf-8")
+                subprocess.run(cmd, capture_output=True, check=True, startupinfo=si, env=app_env).stdout.decode("utf-8")
             )
         else:
             duration_secs = float(
@@ -107,6 +110,7 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
             chunk_end = min((i + 1) * chunk_duration, duration_secs)
 
             chunk_file = tempfile.mktemp() + ".mp3"
+            chunk_file = str(Path(chunk_file).resolve())
 
             # fmt: off
             cmd = [
@@ -122,7 +126,7 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
                 si = subprocess.STARTUPINFO()
                 si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
                 si.wShowWindow = subprocess.SW_HIDE
-                subprocess.run(cmd, capture_output=True, check=True, startupinfo=si)
+                subprocess.run(cmd, capture_output=True, check=True, startupinfo=si, env=app_env)
             else:
                 subprocess.run(cmd, capture_output=True, check=True)
 
@@ -168,7 +172,7 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
             segments = getattr(transcript, "segments", None)
 
             words = getattr(transcript, "words", None)
-            if "words" is None and "words" in transcript.model_extra:
+            if words is None and "words" in transcript.model_extra:
                 words = transcript.model_extra["words"]
 
             if segments is None:
