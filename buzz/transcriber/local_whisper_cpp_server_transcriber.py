@@ -24,10 +24,12 @@ class LocalWhisperCppServerTranscriber(OpenAIWhisperAPIFileTranscriber):
             os.path.join(APP_BASE_DIR, "whisper-server.exe"),
             "--port", "3000",
             "--inference-path", "/audio/transcriptions",
-            "--threads", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8)//2)),
-            "--language", task.transcription_options.language,
+            "--threads", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8) // 2)),
             "--model", task.model_path
         ]
+
+        if task.transcription_options.language is not None:
+            command.extend(["--language", task.transcription_options.language])
 
         logging.debug(f"Starting Whisper server with command: {' '.join(command)}")
 
