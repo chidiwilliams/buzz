@@ -1,4 +1,3 @@
----
 name: CI
 on:
   push:
@@ -6,7 +5,16 @@ on:
       - main
     tags:
       - "*"
+    paths-ignore:
+      - '**/*.po'
+      - '**/*.mo'
+      - 'locales/**'
+
   pull_request:
+    paths-ignore:
+      - '**/*.po'
+      - '**/*.mo'
+      - 'locales/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -148,8 +156,6 @@ jobs:
           version: 1.4.309.0
           cache: true
 
-      # Adding windows Nvidia CUDA torch and its dependencies
-      # Linux only packages were removed from the list.
       - name: Install CUDA torch for Windows
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then
@@ -178,8 +184,8 @@ jobs:
 
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.0" # Not needed with a .ruby-version file
-          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+          ruby-version: "3.0"
+          bundler-cache: true
         if: "startsWith(matrix.os, 'ubuntu-')"
 
       - name: Install apt dependencies
@@ -211,27 +217,21 @@ jobs:
 
             brew install create-dmg
 
-            # kill XProtect to prevent https://github.com/actions/runner-images/issues/7522
             sudo pkill -9 XProtect >/dev/null || true;
             while pgrep XProtect; do sleep 3; done;
 
-            # create variables
             CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
             KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
-            # import certificate and provisioning profile from secrets
             echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
 
-            # create temporary keychain
             security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
             security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
             security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
-            # import certificate to keychain
             security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
             security list-keychain -d user -s $KEYCHAIN_PATH
 
-            # store notarytool credentials
             xcrun notarytool store-credentials --apple-id "$APPLE_ID" --password "$APPLE_APP_PASSWORD" --team-id "$APPLE_TEAM_ID" notarytool --validate
 
             poetry run make bundle_mac
