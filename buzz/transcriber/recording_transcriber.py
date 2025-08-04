@@ -353,12 +353,14 @@ class RecordingTranscriber(QObject):
             os.path.join(APP_BASE_DIR, "whisper-server.exe"),
             "--port", "3004",
             "--inference-path", "/audio/transcriptions",
-            "--threads", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8)//2)),
-            "--language", self.transcription_options.language,
+            "--threads", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8) // 2)),
             "--model", self.model_path,
             "--no-timestamps",
             "--no-context",  # on Windows context causes duplications of last message
         ]
+
+        if self.transcription_options.language is not None:
+            command.extend(["--language", self.transcription_options.language])
 
         logging.debug(f"Starting Whisper server with command: {' '.join(command)}")
 

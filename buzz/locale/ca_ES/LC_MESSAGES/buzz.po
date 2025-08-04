@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-07-18 09:13+0300\n"
-"PO-Revision-Date: 2025-05-17 18:25+0200\n"
+"PO-Revision-Date: 2025-07-29 19:12+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: Catalan <jmas@softcatala.org>\n"
 "Language: ca\n"
@@ -108,9 +108,8 @@ msgid "Polish"
 msgstr "Polonès"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:45
-#, fuzzy
 msgid "Portuguese (Brazil)"
-msgstr "Portuguès"
+msgstr "Portuguès (Brasil)"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:46
 #: buzz/transcriber/transcriber.py:59
@@ -380,6 +379,8 @@ msgid ""
 "Enter instructions for AI on how to translate, for example 'Please translate "
 "each text sent to you from English to Spanish.'"
 msgstr ""
+"Introdueix instruccions per a la IA sobre com traduir, per exemple 'Si us "
+"plau, tradueix cada text que t'hagi enviat de l'anglès al castellà'."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:92
 msgid "Instructions for AI:"
@@ -667,6 +668,8 @@ msgstr "No s'ha pogut desar la clau OpenAI API a l'anell de claus"
 #: buzz/transcriber/recording_transcriber.py:372
 msgid "Whisper server failed to start. Check logs for details."
 msgstr ""
+"El servidor Whisper no s'ha pogut iniciar. Consulteu els registres per "
+"obtenir més informació."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py:54
 #: buzz/transcriber/recording_transcriber.py:375
@@ -675,11 +678,13 @@ msgid ""
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
 "variable."
 msgstr ""
+"El servidor Whisper no s'ha pogut iniciar a causa de la memòria insuficient. "
+"Si us plau, torneu-ho a provar amb un model més petit. Per forçar el mode "
+"CPU, utilitzeu la variable d'entorn BUZZ_FORCE_CPU=TRUE."
 
 #: buzz/transcriber/transcriber.py:24
-#, fuzzy
 msgid "Translate to English"
-msgstr "Configuració de la traducció"
+msgstr "Traduir a l'anglès"
 
 #: buzz/transcriber/transcriber.py:25
 msgid "Transcribe"
@@ -1043,7 +1048,7 @@ msgstr "Cantonès"
 
 #: buzz/transcriber/recording_transcriber.py:338
 msgid "Starting Whisper.cpp..."
-msgstr ""
+msgstr "Començant Whisper.cpp..."
 
 #: buzz/model_loader.py:538
 msgid "A connection error occurred"
