@@ -367,7 +367,7 @@ class RecordingTranscriber(QObject):
         self.process = subprocess.Popen(
             command,
             stdout=subprocess.DEVNULL,  # For debug set to subprocess.PIPE, but it will freeze on Windows after ~30 seconds
-            stderr=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
             shell=False,
             creationflags=subprocess.CREATE_NO_WINDOW
         )
@@ -397,7 +397,7 @@ class RecordingTranscriber(QObject):
         self.openai_client = OpenAI(
             api_key="not-used",
             base_url="http://127.0.0.1:3004",
-            timeout=10.0,
+            timeout=30.0,
             max_retries=0
         )
 
