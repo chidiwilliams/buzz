@@ -367,7 +367,7 @@ class RecordingTranscriber(QObject):
         self.process = subprocess.Popen(
             command,
             stdout=subprocess.DEVNULL,  # For debug set to subprocess.PIPE, but it will freeze on Windows after ~30 seconds
-            stderr=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
             shell=False,
             creationflags=subprocess.CREATE_NO_WINDOW
         )
@@ -379,7 +379,9 @@ class RecordingTranscriber(QObject):
             logging.debug(f"Whisper server started successfully.")
             logging.debug(f"Model: {self.model_path}")
         else:
-            stderr_output = self.process.stderr.read().decode()
+            stderr_output = ""
+            if self.process.stderr is not None:
+                stderr_output = self.process.stderr.read().decode()
             logging.error(f"Whisper server failed to start. Error: {stderr_output}")
 
             self.transcription.emit(_("Whisper server failed to start. Check logs for details."))
@@ -397,7 +399,7 @@ class RecordingTranscriber(QObject):
         self.openai_client = OpenAI(
             api_key="not-used",
             base_url="http://127.0.0.1:3004",
-            timeout=10.0,
+            timeout=30.0,
             max_retries=0
         )
 

@@ -48,7 +48,9 @@ class LocalWhisperCppServerTranscriber(OpenAIWhisperAPIFileTranscriber):
             logging.debug(f"Whisper server started successfully.")
             logging.debug(f"Model: {task.model_path}")
         else:
-            stderr_output = self.process.stderr.read().decode()
+            stderr_output = ""
+            if self.process.stderr is not None:
+                stderr_output = self.process.stderr.read().decode()
             logging.error(f"Whisper server failed to start. Error: {stderr_output}")
             self.initialization_error = _("Whisper server failed to start. Check logs for details.")
 
