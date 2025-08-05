@@ -78,7 +78,7 @@ Alternatively you can set environment variables in your OS settings. See [this g
 
 ### Available variables
 
-**BUZZ_WHISPERCPP_N_THREADS** - Number of threads to use for Whisper.cpp model. Default is `4`.
+**BUZZ_WHISPERCPP_N_THREADS** - Number of threads to use for Whisper.cpp model. Default is half of available CPU cores.
 
 On a laptop with 16 threads setting `BUZZ_WHISPERCPP_N_THREADS=8` leads to some 15% speedup in transcription time.
 Increasing number of threads even more will lead in slower transcription time as results from parallel threads has to be
