@@ -224,10 +224,10 @@ class WhisperCppCpu(WhisperCppInterface):
     def init_from_file(self, model: str):
         force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
 
-        aheads = struct_whisper_aheads_vulkan()
+        aheads = struct_whisper_aheads_cpp()
         aheads.n_heads = 0
         aheads.heads = None
-        params = struct_whisper_context_params_vulkan(
+        params = struct_whisper_context_params_cpp(
             use_gpu=force_cpu == "false",
             flash_attn=False,
             gpu_device=0,
