@@ -1,7 +1,10 @@
 import subprocess
 import numpy as np
 import sys
+import os
 import logging
+
+from buzz.assets import APP_BASE_DIR
 
 SAMPLE_RATE = 16000
 
@@ -10,6 +13,8 @@ HOP_LENGTH = 160
 CHUNK_LENGTH = 30
 N_SAMPLES = CHUNK_LENGTH * SAMPLE_RATE  # 480000 samples in a 30-second chunk
 
+app_env = os.environ.copy()
+app_env['PATH'] = os.pathsep.join([os.path.join(APP_BASE_DIR, "_internal")] + [app_env['PATH']])
 
 def load_audio(file: str, sr: int = SAMPLE_RATE):
     """
@@ -48,7 +53,13 @@ def load_audio(file: str, sr: int = SAMPLE_RATE):
         si = subprocess.STARTUPINFO()
         si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         si.wShowWindow = subprocess.SW_HIDE
-        result = subprocess.run(cmd, capture_output=True, startupinfo=si)
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            startupinfo=si,
+            env=app_env,
+            creationflags=subprocess.CREATE_NO_WINDOW
+        )
     else:
         result = subprocess.run(cmd, capture_output=True)
 
