@@ -216,7 +216,10 @@ class RecordingTranscriber(QObject):
                                 if self.transcription_options.language != ""
                                 else None,
                                 task=self.transcription_options.task.value,
-                                temperature=self.transcription_options.temperature,
+                                # Prevent crash on Windows https://github.com/SYSTRAN/faster-whisper/issues/71#issuecomment-1526263764
+                                temperature=0 if platform.system() == "Windows" else self.transcription_options.temperature,
+                                # Prevent crash on Windows, failure to load onnxruntime DLL
+                                vad_filter=False if platform.system() == "Windows" else True,
                                 initial_prompt=self.transcription_options.initial_prompt,
                                 word_timestamps=False,
                                 without_timestamps=True,
