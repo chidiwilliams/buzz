@@ -2,7 +2,7 @@
 title: File Import
 ---
 
-To import a file:
+**To import a file:**
 
 - Click Import Media File on the File menu (or the '+' icon on the toolbar, or **Command/Ctrl + O**).
 - Choose an audio or video file.
@@ -11,11 +11,16 @@ To import a file:
 - When the transcription status shows 'Completed', double-click on the row (or select the row and click the '⤢' icon) to
   open the transcription.
 
-| Field              | Options             | Default | Description                                                                                                                                              |
-| ------------------ | ------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Export As          | "TXT", "SRT", "VTT" | "TXT"   | Export file format                                                                                                                                       |
-| Word-Level Timings | Off / On            | Off     | If checked, the transcription will generate a separate subtitle line for each word in the audio. Enabled only when "Export As" is set to "SRT" or "VTT". |
-| Extract speech     | Off / On            | Off     | If checked, speech will be extracted to a separate audio tack to improve accuracy. Available since 1.3.0.                                                |
+**Available options:**
+
+To reduce misspellings you can pass some commonly misspelled words in an `Initial prompt` that is available under `Advanced...` button. See this [guide on prompting](https://cookbook.openai.com/examples/whisper_prompting_guide#pass-names-in-the-prompt-to-prevent-misspellings).  
+
+
+| Field              | Options             | Default | Description                                                                                                                                                                                                                           |
+| ------------------ | ------------------- | ------- |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Export As          | "TXT", "SRT", "VTT" | "TXT"   | Export file format                                                                                                                                                                                                                    |
+| Word-Level Timings | Off / On            | Off     | If checked, the transcription will generate a separate subtitle line for each word in the audio. Combine words into subtitles afterwards with the [resize option](https://chidiwilliams.github.io/buzz/docs/usage/edit_and_resize).   |
+| Extract speech     | Off / On            | Off     | If checked, speech will be extracted to a separate audio tack to improve accuracy. Available since 1.3.0.                                                                                                                             |
 
 (See the [Live Recording section](https://chidiwilliams.github.io/buzz/docs/usage/live_recording) for more information about the task, language, and quality settings.)
 
