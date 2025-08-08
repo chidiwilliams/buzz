@@ -80,7 +80,13 @@ class FileTranscriber(QObject):
                 si = subprocess.STARTUPINFO()
                 si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
                 si.wShowWindow = subprocess.SW_HIDE
-                result = subprocess.run(cmd, capture_output=True, startupinfo=si, env=app_env)
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    startupinfo=si,
+                    env=app_env,
+                    creationflags=subprocess.CREATE_NO_WINDOW
+                )
             else:
                 result = subprocess.run(cmd, capture_output=True)
 
