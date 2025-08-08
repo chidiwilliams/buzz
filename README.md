@@ -92,6 +92,6 @@ For info on how to get latest development version with latest features and bug f
     <img alt="Preferences" src="share/screenshots/buzz-3-preferences.png" style="max-width: 18%; margin-right: 1%; height:auto;" />
     <img alt="Model preferences" src="share/screenshots/buzz-3.2-model-preferences.png" style="max-width: 18%; margin-right: 1%; height:auto;" />
     <img alt="Transcript" src="share/screenshots/buzz-4-transcript.png" style="max-width: 18%; margin-right: 1%; height:auto;" />
-    <img alt="Live recording" src="share/screenshots/buzz-5-live_recording.png" style="max-width: 18%;" />
+    <img alt="Live recording" src="share/screenshots/buzz-5-live_recording.png" style="max-width: 18%; margin-right: 1%; height:auto;" />
     <img alt="Resize" src="share/screenshots/buzz-6-resize.png" style="max-width: 18%;" />
 </div>

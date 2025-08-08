@@ -60,7 +60,7 @@ For Whisper.cpp you can also download custom models. Select `Custom` in the mode
 to the model `.bin` file. Use the link from "download" button from the Huggingface. 
 
 To improve transcription speed and memory usage you can select a quantized version of some 
-larger model. For example `q_5` version. Whisper.cpp base models in different quantizations are [available here(https://huggingface.co/ggerganov/whisper.cpp/tree/main). See also [custom models](https://github.com/chidiwilliams/buzz/discussions/866) discussion page for custom models in different languages.
+larger model. For example `q_5` version. Whisper.cpp base models in different quantizations are [available here](https://huggingface.co/ggerganov/whisper.cpp/tree/main). See also [custom models](https://github.com/chidiwilliams/buzz/discussions/866) discussion page for custom models in different languages.
 
 [![Model preferences](https://raw.githubusercontent.com/chidiwilliams/buzz/main/share/screenshots/buzz-3.2-model-preferences.png)](https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe "Model preferences")
 
