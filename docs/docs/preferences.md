@@ -52,6 +52,18 @@ Last sentence will be at the top.
 This mode will also try to correct errors at the end of previously transcribed sentences. This mode requires more
 processing power and more powerful hardware to work.
 
+## Model Preferences
+
+This section lets you download new models for transcription and delete unused ones.
+
+For Whisper.cpp you can also download custom models. Select `Custom` in the model size list and paste the download url 
+to the model `.bin` file. Use the link from "download" button from the Huggingface. 
+
+To improve transcription speed and memory usage you can select a quantized version of some 
+larger model. For example `q_5` version. Whisper.cpp base models in different quantizations are [available here(https://huggingface.co/ggerganov/whisper.cpp/tree/main). See also [custom models](https://github.com/chidiwilliams/buzz/discussions/866) discussion page for custom models in different languages.
+
+[![Model preferences](https://raw.githubusercontent.com/chidiwilliams/buzz/main/share/screenshots/buzz-3.2-model-preferences.png)](https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe "Model preferences")
+
 ## Advanced Preferences
 
 To keep preferences section simple for new users, some more advanced preferences are settable via OS environment variables. Set the necessary environment variables in your OS before starting Buzz or create a script to set them.
