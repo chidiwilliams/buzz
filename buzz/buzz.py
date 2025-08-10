@@ -31,6 +31,10 @@ if platform.system() == "Windows":
     if os.path.isdir(dll_backup_dir):
         os.add_dll_directory(dll_backup_dir)
 
+    onnx_dll_dir = os.path.join(APP_BASE_DIR, "onnxruntime", "capi")
+    if os.path.isdir(onnx_dll_dir):
+        os.add_dll_directory(onnx_dll_dir)
+
 
 def main():
     if platform.system() == "Linux":
