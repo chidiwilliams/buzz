@@ -69,6 +69,8 @@ jobs:
 
       - uses: AnimMouse/setup-ffmpeg@v1.2.1
         id: setup-ffmpeg
+        with:
+          version: ${{ matrix.os == 'macos-13' || matrix.os == 'macos-latest' && '71' || '7.1' }}
 
       - name: Test ffmpeg
         run: ffmpeg -i ./testdata/audio-long.mp3 ./testdata/audio-long.wav
@@ -149,6 +151,8 @@ jobs:
 
       - uses: AnimMouse/setup-ffmpeg@v1.2.1
         id: setup-ffmpeg
+        with:
+          version: ${{ matrix.os == 'macos-13' || matrix.os == 'macos-latest' && '71' || '7.1' }}
 
       - name: Install Vulkan SDK
         uses: humbletim/install-vulkan-sdk@v1.2

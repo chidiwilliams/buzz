@@ -75,6 +75,9 @@ On versions prior to Ubuntu 24.04 install `sudo apt-get install --no-install-rec
   export LD_LIBRARY_PATH=/home/PutYourUserNameHere/.cache/pypoetry/virtualenvs/buzz-captions-JjGFxAW6-py3.12/lib/python3.12/site-packages/nvidia/cudnn/lib/:$LD_LIBRARY_PATH
 ```
 
+#### For Whisper.cpp you will need to install Vulkan SDK
+
+   Follow the instructions for your distribution https://vulkan.lunarg.com/doc/sdk/latest/linux/getting_started.html
 
 ### Mac
 
@@ -136,5 +139,8 @@ pip3 uninstall ffmpeg ffmpeg-python
 pip3 install ffmpeg
 pip3 install ffmpeg-python
 ```
+
+For Whisper.cpp you will need to install Vulkan SDK.
+Follow the instructions here https://vulkan.lunarg.com/doc/sdk/latest/windows/getting_started.html
 
 Run Buzz `python -m buzz`
