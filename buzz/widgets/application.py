@@ -35,8 +35,8 @@ class Application(QApplication):
         if darkdetect.isDark():
             self.styleHints().setColorScheme(Qt.ColorScheme.Dark)
 
-        self.setStyle(QStyleFactory.create("Fusion"))
-        self.setPalette(QApplication.style().standardPalette())
+        if sys.platform.startswith("win"):
+            self.setStyle(QStyleFactory.create("Fusion"))
 
         self.settings = Settings()
         font_size = self.settings.value(
