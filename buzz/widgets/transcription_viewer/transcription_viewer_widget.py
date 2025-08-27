@@ -3,15 +3,19 @@ from typing import Optional
 from uuid import UUID
 
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
-from PyQt6.QtGui import QFont, QShowEvent
+from PyQt6.QtGui import QFont, QShowEvent, QTextCursor, QColor
 from PyQt6.QtMultimedia import QMediaPlayer
 from PyQt6.QtSql import QSqlRecord
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
+    QHBoxLayout,
     QToolButton,
     QLabel,
     QMessageBox,
+    QLineEdit,
+    QPushButton,
+    QFrame,
 )
 
 from buzz.locale import _
@@ -19,6 +23,7 @@ from buzz.db.entity.transcription import Transcription
 from buzz.db.service.transcription_service import TranscriptionService
 from buzz.paths import file_path_as_title
 from buzz.settings.shortcuts import Shortcuts
+from buzz.settings.shortcut import Shortcut
 from buzz.settings.settings import Settings
 from buzz.store.keyring_store import get_password, Key
 from buzz.widgets.audio_player import AudioPlayer
@@ -65,6 +70,7 @@ class TranscriptionViewerWidget(QWidget):
         super().__init__(parent, flags)
         self.transcription = transcription
         self.transcription_service = transcription_service
+        self.shortcuts = shortcuts
 
         self.setMinimumWidth(800)
         self.setMinimumHeight(500)
@@ -77,6 +83,11 @@ class TranscriptionViewerWidget(QWidget):
         self.translation_thread = None
         self.translator = None
         self.view_mode = ViewMode.TIMESTAMPS
+
+        # Search functionality
+        self.search_text = ""
+        self.current_search_index = 0
+        self.search_results = []
 
         # Can't reuse this globally, as transcripts may get translated, so need to get them each time
         segments = self.transcription_service.get_transcription_segments(
@@ -193,6 +204,10 @@ class TranscriptionViewerWidget(QWidget):
 
         layout.setMenuBar(toolbar)
 
+        # Search bar
+        self.create_search_bar()
+        layout.addWidget(self.search_frame)
+
         layout.addWidget(self.table_widget)
         layout.addWidget(self.text_display_box)
         layout.addWidget(self.audio_player)
@@ -200,7 +215,282 @@ class TranscriptionViewerWidget(QWidget):
 
         self.setLayout(layout)
 
+        # Set up keyboard shortcuts
+        self.setup_shortcuts()
+
         self.reset_view()
+
+    def create_search_bar(self):
+        """Create the search bar widget"""
+        self.search_frame = QFrame()
+        self.search_frame.setFrameStyle(QFrame.Shape.StyledPanel)
+        self.search_frame.setMaximumHeight(60)
+        
+        search_layout = QHBoxLayout(self.search_frame)
+        search_layout.setContentsMargins(10, 5, 10, 5)
+        
+        # Search label
+        search_label = QLabel(_("Search:"))
+        search_label.setStyleSheet("font-weight: bold;")
+        search_layout.addWidget(search_label)
+        
+        # Search input
+        self.search_input = QLineEdit()
+        self.search_input.setPlaceholderText(_("Enter text to search..."))
+        self.search_input.textChanged.connect(self.on_search_text_changed)
+        self.search_input.returnPressed.connect(self.search_next)
+        self.search_input.setMinimumWidth(200)
+        
+        # Add keyboard shortcuts for search navigation
+        from PyQt6.QtGui import QKeySequence
+        self.search_input.installEventFilter(self)
+        
+        # Add search status indicator
+        self.search_status_label = QLabel("")
+        self.search_status_label.setStyleSheet("color: #666; font-size: 10px;")
+        self.search_status_label.setMaximumWidth(80)
+        search_layout.addWidget(self.search_input)
+        search_layout.addWidget(self.search_status_label)
+        
+        # Search buttons
+        self.search_prev_button = QPushButton(_("↑"))
+        self.search_prev_button.setToolTip(_("Previous match (Shift+Enter)"))
+        self.search_prev_button.clicked.connect(self.search_previous)
+        self.search_prev_button.setEnabled(False)
+        self.search_prev_button.setMaximumWidth(40)
+        search_layout.addWidget(self.search_prev_button)
+        
+        self.search_next_button = QPushButton(_("↓"))
+        self.search_next_button.setToolTip(_("Next match (Enter)"))
+        self.search_next_button.clicked.connect(self.search_next)
+        self.search_next_button.setEnabled(False)
+        self.search_next_button.setMaximumWidth(40)
+        search_layout.addWidget(self.search_next_button)
+        
+        # Clear button
+        self.clear_search_button = QPushButton(_("Clear"))
+        self.clear_search_button.clicked.connect(self.clear_search)
+        self.clear_search_button.setMaximumWidth(60)
+        search_layout.addWidget(self.clear_search_button)
+        
+        # Close button
+        self.close_search_button = QPushButton(_("×"))
+        self.close_search_button.setToolTip(_("Close search"))
+        self.close_search_button.clicked.connect(self.hide_search_bar)
+        self.close_search_button.setMaximumWidth(30)
+        self.close_search_button.setStyleSheet("font-weight: bold; font-size: 14px;")
+        search_layout.addWidget(self.close_search_button)
+        
+        # Results label
+        self.search_results_label = QLabel("")
+        self.search_results_label.setStyleSheet("color: #666; font-size: 11px;")
+        search_layout.addWidget(self.search_results_label)
+        
+        search_layout.addStretch()
+        
+        # Initially hide the search bar
+        self.search_frame.hide()
+
+    def on_search_text_changed(self, text: str):
+        """Handle search text changes"""
+        self.search_text = text.strip()
+        if self.search_text:
+            # Add a small delay to avoid searching on every keystroke for long text
+            if len(self.search_text) >= 2:
+                self.search_status_label.setText(_("Searching..."))
+                self.perform_search()
+            self.search_frame.show()
+        else:
+            self.clear_search()
+            # Don't hide the search frame immediately, let user clear it manually
+
+    def perform_search(self):
+        """Perform the actual search based on current view mode"""
+        self.search_results = []
+        self.current_search_index = 0
+        
+        if self.view_mode == ViewMode.TIMESTAMPS:
+            self.search_in_table()
+        else:  # TEXT or TRANSLATION mode
+            self.search_in_text()
+        
+        self.update_search_ui()
+
+    def search_in_table(self):
+        """Search in the table view (segments)"""
+        segments = self.table_widget.segments()
+        search_text_lower = self.search_text.lower()
+        
+        # Limit search results to avoid performance issues with very long segments
+        max_results = 100
+        
+        for i, segment in enumerate(segments):
+            if len(self.search_results) >= max_results:
+                break
+                
+            text = segment.value("text").lower()
+            if search_text_lower in text:
+                self.search_results.append(("table", i, segment))
+        
+        # Also search in translations if available
+        if self.has_translations:
+            for i, segment in enumerate(segments):
+                if len(self.search_results) >= max_results:
+                    break
+                    
+                translation = segment.value("translation").lower()
+                if search_text_lower in translation:
+                    self.search_results.append(("table", i, segment))
+        
+        if len(self.search_results) >= max_results:
+            self.search_results_label.setText(f"{max_results}+ matches (showing first {max_results})")
+
+    def search_in_text(self):
+        """Search in the text display box"""
+        text = self.text_display_box.toPlainText()
+        search_text_lower = self.search_text.lower()
+        text_lower = text.lower()
+        
+        # Limit search results to avoid performance issues with very long text
+        max_results = 100
+        
+        start = 0
+        result_count = 0
+        while True:
+            pos = text_lower.find(search_text_lower, start)
+            if pos == -1 or result_count >= max_results:
+                break
+            self.search_results.append(("text", pos, pos + len(self.search_text)))
+            start = pos + 1
+            result_count += 1
+        
+        if result_count >= max_results:
+            self.search_results_label.setText(f"{max_results}+ matches (showing first {max_results})")
+
+    def update_search_ui(self):
+        """Update the search UI elements"""
+        if self.search_results:
+            self.search_results_label.setText(f"{len(self.search_results)} matches")
+            self.search_prev_button.setEnabled(True)
+            self.search_next_button.setEnabled(True)
+            self.highlight_current_match()
+            self.search_status_label.setText(_("Ready"))
+        else:
+            self.search_results_label.setText(_("No matches found"))
+            self.search_prev_button.setEnabled(False)
+            self.search_next_button.setEnabled(False)
+            self.search_status_label.setText(_("No results"))
+
+    def highlight_current_match(self):
+        """Highlight the current search match"""
+        if not self.search_results:
+            return
+            
+        match_type, match_data, _ = self.search_results[self.current_search_index]
+        
+        if match_type == "table":
+            # Highlight in table
+            self.highlight_table_match(match_data)
+        else:  # text
+            # Highlight in text display
+            self.highlight_text_match(match_data)
+
+    def highlight_table_match(self, row_index: int):
+        """Highlight a match in the table view"""
+        # Select the row containing the match
+        self.table_widget.selectRow(row_index)
+        # Scroll to the row
+        self.table_widget.scrollTo(self.table_widget.model().index(row_index, 0))
+
+    def highlight_text_match(self, start_pos: int):
+        """Highlight a match in the text display"""
+        cursor = QTextCursor(self.text_display_box.document())
+        cursor.setPosition(start_pos)
+        cursor.setPosition(start_pos + len(self.search_text), QTextCursor.MoveMode.KeepAnchor)
+        
+        # Set the cursor to highlight the text
+        self.text_display_box.setTextCursor(cursor)
+        
+        # Ensure the highlighted text is visible
+        self.text_display_box.ensureCursorVisible()
+
+    def search_next(self):
+        """Go to next search result"""
+        if not self.search_results:
+            return
+            
+        self.current_search_index = (self.current_search_index + 1) % len(self.search_results)
+        self.highlight_current_match()
+        self.update_search_results_label()
+
+    def search_previous(self):
+        """Go to previous search result"""
+        if not self.search_results:
+            return
+            
+        self.current_search_index = (self.current_search_index - 1) % len(self.search_results)
+        self.highlight_current_match()
+        self.update_search_results_label()
+
+    def update_search_results_label(self):
+        """Update the search results label with current position"""
+        if self.search_results:
+            self.search_results_label.setText(f"{self.current_search_index + 1} of {len(self.search_results)} matches")
+
+    def clear_search(self):
+        """Clear the search and reset highlighting"""
+        self.search_text = ""
+        self.search_results = []
+        self.current_search_index = 0
+        self.search_input.clear()
+        self.search_results_label.setText("")
+        self.search_status_label.setText("")
+        self.search_prev_button.setEnabled(False)
+        self.search_next_button.setEnabled(False)
+        
+        # Clear text highlighting
+        if self.view_mode in (ViewMode.TEXT, ViewMode.TRANSLATION):
+            cursor = QTextCursor(self.text_display_box.document())
+            cursor.clearSelection()
+            self.text_display_box.setTextCursor(cursor)
+        
+        # Keep search bar visible but clear the input
+        self.search_input.setFocus()
+
+    def hide_search_bar(self):
+        """Hide the search bar completely"""
+        self.search_frame.hide()
+        self.clear_search()
+        self.search_input.clearFocus()
+
+    def setup_shortcuts(self):
+        """Set up keyboard shortcuts"""
+        from PyQt6.QtGui import QShortcut, QKeySequence
+        
+        # Search shortcut (Ctrl+F)
+        search_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.SEARCH_TRANSCRIPT)), self)
+        search_shortcut.activated.connect(self.focus_search_input)
+
+    def focus_search_input(self):
+        """Focus the search input field"""
+        self.search_frame.show()
+        self.search_input.setFocus()
+        self.search_input.selectAll()
+
+    def eventFilter(self, obj, event):
+        """Event filter to handle keyboard shortcuts in search input"""
+        from PyQt6.QtCore import QEvent, Qt
+        from PyQt6.QtGui import QKeyEvent
+        
+        if obj == self.search_input and event.type() == QEvent.Type.KeyPress:
+            # The event is already a QKeyEvent, no need to create a new one
+            if event.key() == Qt.Key.Key_Return and event.modifiers() == Qt.KeyboardModifier.ShiftModifier:
+                self.search_previous()
+                return True
+            elif event.key() == Qt.Key.Key_Escape:
+                self.hide_search_bar()
+                return True
+        return super().eventFilter(obj, event)
 
     def reset_view(self):
         if self.view_mode == ViewMode.TIMESTAMPS:
@@ -235,10 +525,18 @@ class TranscriptionViewerWidget(QWidget):
             self.text_display_box.show()
             self.table_widget.hide()
             self.audio_player.hide()
+        
+        # Refresh search if there's active search text
+        if self.search_text:
+            self.perform_search()
 
     def on_view_mode_changed(self, view_mode: ViewMode) -> None:
         self.view_mode = view_mode
         self.reset_view()
+        
+        # Refresh search if there's active search text
+        if self.search_text:
+            self.perform_search()
 
     def on_segment_selected(self, segment: QSqlRecord):
         if (
