@@ -1,3 +1,4 @@
+import logging
 from typing import Tuple, Optional
 
 from PyQt6 import QtGui
@@ -73,7 +74,7 @@ class AudioPlayer(QWidget):
             start_range_ms, end_range_ms = self.range_ms
             # Check if we're at or past the end of the range (with small buffer for precision)
             if position_ms >= (end_range_ms - 50):  # Within 50ms of end
-                print(f"🔄 LOOP: Reached end {end_range_ms}ms, jumping to start {start_range_ms}ms")
+                logging.debug(f"🔄 LOOP: Reached end {end_range_ms}ms, jumping to start {start_range_ms}ms")
                 self.is_looping = True  # Set flag to prevent recursion
                 self.set_position(start_range_ms)
                 # Reset flag immediately after setting position
@@ -113,7 +114,7 @@ class AudioPlayer(QWidget):
         
         # Only jump to start if current position is outside the range
         if self.position_ms < start_range_ms or self.position_ms > end_range_ms:
-            print(f"🔄 LOOP: Position {self.position_ms}ms outside range, jumping to {start_range_ms}ms")
+            logging.debug(f"🔄 LOOP: Position {self.position_ms}ms outside range, jumping to {start_range_ms}ms")
             self.set_position(start_range_ms)
 
     def clear_range(self):
