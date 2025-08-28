@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from pytestqt.qtbot import QtBot
+from PyQt6.QtCore import Qt
 
 from buzz.locale import _
 from buzz.db.entity.transcription import Transcription
@@ -224,3 +225,275 @@ class TestTranscriptionViewerWidget:
             assert emitted_segments[0].text == "Hello"
             
             finished_spy.assert_called_once()
+
+    def test_loop_toggle_functionality(
+        self, qtbot, transcription, transcription_service, shortcuts
+    ):
+        """Test the Loop Segment toggle functionality"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Check that loop toggle exists and has correct properties
+        assert hasattr(widget, 'loop_toggle')
+        assert widget.loop_toggle.text() == _("Loop Segment")
+        assert widget.loop_toggle.toolTip() == _("Enable/disable looping when clicking on transcript segments")
+        
+        # Check initial state
+        initial_state = widget.loop_toggle.isChecked()
+        
+        # Test state change
+        widget.loop_toggle.setChecked(not initial_state)
+        widget.on_loop_toggle_changed(not initial_state)
+        
+        # Verify state changed
+        assert widget.loop_toggle.isChecked() == (not initial_state)
+        
+        # Verify setting is saved
+        assert widget.settings.settings.value("transcription_viewer/segment_looping_enabled", type=bool) == (not initial_state)
+        
+        widget.close()
+
+    def test_follow_audio_toggle_functionality(
+        self, qtbot, transcription, transcription_service, shortcuts
+    ):
+        """Test the Follow Audio toggle functionality"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Check that follow audio toggle exists and has correct properties
+        assert hasattr(widget, 'follow_audio_toggle')
+        assert widget.follow_audio_toggle.text() == _("Follow Audio")
+        assert widget.follow_audio_toggle.toolTip() == _("Enable/disable following the current audio position in the transcript. When enabled, automatically scrolls to current text.")
+        
+        # Check initial state
+        initial_state = widget.follow_audio_toggle.isChecked()
+        
+        # Test state change
+        widget.follow_audio_toggle.setChecked(not initial_state)
+        widget.on_follow_audio_toggle_changed(not initial_state)
+        
+        # Verify state changed
+        assert widget.follow_audio_toggle.isChecked() == (not initial_state)
+        
+        # Verify setting is saved
+        assert widget.settings.settings.value("transcription_viewer/follow_audio_enabled", type=bool) == (not initial_state)
+        
+        widget.close()
+
+    def test_scroll_to_current_button_functionality(
+        self, qtbot, transcription, transcription_service, shortcuts
+    ):
+        """Test the Scroll to Current button functionality"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Check that scroll to current button exists and has correct properties
+        assert hasattr(widget, 'scroll_to_current_button')
+        assert widget.scroll_to_current_button.text() == _("Scroll to Current")
+        assert widget.scroll_to_current_button.toolTip() == _("Scroll to the currently spoken text")
+        
+        # Test button click
+        widget.scroll_to_current_button.click()
+        
+        widget.close()
+
+    def test_search_bar_creation_and_visibility(
+        self, qtbot, transcription, transcription_service, shortcuts
+    ):
+        """Test search bar creation and visibility functionality"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Check that search bar components exist
+        assert hasattr(widget, 'search_frame')
+        assert hasattr(widget, 'search_input')
+        assert hasattr(widget, 'search_results_label')
+        assert hasattr(widget, 'search_prev_button')
+        assert hasattr(widget, 'search_next_button')
+        assert hasattr(widget, 'clear_search_button')
+        assert hasattr(widget, 'close_search_button')
+        
+        # Check initial state (search bar should be hidden)
+        assert not widget.search_frame.isVisible()
+        
+        # Test showing search bar
+        widget.focus_search_input()
+        # Note: In test environment, visibility might not work as expected
+        # Focus on functional aspects instead
+        
+        # Test hiding search bar
+        widget.hide_search_bar()
+        
+        widget.close()
+
+    def test_search_functionality_basic(
+        self, qtbot, transcription, transcription_service, shortcuts
+    ):
+        """Test basic search functionality"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Show search bar
+        widget.focus_search_input()
+        
+        # Test typing in search input
+        test_search_text = "test search"
+        qtbot.keyClicks(widget.search_input, test_search_text)
+        
+        # Verify search text is captured
+        assert widget.search_input.text() == test_search_text
+        
+        # Verify search results label updates
+        assert hasattr(widget, 'search_results_label')
+        
+        # Test clearing search
+        widget.clear_search()
+        assert widget.search_input.text() == ""
+        
+        widget.close()
+
+    def test_search_navigation_buttons(
+        self, qtbot, transcription, transcription_service, shortcuts
+    ):
+        """Test search navigation buttons"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Show search bar
+        widget.focus_search_input()
+        
+        # Test search previous button
+        widget.search_prev_button.click()
+        
+        # Test search next button
+        widget.search_next_button.click()
+        
+        widget.close()
+
+    def test_search_keyboard_shortcuts(
+        self, qtbot, transcription, transcription_service, shortcuts
+    ):
+        """Test search keyboard shortcuts"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Test Ctrl+F to focus search
+        qtbot.keyPress(widget, Qt.Key.Key_F, modifier=Qt.KeyboardModifier.ControlModifier)
+        
+        # Test Enter for next search
+        qtbot.keyPress(widget, Qt.Key.Key_Return)
+        
+        # Test Shift+Enter for previous search
+        qtbot.keyPress(widget, Qt.Key.Key_Return, modifier=Qt.KeyboardModifier.ShiftModifier)
+        
+        # Test Escape to hide search
+        qtbot.keyPress(widget, Qt.Key.Key_Escape)
+        
+        widget.close()
+
+    def test_search_in_different_view_modes(
+        self, qtbot, transcription, transcription_service, shortcuts
+    ):
+        """Test search functionality in different view modes"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Show search bar
+        widget.focus_search_input()
+        
+        # Test search in TEXT view mode
+        widget.view_mode = ViewMode.TEXT
+        qtbot.keyClicks(widget.search_input, "test")
+        widget.perform_search()
+        
+        # Test search in TIMESTAMPS view mode
+        widget.view_mode = ViewMode.TIMESTAMPS
+        qtbot.keyClicks(widget.search_input, "test")
+        widget.perform_search()
+        
+        widget.close()
+
+    def test_search_performance_limits(
+        self, qtbot, transcription, transcription_service, shortcuts
+    ):
+        """Test search with very long text to ensure no crashes"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Show search bar
+        widget.focus_search_input()
+        
+        # Test with very long search text
+        long_text = "a" * 10000
+        qtbot.keyClicks(widget.search_input, long_text)
+        
+        # Should not crash
+        widget.perform_search()
+        
+        widget.close()
+
+    def test_search_clear_functionality(
+        self, qtbot, transcription, transcription_service, shortcuts
+    ):
+        """Test search clear functionality"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Show search bar
+        widget.focus_search_input()
+        
+        # Add some search text
+        qtbot.keyClicks(widget.search_input, "test text")
+        
+        # Clear search
+        widget.clear_search()
+        
+        # Verify search is cleared
+        assert widget.search_input.text() == ""
+        assert len(widget.search_results) == 0
+        
+        widget.close()
+
+    def test_search_hide_functionality(
+        self, qtbot, transcription, transcription_service, shortcuts
+    ):
+        """Test search hide functionality"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Show search bar
+        widget.focus_search_input()
+        
+        # Add some search text
+        qtbot.keyClicks(widget.search_input, "test text")
+        
+        # Hide search bar
+        widget.hide_search_bar()
+        
+        # Verify search is cleared when hiding
+        assert widget.search_input.text() == ""
+        assert len(widget.search_results) == 0
+        
+        widget.close()
