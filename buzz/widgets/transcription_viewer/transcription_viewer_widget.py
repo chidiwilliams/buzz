@@ -16,6 +16,8 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QPushButton,
     QFrame,
+    QCheckBox,
+    QAbstractItemView,
 )
 
 from buzz.locale import _
@@ -31,6 +33,7 @@ from buzz.widgets.icon import (
     FileDownloadIcon,
     TranslateIcon,
     ResizeIcon,
+    ScrollToCurrentIcon,
 )
 from buzz.translator import Translator
 from buzz.widgets.text_display_box import TextDisplayBox
@@ -88,6 +91,12 @@ class TranscriptionViewerWidget(QWidget):
         self.search_text = ""
         self.current_search_index = 0
         self.search_results = []
+
+        # Loop functionality
+        self.segment_looping_enabled = self.settings.settings.value("transcription_viewer/segment_looping_enabled", True, type=bool)
+
+        # Currently selected segment for loop functionality
+        self.currently_selected_segment = None
 
         # Can't reuse this globally, as transcripts may get translated, so need to get them each time
         segments = self.transcription_service.get_transcription_segments(
@@ -201,6 +210,30 @@ class TranscriptionViewerWidget(QWidget):
         resize_button.clicked.connect(self.on_resize_button_clicked)
 
         toolbar.addWidget(resize_button)
+
+        # Add loop toggle button
+        self.loop_toggle = QCheckBox(_("Loop Segment"))
+        self.loop_toggle.setChecked(self.segment_looping_enabled)
+        self.loop_toggle.setToolTip(_("Enable/disable looping when clicking on transcript segments"))
+        self.loop_toggle.toggled.connect(self.on_loop_toggle_changed)
+        toolbar.addWidget(self.loop_toggle)
+
+        # Add follow audio toggle button
+        self.follow_audio_enabled = self.settings.settings.value("transcription_viewer/follow_audio_enabled", False, type=bool)
+        self.follow_audio_toggle = QCheckBox(_("Follow Audio"))
+        self.follow_audio_toggle.setChecked(self.follow_audio_enabled)
+        self.follow_audio_toggle.setToolTip(_("Enable/disable following the current audio position in the transcript. When enabled, automatically scrolls to current text."))
+        self.follow_audio_toggle.toggled.connect(self.on_follow_audio_toggle_changed)
+        toolbar.addWidget(self.follow_audio_toggle)
+
+        # Add scroll to current text button
+        self.scroll_to_current_button = QToolButton()
+        self.scroll_to_current_button.setText(_("Scroll to Current"))
+        self.scroll_to_current_button.setIcon(ScrollToCurrentIcon(self))
+        self.scroll_to_current_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        self.scroll_to_current_button.setToolTip(_("Scroll to the currently spoken text"))
+        self.scroll_to_current_button.clicked.connect(self.on_scroll_to_current_button_clicked)
+        toolbar.addWidget(self.scroll_to_current_button)
 
         layout.setMenuBar(toolbar)
 
@@ -470,6 +503,10 @@ class TranscriptionViewerWidget(QWidget):
         # Search shortcut (Ctrl+F)
         search_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.SEARCH_TRANSCRIPT)), self)
         search_shortcut.activated.connect(self.focus_search_input)
+        
+        # Scroll to current text shortcut (Ctrl+G)
+        scroll_to_current_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.SCROLL_TO_CURRENT_TEXT)), self)
+        scroll_to_current_shortcut.activated.connect(self.on_scroll_to_current_button_clicked)
 
     def focus_search_input(self):
         """Focus the search input field"""
@@ -539,13 +576,34 @@ class TranscriptionViewerWidget(QWidget):
             self.perform_search()
 
     def on_segment_selected(self, segment: QSqlRecord):
-        if (
-            self.audio_player.media_player.playbackState()
-            == QMediaPlayer.PlaybackState.PlayingState
-        ):
-            self.audio_player.set_range(
-                (segment.value("start_time"), segment.value("end_time"))
-            )
+        # Store the currently selected segment for loop functionality
+        self.currently_selected_segment = segment
+        
+        # Get current audio position for timestamp
+        current_pos = self.audio_player.position_ms
+        
+        if self.segment_looping_enabled:
+            # Check if we're currently in an active loop
+            current_range = self.audio_player.range_ms
+            
+            # Set range for looping behavior (regardless of playback state)
+            start_time = segment.value("start_time")
+            end_time = segment.value("end_time")
+            self.audio_player.set_range((start_time, end_time))
+            
+            # Reset looping flag to ensure new loops work
+            self.audio_player.is_looping = False
+        else:
+            # Always seek to the clicked segment start time
+            start_time = segment.value("start_time")
+            self.audio_player.set_position(start_time)
+            
+            # Always highlight the clicked segment
+            segments = self.table_widget.segments()
+            for i, seg in enumerate(segments):
+                if seg.value("id") == segment.value("id"):
+                    self.table_widget.highlight_and_scroll_to_row(i)
+                    break
 
     def on_audio_player_position_ms_changed(self, position_ms: int) -> None:
         segments = self.table_widget.segments()
@@ -561,6 +619,32 @@ class TranscriptionViewerWidget(QWidget):
         )
         if current_segment is not None:
             self.current_segment_label.setText(current_segment.value("text"))
+            
+            # Update highlighting based on follow audio and loop settings
+            if self.follow_audio_enabled:
+                # Follow audio mode: highlight the current segment based on audio position
+                if not self.segment_looping_enabled or self.currently_selected_segment is None:
+                    # Normal mode: highlight the current segment
+                    for i, segment in enumerate(segments):
+                        if segment.value("id") == current_segment.value("id"):
+                            self.table_widget.highlight_and_scroll_to_row(i)
+                            break
+                else:
+                    # Loop mode: only highlight if we're in a different segment than the selected one
+                    if current_segment.value("id") != self.currently_selected_segment.value("id"):
+                        for i, segment in enumerate(segments):
+                            if segment.value("id") == current_segment.value("id"):
+                                self.table_widget.highlight_and_scroll_to_row(i)
+                                break
+            else:
+                # Don't follow audio: keep highlighting on the selected segment
+                if self.currently_selected_segment is not None:
+                    # Find and highlight the selected segment
+                    for i, segment in enumerate(segments):
+                        if segment.value("id") == self.currently_selected_segment.value("id"):
+                            self.table_widget.highlight_and_scroll_to_row(i)
+                            break
+                # Don't do any highlighting if no segment is selected and follow is disabled
 
     def load_preferences(self):
         self.settings.settings.beginGroup("file_transcriber")
@@ -611,6 +695,235 @@ class TranscriptionViewerWidget(QWidget):
         self.transcriptions_updated_signal.connect(self.close)
 
         self.transcription_resizer_dialog.show()
+
+    def on_loop_toggle_changed(self, enabled: bool):
+        """Handle loop toggle state change"""
+        self.segment_looping_enabled = enabled
+        # Save preference to settings
+        self.settings.settings.setValue("transcription_viewer/segment_looping_enabled", enabled)
+        
+        if enabled:
+            # If looping is re-enabled and we have a selected segment, return to it
+            if self.currently_selected_segment is not None:
+                # Find the row index of the selected segment
+                segments = self.table_widget.segments()
+                for i, segment in enumerate(segments):
+                    if segment.value("id") == self.currently_selected_segment.value("id"):
+                        # Highlight and scroll to the selected segment
+                        self.table_widget.highlight_and_scroll_to_row(i)
+                        
+                        # Get the segment timing
+                        start_time = self.currently_selected_segment.value("start_time")
+                        end_time = self.currently_selected_segment.value("end_time")
+                        
+                        # Set the loop range for the selected segment
+                        self.audio_player.set_range((start_time, end_time))
+                        
+                        # If audio is currently playing and outside the range, jump to the start
+                        current_pos = self.audio_player.position_ms
+                        playback_state = self.audio_player.media_player.playbackState()
+                        if (playback_state == QMediaPlayer.PlaybackState.PlayingState and 
+                            (current_pos < start_time or current_pos > end_time)):
+                            self.audio_player.set_position(start_time)
+                        
+                        break
+        else:
+            # Clear any existing range if looping is disabled
+            self.audio_player.clear_range()
+
+    def on_follow_audio_toggle_changed(self, enabled: bool):
+        """Handle follow audio toggle state change"""
+        self.follow_audio_enabled = enabled
+        # Save preference to settings
+        self.settings.settings.setValue("transcription_viewer/follow_audio_enabled", enabled)
+        
+        if enabled:
+            # When follow audio is first enabled, automatically scroll to current position
+            # This gives immediate feedback that the feature is working
+            self._auto_scroll_to_current_position()
+        else:
+            # If we have a selected segment, highlight it and keep it highlighted
+            if self.currently_selected_segment is not None:
+                segments = self.table_widget.segments()
+                for i, segment in enumerate(segments):
+                    if segment.value("id") == self.currently_selected_segment.value("id"):
+                        self.table_widget.highlight_and_scroll_to_row(i)
+                        break
+
+    def on_scroll_to_current_button_clicked(self):
+        """Handle scroll to current text button click"""
+        current_pos = self.audio_player.position_ms
+        segments = self.table_widget.segments()
+        
+        # Find the current segment based on audio position
+        current_segment = next(
+            (segment for segment in segments 
+             if segment.value("start_time") <= current_pos < segment.value("end_time")),
+            None
+        )
+        
+        if current_segment is not None:
+            # Find the row index and scroll to it
+            for i, segment in enumerate(segments):
+                if segment.value("id") == current_segment.value("id"):
+                    # Only scroll if we're in timestamps view mode (table is visible)
+                    if self.view_mode == ViewMode.TIMESTAMPS:
+                        # Method 1: Use the table widget's built-in scrolling method
+                        self.table_widget.highlight_and_scroll_to_row(i)
+                        
+                        # Method 2: Force immediate scrolling to ensure visibility
+                        self._force_scroll_to_row(i)
+                        
+                        # Method 3: Direct scroll bar manipulation as fallback
+                        self._direct_scroll_to_row(i)
+                    break
+        else:
+            pass  # No segment found at current position
+
+    def _ensure_segment_visible(self, row_index: int):
+        """
+        Ensures the segment at the given row index is visible in the table widget.
+        This is a workaround for QTableView's scrollTo not always working as expected.
+        """
+        try:
+            # Get current scroll position
+            scroll_area = self.table_widget.parent()
+            if hasattr(scroll_area, 'verticalScrollBar'):
+                scroll_bar = scroll_area.verticalScrollBar()
+                current_scroll = scroll_bar.value()
+            
+            # Try to scroll to the row
+            model_index = self.table_widget.model().index(row_index, 0)
+            self.table_widget.scrollTo(model_index)
+            
+            # Check if it's now visible
+            visible_rect = self.table_widget.viewport().rect()
+            row_rect = self.table_widget.visualRect(model_index)
+            is_visible = visible_rect.intersects(row_rect)
+            
+        except Exception as e:
+            pass  # Silently handle any errors
+
+    def _force_scroll_to_row(self, row_index: int):
+        """
+        Forces the table widget to scroll to the given row index.
+        This is a fallback if _ensure_segment_visible doesn't work.
+        """
+        try:
+            # Method 1: Try using the table widget's scrollTo method with different hints
+            try:
+                model_index = self.table_widget.model().index(row_index, 0)
+                
+                # Try different scroll hints for better positioning
+                self.table_widget.scrollTo(model_index, QAbstractItemView.ScrollHint.PositionAtCenter)
+                
+                # Also try to ensure the row is visible
+                self.table_widget.scrollTo(model_index, QAbstractItemView.ScrollHint.EnsureVisible)
+                
+            except Exception as e:
+                pass
+            
+            # Method 2: Try to find the scroll area and force scroll
+            try:
+                # Look for scroll area in parent hierarchy
+                parent = self.table_widget.parent()
+                while parent is not None:
+                    if hasattr(parent, 'verticalScrollBar'):
+                        scroll_bar = parent.verticalScrollBar()
+                        if scroll_bar is not None:
+                            # Calculate approximate scroll position
+                            row_height = self.table_widget.rowHeight(row_index)
+                            target_scroll = max(0, (row_index * row_height) - 100)  # 100px offset from top
+                            
+                            scroll_bar.setValue(target_scroll)
+                            break
+                    parent = parent.parent()
+            except Exception as e:
+                pass
+            
+            # Method 3: Try using the table's own scroll bar if available
+            try:
+                if hasattr(self.table_widget, 'verticalScrollBar'):
+                    scroll_bar = self.table_widget.verticalScrollBar()
+                    if scroll_bar is not None:
+                        # Calculate scroll position based on row index
+                        row_height = self.table_widget.rowHeight(row_index)
+                        target_scroll = max(0, (row_index * row_height) - 50)  # 50px offset from top
+                        
+                        scroll_bar.setValue(target_scroll)
+            except Exception as e:
+                pass
+                
+        except Exception as e:
+            pass  # Silently handle any errors
+
+    def _direct_scroll_to_row(self, row_index: int):
+        """
+        Directly manipulate the scroll bar to scroll to a specific row.
+        This is a more aggressive approach that should work in most cases.
+        """
+        try:
+            # Get the table widget's scroll bar
+            scroll_bar = self.table_widget.verticalScrollBar()
+            if scroll_bar is not None:
+                # Calculate the target scroll position
+                # Get the total height of rows above the target row
+                total_height = 0
+                for row in range(row_index):
+                    total_height += self.table_widget.rowHeight(row)
+                
+                # Add some offset to center the row better
+                target_scroll = max(0, total_height - 100)
+                
+                # Set the scroll position
+                scroll_bar.setValue(target_scroll)
+                
+                # Also try to ensure the row is visible by scrolling a bit more if needed
+                if scroll_bar.value() == target_scroll:
+                    # Try scrolling to the row with a different approach
+                    model_index = self.table_widget.model().index(row_index, 0)
+                    self.table_widget.scrollTo(model_index, QAbstractItemView.ScrollHint.PositionAtTop)
+                
+        except Exception as e:
+            pass  # Silently handle any errors
+
+    def _auto_scroll_to_current_position(self):
+        """
+        Automatically scroll to the current audio position.
+        This is used when follow audio is first enabled to give immediate feedback.
+        """
+        try:
+            # Only scroll if we're in timestamps view mode (table is visible)
+            if self.view_mode != ViewMode.TIMESTAMPS:
+                return
+            
+            current_pos = self.audio_player.position_ms
+            segments = self.table_widget.segments()
+            
+            # Find the current segment based on audio position
+            current_segment = next(
+                (segment for segment in segments 
+                 if segment.value("start_time") <= current_pos < segment.value("end_time")),
+                None
+            )
+            
+            if current_segment is not None:
+                # Find the row index and scroll to it
+                for i, segment in enumerate(segments):
+                    if segment.value("id") == current_segment.value("id"):
+                        # Use all available scrolling methods to ensure visibility
+                        # Method 1: Use the table widget's built-in scrolling method
+                        self.table_widget.highlight_and_scroll_to_row(i)
+                        
+                        # Method 2: Force immediate scrolling to ensure visibility
+                        self._force_scroll_to_row(i)
+                        
+                        # Method 3: Direct scroll bar manipulation as fallback
+                        self._direct_scroll_to_row(i)
+                        break
+                
+        except Exception as e:
+            pass  # Silently handle any errors
 
     def closeEvent(self, event):
         self.hide()

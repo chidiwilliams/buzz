@@ -18,6 +18,7 @@ class AudioPlayer(QWidget):
         self.position_ms = 0
         self.duration_ms = 0
         self.invalid_media = None
+        self.is_looping = False  # Flag to prevent recursive position changes
 
         self.audio_output = QAudioOutput()
         self.audio_output.setVolume(100)
@@ -68,10 +69,15 @@ class AudioPlayer(QWidget):
 
         # If a range has been selected as we've reached the end of the range,
         # loop back to the start of the range
-        if self.range_ms is not None:
+        if self.range_ms is not None and not self.is_looping:
             start_range_ms, end_range_ms = self.range_ms
-            if position_ms > end_range_ms:
+            # Check if we're at or past the end of the range (with small buffer for precision)
+            if position_ms >= (end_range_ms - 50):  # Within 50ms of end
+                print(f"🔄 LOOP: Reached end {end_range_ms}ms, jumping to start {start_range_ms}ms")
+                self.is_looping = True  # Set flag to prevent recursion
                 self.set_position(start_range_ms)
+                # Reset flag immediately after setting position
+                self.is_looping = False
 
     def on_playback_state_changed(self, state: QMediaPlayer.PlaybackState):
         if state == QMediaPlayer.PlaybackState.PlayingState:
@@ -101,13 +107,31 @@ class AudioPlayer(QWidget):
             self.media_player.play()
 
     def set_range(self, range_ms: Tuple[int, int]):
+        """Set a loop range. Only jump to start if current position is outside the range."""
         self.range_ms = range_ms
-        self.set_position(range_ms[0])
+        start_range_ms, end_range_ms = range_ms
+        
+        # Only jump to start if current position is outside the range
+        if self.position_ms < start_range_ms or self.position_ms > end_range_ms:
+            print(f"🔄 LOOP: Position {self.position_ms}ms outside range, jumping to {start_range_ms}ms")
+            self.set_position(start_range_ms)
+
+    def clear_range(self):
+        """Clear the current loop range"""
+        self.range_ms = None
+
+    def _reset_looping_flag(self):
+        """Reset the looping flag"""
+        self.is_looping = False
 
     def on_slider_moved(self, position_ms: int):
         self.set_position(position_ms)
-        # Reset range if slider is scrubbed manually
-        self.range_ms = None
+        # Only clear range if scrubbed significantly outside the current range
+        if self.range_ms is not None:
+            start_range_ms, end_range_ms = self.range_ms
+            # Clear range if scrubbed more than 2 seconds outside the range
+            if position_ms < (start_range_ms - 2000) or position_ms > (end_range_ms + 2000):
+                self.range_ms = None
 
     def set_position(self, position_ms: int):
         self.media_player.setPosition(position_ms)
