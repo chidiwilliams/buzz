@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QHBoxLayout,
+    QGridLayout,
     QToolButton,
     QLabel,
     QMessageBox,
@@ -166,36 +167,50 @@ class TranscriptionViewerWidget(QWidget):
         # Create a better current segment display that handles long text
         self.current_segment_frame = QFrame()
         self.current_segment_frame.setFrameStyle(QFrame.Shape.NoFrame)
-        self.current_segment_frame.setMaximumHeight(120)  # Increased height for long segments
+        # Remove height constraint to let it size to content
+        # self.current_segment_frame.setMaximumHeight(120)
         
-        segment_layout = QVBoxLayout(self.current_segment_frame)
-        segment_layout.setContentsMargins(10, 0, 10, 5)  # Reduced top margin from 5 to 2
-        segment_layout.setSpacing(2)  # Reduce spacing between elements
+        segment_layout = QGridLayout(self.current_segment_frame)
+        segment_layout.setContentsMargins(2, 0, 2, 0)  # Ultra-minimal margins
+        segment_layout.setSpacing(0)  # No spacing between elements
         
-        # Header label - make it more compact
-        self.current_segment_header = QLabel(_("Current Segment:"))
-        self.current_segment_header.setStyleSheet("font-weight: bold; color: #666;")  # Smaller, lighter text
+        # Header label - ultra-compact
+        self.current_segment_header = QLabel(_("Now Speaking:"))
+        self.current_segment_header.setStyleSheet("font-weight: bold; color: #666; font-size: 0.75em; margin: 0; padding: 0;")
         self.current_segment_header.setFrameStyle(QFrame.Shape.NoFrame)
-        self.current_segment_header.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        segment_layout.addWidget(self.current_segment_header)
+        self.current_segment_header.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
+        self.current_segment_header.setMaximumHeight(16)  # Very small height
         
-        # Text display with scroll capability
+        # Text display - centered with scroll capability
         self.current_segment_text = QLabel("")
-        self.current_segment_text.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        self.current_segment_text.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
         self.current_segment_text.setWordWrap(True)
-        self.current_segment_text.setStyleSheet("color: #666; line-height: 1.4;")
-        self.current_segment_text.setMinimumHeight(40)
+        self.current_segment_text.setStyleSheet("color: #666; line-height: 1.1; margin: 0; padding: 2px;")
         
-        # Make it scrollable if content is too long
+        # Make it scrollable for long text
         self.current_segment_scroll_area = QScrollArea()
         self.current_segment_scroll_area.setWidget(self.current_segment_text)
         self.current_segment_scroll_area.setWidgetResizable(True)
         self.current_segment_scroll_area.setFrameStyle(QFrame.Shape.NoFrame)
         self.current_segment_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.current_segment_scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        self.current_segment_scroll_area.setMaximumHeight(380)  # Increased from 80 to 180 to use more space
+        # Remove fixed height - let it size to content
+        # self.current_segment_scroll_area.setMaximumHeight(80)
         
-        segment_layout.addWidget(self.current_segment_scroll_area)
+        # Position header in top-left (row 0, column 0)
+        segment_layout.addWidget(self.current_segment_header, 0, 0)
+        # Position scroll area below header (row 1, column 0), spanning full width
+        segment_layout.addWidget(self.current_segment_scroll_area, 1, 0)
+        
+        # Set row stretch to make text area expand, but keep header compact
+        segment_layout.setRowStretch(0, 0)  # Header doesn't expand
+        segment_layout.setRowStretch(1, 1)  # Text area expands
+        
+        # Set column stretch to use full width
+        segment_layout.setColumnStretch(0, 1)
+        
+        # Initially hide the frame until there's content
+        self.current_segment_frame.hide()
 
         layout = QVBoxLayout(self)
 
@@ -283,22 +298,26 @@ class TranscriptionViewerWidget(QWidget):
 
         # Search bar
         self.create_search_bar()
-        layout.addWidget(self.search_frame)
+        # Search frame (minimal space)
+        layout.addWidget(self.search_frame, 0)  # Stretch factor 0 (minimal)
 
-        layout.addWidget(self.table_widget)
+        # Table widget should take the majority of the space
+        layout.addWidget(self.table_widget, 1)  # Stretch factor 1 (majority)
         
-        # Add current segment display
-        layout.addWidget(self.current_segment_frame)
-        
-        layout.addWidget(self.text_display_box)
-        
-        # Loop controls section - positioned between text display and audio player
+        # Loop controls section (minimal space)
         self.create_loop_controls()
-        layout.addWidget(self.loop_controls_frame)
+        layout.addWidget(self.loop_controls_frame, 0)  # Stretch factor 0 (minimal)
         
-        layout.addWidget(self.audio_player)
-        layout.addWidget(self.current_segment_frame)
+        # Audio player (minimal space)
+        layout.addWidget(self.audio_player, 0)  # Stretch factor 0 (minimal)
         
+        # Text display box (minimal space)
+        layout.addWidget(self.text_display_box, 0)  # Stretch factor 0 (minimal)
+
+        # Add current segment display (minimal space)
+        layout.addWidget(self.current_segment_frame, 1)  # Stretch factor 0 (minimal)
+                
+
         # Initially hide the current segment frame until a segment is selected
         self.current_segment_frame.hide()
 
@@ -876,6 +895,9 @@ class TranscriptionViewerWidget(QWidget):
         self.current_segment_frame.show()
         self.current_segment_text.setText(segment.value("text"))
         
+        # Resize the frame to fit the text content
+        self.resize_current_segment_frame()
+        
         # Get current audio position for timestamp
         current_pos = self.audio_player.position_ms
         
@@ -918,6 +940,9 @@ class TranscriptionViewerWidget(QWidget):
             self.current_segment_text.setText(current_segment.value("text"))
             self.current_segment_frame.show()  # Show the frame when there's a current segment
             
+            # Resize the frame to fit the text content
+            self.resize_current_segment_frame()
+            
             # Update highlighting based on follow audio and loop settings
             if self.follow_audio_enabled:
                 # Follow audio mode: highlight the current segment based on audio position
@@ -943,6 +968,41 @@ class TranscriptionViewerWidget(QWidget):
                             self.table_widget.highlight_and_scroll_to_row(i)
                             break
                 # Don't do any highlighting if no segment is selected and follow is disabled
+
+    def resize_current_segment_frame(self):
+        """
+        Resize the current segment frame to fit its content, using the actual rendered size
+        of the text label (including line wrapping). This ensures the frame is tall enough
+        for the visible text, up to a reasonable maximum.
+        """
+        text = self.current_segment_text.text()
+        if not text:
+            self.current_segment_frame.setMaximumHeight(0)
+            self.current_segment_frame.setMinimumHeight(0)
+            return
+
+        # Force the label to recalculate its size based on the current text and width
+        self.current_segment_text.adjustSize()
+        # Get the size hint for the label, which accounts for line wrapping
+        text_size = self.current_segment_text.sizeHint()
+
+        # Get the header height
+        header_height = self.current_segment_header.sizeHint().height()
+        # Add some vertical margins/padding
+        margins = 2  # e.g. 8px top + 8px bottom
+
+        # Set a maximum height for the text area (e.g. 10 lines)
+        line_height = self.current_segment_text.fontMetrics().lineSpacing()
+        max_visible_lines = 10
+        max_text_height = line_height * max_visible_lines
+
+        # Use the lesser of the actual text height or the max allowed
+        visible_text_height = min(text_size.height(), max_text_height)
+
+        total_height = header_height + visible_text_height + margins
+
+        self.current_segment_frame.setMaximumHeight(total_height)
+        self.current_segment_frame.setMinimumHeight(total_height)
 
     def load_preferences(self):
         self.settings.settings.beginGroup("file_transcriber")
