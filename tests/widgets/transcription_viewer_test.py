@@ -913,3 +913,418 @@ class TestTranscriptionViewerWidget:
         assert not widget.search_next_button.isEnabled()
 
         widget.close()
+
+    def test_export_functionality_exists(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that export functionality exists in the toolbar"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test that toolbar exists
+        toolbar = widget.layout().menuBar()
+        assert toolbar is not None
+        
+        # Test that export button exists in toolbar
+        export_button_found = False
+        for action in toolbar.actions():
+            if hasattr(action, 'text') and "Export" in action.text():
+                export_button_found = True
+                break
+        
+        assert export_button_found, "Export button should exist in toolbar"
+
+        widget.close()
+
+    def test_translation_functionality_exists(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that translation functionality exists"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test translator creation
+        assert hasattr(widget, 'translator')
+        assert widget.translator is not None
+        
+        # Test translation thread
+        assert hasattr(widget, 'translation_thread')
+        assert widget.translation_thread is not None
+
+        widget.close()
+
+    def test_search_properties_exist(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that search properties exist"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test search properties
+        assert hasattr(widget, 'search_text')
+        assert hasattr(widget, 'current_search_index')
+        assert hasattr(widget, 'search_results')
+        assert hasattr(widget, 'find_widget_visible')
+
+        widget.close()
+
+    def test_loop_properties_exist(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that loop properties exist"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test loop properties
+        assert hasattr(widget, 'segment_looping_enabled')
+        assert hasattr(widget, 'currently_selected_segment')
+
+        widget.close()
+
+    def test_playback_controls_properties_exist(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that playback controls properties exist"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test playback controls properties
+        assert hasattr(widget, 'playback_controls_visible')
+        assert hasattr(widget, 'playback_controls_toggle_button')
+        
+        # Test button exists
+        button = widget.playback_controls_toggle_button
+        assert button is not None
+
+        widget.close()
+
+    def test_find_button_properties_exist(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that find button properties exist"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test find button properties
+        assert hasattr(widget, 'find_button')
+        assert hasattr(widget, 'find_widget_visible')
+        
+        # Test button exists
+        button = widget.find_button
+        assert button is not None
+
+        widget.close()
+
+    def test_scroll_to_current_button_exists(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that scroll to current button exists"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test scroll to current button
+        assert hasattr(widget, 'scroll_to_current_button')
+        
+        # Test button exists
+        button = widget.scroll_to_current_button
+        assert button is not None
+
+        widget.close()
+
+    def test_current_segment_display_exists(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that current segment display exists"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test current segment frame
+        assert hasattr(widget, 'current_segment_frame')
+        assert hasattr(widget, 'current_segment_header')
+        assert hasattr(widget, 'current_segment_text')
+        assert hasattr(widget, 'current_segment_scroll_area')
+        
+        # Test frame properties
+        frame = widget.current_segment_frame
+        assert frame is not None
+
+        widget.close()
+
+    def test_segment_selection_functionality_exists(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that segment selection functionality exists"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test segment selection handler
+        assert hasattr(widget, 'on_segment_selected')
+        
+        # Test currently selected segment property
+        assert hasattr(widget, 'currently_selected_segment')
+
+        widget.close()
+
+    def test_transcription_options_exist(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that transcription options exist"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test transcription options
+        assert hasattr(widget, 'transcription_options')
+        assert hasattr(widget, 'file_transcription_options')
+        assert hasattr(widget, 'transcription_options_dialog')
+
+        widget.close()
+
+    def test_preferences_loading_exists(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that preferences loading exists"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test preferences loading method
+        assert hasattr(widget, 'load_preferences')
+
+        widget.close()
+
+    def test_audio_position_tracking_exists(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that audio position tracking exists"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test audio position change handler
+        assert hasattr(widget, 'on_audio_player_position_ms_changed')
+
+        widget.close()
+
+    def test_resize_current_segment_frame_exists(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that current segment frame resizing exists"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test resize method
+        assert hasattr(widget, 'resize_current_segment_frame')
+
+        widget.close()
+
+    def test_merge_button_functionality_exists(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that merge button functionality exists"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test merge button handler
+        assert hasattr(widget, 'on_merge_button_clicked')
+
+        widget.close()
+
+    def test_text_button_functionality_exists(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that text button functionality exists"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test text button handler
+        assert hasattr(widget, 'on_text_button_clicked')
+
+        widget.close()
+
+    def test_settings_integration_exists(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that settings integration exists"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test settings access
+        assert hasattr(widget, 'settings')
+        assert widget.settings is not None
+
+        widget.close()
+
+    def test_database_integration_exists(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that database integration exists"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test database access through service
+        assert hasattr(widget, 'transcription_service')
+        assert widget.transcription_service is not None
+
+        widget.close()
+
+    def test_shortcuts_integration_exists(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that shortcuts integration exists"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test shortcuts access
+        assert hasattr(widget, 'shortcuts')
+        assert widget.shortcuts is not None
+
+        widget.close()
+
+    def test_transcription_entity_access_exists(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that transcription entity access exists"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test transcription access
+        assert hasattr(widget, 'transcription')
+        assert widget.transcription is not None
+
+        widget.close()
+
+    def test_ui_layout_properties_exist(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that UI layout properties exist"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test layout properties
+        assert hasattr(widget, 'layout')
+        assert widget.layout() is not None
+        
+        # Test minimum size properties
+        assert hasattr(widget, 'minimumWidth')
+        assert hasattr(widget, 'minimumHeight')
+
+        widget.close()
+
+    def test_window_title_setting_exists(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that window title setting exists"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test window title
+        assert hasattr(widget, 'windowTitle')
+        title = widget.windowTitle()
+        assert title is not None
+        assert len(title) > 0
+
+        widget.close()
+
+    def test_translations_detection_exists(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that translations detection exists"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test translations detection
+        assert hasattr(widget, 'has_translations')
+        assert isinstance(widget.has_translations, bool)
+
+        widget.close()
+
+    def test_openai_token_access_exists(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that OpenAI token access exists"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test OpenAI token access
+        assert hasattr(widget, 'openai_access_token')
+
+        widget.close()
+
+    def test_text_display_box_creation_exists(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that text display box creation exists"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test text display box
+        assert hasattr(widget, 'text_display_box')
+        assert widget.text_display_box is not None
+
+        widget.close()
+
+    def test_toolbar_creation_exists(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that toolbar creation exists"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        
+        # Test toolbar
+        assert hasattr(widget, 'layout')
+        layout = widget.layout()
+        assert layout is not None
+        
+        # Test that toolbar is added to layout
+        menu_bar = layout.menuBar()
+        assert menu_bar is not None
+
+        widget.close()

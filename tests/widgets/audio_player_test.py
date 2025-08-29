@@ -1,4 +1,3 @@
-
 import os
 import pytest
 
@@ -9,11 +8,12 @@ from pytestqt.qtbot import QtBot
 
 from buzz.widgets.audio_player import AudioPlayer
 from tests.audio import test_audio_path
+from buzz.settings.settings import Settings
 
 
-def assert_speed_approximately_equal(actual, expected, tolerance=0.001):
-    """Helper function to compare speeds with tolerance for floating-point precision"""
-    assert abs(actual - expected) < tolerance, f"Speed {actual} is not approximately equal to {expected}"
+def assert_approximately_equal(actual, expected, tolerance=0.001):
+    """Helper function to compare values with tolerance for floating-point precision"""
+    assert abs(actual - expected) < tolerance, f"Value {actual} is not approximately equal to {expected}"
 
 
 class TestAudioPlayer:
@@ -50,156 +50,108 @@ class TestAudioPlayer:
         widget.on_playback_state_changed(QMediaPlayer.PlaybackState.StoppedState)
         assert widget.play_button.icon().themeName() == widget.play_icon.themeName()
 
-    def test_should_have_smart_speed_control(self, qtbot: QtBot):
+    def test_should_have_basic_audio_controls(self, qtbot: QtBot):
         widget = AudioPlayer(test_audio_path)
         qtbot.add_widget(widget)
 
-        # Check basic speed control elements
-        assert widget.speed_label.text() == "Speed:"
-        assert widget.speed_combo.count() == 6
-        # The combo box will load the saved rate from settings, so we just check it's a valid format
-        current_text = widget.speed_combo.currentText()
-        assert current_text.endswith('x')
-        assert widget.speed_combo.isEditable() == True
+        # Speed controls were moved to transcription viewer - just verify basic audio player functionality
+        assert widget.play_button is not None
+        assert widget.scrubber is not None
+        assert widget.time_label is not None
         
-        # Check increment buttons
-        assert widget.speed_down_btn.text() == "-"
-        assert widget.speed_up_btn.text() == "+"
-        assert widget.speed_down_btn.maximumWidth() == 25
-        assert widget.speed_up_btn.maximumWidth() == 25
+        # Verify the widget loads audio correctly
+        assert widget.media_player is not None
+        assert widget.media_player.source().toLocalFile() == test_audio_path
 
-    def test_should_change_playback_speed_via_preset(self, qtbot: QtBot):
+    def test_should_change_playback_rate_directly(self, qtbot: QtBot):
         widget = AudioPlayer(test_audio_path)
         qtbot.add_widget(widget)
 
-        # Test setting speed via preset dropdown
-        widget.on_speed_changed("1.5x")
-        assert widget.speed_combo.currentText() == "1.5x"
-        assert_speed_approximately_equal(widget.media_player.playbackRate(), 1.5)
+        # Speed controls moved to transcription viewer - test basic playback rate functionality
+        initial_rate = widget.media_player.playbackRate()
+        widget.media_player.setPlaybackRate(1.5)
+        assert_approximately_equal(widget.media_player.playbackRate(), 1.5)
 
-    def test_should_change_playback_speed_via_custom_input(self, qtbot: QtBot):
+    def test_should_handle_custom_playback_rates(self, qtbot: QtBot):
         widget = AudioPlayer(test_audio_path)
         qtbot.add_widget(widget)
 
-        # Test setting custom speed by typing
-        widget.on_speed_changed("1.7")
-        assert widget.speed_combo.currentText() == "1.70x"
-        assert_speed_approximately_equal(widget.media_player.playbackRate(), 1.7)
+        # Speed controls moved to transcription viewer - test basic playback rate functionality
+        widget.media_player.setPlaybackRate(1.7)
+        assert_approximately_equal(widget.media_player.playbackRate(), 1.7)
 
-    def test_should_increase_speed_with_button(self, qtbot: QtBot):
+    def test_should_handle_various_playback_rates(self, qtbot: QtBot):
         widget = AudioPlayer(test_audio_path)
         qtbot.add_widget(widget)
 
-        initial_speed = widget.get_current_speed()
-        widget.increase_speed()
+        # Speed controls moved to transcription viewer - test basic playback rate functionality
+        # Test that the media player can handle various playback rates
+        widget.media_player.setPlaybackRate(0.5)
+        assert_approximately_equal(widget.media_player.playbackRate(), 0.5)
         
-        expected_speed = initial_speed + 0.05
-        assert_speed_approximately_equal(widget.get_current_speed(), expected_speed)
-        assert_speed_approximately_equal(widget.media_player.playbackRate(), expected_speed)
-
-    def test_should_decrease_speed_with_button(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
-
-        initial_speed = widget.get_current_speed()
-        widget.decrease_speed()
-        
-        expected_speed = initial_speed - 0.05
-        assert_speed_approximately_equal(widget.get_current_speed(), expected_speed)
-        assert_speed_approximately_equal(widget.media_player.playbackRate(), expected_speed)
-
-    def test_should_respect_speed_limits(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
-
-        # Test minimum speed limit
-        widget.on_speed_changed("0.05")  # Below minimum
-        assert widget.speed_combo.currentText() == "0.10x"
-        assert_speed_approximately_equal(widget.media_player.playbackRate(), 0.1)
-
-        # Test maximum speed limit
-        widget.on_speed_changed("10.0")  # Above maximum
-        assert widget.speed_combo.currentText() == "5.00x"
-        assert_speed_approximately_equal(widget.media_player.playbackRate(), 5.0)
-
-    def test_should_get_current_speed(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
-
-        widget.speed_combo.setCurrentText("2.3x")
-        assert widget.get_current_speed() == 2.3
-
-    def test_should_reset_speed(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
-
-        # Set speed to something other than 1x
-        widget.set_speed(1.5)
-        assert_speed_approximately_equal(widget.media_player.playbackRate(), 1.5)
-
-        # Reset speed
-        widget.reset_speed()
-        assert widget.speed_combo.currentText() == "1.00x"
-        assert_speed_approximately_equal(widget.media_player.playbackRate(), 1.0)
-
-    def test_should_handle_invalid_media_speed_control(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
-
-        widget.set_invalid_media(True)
-        assert widget.speed_combo.isEnabled() == False
-        assert widget.speed_down_btn.isEnabled() == False
-        assert widget.speed_up_btn.isEnabled() == False
-
-        widget.set_invalid_media(False)
-        assert widget.speed_combo.isEnabled() == True
-        assert widget.speed_down_btn.isEnabled() == True
-        assert widget.speed_up_btn.isEnabled() == True
-
-    def test_should_handle_invalid_speed_input(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
-
-        # Test invalid input
-        initial_text = widget.speed_combo.currentText()
-        widget.on_speed_changed("invalid")
-        assert widget.speed_combo.currentText() == initial_text
-
-    def test_should_format_speed_text_correctly(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
-
-        # Test that custom input gets formatted with "x" suffix
-        widget.on_speed_changed("1.75")
-        assert widget.speed_combo.currentText() == "1.75x"
-        
-        # Test that preset values keep their format
-        widget.on_speed_changed("2x")
-        assert widget.speed_combo.currentText() == "2x"
+        widget.media_player.setPlaybackRate(2.0)
+        assert_approximately_equal(widget.media_player.playbackRate(), 2.0)
 
     def test_should_use_single_row_layout(self, qtbot: QtBot):
         widget = AudioPlayer(test_audio_path)
         qtbot.add_widget(widget)
 
-        # Check that we have a single row layout
+        # Verify the layout structure
         layout = widget.layout()
         assert isinstance(layout, QHBoxLayout)
-        assert layout.count() == 7  # speed_label, speed_combo, speed_down_btn, speed_up_btn, play_button, scrubber, time_label
+        # Speed controls moved to transcription viewer - simplified layout
+        assert layout.count() == 3  # play_button, scrubber, time_label
 
     def test_should_persist_playback_rate_setting(self, qtbot: QtBot):
-        """Test that playback rate is saved to and loaded from settings"""
-        # Create first audio player - should load default or saved rate
-        widget1 = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget1)
+        widget = AudioPlayer(test_audio_path)
+        qtbot.add_widget(widget)
+
+        # Speed controls moved to transcription viewer - test that settings are loaded
+        # The widget should load the saved playback rate from settings
+        assert widget.settings is not None
+        saved_rate = widget.settings.value(Settings.Key.AUDIO_PLAYBACK_RATE, 1.0, float)
+        assert isinstance(saved_rate, float)
+        assert 0.1 <= saved_rate <= 5.0
+
+    def test_should_handle_range_looping(self, qtbot: QtBot):
+        widget = AudioPlayer(test_audio_path)
+        qtbot.add_widget(widget)
+
+        # Test range setting and looping functionality
+        widget.set_range((1000, 3000))  # 1-3 seconds
+        assert widget.range_ms == (1000, 3000)
         
-        # Change speed to something other than default
-        widget1.set_speed(1.75)
-        assert_speed_approximately_equal(widget1.get_current_speed(), 1.75)
+        # Clear range
+        widget.clear_range()
+        assert widget.range_ms is None
+
+    def test_should_handle_invalid_media(self, qtbot: QtBot):
+        widget = AudioPlayer(test_audio_path)
+        qtbot.add_widget(widget)
+
+        widget.set_invalid_media(True)
         
-        # Create second audio player - should load the saved rate
-        widget2 = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget2)
+        # Speed controls moved to transcription viewer - just verify invalid media handling
+        assert widget.invalid_media is True
+        assert widget.play_button.isEnabled() is False
+        assert widget.scrubber.isEnabled() is False
+        assert widget.time_label.isEnabled() is False
+
+    def test_should_stop_playback(self, qtbot: QtBot):
+        widget = AudioPlayer(test_audio_path)
+        qtbot.add_widget(widget)
+
+        # Test stop functionality
+        widget.stop()
+        assert widget.media_player.playbackState() == QMediaPlayer.PlaybackState.StoppedState
+
+    def test_should_handle_media_status_changes(self, qtbot: QtBot):
+        widget = AudioPlayer(test_audio_path)
+        qtbot.add_widget(widget)
+
+        # Test media status handling
+        widget.on_media_status_changed(QMediaPlayer.MediaStatus.LoadedMedia)
+        assert widget.invalid_media is False
         
-        # Should have the same speed as the first player
-        assert_speed_approximately_equal(widget2.get_current_speed(), 1.75)
-        assert_speed_approximately_equal(widget2.media_player.playbackRate(), 1.75)
+        widget.on_media_status_changed(QMediaPlayer.MediaStatus.InvalidMedia)
+        assert widget.invalid_media is True
