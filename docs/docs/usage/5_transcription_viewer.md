@@ -38,8 +38,9 @@ The transcription viewer is organized into several key sections:
 
 ### Playback Controls Button
 - **Function**: Show/hide playback control panel
-- **Shortcut**: `Ctrl+L` (Windows/Linux) or `Cmd+L` (macOS)
+- **Shortcut**: `Ctrl+P` (Windows/Linux) or `Cmd+P` (macOS)
 - **Behavior**: Toggle button that shows/hides the playback controls below
+- **Icon**: Play button icon for clear visual indication
 
 ### Find Button
 - **Function**: Show/hide search functionality
@@ -56,11 +57,12 @@ The transcription viewer is organized into several key sections:
 ### Search Bar
 The search bar appears below the toolbar when activated and provides:
 
-- **Search Input**: Type text to find in the transcription
+- **Search Input**: Type text to find in the transcription (wider input field for better usability)
 - **Navigation**: Up/down arrows to move between matches
-- **Status**: Shows current match position and total matches
-- **Clear**: Remove search text and results
+- **Status**: Shows current match position and total matches (e.g., "3 of 15 matches")
+- **Clear**: Remove search text and results (larger button for better accessibility)
 - **Results**: Displays found text with context
+- **Consistent Button Sizing**: All navigation buttons have uniform height for better visual consistency
 
 ### Search Shortcuts
 - **`Ctrl+F` / `Cmd+F`**: Toggle search bar on/off
@@ -96,6 +98,7 @@ The search bar appears below the toolbar when activated and provides:
   - **Decrease Button (-)**: Reduce speed by 0.05x increments
   - **Increase Button (+)**: Increase speed by 0.05x increments
 - **Persistence**: Speed setting is saved between sessions
+- **Button Sizing**: Speed control buttons match the size of search navigation buttons for visual consistency
 
 ## Audio Player
 
@@ -113,15 +116,17 @@ The search bar appears below the toolbar when activated and provides:
 ## Current Segment Display
 
 ### Enhanced Text Display
-- **Header**: Clear "Current Segment:" label
-- **Text Area**: Dedicated display for current segment text
-- **Scroll Support**: Handles long text segments gracefully
+- **Header**: Clear "Now Speaking:" label (centered, compact)
+- **Text Area**: Dedicated display for current segment text (centered, scrollable)
+- **Scroll Support**: Handles long text segments gracefully with vertical scrolling
 - **Auto-hide**: Only visible when there's a current segment to show
+- **Dynamic Sizing**: Automatically resizes to fit text content (no wasted space)
 
 ### Smart Visibility
 - **Segment Selection**: Appears when clicking on transcript segments
 - **Audio Playback**: Shows current segment during playback
 - **Clean Interface**: No empty frames when not needed
+- **Compact Layout**: Uses grid layout for optimal space utilization
 
 ## Keyboard Shortcuts
 
@@ -159,6 +164,29 @@ The search bar appears below the toolbar when activated and provides:
 - **Consistent Layout**: Logical organization of controls
 - **Responsive Design**: Adapts to different window sizes
 - **Accessibility**: Keyboard shortcuts and clear labeling
+- **Visual Consistency**: Uniform button sizing and spacing throughout the interface
+- **Space Optimization**: Table view takes majority of display space for better transcription review
+
+## UI Improvements and Features
+
+### Search Functionality Enhancements
+- **Improved Search Bar**: Wider input field (300px) for better usability
+- **Consistent Button Sizing**: All search navigation buttons have uniform height (30px)
+- **Better Results Display**: Shows "X of Y matches" format for clearer navigation
+- **Accessibility**: Larger Clear button (80px) to accommodate different language translations
+- **Removed Redundancy**: Eliminated unnecessary status labels for cleaner interface
+
+### Layout Optimizations
+- **Table Focus**: Transcription table now takes the majority of display space
+- **Compact Controls**: All other interface elements use minimal space (stretch factor 0)
+- **Dynamic Sizing**: Current segment display automatically resizes to fit content
+- **Grid Layout**: Uses QGridLayout for optimal space utilization in current segment display
+
+### Visual Consistency
+- **Button Uniformity**: Speed control buttons (+/-) match search navigation button dimensions
+- **Icon Updates**: Playback controls button uses Play icon for better semantic clarity
+- **Spacing Standards**: Consistent margins and spacing throughout the interface
+- **Font Flexibility**: Removed hardcoded font sizes to respect user preferences and system settings
 
 ## Tips and Best Practices
 
