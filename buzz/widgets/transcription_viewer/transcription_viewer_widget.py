@@ -211,21 +211,6 @@ class TranscriptionViewerWidget(QWidget):
 
         toolbar.addWidget(resize_button)
 
-        # Add loop toggle button
-        self.loop_toggle = QCheckBox(_("Loop Segment"))
-        self.loop_toggle.setChecked(self.segment_looping_enabled)
-        self.loop_toggle.setToolTip(_("Enable/disable looping when clicking on transcript segments"))
-        self.loop_toggle.toggled.connect(self.on_loop_toggle_changed)
-        toolbar.addWidget(self.loop_toggle)
-
-        # Add follow audio toggle button
-        self.follow_audio_enabled = self.settings.settings.value("transcription_viewer/follow_audio_enabled", False, type=bool)
-        self.follow_audio_toggle = QCheckBox(_("Follow Audio"))
-        self.follow_audio_toggle.setChecked(self.follow_audio_enabled)
-        self.follow_audio_toggle.setToolTip(_("Enable/disable following the current audio position in the transcript. When enabled, automatically scrolls to current text."))
-        self.follow_audio_toggle.toggled.connect(self.on_follow_audio_toggle_changed)
-        toolbar.addWidget(self.follow_audio_toggle)
-
         # Add scroll to current text button
         self.scroll_to_current_button = QToolButton()
         self.scroll_to_current_button.setText(_("Scroll to Current"))
@@ -243,6 +228,11 @@ class TranscriptionViewerWidget(QWidget):
 
         layout.addWidget(self.table_widget)
         layout.addWidget(self.text_display_box)
+        
+        # Loop controls section - positioned between text display and audio player
+        self.create_loop_controls()
+        layout.addWidget(self.loop_controls_frame)
+        
         layout.addWidget(self.audio_player)
         layout.addWidget(self.current_segment_label)
 
@@ -323,6 +313,37 @@ class TranscriptionViewerWidget(QWidget):
         
         # Initially hide the search bar
         self.search_frame.hide()
+
+    def create_loop_controls(self):
+        """Create the loop controls widget"""
+        self.loop_controls_frame = QFrame()
+        self.loop_controls_frame.setFrameStyle(QFrame.Shape.StyledPanel)
+        self.loop_controls_frame.setMaximumHeight(50)
+        
+        loop_layout = QHBoxLayout(self.loop_controls_frame)
+        loop_layout.setContentsMargins(10, 5, 10, 5)
+        
+        # Loop controls label
+        loop_label = QLabel(_("Playback Controls:"))
+        loop_label.setStyleSheet("font-weight: bold;")
+        loop_layout.addWidget(loop_label)
+        
+        # Loop toggle button
+        self.loop_toggle = QCheckBox(_("Loop Segment"))
+        self.loop_toggle.setChecked(self.segment_looping_enabled)
+        self.loop_toggle.setToolTip(_("Enable/disable looping when clicking on transcript segments"))
+        self.loop_toggle.toggled.connect(self.on_loop_toggle_changed)
+        loop_layout.addWidget(self.loop_toggle)
+        
+        # Follow audio toggle button
+        self.follow_audio_enabled = self.settings.settings.value("transcription_viewer/follow_audio_enabled", False, type=bool)
+        self.follow_audio_toggle = QCheckBox(_("Follow Audio"))
+        self.follow_audio_toggle.setChecked(self.follow_audio_enabled)
+        self.follow_audio_toggle.setToolTip(_("Enable/disable following the current audio position in the transcript. When enabled, automatically scrolls to current text."))
+        self.follow_audio_toggle.toggled.connect(self.on_follow_audio_toggle_changed)
+        loop_layout.addWidget(self.follow_audio_toggle)
+        
+        loop_layout.addStretch()
 
     def on_search_text_changed(self, text: str):
         """Handle search text changes"""
