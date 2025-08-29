@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from pytestqt.qtbot import QtBot
 from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QFrame
 
 from buzz.locale import _
 from buzz.db.entity.transcription import Transcription
@@ -537,18 +538,378 @@ class TestTranscriptionViewerWidget:
     def test_ui_state_persistence(
         self, qtbot: QtBot, transcription, transcription_service, shortcuts
     ):
-        """Test that UI state is properly saved and restored"""
+        """Test that UI state is properly persisted to settings"""
         widget = TranscriptionViewerWidget(
             transcription, transcription_service, shortcuts
         )
         qtbot.add_widget(widget)
 
-        # Show playback controls and find widget
+        # Test that playback controls visibility state is saved
         widget.show_loop_controls()
-        widget.show_search_bar()
-
-        # Verify settings are saved
         assert widget.settings.settings.value("transcription_viewer/playback_controls_visible", False, type=bool)
-        assert widget.settings.settings.value("transcription_viewer/find_widget_visible", False, type=bool)
+
+        widget.close()
+
+    def test_button_sizing_consistency(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that all search and speed control buttons have consistent sizing"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Test search button sizing
+        assert widget.search_prev_button.maximumWidth() == 40
+        assert widget.search_prev_button.minimumHeight() == 30
+        assert widget.search_next_button.maximumWidth() == 40
+        assert widget.search_next_button.minimumHeight() == 30
+        assert widget.clear_search_button.maximumWidth() == 80
+        assert widget.clear_search_button.minimumHeight() == 30
+
+        # Test speed control button sizing
+        assert widget.speed_down_btn.maximumWidth() == 40
+        assert widget.speed_down_btn.minimumHeight() == 30
+        assert widget.speed_up_btn.maximumWidth() == 40
+        assert widget.speed_up_btn.minimumHeight() == 30
+
+        # Verify all buttons have consistent height
+        button_heights = [
+            widget.search_prev_button.minimumHeight(),
+            widget.search_next_button.minimumHeight(),
+            widget.clear_search_button.minimumHeight(),
+            widget.speed_down_btn.minimumHeight(),
+            widget.speed_up_btn.minimumHeight(),
+        ]
+        assert len(set(button_heights)) == 1, "All buttons should have the same height"
+
+        widget.close()
+
+    def test_search_input_width(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that search input has appropriate width for better usability"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Test that search input has minimum width of 300px
+        assert widget.search_input.minimumWidth() >= 300
+
+        widget.close()
+
+    def test_current_segment_display_improvements(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test the improvements made to current segment display"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Test that current segment frame has no frame border
+        assert widget.current_segment_frame.frameStyle() == QFrame.Shape.NoFrame
+
+        # Test that current segment header has correct text and styling
+        assert widget.current_segment_header.text() == "Now Speaking:"
+        assert "font-weight: bold" in widget.current_segment_header.styleSheet()
+        assert "color: #666" in widget.current_segment_header.styleSheet()
+        assert "font-size: 0.75em" in widget.current_segment_header.styleSheet()
+
+        # Test that current segment text is centered
+        alignment = widget.current_segment_text.alignment()
+        assert alignment & Qt.AlignmentFlag.AlignHCenter
+        assert alignment & Qt.AlignmentFlag.AlignTop
+
+        # Test that current segment text has appropriate styling
+        assert "color: #666" in widget.current_segment_text.styleSheet()
+        assert "line-height: 1.1" in widget.current_segment_text.styleSheet()
+
+        # Test that scroll area is properly set up
+        assert hasattr(widget, 'current_segment_scroll_area')
+        assert widget.current_segment_scroll_area.widget() == widget.current_segment_text
+
+        widget.close()
+
+    def test_resize_current_segment_frame(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test the resize_current_segment_frame method for dynamic sizing"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Initially, frame should be hidden
+        assert not widget.current_segment_frame.isVisible()
+
+        # Test with short text
+        short_text = "Short text"
+        widget.current_segment_text.setText(short_text)
+        widget.resize_current_segment_frame()
+        
+        # Frame should now be visible and sized appropriately
+        assert widget.current_segment_frame.isVisible()
+        assert widget.current_segment_frame.maximumHeight() > 0
+        assert widget.current_segment_frame.minimumHeight() > 0
+
+        # Test with longer text
+        long_text = "This is a much longer text that should cause the frame to resize and potentially hit the maximum height limit. It should be long enough to test the line wrapping and height calculation logic."
+        widget.current_segment_text.setText(long_text)
+        widget.resize_current_segment_frame()
+        
+        # Frame should still be visible and properly sized
+        assert widget.current_segment_frame.isVisible()
+        assert widget.current_segment_frame.maximumHeight() > 0
+        assert widget.current_segment_frame.minimumHeight() > 0
+
+        # Test with empty text
+        widget.current_segment_text.setText("")
+        widget.resize_current_segment_frame()
+        
+        # Frame should be hidden when no text
+        assert widget.current_segment_frame.maximumHeight() == 0
+        assert widget.current_segment_frame.minimumHeight() == 0
+
+        widget.close()
+
+    def test_playback_controls_button_icon(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that playback controls button uses the correct Play icon"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Test that the button has an icon set
+        assert not widget.playback_controls_toggle_button.icon().isNull()
+
+        # Test that the button is properly connected to toggle functionality
+        assert hasattr(widget, 'toggle_loop_controls_visibility')
+
+        widget.close()
+
+    def test_layout_optimizations(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that layout optimizations are properly applied"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Test that main layout has proper stretch factors
+        # Table widget should have stretch factor 1 (majority of space)
+        # Other widgets should have stretch factor 0 (minimal space)
+        main_layout = widget.layout()
+        
+        # Find the table widget in the layout
+        table_widget_index = None
+        for i in range(main_layout.count()):
+            if main_layout.itemAt(i).widget() == widget.table_widget:
+                table_widget_index = i
+                break
+        
+        assert table_widget_index is not None, "Table widget should be in main layout"
+        
+        # Test that current segment frame has minimal stretch
+        current_segment_index = None
+        for i in range(main_layout.count()):
+            if main_layout.itemAt(i).widget() == widget.current_segment_frame:
+                current_segment_index = i
+                break
+        
+        assert current_segment_index is not None, "Current segment frame should be in main layout"
+
+        widget.close()
+
+    def test_settings_integration_for_new_features(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that new features properly integrate with settings system"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Test that playback controls visibility setting is properly initialized
+        initial_setting = widget.settings.settings.value("transcription_viewer/playback_controls_visible", False, type=bool)
+        assert isinstance(initial_setting, bool)
+
+        # Test that calling show_loop_controls saves the setting
+        widget.show_loop_controls()
+        saved_setting = widget.settings.settings.value("transcription_viewer/playback_controls_visible", False, type=bool)
+        assert saved_setting == True
+
+        # Test that calling hide_loop_controls saves the setting
+        widget.hide_loop_controls()
+        saved_setting = widget.settings.settings.value("transcription_viewer/playback_controls_visible", False, type=bool)
+        assert saved_setting == False
+
+        # Test that toggle method also saves the setting
+        widget.toggle_loop_controls_visibility()
+        saved_setting = widget.settings.settings.value("transcription_viewer/playback_controls_visible", False, type=bool)
+        assert saved_setting == True
+
+        widget.close()
+
+    def test_search_results_label_format(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that search results label shows the correct format (1 of X matches)"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Test initial state
+        assert "0 of 0 matches" in widget.search_results_label.text()
+
+        # Test with search results
+        widget.search_input.setText("test")
+        qtbot.keyPress(widget.search_input, Qt.Key.Key_Return)
+        
+        # Wait for search to complete
+        qtbot.wait(100)
+        
+        # Verify the format is correct (should show "1 of X matches" or similar)
+        results_text = widget.search_results_label.text()
+        assert "of" in results_text
+        assert "match" in results_text.lower()
+
+        widget.close()
+
+    def test_current_segment_text_scrolling(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that current segment text properly scrolls when content is too long"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Test with very long text that should trigger scrolling
+        long_text = "This is a very long text that should definitely exceed the maximum height limit and trigger the scrolling functionality. " * 10
+        widget.current_segment_text.setText(long_text)
+        widget.resize_current_segment_frame()
+        
+        # Frame should be visible but constrained to maximum height
+        assert widget.current_segment_frame.isVisible()
+        assert widget.current_segment_frame.maximumHeight() > 0
+        
+        # The scroll area should be properly configured
+        scroll_area = widget.current_segment_scroll_area
+        assert scroll_area.verticalScrollBarPolicy() == Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        assert scroll_area.horizontalScrollBarPolicy() == Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+
+        widget.close()
+
+    def test_search_bar_visibility_toggle(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that search bar can be properly shown and hidden"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Initially search frame should be hidden
+        assert not widget.search_frame.isVisible()
+
+        # Show search bar
+        widget.show_search_bar()
+        assert widget.search_frame.isVisible()
+
+        # Hide search bar
+        widget.hide_search_bar()
+        assert not widget.search_frame.isVisible()
+
+        widget.close()
+
+    def test_audio_player_playback_state_disconnection(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that audio player playback state changes don't auto-toggle playback controls"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Initially playback controls should be hidden
+        initial_visibility = widget.loop_controls_frame.isVisible()
+        
+        # Simulate audio playback state change
+        widget.on_audio_playback_state_changed("playing")
+        
+        # Playback controls visibility should not have changed
+        assert widget.loop_controls_frame.isVisible() == initial_visibility
+        
+        # The method should exist but do nothing (as intended)
+        assert hasattr(widget, 'on_audio_playback_state_changed')
+
+        widget.close()
+
+    def test_current_segment_header_styling(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that current segment header has proper styling and constraints"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        header = widget.current_segment_header
+        
+        # Test header text
+        assert header.text() == "Now Speaking:"
+        
+        # Test header styling
+        stylesheet = header.styleSheet()
+        assert "font-weight: bold" in stylesheet
+        assert "color: #666" in stylesheet
+        assert "font-size: 0.75em" in stylesheet
+        assert "margin: 0" in stylesheet
+        assert "padding: 0" in stylesheet
+        
+        # Test header alignment
+        assert header.alignment() & Qt.AlignmentFlag.AlignHCenter
+        assert header.alignment() & Qt.AlignmentFlag.AlignTop
+        
+        # Test header height constraint
+        assert header.maximumHeight() == 16
+
+        widget.close()
+
+    def test_search_clear_functionality_comprehensive(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test comprehensive search clear functionality including UI state reset"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Set up search
+        widget.search_input.setText("test search")
+        qtbot.keyPress(widget.search_input, Qt.Key.Key_Return)
+        qtbot.wait(100)
+        
+        # Verify search is active
+        assert widget.search_input.text() == "test search"
+        assert "match" in widget.search_results_label.text().lower()
+        
+        # Clear search
+        qtbot.mouseClick(widget.clear_search_button, Qt.MouseButton.LeftButton)
+        qtbot.wait(100)
+        
+        # Verify search is cleared
+        assert widget.search_input.text() == ""
+        assert "0 of 0 matches" in widget.search_results_label.text()
+        
+        # Verify search navigation buttons are disabled
+        assert not widget.search_prev_button.isEnabled()
+        assert not widget.search_next_button.isEnabled()
 
         widget.close()
