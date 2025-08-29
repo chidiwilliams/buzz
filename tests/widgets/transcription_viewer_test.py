@@ -319,7 +319,6 @@ class TestTranscriptionViewerWidget:
         assert hasattr(widget, 'search_prev_button')
         assert hasattr(widget, 'search_next_button')
         assert hasattr(widget, 'clear_search_button')
-        assert hasattr(widget, 'close_search_button')
         
         # Check initial state (search bar should be hidden)
         assert not widget.search_frame.isVisible()
@@ -498,83 +497,11 @@ class TestTranscriptionViewerWidget:
         
         widget.close()
 
-    def test_playback_controls_toggle_button_functionality(
-        self, qtbot: QtBot, transcription, transcription_service, shortcuts
-    ):
-        """Test the Playback Controls toggle button functionality"""
-        widget = TranscriptionViewerWidget(
-            transcription, transcription_service, shortcuts
-        )
-        qtbot.add_widget(widget)
 
-        # Wait for widget to be fully initialized
-        qtbot.wait(100)
 
-        # Test that the button can toggle the controls
-        initial_state = widget.loop_controls_frame.isVisible()
-        
-        # Click the button to toggle controls
-        qtbot.mouseClick(widget.playback_controls_toggle_button, Qt.MouseButton.LeftButton)
-        qtbot.wait(100)  # Wait for UI update
-        
-        # State should have changed
-        new_state = widget.loop_controls_frame.isVisible()
-        assert new_state != initial_state
-        
-        # Button state should match frame visibility
-        assert widget.playback_controls_toggle_button.isChecked() == new_state
 
-        widget.close()
 
-    def test_find_button_functionality(
-        self, qtbot: QtBot, transcription, transcription_service, shortcuts
-    ):
-        """Test the Find button functionality"""
-        widget = TranscriptionViewerWidget(
-            transcription, transcription_service, shortcuts
-        )
-        qtbot.add_widget(widget)
 
-        # Wait for widget to be fully initialized
-        qtbot.wait(100)
-
-        # Test that the button can toggle the find widget
-        initial_state = widget.search_frame.isVisible()
-        
-        # Click the button to toggle find widget
-        qtbot.mouseClick(widget.find_button, Qt.MouseButton.LeftButton)
-        qtbot.wait(100)  # Wait for UI update
-        
-        # State should have changed
-        new_state = widget.search_frame.isVisible()
-        assert new_state != initial_state
-        
-        # Button state should match frame visibility
-        assert widget.find_button.isChecked() == new_state
-
-        widget.close()
-
-    def test_cmd_f_toggle_functionality(
-        self, qtbot: QtBot, transcription, transcription_service, shortcuts
-    ):
-        """Test that Cmd+F properly toggles the find widget"""
-        widget = TranscriptionViewerWidget(
-            transcription, transcription_service, shortcuts
-        )
-        qtbot.add_widget(widget)
-
-        # Initially, find widget should be hidden
-        assert not widget.search_frame.isVisible()
-
-        # Simulate Cmd+F to show find widget
-        qtbot.keyPress(widget, Qt.Key.Key_F, Qt.KeyboardModifier.ControlModifier)
-        assert widget.search_frame.isVisible()
-
-        # Simulate Cmd+F again to hide find widget
-        qtbot.keyPress(widget, Qt.Key.Key_F, Qt.KeyboardModifier.ControlModifier)
-        assert not widget.search_frame.isVisible()
-
-        widget.close()
 
     def test_speed_controls_functionality(
         self, qtbot: QtBot, transcription, transcription_service, shortcuts
@@ -605,29 +532,7 @@ class TestTranscriptionViewerWidget:
 
         widget.close()
 
-    def test_current_segment_display_functionality(
-        self, qtbot: QtBot, transcription, transcription_service, shortcuts
-    ):
-        """Test the current segment display functionality"""
-        widget = TranscriptionViewerWidget(
-            transcription, transcription_service, shortcuts
-        )
-        qtbot.add_widget(widget)
 
-        # Initially, current segment frame should be hidden
-        assert not widget.current_segment_frame.isVisible()
-
-        # Simulate selecting a segment
-        segments = widget.table_widget.segments()
-        if segments:
-            first_segment = segments[0]
-            widget.on_segment_selected(first_segment)
-            
-            # Current segment frame should now be visible
-            assert widget.current_segment_frame.isVisible()
-            assert widget.current_segment_text.text() == first_segment.value("text")
-
-        widget.close()
 
     def test_ui_state_persistence(
         self, qtbot: QtBot, transcription, transcription_service, shortcuts

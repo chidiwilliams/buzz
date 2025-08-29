@@ -480,6 +480,10 @@ class TranscriptionViewerWidget(QWidget):
         if hasattr(self, 'playback_controls_toggle_button'):
             self.playback_controls_toggle_button.setChecked(True)
             self.playback_controls_toggle_button.setToolTip(_("Hide Playback Controls (Ctrl+P)"))
+        
+        # Save the visibility state to settings
+        self.playback_controls_visible = True
+        self.settings.settings.setValue("transcription_viewer/playback_controls_visible", self.playback_controls_visible)
 
     def hide_loop_controls(self):
         """Hide the loop controls when audio is not playing"""
@@ -488,6 +492,10 @@ class TranscriptionViewerWidget(QWidget):
         if hasattr(self, 'playback_controls_toggle_button'):
             self.playback_controls_toggle_button.setChecked(False)
             self.playback_controls_toggle_button.setToolTip(_("Show Playback Controls (Ctrl+P)"))
+        
+        # Save the visibility state to settings
+        self.playback_controls_visible = False
+        self.settings.settings.setValue("transcription_viewer/playback_controls_visible", self.playback_controls_visible)
 
     def toggle_loop_controls_visibility(self):
         """Toggle the visibility of playback_controls_toggle_button"""
