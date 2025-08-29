@@ -157,10 +157,11 @@ class TranscriptionViewerWidget(QWidget):
             self.on_audio_player_position_ms_changed
         )
         
-        # Connect to audio player playback state changes to show/hide loop controls
-        self.audio_player.media_player.playbackStateChanged.connect(
-            self.on_audio_playback_state_changed
-        )
+        # Audio playback state changes are no longer connected to show/hide loop controls
+        # The user controls this manually via the toolbar button
+        # self.audio_player.media_player.playbackStateChanged.connect(
+        #     self.on_audio_playback_state_changed
+        # )
 
         # Create a better current segment display that handles long text
         self.current_segment_frame = QFrame()
@@ -478,15 +479,13 @@ class TranscriptionViewerWidget(QWidget):
         self.settings.settings.setValue("transcription_viewer/playback_controls_visible", self.playback_controls_visible)
 
     def on_audio_playback_state_changed(self, state):
-        """Handle audio playback state changes to show/hide playback controls"""
+        """Handle audio playback state changes - no longer auto-show/hide playback controls"""
         from PyQt6.QtMultimedia import QMediaPlayer
         
-        if state == QMediaPlayer.PlaybackState.PlayingState:
-            # Audio is playing - show loop controls
-            self.show_loop_controls()
-        else:
-            # Audio is paused/stopped - hide loop controls
-            self.hide_loop_controls()
+        # Audio playback state changes should not automatically show/hide playback controls
+        # The user should control this manually via the toolbar button
+        # This prevents the play button from accidentally toggling the controls dialog
+        pass
 
     def initialize_speed_control(self):
         """Initialize the speed control with current value from audio player"""
