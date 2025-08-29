@@ -19,6 +19,7 @@ from PyQt6.QtWidgets import (
     QCheckBox,
     QAbstractItemView,
     QComboBox,
+    QScrollArea,
 )
 
 from buzz.locale import _
@@ -35,6 +36,7 @@ from buzz.widgets.icon import (
     TranslateIcon,
     ResizeIcon,
     ScrollToCurrentIcon,
+    VisibilityIcon,
 )
 from buzz.translator import Translator
 from buzz.widgets.text_display_box import TextDisplayBox
@@ -157,14 +159,36 @@ class TranscriptionViewerWidget(QWidget):
             self.on_audio_playback_state_changed
         )
 
-        self.current_segment_label = QLabel("", self)
-        self.current_segment_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        self.current_segment_label.setContentsMargins(0, 0, 0, 10)
-        self.current_segment_label.setWordWrap(True)
-
-        font_metrics = self.current_segment_label.fontMetrics()
-        max_height = font_metrics.lineSpacing() * 3
-        self.current_segment_label.setMaximumHeight(max_height)
+        # Create a better current segment display that handles long text
+        self.current_segment_frame = QFrame()
+        self.current_segment_frame.setFrameStyle(QFrame.Shape.StyledPanel)
+        self.current_segment_frame.setMaximumHeight(120)  # Increased height for long segments
+        
+        segment_layout = QVBoxLayout(self.current_segment_frame)
+        segment_layout.setContentsMargins(10, 5, 10, 5)
+        
+        # Header label
+        self.current_segment_header = QLabel(_("Current Segment:"))
+        self.current_segment_header.setStyleSheet("font-weight: bold; color: #333;")
+        self.current_segment_header.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        segment_layout.addWidget(self.current_segment_header)
+        
+        # Text display with scroll capability
+        self.current_segment_text = QLabel("")
+        self.current_segment_text.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        self.current_segment_text.setWordWrap(True)
+        self.current_segment_text.setStyleSheet("color: #666; line-height: 1.4;")
+        self.current_segment_text.setMinimumHeight(40)
+        
+        # Make it scrollable if content is too long
+        self.current_segment_scroll_area = QScrollArea()
+        self.current_segment_scroll_area.setWidget(self.current_segment_text)
+        self.current_segment_scroll_area.setWidgetResizable(True)
+        self.current_segment_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.current_segment_scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.current_segment_scroll_area.setMaximumHeight(80)
+        
+        segment_layout.addWidget(self.current_segment_scroll_area)
 
         layout = QVBoxLayout(self)
 
@@ -228,6 +252,17 @@ class TranscriptionViewerWidget(QWidget):
         self.playback_controls_toggle_button.clicked.connect(self.toggle_loop_controls_visibility)
         toolbar.addWidget(self.playback_controls_toggle_button)
 
+        # Add Find button
+        self.find_button = QToolButton()
+        self.find_button.setText(_("Find"))
+        self.find_button.setIcon(VisibilityIcon(self))  # Using visibility icon for search
+        self.find_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        self.find_button.setToolTip(_("Show/Hide Search Bar (Ctrl+F)"))
+        self.find_button.setCheckable(True)  # Make button checkable to show state
+        self.find_button.setChecked(False)   # Initially unchecked (search hidden)
+        self.find_button.clicked.connect(self.toggle_search_bar_visibility)
+        toolbar.addWidget(self.find_button)
+
         # Add scroll to current text button
         self.scroll_to_current_button = QToolButton()
         self.scroll_to_current_button.setText(_("Scroll to Current"))
@@ -251,7 +286,10 @@ class TranscriptionViewerWidget(QWidget):
         layout.addWidget(self.loop_controls_frame)
         
         layout.addWidget(self.audio_player)
-        layout.addWidget(self.current_segment_label)
+        layout.addWidget(self.current_segment_frame)
+        
+        # Initially hide the current segment frame until a segment is selected
+        self.current_segment_frame.hide()
 
         self.setLayout(layout)
 
@@ -269,14 +307,14 @@ class TranscriptionViewerWidget(QWidget):
         search_layout = QHBoxLayout(self.search_frame)
         search_layout.setContentsMargins(10, 5, 10, 5)
         
-        # Search label
-        search_label = QLabel(_("Search:"))
+        # Find label
+        search_label = QLabel(_("Find:"))
         search_label.setStyleSheet("font-weight: bold;")
         search_layout.addWidget(search_label)
         
-        # Search input
+        # Find input
         self.search_input = QLineEdit()
-        self.search_input.setPlaceholderText(_("Enter text to search..."))
+        self.search_input.setPlaceholderText(_("Enter text to find..."))
         self.search_input.textChanged.connect(self.on_search_text_changed)
         self.search_input.returnPressed.connect(self.search_next)
         self.search_input.setMinimumWidth(200)
@@ -313,13 +351,7 @@ class TranscriptionViewerWidget(QWidget):
         self.clear_search_button.setMaximumWidth(60)
         search_layout.addWidget(self.clear_search_button)
         
-        # Close button
-        self.close_search_button = QPushButton(_("×"))
-        self.close_search_button.setToolTip(_("Close search"))
-        self.close_search_button.clicked.connect(self.hide_search_bar)
-        self.close_search_button.setMaximumWidth(30)
-        self.close_search_button.setStyleSheet("font-weight: bold; font-size: 14px;")
-        search_layout.addWidget(self.close_search_button)
+
         
         # Results label
         self.search_results_label = QLabel("")
@@ -689,6 +721,7 @@ class TranscriptionViewerWidget(QWidget):
     def hide_search_bar(self):
         """Hide the search bar completely"""
         self.search_frame.hide()
+        self.find_button.setChecked(False)  # Sync button state
         self.clear_search()
         self.search_input.clearFocus()
 
@@ -709,8 +742,26 @@ class TranscriptionViewerWidget(QWidget):
         loop_controls_shortcut.activated.connect(self.toggle_loop_controls_visibility)
 
     def focus_search_input(self):
-        """Focus the search input field"""
+        """Toggle the search bar visibility and focus the input field"""
+        if self.search_frame.isVisible():
+            self.hide_search_bar()
+        else:
+            self.search_frame.show()
+            self.find_button.setChecked(True)  # Sync button state
+            self.search_input.setFocus()
+            self.search_input.selectAll()
+
+    def toggle_search_bar_visibility(self):
+        """Toggle the search bar visibility"""
+        if self.search_frame.isVisible():
+            self.hide_search_bar()
+        else:
+            self.show_search_bar()
+
+    def show_search_bar(self):
+        """Show the search bar and focus the input"""
         self.search_frame.show()
+        self.find_button.setChecked(True)
         self.search_input.setFocus()
         self.search_input.selectAll()
 
@@ -779,6 +830,10 @@ class TranscriptionViewerWidget(QWidget):
         # Store the currently selected segment for loop functionality
         self.currently_selected_segment = segment
         
+        # Show the current segment frame and update the text
+        self.current_segment_frame.show()
+        self.current_segment_text.setText(segment.value("text"))
+        
         # Get current audio position for timestamp
         current_pos = self.audio_player.position_ms
         
@@ -818,7 +873,8 @@ class TranscriptionViewerWidget(QWidget):
             None,
         )
         if current_segment is not None:
-            self.current_segment_label.setText(current_segment.value("text"))
+            self.current_segment_text.setText(current_segment.value("text"))
+            self.current_segment_frame.show()  # Show the frame when there's a current segment
             
             # Update highlighting based on follow audio and loop settings
             if self.follow_audio_enabled:
