@@ -37,6 +37,7 @@ from buzz.widgets.icon import (
     ResizeIcon,
     ScrollToCurrentIcon,
     VisibilityIcon,
+    PlayIcon,
 )
 from buzz.translator import Translator
 from buzz.widgets.text_display_box import TextDisplayBox
@@ -150,8 +151,6 @@ class TranscriptionViewerWidget(QWidget):
         self.table_widget.segment_selected.connect(self.on_segment_selected)
 
         self.text_display_box = TextDisplayBox(self)
-        font = QFont(self.text_display_box.font().family(), 14)
-        self.text_display_box.setFont(font)
 
         self.audio_player = AudioPlayer(file_path=transcription.file)
         self.audio_player.position_ms_changed.connect(
@@ -248,7 +247,7 @@ class TranscriptionViewerWidget(QWidget):
         # Add loop controls toggle button
         self.playback_controls_toggle_button = QToolButton()
         self.playback_controls_toggle_button.setText(_("Playback Controls"))
-        self.playback_controls_toggle_button.setIcon(ScrollToCurrentIcon(self))  # Using existing icon for now
+        self.playback_controls_toggle_button.setIcon(PlayIcon(self))  # Use Play icon for playback controls
         self.playback_controls_toggle_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         self.playback_controls_toggle_button.setToolTip(_("Show/Hide Loop Controls (Ctrl+L)"))
         self.playback_controls_toggle_button.setCheckable(True)  # Make button checkable to show state
@@ -331,30 +330,26 @@ class TranscriptionViewerWidget(QWidget):
         search_label.setStyleSheet("font-weight: bold;")
         search_layout.addWidget(search_label)
         
-        # Find input
+        # Find input - make it wider for better usability
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText(_("Enter text to find..."))
         self.search_input.textChanged.connect(self.on_search_text_changed)
         self.search_input.returnPressed.connect(self.search_next)
-        self.search_input.setMinimumWidth(200)
+        self.search_input.setMinimumWidth(300)  # Increased from 200 to 300
         
         # Add keyboard shortcuts for search navigation
         from PyQt6.QtGui import QKeySequence
         self.search_input.installEventFilter(self)
         
-        # Add search status indicator
-        self.search_status_label = QLabel("")
-        self.search_status_label.setStyleSheet("color: #666; font-size: 10px;")
-        self.search_status_label.setMaximumWidth(80)
         search_layout.addWidget(self.search_input)
-        search_layout.addWidget(self.search_status_label)
         
-        # Search buttons
+        # Search buttons - make them consistent height and remove hardcoded font sizes
         self.search_prev_button = QPushButton(_("↑"))
         self.search_prev_button.setToolTip(_("Previous match (Shift+Enter)"))
         self.search_prev_button.clicked.connect(self.search_previous)
         self.search_prev_button.setEnabled(False)
         self.search_prev_button.setMaximumWidth(40)
+        self.search_prev_button.setMinimumHeight(30)  # Ensure consistent height
         search_layout.addWidget(self.search_prev_button)
         
         self.search_next_button = QPushButton(_("↓"))
@@ -362,19 +357,19 @@ class TranscriptionViewerWidget(QWidget):
         self.search_next_button.clicked.connect(self.search_next)
         self.search_next_button.setEnabled(False)
         self.search_next_button.setMaximumWidth(40)
+        self.search_next_button.setMinimumHeight(30)  # Ensure consistent height
         search_layout.addWidget(self.search_next_button)
         
-        # Clear button
+        # Clear button - make it bigger to accommodate different language translations
         self.clear_search_button = QPushButton(_("Clear"))
         self.clear_search_button.clicked.connect(self.clear_search)
-        self.clear_search_button.setMaximumWidth(60)
+        self.clear_search_button.setMaximumWidth(80)  # Increased from 60 to 80
+        self.clear_search_button.setMinimumHeight(30)  # Ensure consistent height
         search_layout.addWidget(self.clear_search_button)
-        
-
         
         # Results label
         self.search_results_label = QLabel("")
-        self.search_results_label.setStyleSheet("color: #666; font-size: 11px;")
+        self.search_results_label.setStyleSheet("color: #666;")
         search_layout.addWidget(self.search_results_label)
         
         search_layout.addStretch()
@@ -432,14 +427,14 @@ class TranscriptionViewerWidget(QWidget):
         loop_layout.addWidget(self.speed_combo)
         
         self.speed_down_btn = QPushButton("-")
-        self.speed_down_btn.setMaximumWidth(25)
-        self.speed_down_btn.setMaximumHeight(25)
+        self.speed_down_btn.setMaximumWidth(40)  # Match search button width
+        self.speed_down_btn.setMinimumHeight(30)  # Match search button height
         self.speed_down_btn.clicked.connect(self.decrease_speed)
         loop_layout.addWidget(self.speed_down_btn)
         
         self.speed_up_btn = QPushButton("+")
-        self.speed_up_btn.setMaximumWidth(25)
-        self.speed_up_btn.setMaximumHeight(25)
+        self.speed_up_btn.setMaximumWidth(40)  # Match search button width
+        self.speed_up_btn.setMinimumHeight(30)  # Match search button height
         self.speed_up_btn.clicked.connect(self.increase_speed)
         loop_layout.addWidget(self.speed_up_btn)
         
@@ -581,7 +576,6 @@ class TranscriptionViewerWidget(QWidget):
         if self.search_text:
             # Add a small delay to avoid searching on every keystroke for long text
             if len(self.search_text) >= 2:
-                self.search_status_label.setText(_("Searching..."))
                 self.perform_search()
             self.search_frame.show()
         else:
@@ -626,8 +620,7 @@ class TranscriptionViewerWidget(QWidget):
                 if search_text_lower in translation:
                     self.search_results.append(("table", i, segment))
         
-        if len(self.search_results) >= max_results:
-            self.search_results_label.setText(f"{max_results}+ matches (showing first {max_results})")
+
 
     def search_in_text(self):
         """Search in the text display box"""
@@ -648,22 +641,23 @@ class TranscriptionViewerWidget(QWidget):
             start = pos + 1
             result_count += 1
         
-        if result_count >= max_results:
-            self.search_results_label.setText(f"{max_results}+ matches (showing first {max_results})")
+
 
     def update_search_ui(self):
         """Update the search UI elements"""
         if self.search_results:
-            self.search_results_label.setText(f"{len(self.search_results)} matches")
+            # Show "1 of X matches" format for consistency with navigation
+            if len(self.search_results) >= 100:
+                self.search_results_label.setText(f"1 of 100+ matches")
+            else:
+                self.search_results_label.setText(f"1 of {len(self.search_results)} matches")
             self.search_prev_button.setEnabled(True)
             self.search_next_button.setEnabled(True)
             self.highlight_current_match()
-            self.search_status_label.setText(_("Ready"))
         else:
             self.search_results_label.setText(_("No matches found"))
             self.search_prev_button.setEnabled(False)
             self.search_next_button.setEnabled(False)
-            self.search_status_label.setText(_("No results"))
 
     def highlight_current_match(self):
         """Highlight the current search match"""
@@ -719,7 +713,10 @@ class TranscriptionViewerWidget(QWidget):
     def update_search_results_label(self):
         """Update the search results label with current position"""
         if self.search_results:
-            self.search_results_label.setText(f"{self.current_search_index + 1} of {len(self.search_results)} matches")
+            if len(self.search_results) >= 100:
+                self.search_results_label.setText(f"{self.current_search_index + 1} of 100+ matches")
+            else:
+                self.search_results_label.setText(f"{self.current_search_index + 1} of {len(self.search_results)} matches")
 
     def clear_search(self):
         """Clear the search and reset highlighting"""
@@ -728,7 +725,7 @@ class TranscriptionViewerWidget(QWidget):
         self.current_search_index = 0
         self.search_input.clear()
         self.search_results_label.setText("")
-        self.search_status_label.setText("")
+
         self.search_prev_button.setEnabled(False)
         self.search_next_button.setEnabled(False)
         
