@@ -97,6 +97,10 @@ class TranscriptionViewerWidget(QWidget):
 
         # Loop functionality
         self.segment_looping_enabled = self.settings.settings.value("transcription_viewer/segment_looping_enabled", True, type=bool)
+        
+        # UI visibility preferences
+        self.playback_controls_visible = self.settings.settings.value("transcription_viewer/playback_controls_visible", False, type=bool)
+        self.find_widget_visible = self.settings.settings.value("transcription_viewer/find_widget_visible", False, type=bool)
 
         # Currently selected segment for loop functionality
         self.currently_selected_segment = None
@@ -296,7 +300,22 @@ class TranscriptionViewerWidget(QWidget):
         # Set up keyboard shortcuts
         self.setup_shortcuts()
 
+        # Restore UI state from settings
+        self.restore_ui_state()
+
         self.reset_view()
+
+    def restore_ui_state(self):
+        """Restore UI state from settings"""
+        # Restore playback controls visibility
+        if self.playback_controls_visible:
+            self.show_loop_controls()
+            if hasattr(self, 'playback_controls_toggle_button'):
+                self.playback_controls_toggle_button.setChecked(True)
+        
+        # Restore find widget visibility
+        if self.find_widget_visible:
+            self.show_search_bar()
 
     def create_search_bar(self):
         """Create the search bar widget"""
@@ -458,6 +477,10 @@ class TranscriptionViewerWidget(QWidget):
         # Update toolbar button state to match current visibility
         if hasattr(self, 'playback_controls_toggle_button'):
             self.playback_controls_toggle_button.setChecked(self.loop_controls_frame.isVisible())
+        
+        # Save the visibility state to settings
+        self.playback_controls_visible = self.loop_controls_frame.isVisible()
+        self.settings.settings.setValue("transcription_viewer/playback_controls_visible", self.playback_controls_visible)
 
     def on_audio_playback_state_changed(self, state):
         """Handle audio playback state changes to show/hide playback controls"""
@@ -724,6 +747,10 @@ class TranscriptionViewerWidget(QWidget):
         self.find_button.setChecked(False)  # Sync button state
         self.clear_search()
         self.search_input.clearFocus()
+        
+        # Save the visibility state to settings
+        self.find_widget_visible = False
+        self.settings.settings.setValue("transcription_viewer/find_widget_visible", False)
 
     def setup_shortcuts(self):
         """Set up keyboard shortcuts"""
@@ -750,6 +777,10 @@ class TranscriptionViewerWidget(QWidget):
             self.find_button.setChecked(True)  # Sync button state
             self.search_input.setFocus()
             self.search_input.selectAll()
+            
+            # Save the visibility state to settings
+            self.find_widget_visible = True
+            self.settings.settings.setValue("transcription_viewer/find_widget_visible", True)
 
     def toggle_search_bar_visibility(self):
         """Toggle the search bar visibility"""
@@ -757,6 +788,10 @@ class TranscriptionViewerWidget(QWidget):
             self.hide_search_bar()
         else:
             self.show_search_bar()
+        
+        # Save the visibility state to settings
+        self.find_widget_visible = self.search_frame.isVisible()
+        self.settings.settings.setValue("transcription_viewer/find_widget_visible", self.find_widget_visible)
 
     def show_search_bar(self):
         """Show the search bar and focus the input"""
@@ -764,6 +799,10 @@ class TranscriptionViewerWidget(QWidget):
         self.find_button.setChecked(True)
         self.search_input.setFocus()
         self.search_input.selectAll()
+        
+        # Save the visibility state to settings
+        self.find_widget_visible = True
+        self.settings.settings.setValue("transcription_viewer/find_widget_visible", True)
 
     def eventFilter(self, obj, event):
         """Event filter to handle keyboard shortcuts in search input"""
