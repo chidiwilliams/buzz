@@ -18,6 +18,7 @@ from PyQt6.QtWidgets import (
     QFrame,
     QCheckBox,
     QAbstractItemView,
+    QComboBox,
 )
 
 from buzz.locale import _
@@ -343,7 +344,124 @@ class TranscriptionViewerWidget(QWidget):
         self.follow_audio_toggle.toggled.connect(self.on_follow_audio_toggle_changed)
         loop_layout.addWidget(self.follow_audio_toggle)
         
+        # Visual separator
+        separator1 = QFrame()
+        separator1.setFrameShape(QFrame.Shape.VLine)
+        separator1.setFrameShadow(QFrame.Shadow.Sunken)
+        separator1.setMaximumHeight(20)
+        loop_layout.addWidget(separator1)
+        
+        # Speed controls
+        speed_label = QLabel("Speed:")
+        speed_label.setStyleSheet("font-weight: bold;")
+        loop_layout.addWidget(speed_label)
+        
+        self.speed_combo = QComboBox()
+        self.speed_combo.setEditable(True)
+        self.speed_combo.addItems(["0.5x", "0.75x", "1x", "1.25x", "1.5x", "2x"])
+        self.speed_combo.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
+        self.speed_combo.currentTextChanged.connect(self.on_speed_changed)
+        self.speed_combo.setMaximumWidth(80)
+        loop_layout.addWidget(self.speed_combo)
+        
+        self.speed_down_btn = QPushButton("-")
+        self.speed_down_btn.setMaximumWidth(25)
+        self.speed_down_btn.setMaximumHeight(25)
+        self.speed_down_btn.clicked.connect(self.decrease_speed)
+        loop_layout.addWidget(self.speed_down_btn)
+        
+        self.speed_up_btn = QPushButton("+")
+        self.speed_up_btn.setMaximumWidth(25)
+        self.speed_up_btn.setMaximumHeight(25)
+        self.speed_up_btn.clicked.connect(self.increase_speed)
+        loop_layout.addWidget(self.speed_up_btn)
+        
+        # Initialize speed control with current value from audio player
+        self.initialize_speed_control()
+        
         loop_layout.addStretch()
+
+    def initialize_speed_control(self):
+        """Initialize the speed control with current value from audio player"""
+        try:
+            # Get current speed from audio player
+            current_speed = self.audio_player.media_player.playbackRate()
+            # Ensure it's within valid range
+            current_speed = max(0.1, min(5.0, current_speed))
+            # Set the combo box text
+            speed_text = f"{current_speed:.2f}x"
+            self.speed_combo.setCurrentText(speed_text)
+        except Exception as e:
+            logging.warning(f"Could not initialize speed control: {e}")
+            # Default to 1.0x
+            self.speed_combo.setCurrentText("1.0x")
+
+    def on_speed_changed(self, speed_text: str):
+        """Handle speed change from the combo box"""
+        try:
+            # Extract the numeric value from speed text (e.g., "1.5x" -> 1.5)
+            clean_text = speed_text.replace('x', '').strip()
+            speed_value = float(clean_text)
+            
+            # Clamp the speed value to valid range
+            speed_value = max(0.1, min(5.0, speed_value))
+            
+            # Update the combo box text to show the clamped value
+            if not speed_text.endswith('x'):
+                speed_text = f"{speed_value:.2f}x"
+            
+            # Block signals to prevent recursion
+            self.speed_combo.blockSignals(True)
+            self.speed_combo.setCurrentText(speed_text)
+            self.speed_combo.blockSignals(False)
+            
+            # Set the playback rate on the audio player
+            self.audio_player.media_player.setPlaybackRate(speed_value)
+            
+            # Save the new rate to settings
+            self.settings.set_value(self.settings.Key.AUDIO_PLAYBACK_RATE, speed_value)
+            
+        except ValueError:
+            logging.warning(f"Invalid speed value: {speed_text}")
+            # Reset to current valid value
+            current_text = self.speed_combo.currentText()
+            if current_text != speed_text:
+                self.speed_combo.setCurrentText(current_text)
+
+    def increase_speed(self):
+        """Increase speed by 0.05"""
+        current_speed = self.get_current_speed()
+        new_speed = min(5.0, current_speed + 0.05)
+        self.set_speed(new_speed)
+
+    def decrease_speed(self):
+        """Decrease speed by 0.05"""
+        current_speed = self.get_current_speed()
+        new_speed = max(0.1, current_speed - 0.05)
+        self.set_speed(new_speed)
+
+    def get_current_speed(self) -> float:
+        """Get the current playback speed as a float"""
+        try:
+            speed_text = self.speed_combo.currentText()
+            return float(speed_text.replace('x', ''))
+        except ValueError:
+            return 1.0
+
+    def set_speed(self, speed: float):
+        """Set the playback speed programmatically"""
+        # Clamp the speed value to valid range
+        speed = max(0.1, min(5.0, speed))
+        
+        # Update the combo box
+        speed_text = f"{speed:.2f}x"
+        self.speed_combo.setCurrentText(speed_text)
+        
+        # Set the playback rate on the audio player
+        self.audio_player.media_player.setPlaybackRate(speed)
+        
+        # Save the new rate to settings
+        self.settings.set_value(self.settings.Key.AUDIO_PLAYBACK_RATE, speed)
 
     def on_search_text_changed(self, text: str):
         """Handle search text changes"""
