@@ -217,6 +217,17 @@ class TranscriptionViewerWidget(QWidget):
 
         toolbar.addWidget(resize_button)
 
+        # Add loop controls toggle button
+        self.playback_controls_toggle_button = QToolButton()
+        self.playback_controls_toggle_button.setText(_("Playback Controls"))
+        self.playback_controls_toggle_button.setIcon(ScrollToCurrentIcon(self))  # Using existing icon for now
+        self.playback_controls_toggle_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        self.playback_controls_toggle_button.setToolTip(_("Show/Hide Loop Controls (Ctrl+L)"))
+        self.playback_controls_toggle_button.setCheckable(True)  # Make button checkable to show state
+        self.playback_controls_toggle_button.setChecked(False)   # Initially unchecked (controls hidden)
+        self.playback_controls_toggle_button.clicked.connect(self.toggle_loop_controls_visibility)
+        toolbar.addWidget(self.playback_controls_toggle_button)
+
         # Add scroll to current text button
         self.scroll_to_current_button = QToolButton()
         self.scroll_to_current_button.setText(_("Scroll to Current"))
@@ -392,20 +403,32 @@ class TranscriptionViewerWidget(QWidget):
     def show_loop_controls(self):
         """Show the loop controls when audio is playing"""
         self.loop_controls_frame.show()
+        # Update toolbar button state
+        if hasattr(self, 'playback_controls_toggle_button'):
+            self.playback_controls_toggle_button.setChecked(True)
+            self.playback_controls_toggle_button.setToolTip(_("Hide Loop Controls (Ctrl+L)"))
 
     def hide_loop_controls(self):
         """Hide the loop controls when audio is not playing"""
         self.loop_controls_frame.hide()
+        # Update toolbar button state
+        if hasattr(self, 'playback_controls_toggle_button'):
+            self.playback_controls_toggle_button.setChecked(False)
+            self.playback_controls_toggle_button.setToolTip(_("Show Loop Controls (Ctrl+L)"))
 
     def toggle_loop_controls_visibility(self):
-        """Toggle the visibility of loop controls"""
+        """Toggle the visibility of playback_controls_toggle_button"""
         if self.loop_controls_frame.isVisible():
             self.hide_loop_controls()
         else:
             self.show_loop_controls()
+        
+        # Update toolbar button state to match current visibility
+        if hasattr(self, 'playback_controls_toggle_button'):
+            self.playback_controls_toggle_button.setChecked(self.loop_controls_frame.isVisible())
 
     def on_audio_playback_state_changed(self, state):
-        """Handle audio playback state changes to show/hide loop controls"""
+        """Handle audio playback state changes to show/hide playback controls"""
         from PyQt6.QtMultimedia import QMediaPlayer
         
         if state == QMediaPlayer.PlaybackState.PlayingState:
