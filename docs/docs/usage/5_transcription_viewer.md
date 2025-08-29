@@ -127,7 +127,7 @@ The search bar appears below the toolbar when activated and provides:
 
 ### Navigation
 - **`Ctrl+F` / `Cmd+F`**: Toggle search bar
-- **`Ctrl+L` / `Cmd+L`**: Toggle playback controls
+- **`Ctrl+P` / `Cmd+P`**: Toggle playback controls
 - **`Ctrl+G` / `Cmd+G`**: Scroll to current position
 - **`Ctrl+O` / `Cmd+O`**: Open file import dialog
 
@@ -191,7 +191,7 @@ The search bar appears below the toolbar when activated and provides:
 
 **Playback controls not visible?**
 - Check if audio is playing (controls only show during playback)
-- Use Ctrl+L to manually toggle controls
+- Use Ctrl+P to manually toggle controls
 - Verify audio file is properly loaded
 
 **Speed controls not responding?**

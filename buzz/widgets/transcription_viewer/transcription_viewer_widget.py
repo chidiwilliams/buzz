@@ -165,15 +165,17 @@ class TranscriptionViewerWidget(QWidget):
 
         # Create a better current segment display that handles long text
         self.current_segment_frame = QFrame()
-        self.current_segment_frame.setFrameStyle(QFrame.Shape.StyledPanel)
+        self.current_segment_frame.setFrameStyle(QFrame.Shape.NoFrame)
         self.current_segment_frame.setMaximumHeight(120)  # Increased height for long segments
         
         segment_layout = QVBoxLayout(self.current_segment_frame)
-        segment_layout.setContentsMargins(10, 5, 10, 5)
+        segment_layout.setContentsMargins(10, 0, 10, 5)  # Reduced top margin from 5 to 2
+        segment_layout.setSpacing(2)  # Reduce spacing between elements
         
-        # Header label
+        # Header label - make it more compact
         self.current_segment_header = QLabel(_("Current Segment:"))
-        self.current_segment_header.setStyleSheet("font-weight: bold; color: #333;")
+        self.current_segment_header.setStyleSheet("font-weight: bold; color: #666;")  # Smaller, lighter text
+        self.current_segment_header.setFrameStyle(QFrame.Shape.NoFrame)
         self.current_segment_header.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         segment_layout.addWidget(self.current_segment_header)
         
@@ -188,9 +190,10 @@ class TranscriptionViewerWidget(QWidget):
         self.current_segment_scroll_area = QScrollArea()
         self.current_segment_scroll_area.setWidget(self.current_segment_text)
         self.current_segment_scroll_area.setWidgetResizable(True)
+        self.current_segment_scroll_area.setFrameStyle(QFrame.Shape.NoFrame)
         self.current_segment_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.current_segment_scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        self.current_segment_scroll_area.setMaximumHeight(80)
+        self.current_segment_scroll_area.setMaximumHeight(380)  # Increased from 80 to 180 to use more space
         
         segment_layout.addWidget(self.current_segment_scroll_area)
 
@@ -283,6 +286,10 @@ class TranscriptionViewerWidget(QWidget):
         layout.addWidget(self.search_frame)
 
         layout.addWidget(self.table_widget)
+        
+        # Add current segment display
+        layout.addWidget(self.current_segment_frame)
+        
         layout.addWidget(self.text_display_box)
         
         # Loop controls section - positioned between text display and audio player
