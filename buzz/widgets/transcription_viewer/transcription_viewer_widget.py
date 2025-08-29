@@ -151,6 +151,11 @@ class TranscriptionViewerWidget(QWidget):
         self.audio_player.position_ms_changed.connect(
             self.on_audio_player_position_ms_changed
         )
+        
+        # Connect to audio player playback state changes to show/hide loop controls
+        self.audio_player.media_player.playbackStateChanged.connect(
+            self.on_audio_playback_state_changed
+        )
 
         self.current_segment_label = QLabel("", self)
         self.current_segment_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
@@ -380,6 +385,35 @@ class TranscriptionViewerWidget(QWidget):
         self.initialize_speed_control()
         
         loop_layout.addStretch()
+        
+        # Initially hide the loop controls frame
+        self.loop_controls_frame.hide()
+
+    def show_loop_controls(self):
+        """Show the loop controls when audio is playing"""
+        self.loop_controls_frame.show()
+
+    def hide_loop_controls(self):
+        """Hide the loop controls when audio is not playing"""
+        self.loop_controls_frame.hide()
+
+    def toggle_loop_controls_visibility(self):
+        """Toggle the visibility of loop controls"""
+        if self.loop_controls_frame.isVisible():
+            self.hide_loop_controls()
+        else:
+            self.show_loop_controls()
+
+    def on_audio_playback_state_changed(self, state):
+        """Handle audio playback state changes to show/hide loop controls"""
+        from PyQt6.QtMultimedia import QMediaPlayer
+        
+        if state == QMediaPlayer.PlaybackState.PlayingState:
+            # Audio is playing - show loop controls
+            self.show_loop_controls()
+        else:
+            # Audio is paused/stopped - hide loop controls
+            self.hide_loop_controls()
 
     def initialize_speed_control(self):
         """Initialize the speed control with current value from audio player"""
@@ -646,6 +680,10 @@ class TranscriptionViewerWidget(QWidget):
         # Scroll to current text shortcut (Ctrl+G)
         scroll_to_current_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.SCROLL_TO_CURRENT_TEXT)), self)
         scroll_to_current_shortcut.activated.connect(self.on_scroll_to_current_button_clicked)
+        
+        # Loop controls visibility shortcut (Ctrl+L)
+        loop_controls_shortcut = QShortcut(QKeySequence("Ctrl+L"), self)
+        loop_controls_shortcut.activated.connect(self.toggle_loop_controls_visibility)
 
     def focus_search_input(self):
         """Focus the search input field"""
