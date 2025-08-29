@@ -250,7 +250,7 @@ class TranscriptionViewerWidget(QWidget):
         self.playback_controls_toggle_button.setText(_("Playback Controls"))
         self.playback_controls_toggle_button.setIcon(PlayIcon(self))  # Use Play icon for playback controls
         self.playback_controls_toggle_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
-        self.playback_controls_toggle_button.setToolTip(_("Show/Hide Loop Controls (Ctrl+L)"))
+        self.playback_controls_toggle_button.setToolTip(_("Show/Hide Playback Controls (Ctrl+P)"))
         self.playback_controls_toggle_button.setCheckable(True)  # Make button checkable to show state
         self.playback_controls_toggle_button.setChecked(False)   # Initially unchecked (controls hidden)
         self.playback_controls_toggle_button.clicked.connect(self.toggle_loop_controls_visibility)
@@ -453,7 +453,7 @@ class TranscriptionViewerWidget(QWidget):
         # Update toolbar button state
         if hasattr(self, 'playback_controls_toggle_button'):
             self.playback_controls_toggle_button.setChecked(True)
-            self.playback_controls_toggle_button.setToolTip(_("Hide Loop Controls (Ctrl+L)"))
+            self.playback_controls_toggle_button.setToolTip(_("Hide Playback Controls (Ctrl+P)"))
 
     def hide_loop_controls(self):
         """Hide the loop controls when audio is not playing"""
@@ -461,7 +461,7 @@ class TranscriptionViewerWidget(QWidget):
         # Update toolbar button state
         if hasattr(self, 'playback_controls_toggle_button'):
             self.playback_controls_toggle_button.setChecked(False)
-            self.playback_controls_toggle_button.setToolTip(_("Show Loop Controls (Ctrl+L)"))
+            self.playback_controls_toggle_button.setToolTip(_("Show Playback Controls (Ctrl+P)"))
 
     def toggle_loop_controls_visibility(self):
         """Toggle the visibility of playback_controls_toggle_button"""
@@ -760,8 +760,8 @@ class TranscriptionViewerWidget(QWidget):
         scroll_to_current_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.SCROLL_TO_CURRENT_TEXT)), self)
         scroll_to_current_shortcut.activated.connect(self.on_scroll_to_current_button_clicked)
         
-        # Loop controls visibility shortcut (Ctrl+L)
-        loop_controls_shortcut = QShortcut(QKeySequence("Ctrl+L"), self)
+        # Loop controls visibility shortcut (Ctrl+P)
+        loop_controls_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.TOGGLE_PLAYBACK_CONTROLS)), self)
         loop_controls_shortcut.activated.connect(self.toggle_loop_controls_visibility)
 
     def focus_search_input(self):
