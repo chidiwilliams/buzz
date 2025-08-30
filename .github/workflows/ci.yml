@@ -294,7 +294,7 @@ jobs:
           submodules: recursive
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.22.0
+        uses: pypa/cibuildwheel@v3.1.4
         env:
           CIBW_ARCHS_WINDOWS: "auto64"
           CIBW_ARCHS_MACOS: "auto64"
