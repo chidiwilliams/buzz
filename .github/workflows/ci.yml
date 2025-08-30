@@ -84,7 +84,7 @@ jobs:
       - name: Downgrade Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '14.4'
+          xcode-version: '16.0.0'
         if: matrix.os == 'macos-latest'
 
       - name: Add msbuild to PATH
@@ -190,7 +190,7 @@ jobs:
       - name: Downgrade Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '14.4'
+          xcode-version: '16.0.0'
         if: matrix.os == 'macos-latest'
 
       - name: Add msbuild to PATH
