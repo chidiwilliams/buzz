@@ -301,7 +301,7 @@ jobs:
         if: matrix.os == 'macos-latest'
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.1.4
+        uses: pypa/cibuildwheel@v2.22.0
         env:
           CIBW_PROJECT_REQUIRES_PYTHON: ">=3.9,<3.13"
           CIBW_SKIP: "cp313-* cp314-*"
