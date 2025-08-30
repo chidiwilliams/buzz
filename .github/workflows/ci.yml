@@ -293,6 +293,13 @@ jobs:
         with:
           submodules: recursive
 
+      # Should be removed with next update to whisper.cpp
+      - name: Downgrade Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.0.0'
+        if: matrix.os == 'macos-latest'
+
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.1.4
         env:
