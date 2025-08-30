@@ -103,7 +103,8 @@ ifeq ($(shell uname -s), Darwin)
 ifeq ($(shell uname -m), arm64)
 	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DWHISPER_COREML=1
 else
-	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
+    # Intel
+	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DGGML_VULKAN=0 -DGGML_METAL=0
 endif
 
 	cmake --build whisper.cpp/build -j --config Release --verbose
