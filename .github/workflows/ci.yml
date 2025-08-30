@@ -296,6 +296,8 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.1.4
         env:
+          CIBW_PROJECT_REQUIRES_PYTHON: ">=3.9,<3.13"
+          CIBW_SKIP: "cp313-* cp314-*"
           CIBW_ARCHS_WINDOWS: "auto64"
           CIBW_ARCHS_MACOS: "auto64"
           CIBW_ARCHS_LINUX: "auto64"
