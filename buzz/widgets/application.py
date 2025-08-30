@@ -39,6 +39,14 @@ class Application(QApplication):
             self.setStyle(QStyleFactory.create("Fusion"))
 
         self.settings = Settings()
+        
+        # Set BUZZ_FORCE_CPU environment variable if Force CPU setting is enabled
+        force_cpu_enabled = self.settings.value(
+            key=Settings.Key.FORCE_CPU, default_value=False
+        )
+        if force_cpu_enabled:
+            os.environ["BUZZ_FORCE_CPU"] = "true"
+        
         font_size = self.settings.value(
             key=Settings.Key.FONT_SIZE, default_value=self.font().pointSize()
         )

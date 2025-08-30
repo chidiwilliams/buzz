@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-18 09:13+0300\n"
+"POT-Creation-Date: 2025-08-30 19:30+0300\n"
 "PO-Revision-Date: 2025-07-29 19:12+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: Catalan <jmas@softcatala.org>\n"
@@ -170,12 +170,24 @@ msgstr "Exporta la carpeta"
 msgid "Live recording mode"
 msgstr "Mode d'enregistrament en directe"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:202
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:208
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:183
+msgid "Use only CPU and disable GPU acceleration"
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:186
+msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:188
+msgid "Disable GPU"
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:213
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:219
 msgid "OpenAI API Key Test"
 msgstr "Prova de clau OpenAI API"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:203
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:214
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
@@ -183,11 +195,11 @@ msgstr ""
 "La vostra clau API és vàlida. Buzz utilitzarà aquesta clau per realitzar "
 "transcripcions de l'API de Whisper i traduccions de la IA."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:219
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:230
 msgid "Invalid API key"
 msgstr "Clau API no vàlida"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:220
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:231
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
@@ -195,11 +207,11 @@ msgstr ""
 "L'API només admet caràcters base64 (A-Za-z0-9+/).-). Altres caràcters de la "
 "clau API poden causar errors."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:238
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:249
 msgid "Select Export Folder"
 msgstr "Selecciona la carpeta d'exportació"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:298
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:320
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
@@ -664,15 +676,16 @@ msgstr "Selecciona un fitxer d'àudio"
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "No s'ha pogut desar la clau OpenAI API a l'anell de claus"
 
-#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:51
-#: buzz/transcriber/recording_transcriber.py:372
+#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:55
+#: buzz/transcriber/recording_transcriber.py:390
+#: buzz/transcriber/recording_transcriber.py:399
 msgid "Whisper server failed to start. Check logs for details."
 msgstr ""
 "El servidor Whisper no s'ha pogut iniciar. Consulteu els registres per "
 "obtenir més informació."
 
-#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:54
-#: buzz/transcriber/recording_transcriber.py:375
+#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:58
+#: buzz/transcriber/recording_transcriber.py:393
 msgid ""
 "Whisper server failed to start due to insufficient memory. Please try again "
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
@@ -1046,13 +1059,13 @@ msgstr "Sundanès"
 msgid "Cantonese"
 msgstr "Cantonès"
 
-#: buzz/transcriber/recording_transcriber.py:338
-msgid "Starting Whisper.cpp..."
-msgstr "Començant Whisper.cpp..."
-
-#: buzz/model_loader.py:538
+#: buzz/transcriber/recording_transcriber.py:241 buzz/model_loader.py:538
 msgid "A connection error occurred"
 msgstr "S'ha produït un error de connexió"
+
+#: buzz/transcriber/recording_transcriber.py:350
+msgid "Starting Whisper.cpp..."
+msgstr "Començant Whisper.cpp..."
 
 #: buzz/settings/shortcut.py:17
 msgid "Open Record Window"
