@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-18 09:13+0300\n"
-"PO-Revision-Date: 2025-07-18 09:14+0300\n"
+"POT-Creation-Date: 2025-08-30 19:30+0300\n"
+"PO-Revision-Date: 2025-08-30 19:31+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -173,12 +173,26 @@ msgstr ""
 "Dzīvā ieraksta\n"
 "režīms"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:202
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:208
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:183
+msgid "Use only CPU and disable GPU acceleration"
+msgstr "Izmantot tikai CPU un deaktivēt GPU paātrināšanu"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:186
+msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
+msgstr ""
+"Aktivizējiet šo, ja lielāki modeļi neietilpst jūsu video kartes atmiņā un "
+"Buzz avarē"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:188
+msgid "Disable GPU"
+msgstr "Deaktivēt GPU"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:213
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:219
 msgid "OpenAI API Key Test"
 msgstr "OpenAI API atslēgas pārbaude"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:203
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:214
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
@@ -186,11 +200,11 @@ msgstr ""
 "Jūsu API atslēga ir derīga. Buzz izmantos to runas atpazīšanai ar Whisper "
 "API un tulkošanai."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:219
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:230
 msgid "Invalid API key"
 msgstr "Nederīga API atslēga"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:220
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:231
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
@@ -198,11 +212,11 @@ msgstr ""
 "API atbalsta tikai base64 simbolus (A-Za-z0-9+/=_-). Citi simboli API "
 "atslēgā var radīt kļūdas."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:238
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:249
 msgid "Select Export Folder"
 msgstr "Izvēlieties mapi kurā eksportēt"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:298
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:320
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
