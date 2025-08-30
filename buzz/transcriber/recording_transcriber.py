@@ -362,6 +362,8 @@ class RecordingTranscriber(QObject):
 
         if self.transcription_options.language is not None:
             command.extend(["--language", self.transcription_options.language])
+        else:
+            command.extend(["--language", "auto"])
 
         logging.debug(f"Starting Whisper server with command: {' '.join(command)}")
 
