@@ -191,6 +191,3 @@ class TranscriptionSegmentsEditorWidget(QTableView):
             # Scroll to the row with better positioning
             model_index = self.model().index(row_index, 0)
             self.scrollTo(model_index, QAbstractItemView.ScrollHint.PositionAtCenter)
-            
-            # Also try to ensure it's visible
-            self.scrollTo(model_index, QAbstractItemView.ScrollHint.EnsureVisible)
