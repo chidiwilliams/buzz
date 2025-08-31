@@ -162,8 +162,6 @@ class TranscriptionViewerWidget(QWidget):
         self.audio_player.media_player.playbackStateChanged.connect(
             self.on_audio_playback_state_changed
         )
-        
-
 
         # Create a better current segment display that handles long text
         self.current_segment_frame = QFrame()
@@ -178,7 +176,6 @@ class TranscriptionViewerWidget(QWidget):
         self.current_segment_header.setStyleSheet("font-weight: bold; color: #666; font-size: 0.75em; margin: 0; padding: 0;")
         self.current_segment_header.setFrameStyle(QFrame.Shape.NoFrame)
         self.current_segment_header.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
-        self.current_segment_header.setMaximumHeight(16)  # Very small height
         
         # Text display - centered with scroll capability
         self.current_segment_text = QLabel("")
@@ -265,8 +262,6 @@ class TranscriptionViewerWidget(QWidget):
 
         toolbar.addWidget(resize_button)
 
-
-
         # Add Find button
         self.find_button = QToolButton()
         self.find_button.setText(_("Find"))
@@ -277,10 +272,6 @@ class TranscriptionViewerWidget(QWidget):
         self.find_button.setChecked(False)   # Initially unchecked (search hidden)
         self.find_button.clicked.connect(self.toggle_search_bar_visibility)
         toolbar.addWidget(self.find_button)
-
-
-
-
 
         layout.setMenuBar(toolbar)
 
@@ -304,7 +295,6 @@ class TranscriptionViewerWidget(QWidget):
 
         # Add current segment display (minimal space)
         layout.addWidget(self.current_segment_frame, 1)  # Stretch factor 0 (minimal)
-                
 
         # Initially hide the current segment frame until a segment is selected
         self.current_segment_frame.hide()
@@ -504,10 +494,6 @@ class TranscriptionViewerWidget(QWidget):
         else:
             self.show_loop_controls()
 
-
-
-
-
     def on_audio_playback_state_changed(self, state):
         """Handle audio playback state changes to automatically show/hide playback controls"""
         from PyQt6.QtMultimedia import QMediaPlayer
@@ -650,9 +636,7 @@ class TranscriptionViewerWidget(QWidget):
                     
                 translation = segment.value("translation").lower()
                 if search_text_lower in translation:
-                    self.search_results.append(("table", i, segment))
-        
-
+                    self.search_results.append(("table", i, segment))        
 
     def search_in_text(self):
         """Search in the text display box"""
@@ -672,8 +656,6 @@ class TranscriptionViewerWidget(QWidget):
             self.search_results.append(("text", pos, pos + len(self.search_text)))
             start = pos + 1
             result_count += 1
-        
-
 
     def update_search_ui(self):
         """Update the search UI elements"""
@@ -796,8 +778,6 @@ class TranscriptionViewerWidget(QWidget):
         # Playback controls visibility shortcut (Ctrl+P)
         playback_controls_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.TOGGLE_PLAYBACK_CONTROLS)), self)
         playback_controls_shortcut.activated.connect(self.toggle_playback_controls_visibility)
-        
-
 
     def focus_search_input(self):
         """Toggle the search bar visibility and focus the input field"""
