@@ -1091,7 +1091,7 @@ class TranscriptionViewerWidget(QWidget):
         if enabled:
             # When follow audio is first enabled, automatically scroll to current position
             # This gives immediate feedback that the feature is working
-            self._auto_scroll_to_current_position()
+            self.auto_scroll_to_current_position()
         else:
             # If we have a selected segment, highlight it and keep it highlighted
             if self.currently_selected_segment is not None:
@@ -1127,114 +1127,7 @@ class TranscriptionViewerWidget(QWidget):
 
         self.highlight_table_match(current_segment_index)
 
-    def _ensure_segment_visible(self, row_index: int):
-        """
-        Ensures the segment at the given row index is visible in the table widget.
-        This is a workaround for QTableView's scrollTo not always working as expected.
-        """
-        try:
-            # Get current scroll position
-            scroll_area = self.table_widget.parent()
-            if hasattr(scroll_area, 'verticalScrollBar'):
-                scroll_bar = scroll_area.verticalScrollBar()
-                current_scroll = scroll_bar.value()
-            
-            # Try to scroll to the row
-            model_index = self.table_widget.model().index(row_index, 0)
-            self.table_widget.scrollTo(model_index)
-            
-            # Check if it's now visible
-            visible_rect = self.table_widget.viewport().rect()
-            row_rect = self.table_widget.visualRect(model_index)
-            is_visible = visible_rect.intersects(row_rect)
-            
-        except Exception as e:
-            pass  # Silently handle any errors
-
-    def _force_scroll_to_row(self, row_index: int):
-        """
-        Forces the table widget to scroll to the given row index.
-        This is a fallback if _ensure_segment_visible doesn't work.
-        """
-        try:
-            # Method 1: Try using the table widget's scrollTo method with different hints
-            try:
-                model_index = self.table_widget.model().index(row_index, 0)
-                
-                # Try different scroll hints for better positioning
-                self.table_widget.scrollTo(model_index, QAbstractItemView.ScrollHint.PositionAtCenter)
-                
-                # Also try to ensure the row is visible
-                self.table_widget.scrollTo(model_index, QAbstractItemView.ScrollHint.EnsureVisible)
-                
-            except Exception as e:
-                pass
-            
-            # Method 2: Try to find the scroll area and force scroll
-            try:
-                # Look for scroll area in parent hierarchy
-                parent = self.table_widget.parent()
-                while parent is not None:
-                    if hasattr(parent, 'verticalScrollBar'):
-                        scroll_bar = parent.verticalScrollBar()
-                        if scroll_bar is not None:
-                            # Calculate approximate scroll position
-                            row_height = self.table_widget.rowHeight(row_index)
-                            target_scroll = max(0, (row_index * row_height) - 100)  # 100px offset from top
-                            
-                            scroll_bar.setValue(target_scroll)
-                            break
-                    parent = parent.parent()
-            except Exception as e:
-                pass
-            
-            # Method 3: Try using the table's own scroll bar if available
-            try:
-                if hasattr(self.table_widget, 'verticalScrollBar'):
-                    scroll_bar = self.table_widget.verticalScrollBar()
-                    if scroll_bar is not None:
-                        # Calculate scroll position based on row index
-                        row_height = self.table_widget.rowHeight(row_index)
-                        target_scroll = max(0, (row_index * row_height) - 50)  # 50px offset from top
-                        
-                        scroll_bar.setValue(target_scroll)
-            except Exception as e:
-                pass
-                
-        except Exception as e:
-            pass  # Silently handle any errors
-
-    def _direct_scroll_to_row(self, row_index: int):
-        """
-        Directly manipulate the scroll bar to scroll to a specific row.
-        This is a more aggressive approach that should work in most cases.
-        """
-        try:
-            # Get the table widget's scroll bar
-            scroll_bar = self.table_widget.verticalScrollBar()
-            if scroll_bar is not None:
-                # Calculate the target scroll position
-                # Get the total height of rows above the target row
-                total_height = 0
-                for row in range(row_index):
-                    total_height += self.table_widget.rowHeight(row)
-                
-                # Add some offset to center the row better
-                target_scroll = max(0, total_height - 100)
-                
-                # Set the scroll position
-                scroll_bar.setValue(target_scroll)
-                
-                # Also try to ensure the row is visible by scrolling a bit more if needed
-                if scroll_bar.value() == target_scroll:
-                    # Try scrolling to the row with a different approach
-                    model_index = self.table_widget.model().index(row_index, 0)
-                    self.table_widget.scrollTo(model_index, QAbstractItemView.ScrollHint.PositionAtTop)
-                
-        except Exception as e:
-            pass  # Silently handle any errors
-
-    def _auto_scroll_to_current_position(self):
+    def auto_scroll_to_current_position(self):
         """
         Automatically scroll to the current audio position.
         This is used when follow audio is first enabled to give immediate feedback.
@@ -1261,12 +1154,6 @@ class TranscriptionViewerWidget(QWidget):
                         # Use all available scrolling methods to ensure visibility
                         # Method 1: Use the table widget's built-in scrolling method
                         self.table_widget.highlight_and_scroll_to_row(i)
-                        
-                        # Method 2: Force immediate scrolling to ensure visibility
-                        self._force_scroll_to_row(i)
-                        
-                        # Method 3: Direct scroll bar manipulation as fallback
-                        self._direct_scroll_to_row(i)
                         break
                 
         except Exception as e:
