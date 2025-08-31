@@ -3,7 +3,7 @@ from typing import Optional
 from uuid import UUID
 
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
-from PyQt6.QtGui import QFont, QShowEvent, QTextCursor, QColor
+from PyQt6.QtGui import QTextCursor
 from PyQt6.QtMultimedia import QMediaPlayer
 from PyQt6.QtSql import QSqlRecord
 from PyQt6.QtWidgets import (
@@ -17,7 +17,6 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QFrame,
     QCheckBox,
-    QAbstractItemView,
     QComboBox,
     QScrollArea,
     QSizePolicy,
@@ -38,7 +37,6 @@ from buzz.widgets.icon import (
     ResizeIcon,
     ScrollToCurrentIcon,
     VisibilityIcon,
-    PlayIcon,
 )
 from buzz.translator import Translator
 from buzz.widgets.text_display_box import TextDisplayBox
@@ -800,7 +798,6 @@ class TranscriptionViewerWidget(QWidget):
     def eventFilter(self, obj, event):
         """Event filter to handle keyboard shortcuts in search input"""
         from PyQt6.QtCore import QEvent, Qt
-        from PyQt6.QtGui import QKeyEvent
         
         if obj == self.search_input and event.type() == QEvent.Type.KeyPress:
             # The event is already a QKeyEvent, no need to create a new one
