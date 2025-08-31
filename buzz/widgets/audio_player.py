@@ -4,7 +4,7 @@ from typing import Tuple, Optional
 from PyQt6 import QtGui
 from PyQt6.QtCore import QTime, QUrl, Qt, pyqtSignal
 from PyQt6.QtMultimedia import QAudioOutput, QMediaPlayer
-from PyQt6.QtWidgets import QWidget, QSlider, QPushButton, QLabel, QHBoxLayout, QVBoxLayout, QComboBox
+from PyQt6.QtWidgets import QWidget, QSlider, QPushButton, QLabel, QHBoxLayout
 
 from buzz.widgets.icon import PlayIcon, PauseIcon
 from buzz.settings.settings import Settings
