@@ -1126,6 +1126,7 @@ class TranscriptionViewerWidget(QWidget):
             self.highlight_table_match(1)
 
         self.highlight_table_match(current_segment_index)
+        self.audio_player.set_position(current_pos)
 
     def auto_scroll_to_current_position(self):
         """
