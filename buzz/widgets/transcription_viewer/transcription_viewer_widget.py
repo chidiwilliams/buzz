@@ -460,8 +460,6 @@ class TranscriptionViewerWidget(QWidget):
         self.scroll_to_current_button.setIcon(ScrollToCurrentIcon(self))
         self.scroll_to_current_button.setToolTip(_("Scroll to the currently spoken text"))
         self.scroll_to_current_button.clicked.connect(self.on_scroll_to_current_button_clicked)
-        self.scroll_to_current_button.setMinimumWidth(150)  # Increased to accommodate text + icon
-        self.scroll_to_current_button.setMaximumWidth(180)  # Allow some flexibility
         self.scroll_to_current_button.setMinimumHeight(30)
         self.scroll_to_current_button.setStyleSheet("QPushButton { padding: 4px 8px; }")  # Better padding
         loop_layout.addWidget(self.scroll_to_current_button)
