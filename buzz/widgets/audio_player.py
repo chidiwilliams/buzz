@@ -47,6 +47,8 @@ class AudioPlayer(QWidget):
         self.play_button = QPushButton("")
         self.play_button.setIcon(self.play_icon)
         self.play_button.clicked.connect(self.toggle_play)
+        self.play_button.setMaximumWidth(40)  # Match other button widths
+        self.play_button.setMinimumHeight(30)  # Match other button heights
 
         self.time_label = QLabel()
         self.time_label.setAlignment(Qt.AlignmentFlag.AlignRight)

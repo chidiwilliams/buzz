@@ -56,6 +56,7 @@ class Settings:
         )
 
         MAIN_WINDOW = "main-window"
+        TRANSCRIPTION_VIEWER = "transcription-viewer"
 
         AUDIO_PLAYBACK_RATE = "audio/playback-rate"
 

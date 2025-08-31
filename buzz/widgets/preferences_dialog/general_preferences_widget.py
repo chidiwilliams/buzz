@@ -97,6 +97,18 @@ class GeneralPreferencesWidget(QWidget):
 
         layout.addRow(_("Font Size"), self.font_size_spin_box)
 
+        # Transcription viewer settings
+        self.transcription_viewer_max_lines_spin_box = QSpinBox(self)
+        self.transcription_viewer_max_lines_spin_box.setMinimum(1)
+        self.transcription_viewer_max_lines_spin_box.setMaximum(20)
+        self.transcription_viewer_max_lines_spin_box.setValue(
+            self.settings.settings.value("transcription_viewer/max_visible_lines", 3, type=int)
+        )
+        self.transcription_viewer_max_lines_spin_box.valueChanged.connect(self.on_transcription_viewer_max_lines_changed)
+        self.transcription_viewer_max_lines_spin_box.setToolTip(_("Maximum number of lines to display in the current segment view"))
+
+        layout.addRow(_("Transcription Viewer Max Lines"), self.transcription_viewer_max_lines_spin_box)
+
         self.openai_api_key_line_edit = OpenAIAPIKeyLineEdit(self.openai_api_key, self)
         self.openai_api_key_line_edit.key_changed.connect(
             self.on_openai_api_key_changed
@@ -264,6 +276,9 @@ class GeneralPreferencesWidget(QWidget):
 
     def on_recording_transcriber_mode_changed(self, value):
         self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_MODE, value)
+
+    def on_transcription_viewer_max_lines_changed(self, value):
+        self.settings.settings.setValue("transcription_viewer/max_visible_lines", value)
 
 class ValidateOpenAIApiKeyJob(QRunnable):
     class Signals(QObject):
