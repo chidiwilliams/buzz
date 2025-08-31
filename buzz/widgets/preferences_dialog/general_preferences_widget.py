@@ -97,8 +97,6 @@ class GeneralPreferencesWidget(QWidget):
 
         layout.addRow(_("Font Size"), self.font_size_spin_box)
 
-        # Transcription viewer settings - max lines fixed at 3 for consistency
-
         self.openai_api_key_line_edit = OpenAIAPIKeyLineEdit(self.openai_api_key, self)
         self.openai_api_key_line_edit.key_changed.connect(
             self.on_openai_api_key_changed
