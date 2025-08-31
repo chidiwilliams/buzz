@@ -98,7 +98,7 @@ class TranscriptionViewerWidget(QWidget):
         self.search_results = []
 
         # Loop functionality
-        self.segment_looping_enabled = self.settings.settings.value("transcription_viewer/segment_looping_enabled", True, type=bool)
+        self.segment_looping_enabled = self.settings.settings.value("transcription_viewer/segment_looping_enabled", False, type=bool)
         
         # UI visibility preferences
         self.playback_controls_visible = self.settings.settings.value("transcription_viewer/playback_controls_visible", False, type=bool)
