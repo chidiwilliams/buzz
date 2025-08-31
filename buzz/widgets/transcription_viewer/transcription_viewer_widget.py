@@ -10,7 +10,6 @@ from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QHBoxLayout,
-    QGridLayout,
     QToolButton,
     QLabel,
     QMessageBox,
@@ -167,17 +166,11 @@ class TranscriptionViewerWidget(QWidget):
         self.current_segment_frame = QFrame()
         self.current_segment_frame.setFrameStyle(QFrame.Shape.NoFrame)
         
-        segment_layout = QGridLayout(self.current_segment_frame)
-        segment_layout.setContentsMargins(2, 0, 2, 0)  # Ultra-minimal margins
+        segment_layout = QVBoxLayout(self.current_segment_frame)
+        segment_layout.setContentsMargins(4, 4, 4, 4)  # Minimal margins for clean appearance
         segment_layout.setSpacing(0)  # No spacing between elements
         
-        # Header label - ultra-compact
-        self.current_segment_header = QLabel(_("Now Speaking:"))
-        self.current_segment_header.setStyleSheet("font-weight: bold; color: #666; font-size: 0.75em; margin: 0; padding: 0;")
-        self.current_segment_header.setFrameStyle(QFrame.Shape.NoFrame)
-        self.current_segment_header.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
-        
-        # Text display - centered with scroll capability
+        # Text display - centered with scroll capability (no header label)
         self.current_segment_text = QLabel("")
         self.current_segment_text.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
         self.current_segment_text.setWordWrap(True)
@@ -196,17 +189,8 @@ class TranscriptionViewerWidget(QWidget):
         # Ensure the text label can expand to show all content
         self.current_segment_text.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         
-        # Position header in top-left (row 0, column 0)
-        segment_layout.addWidget(self.current_segment_header, 0, 0)
-        # Position scroll area below header (row 1, column 0), spanning full width
-        segment_layout.addWidget(self.current_segment_scroll_area, 1, 0)
-        
-        # Set row stretch to make text area expand, but keep header compact
-        segment_layout.setRowStretch(0, 0)  # Header doesn't expand
-        segment_layout.setRowStretch(1, 1)  # Text area expands
-        
-        # Set column stretch to use full width
-        segment_layout.setColumnStretch(0, 1)
+        # Add scroll area to layout (simplified single-widget layout)
+        segment_layout.addWidget(self.current_segment_scroll_area)
         
         # Initially hide the frame until there's content
         self.current_segment_frame.hide()
@@ -993,12 +977,9 @@ class TranscriptionViewerWidget(QWidget):
             self.current_segment_frame.setMinimumHeight(0)
             return
 
-        # Get the header height
-        header_height = self.current_segment_header.sizeHint().height()
-        
         # Calculate the height needed for the text area
         line_height = self.current_segment_text.fontMetrics().lineSpacing()
-        max_visible_lines = self.settings.settings.value("transcription_viewer/max_visible_lines", 3, type=int)
+        max_visible_lines = 3  # Fixed at 3 lines for consistency and clean UI
         
         # Calculate the height needed for the maximum visible lines (25% larger)
         text_height = line_height * max_visible_lines * 1.25
@@ -1006,8 +987,8 @@ class TranscriptionViewerWidget(QWidget):
         # Add some vertical margins/padding
         margins = 8  # Increased from 2 to 8 for better spacing
         
-        # Calculate total height needed
-        total_height = header_height + text_height + margins
+        # Calculate total height needed (no header height anymore)
+        total_height = text_height + margins
         
         # Convert to integer since Qt methods expect int values
         total_height = int(total_height)

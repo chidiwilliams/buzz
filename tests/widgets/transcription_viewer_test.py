@@ -611,20 +611,14 @@ class TestTranscriptionViewerWidget:
         # Test that current segment frame has no frame border
         assert widget.current_segment_frame.frameStyle() == QFrame.Shape.NoFrame
 
-        # Test that current segment header has correct text and styling
-        assert widget.current_segment_header.text() == "Now Speaking:"
-        assert "font-weight: bold" in widget.current_segment_header.styleSheet()
-        assert "color: #666" in widget.current_segment_header.styleSheet()
-        assert "font-size: 0.75em" in widget.current_segment_header.styleSheet()
-
-        # Test that current segment text is centered
+        # Test that current segment text is centered (no header label anymore)
         alignment = widget.current_segment_text.alignment()
         assert alignment & Qt.AlignmentFlag.AlignHCenter
         assert alignment & Qt.AlignmentFlag.AlignTop
 
         # Test that current segment text has appropriate styling
         assert "color: #666" in widget.current_segment_text.styleSheet()
-        assert "line-height: 1.1" in widget.current_segment_text.styleSheet()
+        assert "line-height: 1.2" in widget.current_segment_text.styleSheet()
 
         # Test that scroll area is properly set up
         assert hasattr(widget, 'current_segment_scroll_area')
@@ -851,34 +845,36 @@ class TestTranscriptionViewerWidget:
 
         widget.close()
 
-    def test_current_segment_header_styling(
+    def test_current_segment_display_styling(
         self, qtbot: QtBot, transcription, transcription_service, shortcuts
     ):
-        """Test that current segment header has proper styling and constraints"""
+        """Test that current segment display has proper styling and constraints"""
         widget = TranscriptionViewerWidget(
             transcription, transcription_service, shortcuts
         )
         qtbot.add_widget(widget)
 
-        header = widget.current_segment_header
+        # Test that current segment frame exists and has proper styling
+        assert hasattr(widget, 'current_segment_frame')
+        assert hasattr(widget, 'current_segment_text')
+        assert hasattr(widget, 'current_segment_scroll_area')
         
-        # Test header text
-        assert header.text() == "Now Speaking:"
+        # Test frame styling
+        assert widget.current_segment_frame.frameStyle() == QFrame.Shape.NoFrame
         
-        # Test header styling
-        stylesheet = header.styleSheet()
-        assert "font-weight: bold" in stylesheet
+        # Test text styling
+        stylesheet = widget.current_segment_text.styleSheet()
         assert "color: #666" in stylesheet
-        assert "font-size: 0.75em" in stylesheet
+        assert "line-height: 1.2" in stylesheet
         assert "margin: 0" in stylesheet
-        assert "padding: 0" in stylesheet
+        assert "padding: 4px" in stylesheet
         
-        # Test header alignment
-        assert header.alignment() & Qt.AlignmentFlag.AlignHCenter
-        assert header.alignment() & Qt.AlignmentFlag.AlignTop
+        # Test text alignment
+        assert widget.current_segment_text.alignment() & Qt.AlignmentFlag.AlignHCenter
+        assert widget.current_segment_text.alignment() & Qt.AlignmentFlag.AlignTop
         
-        # Test header height constraint
-        assert header.maximumHeight() == 16
+        # Test scroll area setup
+        assert widget.current_segment_scroll_area.widget() == widget.current_segment_text
 
         widget.close()
 
@@ -1056,7 +1052,6 @@ class TestTranscriptionViewerWidget:
         
         # Test current segment frame
         assert hasattr(widget, 'current_segment_frame')
-        assert hasattr(widget, 'current_segment_header')
         assert hasattr(widget, 'current_segment_text')
         assert hasattr(widget, 'current_segment_scroll_area')
         
@@ -1326,5 +1321,38 @@ class TestTranscriptionViewerWidget:
         # Test that toolbar is added to layout
         menu_bar = layout.menuBar()
         assert menu_bar is not None
+
+        widget.close()
+
+    def test_current_segment_display_styling(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Test that current segment display has proper styling and constraints"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Test that current segment frame exists and has proper styling
+        assert hasattr(widget, 'current_segment_frame')
+        assert hasattr(widget, 'current_segment_text')
+        assert hasattr(widget, 'current_segment_scroll_area')
+        
+        # Test frame styling
+        assert widget.current_segment_frame.frameStyle() == QFrame.Shape.NoFrame
+        
+        # Test text styling
+        stylesheet = widget.current_segment_text.styleSheet()
+        assert "color: #666" in stylesheet
+        assert "line-height: 1.2" in stylesheet
+        assert "margin: 0" in stylesheet
+        assert "padding: 4px" in stylesheet
+        
+        # Test text alignment
+        assert widget.current_segment_text.alignment() & Qt.AlignmentFlag.AlignHCenter
+        assert widget.current_segment_text.alignment() & Qt.AlignmentFlag.AlignTop
+        
+        # Test scroll area setup
+        assert widget.current_segment_scroll_area.widget() == widget.current_segment_text
 
         widget.close()
