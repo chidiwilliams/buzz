@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-18 09:13+0300\n"
+"POT-Creation-Date: 2025-08-30 19:30+0300\n"
 "PO-Revision-Date: 2025-07-29 19:14+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: \n"
@@ -172,12 +172,24 @@ msgstr "Carpeta de exportación"
 msgid "Live recording mode"
 msgstr "Modo de grabación en directo"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:202
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:208
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:183
+msgid "Use only CPU and disable GPU acceleration"
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:186
+msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:188
+msgid "Disable GPU"
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:213
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:219
 msgid "OpenAI API Key Test"
 msgstr "Prueba de la clave API de OpenAI"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:203
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:214
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
@@ -185,11 +197,11 @@ msgstr ""
 "Tu clave API es válida. Buzz usará esta clave para realizar transcripciones "
 "de la API de Whisper y traducciones de IA."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:219
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:230
 msgid "Invalid API key"
 msgstr "Clave API no válida"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:220
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:231
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
@@ -197,11 +209,11 @@ msgstr ""
 "La API solo admite caracteres base64 (A-Za-z0-9+/=_-). Otros caracteres de "
 "la clave de API pueden causar errores."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:238
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:249
 msgid "Select Export Folder"
 msgstr "Seleccione Exportar carpeta"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:298
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:320
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
@@ -707,15 +719,16 @@ msgstr "Seleccionar archivo de audio"
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "No se puede guardar la clave de la API de OpenAI en el llavero"
 
-#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:51
-#: buzz/transcriber/recording_transcriber.py:372
+#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:55
+#: buzz/transcriber/recording_transcriber.py:390
+#: buzz/transcriber/recording_transcriber.py:399
 msgid "Whisper server failed to start. Check logs for details."
 msgstr ""
 "El servidor Whisper no se pudo iniciar. Consulta los registros para obtener "
 "más detalles."
 
-#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:54
-#: buzz/transcriber/recording_transcriber.py:375
+#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:58
+#: buzz/transcriber/recording_transcriber.py:393
 msgid ""
 "Whisper server failed to start due to insufficient memory. Please try again "
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
@@ -1090,13 +1103,13 @@ msgstr "Sundanés"
 msgid "Cantonese"
 msgstr "Cantonés"
 
-#: buzz/transcriber/recording_transcriber.py:338
-msgid "Starting Whisper.cpp..."
-msgstr "Iniciando Whisper.cpp..."
-
-#: buzz/model_loader.py:538
+#: buzz/transcriber/recording_transcriber.py:241 buzz/model_loader.py:538
 msgid "A connection error occurred"
 msgstr "Se ha producido un error de conexión"
+
+#: buzz/transcriber/recording_transcriber.py:350
+msgid "Starting Whisper.cpp..."
+msgstr "Iniciando Whisper.cpp..."
 
 # automatic translation
 #: buzz/settings/shortcut.py:17

@@ -188,6 +188,17 @@ class GeneralPreferencesWidget(QWidget):
 
         layout.addRow(_("Live recording mode"), self.recording_transcriber_mode)
 
+        self.force_cpu_enabled = self.settings.value(
+            key=Settings.Key.FORCE_CPU, default_value=False
+        )
+
+        self.force_cpu_checkbox = QCheckBox(_("Use only CPU and disable GPU acceleration"))
+        self.force_cpu_checkbox.setChecked(self.force_cpu_enabled)
+        self.force_cpu_checkbox.setObjectName("ForceCPUCheckbox")
+        self.force_cpu_checkbox.setToolTip(_("Set this if larger models do not fit your GPU memory and Buzz crashes"))
+        self.force_cpu_checkbox.stateChanged.connect(self.on_force_cpu_changed)
+        layout.addRow(_("Disable GPU"), self.force_cpu_checkbox)
+
         self.setLayout(layout)
 
     def on_default_export_file_name_changed(self, text: str):
@@ -279,6 +290,16 @@ class GeneralPreferencesWidget(QWidget):
 
     def on_transcription_viewer_max_lines_changed(self, value):
         self.settings.settings.setValue("transcription_viewer/max_visible_lines", value)
+
+    def on_force_cpu_changed(self, state: int):
+        import os
+        self.force_cpu_enabled = state == 2
+        self.settings.set_value(Settings.Key.FORCE_CPU, self.force_cpu_enabled)
+        
+        if self.force_cpu_enabled:
+            os.environ["BUZZ_FORCE_CPU"] = "true"
+        else:
+            os.environ.pop("BUZZ_FORCE_CPU", None)
 
 class ValidateOpenAIApiKeyJob(QRunnable):
     class Signals(QObject):

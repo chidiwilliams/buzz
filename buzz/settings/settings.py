@@ -60,6 +60,8 @@ class Settings:
 
         AUDIO_PLAYBACK_RATE = "audio/playback-rate"
 
+        FORCE_CPU = "force-cpu"
+
     def get_user_identifier(self) -> str:
         user_id = self.value(self.Key.USER_IDENTIFIER, "")
         if not user_id:

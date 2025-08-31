@@ -160,7 +160,7 @@ class WhisperCpp:
         params.n_threads = int(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8)//2))
         params.print_realtime = print_realtime
         params.print_progress = print_progress
-        params.language = self.instance.get_string((transcription_options.language or "en"))
+        params.language = self.instance.get_string((transcription_options.language or "auto"))
         params.translate = transcription_options.task == Task.TRANSLATE
         params.max_len = ctypes.c_int(1)
         params.max_len = 1 if transcription_options.word_level_timings else 0
