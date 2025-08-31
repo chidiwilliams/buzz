@@ -61,7 +61,7 @@ class TestAudioPlayer:
         
         # Verify the widget loads audio correctly
         assert widget.media_player is not None
-        assert widget.media_player.source().toLocalFile() == test_audio_path
+        assert os.path.normpath(widget.media_player.source().toLocalFile()) == os.path.normpath(test_audio_path)
 
     def test_should_change_playback_rate_directly(self, qtbot: QtBot):
         widget = AudioPlayer(test_audio_path)
