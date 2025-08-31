@@ -887,26 +887,16 @@ class TranscriptionViewerWidget(QWidget):
         self.current_segment_scroll_area.updateGeometry()
         self.current_segment_scroll_area.verticalScrollBar().setVisible(True)  # Ensure scrollbar is visible
         
-        # Get current audio position for timestamp
-        current_pos = self.audio_player.position_ms
+        start_time = segment.value("start_time")
+        end_time = segment.value("end_time")
+        self.audio_player.set_position(start_time)
         
         if self.segment_looping_enabled:
-            # Check if we're currently in an active loop
-            current_range = self.audio_player.range_ms
-            
-            # Set range for looping behavior (regardless of playback state)
-            start_time = segment.value("start_time")
-            end_time = segment.value("end_time")
             self.audio_player.set_range((start_time, end_time))
             
             # Reset looping flag to ensure new loops work
             self.audio_player.is_looping = False
         else:
-            # Always seek to the clicked segment start time
-            start_time = segment.value("start_time")
-            self.audio_player.set_position(start_time)
-            
-            # Always highlight the clicked segment
             segments = self.table_widget.segments()
             for i, seg in enumerate(segments):
                 if seg.value("id") == segment.value("id"):
@@ -1112,34 +1102,30 @@ class TranscriptionViewerWidget(QWidget):
                         break
 
     def on_scroll_to_current_button_clicked(self):
-        """Handle scroll to current text button click"""
+        """Handle scroll to current button click"""
         current_pos = self.audio_player.position_ms
         segments = self.table_widget.segments()
-        
+
         # Find the current segment based on audio position
-        current_segment = next(
-            (segment for segment in segments 
-             if segment.value("start_time") <= current_pos < segment.value("end_time")),
-            None
-        )
-        
-        if current_segment is not None:
-            # Find the row index and scroll to it
-            for i, segment in enumerate(segments):
-                if segment.value("id") == current_segment.value("id"):
-                    # Only scroll if we're in timestamps view mode (table is visible)
-                    if self.view_mode == ViewMode.TIMESTAMPS:
-                        # Method 1: Use the table widget's built-in scrolling method
-                        self.table_widget.highlight_and_scroll_to_row(i)
-                        
-                        # Method 2: Force immediate scrolling to ensure visibility
-                        self._force_scroll_to_row(i)
-                        
-                        # Method 3: Direct scroll bar manipulation as fallback
-                        self._direct_scroll_to_row(i)
-                    break
-        else:
-            pass  # No segment found at current position
+        current_segment_index = 0
+        current_segment = segments[0]
+        for i, segment in enumerate(segments):
+            if segment.value("start_time") <= current_pos < segment.value("end_time"):
+                current_segment_index = i
+                current_segment = segment
+                break
+
+        # Workaround for scrolling to already selected segment
+        if self.currently_selected_segment and self.currently_selected_segment.value("id") == current_segment.value('id'):
+            self.highlight_table_match(0)
+
+        if self.currently_selected_segment is None:
+            self.highlight_table_match(0)
+
+        if current_segment_index == 0 and segments[1]:
+            self.highlight_table_match(1)
+
+        self.highlight_table_match(current_segment_index)
 
     def _ensure_segment_visible(self, row_index: int):
         """
