@@ -1360,5 +1360,5 @@ class TranscriptionViewerWidget(QWidget):
             self.restoreGeometry(geometry)
         else:
             # Default size if no saved geometry
-            self.resize(800, 600)
+            self.resize(1000, 800)
         self.settings.end_group()
