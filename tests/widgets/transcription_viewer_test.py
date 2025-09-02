@@ -762,23 +762,23 @@ class TestTranscriptionViewerWidget:
         widget.show_loop_controls()
         saved_setting = widget.settings.settings.value("transcription_viewer/playback_controls_visible", False,
                                                        type=bool)
-        assert saved_setting == True
+        assert saved_setting == True, "Setting to show controls saved"
 
         # Test that calling hide_loop_controls saves the setting
         widget.hide_loop_controls()
         saved_setting = widget.settings.settings.value("transcription_viewer/playback_controls_visible", False,
                                                        type=bool)
-        assert saved_setting == False
+        assert saved_setting == False, "Setting to hide controls saved"
 
         # Test that toggle method also saves the setting
         widget.toggle_playback_controls_visibility()
         saved_setting = widget.settings.settings.value("transcription_viewer/playback_controls_visible", False,
                                                        type=bool)
-        assert saved_setting == True
+        assert saved_setting == True, "Setting to toggle controls saved"
 
         widget.close()
 
-        # This is passing locally
+    # This is passing locally
     def test_search_results_label_format(
             self, qtbot: QtBot, transcription, transcription_service, shortcuts
     ):
@@ -805,7 +805,7 @@ class TestTranscriptionViewerWidget:
 
         widget.close()
 
-        # This is passing locally
+    # This is passing locally
     def test_current_segment_text_scrolling(
             self, qtbot: QtBot, transcription, transcription_service, shortcuts
     ):
@@ -831,7 +831,7 @@ class TestTranscriptionViewerWidget:
         widget.close()
 
  
-     # This is passing locally
+    # This is passing locally
     def test_search_bar_visibility_toggle(
             self, qtbot: QtBot, transcription, transcription_service, shortcuts
     ):
