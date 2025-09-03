@@ -56,6 +56,9 @@ class Settings:
         )
 
         MAIN_WINDOW = "main-window"
+        TRANSCRIPTION_VIEWER = "transcription-viewer"
+
+        AUDIO_PLAYBACK_RATE = "audio/playback-rate"
 
         FORCE_CPU = "force-cpu"
 
@@ -100,16 +103,25 @@ class Settings:
         return ""
 
     def value(
-        self,
-        key: Key,
-        default_value: typing.Any,
-        value_type: typing.Optional[type] = None,
+            self,
+            key: Key,
+            default_value: typing.Any,
+            value_type: typing.Optional[type] = None,
     ) -> typing.Any:
-        return self.settings.value(
+        val = self.settings.value(
             key.value,
             default_value,
             value_type if value_type is not None else type(default_value),
         )
+        if (value_type is bool or isinstance(default_value, bool)):
+            if isinstance(val, bool):
+                return val
+            if isinstance(val, str):
+                return val.lower() in ("true", "1", "yes", "on")
+            if isinstance(val, int):
+                return val != 0
+            return bool(val)
+        return val
 
     def clear(self):
         self.settings.clear()

@@ -182,3 +182,12 @@ class TranscriptionSegmentsEditorWidget(QTableView):
 
     def segments(self) -> list[QSqlRecord]:
         return [self.model().record(i) for i in range(self.model().rowCount())]
+
+    def highlight_and_scroll_to_row(self, row_index: int):
+        """Highlight a specific row and scroll it into view"""
+        if 0 <= row_index < self.model().rowCount():
+            # Select the row
+            self.selectRow(row_index)
+            # Scroll to the row with better positioning
+            model_index = self.model().index(row_index, 0)
+            self.scrollTo(model_index, QAbstractItemView.ScrollHint.PositionAtCenter)

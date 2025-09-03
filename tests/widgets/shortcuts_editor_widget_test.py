@@ -37,6 +37,9 @@ class TestShortcutsEditorWidget:
             (_("View Transcript Text"), "Ctrl+E"),
             (_("View Transcript Translation"), "Ctrl+L"),
             (_("View Transcript Timestamps"), "Ctrl+T"),
+            (_("Search Transcript"), "Ctrl+F"),
+            (_("Scroll to Current Text"), "Ctrl+G"),
+            (_("Toggle Playback Controls"), "Ctrl+P"),
             (_("Clear History"), "Ctrl+S"),
             (_("Cancel Transcription"), "Ctrl+X"),
         )
