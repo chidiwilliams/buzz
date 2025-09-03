@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-30 19:30+0300\n"
-"PO-Revision-Date: 2025-08-30 19:31+0300\n"
+"POT-Creation-Date: 2025-09-03 12:17+0300\n"
+"PO-Revision-Date: 2025-09-03 12:21+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -216,7 +216,7 @@ msgstr ""
 msgid "Select Export Folder"
 msgstr "Izvēlieties mapi kurā eksportēt"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:320
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:319
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
@@ -436,12 +436,12 @@ msgstr "Jauna saites atpazīšana"
 msgid "Open Transcript"
 msgstr "Atvērt transkriptu"
 
-#: buzz/widgets/main_window_toolbar.py:63 buzz/settings/shortcut.py:27
+#: buzz/widgets/main_window_toolbar.py:63 buzz/settings/shortcut.py:30
 msgid "Cancel Transcription"
 msgstr "Atcelt atpazīšanu"
 
 #: buzz/widgets/main_window_toolbar.py:71 buzz/widgets/main_window.py:227
-#: buzz/settings/shortcut.py:26
+#: buzz/settings/shortcut.py:29
 msgid "Clear History"
 msgstr "Notīrīt vēsturi"
 
@@ -554,24 +554,88 @@ msgstr "Skats"
 msgid "Timestamps"
 msgstr "Laiks"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:156
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:209
 msgid "Export"
 msgstr "Eksportēt"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:174
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:227
 msgid "Translate"
 msgstr "Tulkot"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:184
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:237
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:174
 msgid "Resize"
 msgstr "Mainīt garumu"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:285
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:249
+msgid "Find"
+msgstr "Meklēt"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:252
+msgid "Show/Hide Search Bar (Ctrl+F)"
+msgstr "Rādīt/Slēpt meklēšanas joslu (Ctrl+F)"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:317
+msgid "Find:"
+msgstr "Meklēt:"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:323
+msgid "Enter text to find..."
+msgstr "Ievadiet meklējamo..."
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:336
+msgid "Previous match (Shift+Enter)"
+msgstr "Iepriekšējais rezultāts (Shift+Enter)"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:344
+msgid "Next match (Enter)"
+msgstr "Nākamais rezultāts (Enter)"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:352
+msgid "Clear"
+msgstr "Notīrīt"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:379
+msgid "Playback Controls:"
+msgstr "Atskaņošanas iespējas:"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:384
+msgid "Loop Segment"
+msgstr "Atkārtot segmentu"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:386
+msgid "Enable/disable looping when clicking on transcript segments"
+msgstr "Nosaka vai atkārtot izvēlēto segmentu"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:392
+msgid "Follow Audio"
+msgstr "Sekot audio"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:394
+msgid ""
+"Enable/disable following the current audio position in the transcript. When "
+"enabled, automatically scrolls to current text."
+msgstr ""
+"Nosaka vai atskaņojot audio iezīmētajam segmentam vajadzētu automātiski "
+"sekot tam kas tiek atskaņots"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:441
+msgid "Scroll to Current"
+msgstr "Pāriet uz tekošo"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:443
+msgid "Scroll to the currently spoken text"
+msgstr "Pāriet uz šobrīd atskaņojamo tesktu"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:652
+msgid "No matches found"
+msgstr "Nekas nav atrasts"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1015
 msgid "API Key Required"
 msgstr "API atslēgas kļūda"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:286
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1016
 msgid "Please enter OpenAI API Key in preferences"
 msgstr "Lūdzu ievadiet OpenAI API atslēgu iestatījumos"
 
@@ -680,15 +744,16 @@ msgstr "Izvēlieties audio failu"
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "Neizdevās saglabāt OpenAI API atslēgu atslēgu saišķī"
 
-#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:51
-#: buzz/transcriber/recording_transcriber.py:372
+#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:55
+#: buzz/transcriber/recording_transcriber.py:390
+#: buzz/transcriber/recording_transcriber.py:399
 msgid "Whisper server failed to start. Check logs for details."
 msgstr ""
 "Whisper serverim neizdevās ieslēgties. Lūdzu pārbaudiet lietotnes žurnāla "
 "ierakstus."
 
-#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:54
-#: buzz/transcriber/recording_transcriber.py:375
+#: buzz/transcriber/local_whisper_cpp_server_transcriber.py:58
+#: buzz/transcriber/recording_transcriber.py:393
 msgid ""
 "Whisper server failed to start due to insufficient memory. Please try again "
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
@@ -1062,13 +1127,13 @@ msgstr "Sundāņu"
 msgid "Cantonese"
 msgstr "Kantonas"
 
-#: buzz/transcriber/recording_transcriber.py:338
-msgid "Starting Whisper.cpp..."
-msgstr "Palaiž Whisper.cpp..."
-
-#: buzz/model_loader.py:538
+#: buzz/transcriber/recording_transcriber.py:241 buzz/model_loader.py:538
 msgid "A connection error occurred"
 msgstr "Notika savienojuma kļūda"
+
+#: buzz/transcriber/recording_transcriber.py:350
+msgid "Starting Whisper.cpp..."
+msgstr "Palaiž Whisper.cpp..."
 
 #: buzz/settings/shortcut.py:17
 msgid "Open Record Window"
@@ -1093,6 +1158,18 @@ msgstr "Aplūkot tulkojumu"
 #: buzz/settings/shortcut.py:24
 msgid "View Transcript Timestamps"
 msgstr "Aplūkot atpazīšanas laikus"
+
+#: buzz/settings/shortcut.py:25
+msgid "Search Transcript"
+msgstr "Meklēt tekstā"
+
+#: buzz/settings/shortcut.py:26
+msgid "Scroll to Current Text"
+msgstr "Pāriet uz atskaņojamo tesktu"
+
+#: buzz/settings/shortcut.py:27
+msgid "Toggle Playback Controls"
+msgstr "Pārslēgt atskaņošanas iespējas"
 
 #: buzz/settings/recording_transcriber_mode.py:5
 msgid "Append below"
