@@ -132,7 +132,9 @@ class TranscriptionDAO(DAO[Transcription]):
                 whisper_model_size,
                 hugging_face_model_id,
                 word_level_timings,
-                extract_speech
+                extract_speech,
+                name,
+                notes
             ) VALUES (
                 :id,
                 :export_formats,
@@ -148,7 +150,9 @@ class TranscriptionDAO(DAO[Transcription]):
                 :whisper_model_size,
                 :hugging_face_model_id,
                 :word_level_timings,
-                :extract_speech
+                :extract_speech,
+                :name,
+                :notes
             )
             """
         )
@@ -237,5 +241,35 @@ class TranscriptionDAO(DAO[Transcription]):
         query.bindValue(":id", str(id))
         query.bindValue(":status", FileTranscriptionTask.Status.COMPLETED.value)
         query.bindValue(":time_ended", datetime.now().isoformat())
+        if not query.exec():
+            raise Exception(query.lastError().text())
+
+    def update_transcription_name(self, id: UUID, name: str):
+        query = self._create_query()
+        query.prepare(
+            """
+            UPDATE transcription
+            SET name = :name
+            WHERE id = :id
+        """
+        )
+
+        query.bindValue(":id", str(id))
+        query.bindValue(":name", name)
+        if not query.exec():
+            raise Exception(query.lastError().text())
+
+    def update_transcription_notes(self, id: UUID, notes: str):
+        query = self._create_query()
+        query.prepare(
+            """
+            UPDATE transcription
+            SET notes = :notes
+            WHERE id = :id
+        """
+        )
+
+        query.bindValue(":id", str(id))
+        query.bindValue(":notes", notes)
         if not query.exec():
             raise Exception(query.lastError().text())

@@ -17,7 +17,9 @@ CREATE TABLE transcription (
     whisper_model_size TEXT,
     hugging_face_model_id TEXT,
     word_level_timings BOOLEAN DEFAULT FALSE,
-    extract_speech BOOLEAN DEFAULT FALSE
+    extract_speech BOOLEAN DEFAULT FALSE,
+    name TEXT,
+    notes TEXT
 );
 
 CREATE TABLE transcription_segment (

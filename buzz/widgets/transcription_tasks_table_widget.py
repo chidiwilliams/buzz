@@ -50,6 +50,8 @@ class Column(enum.Enum):
     HUGGING_FACE_MODEL_ID = 16
     WORD_LEVEL_TIMINGS = 17
     EXTRACT_SPEECH = 18
+    NAME = 19
+    NOTES = 20
 
 
 @dataclass
@@ -92,9 +94,10 @@ column_definitions = [
         column=Column.FILE,
         width=400,
         delegate=RecordDelegate(
-            text_getter=lambda record: record.value("url")
-            if record.value("url") != ""
-            else os.path.basename(record.value("file"))
+            text_getter=lambda record: record.value("name") or (
+                record.value("url") if record.value("url") != ""
+                else os.path.basename(record.value("file"))
+            )
         ),
         hidden_toggleable=False,
     ),
@@ -148,6 +151,15 @@ column_definitions = [
             else ""
         ),
     ),
+    ColDef(
+        id="notes",
+        header=_("Notes"),
+        column=Column.NOTES,
+        width=200,
+        delegate=RecordDelegate(
+            text_getter=lambda record: record.value("notes") or ""
+        ),
+    ),
 ]
 
 class TranscriptionTasksTableHeaderView(QHeaderView):
@@ -178,6 +190,7 @@ class TranscriptionTasksTableWidget(QTableView):
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
+        self.transcription_service = None
 
         self.setHorizontalHeader(TranscriptionTasksTableHeaderView(Qt.Orientation.Horizontal, self))
 
@@ -227,6 +240,19 @@ class TranscriptionTasksTableWidget(QTableView):
 
     def contextMenuEvent(self, event):
         menu = QMenu(self)
+        
+        # Add transcription actions if a row is selected
+        selected_rows = self.selectionModel().selectedRows()
+        if selected_rows:
+            menu.addSeparator()
+            rename_action = menu.addAction(_("Rename"))
+            rename_action.triggered.connect(self.on_rename_action)
+            
+            notes_action = menu.addAction(_("Add/Edit Notes"))
+            notes_action.triggered.connect(self.on_notes_action)
+            menu.addSeparator()
+        
+        # Add column visibility toggles
         for definition in column_definitions:
             if not definition.hidden_toggleable:
                 continue
@@ -310,3 +336,63 @@ class TranscriptionTasksTableWidget(QTableView):
         if hh == 0:
             return result
         return f"{hh}h {result}"
+
+    def on_rename_action(self):
+        selected_rows = self.selectionModel().selectedRows()
+        if not selected_rows:
+            return
+        
+        # Get the first selected transcription
+        transcription = self.transcription(selected_rows[0])
+        
+        # Get current name or fallback to file name
+        current_name = transcription.name or (
+            transcription.url if transcription.url 
+            else os.path.basename(transcription.file) if transcription.file 
+            else ""
+        )
+        
+        # Show input dialog
+        from PyQt6.QtWidgets import QInputDialog
+        new_name, ok = QInputDialog.getText(
+            self, 
+            _("Rename Transcription"), 
+            _("Enter new name:"), 
+            text=current_name
+        )
+        
+        if ok and new_name.strip():
+            # Update the transcription name
+            from uuid import UUID
+            self.transcription_service.update_transcription_name(
+                UUID(transcription.id), 
+                new_name.strip()
+            )
+            self.refresh_all()
+
+    def on_notes_action(self):
+        selected_rows = self.selectionModel().selectedRows()
+        if not selected_rows:
+            return
+        
+        # Get the first selected transcription
+        transcription = self.transcription(selected_rows[0])
+        
+        # Show input dialog for notes
+        from PyQt6.QtWidgets import QInputDialog
+        current_notes = transcription.notes or ""
+        new_notes, ok = QInputDialog.getMultiLineText(
+            self, 
+            _("Edit Notes"), 
+            _("Enter notes for this transcription:"), 
+            text=current_notes
+        )
+        
+        if ok:
+            # Update the transcription notes
+            from uuid import UUID
+            self.transcription_service.update_transcription_notes(
+                UUID(transcription.id), 
+                new_notes
+            )
+            self.refresh_all()
