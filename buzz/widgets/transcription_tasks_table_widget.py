@@ -168,17 +168,22 @@ class TranscriptionTasksTableHeaderView(QHeaderView):
 
     def contextMenuEvent(self, event):
         menu = QMenu(self)
+        
+        # Add reset column order option
+        menu.addAction(_("Reset Column Order")).triggered.connect(self.parent().reset_column_order)
+        menu.addSeparator()
+        
+        # Add column visibility toggles
         for definition in column_definitions:
-            if not definition.hidden_toggleable:
-                continue
-            action = menu.addAction(definition.header)
-            action.setCheckable(True)
-            action.setChecked(not self.isSectionHidden(definition.column.value))
-            action.toggled.connect(
-                lambda checked, column_index=definition.column.value: self.on_column_checked(
-                    column_index, checked
+            if definition.hidden_toggleable:
+                action = menu.addAction(definition.header)
+                action.setCheckable(True)
+                action.setChecked(not self.isSectionHidden(definition.column.value))
+                action.toggled.connect(
+                    lambda checked, column_index=definition.column.value: self.on_column_checked(
+                        column_index, checked
+                    )
                 )
-            )
         menu.exec(event.globalPos())
 
     def on_column_checked(self, column_index: int, checked: bool):
@@ -247,22 +252,6 @@ class TranscriptionTasksTableWidget(QTableView):
     def contextMenuEvent(self, event):
         menu = QMenu(self)
         
-        # Add column visibility options
-        menu.addAction(_("Reset Column Order")).triggered.connect(self.reset_column_order)
-        menu.addSeparator()
-        
-        # Add column visibility toggles
-        for definition in column_definitions:
-            if definition.hidden_toggleable:
-                action = menu.addAction(definition.header)
-                action.setCheckable(True)
-                action.setChecked(not self.isColumnHidden(definition.column.value))
-                action.triggered.connect(
-                    lambda checked, col=definition.column.value: self.toggle_column_visibility(col, checked)
-                )
-        
-        menu.addSeparator()
-        
         # Add transcription actions if a row is selected
         selected_rows = self.selectionModel().selectedRows()
         if selected_rows:
@@ -271,26 +260,8 @@ class TranscriptionTasksTableWidget(QTableView):
             
             notes_action = menu.addAction(_("Add/Edit Notes"))
             notes_action.triggered.connect(self.on_notes_action)
-            menu.addSeparator()
         
-        # Add column visibility toggles
-        for definition in column_definitions:
-            if not definition.hidden_toggleable:
-                continue
-            action = menu.addAction(definition.header)
-            action.setCheckable(True)
-            action.setChecked(not self.isColumnHidden(definition.column.value))
-            action.toggled.connect(
-                lambda checked,
-                column_index=definition.column.value: self.on_column_checked(
-                    column_index, checked
-                )
-            )
         menu.exec(event.globalPos())
-
-    def on_column_checked(self, column_index: int, checked: bool):
-        self.setColumnHidden(column_index, not checked)
-        self.save_column_visibility()
 
     def save_column_visibility(self):
         self.settings.begin_group(
@@ -301,11 +272,6 @@ class TranscriptionTasksTableWidget(QTableView):
                 definition.id, not self.isColumnHidden(definition.column.value)
             )
         self.settings.end_group()
-    
-    def toggle_column_visibility(self, column_index: int, visible: bool):
-        """Toggle column visibility and save to settings"""
-        self.setColumnHidden(column_index, not visible)
-        self.save_column_visibility()
     
     def reset_column_order(self):
         """Reset column order to default"""
