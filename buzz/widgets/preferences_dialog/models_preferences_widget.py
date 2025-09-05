@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from PyQt6.QtCore import Qt, QThreadPool
+from PyQt6.QtCore import Qt, QThreadPool, QLocale
 from PyQt6.QtWidgets import (
     QWidget,
     QFormLayout,
@@ -40,6 +40,7 @@ class ModelsPreferencesWidget(QWidget):
         super().__init__(parent)
 
         self.settings = Settings()
+        self.ui_locale = self.settings.value(Settings.Key.UI_LOCALE, QLocale().name())
         self.model_downloader: Optional[ModelDownloader] = None
 
         model_types = [
@@ -183,7 +184,8 @@ class ModelsPreferencesWidget(QWidget):
                 continue
 
             # Skip LUMII size for all non Latvians
-            if model_size == WhisperModelSize.LUMII:
+            if (model_size == WhisperModelSize.LUMII and
+                    (self.model.model_type != ModelType.WHISPER_CPP or self.ui_locale != "lv_LV")):
                 continue
 
             model = TranscriptionModel(
