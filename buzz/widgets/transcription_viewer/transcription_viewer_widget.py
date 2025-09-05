@@ -642,9 +642,9 @@ class TranscriptionViewerWidget(QWidget):
         if self.search_results:
             # Show "1 of X matches" format for consistency with navigation
             if len(self.search_results) >= 100:
-                self.search_results_label.setText(f"1 of 100+ matches")
+                self.search_results_label.setText(_("1 of 100+ matches"))
             else:
-                self.search_results_label.setText(f"1 of {len(self.search_results)} matches")
+                self.search_results_label.setText(_("1 of ") + str(len(self.search_results)) + _(" matches"))
             self.search_prev_button.setEnabled(True)
             self.search_next_button.setEnabled(True)
             self.highlight_current_match()
@@ -708,9 +708,9 @@ class TranscriptionViewerWidget(QWidget):
         """Update the search results label with current position"""
         if self.search_results:
             if len(self.search_results) >= 100:
-                self.search_results_label.setText(f"{self.current_search_index + 1} of 100+ matches")
+                self.search_results_label.setText(str(self.current_search_index + 1) + _(" of 100+ matches"))
             else:
-                self.search_results_label.setText(f"{self.current_search_index + 1} of {len(self.search_results)} matches")
+                self.search_results_label.setText(str(self.current_search_index + 1) + _(" of ") + str(len(self.search_results)) + _(" matches"))
 
     def clear_search(self):
         """Clear the search and reset highlighting"""

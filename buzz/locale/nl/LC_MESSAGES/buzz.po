@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-03 12:22+0300\n"
+"POT-Creation-Date: 2025-09-05 07:46+0300\n"
 "PO-Revision-Date: 2025-03-20 18:30+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: none\n"
@@ -619,8 +619,29 @@ msgstr ""
 msgid "Scroll to the currently spoken text"
 msgstr ""
 
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:645
+msgid "1 of 100+ matches"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:647
+msgid "1 of "
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:647
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:713
+msgid " matches"
+msgstr ""
+
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:652
 msgid "No matches found"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:711
+msgid " of 100+ matches"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:713
+msgid " of "
 msgstr ""
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1015

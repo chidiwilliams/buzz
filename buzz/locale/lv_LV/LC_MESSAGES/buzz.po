@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-03 12:17+0300\n"
-"PO-Revision-Date: 2025-09-03 12:21+0300\n"
+"POT-Creation-Date: 2025-09-05 07:46+0300\n"
+"PO-Revision-Date: 2025-09-05 07:48+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -617,7 +617,7 @@ msgid ""
 "enabled, automatically scrolls to current text."
 msgstr ""
 "Nosaka vai atskaņojot audio iezīmētajam segmentam vajadzētu automātiski "
-"sekot tam kas tiek atskaņots"
+"sekot tam kas tiek atskaņots."
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:441
 msgid "Scroll to Current"
@@ -627,9 +627,30 @@ msgstr "Pāriet uz tekošo"
 msgid "Scroll to the currently spoken text"
 msgstr "Pāriet uz šobrīd atskaņojamo tesktu"
 
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:645
+msgid "1 of 100+ matches"
+msgstr "1 no 100+ "
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:647
+msgid "1 of "
+msgstr "1 no "
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:647
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:713
+msgid " matches"
+msgstr " "
+
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:652
 msgid "No matches found"
 msgstr "Nekas nav atrasts"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:711
+msgid " of 100+ matches"
+msgstr " no 100+"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:713
+msgid " of "
+msgstr " no "
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1015
 msgid "API Key Required"
