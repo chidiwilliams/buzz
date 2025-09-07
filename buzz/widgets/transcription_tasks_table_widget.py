@@ -155,10 +155,11 @@ column_definitions = [
         id="notes",
         header=_("Notes"),
         column=Column.NOTES,
-        width=200,
+        width=300,
         delegate=RecordDelegate(
             text_getter=lambda record: record.value("notes") or ""
         ),
+        hidden_toggleable=True,
     ),
 ]
 
@@ -246,6 +247,14 @@ class TranscriptionTasksTableWidget(QTableView):
         self.horizontalHeader().setSectionsClickable(True)
         self.horizontalHeader().setSortIndicatorShown(True)
 
+        # Connect signals for column resize and move
+        self.horizontalHeader().sectionResized.connect(self.on_column_resized)
+        self.horizontalHeader().sectionMoved.connect(self.on_column_moved)
+
+        # Load saved column order and widths
+        self.load_column_order()
+        self.load_column_widths()
+
         # Show date added before date completed
         self.horizontalHeader().swapSections(11, 12)
 
@@ -255,6 +264,14 @@ class TranscriptionTasksTableWidget(QTableView):
         # Add transcription actions if a row is selected
         selected_rows = self.selectionModel().selectedRows()
         if selected_rows:
+            transcription = self.transcription(selected_rows[0])
+            
+            # Add transcribe action for failed/canceled tasks
+            if transcription.status in ["FAILED", "CANCELED"]:
+                transcribe_action = menu.addAction(_("Transcribe"))
+                transcribe_action.triggered.connect(self.on_transcribe_action)
+                menu.addSeparator()
+            
             rename_action = menu.addAction(_("Rename"))
             rename_action.triggered.connect(self.on_rename_action)
             
@@ -272,6 +289,65 @@ class TranscriptionTasksTableWidget(QTableView):
                 definition.id, not self.isColumnHidden(definition.column.value)
             )
         self.settings.end_group()
+
+    def on_column_resized(self, logical_index: int, old_size: int, new_size: int):
+        """Handle column resize events"""
+        self.save_column_widths()
+
+    def on_column_moved(self, logical_index: int, old_visual_index: int, new_visual_index: int):
+        """Handle column move events"""
+        self.save_column_order()
+
+    def save_column_widths(self):
+        """Save current column widths to settings"""
+        self.settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS)
+        for definition in column_definitions:
+            width = self.columnWidth(definition.column.value)
+            self.settings.settings.setValue(definition.id, width)
+        self.settings.end_group()
+
+    def save_column_order(self):
+        """Save current column order to settings"""
+        self.settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER)
+        header = self.horizontalHeader()
+        for visual_index in range(header.count()):
+            logical_index = header.logicalIndex(visual_index)
+            # Find the column definition for this logical index
+            for definition in column_definitions:
+                if definition.column.value == logical_index:
+                    self.settings.settings.setValue(definition.id, visual_index)
+                    break
+        self.settings.end_group()
+
+    def load_column_widths(self):
+        """Load saved column widths from settings"""
+        self.settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS)
+        for definition in column_definitions:
+            if definition.width is not None:  # Only load if column has a default width
+                saved_width = self.settings.settings.value(definition.id, definition.width)
+                if saved_width is not None:
+                    self.setColumnWidth(definition.column.value, int(saved_width))
+        self.settings.end_group()
+
+    def load_column_order(self):
+        """Load saved column order from settings"""
+        self.settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER)
+        
+        # Create a mapping of column IDs to their saved visual positions
+        column_positions = {}
+        for definition in column_definitions:
+            saved_position = self.settings.settings.value(definition.id)
+            if saved_position is not None:
+                column_positions[definition.column.value] = int(saved_position)
+        
+        self.settings.end_group()
+        
+        # Apply the saved order
+        if column_positions:
+            header = self.horizontalHeader()
+            for logical_index, visual_position in column_positions.items():
+                if 0 <= visual_position < header.count():
+                    header.moveSection(header.visualIndex(logical_index), visual_position)
     
     def reset_column_order(self):
         """Reset column order to default"""
@@ -286,6 +362,15 @@ class TranscriptionTasksTableWidget(QTableView):
         # Show all columns
         for definition in column_definitions:
             self.setColumnHidden(definition.column.value, False)
+        
+        # Clear saved settings
+        self.settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER)
+        self.settings.settings.remove("")
+        self.settings.end_group()
+        
+        self.settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS)
+        self.settings.settings.remove("")
+        self.settings.end_group()
         
         # Save the reset state
         self.save_column_visibility()
@@ -405,3 +490,38 @@ class TranscriptionTasksTableWidget(QTableView):
                 new_notes
             )
             self.refresh_all()
+
+    def on_transcribe_action(self):
+        """Restart transcription for failed or canceled tasks"""
+        selected_rows = self.selectionModel().selectedRows()
+        if not selected_rows:
+            return
+        
+        # Get the first selected transcription
+        transcription = self.transcription(selected_rows[0])
+        
+        # Reset the transcription status to queued by directly updating the database
+        from uuid import UUID
+        from buzz.transcriber.transcriber import FileTranscriptionTask
+        
+        # Use a direct database update to reset status
+        query = self.transcription_service.transcription_dao._create_query()
+        query.prepare(
+            """
+            UPDATE transcription
+            SET status = :status, progress = :progress, time_started = NULL, time_ended = NULL, error_message = NULL
+            WHERE id = :id
+        """
+        )
+        
+        query.bindValue(":id", str(transcription.id))
+        query.bindValue(":status", FileTranscriptionTask.Status.QUEUED.value)
+        query.bindValue(":progress", 0.0)
+        
+        if query.exec():
+            # Refresh the table to show updated status
+            self.refresh_all()
+        else:
+            # Show error if update failed
+            from PyQt6.QtWidgets import QMessageBox
+            QMessageBox.warning(self, _("Error"), _("Failed to restart transcription: {}").format(query.lastError().text()))
