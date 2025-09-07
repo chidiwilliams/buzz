@@ -41,4 +41,4 @@ Buzz features a powerful transcription viewer that makes it easy to work with yo
 - **🎨 Clean Interface**: Conditional visibility keeps the interface uncluttered
 - **💾 State Persistence**: Remembers your preferences between sessions
 
-[Learn more about the Transcription Viewer Interface →](usage/5_transcription_viewer)
+[Learn more about the Transcription Viewer Interface →](https://chidiwilliams.github.io/buzz/docs/usage/transcription_viewer)

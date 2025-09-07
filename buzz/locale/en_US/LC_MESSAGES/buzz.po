@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-30 19:30+0300\n"
+"POT-Creation-Date: 2025-09-05 07:46+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -207,7 +207,7 @@ msgstr ""
 msgid "Select Export Folder"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:320
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:319
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
@@ -420,12 +420,12 @@ msgstr ""
 msgid "Open Transcript"
 msgstr ""
 
-#: buzz/widgets/main_window_toolbar.py:63 buzz/settings/shortcut.py:27
+#: buzz/widgets/main_window_toolbar.py:63 buzz/settings/shortcut.py:30
 msgid "Cancel Transcription"
 msgstr ""
 
 #: buzz/widgets/main_window_toolbar.py:71 buzz/widgets/main_window.py:227
-#: buzz/settings/shortcut.py:26
+#: buzz/settings/shortcut.py:29
 msgid "Clear History"
 msgstr ""
 
@@ -536,24 +536,107 @@ msgstr ""
 msgid "Timestamps"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:156
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:209
 msgid "Export"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:174
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:227
 msgid "Translate"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:184
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:237
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:174
 msgid "Resize"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:285
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:249
+msgid "Find"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:252
+msgid "Show/Hide Search Bar (Ctrl+F)"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:317
+msgid "Find:"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:323
+msgid "Enter text to find..."
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:336
+msgid "Previous match (Shift+Enter)"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:344
+msgid "Next match (Enter)"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:352
+msgid "Clear"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:379
+msgid "Playback Controls:"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:384
+msgid "Loop Segment"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:386
+msgid "Enable/disable looping when clicking on transcript segments"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:392
+msgid "Follow Audio"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:394
+msgid ""
+"Enable/disable following the current audio position in the transcript. When "
+"enabled, automatically scrolls to current text."
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:441
+msgid "Scroll to Current"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:443
+msgid "Scroll to the currently spoken text"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:645
+msgid "1 of 100+ matches"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:647
+msgid "1 of "
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:647
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:713
+msgid " matches"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:652
+msgid "No matches found"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:711
+msgid " of 100+ matches"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:713
+msgid " of "
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1015
 msgid "API Key Required"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:286
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1016
 msgid "Please enter OpenAI API Key in preferences"
 msgstr ""
 
@@ -1066,6 +1149,18 @@ msgstr ""
 
 #: buzz/settings/shortcut.py:24
 msgid "View Transcript Timestamps"
+msgstr ""
+
+#: buzz/settings/shortcut.py:25
+msgid "Search Transcript"
+msgstr ""
+
+#: buzz/settings/shortcut.py:26
+msgid "Scroll to Current Text"
+msgstr ""
+
+#: buzz/settings/shortcut.py:27
+msgid "Toggle Playback Controls"
 msgstr ""
 
 #: buzz/settings/recording_transcriber_mode.py:5
