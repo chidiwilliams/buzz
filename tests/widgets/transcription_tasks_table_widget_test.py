@@ -48,7 +48,7 @@ def mock_dependencies(monkeypatch):
     settings_store = {}
     mock_settings.settings = Mock()
     mock_settings.settings.setValue.side_effect = lambda k, v: settings_store.update({k: v})
-    mock_settings.settings.value.side_effect = lambda k, default: settings_store.get(
+    mock_settings.settings.value.side_effect = lambda k, default=None: settings_store.get(
         k, default
     )
     monkeypatch.setattr(
@@ -57,7 +57,11 @@ def mock_dependencies(monkeypatch):
     )
     monkeypatch.setattr(
         "buzz.widgets.transcription_tasks_table_widget.Settings.Key",
-        Mock(TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY="visibility"),
+        Mock(
+            TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY="visibility",
+            TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER="order",
+            TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS="widths"
+        ),
     )
 
 
@@ -87,13 +91,15 @@ def db():
         "whisper_model_size TEXT,"  # 16
         "hugging_face_model_id TEXT,"  # 17
         "word_level_timings BOOLEAN DEFAULT FALSE,"  # 18
-        "extract_speech BOOLEAN DEFAULT FALSE"  # 19
+        "extract_speech BOOLEAN DEFAULT FALSE,"  # 19
+        "name TEXT,"  # 20
+        "notes TEXT"  # 21
         ")"
     )
     query.exec(
-        "INSERT INTO transcription (id, file, url, status, time_queued, task, model_type) VALUES "
-        "('1', '/a/b/c.mp3', '', 'QUEUED', '2023-01-01T00:00:00', 'TRANSCRIBE', 'WHISPER'),"
-        "('2', '', 'http://example.com/d.wav', 'QUEUED', '2023-01-02T00:00:00', 'TRANSCRIBE', 'WHISPER')"
+        "INSERT INTO transcription (id, file, url, status, time_queued, task, model_type, name, notes) VALUES "
+        "('1', '/a/b/c.mp3', '', 'QUEUED', '2023-01-01T00:00:00', 'TRANSCRIBE', 'WHISPER', 'Test Audio File', 'This is a test transcription'),"
+        "('2', '', 'http://example.com/d.wav', 'QUEUED', '2023-01-02T00:00:00', 'TRANSCRIBE', 'WHISPER', 'URL Audio', 'URL-based transcription')"
     )
     yield db
     db.close()
@@ -235,3 +241,229 @@ class TestTranscriptionTasksTableWidget:
         menu_add_action_call_count = mock_menu.addAction.call_count
         widget.contextMenuEvent(Mock())
         assert mock_menu.addAction.call_count > menu_add_action_call_count
+
+    def test_new_column_definitions(self):
+        """Test that new NAME and NOTES columns are properly defined"""
+        # Check that NOTES column is defined
+        notes_column_def = next((col for col in column_definitions if col.column == Column.NOTES), None)
+        assert notes_column_def is not None
+        assert notes_column_def.id == "notes"
+        assert notes_column_def.header == "Notes"
+        assert notes_column_def.width == 300
+        assert notes_column_def.hidden_toggleable == True  # Notes column should be toggleable
+
+        # Check that FILE column has been updated to include name functionality
+        file_column_def = next((col for col in column_definitions if col.column == Column.FILE), None)
+        assert file_column_def is not None
+        assert file_column_def.id == "file_name"
+        assert file_column_def.header == "File Name / URL"
+        assert file_column_def.width == 400
+        assert file_column_def.hidden_toggleable == False  # File column should not be toggleable
+
+    def test_file_column_text_getter_with_name(self, widget):
+        """Test that file column displays name or falls back to file/url"""
+        # Test with name present
+        record_with_name = mock_record({"name": "Custom Name", "url": "http://example.com", "file": "/path/file.mp3"})
+        file_column_def = next((col for col in column_definitions if col.column == Column.FILE), None)
+        text = file_column_def.delegate.callback(record_with_name)
+        assert text == "Custom Name"
+
+        # Test fallback to URL when no name
+        record_url_fallback = mock_record({"name": None, "url": "http://example.com/audio.mp3", "file": "/path/file.mp3"})
+        text = file_column_def.delegate.callback(record_url_fallback)
+        assert text == "http://example.com/audio.mp3"
+
+        # Test fallback to filename when no name or URL
+        record_file_fallback = mock_record({"name": None, "url": "", "file": "/path/to/audio.mp3"})
+        text = file_column_def.delegate.callback(record_file_fallback)
+        assert text == "audio.mp3"
+
+    def test_notes_column_text_getter(self, widget):
+        """Test that notes column displays notes or empty string"""
+        notes_column_def = next((col for col in column_definitions if col.column == Column.NOTES), None)
+        
+        # Test with notes present
+        record_with_notes = mock_record({"notes": "Important transcription notes"})
+        text = notes_column_def.delegate.callback(record_with_notes)
+        assert text == "Important transcription notes"
+
+        # Test with no notes
+        record_no_notes = mock_record({"notes": None})
+        text = notes_column_def.delegate.callback(record_no_notes)
+        assert text == ""
+
+    def test_column_visibility_management(self, widget):
+        """Test column visibility save/load functionality"""
+        # Test saving column visibility
+        widget.setColumnHidden(Column.NOTES.value, True)
+        widget.save_column_visibility()
+        
+        # Create new widget to test loading
+        new_widget = TranscriptionTasksTableWidget()
+        assert new_widget.isColumnHidden(Column.NOTES.value)
+
+    def test_column_width_management(self, widget):
+        """Test column width save/load functionality"""
+        # Test saving column widths
+        widget.setColumnWidth(Column.FILE.value, 500)
+        widget.save_column_widths()
+        
+        # Create new widget to test loading
+        new_widget = TranscriptionTasksTableWidget()
+        # Width should be loaded from settings (mocked to return 500)
+        assert new_widget.columnWidth(Column.FILE.value) == 500
+
+    def test_column_order_management(self, widget):
+        """Test column order save/load functionality"""
+        # Test saving column order
+        widget.save_column_order()
+        
+        # Test loading column order
+        widget.load_column_order()
+        
+        # Test resetting column order
+        widget.reset_column_order()
+        # After reset, columns should be in default order
+        header = widget.horizontalHeader()
+        for i, definition in enumerate(column_definitions):
+            assert header.visualIndex(definition.column.value) == i
+
+    def test_context_menu_rename_action(self, widget, monkeypatch):
+        """Test rename action in context menu"""
+        # Mock the transcription service
+        mock_service = Mock()
+        widget.transcription_service = mock_service
+        
+        # Mock the transcription method to return a proper transcription object
+        mock_transcription = Mock()
+        mock_transcription.id = "12345678-1234-5678-1234-567812345678"  # Valid UUID
+        mock_transcription.name = "Old Name"
+        mock_transcription.url = "http://example.com"
+        mock_transcription.file = "/path/file.mp3"
+        monkeypatch.setattr(widget, "transcription", Mock(return_value=mock_transcription))
+        
+        # Mock QInputDialog
+        mock_dialog = Mock()
+        mock_dialog.getText.return_value = ("New Name", True)
+        monkeypatch.setattr("PyQt6.QtWidgets.QInputDialog", mock_dialog)
+        
+        # Select a row
+        widget.selectRow(0)
+        
+        # Call rename action
+        widget.on_rename_action()
+        
+        # Verify service was called
+        mock_service.update_transcription_name.assert_called_once()
+        mock_dialog.getText.assert_called_once()
+
+    def test_context_menu_notes_action(self, widget, monkeypatch):
+        """Test notes action in context menu"""
+        # Mock the transcription service
+        mock_service = Mock()
+        widget.transcription_service = mock_service
+        
+        # Mock the transcription method to return a proper transcription object
+        mock_transcription = Mock()
+        mock_transcription.id = "12345678-1234-5678-1234-567812345678"  # Valid UUID
+        mock_transcription.notes = "Old notes"
+        monkeypatch.setattr(widget, "transcription", Mock(return_value=mock_transcription))
+        
+        # Mock QInputDialog
+        mock_dialog = Mock()
+        mock_dialog.getMultiLineText.return_value = ("New notes", True)
+        monkeypatch.setattr("PyQt6.QtWidgets.QInputDialog", mock_dialog)
+        
+        # Select a row
+        widget.selectRow(0)
+        
+        # Call notes action
+        widget.on_notes_action()
+        
+        # Verify service was called
+        mock_service.update_transcription_notes.assert_called_once()
+        mock_dialog.getMultiLineText.assert_called_once()
+
+    def test_context_menu_restart_action_success(self, widget, monkeypatch):
+        """Test restart action for failed/canceled transcriptions"""
+        # Mock the transcription service
+        mock_service = Mock()
+        widget.transcription_service = mock_service
+        
+        # Mock QMessageBox
+        mock_messagebox = Mock()
+        monkeypatch.setattr("PyQt6.QtWidgets.QMessageBox", mock_messagebox)
+        
+        # Mock the database query
+        mock_query = Mock()
+        mock_query.exec.return_value = True
+        mock_query.bindValue = Mock()
+        monkeypatch.setattr("buzz.widgets.transcription_tasks_table_widget.QSqlQuery", Mock(return_value=mock_query))
+        
+        # Mock the transcription record to return failed status
+        mock_transcription = Mock()
+        mock_transcription.status = "failed"
+        mock_transcription.id = "test-id"
+        monkeypatch.setattr(widget, "transcription", Mock(return_value=mock_transcription))
+        
+        # Select a row
+        widget.selectRow(0)
+        
+        # Call restart action
+        widget.on_restart_transcription_action()
+        
+        # Verify query was executed
+        mock_query.exec.assert_called_once()
+
+    def test_context_menu_restart_action_wrong_status(self, widget, monkeypatch):
+        """Test restart action shows error for non-failed/canceled transcriptions"""
+        # Mock QMessageBox
+        mock_messagebox = Mock()
+        monkeypatch.setattr("PyQt6.QtWidgets.QMessageBox", mock_messagebox)
+        
+        # Mock the transcription record to return completed status
+        mock_transcription = Mock()
+        mock_transcription.status = "completed"
+        monkeypatch.setattr(widget, "transcription", Mock(return_value=mock_transcription))
+        
+        # Select a row
+        widget.selectRow(0)
+        
+        # Call restart action
+        widget.on_restart_transcription_action()
+        
+        # Verify error message was shown
+        mock_messagebox.information.assert_called_once()
+
+    def test_column_resize_event(self, widget):
+        """Test column resize event handling"""
+        # Mock the save_column_widths method
+        with patch.object(widget, 'save_column_widths') as mock_save:
+            # Simulate column resize
+            widget.on_column_resized(0, 100, 200)
+            mock_save.assert_called_once()
+
+    def test_column_move_event(self, widget):
+        """Test column move event handling"""
+        # Mock the save methods
+        with patch.object(widget, 'save_column_order') as mock_save_order, \
+             patch.object(widget, 'load_column_visibility') as mock_load_vis:
+            # Simulate column move
+            widget.on_column_moved(0, 0, 1)
+            mock_save_order.assert_called_once()
+            mock_load_vis.assert_called_once()
+
+    def test_reload_column_order_from_settings(self, widget):
+        """Test reloading column order from settings"""
+        # Mock settings to return specific values
+        widget.settings.settings.value.side_effect = lambda key, default=None: {
+            "file_name": "0",
+            "notes": "1", 
+            "status": "2"
+        }.get(key, default)
+        
+        # Call reload method
+        widget.reload_column_order_from_settings()
+        
+        # Verify the method completes without error
+        assert True  # If we get here, no exception was raised
