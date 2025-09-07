@@ -781,12 +781,8 @@ class TestTranscriptionViewerWidget:
 
         widget.close()
 
-<<<<<<< HEAD
-    # This is passing locally
-=======
     # This is passing locally, fails on CI
     @pytest.mark.skipif(sys.platform.startswith("win"), reason="Skipping on Windows")
->>>>>>> upstream/main
     def test_search_results_label_format(
             self, qtbot: QtBot, transcription, transcription_service, shortcuts
     ):
@@ -813,12 +809,8 @@ class TestTranscriptionViewerWidget:
 
         widget.close()
 
-<<<<<<< HEAD
-    # This is passing locally
-=======
     # This is passing locally, fails on CI
     @pytest.mark.skipif(sys.platform.startswith("win"), reason="Skipping on Windows")
->>>>>>> upstream/main
     def test_current_segment_text_scrolling(
             self, qtbot: QtBot, transcription, transcription_service, shortcuts
     ):
@@ -844,12 +836,8 @@ class TestTranscriptionViewerWidget:
         widget.close()
 
  
-<<<<<<< HEAD
-    # This is passing locally
-=======
     # This is passing locally, fails on CI
     @pytest.mark.skipif(sys.platform.startswith("win"), reason="Skipping on Windows")
->>>>>>> upstream/main
     def test_search_bar_visibility_toggle(
             self, qtbot: QtBot, transcription, transcription_service, shortcuts
     ):
@@ -936,12 +924,8 @@ class TestTranscriptionViewerWidget:
 
         widget.close()
 
-<<<<<<< HEAD
-    # This is passing locally
-=======
     # This is passing locally, fails on CI
     @pytest.mark.skipif(sys.platform.startswith("win"), reason="Skipping on Windows")
->>>>>>> upstream/main
     def test_search_clear_functionality_comprehensive(
             self, qtbot: QtBot, transcription, transcription_service, shortcuts
     ):
@@ -974,12 +958,8 @@ class TestTranscriptionViewerWidget:
 
         widget.close()
 
-<<<<<<< HEAD
-    # This is passing locally
-=======
     # This is passing locally, fails on CI
     @pytest.mark.skipif(sys.platform.startswith("win"), reason="Skipping on Windows")
->>>>>>> upstream/main
     def test_export_functionality_exists(
             self, qtbot: QtBot, transcription, transcription_service, shortcuts
     ):
@@ -1046,12 +1026,8 @@ class TestTranscriptionViewerWidget:
 
         widget.close()
 
-<<<<<<< HEAD
-    # This is passing locally
-=======
     # This is passing locally, fails on CI
     @pytest.mark.skipif(sys.platform.startswith("win"), reason="Skipping on Windows")
->>>>>>> upstream/main
     def test_playback_controls_properties_exist(
             self, qtbot: QtBot, transcription, transcription_service, shortcuts
     ):
@@ -1203,12 +1179,8 @@ class TestTranscriptionViewerWidget:
 
         widget.close()
 
-<<<<<<< HEAD
-    # This is passing locally
-=======
     # This is passing locally, fails on CI
     @pytest.mark.skipif(sys.platform.startswith("win"), reason="Skipping on Windows")
->>>>>>> upstream/main
     def test_merge_button_functionality_exists(
             self, qtbot: QtBot, transcription, transcription_service, shortcuts
     ):
@@ -1229,12 +1201,8 @@ class TestTranscriptionViewerWidget:
 
         widget.close()
 
-<<<<<<< HEAD
-    # This is passing locally
-=======
     # This is passing locally, fails on CI
     @pytest.mark.skipif(sys.platform.startswith("win"), reason="Skipping on Windows")
->>>>>>> upstream/main
     def test_text_button_functionality_exists(
             self, qtbot: QtBot, transcription, transcription_service, shortcuts
     ):
