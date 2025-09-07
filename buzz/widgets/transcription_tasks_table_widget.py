@@ -127,17 +127,7 @@ column_definitions = [
         delegate=RecordDelegate(text_getter=format_record_status_text),
         hidden_toggleable=True,
     ),
-    ColDef(
-        id="date_added",
-        header=_("Date Added"),
-        column=Column.TIME_QUEUED,
-        width=180,
-        delegate=RecordDelegate(
-            text_getter=lambda record: datetime.fromisoformat(
-                record.value("time_queued")
-            ).strftime("%Y-%m-%d %H:%M:%S")
-        ),
-    ),
+
     ColDef(
         id="date_completed",
         header=_("Date Completed"),
@@ -149,6 +139,16 @@ column_definitions = [
             ).strftime("%Y-%m-%d %H:%M:%S")
             if record.value("time_ended") != ""
             else ""
+        ),
+    ),    ColDef(
+        id="date_added",
+        header=_("Date Added"),
+        column=Column.TIME_QUEUED,
+        width=180,
+        delegate=RecordDelegate(
+            text_getter=lambda record: datetime.fromisoformat(
+                record.value("time_queued")
+            ).strftime("%Y-%m-%d %H:%M:%S")
         ),
     ),
     ColDef(
@@ -179,7 +179,7 @@ class TranscriptionTasksTableHeaderView(QHeaderView):
             if definition.hidden_toggleable:
                 action = menu.addAction(definition.header)
                 action.setCheckable(True)
-                action.setChecked(not self.isSectionHidden(definition.column.value))
+                action.setChecked(not self.parent().isColumnHidden(definition.column.value))
                 action.toggled.connect(
                     lambda checked, column_index=definition.column.value: self.on_column_checked(
                         column_index, checked
@@ -188,8 +188,50 @@ class TranscriptionTasksTableHeaderView(QHeaderView):
         menu.exec(event.globalPos())
 
     def on_column_checked(self, column_index: int, checked: bool):
-        self.setSectionHidden(column_index, not checked)
+        # Find the column definition for this index
+        column_def = None
+        for definition in column_definitions:
+            if definition.column.value == column_index:
+                column_def = definition
+                break
+        
+        print(f"[DEBUG] Toggling column {column_def.id if column_def else 'unknown'} (index {column_index}) to {'visible' if checked else 'hidden'}")
+        
+        # If we're hiding the column, save its current width first
+        if not checked and not self.parent().isColumnHidden(column_index):
+            current_width = self.parent().columnWidth(column_index)
+            if current_width > 0:  # Only save if there's a meaningful width
+                self.parent().settings.begin_group(self.parent().settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS)
+                self.parent().settings.settings.setValue(column_def.id, current_width)
+                self.parent().settings.end_group()
+                print(f"[DEBUG] Saved width {current_width} for column {column_def.id} before hiding")
+        
+        # Update the visibility state on the table view (not header view)
+        self.parent().setColumnHidden(column_index, not checked)
+        
+        # Save current column order before any reloading
+        self.parent().save_column_order()
+        
+        # Save both visibility and widths after the change
         self.parent().save_column_visibility()
+        self.parent().save_column_widths()
+        
+        # Ensure settings are synchronized
+        self.parent().settings.settings.sync()
+        
+        # Force a complete refresh of the table
+        self.parent().viewport().update()
+        self.parent().repaint()
+        self.parent().horizontalHeader().update()
+        self.parent().updateGeometry()
+        self.parent().adjustSize()
+        
+        # Force a model refresh to ensure the view is updated
+        self.parent().model().layoutChanged.emit()
+
+        self.parent().reload_column_order_from_settings()
+        
+        print(f"[DEBUG] After toggle: column {column_index} hidden = {self.parent().isColumnHidden(column_index)}")
 
 class TranscriptionTasksTableWidget(QTableView):
     return_clicked = pyqtSignal()
@@ -212,28 +254,20 @@ class TranscriptionTasksTableWidget(QTableView):
 
         self.settings = Settings()
 
-        self.settings.begin_group(
-            Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY
-        )
+        # Set up column headers and delegates
         for definition in column_definitions:
             self.model().setHeaderData(
                 definition.column.value,
                 Qt.Orientation.Horizontal,
                 definition.header,
             )
-
-            visible = True
-            if definition.hidden_toggleable:
-                visible = self.settings.settings.value(definition.id, "true") in {"true", "True", True}
-
-            self.setColumnHidden(definition.column.value, not visible)
-            if definition.width is not None:
-                self.setColumnWidth(definition.column.value, definition.width)
             if definition.delegate is not None:
                 self.setItemDelegateForColumn(
                     definition.column.value, definition.delegate
                 )
-        self.settings.end_group()
+
+        # Load column visibility
+        self.load_column_visibility()
 
         self.model().select()
         self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
@@ -255,8 +289,9 @@ class TranscriptionTasksTableWidget(QTableView):
         self.load_column_order()
         self.load_column_widths()
 
-        # Show date added before date completed
-        self.horizontalHeader().swapSections(11, 12)
+        
+        # Reload column visibility after all reordering is complete
+        self.load_column_visibility()
 
     def contextMenuEvent(self, event):
         menu = QMenu(self)
@@ -266,10 +301,12 @@ class TranscriptionTasksTableWidget(QTableView):
         if selected_rows:
             transcription = self.transcription(selected_rows[0])
             
-            # Add transcribe action for failed/canceled tasks
-            if transcription.status in ["FAILED", "CANCELED"]:
-                transcribe_action = menu.addAction(_("Transcribe"))
-                transcribe_action.triggered.connect(self.on_transcribe_action)
+            # Add restart/continue action for failed/canceled tasks
+            # Print the status of the transcription
+            print(f"[DEBUG] Transcription status: {transcription.status}")
+            if transcription.status in ["failed", "canceled"]:
+                restart_action = menu.addAction(_("Restart Transcription"))
+                restart_action.triggered.connect(self.on_restart_transcription_action)
                 menu.addSeparator()
             
             rename_action = menu.addAction(_("Rename"))
@@ -297,13 +334,18 @@ class TranscriptionTasksTableWidget(QTableView):
     def on_column_moved(self, logical_index: int, old_visual_index: int, new_visual_index: int):
         """Handle column move events"""
         self.save_column_order()
+        # Refresh visibility after column move to ensure it's maintained
+        self.load_column_visibility()
 
     def save_column_widths(self):
         """Save current column widths to settings"""
         self.settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS)
         for definition in column_definitions:
-            width = self.columnWidth(definition.column.value)
-            self.settings.settings.setValue(definition.id, width)
+            # Only save width if column is visible and has a meaningful width
+            if not self.isColumnHidden(definition.column.value):
+                width = self.columnWidth(definition.column.value)
+                if width > 0:  # Only save if there's a meaningful width
+                    self.settings.settings.setValue(definition.id, width)
         self.settings.end_group()
 
     def save_column_order(self):
@@ -329,6 +371,26 @@ class TranscriptionTasksTableWidget(QTableView):
                     self.setColumnWidth(definition.column.value, int(saved_width))
         self.settings.end_group()
 
+    def load_column_visibility(self):
+        """Load saved column visibility from settings"""
+        print("[DEBUG] load_column_visibility() called")
+        self.settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY)
+        for definition in column_definitions:
+            visible = True
+            if definition.hidden_toggleable:
+                value = self.settings.settings.value(definition.id, "true")
+                visible = value in {"true", "True", True}
+                print(f"[DEBUG] Column '{definition.id}': settings value = {value}, visible = {visible}")
+            
+            self.setColumnHidden(definition.column.value, not visible)
+        self.settings.end_group()
+        
+        # Force a refresh of the table layout
+        self.horizontalHeader().update()
+        self.viewport().update()
+        self.updateGeometry()
+        print("[DEBUG] load_column_visibility() finished")
+
     def load_column_order(self):
         """Load saved column order from settings"""
         self.settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER)
@@ -351,29 +413,110 @@ class TranscriptionTasksTableWidget(QTableView):
     
     def reset_column_order(self):
         """Reset column order to default"""
-        # Reset to default order by swapping sections back
-        self.horizontalHeader().swapSections(11, 12)
-        
+
         # Reset column widths to defaults
         for definition in column_definitions:
             if definition.width is not None:
                 self.setColumnWidth(definition.column.value, definition.width)
-        
+
         # Show all columns
         for definition in column_definitions:
             self.setColumnHidden(definition.column.value, False)
-        
+
+        # Restore default column order
+        header = self.horizontalHeader()
+        # Move each section to its default position in order
+        # To avoid index shifting, move from left to right
+        for target_visual_index, definition in enumerate(column_definitions):
+            logical_index = definition.column.value
+            current_visual_index = header.visualIndex(logical_index)
+            if current_visual_index != target_visual_index:
+                header.moveSection(current_visual_index, target_visual_index)
+
         # Clear saved settings
         self.settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER)
         self.settings.settings.remove("")
         self.settings.end_group()
-        
+
         self.settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS)
         self.settings.settings.remove("")
         self.settings.end_group()
-        
-        # Save the reset state
+
+        # Save the reset state for both visibility and widths
         self.save_column_visibility()
+        self.save_column_widths()
+
+        # Force a refresh of the table layout
+        self.horizontalHeader().update()
+        self.viewport().update()
+        self.updateGeometry()
+
+    def reload_column_order_from_settings(self):
+        """Reload column order, width, and visibility from settings"""
+
+        # --- Load column visibility ---
+        self.settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY)
+        visibility_settings = {}
+        for definition in column_definitions:
+            vis = self.settings.settings.value(definition.id)
+            if vis is not None:
+                visibility_settings[definition.id] = str(vis).lower() not in ("0", "false", "no")
+        self.settings.end_group()
+
+        # --- Load column widths ---
+        self.settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS)
+        width_settings = {}
+        for definition in column_definitions:
+            width = self.settings.settings.value(definition.id)
+            if width is not None:
+                try:
+                    width_settings[definition.id] = int(width)
+                except Exception:
+                    print(f"[DEBUG] Invalid width for column '{definition.id}': {width}")
+        self.settings.end_group()
+
+        # --- Load column order ---
+        self.settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER)
+        order_settings = {}
+        for definition in column_definitions:
+            pos = self.settings.settings.value(definition.id)
+            if pos is not None:
+                try:
+                    order_settings[definition.column.value] = int(pos)
+                except Exception:
+                    print(f"[DEBUG] Invalid position for column '{definition.id}': {pos}")
+        self.settings.end_group()
+
+        # --- Apply visibility, widths, and order ---
+        header = self.horizontalHeader()
+
+        # First, set visibility and width for each column
+        for definition in column_definitions:
+            is_visible = visibility_settings.get(definition.id, True)
+            width = width_settings.get(definition.id, definition.width)
+            print(f"[DEBUG] Column '{definition.id}': visible={is_visible}, width={width}")
+            self.setColumnHidden(definition.column.value, not is_visible)
+            if width is not None:
+                self.setColumnWidth(definition.column.value, max(width, 100))
+
+        # Then, apply column order
+        # Build a list of (logical_index, visual_position) for ALL columns (including hidden ones)
+        all_columns = [
+            (definition.column.value, order_settings.get(definition.column.value, idx))
+            for idx, definition in enumerate(column_definitions)
+        ]
+        # Sort by saved visual position
+        all_columns.sort(key=lambda x: x[1])
+
+        # Move sections to match the saved order
+        for target_visual, (logical_index, _) in enumerate(all_columns):
+            current_visual = header.visualIndex(logical_index)
+            if current_visual != target_visual:
+                print(f"[DEBUG] Moving column logical_index={logical_index} from visual={current_visual} to visual={target_visual}")
+                header.moveSection(current_visual, target_visual)
+
+        print("[DEBUG] reload_column_order_from_settings() finished")
+        
 
     def copy_selected_fields(self):
         selected_text = ""
@@ -491,7 +634,7 @@ class TranscriptionTasksTableWidget(QTableView):
             )
             self.refresh_all()
 
-    def on_transcribe_action(self):
+    def on_restart_transcription_action(self):
         """Restart transcription for failed or canceled tasks"""
         selected_rows = self.selectionModel().selectedRows()
         if not selected_rows:
@@ -499,6 +642,16 @@ class TranscriptionTasksTableWidget(QTableView):
         
         # Get the first selected transcription
         transcription = self.transcription(selected_rows[0])
+        
+        # Check if the task can be restarted
+        if transcription.status not in ["failed", "canceled"]:
+            from PyQt6.QtWidgets import QMessageBox
+            QMessageBox.information(
+                self, 
+                _("Cannot Restart"), 
+                _("Only failed or canceled transcriptions can be restarted.")
+            )
+            return
         
         # Reset the transcription status to queued by directly updating the database
         from uuid import UUID
@@ -519,9 +672,118 @@ class TranscriptionTasksTableWidget(QTableView):
         query.bindValue(":progress", 0.0)
         
         if query.exec():
+            # Create a new FileTranscriptionTask from the database record
+            # and add it to the queue worker
+            self._restart_transcription_task(transcription)
+            
             # Refresh the table to show updated status
             self.refresh_all()
         else:
             # Show error if update failed
             from PyQt6.QtWidgets import QMessageBox
-            QMessageBox.warning(self, _("Error"), _("Failed to restart transcription: {}").format(query.lastError().text()))
+            QMessageBox.warning(
+                self, 
+                _("Error"), 
+                _("Failed to restart transcription: {}").format(query.lastError().text())
+            )
+    
+    def _restart_transcription_task(self, transcription):
+        """Create a new FileTranscriptionTask and add it to the queue worker"""
+        from buzz.transcriber.transcriber import (
+            FileTranscriptionTask, 
+            TranscriptionOptions, 
+            FileTranscriptionOptions,
+            Task
+        )
+        from buzz.model_loader import TranscriptionModel, ModelType
+        from buzz.transcriber.transcriber import OutputFormat
+        
+        # Recreate the transcription options from the database record
+        from buzz.model_loader import WhisperModelSize
+        
+        # Convert string whisper_model_size to enum if it exists
+        whisper_model_size = None
+        if transcription.whisper_model_size:
+            try:
+                whisper_model_size = WhisperModelSize(transcription.whisper_model_size)
+            except ValueError:
+                # If the stored value is invalid, use a default
+                whisper_model_size = WhisperModelSize.TINY
+        
+        transcription_options = TranscriptionOptions(
+            language=transcription.language if transcription.language else None,
+            task=Task(transcription.task) if transcription.task else Task.TRANSCRIBE,
+            model=TranscriptionModel(
+                model_type=ModelType(transcription.model_type) if transcription.model_type else ModelType.WHISPER,
+                whisper_model_size=whisper_model_size,
+                hugging_face_model_id=transcription.hugging_face_model_id
+            ),
+            word_level_timings=transcription.word_level_timings == "1" if transcription.word_level_timings else False,
+            extract_speech=transcription.extract_speech == "1" if transcription.extract_speech else False,
+            initial_prompt="",  # Not stored in database, use default
+            openai_access_token="",  # Not stored in database, use default
+            enable_llm_translation=False,  # Not stored in database, use default
+            llm_prompt="",  # Not stored in database, use default
+            llm_model=""  # Not stored in database, use default
+        )
+        
+        # Recreate the file transcription options
+        output_formats = set()
+        if transcription.export_formats:
+            for format_str in transcription.export_formats.split(','):
+                try:
+                    output_formats.add(OutputFormat(format_str.strip()))
+                except ValueError:
+                    pass  # Skip invalid formats
+        
+        file_transcription_options = FileTranscriptionOptions(
+            url=transcription.url if transcription.url else None,
+            output_formats=output_formats
+        )
+        
+        # Get the model path from the transcription options
+        model_path = transcription_options.model.get_local_model_path()
+        if model_path is None:
+            # If model is not available locally, we need to download it
+            from buzz.model_loader import ModelDownloader
+            ModelDownloader(model=transcription_options.model).run()
+            model_path = transcription_options.model.get_local_model_path()
+        
+        if model_path is None:
+            from PyQt6.QtWidgets import QMessageBox
+            QMessageBox.warning(
+                self, 
+                _("Error"), 
+                _("Could not restart transcription: model not available and could not be downloaded.")
+            )
+            return
+        
+        # Create the new task
+        task = FileTranscriptionTask(
+            transcription_options=transcription_options,
+            file_transcription_options=file_transcription_options,
+            model_path=model_path,
+            file_path=transcription.file if transcription.file else None,
+            url=transcription.url if transcription.url else None,
+            output_directory=transcription.output_folder if transcription.output_folder else None,
+            source=FileTranscriptionTask.Source(transcription.source) if transcription.source else FileTranscriptionTask.Source.FILE_IMPORT,
+            uid=UUID(transcription.id)
+        )
+        
+        # Add the task to the queue worker
+        # We need to access the main window's transcriber worker
+        # This is a bit of a hack, but it's the cleanest way given the current architecture
+        main_window = self.parent()
+        while main_window and not hasattr(main_window, 'transcriber_worker'):
+            main_window = main_window.parent()
+        
+        if main_window and hasattr(main_window, 'transcriber_worker'):
+            main_window.transcriber_worker.add_task(task)
+        else:
+            # Fallback: show error if we can't find the transcriber worker
+            from PyQt6.QtWidgets import QMessageBox
+            QMessageBox.warning(
+                self, 
+                _("Error"), 
+                _("Could not restart transcription: transcriber worker not found.")
+            )
