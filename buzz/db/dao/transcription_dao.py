@@ -258,6 +258,8 @@ class TranscriptionDAO(DAO[Transcription]):
         query.bindValue(":name", name)
         if not query.exec():
             raise Exception(query.lastError().text())
+        if query.numRowsAffected() == 0:
+            raise Exception("Transcription not found")
 
     def update_transcription_notes(self, id: UUID, notes: str):
         query = self._create_query()
@@ -273,3 +275,5 @@ class TranscriptionDAO(DAO[Transcription]):
         query.bindValue(":notes", notes)
         if not query.exec():
             raise Exception(query.lastError().text())
+        if query.numRowsAffected() == 0:
+            raise Exception("Transcription not found")
