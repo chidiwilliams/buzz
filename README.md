@@ -95,3 +95,4 @@ For info on how to get latest development version with latest features and bug f
     <img alt="Live recording" src="share/screenshots/buzz-5-live_recording.png" style="max-width: 18%; margin-right: 1%; height:auto;" />
     <img alt="Resize" src="share/screenshots/buzz-6-resize.png" style="max-width: 18%;" />
 </div>
+
