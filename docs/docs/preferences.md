@@ -52,6 +52,18 @@ Last sentence will be at the top.
 This mode will also try to correct errors at the end of previously transcribed sentences. This mode requires more
 processing power and more powerful hardware to work.
 
+## Model Preferences
+
+This section lets you download new models for transcription and delete unused ones.
+
+For Whisper.cpp you can also download custom models. Select `Custom` in the model size list and paste the download url 
+to the model `.bin` file. Use the link from "download" button from the Huggingface. 
+
+To improve transcription speed and memory usage you can select a quantized version of some 
+larger model. For example `q_5` version. Whisper.cpp base models in different quantizations are [available here](https://huggingface.co/ggerganov/whisper.cpp/tree/main). See also [custom models](https://github.com/chidiwilliams/buzz/discussions/866) discussion page for custom models in different languages.
+
+[![Model preferences](https://raw.githubusercontent.com/chidiwilliams/buzz/main/share/screenshots/buzz-3.2-model-preferences.png)](https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe "Model preferences")
+
 ## Advanced Preferences
 
 To keep preferences section simple for new users, some more advanced preferences are settable via OS environment variables. Set the necessary environment variables in your OS before starting Buzz or create a script to set them.
@@ -78,7 +90,7 @@ Alternatively you can set environment variables in your OS settings. See [this g
 
 ### Available variables
 
-**BUZZ_WHISPERCPP_N_THREADS** - Number of threads to use for Whisper.cpp model. Default is `4`.
+**BUZZ_WHISPERCPP_N_THREADS** - Number of threads to use for Whisper.cpp model. Default is half of available CPU cores.
 
 On a laptop with 16 threads setting `BUZZ_WHISPERCPP_N_THREADS=8` leads to some 15% speedup in transcription time.
 Increasing number of threads even more will lead in slower transcription time as results from parallel threads has to be
@@ -102,3 +114,8 @@ Defaults to [user_cache_dir](https://pypi.org/project/platformdirs/).
 **BUZZ_DISABLE_TELEMETRY** - Buzz collects basic OS name and architecture usage statistics to better focus development efforts. This variable lets disable collection of these statistics. Example usage `BUZZ_DISABLE_TELEMETRY=true`. Available since `1.3.0`
 
 **BUZZ_UPLOAD_URL** - Live recording transcripts and translations can be uploaded to a server for display on the web. Set this variable to the desired upload url. You can use [buzz-transcription-server](https://github.com/raivisdejus/buzz-transcription-server) as a server. Buzz will upload the following `json` via `POST` requests - `{"kind": "transcript", "text": "Sample transcript"}` or `{"kind": "translation", "text": "Sample translation"}`. Example usage `BUZZ_UPLOAD_URL=http://localhost:5000/upload`. Available since `1.3.0`
+
+Example of data collected by telemetry:
+```
+Buzz: 1.3.0, locale: ('lv_LV', 'UTF-8'), system: Linux, release: 6.14.0-27-generic, machine: x86_64, version: #27~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Jul 22 17:38:49 UTC 2,
+```

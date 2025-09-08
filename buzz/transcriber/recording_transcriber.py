@@ -216,7 +216,8 @@ class RecordingTranscriber(QObject):
                                 if self.transcription_options.language != ""
                                 else None,
                                 task=self.transcription_options.task.value,
-                                temperature=self.transcription_options.temperature,
+                                # Prevent crash on Windows https://github.com/SYSTRAN/faster-whisper/issues/71#issuecomment-1526263764
+                                temperature=0 if platform.system() == "Windows" else self.transcription_options.temperature,
                                 initial_prompt=self.transcription_options.initial_prompt,
                                 word_timestamps=False,
                                 without_timestamps=True,
@@ -353,19 +354,23 @@ class RecordingTranscriber(QObject):
             os.path.join(APP_BASE_DIR, "whisper-server.exe"),
             "--port", "3004",
             "--inference-path", "/audio/transcriptions",
-            "--threads", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8)//2)),
-            "--language", self.transcription_options.language,
+            "--threads", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8) // 2)),
             "--model", self.model_path,
             "--no-timestamps",
             "--no-context",  # on Windows context causes duplications of last message
         ]
+
+        if self.transcription_options.language is not None:
+            command.extend(["--language", self.transcription_options.language])
+        else:
+            command.extend(["--language", "auto"])
 
         logging.debug(f"Starting Whisper server with command: {' '.join(command)}")
 
         self.process = subprocess.Popen(
             command,
             stdout=subprocess.DEVNULL,  # For debug set to subprocess.PIPE, but it will freeze on Windows after ~30 seconds
-            stderr=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
             shell=False,
             creationflags=subprocess.CREATE_NO_WINDOW
         )
@@ -377,7 +382,9 @@ class RecordingTranscriber(QObject):
             logging.debug(f"Whisper server started successfully.")
             logging.debug(f"Model: {self.model_path}")
         else:
-            stderr_output = self.process.stderr.read().decode()
+            stderr_output = ""
+            if self.process.stderr is not None:
+                stderr_output = self.process.stderr.read().decode()
             logging.error(f"Whisper server failed to start. Error: {stderr_output}")
 
             self.transcription.emit(_("Whisper server failed to start. Check logs for details."))
@@ -395,7 +402,7 @@ class RecordingTranscriber(QObject):
         self.openai_client = OpenAI(
             api_key="not-used",
             base_url="http://127.0.0.1:3004",
-            timeout=10.0,
+            timeout=30.0,
             max_retries=0
         )
 

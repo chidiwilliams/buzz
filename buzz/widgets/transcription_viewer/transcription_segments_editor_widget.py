@@ -80,6 +80,7 @@ class TranscriptionSegmentsEditorWidget(QTableView):
     ):
         super().__init__(parent)
 
+        self._last_highlighted_row = -1
         self.translator = translator
         self.translator.translation.connect(self.update_translation)
 
@@ -182,3 +183,17 @@ class TranscriptionSegmentsEditorWidget(QTableView):
 
     def segments(self) -> list[QSqlRecord]:
         return [self.model().record(i) for i in range(self.model().rowCount())]
+
+    def highlight_and_scroll_to_row(self, row_index: int):
+        """Highlight a specific row and scroll it into view"""
+        if 0 <= row_index < self.model().rowCount():
+            # Only set focus if we're actually moving to a different row to avoid audio crackling
+            if self._last_highlighted_row != row_index:
+                self.setFocus()
+                self._last_highlighted_row = row_index
+            
+            # Select the row
+            self.selectRow(row_index)
+            # Scroll to the row with better positioning
+            model_index = self.model().index(row_index, 0)
+            self.scrollTo(model_index, QAbstractItemView.ScrollHint.PositionAtCenter)

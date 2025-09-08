@@ -220,6 +220,8 @@ class TransformersWhisper:
             text = chunk['text']
 
             # Last segment may not have an end timestamp
+            if start is None:
+                start = 0
             if end is None:
                 end = start + 0.1
 

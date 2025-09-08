@@ -56,7 +56,13 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
             si = subprocess.STARTUPINFO()
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             si.wShowWindow = subprocess.SW_HIDE
-            result = subprocess.run(cmd, capture_output=True, startupinfo=si, env=app_env)
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                startupinfo=si,
+                env=app_env,
+                creationflags = subprocess.CREATE_NO_WINDOW
+            )
         else:
             result = subprocess.run(cmd, capture_output=True)
 
@@ -83,7 +89,14 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
             si.wShowWindow = subprocess.SW_HIDE
 
             duration_secs = float(
-                subprocess.run(cmd, capture_output=True, check=True, startupinfo=si, env=app_env).stdout.decode("utf-8")
+                subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    check=True,
+                    startupinfo=si,
+                    env=app_env,
+                    creationflags=subprocess.CREATE_NO_WINDOW
+                ).stdout.decode("utf-8"),
             )
         else:
             duration_secs = float(
@@ -126,7 +139,14 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
                 si = subprocess.STARTUPINFO()
                 si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
                 si.wShowWindow = subprocess.SW_HIDE
-                subprocess.run(cmd, capture_output=True, check=True, startupinfo=si, env=app_env)
+                subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    check=True,
+                    startupinfo=si,
+                    env=app_env,
+                    creationflags=subprocess.CREATE_NO_WINDOW
+                )
             else:
                 subprocess.run(cmd, capture_output=True, check=True)
 
