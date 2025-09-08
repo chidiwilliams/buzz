@@ -180,7 +180,7 @@ msgstr "Marque isso se modelos maiores não couberem na memória da GPU e o Buzz
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:188
 msgid "Disable GPU"
-msgstr "Desabiltiar GPU"
+msgstr "Desabilitar GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:213
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:219
