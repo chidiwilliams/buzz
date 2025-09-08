@@ -580,7 +580,7 @@ msgstr "Encontro prévio (Shift+Enter)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:344
 msgid "Next match (Enter)"
-msgstr "Póximo encontro (Enter)"
+msgstr "Próximo encontro (Enter)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:352
 msgid "Clear"
