@@ -34,7 +34,9 @@ class TranscriptionDAO(DAO[Transcription]):
                 whisper_model_size,
                 hugging_face_model_id,
                 word_level_timings,
-                extract_speech
+                extract_speech,
+                name,
+                notes
             ) VALUES (
                 :id,
                 :export_formats,
@@ -50,7 +52,9 @@ class TranscriptionDAO(DAO[Transcription]):
                 :whisper_model_size,
                 :hugging_face_model_id,
                 :word_level_timings,
-                :extract_speech
+                :extract_speech,
+                :name,
+                :notes
             )
             """
         )
@@ -95,6 +99,8 @@ class TranscriptionDAO(DAO[Transcription]):
             ":extract_speech",
             task.transcription_options.extract_speech
         )
+        query.bindValue(":name", None)  # name is not available in FileTranscriptionTask
+        query.bindValue(":notes", None)  # notes is not available in FileTranscriptionTask
         if not query.exec():
             raise Exception(query.lastError().text())
 

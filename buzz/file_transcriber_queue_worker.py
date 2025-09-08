@@ -150,8 +150,13 @@ class FileTranscriberQueueWorker(QObject):
             self.current_task is not None
             and self.current_task.uid not in self.canceled_tasks
         ):
-            self.current_task.status = FileTranscriptionTask.Status.FAILED
-            self.current_task.error = error
+            # Check if the error indicates cancellation
+            if "canceled" in error.lower() or "cancelled" in error.lower():
+                self.current_task.status = FileTranscriptionTask.Status.CANCELED
+                self.current_task.error = error
+            else:
+                self.current_task.status = FileTranscriptionTask.Status.FAILED
+                self.current_task.error = error
             self.task_error.emit(self.current_task, error)
 
     @pyqtSlot(tuple)

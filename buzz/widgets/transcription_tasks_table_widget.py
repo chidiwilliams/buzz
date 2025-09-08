@@ -373,14 +373,12 @@ class TranscriptionTasksTableWidget(QTableView):
 
     def load_column_visibility(self):
         """Load saved column visibility from settings"""
-        print("[DEBUG] load_column_visibility() called")
         self.settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY)
         for definition in column_definitions:
             visible = True
             if definition.hidden_toggleable:
                 value = self.settings.settings.value(definition.id, "true")
                 visible = value in {"true", "True", True}
-                print(f"[DEBUG] Column '{definition.id}': settings value = {value}, visible = {visible}")
             
             self.setColumnHidden(definition.column.value, not visible)
         self.settings.end_group()
