@@ -5,16 +5,7 @@ on:
       - main
     tags:
       - "*"
-    paths-ignore:
-      - '**/*.po'
-      - '**/*.mo'
-      - 'locales/**'
-
   pull_request:
-    paths-ignore:
-      - '**/*.po'
-      - '**/*.mo'
-      - 'locales/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
