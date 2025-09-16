@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-09-05 07:46+0300\n"
-"PO-Revision-Date: 2025-07-29 19:14+0200\n"
+"PO-Revision-Date: 2025-09-08 12:43+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: \n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.6\n"
+"X-Generator: Poedit 3.7\n"
 
 #: buzz/widgets/import_url_dialog.py:19 buzz/settings/shortcut.py:19
 msgid "Import URL"
@@ -174,15 +174,17 @@ msgstr "Modo de grabación en directo"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:183
 msgid "Use only CPU and disable GPU acceleration"
-msgstr ""
+msgstr "Usa solo CPU y desactiva la aceleración de GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:186
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
 msgstr ""
+"Configure esto si los modelos más grandes no se ajustan a la memoria de su "
+"GPU y Buzz se bloquea"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:188
 msgid "Disable GPU"
-msgstr ""
+msgstr "Desactivar GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:213
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:219
@@ -598,86 +600,91 @@ msgstr "Cambiar el tamaño"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:249
 msgid "Find"
-msgstr ""
+msgstr "Buscar"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:252
 msgid "Show/Hide Search Bar (Ctrl+F)"
-msgstr ""
+msgstr "Mostrar/Ocultar barra de búsqueda (Ctrl+F)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:317
 msgid "Find:"
-msgstr ""
+msgstr "Encontrar:"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:323
 msgid "Enter text to find..."
-msgstr ""
+msgstr "Introducir texto para encontrar..."
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:336
 msgid "Previous match (Shift+Enter)"
-msgstr ""
+msgstr "Coincidencia anterior (Mayús+Intro)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:344
 msgid "Next match (Enter)"
-msgstr ""
+msgstr "Siguiente coincidencia (Enter)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:352
 msgid "Clear"
-msgstr ""
+msgstr "Limpiar"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:379
 msgid "Playback Controls:"
-msgstr ""
+msgstr "Controles de reproducción:"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:384
 msgid "Loop Segment"
-msgstr ""
+msgstr "Segmento de bucle"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:386
 msgid "Enable/disable looping when clicking on transcript segments"
 msgstr ""
+"Activar/desactivar la reproducción en bucle al hacer clic en segmentos de la "
+"transcripción"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:392
 msgid "Follow Audio"
-msgstr ""
+msgstr "Seguir audio"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:394
 msgid ""
 "Enable/disable following the current audio position in the transcript. When "
 "enabled, automatically scrolls to current text."
 msgstr ""
+"Activa/desactiva el seguimiento de la posición actual del audio en la "
+"transcripción. Cuando está activado, se desplaza automáticamente al texto "
+"actual."
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:441
 msgid "Scroll to Current"
-msgstr ""
+msgstr "Desplácese hasta Actual"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:443
 msgid "Scroll to the currently spoken text"
-msgstr ""
+msgstr "Desplazarse hasta el texto hablado actualmente"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:645
 msgid "1 of 100+ matches"
-msgstr ""
+msgstr "1 de 100+ coincidencias"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:647
 msgid "1 of "
-msgstr ""
+msgstr "1 de "
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:647
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:713
 msgid " matches"
-msgstr ""
+msgstr " coincidencias"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:652
 msgid "No matches found"
-msgstr ""
+msgstr "No se encontraron coincidencias"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:711
 msgid " of 100+ matches"
-msgstr ""
+msgstr " de 100+ coincidencias"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:713
 msgid " of "
-msgstr ""
+msgstr " de "
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1015
 msgid "API Key Required"
@@ -1225,17 +1232,16 @@ msgstr "Ver marcas de tiempo de la transcripción"
 
 # automatic translation
 #: buzz/settings/shortcut.py:25
-#, fuzzy
 msgid "Search Transcript"
-msgstr "Abrir transcripción"
+msgstr "Buscar transcripción"
 
 #: buzz/settings/shortcut.py:26
 msgid "Scroll to Current Text"
-msgstr ""
+msgstr "Desplazarse al texto actual"
 
 #: buzz/settings/shortcut.py:27
 msgid "Toggle Playback Controls"
-msgstr ""
+msgstr "Alternar controles de reproducción"
 
 #: buzz/settings/recording_transcriber_mode.py:5
 msgid "Append below"
