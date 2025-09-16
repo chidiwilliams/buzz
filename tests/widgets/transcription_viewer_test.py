@@ -217,8 +217,8 @@ class TestTranscriptionViewerWidget:
             assert call_args[0] == worker.get_transcript
             assert call_kwargs['audio'] == mock_load_audio.return_value
             assert call_kwargs['regroup'] == regroup_string
-            assert call_kwargs['vad'] is True
-            assert call_kwargs['suppress_silence'] is True
+            assert call_kwargs['vad'] is False
+            assert call_kwargs['suppress_silence'] is False
 
             result_ready_spy.assert_called_once()
             emitted_segments = result_ready_spy.call_args[0][0]
