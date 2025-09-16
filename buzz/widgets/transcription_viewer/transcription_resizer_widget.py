@@ -85,14 +85,17 @@ class TranscriptionWorker(QObject):
         if self.transcription_options.extract_speech and os.path.exists(speech_path):
             transcription_file = str(speech_path)
             transcription_file_exists = True
+        # TODO - Fix VAD and Silence suppression that fails to work/download VAd model in compilded form on Mac and Windows
 
         try:
             result = stable_whisper.transcribe_any(
                 self.get_transcript,
                 audio = whisper_audio.load_audio(transcription_file),
                 input_sr=whisper_audio.SAMPLE_RATE,
-                vad=transcription_file_exists,
-                suppress_silence=transcription_file_exists,
+                # vad=transcription_file_exists,
+                # suppress_silence=transcription_file_exists,
+                vad=False,
+                suppress_silence=False,
                 regroup=self.regroup_string,
                 check_sorted=False,
             )
