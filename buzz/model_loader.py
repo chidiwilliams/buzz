@@ -279,7 +279,7 @@ class HuggingfaceDownloadMonitor:
     def __init__(self, model_root: str, progress: pyqtSignal(tuple), total_file_size: int):
         self.model_root = model_root
         self.progress = progress
-        self.total_file_size = total_file_size
+        self.total_file_size = round(total_file_size * 1.1)  # To keep dialog open even if it reports 100%
         self.incomplete_download_root = None
         self.stop_event = threading.Event()
         self.monitor_thread = None
