@@ -92,7 +92,14 @@ class WhisperFileTranscriber(FileTranscriber):
         )
 
         if self.current_process.exitcode != 0:
-            raise Exception("Unknown error")
+            # Check if the process was terminated (likely due to cancellation)
+            # Exit codes 124-128 are often used for termination signals
+            if self.current_process.exitcode in [124, 125, 126, 127, 128, 130, 137, 143]:
+                # Process was likely terminated, treat as cancellation
+                logging.debug("Whisper process was terminated (exit code: %s), treating as cancellation", self.current_process.exitcode)
+                raise Exception("Transcription was canceled")
+            else:
+                raise Exception("Unknown error")
 
         return self.segments
 
