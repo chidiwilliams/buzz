@@ -166,8 +166,10 @@ def write_output(
             combined_text = ""
             previous_end_time = None
 
+            paragraph_split_time = int(os.getenv("BUZZ_PARAGRAPH_SPLIT_TIME", "2000"))
+            
             for segment in segments:
-                if previous_end_time is not None and (segment.start - previous_end_time) >= 2000:
+                if previous_end_time is not None and (segment.start - previous_end_time) >= paragraph_split_time:
                     combined_text += "\n\n"
                 combined_text += getattr(segment, segment_key).strip() + " "
                 previous_end_time = segment.end
