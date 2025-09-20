@@ -127,8 +127,8 @@ class TranscriptionSegmentsEditorWidget(QTableView):
 
         self.init_row_height()
 
-        self.setColumnWidth(Column.START.value, 95)
-        self.setColumnWidth(Column.END.value, 95)
+        self.setColumnWidth(Column.START.value, 120)
+        self.setColumnWidth(Column.END.value, 120)
 
         self.setWordWrap(True)
 
