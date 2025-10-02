@@ -172,11 +172,6 @@ jobs:
           fi
         shell: bash
 
-      - name: Install Inno Setup for Windows
-        run: winget install --id JRSoftware.InnoSetup -e -s winget --accept-package-agreements --accept-source-agreements --location D:\a\buzz\buzz\
-        if: runner.os == 'Windows'
-        shell: bash
-
       - name: Downgrade torch and ctranslate for Intel macOS
         run: |
           poetry add torch==2.2.2 torchaudio==2.2.2 ctranslate2==4.3.1
@@ -253,7 +248,6 @@ jobs:
           elif [ "$RUNNER_OS" == "Windows" ]; then
 
             cp -r ./dll_backup ./buzz/
-            poetry run make bundle_windows
 
           fi
         env:
@@ -266,6 +260,12 @@ jobs:
           APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         shell: bash
+
+      - name: Bundle Windows Installer
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+        with:
+          path: installer.iss
+        if: runner.os == 'Windows'
 
       - uses: actions/upload-artifact@v4
         with:
