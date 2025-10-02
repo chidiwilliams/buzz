@@ -173,10 +173,8 @@ jobs:
         shell: bash
 
       - name: Install Inno Setup for Windows
-        run: |
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            winget install --id JRSoftware.InnoSetup -e -s winget --accept-package-agreements --accept-source-agreements --location D:\a\buzz\buzz\
-          fi
+        run: winget install --id JRSoftware.InnoSetup -e -s winget --accept-package-agreements --accept-source-agreements --location D:\a\buzz\buzz\
+        if: runner.os == 'Windows'
         shell: bash
 
       - name: Downgrade torch and ctranslate for Intel macOS
