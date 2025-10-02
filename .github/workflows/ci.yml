@@ -175,7 +175,7 @@ jobs:
       - name: Install Inno Setup for Windows
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then
-            winget install --id JRSoftware.InnoSetup -e -s winget --accept-package-agreements --accept-source-agreements
+            winget install --id JRSoftware.InnoSetup -e -s winget --accept-package-agreements --accept-source-agreements --location "D:\a\buzz\buzz\"
           fi
         shell: bash
 
