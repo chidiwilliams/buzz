@@ -262,7 +262,7 @@ jobs:
         shell: bash
 
       - name: Bundle Windows Installer
-        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
         with:
           path: installer.iss
         if: runner.os == 'Windows'
