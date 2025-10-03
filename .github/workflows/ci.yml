@@ -191,7 +191,7 @@ jobs:
       - name: Install Inno Setup on Windows
         uses: crazy-max/ghaction-chocolatey@v3
         with:
-            args: innosetup
+            args: install innosetup --yes
         if: runner.os == 'Windows'
 
       - name: Install dependencies
