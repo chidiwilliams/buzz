@@ -804,8 +804,7 @@ class TestTranscriptionViewerWidget:
 
         # Verify the format is correct (should show "1 of X matches" or similar)
         results_text = widget.search_results_label.text()
-        assert "of" in results_text
-        assert "match" in results_text.lower()
+        assert _("1 of ") in results_text
 
         widget.close()
 
