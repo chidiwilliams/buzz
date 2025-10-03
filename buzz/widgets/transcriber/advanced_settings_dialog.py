@@ -45,7 +45,7 @@ class AdvancedSettingsDialog(QDialog):
         self.temperature_line_edit.setPlaceholderText(
             _('Comma-separated, e.g. "0.0, 0.2, 0.4, 0.6, 0.8, 1.0"')
         )
-        self.temperature_line_edit.setMinimumWidth(170)
+        self.temperature_line_edit.setMinimumWidth(250)
         self.temperature_line_edit.textChanged.connect(self.on_temperature_changed)
         self.temperature_line_edit.setValidator(TemperatureValidator(self))
         self.temperature_line_edit.setEnabled(
