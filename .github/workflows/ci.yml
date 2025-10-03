@@ -188,6 +188,12 @@ jobs:
         uses: microsoft/setup-msbuild@v2
         if: runner.os == 'Windows'
 
+      - name: Install Inno Setup on Windows
+        uses: crazy-max/ghaction-chocolatey@v3
+        with:
+            args: innosetup
+        if: runner.os == 'Windows'
+
       - name: Install dependencies
         run: poetry install
 
@@ -248,7 +254,7 @@ jobs:
           elif [ "$RUNNER_OS" == "Windows" ]; then
 
             cp -r ./dll_backup ./buzz/
-            poetry run make dist/Buzz
+            poetry run make bundle_windows
 
           fi
         env:
@@ -261,12 +267,6 @@ jobs:
           APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         shell: bash
-
-      - name: Bundle Windows Installer
-        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
-        with:
-          path: installer.iss
-        if: runner.os == 'Windows'
 
       - uses: actions/upload-artifact@v4
         with:
