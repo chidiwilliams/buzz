@@ -8,13 +8,15 @@
 #define OutputDir "dist"
 #define AppRegKey "Software\Buzz"
 
+#define VersionFile FileRead(FileOpen("buzz\__version__.py"))
+#define AppVersion Copy(VersionFile, Pos('VERSION = "', VersionFile) + 11, 5)
+
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{574290A2-EF7C-4845-85F3-BFF2F011A580}
 AppName={#AppName}
 AppVersion={#AppVersion}
-;AppVerName={#AppName} {#AppVersion}
 DefaultDirName={autopf}\{#AppName}
 DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)

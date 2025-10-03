@@ -172,7 +172,7 @@ jobs:
           fi
         shell: bash
 
-      - name: Downgrade torch and ctranslate for Intel macOS
+      - name: Downgrade torch and ctranslate2 for Intel macOS
         run: |
           poetry add torch==2.2.2 torchaudio==2.2.2 ctranslate2==4.3.1
         if: "matrix.os == 'macos-13'"

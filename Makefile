@@ -6,7 +6,7 @@ mac_zip_path := ./dist/Buzz-${version}-mac.zip
 mac_dmg_path := ./dist/Buzz-${version}-mac.dmg
 
 bundle_windows: dist/Buzz
-	iscc //DAppVersion=${version} installer.iss
+	iscc installer.iss
 
 bundle_mac: dist/Buzz.app codesign_all_mac zip_mac notarize_zip staple_app_mac dmg_mac
 
