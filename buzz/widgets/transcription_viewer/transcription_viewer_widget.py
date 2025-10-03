@@ -149,6 +149,7 @@ class TranscriptionViewerWidget(QWidget):
             parent=self
         )
         self.table_widget.segment_selected.connect(self.on_segment_selected)
+        self.table_widget.timestamp_being_edited.connect(self.on_timestamp_being_edited)
 
         self.text_display_box = TextDisplayBox(self)
 
@@ -872,28 +873,28 @@ class TranscriptionViewerWidget(QWidget):
     def on_segment_selected(self, segment: QSqlRecord):
         # Store the currently selected segment for loop functionality
         self.currently_selected_segment = segment
-        
+
         # Show the current segment frame and update the text
         self.current_segment_frame.show()
         self.current_segment_text.setText(segment.value("text"))
-        
+
         # Force the text label to recalculate its size
         self.current_segment_text.adjustSize()
-        
+
         # Resize the frame to fit the text content
         self.resize_current_segment_frame()
-        
+
         # Ensure the scroll area updates properly and shows scrollbars when needed
         self.current_segment_scroll_area.updateGeometry()
         self.current_segment_scroll_area.verticalScrollBar().setVisible(True)  # Ensure scrollbar is visible
-        
+
         start_time = segment.value("start_time")
         end_time = segment.value("end_time")
         self.audio_player.set_position(start_time)
-        
+
         if self.segment_looping_enabled:
             self.audio_player.set_range((start_time, end_time))
-            
+
             # Reset looping flag to ensure new loops work
             self.audio_player.is_looping = False
         else:
@@ -902,6 +903,34 @@ class TranscriptionViewerWidget(QWidget):
                 if seg.value("id") == segment.value("id"):
                     self.table_widget.highlight_and_scroll_to_row(i)
                     break
+
+    def on_timestamp_being_edited(self, row: int, column: int, new_value_ms: int):
+        """Handle real-time timestamp editing to update loop range immediately"""
+        # Only update if looping is enabled and we're editing the currently selected segment
+        if not self.segment_looping_enabled or self.currently_selected_segment is None:
+            return
+
+        # Check if we're editing the currently selected segment
+        segments = self.table_widget.segments()
+        if row >= len(segments):
+            return
+
+        edited_segment = segments[row]
+        if edited_segment.value("id") != self.currently_selected_segment.value("id"):
+            return
+
+        # Import Column enum to check which column is being edited
+        from buzz.widgets.transcription_viewer.transcription_segments_editor_widget import Column
+
+        # Update the loop range based on which timestamp is being edited
+        if column == Column.START.value:
+            # Editing start time - update loop start
+            end_time = edited_segment.value("end_time")
+            self.audio_player.set_range((new_value_ms, end_time))
+        elif column == Column.END.value:
+            # Editing end time - update loop end
+            start_time = edited_segment.value("start_time")
+            self.audio_player.set_range((start_time, new_value_ms))
 
     def on_audio_player_position_ms_changed(self, position_ms: int) -> None:
         segments = self.table_widget.segments()

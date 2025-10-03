@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Optional
 from uuid import UUID
 
-from PyQt6.QtCore import pyqtSignal, Qt, QModelIndex, QItemSelection, QEvent, QRegularExpression
+from PyQt6.QtCore import pyqtSignal, Qt, QModelIndex, QItemSelection, QEvent, QRegularExpression, QObject
 from PyQt6.QtGui import QRegularExpressionValidator
 from PyQt6.QtSql import QSqlTableModel, QSqlRecord
 from PyQt6.QtGui import QFontMetrics, QTextOption
@@ -123,9 +123,18 @@ class TimeStampDelegate(QStyledItemDelegate):
 class TimeStampEditorDelegate(QStyledItemDelegate):
     """Delegate for editing timestamps with overlap prevention"""
 
+    timestamp_editing = pyqtSignal(int, int, int)  # Signal: (row, column, new_value_ms)
+
     def createEditor(self, parent, option, index):
         editor = TimeStampLineEdit(parent)
+        # Connect text changed signal to emit live updates
+        editor.textChanged.connect(lambda: self.on_editor_text_changed(editor, index))
         return editor
+
+    def on_editor_text_changed(self, editor, index):
+        """Emit signal when editor text changes with the current value"""
+        new_value_ms = editor.get_milliseconds()
+        self.timestamp_editing.emit(index.row(), index.column(), new_value_ms)
 
     def setEditorData(self, editor, index):
         # Get value in milliseconds from database
@@ -230,6 +239,7 @@ class TranscriptionSegmentModel(QSqlTableModel):
 class TranscriptionSegmentsEditorWidget(QTableView):
     PARENT_PADDINGS = 40
     segment_selected = pyqtSignal(QSqlRecord)
+    timestamp_being_edited = pyqtSignal(int, int, int)  # Signal: (row, column, new_value_ms)
 
     def keyPressEvent(self, event):
         # Allow Enter/Return to trigger editing
@@ -257,6 +267,9 @@ class TranscriptionSegmentsEditorWidget(QTableView):
         self.setModel(model)
 
         timestamp_editor_delegate = TimeStampEditorDelegate()
+        # Connect delegate's signal to widget's signal
+        timestamp_editor_delegate.timestamp_editing.connect(self.timestamp_being_edited.emit)
+
         word_wrap_delegate = WordWrapDelegate()
 
         self.column_definitions: list[ColDef] = [
