@@ -190,11 +190,28 @@ class TimeStampEditorDelegate(QStyledItemDelegate):
         return to_timestamp(value)
 
 
+class CustomTextEdit(QTextEdit):
+    """Custom QTextEdit that handles Tab/Enter/Esc keys to save and close editor"""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def keyPressEvent(self, event):
+        # Tab, Enter, or Esc: save and close editor
+        if event.key() in (Qt.Key.Key_Tab, Qt.Key.Key_Return, Qt.Key.Key_Enter, Qt.Key.Key_Escape):
+            # Close the editor which will trigger setModelData to save
+            self.clearFocus()
+            event.accept()
+        else:
+            super().keyPressEvent(event)
+
+
 class WordWrapDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
-        editor = QTextEdit(parent)
+        editor = CustomTextEdit(parent)
         editor.setWordWrapMode(QTextOption.WrapMode.WordWrap)
         editor.setAcceptRichText(False)
+        editor.setTabChangesFocus(True)
 
         return editor
 
