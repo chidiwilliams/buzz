@@ -93,11 +93,11 @@ class TimeStampLineEdit(QLineEdit):
 
     def keyPressEvent(self, event):
         if event.text() == '+':
-            self._milliseconds += 50  # Add 50ms (0.05 seconds)
+            self._milliseconds += 500  # Add 500ms (0.5 seconds)
             self.setText(to_timestamp(self._milliseconds))
             event.accept()
         elif event.text() == '-':
-            self._milliseconds = max(0, self._milliseconds - 50)  # Subtract 50ms
+            self._milliseconds = max(0, self._milliseconds - 500)  # Subtract 500ms
             self.setText(to_timestamp(self._milliseconds))
             event.accept()
         else:

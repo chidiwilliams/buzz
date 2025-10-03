@@ -110,6 +110,12 @@ The search bar appears below the toolbar when activated and provides:
 - **`Ctrl+P` / `Cmd+P`**: Play/Pause audio
 - **`Ctrl+Shift+P` / `Cmd+Shift+P`**: Replay current segment from start
 
+### Timestamp Adjustment
+- **`Ctrl+←` / `Cmd+←`**: Decrease segment start time by 0.5s
+- **`Ctrl+→` / `Cmd+→`**: Increase segment start time by 0.5s
+- **`Ctrl+Shift+←` / `Cmd+Shift+←`**: Decrease segment end time by 0.5s
+- **`Ctrl+Shift+→` / `Cmd+Shift+→`**: Increase segment end time by 0.5s
+
 ### Navigation
 - **`Ctrl+F` / `Cmd+F`**: Toggle search bar
 - **`Ctrl+Alt+P` / `Cmd+Alt+P`**: Toggle playback controls

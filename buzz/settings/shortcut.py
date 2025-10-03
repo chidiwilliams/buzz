@@ -28,6 +28,11 @@ class Shortcut(str, enum.Enum):
     REPLAY_CURRENT_SEGMENT = ("Ctrl+Shift+P", _("Replay Current Segment"))
     TOGGLE_PLAYBACK_CONTROLS = ("Ctrl+Alt+P", _("Toggle Playback Controls"))
 
+    DECREASE_SEGMENT_START = ("Ctrl+Left", _("Decrease Segment Start Time"))
+    INCREASE_SEGMENT_START = ("Ctrl+Right", _("Increase Segment Start Time"))
+    DECREASE_SEGMENT_END = ("Ctrl+Shift+Left", _("Decrease Segment End Time"))
+    INCREASE_SEGMENT_END = ("Ctrl+Shift+Right", _("Increase Segment End Time"))
+
     CLEAR_HISTORY = ("Ctrl+S", _("Clear History"))
     STOP_TRANSCRIPTION = ("Ctrl+X", _("Cancel Transcription"))
 

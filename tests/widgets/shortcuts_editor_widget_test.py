@@ -42,6 +42,10 @@ class TestShortcutsEditorWidget:
             (_("Play/Pause Audio"), "Ctrl+P"),
             (_("Replay Current Segment"), "Ctrl+Shift+P"),
             (_("Toggle Playback Controls"), "Ctrl+Alt+P"),
+            (_("Decrease Segment Start Time"), "Ctrl+Left"),
+            (_("Increase Segment Start Time"), "Ctrl+Right"),
+            (_("Decrease Segment End Time"), "Ctrl+Shift+Left"),
+            (_("Increase Segment End Time"), "Ctrl+Shift+Right"),
             (_("Clear History"), "Ctrl+S"),
             (_("Cancel Transcription"), "Ctrl+X"),
         )
