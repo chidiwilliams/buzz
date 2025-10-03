@@ -221,7 +221,8 @@ class TranscriptionViewerWidget(QWidget):
             self
         )
         export_tool_button.setMenu(export_transcription_menu)
-        export_tool_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+        export_tool_button.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
+        export_tool_button.clicked.connect(export_tool_button.showMenu)
         toolbar.addWidget(export_tool_button)
 
         translate_button = QToolButton()
