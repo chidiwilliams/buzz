@@ -248,7 +248,7 @@ jobs:
           elif [ "$RUNNER_OS" == "Windows" ]; then
 
             cp -r ./dll_backup ./buzz/
-            make dist/Buzz
+            poetry run make dist/Buzz
 
           fi
         env:
