@@ -39,7 +39,9 @@ class TestShortcutsEditorWidget:
             (_("View Transcript Timestamps"), "Ctrl+T"),
             (_("Search Transcript"), "Ctrl+F"),
             (_("Scroll to Current Text"), "Ctrl+G"),
-            (_("Toggle Playback Controls"), "Ctrl+P"),
+            (_("Play/Pause Audio"), "Ctrl+P"),
+            (_("Replay Current Segment"), "Ctrl+Shift+P"),
+            (_("Toggle Playback Controls"), "Ctrl+Alt+P"),
             (_("Clear History"), "Ctrl+S"),
             (_("Cancel Transcription"), "Ctrl+X"),
         )

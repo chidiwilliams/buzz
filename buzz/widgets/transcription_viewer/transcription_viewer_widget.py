@@ -476,6 +476,28 @@ class TranscriptionViewerWidget(QWidget):
         else:
             self.show_loop_controls()
 
+    def toggle_audio_playback(self):
+        """Toggle audio playback (play/pause)"""
+        if self.audio_player.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
+            self.audio_player.media_player.pause()
+        else:
+            self.audio_player.media_player.play()
+
+    def replay_current_segment(self):
+        """Rewind current segment to its start and play if not already playing"""
+        if self.currently_selected_segment is None:
+            return
+
+        # Get the start time of the currently selected segment
+        start_time = self.currently_selected_segment.value("start_time")
+
+        # Set position to the start of the segment
+        self.audio_player.set_position(start_time)
+
+        # If audio is not playing, start playing
+        if self.audio_player.media_player.playbackState() != QMediaPlayer.PlaybackState.PlayingState:
+            self.audio_player.media_player.play()
+
     def on_audio_playback_state_changed(self, state):
         """Handle audio playback state changes to automatically show/hide playback controls"""
         from PyQt6.QtMultimedia import QMediaPlayer
@@ -756,8 +778,16 @@ class TranscriptionViewerWidget(QWidget):
         # Scroll to current text shortcut (Ctrl+G)
         scroll_to_current_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.SCROLL_TO_CURRENT_TEXT)), self)
         scroll_to_current_shortcut.activated.connect(self.on_scroll_to_current_button_clicked)
-        
-        # Playback controls visibility shortcut (Ctrl+P)
+
+        # Play/Pause audio shortcut (Ctrl+P)
+        play_pause_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.PLAY_PAUSE_AUDIO)), self)
+        play_pause_shortcut.activated.connect(self.toggle_audio_playback)
+
+        # Replay current segment shortcut (Ctrl+Shift+P)
+        replay_segment_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.REPLAY_CURRENT_SEGMENT)), self)
+        replay_segment_shortcut.activated.connect(self.replay_current_segment)
+
+        # Playback controls visibility shortcut (Ctrl+Alt+P)
         playback_controls_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.TOGGLE_PLAYBACK_CONTROLS)), self)
         playback_controls_shortcut.activated.connect(self.toggle_playback_controls_visibility)
 

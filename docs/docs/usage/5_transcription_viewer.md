@@ -39,7 +39,7 @@ The transcription viewer is organized into several key sections:
 ### Playback Controls Button
 (since version 1.3.0)
 - **Function**: Show/hide playback control panel
-- **Shortcut**: `Ctrl+P` (Windows/Linux) or `Cmd+P` (macOS)
+- **Shortcut**: `Ctrl+Alt+P` (Windows/Linux) or `Cmd+Alt+P` (macOS)
 - **Behavior**: Toggle button that shows/hides the playback controls below
 
 ### Find Button
@@ -106,9 +106,13 @@ The search bar appears below the toolbar when activated and provides:
 
 ## Keyboard Shortcuts
 
+### Audio Playback
+- **`Ctrl+P` / `Cmd+P`**: Play/Pause audio
+- **`Ctrl+Shift+P` / `Cmd+Shift+P`**: Replay current segment from start
+
 ### Navigation
 - **`Ctrl+F` / `Cmd+F`**: Toggle search bar
-- **`Ctrl+P` / `Cmd+P`**: Toggle playback controls
+- **`Ctrl+Alt+P` / `Cmd+Alt+P`**: Toggle playback controls
 - **`Ctrl+G` / `Cmd+G`**: Scroll to current position
 - **`Ctrl+O` / `Cmd+O`**: Open file import dialog
 

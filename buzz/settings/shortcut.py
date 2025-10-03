@@ -24,7 +24,9 @@ class Shortcut(str, enum.Enum):
     VIEW_TRANSCRIPT_TIMESTAMPS = ("Ctrl+T", _("View Transcript Timestamps"))
     SEARCH_TRANSCRIPT = ("Ctrl+F", _("Search Transcript"))
     SCROLL_TO_CURRENT_TEXT = ("Ctrl+G", _("Scroll to Current Text"))
-    TOGGLE_PLAYBACK_CONTROLS = ("Ctrl+P", _("Toggle Playback Controls"))
+    PLAY_PAUSE_AUDIO = ("Ctrl+P", _("Play/Pause Audio"))
+    REPLAY_CURRENT_SEGMENT = ("Ctrl+Shift+P", _("Replay Current Segment"))
+    TOGGLE_PLAYBACK_CONTROLS = ("Ctrl+Alt+P", _("Toggle Playback Controls"))
 
     CLEAR_HISTORY = ("Ctrl+S", _("Clear History"))
     STOP_TRANSCRIPTION = ("Ctrl+X", _("Cancel Transcription"))
