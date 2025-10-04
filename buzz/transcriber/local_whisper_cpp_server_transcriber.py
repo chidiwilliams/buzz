@@ -25,7 +25,8 @@ class LocalWhisperCppServerTranscriber(OpenAIWhisperAPIFileTranscriber):
             "--port", "3000",
             "--inference-path", "/audio/transcriptions",
             "--threads", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8) // 2)),
-            "--model", task.model_path
+            "--model", task.model_path,
+            "--suppress-nst"
         ]
 
         if task.transcription_options.language is not None:

@@ -166,6 +166,7 @@ class WhisperCpp:
         params.max_len = 1 if transcription_options.word_level_timings else 0
         params.token_timestamps = transcription_options.word_level_timings
         params.initial_prompt = self.instance.get_string(transcription_options.initial_prompt)
+        params.suppress_nst = True  # To prevent errors in transcripts with music
         return params
 
     def __del__(self):
