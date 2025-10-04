@@ -4,7 +4,8 @@ from dataclasses import dataclass
 from typing import Optional
 from uuid import UUID
 
-from PyQt6.QtCore import pyqtSignal, Qt, QModelIndex, QItemSelection
+from PyQt6.QtCore import pyqtSignal, Qt, QModelIndex, QItemSelection, QEvent, QRegularExpression, QObject
+from PyQt6.QtGui import QRegularExpressionValidator
 from PyQt6.QtSql import QSqlTableModel, QSqlRecord
 from PyQt6.QtGui import QFontMetrics, QTextOption
 from PyQt6.QtWidgets import (
@@ -13,6 +14,7 @@ from PyQt6.QtWidgets import (
     QStyledItemDelegate,
     QAbstractItemView,
     QTextEdit,
+    QLineEdit,
 )
 
 from buzz.locale import _
@@ -37,16 +39,188 @@ class ColDef:
     delegate: Optional[QStyledItemDelegate] = None
 
 
+def parse_timestamp(timestamp_str: str) -> Optional[int]:
+    """Parse timestamp string (HH:MM:SS.mmm) to milliseconds"""
+    try:
+        # Handle formats like "00:01:23.456" or "1:23.456" or "23.456"
+        parts = timestamp_str.strip().split(':')
+
+        if len(parts) == 3:  # HH:MM:SS.mmm
+            hours = int(parts[0])
+            minutes = int(parts[1])
+            seconds_parts = parts[2].split('.')
+        elif len(parts) == 2:  # MM:SS.mmm
+            hours = 0
+            minutes = int(parts[0])
+            seconds_parts = parts[1].split('.')
+        elif len(parts) == 1:  # SS.mmm
+            hours = 0
+            minutes = 0
+            seconds_parts = parts[0].split('.')
+        else:
+            return None
+
+        seconds = int(seconds_parts[0])
+        milliseconds = int(seconds_parts[1]) if len(seconds_parts) > 1 else 0
+
+        total_ms = hours * 3600 * 1000 + minutes * 60 * 1000 + seconds * 1000 + milliseconds
+        return total_ms
+    except (ValueError, IndexError):
+        return None
+
+
+class TimeStampLineEdit(QLineEdit):
+    """Custom QLineEdit for timestamp editing with keyboard shortcuts"""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._milliseconds = 0
+
+        # Set up validator to only allow digits, colons, and dots
+        regex = QRegularExpression(r'^[0-9:.]*$')
+        validator = QRegularExpressionValidator(regex, self)
+        self.setValidator(validator)
+
+    def set_milliseconds(self, ms: int):
+        self._milliseconds = ms
+        self.setText(to_timestamp(ms))
+
+    def get_milliseconds(self) -> int:
+        parsed = parse_timestamp(self.text())
+        if parsed is not None:
+            return parsed
+        return self._milliseconds
+
+    def keyPressEvent(self, event):
+        if event.text() == '+':
+            self._milliseconds += 500  # Add 500ms (0.5 seconds)
+            self.setText(to_timestamp(self._milliseconds))
+            event.accept()
+        elif event.text() == '-':
+            self._milliseconds = max(0, self._milliseconds - 500)  # Subtract 500ms
+            self.setText(to_timestamp(self._milliseconds))
+            event.accept()
+        else:
+            super().keyPressEvent(event)
+
+    def focusOutEvent(self, event):
+        # Strip any invalid characters and reformat on focus out
+        parsed = parse_timestamp(self.text())
+        if parsed is not None:
+            self._milliseconds = parsed
+            self.setText(to_timestamp(parsed))
+        else:
+            # If parsing failed, restore the last valid value
+            self.setText(to_timestamp(self._milliseconds))
+        super().focusOutEvent(event)
+
+
 class TimeStampDelegate(QStyledItemDelegate):
     def displayText(self, value, locale):
         return to_timestamp(value)
 
 
+class TimeStampEditorDelegate(QStyledItemDelegate):
+    """Delegate for editing timestamps with overlap prevention"""
+
+    timestamp_editing = pyqtSignal(int, int, int)  # Signal: (row, column, new_value_ms)
+
+    def createEditor(self, parent, option, index):
+        editor = TimeStampLineEdit(parent)
+        # Connect text changed signal to emit live updates
+        editor.textChanged.connect(lambda: self.on_editor_text_changed(editor, index))
+        return editor
+
+    def on_editor_text_changed(self, editor, index):
+        """Emit signal when editor text changes with the current value"""
+        new_value_ms = editor.get_milliseconds()
+        self.timestamp_editing.emit(index.row(), index.column(), new_value_ms)
+
+    def setEditorData(self, editor, index):
+        # Get value in milliseconds from database
+        value = index.model().data(index, Qt.ItemDataRole.EditRole)
+        if value is not None:
+            editor.set_milliseconds(value)
+
+    def setModelData(self, editor, model, index):
+        # Get value in milliseconds from editor
+        new_value_ms = editor.get_milliseconds()
+        current_row = index.row()
+        column = index.column()
+
+        # Get current segment's start and end
+        start_col = Column.START.value
+        end_col = Column.END.value
+
+        if column == start_col:
+            # Editing START time
+            end_time_ms = model.record(current_row).value("end_time")
+
+            if end_time_ms is None:
+                logging.warning("End time is None, cannot validate")
+                return
+
+            # Validate: start must be less than end
+            if new_value_ms >= end_time_ms:
+                logging.warning(f"Start time ({new_value_ms}) must be less than end time ({end_time_ms})")
+                return
+
+            # Check if new start overlaps with previous segment's end
+            if current_row > 0:
+                prev_end_time_ms = model.record(current_row - 1).value("end_time")
+                if prev_end_time_ms is not None and new_value_ms < prev_end_time_ms:
+                    # Update previous segment's end to match new start
+                    model.setData(model.index(current_row - 1, end_col), new_value_ms)
+
+        elif column == end_col:
+            # Editing END time
+            start_time_ms = model.record(current_row).value("start_time")
+
+            if start_time_ms is None:
+                logging.warning("Start time is None, cannot validate")
+                return
+
+            # Validate: end must be greater than start
+            if new_value_ms <= start_time_ms:
+                logging.warning(f"End time ({new_value_ms}) must be greater than start time ({start_time_ms})")
+                return
+
+            # Check if new end overlaps with next segment's start
+            if current_row < model.rowCount() - 1:
+                next_start_time_ms = model.record(current_row + 1).value("start_time")
+                if next_start_time_ms is not None and new_value_ms > next_start_time_ms:
+                    # Update next segment's start to match new end
+                    model.setData(model.index(current_row + 1, start_col), new_value_ms)
+
+        # Set the new value
+        model.setData(index, new_value_ms)
+
+    def displayText(self, value, locale):
+        return to_timestamp(value)
+
+
+class CustomTextEdit(QTextEdit):
+    """Custom QTextEdit that handles Tab/Enter/Esc keys to save and close editor"""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def keyPressEvent(self, event):
+        # Tab, Enter, or Esc: save and close editor
+        if event.key() in (Qt.Key.Key_Tab, Qt.Key.Key_Return, Qt.Key.Key_Enter, Qt.Key.Key_Escape):
+            # Close the editor which will trigger setModelData to save
+            self.clearFocus()
+            event.accept()
+        else:
+            super().keyPressEvent(event)
+
+
 class WordWrapDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
-        editor = QTextEdit(parent)
+        editor = CustomTextEdit(parent)
         editor.setWordWrapMode(QTextOption.WrapMode.WordWrap)
         editor.setAcceptRichText(False)
+        editor.setTabChangesFocus(True)
 
         return editor
 
@@ -61,16 +235,21 @@ class TranscriptionSegmentModel(QSqlTableModel):
         self.setEditStrategy(QSqlTableModel.EditStrategy.OnFieldChange)
         self.setFilter(f"transcription_id = '{transcription_id}'")
 
-    def flags(self, index: QModelIndex):
-        flags = super().flags(index)
-        if index.column() in (Column.START.value, Column.END.value):
-            flags &= ~Qt.ItemFlag.ItemIsEditable
-        return flags
-
 
 class TranscriptionSegmentsEditorWidget(QTableView):
     PARENT_PADDINGS = 40
     segment_selected = pyqtSignal(QSqlRecord)
+    timestamp_being_edited = pyqtSignal(int, int, int)  # Signal: (row, column, new_value_ms)
+
+    def keyPressEvent(self, event):
+        # Allow Enter/Return to trigger editing
+        if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            current_index = self.currentIndex()
+            if current_index.isValid() and not self.state() == QAbstractItemView.State.EditingState:
+                self.edit(current_index)
+                event.accept()
+                return
+        super().keyPressEvent(event)
 
     def __init__(
             self,
@@ -87,12 +266,15 @@ class TranscriptionSegmentsEditorWidget(QTableView):
         model = TranscriptionSegmentModel(transcription_id=transcription_id)
         self.setModel(model)
 
-        timestamp_delegate = TimeStampDelegate()
+        timestamp_editor_delegate = TimeStampEditorDelegate()
+        # Connect delegate's signal to widget's signal
+        timestamp_editor_delegate.timestamp_editing.connect(self.timestamp_being_edited.emit)
+
         word_wrap_delegate = WordWrapDelegate()
 
         self.column_definitions: list[ColDef] = [
-            ColDef("start", _("Start"), Column.START, delegate=timestamp_delegate),
-            ColDef("end", _("End"), Column.END, delegate=timestamp_delegate),
+            ColDef("start", _("Start"), Column.START, delegate=timestamp_editor_delegate),
+            ColDef("end", _("End"), Column.END, delegate=timestamp_editor_delegate),
             ColDef("text", _("Text"), Column.TEXT, delegate=word_wrap_delegate),
             ColDef("translation", _("Translation"), Column.TRANSLATION, delegate=word_wrap_delegate),
         ]
@@ -116,6 +298,10 @@ class TranscriptionSegmentsEditorWidget(QTableView):
         self.verticalHeader().hide()
         self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.setSelectionMode(QTableView.SelectionMode.SingleSelection)
+        self.setEditTriggers(
+            QAbstractItemView.EditTrigger.EditKeyPressed |
+            QAbstractItemView.EditTrigger.DoubleClicked
+        )
         self.selectionModel().selectionChanged.connect(self.on_selection_changed)
         model.select()
         model.rowsInserted.connect(self.init_row_height)
