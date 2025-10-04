@@ -1,4 +1,4 @@
-# Transcription Viewer Interface
+# Transcription Viewer
 
 The Buzz transcription viewer provides a powerful interface for reviewing, editing, and navigating through your transcriptions. This guide covers all the features available in the transcription viewer.
 
@@ -105,6 +105,7 @@ The search bar appears below the toolbar when activated and provides:
 - **Button Sizing**: Speed control buttons match the size of search navigation buttons for visual consistency
 
 ## Keyboard Shortcuts
+(since version 1.3.0)
 
 ### Audio Playback
 - **`Ctrl+P` / `Cmd+P`**: Play/Pause audio
