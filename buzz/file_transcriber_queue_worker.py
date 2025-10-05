@@ -15,10 +15,6 @@ from buzz.transcriber.openai_whisper_api_file_transcriber import (
     OpenAIWhisperAPIFileTranscriber,
 )
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment
-# TODO Remove unused import and class
-# TODO Remove unused import and class
-# TODO Remove unused import and class
-from buzz.transcriber.whisper_cpp_file_transcriber import WhisperCppFileTranscriber
 from buzz.transcriber.whisper_file_transcriber import WhisperFileTranscriber
 
 
