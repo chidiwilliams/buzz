@@ -213,8 +213,10 @@ class Stopped(Exception):
     pass
 
 
-SUPPORTED_AUDIO_FORMATS = "Audio files (*.mp3 *.wav *.m4a *.ogg *.opus *.flac);;\
-Video files (*.mp4 *.webm *.ogm *.mov *.mkv *.avi *.wmv);;All files (*.*)"
+SUPPORTED_AUDIO_FORMATS = "Media files (*.mp3 *.wav *.m4a *.ogg *.opus *.flac *.mp4 *.webm *.ogm *.mov *.mkv *.avi *.wmv);;\
+Audio files (*.mp3 *.wav *.m4a *.ogg *.opus *.flac);;\
+Video files (*.mp4 *.webm *.ogm *.mov *.mkv *.avi *.wmv);;\
+All files (*.*)"
 
 
 def get_output_file_path(
