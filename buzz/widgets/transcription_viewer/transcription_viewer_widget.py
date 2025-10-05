@@ -1032,7 +1032,9 @@ class TranscriptionViewerWidget(QWidget):
 
         start_time = segment.value("start_time")
         end_time = segment.value("end_time")
-        self.audio_player.set_position(start_time)
+
+        if self.audio_player.position_ms < start_time or self.audio_player.position_ms > end_time:
+            self.audio_player.set_position(start_time)
 
         if self.segment_looping_enabled:
             self.audio_player.set_range((start_time, end_time))
