@@ -10,7 +10,6 @@ from buzz import whisper_audio
 from buzz.transcriber.file_transcriber import FileTranscriber
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment, Stopped
 from buzz.transcriber.whisper_cpp import WhisperCpp
-from buzz.transcriber.local_whisper_cpp_server_transcriber import LocalWhisperCppServerTranscriber
 
 
 class WhisperCppFileTranscriber(FileTranscriber):
