@@ -101,7 +101,9 @@ class WhisperFileTranscriber(FileTranscriber):
         cls, stderr_conn: Connection, task: FileTranscriptionTask
     ) -> None:
         with pipe_stderr(stderr_conn):
-            if task.transcription_options.model.model_type == ModelType.HUGGING_FACE:
+            if task.transcription_options.model.model_type == ModelType.WHISPER_CPP:
+                segments = cls.transcribe_whisper_cpp(task)
+            elif task.transcription_options.model.model_type == ModelType.HUGGING_FACE:
                 sys.stderr.write("0%\n")
                 segments = cls.transcribe_hugging_face(task)
                 sys.stderr.write("100%\n")
@@ -119,6 +121,30 @@ class WhisperFileTranscriber(FileTranscriber):
             segments_json = json.dumps(segments, ensure_ascii=True, default=vars)
             sys.stderr.write(f"segments = {segments_json}\n")
             sys.stderr.write(WhisperFileTranscriber.READ_LINE_THREAD_STOP_TOKEN + "\n")
+
+    @classmethod
+    def transcribe_whisper_cpp(cls, task: FileTranscriptionTask) -> List[Segment]:
+        model = TransformersWhisper(task.model_path)
+        language = (
+            task.transcription_options.language
+            if task.transcription_options.language is not None
+            else "en"
+        )
+        result = model.transcribe(
+            audio=task.file_path,
+            language=language,
+            task=task.transcription_options.task.value,
+            word_timestamps=task.transcription_options.word_level_timings,
+        )
+        return [
+            Segment(
+                start=int(segment.get("start") * 1000),
+                end=int(segment.get("end") * 1000),
+                text=segment.get("text"),
+                translation=""
+            )
+            for segment in result.get("segments")
+        ]
 
     @classmethod
     def transcribe_hugging_face(cls, task: FileTranscriptionTask) -> List[Segment]:

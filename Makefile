@@ -73,28 +73,25 @@ ifeq ($(OS), Windows_NT)
 endif
 
 ifeq ($(shell uname -s), Linux)
-	# Build Whisper for CPU
-	-rm -rf whisper.cpp/build || true
-	-mkdir -p buzz/whisper_cpp
-	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
-	cmake --build whisper.cpp/build -j --config Release --verbose
-	cp whisper.cpp/build/src/libwhisper.so buzz/whisper_cpp/libwhisper.so || true
-	cp whisper.cpp/build/ggml/src/libggml.so buzz/whisper_cpp || true
-	cp whisper.cpp/build/ggml/src/libggml-base.so buzz/whisper_cpp || true
-	cp whisper.cpp/build/ggml/src/libggml-cpu.so buzz/whisper_cpp || true
-
-	# Build Whisper for Vulkan
+	# Build Whisper with Vulkan support
 	rm -rf whisper.cpp/build || true
-	-mkdir -p buzz/whisper_cpp_vulkan
-	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DGGML_VULKAN=1
+	-mkdir -p buzz/whisper_cpp
+	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DGGML_VULKAN=1
 	cmake --build whisper.cpp/build -j --config Release --verbose
-	cp whisper.cpp/build/src/libwhisper.so buzz/whisper_cpp_vulkan/whisper-vulkan.so || true
-	cp whisper.cpp/build/ggml/src/libggml.so buzz/whisper_cpp_vulkan || true
-	cp whisper.cpp/build/ggml/src/libggml-base.so buzz/whisper_cpp_vulkan || true
-	cp whisper.cpp/build/ggml/src/libggml-cpu.so buzz/whisper_cpp_vulkan || true
-	cp whisper.cpp/build/ggml/src/ggml-vulkan/libggml-vulkan.so buzz/whisper_cpp_vulkan || true
+	cp whisper.cpp/build/bin/whisper-cli buzz/whisper_cpp/ || true
+	cp whisper.cpp/build/src/libwhisper.so buzz/whisper_cpp/ || true
+	cp whisper.cpp/build/src/libwhisper.so.1 buzz/whisper_cpp/ || true
+	cp whisper.cpp/build/src/libwhisper.so.1.7.6 buzz/whisper_cpp/ || true
+	cp whisper.cpp/build/ggml/src/libggml.so buzz/whisper_cpp/ || true
+	cp whisper.cpp/build/ggml/src/libggml-base.so buzz/whisper_cpp/ || true
+	cp whisper.cpp/build/ggml/src/libggml-cpu.so buzz/whisper_cpp/ || true
+	cp whisper.cpp/build/ggml/src/ggml-vulkan/libggml-vulkan.so buzz/whisper_cpp/ || true
 endif
 
+# TODO
+# TODO
+# TODO
+# TODO
 # Build on Macs
 ifeq ($(shell uname -s), Darwin)
 	-rm -rf whisper.cpp/build || true
