@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Buzz\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-10-03 16:02+0300\n"
-"PO-Revision-Date: 2025-09-07 23:49-0300\n"
+"PO-Revision-Date: 2025-10-04 20:00-0300\n"
 "Last-Translator: Paulo Schopf <pschopf@gmail.com>\n"
 "Language-Team: none\n"
 "Language: pt_BR\n"
@@ -176,12 +176,11 @@ msgstr "Usar somente a CPU e desabilitar aceleração por GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:186
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
-msgstr ""
-"Marque isso se modelos maiores não couberem na memória da GPU e o Buzz travar"
+msgstr "Marque isso se modelos maiores não couberem na memória da GPU e o Buzz travar"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:188
 msgid "Disable GPU"
-msgstr "Desabiltiar GPU"
+msgstr "Desabilitar GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:213
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:219
@@ -1184,11 +1183,11 @@ msgstr "Role até o Texto Atual"
 
 #: buzz/settings/shortcut.py:27
 msgid "Play/Pause Audio"
-msgstr ""
+msgstr "Tocar/Pausar o Áudio"
 
 #: buzz/settings/shortcut.py:28
 msgid "Replay Current Segment"
-msgstr ""
+msgstr "Repetir o Segmento Atual"
 
 #: buzz/settings/shortcut.py:29
 msgid "Toggle Playback Controls"
@@ -1196,19 +1195,19 @@ msgstr "Alternar Controles de Reprodução"
 
 #: buzz/settings/shortcut.py:31
 msgid "Decrease Segment Start Time"
-msgstr ""
+msgstr "Diminuir o Inicio do Segmento"
 
 #: buzz/settings/shortcut.py:32
 msgid "Increase Segment Start Time"
-msgstr ""
+msgstr "Aumentar o Início do Segmento"
 
 #: buzz/settings/shortcut.py:33
 msgid "Decrease Segment End Time"
-msgstr ""
+msgstr "Diminuir o Final do Segmento"
 
 #: buzz/settings/shortcut.py:34
 msgid "Increase Segment End Time"
-msgstr ""
+msgstr "Estender o Final do Segmento"
 
 #: buzz/settings/recording_transcriber_mode.py:5
 msgid "Append below"
