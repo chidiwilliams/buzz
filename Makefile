@@ -15,19 +15,15 @@ bundle_mac_unsigned: dist/Buzz.app zip_mac dmg_mac_unsigned
 clean:
 ifeq ($(OS), Windows_NT)
 	-rmdir /s /q buzz\whisper_cpp
-	-rmdir /s /q buzz\whisper-server.exe
 	-rmdir /s /q whisper.cpp\build
 	-rmdir /s /q dist
 	-Remove-Item -Recurse -Force buzz\whisper_cpp
-	-Remove-Item -Recurse -Force buzz\whisper-server.exe
 	-Remove-Item -Recurse -Force whisper.cpp\build
 	-Remove-Item -Recurse -Force dist\*
 	-rm -rf buzz/whisper_cpp
-	-rm -fr buzz/whisper-server.exe
 	-rm -rf whisper.cpp/build
 	-rm -rf dist/*
 else
-	rm -rf buzz/whisper-server || true
 	rm -rf buzz/whisper_cpp || true
 	rm -rf whisper.cpp/build || true
 	rm -rf dist/* || true
@@ -50,25 +46,17 @@ version:
 
 buzz/whisper_cpp:
 ifeq ($(OS), Windows_NT)
-	# Build Whisper for CPU
+	# Build Whisper with Vulkan support.
 	# The _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR is needed to prevent mutex lock issues on Windows
 	# https://github.com/actions/runner-images/issues/10004#issuecomment-2156109231
 	# -DCMAKE_[C|CXX]_COMPILER_WORKS=TRUE is used to prevent issue in building test program that fails on CI
-	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DCMAKE_C_FLAGS="-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR"  -DCMAKE_CXX_FLAGS="-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" -DCMAKE_C_COMPILER_WORKS=TRUE -DCMAKE_CXX_COMPILER_WORKS=TRUE
+	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DCMAKE_C_FLAGS="-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR"  -DCMAKE_CXX_FLAGS="-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" -DCMAKE_C_COMPILER_WORKS=TRUE -DCMAKE_CXX_COMPILER_WORKS=TRUE -DGGML_VULKAN=1
 	cmake --build whisper.cpp/build -j --config Release --verbose
 
 	-mkdir buzz/whisper_cpp
-	cp dll_backup/SDL2.dll buzz/whisper_cpp
-	cp whisper.cpp/build/bin/Release/whisper.dll buzz/whisper_cpp
-	cp whisper.cpp/build/bin/Release/ggml.dll buzz/whisper_cpp
-	cp whisper.cpp/build/bin/Release/ggml-base.dll buzz/whisper_cpp
-	cp whisper.cpp/build/bin/Release/ggml-cpu.dll buzz/whisper_cpp
-
-	# Build Whisper with Vulkan support.
-	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DCMAKE_C_FLAGS="-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" -DCMAKE_CXX_FLAGS="-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" -DCMAKE_C_COMPILER_WORKS=TRUE -DCMAKE_CXX_COMPILER_WORKS=TRUE -DGGML_VULKAN=1
-	cmake --build whisper.cpp/build -j --config Release --verbose
-
+	cp whisper.cpp/build/bin/Release/whisper-cli.exe buzz/whisper_cpp/
 	cp whisper.cpp/build/bin/Release/whisper-server.exe buzz/whisper_cpp/
+	cp dll_backup/SDL2.dll buzz/whisper_cpp
 endif
 
 ifeq ($(shell uname -s), Linux)
