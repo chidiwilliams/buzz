@@ -38,7 +38,8 @@ class WhisperCpp:
         """Transcribe audio using whisper-cli subprocess."""
         # Get the directory where whisper-cli is located
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        whisper_cli_path = os.path.join(script_dir, "..", "whisper_cpp", "whisper-cli")
+        cli_executable = "whisper-cli.exe" if sys.platform == "win32" else "whisper-cli"
+        whisper_cli_path = os.path.join(script_dir, "..", "whisper_cpp", cli_executable)
 
         language = (
             task.transcription_options.language
