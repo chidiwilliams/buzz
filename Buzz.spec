@@ -76,7 +76,6 @@ else:
 
 if platform.system() == "Linux":
     binaries.append(("buzz/whisper_cpp/*.so", "buzz/whisper_cpp"))
-    binaries.append(("buzz/whisper_cpp_vulkan/*.so", "buzz/whisper_cpp_vulkan"))
 
 if platform.system() == "Darwin":
     binaries.append(("buzz/whisper_cpp/*.dylib", "buzz/whisper_cpp"))
@@ -87,7 +86,7 @@ if platform.system() == "Windows":
 
     binaries.append(("dll_backup/SDL2.dll", "dll_backup"))
     binaries.append(("buzz/whisper_cpp/*.dll", "buzz/whisper_cpp"))
-    binaries.append(("buzz/*.exe", "."))
+    binaries.append(("buzz/whisper_cpp/*.exe", "buzz/whisper_cpp"))
 
 a = Analysis(
     ["main.py"],

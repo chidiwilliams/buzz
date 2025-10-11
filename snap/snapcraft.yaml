@@ -155,7 +155,6 @@ parts:
       python3 build.py
       mkdir $CRAFT_PART_INSTALL/buzz
       cp -r $CRAFT_PART_BUILD/buzz/whisper_cpp $CRAFT_PART_INSTALL/buzz/
-      cp -r $CRAFT_PART_BUILD/buzz/whisper_cpp_vulkan $CRAFT_PART_INSTALL/buzz/
       
       # Create desktop file
       mkdir -p $CRAFT_PART_INSTALL/usr/share/applications

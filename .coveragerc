@@ -1,7 +1,6 @@
 [run]
 omit =
   buzz/whisper_cpp/*
-  buzz/whisper_cpp_vulkan/*
   *_test.py
   demucs/*
 
