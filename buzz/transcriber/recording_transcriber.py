@@ -336,17 +336,20 @@ class RecordingTranscriber(QObject):
 
         self.process = None
 
-        # Use whisper-server.exe on Windows, whisper-server on other platforms
+        # Get the directory where whisper-server is located
+        script_dir = os.path.dirname(os.path.abspath(__file__))
         server_executable = "whisper-server.exe" if sys.platform == "win32" else "whisper-server"
+        server_path = os.path.join(script_dir, "..", "whisper_cpp", server_executable)
 
         cmd = [
-            os.path.join(APP_BASE_DIR, "whisper_cpp", server_executable),
-            "--port", "3004",
+            server_path,
+            "--port", "3003",
             "--inference-path", "/audio/transcriptions",
             "--threads", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8) // 2)),
             "--model", self.model_path,
             "--no-timestamps",
             "--no-context",  # on Windows context causes duplications of last message
+            "--suppress-nst"
         ]
 
         if self.transcription_options.language is not None:
@@ -354,26 +357,29 @@ class RecordingTranscriber(QObject):
         else:
             cmd.extend(["--language", "auto"])
 
-        if sys.platform == "win32":
-            si = subprocess.STARTUPINFO()
-            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            si.wShowWindow = subprocess.SW_HIDE
-            self.process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.DEVNULL, # For debug set to subprocess.PIPE, but it will freeze on Windows after ~30 seconds
-                stderr=subprocess.DEVNULL,
-                shell=False,
-                startupinfo=si,
-                env=app_env,
-                creationflags=subprocess.CREATE_NO_WINDOW
-            )
-        else:
-            self.process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                shell=False,
-            )
+        logging.debug(f"Starting Whisper server with command: {' '.join(cmd)}")
+
+        try:
+            if sys.platform == "win32":
+                self.process = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.PIPE,
+                    shell=False,
+                    creationflags=subprocess.CREATE_NO_WINDOW
+                )
+            else:
+                self.process = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.PIPE,
+                    shell=False,
+                )
+        except Exception as e:
+            error_msg = f"Failed to start whisper-server subprocess: {str(e)}"
+            logging.error(error_msg)
+            self.error.emit(error_msg)
+            return
 
         # Wait for server to start and load model
         time.sleep(10)
@@ -390,18 +396,19 @@ class RecordingTranscriber(QObject):
             self.transcription.emit(_("Whisper server failed to start. Check logs for details."))
 
             if "ErrorOutOfDeviceMemory" in stderr_output:
-                message = _("Whisper server failed to start due to insufficient memory. "
-                            "Please try again with a smaller model. "
-                            "To force CPU mode use BUZZ_FORCE_CPU=TRUE environment variable.")
+                message = _(
+                    "Whisper server failed to start due to insufficient memory. "
+                    "Please try again with a smaller model. "
+                    "To force CPU mode use BUZZ_FORCE_CPU=TRUE environment variable."
+                )
                 logging.error(message)
                 self.transcription.emit(message)
 
-            self.transcription.emit(_("Whisper server failed to start. Check logs for details."))
             return
 
         self.openai_client = OpenAI(
             api_key="not-used",
-            base_url="http://127.0.0.1:3004",
+            base_url="http://127.0.0.1:3003",
             timeout=30.0,
             max_retries=0
         )
