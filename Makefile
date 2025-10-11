@@ -27,21 +27,21 @@ ifeq ($(OS), Windows_NT)
 	-rm -rf whisper.cpp/build
 	-rm -rf dist/*
 else
+	rm -rf buzz/whisper-server || true
 	rm -rf buzz/whisper_cpp || true
-	rm -fr buzz/whisper_cpp_vulkan || true
 	rm -rf whisper.cpp/build || true
 	rm -rf dist/* || true
 endif
 
 COVERAGE_THRESHOLD := 75
 
-test: buzz/whisper_cpp.py translation_mo
+test: buzz/whisper_cpp translation_mo
 	pytest -s -vv --cov=buzz --cov-report=xml --cov-report=html --benchmark-skip --cov-fail-under=${COVERAGE_THRESHOLD} --cov-config=.coveragerc
 
-benchmarks: buzz/whisper_cpp.py translation_mo
+benchmarks: buzz/whisper_cpp translation_mo
 	pytest -s -vv --benchmark-only --benchmark-json benchmarks.json
 
-dist/Buzz dist/Buzz.app: buzz/whisper_cpp.py translation_mo
+dist/Buzz dist/Buzz.app: buzz/whisper_cpp translation_mo
 	pyinstaller --noconfirm Buzz.spec
 
 version:
@@ -64,21 +64,21 @@ ifeq ($(OS), Windows_NT)
 	cp whisper.cpp/build/bin/Release/ggml-base.dll buzz/whisper_cpp
 	cp whisper.cpp/build/bin/Release/ggml-cpu.dll buzz/whisper_cpp
 
-	# Build Whisper with Vulkan support. On Windows whisper-server.exe wil lbe used as dll approach is unreliable,
-	# it often does not see the GPU
+	# Build Whisper with Vulkan support.
 	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DCMAKE_C_FLAGS="-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" -DCMAKE_CXX_FLAGS="-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" -DCMAKE_C_COMPILER_WORKS=TRUE -DCMAKE_CXX_COMPILER_WORKS=TRUE -DGGML_VULKAN=1
 	cmake --build whisper.cpp/build -j --config Release --verbose
 
-	cp whisper.cpp/build/bin/Release/whisper-server.exe buzz/
+	cp whisper.cpp/build/bin/Release/whisper-server.exe buzz/whisper_cpp/
 endif
 
 ifeq ($(shell uname -s), Linux)
 	# Build Whisper with Vulkan support
 	rm -rf whisper.cpp/build || true
 	-mkdir -p buzz/whisper_cpp
-	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DGGML_VULKAN=1
+	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DGGML_VULKAN=1
 	cmake --build whisper.cpp/build -j --config Release --verbose
 	cp whisper.cpp/build/bin/whisper-cli buzz/whisper_cpp/ || true
+	cp whisper.cpp/build/bin/whisper-server buzz/whisper_cpp/ || true
 	cp whisper.cpp/build/src/libwhisper.so buzz/whisper_cpp/ || true
 	cp whisper.cpp/build/src/libwhisper.so.1 buzz/whisper_cpp/ || true
 	cp whisper.cpp/build/src/libwhisper.so.1.7.6 buzz/whisper_cpp/ || true
@@ -88,10 +88,6 @@ ifeq ($(shell uname -s), Linux)
 	cp whisper.cpp/build/ggml/src/ggml-vulkan/libggml-vulkan.so buzz/whisper_cpp/ || true
 endif
 
-# TODO
-# TODO
-# TODO
-# TODO
 # Build on Macs
 ifeq ($(shell uname -s), Darwin)
 	-rm -rf whisper.cpp/build || true
@@ -105,15 +101,10 @@ else
 endif
 
 	cmake --build whisper.cpp/build -j --config Release --verbose
+	cp whisper.cpp/build/bin/whisper-cli buzz/whisper_cpp/ || true
+	cp whisper.cpp/build/bin/whisper-server buzz/whisper_cpp/ || true
 	cp whisper.cpp/build/src/libwhisper.dylib buzz/whisper_cpp/ || true
 	cp whisper.cpp/build/ggml/src/libggml* buzz/whisper_cpp/ || true
-endif
-
-buzz/whisper_cpp.py: buzz/whisper_cpp translation_mo
-	cd buzz && ctypesgen ../whisper.cpp/include/whisper.h -I../whisper.cpp/ggml/include -lwhisper -o ./whisper_cpp/whisper_cpp.py
-
-ifeq ($(shell uname -s), Linux)
-	cd buzz && ctypesgen ../whisper.cpp/include/whisper.h -I../whisper.cpp/ggml/include -lwhisper-vulkan -o ./whisper_cpp_vulkan/whisper_cpp_vulkan.py
 endif
 
 # Prints all the Mac developer identities used for code signing

@@ -21,7 +21,6 @@ packages = [
 ]
 include = [
     { path = "buzz/whisper_cpp/*", format = ["sdist", "wheel"] },
-    { path = "buzz/whisper_cpp_vulkan/*", format = ["sdist", "wheel"] },
     { path = "buzz/locale/*/LC_MESSAGES/buzz.mo", format = ["sdist", "wheel"] },
 ]
 
