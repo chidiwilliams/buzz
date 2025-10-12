@@ -254,9 +254,6 @@ class RecordingTranscriber(QObject):
                                         else self.openai_client.audio.translations.create(**options)
                                     )
 
-                                    # TODO Should we process whisper.cpp case where multi byte utf characters come in two segments
-                                    # TODO Should we process whisper.cpp case where multi byte utf characters come in two segments
-                                    # TODO Should we process whisper.cpp case where multi byte utf characters come in two segments
                                     if "segments" in transcript.model_extra:
                                         result = {"text": " ".join(
                                             [segment["text"] for segment in transcript.model_extra["segments"]])}
