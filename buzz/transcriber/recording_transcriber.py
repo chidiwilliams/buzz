@@ -382,6 +382,7 @@ class RecordingTranscriber(QObject):
         time.sleep(10)
 
         if self.process is not None and self.process.poll() is None:
+            self.transcription.emit(_("Starting transcription..."))
             logging.debug(f"Whisper server started successfully.")
             logging.debug(f"Model: {self.model_path}")
         else:

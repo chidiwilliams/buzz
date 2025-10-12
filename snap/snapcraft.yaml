@@ -1,5 +1,5 @@
 # Development notes:
-# - To build the snap run `snapcraft clean` and `snapcraft --verbose`
+# - To build the snap run `snapcraft clean` and `snapcraft pack --verbose`
 # - To install local snap `snap install ./buzz_*.snap --dangerous`
 name: buzz
 base: core22
