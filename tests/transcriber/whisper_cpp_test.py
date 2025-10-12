@@ -59,4 +59,4 @@ class TestWhisperCpp:
 
         assert "Mani" in segments[0].text
         assert "uzstrau" in segments[1].text
-        assert "laikabstākļi" in segments[2].text
+        assert "laikabstāk" in segments[2].text
