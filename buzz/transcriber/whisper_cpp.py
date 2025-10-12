@@ -113,6 +113,8 @@ class WhisperCpp:
         if force_cpu != "false" or not IS_VULKAN_SUPPORTED:
             cmd.append("--no-gpu")
 
+        logging.debug(f"Running Whisper CLI: {' '.join(cmd)}")
+
         # Run the whisper-cli process
         if sys.platform == "win32":
             si = subprocess.STARTUPINFO()
