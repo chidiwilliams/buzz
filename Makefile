@@ -31,20 +31,20 @@ endif
 
 COVERAGE_THRESHOLD := 75
 
-test: buzz/whisper_cpp translation_mo
+test: buzz/whisper_cpp
 	pytest -s -vv --cov=buzz --cov-report=xml --cov-report=html --benchmark-skip --cov-fail-under=${COVERAGE_THRESHOLD} --cov-config=.coveragerc
 
-benchmarks: buzz/whisper_cpp translation_mo
+benchmarks: buzz/whisper_cpp
 	pytest -s -vv --benchmark-only --benchmark-json benchmarks.json
 
-dist/Buzz dist/Buzz.app: buzz/whisper_cpp translation_mo
+dist/Buzz dist/Buzz.app: buzz/whisper_cpp
 	pyinstaller --noconfirm Buzz.spec
 
 version:
 	poetry version ${version}
 	echo "VERSION = \"${version}\"" > buzz/__version__.py
 
-buzz/whisper_cpp:
+buzz/whisper_cpp: translation_mo
 ifeq ($(OS), Windows_NT)
 	# Build Whisper with Vulkan support.
 	# The _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR is needed to prevent mutex lock issues on Windows
