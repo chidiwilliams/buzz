@@ -6,6 +6,7 @@ import subprocess
 import json
 import tempfile
 from typing import List
+from buzz.assets import APP_BASE_DIR
 from buzz.transcriber.transcriber import Segment, Task, FileTranscriptionTask
 from buzz.transcriber.file_transcriber import app_env
 
@@ -36,10 +37,8 @@ class WhisperCpp:
     @staticmethod
     def transcribe(task: FileTranscriptionTask) -> List[Segment]:
         """Transcribe audio using whisper-cli subprocess."""
-        # Get the directory where whisper-cli is located
-        script_dir = os.path.dirname(os.path.abspath(__file__))
         cli_executable = "whisper-cli.exe" if sys.platform == "win32" else "whisper-cli"
-        whisper_cli_path = os.path.join(script_dir, "..", "whisper_cpp", cli_executable)
+        whisper_cli_path = os.path.join(APP_BASE_DIR, "whisper_cpp", cli_executable)
 
         language = (
             task.transcription_options.language
@@ -113,7 +112,7 @@ class WhisperCpp:
         if force_cpu != "false" or not IS_VULKAN_SUPPORTED:
             cmd.append("--no-gpu")
 
-        logging.debug(f"Running Whisper CLI: {' '.join(cmd)}")
+        print(f"Running Whisper CLI: {' '.join(cmd)}")
 
         # Run the whisper-cli process
         if sys.platform == "win32":
@@ -155,7 +154,7 @@ class WhisperCpp:
                 try:
                     os.remove(temp_file)
                 except Exception as e:
-                    logging.warning(f"Failed to remove temporary file {temp_file}: {e}")
+                    print(f"Failed to remove temporary file {temp_file}: {e}")
             raise Exception(f"whisper-cli failed with return code {process.returncode}")
 
         # Find and read the generated JSON file
@@ -277,11 +276,11 @@ class WhisperCpp:
                 try:
                     os.remove(json_output_path)
                 except Exception as e:
-                    logging.warning(f"Failed to remove JSON output file {json_output_path}: {e}")
+                    print(f"Failed to remove JSON output file {json_output_path}: {e}")
 
             # Clean up temporary audio file if conversion was done
             if temp_file and os.path.exists(temp_file):
                 try:
                     os.remove(temp_file)
                 except Exception as e:
-                    logging.warning(f"Failed to remove temporary file {temp_file}: {e}")
+                    print(f"Failed to remove temporary file {temp_file}: {e}")

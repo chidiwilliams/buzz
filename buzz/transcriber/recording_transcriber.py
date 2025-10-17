@@ -333,10 +333,8 @@ class RecordingTranscriber(QObject):
 
         self.process = None
 
-        # Get the directory where whisper-server is located
-        script_dir = os.path.dirname(os.path.abspath(__file__))
         server_executable = "whisper-server.exe" if sys.platform == "win32" else "whisper-server"
-        server_path = os.path.join(script_dir, "..", "whisper_cpp", server_executable)
+        server_path = os.path.join(APP_BASE_DIR, "whisper_cpp", server_executable)
 
         cmd = [
             server_path,
