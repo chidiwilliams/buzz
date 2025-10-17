@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-10-03 16:02+0300\n"
-"PO-Revision-Date: 2025-07-29 19:12+0200\n"
+"PO-Revision-Date: 2025-10-17 07:59+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: Catalan <jmas@softcatala.org>\n"
 "Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.6\n"
+"X-Generator: Poedit 3.7\n"
 
 #: buzz/widgets/import_url_dialog.py:19 buzz/settings/shortcut.py:19
 msgid "Import URL"
@@ -172,15 +172,17 @@ msgstr "Mode d'enregistrament en directe"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:183
 msgid "Use only CPU and disable GPU acceleration"
-msgstr ""
+msgstr "Utilitza només la CPU i desactiveu l'acceleració de la GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:186
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
 msgstr ""
+"Establiu això si els models més grans no s'ajusten a la memòria de la GPU i "
+"Buzz es bloqueja"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:188
 msgid "Disable GPU"
-msgstr ""
+msgstr "Desactiva la GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:213
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:219
@@ -563,86 +565,88 @@ msgstr "Redimensionar"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:251
 msgid "Find"
-msgstr ""
+msgstr "Cerca"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:254
 msgid "Show/Hide Search Bar (Ctrl+F)"
-msgstr ""
+msgstr "Mostra/amaga la barra de cerca (Ctrl+F)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:319
 msgid "Find:"
-msgstr ""
+msgstr "Cerca:"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:325
 msgid "Enter text to find..."
-msgstr ""
+msgstr "Introduïu el text a cercar..."
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:338
 msgid "Previous match (Shift+Enter)"
-msgstr ""
+msgstr "Coincidència anterior (Maj+Retorn)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:346
 msgid "Next match (Enter)"
-msgstr ""
+msgstr "Coincidència següent (retorn)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:354
 msgid "Clear"
-msgstr ""
+msgstr "Neteja"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:381
 msgid "Playback Controls:"
-msgstr ""
+msgstr "Controls de reproducció:"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:386
 msgid "Loop Segment"
-msgstr ""
+msgstr "Segment de bucle"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:388
 msgid "Enable/disable looping when clicking on transcript segments"
-msgstr ""
+msgstr "Activa/desactiva el bucle en fer clic als segments de transcripció"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:394
 msgid "Follow Audio"
-msgstr ""
+msgstr "Segueix l'àudio"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:396
 msgid ""
 "Enable/disable following the current audio position in the transcript. When "
 "enabled, automatically scrolls to current text."
 msgstr ""
+"Activa/desactiva seguint la posició d'àudio actual a la transcripció. Quan "
+"està activada, es desplaça automàticament al text actual."
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:443
 msgid "Scroll to Current"
-msgstr ""
+msgstr "Desplaça't fins a l'actual"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:445
 msgid "Scroll to the currently spoken text"
-msgstr ""
+msgstr "Desplaçar-se fins al text que es parla actualment"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:767
 msgid "1 of 100+ matches"
-msgstr ""
+msgstr "1 de més de 100 coincidències"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:769
 msgid "1 of "
-msgstr ""
+msgstr "1 de "
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:769
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:835
 msgid " matches"
-msgstr ""
+msgstr " coincidències"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:774
 msgid "No matches found"
-msgstr ""
+msgstr "No s'ha trobat cap coincidència"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:833
 msgid " of 100+ matches"
-msgstr ""
+msgstr " de més de 100 coincidències"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:835
 msgid " of "
-msgstr ""
+msgstr " de "
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1188
 msgid "API Key Required"
@@ -1175,41 +1179,40 @@ msgid "View Transcript Timestamps"
 msgstr "Veure les marques de temps de la transcripció"
 
 #: buzz/settings/shortcut.py:25
-#, fuzzy
 msgid "Search Transcript"
-msgstr "Obre una transcripció"
+msgstr "Cerca una transcripció"
 
 #: buzz/settings/shortcut.py:26
 msgid "Scroll to Current Text"
-msgstr ""
+msgstr "Desplaça't fins al text actual"
 
 #: buzz/settings/shortcut.py:27
 msgid "Play/Pause Audio"
-msgstr ""
+msgstr "Reproduir/posar en pausa l'àudio"
 
 #: buzz/settings/shortcut.py:28
 msgid "Replay Current Segment"
-msgstr ""
+msgstr "Reprodueix el segment actual"
 
 #: buzz/settings/shortcut.py:29
 msgid "Toggle Playback Controls"
-msgstr ""
+msgstr "Commuta els controls de reproducció"
 
 #: buzz/settings/shortcut.py:31
 msgid "Decrease Segment Start Time"
-msgstr ""
+msgstr "Disminuir l'hora d'inici del segment"
 
 #: buzz/settings/shortcut.py:32
 msgid "Increase Segment Start Time"
-msgstr ""
+msgstr "Augmenta l'hora d'inici del segment"
 
 #: buzz/settings/shortcut.py:33
 msgid "Decrease Segment End Time"
-msgstr ""
+msgstr "Disminueix l'hora de finalització del segment"
 
 #: buzz/settings/shortcut.py:34
 msgid "Increase Segment End Time"
-msgstr ""
+msgstr "Augmenta l'hora de finalització del segment"
 
 #: buzz/settings/recording_transcriber_mode.py:5
 msgid "Append below"
