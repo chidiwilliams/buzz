@@ -336,6 +336,10 @@ class RecordingTranscriber(QObject):
         server_executable = "whisper-server.exe" if sys.platform == "win32" else "whisper-server"
         server_path = os.path.join(APP_BASE_DIR, "whisper_cpp", server_executable)
 
+        # If running Mac and Windows installed version
+        if not os.path.exists(server_path):
+            server_path = os.path.join(APP_BASE_DIR, "buzz", "whisper_cpp", server_executable)
+
         cmd = [
             server_path,
             "--port", "3003",

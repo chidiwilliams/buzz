@@ -40,6 +40,10 @@ class WhisperCpp:
         cli_executable = "whisper-cli.exe" if sys.platform == "win32" else "whisper-cli"
         whisper_cli_path = os.path.join(APP_BASE_DIR, "whisper_cpp", cli_executable)
 
+        # If running Mac and Windows installed version
+        if not os.path.exists(whisper_cli_path):
+            whisper_cli_path = os.path.join(APP_BASE_DIR, "buzz", "whisper_cpp", cli_executable)
+
         language = (
             task.transcription_options.language
             if task.transcription_options.language is not None
