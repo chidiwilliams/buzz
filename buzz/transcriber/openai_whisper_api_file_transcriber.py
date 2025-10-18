@@ -15,8 +15,26 @@ from buzz.settings.settings import Settings
 from buzz.model_loader import get_custom_api_whisper_model
 from buzz.transcriber.file_transcriber import FileTranscriber, app_env
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment, Task
-from buzz.transcriber.whisper_cpp import append_segment
 
+
+def append_segment(result, txt: bytes, start: int, end: int):
+    if txt == b'':
+        return True
+
+    # try-catch will guard against multi-byte utf-8 characters
+    # https://github.com/ggerganov/whisper.cpp/issues/1798
+    try:
+        result.append(
+            Segment(
+                start=start * 10,  # centisecond to ms
+                end=end * 10,  # centisecond to ms
+                text=txt.decode("utf-8"),
+            )
+        )
+
+        return True
+    except UnicodeDecodeError:
+        return False
 
 class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
     def __init__(self, task: FileTranscriptionTask, parent: Optional["QObject"] = None):

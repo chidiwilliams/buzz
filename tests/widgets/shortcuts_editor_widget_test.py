@@ -1,3 +1,5 @@
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QKeyEvent
 from PyQt6.QtWidgets import QPushButton, QLabel
 from pytestqt.qtbot import QtBot
 
@@ -55,3 +57,59 @@ class TestShortcutsEditorWidget:
             assert isinstance(sequence_edit, SequenceEdit)
             assert label.text() == expected[i][0]
             assert sequence_edit.keySequence().toString() == expected[i][1]
+
+
+class TestSequenceEdit:
+    def test_should_ignore_modifier_only_keys(self, qtbot: QtBot):
+        sequence_edit = SequenceEdit("")
+        qtbot.add_widget(sequence_edit)
+
+        # Test that pressing only modifier keys doesn't record anything
+        modifier_keys = [
+            Qt.Key.Key_Control,
+            Qt.Key.Key_Shift,
+            Qt.Key.Key_Alt,
+            Qt.Key.Key_Meta,
+        ]
+
+        for key in modifier_keys:
+            event = QKeyEvent(QKeyEvent.Type.KeyPress, key, Qt.KeyboardModifier.NoModifier)
+            sequence_edit.keyPressEvent(event)
+            assert sequence_edit.keySequence().toString() == ""
+
+    def test_should_record_key_combination(self, qtbot: QtBot):
+        sequence_edit = SequenceEdit("")
+        qtbot.add_widget(sequence_edit)
+
+        # Test that pressing a key combination is recorded
+        event = QKeyEvent(
+            QKeyEvent.Type.KeyPress,
+            Qt.Key.Key_A,
+            Qt.KeyboardModifier.ControlModifier,
+        )
+        sequence_edit.keyPressEvent(event)
+        assert sequence_edit.keySequence().toString() == "Ctrl+A"
+
+    def test_should_propagate_escape_to_parent(self, qtbot: QtBot):
+        from PyQt6.QtWidgets import QWidget
+
+        class ParentWidget(QWidget):
+            def __init__(self):
+                super().__init__()
+                self.escape_pressed = False
+
+            def keyPressEvent(self, event: QKeyEvent) -> None:
+                if event.key() == Qt.Key.Key_Escape:
+                    self.escape_pressed = True
+
+        parent = ParentWidget()
+        qtbot.add_widget(parent)
+        sequence_edit = SequenceEdit("", parent)
+
+        # Test that Escape key is propagated to parent
+        event = QKeyEvent(QKeyEvent.Type.KeyPress, Qt.Key.Key_Escape, Qt.KeyboardModifier.NoModifier)
+        sequence_edit.keyPressEvent(event)
+
+        assert parent.escape_pressed
+        # Escape key should not be recorded in the sequence
+        assert sequence_edit.keySequence().toString() == ""
