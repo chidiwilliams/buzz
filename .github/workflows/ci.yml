@@ -298,21 +298,23 @@ jobs:
         if: matrix.os == 'macos-latest'
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.2.1
+#        More resent version is
+#        uses: pypa/cibuildwheel@v3.2.1
+        uses: pypa/cibuildwheel@v2.22.0
         env:
           CIBW_PROJECT_REQUIRES_PYTHON: ">=3.9,<3.13"
           CIBW_SKIP: "cp313-* cp314-*"
           CIBW_ARCHS_WINDOWS: "auto64"
           CIBW_ARCHS_MACOS: "auto64"
           CIBW_ARCHS_LINUX: "auto64"
-          CIBW_BEFORE_BUILD: "pip install polib cmake"
+          CIBW_BEFORE_BUILD: "pip install polib cmake poetry"
           CIBW_BEFORE_ALL_LINUX: >
             yum install -y wget tar &&
             wget -q https://sdk.lunarg.com/sdk/download/1.4.309.0/linux/vulkansdk-linux-x86_64-1.4.309.0.tar.xz &&
-            mkdir -p /opt/vulkan &&
-            tar -xf vulkansdk-linux-x86_64-1.4.309.0.tar.xz -C /opt/vulkan &&
+            mkdir -p /tmp/vulkan &&
+            tar -xf vulkansdk-linux-x86_64-1.4.309.0.tar.xz -C /tmp/vulkan &&
             rm vulkansdk-linux-x86_64-1.4.309.0.tar.xz &&
-            export VULKAN_SDK=/opt/vulkan/1.4.309.0/x86_64 &&
+            export VULKAN_SDK=/tmp/vulkan/1.4.309.0/x86_64 &&
             export PATH=$VULKAN_SDK/bin:$PATH &&
             export LD_LIBRARY_PATH=$VULKAN_SDK/lib:$LD_LIBRARY_PATH
 
