@@ -94,7 +94,7 @@ jobs:
         uses: humbletim/setup-vulkan-sdk@v1.2.1
         with:
           vulkan-query-version: 1.4.304.1
-          vulkan-components: Vulkan-Headers, Vulkan-Loader, Glslang
+          vulkan-components: Vulkan-Headers, Vulkan-Loader, Glslang, SPIRV-Tools
           vulkan-use-cache: true
 
       - name: Install dependencies
@@ -155,7 +155,7 @@ jobs:
         uses: humbletim/setup-vulkan-sdk@v1.2.1
         with:
           vulkan-query-version: 1.4.304.1
-          vulkan-components: Vulkan-Headers, Vulkan-Loader, Glslang
+          vulkan-components: Vulkan-Headers, Vulkan-Loader, Glslang, SPIRV-Tools
           vulkan-use-cache: true
 
       - name: Install CUDA torch for Windows
@@ -299,7 +299,7 @@ jobs:
         uses: humbletim/setup-vulkan-sdk@v1.2.1
         with:
           vulkan-query-version: 1.4.304.1
-          vulkan-components: Vulkan-Headers, Vulkan-Loader, Glslang
+          vulkan-components: Vulkan-Headers, Vulkan-Loader, Glslang, SPIRV-Tools
           vulkan-use-cache: true
 
       - name: Install uv
@@ -310,8 +310,8 @@ jobs:
         shell: bash
 
       - uses: actions/upload-artifact@v4
-        name: buzz-wheels-${{ matrix.os }}-${{ runner.arch }}
         with:
+          name: buzz-wheels-${{ matrix.os }}-${{ runner.arch }}
           path: ./dist/*.whl
 
   publish_pypi:
@@ -326,7 +326,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          pattern: cibw-*
+          pattern: buzz_captions-*
           path: dist
           merge-multiple: true
 
