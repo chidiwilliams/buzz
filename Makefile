@@ -162,11 +162,9 @@ codesign_all_mac: dist/Buzz.app
 notarize_log:
 	xcrun notarytool log ${id} --keychain-profile "$$BUZZ_KEYCHAIN_NOTARY_PROFILE"
 
-VENV_PATH := $(shell poetry env info -p)
-
 # Make GGML model from whisper. Example: make ggml model_path=/Users/chidiwilliams/.cache/whisper/medium.pt
 ggml:
-	python3 ./whisper.cpp/models/convert-pt-to-ggml.py ${model_path} $(VENV_PATH)/src/whisper dist
+	python3 ./whisper.cpp/models/convert-pt-to-ggml.py ${model_path} .venv/lib/python3.12/site-packages/whisper dist
 
 upload_brew:
 	brew bump-cask-pr --version ${version} --verbose buzz

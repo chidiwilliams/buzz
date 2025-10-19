@@ -125,7 +125,7 @@ parts:
       - cmake
       - polib
     override-build: |
-      # https://vulkan.lunarg.com/doc/view/latest/linux/getting_started_ubuntu.html      
+      # https://vulkan.lunarg.com/doc/view/latest/linux/getting_started_ubuntu.html
       wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | tee /etc/apt/trusted.gpg.d/lunarg.asc
       wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list http://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
       apt update
@@ -133,11 +133,11 @@ parts:
 
       # Clear cache to save space on CI
       apt clean
-      
+
       craftctl default
-      pip install poetry
+      pip install uv
       make translation_mo
-      pip install .
+      uv pip install --system .
       pip uninstall -y torch torchaudio nvidia-cublas-cu12 nvidia-cuda-cupti-cu12 nvidia-cuda-nvrtc-cu12 nvidia-cuda-runtime-cu12 nvidia-cudnn-cu12 nvidia-cufft-cu12 nvidia-cufile-cu12 nvidia-curand-cu12 nvidia-cusolver-cu12 nvidia-cusparse-cu12 nvidia-cusparselt-cu12 nvidia-nccl-cu12 nvidia-nvjitlink-cu12 nvidia-nvtx-cu12 
       pip cache purge
       

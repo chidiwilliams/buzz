@@ -90,10 +90,12 @@ jobs:
         if: "startsWith(matrix.os, 'ubuntu-')"
 
       - name: Install Vulkan SDK
-        uses: humbletim/install-vulkan-sdk@v1.2
+        if: "startsWith(matrix.os, 'ubuntu-') || matrix.os == 'windows-latest'"
+        uses: humbletim/setup-vulkan-sdk@v1.2.1
         with:
-          version: 1.4.309.0
-          cache: true
+          vulkan-query-version: 1.4.304.1
+          vulkan-components: Vulkan-Headers, Vulkan-Loader, Glslang
+          vulkan-use-cache: true
 
       - name: Install dependencies
         run: uv sync
@@ -149,10 +151,12 @@ jobs:
           version: ${{ matrix.os == 'macos-13' && '7.1.1' || matrix.os == 'macos-latest' && '71' || '7.1' }}
 
       - name: Install Vulkan SDK
-        uses: humbletim/install-vulkan-sdk@v1.2
+        if: "startsWith(matrix.os, 'ubuntu-') || matrix.os == 'windows-latest'"
+        uses: humbletim/setup-vulkan-sdk@v1.2.1
         with:
-          version: 1.4.309.0
-          cache: true
+          vulkan-query-version: 1.4.304.1
+          vulkan-components: Vulkan-Headers, Vulkan-Loader, Glslang
+          vulkan-use-cache: true
 
       - name: Install CUDA torch for Windows
         run: |
@@ -290,12 +294,12 @@ jobs:
           xcode-version: '16.0.0'
         if: matrix.os == 'macos-latest'
 
-      - name: Prepare Vulkan SDK
+      - name: Install Vulkan SDK
         if: "startsWith(matrix.os, 'ubuntu-') || matrix.os == 'windows-latest'"
         uses: humbletim/setup-vulkan-sdk@v1.2.1
         with:
           vulkan-query-version: 1.4.304.1
-          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-components: Vulkan-Headers, Vulkan-Loader, Glslang
           vulkan-use-cache: true
 
       - name: Install uv
@@ -306,6 +310,7 @@ jobs:
         shell: bash
 
       - uses: actions/upload-artifact@v4
+        name: buzz-wheels-${{ matrix.os }}-${{ runner.arch }}
         with:
           path: ./dist/*.whl
 
