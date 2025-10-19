@@ -152,7 +152,7 @@ parts:
       pip install nvidia-cusparselt-cu12==0.6.3 nvidia-nvjitlink-cu12==12.8.61 nvidia-nvtx-cu12==12.8.55 --extra-index-url https://pypi.ngc.nvidia.com
       pip cache purge
       
-      python3 build.py
+      uv build
       mkdir $CRAFT_PART_INSTALL/buzz
       cp -r $CRAFT_PART_BUILD/buzz/whisper_cpp $CRAFT_PART_INSTALL/buzz/
       
