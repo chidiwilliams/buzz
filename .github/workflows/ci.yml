@@ -283,7 +283,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-13, macos-latest]
 
     steps:
       - uses: actions/checkout@v4
@@ -297,31 +297,24 @@ jobs:
           xcode-version: '16.0.0'
         if: matrix.os == 'macos-latest'
 
+      - name: Prepare Vulkan SDK
+        if: "startsWith(matrix.os, 'ubuntu-') || matrix.os == 'windows-latest'"
+        uses: humbletim/setup-vulkan-sdk@v1.2.1
+        with:
+          vulkan-query-version: 1.4.304.1
+          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-use-cache: true
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
       - name: Build wheels
-#        More resent version is
-#        uses: pypa/cibuildwheel@v3.2.1
-        uses: pypa/cibuildwheel@v2.22.0
-        env:
-          CIBW_PROJECT_REQUIRES_PYTHON: ">=3.9,<3.13"
-          CIBW_SKIP: "cp313-* cp314-*"
-          CIBW_ARCHS_WINDOWS: "auto64"
-          CIBW_ARCHS_MACOS: "auto64"
-          CIBW_ARCHS_LINUX: "auto64"
-          CIBW_BEFORE_BUILD: "pip install polib cmake poetry"
-          CIBW_BEFORE_ALL_LINUX: >
-            yum install -y wget tar &&
-            wget -q https://sdk.lunarg.com/sdk/download/1.4.309.0/linux/vulkansdk-linux-x86_64-1.4.309.0.tar.xz &&
-            mkdir -p /tmp/vulkan &&
-            tar -xf vulkansdk-linux-x86_64-1.4.309.0.tar.xz -C /tmp/vulkan &&
-            rm vulkansdk-linux-x86_64-1.4.309.0.tar.xz &&
-            export VULKAN_SDK=/tmp/vulkan/1.4.309.0/x86_64 &&
-            export PATH=$VULKAN_SDK/bin:$PATH &&
-            export LD_LIBRARY_PATH=$VULKAN_SDK/lib:$LD_LIBRARY_PATH
+        run: uv build --wheel
+        shell: bash
 
       - uses: actions/upload-artifact@v4
         with:
-          name: cibw-wheels-${{ matrix.os }}
-          path: ./wheelhouse/*.whl
+          path: ./dist/*.whl
 
   publish_pypi:
     needs: [build_wheels, test]

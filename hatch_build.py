@@ -14,6 +14,41 @@ class CustomBuildHook(BuildHookInterface):
         """Run make buzz/whisper_cpp before building."""
         print("Running 'make buzz/whisper_cpp' to build whisper.cpp binaries...")
 
+        # Mark wheel as platform-specific since we're including compiled binaries
+        # But set tag to py3-none since binaries are standalone (no Python C extensions)
+        if version == "standard":  # Only for wheel builds
+            import platform
+
+            build_data["pure_python"] = False
+
+            # Determine the platform tag based on current OS and architecture
+            system = platform.system().lower()
+            machine = platform.machine().lower()
+
+            if system == "linux":
+                if machine in ("x86_64", "amd64"):
+                    tag = "py3-none-manylinux_2_34_x86_64"
+                else:
+                    raise ValueError(f"Unsupported Linux architecture: {machine}. Only x86_64 is supported.")
+            elif system == "darwin":
+                if machine in ("x86_64", "amd64"):
+                    tag = "py3-none-macosx_10_9_x86_64"
+                elif machine in ("arm64", "aarch64"):
+                    tag = "py3-none-macosx_11_0_arm64"
+                else:
+                    raise ValueError(f"Unsupported macOS architecture: {machine}")
+            elif system == "windows":
+                if machine in ("x86_64", "amd64"):
+                    tag = "py3-none-win_amd64"
+                else:
+                    raise ValueError(f"Unsupported Windows architecture: {machine}. Only x86_64 is supported.")
+            else:
+                raise ValueError(f"Unsupported operating system: {system}")
+
+            if tag:
+                build_data["tag"] = tag
+                print(f"Building wheel with tag: {tag}")
+
         # Get the project root directory
         project_root = Path(self.root)
 
