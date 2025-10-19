@@ -1,4 +1,5 @@
 """Custom build hook for hatchling to build whisper.cpp binaries."""
+import glob
 import subprocess
 import sys
 from pathlib import Path
@@ -29,6 +30,29 @@ class CustomBuildHook(BuildHookInterface):
             if result.stderr:
                 print(result.stderr, file=sys.stderr)
             print("Successfully built whisper.cpp binaries")
+
+            # Force include all files in buzz/whisper_cpp directory
+            whisper_cpp_dir = project_root / "buzz" / "whisper_cpp"
+            if whisper_cpp_dir.exists():
+                # Get all files in the whisper_cpp directory
+                whisper_files = glob.glob(str(whisper_cpp_dir / "**" / "*"), recursive=True)
+
+                # Filter only files (not directories)
+                whisper_files = [f for f in whisper_files if Path(f).is_file()]
+
+                # Add them to force_include
+                if 'force_include' not in build_data:
+                    build_data['force_include'] = {}
+
+                for file_path in whisper_files:
+                    # Convert to relative path from project root
+                    rel_path = Path(file_path).relative_to(project_root)
+                    build_data['force_include'][str(rel_path)] = str(rel_path)
+
+                print(f"Force including {len(whisper_files)} files from buzz/whisper_cpp/")
+            else:
+                print(f"Warning: {whisper_cpp_dir} does not exist after build", file=sys.stderr)
+
         except subprocess.CalledProcessError as e:
             print(f"Error building whisper.cpp: {e}", file=sys.stderr)
             print(f"stdout: {e.stdout}", file=sys.stderr)
