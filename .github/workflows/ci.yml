@@ -86,19 +86,21 @@ jobs:
           if [ "$(lsb_release -rs)" != "24.04" ]; then
             sudo apt-get install libegl1-mesa
           fi
-          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev
+          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev
         if: "startsWith(matrix.os, 'ubuntu-')"
 
-      - name: Install Vulkan SDK
-        if: "startsWith(matrix.os, 'ubuntu-') || matrix.os == 'windows-latest'"
-        uses: humbletim/setup-vulkan-sdk@v1.2.1
+      - name: Install Vulkan SDK on Windows
+        if: "matrix.os == 'windows-latest'"
+        uses: humbletim/install-vulkan-sdk@v1.2
         with:
-          vulkan-query-version: 1.4.304.1
-          vulkan-components: Vulkan-Headers, Vulkan-Loader, Glslang, SPIRV-Tools
-          vulkan-use-cache: true
+          version: 1.4.309.0
+          cache: true
 
       - name: Install dependencies
         run: uv sync
+
+      - name: Build whisper.cpp
+        run: uv build
 
       - name: Test
         run: |
@@ -150,14 +152,6 @@ jobs:
         with:
           version: ${{ matrix.os == 'macos-13' && '7.1.1' || matrix.os == 'macos-latest' && '71' || '7.1' }}
 
-      - name: Install Vulkan SDK
-        if: "startsWith(matrix.os, 'ubuntu-') || matrix.os == 'windows-latest'"
-        uses: humbletim/setup-vulkan-sdk@v1.2.1
-        with:
-          vulkan-query-version: 1.4.304.1
-          vulkan-components: Vulkan-Headers, Vulkan-Loader, Glslang, SPIRV-Tools
-          vulkan-use-cache: true
-
       - name: Install CUDA torch for Windows
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then
@@ -188,7 +182,7 @@ jobs:
       - name: Install Inno Setup on Windows
         uses: crazy-max/ghaction-chocolatey@v3
         with:
-            args: install innosetup --yes
+          args: install innosetup vulkan-sdk --yes
         if: runner.os == 'Windows'
 
       - name: Install dependencies
@@ -206,7 +200,7 @@ jobs:
           if [ "$(lsb_release -rs)" != "24.04" ]; then
             sudo apt-get install libegl1-mesa
           fi
-          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev
+          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev
         if: "startsWith(matrix.os, 'ubuntu-')"
 
       - name: Install FPM
@@ -296,11 +290,10 @@ jobs:
 
       - name: Install Vulkan SDK
         if: "startsWith(matrix.os, 'ubuntu-') || matrix.os == 'windows-latest'"
-        uses: humbletim/setup-vulkan-sdk@v1.2.1
+        uses: humbletim/install-vulkan-sdk@v1.2
         with:
-          vulkan-query-version: 1.4.304.1
-          vulkan-components: Vulkan-Headers, Vulkan-Loader, Glslang, SPIRV-Tools
-          vulkan-use-cache: true
+          version: 1.4.309.0
+          cache: true
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6

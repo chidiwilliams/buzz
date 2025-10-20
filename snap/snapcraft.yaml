@@ -120,7 +120,6 @@ parts:
       - libvulkan1
       - mesa-vulkan-drivers
     python-packages:
-      - ctypesgen
       - setuptools
       - cmake
       - polib
@@ -138,20 +137,38 @@ parts:
       pip install uv
       make translation_mo
       uv pip install --system .
-      pip uninstall -y torch torchaudio nvidia-cublas-cu12 nvidia-cuda-cupti-cu12 nvidia-cuda-nvrtc-cu12 nvidia-cuda-runtime-cu12 nvidia-cudnn-cu12 nvidia-cufft-cu12 nvidia-cufile-cu12 nvidia-curand-cu12 nvidia-cusolver-cu12 nvidia-cusparse-cu12 nvidia-cusparselt-cu12 nvidia-nccl-cu12 nvidia-nvjitlink-cu12 nvidia-nvtx-cu12 
-      pip cache purge
-      
-      pip install -U torch==2.7.1+cu128 torchaudio==2.7.1+cu128 --index-url https://download.pytorch.org/whl/cu128
-      pip cache purge
-      pip install nvidia-cublas-cu12==12.8.3.14 nvidia-cuda-cupti-cu12==12.8.57 nvidia-cuda-nvrtc-cu12==12.8.61 --extra-index-url https://pypi.ngc.nvidia.com 
-      pip cache purge
-      pip install nvidia-cuda-runtime-cu12==12.8.57 nvidia-cudnn-cu12==9.7.1.26 nvidia-cufft-cu12==11.3.3.41 --extra-index-url https://pypi.ngc.nvidia.com
-      pip cache purge
-      pip install nvidia-curand-cu12==10.3.9.55 nvidia-cusolver-cu12==11.7.2.55 nvidia-cusparse-cu12==12.5.7.53  --extra-index-url https://pypi.ngc.nvidia.com
-      pip cache purge
-      pip install nvidia-cusparselt-cu12==0.6.3 nvidia-nvjitlink-cu12==12.8.61 nvidia-nvtx-cu12==12.8.55 --extra-index-url https://pypi.ngc.nvidia.com
-      pip cache purge
-      
+      uv pip uninstall --system torch torchaudio nvidia-cublas-cu12 nvidia-cuda-cupti-cu12 nvidia-cuda-nvrtc-cu12 nvidia-cuda-runtime-cu12 nvidia-cudnn-cu12 nvidia-cufft-cu12 nvidia-cufile-cu12 nvidia-curand-cu12 nvidia-cusolver-cu12 nvidia-cusparse-cu12 nvidia-cusparselt-cu12 nvidia-nccl-cu12 nvidia-nvjitlink-cu12 nvidia-nvtx-cu12
+      uv cache clean
+
+      uv pip install --system torch==2.7.1+cu128 --index-url https://download.pytorch.org/whl/cu128
+      uv cache clean
+      uv pip install --system torchaudio==2.7.1+cu128 --index-url https://download.pytorch.org/whl/cu128
+      uv cache clean
+      uv pip install --system nvidia-cublas-cu12==12.8.3.14 --index-url https://pypi.ngc.nvidia.com
+      uv cache clean
+      uv pip install --system nvidia-cuda-cupti-cu12==12.8.57 --index-url https://pypi.ngc.nvidia.com
+      uv cache clean
+      uv pip install --system nvidia-cuda-nvrtc-cu12==12.8.61 --index-url https://pypi.ngc.nvidia.com
+      uv cache clean
+      uv pip install --system nvidia-cuda-runtime-cu12==12.8.57 --index-url https://pypi.ngc.nvidia.com
+      uv cache clean
+      uv pip install --system nvidia-cudnn-cu12==9.7.1.26 --index-url https://pypi.ngc.nvidia.com
+      uv cache clean
+      uv pip install --system nvidia-cufft-cu12==11.3.3.41 --index-url https://pypi.ngc.nvidia.com
+      uv cache clean
+      uv pip install --system nvidia-curand-cu12==10.3.9.55 --index-url https://pypi.ngc.nvidia.com
+      uv cache clean
+      uv pip install --system nvidia-cusolver-cu12==11.7.2.55 --index-url https://pypi.ngc.nvidia.com
+      uv cache clean
+      uv pip install --system nvidia-cusparse-cu12==12.5.7.53 --index-url https://pypi.ngc.nvidia.com
+      uv cache clean
+      uv pip install --system nvidia-cusparselt-cu12==0.6.3 --index-url https://pypi.ngc.nvidia.com
+      uv cache clean
+      uv pip install --system nvidia-nvjitlink-cu12==12.8.61 --index-url https://pypi.ngc.nvidia.com
+      uv cache clean
+      uv pip install --system nvidia-nvtx-cu12==12.8.55 --index-url https://pypi.ngc.nvidia.com
+      uv cache clean
+
       uv build
       mkdir $CRAFT_PART_INSTALL/buzz
       cp -r $CRAFT_PART_BUILD/buzz/whisper_cpp $CRAFT_PART_INSTALL/buzz/
