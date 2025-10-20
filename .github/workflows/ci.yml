@@ -89,11 +89,11 @@ jobs:
           if [ "$(lsb_release -rs)" != "24.04" ]; then
             sudo apt-get install libegl1-mesa
           fi
-          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev ccache glslc
+          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev ccache
         if: "startsWith(matrix.os, 'ubuntu-')"
 
-      - name: Install Vulkan SDK on Windows
-        if: "matrix.os == 'windows-latest'"
+      - name: Install Vulkan SDK
+        if: "startsWith(matrix.os, 'ubuntu-') || matrix.os == 'windows-latest'"
         uses: humbletim/install-vulkan-sdk@v1.2
         with:
           version: 1.4.309.0
@@ -200,7 +200,7 @@ jobs:
           if [ "$(lsb_release -rs)" != "24.04" ]; then
             sudo apt-get install libegl1-mesa
           fi
-          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev ccache glslc
+          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev ccache
         if: "startsWith(matrix.os, 'ubuntu-')"
 
       - name: Install FPM

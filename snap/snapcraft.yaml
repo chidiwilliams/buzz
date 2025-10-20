@@ -89,7 +89,6 @@ parts:
       - qt6-multimedia-dev
       - libvulkan-dev
       - ccache
-      - glslc
       - cmake
     stage-packages:
       # Audio
