@@ -139,7 +139,7 @@ parts:
       make translation_mo
       uv pip uninstall --system torch torchaudio nvidia-cublas-cu12 nvidia-cuda-cupti-cu12 nvidia-cuda-nvrtc-cu12 nvidia-cuda-runtime-cu12 nvidia-cudnn-cu12 nvidia-cufft-cu12 nvidia-cufile-cu12 nvidia-curand-cu12 nvidia-cusolver-cu12 nvidia-cusparse-cu12 nvidia-cusparselt-cu12 nvidia-nccl-cu12 nvidia-nvjitlink-cu12 nvidia-nvtx-cu12
       uv cache clean
-      uv pip cache purge
+      uv run pip cache purge
 
       uv pip install --system torch==2.7.1+cu128 --index-url https://download.pytorch.org/whl/cu128
       uv cache clean
@@ -169,11 +169,11 @@ parts:
       uv cache clean
       uv pip install --system nvidia-nvtx-cu12==12.8.55 --index-url https://pypi.ngc.nvidia.com
       uv cache clean
-      uv pip cache purge
+      uv run pip cache purge
       
       uv pip install --system .
       uv cache clean
-      uv pip cache purge
+      uv run pip cache purge
 
       uv build
       mkdir $CRAFT_PART_INSTALL/buzz
