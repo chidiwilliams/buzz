@@ -30,13 +30,13 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11.9"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
 
       - name: Load cached venv
         id: cached-uv-dependencies
@@ -44,6 +44,9 @@ jobs:
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/uv.lock') }}
+
+      - name: Install dependencies
+        run: uv sync
 
       - name: Load cached Whisper models
         id: cached-whisper-models
@@ -86,7 +89,7 @@ jobs:
           if [ "$(lsb_release -rs)" != "24.04" ]; then
             sudo apt-get install libegl1-mesa
           fi
-          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev
+          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev ccache glslc
         if: "startsWith(matrix.os, 'ubuntu-')"
 
       - name: Install Vulkan SDK on Windows
@@ -95,9 +98,6 @@ jobs:
         with:
           version: 1.4.309.0
           cache: true
-
-      - name: Install dependencies
-        run: uv sync
 
       - name: Build whisper.cpp
         run: uv build
@@ -132,13 +132,13 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11.9"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
 
       - name: Load cached venv
         id: cached-uv-dependencies
@@ -146,6 +146,9 @@ jobs:
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/uv.lock') }}
+
+      - name: Install dependencies
+        run: uv sync
 
       - uses: AnimMouse/setup-ffmpeg@v1.2.1
         id: setup-ffmpeg
@@ -185,9 +188,6 @@ jobs:
           args: install innosetup vulkan-sdk --yes
         if: runner.os == 'Windows'
 
-      - name: Install dependencies
-        run: uv sync
-
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.0"
@@ -200,7 +200,7 @@ jobs:
           if [ "$(lsb_release -rs)" != "24.04" ]; then
             sudo apt-get install libegl1-mesa
           fi
-          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev
+          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev ccache glslc
         if: "startsWith(matrix.os, 'ubuntu-')"
 
       - name: Install FPM

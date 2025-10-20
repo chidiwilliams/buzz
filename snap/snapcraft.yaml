@@ -88,6 +88,8 @@ parts:
       - qt6-declarative-dev
       - qt6-multimedia-dev
       - libvulkan-dev
+      - ccache
+      - glslc
       - cmake
     stage-packages:
       # Audio
@@ -136,7 +138,6 @@ parts:
       craftctl default
       pip install uv
       make translation_mo
-      uv pip install --system .
       uv pip uninstall --system torch torchaudio nvidia-cublas-cu12 nvidia-cuda-cupti-cu12 nvidia-cuda-nvrtc-cu12 nvidia-cuda-runtime-cu12 nvidia-cudnn-cu12 nvidia-cufft-cu12 nvidia-cufile-cu12 nvidia-curand-cu12 nvidia-cusolver-cu12 nvidia-cusparse-cu12 nvidia-cusparselt-cu12 nvidia-nccl-cu12 nvidia-nvjitlink-cu12 nvidia-nvtx-cu12
       uv cache clean
 
@@ -167,6 +168,9 @@ parts:
       uv pip install --system nvidia-nvjitlink-cu12==12.8.61 --index-url https://pypi.ngc.nvidia.com
       uv cache clean
       uv pip install --system nvidia-nvtx-cu12==12.8.55 --index-url https://pypi.ngc.nvidia.com
+      uv cache clean
+      
+      uv pip install --system .
       uv cache clean
 
       uv build
