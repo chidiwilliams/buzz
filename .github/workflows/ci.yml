@@ -45,9 +45,6 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/uv.lock') }}
 
-      - name: Install dependencies
-        run: uv sync
-
       - name: Load cached Whisper models
         id: cached-whisper-models
         uses: actions/cache@v4
@@ -109,6 +106,9 @@ jobs:
           args: install vulkan-sdk --yes
         if: runner.os == 'Windows'
 
+      - name: Install dependencies
+        run: uv sync
+
       - name: Build whisper.cpp
         run: uv build
 
@@ -157,6 +157,32 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/uv.lock') }}
 
+      - name: Install Inno Setup and Vulkan SDK on Windows
+        uses: crazy-max/ghaction-chocolatey@v3
+        with:
+          args: install innosetup vulkan-sdk --yes
+        if: runner.os == 'Windows'
+
+      - name: Install apt dependencies
+        run: |
+          wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | tee /etc/apt/trusted.gpg.d/lunarg.asc
+
+          # Add the Vulkan SDK repository based on Ubuntu version
+          if [ "$(lsb_release -rs)" == "22.04" ]; then
+            wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list http://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
+          fi
+          if [ "$(lsb_release -rs)" == "24.04" ]; then
+            wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list http://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
+          fi
+
+          sudo apt-get update
+
+          if [ "$(lsb_release -rs)" == "24.04" ]; then
+            sudo apt-get install libegl1-mesa
+          fi
+          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev vulkan-sdk libvulkan-dev ccache
+        if: "startsWith(matrix.os, 'ubuntu-')"
+
       - name: Install dependencies
         run: uv sync
 
@@ -192,36 +218,10 @@ jobs:
         uses: microsoft/setup-msbuild@v2
         if: runner.os == 'Windows'
 
-      - name: Install Inno Setup and Vulkan SDK on Windows
-        uses: crazy-max/ghaction-chocolatey@v3
-        with:
-          args: install innosetup vulkan-sdk --yes
-        if: runner.os == 'Windows'
-
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.0"
           bundler-cache: true
-        if: "startsWith(matrix.os, 'ubuntu-')"
-
-      - name: Install apt dependencies
-        run: |
-          wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | tee /etc/apt/trusted.gpg.d/lunarg.asc
-          
-          # Add the Vulkan SDK repository based on Ubuntu version
-          if [ "$(lsb_release -rs)" == "22.04" ]; then
-            wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list http://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
-          fi
-          if [ "$(lsb_release -rs)" == "24.04" ]; then
-            wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list http://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
-          fi
-          
-          sudo apt-get update
-          
-          if [ "$(lsb_release -rs)" == "24.04" ]; then
-            sudo apt-get install libegl1-mesa
-          fi
-          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev vulkan-sdk libvulkan-dev ccache
         if: "startsWith(matrix.os, 'ubuntu-')"
 
       - name: Install FPM
