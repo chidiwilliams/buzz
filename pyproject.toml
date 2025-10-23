@@ -3,7 +3,7 @@ name = "buzz-captions"
 version = "1.3.0"
 description = ""
 authors = [{ name = "Chidi Williams", email = "williamschidi1@gmail.com" }]
-requires-python = ">=3.9,<3.13"
+requires-python = ">=3.12,<3.13"
 readme = "README.md"
 license = { text = "MIT" }
 dependencies = [
@@ -26,8 +26,8 @@ dependencies = [
     "accelerate>=1.0.1,<2",
     "polib>=1.2.0,<2",
     "srt-equalizer>=0.1.10,<0.2",
-    "torch>=2.7.1,<3",
-    "torchaudio>=2.7.1,<3",
+    "torch==2.7.1",
+    "torchaudio==2.7.1",
     "ctranslate2>=4.6.0,<5",
     "darkdetect>=0.8.0,<0.9",
     "dora-search>=0.1.12,<0.2",
