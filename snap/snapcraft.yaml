@@ -44,6 +44,9 @@ parts:
       - python3-polib
     build-environment:
       - UV_PYTHON: python3
+      - UV_FROZEN: "false"
+      - UV_NO_CACHE: "true"
+      - UV_INDEX_STRATEGY: "unsafe-best-match"
     stage-packages:
       - python3
       - libgcc-s1
@@ -76,8 +79,6 @@ parts:
       - libglu1-mesa
       - libvulkan1
       - mesa-vulkan-drivers
-    environment:
-      UV_NO_CACHE: "1"
     override-build: |
       wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | tee /etc/apt/trusted.gpg.d/lunarg.asc
       wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list http://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
@@ -107,12 +108,10 @@ parts:
       cp $CRAFT_PART_BUILD/buzz.desktop $CRAFT_PART_INSTALL/usr/share/applications/
 
     stage:
-      - bin/uv
-      - usr/share/applications/buzz.desktop
+      - '*'
 
     prime:
-      - bin/uv
-      - usr/share/applications/buzz.desktop
+      - '*'
 
   gpu-2404:
     after: [ buzz ]
@@ -125,19 +124,6 @@ parts:
       mkdir -p "${CRAFT_PRIME}/gpu-2404"
     prime:
       - bin/gpu-2404-wrapper
-# TODO Maybe we need this cleanup???
-#  cleanup:
-#    after:
-#      - buzz
-#    plugin: nil
-#    build-snaps:
-#      - core24
-#      - kf6-core24
-#    override-prime: |
-#      set -eux
-#      for snap in "core24" "kf6-core24"; do
-#          cd "/snap/$snap/current" && find . -type f,l -exec rm -rf "${CRAFT_PRIME}/{}" \;
-#      done
 
 apps:
   buzz:
