@@ -76,6 +76,8 @@ parts:
       - libglu1-mesa
       - libvulkan1
       - mesa-vulkan-drivers
+    environment:
+      UV_NO_CACHE: "1"
     override-build: |
       wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | tee /etc/apt/trusted.gpg.d/lunarg.asc
       wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list http://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
@@ -85,20 +87,16 @@ parts:
       # Clear cache to save space on CI
       apt clean
       
+      uv add --no-sync torch==2.7.1+cu128 torchaudio==2.7.1+cu128 --index https://download.pytorch.org/whl/cu128      
+      uv add --no-sync nvidia-cublas-cu12==12.8.3.14 nvidia-cuda-cupti-cu12==12.8.57 nvidia-cuda-nvrtc-cu12==12.8.61 nvidia-cuda-runtime-cu12==12.8.57 nvidia-cudnn-cu12==9.7.1.26 nvidia-cufft-cu12==11.3.3.41 nvidia-curand-cu12==10.3.9.55 nvidia-cusolver-cu12==11.7.2.55 nvidia-cusparse-cu12==12.5.7.53 nvidia-cusparselt-cu12==0.6.3 nvidia-nvjitlink-cu12==12.8.61 nvidia-nvtx-cu12==12.8.55 --index https://pypi.ngc.nvidia.com
+      
       # Run default build steps  
       craftctl default 
       
       source $CRAFT_PART_BUILD/.venv/bin/activate
       
-      uv pip uninstall torch torchaudio nvidia-cublas-cu12 nvidia-cuda-cupti-cu12 nvidia-cuda-nvrtc-cu12 nvidia-cuda-runtime-cu12 nvidia-cudnn-cu12 nvidia-cufft-cu12 nvidia-cufile-cu12 nvidia-curand-cu12 nvidia-cusolver-cu12 nvidia-cusparse-cu12 nvidia-cusparselt-cu12 nvidia-nccl-cu12 nvidia-nvjitlink-cu12 nvidia-nvtx-cu12
       uv cache clean
       uv run pip cache purge
-      
-      uv add --no-cache --frozen torch==2.7.1+cu128 torchaudio==2.7.1+cu128 --index-url https://download.pytorch.org/whl/cu128      
-      uv add --no-cache --frozen nvidia-cublas-cu12==12.8.3.14 nvidia-cuda-cupti-cu12==12.8.57 nvidia-cuda-nvrtc-cu12==12.8.61 nvidia-cuda-runtime-cu12==12.8.57 nvidia-cudnn-cu12==9.7.1.26 nvidia-cufft-cu12==11.3.3.41 nvidia-curand-cu12==10.3.9.55 nvidia-cusolver-cu12==11.7.2.55 nvidia-cusparse-cu12==12.5.7.53 nvidia-cusparselt-cu12==0.6.3 nvidia-nvjitlink-cu12==12.8.61 nvidia-nvtx-cu12==12.8.55 --index-url https://pypi.ngc.nvidia.com
-
-      # todo Remove, part of build
-      ###make translation_mo
       
       uv build
       mkdir $CRAFT_PART_INSTALL/buzz
@@ -108,7 +106,12 @@ parts:
       mkdir -p $CRAFT_PART_INSTALL/usr/share/applications
       cp $CRAFT_PART_BUILD/buzz.desktop $CRAFT_PART_INSTALL/usr/share/applications/
 
+    stage:
+      - bin/uv
+      - usr/share/applications/buzz.desktop
+
     prime:
+      - bin/uv
       - usr/share/applications/buzz.desktop
 
   gpu-2404:
