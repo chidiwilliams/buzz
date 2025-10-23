@@ -184,12 +184,9 @@ jobs:
         with:
           version: ${{ matrix.os == 'macos-13' && '7.1.1' || matrix.os == 'macos-latest' && '71' || '7.1' }}
 
-      - name: Install CUDA torch for Windows
+      - name: Install MSVC for Windows
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then
-            uv add cmake
-            uv add --no-cache --frozen torch==2.7.1+cu128 torchaudio==2.7.1+cu128 --index-url https://download.pytorch.org/whl/cu128
-            uv add --no-cache --frozen nvidia-cublas-cu12==12.8.3.14 nvidia-cuda-cupti-cu12==12.8.57 nvidia-cuda-nvrtc-cu12==12.8.61 nvidia-cuda-runtime-cu12==12.8.57 nvidia-cudnn-cu12==9.7.1.26 nvidia-cufft-cu12==11.3.3.41 nvidia-curand-cu12==10.3.9.55 nvidia-cusolver-cu12==11.7.2.55 nvidia-cusparse-cu12==12.5.7.53 nvidia-cusparselt-cu12==0.6.3 nvidia-nvjitlink-cu12==12.8.61 nvidia-nvtx-cu12==12.8.55 --index-url https://pypi.ngc.nvidia.com
             uv add msvc-runtime
 
             uv cache clean
