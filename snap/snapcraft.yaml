@@ -24,7 +24,34 @@ platforms:
   amd64:
 
 parts:
+  alsa-pulseaudio:
+    plugin: dump
+    source: .
+    override-pull: |
+      mkdir etc -p
+      cat > etc/asound.conf <<EOF
+      pcm.!default {
+          type pulse
+          fallback "sysdefault"
+          hint {
+              show on
+              description "Default ALSA Output (currently PulseAudio Sound Server)"
+          }
+      }
+      ctl.!default {
+          type pulse
+          fallback "sysdefault"
+      }
+      EOF
+    organize:
+      etc/asound.conf: etc/asound.conf
+    stage:
+      - etc/asound.conf
+    prime:
+      - etc/asound.conf
+
   buzz:
+    after: [ alsa-pulseaudio ]
     plugin: uv
     source: .
     build-snaps:
@@ -84,16 +111,17 @@ parts:
 
       # Clear cache to save space on CI
       apt clean
-      
-      # Run default build steps  
-      craftctl default 
-      
+
+      # Run default build steps
+      craftctl default
+
+      # Clean caches
       uv cache clean
-      uv run pip cache purge
-      
-      mkdir $CRAFT_PART_INSTALL/buzz
+
+      # Copy source files
+      mkdir -p $CRAFT_PART_INSTALL/buzz
       cp -r $CRAFT_PART_BUILD/buzz $CRAFT_PART_INSTALL/
-      
+
       # Create desktop file
       mkdir -p $CRAFT_PART_INSTALL/usr/share/applications
       cp $CRAFT_PART_BUILD/buzz.desktop $CRAFT_PART_INSTALL/usr/share/applications/
@@ -120,13 +148,15 @@ apps:
       - gnome
     command-chain:
       - bin/gpu-2404-wrapper
-    command: bin/python -m buzz
+    command: snap/command-chain/desktop-launch $SNAP/bin/python -m buzz
     desktop: usr/share/applications/buzz.desktop
     environment:
       PATH: $SNAP/usr/bin:$SNAP/bin:$PATH
-      LD_LIBRARY_PATH: $SNAP/lib/python3.12/site-packages/nvidia/cudnn/lib:$SNAP/lib/python3.12/site-packages/PyQt6:$SNAP/lib/python3.12/site-packages/PyQt6/Qt6/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/lapack:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/blas:$SNAP:$LD_LIBRARY_PATH
+      LD_LIBRARY_PATH: $SNAP/lib/python3.12/site-packages/nvidia/cudnn/lib:$SNAP/lib/python3.12/site-packages/PyQt6:$SNAP/lib/python3.12/site-packages/PyQt6/Qt6/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/lapack:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/blas:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libproxy:$SNAP:$LD_LIBRARY_PATH
       PYTHONPATH: $SNAP:$SNAP/lib/python3.12/site-packages/PyQt6:$SNAP/lib/python3.12/site-packages/PyQt6/Qt6/lib:$SNAP/usr/lib/python3/dist-packages:$SNAP/usr/lib/python3.12/site-packages:$SNAP/usr/local/lib/python3.12/dist-packages:$SNAP/usr/lib/python3.12/dist-packages:$PYTHONPATH
       QT_MEDIA_BACKEND: gstreamer
+      PULSE_LATENCY_MSEC: "30"
+      ALSA_CONFIG_PATH: $SNAP/etc/asound.conf
     plugs:
       - x11
       - unity7
@@ -142,3 +172,7 @@ apps:
       - audio-playback
       - audio-record
       - password-manager-service
+
+layout:
+  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/alsa-lib:
+    bind: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/alsa-lib
