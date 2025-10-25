@@ -94,9 +94,10 @@ jobs:
 
       - name: Export and modify dependencies for Intel macOS
         run: |
-          uv export --no-hashes > requirements.txt
+          uv export --no-hashes --no-emit-project > requirements.txt
           sed -i.bak 's/torch==2\.7\.1/torch==2.2.2/g; s/torchaudio==2\.7\.1/torchaudio==2.2.2/g; s/ctranslate2[>=0-9., <]*/ctranslate2==4.3.1/g' requirements.txt
           uv pip install -r requirements.txt
+          uv pip install -e .
         if: "matrix.os == 'macos-13'"
 
       - name: Install dependencies
@@ -176,9 +177,10 @@ jobs:
 
       - name: Export and modify dependencies for Intel macOS
         run: |
-          uv export --no-hashes > requirements.txt
+          uv export --no-hashes --no-emit-project > requirements.txt
           sed -i.bak 's/torch==2\.7\.1/torch==2.2.2/g; s/torchaudio==2\.7\.1/torchaudio==2.2.2/g; s/ctranslate2[>=0-9., <]*/ctranslate2==4.3.1/g' requirements.txt
           uv pip install -r requirements.txt
+          uv pip install -e .
         if: "matrix.os == 'macos-13'"
 
       - name: Install dependencies
