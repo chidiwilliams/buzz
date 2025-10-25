@@ -73,7 +73,7 @@ jobs:
 
       - name: Downgrade torch and ctranslate2 for Intel macOS
         run: |
-          uv add --frozen torch==2.2.2 torchaudio==2.2.2 ctranslate2==4.3.1
+          uv add torch==2.2.2 torchaudio==2.2.2 ctranslate2==4.3.1
         if: "matrix.os == 'macos-13'"
 
       # Should be removed with next update to whisper.cpp
@@ -173,7 +173,7 @@ jobs:
 
       - name: Downgrade torch and ctranslate2 for Intel macOS
         run: |
-          uv add --frozen torch==2.2.2 torchaudio==2.2.2 ctranslate2==4.3.1
+          uv add torch==2.2.2 torchaudio==2.2.2 ctranslate2==4.3.1
         if: "matrix.os == 'macos-13'"
 
       - name: Install dependencies

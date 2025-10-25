@@ -1,4 +1,4 @@
-version := $$(poetry version -s)
+version := 1.3.0
 version_escaped := $$(echo ${version} | sed -e 's/\./\\./g')
 
 mac_app_path := ./dist/Buzz.app
@@ -41,7 +41,6 @@ dist/Buzz dist/Buzz.app: buzz/whisper_cpp
 	pyinstaller --noconfirm Buzz.spec
 
 version:
-	poetry version ${version}
 	echo "VERSION = \"${version}\"" > buzz/__version__.py
 
 buzz/whisper_cpp: translation_mo
