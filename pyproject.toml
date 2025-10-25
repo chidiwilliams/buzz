@@ -58,18 +58,6 @@ dependencies = [
     "hf-xet>=1.1.5,<2",
     "hatchling>=1.27.0",
     "cmake>=3.31.6",
-    "nvidia-cublas-cu12==12.8.3.14",
-    "nvidia-cuda-cupti-cu12==12.8.57",
-    "nvidia-cuda-nvrtc-cu12==12.8.61",
-    "nvidia-cuda-runtime-cu12==12.8.57",
-    "nvidia-cudnn-cu12==9.7.1.26",
-    "nvidia-cufft-cu12==11.3.3.41",
-    "nvidia-curand-cu12==10.3.9.55",
-    "nvidia-cusolver-cu12==11.7.2.55",
-    "nvidia-cusparse-cu12==12.5.7.53",
-    "nvidia-cusparselt-cu12==0.6.3",
-    "nvidia-nvjitlink-cu12==12.8.61",
-    "nvidia-nvtx-cu12==12.8.55",
 ]
 repository = "https://github.com/chidiwilliams/buzz"
 documentation = "https://chidiwilliams.github.io/buzz/docs"
