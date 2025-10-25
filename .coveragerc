@@ -1,9 +1,9 @@
 [run]
 omit =
   buzz/whisper_cpp/*
-  buzz/whisper_cpp_vulkan/*
   *_test.py
   demucs/*
+  buzz/transcriber/local_whisper_cpp_server_transcriber.py
 
 [html]
 directory = coverage/html

@@ -26,7 +26,7 @@ class TestRecordingTranscriber:
 
             model_path = get_model_path(transcription_model)
 
-            model_exe_path = os.path.join(APP_BASE_DIR, "whisper-server.exe")
+            model_exe_path = os.path.join(APP_BASE_DIR, "whisper_cpp", "whisper-server.exe")
             if sys.platform.startswith("win"):
                 assert os.path.exists(model_exe_path), f"{model_exe_path} does not exist"
 
