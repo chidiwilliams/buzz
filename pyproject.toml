@@ -26,12 +26,12 @@ dependencies = [
     "accelerate>=1.0.1,<2",
     "polib>=1.2.0,<2",
     "srt-equalizer>=0.1.10,<0.2",
-    # For macOS - use CPU-only versions
+    # For macOS - use CPU-only versions from PyPI
     "torch==2.7.1; sys_platform == 'darwin'",
     "torchaudio==2.7.1; sys_platform == 'darwin'",
-    # For Linux/Windows - use CUDA versions
-    "torch==2.7.1+cu128; sys_platform != 'darwin'",
-    "torchaudio==2.7.1+cu128; sys_platform != 'darwin'",
+    # For Linux/Windows - use CUDA versions from pytorch index
+    "torch==2.7.1; sys_platform != 'darwin'",
+    "torchaudio==2.7.1; sys_platform != 'darwin'",
     "ctranslate2>=4.6.0,<5",
     "darkdetect>=0.8.0,<0.9",
     "dora-search>=0.1.12,<0.2",
@@ -95,10 +95,22 @@ default-groups = [
     "build",
 ]
 
+[tool.uv.sources]
+torch = [
+    { index = "PyPI", marker = "sys_platform == 'darwin'" },
+    { index = "pytorch-cu128", marker = "sys_platform != 'darwin'" },
+]
+torchaudio = [
+    { index = "PyPI", marker = "sys_platform == 'darwin'" },
+    { index = "pytorch-cu128", marker = "sys_platform != 'darwin'" },
+]
+
 [[tool.uv.index]]
+name = "nvidia"
 url = "https://pypi.ngc.nvidia.com/"
 
 [[tool.uv.index]]
+name = "pytorch-cu128"
 url = "https://download.pytorch.org/whl/cu128"
 
 [[tool.uv.index]]
