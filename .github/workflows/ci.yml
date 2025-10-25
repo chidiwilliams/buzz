@@ -92,18 +92,8 @@ jobs:
           sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev ccache
         if: "startsWith(matrix.os, 'ubuntu-')"
 
-      - name: Install dependencies for Intel macOS with downgraded torch
-        run: |
-          uv venv
-          uv pip compile pyproject.toml --no-annotate --no-header > requirements.txt
-          sed -i.bak 's/torch==2\.7\.1/torch==2.2.2/g; s/torchaudio==2\.7\.1/torchaudio==2.2.2/g; s/ctranslate2[>=0-9., <]*/ctranslate2==4.3.1/g' requirements.txt
-          uv pip install -r requirements.txt
-          uv pip install -e . --no-deps
-        if: "matrix.os == 'macos-13'"
-
       - name: Install dependencies
         run: uv sync
-        if: "matrix.os != 'macos-13'"
 
       - name: Build whisper.cpp
         run: uv build
@@ -176,18 +166,8 @@ jobs:
           sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev ccache
         if: "startsWith(matrix.os, 'ubuntu-')"
 
-      - name: Install dependencies for Intel macOS with downgraded torch
-        run: |
-          uv venv
-          uv pip compile pyproject.toml --no-annotate --no-header > requirements.txt
-          sed -i.bak 's/torch==2\.7\.1/torch==2.2.2/g; s/torchaudio==2\.7\.1/torchaudio==2.2.2/g; s/ctranslate2[>=0-9., <]*/ctranslate2==4.3.1/g' requirements.txt
-          uv pip install -r requirements.txt
-          uv pip install -e . --no-deps
-        if: "matrix.os == 'macos-13'"
-
       - name: Install dependencies
         run: uv sync
-        if: "matrix.os != 'macos-13'"
 
       - uses: AnimMouse/setup-ffmpeg@v1.2.1
         id: setup-ffmpeg

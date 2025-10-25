@@ -26,13 +26,18 @@ dependencies = [
     "accelerate>=1.0.1,<2",
     "polib>=1.2.0,<2",
     "srt-equalizer>=0.1.10,<0.2",
-    # For macOS - use CPU-only versions from PyPI
-    "torch==2.7.1; sys_platform == 'darwin'",
-    "torchaudio==2.7.1; sys_platform == 'darwin'",
+    # For Intel macOS (x86_64) - use older versions that support Intel
+    "torch==2.2.2; sys_platform == 'darwin' and platform_machine == 'x86_64'",
+    "torchaudio==2.2.2; sys_platform == 'darwin' and platform_machine == 'x86_64'",
+    "ctranslate2==4.3.1; sys_platform == 'darwin' and platform_machine == 'x86_64'",
+    # For ARM macOS (arm64) - use latest CPU-only versions from PyPI
+    "torch==2.7.1; sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "torchaudio==2.7.1; sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "ctranslate2>=4.6.0,<5; sys_platform == 'darwin' and platform_machine == 'arm64'",
     # For Linux/Windows - use CUDA versions from pytorch index
     "torch==2.7.1; sys_platform != 'darwin'",
     "torchaudio==2.7.1; sys_platform != 'darwin'",
-    "ctranslate2>=4.6.0,<5",
+    "ctranslate2>=4.6.0,<5; sys_platform != 'darwin'",
     "darkdetect>=0.8.0,<0.9",
     "dora-search>=0.1.12,<0.2",
     "diffq>=0.2.4,<0.3",
