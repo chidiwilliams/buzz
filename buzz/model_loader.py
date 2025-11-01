@@ -78,15 +78,7 @@ class ModelType(enum.Enum):
         )
 
     def is_available(self):
-        from buzz.transcriber.whisper_cpp import LOADED_WHISPER_CPP_BINARY
         if (
-            # Hide Whisper.cpp option if whisper.dll did not load correctly.
-            # See: https://github.com/chidiwilliams/buzz/issues/274,
-            # https://github.com/chidiwilliams/buzz/issues/197
-            (self == ModelType.WHISPER_CPP and not LOADED_WHISPER_CPP_BINARY)
-        ):
-            return False
-        elif (
             # Hide Faster Whisper option on macOS x86_64
             # See: https://github.com/SYSTRAN/faster-whisper/issues/541
             (self == ModelType.FASTER_WHISPER

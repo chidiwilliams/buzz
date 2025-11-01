@@ -7,6 +7,7 @@ import os
 import sys
 import torch
 import platform
+import subprocess
 from platformdirs import user_cache_dir
 from multiprocessing.connection import Connection
 from threading import Thread
@@ -20,7 +21,8 @@ from buzz.conn import pipe_stderr
 from buzz.model_loader import ModelType, WhisperModelSize
 from buzz.transformers_whisper import TransformersWhisper
 from buzz.transcriber.file_transcriber import FileTranscriber
-from buzz.transcriber.transcriber import FileTranscriptionTask, Segment
+from buzz.transcriber.transcriber import FileTranscriptionTask, Segment, Task
+from buzz.transcriber.whisper_cpp import WhisperCpp
 
 import faster_whisper
 import whisper
@@ -101,7 +103,9 @@ class WhisperFileTranscriber(FileTranscriber):
         cls, stderr_conn: Connection, task: FileTranscriptionTask
     ) -> None:
         with pipe_stderr(stderr_conn):
-            if task.transcription_options.model.model_type == ModelType.HUGGING_FACE:
+            if task.transcription_options.model.model_type == ModelType.WHISPER_CPP:
+                segments = cls.transcribe_whisper_cpp(task)
+            elif task.transcription_options.model.model_type == ModelType.HUGGING_FACE:
                 sys.stderr.write("0%\n")
                 segments = cls.transcribe_hugging_face(task)
                 sys.stderr.write("100%\n")
@@ -119,6 +123,10 @@ class WhisperFileTranscriber(FileTranscriber):
             segments_json = json.dumps(segments, ensure_ascii=True, default=vars)
             sys.stderr.write(f"segments = {segments_json}\n")
             sys.stderr.write(WhisperFileTranscriber.READ_LINE_THREAD_STOP_TOKEN + "\n")
+
+    @classmethod
+    def transcribe_whisper_cpp(cls, task: FileTranscriptionTask) -> List[Segment]:
+        return WhisperCpp.transcribe(task)
 
     @classmethod
     def transcribe_hugging_face(cls, task: FileTranscriptionTask) -> List[Segment]:
