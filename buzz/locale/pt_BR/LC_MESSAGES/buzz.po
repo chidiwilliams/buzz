@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Buzz\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-10-12 19:10+0300\n"
-"PO-Revision-Date: 2025-10-04 20:00-0300\n"
+"PO-Revision-Date: 2025-11-01 17:43-0300\n"
 "Last-Translator: Paulo Schopf <pschopf@gmail.com>\n"
 "Language-Team: none\n"
 "Language: pt_BR\n"
@@ -390,8 +390,8 @@ msgid ""
 "Enter instructions for AI on how to translate, for example 'Please translate "
 "each text sent to you from English to Spanish.'"
 msgstr ""
-"Insira instruções para a IA sobre como traduzir, por exemplo: \"Por favor, "
-"traduza cada texto enviado a você do Inglês para o Espanhol\"."
+"Instrua a IA sobre como traduzir, por exemplo: \"Por favor, "
+"traduza cada texto enviado a você do Inglês para o Português\"."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:92
 msgid "Instructions for AI:"
@@ -986,7 +986,7 @@ msgstr "Galego"
 
 #: buzz/transcriber/transcriber.py:99
 msgid "Marathi"
-msgstr "Marata"
+msgstr "Marathi"
 
 #: buzz/transcriber/transcriber.py:100
 msgid "Punjabi"
@@ -1038,7 +1038,7 @@ msgstr "Sindi"
 
 #: buzz/transcriber/transcriber.py:112
 msgid "Gujarati"
-msgstr "Guzerate"
+msgstr "Gujarati"
 
 #: buzz/transcriber/transcriber.py:113
 msgid "Amharic"
@@ -1046,7 +1046,7 @@ msgstr "Amárico"
 
 #: buzz/transcriber/transcriber.py:114
 msgid "Yiddish"
-msgstr "Iídiche"
+msgstr "Ídiche"
 
 #: buzz/transcriber/transcriber.py:115
 msgid "Lao"
@@ -1066,7 +1066,7 @@ msgstr "Crioulo Haitiano"
 
 #: buzz/transcriber/transcriber.py:119
 msgid "Pashto"
-msgstr "Pashto"
+msgstr "Afegão"
 
 #: buzz/transcriber/transcriber.py:120
 msgid "Turkmen"
@@ -1074,7 +1074,7 @@ msgstr "Turcomeno"
 
 #: buzz/transcriber/transcriber.py:121
 msgid "Nynorsk"
-msgstr "Nynorsk"
+msgstr "Novo Norueguês"
 
 #: buzz/transcriber/transcriber.py:122
 msgid "Maltese"
@@ -1151,7 +1151,7 @@ msgstr "Iniciando Whisper.cpp..."
 #: buzz/transcriber/recording_transcriber.py:385
 #, fuzzy
 msgid "Starting transcription..."
-msgstr "Cancelar Transcrição"
+msgstr "Iniciando transcrição..."
 
 #: buzz/settings/shortcut.py:17
 msgid "Open Record Window"
@@ -1224,3 +1224,14 @@ msgstr "Acrescentar acima"
 #: buzz/settings/recording_transcriber_mode.py:7
 msgid "Append and correct"
 msgstr "Acrescentar e corrigir"
+
+#~ msgid "Enter instructions for AI on how to translate..."
+#~ msgstr "Instrua a IA sobre como traduzir..."
+
+#~ msgid "ID"
+#~ msgstr "Id."
+
+#~ msgid "Undo"
+#~ msgstr "Desfazer"
+#~ msgid "Redo"
+#~ msgstr "Refazer"
