@@ -20,7 +20,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-13
+          - os: macos-15-intel
           - os: macos-latest
           - os: windows-latest
           - os: ubuntu-22.04
@@ -73,7 +73,7 @@ jobs:
       - uses: AnimMouse/setup-ffmpeg@v1.2.1
         id: setup-ffmpeg
         with:
-          version: ${{ matrix.os == 'macos-13' && '7.1.1' || matrix.os == 'macos-latest' && '71' || '7.1' }}
+          version: ${{ matrix.os == 'macos-15-intel' && '7.1.1' || matrix.os == 'macos-latest' && '71' || '7.1' }}
 
       - name: Test ffmpeg
         run: ffmpeg -i ./testdata/audio-long.mp3 ./testdata/audio-long.wav
@@ -94,9 +94,6 @@ jobs:
 
       - name: Install dependencies
         run: uv sync
-
-      - name: Build whisper.cpp
-        run: uv build
 
       - name: Test
         run: |
@@ -120,7 +117,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-13
+          - os: macos-15-intel
           - os: macos-latest
           - os: windows-latest
     steps:
@@ -179,7 +176,7 @@ jobs:
       - uses: AnimMouse/setup-ffmpeg@v1.2.1
         id: setup-ffmpeg
         with:
-          version: ${{ matrix.os == 'macos-13' && '7.1.1' || matrix.os == 'macos-latest' && '71' || '7.1' }}
+          version: ${{ matrix.os == 'macos-15-intel' && '7.1.1' || matrix.os == 'macos-latest' && '71' || '7.1' }}
 
       - name: Install MSVC for Windows
         run: |
@@ -272,7 +269,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-13, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-15-intel, macos-latest]
 
     steps:
       - uses: actions/checkout@v4
@@ -334,7 +331,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-13
+          - os: macos-15-intel
           - os: macos-latest
           - os: windows-latest
     needs: [build, test]
