@@ -1,4 +1,4 @@
-version := 1.3.1
+version := 1.3.2
 version_escaped := $$(echo ${version} | sed -e 's/\./\\./g')
 
 mac_app_path := ./dist/Buzz.app

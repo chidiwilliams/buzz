@@ -299,7 +299,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: buzz-wheels-${{ matrix.os }}-${{ runner.arch }}
+          name: buzz-wheel-${{ runner.os }}-${{ runner.arch }}
           path: ./dist/*.whl
 
   publish_pypi:
@@ -314,7 +314,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          pattern: buzz_captions-*
+          pattern: buzz-wheel-*
           path: dist
           merge-multiple: true
 
