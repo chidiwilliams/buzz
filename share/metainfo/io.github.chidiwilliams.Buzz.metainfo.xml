@@ -64,13 +64,14 @@
   <content_rating type="oars-1.1"/>
 
   <releases>
-    <release version="1.3.1" date="2024-11-02">
-      <url type="details">https://github.com/chidiwilliams/buzz/releases/tag/v1.3.1</url>
+    <release version="1.3.2" date="2024-11-03">
+      <url type="details">https://github.com/chidiwilliams/buzz/releases/tag/v1.3.2</url>
       <description>
         <p>This release introduces Vulkan GPU support for whisper.cpp making it significantly faster even on laptops.
-            Real-time transcription is possible even with large models. There is now an option to separate voice tracks
-            before the audio is transcribed. This can improve transcript accuracy for audios with background noises or
-            music. Faster whisper was updated to the latest version adding noticeable speed improvement.</p>
+            Real-time transcription is possible even with large models on computers with ~5GB RAM video cards. There
+            is now an option to separate voice tracks before the audio is transcribed. This can improve transcript
+            accuracy for audios with background noises or music. Faster whisper was updated to the latest version
+            adding noticeable speed improvement.</p>
         <p>Additional improvements:</p>
         <ul>
           <li>Option to switch the UI language from preferences</li>
