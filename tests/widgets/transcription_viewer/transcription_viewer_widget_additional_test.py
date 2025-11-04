@@ -32,7 +32,7 @@ class TestTranscriptionViewerWidgetAdditional:
                 file=test_audio_path,
                 task=Task.TRANSCRIBE.value,
                 model_type=ModelType.WHISPER.value,
-                whisper_model_size=WhisperModelSize.SMALL.value,
+                whisper_model_size=WhisperModelSize.TINY.value,
             )
         )
         transcription_segment_dao.insert(
