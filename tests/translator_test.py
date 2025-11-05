@@ -13,7 +13,7 @@ from buzz.widgets.transcriber.advanced_settings_dialog import AdvancedSettingsDi
 class TestTranslator:
     @patch('buzz.translator.OpenAI', autospec=True)
     @patch('buzz.translator.queue.Queue', autospec=True)
-    def test_start(self, mock_queue, mock_openai):
+    def test_start(self, mock_queue, mock_openai, qtbot):
         def side_effect(*args, **kwargs):
             side_effect.call_count += 1
 
@@ -106,11 +106,11 @@ class TestTranslator:
 
         if self.translator is not None:
             self.translator.stop()
-            self.translator.deleteLater()
 
         if self.translation_thread is not None:
             self.translation_thread.quit()
-            self.translation_thread.deleteLater()
+            # Wait for the thread to actually finish before cleanup
+            self.translation_thread.wait()
 
-        # Wait to clean-up threads
-        time.sleep(3)
+        # Note: translator and translation_thread will be automatically deleted
+        # via the deleteLater() connections set up earlier

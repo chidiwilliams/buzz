@@ -139,7 +139,7 @@ class FileTranscriberQueueWorker(QObject):
                 self.current_transcriber.stop()
                 
             if self.current_transcriber_thread is not None:
-                if not self.current_transcriber_thread.wait(3000):
+                if not self.current_transcriber_thread.wait(5000):
                     logging.warning("Transcriber thread did not terminate gracefully")
                     self.current_transcriber_thread.terminate()
 
