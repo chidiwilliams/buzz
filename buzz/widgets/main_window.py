@@ -425,7 +425,7 @@ class MainWindow(QMainWindow):
 
         self.transcriber_worker.stop()
         self.transcriber_thread.quit()
-        self.transcriber_thread.wait()
+        self.transcriber_thread.wait(3000)  # Wait up to 3 seconds
 
         if self.transcription_viewer_widget is not None:
             self.transcription_viewer_widget.close()
