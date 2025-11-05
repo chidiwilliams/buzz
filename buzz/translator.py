@@ -68,7 +68,8 @@ class Translator(QObject):
                     messages=[
                         {"role": "system", "content": self.transcription_options.llm_prompt},
                         {"role": "user", "content": transcript}
-                    ]
+                    ],
+                    timeout=30.0
                 )
             except Exception as e:
                 completion = None
