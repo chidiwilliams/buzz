@@ -358,6 +358,7 @@ jobs:
           files: |
             Buzz*-unix.tar.gz
             Buzz*-windows.exe
+            Buzz*-windows-*.bin
             Buzz*-mac.dmg
 
   deploy_brew_cask:
@@ -370,6 +371,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+
+      # Should be removed with next update to whisper.cpp
+      - name: Downgrade Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.0.0'
+        if: matrix.os == 'macos-latest'
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
