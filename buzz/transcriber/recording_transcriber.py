@@ -326,7 +326,7 @@ class RecordingTranscriber(QObject):
         self.is_running = False
         if self.process and self.process.poll() is None:
             self.process.terminate()
-            self.process.wait()
+            self.process.wait(5000)
 
     def start_local_whisper_server(self):
         self.transcription.emit(_("Starting Whisper.cpp..."))
@@ -416,4 +416,4 @@ class RecordingTranscriber(QObject):
     def __del__(self):
         if self.process and self.process.poll() is None:
             self.process.terminate()
-            self.process.wait()
+            self.process.wait(5000)

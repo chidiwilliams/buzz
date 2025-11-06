@@ -274,11 +274,11 @@ class WhisperFileTranscriber(FileTranscriber):
         if self.started_process:
             self.current_process.terminate()
             # Use timeout to avoid hanging indefinitely
-            self.current_process.join(timeout=5)
+            self.current_process.join(timeout=10)
             if self.current_process.is_alive():
                 logging.warning("Process didn't terminate gracefully, force killing")
                 self.current_process.kill()
-                self.current_process.join(timeout=2)
+                self.current_process.join(timeout=5)
             
             # Close pipes to unblock the read_line thread
             try:
@@ -291,7 +291,7 @@ class WhisperFileTranscriber(FileTranscriber):
             
             # Join read_line_thread with timeout to prevent hanging
             if self.read_line_thread and self.read_line_thread.is_alive():
-                self.read_line_thread.join(timeout=3)
+                self.read_line_thread.join(timeout=5)
                 if self.read_line_thread.is_alive():
                     logging.warning("Read line thread didn't terminate gracefully")
 

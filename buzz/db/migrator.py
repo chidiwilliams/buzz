@@ -69,7 +69,8 @@ class DBMigrator:
             msg_argv += (args,)
         else:
             args = []
-        logging.info(msg_tmpl, *msg_argv)
+        # Uncomment this to get debugging information
+        # logging.info(msg_tmpl, *msg_argv)
         self.db.execute(sql, args)
         self.n_changes += 1
 

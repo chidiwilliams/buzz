@@ -41,11 +41,11 @@ Install with [brew utility](https://brew.sh/)
 brew install --cask buzz
 ```
 
-Or download the `.dmg` from the [releases page](https://github.com/chidiwilliams/buzz/releases/latest).
+Or download the `.dmg` from the [SourceForge](https://sourceforge.net/projects/buzz-captions/files/).
 
 ### Windows
 
-Download and run the `.exe` from the [releases page](https://github.com/chidiwilliams/buzz/releases/latest).
+Get the installation files from the [SourceForge](https://sourceforge.net/projects/buzz-captions/files/).
 
 App is not signed, you will get a warning when you install it. Select `More info` -> `Run anyway`.
 
