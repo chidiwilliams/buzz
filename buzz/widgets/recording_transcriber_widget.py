@@ -626,7 +626,7 @@ class RecordingTranscriberWidget(QWidget):
 
         if self.translation_thread is not None:
             self.translation_thread.quit()
-            self.translation_thread.wait(5000)  # Wait up to 5 seconds
+            self.translation_thread.wait(35_000)  # Wait up to 35 seconds
 
         self.settings.set_value(
             Settings.Key.RECORDING_TRANSCRIBER_LANGUAGE,
