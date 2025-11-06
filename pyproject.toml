@@ -1,6 +1,6 @@
 [project]
 name = "buzz-captions"
-version = "1.3.2"
+version = "1.3.3"
 description = ""
 authors = [{ name = "Chidi Williams", email = "williamschidi1@gmail.com" }]
 requires-python = ">=3.12,<3.13"
@@ -56,7 +56,6 @@ dependencies = [
     "treetable>=0.2.5,<0.3",
     "soundfile>=0.13.1,<0.14",
     "urllib3>=2.3.0,<3",
-    "demucs @ https://github.com/raivisdejus/demucs/releases/download/4.1.0a3/demucs-4.1.0a3-py3-none-any.whl",
     "posthog>=3.23.0,<4",
     "onnxruntime==1.18.1",
     "vulkan>=1.3.275.1,<2",
