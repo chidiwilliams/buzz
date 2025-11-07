@@ -130,6 +130,7 @@ include = [
     "buzz",
     "buzz/whisper_cpp/*",
     "buzz/locale/*/LC_MESSAGES/buzz.mo",
+    "demucs",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -137,6 +138,7 @@ include = [
     "buzz",
     "buzz/whisper_cpp/*",
     "buzz/locale/*/LC_MESSAGES/buzz.mo",
+    "demucs",
 ]
 
 [tool.hatch.build.hooks.custom]

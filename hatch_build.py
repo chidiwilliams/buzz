@@ -88,6 +88,28 @@ class CustomBuildHook(BuildHookInterface):
             else:
                 print(f"Warning: {whisper_cpp_dir} does not exist after build", file=sys.stderr)
 
+            # Force include all files in demucs directory
+            demucs_dir = project_root / "demucs"
+            if demucs_dir.exists():
+                # Get all files in the demucs directory
+                demucs_files = glob.glob(str(demucs_dir / "**" / "*"), recursive=True)
+
+                # Filter only files (not directories)
+                demucs_files = [f for f in demucs_files if Path(f).is_file()]
+
+                # Add them to force_include
+                if 'force_include' not in build_data:
+                    build_data['force_include'] = {}
+
+                for file_path in demucs_files:
+                    # Convert to relative path from project root
+                    rel_path = Path(file_path).relative_to(project_root)
+                    build_data['force_include'][str(rel_path)] = str(rel_path)
+
+                print(f"Force including {len(demucs_files)} files from demucs/")
+            else:
+                print(f"Warning: {demucs_dir} does not exist", file=sys.stderr)
+
         except subprocess.CalledProcessError as e:
             print(f"Error building whisper.cpp: {e}", file=sys.stderr)
             print(f"stdout: {e.stdout}", file=sys.stderr)
