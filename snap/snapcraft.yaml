@@ -119,8 +119,8 @@ parts:
       uv cache clean
 
       # Copy source files
-      mkdir -p $CRAFT_PART_INSTALL/buzz
       cp -r $CRAFT_PART_BUILD/buzz $CRAFT_PART_INSTALL/
+      cp -r $CRAFT_PART_BUILD/demucs $CRAFT_PART_INSTALL/
 
       # Create desktop file
       mkdir -p $CRAFT_PART_INSTALL/usr/share/applications

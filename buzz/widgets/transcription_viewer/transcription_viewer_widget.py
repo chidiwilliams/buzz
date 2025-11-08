@@ -1348,7 +1348,11 @@ class TranscriptionViewerWidget(QWidget):
 
         self.translator.stop()
         self.translation_thread.quit()
-        self.translation_thread.wait(35_000)  # Wait up to 35 seconds, translation thread also has timeouts, wait longer
+
+        # Only wait if thread is actually running
+        if self.translation_thread.isRunning():
+            if not self.translation_thread.wait(45_000):
+                logging.warning("Translation thread did not finish within timeout")
 
         super().closeEvent(event)
 

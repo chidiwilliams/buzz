@@ -425,7 +425,10 @@ class MainWindow(QMainWindow):
 
         self.transcriber_worker.stop()
         self.transcriber_thread.quit()
-        self.transcriber_thread.wait(5000)  # Wait up to 5 seconds
+        # Only wait if thread is actually running
+        if self.transcriber_thread.isRunning():
+            if not self.transcriber_thread.wait(5000):  # Wait up to 5 seconds
+                logging.warning("Transcriber thread did not finish within timeout")
 
         if self.transcription_viewer_widget is not None:
             self.transcription_viewer_widget.close()
