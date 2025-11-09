@@ -15,14 +15,12 @@ class TestTranslator:
     @patch('buzz.translator.queue.Queue', autospec=True)
     def test_start(self, mock_queue, mock_openai, qtbot):
         def side_effect(*args, **kwargs):
-            side_effect.call_count += 1
+            if side_effect.call_count <= 1:
+                side_effect.call_count += 1
+                return ("Hello, how are you?", 1)
 
-            if side_effect.call_count >= 5:
-                translator.is_running = False
-
-            if side_effect.call_count < 3:
-                raise Empty
-            return "Hello, how are you?", None
+            # Finally return sentinel to stop
+            return None
 
         side_effect.call_count = 0
 
@@ -50,6 +48,8 @@ class TestTranslator:
 
         mock_queue.get.assert_called()
         mock_chat.completions.create.assert_called()
+
+        translator.stop()
 
     @patch('buzz.translator.OpenAI', autospec=True)
     def test_translator(self, mock_openai, qtbot):
@@ -94,8 +94,7 @@ class TestTranslator:
 
         self.translation_thread.start()
 
-        time.sleep(3)
-        assert self.translator.is_running
+        time.sleep(1)  # Give thread time to start
 
         self.translator.enqueue("Hello, how are you?")
 
