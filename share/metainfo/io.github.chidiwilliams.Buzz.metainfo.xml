@@ -16,7 +16,7 @@
       Required permissions in Buzz will let you select audio and video files for transcription, from most common file location on your computer. Network permission is used to download transcription model files. Microphone permission lets you transcribe real time speech.
     </p>
     <p>
-      Note: If your system theme is not applied to Buzz, ensure it is in <code>~/.themes</code> folder. You may need to copy the system themes to this folder <code>cp -r /usr/share/themes/ ~/.themes/</code>.
+      Note: If your system theme is not applied to Buzz, ensure it is in <code>~/.themes</code> folder. You may need to copy the system themes to this folder <code>cp -r /usr/share/themes/ ~/.themes/</code> and give Flatpaks access to this folder <code>flatpak override --user --filesystem=~/.themes</code>.
     </p>
   </description>
 

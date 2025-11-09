@@ -22,26 +22,9 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
 
 ## Installation
 
-### PyPI
-
-Install [ffmpeg](https://www.ffmpeg.org/download.html)
-
-Install Buzz
-
-```shell
-pip install buzz-captions
-python -m buzz
-```
-
 ### macOS
 
-Install with [brew utility](https://brew.sh/)
-
-```shell
-brew install --cask buzz
-```
-
-Or download the `.dmg` from the [SourceForge](https://sourceforge.net/projects/buzz-captions/files/).
+Download the `.dmg` from the [SourceForge](https://sourceforge.net/projects/buzz-captions/files/).
 
 ### Windows
 
@@ -53,15 +36,6 @@ App is not signed, you will get a warning when you install it. Select `More info
 
 ```shell
 winget install ChidiWilliams.Buzz
-```
-
-**GPU support for PyPI**
-
-To have GPU support for Nvidia GPUS on Windows, for PyPI installed version ensure, CUDA support for [torch](https://pytorch.org/get-started/locally/) 
-
-```
-pip3 install -U torch==2.7.1+cu128 torchaudio==2.7.1+cu128 --index-url https://download.pytorch.org/whl/cu128
-pip3 install nvidia-cublas-cu12==12.8.3.14 nvidia-cuda-cupti-cu12==12.8.57 nvidia-cuda-nvrtc-cu12==12.8.61 nvidia-cuda-runtime-cu12==12.8.57 nvidia-cudnn-cu12==9.7.1.26 nvidia-cufft-cu12==11.3.3.41 nvidia-curand-cu12==10.3.9.55 nvidia-cusolver-cu12==11.7.2.55 nvidia-cusparse-cu12==12.5.4.2 nvidia-cusparselt-cu12==0.6.3 nvidia-nvjitlink-cu12==12.8.61 nvidia-nvtx-cu12==12.8.55 --extra-index-url https://pypi.ngc.nvidia.com
 ```
 
 ### Linux
@@ -78,6 +52,26 @@ To install snap, run:
 sudo apt-get install libportaudio2 libcanberra-gtk-module libcanberra-gtk3-module
 sudo snap install buzz
 sudo snap connect buzz:password-manager-service
+```
+
+### PyPI
+
+Install [ffmpeg](https://www.ffmpeg.org/download.html)
+
+Install Buzz
+
+```shell
+pip install buzz-captions
+python -m buzz
+```
+
+**GPU support for PyPI**
+
+To have GPU support for Nvidia GPUS on Windows, for PyPI installed version ensure, CUDA support for [torch](https://pytorch.org/get-started/locally/) 
+
+```
+pip3 install -U torch==2.7.1+cu128 torchaudio==2.7.1+cu128 --index-url https://download.pytorch.org/whl/cu128
+pip3 install nvidia-cublas-cu12==12.8.3.14 nvidia-cuda-cupti-cu12==12.8.57 nvidia-cuda-nvrtc-cu12==12.8.61 nvidia-cuda-runtime-cu12==12.8.57 nvidia-cudnn-cu12==9.7.1.26 nvidia-cufft-cu12==11.3.3.41 nvidia-curand-cu12==10.3.9.55 nvidia-cusolver-cu12==11.7.2.55 nvidia-cusparse-cu12==12.5.4.2 nvidia-cusparselt-cu12==0.6.3 nvidia-nvjitlink-cu12==12.8.61 nvidia-nvtx-cu12==12.8.55 --extra-index-url https://pypi.ngc.nvidia.com
 ```
 
 ### Latest development version
