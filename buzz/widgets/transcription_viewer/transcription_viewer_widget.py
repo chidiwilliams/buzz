@@ -1351,8 +1351,15 @@ class TranscriptionViewerWidget(QWidget):
 
         # Only wait if thread is actually running
         if self.translation_thread.isRunning():
-            if not self.translation_thread.wait(45_000):
-                logging.warning("Translation thread did not finish within timeout")
+            # Wait up to 35 seconds for graceful shutdown
+            # (30s max API call timeout + 5s buffer)
+            if not self.translation_thread.wait(35_000):
+                logging.warning("Translation thread did not finish gracefully, terminating")
+                # Force terminate the thread if it doesn't stop
+                self.translation_thread.terminate()
+                # Give it a brief moment to terminate
+                if not self.translation_thread.wait(1_000):
+                    logging.error("Translation thread could not be terminated")
 
         super().closeEvent(event)
 

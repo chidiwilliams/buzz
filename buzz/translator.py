@@ -3,7 +3,7 @@ import logging
 import queue
 
 from typing import Optional
-from openai import OpenAI
+from openai import OpenAI, max_retries
 from PyQt6.QtCore import QObject, pyqtSignal
 
 from buzz.settings.settings import Settings
@@ -15,7 +15,6 @@ from buzz.widgets.transcriber.advanced_settings_dialog import AdvancedSettingsDi
 class Translator(QObject):
     translation = pyqtSignal(str, int)
     finished = pyqtSignal()
-    is_running = False
 
     def __init__(
         self,
@@ -48,19 +47,22 @@ class Translator(QObject):
         )
         self.openai_client = OpenAI(
             api_key=openai_api_key,
-            base_url=custom_openai_base_url if custom_openai_base_url else None
+            base_url=custom_openai_base_url if custom_openai_base_url else None,
+            max_retries=0
         )
 
     def start(self):
         logging.debug("Starting translation queue")
 
-        self.is_running = True
+        while True:
+            item = self.queue.get()  # Block until item available
 
-        while self.is_running:
-            try:
-                transcript, transcript_id = self.queue.get(timeout=1)
-            except queue.Empty:
-                continue
+            # Check for sentinel value (None means stop)
+            if item is None:
+                logging.debug("Translation queue received stop signal")
+                break
+
+            transcript, transcript_id = item
 
             try:
                 completion = self.openai_client.chat.completions.create(
@@ -69,7 +71,8 @@ class Translator(QObject):
                         {"role": "system", "content": self.transcription_options.llm_prompt},
                         {"role": "user", "content": transcript}
                     ],
-                    timeout=30.0
+                    timeout=30.0,
+
                 )
             except Exception as e:
                 completion = None
@@ -84,6 +87,7 @@ class Translator(QObject):
 
             self.translation.emit(next_translation, transcript_id)
 
+        logging.debug("Translation queue stopped")
         self.finished.emit()
 
     def on_transcription_options_changed(
@@ -95,4 +99,5 @@ class Translator(QObject):
         self.queue.put((transcript, transcript_id))
 
     def stop(self):
-        self.is_running = False
+        # Send sentinel value to unblock and stop the worker thread
+        self.queue.put(None)
