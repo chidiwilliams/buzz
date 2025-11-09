@@ -328,7 +328,7 @@ class ValidateOpenAIApiKeyJob(QRunnable):
             client = OpenAI(
                 api_key=self.api_key,
                 base_url=custom_openai_base_url if custom_openai_base_url else None,
-                timeout=5,
+                timeout=15,
             )
             client.models.list()
             self.signals.success.emit()

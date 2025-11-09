@@ -64,7 +64,8 @@ class LocalWhisperCppServerTranscriber(OpenAIWhisperAPIFileTranscriber):
 
         self.openai_client = OpenAI(
             api_key="not-used",
-            base_url="http://127.0.0.1:3000"
+            base_url="http://127.0.0.1:3000",
+            max_retries=0
         )
 
     def transcribe(self) -> List[Segment]:

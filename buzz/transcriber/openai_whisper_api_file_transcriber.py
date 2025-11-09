@@ -46,7 +46,8 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
         self.task = task.transcription_options.task
         self.openai_client = OpenAI(
             api_key=self.transcription_task.transcription_options.openai_access_token,
-            base_url=custom_openai_base_url if custom_openai_base_url else None
+            base_url=custom_openai_base_url if custom_openai_base_url else None,
+            max_retries=0
         )
         self.whisper_api_model = get_custom_api_whisper_model(custom_openai_base_url)
         self.word_level_timings = self.transcription_task.transcription_options.word_level_timings

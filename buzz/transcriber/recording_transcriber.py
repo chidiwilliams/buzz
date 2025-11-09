@@ -126,7 +126,8 @@ class RecordingTranscriber(QObject):
             self.whisper_api_model = get_custom_api_whisper_model(custom_openai_base_url)
             self.openai_client = OpenAI(
                 api_key=self.transcription_options.openai_access_token,
-                base_url=custom_openai_base_url if custom_openai_base_url else None
+                base_url=custom_openai_base_url if custom_openai_base_url else None,
+                max_retries=0
             )
             logging.debug("Will use whisper API on %s, %s",
                           custom_openai_base_url, self.whisper_api_model)

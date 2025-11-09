@@ -3,7 +3,7 @@ import logging
 import queue
 
 from typing import Optional
-from openai import OpenAI
+from openai import OpenAI, max_retries
 from PyQt6.QtCore import QObject, pyqtSignal
 
 from buzz.settings.settings import Settings
@@ -47,7 +47,8 @@ class Translator(QObject):
         )
         self.openai_client = OpenAI(
             api_key=openai_api_key,
-            base_url=custom_openai_base_url if custom_openai_base_url else None
+            base_url=custom_openai_base_url if custom_openai_base_url else None,
+            max_retries=0
         )
 
     def start(self):
@@ -70,7 +71,8 @@ class Translator(QObject):
                         {"role": "system", "content": self.transcription_options.llm_prompt},
                         {"role": "user", "content": transcript}
                     ],
-                    timeout=30.0
+                    timeout=30.0,
+
                 )
             except Exception as e:
                 completion = None
