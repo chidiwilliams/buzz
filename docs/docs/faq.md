@@ -84,7 +84,7 @@ gsettings set org.gnome.desktop.interface color-scheme prefer-dark
 
 If your system theme is not applied to Buzz installed from Flatpak Linux app store, ensure the desired theme is in `~/.themes` folder.
 
-You may need to copy the system themes to this folder `cp -r /usr/share/themes/ ~/.themes/`.
+You may need to copy the system themes to this folder `cp -r /usr/share/themes/ ~/.themes/` and give Flatpaks access to this folder `flatpak override --user --filesystem=~/.themes`.
 
 On Fedora run the following to install the necessary packages 
 `sudo dnf install gnome-themes-extra qadwaitadecorations-qt{5,6} qt{5,6}-qtwayland`

@@ -357,40 +357,41 @@ jobs:
         with:
           files: |
             Buzz*-unix.tar.gz
-            Buzz*-windows.exe
-            Buzz*-windows-*.bin
-            Buzz*-mac.dmg
+            Buzz*.exe
+            Buzz*.bin
+            Buzz*.dmg
 
-  deploy_brew_cask:
-    runs-on: macos-latest
-    env:
-      BUZZ_DISABLE_TELEMETRY: true
-    needs: [release]
-    if: startsWith(github.ref, 'refs/tags/')
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      # Should be removed with next update to whisper.cpp
-      - name: Downgrade Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: '16.0.0'
-        if: matrix.os == 'macos-latest'
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: uv sync
-
-      - name: Upload to Brew
-        run: uv run make upload_brew
-        env:
-          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
+#  Brew Cask deployment fails and the app is deprecated on Brew.
+#  deploy_brew_cask:
+#    runs-on: macos-latest
+#    env:
+#      BUZZ_DISABLE_TELEMETRY: true
+#    needs: [release]
+#    if: startsWith(github.ref, 'refs/tags/')
+#    steps:
+#      - uses: actions/checkout@v4
+#        with:
+#          submodules: recursive
+#
+#      # Should be removed with next update to whisper.cpp
+#      - name: Downgrade Xcode
+#        uses: maxim-lobanov/setup-xcode@v1
+#        with:
+#          xcode-version: '16.0.0'
+#        if: matrix.os == 'macos-latest'
+#
+#      - name: Install uv
+#        uses: astral-sh/setup-uv@v6
+#
+#      - name: Set up Python
+#        uses: actions/setup-python@v5
+#        with:
+#          python-version: "3.12"
+#
+#      - name: Install dependencies
+#        run: uv sync
+#
+#      - name: Upload to Brew
+#        run: uv run make upload_brew
+#        env:
+#          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
