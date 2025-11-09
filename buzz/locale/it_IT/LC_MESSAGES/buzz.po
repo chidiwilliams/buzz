@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-10-12 19:10+0300\n"
-"PO-Revision-Date: 2025-05-30 15:22+0100\n"
+"PO-Revision-Date: 2025-11-09 20:22+0200\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
 "MIME-Version: 1.0\n"
@@ -46,7 +46,7 @@ msgstr "URL:"
 
 #: buzz/widgets/import_url_dialog.py:44
 msgid "Invalid URL"
-msgstr "URL  non valido"
+msgstr "URL non valido"
 
 #: buzz/widgets/import_url_dialog.py:44
 msgid "The URL you entered is invalid."
@@ -107,8 +107,7 @@ msgid "Polish"
 msgstr "Polacco"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:45
-#, fuzzy
-msgid "Portuguese (Brazil)"
+msgid "Portuguese"
 msgstr "Portoghese"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:46
@@ -172,15 +171,15 @@ msgstr "Modalità di registrazione in diretta"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:183
 msgid "Use only CPU and disable GPU acceleration"
-msgstr ""
+msgstr "Utilizza solo la CPU e disattiva l'accelerazione GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:186
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
-msgstr ""
+msgstr "Imposta questa opzione se i modelli più grandi non si adattano alla memoria della tua GPU e Buzz si blocca"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:188
 msgid "Disable GPU"
-msgstr ""
+msgstr "Disabilita GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:213
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:219
@@ -392,6 +391,8 @@ msgid ""
 "Enter instructions for AI on how to translate, for example 'Please translate "
 "each text sent to you from English to Spanish.'"
 msgstr ""
+Inserisci le istruzioni per l'IA su come tradurre, ad esempio 'Per favore, traduci "
+"ogni testo che ti viene inviato dall'inglese allo spagnolo.'"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:92
 msgid "Instructions for AI:"
@@ -562,86 +563,88 @@ msgstr "Ridimensionare"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:252
 msgid "Find"
-msgstr ""
+msgstr "Trova"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:255
 msgid "Show/Hide Search Bar (Ctrl+F)"
-msgstr ""
+msgstr "Mostra/Nascondi barra di ricerca (Ctrl+F)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:320
 msgid "Find:"
-msgstr ""
+msgstr "Trova:"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:326
 msgid "Enter text to find..."
-msgstr ""
+msgstr "Inserisci il testo per trovare..."
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:339
 msgid "Previous match (Shift+Enter)"
-msgstr ""
+msgstr "Corrispondenza precedente (Maiusc+Invio)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:347
 msgid "Next match (Enter)"
-msgstr ""
+msgstr "Prossima corrispondenza (Invio)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:355
 msgid "Clear"
-msgstr ""
+msgstr "Elimina"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:382
 msgid "Playback Controls:"
-msgstr ""
+msgstr "Controlli di riproduzione:"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:387
 msgid "Loop Segment"
-msgstr ""
+msgstr "Ciclo di segmento"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:389
 msgid "Enable/disable looping when clicking on transcript segments"
-msgstr ""
+msgstr "Abilita/disabilita il loop quando si fa clic sui segmenti della trascrizione"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:395
 msgid "Follow Audio"
-msgstr ""
+msgstr "Segui Audio"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:397
 msgid ""
 "Enable/disable following the current audio position in the transcript. When "
 "enabled, automatically scrolls to current text."
 msgstr ""
+"Abilita/disabilita la lettura della posizione audio corrente nella trascrizione. Quando "
+"abilitato, scorre automaticamente fino al testo corrente."
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:444
 msgid "Scroll to Current"
-msgstr ""
+msgstr "Scorri fino al Corrente"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:446
 msgid "Scroll to the currently spoken text"
-msgstr ""
+msgstr "Scorrere fino al testo attualmente pronunciato"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:768
 msgid "1 of 100+ matches"
-msgstr ""
+msgstr "1 di 100+ corrispondenze"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:770
 msgid "1 of "
-msgstr ""
+msgstr "1 di"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:770
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:836
 msgid " matches"
-msgstr ""
+msgstr "corrispondenze"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:775
 msgid "No matches found"
-msgstr ""
+msgstr "Nessuna corrispondenza trovata"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:834
 msgid " of 100+ matches"
-msgstr ""
+msgstr " di oltre 100 corrispondenze"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:836
 msgid " of "
-msgstr ""
+msgstr " di "
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1191
 msgid "API Key Required"
@@ -761,7 +764,7 @@ msgstr "Impossibile salvare la chiave API OpenAI nel portachiavi"
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py:57
 #: buzz/transcriber/recording_transcriber.py:394
 msgid "Whisper server failed to start. Check logs for details."
-msgstr ""
+msgstr "Impossibile avviare il server Whisper. Controllare i log per i dettagli."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py:60
 #: buzz/transcriber/recording_transcriber.py:398
@@ -770,11 +773,13 @@ msgid ""
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
 "variable."
 msgstr ""
+"Impossibile avviare il server Whisper a causa di memoria insufficiente. Riprovare "
+"con un modello più piccolo. Per forzare la modalità CPU, utilizzare la variabile d'ambiente "
+"BUZZ_FORCE_CPU=TRUE"
 
 #: buzz/transcriber/transcriber.py:24
-#, fuzzy
 msgid "Translate to English"
-msgstr "Impostazioni di traduzione"
+msgstr "Traduci in inglese"
 
 #: buzz/transcriber/transcriber.py:25
 msgid "Transcribe"
@@ -1142,12 +1147,11 @@ msgstr "Si è verificato un errore di connessione"
 
 #: buzz/transcriber/recording_transcriber.py:332
 msgid "Starting Whisper.cpp..."
-msgstr ""
+msgstr "Avvio di Whisper.cpp..."
 
 #: buzz/transcriber/recording_transcriber.py:385
-#, fuzzy
 msgid "Starting transcription..."
-msgstr "Annulla trascrizione"
+msgstr "Inizio trascrizione..."
 
 #: buzz/settings/shortcut.py:17
 msgid "Open Record Window"
@@ -1174,41 +1178,40 @@ msgid "View Transcript Timestamps"
 msgstr "Visualizza i timestamp della trascrizione"
 
 #: buzz/settings/shortcut.py:25
-#, fuzzy
 msgid "Search Transcript"
-msgstr "Apri trascrizione"
+msgstr "Cerca trascrizione"
 
 #: buzz/settings/shortcut.py:26
 msgid "Scroll to Current Text"
-msgstr ""
+msgstr "Scorri fino al testo corrente"
 
 #: buzz/settings/shortcut.py:27
 msgid "Play/Pause Audio"
-msgstr ""
+msgstr "Riproduci/Pausa audio"
 
 #: buzz/settings/shortcut.py:28
 msgid "Replay Current Segment"
-msgstr ""
+msgstr "Riproduci il segmento corrente"
 
 #: buzz/settings/shortcut.py:29
 msgid "Toggle Playback Controls"
-msgstr ""
+msgstr "Attiva/disattiva i controlli di riproduzione"
 
 #: buzz/settings/shortcut.py:31
 msgid "Decrease Segment Start Time"
-msgstr ""
+msgstr "Riduci l'ora di inizio del segmento"
 
 #: buzz/settings/shortcut.py:32
 msgid "Increase Segment Start Time"
-msgstr ""
+msgstr "Aumenta l'ora di inizio del segmento"
 
 #: buzz/settings/shortcut.py:33
 msgid "Decrease Segment End Time"
-msgstr ""
+msgstr "Diminuisci l'ora di fine del segmento"
 
 #: buzz/settings/shortcut.py:34
 msgid "Increase Segment End Time"
-msgstr ""
+msgstr "Aumenta l'ora di fine del segmento"
 
 #: buzz/settings/recording_transcriber_mode.py:5
 msgid "Append below"
