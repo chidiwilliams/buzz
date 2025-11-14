@@ -34,7 +34,9 @@ class TranscriptionDAO(DAO[Transcription]):
                 whisper_model_size,
                 hugging_face_model_id,
                 word_level_timings,
-                extract_speech
+                extract_speech,
+                name,
+                notes
             ) VALUES (
                 :id,
                 :export_formats,
@@ -50,7 +52,9 @@ class TranscriptionDAO(DAO[Transcription]):
                 :whisper_model_size,
                 :hugging_face_model_id,
                 :word_level_timings,
-                :extract_speech
+                :extract_speech,
+                :name,
+                :notes
             )
             """
         )
@@ -95,6 +99,8 @@ class TranscriptionDAO(DAO[Transcription]):
             ":extract_speech",
             task.transcription_options.extract_speech
         )
+        query.bindValue(":name", None)  # name is not available in FileTranscriptionTask
+        query.bindValue(":notes", None)  # notes is not available in FileTranscriptionTask
         if not query.exec():
             raise Exception(query.lastError().text())
 
@@ -132,7 +138,9 @@ class TranscriptionDAO(DAO[Transcription]):
                 whisper_model_size,
                 hugging_face_model_id,
                 word_level_timings,
-                extract_speech
+                extract_speech,
+                name,
+                notes
             ) VALUES (
                 :id,
                 :export_formats,
@@ -148,7 +156,9 @@ class TranscriptionDAO(DAO[Transcription]):
                 :whisper_model_size,
                 :hugging_face_model_id,
                 :word_level_timings,
-                :extract_speech
+                :extract_speech,
+                :name,
+                :notes
             )
             """
         )
@@ -239,3 +249,37 @@ class TranscriptionDAO(DAO[Transcription]):
         query.bindValue(":time_ended", datetime.now().isoformat())
         if not query.exec():
             raise Exception(query.lastError().text())
+
+    def update_transcription_name(self, id: UUID, name: str):
+        query = self._create_query()
+        query.prepare(
+            """
+            UPDATE transcription
+            SET name = :name
+            WHERE id = :id
+        """
+        )
+
+        query.bindValue(":id", str(id))
+        query.bindValue(":name", name)
+        if not query.exec():
+            raise Exception(query.lastError().text())
+        if query.numRowsAffected() == 0:
+            raise Exception("Transcription not found")
+
+    def update_transcription_notes(self, id: UUID, notes: str):
+        query = self._create_query()
+        query.prepare(
+            """
+            UPDATE transcription
+            SET notes = :notes
+            WHERE id = :id
+        """
+        )
+
+        query.bindValue(":id", str(id))
+        query.bindValue(":notes", notes)
+        if not query.exec():
+            raise Exception(query.lastError().text())
+        if query.numRowsAffected() == 0:
+            raise Exception("Transcription not found")
