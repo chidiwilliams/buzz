@@ -64,7 +64,7 @@
   <content_rating type="oars-1.1"/>
 
   <releases>
-    <release version="1.3.3" date="2024-11-06">
+    <release version="1.3.3" date="2025-11-09">
       <url type="details">https://github.com/chidiwilliams/buzz/releases/tag/v1.3.3</url>
       <description>
         <p>This release introduces Vulkan GPU support for whisper.cpp making it significantly faster even on laptops.
