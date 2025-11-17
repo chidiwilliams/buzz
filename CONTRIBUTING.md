@@ -28,7 +28,8 @@ What version of the Buzz are you using? On what OS? What are steps to reproduce 
 **Logs**
 
 Log files contain valuable information about what the Buzz was doing before the issue occurred. You can get the logs like this:
-* Mac and Linux run the app from the terminal and check the output.
+* Linux run the app from the terminal and check the output.
+* Mac get logs from `~/Library/Logs/Buzz`.
 * Windows paste this into the Windows Explorer address bar `%USERPROFILE%\AppData\Local\Buzz\Buzz\Logs` and check the logs file.
 
 **Test on latest version**
