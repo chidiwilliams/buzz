@@ -94,16 +94,18 @@ Assumes you have [Git](https://git-scm.com/downloads) and [python](https://www.p
 ```
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 ```
-2. Install the GNU make. `choco install make`
+2. Install the build tools. `choco install make cmake`
 3. Install the ffmpeg. `choco install ffmpeg`
-4. Install [MSYS2](https://www.msys2.org/), follow [this guide](https://sajidifti.medium.com/how-to-install-gcc-and-gdb-on-windows-using-msys2-tutorial-0fceb7e66454).
-5. Clone the repository `git clone --recursive https://github.com/chidiwilliams/buzz.git`
-6. Enter repo folder `cd buzz`
-7. Install uv `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`
-8. Install the dependencies `uv sync`
-9. `cp -r .\dll_backup\ .\buzz\`
-10. Build Buzz `uv build`
-11. Run Buzz `uv run buzz`
+4. Download [Build Tools for Visual Studio 2022](https://visualstudio.microsoft.com/vs/older-downloads/) and install "Desktop development with C++" workload.
+5. Add location of `namke` to your PATH environment variable. Usually it is `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x86`
+6. Install Vulkan SDK from https://vulkan.lunarg.com/sdk/home
+7. Clone the repository `git clone --recursive https://github.com/chidiwilliams/buzz.git`
+8. Enter repo folder `cd buzz`
+9. Install uv `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`
+10. Install the dependencies `uv sync`
+11. Build Whisper.cpp `uv run make buzz/whisper_cpp`
+12. `cp -r .\dll_backup\ .\buzz\`
+13. Run Buzz `uv run buzz`
 
 Note: It should be safe to ignore any "syntax errors" you see during the build. Buzz will work. Also you can ignore any errors for FFmpeg. Buzz tries to load FFmpeg by several different means and some of them throw errors, but FFmpeg should eventually be found and work. 
 
@@ -120,15 +122,3 @@ uv add --index https://pypi.ngc.nvidia.com nvidia-cublas-cu12==12.8.3.14 nvidia-
 To use Faster Whisper on GPU, install the following libraries:
 * [cuBLAS](https://developer.nvidia.com/cublas)
 * [cuDNN](https://developer.nvidia.com/cudnn)
-
-If you run into issues with FFmpeg, ensure ffmpeg dependencies are installed
-```
-pip3 uninstall ffmpeg ffmpeg-python  
-pip3 install ffmpeg
-pip3 install ffmpeg-python
-```
-
-For Whisper.cpp you will need to install Vulkan SDK.
-Follow the instructions here https://vulkan.lunarg.com/doc/sdk/latest/windows/getting_started.html
-
-Run Buzz `python -m buzz`

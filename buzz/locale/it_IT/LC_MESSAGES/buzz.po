@@ -106,10 +106,6 @@ msgstr "Lettone"
 msgid "Polish"
 msgstr "Polacco"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:45
-msgid "Portuguese"
-msgstr "Portoghese"
-
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:46
 #: buzz/transcriber/transcriber.py:59
 msgid "Ukrainian"
@@ -391,7 +387,7 @@ msgid ""
 "Enter instructions for AI on how to translate, for example 'Please translate "
 "each text sent to you from English to Spanish.'"
 msgstr ""
-Inserisci le istruzioni per l'IA su come tradurre, ad esempio 'Per favore, traduci "
+"Inserisci le istruzioni per l'IA su come tradurre, ad esempio 'Per favore, traduci "
 "ogni testo che ti viene inviato dall'inglese allo spagnolo.'"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:92
