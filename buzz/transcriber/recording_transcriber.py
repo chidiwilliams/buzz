@@ -24,7 +24,7 @@ from buzz.assets import APP_BASE_DIR
 from buzz.model_loader import ModelType, get_custom_api_whisper_model
 from buzz.settings.settings import Settings
 from buzz.transcriber.transcriber import TranscriptionOptions, Task
-from buzz.transcriber.whisper_cpp import WhisperCpp
+from buzz.transcriber.file_transcriber import app_env
 from buzz.transformers_whisper import TransformersWhisper
 from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
 
@@ -69,7 +69,6 @@ class RecordingTranscriber(QObject):
         self.sounddevice = sounddevice
         self.openai_client = None
         self.whisper_api_model = get_custom_api_whisper_model("")
-        self.is_windows = sys.platform == "win32"
         self.process = None
 
     def start(self):
@@ -87,11 +86,7 @@ class RecordingTranscriber(QObject):
             device = "cuda" if use_cuda else "cpu"
             model = whisper.load_model(model_path, device=device)
         elif self.transcription_options.model.model_type == ModelType.WHISPER_CPP:
-            # As DLL mode on Windows is somewhat unreliable, will use local whisper-server
-            if self.is_windows:
-                self.start_local_whisper_server()
-            else:
-                model = WhisperCpp(model_path)
+            self.start_local_whisper_server()
         elif self.transcription_options.model.model_type == ModelType.FASTER_WHISPER:
             model_root_dir = user_cache_dir("Buzz")
             model_root_dir = os.path.join(model_root_dir, "models")
@@ -131,7 +126,8 @@ class RecordingTranscriber(QObject):
             self.whisper_api_model = get_custom_api_whisper_model(custom_openai_base_url)
             self.openai_client = OpenAI(
                 api_key=self.transcription_options.openai_access_token,
-                base_url=custom_openai_base_url if custom_openai_base_url else None
+                base_url=custom_openai_base_url if custom_openai_base_url else None,
+                max_retries=0
             )
             logging.debug("Will use whisper API on %s, %s",
                           custom_openai_base_url, self.whisper_api_model)
@@ -194,19 +190,6 @@ class RecordingTranscriber(QObject):
                             )
                         elif (
                                 self.transcription_options.model.model_type
-                                == ModelType.WHISPER_CPP
-                                # On Windows we use the local whisper server via OpenAI API
-                                and not self.is_windows
-                        ):
-                            assert isinstance(model, WhisperCpp)
-                            result = model.transcribe(
-                                audio=samples,
-                                params=model.get_params(
-                                    transcription_options=self.transcription_options
-                                ),
-                            )
-                        elif (
-                                self.transcription_options.model.model_type
                                 == ModelType.FASTER_WHISPER
                         ):
                             assert isinstance(model, faster_whisper.WhisperModel)
@@ -236,7 +219,7 @@ class RecordingTranscriber(QObject):
                                 else "en",
                                 task=self.transcription_options.task.value,
                             )
-                        else:  # OPEN_AI_WHISPER_API
+                        else:  # OPEN_AI_WHISPER_API, also used for WHISPER_CPP
                             if self.openai_client is None:
                                 self.transcription.emit(_("A connection error occurred"))
                                 self.stop_recording()
@@ -344,41 +327,65 @@ class RecordingTranscriber(QObject):
         self.is_running = False
         if self.process and self.process.poll() is None:
             self.process.terminate()
-            self.process.wait()
+            self.process.wait(5000)
 
     def start_local_whisper_server(self):
         self.transcription.emit(_("Starting Whisper.cpp..."))
 
         self.process = None
-        command = [
-            os.path.join(APP_BASE_DIR, "whisper-server.exe"),
-            "--port", "3004",
+
+        server_executable = "whisper-server.exe" if sys.platform == "win32" else "whisper-server"
+        server_path = os.path.join(APP_BASE_DIR, "whisper_cpp", server_executable)
+
+        # If running Mac and Windows installed version
+        if not os.path.exists(server_path):
+            server_path = os.path.join(APP_BASE_DIR, "buzz", "whisper_cpp", server_executable)
+
+        cmd = [
+            server_path,
+            "--port", "3003",
             "--inference-path", "/audio/transcriptions",
             "--threads", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8) // 2)),
             "--model", self.model_path,
             "--no-timestamps",
             "--no-context",  # on Windows context causes duplications of last message
+            "--suppress-nst"
         ]
 
         if self.transcription_options.language is not None:
-            command.extend(["--language", self.transcription_options.language])
+            cmd.extend(["--language", self.transcription_options.language])
         else:
-            command.extend(["--language", "auto"])
+            cmd.extend(["--language", "auto"])
 
-        logging.debug(f"Starting Whisper server with command: {' '.join(command)}")
+        logging.debug(f"Starting Whisper server with command: {' '.join(cmd)}")
 
-        self.process = subprocess.Popen(
-            command,
-            stdout=subprocess.DEVNULL,  # For debug set to subprocess.PIPE, but it will freeze on Windows after ~30 seconds
-            stderr=subprocess.DEVNULL,
-            shell=False,
-            creationflags=subprocess.CREATE_NO_WINDOW
-        )
+        try:
+            if sys.platform == "win32":
+                self.process = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.PIPE,
+                    shell=False,
+                    creationflags=subprocess.CREATE_NO_WINDOW
+                )
+            else:
+                self.process = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.PIPE,
+                    shell=False,
+                )
+        except Exception as e:
+            error_msg = f"Failed to start whisper-server subprocess: {str(e)}"
+            logging.error(error_msg)
+            self.error.emit(error_msg)
+            return
 
         # Wait for server to start and load model
         time.sleep(10)
 
         if self.process is not None and self.process.poll() is None:
+            self.transcription.emit(_("Starting transcription..."))
             logging.debug(f"Whisper server started successfully.")
             logging.debug(f"Model: {self.model_path}")
         else:
@@ -390,18 +397,19 @@ class RecordingTranscriber(QObject):
             self.transcription.emit(_("Whisper server failed to start. Check logs for details."))
 
             if "ErrorOutOfDeviceMemory" in stderr_output:
-                message = _("Whisper server failed to start due to insufficient memory. "
-                            "Please try again with a smaller model. "
-                            "To force CPU mode use BUZZ_FORCE_CPU=TRUE environment variable.")
+                message = _(
+                    "Whisper server failed to start due to insufficient memory. "
+                    "Please try again with a smaller model. "
+                    "To force CPU mode use BUZZ_FORCE_CPU=TRUE environment variable."
+                )
                 logging.error(message)
                 self.transcription.emit(message)
 
-            self.transcription.emit(_("Whisper server failed to start. Check logs for details."))
             return
 
         self.openai_client = OpenAI(
             api_key="not-used",
-            base_url="http://127.0.0.1:3004",
+            base_url="http://127.0.0.1:3003",
             timeout=30.0,
             max_retries=0
         )
@@ -409,4 +417,4 @@ class RecordingTranscriber(QObject):
     def __del__(self):
         if self.process and self.process.poll() is None:
             self.process.terminate()
-            self.process.wait()
+            self.process.wait(5000)

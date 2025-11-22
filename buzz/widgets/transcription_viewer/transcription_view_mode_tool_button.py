@@ -33,7 +33,7 @@ class TranscriptionViewModeToolButton(QToolButton):
         self.setText(_("View"))
         self.setIcon(VisibilityIcon(self))
         self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
-        self.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+        self.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
 
         translation.connect(self.on_translation_available)
 
@@ -59,6 +59,7 @@ class TranscriptionViewModeToolButton(QToolButton):
         )
 
         self.setMenu(menu)
+        self.clicked.connect(self.showMenu)
 
     def on_translation_available(self):
         self.translation_action.setVisible(True)

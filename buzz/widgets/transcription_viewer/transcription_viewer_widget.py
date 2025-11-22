@@ -1,3 +1,4 @@
+import os
 import logging
 from typing import Optional
 from uuid import UUID
@@ -148,6 +149,7 @@ class TranscriptionViewerWidget(QWidget):
             parent=self
         )
         self.table_widget.segment_selected.connect(self.on_segment_selected)
+        self.table_widget.timestamp_being_edited.connect(self.on_timestamp_being_edited)
 
         self.text_display_box = TextDisplayBox(self)
 
@@ -220,7 +222,8 @@ class TranscriptionViewerWidget(QWidget):
             self
         )
         export_tool_button.setMenu(export_transcription_menu)
-        export_tool_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+        export_tool_button.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
+        export_tool_button.clicked.connect(export_tool_button.showMenu)
         toolbar.addWidget(export_tool_button)
 
         translate_button = QToolButton()
@@ -473,6 +476,126 @@ class TranscriptionViewerWidget(QWidget):
             self.hide_loop_controls()
         else:
             self.show_loop_controls()
+
+    def toggle_audio_playback(self):
+        """Toggle audio playback (play/pause)"""
+        if self.audio_player.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
+            self.audio_player.media_player.pause()
+        else:
+            self.audio_player.media_player.play()
+
+    def replay_current_segment(self):
+        """Rewind current segment to its start and play if not already playing"""
+        if self.currently_selected_segment is None:
+            return
+
+        # Get the start time of the currently selected segment
+        start_time = self.currently_selected_segment.value("start_time")
+
+        # Set position to the start of the segment
+        self.audio_player.set_position(start_time)
+
+        # If audio is not playing, start playing
+        if self.audio_player.media_player.playbackState() != QMediaPlayer.PlaybackState.PlayingState:
+            self.audio_player.media_player.play()
+
+    def decrease_segment_start(self):
+        """Decrease the start time of the current segment by 0.5 seconds"""
+        self._adjust_segment_timestamp("start_time", -500)
+
+    def increase_segment_start(self):
+        """Increase the start time of the current segment by 0.5 seconds"""
+        self._adjust_segment_timestamp("start_time", 500)
+
+    def decrease_segment_end(self):
+        """Decrease the end time of the current segment by 0.5 seconds"""
+        self._adjust_segment_timestamp("end_time", -500)
+
+    def increase_segment_end(self):
+        """Increase the end time of the current segment by 0.5 seconds"""
+        self._adjust_segment_timestamp("end_time", 500)
+
+    def _adjust_segment_timestamp(self, field: str, delta_ms: int):
+        """Helper method to adjust a segment's timestamp"""
+        if self.currently_selected_segment is None:
+            return
+
+        # Get current segment row and ID
+        segment_id = self.currently_selected_segment.value("id")
+        segments = self.table_widget.segments()
+        current_row = -1
+        for i, segment in enumerate(segments):
+            if segment.value("id") == segment_id:
+                current_row = i
+                break
+
+        if current_row == -1:
+            return
+
+        # Get FRESH current values from the model (not from cached segment)
+        from buzz.widgets.transcription_viewer.transcription_segments_editor_widget import Column
+        start_col = Column.START.value
+        end_col = Column.END.value
+
+        current_start_time = self.table_widget.model().record(current_row).value("start_time")
+        current_end_time = self.table_widget.model().record(current_row).value("end_time")
+
+        # Calculate new value based on CURRENT database value
+        if field == "start_time":
+            current_value = current_start_time
+            other_value = current_end_time
+        else:
+            current_value = current_end_time
+            other_value = current_start_time
+
+        new_value = current_value + delta_ms
+
+        if field == "start_time":
+            # Ensure start time doesn't go below 0
+            new_value = max(0, new_value)
+            # Ensure start time is less than end time
+            if new_value >= current_end_time:
+                return
+
+            # Check overlap with previous segment
+            if current_row > 0:
+                prev_end = self.table_widget.model().record(current_row - 1).value("end_time")
+                if new_value < prev_end:
+                    # Update previous segment's end time
+                    self.table_widget.model().setData(
+                        self.table_widget.model().index(current_row - 1, end_col),
+                        new_value
+                    )
+        else:  # end_time
+            # Ensure end time is greater than start time
+            if new_value <= current_start_time:
+                return
+
+            # Check overlap with next segment
+            if current_row < len(segments) - 1:
+                next_start = self.table_widget.model().record(current_row + 1).value("start_time")
+                if new_value > next_start:
+                    # Update next segment's start time
+                    self.table_widget.model().setData(
+                        self.table_widget.model().index(current_row + 1, start_col),
+                        new_value
+                    )
+
+        # Update the timestamp
+        column = start_col if field == "start_time" else end_col
+        self.table_widget.model().setData(
+            self.table_widget.model().index(current_row, column),
+            new_value
+        )
+
+        # Refresh the currently_selected_segment reference with fresh data from model
+        self.currently_selected_segment = self.table_widget.model().record(current_row)
+
+        # Update loop range if looping is enabled
+        if self.segment_looping_enabled:
+            updated_start = self.currently_selected_segment.value("start_time")
+            updated_end = self.currently_selected_segment.value("end_time")
+            self.audio_player.set_range((updated_start, updated_end))
 
     def on_audio_playback_state_changed(self, state):
         """Handle audio playback state changes to automatically show/hide playback controls"""
@@ -754,10 +877,31 @@ class TranscriptionViewerWidget(QWidget):
         # Scroll to current text shortcut (Ctrl+G)
         scroll_to_current_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.SCROLL_TO_CURRENT_TEXT)), self)
         scroll_to_current_shortcut.activated.connect(self.on_scroll_to_current_button_clicked)
-        
-        # Playback controls visibility shortcut (Ctrl+P)
+
+        # Play/Pause audio shortcut (Ctrl+P)
+        play_pause_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.PLAY_PAUSE_AUDIO)), self)
+        play_pause_shortcut.activated.connect(self.toggle_audio_playback)
+
+        # Replay current segment shortcut (Ctrl+Shift+P)
+        replay_segment_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.REPLAY_CURRENT_SEGMENT)), self)
+        replay_segment_shortcut.activated.connect(self.replay_current_segment)
+
+        # Playback controls visibility shortcut (Ctrl+Alt+P)
         playback_controls_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.TOGGLE_PLAYBACK_CONTROLS)), self)
         playback_controls_shortcut.activated.connect(self.toggle_playback_controls_visibility)
+
+        # Segment timestamp adjustment shortcuts
+        decrease_start_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.DECREASE_SEGMENT_START)), self)
+        decrease_start_shortcut.activated.connect(self.decrease_segment_start)
+
+        increase_start_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.INCREASE_SEGMENT_START)), self)
+        increase_start_shortcut.activated.connect(self.increase_segment_start)
+
+        decrease_end_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.DECREASE_SEGMENT_END)), self)
+        decrease_end_shortcut.activated.connect(self.decrease_segment_end)
+
+        increase_end_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.INCREASE_SEGMENT_END)), self)
+        increase_end_shortcut.activated.connect(self.increase_segment_end)
 
     def focus_search_input(self):
         """Toggle the search bar visibility and focus the input field"""
@@ -825,8 +969,10 @@ class TranscriptionViewerWidget(QWidget):
             combined_text = ""
             previous_end_time = None
 
+            paragraph_split_time = int(os.getenv("BUZZ_PARAGRAPH_SPLIT_TIME", "2000"))
+
             for segment in segments:
-                if previous_end_time is not None and (segment.start_time - previous_end_time) >= 2000:
+                if previous_end_time is not None and (segment.start_time - previous_end_time) >= paragraph_split_time:
                     combined_text += "\n\n"
                 combined_text += segment.text.strip() + " "
                 previous_end_time = segment.end_time
@@ -869,28 +1015,30 @@ class TranscriptionViewerWidget(QWidget):
     def on_segment_selected(self, segment: QSqlRecord):
         # Store the currently selected segment for loop functionality
         self.currently_selected_segment = segment
-        
+
         # Show the current segment frame and update the text
         self.current_segment_frame.show()
         self.current_segment_text.setText(segment.value("text"))
-        
+
         # Force the text label to recalculate its size
         self.current_segment_text.adjustSize()
-        
+
         # Resize the frame to fit the text content
         self.resize_current_segment_frame()
-        
+
         # Ensure the scroll area updates properly and shows scrollbars when needed
         self.current_segment_scroll_area.updateGeometry()
         self.current_segment_scroll_area.verticalScrollBar().setVisible(True)  # Ensure scrollbar is visible
-        
+
         start_time = segment.value("start_time")
         end_time = segment.value("end_time")
-        self.audio_player.set_position(start_time)
-        
+
+        if self.audio_player.position_ms < start_time or self.audio_player.position_ms > end_time:
+            self.audio_player.set_position(start_time)
+
         if self.segment_looping_enabled:
             self.audio_player.set_range((start_time, end_time))
-            
+
             # Reset looping flag to ensure new loops work
             self.audio_player.is_looping = False
         else:
@@ -899,6 +1047,34 @@ class TranscriptionViewerWidget(QWidget):
                 if seg.value("id") == segment.value("id"):
                     self.table_widget.highlight_and_scroll_to_row(i)
                     break
+
+    def on_timestamp_being_edited(self, row: int, column: int, new_value_ms: int):
+        """Handle real-time timestamp editing to update loop range immediately"""
+        # Only update if looping is enabled and we're editing the currently selected segment
+        if not self.segment_looping_enabled or self.currently_selected_segment is None:
+            return
+
+        # Check if we're editing the currently selected segment
+        segments = self.table_widget.segments()
+        if row >= len(segments):
+            return
+
+        edited_segment = segments[row]
+        if edited_segment.value("id") != self.currently_selected_segment.value("id"):
+            return
+
+        # Import Column enum to check which column is being edited
+        from buzz.widgets.transcription_viewer.transcription_segments_editor_widget import Column
+
+        # Update the loop range based on which timestamp is being edited
+        if column == Column.START.value:
+            # Editing start time - update loop start
+            end_time = edited_segment.value("end_time")
+            self.audio_player.set_range((new_value_ms, end_time))
+        elif column == Column.END.value:
+            # Editing end time - update loop end
+            start_time = edited_segment.value("start_time")
+            self.audio_player.set_range((start_time, new_value_ms))
 
     def on_audio_player_position_ms_changed(self, position_ms: int) -> None:
         segments = self.table_widget.segments()
@@ -1172,7 +1348,18 @@ class TranscriptionViewerWidget(QWidget):
 
         self.translator.stop()
         self.translation_thread.quit()
-        self.translation_thread.wait()
+
+        # Only wait if thread is actually running
+        if self.translation_thread.isRunning():
+            # Wait up to 35 seconds for graceful shutdown
+            # (30s max API call timeout + 5s buffer)
+            if not self.translation_thread.wait(35_000):
+                logging.warning("Translation thread did not finish gracefully, terminating")
+                # Force terminate the thread if it doesn't stop
+                self.translation_thread.terminate()
+                # Give it a brief moment to terminate
+                if not self.translation_thread.wait(1_000):
+                    logging.error("Translation thread could not be terminated")
 
         super().closeEvent(event)
 

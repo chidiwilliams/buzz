@@ -15,7 +15,6 @@ from buzz.transcriber.openai_whisper_api_file_transcriber import (
     OpenAIWhisperAPIFileTranscriber,
 )
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment
-from buzz.transcriber.whisper_cpp_file_transcriber import WhisperCppFileTranscriber
 from buzz.transcriber.whisper_file_transcriber import WhisperFileTranscriber
 
 
@@ -86,14 +85,13 @@ class FileTranscriberQueueWorker(QObject):
         logging.debug("Starting next transcription task")
 
         model_type = self.current_task.transcription_options.model.model_type
-        if model_type == ModelType.WHISPER_CPP:
-            self.current_transcriber = WhisperCppFileTranscriber(task=self.current_task)
-        elif model_type == ModelType.OPEN_AI_WHISPER_API:
+        if model_type == ModelType.OPEN_AI_WHISPER_API:
             self.current_transcriber = OpenAIWhisperAPIFileTranscriber(
                 task=self.current_task
             )
         elif (
-            model_type == ModelType.HUGGING_FACE
+            model_type == ModelType.WHISPER_CPP
+            or model_type == ModelType.HUGGING_FACE
             or model_type == ModelType.WHISPER
             or model_type == ModelType.FASTER_WHISPER
         ):
@@ -141,7 +139,7 @@ class FileTranscriberQueueWorker(QObject):
                 self.current_transcriber.stop()
                 
             if self.current_transcriber_thread is not None:
-                if not self.current_transcriber_thread.wait(3000):
+                if not self.current_transcriber_thread.wait(5000):
                     logging.warning("Transcriber thread did not terminate gracefully")
                     self.current_transcriber_thread.terminate()
 

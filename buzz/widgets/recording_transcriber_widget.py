@@ -624,6 +624,13 @@ class RecordingTranscriberWidget(QWidget):
         if self.translator is not None:
             self.translator.stop()
 
+        if self.translation_thread is not None:
+            self.translation_thread.quit()
+            # Only wait if thread is actually running
+            if self.translation_thread.isRunning():
+                if not self.translation_thread.wait(45_000):
+                    logging.warning("Translation thread did not finish within timeout")
+
         self.settings.set_value(
             Settings.Key.RECORDING_TRANSCRIBER_LANGUAGE,
             self.transcription_options.language,

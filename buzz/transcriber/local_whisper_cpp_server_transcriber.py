@@ -13,6 +13,7 @@ from buzz.transcriber.openai_whisper_api_file_transcriber import OpenAIWhisperAP
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment
 
 
+# Currently unused, but kept for future reference
 class LocalWhisperCppServerTranscriber(OpenAIWhisperAPIFileTranscriber):
     # To be used on Windows only
     def __init__(self, task: FileTranscriptionTask, parent: Optional["QObject"] = None) -> None:
@@ -20,21 +21,22 @@ class LocalWhisperCppServerTranscriber(OpenAIWhisperAPIFileTranscriber):
 
         self.process = None
         self.initialization_error = None
-        command = [
+        cmd = [
             os.path.join(APP_BASE_DIR, "whisper-server.exe"),
             "--port", "3000",
             "--inference-path", "/audio/transcriptions",
             "--threads", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8) // 2)),
-            "--model", task.model_path
+            "--model", task.model_path,
+            "--suppress-nst"
         ]
 
         if task.transcription_options.language is not None:
-            command.extend(["--language", task.transcription_options.language])
+            cmd.extend(["--language", task.transcription_options.language])
 
-        logging.debug(f"Starting Whisper server with command: {' '.join(command)}")
+        logging.debug(f"Starting Whisper server with command: {' '.join(cmd)}")
 
         self.process = subprocess.Popen(
-            command,
+            cmd,
             stdout=subprocess.DEVNULL,  # For debug set to subprocess.PIPE, but it will freeze on Windows after ~30 seconds
             stderr=subprocess.PIPE,
             shell=False,
@@ -62,7 +64,8 @@ class LocalWhisperCppServerTranscriber(OpenAIWhisperAPIFileTranscriber):
 
         self.openai_client = OpenAI(
             api_key="not-used",
-            base_url="http://127.0.0.1:3000"
+            base_url="http://127.0.0.1:3000",
+            max_retries=0
         )
 
     def transcribe(self) -> List[Segment]:

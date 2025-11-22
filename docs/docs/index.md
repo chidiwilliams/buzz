@@ -31,7 +31,7 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
 - [Command-Line Interface](#command-line-interface)
 - Available on Mac, Windows, and Linux
 
-## Transcription Viewer Interface
+## Transcription Viewer
 
 Buzz features a powerful transcription viewer that makes it easy to work with your transcriptions:
 
@@ -41,4 +41,4 @@ Buzz features a powerful transcription viewer that makes it easy to work with yo
 - **🎨 Clean Interface**: Conditional visibility keeps the interface uncluttered
 - **💾 State Persistence**: Remembers your preferences between sessions
 
-[Learn more about the Transcription Viewer Interface →](https://chidiwilliams.github.io/buzz/docs/usage/transcription_viewer)
+[Learn more about the Transcription Viewer →](https://chidiwilliams.github.io/buzz/docs/usage/transcription_viewer)
