@@ -1,6 +1,6 @@
 [project]
 name = "buzz-captions"
-# Change also in Makefile
+# Change also in Makefile and buzz/__version__.py
 version = "1.4.0"
 description = ""
 authors = [{ name = "Chidi Williams", email = "williamschidi1@gmail.com" }]
