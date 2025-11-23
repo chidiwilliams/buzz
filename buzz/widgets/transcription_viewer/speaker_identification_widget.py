@@ -3,10 +3,8 @@ import os
 import logging
 import faster_whisper
 import torch
-import torchaudio
 import random
 from typing import Optional
-from platformdirs import user_cache_dir
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PyQt6.QtCore import Qt, QThread, QObject, pyqtSignal, QUrl, QTimer
 from PyQt6.QtGui import QFont
@@ -31,9 +29,6 @@ from buzz.paths import file_path_as_title
 from buzz.settings.settings import Settings
 from buzz.widgets.line_edit import LineEdit
 from buzz.transcriber.transcriber import Segment
-from buzz.widgets.preferences_dialog.models.file_transcription_preferences import (
-    FileTranscriptionPreferences,
-)
 
 from ctc_forced_aligner import (
     generate_emissions,
@@ -44,8 +39,6 @@ from ctc_forced_aligner import (
     preprocess_text,
 )
 from whisper_diarization.helpers import (
-    cleanup,
-    create_config,
     get_realigned_ws_mapping_with_punctuation,
     get_sentences_speaker_mapping,
     get_words_speaker_mapping,
@@ -53,8 +46,7 @@ from whisper_diarization.helpers import (
     punct_model_langs,
 )
 from deepmultilingualpunctuation import PunctuationModel
-from nemo.collections.asr.models.msdd_models import NeuralDiarizer
-
+from whisper_diarization.diarization import MSDDDiarizer
 
 SENTENCE_END = re.compile(r'.*[.!?。！？]')
 
@@ -97,7 +89,7 @@ class IdentificationWorker(QObject):
         }
 
     def run(self):
-        self.progress_update.emit(_("1/9 Collecting transcripts"))
+        self.progress_update.emit(_("1/8 Collecting transcripts"))
 
         # Step 1 - Get transcript
         # TODO - Add detected language to the transcript, detect and store separately in metadata
@@ -111,7 +103,7 @@ class IdentificationWorker(QObject):
 
         full_transcript = "".join(segment.text for segment in segments)
 
-        self.progress_update.emit(_("2/9 Loading audio"))
+        self.progress_update.emit(_("2/8 Loading audio"))
         audio_waveform = faster_whisper.decode_audio(self.transcription.file)
 
         # Step 2 - Forced alignment
@@ -120,13 +112,13 @@ class IdentificationWorker(QObject):
         device = "cuda" if use_cuda else "cpu"
         torch_dtype = torch.float16 if use_cuda else torch.float32
 
-        self.progress_update.emit(_("3/9 Loading alignment model"))
+        self.progress_update.emit(_("3/8 Loading alignment model"))
         alignment_model, alignment_tokenizer = load_alignment_model(
             device,
             dtype=torch_dtype,
         )
 
-        self.progress_update.emit(_("4/9 Preparing audio"))
+        self.progress_update.emit(_("4/8 Processing audio"))
         emissions, stride = generate_emissions(
             alignment_model,
             torch.from_numpy(audio_waveform)
@@ -138,7 +130,7 @@ class IdentificationWorker(QObject):
         del alignment_model
         torch.cuda.empty_cache()
 
-        self.progress_update.emit(_("5/9 Preparing transcripts"))
+        self.progress_update.emit(_("5/8 Preparing transcripts"))
         tokens_starred, text_starred = preprocess_text(
             full_transcript,
             romanize=True,
@@ -155,45 +147,25 @@ class IdentificationWorker(QObject):
 
         word_timestamps = postprocess_results(text_starred, spans, stride, scores)
 
-        # convert audio to mono for NeMo compatibility
-        self.progress_update.emit(_("6/9 Converting audio"))
-        model_root_dir = user_cache_dir("Buzz")
-        model_root_dir = os.getenv("BUZZ_MODEL_ROOT", model_root_dir)
-        temp_path = os.path.join(model_root_dir, "speaker_identification_temp")
-        os.makedirs(temp_path, exist_ok=True)
-        torchaudio.save(
-            os.path.join(temp_path, "mono_file.wav"),
-            torch.from_numpy(audio_waveform).unsqueeze(0).float(),
-            16000,
-            channels_first=True,
-        )
-
         # Step 3 - Diarization
-        self.progress_update.emit(_("7/9 Identifying speakers"))
+        self.progress_update.emit(_("6/8 Identifying speakers"))
         logging.basicConfig(level=logging.INFO)
         logging.getLogger("nemo_logger").setLevel(logging.ERROR)
 
         try:
-            msdd_model = NeuralDiarizer(cfg=create_config(temp_path)).to(device)
-            msdd_model.diarize()
+            diarizer_model = MSDDDiarizer(device)
+            speaker_ts = diarizer_model.diarize(torch.from_numpy(audio_waveform).unsqueeze(0))
+
         except Exception as e:
             self.progress_update.emit(_("0/0 Error identifying speakers"))
             logging.error(f"Error during diarization: {e}")
             return
         finally:
-            del msdd_model
+            del diarizer_model
             torch.cuda.empty_cache()
 
         # Step 4 - Reading timestamps <> Speaker Labels mapping
-        self.progress_update.emit(_("8/9 Mapping speakers to transcripts"))
-        speaker_ts = []
-        with open(os.path.join(temp_path, "pred_rttms", "mono_file.rttm"), "r") as f:
-            lines = f.readlines()
-            for line in lines:
-                line_list = line.split(" ")
-                s = int(float(line_list[5]) * 1000)
-                e = s + int(float(line_list[8]) * 1000)
-                speaker_ts.append([s, e, int(line_list[11].split("_")[-1])])
+        self.progress_update.emit(_("7/8 Mapping speakers to transcripts"))
 
         wsm = get_words_speaker_mapping(word_timestamps, speaker_ts, "start")
 
@@ -232,9 +204,7 @@ class IdentificationWorker(QObject):
         wsm = get_realigned_ws_mapping_with_punctuation(wsm)
         ssm = get_sentences_speaker_mapping(wsm, speaker_ts)
 
-        cleanup(temp_path)
-
-        self.progress_update.emit(_("9/9 Identification done"))
+        self.progress_update.emit(_("8/8 Identification done"))
         self.finished.emit(ssm)
 
 
@@ -288,7 +258,7 @@ class SpeakerIdentificationWidget(QWidget):
 
         self.progress_bar = QProgressBar(self)
         self.progress_bar.setMinimumWidth(400)
-        self.progress_bar.setRange(0, 9)
+        self.progress_bar.setRange(0, 8)
         self.progress_bar.setValue(0)
 
         if os.path.isfile(self.transcription.file):
@@ -390,7 +360,7 @@ class SpeakerIdentificationWidget(QWidget):
         else:
             logging.error(f"Invalid progress format: {progress}")
 
-        if progress_value == 9:
+        if progress_value == 8:
             self.step_2_group_box.setEnabled(True)
             self.merge_speaker_sentences.setEnabled(True)
             self.save_button.setEnabled(True)
@@ -525,13 +495,5 @@ class SpeakerIdentificationWidget(QWidget):
 
     def closeEvent(self, event):
         self.hide()
-
-        if self.worker is not None:
-            self.worker.stop()
-            self.worker.deleteLater()
-
-        if self.thread is not None:
-            self.thread.quit()
-            self.thread.wait()
 
         super().closeEvent(event)

@@ -202,9 +202,7 @@ class TestTranscriptionViewerWidget:
                    return_value=mock_result) as mock_transcribe_any, \
                 patch(
                     'buzz.widgets.transcription_viewer.transcription_resizer_widget.whisper_audio.load_audio') as mock_load_audio:
-            result_ready_spy = MagicMock()
             finished_spy = MagicMock()
-            worker.result_ready.connect(result_ready_spy)
             worker.finished.connect(finished_spy)
 
             worker.run()
@@ -220,14 +218,12 @@ class TestTranscriptionViewerWidget:
             assert call_kwargs['vad'] is False
             assert call_kwargs['suppress_silence'] is False
 
-            result_ready_spy.assert_called_once()
-            emitted_segments = result_ready_spy.call_args[0][0]
+            finished_spy.assert_called_once()
+            emitted_segments = finished_spy.call_args[0][0]
             assert len(emitted_segments) == 1
             assert emitted_segments[0].start == 100
             assert emitted_segments[0].end == 200
             assert emitted_segments[0].text == "Hello"
-
-            finished_spy.assert_called_once()
 
     # TODO - Fix this test on Windows, should work.
     #  Possibly the `on_loop_toggle_changed` gets triggered on setChecked
