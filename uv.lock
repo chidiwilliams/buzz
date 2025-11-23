@@ -270,6 +270,7 @@ dependencies = [
     { name = "julius" },
     { name = "keyring" },
     { name = "lameenc" },
+    { name = "lhotse" },
     { name = "museval" },
     { name = "mypy" },
     { name = "nemo-toolkit", extra = ["asr"] },
@@ -353,6 +354,7 @@ requires-dist = [
     { name = "julius", specifier = ">=0.2.7,<0.3" },
     { name = "keyring", specifier = ">=25.0.0,<26" },
     { name = "lameenc", specifier = ">=1.8.1,<2" },
+    { name = "lhotse", specifier = "==1.31.1" },
     { name = "museval", specifier = ">=0.4.1,<0.5" },
     { name = "mypy", specifier = ">=1.15.0,<2" },
     { name = "nemo-toolkit", extras = ["asr"], specifier = ">=2.5.3" },
@@ -1617,7 +1619,7 @@ wheels = [
 
 [[package]]
 name = "lhotse"
-version = "1.32.0"
+version = "1.31.1"
 source = { registry = "https://pypi.org/simple/" }
 dependencies = [
     { name = "audioread" },
@@ -1635,9 +1637,9 @@ dependencies = [
     { name = "torch", version = "2.7.1+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "sys_platform != 'darwin'" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/07/a6/8efb0017f2bc9237af127f8d396b98e0bf5a049b0deb28e475f0da22dbf2/lhotse-1.32.0.tar.gz", hash = "sha256:557aadf2faad0f5f8ade928863f06b4b6a3a9a771261b9402cdc3a25beea443f", size = 674381, upload-time = "2025-11-21T20:04:04.585Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/03/28/ef2fb33e424e29dec83d2a150d76fb1920418a5d93d5268e6ce401cc33ad/lhotse-1.31.1.tar.gz", hash = "sha256:2ebc3c103c3e09313dff0c4e8740584e28ec35d74e985412c6b37279144a9716", size = 654706, upload-time = "2025-09-18T21:43:51.262Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0a/9a/80cd92e52c417ae6ea3632e470d21c2875aa006a4e57ecc16f0703de4e5a/lhotse-1.32.0-py3-none-any.whl", hash = "sha256:fa45307f9fd35de1cda4c2ffa5a88dce6596aaedb8aa5d8dbe5b4597879171e4", size = 893068, upload-time = "2025-11-21T20:04:02.743Z" },
+    { url = "https://files.pythonhosted.org/packages/cb/dd/4a3698be19e7eca530312afefada5cef524b397d69f8eca5e7cd26a1e4d1/lhotse-1.31.1-py3-none-any.whl", hash = "sha256:d1a8a3d79f7b1ec8d2a9daecc871514999b721bee8ab354db6063864362cc857", size = 866472, upload-time = "2025-09-18T21:43:49.365Z" },
 ]
 
 [[package]]

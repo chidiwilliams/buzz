@@ -1,4 +1,4 @@
-# Change also in pyproject.toml
+# Change also in pyproject.toml and buzz/__version__.py
 version := 1.4.0
 
 mac_app_path := ./dist/Buzz.app
