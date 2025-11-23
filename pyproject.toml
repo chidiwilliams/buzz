@@ -62,6 +62,8 @@ dependencies = [
     "hf-xet>=1.1.5,<2",
     "hatchling>=1.27.0",
     "cmake>=3.31.6",
+    "nemo-toolkit[asr]>=2.5.3",
+    "nltk>=3.9.2",
 ]
 repository = "https://github.com/chidiwilliams/buzz"
 documentation = "https://chidiwilliams.github.io/buzz/docs"
@@ -131,6 +133,9 @@ include = [
     "buzz/whisper_cpp/*",
     "buzz/locale/*/LC_MESSAGES/buzz.mo",
     "demucs",
+    "whisper_diarization",
+    "deepmultilingualpunctuation",
+    "ctc_forced_aligner",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -139,6 +144,9 @@ include = [
     "buzz/whisper_cpp/*",
     "buzz/locale/*/LC_MESSAGES/buzz.mo",
     "demucs",
+    "whisper_diarization",
+    "deepmultilingualpunctuation",
+    "ctc_forced_aligner",
 ]
 
 [tool.hatch.build.hooks.custom]

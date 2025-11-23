@@ -1,0 +1,28 @@
+name: demucs
+
+channels:
+  - pytorch
+  - conda-forge
+
+dependencies:
+  - python>=3.8,<3.10
+  - ffmpeg>=4.2
+  - pytorch>=1.8.1
+  - torchaudio>=0.8
+  - tqdm>=4.36
+  - pip
+  - pip:
+    - diffq>=0.2
+    - dora-search
+    - einops
+    - hydra-colorlog>=1.1
+    - hydra-core>=1.1
+    - julius>=0.2.3
+    - lameenc>=1.2
+    - openunmix
+    - musdb>=0.4.0
+    - museval>=0.4.0
+    - soundfile
+    - submitit
+    - treetable>=0.2.3
+

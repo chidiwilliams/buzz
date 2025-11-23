@@ -1,0 +1,20 @@
+# @package _global_
+
+# Automix dataset based on musdb train set.
+dset:
+  wav: /checkpoint/defossez/datasets/automix_musdb
+  samplerate: 44100
+  channels: 2
+epochs: 360
+max_batches: 300
+test:
+  every: 4
+
+augment:
+  shift_same: true
+  scale:
+    proba: 0.5
+  remix:
+    proba: 0
+  repitch:
+    proba: 0

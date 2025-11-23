@@ -30,7 +30,7 @@ from buzz.settings.settings import Settings
 from buzz.widgets.line_edit import LineEdit
 from buzz.transcriber.transcriber import Segment
 
-from ctc_forced_aligner import (
+from ctc_forced_aligner.ctc_forced_aligner import (
     generate_emissions,
     get_alignments,
     get_spans,
@@ -45,7 +45,7 @@ from whisper_diarization.helpers import (
     langs_to_iso,
     punct_model_langs,
 )
-from deepmultilingualpunctuation import PunctuationModel
+from deepmultilingualpunctuation.deepmultilingualpunctuation import PunctuationModel
 from whisper_diarization.diarization import MSDDDiarizer
 
 SENTENCE_END = re.compile(r'.*[.!?。！？]')
