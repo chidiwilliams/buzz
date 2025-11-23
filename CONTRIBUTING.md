@@ -53,8 +53,7 @@ sudo apt-get install --no-install-recommends libyaml-dev libtbb-dev libxkbcommon
 ```
 On versions prior to Ubuntu 24.04 install `sudo apt-get install --no-install-recommends libegl1-mesa`
 5. Install the dependencies `uv sync`
-6. Build Buzz `uv build`
-7. Run Buzz `uv run buzz`
+6. Run Buzz `uv run buzz`
 
 #### Necessary dependencies for Faster Whisper on GPU
 
@@ -81,8 +80,7 @@ On versions prior to Ubuntu 24.04 install `sudo apt-get install --no-install-rec
 3. Install uv `curl -LsSf https://astral.sh/uv/install.sh | sh` (or `brew install uv`)
 4. Install system dependencies you may be missing `brew install ffmpeg`
 5. Install the dependencies `uv sync`
-6. Build Buzz `uv build`
-7. Run Buzz `uv run buzz`
+6. Run Buzz `uv run buzz`
 
 
 
