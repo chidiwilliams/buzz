@@ -51,16 +51,6 @@ Filename: "{app}\{#AppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(
 Root: HKCU; Subkey: "{#AppRegKey}"
 
 [Code]
-procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
-begin
-  if CurUninstallStep = usPostUninstall then
-  begin
-    if RegKeyExists(HKEY_CURRENT_USER, '{#AppRegKey}') then
-      if MsgBox('Do you want to delete Buzz settings?', mbConfirmation, MB_YESNO) = IDYES
-      then
-        RegDeleteKeyIncludingSubkeys(HKEY_CURRENT_USER, '{#AppRegKey}');
-  end;
-end;
 procedure DeleteFileOrFolder(FilePath: string);
 begin
   if FileExists(FilePath) then
@@ -70,6 +60,21 @@ begin
   else if DirExists(FilePath) then
   begin
     DelTree(FilePath, True, True, True);
+  end;
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if CurUninstallStep = usPostUninstall then
+  begin
+    if RegKeyExists(HKEY_CURRENT_USER, '{#AppRegKey}') then
+      if MsgBox('Do you want to delete Buzz settings and saved files?', mbConfirmation, MB_YESNO) = IDYES
+      then
+      begin
+        RegDeleteKeyIncludingSubkeys(HKEY_CURRENT_USER, '{#AppRegKey}');
+        // Remove model and cache directories
+        DeleteFileOrFolder(ExpandConstant('{localappdata}\Buzz'));
+      end;
   end;
 end;
 
