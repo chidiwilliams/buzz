@@ -30,7 +30,6 @@ os.makedirs(model_root_dir, exist_ok=True)
 
 logging.debug("Model root directory: %s", model_root_dir)
 
-
 class WhisperModelSize(str, enum.Enum):
     TINY = "tiny"
     TINYEN = "tiny.en"
@@ -60,6 +59,25 @@ class WhisperModelSize(str, enum.Enum):
     def __str__(self):
         return self.value.capitalize()
 
+# Approximate expected file sizes for Whisper models
+WHISPER_MODEL_SIZES = {
+    WhisperModelSize.TINY: 75 * 1024 * 1024,      
+    WhisperModelSize.TINYEN: 75 * 1024 * 1024,    
+    WhisperModelSize.BASE: 150 * 1024 * 1024,    
+    WhisperModelSize.BASEEN: 150 * 1024 * 1024, 
+    WhisperModelSize.SMALL: 500 * 1024 * 1024,     
+    WhisperModelSize.SMALLEN: 500 * 1024 * 1024,  
+    WhisperModelSize.MEDIUM: 1500 * 1024 * 1024,  
+    WhisperModelSize.MEDIUMEN: 1500 * 1024 * 1024, 
+    WhisperModelSize.LARGE: 3100 * 1024 * 1024,   
+    WhisperModelSize.LARGEV2: 3100 * 1024 * 1024, 
+    WhisperModelSize.LARGEV3: 3100 * 1024 * 1024, 
+    WhisperModelSize.LARGEV3TURBO: 3100 * 1024 * 1024, 
+}
+
+def get_expected_whisper_model_size(size: WhisperModelSize) -> Optional[int]:
+    """Get expected file size for a Whisper model without network request."""
+    return WHISPER_MODEL_SIZES.get(size, None)
 
 class ModelType(enum.Enum):
     WHISPER = "Whisper"
@@ -200,27 +218,21 @@ class TranscriptionModel:
             file_path = get_whisper_file_path(size=self.whisper_model_size)
             if not os.path.exists(file_path) or not os.path.isfile(file_path):
                 return None
-
-            # Get the expected SHA256 from the model URL - format:
-            # URL format: https://.../models/{sha256}/{filename}
-            url = whisper._MODELS[self.whisper_model_size.value]
-            url_parts = url.split("/")
-            expected_sha256_index = url_parts.index("models") + 1
-            if expected_sha256_index < len(url_parts):
-                expected_sha256 = url_parts[expected_sha256_index]
-
-                try:
-                    with open(file_path, "rb") as f:
-                        file_bytes = f.read()
-                        file_sha256 = hashlib.sha256(file_bytes).hexdigest()
-                        if file_sha256 != expected_sha256:
-                            # File exists but inconplete or corrupted
-                            return None 
-
-                except Exception:
-                    return None
             
-            return file_path
+            file_size = os.path.getsize(file_path)
+
+            expected_size = get_expected_whisper_model_size(self.whisper_model_size)
+
+            if expected_size is not None:
+                if file_size < expected_size * 0.95: # Allow 5% tolerance for file system differences
+                    return None
+                return file_path
+            else: 
+                # For unknown model size            
+                if file_size < 50 * 1024 * 1024:
+                    return None
+                
+                return file_path                
 
         if self.model_type == ModelType.FASTER_WHISPER:
             try:
@@ -583,39 +595,79 @@ class ModelDownloader(QRunnable):
         file_mode = "wb"
 
         if os.path.isfile(file_path):
-            if expected_sha256 is not None:
-                file_size = os.path.getsize(file_path)
+            file_size = os.path.getsize(file_path)
 
-                if file_size < 10 * 1024 * 1024:  # if less than 10MB - resume
-                    resume_from = file_size
-                    file_mode = "ab"
-                    logging.debug(f"File appears incomplete ({file_size} bytes), resuming from byte {resume_from}")
-                else:
-                    # File may be complete - check SHA256
-                    try:
-                        with open(file_path, "rb") as f:
-                            model_bytes = f.read()
-                            model_sha256 = hashlib.sha256(model_bytes).hexdigest()
-                            if model_sha256 == expected_sha256:
-                                logging.debug("Model already downloaded and verified")
-                                return True
-                            else:
-                                warnings.warn(
-                                    f"{file_path} exists, but the SHA256 checksum does not match; re-downloading the file"
-                                )
-                                # File exists but it is wrong, delete it
+            if expected_sha256 is not None:
+                # Get the expected file size from URL
+                try:
+                    head_response = requests.head(url, timeout=5, allow_redirects=True)
+                    expected_size = int(head_response.headers.get("Content-Length", 0))
+
+                    if expected_size > 0:
+                        if file_size < expected_size:
+                            resume_from = file_size
+                            file_mode = "ab"
+                            logging.debug(
+                                f"File incomplete ({file_size}/{expected_size} bytes), resuming from byte {resume_from}"
+                            )
+                        elif file_size == expected_size:
+                            # This means file size matches - verify SHA256 to confirm it is complete
+                            try:
+                                with open(file_path, "rb") as f:
+                                    model_bytes = f.read()
+                                    model_sha256 = hashlib.sha256(model_bytes).hexdigest()
+                                    if model_sha256 == expected_sha256:
+                                        logging.debug("Model already downloaded and verified")
+                                        return True
+                                    else:
+                                        warnings.warn(
+                                            f"{file_path} exists, but the SHA256 checksum does not match; re-downloading the file"
+                                        )
+                                        # File exists but it is wrong, delete it
+                                        os.remove(file_path)
+                            except Exception as e:
+                                logging.warning(f"Error checking existing file: {e}")
                                 os.remove(file_path)
-                    except Exception as e:
-                        logging.warning(f"Error checking existing file: {e}")
-                        os.remove(file_path)
+                        else:
+                            # File is larger than expected - corrupted, delete it
+                            warnings.warn(f"File size ({file_size}) exceeds expected size ({expected_size}), re-downloading")
+                            os.remove(file_path)                        
+                    else:
+                        # Can't get expected size - use threshold approach
+                        if file_size < 10 * 1024 * 1024:
+                            resume_from = file_size
+                            file_mode = "ab"  # Append mode to resume
+                            logging.debug(f"Resuming download from byte {resume_from}")
+                        else:
+                            # Large file - verify SHA256
+                            try:
+                                with open(file_path, "rb") as f:
+                                    model_bytes = f.read()
+                                    model_sha256 = hashlib.sha256(model_bytes).hexdigest()
+                                    if model_sha256 == expected_sha256:
+                                        logging.debug("Model already downloaded and verified")
+                                        return True
+                                    else:
+                                        warnings.warn("SHA256 mismatch, re-downloading")
+                                        os.remove(file_path)
+                            except Exception as e:
+                                logging.warning(f"Error verifying file: {e}")
+                                os.remove(file_path)
+
+                except Exception as e:
+                    # Can't get expected size - use threshold
+                    logging.debug(f"Could not get expected file size: {e}, using threshold")
+                    if file_size < 10 * 1024 * 1024:
+                        resume_from = file_size
+                        file_mode = "ab"
+                        logging.debug(f"Resuming from byte {resume_from}")
             else:
-                # If no SHA256 to verify, check file size 
-                file_size = os.path.getsize(file_path)
+                # No SHA256 to verify - just check file size
                 if file_size > 0:
                     resume_from = file_size
-                    file_mode = "ab"  # Append mode to resume
+                    file_mode = "ab"
                     logging.debug(f"Resuming download from byte {resume_from}")
-
+                            
         # Downloads the model using the requests module instead of urllib to
         # use the certs from certifi when the app is running in frozen mode
         headers = {}
