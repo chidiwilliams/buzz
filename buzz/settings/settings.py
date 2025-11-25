@@ -54,6 +54,12 @@ class Settings:
         TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY = (
             "transcription-tasks-table/column-visibility"
         )
+        TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER = (
+            "transcription-tasks-table/column-order"
+        )
+        TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS = (
+            "transcription-tasks-table/column-widths"
+        )
 
         MAIN_WINDOW = "main-window"
         TRANSCRIPTION_VIEWER = "transcription-viewer"
