@@ -1,3 +1,15 @@
 [submodule "whisper.cpp"]
 	path = whisper.cpp
 	url = https://github.com/ggerganov/whisper.cpp
+[submodule "whisper_diarization"]
+	path = whisper_diarization
+	url = https://github.com/MahmoudAshraf97/whisper-diarization
+[submodule "demucs"]
+	path = demucs
+	url = https://github.com/MahmoudAshraf97/demucs.git
+[submodule "deepmultilingualpunctuation"]
+	path = deepmultilingualpunctuation
+	url = https://github.com/oliverguhr/deepmultilingualpunctuation.git
+[submodule "ctc_forced_aligner"]
+	path = ctc_forced_aligner
+	url = https://github.com/MahmoudAshraf97/ctc-forced-aligner.git

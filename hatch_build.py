@@ -79,6 +79,21 @@ class CustomBuildHook(BuildHookInterface):
                 print(result.stderr, file=sys.stderr)
             print("Successfully compiled translation files")
 
+            # Build ctc_forced_aligner C++ extension in-place
+            print("Building ctc_forced_aligner C++ extension...")
+            ctc_aligner_dir = project_root / "ctc_forced_aligner"
+            result = subprocess.run(
+                [sys.executable, "setup.py", "build_ext", "--inplace"],
+                cwd=ctc_aligner_dir,
+                check=True,
+                capture_output=True,
+                text=True
+            )
+            print(result.stdout)
+            if result.stderr:
+                print(result.stderr, file=sys.stderr)
+            print("Successfully built ctc_forced_aligner C++ extension")
+
             # Force include all files in buzz/whisper_cpp directory
             whisper_cpp_dir = project_root / "buzz" / "whisper_cpp"
             if whisper_cpp_dir.exists():
