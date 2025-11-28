@@ -109,12 +109,13 @@ class WhisperCpp:
     
         # Add translate flag if needed
         if task.transcription_options.task == Task.TRANSLATE:
-            cmd.append("--translate")
+            cmd.extend(["--translate"])
     
         # Force CPU if specified
         force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
         if force_cpu != "false" or not IS_VULKAN_SUPPORTED:
-            cmd.append("--no-gpu")
+            cmd.extend(["--no-gpu"])
+            cmd.extend(["-t", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8) // 2))])
 
         print(f"Running Whisper CLI: {' '.join(cmd)}")
 
