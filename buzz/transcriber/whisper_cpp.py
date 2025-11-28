@@ -126,7 +126,7 @@ class WhisperCpp:
             si.wShowWindow = subprocess.SW_HIDE
             process = subprocess.Popen(
                 cmd,
-                stdout=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
                 stderr=subprocess.PIPE,
                 text=True,
                 startupinfo=si,
@@ -136,7 +136,7 @@ class WhisperCpp:
         else:
             process = subprocess.Popen(
                 cmd,
-                stdout=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
                 stderr=subprocess.PIPE,
                 text=True,
             )
