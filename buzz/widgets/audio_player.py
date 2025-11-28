@@ -1,10 +1,11 @@
 import logging
 from typing import Tuple, Optional
+from pathlib import Path
 
 from PyQt6 import QtGui
 from PyQt6.QtCore import QTime, QUrl, Qt, pyqtSignal
 from PyQt6.QtMultimedia import QAudioOutput, QMediaPlayer
-from PyQt6.QtWidgets import QWidget, QSlider, QPushButton, QLabel, QHBoxLayout
+from PyQt6.QtWidgets import QWidget, QSlider, QPushButton, QLabel, QHBoxLayout, QVBoxLayout
 
 from buzz.widgets.icon import PlayIcon, PauseIcon
 from buzz.settings.settings import Settings
@@ -21,9 +22,14 @@ class AudioPlayer(QWidget):
         self.duration_ms = 0
         self.invalid_media = None
         self.is_looping = False  # Flag to prevent recursive position changes
+        self.is_slider_dragging = False # Flag to track if use is dragging slider
 
         # Initialize settings
         self.settings = Settings()
+
+        #Detect if the file is video
+        video_extensions = {".mp4", ".mov", ".mkv", ".avi", ".m4v", ".webm", ".ogm", ".wmv"}
+        self.is_video = Path(file_path).suffix.lower() in video_extensions
 
         self.audio_output = QAudioOutput()
         self.audio_output.setVolume(100)
@@ -31,6 +37,13 @@ class AudioPlayer(QWidget):
         self.media_player = QMediaPlayer()
         self.media_player.setSource(QUrl.fromLocalFile(file_path))
         self.media_player.setAudioOutput(self.audio_output)
+
+        if self.is_video:
+            from PyQt6.QtMultimediaWidgets import QVideoWidget
+            self.video_widget = QVideoWidget(self)
+            self.media_player.setVideoOutput(self.video_widget)
+        else:
+            self.video_widget = None
 
         # Speed control moved to transcription viewer - just set default rate
         saved_rate = self.settings.value(Settings.Key.AUDIO_PLAYBACK_RATE, 1.0, float)
@@ -40,6 +53,11 @@ class AudioPlayer(QWidget):
         self.scrubber = QSlider(Qt.Orientation.Horizontal)
         self.scrubber.setRange(0, 0)
         self.scrubber.sliderMoved.connect(self.on_slider_moved)
+        self.scrubber.sliderPressed.connect(self.on_slider_pressed)
+        self.scrubber.sliderReleased.connect(self.on_slider_released)
+
+        # Track if user is dragging the slider
+        self.is_slider_dragging = False
 
         self.play_icon = PlayIcon(self)
         self.pause_icon = PauseIcon(self)
@@ -54,10 +72,23 @@ class AudioPlayer(QWidget):
         self.time_label.setAlignment(Qt.AlignmentFlag.AlignRight)
 
         # Create main layout - simplified without speed controls
-        main_layout = QHBoxLayout()
-        main_layout.addWidget(self.play_button, alignment=Qt.AlignmentFlag.AlignVCenter)
-        main_layout.addWidget(self.scrubber, alignment=Qt.AlignmentFlag.AlignVCenter)
-        main_layout.addWidget(self.time_label, alignment=Qt.AlignmentFlag.AlignVCenter)
+        if self.is_video:
+            #Vertical layout for video
+            main_layout = QVBoxLayout()
+            main_layout.addWidget(self.video_widget, stretch=1) # As video takes more space
+
+            controls_layout = QHBoxLayout()
+            controls_layout.addWidget(self.play_button, alignment=Qt.AlignmentFlag.AlignVCenter)
+            controls_layout.addWidget(self.scrubber, alignment=Qt.AlignmentFlag.AlignVCenter)
+            controls_layout.addWidget(self.time_label, alignment=Qt.AlignmentFlag.AlignVCenter)
+
+            main_layout.addLayout(controls_layout)
+        else:
+            # Horizontal layout for audio only
+            main_layout = QHBoxLayout()
+            main_layout.addWidget(self.play_button, alignment=Qt.AlignmentFlag.AlignVCenter)
+            main_layout.addWidget(self.scrubber, alignment=Qt.AlignmentFlag.AlignVCenter)
+            main_layout.addWidget(self.time_label, alignment=Qt.AlignmentFlag.AlignVCenter)
 
         self.setLayout(main_layout)
 
@@ -75,7 +106,12 @@ class AudioPlayer(QWidget):
         self.update_time_label()
 
     def on_position_changed(self, position_ms: int):
-        self.scrubber.setValue(position_ms)
+        # Don't update slider if user is currently dragging it
+        if not self.is_slider_dragging:
+            self.scrubber.blockSignals(True)
+            self.scrubber.setValue(position_ms)
+            self.scrubber.blockSignals(False)
+
         self.position_ms = position_ms
         self.position_ms_changed.emit(self.position_ms)
         self.update_time_label()
@@ -149,6 +185,16 @@ class AudioPlayer(QWidget):
             # Clear range if scrubbed more than 2 seconds outside the range
             if position_ms < (start_range_ms - 2000) or position_ms > (end_range_ms + 2000):
                 self.range_ms = None
+
+    def on_slider_pressed(self):
+        """Called when the user starts dragging the slider"""
+        self.is_slider_dragging = True
+
+    def on_slider_released(self):
+        """Called when user releases the slider"""
+        self.is_slider_dragging = False
+        # Update the position where user released
+        self.set_position(self.scrubber.value())
 
     def set_position(self, position_ms: int):
         self.media_player.setPosition(position_ms)

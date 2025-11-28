@@ -21,6 +21,7 @@ from PyQt6.QtWidgets import (
     QComboBox,
     QScrollArea,
     QSizePolicy,
+    QStackedWidget
 )
 
 from buzz.locale import _
@@ -31,7 +32,9 @@ from buzz.settings.shortcuts import Shortcuts
 from buzz.settings.shortcut import Shortcut
 from buzz.settings.settings import Settings
 from buzz.store.keyring_store import get_password, Key
+from buzz.transcriber.file_transcriber import is_video_file
 from buzz.widgets.audio_player import AudioPlayer
+from buzz.widgets.video_player import VideoPlayer
 from buzz.widgets.icon import (
     FileDownloadIcon,
     TranslateIcon,
@@ -154,11 +157,32 @@ class TranscriptionViewerWidget(QWidget):
         self.text_display_box = TextDisplayBox(self)
 
         self.audio_player = AudioPlayer(file_path=transcription.file)
+        self.video_player = VideoPlayer(file_path=transcription.file)
+
+        # Stack widget is to switch between audio and video
+        self.media_player_stack = QStackedWidget()
+        self.media_player_stack.addWidget(self.audio_player)
+        self.media_player_stack.addWidget(self.video_player)
+
+        self.current_media_player = None
+        self.load_transcription_media()
+
+        # Connect audio player signals
         self.audio_player.position_ms_changed.connect(
             self.on_audio_player_position_ms_changed
         )
+
+        # Connect video player signals
+        self.video_player.position_ms_changed.connect(
+            self.on_audio_player_position_ms_changed
+        )
+
         # Connect to playback state changes to automatically show controls
         self.audio_player.media_player.playbackStateChanged.connect(
+            self.on_audio_playback_state_changed
+        )
+
+        self.video_player.media_player.playbackStateChanged.connect(
             self.on_audio_playback_state_changed
         )
 
@@ -272,8 +296,8 @@ class TranscriptionViewerWidget(QWidget):
         self.create_loop_controls()
         layout.addWidget(self.loop_controls_frame, 0)  # Stretch factor 0 (minimal)
         
-        # Audio player (minimal space)
-        layout.addWidget(self.audio_player, 0)  # Stretch factor 0 (minimal)
+        # Media player stack (audio or video) (minimal space)
+        layout.addWidget(self.media_player_stack, 0)  # Stretch factor 0 (minimal)
         
         # Text display box (minimal space)
         layout.addWidget(self.text_display_box, 0)  # Stretch factor 0 (minimal)
@@ -296,6 +320,24 @@ class TranscriptionViewerWidget(QWidget):
         self.load_geometry()
 
         self.reset_view()
+
+    def load_transcription_media(self):
+        source_path = self.transcription.file
+        if source_path and is_video_file(source_path):
+            self.media_player_stack.setCurrentWidget(self.video_player)
+            self.current_media_player = self.video_player
+        else:
+            self.media_player_stack.setCurrentWidget(self.audio_player)
+            self.current_media_player = self.audio_player
+
+    def on_transcript_segment_clicked(self, segment):
+        if not self.current_media_player:
+            return
+
+        start_time_ms = int(segment.start_time)
+        self.current_media_player.set_position(start_time_ms)
+        if self.current_media_player.media_player.playbackState() != QMediaPlayer.PlaybackState.PlayingState:
+            self.current_media_player.media_player.play()
 
     def restore_ui_state(self):
         """Restore UI state from settings"""
@@ -479,10 +521,10 @@ class TranscriptionViewerWidget(QWidget):
 
     def toggle_audio_playback(self):
         """Toggle audio playback (play/pause)"""
-        if self.audio_player.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
-            self.audio_player.media_player.pause()
+        if self.current_media_player and self.current_media_player.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
+            self.current_media_player.media_player.pause()
         else:
-            self.audio_player.media_player.play()
+            self.current_media_player.media_player.play()
 
     def replay_current_segment(self):
         """Rewind current segment to its start and play if not already playing"""
@@ -493,7 +535,8 @@ class TranscriptionViewerWidget(QWidget):
         start_time = self.currently_selected_segment.value("start_time")
 
         # Set position to the start of the segment
-        self.audio_player.set_position(start_time)
+        if self.current_media_player:
+            self.current_media_player.set_position(start_time)
 
         # If audio is not playing, start playing
         if self.audio_player.media_player.playbackState() != QMediaPlayer.PlaybackState.PlayingState:
@@ -595,7 +638,9 @@ class TranscriptionViewerWidget(QWidget):
         if self.segment_looping_enabled:
             updated_start = self.currently_selected_segment.value("start_time")
             updated_end = self.currently_selected_segment.value("end_time")
-            self.audio_player.set_range((updated_start, updated_end))
+
+            if self.current_media_player:
+                self.current_media_player.set_range((updated_start, updated_end))
 
     def on_audio_playback_state_changed(self, state):
         """Handle audio playback state changes to automatically show/hide playback controls"""
@@ -613,12 +658,13 @@ class TranscriptionViewerWidget(QWidget):
         """Initialize the speed control with current value from audio player"""
         try:
             # Get current speed from audio player
-            current_speed = self.audio_player.media_player.playbackRate()
-            # Ensure it's within valid range
-            current_speed = max(0.1, min(5.0, current_speed))
-            # Set the combo box text
-            speed_text = f"{current_speed:.2f}x"
-            self.speed_combo.setCurrentText(speed_text)
+            if self.current_media_player:
+                current_speed = self.current_media_player.media_player.playbackRate()
+                # Ensure it's within valid range
+                current_speed = max(0.1, min(5.0, current_speed))
+                # Set the combo box text
+                speed_text = f"{current_speed:.2f}x"
+                self.speed_combo.setCurrentText(speed_text)
         except Exception as e:
             logging.warning(f"Could not initialize speed control: {e}")
             # Default to 1.0x
@@ -957,7 +1003,8 @@ class TranscriptionViewerWidget(QWidget):
         if self.view_mode == ViewMode.TIMESTAMPS:
             self.text_display_box.hide()
             self.table_widget.show()
-            self.audio_player.show()
+            if self.current_media_player:
+                self.current_media_player.show()
             # Show playback controls in timestamps mode
             if self.playback_controls_visible:
                 self.loop_controls_frame.show()
@@ -980,7 +1027,8 @@ class TranscriptionViewerWidget(QWidget):
             self.text_display_box.setPlainText(combined_text.strip())
             self.text_display_box.show()
             self.table_widget.hide()
-            self.audio_player.hide()
+            if self.current_media_player:
+                self.current_media_player.hide()
             # Hide playback controls in text mode
             self.loop_controls_frame.hide()
             # Hide current segment display in text mode
@@ -994,7 +1042,8 @@ class TranscriptionViewerWidget(QWidget):
             )
             self.text_display_box.show()
             self.table_widget.hide()
-            self.audio_player.hide()
+            if self.current_media_player:
+                self.current_media_player.hide()
             # Hide playback controls in translation mode
             self.loop_controls_frame.hide()
             # Hide current segment display in translation mode
@@ -1030,17 +1079,24 @@ class TranscriptionViewerWidget(QWidget):
         self.current_segment_scroll_area.updateGeometry()
         self.current_segment_scroll_area.verticalScrollBar().setVisible(True)  # Ensure scrollbar is visible
 
-        start_time = segment.value("start_time")
-        end_time = segment.value("end_time")
+        start_time_ms = segment.value("start_time")
+        end_time_ms = segment.value("end_time")
 
-        if self.audio_player.position_ms < start_time or self.audio_player.position_ms > end_time:
-            self.audio_player.set_position(start_time)
+        if not self.current_media_player:
+            return
+
+        if self.current_media_player.position_ms < start_time_ms or self.current_media_player.position_ms > end_time_ms:
+            self.current_media_player.set_position(start_time_ms)
+
+            #Start playing if not yet playing
+            if self.current_media_player.media_player.playbackState() != QMediaPlayer.PlaybackState.PlayingState:
+                self.current_media_player.media_player.play()
 
         if self.segment_looping_enabled:
-            self.audio_player.set_range((start_time, end_time))
+            self.current_media_player.set_range((start_time_ms, end_time_ms))
 
             # Reset looping flag to ensure new loops work
-            self.audio_player.is_looping = False
+            self.current_media_player.is_looping = False
         else:
             segments = self.table_widget.segments()
             for i, seg in enumerate(segments):
@@ -1227,7 +1283,7 @@ class TranscriptionViewerWidget(QWidget):
         self.settings.settings.setValue("transcription_viewer/segment_looping_enabled", enabled)
         
         if enabled:
-            # If looping is re-enabled and we have a selected segment, return to it
+            # If looping is re-enabled,and we have a selected segment, return to it
             if self.currently_selected_segment is not None:
                 # Find the row index of the selected segment
                 segments = self.table_widget.segments()
@@ -1236,24 +1292,25 @@ class TranscriptionViewerWidget(QWidget):
                         # Highlight and scroll to the selected segment
                         self.table_widget.highlight_and_scroll_to_row(i)
                         
-                        # Get the segment timing
-                        start_time = self.currently_selected_segment.value("start_time")
-                        end_time = self.currently_selected_segment.value("end_time")
-                        
+                        start_time_ms = self.currently_selected_segment.value("start_time")
+                        end_time_ms = self.currently_selected_segment.value("end_time")
+
                         # Set the loop range for the selected segment
-                        self.audio_player.set_range((start_time, end_time))
+                        if self.current_media_player:
+                            self.current_media_player.set_range((start_time_ms, end_time_ms))
                         
-                        # If audio is currently playing and outside the range, jump to the start
-                        current_pos = self.audio_player.position_ms
-                        playback_state = self.audio_player.media_player.playbackState()
-                        if (playback_state == QMediaPlayer.PlaybackState.PlayingState and 
-                            (current_pos < start_time or current_pos > end_time)):
-                            self.audio_player.set_position(start_time)
-                        
-                        break
+                            # If audio is currently playing and outside the range, jump to the start
+                            current_pos = self.current_media_player.position_ms
+                            playback_state = self.current_media_player.media_player.playbackState()
+                            if (playback_state == QMediaPlayer.PlaybackState.PlayingState and
+                                (current_pos < start_time_ms or current_pos > end_time_ms)):
+                                self.current_media_player.set_position(start_time_ms)
+
+                                break
         else:
             # Clear any existing range if looping is disabled
-            self.audio_player.clear_range()
+            if self.current_media_player:
+                self.current_media_player.clear_range()
 
     def on_follow_audio_toggle_changed(self, enabled: bool):
         """Handle follow audio toggle state change"""
