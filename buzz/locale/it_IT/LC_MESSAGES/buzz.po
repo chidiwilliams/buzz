@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-12 19:10+0300\n"
+"POT-Creation-Date: 2025-11-28 16:49+0200\n"
 "PO-Revision-Date: 2025-11-09 20:22+0200\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
@@ -106,6 +106,11 @@ msgstr "Lettone"
 msgid "Polish"
 msgstr "Polacco"
 
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:45
+#, fuzzy
+msgid "Portuguese (Brazil)"
+msgstr "Portoghese"
+
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:46
 #: buzz/transcriber/transcriber.py:59
 msgid "Ukrainian"
@@ -171,7 +176,9 @@ msgstr "Utilizza solo la CPU e disattiva l'accelerazione GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:186
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
-msgstr "Imposta questa opzione se i modelli più grandi non si adattano alla memoria della tua GPU e Buzz si blocca"
+msgstr ""
+"Imposta questa opzione se i modelli più grandi non si adattano alla memoria "
+"della tua GPU e Buzz si blocca"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:188
 msgid "Disable GPU"
@@ -301,8 +308,8 @@ msgid "Download failed"
 msgstr "Download non riuscito"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:275
-#: buzz/widgets/main_window.py:295 buzz/model_loader.py:497
-#: buzz/model_loader.py:511
+#: buzz/widgets/main_window.py:295 buzz/model_loader.py:539
+#: buzz/model_loader.py:553
 msgid "Error"
 msgstr "Errore"
 
@@ -387,8 +394,8 @@ msgid ""
 "Enter instructions for AI on how to translate, for example 'Please translate "
 "each text sent to you from English to Spanish.'"
 msgstr ""
-"Inserisci le istruzioni per l'IA su come tradurre, ad esempio 'Per favore, traduci "
-"ogni testo che ti viene inviato dall'inglese allo spagnolo.'"
+"Inserisci le istruzioni per l'IA su come tradurre, ad esempio 'Per favore, "
+"traduci ogni testo che ti viene inviato dall'inglese allo spagnolo.'"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:92
 msgid "Instructions for AI:"
@@ -507,11 +514,15 @@ msgstr ""
 "Controlla i tuoi dispositivi audio o i registri dell'applicazione per "
 "maggiori informazioni."
 
-#: buzz/widgets/about_dialog.py:80
+#: buzz/widgets/about_dialog.py:81
 msgid "Check for updates"
 msgstr "Controlla gli aggiornamenti"
 
-#: buzz/widgets/about_dialog.py:109
+#: buzz/widgets/about_dialog.py:84
+msgid "Show logs"
+msgstr ""
+
+#: buzz/widgets/about_dialog.py:118
 msgid "You're up to date!"
 msgstr "Il programma è aggiornato!"
 
@@ -595,7 +606,8 @@ msgstr "Ciclo di segmento"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:389
 msgid "Enable/disable looping when clicking on transcript segments"
-msgstr "Abilita/disabilita il loop quando si fa clic sui segmenti della trascrizione"
+msgstr ""
+"Abilita/disabilita il loop quando si fa clic sui segmenti della trascrizione"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:395
 msgid "Follow Audio"
@@ -606,8 +618,9 @@ msgid ""
 "Enable/disable following the current audio position in the transcript. When "
 "enabled, automatically scrolls to current text."
 msgstr ""
-"Abilita/disabilita la lettura della posizione audio corrente nella trascrizione. Quando "
-"abilitato, scorre automaticamente fino al testo corrente."
+"Abilita/disabilita la lettura della posizione audio corrente nella "
+"trascrizione. Quando abilitato, scorre automaticamente fino al testo "
+"corrente."
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:444
 msgid "Scroll to Current"
@@ -758,20 +771,21 @@ msgid "Unable to save OpenAI API key to keyring"
 msgstr "Impossibile salvare la chiave API OpenAI nel portachiavi"
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py:57
-#: buzz/transcriber/recording_transcriber.py:394
+#: buzz/transcriber/recording_transcriber.py:397
 msgid "Whisper server failed to start. Check logs for details."
-msgstr "Impossibile avviare il server Whisper. Controllare i log per i dettagli."
+msgstr ""
+"Impossibile avviare il server Whisper. Controllare i log per i dettagli."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py:60
-#: buzz/transcriber/recording_transcriber.py:398
+#: buzz/transcriber/recording_transcriber.py:401
 msgid ""
 "Whisper server failed to start due to insufficient memory. Please try again "
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
 "variable."
 msgstr ""
-"Impossibile avviare il server Whisper a causa di memoria insufficiente. Riprovare "
-"con un modello più piccolo. Per forzare la modalità CPU, utilizzare la variabile d'ambiente "
-"BUZZ_FORCE_CPU=TRUE"
+"Impossibile avviare il server Whisper a causa di memoria insufficiente. "
+"Riprovare con un modello più piccolo. Per forzare la modalità CPU, "
+"utilizzare la variabile d'ambiente BUZZ_FORCE_CPU=TRUE"
 
 #: buzz/transcriber/transcriber.py:24
 msgid "Translate to English"
@@ -1137,15 +1151,15 @@ msgstr "Sundanese"
 msgid "Cantonese"
 msgstr "Cantonese"
 
-#: buzz/transcriber/recording_transcriber.py:223 buzz/model_loader.py:530
+#: buzz/transcriber/recording_transcriber.py:224 buzz/model_loader.py:572
 msgid "A connection error occurred"
 msgstr "Si è verificato un errore di connessione"
 
-#: buzz/transcriber/recording_transcriber.py:332
+#: buzz/transcriber/recording_transcriber.py:333
 msgid "Starting Whisper.cpp..."
 msgstr "Avvio di Whisper.cpp..."
 
-#: buzz/transcriber/recording_transcriber.py:385
+#: buzz/transcriber/recording_transcriber.py:388
 msgid "Starting transcription..."
 msgstr "Inizio trascrizione..."
 
