@@ -98,6 +98,7 @@ class AboutDialog(QDialog):
         layout.addWidget(button_box)
 
         self.setLayout(layout)
+        self.setMinimumWidth(350)
 
     def on_click_check_for_updates(self):
         url = QUrl(self.GITHUB_API_LATEST_RELEASE_URL)
