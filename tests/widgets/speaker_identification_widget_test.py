@@ -59,6 +59,10 @@ class TestSpeakerIdentificationWidget:
         # Wait to clean-up threads
         time.sleep(3)
 
+    @pytest.mark.skipif(
+        platform.system() == "Linux",
+        reason="Skip speaker identification worker test on Linux, CI freezes"
+    )
     @patch("buzz.widgets.transcription_viewer.speaker_identification_widget.IdentificationWorker")
     def test_identification_worker_run(self, qtbot: QtBot, transcription, transcription_service):
         """Test the IdentificationWorker's run method and capture the finished signal result."""

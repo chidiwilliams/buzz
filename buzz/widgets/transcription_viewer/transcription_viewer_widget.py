@@ -1238,15 +1238,19 @@ class TranscriptionViewerWidget(QWidget):
         self.transcription_resizer_dialog.show()
 
     def on_speaker_identification_button_clicked(self):
-        self.speaker_identification_dialog = SpeakerIdentificationWidget(
-            transcription=self.transcription,
-            transcription_service=self.transcription_service,
-            transcriptions_updated_signal=self.transcriptions_updated_signal,
-        )
+        # Underlying libs do not support intel Macs
+        if not (platform.system() == "Darwin" and platform.machine() == "x86_64"):
+            self.speaker_identification_dialog = SpeakerIdentificationWidget(
+                transcription=self.transcription,
+                transcription_service=self.transcription_service,
+                transcriptions_updated_signal=self.transcriptions_updated_signal,
+            )
 
-        self.transcriptions_updated_signal.connect(self.close)
+            self.transcriptions_updated_signal.connect(self.close)
 
-        self.speaker_identification_dialog.show()
+            self.speaker_identification_dialog.show()
+
+        pass
 
     def on_loop_toggle_changed(self, enabled: bool):
         """Handle loop toggle state change"""
