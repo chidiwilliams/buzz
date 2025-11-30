@@ -68,7 +68,7 @@ ifeq ($(shell uname -s), Linux)
 	cp whisper.cpp/build/bin/whisper-server buzz/whisper_cpp/ || true
 	cp whisper.cpp/build/src/libwhisper.so buzz/whisper_cpp/ || true
 	cp whisper.cpp/build/src/libwhisper.so.1 buzz/whisper_cpp/ || true
-	cp whisper.cpp/build/src/libwhisper.so.1.7.6 buzz/whisper_cpp/ || true
+	cp whisper.cpp/build/src/libwhisper.so.1.8.2 buzz/whisper_cpp/ || true
 	cp whisper.cpp/build/ggml/src/libggml.so buzz/whisper_cpp/ || true
 	cp whisper.cpp/build/ggml/src/libggml-base.so buzz/whisper_cpp/ || true
 	cp whisper.cpp/build/ggml/src/libggml-cpu.so buzz/whisper_cpp/ || true
