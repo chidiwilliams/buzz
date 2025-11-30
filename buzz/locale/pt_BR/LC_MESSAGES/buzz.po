@@ -307,8 +307,8 @@ msgid "Download failed"
 msgstr "Falha ao baixar"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:275
-#: buzz/widgets/main_window.py:295 buzz/model_loader.py:497
-#: buzz/model_loader.py:511
+#: buzz/widgets/main_window.py:295 buzz/model_loader.py:539
+#: buzz/model_loader.py:553
 msgid "Error"
 msgstr "Erro"
 
@@ -511,11 +511,15 @@ msgstr ""
 "Verifique seus dispositivos de áudio ou os logs do aplicativo para mais "
 "informações."
 
-#: buzz/widgets/about_dialog.py:80
+#: buzz/widgets/about_dialog.py:81
 msgid "Check for updates"
 msgstr "Verificar atualizações"
 
-#: buzz/widgets/about_dialog.py:109
+#: buzz/widgets/about_dialog.py:84
+msgid "Show logs"
+msgstr ""
+
+#: buzz/widgets/about_dialog.py:118
 msgid "You're up to date!"
 msgstr "Você está atualizado!"
 
@@ -1216,7 +1220,7 @@ msgstr "Sundanês"
 msgid "Cantonese"
 msgstr "Cantonês"
 
-#: buzz/transcriber/recording_transcriber.py:224 buzz/model_loader.py:530
+#: buzz/transcriber/recording_transcriber.py:224 buzz/model_loader.py:572
 msgid "A connection error occurred"
 msgstr "Ocorreu um erro de conexão"
 

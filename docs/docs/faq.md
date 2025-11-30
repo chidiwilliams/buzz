@@ -13,6 +13,8 @@ The models are stored:
 
 Paste the location in your file manager to access the models.
 
+Since Version `1.3.4`, to get to the logs folder go to `Help -> About Buzz` and click on `Show logs` button.
+
 ### 2. What can I try if the transcription runs too slowly?
 
 Speech recognition requires large amount of computation, so one option is to try using a lower Whisper model size or using a Whisper.cpp model to run speech recognition of your computer. If you have access to a computer with GPU that has at least 6GB of VRAM you can try using the Faster Whisper model.

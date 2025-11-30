@@ -1,5 +1,6 @@
 import json
 from typing import Optional
+from platformdirs import user_log_dir
 
 from PyQt6 import QtGui
 from PyQt6.QtCore import Qt, QUrl
@@ -80,6 +81,9 @@ class AboutDialog(QDialog):
         self.check_updates_button = QPushButton(_("Check for updates"), self)
         self.check_updates_button.clicked.connect(self.on_click_check_for_updates)
 
+        self.show_logs_button = QPushButton(_("Show logs"), self)
+        self.show_logs_button.clicked.connect(self.on_click_show_logs)
+
         button_box = QDialogButtonBox(
             QDialogButtonBox.StandardButton(QDialogButtonBox.StandardButton.Close), self
         )
@@ -90,14 +94,20 @@ class AboutDialog(QDialog):
         layout.addWidget(buzz_label)
         layout.addWidget(version_label)
         layout.addWidget(self.check_updates_button)
+        layout.addWidget(self.show_logs_button)
         layout.addWidget(button_box)
 
         self.setLayout(layout)
+        self.setMinimumWidth(350)
 
     def on_click_check_for_updates(self):
         url = QUrl(self.GITHUB_API_LATEST_RELEASE_URL)
         self.network_access_manager.get(QNetworkRequest(url))
         self.check_updates_button.setDisabled(True)
+
+    def on_click_show_logs(self):
+        log_dir = user_log_dir(appname="Buzz")
+        QDesktopServices.openUrl(QUrl.fromLocalFile(log_dir))
 
     def on_latest_release_reply(self, reply: QNetworkReply):
         if reply.error() == QNetworkReply.NetworkError.NoError:

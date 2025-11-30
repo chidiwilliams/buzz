@@ -313,8 +313,8 @@ msgid "Download failed"
 msgstr "下载模型失败"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:275
-#: buzz/widgets/main_window.py:295 buzz/model_loader.py:497
-#: buzz/model_loader.py:511
+#: buzz/widgets/main_window.py:295 buzz/model_loader.py:539
+#: buzz/model_loader.py:553
 msgid "Error"
 msgstr "错误"
 
@@ -520,11 +520,15 @@ msgid ""
 "information."
 msgstr "请检查您的音频设备或检查应用程序日志以获取更多信息。"
 
-#: buzz/widgets/about_dialog.py:80
+#: buzz/widgets/about_dialog.py:81
 msgid "Check for updates"
 msgstr "检查更新"
 
-#: buzz/widgets/about_dialog.py:109
+#: buzz/widgets/about_dialog.py:84
+msgid "Show logs"
+msgstr ""
+
+#: buzz/widgets/about_dialog.py:118
 msgid "You're up to date!"
 msgstr "已经是最新版本"
 
@@ -1222,7 +1226,7 @@ msgstr ""
 msgid "Cantonese"
 msgstr ""
 
-#: buzz/transcriber/recording_transcriber.py:224 buzz/model_loader.py:530
+#: buzz/transcriber/recording_transcriber.py:224 buzz/model_loader.py:572
 msgid "A connection error occurred"
 msgstr "连接发生错误"
 
