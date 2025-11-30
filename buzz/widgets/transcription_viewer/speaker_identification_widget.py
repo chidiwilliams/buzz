@@ -149,9 +149,6 @@ class IdentificationWorker(QObject):
 
         # Step 3 - Diarization
         self.progress_update.emit(_("6/8 Identifying speakers"))
-        logging.basicConfig(level=logging.INFO)
-        logging.getLogger("nemo_logger").setLevel(logging.ERROR)
-        logging.getLogger("numba").setLevel(logging.WARNING)
 
         try:
             diarizer_model = MSDDDiarizer(device)
