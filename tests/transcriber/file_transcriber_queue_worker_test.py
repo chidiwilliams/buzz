@@ -70,10 +70,10 @@ def test_transcription_with_whisper_cpp_tiny_with_speech_extraction(worker):
     task = FileTranscriptionTask(file_path=str(test_multibyte_utf8_audio_path), transcription_options=options,
                                  file_transcription_options=FileTranscriptionOptions(), model_path="mock_path")
 
-    with unittest.mock.patch('demucs.api.Separator') as mock_separator_class, \
-            unittest.mock.patch('demucs.api.save_audio') as mock_save_audio, \
+    with unittest.mock.patch('demucs.demucs.api.Separator') as mock_separator_class, \
+            unittest.mock.patch('demucs.demucs.api.save_audio') as mock_save_audio, \
             unittest.mock.patch.object(WhisperFileTranscriber, 'run') as mock_run:
-        # Mock demucs.api.Separator and save_audio
+        # Mock demucs.demucs.api.Separator and save_audio
         mock_separator_instance = unittest.mock.Mock()
         mock_separator_instance.separate_audio_file.return_value = (None, {"vocals": "mock_vocals_data"})
         mock_separator_instance.samplerate = 44100

@@ -5,6 +5,8 @@ omit =
   *_test.py
   demucs/*
   whisper_diarization/*
+  deepmultilingualpunctuation/*
+  ctc_forced_aligner/*
 
 [html]
 directory = coverage/html
