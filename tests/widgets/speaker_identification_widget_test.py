@@ -9,10 +9,12 @@ from buzz.db.entity.transcription import Transcription
 from buzz.db.entity.transcription_segment import TranscriptionSegment
 from buzz.model_loader import ModelType, WhisperModelSize
 from buzz.transcriber.transcriber import Task
-from buzz.widgets.transcription_viewer.speaker_identification_widget import (
-    SpeakerIdentificationWidget,
-    IdentificationWorker,
-)
+# Underlying libs do not support intel Macs
+if not (platform.system() == "Darwin" and platform.machine() == "x86_64"):
+    from buzz.widgets.transcription_viewer.speaker_identification_widget import (
+        SpeakerIdentificationWidget,
+        IdentificationWorker,
+    )
 from tests.audio import test_audio_path
 
 @pytest.mark.skipif(
