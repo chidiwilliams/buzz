@@ -83,12 +83,6 @@ parts:
       - libasound2-plugins
       - libasound2-plugins-extra
       - libyaml-dev
-      - gstreamer1.0-plugins-good
-      - gstreamer1.0-plugins-base-apps
-      - gstreamer1.0-pulseaudio
-      - libgstreamer1.0-0
-      - libgstreamer-plugins-base1.0-0
-      - libgstreamer-plugins-good1.0-0
       - liboss4-salsa2
       # Display
       - libxkbcommon-x11-0
@@ -158,7 +152,7 @@ apps:
       PATH: $SNAP/usr/bin:$SNAP/bin:$PATH
       LD_LIBRARY_PATH: $SNAP/lib/python3.12/site-packages/nvidia/cudnn/lib:$SNAP/lib/python3.12/site-packages/PyQt6:$SNAP/lib/python3.12/site-packages/PyQt6/Qt6/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/lapack:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/blas:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/oss4-libsalsa:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libproxy:$SNAP:$LD_LIBRARY_PATH
       PYTHONPATH: $SNAP:$SNAP/lib/python3.12/site-packages/PyQt6:$SNAP/lib/python3.12/site-packages/PyQt6/Qt6/lib:$SNAP/usr/lib/python3/dist-packages:$SNAP/usr/lib/python3.12/site-packages:$SNAP/usr/local/lib/python3.12/dist-packages:$SNAP/usr/lib/python3.12/dist-packages:$PYTHONPATH
-      QT_MEDIA_BACKEND: gstreamer
+      QT_MEDIA_BACKEND: ffmpeg
       PULSE_LATENCY_MSEC: "30"
       ALSA_CONFIG_PATH: $SNAP/etc/asound.conf
     plugs:

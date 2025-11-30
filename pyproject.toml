@@ -67,6 +67,7 @@ dependencies = [
     "nltk>=3.9.2",
     "uroman>=1.3.1.1",
     "lhotse==1.31.1",
+    "coverage==7.6.1",
 ]
 repository = "https://github.com/chidiwilliams/buzz"
 documentation = "https://chidiwilliams.github.io/buzz/docs"
