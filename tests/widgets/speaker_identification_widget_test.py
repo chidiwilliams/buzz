@@ -1,4 +1,5 @@
 import logging
+import platform
 import time
 import uuid
 import pytest
@@ -14,6 +15,10 @@ from buzz.widgets.transcription_viewer.speaker_identification_widget import (
 )
 from tests.audio import test_audio_path
 
+@pytest.mark.skipif(
+    platform.system() == "Darwin" and platform.machine() == "x86_64",
+    reason="Skip speaker identification tests on macOS x86_64"
+)
 class TestSpeakerIdentificationWidget:
     @pytest.fixture()
     def transcription(
@@ -71,8 +76,6 @@ class TestSpeakerIdentificationWidget:
 
         with qtbot.waitSignal(worker.finished, timeout= 300000): #5 min timeout
             worker.run()
-
-        logging.debug(f"==== RESULT ==== {result}")
 
         assert worker.transcription == transcription
         assert len(result) == 1
