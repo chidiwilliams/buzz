@@ -60,7 +60,10 @@ from buzz.widgets.transcription_viewer.transcription_view_mode_tool_button impor
     ViewMode
 )
 from buzz.widgets.transcription_viewer.transcription_resizer_widget import TranscriptionResizerWidget
-from buzz.widgets.transcription_viewer.speaker_identification_widget import SpeakerIdentificationWidget
+
+# Underlying libs do not support intel Macs
+if not (platform.system() == "Darwin" and platform.machine() == "x86_64"):
+    from buzz.widgets.transcription_viewer.speaker_identification_widget import SpeakerIdentificationWidget
 
 
 class TranscriptionViewerWidget(QWidget):
