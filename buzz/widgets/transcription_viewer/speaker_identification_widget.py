@@ -254,20 +254,27 @@ class SpeakerIdentificationWidget(QWidget):
         self.step_1_button.setMinimumWidth(200)
         self.step_1_button.clicked.connect(self.on_identify_button_clicked)
 
+        # Progress container with label and bar
+        progress_container = QVBoxLayout()
+
+        self.progress_label = QLabel(self)
+        if os.path.isfile(self.transcription.file):
+            self.progress_label.setText(_("Ready to identify speakers"))
+        else:
+            self.progress_label.setText(_("Audio file not found"))
+            self.step_1_button.setEnabled(False)
+
         self.progress_bar = QProgressBar(self)
         self.progress_bar.setMinimumWidth(400)
         self.progress_bar.setRange(0, 8)
         self.progress_bar.setValue(0)
 
-        if os.path.isfile(self.transcription.file):
-            self.progress_bar.setFormat(_("Ready to identify speakers"))
-        else:
-            self.progress_bar.setFormat(_("Audio file not found"))
-            self.step_1_button.setEnabled(False)
+        progress_container.addWidget(self.progress_label)
+        progress_container.addWidget(self.progress_bar)
 
-        self.step_1_row.addWidget(self.progress_bar)
+        self.step_1_row.addLayout(progress_container)
 
-        self.step_1_row.addWidget(self.step_1_button)
+        self.step_1_row.addWidget(self.step_1_button, alignment=Qt.AlignmentFlag.AlignTop)
 
         step_1_layout.addLayout(self.step_1_row)
 
@@ -349,7 +356,7 @@ class SpeakerIdentificationWidget(QWidget):
         self.thread.start()
 
     def on_progress_update(self, progress):
-        self.progress_bar.setFormat(progress)
+        self.progress_label.setText(progress)
 
         progress_value = 0
         if progress and progress[0].isdigit():

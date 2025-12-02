@@ -80,6 +80,7 @@ parts:
       - libportaudio2
       - libpulse0
       - libasound2
+      - libasound2-dev
       - libasound2-plugins
       - libasound2-plugins-extra
       - libyaml-dev
