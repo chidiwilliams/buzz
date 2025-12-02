@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-28 16:49+0200\n"
+"POT-Creation-Date: 2025-11-23 12:55+0200\n"
 "PO-Revision-Date: 2025-11-01 17:43-0300\n"
 "Last-Translator: Paulo Schopf <pschopf@gmail.com>\n"
 "Language-Team: none\n"
@@ -552,64 +552,68 @@ msgstr "Visualizar"
 msgid "Timestamps"
 msgstr "Marcações de tempo"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:211
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:215
 msgid "Export"
 msgstr "Exportar"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:230
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:234
 msgid "Translate"
 msgstr "Traduzir"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:240
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:177
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:244
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:175
 msgid "Resize"
 msgstr "Redimensionar"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:252
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:257
+msgid "Identify Speakers"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:269
 msgid "Find"
 msgstr "Procurar"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:255
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:272
 msgid "Show/Hide Search Bar (Ctrl+F)"
 msgstr "Mostrar/Ocultar a Barra de Pesquisa"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:320
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:337
 msgid "Find:"
 msgstr "Procurar:"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:326
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:343
 msgid "Enter text to find..."
 msgstr "Digite o texto a procurar..."
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:339
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:356
 msgid "Previous match (Shift+Enter)"
 msgstr "Encontro prévio (Shift+Enter)"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:347
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:364
 msgid "Next match (Enter)"
 msgstr "Póximo encontro (Enter)"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:355
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:372
 msgid "Clear"
 msgstr "Limpar"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:382
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:399
 msgid "Playback Controls:"
 msgstr "Controles de Reprodução:"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:387
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:404
 msgid "Loop Segment"
 msgstr "Segmento de Loop"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:389
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:406
 msgid "Enable/disable looping when clicking on transcript segments"
 msgstr "Habilitar/desabilitar loop ao clicar em segmentos de transcrição"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:395
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:412
 msgid "Follow Audio"
 msgstr "Siga o Áudio"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:397
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:414
 msgid ""
 "Enable/disable following the current audio position in the transcript. When "
 "enabled, automatically scrolls to current text."
@@ -617,74 +621,145 @@ msgstr ""
 "Ativar/desativar a opção de seguir a posição atual do áudio na transcrição. "
 "Quando ativado, rola automaticamente para o texto atual."
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:444
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:461
 msgid "Scroll to Current"
 msgstr "Rolar para o Atual"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:446
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:463
 msgid "Scroll to the currently spoken text"
 msgstr "Role até o texto falado no momento"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:768
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:785
 msgid "1 of 100+ matches"
 msgstr "1 de 100+ encontros"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:770
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:787
 msgid "1 of "
 msgstr "1 de "
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:770
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:836
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:787
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:853
 msgid " matches"
 msgstr " encontros"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:775
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:792
 msgid "No matches found"
 msgstr "Nada encontrado"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:834
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:851
 msgid " of 100+ matches"
 msgstr " de 100+ encontros"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:836
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:853
 msgid " of "
 msgstr " de "
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1191
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1208
 msgid "API Key Required"
 msgstr "Chave API Necessária"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1192
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1209
 msgid "Please enter OpenAI API Key in preferences"
 msgstr "Insira a chave API OpenAI nas preferências"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:159
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:157
 msgid "Resize Options"
 msgstr "Opções de Redimensionamento"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:170
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:168
 msgid "Desired subtitle length"
 msgstr "Duração desejada da legenda"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:195
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:193
 msgid "Merge Options"
 msgstr "Opções de Mesclagem"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:206
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:204
 msgid "Merge by gap"
 msgstr "Mesclar por intervalo"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:214
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:212
 msgid "Split by punctuation"
 msgstr "Dividir por pontuação"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:222
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:220
 msgid "Split by max length"
 msgstr "Dividir por tamanho máximo"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:234
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:232
 msgid "Merge"
 msgstr "Mesclar"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:92
+msgid "1/8 Collecting transcripts"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:106
+msgid "2/8 Loading audio"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:115
+msgid "3/8 Loading alignment model"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:121
+msgid "4/8 Processing audio"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:133
+#, fuzzy
+msgid "5/8 Preparing transcripts"
+msgstr "Iniciando transcrição..."
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:151
+msgid "6/8 Identifying speakers"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:160
+msgid "0/0 Error identifying speakers"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:168
+msgid "7/8 Mapping speakers to transcripts"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:207
+msgid "8/8 Identification done"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:243
+msgid "Step 1: Identify speakers"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:255
+msgid "Identify"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:265
+msgid "Ready to identify speakers"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:267
+msgid "Audio file not found"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:283
+msgid "Step 2: Name speakers"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:298
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:391
+msgid "Play sample"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:313
+msgid "Merge speaker sentences"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:318
+#, fuzzy
+msgid "Save"
+msgstr "Salvar Arquivo"
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:82
 msgid "Save File"

@@ -79,6 +79,21 @@ class CustomBuildHook(BuildHookInterface):
                 print(result.stderr, file=sys.stderr)
             print("Successfully compiled translation files")
 
+            # Build ctc_forced_aligner C++ extension in-place
+            print("Building ctc_forced_aligner C++ extension...")
+            ctc_aligner_dir = project_root / "ctc_forced_aligner"
+            result = subprocess.run(
+                [sys.executable, "setup.py", "build_ext", "--inplace"],
+                cwd=ctc_aligner_dir,
+                check=True,
+                capture_output=True,
+                text=True
+            )
+            print(result.stdout)
+            if result.stderr:
+                print(result.stderr, file=sys.stderr)
+            print("Successfully built ctc_forced_aligner C++ extension")
+
             # Force include all files in buzz/whisper_cpp directory
             whisper_cpp_dir = project_root / "buzz" / "whisper_cpp"
             if whisper_cpp_dir.exists():
@@ -141,6 +156,28 @@ class CustomBuildHook(BuildHookInterface):
                 print(f"Force including {len(locale_files)} .mo files from buzz/locale/")
             else:
                 print(f"Warning: {locale_dir} does not exist", file=sys.stderr)
+
+            # Force include compiled extensions from ctc_forced_aligner
+            ctc_aligner_pkg = project_root / "ctc_forced_aligner" / "ctc_forced_aligner"
+            if ctc_aligner_pkg.exists():
+                # Get all compiled extension files (.so, .pyd, .dll)
+                extension_patterns = ["*.so", "*.pyd", "*.dll"]
+                extension_files = []
+                for pattern in extension_patterns:
+                    extension_files.extend(glob.glob(str(ctc_aligner_pkg / pattern)))
+
+                # Add them to force_include
+                if 'force_include' not in build_data:
+                    build_data['force_include'] = {}
+
+                for file_path in extension_files:
+                    # Convert to relative path from project root
+                    rel_path = Path(file_path).relative_to(project_root)
+                    build_data['force_include'][str(rel_path)] = str(rel_path)
+
+                print(f"Force including {len(extension_files)} compiled extension(s) from ctc_forced_aligner/")
+            else:
+                print(f"Warning: {ctc_aligner_pkg} does not exist", file=sys.stderr)
 
         except subprocess.CalledProcessError as e:
             print(f"Error building whisper.cpp: {e}", file=sys.stderr)

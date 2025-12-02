@@ -1,0 +1,19 @@
+# @package _global_
+
+# automix dataset with Musdb, extra training data and the test set of Musdb.
+# This used even more remixes than auto_extra_test.
+dset:
+  wav: /checkpoint/defossez/datasets/aetl
+  samplerate: 44100
+  channels: 2
+epochs: 320
+max_batches: 500
+
+augment:
+  shift_same: true
+  scale:
+    proba: 0.
+  remix:
+    proba: 0
+  repitch:
+    proba: 0

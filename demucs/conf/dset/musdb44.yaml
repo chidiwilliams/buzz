@@ -1,0 +1,5 @@
+# @package _global_
+
+dset:
+  samplerate: 44100
+  channels: 2

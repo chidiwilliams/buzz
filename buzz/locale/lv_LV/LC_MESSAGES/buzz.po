@@ -3,13 +3,12 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-28 16:49+0200\n"
-"PO-Revision-Date: 2025-11-28 16:50+0200\n"
+"POT-Creation-Date: 2025-11-23 13:02+0200\n"
+"PO-Revision-Date: 2025-11-23 12:58+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -558,64 +557,68 @@ msgstr "Skats"
 msgid "Timestamps"
 msgstr "Laiks"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:211
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:215
 msgid "Export"
 msgstr "Eksportēt"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:230
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:234
 msgid "Translate"
 msgstr "Tulkot"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:240
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:177
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:244
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:175
 msgid "Resize"
 msgstr "Mainīt garumu"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:252
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:257
+msgid "Identify Speakers"
+msgstr "Noteikt runātājus"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:269
 msgid "Find"
 msgstr "Meklēt"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:255
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:272
 msgid "Show/Hide Search Bar (Ctrl+F)"
 msgstr "Rādīt/Slēpt meklēšanas joslu (Ctrl+F)"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:320
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:337
 msgid "Find:"
 msgstr "Meklēt:"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:326
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:343
 msgid "Enter text to find..."
 msgstr "Ievadiet meklējamo..."
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:339
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:356
 msgid "Previous match (Shift+Enter)"
 msgstr "Iepriekšējais rezultāts (Shift+Enter)"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:347
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:364
 msgid "Next match (Enter)"
 msgstr "Nākamais rezultāts (Enter)"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:355
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:372
 msgid "Clear"
 msgstr "Notīrīt"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:382
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:399
 msgid "Playback Controls:"
 msgstr "Atskaņošanas iespējas:"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:387
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:404
 msgid "Loop Segment"
 msgstr "Atkārtot segmentu"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:389
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:406
 msgid "Enable/disable looping when clicking on transcript segments"
 msgstr "Nosaka vai atkārtot izvēlēto segmentu"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:395
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:412
 msgid "Follow Audio"
 msgstr "Sekot audio"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:397
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:414
 msgid ""
 "Enable/disable following the current audio position in the transcript. When "
 "enabled, automatically scrolls to current text."
@@ -623,74 +626,143 @@ msgstr ""
 "Nosaka vai atskaņojot audio iezīmētajam segmentam vajadzētu automātiski "
 "sekot tam kas tiek atskaņots."
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:444
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:461
 msgid "Scroll to Current"
 msgstr "Pāriet uz tekošo"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:446
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:463
 msgid "Scroll to the currently spoken text"
 msgstr "Pāriet uz šobrīd atskaņojamo tesktu"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:768
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:785
 msgid "1 of 100+ matches"
 msgstr "1 no 100+ "
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:770
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:787
 msgid "1 of "
 msgstr "1 no "
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:770
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:836
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:787
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:853
 msgid " matches"
 msgstr " "
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:775
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:792
 msgid "No matches found"
 msgstr "Nekas nav atrasts"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:834
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:851
 msgid " of 100+ matches"
 msgstr " no 100+"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:836
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:853
 msgid " of "
 msgstr " no "
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1191
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1208
 msgid "API Key Required"
 msgstr "API atslēgas kļūda"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1192
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1209
 msgid "Please enter OpenAI API Key in preferences"
 msgstr "Lūdzu ievadiet OpenAI API atslēgu iestatījumos"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:159
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:157
 msgid "Resize Options"
 msgstr "Garuma maiņas iestatījumi"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:170
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:168
 msgid "Desired subtitle length"
 msgstr "Vēlamais teksta garums"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:195
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:193
 msgid "Merge Options"
 msgstr "Apvienošanas iestatījumi"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:206
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:204
 msgid "Merge by gap"
 msgstr "Apvienot pēc attāluma"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:214
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:212
 msgid "Split by punctuation"
 msgstr "Dalīt pie pieturzīmēm"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:222
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:220
 msgid "Split by max length"
 msgstr "Dalīt pie maksimālā garuma"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:234
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:232
 msgid "Merge"
 msgstr "Apvienot"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:92
+msgid "1/8 Collecting transcripts"
+msgstr "1/8 Apkopo transkripcijas"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:106
+msgid "2/8 Loading audio"
+msgstr "2/8 Ielādē audio"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:115
+msgid "3/8 Loading alignment model"
+msgstr "3/8 Ielādē identifikācijas modeli"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:121
+msgid "4/8 Processing audio"
+msgstr "4/8 Apstrādā audio"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:133
+msgid "5/8 Preparing transcripts"
+msgstr "5/8 Sagatavo transkripcijas"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:151
+msgid "6/8 Identifying speakers"
+msgstr "6/8 Nosaka runātājus"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:160
+msgid "0/0 Error identifying speakers"
+msgstr "0/0 Kļūda nosakot runātājus"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:168
+msgid "7/8 Mapping speakers to transcripts"
+msgstr "7/8 Marķē runātāju teikumus"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:207
+msgid "8/8 Identification done"
+msgstr "8/8 Runātāju noteikšana pabeigta"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:243
+msgid "Step 1: Identify speakers"
+msgstr "1. solis: Runātāju noteikšana"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:255
+msgid "Identify"
+msgstr "Noteikt"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:265
+msgid "Ready to identify speakers"
+msgstr "Gatavs noteikt runātājus"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:267
+msgid "Audio file not found"
+msgstr "Audio datne nav atrasta"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:283
+msgid "Step 2: Name speakers"
+msgstr "2. solis: Runātāju identifikācija"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:298
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:391
+msgid "Play sample"
+msgstr "Atskaņot paraugu"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:313
+msgid "Merge speaker sentences"
+msgstr "Apvienot secīgus runātāja teikumus"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:318
+msgid "Save"
+msgstr "Saglabāt"
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:82
 msgid "Save File"

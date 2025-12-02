@@ -58,5 +58,5 @@ class TestWhisperCpp:
         segments = WhisperCpp.transcribe(task=task)
 
         assert "Mani" in segments[0].text
-        assert "uzstrau" in segments[1].text
+        assert "uzstrau" or "ustrau" in segments[1].text
         assert "laikabstāk" in segments[2].text

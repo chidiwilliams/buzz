@@ -34,7 +34,10 @@ from tests.mock_sounddevice import MockInputStream, mock_query_devices
 from .mock_qt import MockNetworkAccessManager, MockNetworkReply
 
 if platform.system() == "Linux":
-    multiprocessing.set_start_method("spawn")
+    try:
+        multiprocessing.set_start_method("spawn", force=True)
+    except RuntimeError:
+        pass
 
 
 @pytest.fixture(scope="module", autouse=True)

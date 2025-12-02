@@ -56,6 +56,17 @@ def main():
         format=log_format,
     )
 
+    # Silence noisy third-party library loggers
+    logging.getLogger("matplotlib").setLevel(logging.WARNING)
+    logging.getLogger("graphviz").setLevel(logging.WARNING)
+    logging.getLogger("nemo_logger").setLevel(logging.ERROR)
+    logging.getLogger("numba").setLevel(logging.WARNING)
+    logging.getLogger("torio._extension.utils").setLevel(logging.WARNING)
+    logging.getLogger("export_config_manager").setLevel(logging.WARNING)
+    logging.getLogger("training_telemetry_provider").setLevel(logging.ERROR)
+    logging.getLogger("default_recorder").setLevel(logging.WARNING)
+    logging.getLogger("config").setLevel(logging.WARNING)
+
     if getattr(sys, "frozen", False) is False:
         stdout_handler = logging.StreamHandler(sys.stdout)
         stdout_handler.setLevel(logging.DEBUG)

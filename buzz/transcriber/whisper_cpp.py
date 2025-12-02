@@ -4,7 +4,6 @@ import sys
 import logging
 import subprocess
 import json
-import tempfile
 from typing import List
 from buzz.assets import APP_BASE_DIR
 from buzz.transcriber.transcriber import Segment, Task, FileTranscriptionTask
@@ -58,9 +57,7 @@ class WhisperCpp:
         file_to_process = task.file_path
 
         if file_ext not in supported_formats:
-            # Create temporary WAV file
-            temp_dir = tempfile.gettempdir()
-            temp_file = os.path.join(temp_dir, f"buzz_temp_{os.path.basename(task.file_path)}.wav")
+            temp_file = task.file_path + ".wav"
 
             logging.info(f"Converting {task.file_path} to WAV format")
 
