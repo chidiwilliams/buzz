@@ -23,6 +23,7 @@ jobs:
           - os: macos-15-intel
           - os: macos-latest
           - os: windows-latest
+          - os: ubuntu-22.04
           - os: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -85,6 +86,16 @@ jobs:
       - name: Install apt dependencies
         run: |
           sudo apt-get update
+
+          if [ "$(lsb_release -rs)" == "22.04" ]; then
+            sudo apt-get install libegl1-mesa
+
+            # Add ubuntu-toolchain-r PPA for newer libstdc++6 with GLIBCXX_3.4.32
+            sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+            sudo apt-get update
+            sudo apt-get install -y gcc-13 g++-13 libstdc++-13-dev
+          fi
+
           sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev ccache
         if: "startsWith(matrix.os, 'ubuntu-')"
 
@@ -159,6 +170,16 @@ jobs:
       - name: Install apt dependencies
         run: |
           sudo apt-get update
+
+          if [ "$(lsb_release -rs)" == "22.04" ]; then
+            sudo apt-get install libegl1-mesa
+
+            # Add ubuntu-toolchain-r PPA for newer libstdc++6 with GLIBCXX_3.4.32
+            sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+            sudo apt-get update
+            sudo apt-get install -y gcc-13 g++-13 libstdc++-13-dev
+          fi
+
           sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev ccache
         if: "startsWith(matrix.os, 'ubuntu-')"
 
