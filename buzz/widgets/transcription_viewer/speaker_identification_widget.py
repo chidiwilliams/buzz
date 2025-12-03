@@ -150,6 +150,15 @@ class IdentificationWorker(QObject):
         # Step 3 - Diarization
         self.progress_update.emit(_("6/8 Identifying speakers"))
 
+        # Silence NeMo's verbose logging
+        logging.getLogger("nemo_logging").setLevel(logging.ERROR)
+        try:
+            # Also try to silence NeMo's internal logging system
+            from nemo.utils import logging as nemo_logging
+            nemo_logging.setLevel(logging.ERROR)
+        except (ImportError, AttributeError):
+            pass
+
         try:
             diarizer_model = MSDDDiarizer(device)
             speaker_ts = diarizer_model.diarize(torch.from_numpy(audio_waveform).unsqueeze(0))
