@@ -81,6 +81,9 @@ def main():
     logging.debug("cache_dir: %s", user_cache_dir("Buzz"))
     logging.debug("data_dir: %s", user_data_dir("Buzz"))
 
+    # Will download all Huggingface data to the app cache directory
+    os.environ.setdefault("HF_HOME", user_cache_dir("Buzz"))
+
     app = Application(sys.argv)
     parse_command_line(app)
     app.show_main_window()
