@@ -237,6 +237,7 @@ class SpeakerIdentificationWidget(QWidget):
 
         self.thread = None
         self.worker = None
+        self.needs_layout_update = False
 
         self.setMinimumWidth(650)
         self.setMinimumHeight(400)
@@ -415,6 +416,8 @@ class SpeakerIdentificationWidget(QWidget):
         # Trigger layout update to properly size the new widgets
         self.layout().activate()
         self.adjustSize()
+        # Schedule update if window is minimized
+        self.needs_layout_update = True
 
     def on_speaker_preview(self, speaker_id):
         if self.player_timer:
@@ -510,6 +513,15 @@ class SpeakerIdentificationWidget(QWidget):
             self.player_timer.stop()
 
         self.close()
+
+    def changeEvent(self, event):
+        super().changeEvent(event)
+
+        # Handle window activation (restored from minimized or brought to front)
+        if self.needs_layout_update:
+            self.layout().activate()
+            self.adjustSize()
+            self.needs_layout_update = False
 
     def closeEvent(self, event):
         self.hide()
