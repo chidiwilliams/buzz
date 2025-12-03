@@ -403,6 +403,10 @@ class SpeakerIdentificationWidget(QWidget):
 
             self.speaker_preview_row.addLayout(speaker_layout)
 
+        # Trigger layout update to properly size the new widgets
+        self.layout().activate()
+        self.adjustSize()
+
     def on_speaker_preview(self, speaker_id):
         if self.player_timer:
             self.player_timer.stop()
