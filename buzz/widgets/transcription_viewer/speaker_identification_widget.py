@@ -150,6 +150,15 @@ class IdentificationWorker(QObject):
         # Step 3 - Diarization
         self.progress_update.emit(_("6/8 Identifying speakers"))
 
+        # Silence NeMo's verbose logging
+        logging.getLogger("nemo_logging").setLevel(logging.ERROR)
+        try:
+            # Also try to silence NeMo's internal logging system
+            from nemo.utils import logging as nemo_logging
+            nemo_logging.setLevel(logging.ERROR)
+        except (ImportError, AttributeError):
+            pass
+
         try:
             diarizer_model = MSDDDiarizer(device)
             speaker_ts = diarizer_model.diarize(torch.from_numpy(audio_waveform).unsqueeze(0))
@@ -228,6 +237,7 @@ class SpeakerIdentificationWidget(QWidget):
 
         self.thread = None
         self.worker = None
+        self.needs_layout_update = False
 
         self.setMinimumWidth(650)
         self.setMinimumHeight(400)
@@ -403,6 +413,12 @@ class SpeakerIdentificationWidget(QWidget):
 
             self.speaker_preview_row.addLayout(speaker_layout)
 
+        # Trigger layout update to properly size the new widgets
+        self.layout().activate()
+        self.adjustSize()
+        # Schedule update if window is minimized
+        self.needs_layout_update = True
+
     def on_speaker_preview(self, speaker_id):
         if self.player_timer:
             self.player_timer.stop()
@@ -497,6 +513,15 @@ class SpeakerIdentificationWidget(QWidget):
             self.player_timer.stop()
 
         self.close()
+
+    def changeEvent(self, event):
+        super().changeEvent(event)
+
+        # Handle window activation (restored from minimized or brought to front)
+        if self.needs_layout_update:
+            self.layout().activate()
+            self.adjustSize()
+            self.needs_layout_update = False
 
     def closeEvent(self, event):
         self.hide()
