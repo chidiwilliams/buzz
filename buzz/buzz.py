@@ -8,6 +8,9 @@ from typing import TextIO
 
 from platformdirs import user_log_dir, user_cache_dir, user_data_dir
 
+# Will download all Huggingface data to the app cache directory
+os.environ.setdefault("HF_HOME", user_cache_dir("Buzz"))
+
 from buzz.assets import APP_BASE_DIR
 
 # Check for segfaults if not running in frozen mode
@@ -80,9 +83,6 @@ def main():
     logging.debug("log_dir: %s", log_dir)
     logging.debug("cache_dir: %s", user_cache_dir("Buzz"))
     logging.debug("data_dir: %s", user_data_dir("Buzz"))
-
-    # Will download all Huggingface data to the app cache directory
-    os.environ.setdefault("HF_HOME", user_cache_dir("Buzz"))
 
     app = Application(sys.argv)
     parse_command_line(app)
