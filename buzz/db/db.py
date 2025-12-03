@@ -41,3 +41,11 @@ def _setup_db(path: str) -> QSqlDatabase:
     db.exec('PRAGMA foreign_keys = ON')
     logging.debug("Database connection opened: %s", db.databaseName())
     return db
+
+
+def close_app_db():
+    db = QSqlDatabase.database()
+    if db.isOpen():
+        logging.debug("Closing database connection: %s", db.databaseName())
+        db.close()
+        QSqlDatabase.removeDatabase(QSqlDatabase.defaultConnection)

@@ -273,27 +273,29 @@ class WhisperFileTranscriber(FileTranscriber):
 
         if self.started_process:
             self.current_process.terminate()
-            # Use timeout to avoid hanging indefinitely
+
+            if self.read_line_thread and self.read_line_thread.is_alive():
+                self.read_line_thread.join(timeout=5)
+                if self.read_line_thread.is_alive():
+                    logging.warning("Read line thread still alive after 5s")
+
             self.current_process.join(timeout=10)
             if self.current_process.is_alive():
                 logging.warning("Process didn't terminate gracefully, force killing")
                 self.current_process.kill()
                 self.current_process.join(timeout=5)
-            
-            # Close pipes to unblock the read_line thread
+
             try:
-                if hasattr(self, 'send_pipe'):
+                if hasattr(self, 'send_pipe') and self.send_pipe:
                     self.send_pipe.close()
-                if hasattr(self, 'recv_pipe'):
+            except Exception as e:
+                logging.debug(f"Error closing send_pipe: {e}")
+
+            try:
+                if hasattr(self, 'recv_pipe') and self.recv_pipe:
                     self.recv_pipe.close()
             except Exception as e:
-                logging.debug(f"Error closing pipes: {e}")
-            
-            # Join read_line_thread with timeout to prevent hanging
-            if self.read_line_thread and self.read_line_thread.is_alive():
-                self.read_line_thread.join(timeout=5)
-                if self.read_line_thread.is_alive():
-                    logging.warning("Read line thread didn't terminate gracefully")
+                logging.debug(f"Error closing recv_pipe: {e}")
 
     def read_line(self, pipe: Connection):
         while True:
