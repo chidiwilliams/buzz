@@ -39,6 +39,7 @@ class Application(QApplication):
             self.setStyle(QStyleFactory.create("Fusion"))
 
         self.settings = Settings()
+        logging.debug(f"Settings filename: {self.settings.settings.fileName()}")
         
         # Set BUZZ_FORCE_CPU environment variable if Force CPU setting is enabled
         force_cpu_enabled = self.settings.value(

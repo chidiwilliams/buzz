@@ -45,7 +45,9 @@ def _setup_db(path: str) -> QSqlDatabase:
 
 def close_app_db():
     db = QSqlDatabase.database()
+    if not db.isValid():
+        return
+
     if db.isOpen():
-        logging.debug("Closing database connection: %s", db.databaseName())
+        logging.debug("Closing database connection: %s", db.connectionName())
         db.close()
-        QSqlDatabase.removeDatabase(QSqlDatabase.defaultConnection)

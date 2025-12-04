@@ -59,18 +59,6 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/uv.lock') }}
 
-      - name: Load cached Whisper models
-        id: cached-whisper-models
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/Library/Caches/Buzz
-            ~/.cache/whisper
-            ~/.cache/huggingface
-            ~/.cache/Buzz
-            ~/AppData/Local/Buzz/Buzz/Cache
-          key: whisper-models-${{ runner.os }}
-
       - uses: AnimMouse/setup-ffmpeg@v1
         id: setup-ffmpeg
         with:
