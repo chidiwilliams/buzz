@@ -68,6 +68,7 @@ dependencies = [
     "uroman>=1.3.1.1",
     "lhotse==1.31.1",
     "coverage==7.6.1",
+    "demucs",
 ]
 repository = "https://github.com/chidiwilliams/buzz"
 documentation = "https://chidiwilliams.github.io/buzz/docs"
@@ -106,6 +107,7 @@ default-groups = [
 ]
 
 [tool.uv.sources]
+demucs = { path = "demucs_repo", editable = true }
 torch = [
     { index = "PyPI", marker = "sys_platform == 'darwin'" },
     { index = "pytorch-cu128", marker = "sys_platform != 'darwin'" },
@@ -136,7 +138,7 @@ include = [
     "buzz",
     "buzz/whisper_cpp/*",
     "buzz/locale/*/LC_MESSAGES/buzz.mo",
-    "demucs",
+    "demucs_repo",
     "whisper_diarization",
     "deepmultilingualpunctuation",
     "ctc_forced_aligner",
@@ -147,7 +149,7 @@ include = [
     "buzz",
     "buzz/whisper_cpp/*",
     "buzz/locale/*/LC_MESSAGES/buzz.mo",
-    "demucs",
+    "demucs_repo",
     "whisper_diarization",
     "deepmultilingualpunctuation",
     "ctc_forced_aligner",
