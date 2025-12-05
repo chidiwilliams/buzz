@@ -258,6 +258,7 @@ dependencies = [
     { name = "ctranslate2", version = "4.6.0", source = { registry = "https://pypi.org/simple/" }, marker = "platform_machine == 'arm64' or sys_platform != 'darwin'" },
     { name = "darkdetect" },
     { name = "dataclasses-json" },
+    { name = "demucs" },
     { name = "diffq" },
     { name = "dora-search" },
     { name = "einops" },
@@ -343,6 +344,7 @@ requires-dist = [
     { name = "ctranslate2", marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'", specifier = "==4.3.1" },
     { name = "darkdetect", specifier = ">=0.8.0,<0.9" },
     { name = "dataclasses-json", specifier = ">=0.6.4,<0.7" },
+    { name = "demucs", editable = "demucs_repo" },
     { name = "diffq", specifier = ">=0.2.4,<0.3" },
     { name = "dora-search", specifier = ">=0.1.12,<0.2" },
     { name = "einops", specifier = ">=0.8.1,<0.9" },
@@ -809,6 +811,59 @@ sdist = { url = "https://files.pythonhosted.org/packages/43/fa/6d96a0978d19e17b6
 wheels = [
     { url = "https://files.pythonhosted.org/packages/4e/8c/f3147f5c4b73e7550fe5f9352eaa956ae838d5c51eb58e7a25b9f3e2643b/decorator-5.2.1-py3-none-any.whl", hash = "sha256:d316bb415a2d9e2d2b3abcc4084c6502fc09240e292cd76a76afc106a1c8e04a", size = 9190, upload-time = "2025-02-24T04:41:32.565Z" },
 ]
+
+[[package]]
+name = "demucs"
+version = "4.1.0a3"
+source = { editable = "demucs_repo" }
+dependencies = [
+    { name = "dora-search" },
+    { name = "einops" },
+    { name = "julius" },
+    { name = "lameenc" },
+    { name = "openunmix" },
+    { name = "pyyaml" },
+    { name = "torch", version = "2.2.2", source = { registry = "https://pypi.org/simple/" }, marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'" },
+    { name = "torch", version = "2.7.1", source = { registry = "https://pypi.org/simple/" }, marker = "platform_machine != 'x86_64' and sys_platform == 'darwin'" },
+    { name = "torch", version = "2.7.1+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "sys_platform != 'darwin'" },
+    { name = "torchaudio", version = "2.2.2", source = { registry = "https://pypi.org/simple/" }, marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'" },
+    { name = "torchaudio", version = "2.7.1", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'" },
+    { name = "torchaudio", version = "2.7.1", source = { registry = "https://pypi.org/simple/" }, marker = "platform_machine == 'arm64' and sys_platform == 'darwin'" },
+    { name = "torchaudio", version = "2.7.1+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "(platform_machine != 'arm64' and platform_machine != 'x86_64' and sys_platform == 'darwin') or (platform_machine != 'aarch64' and sys_platform == 'linux') or (platform_python_implementation != 'CPython' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
+    { name = "tqdm" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "diffq", marker = "extra == 'dev'", specifier = ">=0.2.1" },
+    { name = "dora-search" },
+    { name = "dora-search", marker = "extra == 'dev'", specifier = ">=0.1.12" },
+    { name = "einops" },
+    { name = "einops", marker = "extra == 'dev'" },
+    { name = "flake8", marker = "extra == 'dev'" },
+    { name = "hydra-colorlog", marker = "extra == 'dev'", specifier = ">=1.1" },
+    { name = "hydra-core", marker = "extra == 'dev'", specifier = ">=1.1" },
+    { name = "julius", specifier = ">=0.2.3" },
+    { name = "julius", marker = "extra == 'dev'", specifier = ">=0.2.3" },
+    { name = "lameenc", specifier = ">=1.2" },
+    { name = "lameenc", marker = "extra == 'dev'", specifier = ">=1.2" },
+    { name = "museval", marker = "extra == 'dev'" },
+    { name = "mypy", marker = "extra == 'dev'" },
+    { name = "openunmix" },
+    { name = "openunmix", marker = "extra == 'dev'" },
+    { name = "pyyaml" },
+    { name = "pyyaml", marker = "extra == 'dev'" },
+    { name = "soundfile", marker = "extra == 'dev'", specifier = ">=0.10.3" },
+    { name = "submitit", marker = "extra == 'dev'" },
+    { name = "torch", specifier = ">=1.8.1" },
+    { name = "torch", marker = "extra == 'dev'", specifier = ">=1.8.1" },
+    { name = "torchaudio", specifier = ">=0.8" },
+    { name = "torchaudio", marker = "extra == 'dev'", specifier = ">=0.8" },
+    { name = "tqdm" },
+    { name = "tqdm", marker = "extra == 'dev'" },
+    { name = "treetable", marker = "extra == 'dev'" },
+]
+provides-extras = ["dev"]
 
 [[package]]
 name = "diffq"
