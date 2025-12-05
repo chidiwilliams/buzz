@@ -7,7 +7,7 @@ from uuid import UUID
 
 from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 
-from demucs_repo.demucs import api as demucsApi
+from demucs import api as demucsApi
 
 from buzz.model_loader import ModelType
 from buzz.transcriber.file_transcriber import FileTranscriber
