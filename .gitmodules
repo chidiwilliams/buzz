@@ -4,7 +4,7 @@
 [submodule "whisper_diarization"]
 	path = whisper_diarization
 	url = https://github.com/MahmoudAshraf97/whisper-diarization
-[submodule "demucs"]
+[submodule "demucs_repo"]
 	path = demucs_repo
 	url = https://github.com/MahmoudAshraf97/demucs.git
 [submodule "deepmultilingualpunctuation"]
