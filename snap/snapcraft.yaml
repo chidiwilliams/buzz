@@ -118,7 +118,7 @@ parts:
       cp -r $CRAFT_PART_BUILD/buzz $CRAFT_PART_INSTALL/
       cp -r $CRAFT_PART_BUILD/ctc_forced_aligner $CRAFT_PART_INSTALL/
       cp -r $CRAFT_PART_BUILD/deepmultilingualpunctuation $CRAFT_PART_INSTALL/
-      cp -r $CRAFT_PART_BUILD/demucs $CRAFT_PART_INSTALL/
+      cp -r $CRAFT_PART_BUILD/demucs_repo $CRAFT_PART_INSTALL/
       cp -r $CRAFT_PART_BUILD/whisper_diarization $CRAFT_PART_INSTALL/
 
       # Create desktop file
