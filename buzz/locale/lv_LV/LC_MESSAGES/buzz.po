@@ -518,7 +518,7 @@ msgstr "Pārdēvēt"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:598
 msgid "Enter new name:"
-msgstr "Ievadiet jauno nosaukumu"
+msgstr "Ievadiet jauno nosaukumu šim atpazīšanas ierakstam:"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:625
 msgid "Enter some relevant notes for this transcription:"
