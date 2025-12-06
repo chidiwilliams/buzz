@@ -10,6 +10,7 @@ from PyQt6.QtGui import QKeyEvent
 from PyQt6.QtSql import QSqlDatabase, QSqlQuery, QSqlRecord, QSqlTableModel
 from PyQt6.QtWidgets import QApplication, QMenu, QStyledItemDelegate
 
+from buzz.locale import _
 from buzz.widgets.transcription_tasks_table_widget import (
     TranscriptionTasksTableWidget,
     format_record_status_text,
@@ -253,6 +254,8 @@ class TestTranscriptionTasksTableWidget:
         assert mock_menu.addAction.call_count > 0
 
         menu_add_action_call_count = mock_menu.addAction.call_count
+        # Select a row so the widget context menu will add actions
+        widget.selectRow(0)
         widget.contextMenuEvent(Mock())
         assert mock_menu.addAction.call_count > menu_add_action_call_count
 
@@ -262,7 +265,7 @@ class TestTranscriptionTasksTableWidget:
         notes_column_def = next((col for col in column_definitions if col.column == Column.NOTES), None)
         assert notes_column_def is not None
         assert notes_column_def.id == "notes"
-        assert notes_column_def.header == "Notes"
+        assert notes_column_def.header == _("Notes")
         assert notes_column_def.width == 300
         assert notes_column_def.hidden_toggleable == True  # Notes column should be toggleable
 
@@ -270,7 +273,7 @@ class TestTranscriptionTasksTableWidget:
         file_column_def = next((col for col in column_definitions if col.column == Column.FILE), None)
         assert file_column_def is not None
         assert file_column_def.id == "file_name"
-        assert file_column_def.header == "File Name / URL"
+        assert file_column_def.header == _("File Name / URL")
         assert file_column_def.width == 400
         assert file_column_def.hidden_toggleable == False  # File column should not be toggleable
 

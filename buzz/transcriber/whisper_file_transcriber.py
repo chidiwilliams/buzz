@@ -72,9 +72,11 @@ class WhisperFileTranscriber(FileTranscriber):
         self.read_line_thread = Thread(target=self.read_line, args=(self.recv_pipe,))
         self.read_line_thread.start()
 
-        self.current_process.join()
+        # Only join the process if it was actually started
+        if self.started_process:
+            self.current_process.join()
 
-        if self.current_process.exitcode != 0:
+        if self.started_process and self.current_process.exitcode != 0:
             self.send_pipe.close()
 
         # Join read_line_thread with timeout to prevent hanging
