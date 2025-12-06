@@ -15,16 +15,16 @@ dependencies = [
     "PyQt6-sip==13.10.2",
     "openai>=1.14.2,<2",
     "keyring>=25.0.0,<26",
-    "platformdirs>=4.2.0,<5",
+    "platformdirs>=4.2.1,<5",
     "dataclasses-json>=0.6.4,<0.7",
     "numpy>=1.21.2,<2",
     "requests>=2.31.0,<3",
-    "yt-dlp>=2025.2.19,<2026",
-    "stable-ts>=2.18.3,<3",
-    "faster-whisper>=1.1.1,<2",
-    "openai-whisper>=20240930,<20240931",
-    "transformers>=4.49.0,<5",
-    "accelerate>=1.0.1,<2",
+    "yt-dlp>=2025.11.12,<2026",
+    "stable-ts>=2.19.1,<3",
+    "faster-whisper>=1.2.1,<2",
+    "openai-whisper==20250625",
+    "transformers>=4.53,<5",
+    "accelerate>=1.12.0,<2",
     "polib>=1.2.0,<2",
     "srt-equalizer>=0.1.10,<0.2",
     # For Intel macOS (x86_64) - use older versions that support Intel
@@ -32,13 +32,15 @@ dependencies = [
     "torchaudio==2.2.2; sys_platform == 'darwin' and platform_machine == 'x86_64'",
     "ctranslate2==4.3.1; sys_platform == 'darwin' and platform_machine == 'x86_64'",
     # For ARM macOS (arm64) - use latest CPU-only versions from PyPI
-    "torch==2.7.1; sys_platform == 'darwin' and platform_machine == 'arm64'",
-    "torchaudio==2.7.1; sys_platform == 'darwin' and platform_machine == 'arm64'",
-    "ctranslate2>=4.6.0,<5; sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "torch==2.9.1; sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "torchaudio==2.9.1; sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "ctranslate2>=4.6.2,<5; sys_platform == 'darwin' and platform_machine == 'arm64'",
     # For Linux/Windows - use CUDA versions from pytorch index
-    "torch==2.7.1; sys_platform != 'darwin'",
-    "torchaudio==2.7.1; sys_platform != 'darwin'",
-    "ctranslate2>=4.6.0,<5; sys_platform != 'darwin'",
+    "torch==2.9.1; sys_platform != 'darwin'",
+    "torchaudio==2.9.1; sys_platform != 'darwin'",
+    "ctranslate2>=4.6.2,<5; sys_platform != 'darwin'",
+    # faster whisper need cudnn 9
+    "nvidia-cudnn-cu12<10; sys_platform == 'linux'",
     "darkdetect>=0.8.0,<0.9",
     "dora-search>=0.1.12,<0.2",
     "diffq>=0.2.4,<0.3",
@@ -56,19 +58,20 @@ dependencies = [
     "tqdm>=4.67.1,<5",
     "treetable>=0.2.5,<0.3",
     "soundfile>=0.13.1,<0.14",
-    "urllib3>=2.3.0,<3",
+    "urllib3>=2.6.0,<3",
     "posthog>=3.23.0,<4",
-    "onnxruntime==1.18.1",
+    "onnxruntime==1.23.2",
     "vulkan>=1.3.275.1,<2",
     "hf-xet>=1.1.5,<2",
-    "hatchling>=1.27.0",
-    "cmake>=3.31.6",
+    "hatchling>=1.28.0",
+    "cmake>=4.2.0,<5",
     "nemo-toolkit[asr]>=2.5.3; sys_platform != 'darwin' or platform_machine != 'x86_64'",
     "nltk>=3.9.2",
     "uroman>=1.3.1.1",
     "lhotse==1.31.1",
     "coverage==7.6.1",
     "demucs",
+    "certifi==2025.11.12",
 ]
 repository = "https://github.com/chidiwilliams/buzz"
 documentation = "https://chidiwilliams.github.io/buzz/docs"
@@ -94,8 +97,7 @@ dev = [
     "ruff>=0.1.3,<0.2",
 ]
 build = [
-    "ctypesgen>=1.1.1,<2",
-    "cmake>=3.26.4,<4",
+    "cmake>=4.2.0,<5",
     "polib>=1.2.0,<2",
 ]
 
@@ -110,11 +112,11 @@ default-groups = [
 demucs = { path = "demucs_repo", editable = true }
 torch = [
     { index = "PyPI", marker = "sys_platform == 'darwin'" },
-    { index = "pytorch-cu128", marker = "sys_platform != 'darwin'" },
+    { index = "pytorch-cu129", marker = "sys_platform != 'darwin'" },
 ]
 torchaudio = [
     { index = "PyPI", marker = "sys_platform == 'darwin'" },
-    { index = "pytorch-cu128", marker = "sys_platform != 'darwin'" },
+    { index = "pytorch-cu129", marker = "sys_platform != 'darwin'" },
 ]
 
 [[tool.uv.index]]
@@ -122,8 +124,8 @@ name = "nvidia"
 url = "https://pypi.ngc.nvidia.com/"
 
 [[tool.uv.index]]
-name = "pytorch-cu128"
-url = "https://download.pytorch.org/whl/cu128"
+name = "pytorch-cu129"
+url = "https://download.pytorch.org/whl/cu129"
 
 [[tool.uv.index]]
 name = "PyPI"
@@ -158,7 +160,7 @@ include = [
 [tool.hatch.build.hooks.custom]
 
 [build-system]
-requires = ["hatchling", "cmake>=3.26.4,<4", "polib>=1.2.0,<2", "pybind11", "setuptools>=42"]
+requires = ["hatchling", "cmake>=4.2.0,<5", "polib>=1.2.0,<2", "pybind11", "setuptools>=42"]
 build-backend = "hatchling.build"
 
 [tool.ruff]
