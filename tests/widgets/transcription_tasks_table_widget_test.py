@@ -405,32 +405,32 @@ class TestTranscriptionTasksTableWidget:
         """Test restart action for failed/canceled transcriptions"""
         # Mock the transcription service
         mock_service = Mock()
+        mock_service.reset_transcription_for_restart = Mock()
         widget.transcription_service = mock_service
-        
+
         # Mock QMessageBox
         mock_messagebox = Mock()
         monkeypatch.setattr("PyQt6.QtWidgets.QMessageBox", mock_messagebox)
-        
-        # Mock the database query
-        mock_query = Mock()
-        mock_query.exec.return_value = True
-        mock_query.bindValue = Mock()
-        monkeypatch.setattr("buzz.widgets.transcription_tasks_table_widget.QSqlQuery", Mock(return_value=mock_query))
-        
+
+        # Mock the _restart_transcription_task method to avoid complex setup
+        mock_restart = Mock()
+        monkeypatch.setattr(widget, "_restart_transcription_task", mock_restart)
+
         # Mock the transcription record to return failed status
         mock_transcription = Mock()
         mock_transcription.status = "failed"
-        mock_transcription.id = "test-id"
+        mock_transcription.id = "12345678-1234-5678-1234-567812345678"  # Valid UUID
         monkeypatch.setattr(widget, "transcription", Mock(return_value=mock_transcription))
-        
+
         # Select a row
         widget.selectRow(0)
-        
+
         # Call restart action
         widget.on_restart_transcription_action()
-        
-        # Verify query was executed
-        mock_query.exec.assert_called_once()
+
+        # Verify service and restart were called
+        mock_service.reset_transcription_for_restart.assert_called_once()
+        mock_restart.assert_called_once_with(mock_transcription)
 
     def test_context_menu_restart_action_wrong_status(self, widget, monkeypatch):
         """Test restart action shows error for non-failed/canceled transcriptions"""
