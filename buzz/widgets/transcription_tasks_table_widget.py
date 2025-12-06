@@ -337,6 +337,11 @@ class TranscriptionTasksTableWidget(QTableView):
         # Refresh visibility after column move to ensure it's maintained
         self.load_column_visibility()
 
+    def on_double_click(self, index: QModelIndex):
+        """Handle double-click events - trigger notes edit for notes column"""
+        if index.column() == Column.NOTES.value:
+            self.on_notes_action()
+
     def save_column_widths(self):
         """Save current column widths to settings"""
         self.settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS)
@@ -527,6 +532,17 @@ class TranscriptionTasksTableWidget(QTableView):
 
         selected_text = selected_text.rstrip("\n")
         QApplication.clipboard().setText(selected_text)
+
+    def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
+        """Override double-click to prevent default behavior when clicking on notes column"""
+        index = self.indexAt(event.pos())
+        if index.isValid() and index.column() == Column.NOTES.value:
+            # Handle our custom double-click action without triggering default behavior
+            self.on_double_click(index)
+            event.accept()
+        else:
+            # For other columns, use default behavior
+            super().mouseDoubleClickEvent(event)
 
     def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
         if event.key() == Qt.Key.Key_Return:
