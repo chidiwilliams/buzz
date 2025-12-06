@@ -235,7 +235,19 @@ class WhisperFileTranscriber(FileTranscriber):
         use_cuda = torch.cuda.is_available() and force_cpu == "false"
 
         device = "cuda" if use_cuda else "cpu"
-        model = whisper.load_model(task.model_path, device=device)
+
+        # Monkeypatch torch.load to use weights_only=False for PyTorch 2.6+
+        # This is required for loading Whisper models with the newer PyTorch versions
+        original_torch_load = torch.load
+        def patched_torch_load(*args, **kwargs):
+            kwargs.setdefault('weights_only', False)
+            return original_torch_load(*args, **kwargs)
+
+        torch.load = patched_torch_load
+        try:
+            model = whisper.load_model(task.model_path, device=device)
+        finally:
+            torch.load = original_torch_load
 
         if task.transcription_options.word_level_timings:
             stable_whisper.modify_model(model)
