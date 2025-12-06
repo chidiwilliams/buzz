@@ -19,7 +19,6 @@ whisper_cpp
 *.dylib
 *.so
 buzz/whisper_cpp/*
-buzz/whisper_cpp_vulkan/*
 
 # Internationalization - compiled binaries
 *.mo
@@ -33,3 +32,4 @@ benchmarks.json
 /wheelhouse/
 /.flatpak-builder
 /repo
+/nemo_msdd_configs

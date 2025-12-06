@@ -15,7 +15,6 @@ from buzz.transcriber.openai_whisper_api_file_transcriber import (
     OpenAIWhisperAPIFileTranscriber,
 )
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment
-from buzz.transcriber.whisper_cpp_file_transcriber import WhisperCppFileTranscriber
 from buzz.transcriber.whisper_file_transcriber import WhisperFileTranscriber
 
 
@@ -38,6 +37,7 @@ class FileTranscriberQueueWorker(QObject):
         self.tasks_queue = queue.Queue()
         self.canceled_tasks: Set[UUID] = set()
         self.current_transcriber = None
+        self.speech_path = None
 
     @pyqtSlot()
     def run(self):
@@ -76,24 +76,23 @@ class FileTranscriberQueueWorker(QObject):
                 _, separated = separator.separate_audio_file(Path(self.current_task.file_path))
 
                 task_file_path = Path(self.current_task.file_path)
-                speech_path = task_file_path.with_name(f"{task_file_path.stem}_speech.mp3")
-                demucsApi.save_audio(separated["vocals"], speech_path, separator.samplerate)
+                self.speech_path = task_file_path.with_name(f"{task_file_path.stem}_speech.mp3")
+                demucsApi.save_audio(separated["vocals"], self.speech_path, separator.samplerate)
 
-                self.current_task.file_path = str(speech_path)
+                self.current_task.file_path = str(self.speech_path)
             except Exception as e:
                 logging.error(f"Error during speech extraction: {e}", exc_info=True)
 
         logging.debug("Starting next transcription task")
 
         model_type = self.current_task.transcription_options.model.model_type
-        if model_type == ModelType.WHISPER_CPP:
-            self.current_transcriber = WhisperCppFileTranscriber(task=self.current_task)
-        elif model_type == ModelType.OPEN_AI_WHISPER_API:
+        if model_type == ModelType.OPEN_AI_WHISPER_API:
             self.current_transcriber = OpenAIWhisperAPIFileTranscriber(
                 task=self.current_task
             )
         elif (
-            model_type == ModelType.HUGGING_FACE
+            model_type == ModelType.WHISPER_CPP
+            or model_type == ModelType.HUGGING_FACE
             or model_type == ModelType.WHISPER
             or model_type == ModelType.FASTER_WHISPER
         ):
@@ -141,7 +140,7 @@ class FileTranscriberQueueWorker(QObject):
                 self.current_transcriber.stop()
                 
             if self.current_transcriber_thread is not None:
-                if not self.current_transcriber_thread.wait(3000):
+                if not self.current_transcriber_thread.wait(5000):
                     logging.warning("Transcriber thread did not terminate gracefully")
                     self.current_transcriber_thread.terminate()
 
@@ -172,6 +171,13 @@ class FileTranscriberQueueWorker(QObject):
     def on_task_completed(self, segments: List[Segment]):
         if self.current_task is not None:
             self.task_completed.emit(self.current_task, segments)
+
+        if self.speech_path is not None:
+            try:
+                Path(self.speech_path).unlink()
+            except Exception as e:
+                logging.error(f"Error deleting temporary speech file: {e}", exc_info=True)
+            self.speech_path = None
 
     def stop(self):
         self.tasks_queue.put(None)

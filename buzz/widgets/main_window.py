@@ -422,16 +422,50 @@ class MainWindow(QMainWindow):
         self.save_geometry()
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        logging.debug("Starting MainWindow closeEvent")
+
         self.save_geometry()
+        self.settings.settings.sync()
+
+        if self.folder_watcher:
+            try:
+                self.folder_watcher.task_found.disconnect()
+                if len(self.folder_watcher.directories()) > 0:
+                    self.folder_watcher.removePaths(self.folder_watcher.directories())
+            except Exception as e:
+                logging.warning(f"Error cleaning up folder watcher: {e}")
+
+        try:
+            self.transcriber_worker.task_started.disconnect()
+            self.transcriber_worker.task_progress.disconnect()
+            self.transcriber_worker.task_download_progress.disconnect()
+            self.transcriber_worker.task_error.disconnect()
+            self.transcriber_worker.task_completed.disconnect()
+        except Exception as e:
+            logging.warning(f"Error disconnecting signals: {e}")
 
         self.transcriber_worker.stop()
         self.transcriber_thread.quit()
-        self.transcriber_thread.wait()
+
+        if self.transcriber_thread.isRunning():
+            if not self.transcriber_thread.wait(10000):
+                logging.warning("Transcriber thread did not finish within 10s timeout, terminating")
+                self.transcriber_thread.terminate()
+                if not self.transcriber_thread.wait(2000):
+                    logging.error("Transcriber thread could not be terminated")
 
         if self.transcription_viewer_widget is not None:
             self.transcription_viewer_widget.close()
 
-        logging.debug("Closing MainWindow")
+        try:
+            from buzz.widgets.application import Application
+            app = Application.instance()
+            if app and hasattr(app, 'close_database'):
+                app.close_database()
+        except Exception as e:
+            logging.warning(f"Error closing database: {e}")
+
+        logging.debug("MainWindow closeEvent completed")
 
         super().closeEvent(event)
 

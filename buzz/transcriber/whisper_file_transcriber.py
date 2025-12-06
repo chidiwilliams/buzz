@@ -7,6 +7,7 @@ import os
 import sys
 import torch
 import platform
+import subprocess
 from platformdirs import user_cache_dir
 from multiprocessing.connection import Connection
 from threading import Thread
@@ -20,7 +21,8 @@ from buzz.conn import pipe_stderr
 from buzz.model_loader import ModelType, WhisperModelSize
 from buzz.transformers_whisper import TransformersWhisper
 from buzz.transcriber.file_transcriber import FileTranscriber
-from buzz.transcriber.transcriber import FileTranscriptionTask, Segment
+from buzz.transcriber.transcriber import FileTranscriptionTask, Segment, Task
+from buzz.transcriber.whisper_cpp import WhisperCpp
 
 import faster_whisper
 import whisper
@@ -108,7 +110,9 @@ class WhisperFileTranscriber(FileTranscriber):
         cls, stderr_conn: Connection, task: FileTranscriptionTask
     ) -> None:
         with pipe_stderr(stderr_conn):
-            if task.transcription_options.model.model_type == ModelType.HUGGING_FACE:
+            if task.transcription_options.model.model_type == ModelType.WHISPER_CPP:
+                segments = cls.transcribe_whisper_cpp(task)
+            elif task.transcription_options.model.model_type == ModelType.HUGGING_FACE:
                 sys.stderr.write("0%\n")
                 segments = cls.transcribe_hugging_face(task)
                 sys.stderr.write("100%\n")
@@ -126,6 +130,10 @@ class WhisperFileTranscriber(FileTranscriber):
             segments_json = json.dumps(segments, ensure_ascii=True, default=vars)
             sys.stderr.write(f"segments = {segments_json}\n")
             sys.stderr.write(WhisperFileTranscriber.READ_LINE_THREAD_STOP_TOKEN + "\n")
+
+    @classmethod
+    def transcribe_whisper_cpp(cls, task: FileTranscriptionTask) -> List[Segment]:
+        return WhisperCpp.transcribe(task)
 
     @classmethod
     def transcribe_hugging_face(cls, task: FileTranscriptionTask) -> List[Segment]:
@@ -272,27 +280,29 @@ class WhisperFileTranscriber(FileTranscriber):
 
         if self.started_process:
             self.current_process.terminate()
-            # Use timeout to avoid hanging indefinitely
-            self.current_process.join(timeout=5)
+
+            if self.read_line_thread and self.read_line_thread.is_alive():
+                self.read_line_thread.join(timeout=5)
+                if self.read_line_thread.is_alive():
+                    logging.warning("Read line thread still alive after 5s")
+
+            self.current_process.join(timeout=10)
             if self.current_process.is_alive():
                 logging.warning("Process didn't terminate gracefully, force killing")
                 self.current_process.kill()
-                self.current_process.join(timeout=2)
-            
-            # Close pipes to unblock the read_line thread
+                self.current_process.join(timeout=5)
+
             try:
-                if hasattr(self, 'send_pipe'):
+                if hasattr(self, 'send_pipe') and self.send_pipe:
                     self.send_pipe.close()
-                if hasattr(self, 'recv_pipe'):
+            except Exception as e:
+                logging.debug(f"Error closing send_pipe: {e}")
+
+            try:
+                if hasattr(self, 'recv_pipe') and self.recv_pipe:
                     self.recv_pipe.close()
             except Exception as e:
-                logging.debug(f"Error closing pipes: {e}")
-            
-            # Join read_line_thread with timeout to prevent hanging
-            if self.read_line_thread and self.read_line_thread.is_alive():
-                self.read_line_thread.join(timeout=3)
-                if self.read_line_thread.is_alive():
-                    logging.warning("Read line thread didn't terminate gracefully")
+                logging.debug(f"Error closing recv_pipe: {e}")
 
     def read_line(self, pipe: Connection):
         while True:

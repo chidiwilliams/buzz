@@ -20,7 +20,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-13
+          - os: macos-15-intel
           - os: macos-latest
           - os: windows-latest
           - os: ubuntu-22.04
@@ -30,53 +30,42 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11.9"
-
-      - name: Install Poetry Action
-        uses: snok/install-poetry@v1.3.1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/poetry.lock') }}
-
-      - name: Load cached Whisper models
-        id: cached-whisper-models
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/Library/Caches/Buzz
-            ~/.cache/whisper
-            ~/.cache/huggingface
-            ~/AppData/Local/Buzz/Buzz/Cache
-          key: whisper-models
-
-      - uses: AnimMouse/setup-ffmpeg@v1.2.1
-        id: setup-ffmpeg
-        with:
-          version: ${{ matrix.os == 'macos-13' && '7.1.1' || matrix.os == 'macos-latest' && '71' || '7.1' }}
-
-      - name: Test ffmpeg
-        run: ffmpeg -i ./testdata/audio-long.mp3 ./testdata/audio-long.wav
-
-      - name: Downgrade torch for Intel macOS
-        run: |
-          poetry add torch==2.2.2 torchaudio==2.2.2
-        if: "matrix.os == 'macos-13'"
-
       # Should be removed with next update to whisper.cpp
       - name: Downgrade Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: '16.0.0'
         if: matrix.os == 'macos-latest'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Vulkan SDK
+        if: "startsWith(matrix.os, 'ubuntu-') || matrix.os == 'windows-latest'"
+        uses: humbletim/install-vulkan-sdk@v1.2
+        with:
+          version: 1.4.309.0
+          cache: true
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Load cached venv
+        id: cached-uv-dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/uv.lock') }}
+
+      - uses: AnimMouse/setup-ffmpeg@v1
+        id: setup-ffmpeg
+        with:
+          version: ${{ matrix.os == 'macos-15-intel' && '7.1.1' || matrix.os == 'macos-latest' && '80' || '8.0' }}
+
+      - name: Test ffmpeg
+        run: ffmpeg -i ./testdata/audio-long.mp3 ./testdata/audio-long.wav
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
@@ -85,24 +74,25 @@ jobs:
       - name: Install apt dependencies
         run: |
           sudo apt-get update
-          if [ "$(lsb_release -rs)" != "24.04" ]; then
+
+          if [ "$(lsb_release -rs)" == "22.04" ]; then
             sudo apt-get install libegl1-mesa
+
+            # Add ubuntu-toolchain-r PPA for newer libstdc++6 with GLIBCXX_3.4.32
+            sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+            sudo apt-get update
+            sudo apt-get install -y gcc-13 g++-13 libstdc++-13-dev
           fi
-          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev
+
+          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev ccache
         if: "startsWith(matrix.os, 'ubuntu-')"
 
-      - name: Install Vulkan SDK
-        uses: humbletim/install-vulkan-sdk@v1.2
-        with:
-          version: 1.4.309.0
-          cache: true
-
       - name: Install dependencies
-        run: poetry install
+        run: uv sync
 
       - name: Test
         run: |
-          poetry run make test
+          uv run make test
         shell: bash
 
       - name: Upload coverage reports to Codecov with GitHub Action
@@ -122,60 +112,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-13
+          - os: macos-15-intel
           - os: macos-latest
           - os: windows-latest
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11.9"
-
-      - name: Install Poetry Action
-        uses: snok/install-poetry@v1.3.1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/poetry.lock') }}
-
-      - uses: AnimMouse/setup-ffmpeg@v1.2.1
-        id: setup-ffmpeg
-        with:
-          version: ${{ matrix.os == 'macos-13' && '7.1.1' || matrix.os == 'macos-latest' && '71' || '7.1' }}
-
-      - name: Install Vulkan SDK
-        uses: humbletim/install-vulkan-sdk@v1.2
-        with:
-          version: 1.4.309.0
-          cache: true
-
-      - name: Install CUDA torch for Windows
-        run: |
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            poetry source add --priority=supplemental torch https://download.pytorch.org/whl/cu128
-            poetry source add --priority=supplemental nvidia https://pypi.ngc.nvidia.com
-
-            poetry add msvc-runtime
-            poetry add torch==2.7.1+cu128 torchaudio==2.7.1+cu128
-            poetry add nvidia-cublas-cu12==12.8.3.14 nvidia-cuda-cupti-cu12==12.8.57 nvidia-cuda-nvrtc-cu12==12.8.61 nvidia-cuda-runtime-cu12==12.8.57 nvidia-cudnn-cu12==9.7.1.26 nvidia-cufft-cu12==11.3.3.41 nvidia-curand-cu12==10.3.9.55 nvidia-cusolver-cu12==11.7.2.55 nvidia-cusparse-cu12==12.5.7.53 nvidia-cusparselt-cu12==0.6.3 nvidia-nvjitlink-cu12==12.8.61 nvidia-nvtx-cu12==12.8.55
-          
-            echo yes | poetry cache clear --all .
-          fi
-        shell: bash
-
-      - name: Downgrade torch and ctranslate for Intel macOS
-        run: |
-          poetry add torch==2.2.2 torchaudio==2.2.2 ctranslate2==4.3.1
-        if: "matrix.os == 'macos-13'"
 
       # Should be removed with next update to whisper.cpp
       - name: Downgrade Xcode
@@ -184,26 +127,76 @@ jobs:
           xcode-version: '16.0.0'
         if: matrix.os == 'macos-latest'
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Vulkan SDK
+        if: "startsWith(matrix.os, 'ubuntu-') || matrix.os == 'windows-latest'"
+        uses: humbletim/install-vulkan-sdk@v1.2
+        with:
+          version: 1.4.309.0
+          cache: true
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Load cached venv
+        id: cached-uv-dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/uv.lock') }}
+
+      - name: Install Inno Setup on Windows
+        uses: crazy-max/ghaction-chocolatey@v3
+        with:
+          args: install innosetup --yes
+        if: runner.os == 'Windows'
+
+      - name: Install apt dependencies
+        run: |
+          sudo apt-get update
+
+          if [ "$(lsb_release -rs)" == "22.04" ]; then
+            sudo apt-get install libegl1-mesa
+
+            # Add ubuntu-toolchain-r PPA for newer libstdc++6 with GLIBCXX_3.4.32
+            sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+            sudo apt-get update
+            sudo apt-get install -y gcc-13 g++-13 libstdc++-13-dev
+          fi
+
+          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev ccache
+        if: "startsWith(matrix.os, 'ubuntu-')"
+
+      - name: Install dependencies
+        run: uv sync
+
+      - uses: AnimMouse/setup-ffmpeg@v1.2.1
+        id: setup-ffmpeg
+        with:
+          version: ${{ matrix.os == 'macos-15-intel' && '7.1.1' || matrix.os == 'macos-latest' && '71' || '7.1' }}
+
+      - name: Install MSVC for Windows
+        run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            uv add msvc-runtime
+
+            uv cache clean
+            uv run pip cache purge
+          fi
+        shell: bash
+
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
         if: runner.os == 'Windows'
-
-      - name: Install dependencies
-        run: poetry install
 
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.0"
           bundler-cache: true
-        if: "startsWith(matrix.os, 'ubuntu-')"
-
-      - name: Install apt dependencies
-        run: |
-          sudo apt-get update
-          if [ "$(lsb_release -rs)" != "24.04" ]; then
-            sudo apt-get install libegl1-mesa
-          fi
-          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev
         if: "startsWith(matrix.os, 'ubuntu-')"
 
       - name: Install FPM
@@ -243,12 +236,12 @@ jobs:
 
             xcrun notarytool store-credentials --apple-id "$APPLE_ID" --password "$APPLE_APP_PASSWORD" --team-id "$APPLE_TEAM_ID" notarytool --validate
 
-            poetry run make bundle_mac
+            uv run make bundle_mac
 
           elif [ "$RUNNER_OS" == "Windows" ]; then
 
             cp -r ./dll_backup ./buzz/
-            poetry run make bundle_windows
+            uv run make bundle_windows
 
           fi
         env:
@@ -277,7 +270,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-15-intel, macos-latest]
 
     steps:
       - uses: actions/checkout@v4
@@ -291,19 +284,24 @@ jobs:
           xcode-version: '16.0.0'
         if: matrix.os == 'macos-latest'
 
+      - name: Install Vulkan SDK
+        if: "startsWith(matrix.os, 'ubuntu-') || matrix.os == 'windows-latest'"
+        uses: humbletim/install-vulkan-sdk@v1.2
+        with:
+          version: 1.4.309.0
+          cache: true
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.22.0
-        env:
-          CIBW_PROJECT_REQUIRES_PYTHON: ">=3.9,<3.13"
-          CIBW_SKIP: "cp313-* cp314-*"
-          CIBW_ARCHS_WINDOWS: "auto64"
-          CIBW_ARCHS_MACOS: "auto64"
-          CIBW_ARCHS_LINUX: "auto64"
+        run: uv build --wheel
+        shell: bash
 
       - uses: actions/upload-artifact@v4
         with:
-          name: cibw-wheels-${{ matrix.os }}
-          path: ./wheelhouse/*.whl
+          name: buzz-wheel-${{ runner.os }}-${{ runner.arch }}
+          path: ./dist/*.whl
 
   publish_pypi:
     needs: [build_wheels, test]
@@ -317,7 +315,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          pattern: cibw-*
+          pattern: buzz-wheel-*
           path: dist
           merge-multiple: true
 
@@ -334,7 +332,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-13
+          - os: macos-15-intel
           - os: macos-latest
           - os: windows-latest
     needs: [build, test]
@@ -355,36 +353,46 @@ jobs:
             mv "$file" "${file%.dmg}-${{ runner.arch }}.dmg"
           done
 
-      - name: Install Poetry Action
-        uses: snok/install-poetry@v1.3.1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
             Buzz*-unix.tar.gz
-            Buzz*-windows.exe
-            Buzz*-mac.dmg
+            Buzz*.exe
+            Buzz*.bin
+            Buzz*.dmg
 
-  deploy_brew_cask:
-    runs-on: macos-latest
-    env:
-      BUZZ_DISABLE_TELEMETRY: true
-    needs: [release]
-    if: startsWith(github.ref, 'refs/tags/')
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - name: Install Poetry Action
-        uses: snok/install-poetry@v1.3.1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-      - name: Upload to Brew
-        run: make upload_brew
-        env:
-          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
+#  Brew Cask deployment fails and the app is deprecated on Brew.
+#  deploy_brew_cask:
+#    runs-on: macos-latest
+#    env:
+#      BUZZ_DISABLE_TELEMETRY: true
+#    needs: [release]
+#    if: startsWith(github.ref, 'refs/tags/')
+#    steps:
+#      - uses: actions/checkout@v4
+#        with:
+#          submodules: recursive
+#
+#      # Should be removed with next update to whisper.cpp
+#      - name: Downgrade Xcode
+#        uses: maxim-lobanov/setup-xcode@v1
+#        with:
+#          xcode-version: '16.0.0'
+#        if: matrix.os == 'macos-latest'
+#
+#      - name: Install uv
+#        uses: astral-sh/setup-uv@v6
+#
+#      - name: Set up Python
+#        uses: actions/setup-python@v5
+#        with:
+#          python-version: "3.12"
+#
+#      - name: Install dependencies
+#        run: uv sync
+#
+#      - name: Upload to Brew
+#        run: uv run make upload_brew
+#        env:
+#          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}

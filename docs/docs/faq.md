@@ -13,6 +13,8 @@ The models are stored:
 
 Paste the location in your file manager to access the models.
 
+Since Version `1.3.4`, to get to the logs folder go to `Help -> About Buzz` and click on `Show logs` button.
+
 ### 2. What can I try if the transcription runs too slowly?
 
 Speech recognition requires large amount of computation, so one option is to try using a lower Whisper model size or using a Whisper.cpp model to run speech recognition of your computer. If you have access to a computer with GPU that has at least 6GB of VRAM you can try using the Faster Whisper model.
@@ -84,7 +86,7 @@ gsettings set org.gnome.desktop.interface color-scheme prefer-dark
 
 If your system theme is not applied to Buzz installed from Flatpak Linux app store, ensure the desired theme is in `~/.themes` folder.
 
-You may need to copy the system themes to this folder `cp -r /usr/share/themes/ ~/.themes/`.
+You may need to copy the system themes to this folder `cp -r /usr/share/themes/ ~/.themes/` and give Flatpaks access to this folder `flatpak override --user --filesystem=~/.themes`.
 
 On Fedora run the following to install the necessary packages 
 `sudo dnf install gnome-themes-extra qadwaitadecorations-qt{5,6} qt{5,6}-qtwayland`

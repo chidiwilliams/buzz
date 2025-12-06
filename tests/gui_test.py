@@ -1,4 +1,5 @@
 import multiprocessing
+import os
 import platform
 from unittest.mock import Mock, patch
 
@@ -33,7 +34,10 @@ from tests.mock_sounddevice import MockInputStream, mock_query_devices
 from .mock_qt import MockNetworkAccessManager, MockNetworkReply
 
 if platform.system() == "Linux":
-    multiprocessing.set_start_method("spawn")
+    try:
+        multiprocessing.set_start_method("spawn", force=True)
+    except RuntimeError:
+        pass
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -158,6 +162,10 @@ class TestTemperatureValidator:
         assert self.validator.validate(text, 0)[0] == state
 
 
+@pytest.mark.skipif(
+    platform.system() == "Linux" and os.environ.get("XDG_SESSION_TYPE") == "wayland",
+    reason="Skipping on Wayland sessions due to Qt popup issues"
+)
 class TestHuggingFaceSearchLineEdit:
     def test_should_update_selected_model_on_type(self, qtbot: QtBot):
         widget = HuggingFaceSearchLineEdit(

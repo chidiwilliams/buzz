@@ -1,4 +1,4 @@
-# Transcription Viewer Interface
+# Transcription Viewer
 
 The Buzz transcription viewer provides a powerful interface for reviewing, editing, and navigating through your transcriptions. This guide covers all the features available in the transcription viewer.
 
@@ -39,7 +39,7 @@ The transcription viewer is organized into several key sections:
 ### Playback Controls Button
 (since version 1.3.0)
 - **Function**: Show/hide playback control panel
-- **Shortcut**: `Ctrl+P` (Windows/Linux) or `Cmd+P` (macOS)
+- **Shortcut**: `Ctrl+Alt+P` (Windows/Linux) or `Cmd+Alt+P` (macOS)
 - **Behavior**: Toggle button that shows/hides the playback controls below
 
 ### Find Button
@@ -105,10 +105,21 @@ The search bar appears below the toolbar when activated and provides:
 - **Button Sizing**: Speed control buttons match the size of search navigation buttons for visual consistency
 
 ## Keyboard Shortcuts
+(since version 1.3.0)
+
+### Audio Playback
+- **`Ctrl+P` / `Cmd+P`**: Play/Pause audio
+- **`Ctrl+Shift+P` / `Cmd+Shift+P`**: Replay current segment from start
+
+### Timestamp Adjustment
+- **`Ctrl+←` / `Cmd+←`**: Decrease segment start time by 0.5s
+- **`Ctrl+→` / `Cmd+→`**: Increase segment start time by 0.5s
+- **`Ctrl+Shift+←` / `Cmd+Shift+←`**: Decrease segment end time by 0.5s
+- **`Ctrl+Shift+→` / `Cmd+Shift+→`**: Increase segment end time by 0.5s
 
 ### Navigation
 - **`Ctrl+F` / `Cmd+F`**: Toggle search bar
-- **`Ctrl+P` / `Cmd+P`**: Toggle playback controls
+- **`Ctrl+Alt+P` / `Cmd+Alt+P`**: Toggle playback controls
 - **`Ctrl+G` / `Cmd+G`**: Scroll to current position
 - **`Ctrl+O` / `Cmd+O`**: Open file import dialog
 

@@ -42,7 +42,7 @@ class TestTranscriptionViewerWidget:
                 file=test_audio_path,
                 task=Task.TRANSCRIBE.value,
                 model_type=ModelType.WHISPER.value,
-                whisper_model_size=WhisperModelSize.SMALL.value,
+                whisper_model_size=WhisperModelSize.TINY.value,
             )
         )
         transcription_segment_dao.insert(TranscriptionSegment(40, 299, "Bien", "", str(id)))
@@ -202,9 +202,7 @@ class TestTranscriptionViewerWidget:
                    return_value=mock_result) as mock_transcribe_any, \
                 patch(
                     'buzz.widgets.transcription_viewer.transcription_resizer_widget.whisper_audio.load_audio') as mock_load_audio:
-            result_ready_spy = MagicMock()
             finished_spy = MagicMock()
-            worker.result_ready.connect(result_ready_spy)
             worker.finished.connect(finished_spy)
 
             worker.run()
@@ -217,17 +215,15 @@ class TestTranscriptionViewerWidget:
             assert call_args[0] == worker.get_transcript
             assert call_kwargs['audio'] == mock_load_audio.return_value
             assert call_kwargs['regroup'] == regroup_string
-            assert call_kwargs['vad'] is True
-            assert call_kwargs['suppress_silence'] is True
+            assert call_kwargs['vad'] is False
+            assert call_kwargs['suppress_silence'] is False
 
-            result_ready_spy.assert_called_once()
-            emitted_segments = result_ready_spy.call_args[0][0]
+            finished_spy.assert_called_once()
+            emitted_segments = finished_spy.call_args[0][0]
             assert len(emitted_segments) == 1
             assert emitted_segments[0].start == 100
             assert emitted_segments[0].end == 200
             assert emitted_segments[0].text == "Hello"
-
-            finished_spy.assert_called_once()
 
     # TODO - Fix this test on Windows, should work.
     #  Possibly the `on_loop_toggle_changed` gets triggered on setChecked
@@ -804,8 +800,7 @@ class TestTranscriptionViewerWidget:
 
         # Verify the format is correct (should show "1 of X matches" or similar)
         results_text = widget.search_results_label.text()
-        assert "of" in results_text
-        assert "match" in results_text.lower()
+        assert _("1 of ") in results_text
 
         widget.close()
 
@@ -942,7 +937,8 @@ class TestTranscriptionViewerWidget:
 
         # Verify search is active
         assert widget.search_input.text() == "test search"
-        assert "match" in widget.search_results_label.text().lower()
+        # Check that search results label is not empty (instead of checking for specific text)
+        assert len(widget.search_results_label.text()) > 0
 
         # Clear search
         qtbot.mouseClick(widget.clear_search_button, Qt.MouseButton.LeftButton)

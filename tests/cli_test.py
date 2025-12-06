@@ -20,7 +20,7 @@ class TestCLI:
                     "--task",
                     "transcribe",
                     "--model-size",
-                    "small",
+                    "tiny",
                     "--output-directory",
                     mkdtemp(),
                     "--txt",

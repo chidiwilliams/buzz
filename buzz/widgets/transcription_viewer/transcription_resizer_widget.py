@@ -37,8 +37,7 @@ from buzz.widgets.preferences_dialog.models.file_transcription_preferences impor
 SENTENCE_END = re.compile(r'.*[.!?。！？]')
 
 class TranscriptionWorker(QObject):
-    finished = pyqtSignal()
-    result_ready = pyqtSignal(list)
+    finished = pyqtSignal(list)
 
     def __init__(self, transcription, transcription_options, transcription_service, regroup_string: str):
         super().__init__()
@@ -85,14 +84,17 @@ class TranscriptionWorker(QObject):
         if self.transcription_options.extract_speech and os.path.exists(speech_path):
             transcription_file = str(speech_path)
             transcription_file_exists = True
+        # TODO - Fix VAD and Silence suppression that fails to work/download Vad model in compilded form on Mac and Windows
 
         try:
             result = stable_whisper.transcribe_any(
                 self.get_transcript,
                 audio = whisper_audio.load_audio(transcription_file),
                 input_sr=whisper_audio.SAMPLE_RATE,
-                vad=transcription_file_exists,
-                suppress_silence=transcription_file_exists,
+                # vad=transcription_file_exists,
+                # suppress_silence=transcription_file_exists,
+                vad=False,
+                suppress_silence=False,
                 regroup=self.regroup_string,
                 check_sorted=False,
             )
@@ -110,8 +112,7 @@ class TranscriptionWorker(QObject):
                 )
             )
 
-        self.result_ready.emit(segments)
-        self.finished.emit()
+        self.finished.emit(segments)
 
 
 class TranscriptionResizerWidget(QWidget):
@@ -333,7 +334,7 @@ class TranscriptionResizerWidget(QWidget):
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
-        self.worker.result_ready.connect(self.on_transcription_completed)
+        self.worker.finished.connect(self.on_transcription_completed)
 
         self.thread.start()
 

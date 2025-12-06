@@ -8,13 +8,15 @@
 #define OutputDir "dist"
 #define AppRegKey "Software\Buzz"
 
+#define VersionFile FileRead(FileOpen("buzz\__version__.py"))
+#define AppVersion Copy(VersionFile, Pos('VERSION = "', VersionFile) + 11, 5)
+
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{574290A2-EF7C-4845-85F3-BFF2F011A580}
 AppName={#AppName}
 AppVersion={#AppVersion}
-;AppVerName={#AppName} {#AppVersion}
 DefaultDirName={autopf}\{#AppName}
 DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
@@ -49,16 +51,6 @@ Filename: "{app}\{#AppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(
 Root: HKCU; Subkey: "{#AppRegKey}"
 
 [Code]
-procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
-begin
-  if CurUninstallStep = usPostUninstall then
-  begin
-    if RegKeyExists(HKEY_CURRENT_USER, '{#AppRegKey}') then
-      if MsgBox('Do you want to delete Buzz settings?', mbConfirmation, MB_YESNO) = IDYES
-      then
-        RegDeleteKeyIncludingSubkeys(HKEY_CURRENT_USER, '{#AppRegKey}');
-  end;
-end;
 procedure DeleteFileOrFolder(FilePath: string);
 begin
   if FileExists(FilePath) then
@@ -68,6 +60,21 @@ begin
   else if DirExists(FilePath) then
   begin
     DelTree(FilePath, True, True, True);
+  end;
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if CurUninstallStep = usPostUninstall then
+  begin
+    if RegKeyExists(HKEY_CURRENT_USER, '{#AppRegKey}') then
+      if MsgBox('Do you want to delete Buzz settings and saved files?', mbConfirmation, MB_YESNO) = IDYES
+      then
+      begin
+        RegDeleteKeyIncludingSubkeys(HKEY_CURRENT_USER, '{#AppRegKey}');
+        // Remove model and cache directories
+        DeleteFileOrFolder(ExpandConstant('{localappdata}\Buzz'));
+      end;
   end;
 end;
 

@@ -39,6 +39,7 @@ class Application(QApplication):
             self.setStyle(QStyleFactory.create("Fusion"))
 
         self.settings = Settings()
+        logging.debug(f"Settings filename: {self.settings.settings.fileName()}")
         
         # Set BUZZ_FORCE_CPU environment variable if Force CPU setting is enabled
         force_cpu_enabled = self.settings.value(
@@ -56,9 +57,9 @@ class Application(QApplication):
         else:
             self.setFont(QFont(self.font().family(), font_size))
 
-        db = setup_app_db()
+        self.db = setup_app_db()
         transcription_service = TranscriptionService(
-            TranscriptionDAO(db), TranscriptionSegmentDAO(db)
+            TranscriptionDAO(self.db), TranscriptionSegmentDAO(self.db)
         )
 
         self.window = MainWindow(transcription_service)
@@ -91,3 +92,7 @@ class Application(QApplication):
     def add_task(self, task: FileTranscriptionTask, quit_on_complete: bool = False):
         self.window.quit_on_complete = quit_on_complete
         self.window.add_task(task)
+
+    def close_database(self):
+        from buzz.db.db import close_app_db
+        close_app_db()

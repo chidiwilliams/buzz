@@ -13,7 +13,6 @@ datas += collect_data_files("torch")
 datas += collect_data_files("demucs")
 datas += copy_metadata("tqdm")
 datas += copy_metadata("torch")
-datas += copy_metadata("demucs")
 datas += copy_metadata("regex")
 datas += copy_metadata("requests")
 datas += copy_metadata("packaging")
@@ -31,7 +30,13 @@ datas += collect_data_files("transformers", include_py_files=True)
 datas += collect_data_files("faster_whisper", include_py_files=True)
 datas += collect_data_files("stable_whisper", include_py_files=True)
 datas += collect_data_files("whisper")
-datas += [("demucs", "demucs")]
+datas += collect_data_files("demucs", include_py_files=True)
+datas += collect_data_files("whisper_diarization", include_py_files=True)
+datas += collect_data_files("deepmultilingualpunctuation", include_py_files=True)
+datas += collect_data_files("ctc_forced_aligner", include_py_files=True)
+datas += collect_data_files("nemo", include_py_files=True)
+datas += collect_data_files("lightning_fabric", include_py_files=True)
+datas += collect_data_files("pytorch_lightning", include_py_files=True)
 datas += [("buzz/assets/*", "assets")]
 datas += [("buzz/locale", "locale")]
 datas += [("buzz/schema.sql", ".")]
@@ -74,20 +79,13 @@ else:
         (shutil.which("ffprobe"), "."),
     ]
 
-if platform.system() == "Linux":
-    binaries.append(("buzz/whisper_cpp/*.so", "buzz/whisper_cpp"))
-    binaries.append(("buzz/whisper_cpp_vulkan/*.so", "buzz/whisper_cpp_vulkan"))
-
-if platform.system() == "Darwin":
-    binaries.append(("buzz/whisper_cpp/*.dylib", "buzz/whisper_cpp"))
+binaries.append(("buzz/whisper_cpp/*", "buzz/whisper_cpp"))
 
 if platform.system() == "Windows":
     datas += [("dll_backup", "dll_backup")]
     datas += collect_data_files("msvc-runtime")
 
     binaries.append(("dll_backup/SDL2.dll", "dll_backup"))
-    binaries.append(("buzz/whisper_cpp/*.dll", "buzz/whisper_cpp"))
-    binaries.append(("buzz/*.exe", "."))
 
 a = Analysis(
     ["main.py"],

@@ -1,9 +1,12 @@
 [run]
 omit =
   buzz/whisper_cpp/*
-  buzz/whisper_cpp_vulkan/*
+  buzz/transcriber/local_whisper_cpp_server_transcriber.py
   *_test.py
   demucs/*
+  whisper_diarization/*
+  deepmultilingualpunctuation/*
+  ctc_forced_aligner/*
 
 [html]
 directory = coverage/html
