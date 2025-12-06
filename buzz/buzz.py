@@ -4,9 +4,40 @@ import multiprocessing
 import os
 import platform
 import sys
+from pathlib import Path
 from typing import TextIO
 
 from platformdirs import user_log_dir, user_cache_dir, user_data_dir
+
+# Add CUDA libraries to LD_LIBRARY_PATH if they exist in the virtual environment
+# This fixes "Unable to load libcudnn_ops.so" errors on Linux
+if platform.system() == "Linux":
+    try:
+        # Find site-packages directory relative to this file
+        site_packages = Path(__file__).parent.parent
+        if site_packages.name != "site-packages":
+            # We're in development mode, look for .venv
+            venv_site_packages = site_packages / ".venv" / "lib"
+            if venv_site_packages.exists():
+                # Find pythonX.X directory
+                python_dirs = list(venv_site_packages.glob("python3.*"))
+                if python_dirs:
+                    site_packages = python_dirs[0] / "site-packages"
+
+        # Check for NVIDIA CUDA libraries
+        cudnn_lib_path = site_packages / "nvidia" / "cudnn" / "lib"
+        if cudnn_lib_path.exists() and cudnn_lib_path.is_dir():
+            current_ld_path = os.environ.get("LD_LIBRARY_PATH", "")
+            cudnn_lib_str = str(cudnn_lib_path)
+
+            # Only add if not already in LD_LIBRARY_PATH
+            if cudnn_lib_str not in current_ld_path:
+                new_ld_path = f"{cudnn_lib_str}:{current_ld_path}" if current_ld_path else cudnn_lib_str
+                os.environ["LD_LIBRARY_PATH"] = new_ld_path
+                logging.debug(f"Added CUDA libraries to LD_LIBRARY_PATH: {cudnn_lib_str}")
+    except Exception as e:
+        # Don't fail if we can't set up CUDA paths
+        logging.debug(f"Could not set up CUDA library paths: {e}")
 
 # Will download all Huggingface data to the app cache directory
 os.environ.setdefault("HF_HOME", user_cache_dir("Buzz"))
