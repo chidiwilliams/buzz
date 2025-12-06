@@ -21,9 +21,6 @@ from buzz.db.service.transcription_service import TranscriptionService
 from buzz.widgets.main_window import MainWindow
 from buzz.widgets.snap_notice import SnapNotice
 from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
-from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
-    TranscriptionViewerWidget,
-)
 
 mock_transcriptions: List[Transcription] = [
     Transcription(status="completed"),
@@ -234,12 +231,20 @@ class TestMainWindow:
         qtbot.add_widget(window)
 
         table_widget = self._get_tasks_table(window)
-        table_widget.selectRow(0)
+
+        # Find and select the completed transcription row
+        completed_row = None
+        for i in range(table_widget.model().rowCount()):
+            if self._get_status(table_widget, i) == "completed":
+                completed_row = i
+                break
+
+        assert completed_row is not None, "No completed transcription found"
+        table_widget.selectRow(completed_row)
 
         window.toolbar.open_transcript_action.trigger()
 
-        transcription_viewer = window.findChild(TranscriptionViewerWidget)
-        assert transcription_viewer is not None
+        assert window.transcription_viewer_widget is not None
 
         window.close()
 
@@ -253,7 +258,17 @@ class TestMainWindow:
         qtbot.add_widget(window)
 
         table_widget = self._get_tasks_table(window)
-        table_widget.selectRow(0)
+
+        # Find and select the completed transcription row
+        completed_row = None
+        for i in range(table_widget.model().rowCount()):
+            if self._get_status(table_widget, i) == "completed":
+                completed_row = i
+                break
+
+        assert completed_row is not None, "No completed transcription found"
+        table_widget.selectRow(completed_row)
+
         table_widget.keyPressEvent(
             QKeyEvent(
                 QKeyEvent.Type.KeyPress,
@@ -263,8 +278,7 @@ class TestMainWindow:
             )
         )
 
-        transcription_viewer = window.findChild(TranscriptionViewerWidget)
-        assert transcription_viewer is not None
+        assert window.transcription_viewer_widget is not None
 
         window.close()
 
