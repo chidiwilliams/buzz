@@ -621,8 +621,8 @@ class TranscriptionTasksTableWidget(QTableView):
         current_notes = transcription.notes or ""
         new_notes, ok = QInputDialog.getMultiLineText(
             self, 
-            _("Edit Notes"), 
-            _("Enter notes for this transcription:"), 
+            _("Notes"),
+            _("Enter some relevant notes for this transcription:"),
             text=current_notes
         )
         
