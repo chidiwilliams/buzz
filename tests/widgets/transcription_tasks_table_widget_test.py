@@ -46,11 +46,25 @@ def mock_dependencies(monkeypatch):
 
     mock_settings = Mock()
     settings_store = {}
+    current_group = [""]
+
+    def begin_group(group):
+        current_group[0] = group + "/"
+
+    def end_group():
+        current_group[0] = ""
+
+    def set_value(k, v):
+        settings_store[current_group[0] + k] = v
+
+    def get_value(k, default=None):
+        return settings_store.get(current_group[0] + k, default)
+
     mock_settings.settings = Mock()
-    mock_settings.settings.setValue.side_effect = lambda k, v: settings_store.update({k: v})
-    mock_settings.settings.value.side_effect = lambda k, default=None: settings_store.get(
-        k, default
-    )
+    mock_settings.settings.setValue.side_effect = set_value
+    mock_settings.settings.value.side_effect = get_value
+    mock_settings.begin_group.side_effect = begin_group
+    mock_settings.end_group.side_effect = end_group
     monkeypatch.setattr(
         "buzz.widgets.transcription_tasks_table_widget.Settings",
         Mock(return_value=mock_settings),
