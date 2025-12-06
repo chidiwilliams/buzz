@@ -194,9 +194,7 @@ class TranscriptionTasksTableHeaderView(QHeaderView):
             if definition.column.value == column_index:
                 column_def = definition
                 break
-        
-        print(f"[DEBUG] Toggling column {column_def.id if column_def else 'unknown'} (index {column_index}) to {'visible' if checked else 'hidden'}")
-        
+
         # If we're hiding the column, save its current width first
         if not checked and not self.parent().isColumnHidden(column_index):
             current_width = self.parent().columnWidth(column_index)
@@ -204,8 +202,7 @@ class TranscriptionTasksTableHeaderView(QHeaderView):
                 self.parent().settings.begin_group(self.parent().settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS)
                 self.parent().settings.settings.setValue(column_def.id, current_width)
                 self.parent().settings.end_group()
-                print(f"[DEBUG] Saved width {current_width} for column {column_def.id} before hiding")
-        
+
         # Update the visibility state on the table view (not header view)
         self.parent().setColumnHidden(column_index, not checked)
         
@@ -230,8 +227,6 @@ class TranscriptionTasksTableHeaderView(QHeaderView):
         self.parent().model().layoutChanged.emit()
 
         self.parent().reload_column_order_from_settings()
-        
-        print(f"[DEBUG] After toggle: column {column_index} hidden = {self.parent().isColumnHidden(column_index)}")
 
 class TranscriptionTasksTableWidget(QTableView):
     return_clicked = pyqtSignal()
@@ -300,10 +295,8 @@ class TranscriptionTasksTableWidget(QTableView):
         selected_rows = self.selectionModel().selectedRows()
         if selected_rows:
             transcription = self.transcription(selected_rows[0])
-            
+
             # Add restart/continue action for failed/canceled tasks
-            # Print the status of the transcription
-            print(f"[DEBUG] Transcription status: {transcription.status}")
             if transcription.status in ["failed", "canceled"]:
                 restart_action = menu.addAction(_("Restart Transcription"))
                 restart_action.triggered.connect(self.on_restart_transcription_action)
@@ -392,7 +385,6 @@ class TranscriptionTasksTableWidget(QTableView):
         self.horizontalHeader().update()
         self.viewport().update()
         self.updateGeometry()
-        print("[DEBUG] load_column_visibility() finished")
 
     def load_column_order(self):
         """Load saved column order from settings"""
@@ -475,7 +467,7 @@ class TranscriptionTasksTableWidget(QTableView):
                 try:
                     width_settings[definition.id] = int(width)
                 except Exception:
-                    print(f"[DEBUG] Invalid width for column '{definition.id}': {width}")
+                    pass
         self.settings.end_group()
 
         # --- Load column order ---
@@ -487,7 +479,7 @@ class TranscriptionTasksTableWidget(QTableView):
                 try:
                     order_settings[definition.column.value] = int(pos)
                 except Exception:
-                    print(f"[DEBUG] Invalid position for column '{definition.id}': {pos}")
+                    pass
         self.settings.end_group()
 
         # --- Apply visibility, widths, and order ---
@@ -497,7 +489,6 @@ class TranscriptionTasksTableWidget(QTableView):
         for definition in column_definitions:
             is_visible = visibility_settings.get(definition.id, True)
             width = width_settings.get(definition.id, definition.width)
-            print(f"[DEBUG] Column '{definition.id}': visible={is_visible}, width={width}")
             self.setColumnHidden(definition.column.value, not is_visible)
             if width is not None:
                 self.setColumnWidth(definition.column.value, max(width, 100))
@@ -515,11 +506,7 @@ class TranscriptionTasksTableWidget(QTableView):
         for target_visual, (logical_index, _) in enumerate(all_columns):
             current_visual = header.visualIndex(logical_index)
             if current_visual != target_visual:
-                print(f"[DEBUG] Moving column logical_index={logical_index} from visual={current_visual} to visual={target_visual}")
                 header.moveSection(current_visual, target_visual)
-
-        print("[DEBUG] reload_column_order_from_settings() finished")
-        
 
     def copy_selected_fields(self):
         selected_text = ""
