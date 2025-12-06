@@ -9,35 +9,73 @@ from typing import TextIO
 
 from platformdirs import user_log_dir, user_cache_dir, user_data_dir
 
-# Add CUDA libraries to LD_LIBRARY_PATH if they exist in the virtual environment
+# Add CUDA libraries to library path if they exist in the virtual environment
 # This fixes "Unable to load libcudnn_ops.so" errors on Linux
-if platform.system() == "Linux":
+# and similar DLL loading issues on Windows
+def setup_cuda_library_paths():
+    """Configure CUDA library paths for the current platform."""
     try:
-        # Find site-packages directory relative to this file
-        site_packages = Path(__file__).parent.parent
-        if site_packages.name != "site-packages":
-            # We're in development mode, look for .venv
-            venv_site_packages = site_packages / ".venv" / "lib"
-            if venv_site_packages.exists():
-                # Find pythonX.X directory
-                python_dirs = list(venv_site_packages.glob("python3.*"))
-                if python_dirs:
-                    site_packages = python_dirs[0] / "site-packages"
+        # Determine if we're running as a PyInstaller bundle
+        if getattr(sys, "frozen", False):
+            # Running as PyInstaller bundle - libraries are in _internal or base directory
+            if hasattr(sys, "_MEIPASS"):
+                # PyInstaller sets sys._MEIPASS to the bundle directory
+                base_path = Path(sys._MEIPASS)
+            else:
+                # Fallback to executable directory
+                base_path = Path(sys.executable).parent
 
-        # Check for NVIDIA CUDA libraries
-        cudnn_lib_path = site_packages / "nvidia" / "cudnn" / "lib"
+            # In PyInstaller bundles, nvidia libs are in nvidia/cudnn/lib relative to bundle
+            cudnn_lib_path = base_path / "nvidia" / "cudnn" / "lib"
+        else:
+            # Running in development mode - find site-packages directory
+            site_packages = Path(__file__).parent.parent
+            if site_packages.name != "site-packages":
+                # We're in development mode, look for .venv
+                if platform.system() == "Windows":
+                    venv_site_packages = site_packages / ".venv" / "Lib" / "site-packages"
+                else:
+                    venv_site_packages = site_packages / ".venv" / "lib"
+                    if venv_site_packages.exists():
+                        # Find pythonX.X directory
+                        python_dirs = list(venv_site_packages.glob("python3.*"))
+                        if python_dirs:
+                            venv_site_packages = python_dirs[0] / "site-packages"
+
+                if venv_site_packages.exists():
+                    site_packages = venv_site_packages
+
+            cudnn_lib_path = site_packages / "nvidia" / "cudnn" / "lib"
+
+        # Check for NVIDIA CUDA libraries and add to path if found
         if cudnn_lib_path.exists() and cudnn_lib_path.is_dir():
-            current_ld_path = os.environ.get("LD_LIBRARY_PATH", "")
             cudnn_lib_str = str(cudnn_lib_path)
 
-            # Only add if not already in LD_LIBRARY_PATH
-            if cudnn_lib_str not in current_ld_path:
-                new_ld_path = f"{cudnn_lib_str}:{current_ld_path}" if current_ld_path else cudnn_lib_str
-                os.environ["LD_LIBRARY_PATH"] = new_ld_path
-                logging.debug(f"Added CUDA libraries to LD_LIBRARY_PATH: {cudnn_lib_str}")
+            if platform.system() == "Linux":
+                # Use LD_LIBRARY_PATH on Linux
+                current_ld_path = os.environ.get("LD_LIBRARY_PATH", "")
+                if cudnn_lib_str not in current_ld_path:
+                    new_ld_path = f"{cudnn_lib_str}:{current_ld_path}" if current_ld_path else cudnn_lib_str
+                    os.environ["LD_LIBRARY_PATH"] = new_ld_path
+                    logging.debug(f"Added CUDA libraries to LD_LIBRARY_PATH: {cudnn_lib_str}")
+            elif platform.system() == "Windows":
+                # Use os.add_dll_directory on Windows (Python 3.8+)
+                # This is preferred over PATH modification for DLL loading
+                try:
+                    os.add_dll_directory(cudnn_lib_str)
+                    logging.debug(f"Added CUDA libraries to DLL search path: {cudnn_lib_str}")
+                except (AttributeError, OSError) as e:
+                    # Fallback to PATH if add_dll_directory fails
+                    current_path = os.environ.get("PATH", "")
+                    if cudnn_lib_str not in current_path:
+                        os.environ["PATH"] = f"{cudnn_lib_str}{os.pathsep}{current_path}"
+                        logging.debug(f"Added CUDA libraries to PATH: {cudnn_lib_str}")
     except Exception as e:
         # Don't fail if we can't set up CUDA paths
         logging.debug(f"Could not set up CUDA library paths: {e}")
+
+# Set up CUDA paths before importing any CUDA-dependent modules
+setup_cuda_library_paths()
 
 # Will download all Huggingface data to the app cache directory
 os.environ.setdefault("HF_HOME", user_cache_dir("Buzz"))

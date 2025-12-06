@@ -32,15 +32,15 @@ dependencies = [
     "torchaudio==2.2.2; sys_platform == 'darwin' and platform_machine == 'x86_64'",
     "ctranslate2==4.3.1; sys_platform == 'darwin' and platform_machine == 'x86_64'",
     # For ARM macOS (arm64) - use latest CPU-only versions from PyPI
-    "torch==2.9.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
-    "torchaudio==2.9.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "torch==2.8.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "torchaudio==2.8.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
     "ctranslate2>=4.6.2,<5; sys_platform == 'darwin' and platform_machine == 'arm64'",
     # For Linux/Windows - use CUDA versions from pytorch index
-    "torch==2.9.0; sys_platform != 'darwin'",
-    "torchaudio==2.9.0; sys_platform != 'darwin'",
+    "torch==2.8.0; sys_platform != 'darwin'",
+    "torchaudio==2.8.0; sys_platform != 'darwin'",
     "ctranslate2>=4.6.2,<5; sys_platform != 'darwin'",
     # faster whisper need cudnn 9
-    "nvidia-cudnn-cu12<10; sys_platform == 'linux'",
+    "nvidia-cudnn-cu12>=9,<10; sys_platform != 'darwin'",
     "darkdetect>=0.8.0,<0.9",
     "dora-search>=0.1.12,<0.2",
     "diffq>=0.2.4,<0.3",
@@ -113,11 +113,11 @@ default-groups = [
 demucs = { path = "demucs_repo", editable = true }
 torch = [
     { index = "PyPI", marker = "sys_platform == 'darwin'" },
-    { index = "pytorch-cu128", marker = "sys_platform != 'darwin'" },
+    { index = "pytorch-cu129", marker = "sys_platform != 'darwin'" },
 ]
 torchaudio = [
     { index = "PyPI", marker = "sys_platform == 'darwin'" },
-    { index = "pytorch-cu128", marker = "sys_platform != 'darwin'" },
+    { index = "pytorch-cu129", marker = "sys_platform != 'darwin'" },
 ]
 
 [[tool.uv.index]]
@@ -125,8 +125,8 @@ name = "nvidia"
 url = "https://pypi.ngc.nvidia.com/"
 
 [[tool.uv.index]]
-name = "pytorch-cu128"
-url = "https://download.pytorch.org/whl/cu128"
+name = "pytorch-cu129"
+url = "https://download.pytorch.org/whl/cu129"
 
 [[tool.uv.index]]
 name = "PyPI"
