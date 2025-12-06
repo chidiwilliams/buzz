@@ -11,6 +11,7 @@ coverage.xml
 .idea/
 .venv/
 venv/
+.claude/
 
 # whisper_cpp
 whisper_cpp

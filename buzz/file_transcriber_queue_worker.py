@@ -1,11 +1,41 @@
 import logging
 import multiprocessing
 import queue
+import sys
 from pathlib import Path
 from typing import Optional, Tuple, List, Set
 from uuid import UUID
 
 from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
+
+# Patch subprocess for demucs to prevent console windows on Windows
+if sys.platform == "win32":
+    import subprocess
+    _original_run = subprocess.run
+    _original_check_output = subprocess.check_output
+
+    def _patched_run(*args, **kwargs):
+        if 'startupinfo' not in kwargs:
+            si = subprocess.STARTUPINFO()
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            si.wShowWindow = subprocess.SW_HIDE
+            kwargs['startupinfo'] = si
+        if 'creationflags' not in kwargs:
+            kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
+        return _original_run(*args, **kwargs)
+
+    def _patched_check_output(*args, **kwargs):
+        if 'startupinfo' not in kwargs:
+            si = subprocess.STARTUPINFO()
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            si.wShowWindow = subprocess.SW_HIDE
+            kwargs['startupinfo'] = si
+        if 'creationflags' not in kwargs:
+            kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
+        return _original_check_output(*args, **kwargs)
+
+    subprocess.run = _patched_run
+    subprocess.check_output = _patched_check_output
 
 from demucs import api as demucsApi
 
@@ -95,6 +125,7 @@ class FileTranscriberQueueWorker(QObject):
                 logging.error(f"Error during speech extraction: {e}", exc_info=True)
 
         logging.debug("Starting next transcription task")
+        self.task_progress.emit(self.current_task, 0)
 
         model_type = self.current_task.transcription_options.model.model_type
         if model_type == ModelType.OPEN_AI_WHISPER_API:
