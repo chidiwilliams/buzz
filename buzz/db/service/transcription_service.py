@@ -53,6 +53,9 @@ class TranscriptionService:
     def update_transcription_notes(self, id: UUID, notes: str):
         self.transcription_dao.update_transcription_notes(id, notes)
 
+    def reset_transcription_for_restart(self, id: UUID):
+        self.transcription_dao.reset_transcription_for_restart(id)
+
     def replace_transcription_segments(self, id: UUID, segments: List[Segment]):
         self.transcription_segment_dao.delete_segments(id)
         for segment in segments:

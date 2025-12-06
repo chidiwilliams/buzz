@@ -651,38 +651,16 @@ class TranscriptionTasksTableWidget(QTableView):
             )
             return
         
-        # Reset the transcription status to queued by directly updating the database
-        from uuid import UUID
-        from buzz.transcriber.transcriber import FileTranscriptionTask
-        
-        # Use a direct database update to reset status
-        query = self.transcription_service.transcription_dao._create_query()
-        query.prepare(
-            """
-            UPDATE transcription
-            SET status = :status, progress = :progress, time_started = NULL, time_ended = NULL, error_message = NULL
-            WHERE id = :id
-        """
-        )
-        
-        query.bindValue(":id", str(transcription.id))
-        query.bindValue(":status", FileTranscriptionTask.Status.QUEUED.value)
-        query.bindValue(":progress", 0.0)
-        
-        if query.exec():
-            # Create a new FileTranscriptionTask from the database record
-            # and add it to the queue worker
+        try:
+            self.transcription_service.reset_transcription_for_restart(UUID(transcription.id))
             self._restart_transcription_task(transcription)
-            
-            # Refresh the table to show updated status
             self.refresh_all()
-        else:
-            # Show error if update failed
+        except Exception as e:
             from PyQt6.QtWidgets import QMessageBox
             QMessageBox.warning(
-                self, 
-                _("Error"), 
-                _("Failed to restart transcription: {}").format(query.lastError().text())
+                self,
+                _("Error"),
+                _("Failed to restart transcription: {}").format(str(e))
             )
     
     def _restart_transcription_task(self, transcription):

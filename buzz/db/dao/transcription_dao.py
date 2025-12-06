@@ -283,3 +283,22 @@ class TranscriptionDAO(DAO[Transcription]):
             raise Exception(query.lastError().text())
         if query.numRowsAffected() == 0:
             raise Exception("Transcription not found")
+
+    def reset_transcription_for_restart(self, id: UUID):
+        """Reset a transcription to queued status for restart"""
+        query = self._create_query()
+        query.prepare(
+            """
+            UPDATE transcription
+            SET status = :status, progress = :progress, time_started = NULL, time_ended = NULL, error_message = NULL
+            WHERE id = :id
+        """
+        )
+
+        query.bindValue(":id", str(id))
+        query.bindValue(":status", FileTranscriptionTask.Status.QUEUED.value)
+        query.bindValue(":progress", 0.0)
+        if not query.exec():
+            raise Exception(query.lastError().text())
+        if query.numRowsAffected() == 0:
+            raise Exception("Transcription not found")
