@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-23 12:55+0200\n"
+"POT-Creation-Date: 2025-12-06 11:29+0200\n"
 "PO-Revision-Date: 2025-10-17 07:59+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: Catalan <jmas@softcatala.org>\n"
@@ -29,7 +29,7 @@ msgstr "https://exemple.com/audio.mp3"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:69
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:251
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:97
-#: buzz/widgets/main_window.py:238
+#: buzz/widgets/main_window.py:239
 msgid "Ok"
 msgstr "D’acord"
 
@@ -37,7 +37,7 @@ msgstr "D’acord"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:70
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:252
 #: buzz/widgets/model_download_progress_dialog.py:30
-#: buzz/widgets/main_window.py:239
+#: buzz/widgets/main_window.py:240
 msgid "Cancel"
 msgstr "Cancel·lar"
 
@@ -308,7 +308,10 @@ msgid "Download failed"
 msgstr "Descàrrega fallida"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:275
-#: buzz/widgets/main_window.py:295 buzz/model_loader.py:539
+#: buzz/widgets/transcription_tasks_table_widget.py:665
+#: buzz/widgets/transcription_tasks_table_widget.py:735
+#: buzz/widgets/transcription_tasks_table_widget.py:766
+#: buzz/widgets/main_window.py:296 buzz/model_loader.py:539
 #: buzz/model_loader.py:553
 msgid "Error"
 msgstr "Error"
@@ -436,54 +439,113 @@ msgstr "Obre una transcripció"
 msgid "Cancel Transcription"
 msgstr "Cancel·la la transcripció"
 
-#: buzz/widgets/main_window_toolbar.py:71 buzz/widgets/main_window.py:227
+#: buzz/widgets/main_window_toolbar.py:71 buzz/widgets/main_window.py:228
 #: buzz/settings/shortcut.py:36
 msgid "Clear History"
 msgstr "Neteja l'historial"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:69
+#: buzz/widgets/transcription_tasks_table_widget.py:71
 msgid "In Progress"
 msgstr "En progrés"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:72
+#: buzz/widgets/transcription_tasks_table_widget.py:74
 msgid "Completed"
 msgstr "Completat"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:79
+#: buzz/widgets/transcription_tasks_table_widget.py:81
 msgid "Failed"
 msgstr "Ha fallat"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:82
+#: buzz/widgets/transcription_tasks_table_widget.py:84
 msgid "Canceled"
 msgstr "Cancel·lat"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:84
+#: buzz/widgets/transcription_tasks_table_widget.py:86
 msgid "Queued"
 msgstr "A la cua"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:91
+#: buzz/widgets/transcription_tasks_table_widget.py:93
 msgid "File Name / URL"
 msgstr "Nom del fitxer / URL"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:103
+#: buzz/widgets/transcription_tasks_table_widget.py:106
 msgid "Model"
 msgstr "Model"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:112
+#: buzz/widgets/transcription_tasks_table_widget.py:115
 msgid "Task"
 msgstr "Tasca"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:121
+#: buzz/widgets/transcription_tasks_table_widget.py:124
 msgid "Status"
 msgstr "Estat"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:129
+#: buzz/widgets/transcription_tasks_table_widget.py:133
+msgid "Date Completed"
+msgstr "Data de finalització"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:145
 msgid "Date Added"
 msgstr "Data d'addició"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:140
-msgid "Date Completed"
-msgstr "Data de finalització"
+#: buzz/widgets/transcription_tasks_table_widget.py:156
+#: buzz/widgets/transcription_tasks_table_widget.py:624
+msgid "Notes"
+msgstr ""
+
+#: buzz/widgets/transcription_tasks_table_widget.py:174
+msgid "Reset Column Order"
+msgstr ""
+
+#: buzz/widgets/transcription_tasks_table_widget.py:301
+#, fuzzy
+msgid "Restart Transcription"
+msgstr "Cancel·la la transcripció"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:305
+#, fuzzy
+msgid "Rename"
+msgstr "Vietnamita"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:308
+msgid "Add/Edit Notes"
+msgstr ""
+
+#: buzz/widgets/transcription_tasks_table_widget.py:597
+#, fuzzy
+msgid "Rename Transcription"
+msgstr "Cancel·la la transcripció"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:598
+msgid "Enter new name:"
+msgstr ""
+
+#: buzz/widgets/transcription_tasks_table_widget.py:625
+msgid "Enter some relevant notes for this transcription:"
+msgstr ""
+
+#: buzz/widgets/transcription_tasks_table_widget.py:652
+msgid "Cannot Restart"
+msgstr ""
+
+#: buzz/widgets/transcription_tasks_table_widget.py:653
+msgid "Only failed or canceled transcriptions can be restarted."
+msgstr ""
+
+#: buzz/widgets/transcription_tasks_table_widget.py:666
+#, fuzzy
+msgid "Failed to restart transcription: {}"
+msgstr "Cancel·la la transcripció"
+
+#: buzz/widgets/transcription_tasks_table_widget.py:736
+msgid ""
+"Could not restart transcription: model not available and could not be "
+"downloaded."
+msgstr ""
+
+#: buzz/widgets/transcription_tasks_table_widget.py:767
+msgid "Could not restart transcription: transcriber worker not found."
+msgstr ""
 
 #: buzz/widgets/recording_transcriber_widget.py:83
 msgid "Live Recording"
@@ -521,7 +583,7 @@ msgstr "Comprova si hi ha actualitzacions"
 msgid "Show logs"
 msgstr ""
 
-#: buzz/widgets/about_dialog.py:118
+#: buzz/widgets/about_dialog.py:119
 msgid "You're up to date!"
 msgstr "Estàs al dia!"
 
@@ -554,68 +616,68 @@ msgstr "Veure"
 msgid "Timestamps"
 msgstr "Marqua de temps"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:215
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:218
 msgid "Export"
 msgstr "Exporta"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:234
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:237
 msgid "Translate"
 msgstr "Traduir"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:244
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:247
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:175
 msgid "Resize"
 msgstr "Redimensionar"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:257
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:260
 msgid "Identify Speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:269
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:272
 msgid "Find"
 msgstr "Cerca"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:272
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:275
 msgid "Show/Hide Search Bar (Ctrl+F)"
 msgstr "Mostra/amaga la barra de cerca (Ctrl+F)"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:337
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:340
 msgid "Find:"
 msgstr "Cerca:"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:343
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:346
 msgid "Enter text to find..."
 msgstr "Introduïu el text a cercar..."
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:356
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:359
 msgid "Previous match (Shift+Enter)"
 msgstr "Coincidència anterior (Maj+Retorn)"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:364
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:367
 msgid "Next match (Enter)"
 msgstr "Coincidència següent (retorn)"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:372
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:375
 msgid "Clear"
 msgstr "Neteja"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:399
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:402
 msgid "Playback Controls:"
 msgstr "Controls de reproducció:"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:404
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:407
 msgid "Loop Segment"
 msgstr "Segment de bucle"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:406
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:409
 msgid "Enable/disable looping when clicking on transcript segments"
 msgstr "Activa/desactiva el bucle en fer clic als segments de transcripció"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:412
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:415
 msgid "Follow Audio"
 msgstr "Segueix l'àudio"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:414
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:417
 msgid ""
 "Enable/disable following the current audio position in the transcript. When "
 "enabled, automatically scrolls to current text."
@@ -623,44 +685,44 @@ msgstr ""
 "Activa/desactiva seguint la posició d'àudio actual a la transcripció. Quan "
 "està activada, es desplaça automàticament al text actual."
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:461
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:464
 msgid "Scroll to Current"
 msgstr "Desplaça't fins a l'actual"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:463
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:466
 msgid "Scroll to the currently spoken text"
 msgstr "Desplaçar-se fins al text que es parla actualment"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:785
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:788
 msgid "1 of 100+ matches"
 msgstr "1 de més de 100 coincidències"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:787
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:790
 msgid "1 of "
 msgstr "1 de "
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:787
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:853
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:790
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:856
 msgid " matches"
 msgstr " coincidències"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:792
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:795
 msgid "No matches found"
 msgstr "No s'ha trobat cap coincidència"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:851
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:854
 msgid " of 100+ matches"
 msgstr " de més de 100 coincidències"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:853
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:856
 msgid " of "
 msgstr " de "
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1208
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1211
 msgid "API Key Required"
 msgstr "Clau API necessària"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1209
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1212
 msgid "Please enter OpenAI API Key in preferences"
 msgstr "Introduïu la clau API d'OpenAI a les preferències"
 
@@ -717,48 +779,48 @@ msgstr "Cancel·la la transcripció"
 msgid "6/8 Identifying speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:160
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:167
 msgid "0/0 Error identifying speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:168
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:175
 msgid "7/8 Mapping speakers to transcripts"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:207
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:214
 msgid "8/8 Identification done"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:243
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:251
 msgid "Step 1: Identify speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:255
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:263
 msgid "Identify"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:265
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:272
 msgid "Ready to identify speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:267
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:274
 msgid "Audio file not found"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:283
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:298
 msgid "Step 2: Name speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:298
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:391
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:313
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:406
 msgid "Play sample"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:313
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:328
 msgid "Merge speaker sentences"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:318
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:333
 #, fuzzy
 msgid "Save"
 msgstr "Desa el fitxer"
@@ -826,7 +888,7 @@ msgstr "Ajuda"
 msgid "File"
 msgstr "Fitxer"
 
-#: buzz/widgets/main_window.py:231
+#: buzz/widgets/main_window.py:232
 msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
@@ -834,11 +896,11 @@ msgstr ""
 "Esteu segur que voleu suprimir les transcripcions seleccionades? Aquesta "
 "acció no es pot desfer."
 
-#: buzz/widgets/main_window.py:259
+#: buzz/widgets/main_window.py:260
 msgid "Select audio file"
 msgstr "Selecciona un fitxer d'àudio"
 
-#: buzz/widgets/main_window.py:295
+#: buzz/widgets/main_window.py:296
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "No s'ha pogut desar la clau OpenAI API a l'anell de claus"
 

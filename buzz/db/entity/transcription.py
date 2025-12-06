@@ -30,6 +30,8 @@ class Transcription(Entity):
     output_folder: str | None = None
     source: str | None = None
     url: str | None = None
+    name: str | None = None
+    notes: str | None = None
 
     @property
     def id_as_uuid(self):

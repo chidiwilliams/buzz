@@ -110,6 +110,7 @@ class MainWindow(QMainWindow):
         self.setMenuBar(self.menu_bar)
 
         self.table_widget = TranscriptionTasksTableWidget(self)
+        self.table_widget.transcription_service = self.transcription_service
         self.table_widget.doubleClicked.connect(self.on_table_double_clicked)
         self.table_widget.return_clicked.connect(self.open_transcript_viewer)
         self.table_widget.selectionModel().selectionChanged.connect(

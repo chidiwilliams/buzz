@@ -31,6 +31,7 @@ class FileTranscriberQueueWorker(QObject):
     task_error = pyqtSignal(FileTranscriptionTask, str)
 
     completed = pyqtSignal()
+    trigger_run = pyqtSignal()
 
     def __init__(self, parent: Optional[QObject] = None):
         super().__init__(parent)
@@ -38,14 +39,20 @@ class FileTranscriberQueueWorker(QObject):
         self.canceled_tasks: Set[UUID] = set()
         self.current_transcriber = None
         self.speech_path = None
+        self.is_running = False
+        self.trigger_run.connect(self.run)
 
     @pyqtSlot()
     def run(self):
+        if self.is_running:
+            return
+
         logging.debug("Waiting for next transcription task")
 
         # Clean up of previous run.
         if self.current_transcriber is not None:
             self.current_transcriber.stop()
+            self.current_transcriber = None
 
         # Get next non-canceled task from queue
         while True:
@@ -53,6 +60,7 @@ class FileTranscriberQueueWorker(QObject):
 
             # Stop listening when a "None" task is received
             if self.current_task is None:
+                self.is_running = False
                 self.completed.emit()
                 return
 
@@ -60,6 +68,9 @@ class FileTranscriberQueueWorker(QObject):
                 continue
 
             break
+
+        # Set is_running AFTER we have a valid task to process
+        self.is_running = True
 
         if self.current_task.transcription_options.extract_speech:
             logging.debug("Will extract speech")
@@ -123,14 +134,27 @@ class FileTranscriberQueueWorker(QObject):
         self.current_transcriber.completed.connect(self.on_task_completed)
 
         # Wait for next item on the queue
-        self.current_transcriber.error.connect(self.run)
-        self.current_transcriber.completed.connect(self.run)
+        self.current_transcriber.error.connect(lambda: self._on_task_finished())
+        self.current_transcriber.completed.connect(lambda: self._on_task_finished())
 
         self.task_started.emit(self.current_task)
         self.current_transcriber_thread.start()
 
+    def _on_task_finished(self):
+        """Called when a task completes or errors, resets state and triggers next run"""
+        self.is_running = False
+        self.run()
+
     def add_task(self, task: FileTranscriptionTask):
+        # Remove from canceled tasks if it was previously canceled (for restart functionality)
+        if task.uid in self.canceled_tasks:
+            self.canceled_tasks.remove(task.uid)
+
         self.tasks_queue.put(task)
+        # If the worker is not currently running, trigger it to start processing
+        # Use signal to avoid blocking the main thread
+        if not self.is_running:
+            self.trigger_run.emit()
 
     def cancel_task(self, task_id: UUID):
         self.canceled_tasks.add(task_id)
@@ -149,8 +173,13 @@ class FileTranscriberQueueWorker(QObject):
             self.current_task is not None
             and self.current_task.uid not in self.canceled_tasks
         ):
-            self.current_task.status = FileTranscriptionTask.Status.FAILED
-            self.current_task.error = error
+            # Check if the error indicates cancellation
+            if "canceled" in error.lower() or "cancelled" in error.lower():
+                self.current_task.status = FileTranscriptionTask.Status.CANCELED
+                self.current_task.error = error
+            else:
+                self.current_task.status = FileTranscriptionTask.Status.FAILED
+                self.current_task.error = error
             self.task_error.emit(self.current_task, error)
 
     @pyqtSlot(tuple)

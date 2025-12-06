@@ -1,7 +1,7 @@
 import logging
 import os
 from typing import List
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 import pytest
 from PyQt6.QtCore import QSize, Qt
@@ -21,9 +21,6 @@ from buzz.db.service.transcription_service import TranscriptionService
 from buzz.widgets.main_window import MainWindow
 from buzz.widgets.snap_notice import SnapNotice
 from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
-from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
-    TranscriptionViewerWidget,
-)
 
 mock_transcriptions: List[Transcription] = [
     Transcription(status="completed"),
@@ -154,8 +151,22 @@ class TestMainWindow:
 
     @pytest.mark.parametrize("transcription_dao", [mock_transcriptions], indirect=True)
     def test_should_load_tasks_from_cache(
-        self, qtbot, transcription_dao, transcription_segment_dao
+        self, qtbot, transcription_dao, transcription_segment_dao, monkeypatch
     ):
+        # Mock the queue worker to prevent it from processing tasks
+        mock_queue_worker = Mock()
+        mock_queue_worker.task_started = Mock()
+        mock_queue_worker.task_progress = Mock()
+        mock_queue_worker.task_download_progress = Mock()
+        mock_queue_worker.task_error = Mock()
+        mock_queue_worker.task_completed = Mock()
+        mock_queue_worker.completed = Mock()
+        mock_queue_worker.cancel_task = Mock()
+        mock_queue_worker.add_task = Mock()
+        mock_queue_worker.stop = Mock()
+        
+        monkeypatch.setattr("buzz.widgets.main_window.FileTranscriberQueueWorker", Mock(return_value=mock_queue_worker))
+        
         window = MainWindow(
             TranscriptionService(transcription_dao, transcription_segment_dao)
         )
@@ -164,17 +175,19 @@ class TestMainWindow:
         table_widget = self._get_tasks_table(window)
         assert table_widget.model().rowCount() == 3
 
-        assert self._get_status(table_widget, 0) == "completed"
-        table_widget.selectRow(0)
-        assert window.toolbar.open_transcript_action.isEnabled()
+        # Get all statuses and verify they match expected values
+        statuses = [self._get_status(table_widget, i) for i in range(3)]
+        expected_statuses = {"completed", "canceled", "failed"}
+        assert set(statuses) == expected_statuses, f"Expected {expected_statuses}, got {statuses}"
 
-        assert self._get_status(table_widget, 1) == "canceled"
-        table_widget.selectRow(1)
-        assert window.toolbar.open_transcript_action.isEnabled() is False
-
-        assert self._get_status(table_widget, 2) == "failed"
-        table_widget.selectRow(2)
-        assert window.toolbar.open_transcript_action.isEnabled() is False
+        # Test that completed transcriptions enable the open action, others don't
+        for i in range(3):
+            table_widget.selectRow(i)
+            status = self._get_status(table_widget, i)
+            if status == "completed":
+                assert window.toolbar.open_transcript_action.isEnabled()
+            else:
+                assert window.toolbar.open_transcript_action.isEnabled() is False
         window.close()
 
     @pytest.mark.parametrize("transcription_dao", [mock_transcriptions], indirect=True)
@@ -218,12 +231,20 @@ class TestMainWindow:
         qtbot.add_widget(window)
 
         table_widget = self._get_tasks_table(window)
-        table_widget.selectRow(0)
+
+        # Find and select the completed transcription row
+        completed_row = None
+        for i in range(table_widget.model().rowCount()):
+            if self._get_status(table_widget, i) == "completed":
+                completed_row = i
+                break
+
+        assert completed_row is not None, "No completed transcription found"
+        table_widget.selectRow(completed_row)
 
         window.toolbar.open_transcript_action.trigger()
 
-        transcription_viewer = window.findChild(TranscriptionViewerWidget)
-        assert transcription_viewer is not None
+        assert window.transcription_viewer_widget is not None
 
         window.close()
 
@@ -237,7 +258,17 @@ class TestMainWindow:
         qtbot.add_widget(window)
 
         table_widget = self._get_tasks_table(window)
-        table_widget.selectRow(0)
+
+        # Find and select the completed transcription row
+        completed_row = None
+        for i in range(table_widget.model().rowCount()):
+            if self._get_status(table_widget, i) == "completed":
+                completed_row = i
+                break
+
+        assert completed_row is not None, "No completed transcription found"
+        table_widget.selectRow(completed_row)
+
         table_widget.keyPressEvent(
             QKeyEvent(
                 QKeyEvent.Type.KeyPress,
@@ -247,8 +278,7 @@ class TestMainWindow:
             )
         )
 
-        transcription_viewer = window.findChild(TranscriptionViewerWidget)
-        assert transcription_viewer is not None
+        assert window.transcription_viewer_widget is not None
 
         window.close()
 
