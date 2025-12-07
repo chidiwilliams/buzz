@@ -60,7 +60,8 @@ dependencies = [
     "soundfile>=0.13.1,<0.14",
     "urllib3>=2.6.0,<3",
     "posthog>=3.23.0,<4",
-    "onnxruntime>=1.14,<2 ",
+    # This version works, newer have issues on Windows
+    "onnxruntime==1.18.1",
     "vulkan>=1.3.275.1,<2",
     "hf-xet>=1.1.5,<2",
     "hatchling>=1.28.0",
