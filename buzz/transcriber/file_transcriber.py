@@ -205,7 +205,7 @@ def to_timestamp(ms: float, ms_separator=".") -> str:
     return f"{hr:02d}:{min:02d}:{sec:02d}{ms_separator}{ms:03d}"
 
 # To detect when transcription source is a video
-VIDEO_EXTENSIONS = {".mp4", ".mov", ".mkv", ".avi", ".m4v"}
+VIDEO_EXTENSIONS = {".mp4", ".mov", ".mkv", ".avi", ".m4v", ".webm", ".ogm", ".wmv"}
 
 def is_video_file(path: str) -> bool:
     return Path(path).suffix.lower() in VIDEO_EXTENSIONS

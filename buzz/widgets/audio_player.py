@@ -1,6 +1,5 @@
 import logging
 from typing import Tuple, Optional
-from pathlib import Path
 
 from PyQt6 import QtGui
 from PyQt6.QtCore import QTime, QUrl, Qt, pyqtSignal
@@ -9,6 +8,7 @@ from PyQt6.QtWidgets import QWidget, QSlider, QPushButton, QLabel, QHBoxLayout, 
 
 from buzz.widgets.icon import PlayIcon, PauseIcon
 from buzz.settings.settings import Settings
+from buzz.transcriber.file_transcriber import is_video_file
 
 
 class AudioPlayer(QWidget):
@@ -27,9 +27,7 @@ class AudioPlayer(QWidget):
         # Initialize settings
         self.settings = Settings()
 
-        #Detect if the file is video
-        video_extensions = {".mp4", ".mov", ".mkv", ".avi", ".m4v", ".webm", ".ogm", ".wmv"}
-        self.is_video = Path(file_path).suffix.lower() in video_extensions
+        self.is_video = is_video_file(file_path)
 
         self.audio_output = QAudioOutput()
         self.audio_output.setVolume(100)

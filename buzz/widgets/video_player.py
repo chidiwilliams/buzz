@@ -3,6 +3,7 @@ from PyQt6.QtCore import Qt, QUrl, pyqtSignal, QTime
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PyQt6.QtMultimediaWidgets import QVideoWidget
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QSlider, QPushButton, QHBoxLayout, QLabel, QSizePolicy
+from buzz.widgets.icon import PlayIcon, PauseIcon
 
 class VideoPlayer(QWidget):
     position_ms_changed = pyqtSignal(int)
@@ -40,8 +41,14 @@ class VideoPlayer(QWidget):
         #Track if user is dragging the slider
         self.is_slider_dragging = False
 
-        self.play_button = QPushButton("Play")
+        self.play_icon = PlayIcon(self)
+        self.pause_icon = PauseIcon(self)
+
+        self.play_button = QPushButton("")
+        self.play_button.setIcon(self.play_icon)
         self.play_button.clicked.connect(self.toggle_playback)
+        self.play_button.setMaximumWidth(40)
+        self.play_button.setMinimumHeight(30)
 
         self.time_label = QLabel()
         self.time_label.setAlignment(Qt.AlignmentFlag.AlignRight)
@@ -59,16 +66,16 @@ class VideoPlayer(QWidget):
 
         self.setLayout(layout)
 
+
         self.media_player.positionChanged.connect(self.on_position_changed)
         self.media_player.durationChanged.connect(self.on_duration_changed)
+        self.media_player.playbackStateChanged.connect(self.on_playback_state_changed)
 
     def toggle_playback(self):
         if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
             self.media_player.pause()
-            self.play_button.setText("Play")
         else:
             self.media_player.play()
-            self.play_button.setText("Pause")
 
     def on_slider_moved(self, position):
         self.set_position(position)
@@ -97,10 +104,26 @@ class VideoPlayer(QWidget):
         self.position_ms_changed.emit(position_ms)
         self.update_time_label()
 
+        # If a range has been selected and video has reached the end of range
+        #loop back to the start of the range
+        if self.range_ms is not None and not self.is_looping:
+            start_range_ms, end_range_ms = self.range_ms
+            #Check if video is at or past the end of range
+            if position_ms >= (end_range_ms - 50):
+                self.is_looping = True
+                self.set_position(start_range_ms)
+                self.is_looping = False
+
     def on_duration_changed(self, duration_ms: int):
         self.scrubber.setRange(0, duration_ms)
         self.duration_ms = duration_ms
         self.update_time_label()
+
+    def on_playback_state_changed(self, state: QMediaPlayer.PlaybackState):
+        if state == QMediaPlayer.PlaybackState.PlayingState:
+            self.play_button.setIcon(self.pause_icon)
+        else:
+            self.play_button.setIcon(self.play_icon)
 
     def update_time_label(self):
         position_time = QTime(0, 0).addMSecs(self.position_ms).toString()
