@@ -41,6 +41,10 @@ dependencies = [
     "ctranslate2>=4.6.2,<5; sys_platform != 'darwin'",
     # faster whisper need cudnn 9
     "nvidia-cudnn-cu12>=9,<10; sys_platform != 'darwin'",
+    # CUDA runtime libraries for Windows (Linux gets them via torch dependencies)
+    "nvidia-cuda-runtime-cu12>=12.9,<13; sys_platform == 'win32'",
+    "nvidia-cublas-cu12>=12.9,<13; sys_platform == 'win32'",
+    "nvidia-cuda-nvrtc-cu12>=12.9,<13; sys_platform == 'win32'",
     "darkdetect>=0.8.0,<0.9",
     "dora-search>=0.1.12,<0.2",
     "diffq>=0.2.4,<0.3",
