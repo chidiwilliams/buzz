@@ -59,21 +59,10 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/uv.lock') }}
 
-      - name: Load cached Whisper models
-        id: cached-whisper-models
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/Library/Caches/Buzz
-            ~/.cache/whisper
-            ~/.cache/huggingface
-            ~/AppData/Local/Buzz/Buzz/Cache
-          key: whisper-models
-
-      - uses: AnimMouse/setup-ffmpeg@v1.2.1
+      - uses: AnimMouse/setup-ffmpeg@v1
         id: setup-ffmpeg
         with:
-          version: ${{ matrix.os == 'macos-15-intel' && '7.1.1' || matrix.os == 'macos-latest' && '71' || '7.1' }}
+          version: ${{ matrix.os == 'macos-15-intel' && '7.1.1' || matrix.os == 'macos-latest' && '80' || '8.0' }}
 
       - name: Test ffmpeg
         run: ffmpeg -i ./testdata/audio-long.mp3 ./testdata/audio-long.wav
@@ -88,7 +77,13 @@ jobs:
 
           if [ "$(lsb_release -rs)" == "22.04" ]; then
             sudo apt-get install libegl1-mesa
+
+            # Add ubuntu-toolchain-r PPA for newer libstdc++6 with GLIBCXX_3.4.32
+            sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+            sudo apt-get update
+            sudo apt-get install -y gcc-13 g++-13 libstdc++-13-dev
           fi
+
           sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev ccache
         if: "startsWith(matrix.os, 'ubuntu-')"
 
@@ -166,7 +161,13 @@ jobs:
 
           if [ "$(lsb_release -rs)" == "22.04" ]; then
             sudo apt-get install libegl1-mesa
+
+            # Add ubuntu-toolchain-r PPA for newer libstdc++6 with GLIBCXX_3.4.32
+            sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+            sudo apt-get update
+            sudo apt-get install -y gcc-13 g++-13 libstdc++-13-dev
           fi
+
           sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev ccache
         if: "startsWith(matrix.os, 'ubuntu-')"
 

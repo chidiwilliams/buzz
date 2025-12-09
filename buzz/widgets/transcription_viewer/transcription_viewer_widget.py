@@ -1,5 +1,6 @@
 import os
 import logging
+import platform
 from typing import Optional
 from uuid import UUID
 
@@ -42,6 +43,7 @@ from buzz.widgets.icon import (
     ResizeIcon,
     ScrollToCurrentIcon,
     VisibilityIcon,
+    SpeakerIdentificationIcon,
 )
 from buzz.translator import Translator
 from buzz.widgets.text_display_box import TextDisplayBox
@@ -62,6 +64,10 @@ from buzz.widgets.transcription_viewer.transcription_view_mode_tool_button impor
     ViewMode
 )
 from buzz.widgets.transcription_viewer.transcription_resizer_widget import TranscriptionResizerWidget
+
+# Underlying libs do not support intel Macs
+if not (platform.system() == "Darwin" and platform.machine() == "x86_64"):
+    from buzz.widgets.transcription_viewer.speaker_identification_widget import SpeakerIdentificationWidget
 
 
 class TranscriptionViewerWidget(QWidget):
@@ -89,6 +95,7 @@ class TranscriptionViewerWidget(QWidget):
         self.setWindowTitle(file_path_as_title(transcription.file))
 
         self.transcription_resizer_dialog = None
+        self.speaker_identification_dialog = None
         self.transcriptions_updated_signal = transcriptions_updated_signal
 
         self.translation_thread = None
@@ -103,7 +110,6 @@ class TranscriptionViewerWidget(QWidget):
         # Loop functionality
         self.segment_looping_enabled = self.settings.settings.value(
             "transcription_viewer/segment_looping_enabled", False, type=bool)
-
         # UI visibility preferences
         self.playback_controls_visible = self.settings.settings.value(
             "transcription_viewer/playback_controls_visible", False, type=bool)
@@ -210,7 +216,6 @@ class TranscriptionViewerWidget(QWidget):
             "color: #666; line-height: 1.2; margin: 0; padding: 4px;")
         self.current_segment_text.setMinimumHeight(
             60)  # Ensure minimum height for text
-
         # Make it scrollable for long text
         self.current_segment_scroll_area = QScrollArea()
         self.current_segment_scroll_area.setWidget(self.current_segment_text)
@@ -222,11 +227,9 @@ class TranscriptionViewerWidget(QWidget):
             Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.current_segment_scroll_area.setStyleSheet(
             "QScrollBar:vertical { width: 12px; } QScrollBar::handle:vertical { background: #ccc; border-radius: 6px; }")
-
         # Ensure the text label can expand to show all content
         self.current_segment_text.setSizePolicy(
             QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
-
         # Add scroll area to layout (simplified single-widget layout)
         segment_layout.addWidget(self.current_segment_scroll_area)
 
@@ -287,6 +290,19 @@ class TranscriptionViewerWidget(QWidget):
 
         toolbar.addWidget(resize_button)
 
+        # Underlying libs do not support intel Macs
+        if not (platform.system() == "Darwin" and platform.machine() == "x86_64"):
+            speaker_identification_button = QToolButton()
+            speaker_identification_button.setText(_("Identify Speakers"))
+            speaker_identification_button.setObjectName("speaker_identification_button")
+            speaker_identification_button.setIcon(SpeakerIdentificationIcon(self))
+            speaker_identification_button.setToolButtonStyle(
+                Qt.ToolButtonStyle.ToolButtonTextBesideIcon
+            )
+            speaker_identification_button.clicked.connect(self.on_speaker_identification_button_clicked)
+
+            toolbar.addWidget(speaker_identification_button)
+
         # Add Find button
         self.find_button = QToolButton()
         self.find_button.setText(_("Find"))
@@ -320,7 +336,6 @@ class TranscriptionViewerWidget(QWidget):
         self.media_splitter.setCollapsible(1, False)
         # Connect splitter to save sizes when user resizes
         self.media_splitter.splitterMoved.connect(self.on_splitter_moved)
-
         # Loop controls section (minimal space)
         self.create_loop_controls()
         # Stretch factor 0 (minimal)
@@ -328,7 +343,6 @@ class TranscriptionViewerWidget(QWidget):
 
         # Add splitter to layout (table + media player)
         layout.addWidget(self.media_splitter, 1)  # Stretch factor 1 (majority)
-
         # Text display box (minimal space)
         # Stretch factor 0 (minimal)
         layout.addWidget(self.text_display_box, 0)
@@ -459,7 +473,6 @@ class TranscriptionViewerWidget(QWidget):
         loop_layout.setContentsMargins(10, 5, 10, 5)
         # Add some spacing between elements for better visual separation
         loop_layout.setSpacing(8)
-
         # Loop controls label
         loop_label = QLabel(_("Playback Controls:"))
         loop_label.setStyleSheet("font-weight: bold;")
@@ -746,11 +759,9 @@ class TranscriptionViewerWidget(QWidget):
             if self.current_media_player:
                 self.current_media_player.media_player.setPlaybackRate(
                     speed_value)
-
             # Save the new rate to settings
             self.settings.set_value(
                 self.settings.Key.AUDIO_PLAYBACK_RATE, speed_value)
-
         except ValueError:
             logging.warning(f"Invalid speed value: {speed_text}")
             # Reset to current valid value
@@ -908,7 +919,6 @@ class TranscriptionViewerWidget(QWidget):
         cursor.setPosition(start_pos)
         cursor.setPosition(start_pos + len(self.search_text),
                            QTextCursor.MoveMode.KeepAnchor)
-
         # Set the cursor to highlight the text
         self.text_display_box.setTextCursor(cursor)
 
@@ -1242,7 +1252,6 @@ class TranscriptionViewerWidget(QWidget):
             self.current_segment_scroll_area.updateGeometry()
             self.current_segment_scroll_area.verticalScrollBar(
             ).setVisible(True)  # Ensure scrollbar is visible
-
             # Update highlighting based on follow audio and loop settings
             if self.follow_audio_enabled:
                 # Follow audio mode: highlight the current segment based on audio position
@@ -1364,13 +1373,27 @@ class TranscriptionViewerWidget(QWidget):
 
         self.transcription_resizer_dialog.show()
 
+    def on_speaker_identification_button_clicked(self):
+        # Underlying libs do not support intel Macs
+        if not (platform.system() == "Darwin" and platform.machine() == "x86_64"):
+            self.speaker_identification_dialog = SpeakerIdentificationWidget(
+                transcription=self.transcription,
+                transcription_service=self.transcription_service,
+                transcriptions_updated_signal=self.transcriptions_updated_signal,
+            )
+
+            self.transcriptions_updated_signal.connect(self.close)
+
+            self.speaker_identification_dialog.show()
+
+        pass
+
     def on_loop_toggle_changed(self, enabled: bool):
         """Handle loop toggle state change"""
         self.segment_looping_enabled = enabled
         # Save preference to settings
         self.settings.settings.setValue(
             "transcription_viewer/segment_looping_enabled", enabled)
-
         if enabled:
             # If looping is re-enabled,and we have a selected segment, return to it
             if self.currently_selected_segment is not None:
@@ -1385,7 +1408,6 @@ class TranscriptionViewerWidget(QWidget):
                             "start_time")
                         end_time_ms = self.currently_selected_segment.value(
                             "end_time")
-
                         # Set the loop range for the selected segment
                         if self.current_media_player:
                             self.current_media_player.set_range(
@@ -1411,7 +1433,6 @@ class TranscriptionViewerWidget(QWidget):
         # Save preference to settings
         self.settings.settings.setValue(
             "transcription_viewer/follow_audio_enabled", enabled)
-
         if enabled:
             # When follow audio is first enabled, automatically scroll to current position
             # This gives immediate feedback that the feature is working
@@ -1509,6 +1530,9 @@ class TranscriptionViewerWidget(QWidget):
 
         if self.transcription_resizer_dialog:
             self.transcription_resizer_dialog.close()
+
+        if self.speaker_identification_dialog:
+            self.speaker_identification_dialog.close()
 
         self.translator.stop()
         self.translation_thread.quit()

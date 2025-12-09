@@ -4,7 +4,6 @@ import sys
 import logging
 import subprocess
 import json
-import tempfile
 from typing import List
 from buzz.assets import APP_BASE_DIR
 from buzz.transcriber.transcriber import Segment, Task, FileTranscriptionTask
@@ -58,9 +57,7 @@ class WhisperCpp:
         file_to_process = task.file_path
 
         if file_ext not in supported_formats:
-            # Create temporary WAV file
-            temp_dir = tempfile.gettempdir()
-            temp_file = os.path.join(temp_dir, f"buzz_temp_{os.path.basename(task.file_path)}.wav")
+            temp_file = task.file_path + ".wav"
 
             logging.info(f"Converting {task.file_path} to WAV format")
 
@@ -109,12 +106,13 @@ class WhisperCpp:
     
         # Add translate flag if needed
         if task.transcription_options.task == Task.TRANSLATE:
-            cmd.append("--translate")
+            cmd.extend(["--translate"])
     
         # Force CPU if specified
         force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
         if force_cpu != "false" or not IS_VULKAN_SUPPORTED:
-            cmd.append("--no-gpu")
+            cmd.extend(["--no-gpu"])
+            cmd.extend(["-t", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8) // 2))])
 
         print(f"Running Whisper CLI: {' '.join(cmd)}")
 
@@ -125,7 +123,7 @@ class WhisperCpp:
             si.wShowWindow = subprocess.SW_HIDE
             process = subprocess.Popen(
                 cmd,
-                stdout=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
                 stderr=subprocess.PIPE,
                 text=True,
                 startupinfo=si,
@@ -135,7 +133,7 @@ class WhisperCpp:
         else:
             process = subprocess.Popen(
                 cmd,
-                stdout=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
                 stderr=subprocess.PIPE,
                 text=True,
             )

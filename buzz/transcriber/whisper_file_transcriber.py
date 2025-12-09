@@ -72,9 +72,11 @@ class WhisperFileTranscriber(FileTranscriber):
         self.read_line_thread = Thread(target=self.read_line, args=(self.recv_pipe,))
         self.read_line_thread.start()
 
-        self.current_process.join()
+        # Only join the process if it was actually started
+        if self.started_process:
+            self.current_process.join()
 
-        if self.current_process.exitcode != 0:
+        if self.started_process and self.current_process.exitcode != 0:
             self.send_pipe.close()
 
         # Join read_line_thread with timeout to prevent hanging
@@ -94,7 +96,14 @@ class WhisperFileTranscriber(FileTranscriber):
         )
 
         if self.current_process.exitcode != 0:
-            raise Exception("Unknown error")
+            # Check if the process was terminated (likely due to cancellation)
+            # Exit codes 124-128 are often used for termination signals
+            if self.current_process.exitcode in [124, 125, 126, 127, 128, 130, 137, 143]:
+                # Process was likely terminated, treat as cancellation
+                logging.debug("Whisper process was terminated (exit code: %s), treating as cancellation", self.current_process.exitcode)
+                raise Exception("Transcription was canceled")
+            else:
+                raise Exception("Unknown error")
 
         return self.segments
 
@@ -273,27 +282,29 @@ class WhisperFileTranscriber(FileTranscriber):
 
         if self.started_process:
             self.current_process.terminate()
-            # Use timeout to avoid hanging indefinitely
+
+            if self.read_line_thread and self.read_line_thread.is_alive():
+                self.read_line_thread.join(timeout=5)
+                if self.read_line_thread.is_alive():
+                    logging.warning("Read line thread still alive after 5s")
+
             self.current_process.join(timeout=10)
             if self.current_process.is_alive():
                 logging.warning("Process didn't terminate gracefully, force killing")
                 self.current_process.kill()
                 self.current_process.join(timeout=5)
-            
-            # Close pipes to unblock the read_line thread
+
             try:
-                if hasattr(self, 'send_pipe'):
+                if hasattr(self, 'send_pipe') and self.send_pipe:
                     self.send_pipe.close()
-                if hasattr(self, 'recv_pipe'):
+            except Exception as e:
+                logging.debug(f"Error closing send_pipe: {e}")
+
+            try:
+                if hasattr(self, 'recv_pipe') and self.recv_pipe:
                     self.recv_pipe.close()
             except Exception as e:
-                logging.debug(f"Error closing pipes: {e}")
-            
-            # Join read_line_thread with timeout to prevent hanging
-            if self.read_line_thread and self.read_line_thread.is_alive():
-                self.read_line_thread.join(timeout=5)
-                if self.read_line_thread.is_alive():
-                    logging.warning("Read line thread didn't terminate gracefully")
+                logging.debug(f"Error closing recv_pipe: {e}")
 
     def read_line(self, pipe: Connection):
         while True:

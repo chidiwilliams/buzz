@@ -12,7 +12,6 @@ class Settings:
     def __init__(self, application=""):
         self.settings = QSettings(APP_NAME, application)
         self.settings.sync()
-        logging.debug(f"Settings filename: {self.settings.fileName()}")
 
     class Key(enum.Enum):
         RECORDING_TRANSCRIBER_TASK = "recording-transcriber/task"
@@ -53,6 +52,12 @@ class Settings:
 
         TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY = (
             "transcription-tasks-table/column-visibility"
+        )
+        TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER = (
+            "transcription-tasks-table/column-order"
+        )
+        TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS = (
+            "transcription-tasks-table/column-widths"
         )
 
         MAIN_WINDOW = "main-window"

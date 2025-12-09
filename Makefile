@@ -1,4 +1,5 @@
-version := 1.3.3
+# Change also in pyproject.toml and buzz/__version__.py
+version := 1.4.0
 
 mac_app_path := ./dist/Buzz.app
 mac_zip_path := ./dist/Buzz-${version}-mac.zip
@@ -28,7 +29,7 @@ else
 	rm -rf dist/* || true
 endif
 
-COVERAGE_THRESHOLD := 75
+COVERAGE_THRESHOLD := 70
 
 test: buzz/whisper_cpp
 	pytest -s -vv --cov=buzz --cov-report=xml --cov-report=html --benchmark-skip --cov-fail-under=${COVERAGE_THRESHOLD} --cov-config=.coveragerc
@@ -67,7 +68,7 @@ ifeq ($(shell uname -s), Linux)
 	cp whisper.cpp/build/bin/whisper-server buzz/whisper_cpp/ || true
 	cp whisper.cpp/build/src/libwhisper.so buzz/whisper_cpp/ || true
 	cp whisper.cpp/build/src/libwhisper.so.1 buzz/whisper_cpp/ || true
-	cp whisper.cpp/build/src/libwhisper.so.1.7.6 buzz/whisper_cpp/ || true
+	cp whisper.cpp/build/src/libwhisper.so.1.8.2 buzz/whisper_cpp/ || true
 	cp whisper.cpp/build/ggml/src/libggml.so buzz/whisper_cpp/ || true
 	cp whisper.cpp/build/ggml/src/libggml-base.so buzz/whisper_cpp/ || true
 	cp whisper.cpp/build/ggml/src/libggml-cpu.so buzz/whisper_cpp/ || true

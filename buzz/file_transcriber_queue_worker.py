@@ -1,11 +1,41 @@
 import logging
 import multiprocessing
 import queue
+import sys
 from pathlib import Path
 from typing import Optional, Tuple, List, Set
 from uuid import UUID
 
 from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
+
+# Patch subprocess for demucs to prevent console windows on Windows
+if sys.platform == "win32":
+    import subprocess
+    _original_run = subprocess.run
+    _original_check_output = subprocess.check_output
+
+    def _patched_run(*args, **kwargs):
+        if 'startupinfo' not in kwargs:
+            si = subprocess.STARTUPINFO()
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            si.wShowWindow = subprocess.SW_HIDE
+            kwargs['startupinfo'] = si
+        if 'creationflags' not in kwargs:
+            kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
+        return _original_run(*args, **kwargs)
+
+    def _patched_check_output(*args, **kwargs):
+        if 'startupinfo' not in kwargs:
+            si = subprocess.STARTUPINFO()
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            si.wShowWindow = subprocess.SW_HIDE
+            kwargs['startupinfo'] = si
+        if 'creationflags' not in kwargs:
+            kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
+        return _original_check_output(*args, **kwargs)
+
+    subprocess.run = _patched_run
+    subprocess.check_output = _patched_check_output
 
 from demucs import api as demucsApi
 
@@ -31,20 +61,28 @@ class FileTranscriberQueueWorker(QObject):
     task_error = pyqtSignal(FileTranscriptionTask, str)
 
     completed = pyqtSignal()
+    trigger_run = pyqtSignal()
 
     def __init__(self, parent: Optional[QObject] = None):
         super().__init__(parent)
         self.tasks_queue = queue.Queue()
         self.canceled_tasks: Set[UUID] = set()
         self.current_transcriber = None
+        self.speech_path = None
+        self.is_running = False
+        self.trigger_run.connect(self.run)
 
     @pyqtSlot()
     def run(self):
+        if self.is_running:
+            return
+
         logging.debug("Waiting for next transcription task")
 
         # Clean up of previous run.
         if self.current_transcriber is not None:
             self.current_transcriber.stop()
+            self.current_transcriber = None
 
         # Get next non-canceled task from queue
         while True:
@@ -52,6 +90,7 @@ class FileTranscriberQueueWorker(QObject):
 
             # Stop listening when a "None" task is received
             if self.current_task is None:
+                self.is_running = False
                 self.completed.emit()
                 return
 
@@ -59,6 +98,9 @@ class FileTranscriberQueueWorker(QObject):
                 continue
 
             break
+
+        # Set is_running AFTER we have a valid task to process
+        self.is_running = True
 
         if self.current_task.transcription_options.extract_speech:
             logging.debug("Will extract speech")
@@ -75,14 +117,15 @@ class FileTranscriberQueueWorker(QObject):
                 _, separated = separator.separate_audio_file(Path(self.current_task.file_path))
 
                 task_file_path = Path(self.current_task.file_path)
-                speech_path = task_file_path.with_name(f"{task_file_path.stem}_speech.mp3")
-                demucsApi.save_audio(separated["vocals"], speech_path, separator.samplerate)
+                self.speech_path = task_file_path.with_name(f"{task_file_path.stem}_speech.mp3")
+                demucsApi.save_audio(separated["vocals"], self.speech_path, separator.samplerate)
 
-                self.current_task.file_path = str(speech_path)
+                self.current_task.file_path = str(self.speech_path)
             except Exception as e:
                 logging.error(f"Error during speech extraction: {e}", exc_info=True)
 
         logging.debug("Starting next transcription task")
+        self.task_progress.emit(self.current_task, 0)
 
         model_type = self.current_task.transcription_options.model.model_type
         if model_type == ModelType.OPEN_AI_WHISPER_API:
@@ -122,14 +165,27 @@ class FileTranscriberQueueWorker(QObject):
         self.current_transcriber.completed.connect(self.on_task_completed)
 
         # Wait for next item on the queue
-        self.current_transcriber.error.connect(self.run)
-        self.current_transcriber.completed.connect(self.run)
+        self.current_transcriber.error.connect(lambda: self._on_task_finished())
+        self.current_transcriber.completed.connect(lambda: self._on_task_finished())
 
         self.task_started.emit(self.current_task)
         self.current_transcriber_thread.start()
 
+    def _on_task_finished(self):
+        """Called when a task completes or errors, resets state and triggers next run"""
+        self.is_running = False
+        self.run()
+
     def add_task(self, task: FileTranscriptionTask):
+        # Remove from canceled tasks if it was previously canceled (for restart functionality)
+        if task.uid in self.canceled_tasks:
+            self.canceled_tasks.remove(task.uid)
+
         self.tasks_queue.put(task)
+        # If the worker is not currently running, trigger it to start processing
+        # Use signal to avoid blocking the main thread
+        if not self.is_running:
+            self.trigger_run.emit()
 
     def cancel_task(self, task_id: UUID):
         self.canceled_tasks.add(task_id)
@@ -148,8 +204,13 @@ class FileTranscriberQueueWorker(QObject):
             self.current_task is not None
             and self.current_task.uid not in self.canceled_tasks
         ):
-            self.current_task.status = FileTranscriptionTask.Status.FAILED
-            self.current_task.error = error
+            # Check if the error indicates cancellation
+            if "canceled" in error.lower() or "cancelled" in error.lower():
+                self.current_task.status = FileTranscriptionTask.Status.CANCELED
+                self.current_task.error = error
+            else:
+                self.current_task.status = FileTranscriptionTask.Status.FAILED
+                self.current_task.error = error
             self.task_error.emit(self.current_task, error)
 
     @pyqtSlot(tuple)
@@ -165,6 +226,13 @@ class FileTranscriberQueueWorker(QObject):
     def on_task_completed(self, segments: List[Segment]):
         if self.current_task is not None:
             self.task_completed.emit(self.current_task, segments)
+
+        if self.speech_path is not None:
+            try:
+                Path(self.speech_path).unlink()
+            except Exception as e:
+                logging.error(f"Error deleting temporary speech file: {e}", exc_info=True)
+            self.speech_path = None
 
     def stop(self):
         self.tasks_queue.put(None)

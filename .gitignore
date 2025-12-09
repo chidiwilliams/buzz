@@ -11,6 +11,7 @@ coverage.xml
 .idea/
 .venv/
 venv/
+.claude/
 
 # whisper_cpp
 whisper_cpp
@@ -32,3 +33,4 @@ benchmarks.json
 /wheelhouse/
 /.flatpak-builder
 /repo
+/nemo_msdd_configs
