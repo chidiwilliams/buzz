@@ -3,7 +3,7 @@ import logging
 from typing import Optional
 from uuid import UUID
 
-from PyQt6.QtCore import Qt, QThread, pyqtSignal
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QTextCursor
 from PyQt6.QtMultimedia import QMediaPlayer
 from PyQt6.QtSql import QSqlRecord
@@ -313,13 +313,15 @@ class TranscriptionViewerWidget(QWidget):
         self.media_splitter = QSplitter(Qt.Orientation.Vertical)
         self.media_splitter.addWidget(self.table_widget)
         self.media_splitter.addWidget(self.media_player_stack)
-        # Set initial sizes, table gets more space and media player gets less
-        self.media_splitter.setSizes([800, 200])
-        #Make splitter collapsible but with minimum sizes
-        self.media_splitter.setCollapsible(0, False) #Don't allow tabe to collapse completely
-        self.media_splitter.setCollapsible(1, False) # Don't allow media player to collapse completely
+        # Make splitter collapsible but with minimum sizes
+        # Don't allow tabe to collapse completely
+        self.media_splitter.setCollapsible(0, False)
+        # Don't allow media player to collapse completely
+        self.media_splitter.setCollapsible(1, False)
+        # Connect splitter to save sizes when user resizes
+        self.media_splitter.splitterMoved.connect(self.on_splitter_moved)
 
-        #Loop controls section (minimal space)
+        # Loop controls section (minimal space)
         self.create_loop_controls()
         # Stretch factor 0 (minimal)
         layout.addWidget(self.loop_controls_frame, 0)
@@ -359,6 +361,10 @@ class TranscriptionViewerWidget(QWidget):
         else:
             self.media_player_stack.setCurrentWidget(self.audio_player)
             self.current_media_player = self.audio_player
+
+        # Load splitter sizes after determining media type
+        if hasattr(self, 'media_splitter'):
+            self.load_splitter_sizes()
 
     def on_transcript_segment_clicked(self, segment):
         if not self.current_media_player:
@@ -738,7 +744,8 @@ class TranscriptionViewerWidget(QWidget):
 
             # Set the playback rate on the audio player
             if self.current_media_player:
-                self.current_media_player.media_player.setPlaybackRate(speed_value)
+                self.current_media_player.media_player.setPlaybackRate(
+                    speed_value)
 
             # Save the new rate to settings
             self.settings.set_value(
@@ -1072,6 +1079,9 @@ class TranscriptionViewerWidget(QWidget):
         return super().eventFilter(obj, event)
 
     def reset_view(self):
+        if hasattr(self, 'media_splitter'):
+            self.load_splitter_sizes()
+
         if self.view_mode == ViewMode.TIMESTAMPS:
             self.text_display_box.hide()
             self.table_widget.show()
@@ -1165,7 +1175,6 @@ class TranscriptionViewerWidget(QWidget):
             # Start playing if not yet playing
             if self.current_media_player.media_player.playbackState() != QMediaPlayer.PlaybackState.PlayingState:
                 self.current_media_player.media_player.play()
-
 
         if self.segment_looping_enabled:
             self.current_media_player.set_range((start_time_ms, end_time_ms))
@@ -1418,7 +1427,9 @@ class TranscriptionViewerWidget(QWidget):
 
     def on_scroll_to_current_button_clicked(self):
         """Handle scroll to current button click"""
-        current_pos = self.audio_player.position_ms
+        if not self.current_media_player:
+            return
+        current_pos = self.current_media_player.position_ms
         segments = self.table_widget.segments()
 
         # Find the current segment based on audio position
@@ -1441,7 +1452,7 @@ class TranscriptionViewerWidget(QWidget):
             self.highlight_table_match(1)
 
         self.highlight_table_match(current_segment_index)
-        self.audio_player.set_position(current_pos)
+        self.current_media_player.set_position(current_pos)
 
     def auto_scroll_to_current_position(self):
         """
@@ -1453,7 +1464,9 @@ class TranscriptionViewerWidget(QWidget):
             if self.view_mode != ViewMode.TIMESTAMPS:
                 return
 
-            current_pos = self.audio_player.position_ms
+            if not self.current_media_player:
+                return
+            current_pos = self.current_media_player.position_ms
             segments = self.table_widget.segments()
 
             # Find the current segment based on audio position
@@ -1478,11 +1491,16 @@ class TranscriptionViewerWidget(QWidget):
     def resizeEvent(self, event):
         """Save geometry when widget is resized"""
         self.save_geometry()
+        self.save_splitter_sizes()
         super().resizeEvent(event)
 
     def closeEvent(self, event):
         """Save geometry when widget is closed"""
         self.save_geometry()
+
+        # save splitter sizes before closing
+        self.save_splitter_sizes()
+
         self.hide()
 
         # Stop media playback when closing
@@ -1526,3 +1544,47 @@ class TranscriptionViewerWidget(QWidget):
             # Default size if no saved geometry
             self.resize(1000, 800)
         self.settings.end_group()
+
+    def save_splitter_sizes(self):
+        """Save splitter sizes to settings"""
+        if not hasattr(self, 'media_splitter'):
+            return
+
+        sizes = self.media_splitter.sizes()
+        self.settings.begin_group(Settings.Key.TRANSCRIPTION_VIEWER)
+
+        # Save separately for video and audio
+        if self.current_media_player == self.video_player:
+            self.settings.settings.setValue("video_splitter_sizes", sizes)
+        else:
+            self.settings.settings.setValue("audio_splitter_sizes", sizes)
+
+        self.settings.end_group()
+
+    def load_splitter_sizes(self):
+        """Load splitter sizes from settings"""
+        if not hasattr(self, 'media_splitter'):
+            return
+
+        self.settings.begin_group(Settings.Key.TRANSCRIPTION_VIEWER)
+
+        # Load sizes based on media type
+        if self.current_media_player == self.video_player:
+            sizes = self.settings.settings.value("video_splitter_sizes")
+            if sizes is None:
+                sizes = [800, 200]
+        else:
+            sizes = self.settings.settings.value("audio_splitter_sizes")
+            if sizes is None:
+                sizes = [950, 50]
+
+        self.settings.end_group()
+
+        # Apply sizes
+        if sizes:
+            self.media_splitter.setSizes(sizes)
+
+    def on_splitter_moved(self, pos: int, index: int):
+        """Called when user moves the splitter"""
+        # Save sizes after a short delay to avoid saving on every pixel move
+        QTimer.singleShot(100, self.save_splitter_sizes)
