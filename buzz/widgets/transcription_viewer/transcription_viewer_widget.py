@@ -336,6 +336,7 @@ class TranscriptionViewerWidget(QWidget):
 
         # Use splitter for resizable media player
         self.media_splitter = QSplitter(Qt.Orientation.Vertical)
+        self.media_splitter.setHandleWidth(8)  # Make splitter handle easier to grab
         self.media_splitter.addWidget(self.table_widget)
         self.media_splitter.addWidget(self.media_player_stack)
         # Make splitter collapsible but with minimum sizes
