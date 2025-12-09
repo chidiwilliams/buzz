@@ -16,6 +16,7 @@ class VideoPlayer(QWidget):
         self.duration_ms = 0
         self.is_looping = False
         self.is_slider_dragging = False
+        self.initial_frame_loaded = False
 
         self.audio_output = QAudioOutput(self)
         self.audio_output.setVolume(100)
@@ -70,7 +71,19 @@ class VideoPlayer(QWidget):
         self.media_player.positionChanged.connect(self.on_position_changed)
         self.media_player.durationChanged.connect(self.on_duration_changed)
         self.media_player.playbackStateChanged.connect(self.on_playback_state_changed)
-        self.media_player.setPosition(100)
+        self.media_player.mediaStatusChanged.connect(self.on_media_status_changed)
+
+    def on_media_status_changed(self, status: QMediaPlayer.MediaStatus):
+        # Only do this once on initial load to show first frame
+        if self.initial_frame_loaded:
+            return
+        # Start playback when loaded to trigger frame decoding
+        if status == QMediaPlayer.MediaStatus.LoadedMedia:
+            self.media_player.play()
+        # Pause immediately when buffered to show first frame
+        elif status == QMediaPlayer.MediaStatus.BufferedMedia:
+            self.initial_frame_loaded = True
+            self.media_player.pause()
 
     def toggle_playback(self):
         if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
