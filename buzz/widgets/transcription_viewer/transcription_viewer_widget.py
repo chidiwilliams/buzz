@@ -168,13 +168,20 @@ class TranscriptionViewerWidget(QWidget):
 
         self.text_display_box = TextDisplayBox(self)
 
+        # Determine if source is video
+        self.is_video = is_video_file(transcription.file) if transcription.file else False
+
         self.audio_player = AudioPlayer(file_path=transcription.file)
-        self.video_player = VideoPlayer(file_path=transcription.file)
+        self.video_player = None
 
         # Stack widget is to switch between audio and video
         self.media_player_stack = QStackedWidget()
         self.media_player_stack.addWidget(self.audio_player)
-        self.media_player_stack.addWidget(self.video_player)
+
+        # Only create video player if source is a video file
+        if self.is_video:
+            self.video_player = VideoPlayer(file_path=transcription.file)
+            self.media_player_stack.addWidget(self.video_player)
 
         self.current_media_player = None
         self.load_transcription_media()
@@ -184,19 +191,21 @@ class TranscriptionViewerWidget(QWidget):
             self.on_audio_player_position_ms_changed
         )
 
-        # Connect video player signals
-        self.video_player.position_ms_changed.connect(
-            self.on_audio_player_position_ms_changed
-        )
+        # Connect video player signals (only if video player exists)
+        if self.video_player:
+            self.video_player.position_ms_changed.connect(
+                self.on_audio_player_position_ms_changed
+            )
 
         # Connect to playback state changes to automatically show controls
         self.audio_player.media_player.playbackStateChanged.connect(
             self.on_audio_playback_state_changed
         )
 
-        self.video_player.media_player.playbackStateChanged.connect(
-            self.on_audio_playback_state_changed
-        )
+        if self.video_player:
+            self.video_player.media_player.playbackStateChanged.connect(
+                self.on_audio_playback_state_changed
+            )
 
         # Create a better current segment display that handles long text
         self.current_segment_frame = QFrame()
@@ -368,8 +377,7 @@ class TranscriptionViewerWidget(QWidget):
         self.reset_view()
 
     def load_transcription_media(self):
-        source_path = self.transcription.file
-        if source_path and is_video_file(source_path):
+        if self.is_video and self.video_player:
             self.media_player_stack.setCurrentWidget(self.video_player)
             self.current_media_player = self.video_player
         else:
