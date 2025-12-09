@@ -1606,7 +1606,7 @@ class TranscriptionViewerWidget(QWidget):
 
         # Apply sizes
         if sizes:
-            self.media_splitter.setSizes(sizes)
+            self.media_splitter.setSizes([int(s) for s in sizes])
 
     def on_splitter_moved(self, pos: int, index: int):
         """Called when user moves the splitter"""
