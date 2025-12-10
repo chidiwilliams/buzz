@@ -4,7 +4,7 @@ import platform
 from typing import Optional
 from uuid import UUID
 
-from PyQt6.QtCore import Qt, QThread, pyqtSignal
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QTextCursor
 from PyQt6.QtMultimedia import QMediaPlayer
 from PyQt6.QtSql import QSqlRecord
@@ -22,6 +22,8 @@ from PyQt6.QtWidgets import (
     QComboBox,
     QScrollArea,
     QSizePolicy,
+    QStackedWidget,
+    QSplitter
 )
 
 from buzz.locale import _
@@ -32,7 +34,9 @@ from buzz.settings.shortcuts import Shortcuts
 from buzz.settings.shortcut import Shortcut
 from buzz.settings.settings import Settings
 from buzz.store.keyring_store import get_password, Key
+from buzz.transcriber.file_transcriber import is_video_file
 from buzz.widgets.audio_player import AudioPlayer
+from buzz.widgets.video_player import VideoPlayer
 from buzz.widgets.icon import (
     FileDownloadIcon,
     TranslateIcon,
@@ -104,11 +108,13 @@ class TranscriptionViewerWidget(QWidget):
         self.search_results = []
 
         # Loop functionality
-        self.segment_looping_enabled = self.settings.settings.value("transcription_viewer/segment_looping_enabled", False, type=bool)
-
+        self.segment_looping_enabled = self.settings.settings.value(
+            "transcription_viewer/segment_looping_enabled", False, type=bool)
         # UI visibility preferences
-        self.playback_controls_visible = self.settings.settings.value("transcription_viewer/playback_controls_visible", False, type=bool)
-        self.find_widget_visible = self.settings.settings.value("transcription_viewer/find_widget_visible", False, type=bool)
+        self.playback_controls_visible = self.settings.settings.value(
+            "transcription_viewer/playback_controls_visible", False, type=bool)
+        self.find_widget_visible = self.settings.settings.value(
+            "transcription_viewer/find_widget_visible", False, type=bool)
 
         # Currently selected segment for loop functionality
         self.currently_selected_segment = None
@@ -117,7 +123,8 @@ class TranscriptionViewerWidget(QWidget):
         segments = self.transcription_service.get_transcription_segments(
             transcription_id=self.transcription.id_as_uuid
         )
-        self.has_translations = any(segment.translation.strip() for segment in segments)
+        self.has_translations = any(segment.translation.strip()
+                                    for segment in segments)
 
         self.openai_access_token = get_password(Key.OPENAI_API_KEY)
 
@@ -156,46 +163,82 @@ class TranscriptionViewerWidget(QWidget):
             parent=self
         )
         self.table_widget.segment_selected.connect(self.on_segment_selected)
-        self.table_widget.timestamp_being_edited.connect(self.on_timestamp_being_edited)
+        self.table_widget.timestamp_being_edited.connect(
+            self.on_timestamp_being_edited)
 
         self.text_display_box = TextDisplayBox(self)
 
+        # Determine if source is video
+        self.is_video = is_video_file(transcription.file) if transcription.file else False
+
         self.audio_player = AudioPlayer(file_path=transcription.file)
+        self.video_player = None
+
+        # Stack widget is to switch between audio and video
+        self.media_player_stack = QStackedWidget()
+        self.media_player_stack.addWidget(self.audio_player)
+
+        # Only create video player if source is a video file
+        if self.is_video:
+            self.video_player = VideoPlayer(file_path=transcription.file)
+            self.media_player_stack.addWidget(self.video_player)
+
+        self.current_media_player = None
+        self.load_transcription_media()
+
+        # Connect audio player signals
         self.audio_player.position_ms_changed.connect(
             self.on_audio_player_position_ms_changed
         )
+
+        # Connect video player signals (only if video player exists)
+        if self.video_player:
+            self.video_player.position_ms_changed.connect(
+                self.on_audio_player_position_ms_changed
+            )
+
         # Connect to playback state changes to automatically show controls
         self.audio_player.media_player.playbackStateChanged.connect(
             self.on_audio_playback_state_changed
         )
+
+        if self.video_player:
+            self.video_player.media_player.playbackStateChanged.connect(
+                self.on_audio_playback_state_changed
+            )
 
         # Create a better current segment display that handles long text
         self.current_segment_frame = QFrame()
         self.current_segment_frame.setFrameStyle(QFrame.Shape.NoFrame)
 
         segment_layout = QVBoxLayout(self.current_segment_frame)
-        segment_layout.setContentsMargins(4, 4, 4, 4)  # Minimal margins for clean appearance
+        # Minimal margins for clean appearance
+        segment_layout.setContentsMargins(4, 4, 4, 4)
         segment_layout.setSpacing(0)  # No spacing between elements
 
         # Text display - centered with scroll capability (no header label)
         self.current_segment_text = QLabel("")
-        self.current_segment_text.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
+        self.current_segment_text.setAlignment(
+            Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
         self.current_segment_text.setWordWrap(True)
-        self.current_segment_text.setStyleSheet("color: #666; line-height: 1.2; margin: 0; padding: 4px;")
-        self.current_segment_text.setMinimumHeight(60)  # Ensure minimum height for text
-
+        self.current_segment_text.setStyleSheet(
+            "color: #666; line-height: 1.2; margin: 0; padding: 4px;")
+        self.current_segment_text.setMinimumHeight(
+            60)  # Ensure minimum height for text
         # Make it scrollable for long text
         self.current_segment_scroll_area = QScrollArea()
         self.current_segment_scroll_area.setWidget(self.current_segment_text)
         self.current_segment_scroll_area.setWidgetResizable(True)
         self.current_segment_scroll_area.setFrameStyle(QFrame.Shape.NoFrame)
-        self.current_segment_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.current_segment_scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        self.current_segment_scroll_area.setStyleSheet("QScrollBar:vertical { width: 12px; } QScrollBar::handle:vertical { background: #ccc; border-radius: 6px; }")
-
+        self.current_segment_scroll_area.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.current_segment_scroll_area.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.current_segment_scroll_area.setStyleSheet(
+            "QScrollBar:vertical { width: 12px; } QScrollBar::handle:vertical { background: #ccc; border-radius: 6px; }")
         # Ensure the text label can expand to show all content
-        self.current_segment_text.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
-
+        self.current_segment_text.setSizePolicy(
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         # Add scroll area to layout (simplified single-widget layout)
         segment_layout.addWidget(self.current_segment_scroll_area)
 
@@ -211,7 +254,8 @@ class TranscriptionViewerWidget(QWidget):
             self.has_translations,
             self.translator.translation,
         )
-        view_mode_tool_button.view_mode_changed.connect(self.on_view_mode_changed)
+        view_mode_tool_button.view_mode_changed.connect(
+            self.on_view_mode_changed)
         toolbar.addWidget(view_mode_tool_button)
 
         export_tool_button = QToolButton()
@@ -229,7 +273,8 @@ class TranscriptionViewerWidget(QWidget):
             self
         )
         export_tool_button.setMenu(export_transcription_menu)
-        export_tool_button.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
+        export_tool_button.setPopupMode(
+            QToolButton.ToolButtonPopupMode.MenuButtonPopup)
         export_tool_button.clicked.connect(export_tool_button.showMenu)
         toolbar.addWidget(export_tool_button)
 
@@ -270,11 +315,15 @@ class TranscriptionViewerWidget(QWidget):
         # Add Find button
         self.find_button = QToolButton()
         self.find_button.setText(_("Find"))
-        self.find_button.setIcon(VisibilityIcon(self))  # Using visibility icon for search
-        self.find_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        # Using visibility icon for search
+        self.find_button.setIcon(VisibilityIcon(self))
+        self.find_button.setToolButtonStyle(
+            Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         self.find_button.setToolTip(_("Show/Hide Search Bar (Ctrl+F)"))
-        self.find_button.setCheckable(True)  # Make button checkable to show state
-        self.find_button.setChecked(False)   # Initially unchecked (search hidden)
+        # Make button checkable to show state
+        self.find_button.setCheckable(True)
+        # Initially unchecked (search hidden)
+        self.find_button.setChecked(False)
         self.find_button.clicked.connect(self.toggle_search_bar_visibility)
         toolbar.addWidget(self.find_button)
 
@@ -285,21 +334,32 @@ class TranscriptionViewerWidget(QWidget):
         # Search frame (minimal space)
         layout.addWidget(self.search_frame, 0)  # Stretch factor 0 (minimal)
 
-        # Table widget should take the majority of the space
-        layout.addWidget(self.table_widget, 1)  # Stretch factor 1 (majority)
-
+        # Use splitter for resizable media player
+        self.media_splitter = QSplitter(Qt.Orientation.Vertical)
+        self.media_splitter.setHandleWidth(8)  # Make splitter handle easier to grab
+        self.media_splitter.addWidget(self.table_widget)
+        self.media_splitter.addWidget(self.media_player_stack)
+        # Make splitter collapsible but with minimum sizes
+        # Don't allow tabe to collapse completely
+        self.media_splitter.setCollapsible(0, False)
+        # Don't allow media player to collapse completely
+        self.media_splitter.setCollapsible(1, False)
+        # Connect splitter to save sizes when user resizes
+        self.media_splitter.splitterMoved.connect(self.on_splitter_moved)
         # Loop controls section (minimal space)
         self.create_loop_controls()
-        layout.addWidget(self.loop_controls_frame, 0)  # Stretch factor 0 (minimal)
+        # Stretch factor 0 (minimal)
+        layout.addWidget(self.loop_controls_frame, 0)
 
-        # Audio player (minimal space)
-        layout.addWidget(self.audio_player, 0)  # Stretch factor 0 (minimal)
-
+        # Add splitter to layout (table + media player)
+        layout.addWidget(self.media_splitter, 1)  # Stretch factor 1 (majority)
         # Text display box (minimal space)
-        layout.addWidget(self.text_display_box, 0)  # Stretch factor 0 (minimal)
+        # Stretch factor 0 (minimal)
+        layout.addWidget(self.text_display_box, 0)
 
         # Add current segment display (minimal space)
-        layout.addWidget(self.current_segment_frame, 1)  # Stretch factor 0 (minimal)
+        # Stretch factor 0 (minimal)
+        layout.addWidget(self.current_segment_frame, 1)
 
         # Initially hide the current segment frame until a segment is selected
         self.current_segment_frame.hide()
@@ -316,6 +376,27 @@ class TranscriptionViewerWidget(QWidget):
         self.load_geometry()
 
         self.reset_view()
+
+    def load_transcription_media(self):
+        if self.is_video and self.video_player:
+            self.media_player_stack.setCurrentWidget(self.video_player)
+            self.current_media_player = self.video_player
+        else:
+            self.media_player_stack.setCurrentWidget(self.audio_player)
+            self.current_media_player = self.audio_player
+
+        # Load splitter sizes after determining media type
+        if hasattr(self, 'media_splitter'):
+            self.load_splitter_sizes()
+
+    def on_transcript_segment_clicked(self, segment):
+        if not self.current_media_player:
+            return
+
+        start_time_ms = int(segment.start_time)
+        self.current_media_player.set_position(start_time_ms)
+        if self.current_media_player.media_player.playbackState() != QMediaPlayer.PlaybackState.PlayingState:
+            self.current_media_player.media_player.play()
 
     def restore_ui_state(self):
         """Restore UI state from settings"""
@@ -360,7 +441,8 @@ class TranscriptionViewerWidget(QWidget):
         self.search_prev_button.clicked.connect(self.search_previous)
         self.search_prev_button.setEnabled(False)
         self.search_prev_button.setMaximumWidth(40)
-        self.search_prev_button.setMinimumHeight(30)  # Ensure consistent height
+        self.search_prev_button.setMinimumHeight(
+            30)  # Ensure consistent height
         search_layout.addWidget(self.search_prev_button)
 
         self.search_next_button = QPushButton("↓")
@@ -368,14 +450,16 @@ class TranscriptionViewerWidget(QWidget):
         self.search_next_button.clicked.connect(self.search_next)
         self.search_next_button.setEnabled(False)
         self.search_next_button.setMaximumWidth(40)
-        self.search_next_button.setMinimumHeight(30)  # Ensure consistent height
+        self.search_next_button.setMinimumHeight(
+            30)  # Ensure consistent height
         search_layout.addWidget(self.search_next_button)
 
         # Clear button - make it bigger to accommodate different language translations
         self.clear_search_button = QPushButton(_("Clear"))
         self.clear_search_button.clicked.connect(self.clear_search)
         self.clear_search_button.setMaximumWidth(80)  # Increased from 60 to 80
-        self.clear_search_button.setMinimumHeight(30)  # Ensure consistent height
+        self.clear_search_button.setMinimumHeight(
+            30)  # Ensure consistent height
         search_layout.addWidget(self.clear_search_button)
 
         # Results label
@@ -396,8 +480,8 @@ class TranscriptionViewerWidget(QWidget):
 
         loop_layout = QHBoxLayout(self.loop_controls_frame)
         loop_layout.setContentsMargins(10, 5, 10, 5)
-        loop_layout.setSpacing(8)  # Add some spacing between elements for better visual separation
-
+        # Add some spacing between elements for better visual separation
+        loop_layout.setSpacing(8)
         # Loop controls label
         loop_label = QLabel(_("Playback Controls:"))
         loop_label.setStyleSheet("font-weight: bold;")
@@ -406,16 +490,20 @@ class TranscriptionViewerWidget(QWidget):
         # Loop toggle button
         self.loop_toggle = QCheckBox(_("Loop Segment"))
         self.loop_toggle.setChecked(self.segment_looping_enabled)
-        self.loop_toggle.setToolTip(_("Enable/disable looping when clicking on transcript segments"))
+        self.loop_toggle.setToolTip(
+            _("Enable/disable looping when clicking on transcript segments"))
         self.loop_toggle.toggled.connect(self.on_loop_toggle_changed)
         loop_layout.addWidget(self.loop_toggle)
 
         # Follow audio toggle button
-        self.follow_audio_enabled = self.settings.settings.value("transcription_viewer/follow_audio_enabled", False, type=bool)
+        self.follow_audio_enabled = self.settings.settings.value(
+            "transcription_viewer/follow_audio_enabled", False, type=bool)
         self.follow_audio_toggle = QCheckBox(_("Follow Audio"))
         self.follow_audio_toggle.setChecked(self.follow_audio_enabled)
-        self.follow_audio_toggle.setToolTip(_("Enable/disable following the current audio position in the transcript. When enabled, automatically scrolls to current text."))
-        self.follow_audio_toggle.toggled.connect(self.on_follow_audio_toggle_changed)
+        self.follow_audio_toggle.setToolTip(
+            _("Enable/disable following the current audio position in the transcript. When enabled, automatically scrolls to current text."))
+        self.follow_audio_toggle.toggled.connect(
+            self.on_follow_audio_toggle_changed)
         loop_layout.addWidget(self.follow_audio_toggle)
 
         # Visual separator
@@ -432,7 +520,8 @@ class TranscriptionViewerWidget(QWidget):
 
         self.speed_combo = QComboBox()
         self.speed_combo.setEditable(True)
-        self.speed_combo.addItems(["0.5x", "0.75x", "1x", "1.25x", "1.5x", "2x"])
+        self.speed_combo.addItems(
+            ["0.5x", "0.75x", "1x", "1.25x", "1.5x", "2x"])
         self.speed_combo.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         self.speed_combo.currentTextChanged.connect(self.on_speed_changed)
         self.speed_combo.setMaximumWidth(80)
@@ -463,10 +552,13 @@ class TranscriptionViewerWidget(QWidget):
         # Scroll to current button
         self.scroll_to_current_button = QPushButton(_("Scroll to Current"))
         self.scroll_to_current_button.setIcon(ScrollToCurrentIcon(self))
-        self.scroll_to_current_button.setToolTip(_("Scroll to the currently spoken text"))
-        self.scroll_to_current_button.clicked.connect(self.on_scroll_to_current_button_clicked)
+        self.scroll_to_current_button.setToolTip(
+            _("Scroll to the currently spoken text"))
+        self.scroll_to_current_button.clicked.connect(
+            self.on_scroll_to_current_button_clicked)
         self.scroll_to_current_button.setMinimumHeight(30)
-        self.scroll_to_current_button.setStyleSheet("QPushButton { padding: 4px 8px; }")  # Better padding
+        self.scroll_to_current_button.setStyleSheet(
+            "QPushButton { padding: 4px 8px; }")  # Better padding
         loop_layout.addWidget(self.scroll_to_current_button)
 
         loop_layout.addStretch()
@@ -480,7 +572,8 @@ class TranscriptionViewerWidget(QWidget):
 
         # Save the visibility state to settings
         self.playback_controls_visible = True
-        self.settings.settings.setValue("transcription_viewer/playback_controls_visible", self.playback_controls_visible)
+        self.settings.settings.setValue(
+            "transcription_viewer/playback_controls_visible", self.playback_controls_visible)
 
     def hide_loop_controls(self):
         """Hide the loop controls when audio is not playing"""
@@ -488,7 +581,8 @@ class TranscriptionViewerWidget(QWidget):
 
         # Save the visibility state to settings
         self.playback_controls_visible = False
-        self.settings.settings.setValue("transcription_viewer/playback_controls_visible", self.playback_controls_visible)
+        self.settings.settings.setValue(
+            "transcription_viewer/playback_controls_visible", self.playback_controls_visible)
 
     def toggle_playback_controls_visibility(self):
         """Toggle the visibility of playback controls manually"""
@@ -499,10 +593,10 @@ class TranscriptionViewerWidget(QWidget):
 
     def toggle_audio_playback(self):
         """Toggle audio playback (play/pause)"""
-        if self.audio_player.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
-            self.audio_player.media_player.pause()
+        if self.current_media_player and self.current_media_player.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
+            self.current_media_player.media_player.pause()
         else:
-            self.audio_player.media_player.play()
+            self.current_media_player.media_player.play()
 
     def replay_current_segment(self):
         """Rewind current segment to its start and play if not already playing"""
@@ -513,7 +607,8 @@ class TranscriptionViewerWidget(QWidget):
         start_time = self.currently_selected_segment.value("start_time")
 
         # Set position to the start of the segment
-        self.audio_player.set_position(start_time)
+        if self.current_media_player:
+            self.current_media_player.set_position(start_time)
 
         # If audio is not playing, start playing
         if self.audio_player.media_player.playbackState() != QMediaPlayer.PlaybackState.PlayingState:
@@ -557,7 +652,8 @@ class TranscriptionViewerWidget(QWidget):
         start_col = Column.START.value
         end_col = Column.END.value
 
-        current_start_time = self.table_widget.model().record(current_row).value("start_time")
+        current_start_time = self.table_widget.model().record(
+            current_row).value("start_time")
         current_end_time = self.table_widget.model().record(current_row).value("end_time")
 
         # Calculate new value based on CURRENT database value
@@ -593,7 +689,8 @@ class TranscriptionViewerWidget(QWidget):
 
             # Check overlap with next segment
             if current_row < len(segments) - 1:
-                next_start = self.table_widget.model().record(current_row + 1).value("start_time")
+                next_start = self.table_widget.model().record(
+                    current_row + 1).value("start_time")
                 if new_value > next_start:
                     # Update next segment's start time
                     self.table_widget.model().setData(
@@ -615,7 +712,10 @@ class TranscriptionViewerWidget(QWidget):
         if self.segment_looping_enabled:
             updated_start = self.currently_selected_segment.value("start_time")
             updated_end = self.currently_selected_segment.value("end_time")
-            self.audio_player.set_range((updated_start, updated_end))
+
+            if self.current_media_player:
+                self.current_media_player.set_range(
+                    (updated_start, updated_end))
 
     def on_audio_playback_state_changed(self, state):
         """Handle audio playback state changes to automatically show/hide playback controls"""
@@ -633,12 +733,13 @@ class TranscriptionViewerWidget(QWidget):
         """Initialize the speed control with current value from audio player"""
         try:
             # Get current speed from audio player
-            current_speed = self.audio_player.media_player.playbackRate()
-            # Ensure it's within valid range
-            current_speed = max(0.1, min(5.0, current_speed))
-            # Set the combo box text
-            speed_text = f"{current_speed:.2f}x"
-            self.speed_combo.setCurrentText(speed_text)
+            if self.current_media_player:
+                current_speed = self.current_media_player.media_player.playbackRate()
+                # Ensure it's within valid range
+                current_speed = max(0.1, min(5.0, current_speed))
+                # Set the combo box text
+                speed_text = f"{current_speed:.2f}x"
+                self.speed_combo.setCurrentText(speed_text)
         except Exception as e:
             logging.warning(f"Could not initialize speed control: {e}")
             # Default to 1.0x
@@ -664,11 +765,12 @@ class TranscriptionViewerWidget(QWidget):
             self.speed_combo.blockSignals(False)
 
             # Set the playback rate on the audio player
-            self.audio_player.media_player.setPlaybackRate(speed_value)
-
+            if self.current_media_player:
+                self.current_media_player.media_player.setPlaybackRate(
+                    speed_value)
             # Save the new rate to settings
-            self.settings.set_value(self.settings.Key.AUDIO_PLAYBACK_RATE, speed_value)
-
+            self.settings.set_value(
+                self.settings.Key.AUDIO_PLAYBACK_RATE, speed_value)
         except ValueError:
             logging.warning(f"Invalid speed value: {speed_text}")
             # Reset to current valid value
@@ -776,7 +878,8 @@ class TranscriptionViewerWidget(QWidget):
             pos = text_lower.find(search_text_lower, start)
             if pos == -1 or result_count >= max_results:
                 break
-            self.search_results.append(("text", pos, pos + len(self.search_text)))
+            self.search_results.append(
+                ("text", pos, pos + len(self.search_text)))
             start = pos + 1
             result_count += 1
 
@@ -787,7 +890,8 @@ class TranscriptionViewerWidget(QWidget):
             if len(self.search_results) >= 100:
                 self.search_results_label.setText(_("1 of 100+ matches"))
             else:
-                self.search_results_label.setText(_("1 of ") + str(len(self.search_results)) + _(" matches"))
+                self.search_results_label.setText(
+                    _("1 of ") + str(len(self.search_results)) + _(" matches"))
             self.search_prev_button.setEnabled(True)
             self.search_next_button.setEnabled(True)
             self.highlight_current_match()
@@ -815,14 +919,15 @@ class TranscriptionViewerWidget(QWidget):
         # Select the row containing the match
         self.table_widget.selectRow(row_index)
         # Scroll to the row
-        self.table_widget.scrollTo(self.table_widget.model().index(row_index, 0))
+        self.table_widget.scrollTo(
+            self.table_widget.model().index(row_index, 0))
 
     def highlight_text_match(self, start_pos: int):
         """Highlight a match in the text display"""
         cursor = QTextCursor(self.text_display_box.document())
         cursor.setPosition(start_pos)
-        cursor.setPosition(start_pos + len(self.search_text), QTextCursor.MoveMode.KeepAnchor)
-
+        cursor.setPosition(start_pos + len(self.search_text),
+                           QTextCursor.MoveMode.KeepAnchor)
         # Set the cursor to highlight the text
         self.text_display_box.setTextCursor(cursor)
 
@@ -834,7 +939,8 @@ class TranscriptionViewerWidget(QWidget):
         if not self.search_results:
             return
 
-        self.current_search_index = (self.current_search_index + 1) % len(self.search_results)
+        self.current_search_index = (
+            self.current_search_index + 1) % len(self.search_results)
         self.highlight_current_match()
         self.update_search_results_label()
 
@@ -843,7 +949,8 @@ class TranscriptionViewerWidget(QWidget):
         if not self.search_results:
             return
 
-        self.current_search_index = (self.current_search_index - 1) % len(self.search_results)
+        self.current_search_index = (
+            self.current_search_index - 1) % len(self.search_results)
         self.highlight_current_match()
         self.update_search_results_label()
 
@@ -851,9 +958,11 @@ class TranscriptionViewerWidget(QWidget):
         """Update the search results label with current position"""
         if self.search_results:
             if len(self.search_results) >= 100:
-                self.search_results_label.setText(str(self.current_search_index + 1) + _(" of 100+ matches"))
+                self.search_results_label.setText(
+                    str(self.current_search_index + 1) + _(" of 100+ matches"))
             else:
-                self.search_results_label.setText(str(self.current_search_index + 1) + _(" of ") + str(len(self.search_results)) + _(" matches"))
+                self.search_results_label.setText(str(
+                    self.current_search_index + 1) + _(" of ") + str(len(self.search_results)) + _(" matches"))
 
     def clear_search(self):
         """Clear the search and reset highlighting"""
@@ -884,43 +993,55 @@ class TranscriptionViewerWidget(QWidget):
 
         # Save the visibility state to settings
         self.find_widget_visible = False
-        self.settings.settings.setValue("transcription_viewer/find_widget_visible", False)
+        self.settings.settings.setValue(
+            "transcription_viewer/find_widget_visible", False)
 
     def setup_shortcuts(self):
         """Set up keyboard shortcuts"""
         from PyQt6.QtGui import QShortcut, QKeySequence
 
         # Search shortcut (Ctrl+F)
-        search_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.SEARCH_TRANSCRIPT)), self)
+        search_shortcut = QShortcut(QKeySequence(
+            self.shortcuts.get(Shortcut.SEARCH_TRANSCRIPT)), self)
         search_shortcut.activated.connect(self.focus_search_input)
 
         # Scroll to current text shortcut (Ctrl+G)
-        scroll_to_current_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.SCROLL_TO_CURRENT_TEXT)), self)
-        scroll_to_current_shortcut.activated.connect(self.on_scroll_to_current_button_clicked)
+        scroll_to_current_shortcut = QShortcut(QKeySequence(
+            self.shortcuts.get(Shortcut.SCROLL_TO_CURRENT_TEXT)), self)
+        scroll_to_current_shortcut.activated.connect(
+            self.on_scroll_to_current_button_clicked)
 
         # Play/Pause audio shortcut (Ctrl+P)
-        play_pause_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.PLAY_PAUSE_AUDIO)), self)
+        play_pause_shortcut = QShortcut(QKeySequence(
+            self.shortcuts.get(Shortcut.PLAY_PAUSE_AUDIO)), self)
         play_pause_shortcut.activated.connect(self.toggle_audio_playback)
 
         # Replay current segment shortcut (Ctrl+Shift+P)
-        replay_segment_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.REPLAY_CURRENT_SEGMENT)), self)
+        replay_segment_shortcut = QShortcut(QKeySequence(
+            self.shortcuts.get(Shortcut.REPLAY_CURRENT_SEGMENT)), self)
         replay_segment_shortcut.activated.connect(self.replay_current_segment)
 
         # Playback controls visibility shortcut (Ctrl+Alt+P)
-        playback_controls_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.TOGGLE_PLAYBACK_CONTROLS)), self)
-        playback_controls_shortcut.activated.connect(self.toggle_playback_controls_visibility)
+        playback_controls_shortcut = QShortcut(QKeySequence(
+            self.shortcuts.get(Shortcut.TOGGLE_PLAYBACK_CONTROLS)), self)
+        playback_controls_shortcut.activated.connect(
+            self.toggle_playback_controls_visibility)
 
         # Segment timestamp adjustment shortcuts
-        decrease_start_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.DECREASE_SEGMENT_START)), self)
+        decrease_start_shortcut = QShortcut(QKeySequence(
+            self.shortcuts.get(Shortcut.DECREASE_SEGMENT_START)), self)
         decrease_start_shortcut.activated.connect(self.decrease_segment_start)
 
-        increase_start_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.INCREASE_SEGMENT_START)), self)
+        increase_start_shortcut = QShortcut(QKeySequence(
+            self.shortcuts.get(Shortcut.INCREASE_SEGMENT_START)), self)
         increase_start_shortcut.activated.connect(self.increase_segment_start)
 
-        decrease_end_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.DECREASE_SEGMENT_END)), self)
+        decrease_end_shortcut = QShortcut(QKeySequence(
+            self.shortcuts.get(Shortcut.DECREASE_SEGMENT_END)), self)
         decrease_end_shortcut.activated.connect(self.decrease_segment_end)
 
-        increase_end_shortcut = QShortcut(QKeySequence(self.shortcuts.get(Shortcut.INCREASE_SEGMENT_END)), self)
+        increase_end_shortcut = QShortcut(QKeySequence(
+            self.shortcuts.get(Shortcut.INCREASE_SEGMENT_END)), self)
         increase_end_shortcut.activated.connect(self.increase_segment_end)
 
     def focus_search_input(self):
@@ -935,7 +1056,8 @@ class TranscriptionViewerWidget(QWidget):
 
             # Save the visibility state to settings
             self.find_widget_visible = True
-            self.settings.settings.setValue("transcription_viewer/find_widget_visible", True)
+            self.settings.settings.setValue(
+                "transcription_viewer/find_widget_visible", True)
 
     def toggle_search_bar_visibility(self):
         """Toggle the search bar visibility"""
@@ -946,7 +1068,8 @@ class TranscriptionViewerWidget(QWidget):
 
         # Save the visibility state to settings
         self.find_widget_visible = self.search_frame.isVisible()
-        self.settings.settings.setValue("transcription_viewer/find_widget_visible", self.find_widget_visible)
+        self.settings.settings.setValue(
+            "transcription_viewer/find_widget_visible", self.find_widget_visible)
 
     def show_search_bar(self):
         """Show the search bar and focus the input"""
@@ -957,7 +1080,8 @@ class TranscriptionViewerWidget(QWidget):
 
         # Save the visibility state to settings
         self.find_widget_visible = True
-        self.settings.settings.setValue("transcription_viewer/find_widget_visible", True)
+        self.settings.settings.setValue(
+            "transcription_viewer/find_widget_visible", True)
 
     def eventFilter(self, obj, event):
         """Event filter to handle keyboard shortcuts in search input"""
@@ -974,10 +1098,14 @@ class TranscriptionViewerWidget(QWidget):
         return super().eventFilter(obj, event)
 
     def reset_view(self):
+        if hasattr(self, 'media_splitter'):
+            self.load_splitter_sizes()
+
         if self.view_mode == ViewMode.TIMESTAMPS:
             self.text_display_box.hide()
             self.table_widget.show()
-            self.audio_player.show()
+            if self.current_media_player:
+                self.current_media_player.show()
             # Show playback controls in timestamps mode
             if self.playback_controls_visible:
                 self.loop_controls_frame.show()
@@ -989,7 +1117,8 @@ class TranscriptionViewerWidget(QWidget):
             combined_text = ""
             previous_end_time = None
 
-            paragraph_split_time = int(os.getenv("BUZZ_PARAGRAPH_SPLIT_TIME", "2000"))
+            paragraph_split_time = int(
+                os.getenv("BUZZ_PARAGRAPH_SPLIT_TIME", "2000"))
 
             for segment in segments:
                 if previous_end_time is not None and (segment.start_time - previous_end_time) >= paragraph_split_time:
@@ -1000,12 +1129,13 @@ class TranscriptionViewerWidget(QWidget):
             self.text_display_box.setPlainText(combined_text.strip())
             self.text_display_box.show()
             self.table_widget.hide()
-            self.audio_player.hide()
+            if self.current_media_player:
+                self.current_media_player.hide()
             # Hide playback controls in text mode
             self.loop_controls_frame.hide()
             # Hide current segment display in text mode
             self.current_segment_frame.hide()
-        else: # ViewMode.TRANSLATION
+        else:  # ViewMode.TRANSLATION
             segments = self.transcription_service.get_transcription_segments(
                 transcription_id=self.transcription.id_as_uuid
             )
@@ -1014,7 +1144,8 @@ class TranscriptionViewerWidget(QWidget):
             )
             self.text_display_box.show()
             self.table_widget.hide()
-            self.audio_player.hide()
+            if self.current_media_player:
+                self.current_media_player.hide()
             # Hide playback controls in translation mode
             self.loop_controls_frame.hide()
             # Hide current segment display in translation mode
@@ -1048,19 +1179,27 @@ class TranscriptionViewerWidget(QWidget):
 
         # Ensure the scroll area updates properly and shows scrollbars when needed
         self.current_segment_scroll_area.updateGeometry()
-        self.current_segment_scroll_area.verticalScrollBar().setVisible(True)  # Ensure scrollbar is visible
+        self.current_segment_scroll_area.verticalScrollBar(
+        ).setVisible(True)  # Ensure scrollbar is visible
 
-        start_time = segment.value("start_time")
-        end_time = segment.value("end_time")
+        start_time_ms = segment.value("start_time")
+        end_time_ms = segment.value("end_time")
 
-        if self.audio_player.position_ms < start_time or self.audio_player.position_ms > end_time:
-            self.audio_player.set_position(start_time)
+        if not self.current_media_player:
+            return
+
+        if self.current_media_player.position_ms < start_time_ms or self.current_media_player.position_ms > end_time_ms:
+            self.current_media_player.set_position(start_time_ms)
+
+            # Start playing if not yet playing
+            if self.current_media_player.media_player.playbackState() != QMediaPlayer.PlaybackState.PlayingState:
+                self.current_media_player.media_player.play()
 
         if self.segment_looping_enabled:
-            self.audio_player.set_range((start_time, end_time))
+            self.current_media_player.set_range((start_time_ms, end_time_ms))
 
             # Reset looping flag to ensure new loops work
-            self.audio_player.is_looping = False
+            self.current_media_player.is_looping = False
         else:
             segments = self.table_widget.segments()
             for i, seg in enumerate(segments):
@@ -1120,8 +1259,8 @@ class TranscriptionViewerWidget(QWidget):
 
             # Ensure the scroll area updates properly and shows scrollbars when needed
             self.current_segment_scroll_area.updateGeometry()
-            self.current_segment_scroll_area.verticalScrollBar().setVisible(True)  # Ensure scrollbar is visible
-
+            self.current_segment_scroll_area.verticalScrollBar(
+            ).setVisible(True)  # Ensure scrollbar is visible
             # Update highlighting based on follow audio and loop settings
             if self.follow_audio_enabled:
                 # Follow audio mode: highlight the current segment based on audio position
@@ -1136,7 +1275,8 @@ class TranscriptionViewerWidget(QWidget):
                     if current_segment.value("id") != self.currently_selected_segment.value("id"):
                         for i, segment in enumerate(segments):
                             if segment.value("id") == current_segment.value("id"):
-                                self.table_widget.highlight_and_scroll_to_row(i)
+                                self.table_widget.highlight_and_scroll_to_row(
+                                    i)
                                 break
             else:
                 # Don't follow audio: keep highlighting on the selected segment
@@ -1192,7 +1332,8 @@ class TranscriptionViewerWidget(QWidget):
 
     def load_preferences(self):
         self.settings.settings.beginGroup("file_transcriber")
-        preferences = FileTranscriptionPreferences.load(settings=self.settings.settings)
+        preferences = FileTranscriptionPreferences.load(
+            settings=self.settings.settings)
         self.settings.settings.endGroup()
         return preferences
 
@@ -1215,7 +1356,8 @@ class TranscriptionViewerWidget(QWidget):
             return
 
         if self.transcription_options.llm_model == "" or self.transcription_options.llm_prompt == "":
-            self.transcription_options_dialog.accepted.connect(self.run_translation)
+            self.transcription_options_dialog.accepted.connect(
+                self.run_translation)
             self.transcription_options_dialog.show()
             return
 
@@ -1259,10 +1401,10 @@ class TranscriptionViewerWidget(QWidget):
         """Handle loop toggle state change"""
         self.segment_looping_enabled = enabled
         # Save preference to settings
-        self.settings.settings.setValue("transcription_viewer/segment_looping_enabled", enabled)
-
+        self.settings.settings.setValue(
+            "transcription_viewer/segment_looping_enabled", enabled)
         if enabled:
-            # If looping is re-enabled and we have a selected segment, return to it
+            # If looping is re-enabled,and we have a selected segment, return to it
             if self.currently_selected_segment is not None:
                 # Find the row index of the selected segment
                 segments = self.table_widget.segments()
@@ -1271,31 +1413,35 @@ class TranscriptionViewerWidget(QWidget):
                         # Highlight and scroll to the selected segment
                         self.table_widget.highlight_and_scroll_to_row(i)
 
-                        # Get the segment timing
-                        start_time = self.currently_selected_segment.value("start_time")
-                        end_time = self.currently_selected_segment.value("end_time")
-
+                        start_time_ms = self.currently_selected_segment.value(
+                            "start_time")
+                        end_time_ms = self.currently_selected_segment.value(
+                            "end_time")
                         # Set the loop range for the selected segment
-                        self.audio_player.set_range((start_time, end_time))
+                        if self.current_media_player:
+                            self.current_media_player.set_range(
+                                (start_time_ms, end_time_ms))
 
-                        # If audio is currently playing and outside the range, jump to the start
-                        current_pos = self.audio_player.position_ms
-                        playback_state = self.audio_player.media_player.playbackState()
-                        if (playback_state == QMediaPlayer.PlaybackState.PlayingState and
-                            (current_pos < start_time or current_pos > end_time)):
-                            self.audio_player.set_position(start_time)
+                            # If audio is currently playing and outside the range, jump to the start
+                            current_pos = self.current_media_player.position_ms
+                            playback_state = self.current_media_player.media_player.playbackState()
+                            if (playback_state == QMediaPlayer.PlaybackState.PlayingState and
+                                    (current_pos < start_time_ms or current_pos > end_time_ms)):
+                                self.current_media_player.set_position(
+                                    start_time_ms)
 
-                        break
+                                break
         else:
             # Clear any existing range if looping is disabled
-            self.audio_player.clear_range()
+            if self.current_media_player:
+                self.current_media_player.clear_range()
 
     def on_follow_audio_toggle_changed(self, enabled: bool):
         """Handle follow audio toggle state change"""
         self.follow_audio_enabled = enabled
         # Save preference to settings
-        self.settings.settings.setValue("transcription_viewer/follow_audio_enabled", enabled)
-
+        self.settings.settings.setValue(
+            "transcription_viewer/follow_audio_enabled", enabled)
         if enabled:
             # When follow audio is first enabled, automatically scroll to current position
             # This gives immediate feedback that the feature is working
@@ -1311,7 +1457,9 @@ class TranscriptionViewerWidget(QWidget):
 
     def on_scroll_to_current_button_clicked(self):
         """Handle scroll to current button click"""
-        current_pos = self.audio_player.position_ms
+        if not self.current_media_player:
+            return
+        current_pos = self.current_media_player.position_ms
         segments = self.table_widget.segments()
 
         # Find the current segment based on audio position
@@ -1334,7 +1482,7 @@ class TranscriptionViewerWidget(QWidget):
             self.highlight_table_match(1)
 
         self.highlight_table_match(current_segment_index)
-        self.audio_player.set_position(current_pos)
+        self.current_media_player.set_position(current_pos)
 
     def auto_scroll_to_current_position(self):
         """
@@ -1346,7 +1494,9 @@ class TranscriptionViewerWidget(QWidget):
             if self.view_mode != ViewMode.TIMESTAMPS:
                 return
 
-            current_pos = self.audio_player.position_ms
+            if not self.current_media_player:
+                return
+            current_pos = self.current_media_player.position_ms
             segments = self.table_widget.segments()
 
             # Find the current segment based on audio position
@@ -1371,12 +1521,21 @@ class TranscriptionViewerWidget(QWidget):
     def resizeEvent(self, event):
         """Save geometry when widget is resized"""
         self.save_geometry()
+        self.save_splitter_sizes()
         super().resizeEvent(event)
 
     def closeEvent(self, event):
         """Save geometry when widget is closed"""
         self.save_geometry()
+
+        # save splitter sizes before closing
+        self.save_splitter_sizes()
+
         self.hide()
+
+        # Stop media playback when closing
+        if self.current_media_player:
+            self.current_media_player.stop()
 
         if self.transcription_resizer_dialog:
             self.transcription_resizer_dialog.close()
@@ -1392,7 +1551,8 @@ class TranscriptionViewerWidget(QWidget):
             # Wait up to 35 seconds for graceful shutdown
             # (30s max API call timeout + 5s buffer)
             if not self.translation_thread.wait(35_000):
-                logging.warning("Translation thread did not finish gracefully, terminating")
+                logging.warning(
+                    "Translation thread did not finish gracefully, terminating")
                 # Force terminate the thread if it doesn't stop
                 self.translation_thread.terminate()
                 # Give it a brief moment to terminate
@@ -1417,3 +1577,47 @@ class TranscriptionViewerWidget(QWidget):
             # Default size if no saved geometry
             self.resize(1000, 800)
         self.settings.end_group()
+
+    def save_splitter_sizes(self):
+        """Save splitter sizes to settings"""
+        if not hasattr(self, 'media_splitter'):
+            return
+
+        sizes = self.media_splitter.sizes()
+        self.settings.begin_group(Settings.Key.TRANSCRIPTION_VIEWER)
+
+        # Save separately for video and audio
+        if self.current_media_player == self.video_player:
+            self.settings.settings.setValue("video_splitter_sizes", sizes)
+        else:
+            self.settings.settings.setValue("audio_splitter_sizes", sizes)
+
+        self.settings.end_group()
+
+    def load_splitter_sizes(self):
+        """Load splitter sizes from settings"""
+        if not hasattr(self, 'media_splitter'):
+            return
+
+        self.settings.begin_group(Settings.Key.TRANSCRIPTION_VIEWER)
+
+        # Load sizes based on media type
+        if self.current_media_player == self.video_player:
+            sizes = self.settings.settings.value("video_splitter_sizes")
+            if sizes is None:
+                sizes = [800, 200]
+        else:
+            sizes = self.settings.settings.value("audio_splitter_sizes")
+            if sizes is None:
+                sizes = [950, 50]
+
+        self.settings.end_group()
+
+        # Apply sizes
+        if sizes:
+            self.media_splitter.setSizes([int(s) for s in sizes])
+
+    def on_splitter_moved(self, pos: int, index: int):
+        """Called when user moves the splitter"""
+        # Save sizes after a short delay to avoid saving on every pixel move
+        QTimer.singleShot(100, self.save_splitter_sizes)
