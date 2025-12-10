@@ -716,19 +716,21 @@ class TestTranscriptionViewerWidget:
         )
         qtbot.add_widget(widget)
 
-        # Test that main layout has proper stretch factors
-        # Table widget should have stretch factor 1 (majority of space)
-        # Other widgets should have stretch factor 0 (minimal space)
+        # Test that main layout has proper structure
+        # Table widget should be in the media_splitter (not directly in main layout)
         main_layout = widget.layout()
 
-        # Find the table widget in the layout
-        table_widget_index = None
+        # Find the media_splitter in the layout
+        splitter_index = None
         for i in range(main_layout.count()):
-            if main_layout.itemAt(i).widget() == widget.table_widget:
-                table_widget_index = i
+            if main_layout.itemAt(i).widget() == widget.media_splitter:
+                splitter_index = i
                 break
 
-        assert table_widget_index is not None, "Table widget should be in main layout"
+        assert splitter_index is not None, "Media splitter should be in main layout"
+
+        # Verify table_widget is inside the splitter
+        assert widget.media_splitter.indexOf(widget.table_widget) != -1, "Table widget should be in media splitter"
 
         # Test that current segment frame has minimal stretch
         current_segment_index = None
