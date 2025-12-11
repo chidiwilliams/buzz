@@ -23,6 +23,8 @@ class Shortcut(str, enum.Enum):
     VIEW_TRANSCRIPT_TRANSLATION = ("Ctrl+L", _("View Transcript Translation"))
     VIEW_TRANSCRIPT_TIMESTAMPS = ("Ctrl+T", _("View Transcript Timestamps"))
     SEARCH_TRANSCRIPT = ("Ctrl+F", _("Search Transcript"))
+    SEARCH_NEXT = ("Ctrl+Return", _("Go to Next Transcript Search Result"))
+    SEARCH_PREVIOUS = ("Shift+Return", _("Go to Previous Transcript Search Result"))
     SCROLL_TO_CURRENT_TEXT = ("Ctrl+G", _("Scroll to Current Text"))
     PLAY_PAUSE_AUDIO = ("Ctrl+P", _("Play/Pause Audio"))
     REPLAY_CURRENT_SEGMENT = ("Ctrl+Shift+P", _("Replay Current Segment"))
