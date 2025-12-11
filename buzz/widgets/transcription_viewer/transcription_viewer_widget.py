@@ -106,6 +106,9 @@ class TranscriptionViewerWidget(QWidget):
         self.search_text = ""
         self.current_search_index = 0
         self.search_results = []
+        self.search_debounce_timer = QTimer()
+        self.search_debounce_timer.setSingleShot(True)
+        self.search_debounce_timer.timeout.connect(self.perform_search)
 
         # Loop functionality
         self.segment_looping_enabled = self.settings.settings.value(
@@ -817,11 +820,12 @@ class TranscriptionViewerWidget(QWidget):
         """Handle search text changes"""
         self.search_text = text.strip()
         if self.search_text:
-            # Add a small delay to avoid searching on every keystroke for long text
+            # Debounce search to avoid UI jumping while typing
             if len(self.search_text) >= 2:
-                self.perform_search()
+                self.search_debounce_timer.start(300)  # 300ms delay
             self.search_frame.show()
         else:
+            self.search_debounce_timer.stop()
             self.clear_search()
             # Don't hide the search frame immediately, let user clear it manually
 
