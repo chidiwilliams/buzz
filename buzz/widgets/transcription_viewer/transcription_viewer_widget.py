@@ -449,7 +449,7 @@ class TranscriptionViewerWidget(QWidget):
         search_layout.addWidget(self.search_prev_button)
 
         self.search_next_button = QPushButton("↓")
-        self.search_next_button.setToolTip(_("Next match (Enter)"))
+        self.search_next_button.setToolTip(_("Next match (Ctrl+Enter)"))
         self.search_next_button.clicked.connect(self.search_next)
         self.search_next_button.setEnabled(False)
         self.search_next_button.setMaximumWidth(40)
@@ -958,6 +958,16 @@ class TranscriptionViewerWidget(QWidget):
         self.highlight_current_match()
         self.update_search_results_label()
 
+    def search_next_if_results(self):
+        """Go to next search result only if there are results (for global shortcut)"""
+        if self.search_results:
+            self.search_next()
+
+    def search_previous_if_results(self):
+        """Go to previous search result only if there are results (for global shortcut)"""
+        if self.search_results:
+            self.search_previous()
+
     def update_search_results_label(self):
         """Update the search results label with current position"""
         if self.search_results:
@@ -1008,6 +1018,15 @@ class TranscriptionViewerWidget(QWidget):
         search_shortcut = QShortcut(QKeySequence(
             self.shortcuts.get(Shortcut.SEARCH_TRANSCRIPT)), self)
         search_shortcut.activated.connect(self.focus_search_input)
+
+        # Search navigation shortcuts (Ctrl+Enter / Shift+Enter)
+        search_next_shortcut = QShortcut(QKeySequence(
+            self.shortcuts.get(Shortcut.SEARCH_NEXT)), self)
+        search_next_shortcut.activated.connect(self.search_next_if_results)
+
+        search_prev_shortcut = QShortcut(QKeySequence(
+            self.shortcuts.get(Shortcut.SEARCH_PREVIOUS)), self)
+        search_prev_shortcut.activated.connect(self.search_previous_if_results)
 
         # Scroll to current text shortcut (Ctrl+G)
         scroll_to_current_shortcut = QShortcut(QKeySequence(
