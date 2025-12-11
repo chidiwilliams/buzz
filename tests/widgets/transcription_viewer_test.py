@@ -935,7 +935,9 @@ class TestTranscriptionViewerWidget:
         # Set up search
         widget.search_input.setText("test search")
         qtbot.keyPress(widget.search_input, Qt.Key.Key_Return)
-        qtbot.wait(100)
+
+        # Wait for search debounce timer to complete (300ms) plus buffer
+        qtbot.wait(400)
 
         # Verify search is active
         assert widget.search_input.text() == "test search"
