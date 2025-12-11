@@ -40,6 +40,8 @@ class TestShortcutsEditorWidget:
             (_("View Transcript Translation"), "Ctrl+L"),
             (_("View Transcript Timestamps"), "Ctrl+T"),
             (_("Search Transcript"), "Ctrl+F"),
+            (_("Go to Next Transcript Search Result"), "Ctrl+Return"),
+            (_("Go to Previous Transcript Search Result"), "Shift+Return"),
             (_("Scroll to Current Text"), "Ctrl+G"),
             (_("Play/Pause Audio"), "Ctrl+P"),
             (_("Replay Current Segment"), "Ctrl+Shift+P"),

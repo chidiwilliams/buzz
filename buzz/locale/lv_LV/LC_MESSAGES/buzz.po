@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-06 11:29+0200\n"
-"PO-Revision-Date: 2025-12-06 11:34+0200\n"
+"POT-Creation-Date: 2025-12-11 20:21+0200\n"
+"PO-Revision-Date: 2025-12-11 20:23+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -438,12 +438,12 @@ msgstr "Jauna saites atpazīšana"
 msgid "Open Transcript"
 msgstr "Atvērt transkriptu"
 
-#: buzz/widgets/main_window_toolbar.py:63 buzz/settings/shortcut.py:37
+#: buzz/widgets/main_window_toolbar.py:63 buzz/settings/shortcut.py:39
 msgid "Cancel Transcription"
 msgstr "Atcelt atpazīšanu"
 
 #: buzz/widgets/main_window_toolbar.py:71 buzz/widgets/main_window.py:228
-#: buzz/settings/shortcut.py:36
+#: buzz/settings/shortcut.py:38
 msgid "Clear History"
 msgstr "Notīrīt vēsturi"
 
@@ -616,68 +616,68 @@ msgstr "Skats"
 msgid "Timestamps"
 msgstr "Laiks"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:218
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:265
 msgid "Export"
 msgstr "Eksportēt"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:237
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:285
 msgid "Translate"
 msgstr "Tulkot"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:247
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:295
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:175
 msgid "Resize"
 msgstr "Mainīt garumu"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:260
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:308
 msgid "Identify Speakers"
 msgstr "Noteikt runātājus"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:272
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:320
 msgid "Find"
 msgstr "Meklēt"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:275
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:325
 msgid "Show/Hide Search Bar (Ctrl+F)"
 msgstr "Rādīt/Slēpt meklēšanas joslu (Ctrl+F)"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:340
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:424
 msgid "Find:"
 msgstr "Meklēt:"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:346
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:430
 msgid "Enter text to find..."
 msgstr "Ievadiet meklējamo..."
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:359
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:443
 msgid "Previous match (Shift+Enter)"
 msgstr "Iepriekšējais rezultāts (Shift+Enter)"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:367
-msgid "Next match (Enter)"
-msgstr "Nākamais rezultāts (Enter)"
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:452
+msgid "Next match (Ctrl+Enter)"
+msgstr "Nākamais rezultāts (Ctrl+Enter)"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:375
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:461
 msgid "Clear"
 msgstr "Notīrīt"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:402
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:489
 msgid "Playback Controls:"
 msgstr "Atskaņošanas iespējas:"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:407
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:494
 msgid "Loop Segment"
 msgstr "Atkārtot segmentu"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:409
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:497
 msgid "Enable/disable looping when clicking on transcript segments"
 msgstr "Nosaka vai atkārtot izvēlēto segmentu"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:415
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:504
 msgid "Follow Audio"
 msgstr "Sekot audio"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:417
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:507
 msgid ""
 "Enable/disable following the current audio position in the transcript. When "
 "enabled, automatically scrolls to current text."
@@ -685,44 +685,44 @@ msgstr ""
 "Nosaka vai atskaņojot audio iezīmētajam segmentam vajadzētu automātiski "
 "sekot tam kas tiek atskaņots."
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:464
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:556
 msgid "Scroll to Current"
 msgstr "Pāriet uz tekošo"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:466
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:559
 msgid "Scroll to the currently spoken text"
 msgstr "Pāriet uz šobrīd atskaņojamo tesktu"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:788
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:895
 msgid "1 of 100+ matches"
 msgstr "1 no 100+ "
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:790
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:898
 msgid "1 of "
 msgstr "1 no "
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:790
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:856
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:898
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:979
 msgid " matches"
 msgstr " "
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:795
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:903
 msgid "No matches found"
 msgstr "Nekas nav atrasts"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:854
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:976
 msgid " of 100+ matches"
 msgstr " no 100+"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:856
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:979
 msgid " of "
 msgstr " no "
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1211
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1375
 msgid "API Key Required"
 msgstr "API atslēgas kļūda"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1212
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1376
 msgid "Please enter OpenAI API Key in preferences"
 msgstr "Lūdzu ievadiet OpenAI API atslēgu iestatījumos"
 
@@ -1323,34 +1323,42 @@ msgid "Search Transcript"
 msgstr "Meklēt tekstā"
 
 #: buzz/settings/shortcut.py:26
+msgid "Go to Next Transcript Search Result"
+msgstr "Pāriet uz nākamo meklēšanas rezultātu"
+
+#: buzz/settings/shortcut.py:27
+msgid "Go to Previous Transcript Search Result"
+msgstr "Pāriet uz iepriekšējo meklēšanas rezultātu"
+
+#: buzz/settings/shortcut.py:28
 msgid "Scroll to Current Text"
 msgstr "Pāriet uz atskaņojamo tesktu"
 
-#: buzz/settings/shortcut.py:27
+#: buzz/settings/shortcut.py:29
 msgid "Play/Pause Audio"
 msgstr "Atskaņot/Apturēt audio"
 
-#: buzz/settings/shortcut.py:28
+#: buzz/settings/shortcut.py:30
 msgid "Replay Current Segment"
 msgstr "Atskaņot segmentu no sākuma"
 
-#: buzz/settings/shortcut.py:29
+#: buzz/settings/shortcut.py:31
 msgid "Toggle Playback Controls"
 msgstr "Pārslēgt atskaņošanas iespējas"
 
-#: buzz/settings/shortcut.py:31
+#: buzz/settings/shortcut.py:33
 msgid "Decrease Segment Start Time"
 msgstr "Samazināt segmenta sākuma laiku"
 
-#: buzz/settings/shortcut.py:32
+#: buzz/settings/shortcut.py:34
 msgid "Increase Segment Start Time"
 msgstr "Palielināt segmenta sākuma laiku"
 
-#: buzz/settings/shortcut.py:33
+#: buzz/settings/shortcut.py:35
 msgid "Decrease Segment End Time"
 msgstr "Samazināt segmenta beigu laiku"
 
-#: buzz/settings/shortcut.py:34
+#: buzz/settings/shortcut.py:36
 msgid "Increase Segment End Time"
 msgstr "Palielināt segmenta beigu laiku"
 
