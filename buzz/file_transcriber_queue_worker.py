@@ -230,8 +230,8 @@ class FileTranscriberQueueWorker(QObject):
         if self.speech_path is not None:
             try:
                 Path(self.speech_path).unlink()
-            except Exception as e:
-                logging.error(f"Error deleting temporary speech file: {e}", exc_info=True)
+            except Exception:
+                pass
             self.speech_path = None
 
     def stop(self):
