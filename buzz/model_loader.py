@@ -667,53 +667,106 @@ class ModelDownloader(QRunnable):
                     resume_from = file_size
                     file_mode = "ab"
                     logging.debug(f"Resuming download from byte {resume_from}")
-                            
+
         # Downloads the model using the requests module instead of urllib to
         # use the certs from certifi when the app is running in frozen mode
-        headers = {}
+
+        # Check if server supports Range requests before starting download
+        supports_range = False
         if resume_from > 0:
+            try:
+                head_resp = requests.head(url, timeout=10, allow_redirects=True)
+                accept_ranges = head_resp.headers.get("Accept-Ranges", "").lower()
+                supports_range = accept_ranges == "bytes"
+                if not supports_range:
+                    logging.debug("Server doesn't support Range requests, starting from beginning")
+                    resume_from = 0
+                    file_mode = "wb"
+            except requests.RequestException as e:
+                logging.debug(f"HEAD request failed, starting fresh: {e}")
+                resume_from = 0
+                file_mode = "wb"
+
+        headers = {}
+        if resume_from > 0 and supports_range:
             headers["Range"] = f"bytes={resume_from}-"
 
-        with requests.get(url, stream=True, timeout=15) as source, open(
-            file_path, file_mode
-        ) as output:
-            source.raise_for_status()
+        # Use a temporary file for fresh downloads to ensure atomic writes
+        temp_file_path = None
+        if resume_from == 0:
+            temp_file_path = file_path + ".downloading"
+            # Clean up any existing temp file
+            if os.path.exists(temp_file_path):
+                try:
+                    os.remove(temp_file_path)
+                except OSError:
+                    pass
+            download_path = temp_file_path
+        else:
+            download_path = file_path
 
-            if resume_from > 0:
-                if source.status_code == 206:
-                    logging.debug(
-                        f"Server supports resume, continuing from byte {resume_from}")
-                    total_size = int(source.headers.get(
-                        "Content-Range", "").split("/")[-1])
-                    current = resume_from
-                    self.signals.progress.emit((current, total_size))
-                elif source.status_code == 200:
-                    logging.debug(
-                        "Server doesn't support Range requests, starting from beginning")
-                    # Truncate file and start over
-                    output.close()
-                    output = open(file_path, "wb")
+        try:
+            with requests.get(url, stream=True, timeout=30, headers=headers) as source:
+                source.raise_for_status()
+
+                if resume_from > 0:
+                    if source.status_code == 206:
+                        logging.debug(
+                            f"Server supports resume, continuing from byte {resume_from}")
+                        content_range = source.headers.get("Content-Range", "")
+                        if "/" in content_range:
+                            total_size = int(content_range.split("/")[-1])
+                        else:
+                            total_size = resume_from + int(source.headers.get("Content-Length", 0))
+                        current = resume_from
+                    else:
+                        # Server returned 200 instead of 206, need to start over
+                        logging.debug("Server returned 200 instead of 206, starting fresh")
+                        resume_from = 0
+                        file_mode = "wb"
+                        temp_file_path = file_path + ".downloading"
+                        download_path = temp_file_path
+                        total_size = float(source.headers.get("Content-Length", 0))
+                        current = 0.0
+                else:
                     total_size = float(source.headers.get("Content-Length", 0))
                     current = 0.0
-                    resume_from = 0
-                else:
-                    source.raise_for_status()
 
-            else:
-                total_size = float(source.headers.get("Content-Length", 0))
-                current = 0.0
-
-            self.signals.progress.emit((current, total_size))
-            for chunk in source.iter_content(chunk_size=8192):
-                if self.stopped:
-                    return False
-                output.write(chunk)
-                current += len(chunk)
                 self.signals.progress.emit((current, total_size))
 
+                with open(download_path, file_mode) as output:
+                    for chunk in source.iter_content(chunk_size=8192):
+                        if self.stopped:
+                            return False
+                        output.write(chunk)
+                        current += len(chunk)
+                        self.signals.progress.emit((current, total_size))
+
+            # If we used a temp file, rename it to the final path
+            if temp_file_path and os.path.exists(temp_file_path):
+                # Remove existing file if present
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                shutil.move(temp_file_path, file_path)
+
+        except Exception:
+            # Clean up temp file on error
+            if temp_file_path and os.path.exists(temp_file_path):
+                try:
+                    os.remove(temp_file_path)
+                except OSError:
+                    pass
+            raise
+
         if expected_sha256 is not None:
-            model_bytes = open(file_path, "rb").read()
+            with open(file_path, "rb") as f:
+                model_bytes = f.read()
             if hashlib.sha256(model_bytes).hexdigest() != expected_sha256:
+                # Delete the corrupted file before raising the error
+                try:
+                    os.remove(file_path)
+                except OSError as e:
+                    logging.warning(f"Failed to delete corrupted model file: {e}")
                 raise RuntimeError(
                     "Model has been downloaded but the SHA256 checksum does not match. Please retry loading the "
                     "model."
