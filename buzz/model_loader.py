@@ -324,18 +324,28 @@ class HuggingfaceDownloadMonitor:
 
     def monitor_file_size(self):
         while not self.stop_event.is_set():
-            if model_root_dir is not None:
-                for filename in os.listdir(model_root_dir):
-                    if filename.startswith("tmp"):
-                        file_size = os.path.getsize(
-                            os.path.join(model_root_dir, filename))
-                        self.progress.emit((file_size, self.total_file_size))
+            try:
+                if model_root_dir is not None and os.path.isdir(model_root_dir):
+                    for filename in os.listdir(model_root_dir):
+                        if filename.startswith("tmp"):
+                            try:
+                                file_size = os.path.getsize(
+                                    os.path.join(model_root_dir, filename))
+                                self.progress.emit((file_size, self.total_file_size))
+                            except OSError:
+                                pass  # File may have been deleted
 
-            for filename in os.listdir(self.incomplete_download_root):
-                if filename.endswith(".incomplete"):
-                    file_size = os.path.getsize(os.path.join(
-                        self.incomplete_download_root, filename))
-                    self.progress.emit((file_size, self.total_file_size))
+                if self.incomplete_download_root and os.path.isdir(self.incomplete_download_root):
+                    for filename in os.listdir(self.incomplete_download_root):
+                        if filename.endswith(".incomplete"):
+                            try:
+                                file_size = os.path.getsize(os.path.join(
+                                    self.incomplete_download_root, filename))
+                                self.progress.emit((file_size, self.total_file_size))
+                            except OSError:
+                                pass  # File may have been deleted
+            except OSError:
+                pass  # Directory listing failed, ignore
 
             time.sleep(2)
 
@@ -613,18 +623,21 @@ class ModelDownloader(QRunnable):
                         elif file_size == expected_size:
                             # This means file size matches - verify SHA256 to confirm it is complete
                             try:
+                                # Use chunked reading to avoid loading entire file into memory
+                                sha256_hash = hashlib.sha256()
                                 with open(file_path, "rb") as f:
-                                    model_bytes = f.read()
-                                    model_sha256 = hashlib.sha256(model_bytes).hexdigest()
-                                    if model_sha256 == expected_sha256:
-                                        logging.debug("Model already downloaded and verified")
-                                        return True
-                                    else:
-                                        warnings.warn(
-                                            f"{file_path} exists, but the SHA256 checksum does not match; re-downloading the file"
-                                        )
-                                        # File exists but it is wrong, delete it
-                                        os.remove(file_path)
+                                    for chunk in iter(lambda: f.read(8192), b""):
+                                        sha256_hash.update(chunk)
+                                model_sha256 = sha256_hash.hexdigest()
+                                if model_sha256 == expected_sha256:
+                                    logging.debug("Model already downloaded and verified")
+                                    return True
+                                else:
+                                    warnings.warn(
+                                        f"{file_path} exists, but the SHA256 checksum does not match; re-downloading the file"
+                                    )
+                                    # File exists but it is wrong, delete it
+                                    os.remove(file_path)
                             except Exception as e:
                                 logging.warning(f"Error checking existing file: {e}")
                                 os.remove(file_path)
@@ -639,17 +652,19 @@ class ModelDownloader(QRunnable):
                             file_mode = "ab"  # Append mode to resume
                             logging.debug(f"Resuming download from byte {resume_from}")
                         else:
-                            # Large file - verify SHA256
+                            # Large file - verify SHA256 using chunked reading
                             try:
+                                sha256_hash = hashlib.sha256()
                                 with open(file_path, "rb") as f:
-                                    model_bytes = f.read()
-                                    model_sha256 = hashlib.sha256(model_bytes).hexdigest()
-                                    if model_sha256 == expected_sha256:
-                                        logging.debug("Model already downloaded and verified")
-                                        return True
-                                    else:
-                                        warnings.warn("SHA256 mismatch, re-downloading")
-                                        os.remove(file_path)
+                                    for chunk in iter(lambda: f.read(8192), b""):
+                                        sha256_hash.update(chunk)
+                                model_sha256 = sha256_hash.hexdigest()
+                                if model_sha256 == expected_sha256:
+                                    logging.debug("Model already downloaded and verified")
+                                    return True
+                                else:
+                                    warnings.warn("SHA256 mismatch, re-downloading")
+                                    os.remove(file_path)
                             except Exception as e:
                                 logging.warning(f"Error verifying file: {e}")
                                 os.remove(file_path)
@@ -759,9 +774,12 @@ class ModelDownloader(QRunnable):
             raise
 
         if expected_sha256 is not None:
+            # Use chunked reading to avoid loading entire file into memory
+            sha256_hash = hashlib.sha256()
             with open(file_path, "rb") as f:
-                model_bytes = f.read()
-            if hashlib.sha256(model_bytes).hexdigest() != expected_sha256:
+                for chunk in iter(lambda: f.read(8192), b""):
+                    sha256_hash.update(chunk)
+            if sha256_hash.hexdigest() != expected_sha256:
                 # Delete the corrupted file before raising the error
                 try:
                     os.remove(file_path)

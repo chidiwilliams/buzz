@@ -76,8 +76,20 @@ class WhisperFileTranscriber(FileTranscriber):
         if self.started_process:
             self.current_process.join()
 
-        if self.started_process and self.current_process.exitcode != 0:
-            self.send_pipe.close()
+        # Close the send pipe after process ends to signal read_line thread to stop
+        # This prevents the read thread from blocking on recv() after the process is gone
+        try:
+            if self.send_pipe and not self.send_pipe.closed:
+                self.send_pipe.close()
+        except OSError:
+            pass
+
+        # Close the receive pipe to unblock the read_line thread
+        try:
+            if self.recv_pipe and not self.recv_pipe.closed:
+                self.recv_pipe.close()
+        except OSError:
+            pass
 
         # Join read_line_thread with timeout to prevent hanging
         if self.read_line_thread and self.read_line_thread.is_alive():

@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Optional, Tuple, List, Set
 from uuid import UUID
 
-from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot, Qt
 
 # Patch subprocess for demucs to prevent console windows on Windows
 if sys.platform == "win32":
@@ -70,7 +70,9 @@ class FileTranscriberQueueWorker(QObject):
         self.current_transcriber = None
         self.speech_path = None
         self.is_running = False
-        self.trigger_run.connect(self.run)
+        # Use QueuedConnection to ensure run() is called in the correct thread context
+        # and doesn't block signal handlers
+        self.trigger_run.connect(self.run, Qt.ConnectionType.QueuedConnection)
 
     @pyqtSlot()
     def run(self):

@@ -23,10 +23,13 @@ ifeq ($(OS), Windows_NT)
 	-rm -rf buzz/whisper_cpp
 	-rm -rf whisper.cpp/build
 	-rm -rf dist/*
+	-rm -rf buzz/__pycache__ buzz/**/__pycache__ buzz/**/**/__pycache__ buzz/**/**/**/__pycache__
+	-for /d /r buzz %%d in (__pycache__) do @if exist "%%d" rmdir /s /q "%%d"
 else
 	rm -rf buzz/whisper_cpp || true
 	rm -rf whisper.cpp/build || true
 	rm -rf dist/* || true
+	find buzz -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 endif
 
 COVERAGE_THRESHOLD := 70
