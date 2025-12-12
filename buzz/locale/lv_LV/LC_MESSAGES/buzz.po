@@ -663,7 +663,7 @@ msgstr "Notīrīt"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:489
 msgid "Playback Controls:"
-msgstr "Atskaņošanas iespējas:"
+msgstr "Atskaņošana:"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:494
 msgid "Loop Segment"
