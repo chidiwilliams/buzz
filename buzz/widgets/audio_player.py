@@ -3,7 +3,7 @@ from typing import Tuple, Optional
 
 from PyQt6 import QtGui
 from PyQt6.QtCore import QTime, QUrl, Qt, pyqtSignal
-from PyQt6.QtMultimedia import QAudioOutput, QMediaPlayer
+from PyQt6.QtMultimedia import QAudioOutput, QMediaPlayer, QMediaDevices
 from PyQt6.QtWidgets import QWidget, QSlider, QPushButton, QLabel, QHBoxLayout, QVBoxLayout
 
 from buzz.widgets.icon import PlayIcon, PauseIcon
@@ -31,6 +31,16 @@ class AudioPlayer(QWidget):
 
         self.audio_output = QAudioOutput()
         self.audio_output.setVolume(100)
+
+        # Log audio device info for debugging
+        default_device = QMediaDevices.defaultAudioOutput()
+        if default_device.isNull():
+            logging.warning("No default audio output device found!")
+        else:
+            logging.info(f"Audio output device: {default_device.description()}")
+
+        audio_outputs = QMediaDevices.audioOutputs()
+        logging.info(f"Available audio outputs: {[d.description() for d in audio_outputs]}")
 
         self.media_player = QMediaPlayer()
         self.media_player.setSource(QUrl.fromLocalFile(file_path))
@@ -95,6 +105,7 @@ class AudioPlayer(QWidget):
         self.media_player.positionChanged.connect(self.on_position_changed)
         self.media_player.playbackStateChanged.connect(self.on_playback_state_changed)
         self.media_player.mediaStatusChanged.connect(self.on_media_status_changed)
+        self.media_player.errorOccurred.connect(self.on_error_occurred)
 
         self.on_duration_changed(self.media_player.duration())
 
@@ -133,11 +144,15 @@ class AudioPlayer(QWidget):
             self.play_button.setIcon(self.play_icon)
 
     def on_media_status_changed(self, status: QMediaPlayer.MediaStatus):
+        logging.debug(f"Media status changed: {status}")
         match status:
             case QMediaPlayer.MediaStatus.InvalidMedia:
                 self.set_invalid_media(True)
             case QMediaPlayer.MediaStatus.LoadedMedia:
                 self.set_invalid_media(False)
+
+    def on_error_occurred(self, error: QMediaPlayer.Error, error_string: str):
+        logging.error(f"Media player error: {error} - {error_string}")
 
     def set_invalid_media(self, invalid_media: bool):
         self.invalid_media = invalid_media
