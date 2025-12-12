@@ -59,6 +59,9 @@ class Settings:
         TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS = (
             "transcription-tasks-table/column-widths"
         )
+        TRANSCRIPTION_TASKS_TABLE_SORT_STATE = (
+            "transcription-tasks-table/sort-state"
+        )
 
         MAIN_WINDOW = "main-window"
         TRANSCRIPTION_VIEWER = "transcription-viewer"

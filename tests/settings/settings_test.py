@@ -20,28 +20,36 @@ class TestSettings:
         assert hasattr(Settings.Key, 'TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY')
         assert Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY.value == "transcription-tasks-table/column-visibility"
 
+    def test_transcription_tasks_table_sort_state_key(self):
+        """Test that TRANSCRIPTION_TASKS_TABLE_SORT_STATE key is defined"""
+        assert hasattr(Settings.Key, 'TRANSCRIPTION_TASKS_TABLE_SORT_STATE')
+        assert Settings.Key.TRANSCRIPTION_TASKS_TABLE_SORT_STATE.value == "transcription-tasks-table/sort-state"
+
     def test_all_transcription_tasks_table_keys_are_strings(self):
         """Test that all transcription tasks table keys are strings"""
         assert isinstance(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY.value, str)
         assert isinstance(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER.value, str)
         assert isinstance(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS.value, str)
+        assert isinstance(Settings.Key.TRANSCRIPTION_TASKS_TABLE_SORT_STATE.value, str)
 
     def test_transcription_tasks_table_keys_have_correct_prefix(self):
         """Test that all transcription tasks table keys have the correct prefix"""
         prefix = "transcription-tasks-table/"
-        
+
         assert Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY.value.startswith(prefix)
         assert Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER.value.startswith(prefix)
         assert Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS.value.startswith(prefix)
+        assert Settings.Key.TRANSCRIPTION_TASKS_TABLE_SORT_STATE.value.startswith(prefix)
 
     def test_transcription_tasks_table_keys_are_unique(self):
         """Test that all transcription tasks table keys are unique"""
         keys = [
             Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY.value,
             Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER.value,
-            Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS.value
+            Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS.value,
+            Settings.Key.TRANSCRIPTION_TASKS_TABLE_SORT_STATE.value
         ]
-        
+
         assert len(keys) == len(set(keys)), "All transcription tasks table keys should be unique"
 
     def test_settings_key_enum_values(self):
@@ -50,9 +58,10 @@ class TestSettings:
         expected_keys = {
             'TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY': 'transcription-tasks-table/column-visibility',
             'TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER': 'transcription-tasks-table/column-order',
-            'TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS': 'transcription-tasks-table/column-widths'
+            'TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS': 'transcription-tasks-table/column-widths',
+            'TRANSCRIPTION_TASKS_TABLE_SORT_STATE': 'transcription-tasks-table/sort-state'
         }
-        
+
         for key_name, expected_value in expected_keys.items():
             assert hasattr(Settings.Key, key_name)
             assert getattr(Settings.Key, key_name).value == expected_value
@@ -63,37 +72,41 @@ class TestSettings:
         original_visibility = Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY
         original_order = Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER
         original_widths = Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS
-        
+        original_sort_state = Settings.Key.TRANSCRIPTION_TASKS_TABLE_SORT_STATE
+
         # Attempting to modify these should not work (they should be immutable)
         # If they were mutable, this test would fail
         assert Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY == original_visibility
         assert Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER == original_order
         assert Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS == original_widths
+        assert Settings.Key.TRANSCRIPTION_TASKS_TABLE_SORT_STATE == original_sort_state
 
     def test_settings_key_format_consistency(self):
         """Test that all transcription tasks table keys follow the same format"""
         keys = [
             Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY.value,
             Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER.value,
-            Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS.value
+            Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS.value,
+            Settings.Key.TRANSCRIPTION_TASKS_TABLE_SORT_STATE.value
         ]
-        
+
         for key in keys:
             # All keys should start with the same prefix
             assert key.startswith("transcription-tasks-table/")
             # All keys should contain only lowercase letters, hyphens, and forward slashes
             assert all(c.islower() or c in '-/' for c in key)
             # All keys should end with a descriptive suffix
-            assert key.endswith(('visibility', 'order', 'widths'))
+            assert key.endswith(('visibility', 'order', 'widths', 'sort-state'))
 
     def test_settings_key_length(self):
         """Test that transcription tasks table keys have reasonable length"""
         keys = [
             Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY.value,
             Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER.value,
-            Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS.value
+            Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS.value,
+            Settings.Key.TRANSCRIPTION_TASKS_TABLE_SORT_STATE.value
         ]
-        
+
         for key in keys:
             # Keys should be long enough to be descriptive but not excessively long
             assert 20 <= len(key) <= 50, f"Key '{key}' has unexpected length: {len(key)}"
@@ -103,9 +116,10 @@ class TestSettings:
         keys = [
             Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY.value,
             Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER.value,
-            Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS.value
+            Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS.value,
+            Settings.Key.TRANSCRIPTION_TASKS_TABLE_SORT_STATE.value
         ]
-        
+
         for key in keys:
             # Keys should use kebab-case (lowercase with hyphens)
             assert '-' in key, f"Key '{key}' should use kebab-case with hyphens"
@@ -119,15 +133,17 @@ class TestSettings:
         mock_settings.begin_group = Mock()
         mock_settings.end_group = Mock()
         mock_settings.settings = Mock()
-        
+
         # Test that the keys can be used with begin_group
         mock_settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY.value)
         mock_settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER.value)
         mock_settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS.value)
-        
+        mock_settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_SORT_STATE.value)
+
         # Verify that begin_group was called with the correct keys
-        assert mock_settings.begin_group.call_count == 3
+        assert mock_settings.begin_group.call_count == 4
         call_args = [call[0][0] for call in mock_settings.begin_group.call_args_list]
         assert Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY.value in call_args
         assert Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER.value in call_args
         assert Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS.value in call_args
+        assert Settings.Key.TRANSCRIPTION_TASKS_TABLE_SORT_STATE.value in call_args

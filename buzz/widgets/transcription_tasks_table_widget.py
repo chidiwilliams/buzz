@@ -280,12 +280,14 @@ class TranscriptionTasksTableWidget(QTableView):
         # Connect signals for column resize and move
         self.horizontalHeader().sectionResized.connect(self.on_column_resized)
         self.horizontalHeader().sectionMoved.connect(self.on_column_moved)
+        self.horizontalHeader().sortIndicatorChanged.connect(self.on_sort_indicator_changed)
 
-        # Load saved column order and widths
+        # Load saved column order, widths, and sort state
         self.load_column_order()
         self.load_column_widths()
+        self.load_sort_state()
 
-        
+
         # Reload column visibility after all reordering is complete
         self.load_column_visibility()
 
@@ -331,6 +333,10 @@ class TranscriptionTasksTableWidget(QTableView):
         # Refresh visibility after column move to ensure it's maintained
         self.load_column_visibility()
 
+    def on_sort_indicator_changed(self, logical_index: int, order: Qt.SortOrder):
+        """Handle sort indicator change events"""
+        self.save_sort_state()
+
     def on_double_click(self, index: QModelIndex):
         """Handle double-click events - trigger notes edit for notes column"""
         if index.column() == Column.NOTES.value:
@@ -369,6 +375,25 @@ class TranscriptionTasksTableWidget(QTableView):
                 if saved_width is not None:
                     self.setColumnWidth(definition.column.value, int(saved_width))
         self.settings.end_group()
+
+    def save_sort_state(self):
+        """Save current sort state to settings"""
+        self.settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_SORT_STATE)
+        header = self.horizontalHeader()
+        self.settings.settings.setValue("column", header.sortIndicatorSection())
+        self.settings.settings.setValue("order", header.sortIndicatorOrder().value)
+        self.settings.end_group()
+
+    def load_sort_state(self):
+        """Load saved sort state from settings"""
+        self.settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_SORT_STATE)
+        column = self.settings.settings.value("column")
+        order = self.settings.settings.value("order")
+        self.settings.end_group()
+
+        if column is not None and order is not None:
+            sort_order = Qt.SortOrder(int(order))
+            self.sortByColumn(int(column), sort_order)
 
     def load_column_visibility(self):
         """Load saved column visibility from settings"""
@@ -429,6 +454,9 @@ class TranscriptionTasksTableWidget(QTableView):
             if current_visual_index != target_visual_index:
                 header.moveSection(current_visual_index, target_visual_index)
 
+        # Reset sort to default (TIME_QUEUED descending)
+        self.sortByColumn(Column.TIME_QUEUED.value, Qt.SortOrder.DescendingOrder)
+
         # Clear saved settings
         self.settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER)
         self.settings.settings.remove("")
@@ -438,9 +466,14 @@ class TranscriptionTasksTableWidget(QTableView):
         self.settings.settings.remove("")
         self.settings.end_group()
 
-        # Save the reset state for both visibility and widths
+        self.settings.begin_group(Settings.Key.TRANSCRIPTION_TASKS_TABLE_SORT_STATE)
+        self.settings.settings.remove("")
+        self.settings.end_group()
+
+        # Save the reset state for visibility, widths, and sort
         self.save_column_visibility()
         self.save_column_widths()
+        self.save_sort_state()
 
         # Force a refresh of the table layout
         self.horizontalHeader().update()
