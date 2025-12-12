@@ -4,6 +4,7 @@ import multiprocessing
 import os
 import platform
 import sys
+from pathlib import Path
 from typing import TextIO
 
 from platformdirs import user_log_dir, user_cache_dir, user_data_dir
@@ -14,7 +15,10 @@ os.environ.setdefault("HF_HOME", user_cache_dir("Buzz"))
 from buzz.assets import APP_BASE_DIR
 
 # Check for segfaults if not running in frozen mode
-if getattr(sys, "frozen", False) is False:
+# Note: On Windows, faulthandler can print "Windows fatal exception" messages
+# for non-fatal RPC errors (0x800706be) during multiprocessing operations.
+# These are usually harmless but noisy, so we disable faulthandler on Windows.
+if getattr(sys, "frozen", False) is False and platform.system() != "Windows":
     faulthandler.enable()
 
 # Sets stderr to no-op TextIO when None (run as Windows GUI).

@@ -76,8 +76,20 @@ class WhisperFileTranscriber(FileTranscriber):
         if self.started_process:
             self.current_process.join()
 
-        if self.started_process and self.current_process.exitcode != 0:
-            self.send_pipe.close()
+        # Close the send pipe after process ends to signal read_line thread to stop
+        # This prevents the read thread from blocking on recv() after the process is gone
+        try:
+            if self.send_pipe and not self.send_pipe.closed:
+                self.send_pipe.close()
+        except OSError:
+            pass
+
+        # Close the receive pipe to unblock the read_line thread
+        try:
+            if self.recv_pipe and not self.recv_pipe.closed:
+                self.recv_pipe.close()
+        except OSError:
+            pass
 
         # Join read_line_thread with timeout to prevent hanging
         if self.read_line_thread and self.read_line_thread.is_alive():
@@ -111,6 +123,37 @@ class WhisperFileTranscriber(FileTranscriber):
     def transcribe_whisper(
         cls, stderr_conn: Connection, task: FileTranscriptionTask
     ) -> None:
+        # Patch subprocess on Windows to prevent console window flash
+        # This is needed because multiprocessing spawns a new process without the main process patches
+        if sys.platform == "win32":
+            import subprocess
+            _original_run = subprocess.run
+            _original_popen = subprocess.Popen
+
+            def _patched_run(*args, **kwargs):
+                if 'startupinfo' not in kwargs:
+                    si = subprocess.STARTUPINFO()
+                    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                    si.wShowWindow = subprocess.SW_HIDE
+                    kwargs['startupinfo'] = si
+                if 'creationflags' not in kwargs:
+                    kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
+                return _original_run(*args, **kwargs)
+
+            class _PatchedPopen(subprocess.Popen):
+                def __init__(self, *args, **kwargs):
+                    if 'startupinfo' not in kwargs:
+                        si = subprocess.STARTUPINFO()
+                        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                        si.wShowWindow = subprocess.SW_HIDE
+                        kwargs['startupinfo'] = si
+                    if 'creationflags' not in kwargs:
+                        kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
+                    super().__init__(*args, **kwargs)
+
+            subprocess.run = _patched_run
+            subprocess.Popen = _PatchedPopen
+
         with pipe_stderr(stderr_conn):
             if task.transcription_options.model.model_type == ModelType.WHISPER_CPP:
                 segments = cls.transcribe_whisper_cpp(task)
@@ -235,7 +278,19 @@ class WhisperFileTranscriber(FileTranscriber):
         use_cuda = torch.cuda.is_available() and force_cpu == "false"
 
         device = "cuda" if use_cuda else "cpu"
-        model = whisper.load_model(task.model_path, device=device)
+
+        # Monkeypatch torch.load to use weights_only=False for PyTorch 2.6+
+        # This is required for loading Whisper models with the newer PyTorch versions
+        original_torch_load = torch.load
+        def patched_torch_load(*args, **kwargs):
+            kwargs.setdefault('weights_only', False)
+            return original_torch_load(*args, **kwargs)
+
+        torch.load = patched_torch_load
+        try:
+            model = whisper.load_model(task.model_path, device=device)
+        finally:
+            torch.load = original_torch_load
 
         if task.transcription_options.word_level_timings:
             stable_whisper.modify_model(model)
@@ -314,7 +369,8 @@ class WhisperFileTranscriber(FileTranscriber):
                 # Uncomment to debug
                 # print(f"*** DEBUG ***: {line}")
 
-            except (EOFError, BrokenPipeError, ConnectionResetError):  # Connection closed or broken
+            except (EOFError, BrokenPipeError, ConnectionResetError, OSError):
+                # Connection closed, broken, or process crashed (Windows RPC errors raise OSError)
                 break
             except Exception as e:
                 logging.debug(f"Error reading from pipe: {e}")

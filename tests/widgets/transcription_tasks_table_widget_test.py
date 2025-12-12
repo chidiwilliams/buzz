@@ -75,7 +75,8 @@ def mock_dependencies(monkeypatch):
         Mock(
             TRANSCRIPTION_TASKS_TABLE_COLUMN_VISIBILITY="visibility",
             TRANSCRIPTION_TASKS_TABLE_COLUMN_ORDER="order",
-            TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS="widths"
+            TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS="widths",
+            TRANSCRIPTION_TASKS_TABLE_SORT_STATE="sort-state"
         ),
     )
 
@@ -475,12 +476,56 @@ class TestTranscriptionTasksTableWidget:
         # Mock settings to return specific values
         widget.settings.settings.value.side_effect = lambda key, default=None: {
             "file_name": "0",
-            "notes": "1", 
+            "notes": "1",
             "status": "2"
         }.get(key, default)
-        
+
         # Call reload method
         widget.reload_column_order_from_settings()
-        
+
         # Verify the method completes without error
         assert True  # If we get here, no exception was raised
+
+    def test_sort_indicator_change_event(self, widget):
+        """Test sort indicator change event handling"""
+        with patch.object(widget, 'save_sort_state') as mock_save:
+            # Simulate sort indicator change
+            widget.on_sort_indicator_changed(0, Qt.SortOrder.AscendingOrder)
+            mock_save.assert_called_once()
+
+    def test_save_sort_state(self, widget):
+        """Test saving sort state to settings"""
+        # Set a specific sort
+        widget.sortByColumn(Column.FILE.value, Qt.SortOrder.AscendingOrder)
+        widget.save_sort_state()
+
+        # Verify settings were called
+        assert widget.settings.begin_group.called
+        assert widget.settings.settings.setValue.called
+
+    def test_load_sort_state(self, widget):
+        """Test loading sort state from settings"""
+        # Mock settings to return specific sort state
+        widget.settings.settings.value.side_effect = lambda key, default=None: {
+            "sort-state/column": Column.FILE.value,
+            "sort-state/order": Qt.SortOrder.AscendingOrder.value
+        }.get(key, default)
+
+        # Call load method
+        widget.load_sort_state()
+
+        # Verify the method completes without error
+        assert True  # If we get here, no exception was raised
+
+    def test_reset_column_order_resets_sort(self, widget):
+        """Test that reset column order also resets sort state"""
+        # Change sort from default
+        widget.sortByColumn(Column.FILE.value, Qt.SortOrder.AscendingOrder)
+
+        # Reset column order
+        widget.reset_column_order()
+
+        # Verify sort is reset to default (TIME_QUEUED descending)
+        header = widget.horizontalHeader()
+        assert header.sortIndicatorSection() == Column.TIME_QUEUED.value
+        assert header.sortIndicatorOrder() == Qt.SortOrder.DescendingOrder

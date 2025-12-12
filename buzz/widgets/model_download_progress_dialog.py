@@ -20,7 +20,7 @@ class ModelDownloadProgressDialog(QProgressDialog):
 
         self.setMinimumWidth(350)
         self.cancelable = (
-            model_type == ModelType.WHISPER or model_type == ModelType.WHISPER_CPP
+            model_type == ModelType.WHISPER
         )
         self.start_time = datetime.now()
         self.setRange(0, 100)

@@ -113,6 +113,7 @@ class MainWindow(QMainWindow):
         self.table_widget.transcription_service = self.transcription_service
         self.table_widget.doubleClicked.connect(self.on_table_double_clicked)
         self.table_widget.return_clicked.connect(self.open_transcript_viewer)
+        self.table_widget.delete_requested.connect(self.on_clear_history_action_triggered)
         self.table_widget.selectionModel().selectionChanged.connect(
             self.on_table_selection_changed
         )

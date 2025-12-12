@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Optional, Tuple, List, Set
 from uuid import UUID
 
-from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot, Qt
 
 # Patch subprocess for demucs to prevent console windows on Windows
 if sys.platform == "win32":
@@ -70,7 +70,9 @@ class FileTranscriberQueueWorker(QObject):
         self.current_transcriber = None
         self.speech_path = None
         self.is_running = False
-        self.trigger_run.connect(self.run)
+        # Use QueuedConnection to ensure run() is called in the correct thread context
+        # and doesn't block signal handlers
+        self.trigger_run.connect(self.run, Qt.ConnectionType.QueuedConnection)
 
     @pyqtSlot()
     def run(self):
@@ -174,7 +176,8 @@ class FileTranscriberQueueWorker(QObject):
     def _on_task_finished(self):
         """Called when a task completes or errors, resets state and triggers next run"""
         self.is_running = False
-        self.run()
+        # Use signal to avoid blocking in signal handler context
+        self.trigger_run.emit()
 
     def add_task(self, task: FileTranscriptionTask):
         # Remove from canceled tasks if it was previously canceled (for restart functionality)

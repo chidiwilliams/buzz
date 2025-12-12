@@ -721,16 +721,13 @@ class TranscriptionViewerWidget(QWidget):
                     (updated_start, updated_end))
 
     def on_audio_playback_state_changed(self, state):
-        """Handle audio playback state changes to automatically show/hide playback controls"""
+        """Handle audio playback state changes to automatically show playback controls"""
         from PyQt6.QtMultimedia import QMediaPlayer
 
         if state == QMediaPlayer.PlaybackState.PlayingState:
             # Show playback controls when audio starts playing
             if self.view_mode == ViewMode.TIMESTAMPS:
                 self.show_loop_controls()
-        elif state == QMediaPlayer.PlaybackState.StoppedState:
-            # Hide playback controls when audio stops
-            self.hide_loop_controls()
 
     def initialize_speed_control(self):
         """Initialize the speed control with current value from audio player"""
@@ -1213,10 +1210,6 @@ class TranscriptionViewerWidget(QWidget):
 
         if self.current_media_player.position_ms < start_time_ms or self.current_media_player.position_ms > end_time_ms:
             self.current_media_player.set_position(start_time_ms)
-
-            # Start playing if not yet playing
-            if self.current_media_player.media_player.playbackState() != QMediaPlayer.PlaybackState.PlayingState:
-                self.current_media_player.media_player.play()
 
         if self.segment_looping_enabled:
             self.current_media_player.set_range((start_time_ms, end_time_ms))
