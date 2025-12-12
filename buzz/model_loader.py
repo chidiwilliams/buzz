@@ -59,20 +59,20 @@ class WhisperModelSize(str, enum.Enum):
     def __str__(self):
         return self.value.capitalize()
 
-# Approximate expected file sizes for Whisper models
+# Approximate expected file sizes for Whisper models (based on actual .pt file sizes)
 WHISPER_MODEL_SIZES = {
-    WhisperModelSize.TINY: 75 * 1024 * 1024,      
-    WhisperModelSize.TINYEN: 75 * 1024 * 1024,    
-    WhisperModelSize.BASE: 150 * 1024 * 1024,    
-    WhisperModelSize.BASEEN: 150 * 1024 * 1024, 
-    WhisperModelSize.SMALL: 500 * 1024 * 1024,     
-    WhisperModelSize.SMALLEN: 500 * 1024 * 1024,  
-    WhisperModelSize.MEDIUM: 1500 * 1024 * 1024,  
-    WhisperModelSize.MEDIUMEN: 1500 * 1024 * 1024, 
-    WhisperModelSize.LARGE: 3100 * 1024 * 1024,   
-    WhisperModelSize.LARGEV2: 3100 * 1024 * 1024, 
-    WhisperModelSize.LARGEV3: 3100 * 1024 * 1024, 
-    WhisperModelSize.LARGEV3TURBO: 3100 * 1024 * 1024, 
+    WhisperModelSize.TINY: 72 * 1024 * 1024,           # ~73 MB actual
+    WhisperModelSize.TINYEN: 72 * 1024 * 1024,         # ~73 MB actual
+    WhisperModelSize.BASE: 138 * 1024 * 1024,          # ~139 MB actual
+    WhisperModelSize.BASEEN: 138 * 1024 * 1024,        # ~139 MB actual
+    WhisperModelSize.SMALL: 460 * 1024 * 1024,         # ~462 MB actual
+    WhisperModelSize.SMALLEN: 460 * 1024 * 1024,       # ~462 MB actual
+    WhisperModelSize.MEDIUM: 1500 * 1024 * 1024,       # ~1.5 GB actual
+    WhisperModelSize.MEDIUMEN: 1500 * 1024 * 1024,     # ~1.5 GB actual
+    WhisperModelSize.LARGE: 2870 * 1024 * 1024,        # ~2.9 GB actual
+    WhisperModelSize.LARGEV2: 2870 * 1024 * 1024,      # ~2.9 GB actual
+    WhisperModelSize.LARGEV3: 2870 * 1024 * 1024,      # ~2.9 GB actual
+    WhisperModelSize.LARGEV3TURBO: 1550 * 1024 * 1024, # ~1.6 GB actual (turbo is smaller)
 }
 
 def get_expected_whisper_model_size(size: WhisperModelSize) -> Optional[int]:
