@@ -230,6 +230,7 @@ class TranscriptionTasksTableHeaderView(QHeaderView):
 
 class TranscriptionTasksTableWidget(QTableView):
     return_clicked = pyqtSignal()
+    delete_requested = pyqtSignal()
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
@@ -534,6 +535,11 @@ class TranscriptionTasksTableWidget(QTableView):
     def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
         if event.key() == Qt.Key.Key_Return:
             self.return_clicked.emit()
+
+        if event.key() == Qt.Key.Key_Delete:
+            if self.selectionModel().selectedRows():
+                self.delete_requested.emit()
+            return
 
         if event.matches(QKeySequence.StandardKey.Copy):
             self.copy_selected_fields()
