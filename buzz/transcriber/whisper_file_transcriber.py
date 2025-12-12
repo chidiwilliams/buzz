@@ -326,7 +326,8 @@ class WhisperFileTranscriber(FileTranscriber):
                 # Uncomment to debug
                 # print(f"*** DEBUG ***: {line}")
 
-            except (EOFError, BrokenPipeError, ConnectionResetError):  # Connection closed or broken
+            except (EOFError, BrokenPipeError, ConnectionResetError, OSError):
+                # Connection closed, broken, or process crashed (Windows RPC errors raise OSError)
                 break
             except Exception as e:
                 logging.debug(f"Error reading from pipe: {e}")

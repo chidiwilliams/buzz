@@ -174,7 +174,8 @@ class FileTranscriberQueueWorker(QObject):
     def _on_task_finished(self):
         """Called when a task completes or errors, resets state and triggers next run"""
         self.is_running = False
-        self.run()
+        # Use signal to avoid blocking in signal handler context
+        self.trigger_run.emit()
 
     def add_task(self, task: FileTranscriptionTask):
         # Remove from canceled tasks if it was previously canceled (for restart functionality)
