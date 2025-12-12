@@ -123,6 +123,37 @@ class WhisperFileTranscriber(FileTranscriber):
     def transcribe_whisper(
         cls, stderr_conn: Connection, task: FileTranscriptionTask
     ) -> None:
+        # Patch subprocess on Windows to prevent console window flash
+        # This is needed because multiprocessing spawns a new process without the main process patches
+        if sys.platform == "win32":
+            import subprocess
+            _original_run = subprocess.run
+            _original_popen = subprocess.Popen
+
+            def _patched_run(*args, **kwargs):
+                if 'startupinfo' not in kwargs:
+                    si = subprocess.STARTUPINFO()
+                    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                    si.wShowWindow = subprocess.SW_HIDE
+                    kwargs['startupinfo'] = si
+                if 'creationflags' not in kwargs:
+                    kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
+                return _original_run(*args, **kwargs)
+
+            class _PatchedPopen(subprocess.Popen):
+                def __init__(self, *args, **kwargs):
+                    if 'startupinfo' not in kwargs:
+                        si = subprocess.STARTUPINFO()
+                        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                        si.wShowWindow = subprocess.SW_HIDE
+                        kwargs['startupinfo'] = si
+                    if 'creationflags' not in kwargs:
+                        kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
+                    super().__init__(*args, **kwargs)
+
+            subprocess.run = _patched_run
+            subprocess.Popen = _PatchedPopen
+
         with pipe_stderr(stderr_conn):
             if task.transcription_options.model.model_type == ModelType.WHISPER_CPP:
                 segments = cls.transcribe_whisper_cpp(task)
