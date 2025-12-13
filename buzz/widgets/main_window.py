@@ -38,7 +38,6 @@ from buzz.widgets.icon import BUZZ_ICON_PATH
 from buzz.widgets.import_url_dialog import ImportURLDialog
 from buzz.widgets.main_window_toolbar import MainWindowToolbar
 from buzz.widgets.menu_bar import MenuBar
-from buzz.widgets.snap_notice import SnapNotice
 from buzz.widgets.preferences_dialog.models.preferences import Preferences
 from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
 from buzz.widgets.transcription_task_folder_watcher import (
@@ -153,19 +152,6 @@ class MainWindow(QMainWindow):
         self.folder_watcher.find_tasks()
 
         self.transcription_viewer_widget = None
-
-        # TODO Move this to the first user interaction with OpenAI api Key field
-        #  that is the only place that needs access to password manager service
-        if os.environ.get('SNAP_NAME', '') == 'buzz':
-            logging.debug("Running in a snap environment")
-            self.check_linux_permissions()
-
-    def check_linux_permissions(self):
-        try:
-            _ = keyring.get_password(APP_NAME, username="random")
-        except Exception:
-            snap_notice = SnapNotice(self)
-            snap_notice.show()
 
     def on_preferences_changed(self, preferences: Preferences):
         self.preferences = preferences

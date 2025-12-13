@@ -75,6 +75,7 @@ parts:
       - python3
       - libgcc-s1
       - libc6
+      - libproxy1v5
       # Audio
       - ffmpeg
       - libportaudio2
@@ -170,6 +171,7 @@ apps:
       - removable-media
       - audio-playback
       - audio-record
+      # Fallback for keyring support if secrets portal is missing, user has to connect this manually
       - password-manager-service
 
 layout:
