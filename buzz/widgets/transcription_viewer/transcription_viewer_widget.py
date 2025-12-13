@@ -267,6 +267,7 @@ class TranscriptionViewerWidget(QWidget):
         export_tool_button.setToolButtonStyle(
             Qt.ToolButtonStyle.ToolButtonTextBesideIcon
         )
+        export_tool_button.setMinimumWidth(100)
 
         export_transcription_menu = ExportTranscriptionMenu(
             transcription,

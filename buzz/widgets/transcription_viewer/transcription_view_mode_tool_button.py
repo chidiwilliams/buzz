@@ -34,6 +34,7 @@ class TranscriptionViewModeToolButton(QToolButton):
         self.setIcon(VisibilityIcon(self))
         self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         self.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
+        self.setMinimumWidth(80)
 
         translation.connect(self.on_translation_available)
 
