@@ -82,9 +82,6 @@ def _get_portal_secret() -> bytes | None:
                     break
 
             if secret_data:
-                logging.debug(
-                    "Successfully retrieved portal secret (%d bytes)", len(secret_data)
-                )
                 return secret_data
 
             return None
