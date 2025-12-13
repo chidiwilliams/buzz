@@ -1497,7 +1497,7 @@ class TranscriptionViewerWidget(QWidget):
         if self.currently_selected_segment is None:
             self.highlight_table_match(0)
 
-        if current_segment_index == 0 and segments[1]:
+        if current_segment_index == 0 and len(segments) > 1:
             self.highlight_table_match(1)
 
         self.highlight_table_match(current_segment_index)
