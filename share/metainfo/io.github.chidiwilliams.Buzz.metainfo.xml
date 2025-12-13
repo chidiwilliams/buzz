@@ -64,6 +64,23 @@
   <content_rating type="oars-1.1"/>
 
   <releases>
+    <release version="1.4.0" date="2025-12-20">
+      <url type="details">https://github.com/chidiwilliams/buzz/releases/tag/v1.4.0</url>
+      <description>
+        <p>Adding speaker identification on transcriptions and video support for transcription viewer, improvements to transcription table and support for over 1000 of worlds languages via MMS models.</p>
+        <p>Release details:</p>
+        <ul>
+          <li>Speaker identification on finished transcripts</li>
+          <li>Support for video in transcription viewer</li>
+          <li>Ability to add notes and restart transcriptions in main table</li>
+          <li>Adding support for more than 1000 languages via MMS model family when transcribing with Huggingface transcription type</li>
+          <li>Updated libraries and dependencies to support latest GPUs</li>
+          <li>Support for secrets portal for snap packages on Linux</li>
+          <li>Ability to specify model to use when transcribing with OpenAI API</li>
+          <li>Ability to access application logs from About screen</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.3.3" date="2025-11-09">
       <url type="details">https://github.com/chidiwilliams/buzz/releases/tag/v1.3.3</url>
       <description>
