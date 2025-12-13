@@ -195,13 +195,41 @@ class TranscriptionModel:
     def delete_local_file(self):
         model_path = self.get_local_model_path()
 
-        if (self.model_type == ModelType.HUGGING_FACE
-                or self.model_type == ModelType.FASTER_WHISPER):
+        if self.model_type in (ModelType.HUGGING_FACE,
+                               ModelType.FASTER_WHISPER):
+            # Go up two directories to get the huggingface cache root for this model
+            # Structure: models--repo--name/snapshots/xxx/files
             model_path = os.path.dirname(os.path.dirname(model_path))
 
             logging.debug("Deleting model directory: %s", model_path)
 
             shutil.rmtree(model_path, ignore_errors=True)
+            return
+
+        if self.model_type == ModelType.WHISPER_CPP:
+            if self.whisper_model_size == WhisperModelSize.CUSTOM:
+                # Custom models are stored as a single .bin file directly in model_root_dir
+                logging.debug("Deleting model file: %s", model_path)
+                os.remove(model_path)
+            else:
+                # Non-custom models are downloaded via huggingface_hub.
+                # Multiple models share the same repo directory, so we only delete
+                # the specific model files, not the entire directory.
+                logging.debug("Deleting model file: %s", model_path)
+                os.remove(model_path)
+
+                # Also delete CoreML files if they exist (.mlmodelc.zip and extracted directory)
+                model_dir = os.path.dirname(model_path)
+                model_name = self.whisper_model_size.to_whisper_cpp_model_size()
+                coreml_zip = os.path.join(model_dir, f"ggml-{model_name}-encoder.mlmodelc.zip")
+                coreml_dir = os.path.join(model_dir, f"ggml-{model_name}-encoder.mlmodelc")
+
+                if os.path.exists(coreml_zip):
+                    logging.debug("Deleting CoreML zip: %s", coreml_zip)
+                    os.remove(coreml_zip)
+                if os.path.exists(coreml_dir):
+                    logging.debug("Deleting CoreML directory: %s", coreml_dir)
+                    shutil.rmtree(coreml_dir, ignore_errors=True)
             return
 
         logging.debug("Deleting model file: %s", model_path)
@@ -796,10 +824,3 @@ class ModelDownloader(QRunnable):
 
     def cancel(self):
         self.stopped = True
-
-
-def get_custom_api_whisper_model(base_url: str):
-    if "api.groq.com" in base_url:
-        return "whisper-large-v3"
-
-    return "whisper-1"

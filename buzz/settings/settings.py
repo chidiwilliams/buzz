@@ -39,6 +39,7 @@ class Settings:
 
         DEFAULT_EXPORT_FILE_NAME = "transcriber/default-export-file-name"
         CUSTOM_OPENAI_BASE_URL = "transcriber/custom-openai-base-url"
+        OPENAI_API_MODEL = "transcriber/openai-api-model"
         CUSTOM_FASTER_WHISPER_ID = "transcriber/custom-faster-whisper-id"
         HUGGINGFACE_MODEL_ID = "transcriber/huggingface-model-id"
 

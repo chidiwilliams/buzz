@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-11 20:21+0200\n"
+"POT-Creation-Date: 2025-12-13 10:51+0200\n"
 "PO-Revision-Date: 2025-03-05 14:41+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -28,7 +28,7 @@ msgstr "https://example.com/audio.mp3"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:69
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:251
 #: buzz/widgets/transcriber/advanced_settings_dialog.py:97
-#: buzz/widgets/main_window.py:239
+#: buzz/widgets/main_window.py:226
 msgid "Ok"
 msgstr "OK"
 
@@ -36,7 +36,7 @@ msgstr "OK"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py:70
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:252
 #: buzz/widgets/model_download_progress_dialog.py:30
-#: buzz/widgets/main_window.py:240
+#: buzz/widgets/main_window.py:227
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -148,46 +148,51 @@ msgstr "OpenAI-API-Schlüssel"
 msgid "OpenAI base url"
 msgstr "OpenAI-Basis-URL"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:135
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:138
+#, fuzzy
+msgid "OpenAI API model"
+msgstr "OpenAI-API-Schlüssel"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:147
 msgid "Default export file name"
 msgstr "Standardname der Exportdatei"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:141
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:153
 msgid "Enable live recording transcription export"
 msgstr "Export von Live-Aufnahmetranskriptionen aktivieren"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:147
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:159
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:47
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py:50
 msgid "Browse"
 msgstr "Durchsuchen"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:166
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:178
 msgid "Export folder"
 msgstr "Exportordner"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:177
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:189
 msgid "Live recording mode"
 msgstr "Live-Aufnahmemodus"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:183
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:195
 msgid "Use only CPU and disable GPU acceleration"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:186
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:198
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:188
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:200
 msgid "Disable GPU"
 msgstr ""
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:213
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:219
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:225
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:231
 msgid "OpenAI API Key Test"
 msgstr "OpenAI-API-Schlüssel Test"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:214
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:226
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
@@ -195,11 +200,11 @@ msgstr ""
 "Ihr API-Schlüssel ist gültig. Buzz verwendet diesen Schlüssel, um Whisper-"
 "API-Transkriptionen und KI-Übersetzungen durchzuführen."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:230
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:242
 msgid "Invalid API key"
 msgstr "Ungültiger API-Schlüssel"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:231
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:243
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
@@ -207,11 +212,11 @@ msgstr ""
 "Die API unterstützt nur Base64-Zeichen (A-Za-z0-9+/=_-). Andere Zeichen im "
 "API-Schlüssel können Fehler verursachen."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:249
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:264
 msgid "Select Export Folder"
 msgstr "Exportordner auswählen"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:319
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:334
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
@@ -307,11 +312,11 @@ msgid "Download failed"
 msgstr "Der Download ist fehlgeschlagen"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py:275
-#: buzz/widgets/transcription_tasks_table_widget.py:665
-#: buzz/widgets/transcription_tasks_table_widget.py:735
-#: buzz/widgets/transcription_tasks_table_widget.py:766
-#: buzz/widgets/main_window.py:296 buzz/model_loader.py:539
-#: buzz/model_loader.py:553
+#: buzz/widgets/transcription_tasks_table_widget.py:704
+#: buzz/widgets/transcription_tasks_table_widget.py:774
+#: buzz/widgets/transcription_tasks_table_widget.py:805
+#: buzz/widgets/main_window.py:283 buzz/model_loader.py:577
+#: buzz/model_loader.py:591
 msgid "Error"
 msgstr "Fehler"
 
@@ -437,7 +442,7 @@ msgstr "Transkript öffnen"
 msgid "Cancel Transcription"
 msgstr "Transkription abbrechen"
 
-#: buzz/widgets/main_window_toolbar.py:71 buzz/widgets/main_window.py:228
+#: buzz/widgets/main_window_toolbar.py:71 buzz/widgets/main_window.py:215
 #: buzz/settings/shortcut.py:38
 msgid "Clear History"
 msgstr "Verlauf löschen"
@@ -487,7 +492,7 @@ msgid "Date Added"
 msgstr "Datum hinzugefügt"
 
 #: buzz/widgets/transcription_tasks_table_widget.py:156
-#: buzz/widgets/transcription_tasks_table_widget.py:624
+#: buzz/widgets/transcription_tasks_table_widget.py:663
 msgid "Notes"
 msgstr ""
 
@@ -495,53 +500,53 @@ msgstr ""
 msgid "Reset Column Order"
 msgstr ""
 
-#: buzz/widgets/transcription_tasks_table_widget.py:301
+#: buzz/widgets/transcription_tasks_table_widget.py:304
 #, fuzzy
 msgid "Restart Transcription"
 msgstr "Transkription abbrechen"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:305
+#: buzz/widgets/transcription_tasks_table_widget.py:308
 #, fuzzy
 msgid "Rename"
 msgstr "Vietnamesisch"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:308
+#: buzz/widgets/transcription_tasks_table_widget.py:311
 msgid "Add/Edit Notes"
 msgstr ""
 
-#: buzz/widgets/transcription_tasks_table_widget.py:597
+#: buzz/widgets/transcription_tasks_table_widget.py:636
 #, fuzzy
 msgid "Rename Transcription"
 msgstr "Transkription abbrechen"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:598
+#: buzz/widgets/transcription_tasks_table_widget.py:637
 msgid "Enter new name:"
 msgstr ""
 
-#: buzz/widgets/transcription_tasks_table_widget.py:625
+#: buzz/widgets/transcription_tasks_table_widget.py:664
 msgid "Enter some relevant notes for this transcription:"
 msgstr ""
 
-#: buzz/widgets/transcription_tasks_table_widget.py:652
+#: buzz/widgets/transcription_tasks_table_widget.py:691
 msgid "Cannot Restart"
 msgstr ""
 
-#: buzz/widgets/transcription_tasks_table_widget.py:653
+#: buzz/widgets/transcription_tasks_table_widget.py:692
 msgid "Only failed or canceled transcriptions can be restarted."
 msgstr ""
 
-#: buzz/widgets/transcription_tasks_table_widget.py:666
+#: buzz/widgets/transcription_tasks_table_widget.py:705
 #, fuzzy
 msgid "Failed to restart transcription: {}"
 msgstr "Transkription abbrechen"
 
-#: buzz/widgets/transcription_tasks_table_widget.py:736
+#: buzz/widgets/transcription_tasks_table_widget.py:775
 msgid ""
 "Could not restart transcription: model not available and could not be "
 "downloaded."
 msgstr ""
 
-#: buzz/widgets/transcription_tasks_table_widget.py:767
+#: buzz/widgets/transcription_tasks_table_widget.py:806
 msgid "Could not restart transcription: transcriber worker not found."
 msgstr ""
 
@@ -689,36 +694,36 @@ msgstr ""
 msgid "Scroll to the currently spoken text"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:895
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:892
 msgid "1 of 100+ matches"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:898
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:895
 msgid "1 of "
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:898
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:979
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:895
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:976
 msgid " matches"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:903
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:900
 msgid "No matches found"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:976
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:973
 msgid " of 100+ matches"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:979
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:976
 msgid " of "
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1375
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1368
 msgid "API Key Required"
 msgstr "API-Schlüssel erforderlich"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1376
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1369
 msgid "Please enter OpenAI API Key in preferences"
 msgstr "Bitte geben Sie den OpenAI-API-Schlüssel in den Einstellungen ein"
 
@@ -829,29 +834,6 @@ msgstr "Datei speichern"
 msgid "Text files"
 msgstr "Textdateien"
 
-#: buzz/widgets/snap_notice.py:9
-msgid "Snap permission notice"
-msgstr "Snap-Berechtigungsmitteilung"
-
-#: buzz/widgets/snap_notice.py:13
-msgid ""
-"Detected missing permissions, please check that snap permissions have been "
-"granted"
-msgstr ""
-"Es wurden fehlende Berechtigungen festgestellt. Bitte überprüfen Sie, ob "
-"Snap-Berechtigungen erteilt wurden"
-
-#: buzz/widgets/snap_notice.py:16
-msgid ""
-"To enable necessary permissions run the following commands in the terminal"
-msgstr ""
-"Um die erforderlichen Berechtigungen zu aktivieren, führen Sie die folgenden "
-"Befehle im Terminal aus"
-
-#: buzz/widgets/snap_notice.py:27
-msgid "Close"
-msgstr "Schließen"
-
 #: buzz/widgets/model_download_progress_dialog.py:37
 msgid "Downloading model"
 msgstr "Modell wird heruntergeladen"
@@ -884,7 +866,7 @@ msgstr "Hilfe"
 msgid "File"
 msgstr "Datei"
 
-#: buzz/widgets/main_window.py:232
+#: buzz/widgets/main_window.py:219
 msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
@@ -892,11 +874,11 @@ msgstr ""
 "Sind Sie sicher, dass Sie die ausgewählte(n) Transkription(en) löschen "
 "möchten? Diese Aktion kann nicht rückgängig gemacht werden."
 
-#: buzz/widgets/main_window.py:260
+#: buzz/widgets/main_window.py:247
 msgid "Select audio file"
 msgstr "Audiodatei auswählen"
 
-#: buzz/widgets/main_window.py:296
+#: buzz/widgets/main_window.py:283
 msgid "Unable to save OpenAI API key to keyring"
 msgstr ""
 "Der OpenAI-API-Schlüssel kann nicht im Schlüsselbund gespeichert werden"
@@ -1279,7 +1261,7 @@ msgstr "Sundanesisch"
 msgid "Cantonese"
 msgstr "Kantonesisch"
 
-#: buzz/transcriber/recording_transcriber.py:224 buzz/model_loader.py:572
+#: buzz/transcriber/recording_transcriber.py:224 buzz/model_loader.py:610
 msgid "A connection error occurred"
 msgstr "Ein Verbindungsfehler ist aufgetreten"
 
@@ -1372,6 +1354,25 @@ msgstr "Oben anhängen"
 #: buzz/settings/recording_transcriber_mode.py:7
 msgid "Append and correct"
 msgstr "Anhängen und korrigieren"
+
+#~ msgid "Snap permission notice"
+#~ msgstr "Snap-Berechtigungsmitteilung"
+
+#~ msgid ""
+#~ "Detected missing permissions, please check that snap permissions have "
+#~ "been granted"
+#~ msgstr ""
+#~ "Es wurden fehlende Berechtigungen festgestellt. Bitte überprüfen Sie, ob "
+#~ "Snap-Berechtigungen erteilt wurden"
+
+#~ msgid ""
+#~ "To enable necessary permissions run the following commands in the terminal"
+#~ msgstr ""
+#~ "Um die erforderlichen Berechtigungen zu aktivieren, führen Sie die "
+#~ "folgenden Befehle im Terminal aus"
+
+#~ msgid "Close"
+#~ msgstr "Schließen"
 
 #~ msgid "Enter instructions for AI on how to translate..."
 #~ msgstr "Geben Sie Anweisungen für die KI zum Übersetzen ein..."

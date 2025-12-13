@@ -12,7 +12,6 @@ from PyQt6.QtCore import QObject
 from openai import OpenAI
 
 from buzz.settings.settings import Settings
-from buzz.model_loader import get_custom_api_whisper_model
 from buzz.transcriber.file_transcriber import FileTranscriber, app_env
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment, Task
 
@@ -49,7 +48,9 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
             base_url=custom_openai_base_url if custom_openai_base_url else None,
             max_retries=0
         )
-        self.whisper_api_model = get_custom_api_whisper_model(custom_openai_base_url)
+        self.whisper_api_model = settings.value(
+            key=Settings.Key.OPENAI_API_MODEL, default_value="whisper-1"
+        )
         self.word_level_timings = self.transcription_task.transcription_options.word_level_timings
         logging.debug("Will use whisper API on %s, %s",
                       custom_openai_base_url, self.whisper_api_model)
