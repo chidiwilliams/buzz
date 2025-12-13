@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 import tempfile
 from unittest.mock import Mock, patch, MagicMock
 
@@ -147,6 +148,7 @@ class TestLocalSecrets:
                 loaded = _load_local_secrets()
                 assert loaded == test_secrets
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not applicable on Windows")
     def test_save_sets_restrictive_permissions(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             secrets_path = os.path.join(tmpdir, ".secrets.json")
