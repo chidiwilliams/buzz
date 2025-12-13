@@ -270,12 +270,14 @@ class TransformersTranscriber:
             return model_id
 
         # Extract repo ID from cache path like:
-        # /home/user/.cache/Buzz/models/models--facebook--mms-1b-all/snapshots/xxx
+        # Linux: /home/user/.cache/Buzz/models/models--facebook--mms-1b-all/snapshots/xxx
+        # Windows: C:\Users\user\.cache\Buzz\models\models--facebook--mms-1b-all\snapshots\xxx
         if "models--" in model_id:
-            # Extract the part after "models--" and before "/snapshots"
+            # Extract the part after "models--" and before "/snapshots" or "\snapshots"
             parts = model_id.split("models--")
             if len(parts) > 1:
-                repo_part = parts[1].split("/snapshots")[0]
+                # Split on os.sep to handle both Windows and Unix paths
+                repo_part = parts[1].split(os.sep + "snapshots")[0]
                 # Convert facebook--mms-1b-all to facebook/mms-1b-all
                 repo_id = repo_part.replace("--", "/", 1)
                 return repo_id
@@ -298,14 +300,14 @@ class TransformersTranscriber:
 
         # Map language code to ISO 639-3 for MMS
         mms_language = map_language_to_mms(language)
-        logging.debug(f"MMS transcription with language: {mms_language} (original: {language})")
+        print(f"MMS transcription with language: {mms_language} (original: {language})")
 
         sys.stderr.write("0%\n")
 
         # Use repo ID for MMS to allow adapter downloads
         # Local paths don't work for adapter downloads
         repo_id = self._get_mms_repo_id()
-        logging.debug(f"MMS using repo ID: {repo_id} (from model_id: {self.model_id})")
+        print(f"MMS using repo ID: {repo_id} (from model_id: {self.model_id})")
 
         # Load processor and model with target language
         # This will download the language adapter if not cached
