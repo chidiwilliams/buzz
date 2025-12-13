@@ -102,6 +102,9 @@ def parse(app: Application, parser: QCommandLineParser):
         word_timestamp_option = QCommandLineOption(
             ["w", "word-timestamps"], "Generate word-level timestamps."
         )
+        extract_speech_option = QCommandLineOption(
+            ["e", "extract-speech"], "Extract speech from audio before transcribing."
+        )
         open_ai_access_token_option = QCommandLineOption(
             "openai-token",
             f"OpenAI access token. Use only when --model-type is {CommandLineModelType.OPEN_AI_WHISPER_API.value}. Defaults to your previously saved access token, if one exists.",
@@ -124,6 +127,7 @@ def parse(app: Application, parser: QCommandLineParser):
                 language_option,
                 initial_prompt_option,
                 word_timestamp_option,
+                extract_speech_option,
                 open_ai_access_token_option,
                 output_directory_option,
                 srt_option,
@@ -178,6 +182,7 @@ def parse(app: Application, parser: QCommandLineParser):
         initial_prompt = parser.value(initial_prompt_option)
 
         word_timestamps = parser.isSet(word_timestamp_option)
+        extract_speech = parser.isSet(extract_speech_option)
 
         output_formats: typing.Set[OutputFormat] = set()
         if parser.isSet(srt_option):
@@ -205,6 +210,7 @@ def parse(app: Application, parser: QCommandLineParser):
             language=language,
             initial_prompt=initial_prompt,
             word_level_timings=word_timestamps,
+            extract_speech=extract_speech,
             openai_access_token=openai_access_token,
         )
 
