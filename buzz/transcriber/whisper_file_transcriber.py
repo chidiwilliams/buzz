@@ -18,8 +18,8 @@ from PyQt6.QtCore import QObject
 
 from buzz import whisper_audio
 from buzz.conn import pipe_stderr
-from buzz.model_loader import ModelType, WhisperModelSize
-from buzz.transformers_whisper import TransformersWhisper
+from buzz.model_loader import ModelType, WhisperModelSize, map_language_to_mms
+from buzz.transformers_whisper import TransformersTranscriber
 from buzz.transcriber.file_transcriber import FileTranscriber
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment, Task
 from buzz.transcriber.whisper_cpp import WhisperCpp
@@ -182,17 +182,29 @@ class WhisperFileTranscriber(FileTranscriber):
 
     @classmethod
     def transcribe_hugging_face(cls, task: FileTranscriptionTask) -> List[Segment]:
-        model = TransformersWhisper(task.model_path)
-        language = (
-            task.transcription_options.language
-            if task.transcription_options.language is not None
-            else "en"
-        )
+        model = TransformersTranscriber(task.model_path)
+
+        # Handle language - MMS uses ISO 639-3 codes, Whisper uses ISO 639-1
+        if model.is_mms_model:
+            language = map_language_to_mms(task.transcription_options.language or "eng")
+            # MMS only supports transcription, ignore translation task
+            effective_task = Task.TRANSCRIBE.value
+            # MMS doesn't support word-level timestamps
+            word_timestamps = False
+        else:
+            language = (
+                task.transcription_options.language
+                if task.transcription_options.language is not None
+                else "en"
+            )
+            effective_task = task.transcription_options.task.value
+            word_timestamps = task.transcription_options.word_level_timings
+
         result = model.transcribe(
             audio=task.file_path,
             language=language,
-            task=task.transcription_options.task.value,
-            word_timestamps=task.transcription_options.word_level_timings,
+            task=effective_task,
+            word_timestamps=word_timestamps,
         )
         return [
             Segment(
