@@ -21,10 +21,9 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from buzz import whisper_audio
 from buzz.locale import _
 from buzz.assets import APP_BASE_DIR
-from buzz.model_loader import ModelType, get_custom_api_whisper_model
+from buzz.model_loader import ModelType
 from buzz.settings.settings import Settings
 from buzz.transcriber.transcriber import TranscriptionOptions, Task
-from buzz.transcriber.file_transcriber import app_env
 from buzz.transformers_whisper import TransformersWhisper
 from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
 
@@ -68,7 +67,9 @@ class RecordingTranscriber(QObject):
         self.mutex = threading.Lock()
         self.sounddevice = sounddevice
         self.openai_client = None
-        self.whisper_api_model = get_custom_api_whisper_model("")
+        self.whisper_api_model = self.settings.value(
+            key=Settings.Key.OPENAI_API_MODEL, default_value="whisper-1"
+        )
         self.process = None
 
     def start(self):
@@ -123,7 +124,6 @@ class RecordingTranscriber(QObject):
             custom_openai_base_url = self.settings.value(
                 key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value=""
             )
-            self.whisper_api_model = get_custom_api_whisper_model(custom_openai_base_url)
             self.openai_client = OpenAI(
                 api_key=self.transcription_options.openai_access_token,
                 base_url=custom_openai_base_url if custom_openai_base_url else None,
