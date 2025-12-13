@@ -79,6 +79,9 @@ dependencies = [
     "demucs",
     "certifi==2025.11.12",
     "torchcodec>=0.9.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
+    "torch>=2.2.2",
+    "torchaudio>=2.2.2",
+    "datasets>=4.4.1",
 ]
 repository = "https://github.com/chidiwilliams/buzz"
 documentation = "https://chidiwilliams.github.io/buzz/docs"

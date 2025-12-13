@@ -1,13 +1,16 @@
 import os
 import sys
+import logging
 import numpy as np
 import torch
 import requests
-from typing import Optional, Union
+from typing import Union
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 from transformers.pipelines import AutomaticSpeechRecognitionPipeline
 from transformers.pipelines.audio_utils import ffmpeg_read
 from transformers.pipelines.automatic_speech_recognition import is_torchaudio_available
+
+from buzz.model_loader import is_mms_model, map_language_to_mms
 
 
 class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no cover
@@ -162,11 +165,17 @@ class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no co
             yield {"is_last": True, **processed, **extra}
 
 
-class TransformersWhisper:
-    def __init__(
-        self, model_id: str
-    ):
+class TransformersTranscriber:
+    """Unified transcriber for HuggingFace models (Whisper and MMS)."""
+
+    def __init__(self, model_id: str):
         self.model_id = model_id
+        self._is_mms = is_mms_model(model_id)
+
+    @property
+    def is_mms_model(self) -> bool:
+        """Returns True if this is an MMS model."""
+        return self._is_mms
 
     def transcribe(
         self,
@@ -175,6 +184,20 @@ class TransformersWhisper:
         task: str,
         word_timestamps: bool = False,
     ):
+        """Transcribe audio using either Whisper or MMS model."""
+        if self._is_mms:
+            return self._transcribe_mms(audio, language)
+        else:
+            return self._transcribe_whisper(audio, language, task, word_timestamps)
+
+    def _transcribe_whisper(
+        self,
+        audio: Union[str, np.ndarray],
+        language: str,
+        task: str,
+        word_timestamps: bool = False,
+    ):
+        """Transcribe using Whisper model."""
         force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
         use_cuda = torch.cuda.is_available() and force_cpu == "false"
         device = "cuda" if use_cuda else "cpu"
@@ -207,7 +230,7 @@ class TransformersWhisper:
             torch_dtype=torch_dtype,
             device=device,
             ignore_warning=True  # Ignore warning about chunk_length_s being experimental for seq2seq models
-         )
+        )
 
         transcript = pipe(
             audio,
@@ -237,4 +260,119 @@ class TransformersWhisper:
             "text": transcript['text'],
             "segments": segments,
         }
+
+    def _get_mms_repo_id(self) -> str:
+        """Extract HuggingFace repo ID from local cache path or return as-is if already a repo ID."""
+        model_id = self.model_id
+
+        # If it's already a repo ID (contains / but not a file path), return as-is
+        if "/" in model_id and not os.path.exists(model_id):
+            return model_id
+
+        # Extract repo ID from cache path like:
+        # /home/user/.cache/Buzz/models/models--facebook--mms-1b-all/snapshots/xxx
+        if "models--" in model_id:
+            # Extract the part after "models--" and before "/snapshots"
+            parts = model_id.split("models--")
+            if len(parts) > 1:
+                repo_part = parts[1].split("/snapshots")[0]
+                # Convert facebook--mms-1b-all to facebook/mms-1b-all
+                repo_id = repo_part.replace("--", "/", 1)
+                return repo_id
+
+        # Fallback: return as-is
+        return model_id
+
+    def _transcribe_mms(
+        self,
+        audio: Union[str, np.ndarray],
+        language: str,
+    ):
+        """Transcribe using MMS (Massively Multilingual Speech) model."""
+        from transformers import Wav2Vec2ForCTC, AutoProcessor as MMSAutoProcessor
+        from transformers.pipelines.audio_utils import ffmpeg_read as mms_ffmpeg_read
+
+        force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
+        use_cuda = torch.cuda.is_available() and force_cpu == "false"
+        device = "cuda" if use_cuda else "cpu"
+
+        # Map language code to ISO 639-3 for MMS
+        mms_language = map_language_to_mms(language)
+        logging.debug(f"MMS transcription with language: {mms_language} (original: {language})")
+
+        sys.stderr.write("0%\n")
+
+        # Use repo ID for MMS to allow adapter downloads
+        # Local paths don't work for adapter downloads
+        repo_id = self._get_mms_repo_id()
+        logging.debug(f"MMS using repo ID: {repo_id} (from model_id: {self.model_id})")
+
+        # Load processor and model with target language
+        # This will download the language adapter if not cached
+        processor = MMSAutoProcessor.from_pretrained(
+            repo_id,
+            target_lang=mms_language
+        )
+
+        model = Wav2Vec2ForCTC.from_pretrained(
+            repo_id,
+            target_lang=mms_language,
+            ignore_mismatched_sizes=True
+        )
+        model.to(device)
+
+        sys.stderr.write("25%\n")
+
+        # Load and process audio
+        if isinstance(audio, str):
+            with open(audio, "rb") as f:
+                audio_data = f.read()
+            audio_array = mms_ffmpeg_read(audio_data, processor.feature_extractor.sampling_rate)
+        else:
+            audio_array = audio
+
+        # Ensure audio is the right sample rate
+        sampling_rate = processor.feature_extractor.sampling_rate
+
+        sys.stderr.write("50%\n")
+
+        # Process audio in chunks for progress reporting
+        inputs = processor(
+            audio_array,
+            sampling_rate=sampling_rate,
+            return_tensors="pt",
+            padding=True
+        )
+        inputs = {k: v.to(device) for k, v in inputs.items()}
+
+        sys.stderr.write("75%\n")
+
+        # Run inference
+        with torch.no_grad():
+            outputs = model(**inputs).logits
+
+        # Decode
+        ids = torch.argmax(outputs, dim=-1)[0]
+        transcription = processor.decode(ids)
+
+        sys.stderr.write("100%\n")
+
+        # Calculate approximate duration for segment
+        duration = len(audio_array) / sampling_rate if isinstance(audio_array, np.ndarray) else 0
+
+        # Return in same format as Whisper for consistency
+        # MMS doesn't provide word-level timestamps, so we return a single segment
+        return {
+            "text": transcription,
+            "segments": [{
+                "start": 0,
+                "end": duration,
+                "text": transcription.strip(),
+                "translation": ""
+            }] if transcription.strip() else []
+        }
+
+
+# Alias for backward compatibility
+TransformersWhisper = TransformersTranscriber
 
