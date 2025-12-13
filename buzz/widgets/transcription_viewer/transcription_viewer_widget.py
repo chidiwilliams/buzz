@@ -1124,6 +1124,7 @@ class TranscriptionViewerWidget(QWidget):
         if self.view_mode == ViewMode.TIMESTAMPS:
             self.text_display_box.hide()
             self.table_widget.show()
+            self.media_splitter.show()
             if self.current_media_player:
                 self.current_media_player.show()
             # Show playback controls in timestamps mode
@@ -1149,6 +1150,7 @@ class TranscriptionViewerWidget(QWidget):
             self.text_display_box.setPlainText(combined_text.strip())
             self.text_display_box.show()
             self.table_widget.hide()
+            self.media_splitter.hide()
             if self.current_media_player:
                 self.current_media_player.hide()
             # Hide playback controls in text mode
@@ -1164,6 +1166,7 @@ class TranscriptionViewerWidget(QWidget):
             )
             self.text_display_box.show()
             self.table_widget.hide()
+            self.media_splitter.hide()
             if self.current_media_player:
                 self.current_media_player.hide()
             # Hide playback controls in translation mode
@@ -1494,7 +1497,7 @@ class TranscriptionViewerWidget(QWidget):
         if self.currently_selected_segment is None:
             self.highlight_table_match(0)
 
-        if current_segment_index == 0 and segments[1]:
+        if current_segment_index == 0 and len(segments) > 1:
             self.highlight_table_match(1)
 
         self.highlight_table_match(current_segment_index)

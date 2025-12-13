@@ -131,6 +131,80 @@ HUGGING_FACE_MODEL_ALLOW_PATTERNS = [
     "vocab.json",
 ]
 
+# MMS models use different patterns - adapters are downloaded on-demand by transformers
+MMS_MODEL_ALLOW_PATTERNS = [
+    "model.safetensors",
+    "pytorch_model.bin",
+    "config.json",
+    "preprocessor_config.json",
+    "tokenizer_config.json",
+    "vocab.json",
+    "special_tokens_map.json",
+    "added_tokens.json",
+]
+
+# ISO 639-1 to ISO 639-3 language code mapping for MMS models
+ISO_639_1_TO_3 = {
+    "en": "eng", "fr": "fra", "de": "deu", "es": "spa", "it": "ita",
+    "pt": "por", "ru": "rus", "ja": "jpn", "ko": "kor", "zh": "cmn",
+    "ar": "ara", "hi": "hin", "nl": "nld", "pl": "pol", "sv": "swe",
+    "tr": "tur", "uk": "ukr", "vi": "vie", "cs": "ces", "da": "dan",
+    "fi": "fin", "el": "ell", "he": "heb", "hu": "hun", "id": "ind",
+    "ms": "zsm", "no": "nob", "ro": "ron", "sk": "slk", "th": "tha",
+    "bg": "bul", "ca": "cat", "hr": "hrv", "lt": "lit", "lv": "lav",
+    "sl": "slv", "et": "est", "sr": "srp", "tl": "tgl", "bn": "ben",
+    "ta": "tam", "te": "tel", "mr": "mar", "gu": "guj", "kn": "kan",
+    "ml": "mal", "pa": "pan", "ur": "urd", "fa": "pes", "sw": "swh",
+    "af": "afr", "az": "azj", "be": "bel", "bs": "bos", "cy": "cym",
+    "eo": "epo", "eu": "eus", "ga": "gle", "gl": "glg", "hy": "hye",
+    "is": "isl", "ka": "kat", "kk": "kaz", "km": "khm", "lo": "lao",
+    "mk": "mkd", "mn": "khk", "my": "mya", "ne": "npi", "si": "sin",
+    "sq": "sqi", "uz": "uzn", "zu": "zul", "am": "amh", "jw": "jav",
+    "la": "lat", "so": "som", "su": "sun", "tt": "tat", "yo": "yor",
+}
+
+
+def map_language_to_mms(language_code: str) -> str:
+    """Convert ISO 639-1 code to ISO 639-3 code for MMS models.
+
+    If the code is already 3 letters, returns it as-is.
+    If the code is not found in the mapping, returns as-is.
+    """
+    if not language_code:
+        return "eng"  # Default to English for MMS
+    if len(language_code) == 3:
+        return language_code  # Already ISO 639-3
+    return ISO_639_1_TO_3.get(language_code, language_code)
+
+
+def is_mms_model(model_id: str) -> bool:
+    """Detect if a HuggingFace model is an MMS (Massively Multilingual Speech) model.
+
+    Detection criteria:
+    1. Model ID contains "mms-" (e.g., facebook/mms-1b-all)
+    2. Model config has model_type == "wav2vec2" with adapter architecture
+    """
+    if not model_id:
+        return False
+
+    # Fast check: model ID pattern
+    if "mms-" in model_id.lower():
+        return True
+
+    # For cached/downloaded models, check config.json
+    try:
+        import json
+        config_path = huggingface_hub.hf_hub_download(
+            model_id, "config.json", local_files_only=True, cache_dir=model_root_dir
+        )
+        with open(config_path) as f:
+            config = json.load(f)
+        # MMS models have model_type "wav2vec2" and use adapter architecture
+        return (config.get("model_type") == "wav2vec2"
+                and config.get("adapter_attn_dim") is not None)
+    except Exception:
+        return False
+
 
 @dataclass()
 class TranscriptionModel:
