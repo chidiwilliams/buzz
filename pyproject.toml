@@ -26,6 +26,7 @@ dependencies = [
     "transformers>=4.53,<5",
     "accelerate>=1.12.0,<2",
     "peft>=0.14.0,<1",
+    # Overriden in uv.tool section below to ensure CUDA 12.9 compatibility
     "bitsandbytes>=0.45.0",
     "polib>=1.2.0,<2",
     "srt-equalizer>=0.1.10,<0.2",
@@ -118,6 +119,12 @@ index-strategy = "unsafe-best-match"
 default-groups = [
     "dev",
     "build",
+]
+
+# Should be removed after nemo-toolkit update to 2.6.0
+# Forcing a CUDA 12.9 compatable bitsandbytes version
+override-dependencies = [
+  "bitsandbytes==0.47.0",
 ]
 
 [tool.uv.sources]
