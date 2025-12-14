@@ -64,7 +64,8 @@ class HuggingFaceSearchLineEdit(LineEdit):
 
     def focusInEvent(self, event):
         super().focusInEvent(event)
-        self.selectAll()
+        # Defer selectAll to run after mouse events are processed
+        QTimer.singleShot(0, self.selectAll)
 
     def on_text_edited(self, text: str):
         self.model_selected.emit(text)
