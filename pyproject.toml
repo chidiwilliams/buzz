@@ -26,6 +26,7 @@ dependencies = [
     "transformers>=4.53,<5",
     "accelerate>=1.12.0,<2",
     "peft>=0.14.0,<1",
+    "bitsandbytes>=0.45.0",
     "polib>=1.2.0,<2",
     "srt-equalizer>=0.1.10,<0.2",
     # For Intel macOS (x86_64) - use older versions that support Intel
