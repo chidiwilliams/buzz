@@ -240,10 +240,18 @@ class WhisperFileTranscriber(FileTranscriber):
         if force_cpu != "false":
             device = "cpu"
 
+        # Check if user wants reduced GPU memory usage (int8 quantization)
+        reduce_gpu_memory = os.getenv("BUZZ_REDUCE_GPU_MEMORY", "false") != "false"
+        compute_type = "default"
+        if reduce_gpu_memory:
+            compute_type = "int8" if device == "cpu" else "int8_float16"
+            logging.debug(f"Using {compute_type} compute type for reduced memory usage")
+
         model = faster_whisper.WhisperModel(
             model_size_or_path=model_size_or_path,
             download_root=model_root_dir,
             device=device,
+            compute_type=compute_type,
             cpu_threads=(os.cpu_count() or 8)//2,
         )
 

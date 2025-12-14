@@ -64,7 +64,7 @@ class HuggingFaceSearchLineEdit(LineEdit):
 
     def focusInEvent(self, event):
         super().focusInEvent(event)
-        self.clear()
+        self.selectAll()
 
     def on_text_edited(self, text: str):
         self.model_selected.emit(text)

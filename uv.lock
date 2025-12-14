@@ -286,6 +286,7 @@ dependencies = [
     { name = "openai" },
     { name = "openai-whisper" },
     { name = "openunmix" },
+    { name = "peft" },
     { name = "platformdirs" },
     { name = "polib" },
     { name = "posthog" },
@@ -378,6 +379,7 @@ requires-dist = [
     { name = "openai", specifier = ">=1.14.2,<2" },
     { name = "openai-whisper", specifier = "==20250625" },
     { name = "openunmix", specifier = ">=1.3.0,<2" },
+    { name = "peft", specifier = ">=0.14.0,<1" },
     { name = "platformdirs", specifier = ">=4.2.1,<5" },
     { name = "polib", specifier = ">=1.2.0,<2" },
     { name = "posthog", specifier = ">=3.23.0,<4" },
@@ -2685,17 +2687,18 @@ name = "peft"
 version = "0.18.0"
 source = { registry = "https://pypi.org/simple/" }
 dependencies = [
-    { name = "accelerate", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
-    { name = "huggingface-hub", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
-    { name = "numpy", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
-    { name = "packaging", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
-    { name = "psutil", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
-    { name = "pyyaml", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
-    { name = "safetensors", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
+    { name = "accelerate" },
+    { name = "huggingface-hub" },
+    { name = "numpy" },
+    { name = "packaging" },
+    { name = "psutil" },
+    { name = "pyyaml" },
+    { name = "safetensors" },
+    { name = "torch", version = "2.2.2", source = { registry = "https://pypi.org/simple/" }, marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'" },
     { name = "torch", version = "2.8.0", source = { registry = "https://pypi.org/simple/" }, marker = "platform_machine != 'x86_64' and sys_platform == 'darwin'" },
     { name = "torch", version = "2.8.0+cu129", source = { registry = "https://download.pytorch.org/whl/cu129" }, marker = "sys_platform != 'darwin'" },
-    { name = "tqdm", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
-    { name = "transformers", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
+    { name = "tqdm" },
+    { name = "transformers" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/4b/0c/f2938db546ac7fc961ab5917cd50fcf5d0d70b406de93e3faccaa504e152/peft-0.18.0.tar.gz", hash = "sha256:c81c80b2056ab40c23d58ef25f74daab417ac653970718589a11a8af28218588", size = 634141, upload-time = "2025-11-13T11:13:06.603Z" }
 wheels = [

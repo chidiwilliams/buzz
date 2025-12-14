@@ -47,6 +47,13 @@ class Application(QApplication):
         )
         if force_cpu_enabled:
             os.environ["BUZZ_FORCE_CPU"] = "true"
+
+        # Set BUZZ_REDUCE_GPU_MEMORY environment variable if Reduce GPU RAM setting is enabled
+        reduce_gpu_memory_enabled = self.settings.value(
+            key=Settings.Key.REDUCE_GPU_MEMORY, default_value=False
+        )
+        if reduce_gpu_memory_enabled:
+            os.environ["BUZZ_REDUCE_GPU_MEMORY"] = "true"
         
         font_size = self.settings.value(
             key=Settings.Key.FONT_SIZE, default_value=self.font().pointSize()

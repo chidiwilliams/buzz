@@ -74,6 +74,8 @@
           <li>Support for video in transcription viewer</li>
           <li>Ability to add notes and restart transcriptions in main table</li>
           <li>Adding support for more than 1000 languages via MMS model family when transcribing with Huggingface transcription type</li>
+          <li>Adding support for PEFT models when transcribing with Huggingface transcription type</li>
+          <li>Adding support for 8bit quantization for Huggingface and faster Whisper transcriptions</li>
           <li>Updated libraries and dependencies to support latest GPUs</li>
           <li>Support for secrets portal for snap packages on Linux</li>
           <li>Ability to specify model to use when transcribing with OpenAI API</li>

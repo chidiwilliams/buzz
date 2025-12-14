@@ -13,6 +13,11 @@ from transformers.pipelines.automatic_speech_recognition import is_torchaudio_av
 from buzz.model_loader import is_mms_model, map_language_to_mms
 
 
+def is_peft_model(model_id: str) -> bool:
+    """Check if model is a PEFT model based on model ID containing '-peft'."""
+    return "-peft" in model_id.lower()
+
+
 class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no cover
     # Copy of transformers `AutomaticSpeechRecognitionPipeline.chunk_iter` method with custom progress output
     @staticmethod
@@ -171,11 +176,17 @@ class TransformersTranscriber:
     def __init__(self, model_id: str):
         self.model_id = model_id
         self._is_mms = is_mms_model(model_id)
+        self._is_peft = is_peft_model(model_id)
 
     @property
     def is_mms_model(self) -> bool:
         """Returns True if this is an MMS model."""
         return self._is_mms
+
+    @property
+    def is_peft_model(self) -> bool:
+        """Returns True if this is a PEFT model."""
+        return self._is_peft
 
     def transcribe(
         self,
@@ -203,19 +214,42 @@ class TransformersTranscriber:
         device = "cuda" if use_cuda else "cpu"
         torch_dtype = torch.float16 if use_cuda else torch.float32
 
-        use_safetensors = True
-        if os.path.exists(self.model_id):
-            safetensors_files = [f for f in os.listdir(self.model_id) if f.endswith(".safetensors")]
-            use_safetensors = len(safetensors_files) > 0
+        # Check if this is a PEFT model
+        if is_peft_model(self.model_id):
+            model, processor = self._load_peft_model(device, torch_dtype)
+        else:
+            use_safetensors = True
+            if os.path.exists(self.model_id):
+                safetensors_files = [f for f in os.listdir(self.model_id) if f.endswith(".safetensors")]
+                use_safetensors = len(safetensors_files) > 0
 
-        model = AutoModelForSpeechSeq2Seq.from_pretrained(
-            self.model_id, torch_dtype=torch_dtype, low_cpu_mem_usage=True, use_safetensors=use_safetensors
-        )
+            # Check if user wants reduced GPU memory usage (8-bit quantization)
+            reduce_gpu_memory = os.getenv("BUZZ_REDUCE_GPU_MEMORY", "false") != "false"
+            use_8bit = False
+            if device == "cuda" and reduce_gpu_memory:
+                try:
+                    import bitsandbytes  # noqa: F401
+                    use_8bit = True
+                    print("Using 8-bit quantization for reduced GPU memory usage")
+                except ImportError:
+                    print("bitsandbytes not available, using standard precision")
 
-        model.generation_config.language = language
-        model.to(device)
+            if use_8bit:
+                model = AutoModelForSpeechSeq2Seq.from_pretrained(
+                    self.model_id,
+                    load_in_8bit=True,
+                    device_map="auto",
+                    use_safetensors=use_safetensors
+                )
+            else:
+                model = AutoModelForSpeechSeq2Seq.from_pretrained(
+                    self.model_id, torch_dtype=torch_dtype, low_cpu_mem_usage=True, use_safetensors=use_safetensors
+                )
+                model.to(device)
 
-        processor = AutoProcessor.from_pretrained(self.model_id)
+            model.generation_config.language = language
+
+            processor = AutoProcessor.from_pretrained(self.model_id)
 
         pipe = pipeline(
             "automatic-speech-recognition",
@@ -260,6 +294,88 @@ class TransformersTranscriber:
             "text": transcript['text'],
             "segments": segments,
         }
+
+    def _load_peft_model(self, device: str, torch_dtype):
+        """Load a PEFT (Parameter-Efficient Fine-Tuning) model.
+
+        PEFT models require loading the base model first, then applying the adapter.
+        The base model path is extracted from the PEFT config.
+        """
+        from peft import PeftModel, PeftConfig
+        from transformers import WhisperForConditionalGeneration, WhisperFeatureExtractor, WhisperTokenizer
+
+        print(f"Loading PEFT model: {self.model_id}")
+
+        # Get the PEFT model ID (handle both local paths and repo IDs)
+        peft_model_id = self._get_peft_repo_id()
+
+        # Load PEFT config to get base model path
+        peft_config = PeftConfig.from_pretrained(peft_model_id)
+        base_model_path = peft_config.base_model_name_or_path
+        print(f"PEFT base model: {base_model_path}")
+
+        # Load the base Whisper model
+        # Use 8-bit quantization on CUDA if user enabled "Reduce GPU RAM" and bitsandbytes is available
+        reduce_gpu_memory = os.getenv("BUZZ_REDUCE_GPU_MEMORY", "false") != "false"
+        use_8bit = False
+        if device == "cuda" and reduce_gpu_memory:
+            try:
+                import bitsandbytes  # noqa: F401
+                use_8bit = True
+                print("Using 8-bit quantization for reduced GPU memory usage")
+            except ImportError:
+                print("bitsandbytes not available, using standard precision for PEFT model")
+
+        if use_8bit:
+            model = WhisperForConditionalGeneration.from_pretrained(
+                base_model_path,
+                load_in_8bit=True,
+                device_map="auto"
+            )
+        else:
+            model = WhisperForConditionalGeneration.from_pretrained(
+                base_model_path,
+                torch_dtype=torch_dtype,
+                low_cpu_mem_usage=True
+            )
+            model.to(device)
+
+        # Apply the PEFT adapter
+        model = PeftModel.from_pretrained(model, peft_model_id)
+        model.config.use_cache = True
+
+        # Load feature extractor and tokenizer from base model
+        feature_extractor = WhisperFeatureExtractor.from_pretrained(base_model_path)
+        tokenizer = WhisperTokenizer.from_pretrained(base_model_path, task="transcribe")
+
+        # Create a simple processor-like object that the pipeline expects
+        class PeftProcessor:
+            def __init__(self, feature_extractor, tokenizer):
+                self.feature_extractor = feature_extractor
+                self.tokenizer = tokenizer
+
+        processor = PeftProcessor(feature_extractor, tokenizer)
+
+        return model, processor
+
+    def _get_peft_repo_id(self) -> str:
+        """Extract HuggingFace repo ID from local cache path for PEFT models."""
+        model_id = self.model_id
+
+        # If it's already a repo ID (contains / but not a file path), return as-is
+        if "/" in model_id and not os.path.exists(model_id):
+            return model_id
+
+        # Extract repo ID from cache path
+        if "models--" in model_id:
+            parts = model_id.split("models--")
+            if len(parts) > 1:
+                repo_part = parts[1].split(os.sep + "snapshots")[0]
+                repo_id = repo_part.replace("--", "/", 1)
+                return repo_id
+
+        # Fallback: return as-is
+        return model_id
 
     def _get_mms_repo_id(self) -> str:
         """Extract HuggingFace repo ID from local cache path or return as-is if already a repo ID."""

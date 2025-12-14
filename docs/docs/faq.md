@@ -41,7 +41,7 @@ In addition to choosing an appropriate model size you also can choose whisper ty
 - **Whisper** is initial OpenAI implementation, it is accurate but slow and requires a lot of RAM.
 - Faster **Whisper** is an optimized implementation, it is orders of magnitude faster than regular Whisper and requires less RAM. Use this option if you have an Nvidia GPU with at least 6GB of VRAM.
 - **Whisper.cpp** is optimized C++ implementation, it quite fast and efficient and will use any brand of GPU. Whisper.cpp is capable of running real time transcription even on a modern laptop with integrated GPU. It can also run on CPU only. Use this option if you do not have Nvidia GPU. 
-- **HuggingFace** option is a `Transformers` implementation and is good in that it supports wide range of custom models that may be optimized for a particular language. This option also supports [MMS](https://ai.meta.com/blog/multilingual-model-speech-recognition/) family of models from Meta AI that support over 1000 of worlds languages.
+- **HuggingFace** option is a `Transformers` implementation and is good in that it supports wide range of custom models that may be optimized for a particular language. This option also supports [MMS](https://ai.meta.com/blog/multilingual-model-speech-recognition/) family of models from Meta AI that support over 1000 of worlds languages as well as [PEFT](https://github.com/huggingface/peft) adjustments to Whisper models.
 
 ### 5. How to get GPU acceleration for faster transcription?
 

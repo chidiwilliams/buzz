@@ -199,6 +199,20 @@ class GeneralPreferencesWidget(QWidget):
         self.force_cpu_checkbox.stateChanged.connect(self.on_force_cpu_changed)
         layout.addRow(_("Disable GPU"), self.force_cpu_checkbox)
 
+        self.reduce_gpu_memory_enabled = self.settings.value(
+            key=Settings.Key.REDUCE_GPU_MEMORY, default_value=False
+        )
+
+        self.reduce_gpu_memory_checkbox = QCheckBox(_("Use 8-bit quantization to reduce memory usage"))
+        self.reduce_gpu_memory_checkbox.setChecked(self.reduce_gpu_memory_enabled)
+        self.reduce_gpu_memory_checkbox.setObjectName("ReduceGPUMemoryCheckbox")
+        self.reduce_gpu_memory_checkbox.setToolTip(
+            _("Applies to Hugging Face and Faster Whisper models. "
+              "Reduces GPU memory usage but may slightly decrease transcription quality.")
+        )
+        self.reduce_gpu_memory_checkbox.stateChanged.connect(self.on_reduce_gpu_memory_changed)
+        layout.addRow(_("Reduce GPU RAM"), self.reduce_gpu_memory_checkbox)
+
         self.setLayout(layout)
 
     def on_default_export_file_name_changed(self, text: str):
@@ -295,11 +309,22 @@ class GeneralPreferencesWidget(QWidget):
         import os
         self.force_cpu_enabled = state == 2
         self.settings.set_value(Settings.Key.FORCE_CPU, self.force_cpu_enabled)
-        
+
         if self.force_cpu_enabled:
             os.environ["BUZZ_FORCE_CPU"] = "true"
         else:
             os.environ.pop("BUZZ_FORCE_CPU", None)
+
+    def on_reduce_gpu_memory_changed(self, state: int):
+        import os
+        self.reduce_gpu_memory_enabled = state == 2
+        self.settings.set_value(Settings.Key.REDUCE_GPU_MEMORY, self.reduce_gpu_memory_enabled)
+
+        if self.reduce_gpu_memory_enabled:
+            os.environ["BUZZ_REDUCE_GPU_MEMORY"] = "true"
+        else:
+            os.environ.pop("BUZZ_REDUCE_GPU_MEMORY", None)
+
 
 class ValidateOpenAIApiKeyJob(QRunnable):
     class Signals(QObject):
