@@ -7,6 +7,10 @@ import sys
 from pathlib import Path
 from typing import TextIO
 
+# Set up CUDA library paths before any torch imports
+# This must happen before platformdirs or any other imports that might indirectly load torch
+import buzz.cuda_setup  # noqa: F401
+
 from platformdirs import user_log_dir, user_cache_dir, user_data_dir
 
 # Will download all Huggingface data to the app cache directory

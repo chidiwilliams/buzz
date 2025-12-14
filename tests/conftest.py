@@ -5,6 +5,9 @@ import random
 import string
 from pathlib import Path
 
+# Set up CUDA library paths before any torch imports
+import buzz.cuda_setup  # noqa: F401
+
 import pytest
 
 # Set multiprocessing to use 'spawn' instead of 'fork' on Linux
