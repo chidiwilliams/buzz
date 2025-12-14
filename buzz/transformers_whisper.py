@@ -5,7 +5,7 @@ import numpy as np
 import torch
 import requests
 from typing import Union
-from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
+from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline, BitsAndBytesConfig
 from transformers.pipelines import AutomaticSpeechRecognitionPipeline
 from transformers.pipelines.audio_utils import ffmpeg_read
 from transformers.pipelines.automatic_speech_recognition import is_torchaudio_available
@@ -216,7 +216,7 @@ class TransformersTranscriber:
 
         # Check if this is a PEFT model
         if is_peft_model(self.model_id):
-            model, processor = self._load_peft_model(device, torch_dtype)
+            model, processor, use_8bit = self._load_peft_model(device, torch_dtype)
         else:
             use_safetensors = True
             if os.path.exists(self.model_id):
@@ -235,9 +235,10 @@ class TransformersTranscriber:
                     print("bitsandbytes not available, using standard precision")
 
             if use_8bit:
+                quantization_config = BitsAndBytesConfig(load_in_8bit=True)
                 model = AutoModelForSpeechSeq2Seq.from_pretrained(
                     self.model_id,
-                    load_in_8bit=True,
+                    quantization_config=quantization_config,
                     device_map="auto",
                     use_safetensors=use_safetensors
                 )
@@ -251,20 +252,22 @@ class TransformersTranscriber:
 
             processor = AutoProcessor.from_pretrained(self.model_id)
 
-        pipe = pipeline(
-            "automatic-speech-recognition",
-            pipeline_class=PipelineWithProgress,
-            generate_kwargs={"language": language, "task": task},
-            model=model,
-            tokenizer=processor.tokenizer,
-            feature_extractor=processor.feature_extractor,
+        pipeline_kwargs = {
+            "task": "automatic-speech-recognition",
+            "pipeline_class": PipelineWithProgress,
+            "generate_kwargs": {"language": language, "task": task},
+            "model": model,
+            "tokenizer": processor.tokenizer,
+            "feature_extractor": processor.feature_extractor,
             # pipeline has built in chunking, works faster, but we loose progress output
             # needed for word level timestamps, otherwise there is huge RAM usage on longer audios
-            chunk_length_s=30 if word_timestamps else None,
-            torch_dtype=torch_dtype,
-            device=device,
-            ignore_warning=True  # Ignore warning about chunk_length_s being experimental for seq2seq models
-        )
+            "chunk_length_s": 30 if word_timestamps else None,
+            "torch_dtype": torch_dtype,
+            "ignore_warning": True,  # Ignore warning about chunk_length_s being experimental for seq2seq models
+        }
+        if not use_8bit:
+            pipeline_kwargs["device"] = device
+        pipe = pipeline(**pipeline_kwargs)
 
         transcript = pipe(
             audio,
@@ -300,6 +303,9 @@ class TransformersTranscriber:
 
         PEFT models require loading the base model first, then applying the adapter.
         The base model path is extracted from the PEFT config.
+
+        Returns:
+            Tuple of (model, processor, use_8bit)
         """
         from peft import PeftModel, PeftConfig
         from transformers import WhisperForConditionalGeneration, WhisperFeatureExtractor, WhisperTokenizer
@@ -327,9 +333,10 @@ class TransformersTranscriber:
                 print("bitsandbytes not available, using standard precision for PEFT model")
 
         if use_8bit:
+            quantization_config = BitsAndBytesConfig(load_in_8bit=True)
             model = WhisperForConditionalGeneration.from_pretrained(
                 base_model_path,
-                load_in_8bit=True,
+                quantization_config=quantization_config,
                 device_map="auto"
             )
         else:
@@ -356,7 +363,7 @@ class TransformersTranscriber:
 
         processor = PeftProcessor(feature_extractor, tokenizer)
 
-        return model, processor
+        return model, processor, use_8bit
 
     def _get_peft_repo_id(self) -> str:
         """Extract HuggingFace repo ID from local cache path for PEFT models."""
