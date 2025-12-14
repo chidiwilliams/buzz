@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-16 08:58+0200\n"
+"POT-Creation-Date: 2025-12-14 08:58+0200\n"
 "PO-Revision-Date: 2025-11-09 20:22+0200\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
@@ -176,25 +176,39 @@ msgid "Live recording mode"
 msgstr "Modalità di registrazione in diretta"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py:195
+msgid "Use 8-bit quantization to reduce memory usage"
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:199
+msgid ""
+"Applies to Huggingface and Faster Whisper models. Reduces GPU memory usage "
+"but may slightly decrease transcription quality."
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:203
+msgid "Reduce GPU RAM"
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:209
 msgid "Use only CPU and disable GPU acceleration"
 msgstr "Utilizza solo la CPU e disattiva l'accelerazione GPU"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:198
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:212
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
 msgstr ""
 "Imposta questa opzione se i modelli più grandi non si adattano alla memoria "
 "della tua GPU e Buzz si blocca"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:200
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:214
 msgid "Disable GPU"
 msgstr "Disabilita GPU"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:225
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:231
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:239
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:245
 msgid "OpenAI API Key Test"
 msgstr "Test della chiave API OpenAI"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:226
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:240
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
@@ -202,11 +216,11 @@ msgstr ""
 "La tua chiave API è valida. Buzz utilizzerà questa chiave per eseguire le "
 "trascrizioni API Whisper e le traduzioni AI."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:242
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:256
 msgid "Invalid API key"
 msgstr "Chiave API non valida"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:243
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:257
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
@@ -214,11 +228,11 @@ msgstr ""
 "L'API supporta solo caratteri base64 (A-Za-z0-9+/=). Altri caratteri nella "
 "chiave API potrebbero causare errori."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:264
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:278
 msgid "Select Export Folder"
 msgstr "Seleziona la cartella di esportazione"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py:334
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py:359
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
 "Transcription and translation may still work if the API does not support key "
@@ -316,8 +330,8 @@ msgstr "Download non riuscito"
 #: buzz/widgets/transcription_tasks_table_widget.py:704
 #: buzz/widgets/transcription_tasks_table_widget.py:774
 #: buzz/widgets/transcription_tasks_table_widget.py:805
-#: buzz/widgets/main_window.py:283 buzz/model_loader.py:577
-#: buzz/model_loader.py:591
+#: buzz/widgets/main_window.py:283 buzz/model_loader.py:651
+#: buzz/model_loader.py:665
 msgid "Error"
 msgstr "Errore"
 
@@ -335,29 +349,41 @@ msgstr "Arresta"
 msgid "Detect Language"
 msgstr "Rileva la lingua"
 
+#: buzz/widgets/transcriber/mms_language_line_edit.py:26
+msgid "e.g., eng, fra, deu"
+msgstr ""
+
+#: buzz/widgets/transcriber/mms_language_line_edit.py:28
+msgid ""
+"Enter an ISO 639-3 language code (3 letters).\n"
+"Examples: eng (English), fra (French), deu (German),\n"
+"spa (Spanish), lav (Latvian)"
+msgstr ""
+
 #: buzz/widgets/transcriber/file_transcriber_widget.py:84
 msgid "Run"
 msgstr "Avvia"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:93
+#: buzz/widgets/transcriber/transcription_options_group_box.py:101
 msgid "Model:"
 msgstr "Modello:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:105
+#: buzz/widgets/transcriber/transcription_options_group_box.py:113
 msgid "First time use of a model may take up to several minutest to load."
 msgstr ""
 "Il caricamento di un modello al primo utilizzo potrebbe richiedere diversi "
 "minuti."
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:115
+#: buzz/widgets/transcriber/transcription_options_group_box.py:123
 msgid "Api Key:"
 msgstr "Chiave API:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:116
+#: buzz/widgets/transcriber/transcription_options_group_box.py:124
 msgid "Task:"
 msgstr "Compito:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py:117
+#: buzz/widgets/transcriber/transcription_options_group_box.py:125
+#: buzz/widgets/transcriber/transcription_options_group_box.py:126
 msgid "Language:"
 msgstr "Lingua:"
 
@@ -602,13 +628,13 @@ msgid "End"
 msgstr "Fine"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:278
-#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:43
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:44
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:32
 msgid "Text"
 msgstr "Testo"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py:279
-#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:49
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:50
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:33
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py:53
 msgid "Translation"
@@ -618,7 +644,7 @@ msgstr "Traduzione"
 msgid "View"
 msgstr "Visualizza"
 
-#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:56
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py:57
 msgid "Timestamps"
 msgstr "Timestamp"
 
@@ -626,66 +652,66 @@ msgstr "Timestamp"
 msgid "Export"
 msgstr "Esporta"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:285
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:286
 msgid "Translate"
 msgstr "Tradurre"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:295
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:296
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:175
 msgid "Resize"
 msgstr "Ridimensionare"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:308
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:309
 msgid "Identify Speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:320
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:321
 msgid "Find"
 msgstr "Trova"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:325
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:326
 msgid "Show/Hide Search Bar (Ctrl+F)"
 msgstr "Mostra/Nascondi barra di ricerca (Ctrl+F)"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:424
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:425
 msgid "Find:"
 msgstr "Trova:"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:430
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:431
 msgid "Enter text to find..."
 msgstr "Inserisci il testo per trovare..."
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:443
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:444
 msgid "Previous match (Shift+Enter)"
 msgstr "Corrispondenza precedente (Maiusc+Invio)"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:452
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:453
 #, fuzzy
 msgid "Next match (Ctrl+Enter)"
 msgstr "Prossima corrispondenza (Invio)"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:461
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:462
 msgid "Clear"
 msgstr "Elimina"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:489
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:490
 msgid "Playback Controls:"
 msgstr "Controlli di riproduzione:"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:494
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:495
 msgid "Loop Segment"
 msgstr "Ciclo di segmento"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:497
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:498
 msgid "Enable/disable looping when clicking on transcript segments"
 msgstr ""
 "Abilita/disabilita il loop quando si fa clic sui segmenti della trascrizione"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:504
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:505
 msgid "Follow Audio"
 msgstr "Segui Audio"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:507
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:508
 msgid ""
 "Enable/disable following the current audio position in the transcript. When "
 "enabled, automatically scrolls to current text."
@@ -694,44 +720,44 @@ msgstr ""
 "trascrizione. Quando abilitato, scorre automaticamente fino al testo "
 "corrente."
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:556
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:557
 msgid "Scroll to Current"
 msgstr "Scorri fino al Corrente"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:559
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:560
 msgid "Scroll to the currently spoken text"
 msgstr "Scorrere fino al testo attualmente pronunciato"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:892
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:893
 msgid "1 of 100+ matches"
 msgstr "1 di 100+ corrispondenze"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:895
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:896
 msgid "1 of "
 msgstr "1 di"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:895
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:976
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:896
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:977
 msgid " matches"
 msgstr "corrispondenze"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:900
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:901
 msgid "No matches found"
 msgstr "Nessuna corrispondenza trovata"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:973
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:974
 msgid " of 100+ matches"
 msgstr " di oltre 100 corrispondenze"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:976
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:977
 msgid " of "
 msgstr " di "
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1368
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1372
 msgid "API Key Required"
 msgstr "Chiave API richiesta"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1369
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py:1373
 msgid "Please enter OpenAI API Key in preferences"
 msgstr "Inserisci la chiave API OpenAI nelle preferenze"
 
@@ -763,73 +789,73 @@ msgstr "Diviso per lunghezza massima"
 msgid "Merge"
 msgstr "Unione"
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:103
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:92
 msgid "1/8 Collecting transcripts"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:125
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:106
 msgid "2/8 Loading audio"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:140
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:115
 msgid "3/8 Loading alignment model"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:150
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:121
 msgid "4/8 Processing audio"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:168
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:133
 #, fuzzy
 msgid "5/8 Preparing transcripts"
 msgstr "Inizio trascrizione..."
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:190
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:151
 msgid "6/8 Identifying speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:217
-msgid "7/8 Mapping speakers to transcripts"
-msgstr ""
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:257
-msgid "8/8 Identification done"
-msgstr ""
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:262
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:167
 msgid "0/0 Error identifying speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:316
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:175
+msgid "7/8 Mapping speakers to transcripts"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:214
+msgid "8/8 Identification done"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:251
 msgid "Step 1: Identify speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:328
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:263
 msgid "Identify"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:337
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:272
 msgid "Ready to identify speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:339
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:274
 msgid "Audio file not found"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:363
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:298
 msgid "Step 2: Name speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:378
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:493
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:313
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:406
 msgid "Play sample"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:393
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:328
 msgid "Merge speaker sentences"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:398
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:333
 #, fuzzy
 msgid "Save"
 msgstr "Salva file"
@@ -891,13 +917,13 @@ msgid "Unable to save OpenAI API key to keyring"
 msgstr "Impossibile salvare la chiave API OpenAI nel portachiavi"
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py:57
-#: buzz/transcriber/recording_transcriber.py:397
+#: buzz/transcriber/recording_transcriber.py:417
 msgid "Whisper server failed to start. Check logs for details."
 msgstr ""
 "Impossibile avviare il server Whisper. Controllare i log per i dettagli."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py:60
-#: buzz/transcriber/recording_transcriber.py:401
+#: buzz/transcriber/recording_transcriber.py:421
 msgid ""
 "Whisper server failed to start due to insufficient memory. Please try again "
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
@@ -1271,15 +1297,15 @@ msgstr "Sundanese"
 msgid "Cantonese"
 msgstr "Cantonese"
 
-#: buzz/transcriber/recording_transcriber.py:224 buzz/model_loader.py:610
+#: buzz/transcriber/recording_transcriber.py:244 buzz/model_loader.py:684
 msgid "A connection error occurred"
 msgstr "Si è verificato un errore di connessione"
 
-#: buzz/transcriber/recording_transcriber.py:333
+#: buzz/transcriber/recording_transcriber.py:353
 msgid "Starting Whisper.cpp..."
 msgstr "Avvio di Whisper.cpp..."
 
-#: buzz/transcriber/recording_transcriber.py:388
+#: buzz/transcriber/recording_transcriber.py:408
 msgid "Starting transcription..."
 msgstr "Inizio trascrizione..."
 

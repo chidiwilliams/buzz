@@ -188,6 +188,20 @@ class GeneralPreferencesWidget(QWidget):
 
         layout.addRow(_("Live recording mode"), self.recording_transcriber_mode)
 
+        self.reduce_gpu_memory_enabled = self.settings.value(
+            key=Settings.Key.REDUCE_GPU_MEMORY, default_value=False
+        )
+
+        self.reduce_gpu_memory_checkbox = QCheckBox(_("Use 8-bit quantization to reduce memory usage"))
+        self.reduce_gpu_memory_checkbox.setChecked(self.reduce_gpu_memory_enabled)
+        self.reduce_gpu_memory_checkbox.setObjectName("ReduceGPUMemoryCheckbox")
+        self.reduce_gpu_memory_checkbox.setToolTip(
+            _("Applies to Huggingface and Faster Whisper models. "
+              "Reduces GPU memory usage but may slightly decrease transcription quality.")
+        )
+        self.reduce_gpu_memory_checkbox.stateChanged.connect(self.on_reduce_gpu_memory_changed)
+        layout.addRow(_("Reduce GPU RAM"), self.reduce_gpu_memory_checkbox)
+
         self.force_cpu_enabled = self.settings.value(
             key=Settings.Key.FORCE_CPU, default_value=False
         )
@@ -198,20 +212,6 @@ class GeneralPreferencesWidget(QWidget):
         self.force_cpu_checkbox.setToolTip(_("Set this if larger models do not fit your GPU memory and Buzz crashes"))
         self.force_cpu_checkbox.stateChanged.connect(self.on_force_cpu_changed)
         layout.addRow(_("Disable GPU"), self.force_cpu_checkbox)
-
-        self.reduce_gpu_memory_enabled = self.settings.value(
-            key=Settings.Key.REDUCE_GPU_MEMORY, default_value=False
-        )
-
-        self.reduce_gpu_memory_checkbox = QCheckBox(_("Use 8-bit quantization to reduce memory usage"))
-        self.reduce_gpu_memory_checkbox.setChecked(self.reduce_gpu_memory_enabled)
-        self.reduce_gpu_memory_checkbox.setObjectName("ReduceGPUMemoryCheckbox")
-        self.reduce_gpu_memory_checkbox.setToolTip(
-            _("Applies to Hugging Face and Faster Whisper models. "
-              "Reduces GPU memory usage but may slightly decrease transcription quality.")
-        )
-        self.reduce_gpu_memory_checkbox.stateChanged.connect(self.on_reduce_gpu_memory_changed)
-        layout.addRow(_("Reduce GPU RAM"), self.reduce_gpu_memory_checkbox)
 
         self.setLayout(layout)
 
