@@ -297,3 +297,11 @@ class TranscriptionOptionsGroupBox(QGroupBox):
             if mms_lang:
                 self.transcription_options.language = mms_lang
                 self.transcription_options_changed.emit(self.transcription_options)
+        else:
+            # When switching from MMS to a regular model, use the dropdown's current value
+            # This prevents invalid MMS language codes (like "eng") being used with Whisper
+            current_index = self.languages_combo_box.currentIndex()
+            dropdown_lang = self.languages_combo_box.languages[current_index][0]
+            if self.transcription_options.language != dropdown_lang:
+                self.transcription_options.language = dropdown_lang if dropdown_lang else None
+                self.transcription_options_changed.emit(self.transcription_options)
