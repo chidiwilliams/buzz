@@ -83,6 +83,9 @@ def _preload_linux_libraries():
     """
     lib_dirs = _get_nvidia_package_lib_dirs()
 
+    # Libraries to skip - NVBLAS requires special configuration and causes issues
+    skip_patterns = ["libnvblas"]
+
     loaded_libs = set()
 
     for lib_dir in lib_dirs:
@@ -94,6 +97,11 @@ def _preload_linux_libraries():
             if lib_file.name in loaded_libs:
                 continue
             if lib_file.is_symlink() and not lib_file.exists():
+                continue
+
+            # Skip problematic libraries
+            if any(pattern in lib_file.name for pattern in skip_patterns):
+                logger.debug(f"Skipping library: {lib_file}")
                 continue
 
             try:
