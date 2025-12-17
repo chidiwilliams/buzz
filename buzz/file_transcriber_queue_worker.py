@@ -1,10 +1,23 @@
 import logging
 import multiprocessing
+import os
 import queue
+import ssl
 import sys
 from pathlib import Path
 from typing import Optional, Tuple, List, Set
 from uuid import UUID
+
+# Fix SSL certificate verification for bundled applications (macOS, Windows)
+# This must be done before importing demucs which uses torch.hub with urllib
+try:
+    import certifi
+    os.environ.setdefault('SSL_CERT_FILE', certifi.where())
+    os.environ.setdefault('SSL_CERT_DIR', os.path.dirname(certifi.where()))
+    # Also update the default SSL context for urllib
+    ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
+except ImportError:
+    pass
 
 from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot, Qt
 
@@ -111,7 +124,6 @@ class FileTranscriberQueueWorker(QObject):
                 self.task_progress.emit(self.current_task, int(progress["segment_offset"] * 100) / int(progress["audio_length"] * 100))
 
             try:
-                # This will fail on Windows 10 and Mac with SSL cert error
                 separator = demucsApi.Separator(
                     progress=True,
                     callback=separator_progress_callback,
