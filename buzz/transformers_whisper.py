@@ -255,7 +255,12 @@ class TransformersTranscriber:
         pipeline_kwargs = {
             "task": "automatic-speech-recognition",
             "pipeline_class": PipelineWithProgress,
-            "generate_kwargs": {"language": language, "task": task},
+            "generate_kwargs": {
+                "language": language,
+                "task": task,
+                "no_repeat_ngram_size": 3,
+                "repetition_penalty": 1.2,
+            },
             "model": model,
             "tokenizer": processor.tokenizer,
             "feature_extractor": processor.feature_extractor,
