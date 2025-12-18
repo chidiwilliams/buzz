@@ -25,6 +25,10 @@ dependencies = [
     "openai-whisper==20250625",
     "transformers>=4.53,<5",
     "accelerate>=1.12.0,<2",
+    "peft>=0.14.0,<1",
+    # Overriden in uv.tool section below to ensure CUDA 12.9 compatibility
+    # Skip on Intel Macs (x86_64), use 0.49.0 on ARM Macs, 0.45.0+ elsewhere
+    "bitsandbytes>=0.45.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
     "polib>=1.2.0,<2",
     "srt-equalizer>=0.1.10,<0.2",
     # For Intel macOS (x86_64) - use older versions that support Intel
@@ -79,6 +83,9 @@ dependencies = [
     "demucs",
     "certifi==2025.11.12",
     "torchcodec>=0.9.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
+    "torch>=2.2.2",
+    "torchaudio>=2.2.2",
+    "datasets>=4.4.1",
 ]
 repository = "https://github.com/chidiwilliams/buzz"
 documentation = "https://chidiwilliams.github.io/buzz/docs"
@@ -113,6 +120,14 @@ index-strategy = "unsafe-best-match"
 default-groups = [
     "dev",
     "build",
+]
+
+# Should be removed after nemo-toolkit update to 2.6.0
+# Forcing a CUDA 12.9 compatable bitsandbytes version
+# ARM Macs use 0.49.0, others use 0.47.0 (Intel Macs skip entirely via marker)
+override-dependencies = [
+  "bitsandbytes==0.49.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
+  "bitsandbytes==0.47.0; sys_platform != 'darwin'",
 ]
 
 [tool.uv.sources]

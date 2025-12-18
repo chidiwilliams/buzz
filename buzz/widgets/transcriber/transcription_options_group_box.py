@@ -10,7 +10,7 @@ from PyQt6.QtWidgets import QGroupBox, QWidget, QFormLayout, QComboBox, QLabel, 
 from buzz.locale import _
 from buzz.settings.settings import Settings
 from buzz.widgets.icon import INFO_ICON_PATH
-from buzz.model_loader import ModelType, WhisperModelSize, get_whisper_cpp_file_path
+from buzz.model_loader import ModelType, WhisperModelSize, get_whisper_cpp_file_path, is_mms_model
 from buzz.transcriber.transcriber import TranscriptionOptions, Task
 from buzz.widgets.model_type_combo_box import ModelTypeComboBox
 from buzz.widgets.openai_api_key_line_edit import OpenAIAPIKeyLineEdit
@@ -20,6 +20,7 @@ from buzz.widgets.transcriber.hugging_face_search_line_edit import (
     HuggingFaceSearchLineEdit,
 )
 from buzz.widgets.transcriber.languages_combo_box import LanguagesComboBox
+from buzz.widgets.transcriber.mms_language_line_edit import MMSLanguageLineEdit
 from buzz.widgets.transcriber.tasks_combo_box import TasksComboBox
 
 
@@ -87,6 +88,13 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         )
         self.languages_combo_box.languageChanged.connect(self.on_language_changed)
 
+        # MMS language input (text field for ISO 639-3 codes)
+        self.mms_language_line_edit = MMSLanguageLineEdit(
+            default_language="eng", parent=self
+        )
+        self.mms_language_line_edit.languageChanged.connect(self.on_mms_language_changed)
+        self.mms_language_line_edit.setVisible(False)
+
         self.advanced_settings_button = AdvancedSettingsButton(self)
         self.advanced_settings_button.clicked.connect(self.open_advanced_settings)
 
@@ -115,6 +123,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.form_layout.addRow(_("Api Key:"), self.openai_access_token_edit)
         self.form_layout.addRow(_("Task:"), self.tasks_combo_box)
         self.form_layout.addRow(_("Language:"), self.languages_combo_box)
+        self.form_layout.addRow(_("Language:"), self.mms_language_line_edit)
 
         self.reset_visible_rows()
 
@@ -129,6 +138,14 @@ class TranscriptionOptionsGroupBox(QGroupBox):
     def on_language_changed(self, language: str):
         if language == "":
             language = None
+
+        self.transcription_options.language = language
+        self.transcription_options_changed.emit(self.transcription_options)
+
+    def on_mms_language_changed(self, language: str):
+        """Handle MMS language code changes."""
+        if language == "":
+            language = "eng"  # Default to English for MMS
 
         self.transcription_options.language = language
         self.transcription_options_changed.emit(self.transcription_options)
@@ -229,6 +246,9 @@ class TranscriptionOptionsGroupBox(QGroupBox):
                 self.transcription_options.model.model_type == ModelType.WHISPER_CPP
             )
 
+        # Update language widget visibility (MMS vs Whisper)
+        self._update_language_widget_visibility()
+
     def on_model_type_changed(self, model_type: ModelType):
         self.transcription_options.model.model_type = model_type
         if not model_type.supports_initial_prompt:
@@ -254,3 +274,34 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.transcription_options_changed.emit(self.transcription_options)
 
         self.settings.save_custom_model_id(self.transcription_options.model)
+
+        # Update language widget visibility based on whether this is an MMS model
+        self._update_language_widget_visibility()
+
+    def _update_language_widget_visibility(self):
+        """Update language widget visibility based on whether the selected model is MMS."""
+        model_type = self.transcription_options.model.model_type
+        model_id = self.transcription_options.model.hugging_face_model_id
+
+        # Check if this is an MMS model
+        is_mms = (model_type == ModelType.HUGGING_FACE and is_mms_model(model_id))
+
+        # Show MMS language input for MMS models, show dropdown for others
+        self.form_layout.setRowVisible(self.mms_language_line_edit, is_mms)
+        self.form_layout.setRowVisible(self.languages_combo_box, not is_mms)
+
+        # Sync the language value when switching between MMS and non-MMS
+        if is_mms:
+            # When switching to MMS, use the MMS language input value
+            mms_lang = self.mms_language_line_edit.language()
+            if mms_lang:
+                self.transcription_options.language = mms_lang
+                self.transcription_options_changed.emit(self.transcription_options)
+        else:
+            # When switching from MMS to a regular model, use the dropdown's current value
+            # This prevents invalid MMS language codes (like "eng") being used with Whisper
+            current_index = self.languages_combo_box.currentIndex()
+            dropdown_lang = self.languages_combo_box.languages[current_index][0]
+            if self.transcription_options.language != dropdown_lang:
+                self.transcription_options.language = dropdown_lang if dropdown_lang else None
+                self.transcription_options_changed.emit(self.transcription_options)

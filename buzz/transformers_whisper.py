@@ -1,13 +1,27 @@
 import os
 import sys
+import logging
+import platform
 import numpy as np
 import torch
 import requests
-from typing import Optional, Union
-from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
+from typing import Union
+from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline, BitsAndBytesConfig
 from transformers.pipelines import AutomaticSpeechRecognitionPipeline
 from transformers.pipelines.audio_utils import ffmpeg_read
 from transformers.pipelines.automatic_speech_recognition import is_torchaudio_available
+
+from buzz.model_loader import is_mms_model, map_language_to_mms
+
+
+def is_intel_mac() -> bool:
+    """Check if running on Intel Mac (x86_64)."""
+    return sys.platform == 'darwin' and platform.machine() == 'x86_64'
+
+
+def is_peft_model(model_id: str) -> bool:
+    """Check if model is a PEFT model based on model ID containing '-peft'."""
+    return "-peft" in model_id.lower()
 
 
 class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no cover
@@ -162,11 +176,23 @@ class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no co
             yield {"is_last": True, **processed, **extra}
 
 
-class TransformersWhisper:
-    def __init__(
-        self, model_id: str
-    ):
+class TransformersTranscriber:
+    """Unified transcriber for HuggingFace models (Whisper and MMS)."""
+
+    def __init__(self, model_id: str):
         self.model_id = model_id
+        self._is_mms = is_mms_model(model_id)
+        self._is_peft = is_peft_model(model_id)
+
+    @property
+    def is_mms_model(self) -> bool:
+        """Returns True if this is an MMS model."""
+        return self._is_mms
+
+    @property
+    def is_peft_model(self) -> bool:
+        """Returns True if this is a PEFT model."""
+        return self._is_peft
 
     def transcribe(
         self,
@@ -175,39 +201,85 @@ class TransformersWhisper:
         task: str,
         word_timestamps: bool = False,
     ):
+        """Transcribe audio using either Whisper or MMS model."""
+        if self._is_mms:
+            return self._transcribe_mms(audio, language)
+        else:
+            return self._transcribe_whisper(audio, language, task, word_timestamps)
+
+    def _transcribe_whisper(
+        self,
+        audio: Union[str, np.ndarray],
+        language: str,
+        task: str,
+        word_timestamps: bool = False,
+    ):
+        """Transcribe using Whisper model."""
         force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
         use_cuda = torch.cuda.is_available() and force_cpu == "false"
         device = "cuda" if use_cuda else "cpu"
         torch_dtype = torch.float16 if use_cuda else torch.float32
 
-        use_safetensors = True
-        if os.path.exists(self.model_id):
-            safetensors_files = [f for f in os.listdir(self.model_id) if f.endswith(".safetensors")]
-            use_safetensors = len(safetensors_files) > 0
+        # Check if this is a PEFT model
+        if is_peft_model(self.model_id):
+            model, processor, use_8bit = self._load_peft_model(device, torch_dtype)
+        else:
+            use_safetensors = True
+            if os.path.exists(self.model_id):
+                safetensors_files = [f for f in os.listdir(self.model_id) if f.endswith(".safetensors")]
+                use_safetensors = len(safetensors_files) > 0
 
-        model = AutoModelForSpeechSeq2Seq.from_pretrained(
-            self.model_id, torch_dtype=torch_dtype, low_cpu_mem_usage=True, use_safetensors=use_safetensors
-        )
+            # Check if user wants reduced GPU memory usage (8-bit quantization)
+            # Skip on Intel Macs as bitsandbytes is not available there
+            reduce_gpu_memory = os.getenv("BUZZ_REDUCE_GPU_MEMORY", "false") != "false"
+            use_8bit = False
+            if device == "cuda" and reduce_gpu_memory and not is_intel_mac():
+                try:
+                    import bitsandbytes  # noqa: F401
+                    use_8bit = True
+                    print("Using 8-bit quantization for reduced GPU memory usage")
+                except ImportError:
+                    print("bitsandbytes not available, using standard precision")
 
-        model.generation_config.language = language
-        model.to(device)
+            if use_8bit:
+                quantization_config = BitsAndBytesConfig(load_in_8bit=True)
+                model = AutoModelForSpeechSeq2Seq.from_pretrained(
+                    self.model_id,
+                    quantization_config=quantization_config,
+                    device_map="auto",
+                    use_safetensors=use_safetensors
+                )
+            else:
+                model = AutoModelForSpeechSeq2Seq.from_pretrained(
+                    self.model_id, torch_dtype=torch_dtype, low_cpu_mem_usage=True, use_safetensors=use_safetensors
+                )
+                model.to(device)
 
-        processor = AutoProcessor.from_pretrained(self.model_id)
+            model.generation_config.language = language
 
-        pipe = pipeline(
-            "automatic-speech-recognition",
-            pipeline_class=PipelineWithProgress,
-            generate_kwargs={"language": language, "task": task},
-            model=model,
-            tokenizer=processor.tokenizer,
-            feature_extractor=processor.feature_extractor,
+            processor = AutoProcessor.from_pretrained(self.model_id)
+
+        pipeline_kwargs = {
+            "task": "automatic-speech-recognition",
+            "pipeline_class": PipelineWithProgress,
+            "generate_kwargs": {
+                "language": language,
+                "task": task,
+                "no_repeat_ngram_size": 3,
+                "repetition_penalty": 1.2,
+            },
+            "model": model,
+            "tokenizer": processor.tokenizer,
+            "feature_extractor": processor.feature_extractor,
             # pipeline has built in chunking, works faster, but we loose progress output
             # needed for word level timestamps, otherwise there is huge RAM usage on longer audios
-            chunk_length_s=30 if word_timestamps else None,
-            torch_dtype=torch_dtype,
-            device=device,
-            ignore_warning=True  # Ignore warning about chunk_length_s being experimental for seq2seq models
-         )
+            "chunk_length_s": 30 if word_timestamps else None,
+            "torch_dtype": torch_dtype,
+            "ignore_warning": True,  # Ignore warning about chunk_length_s being experimental for seq2seq models
+        }
+        if not use_8bit:
+            pipeline_kwargs["device"] = device
+        pipe = pipeline(**pipeline_kwargs)
 
         transcript = pipe(
             audio,
@@ -237,4 +309,208 @@ class TransformersWhisper:
             "text": transcript['text'],
             "segments": segments,
         }
+
+    def _load_peft_model(self, device: str, torch_dtype):
+        """Load a PEFT (Parameter-Efficient Fine-Tuning) model.
+
+        PEFT models require loading the base model first, then applying the adapter.
+        The base model path is extracted from the PEFT config.
+
+        Returns:
+            Tuple of (model, processor, use_8bit)
+        """
+        from peft import PeftModel, PeftConfig
+        from transformers import WhisperForConditionalGeneration, WhisperFeatureExtractor, WhisperTokenizer
+
+        print(f"Loading PEFT model: {self.model_id}")
+
+        # Get the PEFT model ID (handle both local paths and repo IDs)
+        peft_model_id = self._get_peft_repo_id()
+
+        # Load PEFT config to get base model path
+        peft_config = PeftConfig.from_pretrained(peft_model_id)
+        base_model_path = peft_config.base_model_name_or_path
+        print(f"PEFT base model: {base_model_path}")
+
+        # Load the base Whisper model
+        # Use 8-bit quantization on CUDA if user enabled "Reduce GPU RAM" and bitsandbytes is available
+        # Skip on Intel Macs as bitsandbytes is not available there
+        reduce_gpu_memory = os.getenv("BUZZ_REDUCE_GPU_MEMORY", "false") != "false"
+        use_8bit = False
+        if device == "cuda" and reduce_gpu_memory and not is_intel_mac():
+            try:
+                import bitsandbytes  # noqa: F401
+                use_8bit = True
+                print("Using 8-bit quantization for reduced GPU memory usage")
+            except ImportError:
+                print("bitsandbytes not available, using standard precision for PEFT model")
+
+        if use_8bit:
+            quantization_config = BitsAndBytesConfig(load_in_8bit=True)
+            model = WhisperForConditionalGeneration.from_pretrained(
+                base_model_path,
+                quantization_config=quantization_config,
+                device_map="auto"
+            )
+        else:
+            model = WhisperForConditionalGeneration.from_pretrained(
+                base_model_path,
+                torch_dtype=torch_dtype,
+                low_cpu_mem_usage=True
+            )
+            model.to(device)
+
+        # Apply the PEFT adapter
+        model = PeftModel.from_pretrained(model, peft_model_id)
+        model.config.use_cache = True
+
+        # Load feature extractor and tokenizer from base model
+        feature_extractor = WhisperFeatureExtractor.from_pretrained(base_model_path)
+        tokenizer = WhisperTokenizer.from_pretrained(base_model_path, task="transcribe")
+
+        # Create a simple processor-like object that the pipeline expects
+        class PeftProcessor:
+            def __init__(self, feature_extractor, tokenizer):
+                self.feature_extractor = feature_extractor
+                self.tokenizer = tokenizer
+
+        processor = PeftProcessor(feature_extractor, tokenizer)
+
+        return model, processor, use_8bit
+
+    def _get_peft_repo_id(self) -> str:
+        """Extract HuggingFace repo ID from local cache path for PEFT models."""
+        model_id = self.model_id
+
+        # If it's already a repo ID (contains / but not a file path), return as-is
+        if "/" in model_id and not os.path.exists(model_id):
+            return model_id
+
+        # Extract repo ID from cache path
+        if "models--" in model_id:
+            parts = model_id.split("models--")
+            if len(parts) > 1:
+                repo_part = parts[1].split(os.sep + "snapshots")[0]
+                repo_id = repo_part.replace("--", "/", 1)
+                return repo_id
+
+        # Fallback: return as-is
+        return model_id
+
+    def _get_mms_repo_id(self) -> str:
+        """Extract HuggingFace repo ID from local cache path or return as-is if already a repo ID."""
+        model_id = self.model_id
+
+        # If it's already a repo ID (contains / but not a file path), return as-is
+        if "/" in model_id and not os.path.exists(model_id):
+            return model_id
+
+        # Extract repo ID from cache path like:
+        # Linux: /home/user/.cache/Buzz/models/models--facebook--mms-1b-all/snapshots/xxx
+        # Windows: C:\Users\user\.cache\Buzz\models\models--facebook--mms-1b-all\snapshots\xxx
+        if "models--" in model_id:
+            # Extract the part after "models--" and before "/snapshots" or "\snapshots"
+            parts = model_id.split("models--")
+            if len(parts) > 1:
+                # Split on os.sep to handle both Windows and Unix paths
+                repo_part = parts[1].split(os.sep + "snapshots")[0]
+                # Convert facebook--mms-1b-all to facebook/mms-1b-all
+                repo_id = repo_part.replace("--", "/", 1)
+                return repo_id
+
+        # Fallback: return as-is
+        return model_id
+
+    def _transcribe_mms(
+        self,
+        audio: Union[str, np.ndarray],
+        language: str,
+    ):
+        """Transcribe using MMS (Massively Multilingual Speech) model."""
+        from transformers import Wav2Vec2ForCTC, AutoProcessor as MMSAutoProcessor
+        from transformers.pipelines.audio_utils import ffmpeg_read as mms_ffmpeg_read
+
+        force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
+        use_cuda = torch.cuda.is_available() and force_cpu == "false"
+        device = "cuda" if use_cuda else "cpu"
+
+        # Map language code to ISO 639-3 for MMS
+        mms_language = map_language_to_mms(language)
+        print(f"MMS transcription with language: {mms_language} (original: {language})")
+
+        sys.stderr.write("0%\n")
+
+        # Use repo ID for MMS to allow adapter downloads
+        # Local paths don't work for adapter downloads
+        repo_id = self._get_mms_repo_id()
+        print(f"MMS using repo ID: {repo_id} (from model_id: {self.model_id})")
+
+        # Load processor and model with target language
+        # This will download the language adapter if not cached
+        processor = MMSAutoProcessor.from_pretrained(
+            repo_id,
+            target_lang=mms_language
+        )
+
+        model = Wav2Vec2ForCTC.from_pretrained(
+            repo_id,
+            target_lang=mms_language,
+            ignore_mismatched_sizes=True
+        )
+        model.to(device)
+
+        sys.stderr.write("25%\n")
+
+        # Load and process audio
+        if isinstance(audio, str):
+            with open(audio, "rb") as f:
+                audio_data = f.read()
+            audio_array = mms_ffmpeg_read(audio_data, processor.feature_extractor.sampling_rate)
+        else:
+            audio_array = audio
+
+        # Ensure audio is the right sample rate
+        sampling_rate = processor.feature_extractor.sampling_rate
+
+        sys.stderr.write("50%\n")
+
+        # Process audio in chunks for progress reporting
+        inputs = processor(
+            audio_array,
+            sampling_rate=sampling_rate,
+            return_tensors="pt",
+            padding=True
+        )
+        inputs = {k: v.to(device) for k, v in inputs.items()}
+
+        sys.stderr.write("75%\n")
+
+        # Run inference
+        with torch.no_grad():
+            outputs = model(**inputs).logits
+
+        # Decode
+        ids = torch.argmax(outputs, dim=-1)[0]
+        transcription = processor.decode(ids)
+
+        sys.stderr.write("100%\n")
+
+        # Calculate approximate duration for segment
+        duration = len(audio_array) / sampling_rate if isinstance(audio_array, np.ndarray) else 0
+
+        # Return in same format as Whisper for consistency
+        # MMS doesn't provide word-level timestamps, so we return a single segment
+        return {
+            "text": transcription,
+            "segments": [{
+                "start": 0,
+                "end": duration,
+                "text": transcription.strip(),
+                "translation": ""
+            }] if transcription.strip() else []
+        }
+
+
+# Alias for backward compatibility
+TransformersWhisper = TransformersTranscriber
 

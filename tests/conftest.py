@@ -1,10 +1,19 @@
+import multiprocessing
 import os
 import platform
 import random
 import string
-from pathlib import Path
 
 import pytest
+
+# Set multiprocessing to use 'spawn' instead of 'fork' on Linux
+# This is required because Qt creates threads early, and forking a multi-threaded
+# process can lead to deadlocks. The main application sets this in buzz/buzz.py.
+if platform.system() != "Windows":
+    try:
+        multiprocessing.set_start_method("spawn", force=True)
+    except RuntimeError:
+        pass  # Already set
 from PyQt6.QtSql import QSqlDatabase
 from _pytest.fixtures import SubRequest
 

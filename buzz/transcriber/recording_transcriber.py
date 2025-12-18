@@ -21,10 +21,10 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from buzz import whisper_audio
 from buzz.locale import _
 from buzz.assets import APP_BASE_DIR
-from buzz.model_loader import ModelType
+from buzz.model_loader import ModelType, map_language_to_mms
 from buzz.settings.settings import Settings
 from buzz.transcriber.transcriber import TranscriptionOptions, Task
-from buzz.transformers_whisper import TransformersWhisper
+from buzz.transformers_whisper import TransformersTranscriber
 from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
 
 import whisper
@@ -105,10 +105,18 @@ class RecordingTranscriber(QObject):
             if force_cpu != "false":
                 device = "cpu"
 
+            # Check if user wants reduced GPU memory usage (int8 quantization)
+            reduce_gpu_memory = os.getenv("BUZZ_REDUCE_GPU_MEMORY", "false") != "false"
+            compute_type = "default"
+            if reduce_gpu_memory:
+                compute_type = "int8" if device == "cpu" else "int8_float16"
+                logging.debug(f"Using {compute_type} compute type for reduced memory usage")
+
             model = faster_whisper.WhisperModel(
                 model_size_or_path=model_path,
                 download_root=model_root_dir,
                 device=device,
+                compute_type=compute_type,
                 cpu_threads=(os.cpu_count() or 8)//2,
             )
 
@@ -132,7 +140,7 @@ class RecordingTranscriber(QObject):
             logging.debug("Will use whisper API on %s, %s",
                           custom_openai_base_url, self.whisper_api_model)
         else:  # ModelType.HUGGING_FACE
-            model = TransformersWhisper(model_path)
+            model = TransformersTranscriber(model_path)
 
         initial_prompt = self.transcription_options.initial_prompt
 
@@ -211,13 +219,25 @@ class RecordingTranscriber(QObject):
                                 self.transcription_options.model.model_type
                                 == ModelType.HUGGING_FACE
                         ):
-                            assert isinstance(model, TransformersWhisper)
+                            assert isinstance(model, TransformersTranscriber)
+                            # Handle MMS-specific language and task
+                            if model.is_mms_model:
+                                language = map_language_to_mms(
+                                    self.transcription_options.language or "eng"
+                                )
+                                effective_task = Task.TRANSCRIBE.value
+                            else:
+                                language = (
+                                    self.transcription_options.language
+                                    if self.transcription_options.language is not None
+                                    else "en"
+                                )
+                                effective_task = self.transcription_options.task.value
+
                             result = model.transcribe(
                                 audio=samples,
-                                language=self.transcription_options.language
-                                if self.transcription_options.language is not None
-                                else "en",
-                                task=self.transcription_options.task.value,
+                                language=language,
+                                task=effective_task,
                             )
                         else:  # OPEN_AI_WHISPER_API, also used for WHISPER_CPP
                             if self.openai_client is None:

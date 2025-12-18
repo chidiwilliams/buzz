@@ -18,8 +18,8 @@ from PyQt6.QtCore import QObject
 
 from buzz import whisper_audio
 from buzz.conn import pipe_stderr
-from buzz.model_loader import ModelType, WhisperModelSize
-from buzz.transformers_whisper import TransformersWhisper
+from buzz.model_loader import ModelType, WhisperModelSize, map_language_to_mms
+from buzz.transformers_whisper import TransformersTranscriber
 from buzz.transcriber.file_transcriber import FileTranscriber
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment, Task
 from buzz.transcriber.whisper_cpp import WhisperCpp
@@ -123,6 +123,10 @@ class WhisperFileTranscriber(FileTranscriber):
     def transcribe_whisper(
         cls, stderr_conn: Connection, task: FileTranscriptionTask
     ) -> None:
+        # Preload CUDA libraries in the subprocess - must be done before importing torch
+        # This is needed because multiprocessing creates a fresh process without the main process's preloaded libraries
+        from buzz import cuda_setup  # noqa: F401
+
         # Patch subprocess on Windows to prevent console window flash
         # This is needed because multiprocessing spawns a new process without the main process patches
         if sys.platform == "win32":
@@ -182,17 +186,29 @@ class WhisperFileTranscriber(FileTranscriber):
 
     @classmethod
     def transcribe_hugging_face(cls, task: FileTranscriptionTask) -> List[Segment]:
-        model = TransformersWhisper(task.model_path)
-        language = (
-            task.transcription_options.language
-            if task.transcription_options.language is not None
-            else "en"
-        )
+        model = TransformersTranscriber(task.model_path)
+
+        # Handle language - MMS uses ISO 639-3 codes, Whisper uses ISO 639-1
+        if model.is_mms_model:
+            language = map_language_to_mms(task.transcription_options.language or "eng")
+            # MMS only supports transcription, ignore translation task
+            effective_task = Task.TRANSCRIBE.value
+            # MMS doesn't support word-level timestamps
+            word_timestamps = False
+        else:
+            language = (
+                task.transcription_options.language
+                if task.transcription_options.language is not None
+                else "en"
+            )
+            effective_task = task.transcription_options.task.value
+            word_timestamps = task.transcription_options.word_level_timings
+
         result = model.transcribe(
             audio=task.file_path,
             language=language,
-            task=task.transcription_options.task.value,
-            word_timestamps=task.transcription_options.word_level_timings,
+            task=effective_task,
+            word_timestamps=word_timestamps,
         )
         return [
             Segment(
@@ -228,10 +244,18 @@ class WhisperFileTranscriber(FileTranscriber):
         if force_cpu != "false":
             device = "cpu"
 
+        # Check if user wants reduced GPU memory usage (int8 quantization)
+        reduce_gpu_memory = os.getenv("BUZZ_REDUCE_GPU_MEMORY", "false") != "false"
+        compute_type = "default"
+        if reduce_gpu_memory:
+            compute_type = "int8" if device == "cpu" else "int8_float16"
+            logging.debug(f"Using {compute_type} compute type for reduced memory usage")
+
         model = faster_whisper.WhisperModel(
             model_size_or_path=model_size_or_path,
             download_root=model_root_dir,
             device=device,
+            compute_type=compute_type,
             cpu_threads=(os.cpu_count() or 8)//2,
         )
 

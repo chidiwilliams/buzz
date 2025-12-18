@@ -1,17 +1,17 @@
 import platform
 import pytest
 
-from buzz.transformers_whisper import TransformersWhisper
+from buzz.transformers_whisper import TransformersTranscriber
 from tests.audio import test_audio_path
 
 
-class TestTransformersWhisper:
+class TestTransformersTranscriber:
     @pytest.mark.skipif(
         platform.system() == "Darwin",
         reason="Not supported on Darwin",
     )
     def test_should_transcribe(self):
-        model = TransformersWhisper("openai/whisper-tiny")
+        model = TransformersTranscriber("openai/whisper-tiny")
         result = model.transcribe(
             audio=test_audio_path, language="fr", task="transcribe"
         )
