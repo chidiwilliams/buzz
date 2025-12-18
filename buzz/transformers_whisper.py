@@ -1,6 +1,7 @@
 import os
 import sys
 import logging
+import platform
 import numpy as np
 import torch
 import requests
@@ -11,6 +12,11 @@ from transformers.pipelines.audio_utils import ffmpeg_read
 from transformers.pipelines.automatic_speech_recognition import is_torchaudio_available
 
 from buzz.model_loader import is_mms_model, map_language_to_mms
+
+
+def is_intel_mac() -> bool:
+    """Check if running on Intel Mac (x86_64)."""
+    return sys.platform == 'darwin' and platform.machine() == 'x86_64'
 
 
 def is_peft_model(model_id: str) -> bool:
@@ -224,9 +230,10 @@ class TransformersTranscriber:
                 use_safetensors = len(safetensors_files) > 0
 
             # Check if user wants reduced GPU memory usage (8-bit quantization)
+            # Skip on Intel Macs as bitsandbytes is not available there
             reduce_gpu_memory = os.getenv("BUZZ_REDUCE_GPU_MEMORY", "false") != "false"
             use_8bit = False
-            if device == "cuda" and reduce_gpu_memory:
+            if device == "cuda" and reduce_gpu_memory and not is_intel_mac():
                 try:
                     import bitsandbytes  # noqa: F401
                     use_8bit = True
@@ -327,9 +334,10 @@ class TransformersTranscriber:
 
         # Load the base Whisper model
         # Use 8-bit quantization on CUDA if user enabled "Reduce GPU RAM" and bitsandbytes is available
+        # Skip on Intel Macs as bitsandbytes is not available there
         reduce_gpu_memory = os.getenv("BUZZ_REDUCE_GPU_MEMORY", "false") != "false"
         use_8bit = False
-        if device == "cuda" and reduce_gpu_memory:
+        if device == "cuda" and reduce_gpu_memory and not is_intel_mac():
             try:
                 import bitsandbytes  # noqa: F401
                 use_8bit = True
