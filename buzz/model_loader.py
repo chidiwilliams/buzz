@@ -624,9 +624,41 @@ class ModelDownloader(QRunnable):
             )
 
             if self.is_coreml_supported:
-                with zipfile.ZipFile(
-                        os.path.join(model_path, f"ggml-{model_name}-encoder.mlmodelc.zip"), 'r') as zip_ref:
-                    zip_ref.extractall(model_path)
+                import tempfile
+
+                target_dir = os.path.join(model_path, f"ggml-{model_name}-encoder.mlmodelc")
+                zip_path = os.path.join(model_path, f"ggml-{model_name}-encoder.mlmodelc.zip")
+
+                # Remove target directory if it exists
+                if os.path.exists(target_dir):
+                    shutil.rmtree(target_dir)
+
+                # Extract to a temporary directory first
+                with tempfile.TemporaryDirectory() as temp_dir:
+                    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                        zip_ref.extractall(temp_dir)
+
+                    # Remove __MACOSX metadata folders if present
+                    macosx_path = os.path.join(temp_dir, "__MACOSX")
+                    if os.path.exists(macosx_path):
+                        shutil.rmtree(macosx_path)
+
+                    # Check if there's a single top-level directory
+                    temp_contents = os.listdir(temp_dir)
+                    if len(temp_contents) == 1 and os.path.isdir(os.path.join(temp_dir, temp_contents[0])):
+                        # Single directory - move its contents to target
+                        nested_dir = os.path.join(temp_dir, temp_contents[0])
+                        shutil.move(nested_dir, target_dir)
+                    else:
+                        # Multiple items or files - copy everything to target
+                        os.makedirs(target_dir, exist_ok=True)
+                        for item in temp_contents:
+                            src = os.path.join(temp_dir, item)
+                            dst = os.path.join(target_dir, item)
+                            if os.path.isdir(src):
+                                shutil.copytree(src, dst)
+                            else:
+                                shutil.copy2(src, dst)
 
             self.signals.finished.emit(os.path.join(
                 model_path, f"ggml-{model_name}.bin"))
