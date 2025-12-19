@@ -101,6 +101,7 @@ class WhisperCpp:
             "--print-progress",
             "--suppress-nst",
             "--output-json-full",
+            "-t", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8) // 2)),
             "-f", file_to_process,
         ]
     
@@ -110,9 +111,8 @@ class WhisperCpp:
     
         # Force CPU if specified
         force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
-        if force_cpu != "false" or not IS_VULKAN_SUPPORTED:
+        if force_cpu != "false" or (not IS_VULKAN_SUPPORTED and platform.system() != "Darwin"):
             cmd.extend(["--no-gpu"])
-            cmd.extend(["-t", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8) // 2))])
 
         print(f"Running Whisper CLI: {' '.join(cmd)}")
 
