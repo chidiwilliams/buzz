@@ -22,6 +22,50 @@ from huggingface_hub.errors import LocalEntryNotFoundError
 
 from buzz.locale import _
 
+# On Windows, creating symlinks requires special privileges (Developer Mode or
+# SeCreateSymbolicLinkPrivilege). Monkey-patch huggingface_hub to use file
+# copying instead of symlinks to avoid [WinError 1314] errors.
+if sys.platform == "win32":
+    try:
+        from huggingface_hub import file_download
+        from pathlib import Path
+
+        _original_create_symlink = file_download._create_symlink
+
+        def _windows_create_symlink(src: Path, dst: Path, new_blob: bool = False) -> None:
+            """Windows-compatible replacement that copies instead of symlinking."""
+            src = Path(src)
+            dst = Path(dst)
+
+            # If dst already exists and is correct, skip
+            if dst.exists():
+                if dst.is_symlink():
+                    # Existing symlink - leave it
+                    return
+                if dst.is_file():
+                    # Check if it's the same file
+                    if dst.stat().st_size == src.stat().st_size:
+                        return
+
+            dst.parent.mkdir(parents=True, exist_ok=True)
+
+            # Try symlink first (works if Developer Mode is enabled)
+            try:
+                dst.unlink(missing_ok=True)
+                os.symlink(src, dst)
+                return
+            except OSError:
+                pass
+
+            # Fallback: copy the file instead
+            dst.unlink(missing_ok=True)
+            shutil.copy2(src, dst)
+
+        file_download._create_symlink = _windows_create_symlink
+        logging.debug("Patched huggingface_hub to use file copying on Windows")
+    except Exception as e:
+        logging.warning(f"Failed to patch huggingface_hub for Windows: {e}")
+
 
 model_root_dir = user_cache_dir("Buzz")
 model_root_dir = os.path.join(model_root_dir, "models")
