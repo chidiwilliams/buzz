@@ -38,11 +38,34 @@ class FileTranscriber(QObject):
     @pyqtSlot()
     def run(self):
         if self.transcription_task.source == FileTranscriptionTask.Source.URL_IMPORT:
-            temp_output_path = tempfile.mktemp()
+            cookiefile = os.getenv("BUZZ_DOWNLOAD_COOKIEFILE")
+
+            # First extract info to get the video title
+            extract_options = {
+                "logger": logging.getLogger(),
+            }
+            if cookiefile:
+                extract_options["cookiefile"] = cookiefile
+
+            try:
+                with YoutubeDL(extract_options) as ydl_info:
+                    info = ydl_info.extract_info(self.transcription_task.url, download=False)
+                    video_title = info.get("title", "audio")
+            except Exception as exc:
+                logging.debug(f"Error extracting video info: {exc}")
+                video_title = "audio"
+
+            # Sanitize title for use as filename
+            video_title = YoutubeDL.sanitize_info({"title": video_title})["title"]
+            # Remove characters that are problematic in filenames
+            for char in ['/', '\\', ':', '*', '?', '"', '<', '>', '|']:
+                video_title = video_title.replace(char, '_')
+
+            # Create temp directory and use video title as filename
+            temp_dir = tempfile.mkdtemp()
+            temp_output_path = os.path.join(temp_dir, video_title)
             wav_file = temp_output_path + ".wav"
             wav_file = str(Path(wav_file).resolve())
-
-            cookiefile = os.getenv("BUZZ_DOWNLOAD_COOKIEFILE")
 
             options = {
                 "format": "bestaudio/best",

@@ -47,6 +47,9 @@ class TranscriptionService:
                 )
             )
 
+    def update_transcription_file_and_name(self, id: UUID, file_path: str, name: str | None = None):
+        self.transcription_dao.update_transcription_file_and_name(id, file_path, name)
+
     def update_transcription_name(self, id: UUID, name: str):
         self.transcription_dao.update_transcription_name(id, name)
 
