@@ -286,15 +286,15 @@ class TestTranscriptionTasksTableWidget:
         text = file_column_def.delegate.callback(record_with_name)
         assert text == "Custom Name"
 
-        # Test fallback to URL when no name
-        record_url_fallback = mock_record({"name": None, "url": "http://example.com/audio.mp3", "file": "/path/file.mp3"})
+        # Test fallback to file basename when no name (file takes priority over URL)
+        record_file_fallback = mock_record({"name": None, "url": "http://example.com/audio.mp3", "file": "/path/file.mp3"})
+        text = file_column_def.delegate.callback(record_file_fallback)
+        assert text == "file.mp3"
+
+        # Test fallback to URL when no name and no file
+        record_url_fallback = mock_record({"name": None, "url": "http://example.com/audio.mp3", "file": ""})
         text = file_column_def.delegate.callback(record_url_fallback)
         assert text == "http://example.com/audio.mp3"
-
-        # Test fallback to filename when no name or URL
-        record_file_fallback = mock_record({"name": None, "url": "", "file": "/path/to/audio.mp3"})
-        text = file_column_def.delegate.callback(record_file_fallback)
-        assert text == "audio.mp3"
 
     def test_notes_column_text_getter(self, widget):
         """Test that notes column displays notes or empty string"""

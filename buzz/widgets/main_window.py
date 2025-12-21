@@ -385,6 +385,15 @@ class MainWindow(QMainWindow):
         pass
 
     def on_task_completed(self, task: FileTranscriptionTask, segments: List[Segment]):
+        # Update file path in database (important for URL imports where file is downloaded)
+        if task.file_path:
+            logging.debug(f"Updating transcription file path: {task.file_path}")
+            # For URL imports, use the file basename (video title) as the display name
+            name = None
+            if task.source == FileTranscriptionTask.Source.URL_IMPORT:
+                basename = os.path.basename(task.file_path)
+                name = os.path.splitext(basename)[0]  # Remove .wav extension
+            self.transcription_service.update_transcription_file_and_name(task.uid, task.file_path, name)
         self.transcription_service.update_transcription_as_completed(task.uid, segments)
         self.table_widget.refresh_row(task.uid)
 

@@ -95,8 +95,8 @@ column_definitions = [
         width=400,
         delegate=RecordDelegate(
             text_getter=lambda record: record.value("name") or (
-                record.value("url") if record.value("url") != ""
-                else os.path.basename(record.value("file"))
+                os.path.basename(record.value("file")) if record.value("file")
+                else record.value("url") or ""
             )
         ),
         hidden_toggleable=False,

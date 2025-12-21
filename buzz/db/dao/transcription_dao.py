@@ -250,6 +250,22 @@ class TranscriptionDAO(DAO[Transcription]):
         if not query.exec():
             raise Exception(query.lastError().text())
 
+    def update_transcription_file_and_name(self, id: UUID, file_path: str, name: str | None = None):
+        query = self._create_query()
+        query.prepare(
+            """
+            UPDATE transcription
+            SET file = :file, name = COALESCE(:name, name)
+            WHERE id = :id
+        """
+        )
+
+        query.bindValue(":id", str(id))
+        query.bindValue(":file", file_path)
+        query.bindValue(":name", name)
+        if not query.exec():
+            raise Exception(query.lastError().text())
+
     def update_transcription_name(self, id: UUID, name: str):
         query = self._create_query()
         query.prepare(
