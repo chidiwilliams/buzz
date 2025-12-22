@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-22 08:50+0200\n"
-"PO-Revision-Date: 2025-12-22 08:52+0200\n"
+"POT-Creation-Date: 2025-12-22 09:24+0200\n"
+"PO-Revision-Date: 2025-12-22 09:26+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -801,72 +801,72 @@ msgstr "2/8 Ielādē audio"
 msgid "3/8 Loading alignment model"
 msgstr "3/8 Ielādē identifikācijas modeli"
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:158
-msgid "3/8 Loading alignment model (retrying...)"
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:167
+msgid "3/8 Loading alignment model (retrying with cache...)"
 msgstr "3/8 Ielādē identifikācijas modeli (atkārto...)"
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:163
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:172
 msgid ""
-"Failed to download alignment model. Please check your internet connection "
-"and try again."
+"Failed to load alignment model. Please check your internet connection and "
+"try again."
 msgstr ""
 "Neizdevās ielādēt modeli. Lūdzu pārbaidiet savu interneta savienojumu un "
 "mēģiniet vēlreiz."
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:171
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:180
 msgid "4/8 Processing audio"
 msgstr "4/8 Apstrādā audio"
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:189
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:198
 msgid "5/8 Preparing transcripts"
 msgstr "5/8 Sagatavo transkripcijas"
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:211
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:220
 msgid "6/8 Identifying speakers"
 msgstr "6/8 Nosaka runātājus"
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:238
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:247
 msgid "7/8 Mapping speakers to transcripts"
 msgstr "7/8 Marķē runātāju teikumus"
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:278
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:287
 msgid "8/8 Identification done"
 msgstr "8/8 Runātāju noteikšana pabeigta"
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:283
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:292
 msgid "0/0 Error identifying speakers"
 msgstr "0/0 Kļūda nosakot runātājus"
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:337
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:352
 msgid "Step 1: Identify speakers"
 msgstr "1. solis: Runātāju noteikšana"
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:349
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:364
 msgid "Identify"
 msgstr "Noteikt"
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:358
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:373
 msgid "Ready to identify speakers"
 msgstr "Gatavs noteikt runātājus"
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:360
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:375
 msgid "Audio file not found"
 msgstr "Audio datne nav atrasta"
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:384
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:399
 msgid "Step 2: Name speakers"
 msgstr "2. solis: Runātāju identifikācija"
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:399
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:514
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:414
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:529
 msgid "Play sample"
 msgstr "Atskaņot paraugu"
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:414
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:429
 msgid "Merge speaker sentences"
 msgstr "Apvienot secīgus runātāja teikumus"
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:419
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:434
 msgid "Save"
 msgstr "Saglabāt"
 

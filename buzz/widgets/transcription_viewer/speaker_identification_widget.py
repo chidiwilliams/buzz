@@ -154,13 +154,22 @@ class IdentificationWorker(QObject):
                             f"Speaker identification: Failed to load alignment model "
                             f"(attempt {attempt + 1}/3), retrying: {e}"
                         )
+                        # On retry, try using cached models only (offline mode)
+                        # Set at runtime by modifying the library constants directly
+                        # (env vars are only read at import time)
+                        try:
+                            import huggingface_hub.constants
+                            huggingface_hub.constants.HF_HUB_OFFLINE = True
+                            logging.debug("Speaker identification: Enabled HF offline mode")
+                        except Exception as offline_err:
+                            logging.warning(f"Failed to set offline mode: {offline_err}")
                         self.progress_update.emit(
-                            _("3/8 Loading alignment model (retrying...)")
+                            _("3/8 Loading alignment model (retrying with cache...)")
                         )
                         time.sleep(2 ** attempt)  # 1s, 2s backoff
                     else:
                         raise RuntimeError(
-                            _("Failed to download alignment model. "
+                            _("Failed to load alignment model. "
                               "Please check your internet connection and try again.")
                         ) from e
 
@@ -299,6 +308,12 @@ class IdentificationWorker(QObject):
                 except Exception:
                     pass
             torch.cuda.empty_cache()
+            # Reset offline mode so it doesn't affect other operations
+            try:
+                import huggingface_hub.constants
+                huggingface_hub.constants.HF_HUB_OFFLINE = False
+            except Exception:
+                pass
 
 
 class SpeakerIdentificationWidget(QWidget):

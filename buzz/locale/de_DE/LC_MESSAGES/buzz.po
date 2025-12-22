@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-22 08:50+0200\n"
+"POT-Creation-Date: 2025-12-22 09:24+0200\n"
 "PO-Revision-Date: 2025-03-05 14:41+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -793,71 +793,71 @@ msgstr ""
 msgid "3/8 Loading alignment model"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:158
-msgid "3/8 Loading alignment model (retrying...)"
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:167
+msgid "3/8 Loading alignment model (retrying with cache...)"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:163
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:172
 msgid ""
-"Failed to download alignment model. Please check your internet connection "
-"and try again."
+"Failed to load alignment model. Please check your internet connection and "
+"try again."
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:171
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:180
 msgid "4/8 Processing audio"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:189
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:198
 #, fuzzy
 msgid "5/8 Preparing transcripts"
 msgstr "Transkription abbrechen"
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:211
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:220
 msgid "6/8 Identifying speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:238
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:247
 msgid "7/8 Mapping speakers to transcripts"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:278
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:287
 msgid "8/8 Identification done"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:283
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:292
 msgid "0/0 Error identifying speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:337
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:352
 msgid "Step 1: Identify speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:349
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:364
 msgid "Identify"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:358
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:373
 msgid "Ready to identify speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:360
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:375
 msgid "Audio file not found"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:384
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:399
 msgid "Step 2: Name speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:399
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:514
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:414
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:529
 msgid "Play sample"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:414
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:429
 msgid "Merge speaker sentences"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:419
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:434
 #, fuzzy
 msgid "Save"
 msgstr "Datei speichern"
