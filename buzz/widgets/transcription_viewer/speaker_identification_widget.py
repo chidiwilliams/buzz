@@ -1,6 +1,7 @@
 import re
 import os
 import logging
+import time
 import faster_whisper
 import torch
 import random
@@ -138,10 +139,30 @@ class IdentificationWorker(QObject):
                 return
 
             self.progress_update.emit(_("3/8 Loading alignment model"))
-            alignment_model, alignment_tokenizer = load_alignment_model(
-                device,
-                dtype=torch_dtype,
-            )
+            alignment_model = None
+            alignment_tokenizer = None
+            for attempt in range(3):
+                try:
+                    alignment_model, alignment_tokenizer = load_alignment_model(
+                        device,
+                        dtype=torch_dtype,
+                    )
+                    break
+                except Exception as e:
+                    if attempt < 2:
+                        logging.warning(
+                            f"Speaker identification: Failed to load alignment model "
+                            f"(attempt {attempt + 1}/3), retrying: {e}"
+                        )
+                        self.progress_update.emit(
+                            _("3/8 Loading alignment model (retrying...)")
+                        )
+                        time.sleep(2 ** attempt)  # 1s, 2s backoff
+                    else:
+                        raise RuntimeError(
+                            _("Failed to download alignment model. "
+                              "Please check your internet connection and try again.")
+                        ) from e
 
             if self._is_cancelled:
                 logging.debug("Speaker identification worker: Cancelled at step 4")
