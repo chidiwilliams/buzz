@@ -608,7 +608,7 @@ msgstr "Rādīt jaunā logā"
 
 #: buzz/widgets/recording_transcriber_widget.py:231
 msgid "Text Size:"
-msgstr "Teksta izmērs"
+msgstr "Teksta izmērs:"
 
 #: buzz/widgets/recording_transcriber_widget.py:247
 msgid "Theme"

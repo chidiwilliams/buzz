@@ -360,7 +360,7 @@ class TestRecordingTranscriberWidgetPresentation:
             )
             qtbot.add_widget(widget)
 
-            widget.on_them_changed(0)  # light theme
+            widget.on_theme_changed(0)  # light theme
 
             saved_theme = settings.value(Settings.Key.PRESENTATION_WINDOW_THEME, "")
             assert saved_theme == "light"
@@ -385,7 +385,7 @@ class TestRecordingTranscriberWidgetPresentation:
             )
             qtbot.add_widget(widget)
 
-            widget.on_them_changed(1)  # dark theme
+            widget.on_theme_changed(1)  # dark theme
 
             saved_theme = settings.value(Settings.Key.PRESENTATION_WINDOW_THEME, "")
             assert saved_theme == "dark"
@@ -410,7 +410,7 @@ class TestRecordingTranscriberWidgetPresentation:
             )
             qtbot.add_widget(widget)
 
-            widget.on_them_changed(2)  # custom theme
+            widget.on_theme_changed(2)  # custom theme
 
             saved_theme = settings.value(Settings.Key.PRESENTATION_WINDOW_THEME, "")
             assert saved_theme == "custom"
@@ -430,7 +430,8 @@ class TestRecordingTranscriberWidgetPresentation:
               patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
                     return_value=16_000),
               patch("sounddevice.check_input_settings"),
-              patch.object(QColorDialog, 'getColor', return_value=QColor("#FF5500"))):
+              patch("buzz.widgets.recording_transcriber_widget.QColorDialog.getColor",
+                    return_value=QColor("#FF5500"))):
             widget = RecordingTranscriberWidget(
                 custom_sounddevice=MockSoundDevice()
             )
@@ -454,7 +455,8 @@ class TestRecordingTranscriberWidgetPresentation:
               patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
                     return_value=16_000),
               patch("sounddevice.check_input_settings"),
-              patch.object(QColorDialog, 'getColor', return_value=QColor())):  # Invalid color = cancelled
+              patch("buzz.widgets.recording_transcriber_widget.QColorDialog.getColor",
+                    return_value=QColor())):  # Invalid color = cancelled
             widget = RecordingTranscriberWidget(
                 custom_sounddevice=MockSoundDevice()
             )
@@ -477,7 +479,8 @@ class TestRecordingTranscriberWidgetPresentation:
               patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
                     return_value=16_000),
               patch("sounddevice.check_input_settings"),
-              patch.object(QColorDialog, 'getColor', return_value=QColor("#00AA55"))):
+              patch("buzz.widgets.recording_transcriber_widget.QColorDialog.getColor",
+                    return_value=QColor("#00AA55"))):
             widget = RecordingTranscriberWidget(
                 custom_sounddevice=MockSoundDevice()
             )

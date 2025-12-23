@@ -260,7 +260,6 @@ class TestPresentationWindowFullscreen:
         assert not window.isFullScreen()
         window.close()
 
-
 class TestPresentationWindowKeyPressEvent:
     def test_escape_exits_fullscreen(self, qtbot: QtBot):
         """Test that ESC key exits fullscreen mode"""
@@ -300,7 +299,6 @@ class TestPresentationWindowKeyPressEvent:
 
         assert not window.isFullScreen()
         window.close()
-
 
 class TestPresentationWindowGetCssFilePath:
     def test_get_css_file_path_returns_path(self, qtbot: QtBot):

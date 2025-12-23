@@ -19,7 +19,6 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QComboBox,
     QLabel,
-    QSlider,
     QSpinBox,
     QColorDialog
 )
@@ -211,7 +210,6 @@ class RecordingTranscriberWidget(QWidget):
         layout.insertWidget(3, self.presentation_options_bar)
         self.presentation_options_bar.hide()
 
-
     def create_presentation_options_bar(self) -> QWidget:
         """Crete the presentation options bar widget"""
 
@@ -256,7 +254,7 @@ class RecordingTranscriberWidget(QWidget):
         )
         theme_index = {"light": 0, "dark": 1, "custom": 2}.get(saved_theme, 0)
         self.theme_combo.setCurrentIndex(theme_index)
-        self.theme_combo.currentIndexChanged.connect(self.on_them_changed)
+        self.theme_combo.currentIndexChanged.connect(self.on_theme_changed)
         layout.addWidget(self.theme_combo)
 
         #Color buttons hidden first, show when custom is selected
@@ -270,7 +268,7 @@ class RecordingTranscriberWidget(QWidget):
             self.text_color_button.show()
         layout.addWidget(self.text_color_button)
 
-        self.bg_color_button = QPushButton( bar)
+        self.bg_color_button = QPushButton(bar)
         self.bg_color_button.setIcon(ColorBackgroundIcon(bar))
         self.bg_color_button.setToolTip(_("Background Color"))
         self.bg_color_button.clicked.connect(self.on_bg_color_clicked)
@@ -322,8 +320,7 @@ class RecordingTranscriberWidget(QWidget):
         #Incase user drags slider, Debounce by waiting 100ms before saving
         QTimer.singleShot(100, save_settings)
 
-
-    def on_them_changed(self, index: int):
+    def on_theme_changed(self, index: int):
         """Handle theme selection change"""
         theme = ["light", "dark", "custom"]
         selected_theme = theme[index]
@@ -340,7 +337,6 @@ class RecordingTranscriberWidget(QWidget):
         # Apply theme to presentation window
         if self.presentation_window:
             self.presentation_window.load_settings()
-
 
     def on_text_color_clicked(self):
         """Handle text color button click"""
@@ -359,7 +355,6 @@ class RecordingTranscriberWidget(QWidget):
             if self.presentation_window:
                 self.presentation_window.load_settings()
 
-
     def on_bg_color_clicked(self):
         """Handle background color button click"""
 
@@ -377,12 +372,10 @@ class RecordingTranscriberWidget(QWidget):
             if self.presentation_window:
                 self.presentation_window.load_settings()
 
-
     def on_fullscreen_clicked(self):
         """Handle fullscreen button click"""
         if self.presentation_window:
             self.presentation_window.toggle_fullscreen()
-
 
     def setup_for_export(self):
         export_folder = self.settings.value(
@@ -463,7 +456,6 @@ class RecordingTranscriberWidget(QWidget):
         )
         self.recording_amplitude_listener.start_recording()
 
-
     def on_record_button_clicked(self):
         if self.current_status == self.RecordingStatus.STOPPED:
             self.start_recording()
@@ -476,7 +468,6 @@ class RecordingTranscriberWidget(QWidget):
             self.stop_recording()
             self.set_recording_status_stopped()
             self.presentation_options_bar.hide()
-
 
     def start_recording(self):
         self.record_button.setDisabled(True)

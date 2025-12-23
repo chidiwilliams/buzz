@@ -30,7 +30,6 @@ class Settings:
         PRESENTATION_WINDOW_BACKGROUND_COLOR = "presentation-window/background-color"
         PRESENTATION_WINDOW_TEXT_SIZE = "presentation-window/text-size"
         PRESENTATION_WINDOW_THEME = "presentation-window/theme"
-        PRESENTATION_WINDOW_FULLSCREEN = "presentation-window/fullscreen"
 
         FILE_TRANSCRIBER_TASK = "file-transcriber/task"
         FILE_TRANSCRIBER_MODEL = "file-transcriber/model"

@@ -46,7 +46,6 @@ class PresentationWindow(QWidget):
 
         self.load_settings()
 
-
     def load_settings(self):
         """Load and apply saved presentation settings"""
         theme = self.settings.value(
@@ -86,7 +85,6 @@ class PresentationWindow(QWidget):
             self.update_transcripts(self._current_transcript)
         if self._current_translation:
             self.update_translations(self._current_translation)
-
 
     def apply_styling(self, text_color: str, bg_color: str, text_size: int):
         """Apply text color, background color and font size"""
@@ -170,7 +168,6 @@ class PresentationWindow(QWidget):
             self.showNormal()
         else:
             self.showFullScreen()
-
 
     def keyPressEvent(self, event):
         """Handle keyboard events"""
