@@ -17,6 +17,8 @@ class PresentationWindow(QWidget):
         super().__init__(parent)
 
         self.settings = Settings()
+        self._current_transcript = ""
+        self._current_translation = ""
         self.setWindowTitle(_("Live Transcript Presentation"))
         self.setWindowFlag(Qt.WindowType.Window)
 
@@ -78,6 +80,12 @@ class PresentationWindow(QWidget):
 
         self.apply_styling(text_color, bg_color, text_size)
 
+        # Refresh content with new styling
+        if self._current_transcript:
+            self.update_transcript(self._current_transcript)
+        if self._current_translation:
+            self.update_translation(self._current_translation)
+
 
     def apply_styling(self, text_color: str, bg_color: str, text_size: int):
         """Apply text color, background color and font size"""
@@ -126,6 +134,7 @@ class PresentationWindow(QWidget):
         if not text:
             return
 
+        self._current_transcript = text
         escaped_text = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
         html_text = escaped_text.replace("\n", "<br>")
 
@@ -176,6 +185,63 @@ class PresentationWindow(QWidget):
 
         self.transcript_display.setHtml(html_content)
 
+    def update_translation(self, text: str):
+        """Update the translation display with new text"""
+        if not text:
+            return
+
+        self._current_translation = text
+        self.translation_display.show()
+
+        escaped_text = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        html_text = escaped_text.replace("\n", "<br>")
+
+        # Get current styling
+        theme = self.settings.value(Settings.Key.PRESENTATION_WINDOW_THEME, "light")
+        text_size = self.settings.value(Settings.Key.PRESENTATION_WINDOW_TEXT_SIZE, 24, int)
+
+        if theme == "light":
+            text_color = "#000000"
+            bg_color = "#FFFFFF"
+        elif theme == "dark":
+            text_color = "#FFFFFF"
+            bg_color = "#000000"
+        else:  # custom
+            text_color = self.settings.value(Settings.Key.PRESENTATION_WINDOW_TEXT_COLOR, "#000000")
+            bg_color = self.settings.value(Settings.Key.PRESENTATION_WINDOW_BACKGROUND_COLOR, "#FFFFFF")
+
+        # Load custom CSS
+        css_file_path = self.get_css_file_path()
+        custom_css = ""
+        if os.path.exists(css_file_path):
+            try:
+                with open(css_file_path, "r", encoding="utf-8") as f:
+                    custom_css = f.read()
+            except Exception:
+                pass
+
+        html_content = f"""
+                    <html>
+                        <head>
+                            <style>
+                                body {{
+                                    color: {text_color};
+                                    background-color: {bg_color};
+                                    font-size: {text_size}pt;
+                                    font-family: Arial, sans-serif;
+                                    padding: 20px;
+                                    margin: 0;
+                                }}
+                                {custom_css}
+                            </style>
+                        </head>
+                        <body>
+                            {html_text}
+                        </body>
+                    </html>
+                    """
+
+        self.translation_display.setHtml(html_content)
 
     def toggle_fullscreen(self):
         """Toggle fullscreen mode"""
