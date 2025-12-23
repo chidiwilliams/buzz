@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-22 09:24+0200\n"
+"POT-Creation-Date: 2025-12-23 19:21+0200\n"
 "PO-Revision-Date: 2025-09-08 12:43+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: \n"
@@ -52,6 +52,12 @@ msgstr "URL inválido"
 #: buzz/widgets/import_url_dialog.py:44
 msgid "The URL you entered is invalid."
 msgstr "La URL que has introducido no es válida."
+
+# automatic translation
+#: buzz/widgets/presentation_window.py:23
+#, fuzzy
+msgid "Live Transcript Presentation"
+msgstr "Ver la traducción de la transcripción"
 
 #: buzz/widgets/preferences_dialog/shortcuts_editor_preferences_widget.py:29
 msgid "Reset to Defaults"
@@ -609,31 +615,80 @@ msgid "Could not restart transcription: transcriber worker not found."
 msgstr ""
 
 # automatic translation
-#: buzz/widgets/recording_transcriber_widget.py:83
+#: buzz/widgets/recording_transcriber_widget.py:97
 msgid "Live Recording"
 msgstr "Grabación en vivo"
 
 # automatic translation
-#: buzz/widgets/recording_transcriber_widget.py:149
+#: buzz/widgets/recording_transcriber_widget.py:163
 msgid "Click Record to begin..."
 msgstr "Pulse en Grabar para comenzar..."
 
-#: buzz/widgets/recording_transcriber_widget.py:152
+#: buzz/widgets/recording_transcriber_widget.py:166
 msgid "Waiting for AI translation..."
 msgstr "A la espera de la traducción de la IA..."
 
 # automatic translation
-#: buzz/widgets/recording_transcriber_widget.py:164
+#: buzz/widgets/recording_transcriber_widget.py:178
 msgid "Microphone:"
 msgstr "Micrófono:"
 
+#: buzz/widgets/recording_transcriber_widget.py:225
+msgid "Show in new window"
+msgstr ""
+
+#: buzz/widgets/recording_transcriber_widget.py:231
+#, fuzzy
+msgid "Text Size:"
+msgstr "Archivos de texto"
+
+#: buzz/widgets/recording_transcriber_widget.py:247
+msgid "Theme"
+msgstr ""
+
+#: buzz/widgets/recording_transcriber_widget.py:251
+msgid "Light"
+msgstr ""
+
+#: buzz/widgets/recording_transcriber_widget.py:251
+msgid "Dark"
+msgstr ""
+
+#: buzz/widgets/recording_transcriber_widget.py:251
+msgid "Custom"
+msgstr ""
+
+#: buzz/widgets/recording_transcriber_widget.py:265
+#, fuzzy
+msgid "Text Color"
+msgstr "Archivos de texto"
+
+#: buzz/widgets/recording_transcriber_widget.py:275
+msgid "Background Color"
+msgstr ""
+
+#: buzz/widgets/recording_transcriber_widget.py:284
+msgid "Fullscreen"
+msgstr ""
+
+#: buzz/widgets/recording_transcriber_widget.py:355
+#, fuzzy
+msgid "Select Text Color"
+msgstr "Seleccione Exportar carpeta"
+
 # automatic translation
-#: buzz/widgets/recording_transcriber_widget.py:579
+#: buzz/widgets/recording_transcriber_widget.py:373
+#, fuzzy
+msgid "Select Background Color"
+msgstr "Seleccionar archivo de audio"
+
+# automatic translation
+#: buzz/widgets/recording_transcriber_widget.py:788
 msgid "An error occurred while starting a new recording:"
 msgstr "Se produjo un error al iniciar una grabación nueva:"
 
 # automatic translation
-#: buzz/widgets/recording_transcriber_widget.py:583
+#: buzz/widgets/recording_transcriber_widget.py:792
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
@@ -975,14 +1030,14 @@ msgid "Unable to save OpenAI API key to keyring"
 msgstr "No se puede guardar la clave de la API de OpenAI en el llavero"
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py:57
-#: buzz/transcriber/recording_transcriber.py:417
+#: buzz/transcriber/recording_transcriber.py:427
 msgid "Whisper server failed to start. Check logs for details."
 msgstr ""
 "El servidor Whisper no se pudo iniciar. Consulta los registros para obtener "
 "más detalles."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py:60
-#: buzz/transcriber/recording_transcriber.py:421
+#: buzz/transcriber/recording_transcriber.py:431
 msgid ""
 "Whisper server failed to start due to insufficient memory. Please try again "
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
@@ -1361,12 +1416,12 @@ msgstr "Cantonés"
 msgid "A connection error occurred"
 msgstr "Se ha producido un error de conexión"
 
-#: buzz/transcriber/recording_transcriber.py:353
+#: buzz/transcriber/recording_transcriber.py:358
 msgid "Starting Whisper.cpp..."
 msgstr "Iniciando Whisper.cpp..."
 
 # automatic translation
-#: buzz/transcriber/recording_transcriber.py:408
+#: buzz/transcriber/recording_transcriber.py:418
 #, fuzzy
 msgid "Starting transcription..."
 msgstr "Cancelar transcripción"
