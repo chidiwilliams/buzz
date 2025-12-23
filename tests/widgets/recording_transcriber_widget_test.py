@@ -4,12 +4,15 @@ import pytest
 import platform
 import tempfile
 
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from pytestqt.qtbot import QtBot
+from PyQt6.QtWidgets import QColorDialog
+from PyQt6.QtGui import QColor
 
 from buzz.locale import _
 from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
 from buzz.widgets.recording_transcriber_widget import RecordingTranscriberWidget
+from buzz.widgets.presentation_window import PresentationWindow
 from buzz.settings.settings import Settings
 
 from tests.mock_sounddevice import MockSoundDevice, MockInputStream
@@ -186,4 +189,439 @@ class TestRecordingTranscriberWidget:
 
             qtbot.wait(500)
 
+            widget.close()
+
+
+class TestRecordingTranscriberWidgetPresentation:
+    """Tests for presentation window related functionality"""
+
+    @pytest.mark.timeout(60)
+    def test_presentation_options_bar_created(self, qtbot: QtBot):
+        """Test that presentation options bar is created"""
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            qtbot.add_widget(widget)
+
+            assert widget.presentation_options_bar is not None
+            assert not widget.presentation_options_bar.isVisible()
+
+            time.sleep(0.5)
+            widget.close()
+
+    @pytest.mark.timeout(60)
+    def test_presentation_options_bar_has_buttons(self, qtbot: QtBot):
+        """Test that presentation options bar has all expected buttons"""
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            qtbot.add_widget(widget)
+
+            assert widget.show_presentation_button is not None
+            assert widget.fullscreen_button is not None
+            assert widget.text_size_spinbox is not None
+            assert widget.theme_combo is not None
+            assert widget.text_color_button is not None
+            assert widget.bg_color_button is not None
+
+            time.sleep(0.5)
+            widget.close()
+
+    @pytest.mark.timeout(60)
+    def test_presentation_window_initially_none(self, qtbot: QtBot):
+        """Test that presentation window is None initially"""
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            qtbot.add_widget(widget)
+
+            assert widget.presentation_window is None
+
+            time.sleep(0.5)
+            widget.close()
+
+    @pytest.mark.timeout(60)
+    def test_on_show_presentation_clicked_creates_window(self, qtbot: QtBot):
+        """Test that clicking show presentation button creates the window"""
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            qtbot.add_widget(widget)
+
+            widget.on_show_presentation_clicked()
+
+            assert widget.presentation_window is not None
+            assert isinstance(widget.presentation_window, PresentationWindow)
+            assert widget.presentation_window.isVisible()
+            assert widget.fullscreen_button.isEnabled()
+
+            time.sleep(0.5)
+            widget.close()
+
+    @pytest.mark.timeout(60)
+    def test_on_show_presentation_clicked_syncs_content(self, qtbot: QtBot):
+        """Test that clicking show presentation button syncs existing content"""
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            qtbot.add_widget(widget)
+
+            # Add some text to the transcription box
+            widget.transcription_text_box.setPlainText("Test transcript text")
+
+            widget.on_show_presentation_clicked()
+
+            assert widget.presentation_window._current_transcript == "Test transcript text"
+
+            time.sleep(0.5)
+            widget.close()
+
+    @pytest.mark.timeout(60)
+    def test_on_show_presentation_clicked_brings_existing_to_front(self, qtbot: QtBot):
+        """Test that clicking show presentation button brings existing window to front"""
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            qtbot.add_widget(widget)
+
+            # Create window first
+            widget.on_show_presentation_clicked()
+            first_window = widget.presentation_window
+
+            # Click again
+            widget.on_show_presentation_clicked()
+
+            # Should be the same window
+            assert widget.presentation_window is first_window
+
+            time.sleep(0.5)
+            widget.close()
+
+    @pytest.mark.timeout(60)
+    def test_on_text_size_changed(self, qtbot: QtBot):
+        """Test that text size change updates settings"""
+        settings = Settings()
+
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            qtbot.add_widget(widget)
+
+            widget.on_text_size_changed(36)
+
+            # Wait for debounce
+            qtbot.wait(200)
+
+            saved_size = settings.value(Settings.Key.PRESENTATION_WINDOW_TEXT_SIZE, 24, int)
+            assert saved_size == 36
+
+            time.sleep(0.5)
+            widget.close()
+
+    @pytest.mark.timeout(60)
+    def test_on_theme_changed_light(self, qtbot: QtBot):
+        """Test that theme change to light works"""
+        settings = Settings()
+
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            qtbot.add_widget(widget)
+
+            widget.on_theme_changed(0)  # light theme
+
+            saved_theme = settings.value(Settings.Key.PRESENTATION_WINDOW_THEME, "")
+            assert saved_theme == "light"
+            # Color buttons should be hidden for light theme
+            assert widget.text_color_button.isHidden()
+            assert widget.bg_color_button.isHidden()
+
+            time.sleep(0.5)
+            widget.close()
+
+    @pytest.mark.timeout(60)
+    def test_on_theme_changed_dark(self, qtbot: QtBot):
+        """Test that theme change to dark works"""
+        settings = Settings()
+
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            qtbot.add_widget(widget)
+
+            widget.on_theme_changed(1)  # dark theme
+
+            saved_theme = settings.value(Settings.Key.PRESENTATION_WINDOW_THEME, "")
+            assert saved_theme == "dark"
+            # Color buttons should be hidden for dark theme
+            assert widget.text_color_button.isHidden()
+            assert widget.bg_color_button.isHidden()
+
+            time.sleep(0.5)
+            widget.close()
+
+    @pytest.mark.timeout(60)
+    def test_on_theme_changed_custom(self, qtbot: QtBot):
+        """Test that theme change to custom shows color buttons"""
+        settings = Settings()
+
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            qtbot.add_widget(widget)
+
+            widget.on_theme_changed(2)  # custom theme
+
+            saved_theme = settings.value(Settings.Key.PRESENTATION_WINDOW_THEME, "")
+            assert saved_theme == "custom"
+            # Color buttons should NOT be hidden for custom theme
+            assert not widget.text_color_button.isHidden()
+            assert not widget.bg_color_button.isHidden()
+
+            time.sleep(0.5)
+            widget.close()
+
+    @pytest.mark.timeout(60)
+    def test_on_text_color_clicked(self, qtbot: QtBot):
+        """Test that text color button opens color dialog and saves selection"""
+        settings = Settings()
+
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings"),
+              patch("buzz.widgets.recording_transcriber_widget.QColorDialog.getColor",
+                    return_value=QColor("#FF5500"))):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            qtbot.add_widget(widget)
+
+            widget.on_text_color_clicked()
+
+            saved_color = settings.value(Settings.Key.PRESENTATION_WINDOW_TEXT_COLOR, "")
+            assert saved_color == "#ff5500"
+
+            time.sleep(0.5)
+            widget.close()
+
+    @pytest.mark.timeout(60)
+    def test_on_text_color_clicked_cancel(self, qtbot: QtBot):
+        """Test that cancelling color dialog does not save"""
+        settings = Settings()
+        original_color = settings.value(Settings.Key.PRESENTATION_WINDOW_TEXT_COLOR, "#000000")
+
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings"),
+              patch("buzz.widgets.recording_transcriber_widget.QColorDialog.getColor",
+                    return_value=QColor())):  # Invalid color = cancelled
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            qtbot.add_widget(widget)
+
+            widget.on_text_color_clicked()
+
+            saved_color = settings.value(Settings.Key.PRESENTATION_WINDOW_TEXT_COLOR, "")
+            assert saved_color == original_color
+
+            time.sleep(0.5)
+            widget.close()
+
+    @pytest.mark.timeout(60)
+    def test_on_bg_color_clicked(self, qtbot: QtBot):
+        """Test that background color button opens color dialog and saves selection"""
+        settings = Settings()
+
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings"),
+              patch("buzz.widgets.recording_transcriber_widget.QColorDialog.getColor",
+                    return_value=QColor("#00AA55"))):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            qtbot.add_widget(widget)
+
+            widget.on_bg_color_clicked()
+
+            saved_color = settings.value(Settings.Key.PRESENTATION_WINDOW_BACKGROUND_COLOR, "")
+            assert saved_color == "#00aa55"
+
+            time.sleep(0.5)
+            widget.close()
+
+    @pytest.mark.timeout(60)
+    def test_on_fullscreen_clicked(self, qtbot: QtBot):
+        """Test that fullscreen button toggles presentation window fullscreen"""
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            qtbot.add_widget(widget)
+
+            # Create presentation window first
+            widget.on_show_presentation_clicked()
+
+            assert not widget.presentation_window.isFullScreen()
+
+            widget.on_fullscreen_clicked()
+
+            assert widget.presentation_window.isFullScreen()
+
+            time.sleep(0.5)
+            widget.close()
+
+    @pytest.mark.timeout(60)
+    def test_on_fullscreen_clicked_without_window(self, qtbot: QtBot):
+        """Test that fullscreen button does nothing without presentation window"""
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            qtbot.add_widget(widget)
+
+            # Should not raise exception
+            widget.on_fullscreen_clicked()
+
+            time.sleep(0.5)
+            widget.close()
+
+    @pytest.mark.timeout(60)
+    def test_presentation_window_updates_on_transcription(self, qtbot: QtBot):
+        """Test that presentation window updates when new transcription arrives"""
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            qtbot.add_widget(widget)
+
+            widget.on_show_presentation_clicked()
+
+            widget.transcriber_mode = RecordingTranscriberMode.APPEND_BELOW
+            widget.on_next_transcription("Hello world")
+
+            assert "Hello world" in widget.presentation_window._current_transcript
+
+            time.sleep(0.5)
+            widget.close()
+
+    @pytest.mark.timeout(60)
+    def test_close_event_closes_presentation_window(self, qtbot: QtBot):
+        """Test that closing widget also closes presentation window"""
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            qtbot.add_widget(widget)
+
+            widget.on_show_presentation_clicked()
+            presentation_window = widget.presentation_window
+
+            time.sleep(0.5)
+
+            widget.close()
+
+            assert widget.presentation_window is None
+
+    @pytest.mark.timeout(60)
+    def test_fullscreen_button_disabled_initially(self, qtbot: QtBot):
+        """Test that fullscreen button is disabled when no presentation window"""
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            qtbot.add_widget(widget)
+
+            assert not widget.fullscreen_button.isEnabled()
+
+            time.sleep(0.5)
+            widget.close()
+
+    @pytest.mark.timeout(60)
+    def test_presentation_bar_shown_when_recording(self, qtbot: QtBot):
+        """Test that presentation bar is shown when recording starts"""
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            widget.device_sample_rate = 16_000
+            qtbot.add_widget(widget)
+
+            # Initially hidden
+            assert widget.presentation_options_bar.isHidden()
+
+            # Simulate clicking record by directly calling the handler
+            # This avoids starting actual recording threads
+            widget.current_status = widget.RecordingStatus.RECORDING
+            widget.record_button.set_recording()
+            widget.transcription_options_group_box.setEnabled(False)
+            widget.audio_devices_combo_box.setEnabled(False)
+            widget.presentation_options_bar.show()
+
+            # Should no longer be hidden after recording starts
+            assert not widget.presentation_options_bar.isHidden()
+
+            time.sleep(0.5)
             widget.close()

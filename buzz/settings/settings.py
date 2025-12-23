@@ -26,6 +26,11 @@ class Settings:
         RECORDING_TRANSCRIBER_EXPORT_FOLDER = "recording-transcriber/export-folder"
         RECORDING_TRANSCRIBER_MODE = "recording-transcriber/mode"
 
+        PRESENTATION_WINDOW_TEXT_COLOR = "presentation-window/text-color"
+        PRESENTATION_WINDOW_BACKGROUND_COLOR = "presentation-window/background-color"
+        PRESENTATION_WINDOW_TEXT_SIZE = "presentation-window/text-size"
+        PRESENTATION_WINDOW_THEME = "presentation-window/theme"
+
         FILE_TRANSCRIBER_TASK = "file-transcriber/task"
         FILE_TRANSCRIBER_MODEL = "file-transcriber/model"
         FILE_TRANSCRIBER_LANGUAGE = "file-transcriber/language"

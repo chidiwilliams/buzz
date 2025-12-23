@@ -350,6 +350,11 @@ class RecordingTranscriber(QObject):
             self.process.wait(5000)
 
     def start_local_whisper_server(self):
+        # Reduce verbose HTTP client logging from OpenAI/httpx
+        logging.getLogger("httpx").setLevel(logging.WARNING)
+        logging.getLogger("httpcore").setLevel(logging.WARNING)
+        logging.getLogger("openai").setLevel(logging.WARNING)
+
         self.transcription.emit(_("Starting Whisper.cpp..."))
 
         self.process = None
@@ -368,7 +373,12 @@ class RecordingTranscriber(QObject):
             "--threads", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8) // 2)),
             "--model", self.model_path,
             "--no-timestamps",
-            "--no-context",  # on Windows context causes duplications of last message
+            # on Windows context causes duplications of last message
+            "--no-context",
+            # Protections against hallucinated repetition. Seems to be problem on macOS
+            # https://github.com/ggml-org/whisper.cpp/issues/1507
+            "--max-context", "64",
+            "--entropy-thold", "2.8",
             "--suppress-nst"
         ]
 

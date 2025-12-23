@@ -8,9 +8,20 @@ import sounddevice
 from enum import auto
 from typing import Optional, Tuple, Any
 
-from PyQt6.QtCore import QThread, Qt, QThreadPool
-from PyQt6.QtGui import QTextCursor, QCloseEvent
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QFormLayout, QHBoxLayout, QMessageBox
+from PyQt6.QtCore import QThread, Qt, QThreadPool, QTimer
+from PyQt6.QtGui import QTextCursor, QCloseEvent, QColor
+from PyQt6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QFormLayout,
+    QHBoxLayout,
+    QMessageBox,
+    QPushButton,
+    QComboBox,
+    QLabel,
+    QSpinBox,
+    QColorDialog
+)
 
 from buzz.dialogs import show_model_download_error_dialog
 from buzz.locale import _
@@ -39,6 +50,8 @@ from buzz.widgets.text_display_box import TextDisplayBox
 from buzz.widgets.transcriber.transcription_options_group_box import (
     TranscriptionOptionsGroupBox,
 )
+from buzz.widgets.presentation_window import PresentationWindow
+from buzz.widgets.icon import NewWindowIcon, FullscreenIcon, ColorBackgroundIcon, TextColorIcon
 
 REAL_CHARS_REGEX = re.compile(r'\w')
 NO_SPACE_BETWEEN_SENTENCES = re.compile(r'([.!?。！？])([A-Z])')
@@ -190,6 +203,180 @@ class RecordingTranscriberWidget(QWidget):
             default_value=False,
         )
 
+        #Presentation window
+        self.presentation_window: Optional[PresentationWindow] = None
+
+        self.presentation_options_bar = self.create_presentation_options_bar()
+        layout.insertWidget(3, self.presentation_options_bar)
+        self.presentation_options_bar.hide()
+
+    def create_presentation_options_bar(self) -> QWidget:
+        """Crete the presentation options bar widget"""
+
+        bar = QWidget(self)
+        layout = QHBoxLayout(bar)
+        layout.setContentsMargins(5, 5, 5, 5)
+        layout.setSpacing(10)
+
+        self.show_presentation_button = QPushButton(bar)
+        self.show_presentation_button.setIcon(NewWindowIcon(bar))
+        self.show_presentation_button.setToolTip(_("Show in new window"))
+        self.show_presentation_button.clicked.connect(self.on_show_presentation_clicked)
+        layout.addWidget(self.show_presentation_button)
+
+        layout.addStretch() #Push other controls to the right
+
+        text_size_label = QLabel(_("Text Size:"), bar)
+        layout.addWidget(text_size_label)
+
+        self.text_size_spinbox = QSpinBox(bar)
+        self.text_size_spinbox.setRange(12, 72) #12pt to 72pt
+
+        saved_text_size = self.settings.value(
+            Settings.Key.PRESENTATION_WINDOW_TEXT_SIZE,
+            24,
+            int
+        )
+        self.text_size_spinbox.setValue(saved_text_size)
+        self.text_size_spinbox.valueChanged.connect(self.on_text_size_changed)
+        layout.addWidget(self.text_size_spinbox)
+
+        #Theme selector
+        theme_label = QLabel(_("Theme"), bar)
+        layout.addWidget(theme_label)
+
+        self.theme_combo = QComboBox(bar)
+        self.theme_combo.addItems([_("Light"), _("Dark"), _("Custom")])
+        #Load saved theme
+        saved_theme = self.settings.value(
+            Settings.Key.PRESENTATION_WINDOW_THEME,
+            "light"
+        )
+        theme_index = {"light": 0, "dark": 1, "custom": 2}.get(saved_theme, 0)
+        self.theme_combo.setCurrentIndex(theme_index)
+        self.theme_combo.currentIndexChanged.connect(self.on_theme_changed)
+        layout.addWidget(self.theme_combo)
+
+        #Color buttons hidden first, show when custom is selected
+        self.text_color_button = QPushButton(bar)
+        self.text_color_button.setIcon(TextColorIcon(bar))
+        self.text_color_button.setToolTip(_("Text Color"))
+        self.text_color_button.clicked.connect(self.on_text_color_clicked)
+        self.text_color_button.hide()
+
+        if saved_theme == "custom":
+            self.text_color_button.show()
+        layout.addWidget(self.text_color_button)
+
+        self.bg_color_button = QPushButton(bar)
+        self.bg_color_button.setIcon(ColorBackgroundIcon(bar))
+        self.bg_color_button.setToolTip(_("Background Color"))
+        self.bg_color_button.clicked.connect(self.on_bg_color_clicked)
+        self.bg_color_button.hide()
+        if saved_theme == "custom":
+            self.bg_color_button.show()
+        layout.addWidget(self.bg_color_button)
+
+        self.fullscreen_button = QPushButton(bar)
+        self.fullscreen_button.setIcon(FullscreenIcon(bar))
+        self.fullscreen_button.setToolTip(_("Fullscreen"))
+        self.fullscreen_button.clicked.connect(self.on_fullscreen_clicked)
+        self.fullscreen_button.setEnabled(False)
+        layout.addWidget(self.fullscreen_button)
+
+        return bar
+
+    def on_show_presentation_clicked(self):
+        """Handle click on 'Show in new window' button"""
+        if self.presentation_window is None or not self.presentation_window.isVisible():
+            #Create new presentation window
+            self.presentation_window = PresentationWindow(self)
+            self.presentation_window.show()
+
+            #Enable fullscreen button
+            self.fullscreen_button.setEnabled(True)
+
+            #Sync current content to presentation window
+            transcript_text = self.transcription_text_box.toPlainText()
+            if transcript_text:
+                self.presentation_window.update_transcripts(transcript_text)
+
+            if self.transcription_options.enable_llm_translation:
+                translation_text = self.translation_text_box.toPlainText()
+                if translation_text:
+                    self.presentation_window.update_translations(translation_text)
+        else:
+            #Window already open, bring to front
+            self.presentation_window.raise_()
+            self.presentation_window.activateWindow()
+
+    def on_text_size_changed(self, value: int):
+        """Handle text size change"""
+        def save_settings():
+            self.settings.set_value(Settings.Key.PRESENTATION_WINDOW_TEXT_SIZE, value)
+            if self.presentation_window:
+                # reload setting to apply new size
+                self.presentation_window.load_settings()
+        #Incase user drags slider, Debounce by waiting 100ms before saving
+        QTimer.singleShot(100, save_settings)
+
+    def on_theme_changed(self, index: int):
+        """Handle theme selection change"""
+        theme = ["light", "dark", "custom"]
+        selected_theme = theme[index]
+        self.settings.set_value(Settings.Key.PRESENTATION_WINDOW_THEME, selected_theme)
+
+        #Show/hide color buttons based on selection
+        if selected_theme == "custom":
+            self.text_color_button.show()
+            self.bg_color_button.show()
+        else:
+            self.text_color_button.hide()
+            self.bg_color_button.hide()
+
+        # Apply theme to presentation window
+        if self.presentation_window:
+            self.presentation_window.load_settings()
+
+    def on_text_color_clicked(self):
+        """Handle text color button click"""
+
+        current_color = QColor(
+            self.settings.value(
+                Settings.Key.PRESENTATION_WINDOW_TEXT_COLOR,
+                "#000000"
+            )
+        )
+
+        color = QColorDialog.getColor(current_color, self, _("Select Text Color"))
+        if color.isValid():
+            color_hex = color.name()
+            self.settings.set_value(Settings.Key.PRESENTATION_WINDOW_TEXT_COLOR, color_hex)
+            if self.presentation_window:
+                self.presentation_window.load_settings()
+
+    def on_bg_color_clicked(self):
+        """Handle background color button click"""
+
+        current_color = QColor(
+            self.settings.value(
+                Settings.Key.PRESENTATION_WINDOW_BACKGROUND_COLOR,
+                "#FFFFFF"
+            )
+        )
+
+        color = QColorDialog.getColor(current_color, self, _("Select Background Color"))
+        if color.isValid():
+            color_hex = color.name()
+            self.settings.set_value(Settings.Key.PRESENTATION_WINDOW_BACKGROUND_COLOR, color_hex)
+            if self.presentation_window:
+                self.presentation_window.load_settings()
+
+    def on_fullscreen_clicked(self):
+        """Handle fullscreen button click"""
+        if self.presentation_window:
+            self.presentation_window.toggle_fullscreen()
+
     def setup_for_export(self):
         export_folder = self.settings.value(
             key=Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FOLDER,
@@ -276,9 +463,11 @@ class RecordingTranscriberWidget(QWidget):
             self.record_button.set_recording()
             self.transcription_options_group_box.setEnabled(False)
             self.audio_devices_combo_box.setEnabled(False)
+            self.presentation_options_bar.show()
         else:  # RecordingStatus.RECORDING
             self.stop_recording()
             self.set_recording_status_stopped()
+            self.presentation_options_bar.hide()
 
     def start_recording(self):
         self.record_button.setDisabled(True)
@@ -384,6 +573,7 @@ class RecordingTranscriberWidget(QWidget):
         self.current_status = self.RecordingStatus.STOPPED
         self.transcription_options_group_box.setEnabled(True)
         self.audio_devices_combo_box.setEnabled(True)
+        self.presentation_options_bar.hide()
 
     def on_download_model_error(self, error: str):
         self.reset_model_download()
@@ -500,6 +690,12 @@ class RecordingTranscriberWidget(QWidget):
         elif self.transcriber_mode == RecordingTranscriberMode.APPEND_AND_CORRECT:
             self.process_transcription_merge(text, self.transcripts, self.transcription_text_box, self.transcript_export_file)
 
+        #Update presentation window if it is open
+        if self.presentation_window and self.presentation_window.isVisible():
+            #Get current merged text from the translation box
+            current_text = self.transcription_text_box.toPlainText()
+            self.presentation_window.update_transcripts(current_text)
+
         # Upload to server
         if self.upload_url:
             try:
@@ -544,6 +740,10 @@ class RecordingTranscriberWidget(QWidget):
 
         elif self.transcriber_mode == RecordingTranscriberMode.APPEND_AND_CORRECT:
             self.process_transcription_merge(text, self.translations, self.translation_text_box, self.translation_export_file)
+
+        if self.presentation_window and self.presentation_window.isVisible():
+            current_translation = self.translation_text_box.toPlainText()
+            self.presentation_window.update_translations(current_translation)
 
         # Upload to server
         if self.upload_url:
@@ -612,6 +812,13 @@ class RecordingTranscriberWidget(QWidget):
         self.audio_meter_widget.update_amplitude(amplitude)
 
     def closeEvent(self, event: QCloseEvent) -> None:
+        #Close presentation window if open
+        if self.presentation_window:
+            self.presentation_window.close()
+            self.presentation_window = None
+
+            self.fullscreen_button.setEnabled(False)
+
         if self.model_loader is not None:
             self.model_loader.cancel()
 
