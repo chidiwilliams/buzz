@@ -96,8 +96,8 @@ class WhisperCpp:
         # Build the command
         cmd = [
             whisper_cli_path,
-            "-m", task.model_path,
-            "-l", language,
+            "--model", task.model_path,
+            "--language", language,
             "--print-progress",
             "--suppress-nst",
             # Protections against hallucinated repetition. Seems to be problem on macOS
@@ -105,7 +105,7 @@ class WhisperCpp:
             "--max-context", "64",
             "--entropy-thold", "2.8",
             "--output-json-full",
-            "-t", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8) // 2)),
+            "--threads", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8) // 2)),
             "-f", file_to_process,
         ]
     
