@@ -350,6 +350,11 @@ class RecordingTranscriber(QObject):
             self.process.wait(5000)
 
     def start_local_whisper_server(self):
+        # Reduce verbose HTTP client logging from OpenAI/httpx
+        logging.getLogger("httpx").setLevel(logging.WARNING)
+        logging.getLogger("httpcore").setLevel(logging.WARNING)
+        logging.getLogger("openai").setLevel(logging.WARNING)
+
         self.transcription.emit(_("Starting Whisper.cpp..."))
 
         self.process = None
