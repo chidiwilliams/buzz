@@ -9,7 +9,7 @@ from PyQt6.QtGui import QKeyEvent
 
 from buzz.widgets.presentation_window import PresentationWindow
 from buzz.settings.settings import Settings
-
+from buzz.locale import _
 
 class TestPresentationWindow:
     def test_should_set_window_title(self, qtbot: QtBot):
@@ -17,7 +17,7 @@ class TestPresentationWindow:
         window = PresentationWindow()
         qtbot.add_widget(window)
 
-        assert "Live Transcript" in window.windowTitle()
+        assert _("Live Transcript Presentation") in window.windowTitle()
         window.close()
 
     def test_should_have_window_flag(self, qtbot: QtBot):
