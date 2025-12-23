@@ -1,8 +1,7 @@
 import logging
 from typing import Optional
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QColor, QFont, QPalette
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QTextBrowser
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTextBrowser
 from platformdirs import user_cache_dir
 
 from buzz.locale import _
@@ -19,27 +18,26 @@ class PresentationWindow(QWidget):
         self.settings = Settings()
         self._current_transcript = ""
         self._current_translation = ""
+        self.window_style = ""
         self.setWindowTitle(_("Live Transcript Presentation"))
         self.setWindowFlag(Qt.WindowType.Window)
 
         # Window size
         self.resize(800, 600)
 
-        #Create layout
+        # Create layout
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(10)
 
-        #Text display widget
+        # Text display widget
         self.transcript_display = QTextBrowser(self)
         self.transcript_display.setReadOnly(True)
 
-        #Translation display (hidden first)
+        # Translation display (hidden first)
         self.translation_display = QTextBrowser(self)
         self.translation_display.setReadOnly(True)
         self.translation_display.hide()
 
-        #Add to layout
+        # Add to layout
         layout.addWidget(self.transcript_display)
         layout.addWidget(self.translation_display)
 
@@ -53,14 +51,14 @@ class PresentationWindow(QWidget):
             "light"
         )
 
-        #Load text size
+        # Load text size
         text_size = self.settings.value(
             Settings.Key.PRESENTATION_WINDOW_TEXT_SIZE,
             24,
             int
         )
 
-        #Load colors based on theme
+        # Load colors based on theme
         if theme == "light":
             text_color = "#000000"
             bg_color = "#FFFFFF"
@@ -82,54 +80,36 @@ class PresentationWindow(QWidget):
 
         # Refresh content with new styling
         if self._current_transcript:
-            self.update_transcript(self._current_transcript)
+            self.update_transcripts(self._current_transcript)
         if self._current_translation:
-            self.update_translation(self._current_translation)
+            self.update_translations(self._current_translation)
 
 
     def apply_styling(self, text_color: str, bg_color: str, text_size: int):
         """Apply text color, background color and font size"""
 
-        #Load custom CSS if it exists
+        # Load custom CSS if it exists
         css_file_path = self.get_css_file_path()
-        custom_css  = ""
 
         if os.path.exists(css_file_path):
             try:
                 with open(css_file_path, "r", encoding="utf-8") as f:
-                    custom_css = f.read()
+                    self.window_style = f.read()
             except Exception as e:
                 logging.warning(f"Failed to load custom CSS: {e}")
+        else:
+            self.window_style = f"""
+                body {{
+                    color: {text_color};
+                    background-color: {bg_color};
+                    font-size: {text_size}pt;
+                    font-family: Arial, sans-serif;
+                    padding: 0;
+                    margin: 20px;
+                }}
+            """
 
-        html_content = f"""
-                <style>
-                    body {{
-                        color: {text_color};
-                        background-color: {bg_color};
-                        font-size: {text_size}pt;
-                        font-family: Arial, sans-serif;
-                        padding: 20px;
-                        margin: 0;
-                    }}
-                    {custom_css}
-                </style>
-                """
-
-
-        self.transcript_display.setStyleSheet(
-            f"background-color: {bg_color}; color: {text_color};"
-        )
-
-        self.translation_display.setStyleSheet(
-            f"background-color: {bg_color}; color: {text_color};"
-        )
-
-        font = QFont()
-        font.setPointSize(text_size)
-        self.transcript_display.setFont(font)
-        self.translation_display.setFont(font)
-
-    def update_transcript(self, text: str):
+    def update_transcripts(self, text: str):
         """Update the transcript display with new text"""
         if not text:
             return
@@ -138,43 +118,11 @@ class PresentationWindow(QWidget):
         escaped_text = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
         html_text = escaped_text.replace("\n", "<br>")
 
-        # Get current styling
-        theme = self.settings.value(Settings.Key.PRESENTATION_WINDOW_THEME, "light")
-        text_size = self.settings.value(Settings.Key.PRESENTATION_WINDOW_TEXT_SIZE, 24, int)
-
-        if theme == "light":
-            text_color = "#000000"
-            bg_color = "#FFFFFF"
-        elif theme == "dark":
-            text_color = "#FFFFFF"
-            bg_color = "#000000"
-        else:  # custom
-            text_color = self.settings.value(Settings.Key.PRESENTATION_WINDOW_TEXT_COLOR, "#000000")
-            bg_color = self.settings.value(Settings.Key.PRESENTATION_WINDOW_BACKGROUND_COLOR, "#FFFFFF")
-
-        # Load custom CSS
-        css_file_path = self.get_css_file_path()
-        custom_css = ""
-        if os.path.exists(css_file_path):
-            try:
-                with open(css_file_path, "r", encoding="utf-8") as f:
-                    custom_css = f.read()
-            except Exception:
-                pass
-
         html_content = f"""
                     <html>
                         <head>
                             <style>
-                                body {{
-                                    color: {text_color};
-                                    background-color: {bg_color};
-                                    font-size: {text_size}pt;
-                                    font-family: Arial, sans-serif;
-                                    padding: 20px;
-                                    margin: 0;
-                                }}
-                                {custom_css}
+                                {self.window_style}
                             </style>
                         </head>
                         <body>
@@ -185,7 +133,7 @@ class PresentationWindow(QWidget):
 
         self.transcript_display.setHtml(html_content)
 
-    def update_translation(self, text: str):
+    def update_translations(self, text: str):
         """Update the translation display with new text"""
         if not text:
             return
@@ -196,43 +144,11 @@ class PresentationWindow(QWidget):
         escaped_text = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
         html_text = escaped_text.replace("\n", "<br>")
 
-        # Get current styling
-        theme = self.settings.value(Settings.Key.PRESENTATION_WINDOW_THEME, "light")
-        text_size = self.settings.value(Settings.Key.PRESENTATION_WINDOW_TEXT_SIZE, 24, int)
-
-        if theme == "light":
-            text_color = "#000000"
-            bg_color = "#FFFFFF"
-        elif theme == "dark":
-            text_color = "#FFFFFF"
-            bg_color = "#000000"
-        else:  # custom
-            text_color = self.settings.value(Settings.Key.PRESENTATION_WINDOW_TEXT_COLOR, "#000000")
-            bg_color = self.settings.value(Settings.Key.PRESENTATION_WINDOW_BACKGROUND_COLOR, "#FFFFFF")
-
-        # Load custom CSS
-        css_file_path = self.get_css_file_path()
-        custom_css = ""
-        if os.path.exists(css_file_path):
-            try:
-                with open(css_file_path, "r", encoding="utf-8") as f:
-                    custom_css = f.read()
-            except Exception:
-                pass
-
         html_content = f"""
                     <html>
                         <head>
                             <style>
-                                body {{
-                                    color: {text_color};
-                                    background-color: {bg_color};
-                                    font-size: {text_size}pt;
-                                    font-family: Arial, sans-serif;
-                                    padding: 20px;
-                                    margin: 0;
-                                }}
-                                {custom_css}
+                                {self.window_style}
                             </style>
                         </head>
                         <body>
@@ -252,8 +168,8 @@ class PresentationWindow(QWidget):
 
 
     def keyPressEvent(self, event):
-        """Handle jeyboard events"""
-        #ESC Key exits fullscreen
+        """Handle keyboard events"""
+        # ESC Key exits fullscreen
         if event.key() == Qt.Key.Key_Escape and self.isFullScreen():
             self.showNormal()
             event.accept()

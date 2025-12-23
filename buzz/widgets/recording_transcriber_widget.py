@@ -301,12 +301,12 @@ class RecordingTranscriberWidget(QWidget):
             #Sync current content to presentation window
             transcript_text = self.transcription_text_box.toPlainText()
             if transcript_text:
-                self.presentation_window.update_transcript(transcript_text)
+                self.presentation_window.update_transcripts(transcript_text)
 
             if self.transcription_options.enable_llm_translation:
                 translation_text = self.translation_text_box.toPlainText()
                 if translation_text:
-                    self.presentation_window.update_translation(translation_text)
+                    self.presentation_window.update_translations(translation_text)
         else:
             #Window already open, bring to front
             self.presentation_window.raise_()
@@ -703,7 +703,7 @@ class RecordingTranscriberWidget(QWidget):
         if self.presentation_window and self.presentation_window.isVisible():
             #Get current merged text from the translation box
             current_text = self.transcription_text_box.toPlainText()
-            self.presentation_window.update_transcript(current_text)
+            self.presentation_window.update_transcripts(current_text)
 
         # Upload to server
         if self.upload_url:
@@ -752,7 +752,7 @@ class RecordingTranscriberWidget(QWidget):
 
         if self.presentation_window and self.presentation_window.isVisible():
             current_translation = self.translation_text_box.toPlainText()
-            self.presentation_window.update_translation(current_translation)
+            self.presentation_window.update_translations(current_translation)
 
         # Upload to server
         if self.upload_url:
