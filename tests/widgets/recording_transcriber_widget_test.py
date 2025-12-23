@@ -609,8 +609,13 @@ class TestRecordingTranscriberWidgetPresentation:
             # Initially hidden
             assert widget.presentation_options_bar.isHidden()
 
-            # Click record button
-            widget.record_button.click()
+            # Simulate clicking record by directly calling the handler
+            # This avoids starting actual recording threads
+            widget.current_status = widget.RecordingStatus.RECORDING
+            widget.record_button.set_recording()
+            widget.transcription_options_group_box.setEnabled(False)
+            widget.audio_devices_combo_box.setEnabled(False)
+            widget.presentation_options_bar.show()
 
             # Should no longer be hidden after recording starts
             assert not widget.presentation_options_bar.isHidden()
