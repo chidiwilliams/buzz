@@ -1,6 +1,7 @@
 import logging
 from typing import Optional
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QTextCursor
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTextBrowser
 from platformdirs import user_cache_dir
 
@@ -27,6 +28,8 @@ class PresentationWindow(QWidget):
 
         # Create layout
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
 
         # Text display widget
         self.transcript_display = QTextBrowser(self)
@@ -132,6 +135,7 @@ class PresentationWindow(QWidget):
                     """
 
         self.transcript_display.setHtml(html_content)
+        self.transcript_display.moveCursor(QTextCursor.MoveOperation.End)
 
     def update_translations(self, text: str):
         """Update the translation display with new text"""
@@ -158,6 +162,7 @@ class PresentationWindow(QWidget):
                     """
 
         self.translation_display.setHtml(html_content)
+        self.translation_display.moveCursor(QTextCursor.MoveOperation.End)
 
     def toggle_fullscreen(self):
         """Toggle fullscreen mode"""
