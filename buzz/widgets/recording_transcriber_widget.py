@@ -8,7 +8,7 @@ import sounddevice
 from enum import auto
 from typing import Optional, Tuple, Any
 
-from PyQt6.QtCore import QThread, Qt, QThreadPool
+from PyQt6.QtCore import QThread, Qt, QThreadPool, QTimer
 from PyQt6.QtGui import QTextCursor, QCloseEvent, QColor
 from PyQt6.QtWidgets import (
     QWidget,
@@ -52,6 +52,7 @@ from buzz.widgets.transcriber.transcription_options_group_box import (
     TranscriptionOptionsGroupBox,
 )
 from buzz.widgets.presentation_window import PresentationWindow
+from buzz.widgets.icon import NewWindowIcon, FullscreenIcon, ColorBackgroundIcon, TextColorIcon
 
 REAL_CHARS_REGEX = re.compile(r'\w')
 NO_SPACE_BETWEEN_SENTENCES = re.compile(r'([.!?。！？])([A-Z])')
@@ -219,7 +220,9 @@ class RecordingTranscriberWidget(QWidget):
         layout.setContentsMargins(5, 5, 5, 5)
         layout.setSpacing(10)
 
-        self.show_presentation_button = QPushButton(_("Show in new window"), bar)
+        self.show_presentation_button = QPushButton(bar)
+        self.show_presentation_button.setIcon(NewWindowIcon(bar))
+        self.show_presentation_button.setToolTip(_("Show in new window"))
         self.show_presentation_button.clicked.connect(self.on_show_presentation_clicked)
         layout.addWidget(self.show_presentation_button)
 
@@ -230,7 +233,13 @@ class RecordingTranscriberWidget(QWidget):
 
         self.text_size_spinbox = QSpinBox(bar)
         self.text_size_spinbox.setRange(12, 72) #12pt to 72pt
-        self.text_size_spinbox.setValue(24)
+
+        saved_text_size = self.settings.value(
+            Settings.Key.PRESENTATION_WINDOW_TEXT_SIZE,
+            24,
+            int
+        )
+        self.text_size_spinbox.setValue(saved_text_size)
         self.text_size_spinbox.valueChanged.connect(self.on_text_size_changed)
         layout.addWidget(self.text_size_spinbox)
 
@@ -240,23 +249,41 @@ class RecordingTranscriberWidget(QWidget):
 
         self.theme_combo = QComboBox(bar)
         self.theme_combo.addItems([_("Light"), _("Dark"), _("Custom")])
+        #Load saved theme
+        saved_theme = self.settings.value(
+            Settings.Key.PRESENTATION_WINDOW_THEME,
+            "light"
+        )
+        theme_index = {"light": 0, "dark": 1, "custom": 2}.get(saved_theme, 0)
+        self.theme_combo.setCurrentIndex(theme_index)
         self.theme_combo.currentIndexChanged.connect(self.on_them_changed)
         layout.addWidget(self.theme_combo)
 
-        # Color buttons - First hidden, shown when Custom is selected
-        self.text_color_button = QPushButton(_("Text Color"), bar)
+        #Color buttons hidden first, show when custom is selected
+        self.text_color_button = QPushButton(bar)
+        self.text_color_button.setIcon(TextColorIcon(bar))
+        self.text_color_button.setToolTip(_("Text Color"))
         self.text_color_button.clicked.connect(self.on_text_color_clicked)
         self.text_color_button.hide()
+
+        if saved_theme == "custom":
+            self.text_color_button.show()
         layout.addWidget(self.text_color_button)
 
-        self.bg_color_button = QPushButton(_("Background Color"), bar)
+        self.bg_color_button = QPushButton( bar)
+        self.bg_color_button.setIcon(ColorBackgroundIcon(bar))
+        self.bg_color_button.setToolTip(_("Background Color"))
         self.bg_color_button.clicked.connect(self.on_bg_color_clicked)
         self.bg_color_button.hide()
+        if saved_theme == "custom":
+            self.bg_color_button.show()
         layout.addWidget(self.bg_color_button)
 
-        # Fullscreen button
-        self.fullscreen_button = QPushButton(_("Fullscreen"), bar)
+        self.fullscreen_button = QPushButton(bar)
+        self.fullscreen_button.setIcon(FullscreenIcon(bar))
+        self.fullscreen_button.setToolTip(_("Fullscreen"))
         self.fullscreen_button.clicked.connect(self.on_fullscreen_clicked)
+        self.fullscreen_button.setEnabled(False)
         layout.addWidget(self.fullscreen_button)
 
         return bar
@@ -267,6 +294,9 @@ class RecordingTranscriberWidget(QWidget):
             #Create new presentation window
             self.presentation_window = PresentationWindow(self)
             self.presentation_window.show()
+
+            #Enable fullscreen button
+            self.fullscreen_button.setEnabled(True)
 
             #Sync current content to presentation window
             transcript_text = self.transcription_text_box.toPlainText()
@@ -284,10 +314,13 @@ class RecordingTranscriberWidget(QWidget):
 
     def on_text_size_changed(self, value: int):
         """Handle text size change"""
-        self.settings.set_value(Settings.key.PRESENTATION_WINDOW_TEXT_SIZE, value)
-        if self.presentation_window:
-            # reload setting to apply new size
-            self.presentation_window.load_settings()
+        def save_settings():
+            self.settings.set_value(Settings.Key.PRESENTATION_WINDOW_TEXT_SIZE, value)
+            if self.presentation_window:
+                # reload setting to apply new size
+                self.presentation_window.load_settings()
+        #Incase user drags slider, Debounce by waiting 100ms before saving
+        QTimer.singleShot(100, save_settings)
 
 
     def on_them_changed(self, index: int):
@@ -792,6 +825,8 @@ class RecordingTranscriberWidget(QWidget):
         if self.presentation_window:
             self.presentation_window.close()
             self.presentation_window = None
+
+            self.fullscreen_button.setEnabled(False)
 
         if self.model_loader is not None:
             self.model_loader.cancel()

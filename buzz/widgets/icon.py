@@ -95,6 +95,25 @@ class ScrollToCurrentIcon(Icon):
             get_path("assets/visibility_FILL0_wght700_GRAD0_opsz48.svg"), parent
         )
 
+class NewWindowIcon(Icon):
+    def __init__(self, parent: QWidget):
+        super().__init__(get_path("assets/icons/new-window.svg"), parent)
+
+
+class FullscreenIcon(Icon):
+    def __init__(self, parent: QWidget):
+        super().__init__(get_path("assets/icons/fullscreen.svg"), parent)
+
+
+class ColorBackgroundIcon(Icon):
+    def __init__(self, parent: QWidget):
+        super().__init__(get_path("assets/icons/color-background.svg"), parent)
+
+
+class TextColorIcon(Icon):
+    def __init__(self, parent: QWidget):
+        super().__init__(get_path("assets/icons/gui-text-color.svg"), parent)
+
 
 BUZZ_ICON_PATH = get_path("assets/buzz.ico")
 BUZZ_LARGE_ICON_PATH = get_path("assets/buzz-icon-1024.png")
