@@ -1,11 +1,24 @@
 import re
 import os
 import logging
+import ssl
 import time
-import faster_whisper
-import torch
 import random
 from typing import Optional
+
+# Fix SSL certificate verification for bundled applications (macOS, Windows)
+# This must be done before importing libraries that download from Hugging Face
+try:
+    import certifi
+    os.environ.setdefault('SSL_CERT_FILE', certifi.where())
+    os.environ.setdefault('SSL_CERT_DIR', os.path.dirname(certifi.where()))
+    # Also update the default SSL context for urllib
+    ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
+except ImportError:
+    pass
+
+import faster_whisper
+import torch
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PyQt6.QtCore import Qt, QThread, QObject, pyqtSignal, QUrl, QTimer
 from PyQt6.QtGui import QFont
