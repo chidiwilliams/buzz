@@ -280,3 +280,80 @@ class TestTranscriptionTaskFolderWatcher:
 
         task: FileTranscriptionTask = blocker.args[0]
         assert task.file_path == os.path.join(input_directory, "whisper-french.mp3")
+
+    def test_should_ignore_extracted_speech_files(self, qtbot: QtBot):
+        input_directory = mkdtemp()
+        output_directory = mkdtemp()
+
+        watcher = TranscriptionTaskFolderWatcher(
+            tasks={},
+            preferences=FolderWatchPreferences(
+                enabled=True,
+                input_directory=input_directory,
+                output_directory=output_directory,
+                file_transcription_options=FileTranscriptionPreferences(
+                    language=None,
+                    task=Task.TRANSCRIBE,
+                    model=self.default_model(),
+                    word_level_timings=False,
+                    extract_speech=False,
+                    temperature=DEFAULT_WHISPER_TEMPERATURE,
+                    initial_prompt="",
+                    enable_llm_translation=False,
+                    llm_model="",
+                    llm_prompt="",
+                    output_formats=set(),
+                ),
+            ),
+        )
+
+        # Create extracted speech file (should be ignored)
+        shutil.copy(
+            test_audio_path,
+            os.path.join(input_directory, "video_speech.mp3"),
+        )
+
+        # Copy normal media file (should be found)
+        shutil.copy(test_audio_path, input_directory)
+
+        with qtbot.wait_signal(watcher.task_found, timeout=10_000) as blocker:
+            pass
+
+        task: FileTranscriptionTask = blocker.args[0]
+        assert task.file_path == os.path.join(input_directory, "whisper-french.mp3")
+
+    def test_should_set_original_file_path(self, qtbot: QtBot):
+        input_directory = mkdtemp()
+        output_directory = mkdtemp()
+
+        watcher = TranscriptionTaskFolderWatcher(
+            tasks={},
+            preferences=FolderWatchPreferences(
+                enabled=True,
+                input_directory=input_directory,
+                output_directory=output_directory,
+                file_transcription_options=FileTranscriptionPreferences(
+                    language=None,
+                    task=Task.TRANSCRIBE,
+                    model=self.default_model(),
+                    word_level_timings=False,
+                    extract_speech=False,
+                    temperature=DEFAULT_WHISPER_TEMPERATURE,
+                    initial_prompt="",
+                    enable_llm_translation=False,
+                    llm_model="",
+                    llm_prompt="",
+                    output_formats=set(),
+                ),
+            ),
+        )
+
+        shutil.copy(test_audio_path, input_directory)
+
+        with qtbot.wait_signal(watcher.task_found, timeout=10_000) as blocker:
+            pass
+
+        task: FileTranscriptionTask = blocker.args[0]
+        expected_path = os.path.join(input_directory, "whisper-french.mp3")
+        assert task.file_path == expected_path
+        assert task.original_file_path == expected_path
