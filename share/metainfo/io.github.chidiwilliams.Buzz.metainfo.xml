@@ -64,8 +64,8 @@
   <content_rating type="oars-1.1"/>
 
   <releases>
-    <release version="1.4.1" date="2026-01-03">
-      <url type="details">https://github.com/chidiwilliams/buzz/releases/tag/v1.4.1</url>
+    <release version="1.4.2" date="2026-01-03">
+      <url type="details">https://github.com/chidiwilliams/buzz/releases/tag/v1.4.2</url>
       <description>
         <p>Adding speaker identification on transcriptions and video support for transcription viewer, improvements to transcription table and support for over 1000 of worlds languages via MMS models as well as separate window to show live transcripts on a projector.</p>
         <p>Release details:</p>

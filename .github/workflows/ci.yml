@@ -183,6 +183,8 @@ jobs:
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then
             uv add msvc-runtime
+            uv pip install -U torch==2.8.0+cu129 torchaudio==2.8.0+cu129 --index-url https://download.pytorch.org/whl/cu129
+            uv pip install nvidia-cublas-cu12==12.9.1.4 nvidia-cuda-cupti-cu12==12.9.79 nvidia-cuda-runtime-cu12==12.9.79 --extra-index-url https://pypi.ngc.nvidia.com
 
             uv cache clean
             uv run pip cache purge
