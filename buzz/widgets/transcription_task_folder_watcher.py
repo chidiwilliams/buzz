@@ -11,6 +11,12 @@ from buzz.widgets.preferences_dialog.models.folder_watch_preferences import (
     FolderWatchPreferences,
 )
 
+# Supported media file extensions (audio and video)
+SUPPORTED_EXTENSIONS = {
+    ".mp3", ".wav", ".m4a", ".ogg", ".opus", ".flac",  # audio
+    ".mp4", ".webm", ".ogm", ".mov", ".mkv", ".avi", ".wmv",  # video
+}
+
 
 class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
     preferences: FolderWatchPreferences
@@ -49,8 +55,17 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
         for dirpath, dirnames, filenames in os.walk(input_directory):
             for filename in filenames:
                 file_path = os.path.join(dirpath, filename)
+                file_ext = os.path.splitext(filename)[1].lower()
+
+                # Check for temp conversion files (e.g., .ogg.wav)
+                name_without_ext = os.path.splitext(filename)[0]
+                secondary_ext = os.path.splitext(name_without_ext)[1].lower()
+                is_temp_conversion_file = secondary_ext in SUPPORTED_EXTENSIONS
+
                 if (
                     filename.startswith(".")  # hidden files
+                    or file_ext not in SUPPORTED_EXTENSIONS  # non-media files
+                    or is_temp_conversion_file  # temp conversion files like .ogg.wav
                     or file_path in tasks  # file already in tasks
                     or file_path in self.paths_emitted  # file already emitted
                 ):
