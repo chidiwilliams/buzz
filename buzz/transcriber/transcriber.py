@@ -230,6 +230,9 @@ def get_output_file_path(
     export_file_name_template: str | None = None,
 ):
     input_file_name = os.path.splitext(os.path.basename(file_path))[0]
+    # Remove "_speech" suffix from extracted speech files
+    if input_file_name.endswith("_speech"):
+        input_file_name = input_file_name[:-7]
     date_time_now = datetime.datetime.now().strftime("%d-%b-%Y %H-%M-%S")
 
     export_file_name_template = (
