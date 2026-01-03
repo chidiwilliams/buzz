@@ -40,9 +40,14 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
         if len(self.directories()) > 0:
             self.removePaths(self.directories())
         if preferences.enabled:
-            self.addPath(preferences.input_directory)
+            # Add the input directory and all subdirectories to the watcher
+            for dirpath, dirnames, _ in os.walk(preferences.input_directory):
+                # Skip hidden directories
+                dirnames[:] = [d for d in dirnames if not d.startswith(".")]
+                self.addPath(dirpath)
             logging.debug(
-                'Watching for media files in "%s"', preferences.input_directory
+                'Watching for media files in "%s" and subdirectories',
+                preferences.input_directory,
             )
 
     def find_tasks(self):
@@ -85,16 +90,32 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
                     ModelDownloader(model=transcription_options.model).run()
                     model_path = transcription_options.model.get_local_model_path()
 
+                # Preserve subdirectory structure in output directory
+                relative_path = os.path.relpath(dirpath, input_directory)
+                if relative_path == ".":
+                    output_directory = self.preferences.output_directory
+                else:
+                    output_directory = os.path.join(
+                        self.preferences.output_directory, relative_path
+                    )
+
+                # Create output directory if it doesn't exist
+                os.makedirs(output_directory, exist_ok=True)
+
                 task = FileTranscriptionTask(
                     file_path=file_path,
                     transcription_options=transcription_options,
                     file_transcription_options=file_transcription_options,
                     model_path=model_path,
-                    output_directory=self.preferences.output_directory,
+                    output_directory=output_directory,
                     source=FileTranscriptionTask.Source.FOLDER_WATCH,
                 )
                 self.task_found.emit(task)
                 self.paths_emitted.add(file_path)
 
-            # Don't traverse into subdirectories
-            break
+            # Filter out hidden directories and add new subdirectories to the watcher
+            dirnames[:] = [d for d in dirnames if not d.startswith(".")]
+            for dirname in dirnames:
+                subdir_path = os.path.join(dirpath, dirname)
+                if subdir_path not in self.directories():
+                    self.addPath(subdir_path)
