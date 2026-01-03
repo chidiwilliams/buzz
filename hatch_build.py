@@ -116,27 +116,29 @@ class CustomBuildHook(BuildHookInterface):
             else:
                 print(f"Warning: {whisper_cpp_dir} does not exist after build", file=sys.stderr)
 
-            # Force include all files in demucs directory
-            demucs_dir = project_root / "demucs_repo"
-            if demucs_dir.exists():
-                # Get all files in the demucs directory
-                demucs_files = glob.glob(str(demucs_dir / "**" / "*"), recursive=True)
+            # Force include demucs package at top level (demucs_repo/demucs -> demucs/)
+            demucs_pkg_dir = project_root / "demucs_repo" / "demucs"
+            if demucs_pkg_dir.exists():
+                # Get all files in the demucs package directory
+                demucs_files = glob.glob(str(demucs_pkg_dir / "**" / "*"), recursive=True)
 
                 # Filter only files (not directories)
                 demucs_files = [f for f in demucs_files if Path(f).is_file()]
 
-                # Add them to force_include
+                # Add them to force_include, mapping to top-level demucs/
                 if 'force_include' not in build_data:
                     build_data['force_include'] = {}
 
                 for file_path in demucs_files:
-                    # Convert to relative path from project root
-                    rel_path = Path(file_path).relative_to(project_root)
-                    build_data['force_include'][str(rel_path)] = str(rel_path)
+                    # Convert to relative path from demucs package dir
+                    rel_from_pkg = Path(file_path).relative_to(demucs_pkg_dir)
+                    # Target path is demucs/<relative_path>
+                    target_path = Path("demucs") / rel_from_pkg
+                    build_data['force_include'][str(file_path)] = str(target_path)
 
-                print(f"Force including {len(demucs_files)} files from demucs_repo/")
+                print(f"Force including {len(demucs_files)} files from demucs_repo/demucs/ -> demucs/")
             else:
-                print(f"Warning: {demucs_dir} does not exist", file=sys.stderr)
+                print(f"Warning: {demucs_pkg_dir} does not exist", file=sys.stderr)
 
             # Force include all .mo files from buzz/locale directory
             locale_dir = project_root / "buzz" / "locale"

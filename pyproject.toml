@@ -45,10 +45,7 @@ dependencies = [
     "ctranslate2>=4.6.2,<5; sys_platform != 'darwin'",
     # faster whisper need cudnn 9
     "nvidia-cudnn-cu12>=9,<10; sys_platform != 'darwin'",
-    # CUDA runtime libraries for Windows (Linux gets them via torch dependencies)
-    "nvidia-cuda-runtime-cu12>=12.9,<13; sys_platform == 'win32'",
-    "nvidia-cublas-cu12>=12.9,<13; sys_platform == 'win32'",
-    "nvidia-cuda-nvrtc-cu12>=12.9,<13; sys_platform == 'win32'",
+    # CUDA runtime libraries are provided by torch dependencies, no need to specify explicitly
     "darkdetect>=0.8.0,<0.9",
     "dora-search>=0.1.12,<0.2",
     "diffq>=0.2.4,<0.3",
@@ -80,7 +77,7 @@ dependencies = [
     "uroman>=1.3.1.1",
     "lhotse==1.32.1",
     "coverage==7.12.0",
-    "demucs",
+    # demucs is bundled directly in the wheel from demucs_repo/, not installed as a dependency
     "certifi==2025.11.12",
     "torchcodec>=0.9.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
     "torch>=2.2.2",
@@ -131,7 +128,6 @@ override-dependencies = [
 ]
 
 [tool.uv.sources]
-demucs = { path = "demucs_repo", editable = true }
 torch = [
     { index = "PyPI", marker = "sys_platform == 'darwin'" },
     { index = "pytorch-cu129", marker = "sys_platform != 'darwin'" },
@@ -173,11 +169,12 @@ include = [
     "buzz",
     "buzz/whisper_cpp/*",
     "buzz/locale/*/LC_MESSAGES/buzz.mo",
-    "demucs_repo",
     "whisper_diarization",
     "deepmultilingualpunctuation",
     "ctc_forced_aligner",
 ]
+# Map demucs_repo/demucs to top-level demucs/ so 'import demucs' works
+sources = {"demucs_repo/demucs" = "demucs"}
 
 [tool.hatch.build.hooks.custom]
 

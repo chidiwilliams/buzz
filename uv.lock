@@ -288,7 +288,6 @@ dependencies = [
     { name = "darkdetect" },
     { name = "dataclasses-json" },
     { name = "datasets" },
-    { name = "demucs" },
     { name = "diffq" },
     { name = "dora-search" },
     { name = "einops" },
@@ -308,9 +307,6 @@ dependencies = [
     { name = "nemo-toolkit", extra = ["asr"], marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
     { name = "nltk" },
     { name = "numpy" },
-    { name = "nvidia-cublas-cu12", marker = "sys_platform == 'win32'" },
-    { name = "nvidia-cuda-nvrtc-cu12", marker = "sys_platform == 'win32'" },
-    { name = "nvidia-cuda-runtime-cu12", marker = "sys_platform == 'win32'" },
     { name = "nvidia-cudnn-cu12", marker = "sys_platform != 'darwin'" },
     { name = "onnxruntime" },
     { name = "openai" },
@@ -382,7 +378,6 @@ requires-dist = [
     { name = "darkdetect", specifier = ">=0.8.0,<0.9" },
     { name = "dataclasses-json", specifier = ">=0.6.4,<0.7" },
     { name = "datasets", specifier = ">=4.4.1" },
-    { name = "demucs", editable = "demucs_repo" },
     { name = "diffq", specifier = ">=0.2.4,<0.3" },
     { name = "dora-search", specifier = ">=0.1.12,<0.2" },
     { name = "einops", specifier = ">=0.8.1,<0.9" },
@@ -402,9 +397,6 @@ requires-dist = [
     { name = "nemo-toolkit", extras = ["asr"], marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'", specifier = "==2.5.3" },
     { name = "nltk", specifier = ">=3.9.2" },
     { name = "numpy", specifier = ">=1.21.2,<2" },
-    { name = "nvidia-cublas-cu12", marker = "sys_platform == 'win32'", specifier = ">=12.9,<13" },
-    { name = "nvidia-cuda-nvrtc-cu12", marker = "sys_platform == 'win32'", specifier = ">=12.9,<13" },
-    { name = "nvidia-cuda-runtime-cu12", marker = "sys_platform == 'win32'", specifier = ">=12.9,<13" },
     { name = "nvidia-cudnn-cu12", marker = "sys_platform != 'darwin'", specifier = ">=9,<10" },
     { name = "onnxruntime", specifier = "==1.18.1" },
     { name = "openai", specifier = ">=1.14.2,<2" },
@@ -856,59 +848,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/43/fa/6d96a0978d19e17b6
 wheels = [
     { url = "https://files.pythonhosted.org/packages/4e/8c/f3147f5c4b73e7550fe5f9352eaa956ae838d5c51eb58e7a25b9f3e2643b/decorator-5.2.1-py3-none-any.whl", hash = "sha256:d316bb415a2d9e2d2b3abcc4084c6502fc09240e292cd76a76afc106a1c8e04a", size = 9190, upload-time = "2025-02-24T04:41:32.565Z" },
 ]
-
-[[package]]
-name = "demucs"
-version = "4.1.0a3"
-source = { editable = "demucs_repo" }
-dependencies = [
-    { name = "dora-search" },
-    { name = "einops" },
-    { name = "julius" },
-    { name = "lameenc" },
-    { name = "openunmix" },
-    { name = "pyyaml" },
-    { name = "torch", version = "2.2.2", source = { registry = "https://pypi.org/simple/" }, marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'" },
-    { name = "torch", version = "2.8.0", source = { registry = "https://pypi.org/simple/" }, marker = "platform_machine != 'x86_64' and sys_platform == 'darwin'" },
-    { name = "torch", version = "2.8.0+cu129", source = { registry = "https://download.pytorch.org/whl/cu129" }, marker = "sys_platform != 'darwin'" },
-    { name = "torchaudio", version = "2.2.2", source = { registry = "https://pypi.org/simple/" }, marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'" },
-    { name = "torchaudio", version = "2.8.0", source = { registry = "https://download.pytorch.org/whl/cu129" }, marker = "platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'" },
-    { name = "torchaudio", version = "2.8.0", source = { registry = "https://pypi.org/simple/" }, marker = "platform_machine != 'x86_64' and sys_platform == 'darwin'" },
-    { name = "torchaudio", version = "2.8.0+cu129", source = { registry = "https://download.pytorch.org/whl/cu129" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (platform_python_implementation != 'CPython' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
-    { name = "tqdm" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "diffq", marker = "extra == 'dev'", specifier = ">=0.2.1" },
-    { name = "dora-search" },
-    { name = "dora-search", marker = "extra == 'dev'", specifier = ">=0.1.12" },
-    { name = "einops" },
-    { name = "einops", marker = "extra == 'dev'" },
-    { name = "flake8", marker = "extra == 'dev'" },
-    { name = "hydra-colorlog", marker = "extra == 'dev'", specifier = ">=1.1" },
-    { name = "hydra-core", marker = "extra == 'dev'", specifier = ">=1.1" },
-    { name = "julius", specifier = ">=0.2.3" },
-    { name = "julius", marker = "extra == 'dev'", specifier = ">=0.2.3" },
-    { name = "lameenc", specifier = ">=1.2" },
-    { name = "lameenc", marker = "extra == 'dev'", specifier = ">=1.2" },
-    { name = "museval", marker = "extra == 'dev'" },
-    { name = "mypy", marker = "extra == 'dev'" },
-    { name = "openunmix" },
-    { name = "openunmix", marker = "extra == 'dev'" },
-    { name = "pyyaml" },
-    { name = "pyyaml", marker = "extra == 'dev'" },
-    { name = "soundfile", marker = "extra == 'dev'", specifier = ">=0.10.3" },
-    { name = "submitit", marker = "extra == 'dev'" },
-    { name = "torch", specifier = ">=1.8.1" },
-    { name = "torch", marker = "extra == 'dev'", specifier = ">=1.8.1" },
-    { name = "torchaudio", specifier = ">=0.8" },
-    { name = "torchaudio", marker = "extra == 'dev'", specifier = ">=0.8" },
-    { name = "tqdm" },
-    { name = "tqdm", marker = "extra == 'dev'" },
-    { name = "treetable", marker = "extra == 'dev'" },
-]
-provides-extras = ["dev"]
 
 [[package]]
 name = "diffq"
@@ -2413,7 +2352,6 @@ version = "12.9.86"
 source = { registry = "https://download.pytorch.org/whl/cu129" }
 wheels = [
     { url = "https://pypi.nvidia.com/nvidia-cuda-nvrtc-cu12/nvidia_cuda_nvrtc_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl", hash = "sha256:210cf05005a447e29214e9ce50851e83fc5f4358df8b453155d5e1918094dcb4" },
-    { url = "https://pypi.nvidia.com/nvidia-cuda-nvrtc-cu12/nvidia_cuda_nvrtc_cu12-12.9.86-py3-none-win_amd64.whl", hash = "sha256:72972ebdcf504d69462d3bcd67e7b81edd25d0fb85a2c46d3ea3517666636349" },
 ]
 
 [[package]]
@@ -2422,7 +2360,6 @@ version = "12.9.79"
 source = { registry = "https://download.pytorch.org/whl/cu129" }
 wheels = [
     { url = "https://pypi.nvidia.com/nvidia-cuda-runtime-cu12/nvidia_cuda_runtime_cu12-12.9.79-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:25bba2dfb01d48a9b59ca474a1ac43c6ebf7011f1b0b8cc44f54eb6ac48a96c3" },
-    { url = "https://pypi.nvidia.com/nvidia-cuda-runtime-cu12/nvidia_cuda_runtime_cu12-12.9.79-py3-none-win_amd64.whl", hash = "sha256:8e018af8fa02363876860388bd10ccb89eb9ab8fb0aa749aaf58430a9f7c4891" },
 ]
 
 [[package]]
