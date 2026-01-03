@@ -392,6 +392,7 @@ class MainWindow(QMainWindow):
             basename = os.path.basename(task.file_path)
             name = os.path.splitext(basename)[0]  # Remove .wav extension
             self.transcription_service.update_transcription_file_and_name(task.uid, task.file_path, name)
+
         self.transcription_service.update_transcription_as_completed(task.uid, segments)
         self.table_widget.refresh_row(task.uid)
 

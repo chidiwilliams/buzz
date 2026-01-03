@@ -71,6 +71,7 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
                     filename.startswith(".")  # hidden files
                     or file_ext not in SUPPORTED_EXTENSIONS  # non-media files
                     or is_temp_conversion_file  # temp conversion files like .ogg.wav
+                    or "_speech.mp3" in filename  # extracted speech output files
                     or file_path in tasks  # file already in tasks
                     or file_path in self.paths_emitted  # file already emitted
                 ):
@@ -104,6 +105,7 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
 
                 task = FileTranscriptionTask(
                     file_path=file_path,
+                    original_file_path=file_path,
                     transcription_options=transcription_options,
                     file_transcription_options=file_transcription_options,
                     model_path=model_path,

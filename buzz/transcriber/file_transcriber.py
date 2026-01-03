@@ -149,13 +149,19 @@ class FileTranscriber(QObject):
             )
 
         if self.transcription_task.source == FileTranscriptionTask.Source.FOLDER_WATCH:
-            shutil.move(
-                self.transcription_task.file_path,
-                os.path.join(
-                    self.transcription_task.output_directory,
-                    os.path.basename(self.transcription_task.file_path),
-                ),
+            # Use original_file_path if available (before speech extraction changed file_path)
+            source_path = (
+                self.transcription_task.original_file_path
+                or self.transcription_task.file_path
             )
+            if source_path and os.path.exists(source_path):
+                shutil.move(
+                    source_path,
+                    os.path.join(
+                        self.transcription_task.output_directory,
+                        os.path.basename(source_path),
+                    ),
+                )
 
     def on_download_progress(self, data: dict):
         if data["status"] == "downloading":
