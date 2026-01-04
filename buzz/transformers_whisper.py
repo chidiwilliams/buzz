@@ -3,6 +3,10 @@ import sys
 import logging
 import platform
 import numpy as np
+
+# Preload CUDA libraries before importing torch
+from buzz import cuda_setup  # noqa: F401
+
 import torch
 import requests
 from typing import Union

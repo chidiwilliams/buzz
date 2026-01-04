@@ -11,6 +11,9 @@ import subprocess
 from typing import Optional
 from platformdirs import user_cache_dir
 
+# Preload CUDA libraries before importing torch
+from buzz import cuda_setup  # noqa: F401
+
 import torch
 import numpy as np
 import sounddevice

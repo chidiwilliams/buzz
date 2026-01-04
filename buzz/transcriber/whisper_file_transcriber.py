@@ -5,6 +5,10 @@ import multiprocessing
 import re
 import os
 import sys
+
+# Preload CUDA libraries before importing torch - required for subprocess contexts
+from buzz import cuda_setup  # noqa: F401
+
 import torch
 import platform
 import subprocess
@@ -123,10 +127,6 @@ class WhisperFileTranscriber(FileTranscriber):
     def transcribe_whisper(
         cls, stderr_conn: Connection, task: FileTranscriptionTask
     ) -> None:
-        # Preload CUDA libraries in the subprocess - must be done before importing torch
-        # This is needed because multiprocessing creates a fresh process without the main process's preloaded libraries
-        from buzz import cuda_setup  # noqa: F401
-
         # Patch subprocess on Windows to prevent console window flash
         # This is needed because multiprocessing spawns a new process without the main process patches
         if sys.platform == "win32":

@@ -27,6 +27,7 @@
   <url type="bugtracker">https://github.com/chidiwilliams/buzz/issues</url>
   <url type="homepage">https://github.com/chidiwilliams/buzz</url>
   <url type="faq">https://chidiwilliams.github.io/buzz/docs</url>
+  <url type="vcs-browser">https://github.com/chidiwilliams/buzz</url>
 
   <branding>
     <color type="primary" scheme_preference="light">#f66151</color>
