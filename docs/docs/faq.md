@@ -11,9 +11,7 @@ The models are stored:
 - Mac OS: `~/Library/Caches/Buzz`
 - Windows: `%USERPROFILE%\AppData\Local\Buzz\Buzz\Cache`
 
-Paste the location in your file manager to access the models.
-
-Since Version `1.3.4`, to get to the logs folder go to `Help -> About Buzz` and click on `Show logs` button.
+Paste the location in your file manager to access the models or go to `Help -> Preferences -> Models` and click on `Show file location` button after downloading some model.
 
 ### 2. What can I try if the transcription runs too slowly?
 
@@ -67,7 +65,7 @@ Yes, Buzz can be used without internet connection if you download the necessary 
 
 If a model download was incomplete or corrupted, Buzz may crash. Try to delete the downloaded model files in `Help -> Preferences -> Models` and re-download them.
 
-If that does not help, check the log file for errors and [report the issue](https://github.com/chidiwilliams/buzz/issues) so we can fix it. The log file is located in `~/Library/Logs/Buzz` (Mac OS) or `%USERPROFILE%\AppData\Local\Buzz\Buzz\Logs` (Windows). On Linux run the Buzz from the command line to see the relevant messages.
+If that does not help, check the log file for errors and [report the issue](https://github.com/chidiwilliams/buzz/issues) so we can fix it. If possible attach the log file to the issue. Since Version `1.3.4`, to get to the logs folder go to `Help -> About Buzz` and click on `Show logs` button.
 
 ### 9. Where can I get latest development version?
 

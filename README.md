@@ -13,6 +13,24 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/chidiwilliams/buzz)
 [![Github all releases](https://img.shields.io/github/downloads/chidiwilliams/buzz/total.svg)](https://GitHub.com/chidiwilliams/buzz/releases/)
 
+![Buzz](./buzz/assets/buzz-banner.jpg)
+
+## Features
+- Transcribe audio and video files or Youtube links
+- Live realtime audio transcription from microphone
+  - Presentation window for easy accessibility during events and presentations
+- Speech separation before transcription for better accuracy on noisy audio
+- Speaker identification in transcribed media
+- Multiple whisper backend support
+  - CUDA acceleration support for Nvidia GPUs
+  - Apple Silicon support for Macs
+  - Vulkan acceleration support for Whisper.cpp on most GPUs, including integrated GPUs
+- Export transcripts to TXT, SRT, and VTT
+- Advanced Transcription Viewer with search, playback controls, and speed adjustment
+- Keyboard shortcuts for efficient navigation
+- Watch folder for automatic transcription of new files
+- Command-Line Interface for scripting and automation
+
 ## Installation
 
 ### macOS
@@ -40,12 +58,15 @@ To install flatpak, run:
 flatpak install flathub io.github.chidiwilliams.Buzz
 ```
 
+[![Download on Flathub](https://flathub.org/api/badge?svg&locale=en)](https://flathub.org/en/apps/io.github.chidiwilliams.Buzz)
+
 To install snap, run:
 ```shell
 sudo apt-get install libportaudio2 libcanberra-gtk-module libcanberra-gtk3-module
 sudo snap install buzz
-sudo snap connect buzz:password-manager-service
 ```
+
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/buzz)
 
 ### PyPI
 

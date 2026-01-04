@@ -3,8 +3,8 @@ title: Installation
 sidebar_position: 2
 ---
 
-To install Buzz, download the [latest version](https://github.com/chidiwilliams/buzz/releases/latest) for your operating
-system. Buzz is available on **Mac** (Intel), **Windows**, and **Linux**.
+To install Buzz, download the latest version for your operating
+system. Buzz is available on **Mac** (Intel and Apple silicon), **Windows**, and **Linux**.
 
 ### macOS
 
@@ -25,6 +25,8 @@ To install flatpak, run:
 flatpak install flathub io.github.chidiwilliams.Buzz
 ```
 
+[![Download on Flathub](https://flathub.org/api/badge?svg&locale=en)](https://flathub.org/en/apps/io.github.chidiwilliams.Buzz)
+
 To install snap, run:
 ```shell
 sudo apt-get install libportaudio2 libcanberra-gtk-module libcanberra-gtk3-module
@@ -34,15 +36,15 @@ sudo snap connect buzz:password-manager-service
 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/buzz)
 
-Alternatively, on Ubuntu 20.04 and later, install the dependencies:
-
-```shell
-sudo apt-get install libportaudio2
-```
-
 ## PyPI
 
 ```shell
 pip install buzz-captions
 python -m buzz
 ```
+
+On Linux install system dependencies you may be missing
+```
+sudo apt-get install --no-install-recommends libyaml-dev libtbb-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 ffmpeg
+```
+On versions prior to Ubuntu 24.04 install `sudo apt-get install --no-install-recommends libegl1-mesa`
