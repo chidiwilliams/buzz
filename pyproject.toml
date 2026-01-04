@@ -180,7 +180,7 @@ sources = {"demucs_repo/demucs" = "demucs"}
 [tool.hatch.build.hooks.custom]
 
 [build-system]
-requires = ["hatchling", "cmake>=4.2.0,<5", "polib>=1.2.0,<2", "pybind11", "setuptools>=80.9.0"]
+requires = ["hatchling", "cmake>=4.2.0,<5", "polib>=1.2.0,<2", "pybind11", "setuptools>=42"]
 build-backend = "hatchling.build"
 
 [tool.ruff]
