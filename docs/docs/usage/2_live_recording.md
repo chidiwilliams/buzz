@@ -18,6 +18,8 @@ To start a live recording:
 
 [![Live Recording on Buzz](https://cdn.loom.com/sessions/thumbnails/564b753eb4d44b55b985b8abd26b55f7-with-play.gif)](https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7 "Live Recording on Buzz")
 
+**Presentation Window** Since 1.4.2 Buzz has an easy to use presentation window you can use to show live transcriptions during events and presentations. To open it start the recording and new options for the `Presentation window` will appear.
+
 ### Record audio playing from computer (macOS)
 
 To record audio playing from an application on your computer, you may install an audio loopback driver (a program that

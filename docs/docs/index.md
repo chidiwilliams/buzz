@@ -18,24 +18,16 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
   VTT ([Demo](https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe))
 - Transcription and translation from your computer's microphones to text (Resource-intensive and may not be
   real-time, [Demo](https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7))
-- **Advanced Transcription Viewer** with search, playback controls, and speed adjustment
+  - Presentation window for easy accessibility during events and presentations
+  - [Realtime translation](https://chidiwilliams.github.io/buzz/docs/usage/translations) with OpenAI API compatible AI
+- [Advanced Transcription Viewer](https://chidiwilliams.github.io/buzz/docs/usage/transcription_viewer)** with search, playback controls, and speed adjustment
 - **Smart Interface** with conditional visibility and state persistence
 - **Professional Controls** including loop segments, follow audio, and keyboard shortcuts
 - Supports [Whisper](https://github.com/openai/whisper#available-models-and-languages),
-  [Whisper.cpp](https://github.com/ggerganov/whisper.cpp), [Faster Whisper](https://github.com/guillaumekln/faster-whisper),
+  [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) (with Vulkan GPU acceleration), [Faster Whisper](https://github.com/guillaumekln/faster-whisper),
   [Whisper-compatible Hugging Face models](https://huggingface.co/models?other=whisper), and
   the [OpenAI Whisper API](https://platform.openai.com/docs/api-reference/introduction)
 - [Command-Line Interface](#command-line-interface)
+- Speech separation before transcription for better accuracy on noisy audio
+- [Speaker identification](https://chidiwilliams.github.io/buzz/docs/usage/speaker_identification) in transcribed media
 - Available on Mac, Windows, and Linux
-
-## Transcription Viewer
-
-Buzz features a powerful transcription viewer that makes it easy to work with your transcriptions:
-
-- **🔍 Smart Search**: Find text quickly with real-time search and navigation
-- **🎵 Playback Controls**: Loop segments, follow audio, and adjust playback speed
-- **⌨️ Keyboard Shortcuts**: Efficient navigation with Ctrl+F, Ctrl+L, and more
-- **🎨 Clean Interface**: Conditional visibility keeps the interface uncluttered
-- **💾 State Persistence**: Remembers your preferences between sessions
-
-[Learn more about the Transcription Viewer →](https://chidiwilliams.github.io/buzz/docs/usage/transcription_viewer)

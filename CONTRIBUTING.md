@@ -52,6 +52,7 @@ Linux versions get also pushed to the snap. To install latest development versio
 sudo apt-get install --no-install-recommends libyaml-dev libtbb-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 ffmpeg
 ```
 On versions prior to Ubuntu 24.04 install `sudo apt-get install --no-install-recommends libegl1-mesa`
+
 5. Install the dependencies `uv sync`
 6. Run Buzz `uv run buzz`
 

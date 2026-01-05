@@ -3,6 +3,10 @@ import sys
 import logging
 import platform
 import numpy as np
+
+# Preload CUDA libraries before importing torch
+from buzz import cuda_setup  # noqa: F401
+
 import torch
 import requests
 from typing import Union
@@ -225,7 +229,7 @@ class TransformersTranscriber:
             model, processor, use_8bit = self._load_peft_model(device, torch_dtype)
         else:
             use_safetensors = True
-            if os.path.exists(self.model_id):
+            if os.path.isdir(self.model_id):
                 safetensors_files = [f for f in os.listdir(self.model_id) if f.endswith(".safetensors")]
                 use_safetensors = len(safetensors_files) > 0
 

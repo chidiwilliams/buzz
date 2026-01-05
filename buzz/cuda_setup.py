@@ -70,9 +70,8 @@ def _setup_windows_dll_directories():
     for lib_dir in lib_dirs:
         try:
             os.add_dll_directory(str(lib_dir))
-            logger.debug(f"Added DLL directory: {lib_dir}")
         except (OSError, AttributeError) as e:
-            logger.debug(f"Could not add DLL directory {lib_dir}: {e}")
+            pass
 
 
 def _preload_linux_libraries():
@@ -101,17 +100,15 @@ def _preload_linux_libraries():
 
             # Skip problematic libraries
             if any(pattern in lib_file.name for pattern in skip_patterns):
-                logger.debug(f"Skipping library: {lib_file}")
                 continue
 
             try:
                 # Use RTLD_GLOBAL so symbols are available to other libraries
                 ctypes.CDLL(str(lib_file), mode=ctypes.RTLD_GLOBAL)
                 loaded_libs.add(lib_file.name)
-                logger.debug(f"Preloaded library: {lib_file}")
             except OSError as e:
                 # Some libraries may have missing dependencies, that's ok
-                logger.debug(f"Could not preload {lib_file}: {e}")
+                pass
 
 
 def setup_cuda_libraries():

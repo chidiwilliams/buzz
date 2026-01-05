@@ -123,6 +123,8 @@ class FileTranscriberQueueWorker(QObject):
             def separator_progress_callback(progress):
                 self.task_progress.emit(self.current_task, int(progress["segment_offset"] * 100) / int(progress["audio_length"] * 100))
 
+            separator = None
+            separated = None
             try:
                 separator = demucsApi.Separator(
                     progress=True,
@@ -137,6 +139,15 @@ class FileTranscriberQueueWorker(QObject):
                 self.current_task.file_path = str(self.speech_path)
             except Exception as e:
                 logging.error(f"Error during speech extraction: {e}", exc_info=True)
+            finally:
+                # Release memory used by speech extractor
+                del separator, separated
+                try:
+                    import torch
+                    if torch.cuda.is_available():
+                        torch.cuda.empty_cache()
+                except Exception:
+                    pass
 
         logging.debug("Starting next transcription task")
         self.task_progress.emit(self.current_task, 0)
