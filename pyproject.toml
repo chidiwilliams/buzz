@@ -6,7 +6,8 @@ description = ""
 authors = [{ name = "Chidi Williams", email = "williamschidi1@gmail.com" }]
 requires-python = ">=3.12,<3.13"
 readme = "README.md"
-license = "MIT"
+# Ficence format change to remove warning in PyPI will cause snap not to build
+license = { text = "MIT" }
 dependencies = [
     "sounddevice>=0.5.3,<0.6",
     "humanize>=4.4.0,<5",
@@ -180,7 +181,7 @@ sources = {"demucs_repo/demucs" = "demucs"}
 [tool.hatch.build.hooks.custom]
 
 [build-system]
-requires = ["hatchling", "cmake>=4.2.0,<5", "polib>=1.2.0,<2", "pybind11", "setuptools>=80.9.0", "packaging"]
+requires = ["hatchling", "cmake>=4.2.0,<5", "polib>=1.2.0,<2", "pybind11", "setuptools>=80.9.0"]
 build-backend = "hatchling.build"
 
 [tool.ruff]
