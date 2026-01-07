@@ -267,7 +267,25 @@ class IdentificationWorker(QObject):
 
                 words_list = list(map(lambda x: x["word"], wsm))
 
-                labled_words = punct_model.predict(words_list, chunk_size=230)
+                # Process in smaller batches to avoid chunk size errors
+                batch_size = 200  # Smaller than chunk_size to be safe
+                all_labeled_words = []
+
+                for i in range(0, len(words_list), batch_size):
+                    batch = words_list[i:i + batch_size]
+                    try:
+                        batch_labeled_words = punct_model.predict(batch, chunk_size=min(230, len(batch)))
+                        all_labeled_words.extend(batch_labeled_words)
+                    except AssertionError as e:
+                        # If batch still fails, try with even smaller chunks
+                        logging.warning(f"Batch processing failed, trying smaller chunks: {e}")
+                        smaller_batch_size = 100
+                        for j in range(0, len(batch), smaller_batch_size):
+                            smaller_batch = batch[j:j + smaller_batch_size]
+                            smaller_labeled_words = punct_model.predict(smaller_batch, chunk_size=min(230, len(smaller_batch)))
+                            all_labeled_words.extend(smaller_labeled_words)
+
+                labled_words = all_labeled_words
 
                 ending_puncts = ".?!。！？"
                 model_puncts = ".,;:!?。！？"
