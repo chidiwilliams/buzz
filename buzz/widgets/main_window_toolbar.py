@@ -16,6 +16,7 @@ from buzz.widgets.icon import (
     EXPAND_ICON_PATH,
     CANCEL_ICON_PATH,
     TRASH_ICON_PATH,
+    UPDATE_ICON_PATH,
 )
 from buzz.widgets.recording_transcriber_widget import RecordingTranscriberWidget
 from buzz.widgets.toolbar import ToolBar
@@ -26,6 +27,7 @@ class MainWindowToolbar(ToolBar):
     new_url_transcription_action_triggered: pyqtSignal
     open_transcript_action_triggered: pyqtSignal
     clear_history_action_triggered: pyqtSignal
+    update_action_triggered: pyqtSignal
     ICON_LIGHT_THEME_BACKGROUND = "#555"
     ICON_DARK_THEME_BACKGROUND = "#AAA"
 
@@ -70,6 +72,13 @@ class MainWindowToolbar(ToolBar):
         self.clear_history_action = Action(
             Icon(TRASH_ICON_PATH, self), _("Clear History"), self
         )
+
+        self.update_action = Action(
+            Icon(UPDATE_ICON_PATH, self), _("Update Available"), self
+        )
+        self.update_action_triggered = self.update_action.triggered
+        self.update_action.setVisible(False)
+
         self.clear_history_action_triggered = self.clear_history_action.triggered
         self.clear_history_action.setDisabled(True)
 
@@ -86,6 +95,10 @@ class MainWindowToolbar(ToolBar):
                 self.clear_history_action,
             ]
         )
+
+        self.addSeparator()
+        self.addAction(self.update_action)
+
         self.setMovable(False)
         self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
 
@@ -120,3 +133,7 @@ class MainWindowToolbar(ToolBar):
 
     def set_clear_history_action_enabled(self, enabled: bool):
         self.clear_history_action.setEnabled(enabled)
+
+    def set_update_available(self, available: bool):
+        """Shows or hides the update action in the toolbar."""
+        self.update_action.setVisible(available)

@@ -25,6 +25,8 @@ from buzz.db.service.transcription_service import TranscriptionService
 from buzz.file_transcriber_queue_worker import FileTranscriberQueueWorker
 from buzz.locale import _
 from buzz.settings.settings import APP_NAME, Settings
+from buzz.update_checker import UpdateChecker, UpdateInfo
+from buzz.widgets.update_dialog import UpdateDialog
 from buzz.settings.shortcuts import Shortcuts
 from buzz.store.keyring_store import set_password, Key
 from buzz.transcriber.transcriber import (
@@ -71,6 +73,9 @@ class MainWindow(QMainWindow):
         self.quit_on_complete = False
         self.transcription_service = transcription_service
 
+        #update checker
+        self._update_info: Optional[UpdateInfo] = None
+
         self.toolbar = MainWindowToolbar(shortcuts=self.shortcuts, parent=self)
         self.toolbar.new_transcription_action_triggered.connect(
             self.on_new_transcription_action_triggered
@@ -88,6 +93,7 @@ class MainWindow(QMainWindow):
             self.on_stop_transcription_action_triggered
         )
         self.addToolBar(self.toolbar)
+        self.toolbar.update_action_triggered.connect(self.on_update_action_triggered)
         self.setUnifiedTitleAndToolBarOnMac(True)
 
         self.preferences = self.load_preferences(settings=self.settings)
@@ -151,6 +157,9 @@ class MainWindow(QMainWindow):
         self.folder_watcher.find_tasks()
 
         self.transcription_viewer_widget = None
+
+        #Initialize and run update checker
+        self._init_update_checker()
 
         # TODO Move this to the first user interaction with OpenAI api Key field
         #  that is the only place that needs access to password manager service
@@ -451,3 +460,33 @@ class MainWindow(QMainWindow):
             self.setBaseSize(1240, 600)
             self.resize(1240, 600)
         self.settings.end_group()
+
+    def _init_update_checker(self):
+        """Initializes and runs the update checker."""
+        self.update_checker = UpdateChecker(settings=self.settings, parent=self)
+        self.update_checker.update_available.connect(self._on_update_available)
+        self.update_checker.check_failed.connect(self._on_update_check_failed)
+
+        # Check for updates on startup
+        self.update_checker.check_for_updates()
+
+    def _on_update_available(self, update_info: UpdateInfo):
+        """Called when an update is available."""
+        logging.info(f"Update available: {update_info.version}")
+        self._update_info = update_info
+        self.toolbar.set_update_available(True)
+
+    def _on_update_check_failed(self, error: str):
+        """Called when update check fails."""
+        logging.warning(f"Update check failed: {error}")
+
+    def on_update_action_triggered(self):
+        """Called when user clicks the update action in toolbar."""
+        if self._update_info is None:
+            return
+
+        dialog = UpdateDialog(
+            update_info=self._update_info,
+            parent=self
+        )
+        dialog.exec()
