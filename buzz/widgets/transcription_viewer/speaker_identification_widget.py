@@ -62,6 +62,63 @@ from whisper_diarization.helpers import (
 from deepmultilingualpunctuation.deepmultilingualpunctuation import PunctuationModel
 from whisper_diarization.diarization import MSDDDiarizer
 
+
+def process_in_batches(
+    items,
+    process_func,
+    batch_size=200,
+    chunk_size=230,
+    smaller_batch_size=100,
+    exception_types=(AssertionError,),
+    **process_func_kwargs
+):
+    """
+    Process items in batches with automatic fallback to smaller batches on errors.
+    
+    This is a generic batch processing function that can be used with any processing
+    function that has chunk size limitations. It automatically retries with smaller
+    batches when specified exceptions occur.
+    
+    Args:
+        items: List of items to process
+        process_func: Callable that processes a batch. Should accept (batch, chunk_size, **kwargs)
+                      and return a list of results
+        batch_size: Initial batch size (default: 200)
+        chunk_size: Maximum chunk size for the processing function (default: 230)
+        smaller_batch_size: Fallback batch size when errors occur (default: 100)
+        exception_types: Tuple of exception types to catch and retry with smaller batches
+                        (default: (AssertionError,))
+        **process_func_kwargs: Additional keyword arguments to pass to process_func
+        
+    Returns:
+        List of processed results (concatenated from all batches)
+        
+    Example:
+        >>> def my_predict(batch, chunk_size):
+        ...     return [f"processed_{item}" for item in batch]
+        >>> results = process_in_batches(
+        ...     items=["a", "b", "c"],
+        ...     process_func=my_predict,
+        ...     batch_size=2
+        ... )
+    """
+    all_results = []
+
+    for i in range(0, len(items), batch_size):
+        batch = items[i:i + batch_size]
+        try:
+            batch_results = process_func(batch, chunk_size=min(chunk_size, len(batch)), **process_func_kwargs)
+            all_results.extend(batch_results)
+        except exception_types as e:
+            # If batch still fails, try with even smaller chunks
+            logging.warning(f"Batch processing failed, trying smaller chunks: {e}")
+            for j in range(0, len(batch), smaller_batch_size):
+                smaller_batch = batch[j:j + smaller_batch_size]
+                smaller_results = process_func(smaller_batch, chunk_size=min(chunk_size, len(smaller_batch)), **process_func_kwargs)
+                all_results.extend(smaller_results)
+
+    return all_results
+
 SENTENCE_END = re.compile(r'.*[.!?。！？]')
 
 class IdentificationWorker(QObject):
@@ -267,7 +324,14 @@ class IdentificationWorker(QObject):
 
                 words_list = list(map(lambda x: x["word"], wsm))
 
-                labled_words = punct_model.predict(words_list, chunk_size=230)
+                # Process in batches to avoid chunk size errors
+                def predict_wrapper(batch, chunk_size, **kwargs):
+                    return punct_model.predict(batch, chunk_size=chunk_size)
+                
+                labled_words = process_in_batches(
+                    items=words_list,
+                    process_func=predict_wrapper
+                )
 
                 ending_puncts = ".?!。！？"
                 model_puncts = ".,;:!?。！？"
