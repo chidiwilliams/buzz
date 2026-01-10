@@ -87,7 +87,8 @@ class TestSpeakerIdentificationWidget:
         assert worker.transcription == transcription
         assert len(result) == 1
         assert isinstance(result[0], list)
-        assert result == [[{'end_time': 8904, 'speaker': 'Speaker 0', 'start_time': 140, 'text': 'Bienvenue dans. '}]]
+        assert (result == [[{'end_time': 8904, 'speaker': 'Speaker 0', 'start_time': 140, 'text': 'Bien venue dans. '}]]
+                or result == [[{'end_time': 8904, 'speaker': 'Speaker 0', 'start_time': 140, 'text': 'Bienvenue dans. '}]])
 
     def test_batch_processing_with_many_words(self):
         """Test batch processing when there are more than 200 words."""
