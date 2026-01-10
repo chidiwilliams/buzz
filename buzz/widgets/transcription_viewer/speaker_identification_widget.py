@@ -187,7 +187,8 @@ class IdentificationWorker(QObject):
                 transcription_id=self.transcription.id_as_uuid
             )
 
-            full_transcript = "".join(segment.text for segment in segments)
+            full_transcript = " ".join(segment.text for segment in segments)
+            full_transcript = re.sub(r' {2,}', ' ', full_transcript)
 
             if self._is_cancelled:
                 logging.debug("Speaker identification worker: Cancelled at step 2")
