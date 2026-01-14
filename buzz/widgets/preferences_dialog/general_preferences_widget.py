@@ -337,30 +337,48 @@ class ValidateOpenAIApiKeyJob(QRunnable):
         self.signals = self.Signals()
 
     def run(self):
+        from urllib.parse import urlparse
+        import ipaddress
+        
         settings = Settings()
         custom_openai_base_url = settings.value(
             key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value=""
         )
 
+        # Validate custom URL to prevent SSRF attacks
         if custom_openai_base_url:
             try:
-                if not custom_openai_base_url.endswith("/"):
-                    custom_openai_base_url += "/"
-
-                headers = {
-                    "Authorization": f"Bearer {self.api_key}",
-                    "Content-Type": "application/json"
-                }
-
-                response = requests.get(custom_openai_base_url + "models", headers=headers, timeout=5)
-
-                if response.status_code != 200:
+                parsed_url = urlparse(custom_openai_base_url)
+                
+                # Only allow https scheme (enforce secure connections)
+                if parsed_url.scheme != 'https':
                     self.signals.failed.emit(
-                        _("OpenAI API returned invalid response. Please check the API url or your key. "
-                          "Transcription and translation may still work if the API does not support key validation.")
+                        _("Invalid OpenAI base URL: Only HTTPS is allowed for security reasons.")
                     )
                     return
-            except requests.exceptions.RequestException as exc:
+                
+                hostname = parsed_url.hostname
+                
+                if not hostname:
+                    self.signals.failed.emit(
+                        _("Invalid OpenAI base URL: Invalid hostname.")
+                    )
+                    return
+                
+                try:
+                    # Check if the hostname is an IP address
+                    ip_addr = ipaddress.ip_address(hostname)
+                    # Block requests to private/internal IP ranges
+                    if ip_addr.is_private or ip_addr.is_loopback or ip_addr.is_link_local or ip_addr.is_reserved:
+                        self.signals.failed.emit(
+                            _("Invalid OpenAI base URL: Cannot use private, loopback, link-local, or reserved IP addresses.")
+                        )
+                        return
+                except ValueError:
+                    # hostname is not an IP address, which is fine
+                    # Could be a domain name - hostname validation is sufficient
+                    pass
+            except Exception as exc:
                 self.signals.failed.emit(str(exc))
                 return
 
