@@ -10,7 +10,7 @@
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/chidiwilliams/buzz)
 [![Github all releases](https://img.shields.io/github/downloads/chidiwilliams/buzz/total.svg)](https://GitHub.com/chidiwilliams/buzz/releases/)
 
-![Buzz](../buzz/assets/buzz-banner.jpg)
+![Buzz](./buzz/assets/buzz-banner.jpg)
 
 ## 機能
 - 音声・動画ファイルまたはYouTubeリンクの文字起こし
@@ -94,11 +94,11 @@ pip3 install nvidia-cublas-cu12==12.9.1.4 nvidia-cuda-cupti-cu12==12.9.79 nvidia
 ### スクリーンショット
 
 <div style="display: flex; flex-wrap: wrap;">
-    <img alt="ファイルインポート" src="../share/screenshots/buzz-1-import.png" style="max-width: 18%; margin-right: 1%;" />
-    <img alt="メイン画面" src="../share/screenshots/buzz-2-main_screen.png" style="max-width: 18%; margin-right: 1%; height:auto;" />
-    <img alt="設定" src="../share/screenshots/buzz-3-preferences.png" style="max-width: 18%; margin-right: 1%; height:auto;" />
-    <img alt="モデル設定" src="../share/screenshots/buzz-3.2-model-preferences.png" style="max-width: 18%; margin-right: 1%; height:auto;" />
-    <img alt="文字起こし" src="../share/screenshots/buzz-4-transcript.png" style="max-width: 18%; margin-right: 1%; height:auto;" />
-    <img alt="ライブ録音" src="../share/screenshots/buzz-5-live_recording.png" style="max-width: 18%; margin-right: 1%; height:auto;" />
-    <img alt="リサイズ" src="../share/screenshots/buzz-6-resize.png" style="max-width: 18%;" />
+    <img alt="ファイルインポート" src="share/screenshots/buzz-1-import.png" style="max-width: 18%; margin-right: 1%;" />
+    <img alt="メイン画面" src="share/screenshots/buzz-2-main_screen.png" style="max-width: 18%; margin-right: 1%; height:auto;" />
+    <img alt="設定" src="share/screenshots/buzz-3-preferences.png" style="max-width: 18%; margin-right: 1%; height:auto;" />
+    <img alt="モデル設定" src="share/screenshots/buzz-3.2-model-preferences.png" style="max-width: 18%; margin-right: 1%; height:auto;" />
+    <img alt="文字起こし" src="share/screenshots/buzz-4-transcript.png" style="max-width: 18%; margin-right: 1%; height:auto;" />
+    <img alt="ライブ録音" src="share/screenshots/buzz-5-live_recording.png" style="max-width: 18%; margin-right: 1%; height:auto;" />
+    <img alt="リサイズ" src="share/screenshots/buzz-6-resize.png" style="max-width: 18%;" />
 </div>
