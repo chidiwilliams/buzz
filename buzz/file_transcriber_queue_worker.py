@@ -12,6 +12,7 @@ from uuid import UUID
 # This must be done before importing demucs which uses torch.hub with urllib
 try:
     import certifi
+    os.environ.setdefault('REQUESTS_CA_BUNDLE', certifi.where())
     os.environ.setdefault('SSL_CERT_FILE', certifi.where())
     os.environ.setdefault('SSL_CERT_DIR', os.path.dirname(certifi.where()))
     # Also update the default SSL context for urllib

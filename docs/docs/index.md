@@ -20,7 +20,7 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
   real-time, [Demo](https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7))
   - Presentation window for easy accessibility during events and presentations
   - [Realtime translation](https://chidiwilliams.github.io/buzz/docs/usage/translations) with OpenAI API compatible AI
-- [Advanced Transcription Viewer](https://chidiwilliams.github.io/buzz/docs/usage/transcription_viewer)** with search, playback controls, and speed adjustment
+- [Advanced Transcription Viewer](https://chidiwilliams.github.io/buzz/docs/usage/transcription_viewer) with search, playback controls, and speed adjustment
 - **Smart Interface** with conditional visibility and state persistence
 - **Professional Controls** including loop segments, follow audio, and keyboard shortcuts
 - Supports [Whisper](https://github.com/openai/whisper#available-models-and-languages),
