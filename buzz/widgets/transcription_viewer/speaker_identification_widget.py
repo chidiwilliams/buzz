@@ -10,6 +10,7 @@ from typing import Optional
 # This must be done before importing libraries that download from Hugging Face
 try:
     import certifi
+    os.environ.setdefault('REQUESTS_CA_BUNDLE', certifi.where())
     os.environ.setdefault('SSL_CERT_FILE', certifi.where())
     os.environ.setdefault('SSL_CERT_DIR', os.path.dirname(certifi.where()))
     # Also update the default SSL context for urllib

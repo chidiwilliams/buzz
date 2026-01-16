@@ -40,12 +40,6 @@
 
 アプリは署名されていないため、インストール時に警告が表示されます。`詳細情報` -> `実行`を選択してください。
 
-**または、[winget](https://learn.microsoft.com/ja-jp/windows/package-manager/winget/)でインストール**
-
-```shell
-winget install ChidiWilliams.Buzz
-```
-
 ### Linux
 
 Buzzは[Flatpak](https://flathub.org/apps/io.github.chidiwilliams.Buzz)または[Snap](https://snapcraft.io/buzz)として利用可能です。

@@ -7,8 +7,22 @@ import threading
 import shutil
 import subprocess
 import sys
+import ssl
 import warnings
 import platform
+
+# Fix SSL certificate verification for bundled applications (macOS, Windows).
+# This must be done before importing libraries that make HTTPS requests.
+try:
+    import certifi
+    os.environ.setdefault("REQUESTS_CA_BUNDLE", certifi.where())
+    os.environ.setdefault("SSL_CERT_FILE", certifi.where())
+    os.environ.setdefault("SSL_CERT_DIR", os.path.dirname(certifi.where()))
+    # Also update the default SSL context for urllib
+    ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
+except ImportError:
+    pass
+
 import requests
 import whisper
 import huggingface_hub

@@ -43,12 +43,6 @@ Get the installation files from the [SourceForge](https://sourceforge.net/projec
 
 App is not signed, you will get a warning when you install it. Select `More info` -> `Run anyway`.
 
-**Alternatively, install with [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/)**
-
-```shell
-winget install ChidiWilliams.Buzz
-```
-
 ### Linux
 
 Buzz is available as a [Flatpak](https://flathub.org/apps/io.github.chidiwilliams.Buzz) or a [Snap](https://snapcraft.io/buzz). 
