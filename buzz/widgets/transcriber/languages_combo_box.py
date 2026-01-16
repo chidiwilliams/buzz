@@ -2,7 +2,7 @@ from typing import Optional
 import os
 
 from PyQt6.QtCore import pyqtSignal, Qt
-from PyQt6.QtWidgets import QComboBox, QWidget
+from PyQt6.QtWidgets import QComboBox, QWidget, QFrame
 from PyQt6.QtGui import QStandardItem, QStandardItemModel
 
 from buzz.locale import _
@@ -51,3 +51,9 @@ class LanguagesComboBox(QComboBox):
 
     def on_index_changed(self, index: int):
         self.languageChanged.emit(self.languages[index][0])
+
+    def showPopup(self):
+        super().showPopup()
+        popup = self.findChild(QFrame)
+        if popup and popup.height() > 400:
+            popup.setFixedHeight(400)
