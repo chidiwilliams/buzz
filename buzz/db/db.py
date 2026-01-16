@@ -49,5 +49,4 @@ def close_app_db():
         return
 
     if db.isOpen():
-        logging.debug("Closing database connection: %s", db.connectionName())
         db.close()

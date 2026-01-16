@@ -417,8 +417,6 @@ class MainWindow(QMainWindow):
         self.save_geometry()
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
-        logging.debug("Starting MainWindow closeEvent")
-
         self.save_geometry()
         self.settings.settings.sync()
 
