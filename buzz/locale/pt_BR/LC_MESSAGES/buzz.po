@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-16 11:16+0200\n"
+"POT-Creation-Date: 2026-01-16 11:27+0200\n"
 "PO-Revision-Date: 2025-11-01 17:43-0300\n"
 "Last-Translator: Paulo Schopf <pschopf@gmail.com>\n"
 "Language-Team: none\n"
@@ -334,8 +334,8 @@ msgstr "Falha ao baixar"
 #: buzz/widgets/transcription_tasks_table_widget.py:704
 #: buzz/widgets/transcription_tasks_table_widget.py:774
 #: buzz/widgets/transcription_tasks_table_widget.py:805
-#: buzz/widgets/main_window.py:283 buzz/model_loader.py:727
-#: buzz/model_loader.py:741
+#: buzz/widgets/main_window.py:283 buzz/model_loader.py:741
+#: buzz/model_loader.py:755
 msgid "Error"
 msgstr "Erro"
 
@@ -829,103 +829,111 @@ msgstr "Opções de Redimensionamento"
 msgid "Desired subtitle length"
 msgstr "Duração desejada da legenda"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:225
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:218
+msgid "Available only if word level timings were disabled during transcription"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:227
 msgid "Merge Options"
 msgstr "Opções de Mesclagem"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:236
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:238
 msgid "Merge by gap"
 msgstr "Mesclar por intervalo"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:244
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:246
 msgid "Split by punctuation"
 msgstr "Dividir por pontuação"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:252
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:254
 msgid "Split by max length"
 msgstr "Dividir por tamanho máximo"
 
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:264
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:266
 msgid "Merge"
 msgstr "Mesclar"
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:174
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:275
+msgid "Available only if word level timings were enabled during transcription"
+msgstr ""
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:175
 msgid "1/8 Collecting transcripts"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:197
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:198
 msgid "2/8 Loading audio"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:212
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:213
 msgid "3/8 Loading alignment model"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:238
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:239
 msgid "3/8 Loading alignment model (retrying with cache...)"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:243
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:244
 msgid ""
 "Failed to load alignment model. Please check your internet connection and "
 "try again."
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:251
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:252
 msgid "4/8 Processing audio"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:269
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:270
 #, fuzzy
 msgid "5/8 Preparing transcripts"
 msgstr "Iniciando transcrição..."
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:291
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:292
 msgid "6/8 Identifying speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:318
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:319
 msgid "7/8 Mapping speakers to transcripts"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:365
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:366
 msgid "8/8 Identification done"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:370
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:371
 msgid "0/0 Error identifying speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:430
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:431
 msgid "Step 1: Identify speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:442
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:443
 msgid "Identify"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:451
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:452
 msgid "Ready to identify speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:453
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:454
 msgid "Audio file not found"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:477
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:478
 msgid "Step 2: Name speakers"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:492
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:607
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:493
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:608
 msgid "Play sample"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:507
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:508
 msgid "Merge speaker sentences"
 msgstr ""
 
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:512
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py:513
 #, fuzzy
 msgid "Save"
 msgstr "Salvar Arquivo"
@@ -1366,7 +1374,7 @@ msgstr "Sundanês"
 msgid "Cantonese"
 msgstr "Cantonês"
 
-#: buzz/transcriber/recording_transcriber.py:247 buzz/model_loader.py:760
+#: buzz/transcriber/recording_transcriber.py:247 buzz/model_loader.py:774
 msgid "A connection error occurred"
 msgstr "Ocorreu um erro de conexão"
 

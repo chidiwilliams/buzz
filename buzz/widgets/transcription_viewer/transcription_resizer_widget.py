@@ -214,6 +214,8 @@ class TranscriptionResizerWidget(QWidget):
         resize_layout.addLayout(self.resize_row)
 
         resize_group_box.setEnabled(self.transcription.word_level_timings != 1)
+        if self.transcription.word_level_timings == 1:
+            resize_group_box.setToolTip(_("Available only if word level timings were disabled during transcription"))
 
         layout.addRow(resize_group_box)
 
@@ -269,6 +271,8 @@ class TranscriptionResizerWidget(QWidget):
         merge_options_layout.addLayout(self.merge_options_row)
 
         merge_options_group_box.setEnabled(self.transcription.word_level_timings == 1)
+        if self.transcription.word_level_timings != 1:
+            merge_options_group_box.setToolTip(_("Available only if word level timings were enabled during transcription"))
 
         layout.addRow(merge_options_group_box)
 
