@@ -98,6 +98,71 @@ class TestTranscriptionViewerWidget:
 
         widget.close()
 
+    def test_should_extend_segment_endings(self, qtbot, transcription, transcription_service):
+        transcription_service.update_transcription_as_completed = MagicMock()
+        transcription_service.copy_transcription = MagicMock(return_value=uuid.uuid4())
+
+        mock_signal = MagicMock()
+
+        widget = TranscriptionResizerWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+            transcriptions_updated_signal=mock_signal
+        )
+        widget.extend_amount_input.setText("0.2")
+
+        qtbot.add_widget(widget)
+
+        widget.on_extend_button_clicked()
+
+        # Verify a new transcription is created
+        transcription_service.copy_transcription.assert_called_once_with(transcription.id_as_uuid)
+
+        # Verify segments are updated
+        transcription_service.update_transcription_as_completed.assert_called_once()
+
+        # Verify signal is emitted
+        mock_signal.emit.assert_called_once()
+
+        # Verify segments are extended correctly
+        call_args = transcription_service.update_transcription_as_completed.call_args
+        new_transcript_id, segments = call_args[0]
+
+        # Original segments: (40, 299, "Bien"), (299, 329, "venue dans")
+        # With 0.2s (200ms) extension:
+        # First segment: end should be min(299 + 200, 299) = 299 (capped by next segment start)
+        # Second segment: end should be 329 + 200 = 529
+        assert len(segments) == 2
+        assert segments[0].start == 40
+        assert segments[0].end == 299  # Capped by next segment start
+        assert segments[1].start == 299
+        assert segments[1].end == 529  # Extended by 200ms
+
+        widget.close()
+
+    def test_extend_with_invalid_input_uses_default(self, qtbot, transcription, transcription_service):
+        transcription_service.update_transcription_as_completed = MagicMock()
+        transcription_service.copy_transcription = MagicMock(return_value=uuid.uuid4())
+
+        widget = TranscriptionResizerWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        widget.extend_amount_input.setText("invalid")
+
+        qtbot.add_widget(widget)
+
+        widget.on_extend_button_clicked()
+
+        # Should use default 0.2 seconds (200ms)
+        call_args = transcription_service.update_transcription_as_completed.call_args
+        new_transcript_id, segments = call_args[0]
+
+        # Second segment should be extended by default 200ms
+        assert segments[1].end == 529  # 329 + 200
+
+        widget.close()
+
     def test_on_merge_button_clicked(self, qtbot: QtBot, transcription, transcription_service):
         # Prerequisite: Merge button is only enabled if word_level_timings is True
         transcription.word_level_timings = True
