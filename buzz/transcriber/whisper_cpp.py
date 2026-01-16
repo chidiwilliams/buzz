@@ -180,79 +180,160 @@ class WhisperCpp:
                 # Extract word-level timestamps from tokens array
                 # Combine tokens into words using similar logic as whisper_cpp.py
                 transcription = result.get("transcription", [])
+
+                # Languages that don't use spaces between words
+                # For these, each token is treated as a separate word
+                non_space_languages = {"zh", "ja", "th", "lo", "km", "my"}
+                is_non_space_language = language in non_space_languages
+
                 for segment_data in transcription:
                     tokens = segment_data.get("tokens", [])
-    
-                    # Accumulate tokens into words
-                    word_buffer = b""
-                    word_start = 0
-                    word_end = 0
-    
-                    def append_word(buffer: bytes, start: int, end: int):
-                        """Try to decode and append a word segment, handling multi-byte UTF-8"""
-                        if not buffer:
-                            return True
-    
-                        # Try to decode as UTF-8
-                        # https://github.com/ggerganov/whisper.cpp/issues/1798
-                        try:
-                            text = buffer.decode("utf-8").strip()
-                            if text:
-                                segments.append(
-                                    Segment(
-                                        start=start,
-                                        end=end,
-                                        text=text,
-                                        translation=""
+
+                    if is_non_space_language:
+                        # For languages without spaces (Chinese, Japanese, etc.),
+                        # each complete UTF-8 character is treated as a separate word.
+                        # Some characters may be split across multiple tokens as raw bytes.
+                        char_buffer = b""
+                        char_start = 0
+                        char_end = 0
+
+                        def flush_complete_chars(buffer: bytes, start: int, end: int):
+                            """Extract and output all complete UTF-8 characters from buffer.
+                            Returns any remaining incomplete bytes."""
+                            nonlocal segments
+                            remaining = buffer
+                            pos = 0
+
+                            while pos < len(remaining):
+                                # Try to decode one character at a time
+                                for char_len in range(1, min(5, len(remaining) - pos + 1)):
+                                    try:
+                                        char = remaining[pos:pos + char_len].decode("utf-8")
+                                        # Successfully decoded a character
+                                        if char.strip():
+                                            segments.append(
+                                                Segment(
+                                                    start=start,
+                                                    end=end,
+                                                    text=char,
+                                                    translation=""
+                                                )
+                                            )
+                                        pos += char_len
+                                        break
+                                    except UnicodeDecodeError:
+                                        if char_len == 4 or pos + char_len >= len(remaining):
+                                            # Incomplete character at end - return as remaining
+                                            return remaining[pos:]
+                                else:
+                                    # Couldn't decode, might be incomplete at end
+                                    return remaining[pos:]
+
+                            return b""
+
+                        for token_data in tokens:
+                            token_text = token_data.get("text", "")
+
+                            # Skip special tokens like [_TT_], [_BEG_]
+                            if token_text.startswith("[_"):
+                                continue
+
+                            if not token_text:
+                                continue
+
+                            token_start = int(token_data.get("offsets", {}).get("from", 0))
+                            token_end = int(token_data.get("offsets", {}).get("to", 0))
+
+                            # Convert latin-1 string back to original bytes
+                            token_bytes = token_text.encode("latin-1")
+
+                            if not char_buffer:
+                                char_start = token_start
+
+                            char_buffer += token_bytes
+                            char_end = token_end
+
+                            # Try to flush complete characters
+                            char_buffer = flush_complete_chars(char_buffer, char_start, char_end)
+
+                            # If buffer was fully flushed, reset start time for next char
+                            if not char_buffer:
+                                char_start = token_end
+
+                        # Flush any remaining buffer at end of segment
+                        if char_buffer:
+                            flush_complete_chars(char_buffer, char_start, char_end)
+                    else:
+                        # For space-separated languages, accumulate tokens into words
+                        word_buffer = b""
+                        word_start = 0
+                        word_end = 0
+
+                        def append_word(buffer: bytes, start: int, end: int):
+                            """Try to decode and append a word segment, handling multi-byte UTF-8"""
+                            if not buffer:
+                                return True
+
+                            # Try to decode as UTF-8
+                            # https://github.com/ggerganov/whisper.cpp/issues/1798
+                            try:
+                                text = buffer.decode("utf-8").strip()
+                                if text:
+                                    segments.append(
+                                        Segment(
+                                            start=start,
+                                            end=end,
+                                            text=text,
+                                            translation=""
+                                        )
                                     )
-                                )
-                            return True
-                        except UnicodeDecodeError:
-                            # Multi-byte character is split, continue accumulating
-                            return False
-    
-                    for token_data in tokens:
-                        # Token text is read as latin-1, need to convert to bytes to get original data
-                        token_text = token_data.get("text", "")
-    
-                        # Skip special tokens like [_TT_], [_BEG_]
-                        if token_text.startswith("[_"):
-                            continue
-    
-                        if not token_text:
-                            continue
-    
-                        token_start = int(token_data.get("offsets", {}).get("from", 0))
-                        token_end = int(token_data.get("offsets", {}).get("to", 0))
-    
-                        # Convert latin-1 string back to original bytes
-                        # (latin-1 preserves byte values as code points)
-                        token_bytes = token_text.encode("latin-1")
-    
-                        # Check if token starts with space - indicates new word
-                        if token_bytes.startswith(b" ") and word_buffer:
-                            # Save previous word
-                            append_word(word_buffer, word_start, word_end)
-                            # Start new word
-                            word_buffer = token_bytes
-                            word_start = token_start
-                            word_end = token_end
-                        elif token_bytes.startswith(b", "):
-                            # Handle comma - save word with comma, then start new word
-                            word_buffer += b","
-                            append_word(word_buffer, word_start, word_end)
-                            word_buffer = token_bytes.lstrip(b",")
-                            word_start = token_start
-                            word_end = token_end
-                        else:
-                            # Accumulate token into current word
-                            if not word_buffer:
+                                return True
+                            except UnicodeDecodeError:
+                                # Multi-byte character is split, continue accumulating
+                                return False
+
+                        for token_data in tokens:
+                            # Token text is read as latin-1, need to convert to bytes to get original data
+                            token_text = token_data.get("text", "")
+
+                            # Skip special tokens like [_TT_], [_BEG_]
+                            if token_text.startswith("[_"):
+                                continue
+
+                            if not token_text:
+                                continue
+
+                            token_start = int(token_data.get("offsets", {}).get("from", 0))
+                            token_end = int(token_data.get("offsets", {}).get("to", 0))
+
+                            # Convert latin-1 string back to original bytes
+                            # (latin-1 preserves byte values as code points)
+                            token_bytes = token_text.encode("latin-1")
+
+                            # Check if token starts with space - indicates new word
+                            if token_bytes.startswith(b" ") and word_buffer:
+                                # Save previous word
+                                append_word(word_buffer, word_start, word_end)
+                                # Start new word
+                                word_buffer = token_bytes
                                 word_start = token_start
-                            word_buffer += token_bytes
-                            word_end = token_end
-    
-                    # Add the last word
-                    append_word(word_buffer, word_start, word_end)
+                                word_end = token_end
+                            elif token_bytes.startswith(b", "):
+                                # Handle comma - save word with comma, then start new word
+                                word_buffer += b","
+                                append_word(word_buffer, word_start, word_end)
+                                word_buffer = token_bytes.lstrip(b",")
+                                word_start = token_start
+                                word_end = token_end
+                            else:
+                                # Accumulate token into current word
+                                if not word_buffer:
+                                    word_start = token_start
+                                word_buffer += token_bytes
+                                word_end = token_end
+
+                        # Add the last word
+                        append_word(word_buffer, word_start, word_end)
             else:
                 # Use segment-level timestamps
                 transcription = result.get("transcription", [])
