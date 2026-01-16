@@ -36,6 +36,9 @@ from buzz.widgets.preferences_dialog.models.file_transcription_preferences impor
 
 SENTENCE_END = re.compile(r'.*[.!?。！？]')
 
+# Languages that don't use spaces between words
+NON_SPACE_LANGUAGES = {"zh", "ja", "th", "lo", "km", "my"}
+
 class TranscriptionWorker(QObject):
     finished = pyqtSignal(list)
 
@@ -51,16 +54,23 @@ class TranscriptionWorker(QObject):
             transcription_id=self.transcription.id_as_uuid
         )
 
+        # Check if the language uses spaces between words
+        language = self.transcription.language or ""
+        is_non_space_language = language in NON_SPACE_LANGUAGES
+
+        # For non-space languages, don't add spaces between words
+        separator = "" if is_non_space_language else " "
+
         segments = []
         words = []
         text = ""
         for buzz_segment in buzz_segments:
             words.append({
-                'word': buzz_segment.text + " ",
+                'word': buzz_segment.text + separator,
                 'start': buzz_segment.start_time / 100,
                 'end': buzz_segment.end_time / 100,
             })
-            text += buzz_segment.text + " "
+            text += buzz_segment.text + separator
 
             if SENTENCE_END.match(buzz_segment.text):
                 segments.append({
@@ -69,6 +79,13 @@ class TranscriptionWorker(QObject):
                 })
                 words = []
                 text = ""
+
+        # Add any remaining words that weren't terminated by sentence-ending punctuation
+        if words:
+            segments.append({
+                'text': text,
+                'words': words
+            })
 
         return {
             'language': self.transcription.language,
