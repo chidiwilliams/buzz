@@ -15,13 +15,14 @@ import platform
 # This must be done before importing libraries that make HTTPS requests.
 try:
     import certifi
-    os.environ.setdefault("REQUESTS_CA_BUNDLE", certifi.where())
-    os.environ.setdefault("SSL_CERT_FILE", certifi.where())
-    os.environ.setdefault("SSL_CERT_DIR", os.path.dirname(certifi.where()))
+    _certifi_ca_bundle = certifi.where()
+    os.environ.setdefault("REQUESTS_CA_BUNDLE", _certifi_ca_bundle)
+    os.environ.setdefault("SSL_CERT_FILE", _certifi_ca_bundle)
+    os.environ.setdefault("SSL_CERT_DIR", os.path.dirname(_certifi_ca_bundle))
     # Also update the default SSL context for urllib
-    ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
+    ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=_certifi_ca_bundle)
 except ImportError:
-    pass
+    _certifi_ca_bundle = None
 
 import requests
 import whisper
@@ -35,6 +36,25 @@ from platformdirs import user_cache_dir
 from huggingface_hub.errors import LocalEntryNotFoundError
 
 from buzz.locale import _
+
+# Configure huggingface_hub to use certifi certificates directly.
+# This is more reliable than environment variables for frozen apps.
+if _certifi_ca_bundle is not None:
+    try:
+        from huggingface_hub import configure_http_backend
+
+        def _hf_session_factory() -> requests.Session:
+            session = requests.Session()
+            session.verify = _certifi_ca_bundle
+            return session
+
+        configure_http_backend(backend_factory=_hf_session_factory)
+        logging.debug(f"Configured huggingface_hub to use certifi CA bundle: {_certifi_ca_bundle}")
+    except ImportError:
+        # configure_http_backend not available in older huggingface_hub versions
+        pass
+    except Exception as e:
+        logging.debug(f"Failed to configure huggingface_hub HTTP backend: {e}")
 
 # On Windows, creating symlinks requires special privileges (Developer Mode or
 # SeCreateSymbolicLinkPrivilege). Monkey-patch huggingface_hub to use file
