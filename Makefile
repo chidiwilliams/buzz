@@ -52,7 +52,8 @@ ifeq ($(OS), Windows_NT)
 	# The _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR is needed to prevent mutex lock issues on Windows
 	# https://github.com/actions/runner-images/issues/10004#issuecomment-2156109231
 	# -DCMAKE_[C|CXX]_COMPILER_WORKS=TRUE is used to prevent issue in building test program that fails on CI
-	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DCMAKE_C_FLAGS="-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR"  -DCMAKE_CXX_FLAGS="-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" -DCMAKE_C_COMPILER_WORKS=TRUE -DCMAKE_CXX_COMPILER_WORKS=TRUE -DGGML_VULKAN=1
+	# GGML_NATIVE=OFF ensures we don't use -march=native (which would target the build machine's CPU)
+	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DCMAKE_C_FLAGS="-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR"  -DCMAKE_CXX_FLAGS="-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" -DCMAKE_C_COMPILER_WORKS=TRUE -DCMAKE_CXX_COMPILER_WORKS=TRUE -DGGML_VULKAN=1 -DGGML_NATIVE=OFF
 	cmake --build whisper.cpp/build -j --config Release --verbose
 
 	-mkdir buzz/whisper_cpp
@@ -63,9 +64,11 @@ endif
 
 ifeq ($(shell uname -s), Linux)
 	# Build Whisper with Vulkan support
+	# GGML_NATIVE=OFF ensures we don't use -march=native (which would target the build machine's CPU)
+	# This enables portable SSE4.2/AVX/AVX2 optimizations that work on most x86_64 CPUs
 	rm -rf whisper.cpp/build || true
 	-mkdir -p buzz/whisper_cpp
-	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DGGML_VULKAN=1
+	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DGGML_VULKAN=1 -DGGML_NATIVE=OFF
 	cmake --build whisper.cpp/build -j --config Release --verbose
 	cp whisper.cpp/build/bin/whisper-cli buzz/whisper_cpp/ || true
 	cp whisper.cpp/build/bin/whisper-server buzz/whisper_cpp/ || true
