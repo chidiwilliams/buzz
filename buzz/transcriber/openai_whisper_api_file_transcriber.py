@@ -183,17 +183,22 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
         return segments
 
     @staticmethod
-    def get_value(segment, key):
+    def get_value(segment, key, default=None):
         if hasattr(segment, key):
             return getattr(segment, key)
-        return segment[key]
+        if isinstance(segment, dict):
+            return segment.get(key, default)
+        return default
 
     def get_segments_for_file(self, file: str, offset_ms: int = 0):
         with open(file, "rb") as file:
+            # gpt-4o models don't support verbose_json format
+            response_format = "json" if self.whisper_api_model.startswith("gpt-4o") else "verbose_json"
+
             options = {
                 "model": self.whisper_api_model,
                 "file": file,
-                "response_format": "verbose_json",
+                "response_format": response_format,
                 "prompt": self.transcription_task.transcription_options.initial_prompt,
             }
 
@@ -219,7 +224,8 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
                 if "segments" in transcript.model_extra:
                     segments = transcript.model_extra["segments"]
                 else:
-                    segments = [{"words": words}]
+                    # gpt-4o models return only text without segments/timestamps
+                    segments = [{"text": transcript.text, "start": 0, "end": 0, "words": words}]
 
             result_segments = []
             if self.word_level_timings:
@@ -274,9 +280,9 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
             else:
                 result_segments = [
                     Segment(
-                        int(self.get_value(segment, "start") * 1000 + offset_ms),
-                        int(self.get_value(segment,"end") * 1000 + offset_ms),
-                        self.get_value(segment,"text"),
+                        int(self.get_value(segment, "start", 0) * 1000 + offset_ms),
+                        int(self.get_value(segment, "end", 0) * 1000 + offset_ms),
+                        self.get_value(segment, "text", ""),
                     )
                     for segment in segments
                 ]
