@@ -65,6 +65,12 @@
   <content_rating type="oars-1.1"/>
 
   <releases>
+    <release version="1.4.3" date="2026-01-26">
+      <url type="details">https://github.com/chidiwilliams/buzz/releases/tag/v1.4.3</url>
+      <description>
+        <p>Fixed support for whisper.cpp on older CPUs and issues in speaker identification.</p>
+      </description>
+    </release>
     <release version="1.4.2" date="2026-01-03">
       <url type="details">https://github.com/chidiwilliams/buzz/releases/tag/v1.4.2</url>
       <description>

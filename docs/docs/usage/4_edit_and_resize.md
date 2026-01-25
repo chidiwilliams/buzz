@@ -10,4 +10,4 @@ Transcription view screen has option to resize the transcripts. Click on the "Re
 
 If audio file is still present on the system word-level timing merge will also analyze the audio for silences to improve subtitle accuracy. Subtitle generation from transcripts with word-level timings is available since version 1.3.0.
 
-The resize tool also has an option to extend end time of segments if you want the subtitles to be on the screen for longer. You can specify the amount of time in seconds to extend each subtitle segment. Buzz will add this amount of time to the end of each subtitle segment making sure that the end of a segment does not go over start of the next segment. This feature is available since 1.5.0.
+The resize tool also has an option to extend end time of segments if you want the subtitles to be on the screen for longer. You can specify the amount of time in seconds to extend each subtitle segment. Buzz will add this amount of time to the end of each subtitle segment making sure that the end of a segment does not go over start of the next segment. This feature is available since 1.4.3.
