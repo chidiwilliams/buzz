@@ -28,12 +28,29 @@ from buzz.transcriber.file_transcriber import FileTranscriber
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment, Task
 from buzz.transcriber.whisper_cpp import WhisperCpp
 
+import av
 import faster_whisper
 import whisper
 import stable_whisper
 from stable_whisper import WhisperResult
 
 PROGRESS_REGEX = re.compile(r"\d+(\.\d+)?%")
+
+
+def check_file_has_audio_stream(file_path: str) -> None:
+    """Check if a media file has at least one audio stream.
+
+    Raises:
+        ValueError: If the file has no audio streams.
+    """
+    try:
+        with av.open(file_path) as container:
+            if len(container.streams.audio) == 0:
+                raise ValueError("No audio streams found")
+    except av.error.InvalidDataError as e:
+        raise ValueError(f"Invalid media file: {e}")
+    except av.error.FileNotFoundError:
+        raise ValueError("File not found")
 
 
 class WhisperFileTranscriber(FileTranscriber):
@@ -54,6 +71,7 @@ class WhisperFileTranscriber(FileTranscriber):
         self.stopped = False
         self.recv_pipe = None
         self.send_pipe = None
+        self.error_message = None
 
     def transcribe(self) -> List[Segment]:
         time_started = datetime.datetime.now()
@@ -119,7 +137,7 @@ class WhisperFileTranscriber(FileTranscriber):
                 logging.debug("Whisper process was terminated (exit code: %s), treating as cancellation", self.current_process.exitcode)
                 raise Exception("Transcription was canceled")
             else:
-                raise Exception("Unknown error")
+                raise Exception(self.error_message or "Unknown error")
 
         return self.segments
 
@@ -158,27 +176,36 @@ class WhisperFileTranscriber(FileTranscriber):
             subprocess.run = _patched_run
             subprocess.Popen = _PatchedPopen
 
-        with pipe_stderr(stderr_conn):
-            if task.transcription_options.model.model_type == ModelType.WHISPER_CPP:
-                segments = cls.transcribe_whisper_cpp(task)
-            elif task.transcription_options.model.model_type == ModelType.HUGGING_FACE:
-                sys.stderr.write("0%\n")
-                segments = cls.transcribe_hugging_face(task)
-                sys.stderr.write("100%\n")
-            elif (
-                task.transcription_options.model.model_type == ModelType.FASTER_WHISPER
-            ):
-                segments = cls.transcribe_faster_whisper(task)
-            elif task.transcription_options.model.model_type == ModelType.WHISPER:
-                segments = cls.transcribe_openai_whisper(task)
-            else:
-                raise Exception(
-                    f"Invalid model type: {task.transcription_options.model.model_type}"
-                )
+        try:
+            # Check if the file has audio streams before processing
+            check_file_has_audio_stream(task.file_path)
 
-            segments_json = json.dumps(segments, ensure_ascii=True, default=vars)
-            sys.stderr.write(f"segments = {segments_json}\n")
-            sys.stderr.write(WhisperFileTranscriber.READ_LINE_THREAD_STOP_TOKEN + "\n")
+            with pipe_stderr(stderr_conn):
+                if task.transcription_options.model.model_type == ModelType.WHISPER_CPP:
+                    segments = cls.transcribe_whisper_cpp(task)
+                elif task.transcription_options.model.model_type == ModelType.HUGGING_FACE:
+                    sys.stderr.write("0%\n")
+                    segments = cls.transcribe_hugging_face(task)
+                    sys.stderr.write("100%\n")
+                elif (
+                    task.transcription_options.model.model_type == ModelType.FASTER_WHISPER
+                ):
+                    segments = cls.transcribe_faster_whisper(task)
+                elif task.transcription_options.model.model_type == ModelType.WHISPER:
+                    segments = cls.transcribe_openai_whisper(task)
+                else:
+                    raise Exception(
+                        f"Invalid model type: {task.transcription_options.model.model_type}"
+                    )
+
+                segments_json = json.dumps(segments, ensure_ascii=True, default=vars)
+                sys.stderr.write(f"segments = {segments_json}\n")
+                sys.stderr.write(WhisperFileTranscriber.READ_LINE_THREAD_STOP_TOKEN + "\n")
+        except Exception as e:
+            # Send error message back to the parent process
+            stderr_conn.send(f"error = {str(e)}\n")
+            stderr_conn.send(WhisperFileTranscriber.READ_LINE_THREAD_STOP_TOKEN + "\n")
+            raise
 
     @classmethod
     def transcribe_whisper_cpp(cls, task: FileTranscriptionTask) -> List[Segment]:
@@ -415,6 +442,8 @@ class WhisperFileTranscriber(FileTranscriber):
                     for segment in segments_dict
                 ]
                 self.segments = segments
+            elif line.startswith("error = "):
+                self.error_message = line[8:]
             else:
                 try:
                     match = PROGRESS_REGEX.search(line)
