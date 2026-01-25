@@ -49,7 +49,6 @@ if _certifi_ca_bundle is not None:
             return session
 
         configure_http_backend(backend_factory=_hf_session_factory)
-        logging.debug(f"Configured huggingface_hub to use certifi CA bundle: {_certifi_ca_bundle}")
     except ImportError:
         # configure_http_backend not available in older huggingface_hub versions
         pass
