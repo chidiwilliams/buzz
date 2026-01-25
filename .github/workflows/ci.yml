@@ -105,7 +105,7 @@ jobs:
 
   build:
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
+    timeout-minutes: 90
     env:
       BUZZ_DISABLE_TELEMETRY: true
     strategy:
