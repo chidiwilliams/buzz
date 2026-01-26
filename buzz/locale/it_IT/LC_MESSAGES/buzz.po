@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-01-16 11:27+0200\n"
-"PO-Revision-Date: 2026-01-03 10:42+0200\n"
+"PO-Revision-Date: 2026-01-25 21:42+0200\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
 "MIME-Version: 1.0\n"
@@ -812,15 +812,15 @@ msgstr "Inserisci la chiave API OpenAI nelle preferenze"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:157
 msgid "Extend end time"
-msgstr ""
+msgstr "Estendi l'orario di fine"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:168
 msgid "Extend endings by up to (seconds)"
-msgstr ""
+msgstr "Estendi le terminazioni fino a (secondi)"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:173
 msgid "Extend endings"
-msgstr ""
+msgstr "Estendere i finali"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:189
 msgid "Resize Options"
@@ -832,7 +832,7 @@ msgstr "Lunghezza desiderata dei sottotitoli"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:218
 msgid "Available only if word level timings were disabled during transcription"
-msgstr ""
+msgstr "Disponibile solo se i tempi a livello di parola sono stati disabilitati durante la trascrizione"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:227
 msgid "Merge Options"
@@ -856,7 +856,7 @@ msgstr "Unione"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py:275
 msgid "Available only if word level timings were enabled during transcription"
-msgstr ""
+msgstr "Disponibile solo se i tempi a livello di parola sono stati abilitati durante la trascrizione"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py:175
 msgid "1/8 Collecting transcripts"
