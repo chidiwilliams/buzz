@@ -195,7 +195,7 @@ class RecordingTranscriberWidget(QWidget):
         self.setLayout(layout)
         self.resize(450, 500)
 
-        self.()
+        self.reset_recording_amplitude_listener()
 
         self.transcript_export_file = None
         self.translation_export_file = None
