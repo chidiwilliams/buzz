@@ -539,7 +539,6 @@ class RecordingTranscriberWidget(QWidget):
             return
 
         self.transcription_thread = QThread()
-        logging.debug("attempting to instantiate thw recordingtranscriber object")
 
         # TODO: make runnable
         self.transcriber = RecordingTranscriber(
