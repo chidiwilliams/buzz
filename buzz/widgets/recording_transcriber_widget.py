@@ -16,6 +16,7 @@ from PyQt6.QtWidgets import (
     QFormLayout,
     QHBoxLayout,
     QMessageBox,
+    QApplication,
     QPushButton,
     QComboBox,
     QLabel,
@@ -209,6 +210,9 @@ class RecordingTranscriberWidget(QWidget):
         self.presentation_options_bar = self.create_presentation_options_bar()
         layout.insertWidget(3, self.presentation_options_bar)
         self.presentation_options_bar.hide()
+        self.copy_actions_bar = self.create_copy_actions_bar()
+        layout.addWidget(self.copy_actions_bar)  # Add at the bottom
+        self.copy_actions_bar.hide() 
 
     def create_presentation_options_bar(self) -> QWidget:
         """Crete the presentation options bar widget"""
@@ -286,6 +290,35 @@ class RecordingTranscriberWidget(QWidget):
 
         return bar
 
+    def create_copy_actions_bar(self) -> QWidget:
+        """Create the copy actions bar widget"""
+        bar = QWidget(self)
+        layout = QHBoxLayout(bar)
+        layout.setContentsMargins(5, 5, 5, 5)
+        layout.setSpacing(10)
+        
+        layout.addStretch()  # Push button to the right
+        
+        self.copy_transcript_button = QPushButton(_("Copy"), bar)
+        self.copy_transcript_button.setToolTip(_("Copy transcription to clipboard"))
+        self.copy_transcript_button.clicked.connect(self.on_copy_transcript_clicked)
+        layout.addWidget(self.copy_transcript_button)
+        
+        return bar  
+
+    def on_copy_transcript_clicked(self):
+        """Handle copy transcript button click"""
+        transcript_text = self.transcription_text_box.toPlainText()
+        if transcript_text:
+            clipboard = QApplication.clipboard()
+            clipboard.setText(transcript_text)
+            self.copy_transcript_button.setText(_("Copied!"))
+            QTimer.singleShot(2000, lambda: self.copy_transcript_button.setText(_("Copy")))
+        
+        else:
+            self.copy_transcript_button.setText(_("Nothing to copy!"))
+            QTimer.singleShot(1500, lambda: self.copy_transcript_button.setText(_("Copy")))
+                
     def on_show_presentation_clicked(self):
         """Handle click on 'Show in new window' button"""
         if self.presentation_window is None or not self.presentation_window.isVisible():
@@ -455,6 +488,8 @@ class RecordingTranscriberWidget(QWidget):
             self.on_recording_amplitude_changed, Qt.ConnectionType.QueuedConnection
         )
         self.recording_amplitude_listener.start_recording()
+        
+        
 
     def on_record_button_clicked(self):
         if self.current_status == self.RecordingStatus.STOPPED:
@@ -464,6 +499,9 @@ class RecordingTranscriberWidget(QWidget):
             self.transcription_options_group_box.setEnabled(False)
             self.audio_devices_combo_box.setEnabled(False)
             self.presentation_options_bar.show()
+            # self.copy_actions_bar = self.create_copy_actions_bar()
+            self.copy_actions_bar.hide() #added this here
+
         else:  # RecordingStatus.RECORDING
             self.stop_recording()
             self.set_recording_status_stopped()
@@ -501,6 +539,7 @@ class RecordingTranscriberWidget(QWidget):
             return
 
         self.transcription_thread = QThread()
+        logging.debug("attempting to instantiate thw recordingtranscriber object")
 
         # TODO: make runnable
         self.transcriber = RecordingTranscriber(
@@ -574,6 +613,7 @@ class RecordingTranscriberWidget(QWidget):
         self.transcription_options_group_box.setEnabled(True)
         self.audio_devices_combo_box.setEnabled(True)
         self.presentation_options_bar.hide()
+        self.copy_actions_bar.show() #added this here
 
     def on_download_model_error(self, error: str):
         self.reset_model_download()
