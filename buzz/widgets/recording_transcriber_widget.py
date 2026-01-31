@@ -195,7 +195,7 @@ class RecordingTranscriberWidget(QWidget):
         self.setLayout(layout)
         self.resize(450, 500)
 
-        self.reset_recording_amplitude_listener()
+        self.()
 
         self.transcript_export_file = None
         self.translation_export_file = None
@@ -488,16 +488,6 @@ class RecordingTranscriberWidget(QWidget):
             self.on_recording_amplitude_changed, Qt.ConnectionType.QueuedConnection
         )
         self.recording_amplitude_listener.start_recording()
-        
-    def reset_recording_amplitude_listener(self):
-        if self.selected_device_id is None or self.selected_device_id == -1:
-            return
-
-        self.device_sample_rate = RecordingTranscriber.get_device_sample_rate(
-            self.selected_device_id
-        )
-        logging.debug(f"Device sample rate: {self.device_sample_rate}")
-        
 
     def on_record_button_clicked(self):
         if self.current_status == self.RecordingStatus.STOPPED:
