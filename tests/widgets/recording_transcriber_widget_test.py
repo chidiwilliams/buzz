@@ -471,6 +471,87 @@ class TestRecordingTranscriberWidgetPresentation:
             widget.close()
 
     @pytest.mark.timeout(60)
+    def test_on_copy_transcript_clicked_with_text(self, qtbot: QtBot):
+        with (
+            patch("sounddevice.InputStream", side_effect=MockInputStream),
+            patch("sounddevice.check_input_settings"),
+            patch(
+                "buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                return_value=16_000,
+            ),
+            patch("buzz.widgets.recording_transcriber_widget.QApplication.instance") as mock_qapp,
+        ):
+            mock_clipboard = MagicMock()
+            mock_app = MagicMock()
+            mock_app.clipboard.return_value = mock_clipboard
+            mock_qapp.return_value = mock_app
+
+            widget = RecordingTranscriberWidget(custom_sounddevice=MockSoundDevice())
+            qtbot.add_widget(widget)
+
+            widget.transcription_text_box.setPlainText("Hello world")
+            widget.copy_actions_bar.show()
+
+            widget.on_copy_transcript_clicked()
+
+            mock_clipboard.setText.assert_called_once_with("Hello world")
+            assert widget.copy_transcript_button.text() == _("Copied!")
+
+            widget.close()
+
+    @pytest.mark.timeout(60)
+    def test_on_copy_transcript_clicked_without_text(self, qtbot: QtBot):
+        """Test that copy button handles empty transcript gracefully"""
+        with (
+            patch("sounddevice.InputStream", side_effect=MockInputStream),
+            patch("sounddevice.check_input_settings"),
+            patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                return_value=16_000),
+        ):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            qtbot.add_widget(widget)
+
+            widget.transcription_text_box.setPlainText("")
+            widget.copy_actions_bar.show()
+
+            widget.on_copy_transcript_clicked()
+
+            assert widget.copy_transcript_button.text() == _("Nothing to copy!")
+
+            time.sleep(0.5)
+            widget.close()
+
+    @pytest.mark.timeout(60)
+    def test_copy_actions_bar_hidden_when_recording_starts(self, qtbot: QtBot):
+        """Test that copy actions bar hides when recording starts"""
+        with (
+            patch("sounddevice.InputStream", side_effect=MockInputStream),
+            patch("sounddevice.check_input_settings"),
+            patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                return_value=16_000),
+        ):
+            widget = RecordingTranscriberWidget(
+                custom_sounddevice=MockSoundDevice()
+            )
+            widget.device_sample_rate = 16_000
+            qtbot.add_widget(widget)
+
+            widget.copy_actions_bar.show()
+            assert not widget.copy_actions_bar.isHidden()
+
+            # Simulate recording start
+            widget.current_status = widget.RecordingStatus.STOPPED
+            widget.on_record_button_clicked()
+
+            assert widget.copy_actions_bar.isHidden()
+
+            time.sleep(0.5)
+            widget.close()
+
+
+    @pytest.mark.timeout(60)
     def test_on_bg_color_clicked(self, qtbot: QtBot):
         """Test that background color button opens color dialog and saves selection"""
         settings = Settings()

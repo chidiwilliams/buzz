@@ -308,16 +308,38 @@ class RecordingTranscriberWidget(QWidget):
 
     def on_copy_transcript_clicked(self):
         """Handle copy transcript button click"""
-        transcript_text = self.transcription_text_box.toPlainText()
-        if transcript_text:
-            clipboard = QApplication.clipboard()
-            clipboard.setText(transcript_text)
-            self.copy_transcript_button.setText(_("Copied!"))
-            QTimer.singleShot(2000, lambda: self.copy_transcript_button.setText(_("Copy")))
-        
-        else:
+        transcript_text = self.transcription_text_box.toPlainText().strip()
+
+        if not transcript_text:
             self.copy_transcript_button.setText(_("Nothing to copy!"))
             QTimer.singleShot(1500, lambda: self.copy_transcript_button.setText(_("Copy")))
+            return
+
+        app = QApplication.instance()
+        if app is None:
+            logging.warning("QApplication instance not available; clipboard disabled")
+            self.copy_transcript_button.setText(_("Copy failed"))
+            QTimer.singleShot(1500, lambda: self.copy_transcript_button.setText(_("Copy")))
+            return
+
+        clipboard = app.clipboard()
+        if clipboard is None:
+            logging.warning("Clipboard not available")
+            self.copy_transcript_button.setText(_("Copy failed"))
+            QTimer.singleShot(1500, lambda: self.copy_transcript_button.setText(_("Copy")))
+            return
+
+        try:
+            clipboard.setText(transcript_text)
+        except Exception as e:
+            logging.warning("Clipboard error: %s", e)
+            self.copy_transcript_button.setText(_("Copy failed"))
+            QTimer.singleShot(1500, lambda: self.copy_transcript_button.setText(_("Copy")))
+            return
+
+        self.copy_transcript_button.setText(_("Copied!"))
+        QTimer.singleShot(2000, lambda: self.copy_transcript_button.setText(_("Copy")))
+
                 
     def on_show_presentation_clicked(self):
         """Handle click on 'Show in new window' button"""
@@ -499,8 +521,7 @@ class RecordingTranscriberWidget(QWidget):
             self.transcription_options_group_box.setEnabled(False)
             self.audio_devices_combo_box.setEnabled(False)
             self.presentation_options_bar.show()
-            # self.copy_actions_bar = self.create_copy_actions_bar()
-            self.copy_actions_bar.hide() #added this here
+            self.copy_actions_bar.hide()
 
         else:  # RecordingStatus.RECORDING
             self.stop_recording()
