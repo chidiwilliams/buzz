@@ -22,13 +22,6 @@ except ImportError:
 
 from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot, Qt
 
-# Ensure sys.stdout/sys.stderr are not None (can happen in bundled --noconsole apps)
-# torch.hub uses sys.stdout.write() for download progress and crashes if stdout is None
-if sys.stdout is None:
-    sys.stdout = open(os.devnull, "w")
-if sys.stderr is None:
-    sys.stderr = open(os.devnull, "w")
-
 # Patch subprocess for demucs to prevent console windows on Windows
 if sys.platform == "win32":
     import subprocess
