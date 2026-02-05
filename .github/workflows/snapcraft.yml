@@ -65,7 +65,7 @@ jobs:
           sudo snap install gnome-46-2404-sdk || { echo "Failed to install gnome-46-2404-sdk"; sudo journalctl -u snapd --no-pager -n 50; exit 1; }
 
           echo "=== Installing build-snaps ==="
-          sudo snap install astral-uv || { echo "Failed to install astral-uv"; sudo journalctl -u snapd --no-pager -n 50; exit 1; }
+          sudo snap install --classic astral-uv || { echo "Failed to install astral-uv"; sudo journalctl -u snapd --no-pager -n 50; exit 1; }
 
           echo "=== Installed snaps ==="
           snap list
