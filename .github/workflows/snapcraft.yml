@@ -52,12 +52,23 @@ jobs:
           submodules: recursive
       - name: Install Snapcraft and dependencies
         run: |
+          set -x
           # Ensure snapd is ready
           sudo systemctl start snapd.socket
           sudo snap wait system seed.loaded
+
+          echo "=== Installing snapcraft ==="
           sudo snap install --classic snapcraft
-          # Install gnome extension dependency required by core24
-          sudo snap install gnome-46-2404
+
+          echo "=== Installing gnome extension dependencies ==="
+          sudo snap install gnome-46-2404 || { echo "Failed to install gnome-46-2404"; sudo journalctl -u snapd --no-pager -n 50; exit 1; }
+          sudo snap install gnome-46-2404-sdk || { echo "Failed to install gnome-46-2404-sdk"; sudo journalctl -u snapd --no-pager -n 50; exit 1; }
+
+          echo "=== Installing build-snaps ==="
+          sudo snap install astral-uv || { echo "Failed to install astral-uv"; sudo journalctl -u snapd --no-pager -n 50; exit 1; }
+
+          echo "=== Installed snaps ==="
+          snap list
       - name: Check disk space before build
         run: df -h
       - name: Build snap
