@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 90
     env:
       BUZZ_DISABLE_TELEMETRY: true
@@ -44,8 +44,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - uses: snapcore/action-build@v1.3.0
+      - name: Install Snapcraft
+        run: sudo snap install --classic snapcraft
+      - name: Build snap
         id: snapcraft
+        run: |
+          sudo snapcraft pack --verbose --destructive-mode
+          echo "snap=$(ls *.snap)" >> $GITHUB_OUTPUT
       - run: |
           sudo apt-get update
           sudo apt-get install libportaudio2 libtbb-dev
