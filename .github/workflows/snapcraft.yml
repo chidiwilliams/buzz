@@ -41,15 +41,31 @@ jobs:
           remove-haskell: 'true'
           remove-codeql: 'true'
           remove-docker-images: 'true'
+      - name: Check available disk space
+        run: |
+          echo "=== Disk space ==="
+          df -h
+          echo "=== Memory ==="
+          free -h
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Install Snapcraft
-        run: sudo snap install --classic snapcraft
+      - name: Install Snapcraft and dependencies
+        run: |
+          # Ensure snapd is ready
+          sudo systemctl start snapd.socket
+          sudo snap wait system seed.loaded
+          sudo snap install --classic snapcraft
+          # Install gnome extension dependency required by core24
+          sudo snap install gnome-46-2404
+      - name: Check disk space before build
+        run: df -h
       - name: Build snap
         id: snapcraft
+        env:
+          SNAPCRAFT_BUILD_ENVIRONMENT: host
         run: |
-          sudo snapcraft pack --verbose --destructive-mode
+          sudo -E snapcraft pack --verbose --destructive-mode
           echo "snap=$(ls *.snap)" >> $GITHUB_OUTPUT
       - run: |
           sudo apt-get update
