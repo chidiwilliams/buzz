@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-01 11:53+0200\n"
+"POT-Creation-Date: 2026-02-06 20:31+0200\n"
 "PO-Revision-Date: 2025-03-20 18:30+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: none\n"
@@ -584,75 +584,103 @@ msgstr ""
 msgid "Could not restart transcription: transcriber worker not found."
 msgstr ""
 
-#: buzz/widgets/recording_transcriber_widget.py:96
+#: buzz/widgets/recording_transcriber_widget.py:97
 msgid "Live Recording"
 msgstr "Live-opname"
 
-#: buzz/widgets/recording_transcriber_widget.py:162
+#: buzz/widgets/recording_transcriber_widget.py:163
 msgid "Click Record to begin..."
 msgstr "Klik op de opnameknop om te beginnen…"
 
-#: buzz/widgets/recording_transcriber_widget.py:165
+#: buzz/widgets/recording_transcriber_widget.py:166
 msgid "Waiting for AI translation..."
 msgstr "Bezig met wachten op AI-vertaling…"
 
-#: buzz/widgets/recording_transcriber_widget.py:177
+#: buzz/widgets/recording_transcriber_widget.py:178
 msgid "Microphone:"
 msgstr "Microfoon:"
 
-#: buzz/widgets/recording_transcriber_widget.py:223
+#: buzz/widgets/recording_transcriber_widget.py:227
 msgid "Show in new window"
 msgstr ""
 
-#: buzz/widgets/recording_transcriber_widget.py:229
+#: buzz/widgets/recording_transcriber_widget.py:233
 #, fuzzy
 msgid "Text Size:"
 msgstr "Tekstbestanden"
 
-#: buzz/widgets/recording_transcriber_widget.py:245
+#: buzz/widgets/recording_transcriber_widget.py:249
 msgid "Theme"
 msgstr ""
 
-#: buzz/widgets/recording_transcriber_widget.py:249
+#: buzz/widgets/recording_transcriber_widget.py:253
 msgid "Light"
 msgstr ""
 
-#: buzz/widgets/recording_transcriber_widget.py:249
+#: buzz/widgets/recording_transcriber_widget.py:253
 msgid "Dark"
 msgstr ""
 
-#: buzz/widgets/recording_transcriber_widget.py:249
+#: buzz/widgets/recording_transcriber_widget.py:253
 msgid "Custom"
 msgstr ""
 
-#: buzz/widgets/recording_transcriber_widget.py:263
+#: buzz/widgets/recording_transcriber_widget.py:267
 #, fuzzy
 msgid "Text Color"
 msgstr "Tekstbestanden"
 
-#: buzz/widgets/recording_transcriber_widget.py:273
+#: buzz/widgets/recording_transcriber_widget.py:277
 msgid "Background Color"
 msgstr ""
 
-#: buzz/widgets/recording_transcriber_widget.py:282
+#: buzz/widgets/recording_transcriber_widget.py:286
 msgid "Fullscreen"
 msgstr ""
 
-#: buzz/widgets/recording_transcriber_widget.py:351
+#: buzz/widgets/recording_transcriber_widget.py:302
+#: buzz/widgets/recording_transcriber_widget.py:315
+#: buzz/widgets/recording_transcriber_widget.py:322
+#: buzz/widgets/recording_transcriber_widget.py:329
+#: buzz/widgets/recording_transcriber_widget.py:337
+#: buzz/widgets/recording_transcriber_widget.py:341
+msgid "Copy"
+msgstr ""
+
+#: buzz/widgets/recording_transcriber_widget.py:303
+msgid "Copy transcription to clipboard"
+msgstr ""
+
+#: buzz/widgets/recording_transcriber_widget.py:314
+msgid "Nothing to copy!"
+msgstr ""
+
+#: buzz/widgets/recording_transcriber_widget.py:321
+#: buzz/widgets/recording_transcriber_widget.py:328
+#: buzz/widgets/recording_transcriber_widget.py:336
+#, fuzzy
+msgid "Copy failed"
+msgstr "Het downloaden is mislukt"
+
+#: buzz/widgets/recording_transcriber_widget.py:340
+msgid "Copied!"
+msgstr ""
+
+#: buzz/widgets/recording_transcriber_widget.py:405
 #, fuzzy
 msgid "Select Text Color"
 msgstr "Kies een exportmap"
 
-#: buzz/widgets/recording_transcriber_widget.py:368
+#: buzz/widgets/recording_transcriber_widget.py:422
 #, fuzzy
 msgid "Select Background Color"
 msgstr "Kies een audiobestand"
 
-#: buzz/widgets/recording_transcriber_widget.py:779
+#: buzz/widgets/recording_transcriber_widget.py:836
 msgid "An error occurred while starting a new recording:"
 msgstr "Er is een fout opgetreden tijdens het starten van de opname:"
 
-#: buzz/widgets/recording_transcriber_widget.py:783
+#: buzz/widgets/recording_transcriber_widget.py:840
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
@@ -1474,7 +1502,7 @@ msgstr "Bovenaan toevoegen"
 msgid "Append and correct"
 msgstr "Toevoegen en corrigeren"
 
-#: buzz/file_transcriber_queue_worker.py:161
+#: buzz/file_transcriber_queue_worker.py:154
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."

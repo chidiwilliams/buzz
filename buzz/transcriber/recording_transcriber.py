@@ -76,6 +76,7 @@ class RecordingTranscriber(QObject):
         self.process = None
 
     def start(self):
+        self.is_running = True
         model = None
         model_path = self.model_path
         keep_samples = int(self.keep_sample_seconds * self.sample_rate)
@@ -91,6 +92,12 @@ class RecordingTranscriber(QObject):
             model = whisper.load_model(model_path, device=device)
         elif self.transcription_options.model.model_type == ModelType.WHISPER_CPP:
             self.start_local_whisper_server()
+            if self.openai_client is None:
+                if not self.is_running:
+                    self.finished.emit()
+                else:
+                    self.error.emit(_("Whisper server failed to start. Check logs for details."))
+                return
         elif self.transcription_options.model.model_type == ModelType.FASTER_WHISPER:
             model_root_dir = user_cache_dir("Buzz")
             model_root_dir = os.path.join(model_root_dir, "models")
@@ -155,7 +162,6 @@ class RecordingTranscriber(QObject):
             self.input_device_index,
         )
 
-        self.is_running = True
         try:
             with self.sounddevice.InputStream(
                 samplerate=self.sample_rate,
@@ -244,8 +250,7 @@ class RecordingTranscriber(QObject):
                             )
                         else:  # OPEN_AI_WHISPER_API, also used for WHISPER_CPP
                             if self.openai_client is None:
-                                self.transcription.emit(_("A connection error occurred"))
-                                self.stop_recording()
+                                self.error.emit(_("A connection error occurred"))
                                 return
 
                             # scale samples to 16-bit PCM
@@ -411,11 +416,13 @@ class RecordingTranscriber(QObject):
         except Exception as e:
             error_msg = f"Failed to start whisper-server subprocess: {str(e)}"
             logging.error(error_msg)
-            self.error.emit(error_msg)
             return
 
-        # Wait for server to start and load model
-        time.sleep(10)
+        # Wait for server to start and load model, checking periodically
+        for i in range(100):  # 10 seconds total, in 0.1s increments
+            if not self.is_running or self.process.poll() is not None:
+                break
+            time.sleep(0.1)
 
         if self.process is not None and self.process.poll() is None:
             self.transcription.emit(_("Starting transcription..."))
