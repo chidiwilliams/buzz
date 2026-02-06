@@ -350,7 +350,7 @@ class RecordingTranscriber(QObject):
         self.is_running = False
         if self.process and self.process.poll() is None:
             self.process.terminate()
-            self.process.wait(5000)
+            self.process.wait(timeout=5)
 
     def start_local_whisper_server(self):
         # Reduce verbose HTTP client logging from OpenAI/httpx
@@ -450,4 +450,4 @@ class RecordingTranscriber(QObject):
     def __del__(self):
         if self.process and self.process.poll() is None:
             self.process.terminate()
-            self.process.wait(5000)
+            self.process.wait(timeout=5)
