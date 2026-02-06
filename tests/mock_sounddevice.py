@@ -1,7 +1,7 @@
 import os
 import time
 import logging
-from threading import Thread
+from threading import Thread, Event
 from typing import Callable, Any
 from unittest.mock import MagicMock
 
@@ -99,7 +99,6 @@ mock_query_devices = [
 
 
 class MockInputStream:
-    running = False
     thread: Thread
 
     def __init__(
@@ -108,6 +107,7 @@ class MockInputStream:
         *args,
         **kwargs,
     ):
+        self._stop_event = Event()
         self.thread = Thread(target=self.target)
         self.callback = callback
 
@@ -123,12 +123,13 @@ class MockInputStream:
 
         chunk_duration_secs = 1
 
-        self.running = True
         seek = 0
         num_samples_in_chunk = chunk_duration_secs * sample_rate
 
-        while self.running:
-            time.sleep(chunk_duration_secs)
+        while not self._stop_event.is_set():
+            self._stop_event.wait(timeout=chunk_duration_secs)
+            if self._stop_event.is_set():
+                break
             chunk = audio[seek : seek + num_samples_in_chunk]
             self.callback(chunk, 0, None, sounddevice.CallbackFlags())
             seek += num_samples_in_chunk
@@ -138,8 +139,9 @@ class MockInputStream:
                 seek = 0
 
     def stop(self):
-        self.running = False
-        self.thread.join()
+        self._stop_event.set()
+        if self.thread.is_alive():
+            self.thread.join(timeout=5)
 
     def close(self):
         self.stop()
