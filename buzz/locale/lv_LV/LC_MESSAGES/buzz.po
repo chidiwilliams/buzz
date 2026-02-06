@@ -1477,6 +1477,14 @@ msgstr "Jaunie teikumi augšā"
 msgid "Append and correct"
 msgstr "Papildināt un labot esošo"
 
+#: buzz/file_transcriber_queue_worker.py:161
+msgid ""
+"Speech extraction failed! Check your internet connection — a model may need "
+"to be downloaded."
+msgstr ""
+"Runas atdalīšana neizdevās! Pārbaudiet interneta savienojumu, iespējams "
+"jālejupielādē modelis."
+
 #~ msgid "Snap permission notice"
 #~ msgstr "Snap atļauju piezīme"
 

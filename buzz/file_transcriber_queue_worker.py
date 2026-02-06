@@ -53,6 +53,7 @@ if sys.platform == "win32":
 
 from demucs import api as demucsApi
 
+from buzz.locale import _
 from buzz.model_loader import ModelType
 from buzz.transcriber.file_transcriber import FileTranscriber
 from buzz.transcriber.openai_whisper_api_file_transcriber import (
@@ -127,11 +128,19 @@ class FileTranscriberQueueWorker(QObject):
             separator = None
             separated = None
             try:
+                # Force CPU if specified, otherwise use CUDA if available
+                force_cpu = os.getenv("BUZZ_FORCE_CPU", "false").lower() == "true"
+                if force_cpu:
+                    device = "cpu"
+                else:
+                    import torch
+                    device = "cuda" if torch.cuda.is_available() else "cpu"
                 separator = demucsApi.Separator(
+                    device=device,
                     progress=True,
                     callback=separator_progress_callback,
                 )
-                _, separated = separator.separate_audio_file(Path(self.current_task.file_path))
+                _origin, separated = separator.separate_audio_file(Path(self.current_task.file_path))
 
                 task_file_path = Path(self.current_task.file_path)
                 self.speech_path = task_file_path.with_name(f"{task_file_path.stem}_speech.mp3")
@@ -140,6 +149,12 @@ class FileTranscriberQueueWorker(QObject):
                 self.current_task.file_path = str(self.speech_path)
             except Exception as e:
                 logging.error(f"Error during speech extraction: {e}", exc_info=True)
+                self.task_error.emit(
+                    self.current_task,
+                    _("Speech extraction failed! Check your internet connection — a model may need to be downloaded."),
+                )
+                self.is_running = False
+                return
             finally:
                 # Release memory used by speech extractor
                 del separator, separated
