@@ -1492,6 +1492,12 @@ msgstr "增加上方"
 msgid "Append and correct"
 msgstr "增加并纠正"
 
+#: buzz/file_transcriber_queue_worker.py:161
+msgid ""
+"Speech extraction failed! Check your internet connection — a model may need "
+"to be downloaded."
+msgstr ""
+
 #~ msgid "Snap permission notice"
 #~ msgstr "快照权限通知"
 

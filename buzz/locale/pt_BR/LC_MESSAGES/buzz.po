@@ -1478,6 +1478,12 @@ msgstr "Acrescentar acima"
 msgid "Append and correct"
 msgstr "Acrescentar e corrigir"
 
+#: buzz/file_transcriber_queue_worker.py:161
+msgid ""
+"Speech extraction failed! Check your internet connection — a model may need "
+"to be downloaded."
+msgstr ""
+
 #~ msgid "Snap permission notice"
 #~ msgstr "Aviso de permissão do Snap"
 
