@@ -339,7 +339,6 @@ class RecordingTranscriberWidget(QWidget):
 
         self.copy_transcript_button.setText(_("Copied!"))
         QTimer.singleShot(2000, lambda: self.copy_transcript_button.setText(_("Copy")))
-
                 
     def on_show_presentation_clicked(self):
         """Handle click on 'Show in new window' button"""
@@ -510,8 +509,6 @@ class RecordingTranscriberWidget(QWidget):
             self.on_recording_amplitude_changed, Qt.ConnectionType.QueuedConnection
         )
         self.recording_amplitude_listener.start_recording()
-        
-        
 
     def on_record_button_clicked(self):
         if self.current_status == self.RecordingStatus.STOPPED:

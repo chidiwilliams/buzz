@@ -479,12 +479,10 @@ class TestRecordingTranscriberWidgetPresentation:
                 "buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
                 return_value=16_000,
             ),
-            patch("buzz.widgets.recording_transcriber_widget.QApplication.instance") as mock_qapp,
         ):
             mock_clipboard = MagicMock()
             mock_app = MagicMock()
             mock_app.clipboard.return_value = mock_clipboard
-            mock_qapp.return_value = mock_app
 
             widget = RecordingTranscriberWidget(custom_sounddevice=MockSoundDevice())
             qtbot.add_widget(widget)
@@ -492,11 +490,14 @@ class TestRecordingTranscriberWidgetPresentation:
             widget.transcription_text_box.setPlainText("Hello world")
             widget.copy_actions_bar.show()
 
-            widget.on_copy_transcript_clicked()
+            with patch("buzz.widgets.recording_transcriber_widget.QApplication.instance",
+                        return_value=mock_app):
+                widget.on_copy_transcript_clicked()
 
             mock_clipboard.setText.assert_called_once_with("Hello world")
             assert widget.copy_transcript_button.text() == _("Copied!")
 
+            time.sleep(0.5)
             widget.close()
 
     @pytest.mark.timeout(60)
@@ -541,9 +542,10 @@ class TestRecordingTranscriberWidgetPresentation:
             widget.copy_actions_bar.show()
             assert not widget.copy_actions_bar.isHidden()
 
-            # Simulate recording start
+            # Mock start_recording to prevent actual recording threads from starting
             widget.current_status = widget.RecordingStatus.STOPPED
-            widget.on_record_button_clicked()
+            with patch.object(widget, 'start_recording'):
+                widget.on_record_button_clicked()
 
             assert widget.copy_actions_bar.isHidden()
 
