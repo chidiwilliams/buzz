@@ -250,13 +250,15 @@ class IdentificationWorker(QObject):
                 return
 
             self.progress_update.emit(_("4/8 Processing audio"))
+            logging.debug("Speaker identification worker: Generating emissions")
             emissions, stride = generate_emissions(
                 alignment_model,
                 torch.from_numpy(audio_waveform)
                 .to(alignment_model.dtype)
                 .to(alignment_model.device),
-                batch_size=8,
+                batch_size=1 if device == "cpu" else 8,
             )
+            logging.debug("Speaker identification worker: Emissions generated")
 
             # Clean up alignment model
             del alignment_model
@@ -302,9 +304,13 @@ class IdentificationWorker(QObject):
 
             logging.debug("Speaker identification worker: Creating diarizer model")
             diarizer_model = MSDDDiarizer(device)
-            logging.debug("Speaker identification worker: Running diarization")
+            logging.debug("Speaker identification worker: Running diarization (this may take a while on CPU)")
             speaker_ts = diarizer_model.diarize(torch.from_numpy(audio_waveform).unsqueeze(0))
             logging.debug("Speaker identification worker: Diarization complete")
+
+            if self._is_cancelled:
+                logging.debug("Speaker identification worker: Cancelled after diarization")
+                return
 
             # Clean up diarizer model immediately after use
             del diarizer_model
@@ -444,6 +450,11 @@ class SpeakerIdentificationWidget(QWidget):
         self.step_1_button.setMinimumWidth(200)
         self.step_1_button.clicked.connect(self.on_identify_button_clicked)
 
+        self.cancel_button = QPushButton(_("Cancel"))
+        self.cancel_button.setMinimumWidth(200)
+        self.cancel_button.setVisible(False)
+        self.cancel_button.clicked.connect(self.on_cancel_button_clicked)
+
         # Progress container with label and bar
         progress_container = QVBoxLayout()
 
@@ -464,7 +475,10 @@ class SpeakerIdentificationWidget(QWidget):
 
         self.step_1_row.addLayout(progress_container)
 
-        self.step_1_row.addWidget(self.step_1_button, alignment=Qt.AlignmentFlag.AlignTop)
+        button_container = QVBoxLayout()
+        button_container.addWidget(self.step_1_button)
+        button_container.addWidget(self.cancel_button)
+        self.step_1_row.addLayout(button_container)
 
         step_1_layout.addLayout(self.step_1_row)
 
@@ -529,6 +543,8 @@ class SpeakerIdentificationWidget(QWidget):
 
     def on_identify_button_clicked(self):
         self.step_1_button.setEnabled(False)
+        self.step_1_button.setVisible(False)
+        self.cancel_button.setVisible(True)
 
         # Clean up any existing thread before starting a new one
         self._cleanup_thread()
@@ -548,18 +564,36 @@ class SpeakerIdentificationWidget(QWidget):
 
         self.thread.start()
 
+    def on_cancel_button_clicked(self):
+        """Handle cancel button click."""
+        logging.debug("Speaker identification: Cancel requested by user")
+        self.cancel_button.setEnabled(False)
+        self.progress_label.setText(_("Cancelling..."))
+        self._cleanup_thread()
+        self._reset_buttons()
+        self.progress_label.setText(_("Cancelled"))
+        self.progress_bar.setValue(0)
+
+    def _reset_buttons(self):
+        """Reset identify/cancel buttons to initial state."""
+        self.step_1_button.setVisible(True)
+        self.step_1_button.setEnabled(True)
+        self.cancel_button.setVisible(False)
+        self.cancel_button.setEnabled(True)
+
     def _on_thread_finished(self, result):
         """Handle thread completion and cleanup."""
         logging.debug("Speaker identification: Thread finished")
         if self.thread is not None:
             self.thread.quit()
             self.thread.wait(5000)
+        self._reset_buttons()
         self.on_identification_finished(result)
 
     def on_identification_error(self, error_message):
         """Handle identification error."""
         logging.error(f"Speaker identification error: {error_message}")
-        self.step_1_button.setEnabled(True)
+        self._reset_buttons()
         self.progress_bar.setValue(0)
 
     def on_progress_update(self, progress):

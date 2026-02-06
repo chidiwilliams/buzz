@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 90
     env:
       BUZZ_DISABLE_TELEMETRY: true
@@ -34,18 +34,50 @@ jobs:
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
         with:
-          root-reserve-mb: 26000
+          root-reserve-mb: 45000
           swap-size-mb: 1024
           remove-dotnet: 'true'
           remove-android: 'true'
           remove-haskell: 'true'
           remove-codeql: 'true'
           remove-docker-images: 'true'
+      - name: Check available disk space
+        run: |
+          echo "=== Disk space ==="
+          df -h
+          echo "=== Memory ==="
+          free -h
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - uses: snapcore/action-build@v1.3.0
+      - name: Install Snapcraft and dependencies
+        run: |
+          set -x
+          # Ensure snapd is ready
+          sudo systemctl start snapd.socket
+          sudo snap wait system seed.loaded
+
+          echo "=== Installing snapcraft ==="
+          sudo snap install --classic snapcraft
+
+          echo "=== Installing gnome extension dependencies ==="
+          sudo snap install gnome-46-2404 || { echo "Failed to install gnome-46-2404"; sudo journalctl -u snapd --no-pager -n 50; exit 1; }
+          sudo snap install gnome-46-2404-sdk || { echo "Failed to install gnome-46-2404-sdk"; sudo journalctl -u snapd --no-pager -n 50; exit 1; }
+
+          echo "=== Installing build-snaps ==="
+          sudo snap install --classic astral-uv || { echo "Failed to install astral-uv"; sudo journalctl -u snapd --no-pager -n 50; exit 1; }
+
+          echo "=== Installed snaps ==="
+          snap list
+      - name: Check disk space before build
+        run: df -h
+      - name: Build snap
         id: snapcraft
+        env:
+          SNAPCRAFT_BUILD_ENVIRONMENT: host
+        run: |
+          sudo -E snapcraft pack --verbose --destructive-mode
+          echo "snap=$(ls *.snap)" >> $GITHUB_OUTPUT
       - run: |
           sudo apt-get update
           sudo apt-get install libportaudio2 libtbb-dev
