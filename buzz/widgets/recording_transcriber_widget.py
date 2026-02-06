@@ -558,7 +558,6 @@ class RecordingTranscriberWidget(QWidget):
 
         self.transcription_thread = QThread()
 
-        # TODO: make runnable
         self.transcriber = RecordingTranscriber(
             input_device_index=self.selected_device_id,
             sample_rate=self.device_sample_rate,
@@ -575,6 +574,13 @@ class RecordingTranscriberWidget(QWidget):
         )
 
         self.transcriber.transcription.connect(self.on_next_transcription)
+        self.transcriber.amplitude_changed.connect(
+            self.on_recording_amplitude_changed, Qt.ConnectionType.QueuedConnection
+        )
+
+        # Stop the separate amplitude listener to avoid two streams on the same device
+        if self.recording_amplitude_listener is not None:
+            self.recording_amplitude_listener.stop_recording()
 
         self.transcriber.finished.connect(self.on_transcriber_finished)
         self.transcriber.finished.connect(self.transcription_thread.quit)
@@ -826,10 +832,12 @@ class RecordingTranscriberWidget(QWidget):
 
     def on_transcriber_finished(self):
         self.reset_record_button()
+        self.reset_recording_amplitude_listener()
 
     def on_transcriber_error(self, error: str):
         self.reset_record_button()
         self.set_recording_status_stopped()
+        self.reset_recording_amplitude_listener()
         QMessageBox.critical(
             self,
             "",

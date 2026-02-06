@@ -38,6 +38,7 @@ class RecordingTranscriber(QObject):
     transcription = pyqtSignal(str)
     finished = pyqtSignal()
     error = pyqtSignal(str)
+    amplitude_changed = pyqtSignal(float)
     is_running = False
     SAMPLE_RATE = whisper_audio.SAMPLE_RATE
 
@@ -343,6 +344,10 @@ class RecordingTranscriber(QObject):
     def stream_callback(self, in_data: np.ndarray, frame_count, time_info, status):
         # Try to enqueue the next block. If the queue is already full, drop the block.
         chunk: np.ndarray = in_data.ravel()
+
+        amplitude = float(np.sqrt(np.mean(chunk**2)))
+        self.amplitude_changed.emit(amplitude)
+
         with self.mutex:
             if self.queue.size < self.max_queue_size:
                 self.queue = np.append(self.queue, chunk)
