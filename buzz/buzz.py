@@ -25,8 +25,11 @@ from buzz.assets import APP_BASE_DIR
 if getattr(sys, "frozen", False) is False and platform.system() != "Windows":
     faulthandler.enable()
 
-# Sets stderr to no-op TextIO when None (run as Windows GUI).
-# Resolves https://github.com/chidiwilliams/buzz/issues/221
+# Sets stdout/stderr to no-op TextIO when None (run as Windows GUI with --noconsole).
+# stdout fix: torch.hub uses sys.stdout.write() for download progress and crashes if None.
+# stderr fix: Resolves https://github.com/chidiwilliams/buzz/issues/221
+if sys.stdout is None:
+    sys.stdout = TextIO()
 if sys.stderr is None:
     sys.stderr = TextIO()
 
