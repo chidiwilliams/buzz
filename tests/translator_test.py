@@ -25,6 +25,7 @@ class TestTranslator:
         side_effect.call_count = 0
 
         mock_queue.get.side_effect = side_effect
+        mock_queue.get_nowait.side_effect = Empty
         mock_chat = Mock()
         mock_openai.return_value.chat = mock_chat
         mock_chat.completions.create.return_value = Mock(
