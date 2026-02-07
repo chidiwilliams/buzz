@@ -68,6 +68,10 @@ class AudioMeterWidget(QWidget):
                 rect.height() - self.PADDING_TOP,
             )
 
+    def reset_amplitude(self):
+        self.current_amplitude = 0.0
+        self.repaint()
+
     def update_amplitude(self, amplitude: float):
         self.current_amplitude = max(
             amplitude, self.current_amplitude * self.SMOOTHING_FACTOR

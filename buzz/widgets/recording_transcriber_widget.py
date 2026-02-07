@@ -193,7 +193,7 @@ class RecordingTranscriberWidget(QWidget):
             self.translation_text_box.hide()
 
         self.setLayout(layout)
-        self.resize(450, 500)
+        self.resize(550, 500)
 
         self.reset_recording_amplitude_listener()
 
@@ -512,6 +512,15 @@ class RecordingTranscriberWidget(QWidget):
 
     def on_record_button_clicked(self):
         if self.current_status == self.RecordingStatus.STOPPED:
+            # Stop amplitude listener and disconnect its signal before resetting
+            # to prevent queued amplitude events from overriding the reset
+            if self.recording_amplitude_listener is not None:
+                self.recording_amplitude_listener.amplitude_changed.disconnect(
+                    self.on_recording_amplitude_changed
+                )
+                self.recording_amplitude_listener.stop_recording()
+                self.recording_amplitude_listener = None
+            self.audio_meter_widget.reset_amplitude()
             self.start_recording()
             self.current_status = self.RecordingStatus.RECORDING
             self.record_button.set_recording()
@@ -643,6 +652,7 @@ class RecordingTranscriberWidget(QWidget):
         show_model_download_error_dialog(self, error)
         self.stop_recording()
         self.set_recording_status_stopped()
+        self.reset_recording_amplitude_listener()
         self.record_button.setDisabled(False)
 
     @staticmethod
@@ -854,6 +864,7 @@ class RecordingTranscriberWidget(QWidget):
             self.model_loader.cancel()
         self.reset_model_download()
         self.set_recording_status_stopped()
+        self.reset_recording_amplitude_listener()
         self.record_button.setDisabled(False)
 
     def reset_model_download(self):
