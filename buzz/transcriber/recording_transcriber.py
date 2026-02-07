@@ -370,6 +370,9 @@ class RecordingTranscriber(QObject):
 
         self.transcription.emit(_("Starting Whisper.cpp..."))
 
+        if platform.system() == "Darwin" and platform.machine() == "arm64":
+            self.transcription.emit(_("First time use of a model may take up to several minutest to load."))
+
         self.process = None
 
         server_executable = "whisper-server.exe" if sys.platform == "win32" else "whisper-server"
