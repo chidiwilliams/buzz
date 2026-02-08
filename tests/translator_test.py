@@ -161,6 +161,10 @@ class TestTranslator:
             self.translation_thread.quit()
             # Wait for the thread to actually finish before cleanup
             self.translation_thread.wait()
+            # Process pending events to ensure deleteLater() is handled
+            from PyQt6.QtCore import QCoreApplication
+            QCoreApplication.processEvents()
+            time.sleep(0.1)  # Give time for cleanup
 
         # Note: translator and translation_thread will be automatically deleted
         # via the deleteLater() connections set up earlier
