@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-06 20:31+0200\n"
+"POT-Creation-Date: 2026-02-08 13:57+0200\n"
 "PO-Revision-Date: 2026-01-25 21:42+0200\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
@@ -378,6 +378,7 @@ msgid "Model:"
 msgstr "Modello:"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py:113
+#: buzz/transcriber/recording_transcriber.py:374
 msgid "First time use of a model may take up to several minutest to load."
 msgstr ""
 "Il caricamento di un modello al primo utilizzo potrebbe richiedere diversi "
@@ -674,11 +675,11 @@ msgstr "Seleziona il colore del testo"
 msgid "Select Background Color"
 msgstr "Seleziona il colore di sfondo"
 
-#: buzz/widgets/recording_transcriber_widget.py:836
+#: buzz/widgets/recording_transcriber_widget.py:854
 msgid "An error occurred while starting a new recording:"
 msgstr "Si è verificato un errore durante l'avvio della nuova registrazione:"
 
-#: buzz/widgets/recording_transcriber_widget.py:840
+#: buzz/widgets/recording_transcriber_widget.py:858
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
@@ -1040,13 +1041,14 @@ msgid "Unable to save OpenAI API key to keyring"
 msgstr "Impossibile salvare la chiave API OpenAI nel portachiavi"
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py:57
-#: buzz/transcriber/recording_transcriber.py:430
+#: buzz/transcriber/recording_transcriber.py:100
+#: buzz/transcriber/recording_transcriber.py:445
 msgid "Whisper server failed to start. Check logs for details."
 msgstr ""
 "Impossibile avviare il server Whisper. Controllare i log per i dettagli."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py:60
-#: buzz/transcriber/recording_transcriber.py:434
+#: buzz/transcriber/recording_transcriber.py:449
 msgid ""
 "Whisper server failed to start due to insufficient memory. Please try again "
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
@@ -1420,15 +1422,15 @@ msgstr "Sundanese"
 msgid "Cantonese"
 msgstr "Cantonese"
 
-#: buzz/transcriber/recording_transcriber.py:247 buzz/model_loader.py:793
+#: buzz/transcriber/recording_transcriber.py:254 buzz/model_loader.py:793
 msgid "A connection error occurred"
 msgstr "Si è verificato un errore di connessione"
 
-#: buzz/transcriber/recording_transcriber.py:361
+#: buzz/transcriber/recording_transcriber.py:371
 msgid "Starting Whisper.cpp..."
 msgstr "Avvio di Whisper.cpp..."
 
-#: buzz/transcriber/recording_transcriber.py:421
+#: buzz/transcriber/recording_transcriber.py:436
 msgid "Starting transcription..."
 msgstr "Inizio trascrizione..."
 
@@ -1511,6 +1513,12 @@ msgstr "Aggiungere sopra"
 #: buzz/settings/recording_transcriber_mode.py:7
 msgid "Append and correct"
 msgstr "Aggiungere e correggere"
+
+#: buzz/translator.py:79 buzz/translator.py:112 buzz/translator.py:124
+#: buzz/translator.py:140
+#, fuzzy
+msgid "Translation error, see logs!"
+msgstr "Impostazioni di traduzione"
 
 #: buzz/file_transcriber_queue_worker.py:154
 msgid ""

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-06 20:31+0200\n"
+"POT-Creation-Date: 2026-02-08 13:57+0200\n"
 "PO-Revision-Date: 2025-11-01 17:43-0300\n"
 "Last-Translator: Paulo Schopf <pschopf@gmail.com>\n"
 "Language-Team: none\n"
@@ -374,6 +374,7 @@ msgid "Model:"
 msgstr "Modelo:"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py:113
+#: buzz/transcriber/recording_transcriber.py:374
 msgid "First time use of a model may take up to several minutest to load."
 msgstr "O primeiro uso de um modelo pode levar vários minutos para carregar."
 
@@ -674,11 +675,11 @@ msgstr "Selecionar Pasta de Exportação"
 msgid "Select Background Color"
 msgstr "Selecionar arquivo de áudio"
 
-#: buzz/widgets/recording_transcriber_widget.py:836
+#: buzz/widgets/recording_transcriber_widget.py:854
 msgid "An error occurred while starting a new recording:"
 msgstr "Ocorreu um erro ao iniciar uma nova gravação:"
 
-#: buzz/widgets/recording_transcriber_widget.py:840
+#: buzz/widgets/recording_transcriber_widget.py:858
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
@@ -1034,12 +1035,13 @@ msgid "Unable to save OpenAI API key to keyring"
 msgstr "Não foi possível salvar a chave da API OpenAI no cofre de chaves"
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py:57
-#: buzz/transcriber/recording_transcriber.py:430
+#: buzz/transcriber/recording_transcriber.py:100
+#: buzz/transcriber/recording_transcriber.py:445
 msgid "Whisper server failed to start. Check logs for details."
 msgstr "Falha ao iniciar o servidor Whisper. Verifique os logs."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py:60
-#: buzz/transcriber/recording_transcriber.py:434
+#: buzz/transcriber/recording_transcriber.py:449
 msgid ""
 "Whisper server failed to start due to insufficient memory. Please try again "
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
@@ -1413,15 +1415,15 @@ msgstr "Sundanês"
 msgid "Cantonese"
 msgstr "Cantonês"
 
-#: buzz/transcriber/recording_transcriber.py:247 buzz/model_loader.py:793
+#: buzz/transcriber/recording_transcriber.py:254 buzz/model_loader.py:793
 msgid "A connection error occurred"
 msgstr "Ocorreu um erro de conexão"
 
-#: buzz/transcriber/recording_transcriber.py:361
+#: buzz/transcriber/recording_transcriber.py:371
 msgid "Starting Whisper.cpp..."
 msgstr "Iniciando Whisper.cpp..."
 
-#: buzz/transcriber/recording_transcriber.py:421
+#: buzz/transcriber/recording_transcriber.py:436
 #, fuzzy
 msgid "Starting transcription..."
 msgstr "Iniciando transcrição..."
@@ -1505,6 +1507,12 @@ msgstr "Acrescentar acima"
 #: buzz/settings/recording_transcriber_mode.py:7
 msgid "Append and correct"
 msgstr "Acrescentar e corrigir"
+
+#: buzz/translator.py:79 buzz/translator.py:112 buzz/translator.py:124
+#: buzz/translator.py:140
+#, fuzzy
+msgid "Translation error, see logs!"
+msgstr "Configurações de tradução"
 
 #: buzz/file_transcriber_queue_worker.py:154
 msgid ""

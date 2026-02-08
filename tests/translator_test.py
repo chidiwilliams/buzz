@@ -8,6 +8,56 @@ from PyQt6.QtCore import QThread
 from buzz.translator import Translator
 from buzz.transcriber.transcriber import TranscriptionOptions
 from buzz.widgets.transcriber.advanced_settings_dialog import AdvancedSettingsDialog
+from buzz.locale import _
+
+
+class TestParseBatchResponse:
+    def test_simple_batch(self):
+        response = "[1] Hello\n[2] World"
+        result = Translator._parse_batch_response(response, 2)
+        assert len(result) == 2
+        assert result[0] == "Hello"
+        assert result[1] == "World"
+
+    def test_missing_entries_fallback(self):
+        response = "[1] Hello\n[3] World"
+        result = Translator._parse_batch_response(response, 3)
+        assert len(result) == 3
+        assert result[0] == "Hello"
+        assert result[1] == _("Translation error, see logs!")
+        assert result[2] == "World"
+
+    def test_multiline_entries(self):
+        response = "[1] This is a long\nmultiline translation\n[2] Short"
+        result = Translator._parse_batch_response(response, 2)
+        assert len(result) == 2
+        assert "multiline" in result[0]
+        assert result[1] == "Short"
+
+    def test_single_item_batch(self):
+        response = "[1] Single translation"
+        result = Translator._parse_batch_response(response, 1)
+        assert len(result) == 1
+        assert result[0] == "Single translation"
+
+    def test_empty_response(self):
+        response = ""
+        result = Translator._parse_batch_response(response, 2)
+        assert len(result) == 2
+        assert result[0] == _("Translation error, see logs!")
+        assert result[1] == _("Translation error, see logs!")
+
+    def test_whitespace_handling(self):
+        response = "[1]   Hello with spaces   \n[2]   World   "
+        result = Translator._parse_batch_response(response, 2)
+        assert result[0] == "Hello with spaces"
+        assert result[1] == "World"
+
+    def test_out_of_order_entries(self):
+        response = "[2] Second\n[1] First"
+        result = Translator._parse_batch_response(response, 2)
+        assert result[0] == "First"
+        assert result[1] == "Second"
 
 
 class TestTranslator:
@@ -25,6 +75,7 @@ class TestTranslator:
         side_effect.call_count = 0
 
         mock_queue.get.side_effect = side_effect
+        mock_queue.get_nowait.side_effect = Empty
         mock_chat = Mock()
         mock_openai.return_value.chat = mock_chat
         mock_chat.completions.create.return_value = Mock(
@@ -110,6 +161,10 @@ class TestTranslator:
             self.translation_thread.quit()
             # Wait for the thread to actually finish before cleanup
             self.translation_thread.wait()
+            # Process pending events to ensure deleteLater() is handled
+            from PyQt6.QtCore import QCoreApplication
+            QCoreApplication.processEvents()
+            time.sleep(0.1)  # Give time for cleanup
 
         # Note: translator and translation_thread will be automatically deleted
         # via the deleteLater() connections set up earlier

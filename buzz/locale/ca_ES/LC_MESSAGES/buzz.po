@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-06 20:31+0200\n"
+"POT-Creation-Date: 2026-02-08 13:57+0200\n"
 "PO-Revision-Date: 2025-10-17 07:59+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: Catalan <jmas@softcatala.org>\n"
@@ -375,6 +375,7 @@ msgid "Model:"
 msgstr "Model:"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py:113
+#: buzz/transcriber/recording_transcriber.py:374
 msgid "First time use of a model may take up to several minutest to load."
 msgstr ""
 "L'ús per primera vegada d'un model pot trigar diversos minuts a carregar-se."
@@ -676,11 +677,11 @@ msgstr "Selecciona la carpeta d'exportació"
 msgid "Select Background Color"
 msgstr "Selecciona un fitxer d'àudio"
 
-#: buzz/widgets/recording_transcriber_widget.py:836
+#: buzz/widgets/recording_transcriber_widget.py:854
 msgid "An error occurred while starting a new recording:"
 msgstr "S'ha produït un error en iniciar un enregistrament nou:"
 
-#: buzz/widgets/recording_transcriber_widget.py:840
+#: buzz/widgets/recording_transcriber_widget.py:858
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
@@ -1036,14 +1037,15 @@ msgid "Unable to save OpenAI API key to keyring"
 msgstr "No s'ha pogut desar la clau OpenAI API a l'anell de claus"
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py:57
-#: buzz/transcriber/recording_transcriber.py:430
+#: buzz/transcriber/recording_transcriber.py:100
+#: buzz/transcriber/recording_transcriber.py:445
 msgid "Whisper server failed to start. Check logs for details."
 msgstr ""
 "El servidor Whisper no s'ha pogut iniciar. Consulteu els registres per "
 "obtenir més informació."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py:60
-#: buzz/transcriber/recording_transcriber.py:434
+#: buzz/transcriber/recording_transcriber.py:449
 msgid ""
 "Whisper server failed to start due to insufficient memory. Please try again "
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
@@ -1417,15 +1419,15 @@ msgstr "Sundanès"
 msgid "Cantonese"
 msgstr "Cantonès"
 
-#: buzz/transcriber/recording_transcriber.py:247 buzz/model_loader.py:793
+#: buzz/transcriber/recording_transcriber.py:254 buzz/model_loader.py:793
 msgid "A connection error occurred"
 msgstr "S'ha produït un error de connexió"
 
-#: buzz/transcriber/recording_transcriber.py:361
+#: buzz/transcriber/recording_transcriber.py:371
 msgid "Starting Whisper.cpp..."
 msgstr "Començant Whisper.cpp..."
 
-#: buzz/transcriber/recording_transcriber.py:421
+#: buzz/transcriber/recording_transcriber.py:436
 #, fuzzy
 msgid "Starting transcription..."
 msgstr "Cancel·la la transcripció"
@@ -1509,6 +1511,12 @@ msgstr "Afegeix a sobre"
 #: buzz/settings/recording_transcriber_mode.py:7
 msgid "Append and correct"
 msgstr "Afegeix i corregeix"
+
+#: buzz/translator.py:79 buzz/translator.py:112 buzz/translator.py:124
+#: buzz/translator.py:140
+#, fuzzy
+msgid "Translation error, see logs!"
+msgstr "Configuració de la traducció"
 
 #: buzz/file_transcriber_queue_worker.py:154
 msgid ""
