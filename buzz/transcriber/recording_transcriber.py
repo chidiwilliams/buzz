@@ -204,7 +204,8 @@ class RecordingTranscriber(QObject):
                                 task=self.transcription_options.task.value,
                                 initial_prompt=initial_prompt,
                                 temperature=self.transcription_options.temperature,
-                                no_speech_threshold=0.4
+                                no_speech_threshold=0.4,
+                                fp16=False,
                             )
                         elif (
                                 self.transcription_options.model.model_type
