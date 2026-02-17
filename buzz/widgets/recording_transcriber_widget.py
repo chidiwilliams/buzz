@@ -1,6 +1,7 @@
 import os
 import re
 import enum
+import time
 import requests
 import logging
 import datetime
@@ -668,6 +669,40 @@ class RecordingTranscriberWidget(QWidget):
 
         return text
 
+    @staticmethod
+    def write_to_export_file(file_path: str, content: str, mode: str = "a", retries: int = 5, delay: float = 0.2):
+        """Write to an export file with retry logic for Windows file locking."""
+        for attempt in range(retries):
+            try:
+                with open(file_path, mode) as f:
+                    f.write(content)
+                return
+            except PermissionError:
+                if attempt < retries - 1:
+                    time.sleep(delay)
+                else:
+                    logging.warning("Export write failed after %d retries: %s", retries, file_path)
+            except OSError as e:
+                logging.warning("Export write failed: %s", e)
+                return
+
+    @staticmethod
+    def read_export_file(file_path: str, retries: int = 5, delay: float = 0.2) -> str:
+        """Read an export file with retry logic for Windows file locking."""
+        for attempt in range(retries):
+            try:
+                with open(file_path, "r") as f:
+                    return f.read()
+            except PermissionError:
+                if attempt < retries - 1:
+                    time.sleep(delay)
+                else:
+                    logging.warning("Export read failed after %d retries: %s", retries, file_path)
+            except OSError as e:
+                logging.warning("Export read failed: %s", e)
+                return ""
+        return ""
+
     # Copilot magic implementation of a sliding window approach to find the longest common substring between two texts,
     # ignoring the initial differences.
     @staticmethod
@@ -722,8 +757,7 @@ class RecordingTranscriberWidget(QWidget):
         text_box.moveCursor(QTextCursor.MoveOperation.End)
 
         if self.export_enabled and export_file:
-            with open(export_file, "w") as f:
-                f.write(merged_texts)
+            self.write_to_export_file(export_file, merged_texts, mode="w")
 
     def on_next_transcription(self, text: str):
         text = self.filter_text(text)
@@ -742,8 +776,7 @@ class RecordingTranscriberWidget(QWidget):
             self.transcription_text_box.moveCursor(QTextCursor.MoveOperation.End)
 
             if self.export_enabled and self.transcript_export_file:
-                with open(self.transcript_export_file, "a") as f:
-                    f.write(text + "\n\n")
+                self.write_to_export_file(self.transcript_export_file, text + "\n\n")
 
         elif self.transcriber_mode == RecordingTranscriberMode.APPEND_ABOVE:
             self.transcription_text_box.moveCursor(QTextCursor.MoveOperation.Start)
@@ -752,13 +785,11 @@ class RecordingTranscriberWidget(QWidget):
             self.transcription_text_box.moveCursor(QTextCursor.MoveOperation.Start)
 
             if self.export_enabled and self.transcript_export_file:
-                with open(self.transcript_export_file, "r") as f:
-                    existing_content = f.read()
-
+                existing_content = ""
+                if os.path.isfile(self.transcript_export_file):
+                    existing_content = self.read_export_file(self.transcript_export_file)
                 new_content = text + "\n\n" + existing_content
-
-                with open(self.transcript_export_file, "w") as f:
-                    f.write(new_content)
+                self.write_to_export_file(self.transcript_export_file, new_content, mode="w")
 
         elif self.transcriber_mode == RecordingTranscriberMode.APPEND_AND_CORRECT:
             self.process_transcription_merge(text, self.transcripts, self.transcription_text_box, self.transcript_export_file)
@@ -792,9 +823,8 @@ class RecordingTranscriberWidget(QWidget):
             self.translation_text_box.insertPlainText(self.strip_newlines(text))
             self.translation_text_box.moveCursor(QTextCursor.MoveOperation.End)
 
-            if self.export_enabled:
-                with open(self.translation_export_file, "a") as f:
-                    f.write(text + "\n\n")
+            if self.export_enabled and self.translation_export_file:
+                self.write_to_export_file(self.translation_export_file, text + "\n\n")
 
         elif self.transcriber_mode == RecordingTranscriberMode.APPEND_ABOVE:
             self.translation_text_box.moveCursor(QTextCursor.MoveOperation.Start)
@@ -802,14 +832,12 @@ class RecordingTranscriberWidget(QWidget):
             self.translation_text_box.insertPlainText("\n\n")
             self.translation_text_box.moveCursor(QTextCursor.MoveOperation.Start)
 
-            if self.export_enabled:
-                with open(self.translation_export_file, "r") as f:
-                    existing_content = f.read()
-
+            if self.export_enabled and self.translation_export_file:
+                existing_content = ""
+                if os.path.isfile(self.translation_export_file):
+                    existing_content = self.read_export_file(self.translation_export_file)
                 new_content = text + "\n\n" + existing_content
-
-                with open(self.translation_export_file, "w") as f:
-                    f.write(new_content)
+                self.write_to_export_file(self.translation_export_file, new_content, mode="w")
 
         elif self.transcriber_mode == RecordingTranscriberMode.APPEND_AND_CORRECT:
             self.process_transcription_merge(text, self.translations, self.translation_text_box, self.translation_export_file)
