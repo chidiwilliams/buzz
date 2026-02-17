@@ -71,6 +71,12 @@ jobs:
         uses: microsoft/setup-msbuild@v2
         if: runner.os == 'Windows'
 
+      - name: Pin CMake version
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: "~3.31"
+        if: runner.os == 'Windows'
+
       - name: Install apt dependencies
         run: |
           sudo apt-get update
@@ -193,6 +199,12 @@ jobs:
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
+        if: runner.os == 'Windows'
+
+      - name: Pin CMake version
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: "~3.31"
         if: runner.os == 'Windows'
 
       - uses: ruby/setup-ruby@v1
