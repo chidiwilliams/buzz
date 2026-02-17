@@ -56,7 +56,7 @@ ifeq ($(OS), Windows_NT)
 	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DCMAKE_C_FLAGS="-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR"  -DCMAKE_CXX_FLAGS="-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" -DCMAKE_C_COMPILER_WORKS=TRUE -DCMAKE_CXX_COMPILER_WORKS=TRUE -DGGML_VULKAN=1 -DGGML_NATIVE=OFF
 	cmake --build whisper.cpp/build -j --config Release --verbose
 
-	-mkdir buzz/whisper_cpp
+	if not exist buzz\whisper_cpp mkdir buzz\whisper_cpp
 	cp whisper.cpp/build/bin/Release/whisper-cli.exe buzz/whisper_cpp/
 	cp whisper.cpp/build/bin/Release/whisper-server.exe buzz/whisper_cpp/
 	cp dll_backup/SDL2.dll buzz/whisper_cpp
