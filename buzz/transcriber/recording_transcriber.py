@@ -302,7 +302,7 @@ class RecordingTranscriber(QObject):
                         next_text: str = result.get("text")
 
                         # Update initial prompt between successive recording chunks
-                        initial_prompt += next_text
+                        initial_prompt = next_text
 
                         logging.debug(
                             "Received next result, length = %s, time taken = %s",
@@ -315,7 +315,11 @@ class RecordingTranscriber(QObject):
 
         except PortAudioError as exc:
             self.error.emit(str(exc))
-            logging.exception("")
+            logging.exception("PortAudio error during recording")
+            return
+        except Exception as exc:
+            logging.exception("Unexpected error during recording")
+            self.error.emit(str(exc))
             return
 
         self.finished.emit()
@@ -361,7 +365,11 @@ class RecordingTranscriber(QObject):
         self.is_running = False
         if self.process and self.process.poll() is None:
             self.process.terminate()
-            self.process.wait(timeout=5)
+            try:
+                self.process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                self.process.kill()
+                logging.warning("Whisper server process had to be killed after timeout")
 
     def start_local_whisper_server(self):
         # Reduce verbose HTTP client logging from OpenAI/httpx
@@ -466,4 +474,7 @@ class RecordingTranscriber(QObject):
     def __del__(self):
         if self.process and self.process.poll() is None:
             self.process.terminate()
-            self.process.wait(timeout=5)
+            try:
+                self.process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                self.process.kill()

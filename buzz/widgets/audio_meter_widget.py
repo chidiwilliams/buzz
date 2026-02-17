@@ -76,4 +76,4 @@ class AudioMeterWidget(QWidget):
         self.current_amplitude = max(
             amplitude, self.current_amplitude * self.SMOOTHING_FACTOR
         )
-        self.repaint()
+        self.update()

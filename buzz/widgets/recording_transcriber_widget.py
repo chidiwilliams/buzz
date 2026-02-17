@@ -213,7 +213,7 @@ class RecordingTranscriberWidget(QWidget):
         self.presentation_options_bar.hide()
         self.copy_actions_bar = self.create_copy_actions_bar()
         layout.addWidget(self.copy_actions_bar)  # Add at the bottom
-        self.copy_actions_bar.hide() 
+        self.copy_actions_bar.hide()
 
     def create_presentation_options_bar(self) -> QWidget:
         """Crete the presentation options bar widget"""
@@ -297,15 +297,15 @@ class RecordingTranscriberWidget(QWidget):
         layout = QHBoxLayout(bar)
         layout.setContentsMargins(5, 5, 5, 5)
         layout.setSpacing(10)
-        
+
         layout.addStretch()  # Push button to the right
-        
+
         self.copy_transcript_button = QPushButton(_("Copy"), bar)
         self.copy_transcript_button.setToolTip(_("Copy transcription to clipboard"))
         self.copy_transcript_button.clicked.connect(self.on_copy_transcript_clicked)
         layout.addWidget(self.copy_transcript_button)
-        
-        return bar  
+
+        return bar
 
     def on_copy_transcript_clicked(self):
         """Handle copy transcript button click"""
@@ -340,7 +340,7 @@ class RecordingTranscriberWidget(QWidget):
 
         self.copy_transcript_button.setText(_("Copied!"))
         QTimer.singleShot(2000, lambda: self.copy_transcript_button.setText(_("Copy")))
-                
+
     def on_show_presentation_clicked(self):
         """Handle click on 'Show in new window' button"""
         if self.presentation_window is None or not self.presentation_window.isVisible():
@@ -870,6 +870,7 @@ class RecordingTranscriberWidget(QWidget):
 
     def on_transcriber_finished(self):
         self.reset_record_button()
+        # Restart amplitude listener now that the transcription stream is closed
         self.reset_recording_amplitude_listener()
 
     def on_transcriber_error(self, error: str):
