@@ -674,7 +674,7 @@ class RecordingTranscriberWidget(QWidget):
         """Write to an export file with retry logic for Windows file locking."""
         for attempt in range(retries):
             try:
-                with open(file_path, mode) as f:
+                with open(file_path, mode, encoding='utf-8') as f:
                     f.write(content)
                 return
             except PermissionError:
@@ -691,7 +691,7 @@ class RecordingTranscriberWidget(QWidget):
         """Read an export file with retry logic for Windows file locking."""
         for attempt in range(retries):
             try:
-                with open(file_path, "r") as f:
+                with open(file_path, "r", encoding='utf-8') as f:
                     return f.read()
             except PermissionError:
                 if attempt < retries - 1:
