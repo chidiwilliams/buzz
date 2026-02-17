@@ -24,6 +24,7 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from buzz import whisper_audio
 from buzz.locale import _
 from buzz.assets import APP_BASE_DIR
+from buzz.audio_source import AudioSourceConfig, SoundDeviceAudioSource, ScreenCaptureAudioSource
 from buzz.model_loader import ModelType, map_language_to_mms
 from buzz.settings.settings import Settings
 from buzz.transcriber.transcriber import TranscriptionOptions, Task
@@ -49,6 +50,8 @@ class RecordingTranscriber(QObject):
         sample_rate: int,
         model_path: str,
         sounddevice: sounddevice,
+        audio_source_config: Optional[AudioSourceConfig] = None,
+        shared_openai_client: Optional["OpenAI"] = None,
         parent: Optional[QObject] = None,
     ) -> None:
         super().__init__(parent)
@@ -70,7 +73,8 @@ class RecordingTranscriber(QObject):
         self.queue = np.ndarray([], dtype=np.float32)
         self.mutex = threading.Lock()
         self.sounddevice = sounddevice
-        self.openai_client = None
+        self.audio_source_config = audio_source_config
+        self.openai_client = shared_openai_client
         self.whisper_api_model = self.settings.value(
             key=Settings.Key.OPENAI_API_MODEL, default_value="whisper-1"
         )
@@ -92,7 +96,9 @@ class RecordingTranscriber(QObject):
             device = "cuda" if use_cuda else "cpu"
             model = whisper.load_model(model_path, device=device)
         elif self.transcription_options.model.model_type == ModelType.WHISPER_CPP:
-            self.start_local_whisper_server()
+            # Skip server start if a shared client was provided (dual-stream mode)
+            if self.openai_client is None:
+                self.start_local_whisper_server()
             if self.openai_client is None:
                 if not self.is_running:
                     self.finished.emit()
@@ -164,13 +170,25 @@ class RecordingTranscriber(QObject):
         )
 
         try:
-            with self.sounddevice.InputStream(
-                samplerate=self.sample_rate,
-                device=self.input_device_index,
-                dtype="float32",
-                channels=1,
-                callback=self.stream_callback,
-            ):
+            # Build the audio source based on config
+            if (self.audio_source_config is not None
+                    and self.audio_source_config.source_type == "screen_capture"):
+                source = ScreenCaptureAudioSource(
+                    helper_path=self.audio_source_config.helper_path,
+                    sample_rate=self.sample_rate,
+                    callback=self.stream_callback,
+                )
+            else:
+                source = SoundDeviceAudioSource(
+                    sounddevice_module=self.sounddevice,
+                    samplerate=self.sample_rate,
+                    device=self.input_device_index,
+                    dtype="float32",
+                    channels=1,
+                    callback=self.stream_callback,
+                )
+
+            with source:
                 while self.is_running:
                     if self.queue.size >= self.n_batch_samples:
                         self.mutex.acquire()
@@ -313,7 +331,7 @@ class RecordingTranscriber(QObject):
                     else:
                         time.sleep(0.5)
 
-        except PortAudioError as exc:
+        except (PortAudioError, OSError) as exc:
             self.error.emit(str(exc))
             logging.exception("")
             return

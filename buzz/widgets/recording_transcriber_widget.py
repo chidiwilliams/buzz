@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import enum
 import requests
 import logging
@@ -24,6 +25,7 @@ from PyQt6.QtWidgets import (
     QColorDialog
 )
 
+from buzz.audio_source import AudioSourceConfig, get_screen_audio_helper_path
 from buzz.dialogs import show_model_download_error_dialog
 from buzz.locale import _
 from buzz.model_loader import (
@@ -155,6 +157,27 @@ class RecordingTranscriberWidget(QWidget):
         self.audio_devices_combo_box.device_changed.connect(self.on_device_changed)
         self.selected_device_id = self.audio_devices_combo_box.get_default_device_id()
 
+        # Audio source selector (Microphone / Screen Audio)
+        self.audio_source_combo_box = QComboBox(self)
+        self.audio_source_combo_box.addItem(_("Microphone"), "sounddevice")
+        self._screen_audio_helper_path: Optional[str] = None
+        if sys.platform == "darwin":
+            helper_path = get_screen_audio_helper_path()
+            if helper_path is not None:
+                self._screen_audio_helper_path = helper_path
+                self.audio_source_combo_box.addItem(_("Screen Audio"), "screen_capture")
+        saved_audio_source = self.settings.value(
+            key=Settings.Key.RECORDING_TRANSCRIBER_AUDIO_SOURCE,
+            default_value="sounddevice",
+        )
+        source_index = self.audio_source_combo_box.findData(saved_audio_source)
+        if source_index >= 0:
+            self.audio_source_combo_box.setCurrentIndex(source_index)
+        self.audio_source_combo_box.currentIndexChanged.connect(
+            self.on_audio_source_changed
+        )
+        self._apply_audio_source_visibility()
+
         self.record_button = RecordButton(self)
         self.record_button.clicked.connect(self.on_record_button_clicked)
         self.reset_transcriber_controls()
@@ -175,7 +198,9 @@ class RecordingTranscriberWidget(QWidget):
         )
 
         recording_options_layout = QFormLayout()
-        recording_options_layout.addRow(_("Microphone:"), self.audio_devices_combo_box)
+        recording_options_layout.addRow(_("Audio Source:"), self.audio_source_combo_box)
+        self.microphone_label = QLabel(_("Microphone:"))
+        recording_options_layout.addRow(self.microphone_label, self.audio_devices_combo_box)
 
         self.audio_meter_widget = AudioMeterWidget(self)
 
@@ -482,6 +507,18 @@ class RecordingTranscriberWidget(QWidget):
 
         self.record_button.setEnabled(button_enabled)
 
+    def _get_selected_audio_source(self) -> str:
+        return self.audio_source_combo_box.currentData() or "sounddevice"
+
+    def on_audio_source_changed(self, _index: int):
+        self._apply_audio_source_visibility()
+        self.reset_recording_amplitude_listener()
+
+    def _apply_audio_source_visibility(self):
+        is_mic = self._get_selected_audio_source() == "sounddevice"
+        self.microphone_label.setVisible(is_mic)
+        self.audio_devices_combo_box.setVisible(is_mic)
+
     def on_device_changed(self, device_id: int):
         self.selected_device_id = device_id
         self.reset_recording_amplitude_listener()
@@ -489,6 +526,10 @@ class RecordingTranscriberWidget(QWidget):
     def reset_recording_amplitude_listener(self):
         if self.recording_amplitude_listener is not None:
             self.recording_amplitude_listener.stop_recording()
+
+        # No amplitude preview for screen audio (no mic)
+        if self._get_selected_audio_source() == "screen_capture":
+            return
 
         # Listening to audio will fail if there are no input devices
         if self.selected_device_id is None or self.selected_device_id == -1:
@@ -526,6 +567,7 @@ class RecordingTranscriberWidget(QWidget):
             self.record_button.set_recording()
             self.transcription_options_group_box.setEnabled(False)
             self.audio_devices_combo_box.setEnabled(False)
+            self.audio_source_combo_box.setEnabled(False)
             self.presentation_options_bar.show()
             self.copy_actions_bar.hide()
 
@@ -567,12 +609,27 @@ class RecordingTranscriberWidget(QWidget):
 
         self.transcription_thread = QThread()
 
+        audio_source = self._get_selected_audio_source()
+        if audio_source == "screen_capture":
+            audio_source_config = AudioSourceConfig(
+                source_type="screen_capture",
+                helper_path=self._screen_audio_helper_path,
+            )
+            sample_rate = 16_000  # helper outputs 16 kHz
+        else:
+            audio_source_config = AudioSourceConfig(
+                source_type="sounddevice",
+                device_index=self.selected_device_id,
+            )
+            sample_rate = self.device_sample_rate
+
         self.transcriber = RecordingTranscriber(
             input_device_index=self.selected_device_id,
-            sample_rate=self.device_sample_rate,
+            sample_rate=sample_rate,
             transcription_options=self.transcription_options,
             model_path=model_path,
             sounddevice=self.sounddevice,
+            audio_source_config=audio_source_config,
         )
 
         self.transcriber.moveToThread(self.transcription_thread)
@@ -644,6 +701,7 @@ class RecordingTranscriberWidget(QWidget):
         self.current_status = self.RecordingStatus.STOPPED
         self.transcription_options_group_box.setEnabled(True)
         self.audio_devices_combo_box.setEnabled(True)
+        self.audio_source_combo_box.setEnabled(True)
         self.presentation_options_bar.hide()
         self.copy_actions_bar.show() #added this here
 
@@ -914,6 +972,10 @@ class RecordingTranscriberWidget(QWidget):
                 if not self.translation_thread.wait(45_000):
                     logging.warning("Translation thread did not finish within timeout")
 
+        self.settings.set_value(
+            Settings.Key.RECORDING_TRANSCRIBER_AUDIO_SOURCE,
+            self._get_selected_audio_source(),
+        )
         self.settings.set_value(
             Settings.Key.RECORDING_TRANSCRIBER_LANGUAGE,
             self.transcription_options.language,
