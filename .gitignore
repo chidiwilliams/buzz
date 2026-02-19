@@ -19,6 +19,10 @@ whisper_cpp
 *.dll
 *.dylib
 *.so
+*.exp
+*.lib
+*.obj
+*.pyd
 buzz/whisper_cpp/*
 
 # Internationalization - compiled binaries
