@@ -929,9 +929,14 @@ class RecordingTranscriberWidget(QWidget):
 
         self.stop_recording()
         if self.transcription_thread is not None:
-            if self.transcription_thread.isRunning():
-                if not self.transcription_thread.wait(15_000):
-                    logging.warning("Transcription thread did not finish within timeout")
+            try:
+                if self.transcription_thread.isRunning():
+                    if not self.transcription_thread.wait(15_000):
+                        logging.warning("Transcription thread did not finish within timeout")
+            except RuntimeError:
+                # The underlying C++ QThread was already deleted via deleteLater()
+                pass
+            self.transcription_thread = None
 
         if self.recording_amplitude_listener is not None:
             self.recording_amplitude_listener.stop_recording()

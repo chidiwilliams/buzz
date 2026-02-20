@@ -99,7 +99,7 @@ class MockInputStream:
 
     def __init__(
         self,
-        callback: Callable[[np.ndarray, int, Any, sounddevice.CallbackFlags], None],
+        callback: Callable[[np.ndarray, int, Any, Any], None],
         *args,
         **kwargs,
     ):
