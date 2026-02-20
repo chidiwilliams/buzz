@@ -45,23 +45,6 @@ from buzz.settings.settings import Settings
 from buzz.widgets.line_edit import LineEdit
 from buzz.transcriber.transcriber import Segment
 
-from ctc_forced_aligner.ctc_forced_aligner import (
-    generate_emissions,
-    get_alignments,
-    get_spans,
-    load_alignment_model,
-    postprocess_results,
-    preprocess_text,
-)
-from whisper_diarization.helpers import (
-    get_realigned_ws_mapping_with_punctuation,
-    get_sentences_speaker_mapping,
-    get_words_speaker_mapping,
-    langs_to_iso,
-    punct_model_langs,
-)
-from deepmultilingualpunctuation.deepmultilingualpunctuation import PunctuationModel
-from whisper_diarization.diarization import MSDDDiarizer
 
 
 def process_in_batches(
@@ -167,6 +150,32 @@ class IdentificationWorker(QObject):
         }
 
     def run(self):
+        try:
+            from ctc_forced_aligner.ctc_forced_aligner import (
+                generate_emissions,
+                get_alignments,
+                get_spans,
+                load_alignment_model,
+                postprocess_results,
+                preprocess_text,
+            )
+            from whisper_diarization.helpers import (
+                get_realigned_ws_mapping_with_punctuation,
+                get_sentences_speaker_mapping,
+                get_words_speaker_mapping,
+                langs_to_iso,
+                punct_model_langs,
+            )
+            from deepmultilingualpunctuation.deepmultilingualpunctuation import PunctuationModel
+            from whisper_diarization.diarization import MSDDDiarizer
+        except ImportError as e:
+            logging.exception("Failed to import speaker identification libraries: %s", e)
+            self.error.emit(
+                _("Speaker identification is not available: failed to load required libraries.")
+                + f"\n\n{e}"
+            )
+            return
+
         diarizer_model = None
         alignment_model = None
 

@@ -82,6 +82,42 @@ class CustomBuildHook(BuildHookInterface):
             # Build ctc_forced_aligner C++ extension in-place
             print("Building ctc_forced_aligner C++ extension...")
             ctc_aligner_dir = project_root / "ctc_forced_aligner"
+
+            # Apply local patches before building.
+            # Uses --check first to avoid touching the working tree unnecessarily,
+            # which is safer in a detached-HEAD submodule.
+            patches_dir = project_root / "patches"
+            for patch_file in sorted(patches_dir.glob("ctc_forced_aligner_*.patch")):
+                # Dry-run forward: succeeds only if patch is NOT yet applied.
+                check_forward = subprocess.run(
+                    ["git", "apply", "--check", "--ignore-whitespace", str(patch_file)],
+                    cwd=ctc_aligner_dir,
+                    capture_output=True,
+                    text=True,
+                )
+                if check_forward.returncode == 0:
+                    # Patch can be applied — do it for real.
+                    subprocess.run(
+                        ["git", "apply", "--ignore-whitespace", str(patch_file)],
+                        cwd=ctc_aligner_dir,
+                        check=True,
+                        capture_output=True,
+                        text=True,
+                    )
+                    print(f"Applied patch: {patch_file.name}")
+                else:
+                    # Dry-run failed — either already applied or genuinely broken.
+                    check_reverse = subprocess.run(
+                        ["git", "apply", "--check", "--reverse", "--ignore-whitespace", str(patch_file)],
+                        cwd=ctc_aligner_dir,
+                        capture_output=True,
+                        text=True,
+                    )
+                    if check_reverse.returncode == 0:
+                        print(f"Patch already applied (skipping): {patch_file.name}")
+                    else:
+                        print(f"WARNING: could not apply patch {patch_file.name}: {check_forward.stderr}", file=sys.stderr)
+
             result = subprocess.run(
                 [sys.executable, "setup.py", "build_ext", "--inplace"],
                 cwd=ctc_aligner_dir,

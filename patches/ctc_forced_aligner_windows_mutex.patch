@@ -1,0 +1,16 @@
+diff --git a/setup.py b/setup.py
+index de84a25..386f662 100644
+--- a/setup.py
++++ b/setup.py
+@@ -6,7 +6,10 @@ ext_modules = [
+     Pybind11Extension(
+         "ctc_forced_aligner.ctc_forced_aligner",
+         ["ctc_forced_aligner/forced_align_impl.cpp"],
+-        extra_compile_args=["/O2"] if sys.platform == "win32" else ["-O3"],
++        # /D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR prevents MSVC runtime mutex
++        # static-initializer crash on newer GitHub Actions Windows runners.
++        # See: https://github.com/actions/runner-images/issues/10004
++        extra_compile_args=["/O2", "/D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR"] if sys.platform == "win32" else ["-O3"],
+     )
+ ]
+ 
