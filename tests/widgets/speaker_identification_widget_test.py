@@ -9,8 +9,8 @@ from buzz.db.entity.transcription import Transcription
 from buzz.db.entity.transcription_segment import TranscriptionSegment
 from buzz.model_loader import ModelType, WhisperModelSize
 from buzz.transcriber.transcriber import Task
-# Underlying libs do not support intel Macs
-if not (platform.system() == "Darwin" and platform.machine() == "x86_64"):
+# Underlying libs do not support intel Macs or Windows (nemo C extensions crash on Windows CI)
+if not (platform.system() == "Darwin" and platform.machine() == "x86_64") and platform.system() != "Windows":
     from buzz.widgets.transcription_viewer.speaker_identification_widget import (
         SpeakerIdentificationWidget,
         IdentificationWorker,
@@ -19,8 +19,8 @@ if not (platform.system() == "Darwin" and platform.machine() == "x86_64"):
 from tests.audio import test_audio_path
 
 @pytest.mark.skipif(
-    platform.system() == "Darwin" and platform.machine() == "x86_64",
-    reason="Skip speaker identification tests on macOS x86_64"
+    (platform.system() == "Darwin" and platform.machine() == "x86_64") or platform.system() == "Windows",
+    reason="Speaker identification dependencies (nemo/texterrors C extensions) crash on Windows and are unsupported on Intel Mac"
 )
 class TestSpeakerIdentificationWidget:
     @pytest.fixture()
