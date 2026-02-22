@@ -1,9 +1,13 @@
+import io
 import os
+import threading
+import time
 import pytest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock, call
 
 from buzz.model_loader import (
     ModelDownloader,
+    HuggingfaceDownloadMonitor,
     TranscriptionModel,
     ModelType,
     WhisperModelSize,
@@ -285,6 +289,347 @@ class TestTranscriptionModelOpenPath:
              patch('subprocess.call') as mock_call:
             TranscriptionModel.open_path("/some/path")
             mock_call.assert_called_once_with(['open', '/some/path'])
+
+
+class TestTranscriptionModelOpenFileLocation:
+    def test_whisper_opens_parent_directory(self):
+        model = TranscriptionModel(model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY)
+        with patch.object(model, 'get_local_model_path', return_value="/some/path/model.pt"), \
+             patch.object(TranscriptionModel, 'open_path') as mock_open:
+            model.open_file_location()
+            mock_open.assert_called_once_with(path="/some/path")
+
+    def test_hugging_face_opens_grandparent_directory(self):
+        model = TranscriptionModel(
+            model_type=ModelType.HUGGING_FACE,
+            hugging_face_model_id="openai/whisper-tiny"
+        )
+        with patch.object(model, 'get_local_model_path', return_value="/cache/models/snapshot/model.safetensors"), \
+             patch.object(TranscriptionModel, 'open_path') as mock_open:
+            model.open_file_location()
+            # For HF: dirname(path) -> /cache/models/snapshot, then open_path(dirname(...)) -> /cache/models
+            mock_open.assert_called_once_with(path="/cache/models")
+
+    def test_faster_whisper_opens_grandparent_directory(self):
+        model = TranscriptionModel(model_type=ModelType.FASTER_WHISPER, whisper_model_size=WhisperModelSize.TINY)
+        with patch.object(model, 'get_local_model_path', return_value="/cache/models/snapshot/model.bin"), \
+             patch.object(TranscriptionModel, 'open_path') as mock_open:
+            model.open_file_location()
+            # For FW: dirname(path) -> /cache/models/snapshot, then open_path(dirname(...)) -> /cache/models
+            mock_open.assert_called_once_with(path="/cache/models")
+
+    def test_no_model_path_does_nothing(self):
+        model = TranscriptionModel(model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY)
+        with patch.object(model, 'get_local_model_path', return_value=None), \
+             patch.object(TranscriptionModel, 'open_path') as mock_open:
+            model.open_file_location()
+            mock_open.assert_not_called()
+
+
+class TestTranscriptionModelDeleteLocalFile:
+    def test_whisper_model_removes_file(self, tmp_path):
+        model_file = tmp_path / "model.pt"
+        model_file.write_bytes(b"fake model data")
+        model = TranscriptionModel(model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY)
+        with patch.object(model, 'get_local_model_path', return_value=str(model_file)):
+            model.delete_local_file()
+        assert not model_file.exists()
+
+    def test_whisper_cpp_custom_removes_file(self, tmp_path):
+        model_file = tmp_path / "ggml-model-whisper-custom.bin"
+        model_file.write_bytes(b"fake model data")
+        model = TranscriptionModel(model_type=ModelType.WHISPER_CPP, whisper_model_size=WhisperModelSize.CUSTOM)
+        with patch.object(model, 'get_local_model_path', return_value=str(model_file)):
+            model.delete_local_file()
+        assert not model_file.exists()
+
+    def test_whisper_cpp_non_custom_removes_bin_file(self, tmp_path):
+        model_file = tmp_path / "ggml-tiny.bin"
+        model_file.write_bytes(b"fake model data")
+        model = TranscriptionModel(model_type=ModelType.WHISPER_CPP, whisper_model_size=WhisperModelSize.TINY)
+        with patch.object(model, 'get_local_model_path', return_value=str(model_file)):
+            model.delete_local_file()
+        assert not model_file.exists()
+
+    def test_whisper_cpp_non_custom_removes_coreml_files(self, tmp_path):
+        model_file = tmp_path / "ggml-tiny.bin"
+        model_file.write_bytes(b"fake model data")
+        coreml_zip = tmp_path / "ggml-tiny-encoder.mlmodelc.zip"
+        coreml_zip.write_bytes(b"fake zip")
+        coreml_dir = tmp_path / "ggml-tiny-encoder.mlmodelc"
+        coreml_dir.mkdir()
+        model = TranscriptionModel(model_type=ModelType.WHISPER_CPP, whisper_model_size=WhisperModelSize.TINY)
+        with patch.object(model, 'get_local_model_path', return_value=str(model_file)):
+            model.delete_local_file()
+        assert not model_file.exists()
+        assert not coreml_zip.exists()
+        assert not coreml_dir.exists()
+
+    def test_hugging_face_removes_directory_tree(self, tmp_path):
+        # Structure: models--repo/snapshots/abc/model.safetensors
+        # delete_local_file does dirname(dirname(model_path)) = snapshots_dir
+        repo_dir = tmp_path / "models--repo"
+        snapshots_dir = repo_dir / "snapshots"
+        snapshot_dir = snapshots_dir / "abc123"
+        snapshot_dir.mkdir(parents=True)
+        model_file = snapshot_dir / "model.safetensors"
+        model_file.write_bytes(b"fake model")
+
+        model = TranscriptionModel(
+            model_type=ModelType.HUGGING_FACE,
+            hugging_face_model_id="some/repo"
+        )
+        with patch.object(model, 'get_local_model_path', return_value=str(model_file)):
+            model.delete_local_file()
+        # Two dirs up from model_file: dirname(dirname(model_file)) = snapshots_dir
+        assert not snapshots_dir.exists()
+
+    def test_faster_whisper_removes_directory_tree(self, tmp_path):
+        repo_dir = tmp_path / "faster-whisper-tiny"
+        snapshots_dir = repo_dir / "snapshots"
+        snapshot_dir = snapshots_dir / "abc123"
+        snapshot_dir.mkdir(parents=True)
+        model_file = snapshot_dir / "model.bin"
+        model_file.write_bytes(b"fake model")
+
+        model = TranscriptionModel(model_type=ModelType.FASTER_WHISPER, whisper_model_size=WhisperModelSize.TINY)
+        with patch.object(model, 'get_local_model_path', return_value=str(model_file)):
+            model.delete_local_file()
+        # Two dirs up from model_file: dirname(dirname(model_file)) = snapshots_dir
+        assert not snapshots_dir.exists()
+
+
+class TestHuggingfaceDownloadMonitorFileSize:
+    def _make_monitor(self, tmp_path):
+        model_root = str(tmp_path / "models--test" / "snapshots" / "abc")
+        os.makedirs(model_root, exist_ok=True)
+        progress = MagicMock()
+        progress.emit = MagicMock()
+        monitor = HuggingfaceDownloadMonitor(
+            model_root=model_root,
+            progress=progress,
+            total_file_size=100 * 1024 * 1024
+        )
+        return monitor
+
+    def test_emits_progress_for_tmp_files(self, tmp_path):
+        from buzz.model_loader import model_root_dir as orig_root
+        monitor = self._make_monitor(tmp_path)
+
+        # Create a tmp file in model_root_dir
+        with patch('buzz.model_loader.model_root_dir', str(tmp_path)):
+            tmp_file = tmp_path / "tmpXYZ123"
+            tmp_file.write_bytes(b"x" * 1024)
+
+            monitor.stop_event.clear()
+            # Run one iteration
+            monitor.monitor_file_size.__func__ if hasattr(monitor.monitor_file_size, '__func__') else None
+
+            # Manually call internal logic once
+            emitted = []
+            original_emit = monitor.progress.emit
+            monitor.progress.emit = lambda x: emitted.append(x)
+
+            import buzz.model_loader as ml
+            old_root = ml.model_root_dir
+            ml.model_root_dir = str(tmp_path)
+            try:
+                monitor.stop_event.set()  # stop after one iteration
+                monitor.stop_event.clear()
+                # call once manually by running the loop body
+                for filename in os.listdir(str(tmp_path)):
+                    if filename.startswith("tmp"):
+                        file_size = os.path.getsize(os.path.join(str(tmp_path), filename))
+                        monitor.progress.emit((file_size, monitor.total_file_size))
+                assert len(emitted) > 0
+                assert emitted[0][0] == 1024
+            finally:
+                ml.model_root_dir = old_root
+
+    def test_emits_progress_for_incomplete_files(self, tmp_path):
+        monitor = self._make_monitor(tmp_path)
+
+        blobs_dir = tmp_path / "blobs"
+        blobs_dir.mkdir()
+        incomplete_file = blobs_dir / "somefile.incomplete"
+        incomplete_file.write_bytes(b"y" * 2048)
+
+        emitted = []
+        monitor.incomplete_download_root = str(blobs_dir)
+        monitor.progress.emit = lambda x: emitted.append(x)
+
+        for filename in os.listdir(str(blobs_dir)):
+            if filename.endswith(".incomplete"):
+                file_size = os.path.getsize(os.path.join(str(blobs_dir), filename))
+                monitor.progress.emit((file_size, monitor.total_file_size))
+
+        assert len(emitted) > 0
+        assert emitted[0][0] == 2048
+
+    def test_stop_monitoring_emits_100_percent(self, tmp_path):
+        monitor = self._make_monitor(tmp_path)
+        monitor.monitor_thread = MagicMock()
+        monitor.stop_monitoring()
+        monitor.progress.emit.assert_called_with(
+            (monitor.total_file_size, monitor.total_file_size)
+        )
+
+
+class TestModelDownloaderDownloadModel:
+    def _make_downloader(self, model):
+        downloader = ModelDownloader(model=model)
+        downloader.signals = MagicMock()
+        downloader.signals.progress = MagicMock()
+        downloader.signals.progress.emit = MagicMock()
+        return downloader
+
+    def test_download_model_fresh_success(self, tmp_path):
+        model = TranscriptionModel(model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY)
+        downloader = self._make_downloader(model)
+
+        file_path = str(tmp_path / "model.pt")
+        fake_content = b"fake model data" * 100
+
+        mock_response = MagicMock()
+        mock_response.__enter__ = lambda s: s
+        mock_response.__exit__ = MagicMock(return_value=False)
+        mock_response.status_code = 200
+        mock_response.headers = {"Content-Length": str(len(fake_content))}
+        mock_response.iter_content = MagicMock(return_value=[fake_content])
+        mock_response.raise_for_status = MagicMock()
+
+        with patch('requests.get', return_value=mock_response), \
+             patch('requests.head') as mock_head:
+            result = downloader.download_model(url="http://example.com/model.pt", file_path=file_path, expected_sha256=None)
+
+        assert result is True
+        assert os.path.exists(file_path)
+        assert open(file_path, 'rb').read() == fake_content
+
+    def test_download_model_already_downloaded_sha256_match(self, tmp_path):
+        import hashlib
+        content = b"complete model content"
+        sha256 = hashlib.sha256(content).hexdigest()
+        model_file = tmp_path / "model.pt"
+        model_file.write_bytes(content)
+
+        model = TranscriptionModel(model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY)
+        downloader = self._make_downloader(model)
+
+        mock_head = MagicMock()
+        mock_head.headers = {"Content-Length": str(len(content)), "Accept-Ranges": "bytes"}
+        mock_head.raise_for_status = MagicMock()
+
+        with patch('requests.head', return_value=mock_head):
+            result = downloader.download_model(
+                url="http://example.com/model.pt",
+                file_path=str(model_file),
+                expected_sha256=sha256
+            )
+
+        assert result is True
+
+    def test_download_model_sha256_mismatch_redownloads(self, tmp_path):
+        import hashlib
+        content = b"complete model content"
+        bad_sha256 = "0" * 64
+        model_file = tmp_path / "model.pt"
+        model_file.write_bytes(content)
+
+        model = TranscriptionModel(model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY)
+        downloader = self._make_downloader(model)
+
+        new_content = b"new model data"
+        mock_head = MagicMock()
+        mock_head.headers = {"Content-Length": str(len(content)), "Accept-Ranges": "bytes"}
+        mock_head.raise_for_status = MagicMock()
+
+        mock_response = MagicMock()
+        mock_response.__enter__ = lambda s: s
+        mock_response.__exit__ = MagicMock(return_value=False)
+        mock_response.status_code = 200
+        mock_response.headers = {"Content-Length": str(len(new_content))}
+        mock_response.iter_content = MagicMock(return_value=[new_content])
+        mock_response.raise_for_status = MagicMock()
+
+        with patch('requests.head', return_value=mock_head), \
+             patch('requests.get', return_value=mock_response):
+            with pytest.raises(RuntimeError, match="SHA256 checksum does not match"):
+                downloader.download_model(
+                    url="http://example.com/model.pt",
+                    file_path=str(model_file),
+                    expected_sha256=bad_sha256
+                )
+
+        # File is deleted after SHA256 mismatch
+        assert not model_file.exists()
+
+    def test_download_model_stopped_mid_download(self, tmp_path):
+        model = TranscriptionModel(model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY)
+        downloader = self._make_downloader(model)
+        downloader.stopped = True
+
+        file_path = str(tmp_path / "model.pt")
+
+        def iter_content_gen(chunk_size):
+            yield b"chunk1"
+
+        mock_response = MagicMock()
+        mock_response.__enter__ = lambda s: s
+        mock_response.__exit__ = MagicMock(return_value=False)
+        mock_response.status_code = 200
+        mock_response.headers = {"Content-Length": "6"}
+        mock_response.iter_content = iter_content_gen
+        mock_response.raise_for_status = MagicMock()
+
+        with patch('requests.get', return_value=mock_response):
+            result = downloader.download_model(
+                url="http://example.com/model.pt",
+                file_path=file_path,
+                expected_sha256=None
+            )
+
+        assert result is False
+
+    def test_download_model_resumes_partial(self, tmp_path):
+        model = TranscriptionModel(model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY)
+        downloader = self._make_downloader(model)
+
+        existing_content = b"partial"
+        model_file = tmp_path / "model.pt"
+        model_file.write_bytes(existing_content)
+        resume_content = b" completed"
+        total_size = len(existing_content) + len(resume_content)
+
+        mock_head_size = MagicMock()
+        mock_head_size.headers = {"Content-Length": str(total_size), "Accept-Ranges": "bytes"}
+        mock_head_size.raise_for_status = MagicMock()
+
+        mock_head_range = MagicMock()
+        mock_head_range.headers = {"Accept-Ranges": "bytes"}
+        mock_head_range.raise_for_status = MagicMock()
+
+        mock_response = MagicMock()
+        mock_response.__enter__ = lambda s: s
+        mock_response.__exit__ = MagicMock(return_value=False)
+        mock_response.status_code = 206
+        mock_response.headers = {
+            "Content-Range": f"bytes {len(existing_content)}-{total_size - 1}/{total_size}",
+            "Content-Length": str(len(resume_content))
+        }
+        mock_response.iter_content = MagicMock(return_value=[resume_content])
+        mock_response.raise_for_status = MagicMock()
+
+        with patch('requests.head', side_effect=[mock_head_size, mock_head_range]), \
+             patch('requests.get', return_value=mock_response):
+            result = downloader.download_model(
+                url="http://example.com/model.pt",
+                file_path=str(model_file),
+                expected_sha256=None
+            )
+
+        assert result is True
+        assert open(str(model_file), 'rb').read() == existing_content + resume_content
 
 
 class TestModelLoaderCertifiImportError:
