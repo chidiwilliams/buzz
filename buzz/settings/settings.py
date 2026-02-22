@@ -26,6 +26,7 @@ class Settings:
         RECORDING_TRANSCRIBER_EXPORT_FOLDER = "recording-transcriber/export-folder"
         RECORDING_TRANSCRIBER_MODE = "recording-transcriber/mode"
         RECORDING_TRANSCRIBER_SILENCE_THRESHOLD = "recording-transcriber/silence-threshold"
+        RECORDING_TRANSCRIBER_LINE_SEPARATOR = "recording-transcriber/line-separator"
 
         PRESENTATION_WINDOW_TEXT_COLOR = "presentation-window/text-color"
         PRESENTATION_WINDOW_BACKGROUND_COLOR = "presentation-window/background-color"

@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (
     QFormLayout,
     QLabel,
     QDoubleSpinBox,
+    QLineEdit,
 )
 
 from buzz.locale import _
@@ -108,6 +109,14 @@ class AdvancedSettingsDialog(QDialog):
             self.silence_threshold_spin_box.valueChanged.connect(self.on_silence_threshold_changed)
             layout.addRow(_("Silence threshold:"), self.silence_threshold_spin_box)
 
+            self.line_separator_line_edit = QLineEdit(self)
+            self.line_separator_line_edit.setText(
+                repr(transcription_options.line_separator)[1:-1]
+            )
+            self.line_separator_line_edit.setPlaceholderText(r"\n\n")
+            self.line_separator_line_edit.textChanged.connect(self.on_line_separator_changed)
+            layout.addRow(_("Line separator:"), self.line_separator_line_edit)
+
         button_box = QDialogButtonBox(
             QDialogButtonBox.StandardButton(QDialogButtonBox.StandardButton.Ok), self
         )
@@ -152,4 +161,11 @@ class AdvancedSettingsDialog(QDialog):
 
     def on_silence_threshold_changed(self, value: float):
         self.transcription_options.silence_threshold = value
+        self.transcription_options_changed.emit(self.transcription_options)
+
+    def on_line_separator_changed(self, text: str):
+        try:
+            self.transcription_options.line_separator = text.encode().decode("unicode_escape")
+        except UnicodeDecodeError:
+            return
         self.transcription_options_changed.emit(self.transcription_options)

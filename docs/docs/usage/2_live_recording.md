@@ -20,6 +20,7 @@ To start a live recording:
 
 #### Advanced preferences
 **Silence threshold** Set threshold to for transcriptions to be processed. If average volume level is under this setting the sentence will not be transcribed. Available since 1.4.4.
+**Line separator** Marking to add to the transcription and translation lines. Default value is two new lines (`\n\n`) that result in an empty space between translation or transcription lines. To have no empty line use `\n`. Available since 1.4.4.
 
 
 #### Presentation Window 

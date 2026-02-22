@@ -154,6 +154,7 @@ class TranscriptionOptions:
     llm_prompt: str = ""
     llm_model: str = ""
     silence_threshold: float = 0.0025
+    line_separator: str = "\n\n"
 
 
 def humanize_language(language: str) -> str:

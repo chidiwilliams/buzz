@@ -154,6 +154,10 @@ class RecordingTranscriberWidget(QWidget):
                 key=Settings.Key.RECORDING_TRANSCRIBER_SILENCE_THRESHOLD,
                 default_value=0.0025,
             ),
+            line_separator=self.settings.value(
+                key=Settings.Key.RECORDING_TRANSCRIBER_LINE_SEPARATOR,
+                default_value="\n\n",
+            ),
         )
 
         self.audio_devices_combo_box = AudioDevicesComboBox(self)
@@ -786,24 +790,24 @@ class RecordingTranscriberWidget(QWidget):
         if self.transcriber_mode == RecordingTranscriberMode.APPEND_BELOW:
             self.transcription_text_box.moveCursor(QTextCursor.MoveOperation.End)
             if len(self.transcription_text_box.toPlainText()) > 0:
-                self.transcription_text_box.insertPlainText("\n\n")
+                self.transcription_text_box.insertPlainText(self.transcription_options.line_separator)
             self.transcription_text_box.insertPlainText(text)
             self.transcription_text_box.moveCursor(QTextCursor.MoveOperation.End)
 
             if self.export_enabled and self.transcript_export_file:
-                self.write_to_export_file(self.transcript_export_file, text + "\n\n")
+                self.write_to_export_file(self.transcript_export_file, text + self.transcription_options.line_separator)
 
         elif self.transcriber_mode == RecordingTranscriberMode.APPEND_ABOVE:
             self.transcription_text_box.moveCursor(QTextCursor.MoveOperation.Start)
             self.transcription_text_box.insertPlainText(text)
-            self.transcription_text_box.insertPlainText("\n\n")
+            self.transcription_text_box.insertPlainText(self.transcription_options.line_separator)
             self.transcription_text_box.moveCursor(QTextCursor.MoveOperation.Start)
 
             if self.export_enabled and self.transcript_export_file:
                 existing_content = ""
                 if os.path.isfile(self.transcript_export_file):
                     existing_content = self.read_export_file(self.transcript_export_file)
-                new_content = text + "\n\n" + existing_content
+                new_content = text + self.transcription_options.line_separator + existing_content
                 self.write_to_export_file(self.transcript_export_file, new_content, mode="w")
 
         elif self.transcriber_mode == RecordingTranscriberMode.APPEND_AND_CORRECT:
@@ -834,24 +838,24 @@ class RecordingTranscriberWidget(QWidget):
         if self.transcriber_mode == RecordingTranscriberMode.APPEND_BELOW:
             self.translation_text_box.moveCursor(QTextCursor.MoveOperation.End)
             if len(self.translation_text_box.toPlainText()) > 0:
-                self.translation_text_box.insertPlainText("\n\n")
+                self.translation_text_box.insertPlainText(self.transcription_options.line_separator)
             self.translation_text_box.insertPlainText(self.strip_newlines(text))
             self.translation_text_box.moveCursor(QTextCursor.MoveOperation.End)
 
             if self.export_enabled and self.translation_export_file:
-                self.write_to_export_file(self.translation_export_file, text + "\n\n")
+                self.write_to_export_file(self.translation_export_file, text + self.transcription_options.line_separator)
 
         elif self.transcriber_mode == RecordingTranscriberMode.APPEND_ABOVE:
             self.translation_text_box.moveCursor(QTextCursor.MoveOperation.Start)
             self.translation_text_box.insertPlainText(self.strip_newlines(text))
-            self.translation_text_box.insertPlainText("\n\n")
+            self.translation_text_box.insertPlainText(self.transcription_options.line_separator)
             self.translation_text_box.moveCursor(QTextCursor.MoveOperation.Start)
 
             if self.export_enabled and self.translation_export_file:
                 existing_content = ""
                 if os.path.isfile(self.translation_export_file):
                     existing_content = self.read_export_file(self.translation_export_file)
-                new_content = text + "\n\n" + existing_content
+                new_content = text + self.transcription_options.line_separator + existing_content
                 self.write_to_export_file(self.translation_export_file, new_content, mode="w")
 
         elif self.transcriber_mode == RecordingTranscriberMode.APPEND_AND_CORRECT:
@@ -1001,6 +1005,10 @@ class RecordingTranscriberWidget(QWidget):
         self.settings.set_value(
             Settings.Key.RECORDING_TRANSCRIBER_SILENCE_THRESHOLD,
             self.transcription_options.silence_threshold,
+        )
+        self.settings.set_value(
+            Settings.Key.RECORDING_TRANSCRIBER_LINE_SEPARATOR,
+            self.transcription_options.line_separator,
         )
 
         return super().closeEvent(event)
