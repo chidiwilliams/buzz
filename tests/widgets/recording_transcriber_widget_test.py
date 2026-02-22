@@ -193,6 +193,52 @@ class TestRecordingTranscriberWidget:
             widget.close()
 
 
+class TestRecordingTranscriberWidgetLineSeparator:
+    @pytest.mark.timeout(60)
+    def test_line_separator_loaded_from_settings(self, qtbot: QtBot):
+        settings = Settings()
+        settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_LINE_SEPARATOR, "\n")
+
+        with _widget_ctx(qtbot) as widget:
+            assert widget.transcription_options.line_separator == "\n"
+
+    @pytest.mark.timeout(60)
+    def test_line_separator_saved_on_close(self, qtbot: QtBot):
+        settings = Settings()
+
+        with _widget_ctx(qtbot) as widget:
+            widget.transcription_options.line_separator = " | "
+
+        assert settings.value(Settings.Key.RECORDING_TRANSCRIBER_LINE_SEPARATOR, "") == " | "
+
+    @pytest.mark.timeout(60)
+    def test_line_separator_used_in_append_below(self, qtbot: QtBot):
+        with _widget_ctx(qtbot) as widget:
+            widget.transcription_options.line_separator = " | "
+            widget.transcriber_mode = RecordingTranscriberMode.APPEND_BELOW
+            widget.on_next_transcription("first")
+            widget.on_next_transcription("second")
+            assert widget.transcription_text_box.toPlainText() == "first | second"
+
+    @pytest.mark.timeout(60)
+    def test_line_separator_used_in_append_above(self, qtbot: QtBot):
+        with _widget_ctx(qtbot) as widget:
+            widget.transcription_options.line_separator = " | "
+            widget.transcriber_mode = RecordingTranscriberMode.APPEND_ABOVE
+            widget.on_next_transcription("first")
+            widget.on_next_transcription("second")
+            assert widget.transcription_text_box.toPlainText() == "second | first | "
+
+    @pytest.mark.timeout(60)
+    def test_line_separator_used_in_translation_append_below(self, qtbot: QtBot):
+        with _widget_ctx(qtbot) as widget:
+            widget.transcription_options.line_separator = " | "
+            widget.transcriber_mode = RecordingTranscriberMode.APPEND_BELOW
+            widget.on_next_translation("hello")
+            widget.on_next_translation("world")
+            assert widget.translation_text_box.toPlainText() == "hello | world"
+
+
 class TestRecordingTranscriberWidgetSilenceThreshold:
     @pytest.mark.timeout(60)
     def test_silence_threshold_loaded_from_settings(self, qtbot: QtBot):

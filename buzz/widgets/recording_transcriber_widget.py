@@ -245,7 +245,7 @@ class RecordingTranscriberWidget(QWidget):
         layout.addWidget(text_size_label)
 
         self.text_size_spinbox = QSpinBox(bar)
-        self.text_size_spinbox.setRange(12, 72) #12pt to 72pt
+        self.text_size_spinbox.setRange(10, 100) #10pt to 100pt
 
         saved_text_size = self.settings.value(
             Settings.Key.PRESENTATION_WINDOW_TEXT_SIZE,

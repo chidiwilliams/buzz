@@ -59,6 +59,90 @@ class TestAdvancedSettingsDialogSilenceThreshold:
         assert emitted[0].silence_threshold == pytest.approx(0.005)
 
 
+class TestAdvancedSettingsDialogLineSeparator:
+    def test_line_separator_shown_when_recording_settings(self, qtbot: QtBot):
+        options = TranscriptionOptions()
+        dialog = AdvancedSettingsDialog(
+            transcription_options=options, show_recording_settings=True
+        )
+        qtbot.add_widget(dialog)
+        assert hasattr(dialog, "line_separator_line_edit")
+        assert dialog.line_separator_line_edit is not None
+
+    def test_line_separator_hidden_by_default(self, qtbot: QtBot):
+        options = TranscriptionOptions()
+        dialog = AdvancedSettingsDialog(transcription_options=options)
+        qtbot.add_widget(dialog)
+        assert not hasattr(dialog, "line_separator_line_edit")
+
+    def test_line_separator_initial_value_displayed_as_escape(self, qtbot: QtBot):
+        options = TranscriptionOptions(line_separator="\n\n")
+        dialog = AdvancedSettingsDialog(
+            transcription_options=options, show_recording_settings=True
+        )
+        qtbot.add_widget(dialog)
+        assert dialog.line_separator_line_edit.text() == r"\n\n"
+
+    def test_line_separator_change_updates_options(self, qtbot: QtBot):
+        options = TranscriptionOptions(line_separator="\n\n")
+        dialog = AdvancedSettingsDialog(
+            transcription_options=options, show_recording_settings=True
+        )
+        qtbot.add_widget(dialog)
+        dialog.line_separator_line_edit.setText(r"\n")
+        assert dialog.transcription_options.line_separator == "\n"
+
+    def test_line_separator_change_emits_signal(self, qtbot: QtBot):
+        options = TranscriptionOptions(line_separator="\n\n")
+        dialog = AdvancedSettingsDialog(
+            transcription_options=options, show_recording_settings=True
+        )
+        qtbot.add_widget(dialog)
+        emitted = []
+        dialog.transcription_options_changed.connect(lambda o: emitted.append(o))
+        dialog.line_separator_line_edit.setText(r"\n")
+        assert len(emitted) == 1
+        assert emitted[0].line_separator == "\n"
+
+    def test_line_separator_invalid_escape_does_not_crash(self, qtbot: QtBot):
+        options = TranscriptionOptions(line_separator="\n\n")
+        dialog = AdvancedSettingsDialog(
+            transcription_options=options, show_recording_settings=True
+        )
+        qtbot.add_widget(dialog)
+        dialog.line_separator_line_edit.setText("\\")
+        # Options unchanged — previous valid value kept
+        assert dialog.transcription_options.line_separator == "\n\n"
+
+    def test_line_separator_tab_character(self, qtbot: QtBot):
+        options = TranscriptionOptions()
+        dialog = AdvancedSettingsDialog(
+            transcription_options=options, show_recording_settings=True
+        )
+        qtbot.add_widget(dialog)
+        dialog.line_separator_line_edit.setText(r"\t")
+        assert dialog.transcription_options.line_separator == "\t"
+
+    def test_line_separator_plain_text(self, qtbot: QtBot):
+        options = TranscriptionOptions()
+        dialog = AdvancedSettingsDialog(
+            transcription_options=options, show_recording_settings=True
+        )
+        qtbot.add_widget(dialog)
+        dialog.line_separator_line_edit.setText(" | ")
+        assert dialog.transcription_options.line_separator == " | "
+
+
+class TestTranscriptionOptionsLineSeparator:
+    def test_default_line_separator(self):
+        options = TranscriptionOptions()
+        assert options.line_separator == "\n\n"
+
+    def test_custom_line_separator(self):
+        options = TranscriptionOptions(line_separator="\n")
+        assert options.line_separator == "\n"
+
+
 class TestTranscriptionOptionsSilenceThreshold:
     def test_default_silence_threshold(self):
         options = TranscriptionOptions()
