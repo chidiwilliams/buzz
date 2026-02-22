@@ -208,6 +208,7 @@ class RecordingTranscriberWidget(QWidget):
 
         self.reset_recording_amplitude_listener()
 
+        self._closing = False
         self.transcript_export_file = None
         self.translation_export_file = None
         self.export_enabled = self.settings.value(
@@ -936,26 +937,50 @@ class RecordingTranscriberWidget(QWidget):
         self.audio_meter_widget.update_amplitude(amplitude)
 
     def closeEvent(self, event: QCloseEvent) -> None:
+        if self._closing:
+            # Second call after deferred close — proceed normally
+            self._do_close()
+            super().closeEvent(event)
+            return
+
+        if self.current_status == self.RecordingStatus.RECORDING:
+            # Defer the close until the transcription thread finishes to avoid
+            # blocking the GUI thread with a synchronous wait.
+            event.ignore()
+            self._closing = True
+
+            if self.model_loader is not None:
+                self.model_loader.cancel()
+
+            self.stop_recording()
+
+            # Connect to QThread.finished — the transcriber C++ object may already
+            # be scheduled for deletion via deleteLater() by this point.
+            thread = self.transcription_thread
+            if thread is not None:
+                try:
+                    if thread.isRunning():
+                        thread.finished.connect(self._on_close_transcriber_finished)
+                    else:
+                        self._on_close_transcriber_finished()
+                except RuntimeError:
+                    self._on_close_transcriber_finished()
+            else:
+                self._on_close_transcriber_finished()
+            return
+
+        self._do_close()
+        super().closeEvent(event)
+
+    def _on_close_transcriber_finished(self):
+        self.transcription_thread = None
+        self.close()
+
+    def _do_close(self):
         #Close presentation window if open
         if self.presentation_window:
             self.presentation_window.close()
             self.presentation_window = None
-
-            self.fullscreen_button.setEnabled(False)
-
-        if self.model_loader is not None:
-            self.model_loader.cancel()
-
-        self.stop_recording()
-        if self.transcription_thread is not None:
-            try:
-                if self.transcription_thread.isRunning():
-                    if not self.transcription_thread.wait(15_000):
-                        logging.warning("Transcription thread did not finish within timeout")
-            except RuntimeError:
-                # The underlying C++ QThread was already deleted via deleteLater()
-                pass
-            self.transcription_thread = None
 
         if self.recording_amplitude_listener is not None:
             self.recording_amplitude_listener.stop_recording()
@@ -966,11 +991,8 @@ class RecordingTranscriberWidget(QWidget):
             self.translator.stop()
 
         if self.translation_thread is not None:
+            # Just request quit — do not block the GUI thread waiting for it
             self.translation_thread.quit()
-            # Only wait if thread is actually running
-            if self.translation_thread.isRunning():
-                if not self.translation_thread.wait(45_000):
-                    logging.warning("Translation thread did not finish within timeout")
 
         self.settings.set_value(
             Settings.Key.RECORDING_TRANSCRIBER_LANGUAGE,
@@ -1010,5 +1032,3 @@ class RecordingTranscriberWidget(QWidget):
             Settings.Key.RECORDING_TRANSCRIBER_LINE_SEPARATOR,
             self.transcription_options.line_separator,
         )
-
-        return super().closeEvent(event)
