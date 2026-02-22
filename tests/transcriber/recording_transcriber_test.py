@@ -20,13 +20,14 @@ class TestAmplitude:
     def test_symmetric_array(self):
         arr = np.array([1.0, -1.0, 2.0, -2.0])
         amplitude = RecordingTranscriber.amplitude(arr)
-        assert amplitude == 2.0
+        # RMS: sqrt(mean([1, 1, 4, 4])) = sqrt(2.5) ≈ 1.5811
+        assert abs(amplitude - np.sqrt(2.5)) < 1e-6
 
     def test_asymmetric_array(self):
         arr = np.array([1.0, 2.0, 3.0, -1.0])
         amplitude = RecordingTranscriber.amplitude(arr)
-        # (abs(3.0) + abs(-1.0)) / 2 = (3.0 + 1.0) / 2 = 2.0
-        assert amplitude == 2.0
+        # RMS: sqrt(mean([1, 4, 9, 1])) = sqrt(3.75) ≈ 1.9365
+        assert abs(amplitude - np.sqrt(3.75)) < 1e-6
 
     def test_all_zeros(self):
         arr = np.array([0.0, 0.0, 0.0])
@@ -36,14 +37,19 @@ class TestAmplitude:
     def test_all_positive(self):
         arr = np.array([1.0, 2.0, 3.0, 4.0])
         amplitude = RecordingTranscriber.amplitude(arr)
-        # (abs(4.0) + abs(1.0)) / 2 = (4.0 + 1.0) / 2 = 2.5
-        assert amplitude == 2.5
+        # RMS: sqrt(mean([1, 4, 9, 16])) = sqrt(7.5) ≈ 2.7386
+        assert abs(amplitude - np.sqrt(7.5)) < 1e-6
 
     def test_all_negative(self):
         arr = np.array([-1.0, -2.0, -3.0, -4.0])
         amplitude = RecordingTranscriber.amplitude(arr)
-        # (abs(-1.0) + abs(-4.0)) / 2 = (1.0 + 4.0) / 2 = 2.5
-        assert amplitude == 2.5
+        # RMS is symmetric: same as all_positive
+        assert abs(amplitude - np.sqrt(7.5)) < 1e-6
+
+    def test_returns_float(self):
+        arr = np.array([0.5], dtype=np.float32)
+        amplitude = RecordingTranscriber.amplitude(arr)
+        assert isinstance(amplitude, float)
 
 
 class TestGetDeviceSampleRate:
@@ -193,6 +199,25 @@ class TestRecordingTranscriberInit:
             # APPEND_AND_CORRECT mode should use smaller batch size and longer keep duration
             assert transcriber.n_batch_samples == 3 * 16000
             assert transcriber.keep_sample_seconds == 1.5
+
+    def test_init_stores_silence_threshold(self):
+        transcription_options = TranscriptionOptions(
+            model=TranscriptionModel(model_type=ModelType.WHISPER_CPP),
+            language="en",
+            task=Task.TRANSCRIBE,
+            silence_threshold=0.01,
+        )
+
+        with patch("sounddevice.check_input_settings"):
+            transcriber = RecordingTranscriber(
+                transcription_options=transcription_options,
+                input_device_index=0,
+                sample_rate=16000,
+                model_path="/fake/path",
+                sounddevice=MockSoundDevice(),
+            )
+
+            assert transcriber.transcription_options.silence_threshold == 0.01
 
     def test_init_uses_default_sample_rate_when_none(self):
         transcription_options = TranscriptionOptions(

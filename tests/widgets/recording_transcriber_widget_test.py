@@ -2,6 +2,7 @@ import os
 import time
 import pytest
 import platform
+
 import tempfile
 
 from unittest.mock import patch, MagicMock
@@ -190,6 +191,45 @@ class TestRecordingTranscriberWidget:
             qtbot.wait(500)
 
             widget.close()
+
+
+class TestRecordingTranscriberWidgetSilenceThreshold:
+    @pytest.mark.timeout(60)
+    def test_silence_threshold_loaded_from_settings(self, qtbot: QtBot):
+        """Silence threshold from settings is applied to transcription options."""
+        settings = Settings()
+        settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_SILENCE_THRESHOLD, 0.007)
+
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(custom_sounddevice=MockSoundDevice())
+            qtbot.add_widget(widget)
+
+            assert widget.transcription_options.silence_threshold == pytest.approx(0.007)
+
+            time.sleep(0.5)
+            widget.close()
+
+    @pytest.mark.timeout(60)
+    def test_silence_threshold_saved_on_close(self, qtbot: QtBot):
+        """Silence threshold is persisted to settings when widget is closed."""
+        settings = Settings()
+
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(custom_sounddevice=MockSoundDevice())
+            qtbot.add_widget(widget)
+
+            widget.transcription_options.silence_threshold = 0.009
+            time.sleep(0.5)
+            widget.close()
+
+        saved = settings.value(Settings.Key.RECORDING_TRANSCRIBER_SILENCE_THRESHOLD, 0.0)
+        assert pytest.approx(float(saved)) == 0.009
 
 
 class TestRecordingTranscriberWidgetPresentation:
