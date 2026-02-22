@@ -209,7 +209,7 @@ TMP_POT_FILE_PATH := $(shell mktemp)
 PO_FILE_PATH := buzz/locale/${locale}/LC_MESSAGES/buzz.po
 translation_po:
 	mkdir -p buzz/locale/${locale}/LC_MESSAGES
-	xgettext --from-code=UTF-8 -o "${TMP_POT_FILE_PATH}" -l python $(shell find buzz -name '*.py')
+	xgettext --from-code=UTF-8 --add-location=file -o "${TMP_POT_FILE_PATH}" -l python $(shell find buzz -name '*.py')
 	sed -i.bak 's/CHARSET/UTF-8/' ${TMP_POT_FILE_PATH}
 	if [ ! -f ${PO_FILE_PATH} ]; then \
 		msginit --no-translator --input=${TMP_POT_FILE_PATH} --output-file=${PO_FILE_PATH}; \
