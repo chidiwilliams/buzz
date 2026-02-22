@@ -33,6 +33,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         default_transcription_options: TranscriptionOptions = TranscriptionOptions(),
         model_types: Optional[List[ModelType]] = None,
         parent: Optional[QWidget] = None,
+        show_recording_settings: bool = False,
     ):
         super().__init__(title="", parent=parent)
         self.settings = Settings()
@@ -49,7 +50,9 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.model_type_combo_box.changed.connect(self.on_model_type_changed)
 
         self.advanced_settings_dialog = AdvancedSettingsDialog(
-            transcription_options=self.transcription_options, parent=self
+            transcription_options=self.transcription_options,
+            parent=self,
+            show_recording_settings=show_recording_settings,
         )
         self.advanced_settings_dialog.transcription_options_changed.connect(
             self.on_transcription_options_changed

@@ -190,7 +190,7 @@ class RecordingTranscriber(QObject):
                             amplitude,
                         )
 
-                        if amplitude < 0.0025:
+                        if amplitude < self.transcription_options.silence_threshold:
                             time.sleep(0.5)
                             continue
 

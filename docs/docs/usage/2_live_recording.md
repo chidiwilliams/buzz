@@ -8,7 +8,7 @@ To start a live recording:
 - Click Record.
 
 > **Note:** Transcribing audio using the default Whisper model is resource-intensive. Consider using the Whisper.cpp.
-> Since 1.3.0 it supports GPU acceleration, if the model fits in GPU memory. Use smaller models for real-time performance.
+> It supports GPU acceleration, if the model fits in GPU memory. Use smaller models for real-time performance.
 
 | Field      | Options                                                                                                                                  | Default                     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 |------------|------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -18,7 +18,13 @@ To start a live recording:
 
 [![Live Recording on Buzz](https://cdn.loom.com/sessions/thumbnails/564b753eb4d44b55b985b8abd26b55f7-with-play.gif)](https://www.loom.com/share/564b753eb4d44b55b985b8abd26b55f7 "Live Recording on Buzz")
 
-**Presentation Window** Since 1.4.2 Buzz has an easy to use presentation window you can use to show live transcriptions during events and presentations. To open it start the recording and new options for the `Presentation window` will appear.
+#### Advanced preferences
+**Silence threshold** Set threshold to for transcriptions to be processed. If average volume level is under this setting the sentence will not be transcribed. Available since 1.4.4.
+
+
+#### Presentation Window 
+
+Since 1.4.2 Buzz has an easy to use presentation window you can use to show live transcriptions during events and presentations. To open it start the recording and new options for the `Presentation window` will appear.
 
 ### Record audio playing from computer (macOS)
 

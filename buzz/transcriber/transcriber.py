@@ -153,6 +153,7 @@ class TranscriptionOptions:
     enable_llm_translation: bool = False
     llm_prompt: str = ""
     llm_model: str = ""
+    silence_threshold: float = 0.0025
 
 
 def humanize_language(language: str) -> str:

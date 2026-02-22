@@ -150,6 +150,10 @@ class RecordingTranscriberWidget(QWidget):
             llm_prompt=self.settings.value(
                 key=Settings.Key.RECORDING_TRANSCRIBER_LLM_PROMPT, default_value=""
             ),
+            silence_threshold=self.settings.value(
+                key=Settings.Key.RECORDING_TRANSCRIBER_SILENCE_THRESHOLD,
+                default_value=0.0025,
+            ),
         )
 
         self.audio_devices_combo_box = AudioDevicesComboBox(self)
@@ -170,6 +174,7 @@ class RecordingTranscriberWidget(QWidget):
             default_transcription_options=self.transcription_options,
             model_types=model_types,
             parent=self,
+            show_recording_settings=True,
         )
         self.transcription_options_group_box.transcription_options_changed.connect(
             self.on_transcription_options_changed
@@ -991,6 +996,10 @@ class RecordingTranscriberWidget(QWidget):
         self.settings.set_value(
             Settings.Key.RECORDING_TRANSCRIBER_LLM_PROMPT,
             self.transcription_options.llm_prompt,
+        )
+        self.settings.set_value(
+            Settings.Key.RECORDING_TRANSCRIBER_SILENCE_THRESHOLD,
+            self.transcription_options.silence_threshold,
         )
 
         return super().closeEvent(event)
