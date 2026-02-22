@@ -90,6 +90,217 @@ class TestSpeakerIdentificationWidget:
         assert (result == [[{'end_time': 8904, 'speaker': 'Speaker 0', 'start_time': 140, 'text': 'Bien venue dans. '}]]
                 or result == [[{'end_time': 8904, 'speaker': 'Speaker 0', 'start_time': 140, 'text': 'Bienvenue dans. '}]])
 
+    def test_identify_button_toggles_visibility(self, qtbot: QtBot, transcription, transcription_service):
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+
+        # Before: identify visible, cancel hidden
+        assert not widget.step_1_button.isHidden()
+        assert widget.cancel_button.isHidden()
+
+        from PyQt6.QtCore import QThread as RealQThread
+        mock_thread = MagicMock(spec=RealQThread)
+        mock_thread.started = MagicMock()
+        mock_thread.started.connect = MagicMock()
+
+        with patch.object(widget, '_cleanup_thread'), \
+             patch('buzz.widgets.transcription_viewer.speaker_identification_widget.QThread', return_value=mock_thread), \
+             patch.object(widget, 'worker', create=True):
+            # patch moveToThread on IdentificationWorker to avoid type error
+            with patch.object(IdentificationWorker, 'moveToThread'):
+                widget.on_identify_button_clicked()
+
+        # After: identify hidden, cancel visible
+        assert widget.step_1_button.isHidden()
+        assert not widget.cancel_button.isHidden()
+
+        widget.close()
+
+    def test_cancel_button_resets_ui(self, qtbot: QtBot, transcription, transcription_service):
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+
+        # Simulate identification started
+        widget.step_1_button.setVisible(False)
+        widget.cancel_button.setVisible(True)
+
+        with patch.object(widget, '_cleanup_thread'):
+            widget.on_cancel_button_clicked()
+
+        assert not widget.step_1_button.isHidden()
+        assert widget.cancel_button.isHidden()
+        assert widget.progress_bar.value() == 0
+        assert len(widget.progress_label.text()) > 0
+
+        widget.close()
+
+    def test_on_progress_update_sets_label_and_bar(self, qtbot: QtBot, transcription, transcription_service):
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+
+        widget.on_progress_update("3/8 Loading alignment model")
+
+        assert widget.progress_label.text() == "3/8 Loading alignment model"
+        assert widget.progress_bar.value() == 3
+
+        widget.close()
+
+    def test_on_progress_update_step_8_enables_save(self, qtbot: QtBot, transcription, transcription_service):
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+
+        assert not widget.save_button.isEnabled()
+
+        widget.on_progress_update("8/8 Identification done")
+
+        assert widget.save_button.isEnabled()
+        assert widget.step_2_group_box.isEnabled()
+        assert widget.merge_speaker_sentences.isEnabled()
+
+        widget.close()
+
+    def test_on_identification_finished_empty_result(self, qtbot: QtBot, transcription, transcription_service):
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+
+        initial_row_count = widget.speaker_preview_row.count()
+
+        widget.on_identification_finished([])
+
+        assert widget.identification_result == []
+        # Empty result returns early — speaker preview row unchanged
+        assert widget.speaker_preview_row.count() == initial_row_count
+
+        widget.close()
+
+    def test_on_identification_finished_populates_speakers(self, qtbot: QtBot, transcription, transcription_service):
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+
+        result = [
+            {'speaker': 'Speaker 0', 'start_time': 0, 'end_time': 3000, 'text': 'Hello world.'},
+            {'speaker': 'Speaker 1', 'start_time': 3000, 'end_time': 6000, 'text': 'Hi there.'},
+        ]
+        widget.on_identification_finished(result)
+
+        assert widget.identification_result == result
+        # Two speaker rows should have been created
+        assert widget.speaker_preview_row.count() == 2
+
+        widget.close()
+
+    def test_on_identification_error_resets_buttons(self, qtbot: QtBot, transcription, transcription_service):
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+
+        widget.step_1_button.setVisible(False)
+        widget.cancel_button.setVisible(True)
+
+        widget.on_identification_error("Some error")
+
+        assert not widget.step_1_button.isHidden()
+        assert widget.cancel_button.isHidden()
+        assert widget.progress_bar.value() == 0
+
+        widget.close()
+
+    def test_on_save_no_merge(self, qtbot: QtBot, transcription, transcription_service):
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+
+        result = [
+            {'speaker': 'Speaker 0', 'start_time': 0, 'end_time': 2000, 'text': 'Hello.'},
+            {'speaker': 'Speaker 0', 'start_time': 2000, 'end_time': 4000, 'text': 'World.'},
+            {'speaker': 'Speaker 1', 'start_time': 4000, 'end_time': 6000, 'text': 'Hi.'},
+        ]
+        widget.on_identification_finished(result)
+        widget.merge_speaker_sentences.setChecked(False)
+
+        with patch.object(widget.transcription_service, 'copy_transcription', return_value=uuid.uuid4()) as mock_copy, \
+             patch.object(widget.transcription_service, 'update_transcription_as_completed') as mock_update:
+            widget.on_save_button_clicked()
+
+        mock_copy.assert_called_once()
+        mock_update.assert_called_once()
+        segments = mock_update.call_args[0][1]
+        # No merge: 3 entries → 3 segments
+        assert len(segments) == 3
+
+        widget.close()
+
+    def test_on_save_with_merge(self, qtbot: QtBot, transcription, transcription_service):
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+
+        result = [
+            {'speaker': 'Speaker 0', 'start_time': 0, 'end_time': 2000, 'text': 'Hello.'},
+            {'speaker': 'Speaker 0', 'start_time': 2000, 'end_time': 4000, 'text': 'World.'},
+            {'speaker': 'Speaker 1', 'start_time': 4000, 'end_time': 6000, 'text': 'Hi.'},
+        ]
+        widget.on_identification_finished(result)
+        widget.merge_speaker_sentences.setChecked(True)
+
+        with patch.object(widget.transcription_service, 'copy_transcription', return_value=uuid.uuid4()), \
+             patch.object(widget.transcription_service, 'update_transcription_as_completed') as mock_update:
+            widget.on_save_button_clicked()
+
+        segments = mock_update.call_args[0][1]
+        # Merge: two consecutive Speaker 0 entries → merged into 1; Speaker 1 → 1 = 2 total
+        assert len(segments) == 2
+        assert "Speaker 0" in segments[0].text
+        assert "Hello." in segments[0].text
+        assert "World." in segments[0].text
+
+        widget.close()
+
+    def test_on_save_emits_transcriptions_updated(self, qtbot: QtBot, transcription, transcription_service):
+        updated_signal = MagicMock()
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+            transcriptions_updated_signal=updated_signal,
+        )
+        qtbot.addWidget(widget)
+
+        result = [{'speaker': 'Speaker 0', 'start_time': 0, 'end_time': 1000, 'text': 'Hi.'}]
+        widget.on_identification_finished(result)
+
+        new_id = uuid.uuid4()
+        with patch.object(widget.transcription_service, 'copy_transcription', return_value=new_id), \
+             patch.object(widget.transcription_service, 'update_transcription_as_completed'):
+            widget.on_save_button_clicked()
+
+        updated_signal.emit.assert_called_once_with(new_id)
+
+        widget.close()
+
     def test_batch_processing_with_many_words(self):
         """Test batch processing when there are more than 200 words."""
         # Create mock punctuation model

@@ -8,5 +8,12 @@ omit =
   deepmultilingualpunctuation/*
   ctc_forced_aligner/*
 
+[report]
+exclude_also =
+  if sys.platform == "win32":
+  if platform.system\(\) == "Windows":
+  if platform.system\(\) == "Linux":
+  if platform.system\(\) == "Darwin":
+
 [html]
 directory = coverage/html

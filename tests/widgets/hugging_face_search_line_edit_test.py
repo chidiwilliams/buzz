@@ -18,6 +18,9 @@ def widget(qtbot: QtBot):
     mock_manager.finished.connect = MagicMock()
     w = HuggingFaceSearchLineEdit(network_access_manager=mock_manager)
     qtbot.add_widget(w)
+    # Prevent popup.show() from triggering a Wayland fatal protocol error
+    # in headless/CI environments where popup windows lack a transient parent.
+    w.popup.show = MagicMock()
     return w
 
 
@@ -82,7 +85,7 @@ class TestHuggingFaceSearchLineEdit:
         mock_reply.readAll.return_value.data.return_value = json.dumps([]).encode()
         widget.on_request_response(mock_reply)
         assert widget.popup.count() == 0
-        assert not widget.popup.isVisible()
+        widget.popup.show.assert_not_called()
 
     def test_on_request_response_item_has_user_role_data(self, widget):
         mock_reply = MagicMock(spec=QNetworkReply)
@@ -111,10 +114,10 @@ class TestHuggingFaceSearchLineEdit:
         item.setData(Qt.ItemDataRole.UserRole, "openai/whisper-tiny")
         widget.popup.addItem(item)
         widget.popup.setCurrentItem(item)
-        widget.popup.show()
 
-        widget.on_select_item()
-        assert not widget.popup.isVisible()
+        with patch.object(widget.popup, 'hide') as mock_hide:
+            widget.on_select_item()
+        mock_hide.assert_called_once()
 
     def test_on_popup_selected_stops_timer(self, widget):
         widget.timer.start()
@@ -128,19 +131,19 @@ class TestHuggingFaceSearchLineEdit:
         assert widget.eventFilter(other, event) is False
 
     def test_event_filter_mouse_press_hides_popup(self, widget):
-        widget.popup.show()
         event = MagicMock()
         event.type.return_value = QEvent.Type.MouseButtonPress
-        result = widget.eventFilter(widget.popup, event)
+        with patch.object(widget.popup, 'hide') as mock_hide:
+            result = widget.eventFilter(widget.popup, event)
         assert result is True
-        assert not widget.popup.isVisible()
+        mock_hide.assert_called_once()
 
     def test_event_filter_escape_hides_popup(self, widget, qtbot: QtBot):
-        widget.popup.show()
         event = QKeyEvent(QEvent.Type.KeyPress, Qt.Key.Key_Escape, Qt.KeyboardModifier.NoModifier)
-        result = widget.eventFilter(widget.popup, event)
+        with patch.object(widget.popup, 'hide') as mock_hide:
+            result = widget.eventFilter(widget.popup, event)
         assert result is True
-        assert not widget.popup.isVisible()
+        mock_hide.assert_called_once()
 
     def test_event_filter_enter_selects_item(self, widget, qtbot: QtBot):
         item = QListWidgetItem("openai/whisper-tiny")
@@ -168,7 +171,7 @@ class TestHuggingFaceSearchLineEdit:
             assert widget.eventFilter(widget.popup, event) is False
 
     def test_event_filter_other_key_hides_popup(self, widget):
-        widget.popup.show()
         event = QKeyEvent(QEvent.Type.KeyPress, Qt.Key.Key_A, Qt.KeyboardModifier.NoModifier)
-        widget.eventFilter(widget.popup, event)
-        assert not widget.popup.isVisible()
+        with patch.object(widget.popup, 'hide') as mock_hide:
+            widget.eventFilter(widget.popup, event)
+        mock_hide.assert_called_once()
