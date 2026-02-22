@@ -126,7 +126,6 @@ class AdvancedSettingsDialog(QDialog):
         layout.addWidget(button_box)
 
         self.setLayout(layout)
-        self.resize(self.sizeHint())
 
     def on_temperature_changed(self, text: str):
         try:

@@ -131,8 +131,8 @@ class TestAdvancedSettingsDialog:
         assert dialog.temperature_line_edit.text() == "0.0, 0.8"
         assert dialog.initial_prompt_text_edit.toPlainText() == "prompt"
         assert dialog.enable_llm_translation_checkbox.isChecked() is False
-        assert dialog.llm_model_line_edit.text() == ""
-        assert dialog.llm_prompt_text_edit.toPlainText() == ""
+        assert dialog.llm_model_line_edit.text() == "gpt-4.1-mini"
+        assert dialog.llm_prompt_text_edit.toPlainText() == _("Please translate each text sent to you from English to Spanish.")
 
         dialog.temperature_line_edit.setText("0.0, 0.8, 1.0")
         dialog.initial_prompt_text_edit.setPlainText("new prompt")
