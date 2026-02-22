@@ -748,3 +748,394 @@ class TestRecordingTranscriberWidgetPresentation:
 
             time.sleep(0.5)
             widget.close()
+
+import contextlib
+
+@contextlib.contextmanager
+def _widget_ctx(qtbot):
+    with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+          patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                return_value=16_000),
+          patch("sounddevice.check_input_settings")):
+        widget = RecordingTranscriberWidget(custom_sounddevice=MockSoundDevice())
+        qtbot.add_widget(widget)
+        yield widget
+        time.sleep(0.3)
+        widget.close()
+
+
+class TestResetTranscriberControls:
+    @pytest.mark.timeout(60)
+    def test_record_button_disabled_for_faster_whisper_custom_without_hf_model(self, qtbot):
+        from buzz.model_loader import TranscriptionModel, ModelType, WhisperModelSize
+        from buzz.transcriber.transcriber import TranscriptionOptions
+
+        with _widget_ctx(qtbot) as widget:
+            widget.transcription_options = TranscriptionOptions(
+                model=TranscriptionModel(
+                    model_type=ModelType.FASTER_WHISPER,
+                    whisper_model_size=WhisperModelSize.CUSTOM,
+                    hugging_face_model_id="",
+                )
+            )
+            widget.reset_transcriber_controls()
+            assert not widget.record_button.isEnabled()
+
+    @pytest.mark.timeout(60)
+    def test_record_button_disabled_for_hugging_face_without_model_id(self, qtbot):
+        from buzz.model_loader import TranscriptionModel, ModelType
+        from buzz.transcriber.transcriber import TranscriptionOptions
+
+        with _widget_ctx(qtbot) as widget:
+            widget.transcription_options = TranscriptionOptions(
+                model=TranscriptionModel(
+                    model_type=ModelType.HUGGING_FACE,
+                    hugging_face_model_id="",
+                )
+            )
+            widget.reset_transcriber_controls()
+            assert not widget.record_button.isEnabled()
+
+    @pytest.mark.timeout(60)
+    def test_record_button_enabled_for_hugging_face_with_model_id(self, qtbot):
+        from buzz.model_loader import TranscriptionModel, ModelType
+        from buzz.transcriber.transcriber import TranscriptionOptions
+
+        with _widget_ctx(qtbot) as widget:
+            widget.transcription_options = TranscriptionOptions(
+                model=TranscriptionModel(
+                    model_type=ModelType.HUGGING_FACE,
+                    hugging_face_model_id="org/model",
+                )
+            )
+            widget.reset_transcriber_controls()
+            assert widget.record_button.isEnabled()
+
+
+
+class TestOnTranscriptionOptionsChanged:
+    @pytest.mark.timeout(60)
+    def test_shows_translation_box_when_llm_enabled(self, qtbot):
+        from buzz.transcriber.transcriber import TranscriptionOptions
+
+        with _widget_ctx(qtbot) as widget:
+            options = TranscriptionOptions(enable_llm_translation=True)
+            widget.on_transcription_options_changed(options)
+            assert not widget.translation_text_box.isHidden()
+
+    @pytest.mark.timeout(60)
+    def test_hides_translation_box_when_llm_disabled(self, qtbot):
+        from buzz.transcriber.transcriber import TranscriptionOptions
+
+        with _widget_ctx(qtbot) as widget:
+            widget.translation_text_box.show()
+            options = TranscriptionOptions(enable_llm_translation=False)
+            widget.on_transcription_options_changed(options)
+            assert widget.translation_text_box.isHidden()
+
+    @pytest.mark.timeout(60)
+    def test_updates_transcription_options(self, qtbot):
+        from buzz.transcriber.transcriber import TranscriptionOptions
+
+        with _widget_ctx(qtbot) as widget:
+            options = TranscriptionOptions(silence_threshold=0.05)
+            widget.on_transcription_options_changed(options)
+            assert widget.transcription_options.silence_threshold == pytest.approx(0.05)
+
+
+
+class TestOnDeviceChanged:
+    @pytest.mark.timeout(60)
+    def test_no_new_listener_started_when_device_is_none(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            with patch("buzz.widgets.recording_transcriber_widget.RecordingAmplitudeListener") as MockListener:
+                widget.on_device_changed(None)
+                MockListener.assert_not_called()
+
+    @pytest.mark.timeout(60)
+    def test_no_new_listener_started_when_device_is_minus_one(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            with patch("buzz.widgets.recording_transcriber_widget.RecordingAmplitudeListener") as MockListener:
+                widget.on_device_changed(-1)
+                MockListener.assert_not_called()
+
+    @pytest.mark.timeout(60)
+    def test_device_id_updated(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            widget.on_device_changed(-1)
+            assert widget.selected_device_id == -1
+
+
+
+class TestOnRecordButtonClickedStop:
+    @pytest.mark.timeout(60)
+    def test_stop_path_sets_status_stopped(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            widget.current_status = widget.RecordingStatus.RECORDING
+            with patch.object(widget, "stop_recording"), \
+                 patch.object(widget, "set_recording_status_stopped") as mock_stop:
+                widget.on_record_button_clicked()
+                mock_stop.assert_called_once()
+
+    @pytest.mark.timeout(60)
+    def test_stop_path_hides_presentation_bar(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            widget.presentation_options_bar.show()
+            widget.current_status = widget.RecordingStatus.RECORDING
+            with patch.object(widget, "stop_recording"):
+                widget.on_record_button_clicked()
+            assert widget.presentation_options_bar.isHidden()
+
+
+
+class TestOnModelLoaded:
+    @pytest.mark.timeout(60)
+    def test_empty_model_path_calls_transcriber_error(self, qtbot):
+        from buzz.model_loader import TranscriptionModel, ModelType
+        from buzz.transcriber.transcriber import TranscriptionOptions
+
+        with _widget_ctx(qtbot) as widget:
+            widget.transcription_options = TranscriptionOptions(
+                model=TranscriptionModel(model_type=ModelType.FASTER_WHISPER)
+            )
+            with patch.object(widget, "on_transcriber_error") as mock_err, \
+                 patch.object(widget, "reset_recording_controls"):
+                widget.on_model_loaded("")
+                mock_err.assert_called_once_with("")
+
+
+
+class TestOnTranscriberError:
+    @pytest.mark.timeout(60)
+    def test_shows_message_box(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            with patch("buzz.widgets.recording_transcriber_widget.QMessageBox.critical") as mock_box, \
+                 patch.object(widget, "reset_record_button"), \
+                 patch.object(widget, "set_recording_status_stopped"), \
+                 patch.object(widget, "reset_recording_amplitude_listener"):
+                widget.on_transcriber_error("some error")
+                mock_box.assert_called_once()
+
+    @pytest.mark.timeout(60)
+    def test_resets_record_button(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            with patch("buzz.widgets.recording_transcriber_widget.QMessageBox.critical"), \
+                 patch.object(widget, "set_recording_status_stopped"), \
+                 patch.object(widget, "reset_recording_amplitude_listener"):
+                widget.on_transcriber_error("err")
+                assert widget.record_button.isEnabled()
+
+
+
+class TestOnCancelModelProgressDialog:
+    @pytest.mark.timeout(60)
+    def test_cancels_model_loader(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            mock_loader = MagicMock()
+            widget.model_loader = mock_loader
+            with patch.object(widget, "reset_model_download"), \
+                 patch.object(widget, "set_recording_status_stopped"), \
+                 patch.object(widget, "reset_recording_amplitude_listener"):
+                widget.on_cancel_model_progress_dialog()
+            mock_loader.cancel.assert_called_once()
+
+    @pytest.mark.timeout(60)
+    def test_record_button_re_enabled(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            widget.record_button.setDisabled(True)
+            widget.model_loader = None
+            with patch.object(widget, "reset_model_download"), \
+                 patch.object(widget, "set_recording_status_stopped"), \
+                 patch.object(widget, "reset_recording_amplitude_listener"):
+                widget.on_cancel_model_progress_dialog()
+            assert widget.record_button.isEnabled()
+
+
+
+class TestOnNextTranscriptionExport:
+    @pytest.mark.timeout(60)
+    def test_append_below_writes_to_export_file(self, qtbot):
+        with _widget_ctx(qtbot) as widget, tempfile.NamedTemporaryFile(
+            suffix=".txt", delete=False, mode="w"
+        ) as f:
+            export_path = f.name
+
+        try:
+            widget.transcriber_mode = RecordingTranscriberMode.APPEND_BELOW
+            widget.export_enabled = True
+            widget.transcript_export_file = export_path
+            widget.on_next_transcription("hello export")
+
+            with open(export_path) as f:
+                assert "hello export" in f.read()
+        finally:
+            os.unlink(export_path)
+
+    @pytest.mark.timeout(60)
+    def test_append_above_writes_to_export_file(self, qtbot):
+        with _widget_ctx(qtbot) as widget, tempfile.NamedTemporaryFile(
+            suffix=".txt", delete=False, mode="w"
+        ) as f:
+            export_path = f.name
+
+        try:
+            widget.transcriber_mode = RecordingTranscriberMode.APPEND_ABOVE
+            widget.export_enabled = True
+            widget.transcript_export_file = export_path
+            widget.on_next_transcription("first")
+            widget.on_next_transcription("second")
+
+            with open(export_path) as f:
+                content = f.read()
+            assert "second" in content
+            assert "first" in content
+            # APPEND_ABOVE puts newer text first
+            assert content.index("second") < content.index("first")
+        finally:
+            os.unlink(export_path)
+
+
+
+class TestOnNextTranslation:
+    @pytest.mark.timeout(60)
+    def test_append_below_adds_translation(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            widget.transcriber_mode = RecordingTranscriberMode.APPEND_BELOW
+            widget.on_next_translation("Bonjour")
+            assert "Bonjour" in widget.translation_text_box.toPlainText()
+
+    @pytest.mark.timeout(60)
+    def test_append_above_puts_new_text_first(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            widget.transcriber_mode = RecordingTranscriberMode.APPEND_ABOVE
+            widget.on_next_translation("first")
+            widget.on_next_translation("second")
+            text = widget.translation_text_box.toPlainText()
+            assert text.index("second") < text.index("first")
+
+    @pytest.mark.timeout(60)
+    def test_append_and_correct_merges_translation(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            widget.transcriber_mode = RecordingTranscriberMode.APPEND_AND_CORRECT
+            widget.on_next_translation("Hello world.")
+            widget.on_next_translation("world. Goodbye.")
+            text = widget.translation_text_box.toPlainText()
+            assert "Hello" in text
+            assert "Goodbye" in text
+
+    @pytest.mark.timeout(60)
+    def test_empty_translation_ignored(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            widget.transcriber_mode = RecordingTranscriberMode.APPEND_BELOW
+            widget.on_next_translation("")
+            assert widget.translation_text_box.toPlainText() == ""
+
+    @pytest.mark.timeout(60)
+    def test_updates_presentation_window(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            widget.transcriber_mode = RecordingTranscriberMode.APPEND_BELOW
+            widget.on_show_presentation_clicked()
+            widget.transcription_options.enable_llm_translation = True
+            widget.on_next_translation("Translated text")
+            assert "Translated text" in widget.presentation_window._current_translation
+
+
+
+class TestExportFileHelpers:
+    def test_write_creates_file(self, tmp_path):
+        path = str(tmp_path / "out.txt")
+        RecordingTranscriberWidget.write_to_export_file(path, "hello")
+        with open(path) as f:
+            assert f.read() == "hello"
+
+    def test_write_appends_by_default(self, tmp_path):
+        path = str(tmp_path / "out.txt")
+        RecordingTranscriberWidget.write_to_export_file(path, "line1")
+        RecordingTranscriberWidget.write_to_export_file(path, "line2")
+        with open(path) as f:
+            assert f.read() == "line1line2"
+
+    def test_write_overwrites_with_mode_w(self, tmp_path):
+        path = str(tmp_path / "out.txt")
+        RecordingTranscriberWidget.write_to_export_file(path, "old", mode="w")
+        RecordingTranscriberWidget.write_to_export_file(path, "new", mode="w")
+        with open(path) as f:
+            assert f.read() == "new"
+
+    def test_write_retries_on_permission_error(self, tmp_path):
+        path = str(tmp_path / "out.txt")
+        call_count = [0]
+        original_open = open
+
+        def flaky_open(p, mode="r", **kwargs):
+            if p == path:
+                call_count[0] += 1
+                if call_count[0] < 3:
+                    raise PermissionError("locked")
+            return original_open(p, mode, **kwargs)
+
+        with patch("builtins.open", side_effect=flaky_open), \
+             patch("time.sleep"):
+            RecordingTranscriberWidget.write_to_export_file(path, "data", retries=5, delay=0)
+
+        assert call_count[0] == 3
+
+    def test_write_gives_up_after_max_retries(self, tmp_path):
+        path = str(tmp_path / "out.txt")
+        with patch("builtins.open", side_effect=PermissionError("locked")), \
+             patch("time.sleep"):
+            RecordingTranscriberWidget.write_to_export_file(path, "data", retries=3, delay=0)
+
+    def test_write_handles_oserror(self, tmp_path):
+        path = str(tmp_path / "out.txt")
+        with patch("builtins.open", side_effect=OSError("disk full")):
+            RecordingTranscriberWidget.write_to_export_file(path, "data")
+
+    def test_read_returns_file_contents(self, tmp_path):
+        path = str(tmp_path / "in.txt")
+        with open(path, "w") as f:
+            f.write("content")
+        assert RecordingTranscriberWidget.read_export_file(path) == "content"
+
+    def test_read_retries_on_permission_error(self, tmp_path):
+        path = str(tmp_path / "in.txt")
+        with open(path, "w") as f:
+            f.write("ok")
+        call_count = [0]
+        original_open = open
+
+        def flaky_open(p, mode="r", **kwargs):
+            if p == path:
+                call_count[0] += 1
+                if call_count[0] < 2:
+                    raise PermissionError("locked")
+            return original_open(p, mode, **kwargs)
+
+        with patch("builtins.open", side_effect=flaky_open), \
+             patch("time.sleep"):
+            result = RecordingTranscriberWidget.read_export_file(path, retries=5, delay=0)
+
+        assert result == "ok"
+
+    def test_read_returns_empty_string_on_oserror(self, tmp_path):
+        path = str(tmp_path / "missing.txt")
+        with patch("builtins.open", side_effect=OSError("not found")):
+            assert RecordingTranscriberWidget.read_export_file(path) == ""
+
+    def test_read_returns_empty_string_after_max_retries(self, tmp_path):
+        path = str(tmp_path / "locked.txt")
+        with patch("builtins.open", side_effect=PermissionError("locked")), \
+             patch("time.sleep"):
+            result = RecordingTranscriberWidget.read_export_file(path, retries=2, delay=0)
+        assert result == ""
+
+
+
+class TestPresentationTranslationSync:
+    @pytest.mark.timeout(60)
+    def test_syncs_translation_when_llm_enabled(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            widget.transcription_options.enable_llm_translation = True
+            widget.translation_text_box.setPlainText("Translated content")
+            widget.on_show_presentation_clicked()
+            assert "Translated content" in widget.presentation_window._current_translation

@@ -96,6 +96,7 @@ mock_query_devices = [
 
 class MockInputStream:
     thread: Thread
+    samplerate = whisper_audio.SAMPLE_RATE
 
     def __init__(
         self,
