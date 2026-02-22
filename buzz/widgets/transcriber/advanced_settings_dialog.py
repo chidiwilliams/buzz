@@ -79,18 +79,20 @@ class AdvancedSettingsDialog(QDialog):
         self.enable_llm_translation_checkbox.stateChanged.connect(self.on_enable_llm_translation_changed)
         layout.addRow("", self.enable_llm_translation_checkbox)
 
-        self.llm_model_line_edit = LineEdit(self.transcription_options.llm_model, self)
+        llm_model = self.transcription_options.llm_model or "gpt-4.1-mini"
+        self.llm_model_line_edit = LineEdit(llm_model, self)
         self.llm_model_line_edit.textChanged.connect(
             self.on_llm_model_changed
         )
         self.llm_model_line_edit.setMinimumWidth(170)
         self.llm_model_line_edit.setEnabled(self.transcription_options.enable_llm_translation)
-        self.llm_model_line_edit.setPlaceholderText("gpt-4.1-mini")
         layout.addRow(_("AI model:"), self.llm_model_line_edit)
 
-        self.llm_prompt_text_edit = QPlainTextEdit(self.transcription_options.llm_prompt)
+        default_llm_prompt = self.transcription_options.llm_prompt or _(
+            "Please translate each text sent to you from English to Spanish."
+        )
+        self.llm_prompt_text_edit = QPlainTextEdit(default_llm_prompt)
         self.llm_prompt_text_edit.setEnabled(self.transcription_options.enable_llm_translation)
-        self.llm_prompt_text_edit.setPlaceholderText(_("Enter instructions for AI on how to translate, for example 'Please translate each text sent to you from English to Spanish.'"))
         self.llm_prompt_text_edit.setMinimumWidth(170)
         self.llm_prompt_text_edit.setFixedHeight(115)
         self.llm_prompt_text_edit.textChanged.connect(self.on_llm_prompt_changed)
@@ -110,10 +112,8 @@ class AdvancedSettingsDialog(QDialog):
             layout.addRow(_("Silence threshold:"), self.silence_threshold_spin_box)
 
             self.line_separator_line_edit = QLineEdit(self)
-            self.line_separator_line_edit.setText(
-                repr(transcription_options.line_separator)[1:-1]
-            )
-            self.line_separator_line_edit.setPlaceholderText(r"\n\n")
+            line_sep_display = repr(transcription_options.line_separator)[1:-1] or r"\n\n"
+            self.line_separator_line_edit.setText(line_sep_display)
             self.line_separator_line_edit.textChanged.connect(self.on_line_separator_changed)
             layout.addRow(_("Line separator:"), self.line_separator_line_edit)
 
