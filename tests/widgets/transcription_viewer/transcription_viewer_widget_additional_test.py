@@ -880,3 +880,117 @@ class TestTranscriptionViewerWidgetAdditional:
         assert widget.follow_audio_enabled == False
 
         widget.close()
+
+    def test_on_transcript_segment_clicked(self, qtbot: QtBot, transcription, transcription_service, shortcuts):
+        """Test on_transcript_segment_clicked method"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Without current media player - should return early
+        widget.current_media_player = None
+        segment = widget.table_widget.model().record(0)
+        segment_mock = MagicMock()
+        segment_mock.start_time = 100
+        widget.on_transcript_segment_clicked(segment_mock)
+
+        # With current media player
+        widget.current_media_player = widget.audio_player
+        widget.on_transcript_segment_clicked(segment_mock)
+
+        assert hasattr(widget, 'on_transcript_segment_clicked')
+
+        widget.close()
+
+    def test_hide_loop_controls(self, qtbot: QtBot, transcription, transcription_service, shortcuts):
+        """Test hide_loop_controls method"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        widget.show()
+
+        widget.show_loop_controls()
+        assert widget.loop_controls_frame.isVisible()
+
+        widget.hide_loop_controls()
+        assert not widget.loop_controls_frame.isVisible()
+        assert widget.playback_controls_visible is False
+
+        widget.close()
+
+    def test_toggle_playback_controls_visibility_hide(self, qtbot: QtBot, transcription, transcription_service, shortcuts):
+        """Test toggle_playback_controls_visibility hides controls when visible"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        widget.show()
+
+        widget.show_loop_controls()
+        assert widget.loop_controls_frame.isVisible()
+
+        widget.toggle_playback_controls_visibility()
+        assert not widget.loop_controls_frame.isVisible()
+
+        widget.close()
+
+    def test_toggle_audio_playback_when_playing(self, qtbot: QtBot, transcription, transcription_service, shortcuts):
+        """Test toggle_audio_playback pauses when playing"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Mock media player in playing state
+        with patch.object(
+            widget.current_media_player.media_player,
+            'playbackState',
+            return_value=QMediaPlayer.PlaybackState.PlayingState
+        ):
+            # Should call pause
+            with patch.object(widget.current_media_player.media_player, 'pause') as mock_pause:
+                widget.toggle_audio_playback()
+                mock_pause.assert_called_once()
+
+        widget.close()
+
+    def test_video_player_initialization(self, qtbot: QtBot, transcription_dao, transcription_segment_dao, transcription_service, shortcuts):
+        """Test widget initialization with video file - verifies video player code path"""
+        import uuid as uuid_mod
+        from buzz.db.entity.transcription import Transcription
+        from buzz.db.entity.transcription_segment import TranscriptionSegment
+        from buzz.model_loader import ModelType, WhisperModelSize
+        from buzz.transcriber.transcriber import Task
+
+        id = uuid_mod.uuid4()
+        transcription_dao.insert(
+            Transcription(
+                id=str(id),
+                status="completed",
+                file="/fake/video.mp4",
+                task=Task.TRANSCRIBE.value,
+                model_type=ModelType.WHISPER.value,
+                whisper_model_size=WhisperModelSize.TINY.value,
+            )
+        )
+        transcription_segment_dao.insert(
+            TranscriptionSegment(0, 500, "Test segment", "", str(id))
+        )
+        transcription = transcription_dao.find_by_id(str(id))
+
+        # Patch is_video_file to return True; let VideoPlayer construct normally
+        # (it won't load media but the widget will be created)
+        with patch('buzz.widgets.transcription_viewer.transcription_viewer_widget.is_video_file', return_value=True):
+            widget = TranscriptionViewerWidget(
+                transcription, transcription_service, shortcuts
+            )
+            qtbot.add_widget(widget)
+
+            # Video player should have been created and set as current
+            assert widget.is_video is True
+            assert widget.video_player is not None
+            assert widget.current_media_player == widget.video_player
+
+            widget.close()

@@ -131,6 +131,116 @@ class TestFileTranscriberQueueWorker:
         # Sentinel (None) should be added to queue
         assert simple_worker.tasks_queue.qsize() == initial_size + 1
 
+    def test_on_task_completed_with_speech_path(self, simple_worker, tmp_path):
+        """Test on_task_completed cleans up speech_path file"""
+        options = TranscriptionOptions()
+        task = FileTranscriptionTask(
+            file_path=str(test_multibyte_utf8_audio_path),
+            transcription_options=options,
+            file_transcription_options=FileTranscriptionOptions(),
+            model_path="mock_path"
+        )
+        simple_worker.current_task = task
+
+        # Create a temporary file to simulate speech extraction output
+        speech_file = tmp_path / "audio_speech.mp3"
+        speech_file.write_bytes(b"fake audio data")
+        simple_worker.speech_path = speech_file
+
+        completed_spy = unittest.mock.Mock()
+        simple_worker.task_completed.connect(completed_spy)
+
+        simple_worker.on_task_completed([Segment(0, 1000, "Test")])
+
+        completed_spy.assert_called_once()
+        # Speech path should be cleaned up
+        assert simple_worker.speech_path is None
+        assert not speech_file.exists()
+
+    def test_on_task_completed_speech_path_missing(self, simple_worker, tmp_path):
+        """Test on_task_completed handles missing speech_path file gracefully"""
+        options = TranscriptionOptions()
+        task = FileTranscriptionTask(
+            file_path=str(test_multibyte_utf8_audio_path),
+            transcription_options=options,
+            file_transcription_options=FileTranscriptionOptions(),
+            model_path="mock_path"
+        )
+        simple_worker.current_task = task
+
+        # Set a speech path that doesn't exist
+        simple_worker.speech_path = tmp_path / "nonexistent_speech.mp3"
+
+        completed_spy = unittest.mock.Mock()
+        simple_worker.task_completed.connect(completed_spy)
+
+        # Should not raise even if file doesn't exist
+        simple_worker.on_task_completed([])
+
+        completed_spy.assert_called_once()
+        assert simple_worker.speech_path is None
+
+    def test_on_task_download_progress(self, simple_worker):
+        """Test on_task_download_progress emits signal"""
+        options = TranscriptionOptions()
+        task = FileTranscriptionTask(
+            file_path=str(test_multibyte_utf8_audio_path),
+            transcription_options=options,
+            file_transcription_options=FileTranscriptionOptions(),
+            model_path="mock_path"
+        )
+        simple_worker.current_task = task
+
+        download_spy = unittest.mock.Mock()
+        simple_worker.task_download_progress.connect(download_spy)
+
+        simple_worker.on_task_download_progress(0.5)
+
+        download_spy.assert_called_once()
+        args = download_spy.call_args[0]
+        assert args[0] == task
+        assert args[1] == 0.5
+
+    def test_cancel_task_stops_current_transcriber(self, simple_worker):
+        """Test cancel_task stops the current transcriber if it matches"""
+        options = TranscriptionOptions()
+        task = FileTranscriptionTask(
+            file_path=str(test_multibyte_utf8_audio_path),
+            transcription_options=options,
+            file_transcription_options=FileTranscriptionOptions(),
+            model_path="mock_path"
+        )
+        simple_worker.current_task = task
+
+        mock_transcriber = unittest.mock.Mock()
+        simple_worker.current_transcriber = mock_transcriber
+
+        simple_worker.cancel_task(task.uid)
+
+        assert task.uid in simple_worker.canceled_tasks
+        mock_transcriber.stop.assert_called_once()
+
+    def test_on_task_error_task_in_canceled_set(self, simple_worker):
+        """Test on_task_error does not emit signal when task is canceled"""
+        options = TranscriptionOptions()
+        task = FileTranscriptionTask(
+            file_path=str(test_multibyte_utf8_audio_path),
+            transcription_options=options,
+            file_transcription_options=FileTranscriptionOptions(),
+            model_path="mock_path"
+        )
+        simple_worker.current_task = task
+        # Mark task as canceled
+        simple_worker.canceled_tasks.add(task.uid)
+
+        error_spy = unittest.mock.Mock()
+        simple_worker.task_error.connect(error_spy)
+
+        simple_worker.on_task_error("Some error")
+
+        # Should NOT emit since task was canceled
+        error_spy.assert_not_called()
+
 
 def test_transcription_with_whisper_cpp_tiny_no_speech_extraction(worker):
     options = TranscriptionOptions(
