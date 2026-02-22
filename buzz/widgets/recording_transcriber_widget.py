@@ -186,7 +186,8 @@ class RecordingTranscriberWidget(QWidget):
         self.audio_meter_widget = AudioMeterWidget(self)
 
         record_button_layout = QHBoxLayout()
-        record_button_layout.addWidget(self.audio_meter_widget)
+        record_button_layout.setContentsMargins(0, 4, 0, 8)
+        record_button_layout.addWidget(self.audio_meter_widget, alignment=Qt.AlignmentFlag.AlignVCenter)
         record_button_layout.addWidget(self.record_button)
 
         layout.addWidget(self.transcription_options_group_box)

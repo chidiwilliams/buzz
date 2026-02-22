@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-22 14:13+0200\n"
+"POT-Creation-Date: 2026-02-22 14:20+0200\n"
 "PO-Revision-Date: 2025-10-17 07:59+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: Catalan <jmas@softcatala.org>\n"
@@ -693,6 +693,10 @@ msgstr ""
 #: buzz/widgets/about_dialog.py
 msgid "You're up to date!"
 msgstr "Estàs al dia!"
+
+#: buzz/widgets/audio_meter_widget.py
+msgid "Average volume"
+msgstr ""
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "Start"

@@ -5,6 +5,8 @@ from PyQt6.QtCore import Qt, QRect
 from PyQt6.QtGui import QColor, QPainter
 from PyQt6.QtWidgets import QWidget
 
+from buzz.locale import _
+
 
 class AudioMeterWidget(QWidget):
     current_amplitude: float
@@ -20,11 +22,11 @@ class AudioMeterWidget(QWidget):
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
         self.setMinimumWidth(10)
-        self.setFixedHeight(30)
+        self.setFixedHeight(56)
 
-        self.BARS_HEIGHT = 14
+        self.BARS_HEIGHT = 28
         # Extra padding to fix layout
-        self.PADDING_TOP = 3
+        self.PADDING_TOP = 14
 
         self.current_amplitude = 0.0
 
@@ -73,7 +75,8 @@ class AudioMeterWidget(QWidget):
 
         text_rect = QRect(rect.left(), self.BARS_HEIGHT, rect.width(), rect.height() - self.BARS_HEIGHT)
         painter.setPen(self.BAR_ACTIVE_COLOR)
-        painter.drawText(text_rect, Qt.AlignmentFlag.AlignCenter, f"{self.average_amplitude:.4f}")
+        average_volume_label = _("Average volume")
+        painter.drawText(text_rect, Qt.AlignmentFlag.AlignCenter, f"{average_volume_label}: {self.average_amplitude:.4f}")
 
     def reset_amplitude(self):
         self.current_amplitude = 0.0

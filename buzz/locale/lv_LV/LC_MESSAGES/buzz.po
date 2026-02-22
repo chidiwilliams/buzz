@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-22 14:13+0200\n"
-"PO-Revision-Date: 2026-02-22 14:15+0200\n"
+"POT-Creation-Date: 2026-02-22 14:20+0200\n"
+"PO-Revision-Date: 2026-02-22 14:21+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -690,6 +690,10 @@ msgstr "Parādīt sistēmas žurnālu"
 #: buzz/widgets/about_dialog.py
 msgid "You're up to date!"
 msgstr "Jums ir jaunākā versija!"
+
+#: buzz/widgets/audio_meter_widget.py
+msgid "Average volume"
+msgstr "Vidējais skaļums"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "Start"
