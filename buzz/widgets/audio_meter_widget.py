@@ -1,7 +1,7 @@
 from typing import Optional
 
 from PyQt6 import QtGui
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QRect
 from PyQt6.QtGui import QColor, QPainter
 from PyQt6.QtWidgets import QWidget
 
@@ -20,12 +20,15 @@ class AudioMeterWidget(QWidget):
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
         self.setMinimumWidth(10)
-        self.setFixedHeight(16)
+        self.setFixedHeight(30)
 
+        self.BARS_HEIGHT = 14
         # Extra padding to fix layout
         self.PADDING_TOP = 3
 
         self.current_amplitude = 0.0
+
+        self.average_amplitude = 0.0
 
         self.MINIMUM_AMPLITUDE = 0.00005  # minimum amplitude to show the first bar
         self.AMPLITUDE_SCALE_FACTOR = 10  # scale the amplitudes such that 1/AMPLITUDE_SCALE_FACTOR will show all bars
@@ -58,22 +61,31 @@ class AudioMeterWidget(QWidget):
                 center_x - ((i + 1) * (self.BAR_MARGIN + self.BAR_WIDTH)),
                 rect.top() + self.PADDING_TOP,
                 self.BAR_WIDTH,
-                rect.height() - self.PADDING_TOP,
+                self.BARS_HEIGHT - self.PADDING_TOP,
             )
             # draw to right
             painter.drawRect(
                 center_x + (self.BAR_MARGIN + (i * (self.BAR_MARGIN + self.BAR_WIDTH))),
                 rect.top() + self.PADDING_TOP,
                 self.BAR_WIDTH,
-                rect.height() - self.PADDING_TOP,
+                self.BARS_HEIGHT - self.PADDING_TOP,
             )
+
+        text_rect = QRect(rect.left(), self.BARS_HEIGHT, rect.width(), rect.height() - self.BARS_HEIGHT)
+        painter.setPen(self.BAR_ACTIVE_COLOR)
+        painter.drawText(text_rect, Qt.AlignmentFlag.AlignCenter, f"{self.average_amplitude:.4f}")
 
     def reset_amplitude(self):
         self.current_amplitude = 0.0
+        self.average_amplitude = 0.0
         self.repaint()
 
     def update_amplitude(self, amplitude: float):
         self.current_amplitude = max(
             amplitude, self.current_amplitude * self.SMOOTHING_FACTOR
         )
+        self.update()
+
+    def update_average_amplitude(self, amplitude: float):
+        self.average_amplitude = amplitude
         self.update()

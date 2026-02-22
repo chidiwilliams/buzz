@@ -39,6 +39,7 @@ class RecordingTranscriber(QObject):
     finished = pyqtSignal()
     error = pyqtSignal(str)
     amplitude_changed = pyqtSignal(float)
+    average_amplitude_changed = pyqtSignal(float)
     is_running = False
     SAMPLE_RATE = whisper_audio.SAMPLE_RATE
 
@@ -180,6 +181,7 @@ class RecordingTranscriber(QObject):
                         self.mutex.release()
 
                         amplitude = self.amplitude(samples)
+                        self.average_amplitude_changed.emit(amplitude)
 
                         logging.debug(
                             "Processing next frame, sample size = %s, queue size = %s, amplitude = %s",
@@ -188,7 +190,7 @@ class RecordingTranscriber(QObject):
                             amplitude,
                         )
 
-                        if amplitude < 0.025:
+                        if amplitude < 0.0025:
                             time.sleep(0.5)
                             continue
 
@@ -351,7 +353,7 @@ class RecordingTranscriber(QObject):
         # Try to enqueue the next block. If the queue is already full, drop the block.
         chunk: np.ndarray = in_data.ravel()
 
-        amplitude = float(np.sqrt(np.mean(chunk**2)))
+        amplitude = self.amplitude(chunk)
         self.amplitude_changed.emit(amplitude)
 
         with self.mutex:
@@ -360,7 +362,7 @@ class RecordingTranscriber(QObject):
 
     @staticmethod
     def amplitude(arr: np.ndarray):
-        return (abs(max(arr)) + abs(min(arr))) / 2
+        return float(np.sqrt(np.mean(arr**2)))
 
     def _drain_stderr(self):
         if self.process and self.process.stderr:
