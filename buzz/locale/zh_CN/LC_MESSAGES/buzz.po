@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-22 14:20+0200\n"
+"POT-Creation-Date: 2026-02-22 15:20+0200\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: lamb \n"
@@ -443,6 +443,10 @@ msgstr "翻译设置"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Silence threshold:"
+msgstr ""
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Line separator:"
 msgstr ""
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py

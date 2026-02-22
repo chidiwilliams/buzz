@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-22 14:20+0200\n"
-"PO-Revision-Date: 2026-02-22 14:21+0200\n"
+"POT-Creation-Date: 2026-02-22 15:20+0200\n"
+"PO-Revision-Date: 2026-02-22 15:21+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -447,6 +447,10 @@ msgstr "Dzīvā ieraksta iestatījumi"
 msgid "Silence threshold:"
 msgstr "Klusuma slieksnis:"
 
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Line separator:"
+msgstr "Rindiņu atdalītājs:"
+
 #: buzz/widgets/transcriber/file_transcription_form_widget.py
 msgid "Word-level timings"
 msgstr "Dalīt pa vārdiem"
@@ -884,7 +888,8 @@ msgstr "Pieejami tikai, ierakstiem, kas atpazīti ar dalīšanu pa vārdiem"
 msgid ""
 "Speaker identification is not available: failed to load required libraries."
 msgstr ""
-"Runātāju noteikšana nav pieejama, neizdevās ielādēt nepieciešamās bibliotēkas"
+"Runātāju noteikšana nav pieejama, neizdevās ielādēt nepieciešamās "
+"bibliotēkas."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "1/8 Collecting transcripts"

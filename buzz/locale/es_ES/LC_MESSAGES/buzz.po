@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-22 14:20+0200\n"
+"POT-Creation-Date: 2026-02-22 15:20+0200\n"
 "PO-Revision-Date: 2025-09-08 12:43+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: \n"
@@ -459,6 +459,10 @@ msgstr "Ajustes de traducción"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Silence threshold:"
+msgstr ""
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Line separator:"
 msgstr ""
 
 # automatic translation

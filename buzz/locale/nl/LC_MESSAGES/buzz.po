@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-22 14:20+0200\n"
+"POT-Creation-Date: 2026-02-22 15:20+0200\n"
 "PO-Revision-Date: 2025-03-20 18:30+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: none\n"
@@ -440,6 +440,10 @@ msgstr "Vertaalinstellingen"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Silence threshold:"
+msgstr ""
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Line separator:"
 msgstr ""
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py
