@@ -242,6 +242,100 @@ class TestFileTranscriberQueueWorker:
         error_spy.assert_not_called()
 
 
+class TestFileTranscriberQueueWorkerRun:
+    def _make_task(self, model_type=ModelType.WHISPER_CPP, extract_speech=False):
+        options = TranscriptionOptions(
+            model=TranscriptionModel(model_type=model_type, whisper_model_size=WhisperModelSize.TINY),
+            extract_speech=extract_speech
+        )
+        return FileTranscriptionTask(
+            file_path=str(test_multibyte_utf8_audio_path),
+            transcription_options=options,
+            file_transcription_options=FileTranscriptionOptions(),
+            model_path="mock_path"
+        )
+
+    def test_run_returns_early_when_already_running(self, simple_worker):
+        simple_worker.is_running = True
+        # Should return without blocking (queue is empty, no get() call)
+        simple_worker.run()
+        # is_running stays True, nothing changed
+        assert simple_worker.is_running is True
+
+    def test_run_stops_on_sentinel(self, simple_worker, qapp):
+        completed_spy = unittest.mock.Mock()
+        simple_worker.completed.connect(completed_spy)
+
+        simple_worker.tasks_queue.put(None)
+        simple_worker.run()
+
+        completed_spy.assert_called_once()
+        assert simple_worker.is_running is False
+
+    def test_run_skips_canceled_task_then_stops_on_sentinel(self, simple_worker, qapp):
+        task = self._make_task()
+        simple_worker.canceled_tasks.add(task.uid)
+
+        started_spy = unittest.mock.Mock()
+        simple_worker.task_started.connect(started_spy)
+
+        # Put canceled task then sentinel
+        simple_worker.tasks_queue.put(task)
+        simple_worker.tasks_queue.put(None)
+
+        simple_worker.run()
+
+        # Canceled task should be skipped; completed emitted
+        started_spy.assert_not_called()
+        assert simple_worker.is_running is False
+
+    def test_run_creates_openai_transcriber(self, simple_worker, qapp):
+        from buzz.transcriber.openai_whisper_api_file_transcriber import OpenAIWhisperAPIFileTranscriber
+
+        task = self._make_task(model_type=ModelType.OPEN_AI_WHISPER_API)
+        simple_worker.tasks_queue.put(task)
+
+        with unittest.mock.patch.object(OpenAIWhisperAPIFileTranscriber, 'run'), \
+             unittest.mock.patch.object(OpenAIWhisperAPIFileTranscriber, 'moveToThread'), \
+             unittest.mock.patch('buzz.file_transcriber_queue_worker.QThread') as mock_thread_class:
+            mock_thread = unittest.mock.MagicMock()
+            mock_thread_class.return_value = mock_thread
+
+            simple_worker.run()
+
+            assert isinstance(simple_worker.current_transcriber, OpenAIWhisperAPIFileTranscriber)
+
+    def test_run_creates_whisper_transcriber_for_whisper_cpp(self, simple_worker, qapp):
+        task = self._make_task(model_type=ModelType.WHISPER_CPP)
+        simple_worker.tasks_queue.put(task)
+
+        with unittest.mock.patch.object(WhisperFileTranscriber, 'run'), \
+             unittest.mock.patch.object(WhisperFileTranscriber, 'moveToThread'), \
+             unittest.mock.patch('buzz.file_transcriber_queue_worker.QThread') as mock_thread_class:
+            mock_thread = unittest.mock.MagicMock()
+            mock_thread_class.return_value = mock_thread
+
+            simple_worker.run()
+
+            assert isinstance(simple_worker.current_transcriber, WhisperFileTranscriber)
+
+    def test_run_speech_extraction_failure_emits_error(self, simple_worker, qapp):
+        task = self._make_task(extract_speech=True)
+        simple_worker.tasks_queue.put(task)
+
+        error_spy = unittest.mock.Mock()
+        simple_worker.task_error.connect(error_spy)
+
+        with unittest.mock.patch('buzz.file_transcriber_queue_worker.demucsApi.Separator',
+                                  side_effect=RuntimeError("No internet")):
+            simple_worker.run()
+
+        error_spy.assert_called_once()
+        args = error_spy.call_args[0]
+        assert args[0] == task
+        assert simple_worker.is_running is False
+
+
 def test_transcription_with_whisper_cpp_tiny_no_speech_extraction(worker):
     options = TranscriptionOptions(
         model=TranscriptionModel(model_type=ModelType.WHISPER_CPP, whisper_model_size=WhisperModelSize.TINY),

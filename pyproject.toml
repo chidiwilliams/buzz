@@ -184,6 +184,14 @@ sources = {"demucs_repo/demucs" = "demucs"}
 requires = ["hatchling", "cmake>=4.2.0,<5", "polib>=1.2.0,<2", "pybind11", "setuptools>=80.9.0"]
 build-backend = "hatchling.build"
 
+[tool.coverage.report]
+exclude_also = [
+    "if sys.platform == \"win32\":",
+    "if platform.system\\(\\) == \"Windows\":",
+    "if platform.system\\(\\) == \"Linux\":",
+    "if platform.system\\(\\) == \"Darwin\":",
+]
+
 [tool.ruff]
 exclude = [
     "**/whisper.cpp",
