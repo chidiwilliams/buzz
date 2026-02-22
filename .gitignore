@@ -13,6 +13,9 @@ coverage.xml
 venv/
 .claude/
 
+# Swift build artifacts
+buzz/screen_capture/.build/
+
 # whisper_cpp
 whisper_cpp
 *.exe

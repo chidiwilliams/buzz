@@ -25,6 +25,7 @@ class Settings:
         RECORDING_TRANSCRIBER_EXPORT_ENABLED = "recording-transcriber/export-enabled"
         RECORDING_TRANSCRIBER_EXPORT_FOLDER = "recording-transcriber/export-folder"
         RECORDING_TRANSCRIBER_MODE = "recording-transcriber/mode"
+        RECORDING_TRANSCRIBER_AUDIO_SOURCE = "recording-transcriber/audio-source"
 
         PRESENTATION_WINDOW_TEXT_COLOR = "presentation-window/text-color"
         PRESENTATION_WINDOW_BACKGROUND_COLOR = "presentation-window/background-color"
