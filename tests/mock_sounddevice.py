@@ -105,18 +105,25 @@ class MockInputStream:
         **kwargs,
     ):
         self._stop_event = Event()
-        self.thread = Thread(target=self.target)
         self.callback = callback
+
+        # Pre-load audio on the calling (main) thread to avoid calling
+        # subprocess.run (fork) from a background thread on macOS, which
+        # can cause a segfault when Qt is running.
+        sample_rate = whisper_audio.SAMPLE_RATE
+        file_path = os.path.join(
+            os.path.dirname(__file__), "../testdata/whisper-french.mp3"
+        )
+        self._audio = whisper_audio.load_audio(file_path, sr=sample_rate)
+
+        self.thread = Thread(target=self.target)
 
     def start(self):
         self.thread.start()
 
     def target(self):
         sample_rate = whisper_audio.SAMPLE_RATE
-        file_path = os.path.join(
-            os.path.dirname(__file__), "../testdata/whisper-french.mp3"
-        )
-        audio = whisper_audio.load_audio(file_path, sr=sample_rate)
+        audio = self._audio
 
         chunk_duration_secs = 1
 
