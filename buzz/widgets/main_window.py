@@ -1,6 +1,5 @@
 import os
 import logging
-import keyring
 from typing import Tuple, List, Optional
 from uuid import UUID
 
@@ -42,6 +41,7 @@ from buzz.widgets.preferences_dialog.models.preferences import Preferences
 from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
 from buzz.widgets.transcription_task_folder_watcher import (
     TranscriptionTaskFolderWatcher,
+    SUPPORTED_EXTENSIONS,
 )
 from buzz.widgets.transcription_tasks_table_widget import (
     TranscriptionTasksTableWidget,
@@ -100,6 +100,9 @@ class MainWindow(QMainWindow):
         )
         self.menu_bar.import_url_action_triggered.connect(
             self.on_new_url_transcription_action_triggered
+        )
+        self.menu_bar.import_folder_action_triggered.connect(
+            self.on_import_folder_action_triggered
         )
         self.menu_bar.shortcuts_changed.connect(self.on_shortcuts_changed)
         self.menu_bar.openai_api_key_changed.connect(
@@ -255,6 +258,20 @@ class MainWindow(QMainWindow):
         url = ImportURLDialog.prompt(parent=self)
         if url is not None:
             self.open_file_transcriber_widget(url=url)
+
+    def on_import_folder_action_triggered(self):
+        folder = QFileDialog.getExistingDirectory(self, _("Select folder"))
+        if not folder:
+            return
+        file_paths = []
+        for dirpath, _dirs, filenames in os.walk(folder):
+            for filename in filenames:
+                ext = os.path.splitext(filename)[1].lower()
+                if ext in SUPPORTED_EXTENSIONS:
+                    file_paths.append(os.path.join(dirpath, filename))
+        if not file_paths:
+            return
+        self.open_file_transcriber_widget(file_paths)
 
     def open_file_transcriber_widget(
         self, file_paths: Optional[List[str]] = None, url: Optional[str] = None
