@@ -1,5 +1,6 @@
 import logging
 import os
+import tempfile
 from typing import List
 from unittest.mock import patch, Mock
 
@@ -291,6 +292,67 @@ class TestMainWindow:
         qtbot.add_widget(window)
 
         assert window.toolbar.open_transcript_action.isEnabled() is False
+        window.close()
+
+    def test_import_folder_opens_file_transcriber_with_supported_files(
+        self, qtbot, transcription_service
+    ):
+        window = MainWindow(transcription_service)
+        qtbot.add_widget(window)
+
+        with tempfile.TemporaryDirectory() as folder:
+            # Create supported and unsupported files
+            supported = ["audio.mp3", "video.mp4", "clip.wav"]
+            unsupported = ["document.txt", "image.png"]
+            subdir = os.path.join(folder, "sub")
+            os.makedirs(subdir)
+            nested = "nested.flac"
+
+            for name in supported + unsupported:
+                open(os.path.join(folder, name), "w").close()
+            open(os.path.join(subdir, nested), "w").close()
+
+            with patch("PyQt6.QtWidgets.QFileDialog.getExistingDirectory") as mock_dir, \
+                 patch.object(window, "open_file_transcriber_widget") as mock_open:
+                mock_dir.return_value = folder
+                window.on_import_folder_action_triggered()
+
+            collected = mock_open.call_args[0][0]
+            collected_names = {os.path.basename(p) for p in collected}
+            assert collected_names == {"audio.mp3", "video.mp4", "clip.wav", "nested.flac"}
+
+        window.close()
+
+    def test_import_folder_does_nothing_when_cancelled(
+        self, qtbot, transcription_service
+    ):
+        window = MainWindow(transcription_service)
+        qtbot.add_widget(window)
+
+        with patch("PyQt6.QtWidgets.QFileDialog.getExistingDirectory") as mock_dir, \
+             patch.object(window, "open_file_transcriber_widget") as mock_open:
+            mock_dir.return_value = ""
+            window.on_import_folder_action_triggered()
+
+        mock_open.assert_not_called()
+        window.close()
+
+    def test_import_folder_does_nothing_when_no_supported_files(
+        self, qtbot, transcription_service
+    ):
+        window = MainWindow(transcription_service)
+        qtbot.add_widget(window)
+
+        with tempfile.TemporaryDirectory() as folder:
+            open(os.path.join(folder, "readme.txt"), "w").close()
+            open(os.path.join(folder, "image.jpg"), "w").close()
+
+            with patch("PyQt6.QtWidgets.QFileDialog.getExistingDirectory") as mock_dir, \
+                 patch.object(window, "open_file_transcriber_widget") as mock_open:
+                mock_dir.return_value = folder
+                window.on_import_folder_action_triggered()
+
+        mock_open.assert_not_called()
         window.close()
 
     @staticmethod
