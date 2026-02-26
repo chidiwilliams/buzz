@@ -1,0 +1,45 @@
+name: Update yt-dlp
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Run daily at midnight
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  update-ytdlp:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+
+      - name: Update yt-dlp
+        run: uv lock --upgrade yt-dlp
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --exit-code uv.lock || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Create Pull Request
+        if: steps.git-check.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "Update yt-dlp dependency"
+          title: "Update yt-dlp dependency"
+          body: |
+            Automated update of yt-dlp to the latest version.
+            
+            This ensures YouTube downloads continue working since YouTube updates its site frequently.
+          branch: update-ytdlp
+          labels: dependencies
+          delete-branch: true
