@@ -13,6 +13,7 @@ from PyQt6.QtWidgets import QApplication, QMenu, QStyledItemDelegate
 from buzz.locale import _
 from buzz.widgets.transcription_tasks_table_widget import (
     TranscriptionTasksTableWidget,
+    TranscriptionTasksTableHeaderView,
     format_record_status_text,
     Column,
     column_definitions,
@@ -453,6 +454,281 @@ class TestTranscriptionTasksTableWidget:
         # Verify error message was shown
         mock_messagebox.information.assert_called_once()
 
+    # --- on_restart_transcription_action edge cases ---
+
+    def test_restart_action_no_selection_does_nothing(self, widget, monkeypatch):
+        mock_service = Mock()
+        widget.transcription_service = mock_service
+        # No row selected
+        widget.on_restart_transcription_action()
+        mock_service.reset_transcription_for_restart.assert_not_called()
+
+    def test_restart_action_canceled_status_succeeds(self, widget, monkeypatch):
+        mock_service = Mock()
+        widget.transcription_service = mock_service
+        mock_transcription = Mock()
+        mock_transcription.status = "canceled"
+        mock_transcription.id = "12345678-1234-5678-1234-567812345678"
+        monkeypatch.setattr(widget, "transcription", Mock(return_value=mock_transcription))
+        mock_restart = Mock()
+        monkeypatch.setattr(widget, "_restart_transcription_task", mock_restart)
+
+        widget.selectRow(0)
+        widget.on_restart_transcription_action()
+
+        mock_service.reset_transcription_for_restart.assert_called_once()
+        mock_restart.assert_called_once_with(mock_transcription)
+
+    def test_restart_action_service_exception_shows_warning(self, widget, monkeypatch):
+        mock_service = Mock()
+        mock_service.reset_transcription_for_restart.side_effect = RuntimeError("DB error")
+        widget.transcription_service = mock_service
+        mock_transcription = Mock()
+        mock_transcription.status = "failed"
+        mock_transcription.id = "12345678-1234-5678-1234-567812345678"
+        monkeypatch.setattr(widget, "transcription", Mock(return_value=mock_transcription))
+
+        mock_messagebox = Mock()
+        monkeypatch.setattr("PyQt6.QtWidgets.QMessageBox", mock_messagebox)
+
+        widget.selectRow(0)
+        widget.on_restart_transcription_action()
+
+        mock_messagebox.warning.assert_called_once()
+
+    # --- _restart_transcription_task ---
+
+    def _make_transcription(self, **kwargs):
+        from buzz.transcriber.transcriber import Task
+        defaults = dict(
+            id="12345678-1234-5678-1234-567812345678",
+            status="failed",
+            file="/audio/test.mp3",
+            url=None,
+            language="en",
+            task=Task.TRANSCRIBE.value,
+            model_type="Whisper",
+            whisper_model_size="Tiny",
+            hugging_face_model_id=None,
+            word_level_timings="0",
+            extract_speech="0",
+            export_formats="txt",
+            output_folder=None,
+            source="FILE_IMPORT",
+        )
+        defaults.update(kwargs)
+        t = Mock()
+        for k, v in defaults.items():
+            setattr(t, k, v)
+        return t
+
+    def test_restart_task_happy_path_adds_task(self, widget, monkeypatch):
+        from buzz.transcriber.transcriber import FileTranscriptionTask
+        transcription = self._make_transcription()
+
+        mock_model_path = "/models/ggml-tiny.bin"
+        mock_model = Mock()
+        mock_model.get_local_model_path.return_value = mock_model_path
+
+        mock_transcription_model_cls = Mock(return_value=mock_model)
+        monkeypatch.setattr("buzz.model_loader.TranscriptionModel", mock_transcription_model_cls)
+
+        mock_task_instance = Mock(spec=FileTranscriptionTask)
+        mock_task_cls = Mock(return_value=mock_task_instance)
+        monkeypatch.setattr(
+            "buzz.transcriber.transcriber.FileTranscriptionTask", mock_task_cls
+        )
+
+        mock_worker = Mock()
+        mock_main_window = Mock()
+        mock_main_window.transcriber_worker = mock_worker
+        mock_main_window.parent.return_value = None
+        monkeypatch.setattr(widget, "parent", Mock(return_value=mock_main_window))
+
+        widget._restart_transcription_task(transcription)
+
+        mock_worker.add_task.assert_called_once_with(mock_task_instance)
+
+    def test_restart_task_invalid_whisper_model_size_defaults_to_tiny(self, widget, monkeypatch):
+        from buzz.model_loader import WhisperModelSize
+        transcription = self._make_transcription(whisper_model_size="InvalidSize")
+
+        captured = {}
+
+        original_cls = __builtins__  # just a placeholder
+
+        def capture_model(**kwargs):
+            captured["whisper_model_size"] = kwargs.get("whisper_model_size")
+            m = Mock()
+            m.get_local_model_path.return_value = "/fake/path"
+            return m
+
+        monkeypatch.setattr(
+            "buzz.model_loader.TranscriptionModel",
+            Mock(side_effect=capture_model),
+        )
+        monkeypatch.setattr(
+            "buzz.transcriber.transcriber.FileTranscriptionTask",
+            Mock(return_value=Mock()),
+        )
+        mock_worker = Mock()
+        mock_main_window = Mock()
+        mock_main_window.transcriber_worker = mock_worker
+        mock_main_window.parent.return_value = None
+        monkeypatch.setattr(widget, "parent", Mock(return_value=mock_main_window))
+
+        widget._restart_transcription_task(transcription)
+
+        assert captured["whisper_model_size"] == WhisperModelSize.TINY
+
+    def test_restart_task_model_not_available_downloads_it(self, widget, monkeypatch):
+        from buzz.transcriber.transcriber import FileTranscriptionTask
+        transcription = self._make_transcription()
+
+        mock_model = Mock()
+        mock_model.get_local_model_path.side_effect = [None, "/models/ggml-tiny.bin"]
+        monkeypatch.setattr(
+            "buzz.model_loader.TranscriptionModel",
+            Mock(return_value=mock_model),
+        )
+
+        mock_downloader = Mock()
+        mock_downloader_cls = Mock(return_value=mock_downloader)
+        monkeypatch.setattr(
+            "buzz.model_loader.ModelDownloader",
+            mock_downloader_cls,
+        )
+        monkeypatch.setattr(
+            "buzz.transcriber.transcriber.FileTranscriptionTask",
+            Mock(return_value=Mock()),
+        )
+        mock_worker = Mock()
+        mock_main_window = Mock()
+        mock_main_window.transcriber_worker = mock_worker
+        mock_main_window.parent.return_value = None
+        monkeypatch.setattr(widget, "parent", Mock(return_value=mock_main_window))
+
+        widget._restart_transcription_task(transcription)
+
+        mock_downloader.run.assert_called_once()
+        mock_worker.add_task.assert_called_once()
+
+    def test_restart_task_model_unavailable_after_download_shows_warning(self, widget, monkeypatch):
+        transcription = self._make_transcription()
+
+        mock_model = Mock()
+        mock_model.get_local_model_path.return_value = None
+        monkeypatch.setattr(
+            "buzz.model_loader.TranscriptionModel",
+            Mock(return_value=mock_model),
+        )
+        monkeypatch.setattr(
+            "buzz.model_loader.ModelDownloader",
+            Mock(return_value=Mock()),
+        )
+
+        mock_messagebox = Mock()
+        monkeypatch.setattr("PyQt6.QtWidgets.QMessageBox", mock_messagebox)
+
+        widget._restart_transcription_task(transcription)
+
+        mock_messagebox.warning.assert_called_once()
+
+    def test_restart_task_no_worker_found_shows_warning(self, widget, monkeypatch):
+        transcription = self._make_transcription()
+
+        mock_model = Mock()
+        mock_model.get_local_model_path.return_value = "/fake/path"
+        monkeypatch.setattr(
+            "buzz.model_loader.TranscriptionModel",
+            Mock(return_value=mock_model),
+        )
+        monkeypatch.setattr(
+            "buzz.transcriber.transcriber.FileTranscriptionTask",
+            Mock(return_value=Mock()),
+        )
+
+        # Parent with no transcriber_worker, and no further parent
+        mock_parent = Mock(spec=["parent"])  # only has parent(), not transcriber_worker
+        mock_parent.parent.return_value = None
+        monkeypatch.setattr(widget, "parent", Mock(return_value=mock_parent))
+
+        mock_messagebox = Mock()
+        monkeypatch.setattr("PyQt6.QtWidgets.QMessageBox", mock_messagebox)
+
+        widget._restart_transcription_task(transcription)
+
+        mock_messagebox.warning.assert_called_once()
+
+    def test_restart_task_export_formats_parsed_correctly(self, widget, monkeypatch):
+        from buzz.transcriber.transcriber import OutputFormat
+        transcription = self._make_transcription(export_formats="txt, srt")
+
+        captured = {}
+
+        def capture_file_transcription_options(**kwargs):
+            captured["output_formats"] = kwargs.get("output_formats")
+            return Mock()
+
+        monkeypatch.setattr(
+            "buzz.transcriber.transcriber.FileTranscriptionOptions",
+            Mock(side_effect=capture_file_transcription_options),
+        )
+        mock_model = Mock()
+        mock_model.get_local_model_path.return_value = "/fake/path"
+        monkeypatch.setattr(
+            "buzz.model_loader.TranscriptionModel",
+            Mock(return_value=mock_model),
+        )
+        monkeypatch.setattr(
+            "buzz.transcriber.transcriber.FileTranscriptionTask",
+            Mock(return_value=Mock()),
+        )
+        mock_worker = Mock()
+        mock_main_window = Mock()
+        mock_main_window.transcriber_worker = mock_worker
+        mock_main_window.parent.return_value = None
+        monkeypatch.setattr(widget, "parent", Mock(return_value=mock_main_window))
+
+        widget._restart_transcription_task(transcription)
+
+        assert OutputFormat("txt") in captured["output_formats"]
+        assert OutputFormat("srt") in captured["output_formats"]
+
+    def test_restart_task_invalid_export_format_skipped(self, widget, monkeypatch):
+        transcription = self._make_transcription(export_formats="txt, INVALID_FORMAT")
+
+        captured = {}
+
+        def capture_file_transcription_options(**kwargs):
+            captured["output_formats"] = kwargs.get("output_formats")
+            return Mock()
+
+        monkeypatch.setattr(
+            "buzz.transcriber.transcriber.FileTranscriptionOptions",
+            Mock(side_effect=capture_file_transcription_options),
+        )
+        mock_model = Mock()
+        mock_model.get_local_model_path.return_value = "/fake/path"
+        monkeypatch.setattr(
+            "buzz.model_loader.TranscriptionModel",
+            Mock(return_value=mock_model),
+        )
+        monkeypatch.setattr(
+            "buzz.transcriber.transcriber.FileTranscriptionTask",
+            Mock(return_value=Mock()),
+        )
+        mock_worker = Mock()
+        mock_main_window = Mock()
+        mock_main_window.transcriber_worker = mock_worker
+        mock_main_window.parent.return_value = None
+        monkeypatch.setattr(widget, "parent", Mock(return_value=mock_main_window))
+
+        widget._restart_transcription_task(transcription)
+
+        # Only the valid format should be present, invalid one skipped silently
+        assert len(captured["output_formats"]) == 1
+
     def test_column_resize_event(self, widget):
         """Test column resize event handling"""
         # Mock the save_column_widths method
@@ -529,3 +805,98 @@ class TestTranscriptionTasksTableWidget:
         header = widget.horizontalHeader()
         assert header.sortIndicatorSection() == Column.TIME_QUEUED.value
         assert header.sortIndicatorOrder() == Qt.SortOrder.DescendingOrder
+
+
+class TestTranscriptionTasksTableHeaderView:
+    @pytest.fixture
+    def header(self, qtbot, widget):
+        return widget.horizontalHeader()
+
+    def _setup_settings_key(self, widget):
+        """Set up settings.Key and restore begin_group side_effect for inline width-saving."""
+        widget.settings.Key = Mock(
+            TRANSCRIPTION_TASKS_TABLE_COLUMN_WIDTHS="widths"
+        )
+        current_group = [""]
+
+        def begin_group(group):
+            current_group[0] = str(group) + "/"
+
+        def end_group():
+            current_group[0] = ""
+
+        widget.settings.begin_group.side_effect = begin_group
+        widget.settings.end_group.side_effect = end_group
+
+    def test_hiding_column_saves_visibility_and_widths(self, header, widget):
+        col = Column.NOTES.value
+        widget.setColumnWidth(col, 250)
+        widget.setColumnHidden(col, False)
+        self._setup_settings_key(widget)
+
+        with patch.object(widget, "save_column_visibility") as mock_vis, \
+             patch.object(widget, "save_column_widths") as mock_widths, \
+             patch.object(widget, "save_column_order"), \
+             patch.object(widget, "reload_column_order_from_settings"):
+            header.on_column_checked(col, False)
+
+        assert widget.isColumnHidden(col)
+        mock_vis.assert_called()
+        mock_widths.assert_called()
+
+    def test_showing_column_makes_it_visible(self, header, widget):
+        col = Column.NOTES.value
+        widget.setColumnHidden(col, True)
+
+        with patch.object(widget, "save_column_visibility"), \
+             patch.object(widget, "save_column_widths"), \
+             patch.object(widget, "save_column_order"), \
+             patch.object(widget, "reload_column_order_from_settings"):
+            header.on_column_checked(col, True)
+
+        assert not widget.isColumnHidden(col)
+
+    def test_hiding_already_hidden_column_does_not_save_zero_width(self, header, widget):
+        col = Column.NOTES.value
+        widget.setColumnHidden(col, True)
+        self._setup_settings_key(widget)
+
+        saved_widths = {}
+
+        def capture_set_value(key, value):
+            saved_widths[key] = value
+
+        widget.settings.settings.setValue.side_effect = capture_set_value
+
+        with patch.object(widget, "save_column_visibility"), \
+             patch.object(widget, "save_column_widths"), \
+             patch.object(widget, "save_column_order"), \
+             patch.object(widget, "reload_column_order_from_settings"):
+            header.on_column_checked(col, False)
+
+        # Width of a hidden column is 0 — should not be saved
+        notes_id = next(d.id for d in column_definitions if d.column == Column.NOTES)
+        assert notes_id not in saved_widths
+
+    def test_column_order_saved_on_visibility_change(self, header, widget):
+        col = Column.NOTES.value
+        self._setup_settings_key(widget)
+
+        with patch.object(widget, "save_column_visibility"), \
+             patch.object(widget, "save_column_widths"), \
+             patch.object(widget, "save_column_order") as mock_order, \
+             patch.object(widget, "reload_column_order_from_settings"):
+            header.on_column_checked(col, False)
+
+        mock_order.assert_called_once()
+
+    def test_reload_called_after_visibility_change(self, header, widget):
+        col = Column.NOTES.value
+
+        with patch.object(widget, "save_column_visibility"), \
+             patch.object(widget, "save_column_widths"), \
+             patch.object(widget, "save_column_order"), \
+             patch.object(widget, "reload_column_order_from_settings") as mock_reload:
+            header.on_column_checked(col, True)
+
+        mock_reload.assert_called_once()
