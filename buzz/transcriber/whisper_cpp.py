@@ -303,6 +303,11 @@ class WhisperCpp:
                             if not token_text:
                                 continue
 
+                            # Skip low probability tokens
+                            token_p = token_data.get("p", 1.0)
+                            if token_p < 0.01:
+                                continue
+
                             token_start = int(token_data.get("offsets", {}).get("from", 0))
                             token_end = int(token_data.get("offsets", {}).get("to", 0))
 
