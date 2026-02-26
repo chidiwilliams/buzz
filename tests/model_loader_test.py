@@ -16,6 +16,8 @@ from buzz.model_loader import (
     get_expected_whisper_model_size,
     get_whisper_file_path,
     WHISPER_MODEL_SIZES,
+    WHISPER_CPP_REPO_ID,
+    WHISPER_CPP_LUMII_REPO_ID,
 )
 
 
@@ -630,6 +632,122 @@ class TestModelDownloaderDownloadModel:
 
         assert result is True
         assert open(str(model_file), 'rb').read() == existing_content + resume_content
+
+
+class TestModelDownloaderWhisperCpp:
+    def _make_downloader(self, model, custom_url=None):
+        downloader = ModelDownloader(model=model, custom_model_url=custom_url)
+        downloader.signals = MagicMock()
+        downloader.signals.progress = MagicMock()
+        downloader.signals.finished = MagicMock()
+        downloader.signals.error = MagicMock()
+        return downloader
+
+    def test_standard_model_calls_download_from_huggingface(self):
+        model = TranscriptionModel(
+            model_type=ModelType.WHISPER_CPP,
+            whisper_model_size=WhisperModelSize.TINY,
+        )
+        downloader = self._make_downloader(model)
+        model_name = WhisperModelSize.TINY.to_whisper_cpp_model_size()
+
+        with patch("buzz.model_loader.download_from_huggingface", return_value="/fake/path") as mock_dl, \
+             patch.object(downloader, "is_coreml_supported", False):
+            downloader.run()
+
+        mock_dl.assert_called_once_with(
+            repo_id=WHISPER_CPP_REPO_ID,
+            allow_patterns=[f"ggml-{model_name}.bin", "README.md"],
+            progress=downloader.signals.progress,
+            num_large_files=1,
+        )
+        downloader.signals.finished.emit.assert_called_once_with(
+            f"/fake/path/ggml-{model_name}.bin"
+        )
+
+    def test_lumii_model_uses_lumii_repo(self):
+        model = TranscriptionModel(
+            model_type=ModelType.WHISPER_CPP,
+            whisper_model_size=WhisperModelSize.LUMII,
+        )
+        downloader = self._make_downloader(model)
+        model_name = WhisperModelSize.LUMII.to_whisper_cpp_model_size()
+
+        with patch("buzz.model_loader.download_from_huggingface", return_value="/lumii/path") as mock_dl, \
+             patch.object(downloader, "is_coreml_supported", False):
+            downloader.run()
+
+        mock_dl.assert_called_once()
+        assert mock_dl.call_args.kwargs["repo_id"] == WHISPER_CPP_LUMII_REPO_ID
+        downloader.signals.finished.emit.assert_called_once_with(
+            f"/lumii/path/ggml-{model_name}.bin"
+        )
+
+    def test_custom_url_calls_download_model_to_path(self):
+        model = TranscriptionModel(
+            model_type=ModelType.WHISPER_CPP,
+            whisper_model_size=WhisperModelSize.TINY,
+        )
+        custom_url = "https://example.com/my-model.bin"
+        downloader = self._make_downloader(model, custom_url=custom_url)
+
+        with patch.object(downloader, "download_model_to_path") as mock_dtp:
+            downloader.run()
+
+        mock_dtp.assert_called_once()
+        call_kwargs = mock_dtp.call_args.kwargs
+        assert call_kwargs["url"] == custom_url
+
+    def test_coreml_model_includes_mlmodelc_in_file_list(self):
+        model = TranscriptionModel(
+            model_type=ModelType.WHISPER_CPP,
+            whisper_model_size=WhisperModelSize.TINY,
+        )
+        downloader = self._make_downloader(model)
+        model_name = WhisperModelSize.TINY.to_whisper_cpp_model_size()
+
+        with patch("buzz.model_loader.download_from_huggingface", return_value="/fake/path") as mock_dl, \
+             patch.object(downloader, "is_coreml_supported", True), \
+             patch("zipfile.ZipFile"), \
+             patch("shutil.rmtree"), \
+             patch("shutil.move"), \
+             patch("os.path.exists", return_value=False), \
+             patch("os.listdir", return_value=[f"ggml-{model_name}-encoder.mlmodelc"]), \
+             patch("os.path.isdir", return_value=True):
+            downloader.run()
+
+        mock_dl.assert_called_once()
+        assert mock_dl.call_args.kwargs["num_large_files"] == 2
+        allow_patterns = mock_dl.call_args.kwargs["allow_patterns"]
+        assert f"ggml-{model_name}-encoder.mlmodelc.zip" in allow_patterns
+
+    def test_coreml_zip_extracted_and_existing_dir_removed(self, tmp_path):
+        model = TranscriptionModel(
+            model_type=ModelType.WHISPER_CPP,
+            whisper_model_size=WhisperModelSize.TINY,
+        )
+        downloader = self._make_downloader(model)
+        model_name = WhisperModelSize.TINY.to_whisper_cpp_model_size()
+
+        # Create a fake zip with a single top-level directory inside
+        import zipfile as zf
+        zip_path = tmp_path / f"ggml-{model_name}-encoder.mlmodelc.zip"
+        nested_dir = f"ggml-{model_name}-encoder.mlmodelc"
+        with zf.ZipFile(zip_path, "w") as z:
+            z.writestr(f"{nested_dir}/weights", b"fake weights")
+
+        existing_target = tmp_path / f"ggml-{model_name}-encoder.mlmodelc"
+        existing_target.mkdir()
+
+        with patch("buzz.model_loader.download_from_huggingface", return_value=str(tmp_path)), \
+             patch.object(downloader, "is_coreml_supported", True):
+            downloader.run()
+
+        # Old directory was removed and recreated from zip
+        assert existing_target.exists()
+        downloader.signals.finished.emit.assert_called_once_with(
+            str(tmp_path / f"ggml-{model_name}.bin")
+        )
 
 
 class TestModelLoaderCertifiImportError:
