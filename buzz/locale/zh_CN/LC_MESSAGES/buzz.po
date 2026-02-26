@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-22 15:20+0200\n"
+"POT-Creation-Date: 2026-02-26 20:29+0200\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: lamb \n"
@@ -427,9 +427,7 @@ msgid "AI model:"
 msgstr "AI 模型:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid ""
-"Enter instructions for AI on how to translate, for example 'Please translate "
-"each text sent to you from English to Spanish.'"
+msgid "Please translate each text sent to you from English to Spanish."
 msgstr ""
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
@@ -1017,6 +1015,11 @@ msgid "Import URL..."
 msgstr "导入媒体文件..."
 
 #: buzz/widgets/menu_bar.py
+#, fuzzy
+msgid "Import Folder..."
+msgstr "导入媒体文件..."
+
+#: buzz/widgets/menu_bar.py
 msgid "About"
 msgstr "关于"
 
@@ -1041,6 +1044,11 @@ msgstr "您确定要删除所选录制吗？此操作无法撤消。"
 #: buzz/widgets/main_window.py
 msgid "Select audio file"
 msgstr "选择音频文件"
+
+#: buzz/widgets/main_window.py
+#, fuzzy
+msgid "Select folder"
+msgstr "选择输入文件夹"
 
 #: buzz/widgets/main_window.py
 msgid "Unable to save OpenAI API key to keyring"

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-22 15:20+0200\n"
-"PO-Revision-Date: 2026-02-22 15:21+0200\n"
+"POT-Creation-Date: 2026-02-26 20:29+0200\n"
+"PO-Revision-Date: 2026-02-26 20:30+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -428,12 +428,8 @@ msgid "AI model:"
 msgstr "AI modelis:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid ""
-"Enter instructions for AI on how to translate, for example 'Please translate "
-"each text sent to you from English to Spanish.'"
-msgstr ""
-"Ievadiet instrukcijas mākslīgajam intelektam, piemēram, 'Lūdzu, iztulko "
-"katru tev atsūtīto tekstu no angļu valodas latviski'"
+msgid "Please translate each text sent to you from English to Spanish."
+msgstr "Lūdzu, iztulko katru tev atsūtīto tekstu no angļu valodas latviski."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -1004,6 +1000,10 @@ msgid "Import URL..."
 msgstr "Importēt URL..."
 
 #: buzz/widgets/menu_bar.py
+msgid "Import Folder..."
+msgstr "Importēt mapi..."
+
+#: buzz/widgets/menu_bar.py
 msgid "About"
 msgstr "Par"
 
@@ -1030,6 +1030,10 @@ msgstr ""
 #: buzz/widgets/main_window.py
 msgid "Select audio file"
 msgstr "Izvēlieties audio failu"
+
+#: buzz/widgets/main_window.py
+msgid "Select folder"
+msgstr "Izvēlieties mapi"
 
 #: buzz/widgets/main_window.py
 msgid "Unable to save OpenAI API key to keyring"

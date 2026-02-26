@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-22 15:20+0200\n"
+"POT-Creation-Date: 2026-02-26 20:29+0200\n"
 "PO-Revision-Date: 2026-01-25 21:42+0200\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
@@ -426,9 +426,8 @@ msgid "AI model:"
 msgstr "Modello AI:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid ""
-"Enter instructions for AI on how to translate, for example 'Please translate "
-"each text sent to you from English to Spanish.'"
+#, fuzzy
+msgid "Please translate each text sent to you from English to Spanish."
 msgstr ""
 "Inserisci le istruzioni per l'IA su come tradurre, ad esempio 'Per favore, "
 "traduci ogni testo che ti viene inviato dall'inglese allo spagnolo.'"
@@ -1012,6 +1011,11 @@ msgid "Import URL..."
 msgstr "Importa URL..."
 
 #: buzz/widgets/menu_bar.py
+#, fuzzy
+msgid "Import Folder..."
+msgstr "Importa file.."
+
+#: buzz/widgets/menu_bar.py
 msgid "About"
 msgstr "Informazioni"
 
@@ -1038,6 +1042,11 @@ msgstr ""
 #: buzz/widgets/main_window.py
 msgid "Select audio file"
 msgstr "Seleziona file audio"
+
+#: buzz/widgets/main_window.py
+#, fuzzy
+msgid "Select folder"
+msgstr "Seleziona cartella di input"
 
 #: buzz/widgets/main_window.py
 msgid "Unable to save OpenAI API key to keyring"

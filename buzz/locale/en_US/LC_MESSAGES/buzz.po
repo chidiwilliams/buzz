@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-22 15:20+0200\n"
+"POT-Creation-Date: 2026-02-26 20:29+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -410,9 +410,7 @@ msgid "AI model:"
 msgstr ""
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid ""
-"Enter instructions for AI on how to translate, for example 'Please translate "
-"each text sent to you from English to Spanish.'"
+msgid "Please translate each text sent to you from English to Spanish."
 msgstr ""
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
@@ -975,6 +973,10 @@ msgid "Import URL..."
 msgstr ""
 
 #: buzz/widgets/menu_bar.py
+msgid "Import Folder..."
+msgstr ""
+
+#: buzz/widgets/menu_bar.py
 msgid "About"
 msgstr ""
 
@@ -998,6 +1000,10 @@ msgstr ""
 
 #: buzz/widgets/main_window.py
 msgid "Select audio file"
+msgstr ""
+
+#: buzz/widgets/main_window.py
+msgid "Select folder"
 msgstr ""
 
 #: buzz/widgets/main_window.py

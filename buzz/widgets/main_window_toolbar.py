@@ -93,12 +93,6 @@ class MainWindowToolbar(ToolBar):
         self.record_action.setShortcut(
             QKeySequence.fromString(self.shortcuts.get(Shortcut.OPEN_RECORD_WINDOW))
         )
-        self.new_transcription_action.setShortcut(
-            QKeySequence.fromString(self.shortcuts.get(Shortcut.OPEN_IMPORT_WINDOW))
-        )
-        self.new_url_transcription_action.setShortcut(
-            QKeySequence.fromString(self.shortcuts.get(Shortcut.OPEN_IMPORT_URL_WINDOW))
-        )
         self.stop_transcription_action.setShortcut(
             QKeySequence.fromString(self.shortcuts.get(Shortcut.STOP_TRANSCRIPTION))
         )

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-22 15:20+0200\n"
+"POT-Creation-Date: 2026-02-26 20:29+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: nunawa <71294849+nunawa@users.noreply.github.com>\n"
 "Language-Team: \n"
@@ -416,9 +416,7 @@ msgid "AI model:"
 msgstr "AIのモデル:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid ""
-"Enter instructions for AI on how to translate, for example 'Please translate "
-"each text sent to you from English to Spanish.'"
+msgid "Please translate each text sent to you from English to Spanish."
 msgstr ""
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
@@ -999,6 +997,11 @@ msgid "Import URL..."
 msgstr "URLをインポートする..."
 
 #: buzz/widgets/menu_bar.py
+#, fuzzy
+msgid "Import Folder..."
+msgstr "ファイルをインポートする..."
+
+#: buzz/widgets/menu_bar.py
 msgid "About"
 msgstr "About"
 
@@ -1023,6 +1026,11 @@ msgstr "本当に選択された文字起こしを削除しますか？ この�
 #: buzz/widgets/main_window.py
 msgid "Select audio file"
 msgstr "音声ファイルを選択"
+
+#: buzz/widgets/main_window.py
+#, fuzzy
+msgid "Select folder"
+msgstr "入力フォルダを選択"
 
 #: buzz/widgets/main_window.py
 msgid "Unable to save OpenAI API key to keyring"
