@@ -81,7 +81,7 @@ jobs:
             # Add ubuntu-toolchain-r PPA for newer libstdc++6 with GLIBCXX_3.4.32
             sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
             sudo apt-get update
-            sudo apt-get install -y gcc-13 g++-13 libstdc++-13-dev
+            sudo apt-get install -y libstdc++6
           fi
 
           sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev ccache
@@ -167,7 +167,7 @@ jobs:
             # Add ubuntu-toolchain-r PPA for newer libstdc++6 with GLIBCXX_3.4.32
             sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
             sudo apt-get update
-            sudo apt-get install -y gcc-13 g++-13 libstdc++-13-dev
+            sudo apt-get install -y libstdc++6
           fi
 
           sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev ccache
