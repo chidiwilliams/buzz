@@ -412,7 +412,7 @@ msgstr "Talegenkendelsesindstillinger"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-msgstr "Komma-separerede, fx., \""
+msgstr "Komma-separerede, fx., \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Temperature:"
