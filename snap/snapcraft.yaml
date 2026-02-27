@@ -115,6 +115,12 @@ parts:
       # Clean caches
       uv cache clean
 
+      # Create launcher wrapper to ensure the snap's own libasound.so.2 is found
+      # before gnome content snap libraries (which desktop-launch prepends to LD_LIBRARY_PATH)
+      mkdir -p $CRAFT_PART_INSTALL/bin
+      printf '#!/bin/sh\nexport LD_LIBRARY_PATH="$SNAP/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"\nexec "$SNAP/bin/python" -m buzz "$@"\n' > $CRAFT_PART_INSTALL/bin/buzz-launcher
+      chmod +x $CRAFT_PART_INSTALL/bin/buzz-launcher
+
       # Copy source files
       cp -r $CRAFT_PART_BUILD/buzz $CRAFT_PART_INSTALL/
       cp -r $CRAFT_PART_BUILD/ctc_forced_aligner $CRAFT_PART_INSTALL/
@@ -148,7 +154,7 @@ apps:
       - gnome
     command-chain:
       - bin/gpu-2404-wrapper
-    command: snap/command-chain/desktop-launch $SNAP/bin/python -m buzz
+    command: snap/command-chain/desktop-launch $SNAP/bin/buzz-launcher
     desktop: usr/share/applications/buzz.desktop
     environment:
       PATH: $SNAP/usr/bin:$SNAP/bin:$PATH
@@ -177,5 +183,3 @@ apps:
 layout:
   /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/alsa-lib:
     bind: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/alsa-lib
-  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libasound.so.2:
-    symlink: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libasound.so.2
