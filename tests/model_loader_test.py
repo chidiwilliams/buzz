@@ -662,7 +662,7 @@ class TestModelDownloaderWhisperCpp:
             num_large_files=1,
         )
         downloader.signals.finished.emit.assert_called_once_with(
-            f"/fake/path/ggml-{model_name}.bin"
+            os.path.join("/fake/path", f"ggml-{model_name}.bin")
         )
 
     def test_lumii_model_uses_lumii_repo(self):
@@ -680,7 +680,7 @@ class TestModelDownloaderWhisperCpp:
         mock_dl.assert_called_once()
         assert mock_dl.call_args.kwargs["repo_id"] == WHISPER_CPP_LUMII_REPO_ID
         downloader.signals.finished.emit.assert_called_once_with(
-            f"/lumii/path/ggml-{model_name}.bin"
+            os.path.join("/lumii/path", f"ggml-{model_name}.bin")
         )
 
     def test_custom_url_calls_download_model_to_path(self):
