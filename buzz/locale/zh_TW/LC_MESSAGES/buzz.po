@@ -1031,9 +1031,8 @@ msgid "Import URL..."
 msgstr "匯入網址..."
 
 #: buzz/widgets/menu_bar.py
-#, fuzzy
 msgid "Import Folder..."
-msgstr "導入媒體檔案..."
+msgstr "導入資料夾..."
 
 #: buzz/widgets/menu_bar.py
 msgid "About"
@@ -1062,9 +1061,8 @@ msgid "Select audio file"
 msgstr "選擇聲音檔案"
 
 #: buzz/widgets/main_window.py
-#, fuzzy
 msgid "Select folder"
-msgstr "選擇聲音檔案"
+msgstr "選擇資料夾"
 
 #: buzz/widgets/main_window.py
 msgid "Unable to save OpenAI API key to keyring"

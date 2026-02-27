@@ -803,9 +803,8 @@ msgid "Previous match (Shift+Enter)"
 msgstr "Coincidència anterior (Maj+Retorn)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
-#, fuzzy
 msgid "Next match (Ctrl+Enter)"
-msgstr "Coincidència següent (retorn)"
+msgstr "Coincidència següent (Ctrl+Enter)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Clear"
@@ -1039,9 +1038,8 @@ msgid "Import URL..."
 msgstr "Importa l'URL..."
 
 #: buzz/widgets/menu_bar.py
-#, fuzzy
 msgid "Import Folder..."
-msgstr "Importa fitxer..."
+msgstr "Importa carpeta..."
 
 #: buzz/widgets/menu_bar.py
 msgid "About"
@@ -1072,9 +1070,8 @@ msgid "Select audio file"
 msgstr "Selecciona un fitxer d'àudio"
 
 #: buzz/widgets/main_window.py
-#, fuzzy
 msgid "Select folder"
-msgstr "Selecciona la carpeta d'entrada"
+msgstr "Selecciona carpeta"
 
 #: buzz/widgets/main_window.py
 msgid "Unable to save OpenAI API key to keyring"

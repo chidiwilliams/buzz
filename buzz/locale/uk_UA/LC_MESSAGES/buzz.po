@@ -1037,9 +1037,8 @@ msgid "Import URL..."
 msgstr "Імпортувати адресу..."
 
 #: buzz/widgets/menu_bar.py
-#, fuzzy
 msgid "Import Folder..."
-msgstr "Імпортувати файл..."
+msgstr "Імпортувати теку..."
 
 #: buzz/widgets/menu_bar.py
 msgid "About"
@@ -1069,7 +1068,6 @@ msgid "Select audio file"
 msgstr "Вибрати аудіофайл"
 
 #: buzz/widgets/main_window.py
-#, fuzzy
 msgid "Select folder"
 msgstr "Виберіть теку введення"
 

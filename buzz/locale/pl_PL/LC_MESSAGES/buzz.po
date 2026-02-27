@@ -1040,9 +1040,8 @@ msgid "Import URL..."
 msgstr "Importuj URL..."
 
 #: buzz/widgets/menu_bar.py
-#, fuzzy
 msgid "Import Folder..."
-msgstr "Importuj plik..."
+msgstr "Importuj folder..."
 
 #: buzz/widgets/menu_bar.py
 msgid "About"
@@ -1073,9 +1072,8 @@ msgid "Select audio file"
 msgstr "Wybierz plik audio"
 
 #: buzz/widgets/main_window.py
-#, fuzzy
 msgid "Select folder"
-msgstr "Wybierz plik audio"
+msgstr "Wybierz folder"
 
 #: buzz/widgets/main_window.py
 msgid "Unable to save OpenAI API key to keyring"

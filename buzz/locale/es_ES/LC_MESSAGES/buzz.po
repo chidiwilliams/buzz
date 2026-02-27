@@ -842,9 +842,8 @@ msgid "Previous match (Shift+Enter)"
 msgstr "Coincidencia anterior (Mayús+Intro)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
-#, fuzzy
 msgid "Next match (Ctrl+Enter)"
-msgstr "Siguiente coincidencia (Enter)"
+msgstr "Siguiente coincidencia (Ctrl+Enter)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Clear"
@@ -1085,9 +1084,8 @@ msgstr "Importar URL..."
 
 # automatic translation
 #: buzz/widgets/menu_bar.py
-#, fuzzy
 msgid "Import Folder..."
-msgstr "Importar archivo..."
+msgstr "Importar carpeta..."
 
 #: buzz/widgets/menu_bar.py
 msgid "About"
@@ -1124,7 +1122,6 @@ msgstr "Seleccionar archivo de audio"
 
 # automatic translation
 #: buzz/widgets/main_window.py
-#, fuzzy
 msgid "Select folder"
 msgstr "Seleccione la carpeta de entrada"
 

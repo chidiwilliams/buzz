@@ -414,7 +414,7 @@ msgstr "Einstellungen für die Spracherkennung"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-msgstr "Durch Kommas getrennt, z.B. „0,0, 0,2, 0,4, 0,6, 0,8, 1,0""
+msgstr "Durch Kommas getrennt, z.B. \"0,0, 0,2, 0,4, 0,6, 0,8, 1,0\""
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Temperature:"
@@ -639,7 +639,7 @@ msgstr "Live-Aufnahme"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Click Record to begin..."
-msgstr "Auf „Aufnehmen" klicken um zu beginnen …"
+msgstr "Auf Aufnehmen klicken um zu beginnen …"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Waiting for AI translation..."
@@ -1046,9 +1046,8 @@ msgid "Import URL..."
 msgstr "URL importieren..."
 
 #: buzz/widgets/menu_bar.py
-#, fuzzy
 msgid "Import Folder..."
-msgstr "Datei importieren..."
+msgstr "Ordner importieren..."
 
 #: buzz/widgets/menu_bar.py
 msgid "About"
@@ -1079,7 +1078,6 @@ msgid "Select audio file"
 msgstr "Audiodatei auswählen"
 
 #: buzz/widgets/main_window.py
-#, fuzzy
 msgid "Select folder"
 msgstr "Eingabeordner auswählen"
 

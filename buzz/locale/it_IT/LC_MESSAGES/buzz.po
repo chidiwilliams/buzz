@@ -1053,9 +1053,8 @@ msgid "Import URL..."
 msgstr "Importa URL..."
 
 #: buzz/widgets/menu_bar.py
-#, fuzzy
 msgid "Import Folder..."
-msgstr "Importa file.."
+msgstr "Importa cartella..."
 
 #: buzz/widgets/menu_bar.py
 msgid "About"
@@ -1086,7 +1085,6 @@ msgid "Select audio file"
 msgstr "Seleziona file audio"
 
 #: buzz/widgets/main_window.py
-#, fuzzy
 msgid "Select folder"
 msgstr "Seleziona cartella di input"
 
