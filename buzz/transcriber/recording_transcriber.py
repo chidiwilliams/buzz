@@ -406,8 +406,6 @@ class RecordingTranscriber(QObject):
             "--threads", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8) // 2)),
             "--model", self.model_path,
             "--no-timestamps",
-            # on Windows context causes duplications of last message
-            "--no-context",
             # Protections against hallucinated repetition. Seems to be problem on macOS
             # https://github.com/ggml-org/whisper.cpp/issues/1507
             "--max-context", "64",

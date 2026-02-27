@@ -10,4 +10,4 @@ class InitialPromptTextEdit(QPlainTextEdit):
         self.setPlaceholderText(_("Enter prompt..."))
         self.setEnabled(model_type.supports_initial_prompt)
         self.setMinimumWidth(350)
-        self.setFixedHeight(115)
+        self.setFixedHeight(80)

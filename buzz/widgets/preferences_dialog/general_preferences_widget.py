@@ -188,6 +188,13 @@ class GeneralPreferencesWidget(QWidget):
 
         layout.addRow(_("Live recording mode"), self.recording_transcriber_mode)
 
+        export_note_label = QLabel(
+            _("Note: Live recording export settings will be moved to the Advanced Settings in the Live Recording screen in a future version."),
+            self,
+        )
+        export_note_label.setWordWrap(True)
+        layout.addRow("", export_note_label)
+
         self.reduce_gpu_memory_enabled = self.settings.value(
             key=Settings.Key.REDUCE_GPU_MEMORY, default_value=False
         )

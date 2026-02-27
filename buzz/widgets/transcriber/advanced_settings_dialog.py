@@ -9,12 +9,18 @@ from PyQt6.QtWidgets import (
     QLabel,
     QDoubleSpinBox,
     QLineEdit,
+    QComboBox,
+    QHBoxLayout,
+    QPushButton,
+    QSpinBox,
+    QFileDialog,
 )
 
 from buzz.locale import _
 from buzz.model_loader import ModelType
 from buzz.transcriber.transcriber import TranscriptionOptions
 from buzz.settings.settings import Settings
+from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
 from buzz.widgets.line_edit import LineEdit
 from buzz.widgets.transcriber.initial_prompt_text_edit import InitialPromptTextEdit
 from buzz.widgets.transcriber.temperature_validator import TemperatureValidator
@@ -94,7 +100,7 @@ class AdvancedSettingsDialog(QDialog):
         self.llm_prompt_text_edit = QPlainTextEdit(default_llm_prompt)
         self.llm_prompt_text_edit.setEnabled(self.transcription_options.enable_llm_translation)
         self.llm_prompt_text_edit.setMinimumWidth(170)
-        self.llm_prompt_text_edit.setFixedHeight(115)
+        self.llm_prompt_text_edit.setFixedHeight(80)
         self.llm_prompt_text_edit.textChanged.connect(self.on_llm_prompt_changed)
         layout.addRow(_("Instructions for AI:"), self.llm_prompt_text_edit)
 
@@ -116,6 +122,74 @@ class AdvancedSettingsDialog(QDialog):
             self.line_separator_line_edit.setText(line_sep_display)
             self.line_separator_line_edit.textChanged.connect(self.on_line_separator_changed)
             layout.addRow(_("Line separator:"), self.line_separator_line_edit)
+
+            # Live recording mode
+            self.recording_mode_combo = QComboBox(self)
+            for mode in RecordingTranscriberMode:
+                self.recording_mode_combo.addItem(mode.value)
+            self.recording_mode_combo.setCurrentIndex(
+                self.settings.value(Settings.Key.RECORDING_TRANSCRIBER_MODE, 0)
+            )
+            self.recording_mode_combo.currentIndexChanged.connect(self.on_recording_mode_changed)
+            layout.addRow(_("Live recording mode:"), self.recording_mode_combo)
+
+            # Export enabled checkbox
+            self._export_enabled = self.settings.value(
+                Settings.Key.RECORDING_TRANSCRIBER_EXPORT_ENABLED, False
+            )
+            self.export_enabled_checkbox = QCheckBox(_("Enable live recording export"))
+            self.export_enabled_checkbox.setChecked(self._export_enabled)
+            self.export_enabled_checkbox.stateChanged.connect(self.on_export_enabled_changed)
+            layout.addRow("", self.export_enabled_checkbox)
+
+            # Export folder
+            export_folder = self.settings.value(
+                Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FOLDER, ""
+            )
+            self.export_folder_line_edit = LineEdit(export_folder, self)
+            self.export_folder_line_edit.setEnabled(self._export_enabled)
+            self.export_folder_line_edit.textChanged.connect(self.on_export_folder_changed)
+            self.export_folder_browse_button = QPushButton(_("Browse"), self)
+            self.export_folder_browse_button.setEnabled(self._export_enabled)
+            self.export_folder_browse_button.clicked.connect(self.on_browse_export_folder)
+            export_folder_row = QHBoxLayout()
+            export_folder_row.addWidget(self.export_folder_line_edit)
+            export_folder_row.addWidget(self.export_folder_browse_button)
+            layout.addRow(_("Export folder:"), export_folder_row)
+
+            # Export file name template
+            export_file_name = self.settings.value(
+                Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FILE_NAME, ""
+            )
+            self.export_file_name_line_edit = LineEdit(export_file_name, self)
+            self.export_file_name_line_edit.setEnabled(self._export_enabled)
+            self.export_file_name_line_edit.textChanged.connect(self.on_export_file_name_changed)
+            layout.addRow(_("Export file name:"), self.export_file_name_line_edit)
+
+            # Export file type
+            self.export_file_type_combo = QComboBox(self)
+            self.export_file_type_combo.addItem(_("Text file (.txt)"), "txt")
+            self.export_file_type_combo.addItem(_("CSV (.csv)"), "csv")
+            current_type = self.settings.value(
+                Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FILE_TYPE, "txt"
+            )
+            type_index = self.export_file_type_combo.findData(current_type)
+            if type_index >= 0:
+                self.export_file_type_combo.setCurrentIndex(type_index)
+            self.export_file_type_combo.setEnabled(self._export_enabled)
+            self.export_file_type_combo.currentIndexChanged.connect(self.on_export_file_type_changed)
+            layout.addRow(_("Export file type:"), self.export_file_type_combo)
+
+            # Max entries
+            max_entries = self.settings.value(
+                Settings.Key.RECORDING_TRANSCRIBER_EXPORT_MAX_ENTRIES, 0, int
+            )
+            self.export_max_entries_spin = QSpinBox(self)
+            self.export_max_entries_spin.setRange(0, 99)
+            self.export_max_entries_spin.setValue(max_entries)
+            self.export_max_entries_spin.setEnabled(self._export_enabled)
+            self.export_max_entries_spin.valueChanged.connect(self.on_export_max_entries_changed)
+            layout.addRow(_("Limit export entries\n(0 = export all):"), self.export_max_entries_spin)
 
         button_box = QDialogButtonBox(
             QDialogButtonBox.StandardButton(QDialogButtonBox.StandardButton.Ok), self
@@ -168,3 +242,33 @@ class AdvancedSettingsDialog(QDialog):
         except UnicodeDecodeError:
             return
         self.transcription_options_changed.emit(self.transcription_options)
+
+    def on_recording_mode_changed(self, index: int):
+        self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_MODE, index)
+
+    def on_export_enabled_changed(self, state: int):
+        self._export_enabled = state == 2
+        self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_EXPORT_ENABLED, self._export_enabled)
+        self.export_folder_line_edit.setEnabled(self._export_enabled)
+        self.export_folder_browse_button.setEnabled(self._export_enabled)
+        self.export_file_name_line_edit.setEnabled(self._export_enabled)
+        self.export_file_type_combo.setEnabled(self._export_enabled)
+        self.export_max_entries_spin.setEnabled(self._export_enabled)
+
+    def on_export_folder_changed(self, text: str):
+        self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FOLDER, text)
+
+    def on_browse_export_folder(self):
+        folder = QFileDialog.getExistingDirectory(self, _("Select Export Folder"))
+        if folder:
+            self.export_folder_line_edit.setText(folder)
+
+    def on_export_file_name_changed(self, text: str):
+        self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FILE_NAME, text)
+
+    def on_export_file_type_changed(self, index: int):
+        file_type = self.export_file_type_combo.itemData(index)
+        self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FILE_TYPE, file_type)
+
+    def on_export_max_entries_changed(self, value: int):
+        self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_EXPORT_MAX_ENTRIES, value)
