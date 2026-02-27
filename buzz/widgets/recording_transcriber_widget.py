@@ -653,9 +653,15 @@ class RecordingTranscriberWidget(QWidget):
             self.translation_thread.finished.connect(
                 self.translation_thread.deleteLater
             )
+            self.translation_thread.finished.connect(
+                lambda: setattr(self, "translation_thread", None)
+            )
 
             self.translator.finished.connect(self.translation_thread.quit)
             self.translator.finished.connect(self.translator.deleteLater)
+            self.translator.finished.connect(
+                lambda: setattr(self, "translator", None)
+            )
 
             self.translator.translation.connect(self.on_next_translation)
 

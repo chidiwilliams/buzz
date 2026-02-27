@@ -140,7 +140,7 @@ class Translator(QObject):
             translations[num] = text
 
         return [
-            translations.get(i, _("Translation error, see logs!"))
+            translations.get(i, "")
             for i in range(1, expected_count + 1)
         ]
 
