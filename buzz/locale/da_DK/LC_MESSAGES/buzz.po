@@ -412,7 +412,7 @@ msgstr "Talegenkendelsesindstillinger"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-msgstr "Komma-separerede, fx., \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+msgstr "Komma-separerede, fx., \""
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Temperature:"
@@ -1505,66 +1505,63 @@ msgid "View Transcript Timestamps"
 msgstr "Vis transkriptionstidstempler "
 
 #: buzz/settings/shortcut.py
-#, fuzzy
 msgid "Search Transcript"
-msgstr "Åben transkription"
+msgstr "Søg i transskription"
 
 #: buzz/settings/shortcut.py
 msgid "Go to Next Transcript Search Result"
-msgstr ""
+msgstr "Gå til næste søgeresultat i transskription"
 
 #: buzz/settings/shortcut.py
 msgid "Go to Previous Transcript Search Result"
-msgstr ""
+msgstr "Gå til forrige søgeresultat i transskription"
 
 #: buzz/settings/shortcut.py
-#, fuzzy
 msgid "Scroll to Current Text"
-msgstr "Rul til aktuel"
+msgstr "Rul til aktuel tekst"
 
 #: buzz/settings/shortcut.py
 msgid "Play/Pause Audio"
-msgstr ""
+msgstr "Afspil/Pause lyd"
 
 #: buzz/settings/shortcut.py
 msgid "Replay Current Segment"
-msgstr ""
+msgstr "Afspil nuværende segment igen"
 
 #: buzz/settings/shortcut.py
-#, fuzzy
 msgid "Toggle Playback Controls"
-msgstr "Afspilningskontroller:"
+msgstr "Skift afspilningskontroller"
 
 #: buzz/settings/shortcut.py
 msgid "Decrease Segment Start Time"
-msgstr ""
+msgstr "Reducer segmentets starttidspunkt"
 
 #: buzz/settings/shortcut.py
 msgid "Increase Segment Start Time"
-msgstr ""
+msgstr "Øg segmentets starttidspunkt"
 
 #: buzz/settings/shortcut.py
 msgid "Decrease Segment End Time"
-msgstr ""
+msgstr "Reducer segmentets sluttidspunkt"
 
 #: buzz/settings/shortcut.py
 msgid "Increase Segment End Time"
-msgstr ""
+msgstr "Øg segmentets sluttidspunkt"
 
 #: buzz/settings/recording_transcriber_mode.py
 msgid "Append below"
-msgstr ""
+msgstr "Tilføj herunder"
 
 #: buzz/settings/recording_transcriber_mode.py
 msgid "Append above"
-msgstr ""
+msgstr "Tilføj herover"
 
 #: buzz/settings/recording_transcriber_mode.py
 msgid "Append and correct"
-msgstr ""
+msgstr "Tilføj og ret"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
-msgstr ""
+msgstr "Taleoprydning mislykkedes! Kontroller din internetforbindelse — en model skal muligvis hentes ned."
