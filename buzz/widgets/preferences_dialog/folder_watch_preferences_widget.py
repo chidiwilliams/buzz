@@ -49,11 +49,11 @@ class FolderWatchPreferencesWidget(QWidget):
         delete_checkbox.setObjectName("DeleteProcessedFilesCheckbox")
         delete_checkbox.stateChanged.connect(self.on_delete_processed_files_changed)
 
-        input_folder_browse_button = QPushButton(_("Browse"))
-        input_folder_browse_button.clicked.connect(self.on_click_browse_input_folder)
+        self.input_folder_browse_button = QPushButton(_("Browse"))
+        self.input_folder_browse_button.clicked.connect(self.on_click_browse_input_folder)
 
-        output_folder_browse_button = QPushButton(_("Browse"))
-        output_folder_browse_button.clicked.connect(self.on_click_browse_output_folder)
+        self.output_folder_browse_button = QPushButton(_("Browse"))
+        self.output_folder_browse_button.clicked.connect(self.on_click_browse_output_folder)
 
         input_folder_row = QHBoxLayout()
         self.input_folder_line_edit = LineEdit(config.input_directory, self)
@@ -62,7 +62,7 @@ class FolderWatchPreferencesWidget(QWidget):
         self.input_folder_line_edit.setObjectName("InputFolderLineEdit")
 
         input_folder_row.addWidget(self.input_folder_line_edit)
-        input_folder_row.addWidget(input_folder_browse_button)
+        input_folder_row.addWidget(self.input_folder_browse_button)
 
         output_folder_row = QHBoxLayout()
         self.output_folder_line_edit = LineEdit(config.output_directory, self)
@@ -71,7 +71,7 @@ class FolderWatchPreferencesWidget(QWidget):
         self.output_folder_line_edit.setObjectName("OutputFolderLineEdit")
 
         output_folder_row.addWidget(self.output_folder_line_edit)
-        output_folder_row.addWidget(output_folder_browse_button)
+        output_folder_row.addWidget(self.output_folder_browse_button)
 
         openai_access_token = get_password(Key.OPENAI_API_KEY)
         (
@@ -82,14 +82,16 @@ class FolderWatchPreferencesWidget(QWidget):
             file_paths=[],
         )
 
-        transcription_form_widget = FileTranscriptionFormWidget(
+        self.transcription_form_widget = FileTranscriptionFormWidget(
             transcription_options=transcription_options,
             file_transcription_options=file_transcription_options,
             parent=self,
         )
-        transcription_form_widget.transcription_options_changed.connect(
+        self.transcription_form_widget.transcription_options_changed.connect(
             self.on_transcription_options_changed
         )
+
+        self.delete_checkbox = delete_checkbox
 
         layout = QVBoxLayout(self)
 
@@ -99,13 +101,15 @@ class FolderWatchPreferencesWidget(QWidget):
         folders_form_layout.addRow(_("Input folder"), input_folder_row)
         folders_form_layout.addRow(_("Output folder"), output_folder_row)
         folders_form_layout.addRow("", delete_checkbox)
-        folders_form_layout.addWidget(transcription_form_widget)
+        folders_form_layout.addWidget(self.transcription_form_widget)
 
         layout.addLayout(folders_form_layout)
-        layout.addWidget(transcription_form_widget)
+        layout.addWidget(self.transcription_form_widget)
         layout.addStretch()
 
         self.setLayout(layout)
+
+        self._set_settings_enabled(config.enabled)
 
     def on_click_browse_input_folder(self):
         folder = QFileDialog.getExistingDirectory(self, _("Select Input Folder"))
@@ -125,8 +129,18 @@ class FolderWatchPreferencesWidget(QWidget):
         self.config.output_directory = folder
         self.config_changed.emit(self.config)
 
+    def _set_settings_enabled(self, enabled: bool):
+        self.input_folder_line_edit.setEnabled(enabled)
+        self.input_folder_browse_button.setEnabled(enabled)
+        self.output_folder_line_edit.setEnabled(enabled)
+        self.output_folder_browse_button.setEnabled(enabled)
+        self.delete_checkbox.setEnabled(enabled)
+        self.transcription_form_widget.setEnabled(enabled)
+
     def on_enable_changed(self, state: int):
-        self.config.enabled = state == 2
+        enabled = state == 2
+        self.config.enabled = enabled
+        self._set_settings_enabled(enabled)
         self.config_changed.emit(self.config)
 
     def on_delete_processed_files_changed(self, state: int):

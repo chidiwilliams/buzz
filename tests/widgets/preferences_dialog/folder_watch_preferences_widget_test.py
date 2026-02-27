@@ -48,8 +48,12 @@ class TestFolderWatchPreferencesWidget:
         assert not checkbox.isChecked()
         assert input_folder_line_edit.text() == ""
         assert output_folder_line_edit.text() == ""
+        assert not input_folder_line_edit.isEnabled()
+        assert not output_folder_line_edit.isEnabled()
 
         checkbox.setChecked(True)
+        assert input_folder_line_edit.isEnabled()
+        assert output_folder_line_edit.isEnabled()
         input_folder_line_edit.setText("test/input/folder")
         output_folder_line_edit.setText("test/output/folder")
 
