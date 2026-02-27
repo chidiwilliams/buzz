@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-26 20:29+0200\n"
+"POT-Creation-Date: 2026-02-22 15:20+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -166,6 +166,7 @@ msgstr ""
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Browse"
 msgstr ""
 
@@ -175,6 +176,12 @@ msgstr ""
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Live recording mode"
+msgstr ""
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid ""
+"Note: Live recording export settings will be moved to the Advanced Settings "
+"in the Live Recording screen in a future version."
 msgstr ""
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
@@ -224,6 +231,7 @@ msgid ""
 msgstr ""
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Select Export Folder"
 msgstr ""
 
@@ -427,6 +435,40 @@ msgstr ""
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Line separator:"
+msgstr ""
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Live recording mode:"
+msgstr ""
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Enable live recording export"
+msgstr ""
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Export folder:"
+msgstr ""
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Export file name:"
+msgstr ""
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Text file (.txt)"
+msgstr ""
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "CSV (.csv)"
+msgstr ""
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Export file type:"
+msgstr ""
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid ""
+"Limit export entries\n"
+"(0 = export all):"
 msgstr ""
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py

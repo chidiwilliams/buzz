@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-26 20:29+0200\n"
+"POT-Creation-Date: 2026-02-27 09:07+0200\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: lamb \n"
@@ -170,6 +170,7 @@ msgstr "启用实时录制转录导出"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Browse"
 msgstr "浏览"
 
@@ -181,6 +182,12 @@ msgstr "导出文件夹"
 #, fuzzy
 msgid "Live recording mode"
 msgstr "现场录制模式"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid ""
+"Note: Live recording export settings will be moved to the Advanced Settings "
+"in the Live Recording screen in a future version."
+msgstr ""
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use 8-bit quantization to reduce memory usage"
@@ -231,6 +238,7 @@ msgstr ""
 "API只支持 base64字符（A-Za-z0-9+/=）。其他字符在API密钥中可能导致错误。"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Select Export Folder"
 msgstr "选择输出文件夹"
 
@@ -445,6 +453,46 @@ msgstr ""
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Line separator:"
+msgstr ""
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+#, fuzzy
+msgid "Live recording mode:"
+msgstr "现场录制模式"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+#, fuzzy
+msgid "Enable live recording export"
+msgstr "启用实时录制转录导出"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+#, fuzzy
+msgid "Export folder:"
+msgstr "导出文件夹"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+#, fuzzy
+msgid "Export file name:"
+msgstr "默认输出文件名"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+#, fuzzy
+msgid "Text file (.txt)"
+msgstr "文本文件"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "CSV (.csv)"
+msgstr ""
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+#, fuzzy
+msgid "Export file type:"
+msgstr "导出文件夹"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid ""
+"Limit export entries\n"
+"(0 = export all):"
 msgstr ""
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py

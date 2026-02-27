@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-26 20:29+0200\n"
+"POT-Creation-Date: 2026-02-27 09:07+0200\n"
 "PO-Revision-Date: 2025-03-20 18:30+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: none\n"
@@ -171,6 +171,7 @@ msgstr "Transcripties van opnames onmiddelijk exporteren"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Browse"
 msgstr "Bladeren"
 
@@ -181,6 +182,12 @@ msgstr "Exportmap"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Live recording mode"
 msgstr "Live-opnamemodus"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid ""
+"Note: Live recording export settings will be moved to the Advanced Settings "
+"in the Live Recording screen in a future version."
+msgstr ""
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use 8-bit quantization to reduce memory usage"
@@ -233,6 +240,7 @@ msgstr ""
 "kunnen problemen veroorzaken."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Select Export Folder"
 msgstr "Kies een exportmap"
 
@@ -442,6 +450,46 @@ msgstr ""
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Line separator:"
+msgstr ""
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+#, fuzzy
+msgid "Live recording mode:"
+msgstr "Live-opnamemodus"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+#, fuzzy
+msgid "Enable live recording export"
+msgstr "Transcripties van opnames onmiddelijk exporteren"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+#, fuzzy
+msgid "Export folder:"
+msgstr "Exportmap"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+#, fuzzy
+msgid "Export file name:"
+msgstr "Standaardnaam van export"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+#, fuzzy
+msgid "Text file (.txt)"
+msgstr "Tekstbestanden"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "CSV (.csv)"
+msgstr ""
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+#, fuzzy
+msgid "Export file type:"
+msgstr "Exportmap"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid ""
+"Limit export entries\n"
+"(0 = export all):"
 msgstr ""
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py

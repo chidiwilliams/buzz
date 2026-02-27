@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-26 20:29+0200\n"
-"PO-Revision-Date: 2026-02-26 20:30+0200\n"
+"POT-Creation-Date: 2026-02-27 09:07+0200\n"
+"PO-Revision-Date: 2026-02-27 09:11+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -166,6 +166,7 @@ msgstr "Eksportēt dzīvā ieraksta transkriptus"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Browse"
 msgstr "Izvēlēties"
 
@@ -178,6 +179,14 @@ msgid "Live recording mode"
 msgstr ""
 "Dzīvā ieraksta\n"
 "režīms"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid ""
+"Note: Live recording export settings will be moved to the Advanced Settings "
+"in the Live Recording screen in a future version."
+msgstr ""
+"Piezīme: Dzīvā ieraksta iestatījumi nākotnes Buzz versijās tiks pārvietoti "
+"uz Papildu iestatījumu sadaļu Dzīvā ieraksta logā"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use 8-bit quantization to reduce memory usage"
@@ -234,6 +243,7 @@ msgstr ""
 "atslēgā var radīt kļūdas."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Select Export Folder"
 msgstr "Izvēlieties mapi kurā eksportēt"
 
@@ -446,6 +456,44 @@ msgstr "Klusuma slieksnis:"
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Line separator:"
 msgstr "Rindiņu atdalītājs:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Live recording mode:"
+msgstr ""
+"Dzīvā ieraksta\n"
+"režīms:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Enable live recording export"
+msgstr "Eksportēt dzīvā ieraksta transkriptus"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Export folder:"
+msgstr "Eksportēt mapē:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Export file name:"
+msgstr "Eksporta fails:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Text file (.txt)"
+msgstr "Teksta fails (.txt)"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "CSV (.csv)"
+msgstr "CSV (.csv)"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Export file type:"
+msgstr "Eksporta faila tips:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid ""
+"Limit export entries\n"
+"(0 = export all):"
+msgstr ""
+"Eksportēt tikai pēdējos\n"
+"(0 = eksportēt visus):"
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py
 msgid "Word-level timings"
