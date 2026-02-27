@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 09:07+0200\n"
-"PO-Revision-Date: 2026-02-27 09:11+0200\n"
+"POT-Creation-Date: 2026-02-27 16:46+0200\n"
+"PO-Revision-Date: 2026-02-27 16:47+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -260,6 +260,10 @@ msgstr ""
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Enable folder watch"
 msgstr "Ieslēgt mapes vērošanu"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Delete processed files"
+msgstr "Dzēst apstrādātos failus"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
@@ -1561,10 +1565,6 @@ msgstr "Jaunie teikumi augšā"
 msgid "Append and correct"
 msgstr "Papildināt un labot esošo"
 
-#: buzz/translator.py
-msgid "Translation error, see logs!"
-msgstr "Kļūda tulkojot, skatiet sistēmas žurnālu!"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
@@ -1572,6 +1572,9 @@ msgid ""
 msgstr ""
 "Runas atdalīšana neizdevās! Pārbaudiet interneta savienojumu, iespējams "
 "jālejupielādē modelis."
+
+#~ msgid "Translation error, see logs!"
+#~ msgstr "Kļūda tulkojot, skatiet sistēmas žurnālu!"
 
 #~ msgid "Snap permission notice"
 #~ msgstr "Snap atļauju piezīme"

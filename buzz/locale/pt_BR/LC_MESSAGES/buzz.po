@@ -259,6 +259,10 @@ msgid "Enable folder watch"
 msgstr "Habilitar monitoramento de pasta"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Delete processed files"
+msgstr "Excluir arquivos processados"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
 msgstr "Pasta de entrada"
 

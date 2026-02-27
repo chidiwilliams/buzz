@@ -357,6 +357,42 @@ class TestWhisperFileTranscriber:
         transcriber.stop()
         time.sleep(3)
 
+    def test_transcribe_from_folder_watch_source_deletes_file(self, qtbot):
+        file_path = tempfile.mktemp(suffix=".mp3")
+        shutil.copy(test_audio_path, file_path)
+
+        file_transcription_options = FileTranscriptionOptions(
+            file_paths=[file_path],
+            output_formats={OutputFormat.TXT},
+        )
+        transcription_options = TranscriptionOptions()
+        model_path = get_model_path(transcription_options.model)
+
+        output_directory = tempfile.mkdtemp()
+        transcriber = WhisperFileTranscriber(
+            task=FileTranscriptionTask(
+                model_path=model_path,
+                transcription_options=transcription_options,
+                file_transcription_options=file_transcription_options,
+                file_path=file_path,
+                original_file_path=file_path,
+                output_directory=output_directory,
+                source=FileTranscriptionTask.Source.FOLDER_WATCH,
+                delete_source_file=True,
+            )
+        )
+        with qtbot.wait_signal(transcriber.completed, timeout=10 * 6000):
+            transcriber.run()
+
+        assert not os.path.isfile(file_path)
+        assert not os.path.isfile(
+            os.path.join(output_directory, os.path.basename(file_path))
+        )
+        assert len(glob.glob("*.txt", root_dir=output_directory)) > 0
+
+        transcriber.stop()
+        time.sleep(3)
+
     @pytest.mark.skip()
     def test_transcribe_stop(self):
         output_file_path = os.path.join(tempfile.gettempdir(), "whisper.txt")

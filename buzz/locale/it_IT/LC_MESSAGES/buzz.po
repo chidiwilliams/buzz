@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 09:07+0200\n"
+"POT-Creation-Date: 2026-02-27 16:46+0200\n"
 "PO-Revision-Date: 2026-01-25 21:42+0200\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
@@ -261,6 +261,10 @@ msgid "Enable folder watch"
 msgstr "Abilita controllo cartelle"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Delete processed files"
+msgstr "Elimina file elaborati"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
 msgstr "Cartella di input"
 
@@ -438,7 +442,9 @@ msgstr "Modello AI:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Please translate each text sent to you from English to Spanish."
-msgstr "Per favore, traduci ogni testo che ti viene inviato dall'inglese allo spagnolo."
+msgstr ""
+"Per favore, traduci ogni testo che ti viene inviato dall'inglese allo "
+"spagnolo."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -1565,10 +1571,6 @@ msgstr "Aggiungere sopra"
 msgid "Append and correct"
 msgstr "Aggiungere e correggere"
 
-#: buzz/translator.py
-msgid "Translation error, see logs!"
-msgstr "Errore di traduzione, controlla i log!"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
@@ -1576,6 +1578,9 @@ msgid ""
 msgstr ""
 "Estrazione del parlato non riuscita! Controlla la tua connessione Internet — "
 "potrebbe essere necessario scaricare un modello."
+
+#~ msgid "Translation error, see logs!"
+#~ msgstr "Errore di traduzione, controlla i log!"
 
 #~ msgid "Snap permission notice"
 #~ msgstr "Avviso di autorizzazione Snap"

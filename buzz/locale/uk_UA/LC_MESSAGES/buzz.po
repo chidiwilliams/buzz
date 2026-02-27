@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 09:07+0200\n"
+"POT-Creation-Date: 2026-02-27 16:46+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Yevhen Popok <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -205,7 +205,8 @@ msgstr "Використовувати лише CPU та вимкнути при
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
-msgstr "Увімкніть це, якщо великі моделі не поміщаються в пам'ять GPU і Buzz падає"
+msgstr ""
+"Увімкніть це, якщо великі моделі не поміщаються в пам'ять GPU і Buzz падає"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Disable GPU"
@@ -232,8 +233,8 @@ msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
 msgstr ""
-"API підтримує лише символи base64 (A-Za-z0-9+/=_-). Інші символи в "
-"API-ключі можуть спричиняти помилки."
+"API підтримує лише символи base64 (A-Za-z0-9+/=_-). Інші символи в API-ключі "
+"можуть спричиняти помилки."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
@@ -253,6 +254,10 @@ msgstr ""
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Enable folder watch"
 msgstr "Увімкнути стеження за текою"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Delete processed files"
+msgstr "Видалити оброблені файли"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
@@ -430,7 +435,9 @@ msgstr "Модель ШІ"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Please translate each text sent to you from English to Spanish."
-msgstr "Будь ласка, перекладайте кожен текст, надісланий вам, з англійської на іспанську."
+msgstr ""
+"Будь ласка, перекладайте кожен текст, надісланий вам, з англійської на "
+"іспанську."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -623,7 +630,8 @@ msgstr ""
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
-msgstr "Не вдалося перезапустити транскрипцію: обробник транскрипції не знайдено."
+msgstr ""
+"Не вдалося перезапустити транскрипцію: обробник транскрипції не знайдено."
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -892,7 +900,9 @@ msgstr "Бажана довжина субтитрів"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were disabled during transcription"
-msgstr "Доступно лише якщо хронометраж на рівні слів був вимкнений під час транскрипції"
+msgstr ""
+"Доступно лише якщо хронометраж на рівні слів був вимкнений під час "
+"транскрипції"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge Options"
@@ -916,7 +926,9 @@ msgstr "Об'єднати"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
-msgstr "Доступно лише якщо хронометраж на рівні слів був увімкнений під час транскрипції"
+msgstr ""
+"Доступно лише якщо хронометраж на рівні слів був увімкнений під час "
+"транскрипції"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
@@ -1078,7 +1090,8 @@ msgstr "Не вдається додати до звʼязки ключів API-
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
 msgid "Whisper server failed to start. Check logs for details."
-msgstr "Не вдалося запустити сервер Whisper. Перевірте журнали для отримання деталей."
+msgstr ""
+"Не вдалося запустити сервер Whisper. Перевірте журнали для отримання деталей."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
@@ -1547,10 +1560,6 @@ msgstr "Додати зверху"
 msgid "Append and correct"
 msgstr "Додати та виправити"
 
-#: buzz/translator.py
-msgid "Translation error, see logs!"
-msgstr "Помилка перекладу, перегляньте журнали!"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
@@ -1558,6 +1567,9 @@ msgid ""
 msgstr ""
 "Не вдалося витягти мовлення! Перевірте підключення до інтернету — можливо, "
 "потрібно завантажити модель."
+
+#~ msgid "Translation error, see logs!"
+#~ msgstr "Помилка перекладу, перегляньте журнали!"
 
 #~ msgid "Snap permission notice"
 #~ msgstr "Попередження щодо дозволів Snap"

@@ -202,6 +202,7 @@ class FileTranscriptionTask:
     source: Source = Source.FILE_IMPORT
     file_path: Optional[str] = None
     original_file_path: Optional[str] = None  # Original path before speech extraction
+    delete_source_file: bool = False
     url: Optional[str] = None
     fraction_downloaded: float = 0.0
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 09:07+0200\n"
+"POT-Creation-Date: 2026-02-27 16:46+0200\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: Lamb\n"
@@ -182,8 +182,7 @@ msgstr "即時錄製模式"
 msgid ""
 "Note: Live recording export settings will be moved to the Advanced Settings "
 "in the Live Recording screen in a future version."
-msgstr ""
-"注意：即時錄製匯出設定將在未來版本中移至即時錄製畫面的進階設定中。"
+msgstr "注意：即時錄製匯出設定將在未來版本中移至即時錄製畫面的進階設定中。"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use 8-bit quantization to reduce memory usage"
@@ -194,8 +193,8 @@ msgid ""
 "Applies to Huggingface and Faster Whisper models. Reduces GPU memory usage "
 "but may slightly decrease transcription quality."
 msgstr ""
-"適用於 Huggingface 和 Faster Whisper 模型。可降低 GPU 記憶體使用量，但可能"
-"略微降低轉錄品質。"
+"適用於 Huggingface 和 Faster Whisper 模型。可降低 GPU 記憶體使用量，但可能略"
+"微降低轉錄品質。"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Reduce GPU RAM"
@@ -221,8 +220,7 @@ msgstr "OpenAI API 金鑰測試"
 msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
-msgstr ""
-"您的 API 金鑰有效。Buzz 將使用此金鑰執行 Whisper API 轉錄和 AI 翻譯。"
+msgstr "您的 API 金鑰有效。Buzz 將使用此金鑰執行 Whisper API 轉錄和 AI 翻譯。"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Invalid API key"
@@ -233,7 +231,8 @@ msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
 msgstr ""
-"API 僅支援 base64 字元（A-Za-z0-9+/=_-）。API 金鑰中的其他字元可能會導致錯誤。"
+"API 僅支援 base64 字元（A-Za-z0-9+/=_-）。API 金鑰中的其他字元可能會導致錯"
+"誤。"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
@@ -246,12 +245,16 @@ msgid ""
 "Transcription and translation may still work if the API does not support key "
 "validation."
 msgstr ""
-"OpenAI API 傳回無效回應。請檢查 API 網址或您的金鑰。若 API 不支援金鑰驗證，"
-"轉錄和翻譯仍可能正常運作。"
+"OpenAI API 傳回無效回應。請檢查 API 網址或您的金鑰。若 API 不支援金鑰驗證，轉"
+"錄和翻譯仍可能正常運作。"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Enable folder watch"
 msgstr "啟用資料夾監視"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Delete processed files"
+msgstr "刪除已處理的檔案"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
@@ -616,8 +619,7 @@ msgstr "重新開始轉錄失敗：{}"
 msgid ""
 "Could not restart transcription: model not available and could not be "
 "downloaded."
-msgstr ""
-"無法重新開始轉錄：模型不可用且無法下載。"
+msgstr "無法重新開始轉錄：模型不可用且無法下載。"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
@@ -822,8 +824,7 @@ msgstr "跟隨音訊"
 msgid ""
 "Enable/disable following the current audio position in the transcript. When "
 "enabled, automatically scrolls to current text."
-msgstr ""
-"啟用／停用在轉錄稿中跟隨目前音訊位置。啟用後，自動捲動至目前文字。"
+msgstr "啟用／停用在轉錄稿中跟隨目前音訊位置。啟用後，自動捲動至目前文字。"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Scroll to Current"
@@ -916,8 +917,7 @@ msgstr "僅在轉錄時啟用單字級別時間戳記時可用"
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
 "Speaker identification is not available: failed to load required libraries."
-msgstr ""
-"說話者識別不可用：無法載入所需程式庫。"
+msgstr "說話者識別不可用：無法載入所需程式庫。"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "1/8 Collecting transcripts"
@@ -939,8 +939,7 @@ msgstr "3/8 載入對齊模型（正在使用快取重試...）"
 msgid ""
 "Failed to load alignment model. Please check your internet connection and "
 "try again."
-msgstr ""
-"無法載入對齊模型。請檢查您的網路連線並重試。"
+msgstr "無法載入對齊模型。請檢查您的網路連線並重試。"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "4/8 Processing audio"
@@ -1080,8 +1079,8 @@ msgid ""
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
 "variable."
 msgstr ""
-"Whisper 伺服器因記憶體不足而啟動失敗。請改用較小的模型重試。若要強制使用 "
-"CPU 模式，請設定環境變數 BUZZ_FORCE_CPU=TRUE。"
+"Whisper 伺服器因記憶體不足而啟動失敗。請改用較小的模型重試。若要強制使用 CPU "
+"模式，請設定環境變數 BUZZ_FORCE_CPU=TRUE。"
 
 #: buzz/transcriber/transcriber.py
 msgid "Translate to English"
@@ -1539,16 +1538,14 @@ msgstr "附加至上方"
 msgid "Append and correct"
 msgstr "附加並校正"
 
-#: buzz/translator.py
-msgid "Translation error, see logs!"
-msgstr "翻譯錯誤，請查看日誌！"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
-msgstr ""
-"語音提取失敗！請檢查您的網路連線——可能需要下載模型。"
+msgstr "語音提取失敗！請檢查您的網路連線——可能需要下載模型。"
+
+#~ msgid "Translation error, see logs!"
+#~ msgstr "翻譯錯誤，請查看日誌！"
 
 #~ msgid "ID"
 #~ msgstr "ID"

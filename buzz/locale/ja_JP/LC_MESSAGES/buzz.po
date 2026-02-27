@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 09:07+0200\n"
+"POT-Creation-Date: 2026-02-27 16:46+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: nunawa <71294849+nunawa@users.noreply.github.com>\n"
 "Language-Team: \n"
@@ -178,8 +178,8 @@ msgid ""
 "Note: Live recording export settings will be moved to the Advanced Settings "
 "in the Live Recording screen in a future version."
 msgstr ""
-"注意：ライブ録音の出力設定は、将来のバージョンでライブ録音画面の詳細設定に移動"
-"されます。"
+"注意：ライブ録音の出力設定は、将来のバージョンでライブ録音画面の詳細設定に移"
+"動されます。"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use 8-bit quantization to reduce memory usage"
@@ -190,8 +190,8 @@ msgid ""
 "Applies to Huggingface and Faster Whisper models. Reduces GPU memory usage "
 "but may slightly decrease transcription quality."
 msgstr ""
-"HuggingfaceおよびFaster Whisperモデルに適用されます。GPUメモリ使用量を削減しま"
-"すが、文字起こしの品質がわずかに低下する場合があります。"
+"HuggingfaceおよびFaster Whisperモデルに適用されます。GPUメモリ使用量を削減し"
+"ますが、文字起こしの品質がわずかに低下する場合があります。"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Reduce GPU RAM"
@@ -203,7 +203,8 @@ msgstr "CPUのみを使用してGPUアクセラレーションを無効にする
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
-msgstr "大きなモデルがGPUメモリに収まらずBuzzがクラッシュする場合に設定してください"
+msgstr ""
+"大きなモデルがGPUメモリに収まらずBuzzがクラッシュする場合に設定してください"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Disable GPU"
@@ -251,6 +252,10 @@ msgstr ""
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Enable folder watch"
 msgstr "フォルダ監視を有効にする"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Delete processed files"
+msgstr "処理済みファイルを削除"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
@@ -616,8 +621,8 @@ msgid ""
 "Could not restart transcription: model not available and could not be "
 "downloaded."
 msgstr ""
-"文字起こしを再開できませんでした: モデルが利用できず、ダウンロードもできません"
-"でした。"
+"文字起こしを再開できませんでした: モデルが利用できず、ダウンロードもできませ"
+"んでした。"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
@@ -919,8 +924,7 @@ msgstr "文字起こし時に単語レベルのタイミングが有効だった
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
 "Speaker identification is not available: failed to load required libraries."
-msgstr ""
-"話者識別は利用できません: 必要なライブラリの読み込みに失敗しました。"
+msgstr "話者識別は利用できません: 必要なライブラリの読み込みに失敗しました。"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "1/8 Collecting transcripts"
@@ -1085,8 +1089,8 @@ msgid ""
 "variable."
 msgstr ""
 "メモリ不足のためWhisperサーバーの起動に失敗しました。より小さいモデルで再試行"
-"してください。CPUモードを強制するには環境変数BUZZ_FORCE_CPU=TRUEを使用してくだ"
-"さい。"
+"してください。CPUモードを強制するには環境変数BUZZ_FORCE_CPU=TRUEを使用してく"
+"ださい。"
 
 #: buzz/transcriber/transcriber.py
 msgid "Translate to English"
@@ -1544,10 +1548,6 @@ msgstr "上に追加"
 msgid "Append and correct"
 msgstr "追加して修正"
 
-#: buzz/translator.py
-msgid "Translation error, see logs!"
-msgstr "翻訳エラーが発生しました。ログを確認してください！"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
@@ -1555,6 +1555,9 @@ msgid ""
 msgstr ""
 "音声抽出に失敗しました！インターネット接続を確認してください。モデルのダウン"
 "ロードが必要な場合があります。"
+
+#~ msgid "Translation error, see logs!"
+#~ msgstr "翻訳エラーが発生しました。ログを確認してください！"
 
 #~ msgid "Snap permission notice"
 #~ msgstr "Snap権限通知"

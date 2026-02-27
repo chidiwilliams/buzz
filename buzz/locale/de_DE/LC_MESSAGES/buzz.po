@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 09:07+0200\n"
+"POT-Creation-Date: 2026-02-27 16:46+0200\n"
 "PO-Revision-Date: 2025-03-05 14:41+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -261,6 +261,10 @@ msgid "Enable folder watch"
 msgstr "Ordner überwachen aktivieren"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Delete processed files"
+msgstr "Verarbeitete Dateien löschen"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
 msgstr "Eingabeordner"
 
@@ -438,7 +442,8 @@ msgstr "KI-Modell:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Please translate each text sent to you from English to Spanish."
-msgstr "Bitte übersetzen Sie jeden an Sie gesendeten Text von Englisch nach Spanisch."
+msgstr ""
+"Bitte übersetzen Sie jeden an Sie gesendeten Text von Englisch nach Spanisch."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -615,7 +620,9 @@ msgstr "Neustart nicht möglich"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Only failed or canceled transcriptions can be restarted."
-msgstr "Nur fehlgeschlagene oder abgebrochene Transkriptionen können neu gestartet werden."
+msgstr ""
+"Nur fehlgeschlagene oder abgebrochene Transkriptionen können neu gestartet "
+"werden."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Failed to restart transcription: {}"
@@ -631,7 +638,9 @@ msgstr ""
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
-msgstr "Transkription konnte nicht neu gestartet werden: Transkriptions-Worker nicht gefunden."
+msgstr ""
+"Transkription konnte nicht neu gestartet werden: Transkriptions-Worker nicht "
+"gefunden."
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -824,7 +833,8 @@ msgstr "Segment wiederholen"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Enable/disable looping when clicking on transcript segments"
-msgstr "Wiederholen beim Klicken auf Transkript-Segmente aktivieren/deaktivieren"
+msgstr ""
+"Wiederholen beim Klicken auf Transkript-Segmente aktivieren/deaktivieren"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Follow Audio"
@@ -900,7 +910,9 @@ msgstr "Gewünschte Untertitellänge"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were disabled during transcription"
-msgstr "Nur verfügbar, wenn Zeitangaben auf Wortebene bei der Transkription deaktiviert waren"
+msgstr ""
+"Nur verfügbar, wenn Zeitangaben auf Wortebene bei der Transkription "
+"deaktiviert waren"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge Options"
@@ -924,7 +936,9 @@ msgstr "Vereinigen"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
-msgstr "Nur verfügbar, wenn Zeitangaben auf Wortebene bei der Transkription aktiviert waren"
+msgstr ""
+"Nur verfügbar, wenn Zeitangaben auf Wortebene bei der Transkription "
+"aktiviert waren"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
@@ -1089,7 +1103,9 @@ msgstr ""
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
 msgid "Whisper server failed to start. Check logs for details."
-msgstr "Whisper-Server konnte nicht gestartet werden. Details in den Protokollen prüfen."
+msgstr ""
+"Whisper-Server konnte nicht gestartet werden. Details in den Protokollen "
+"prüfen."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
@@ -1559,10 +1575,6 @@ msgstr "Oben anhängen"
 msgid "Append and correct"
 msgstr "Anhängen und korrigieren"
 
-#: buzz/translator.py
-msgid "Translation error, see logs!"
-msgstr "Übersetzungsfehler, Protokolle prüfen!"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
@@ -1570,6 +1582,9 @@ msgid ""
 msgstr ""
 "Sprachextraktion fehlgeschlagen! Bitte Internetverbindung prüfen — ein "
 "Modell muss möglicherweise heruntergeladen werden."
+
+#~ msgid "Translation error, see logs!"
+#~ msgstr "Übersetzungsfehler, Protokolle prüfen!"
 
 #~ msgid "Snap permission notice"
 #~ msgstr "Snap-Berechtigungsmitteilung"

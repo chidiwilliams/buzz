@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 09:07+0200\n"
+"POT-Creation-Date: 2026-02-27 16:46+0200\n"
 "PO-Revision-Date: 2025-09-08 12:43+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: \n"
@@ -263,6 +263,10 @@ msgstr ""
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Enable folder watch"
 msgstr "Habilitar la inspección de carpetas"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Delete processed files"
+msgstr "Eliminar archivos procesados"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
@@ -654,11 +658,15 @@ msgstr "No se pudo reiniciar la transcripción: {}"
 msgid ""
 "Could not restart transcription: model not available and could not be "
 "downloaded."
-msgstr "No se pudo reiniciar la transcripción: modelo no disponible y no se pudo descargar."
+msgstr ""
+"No se pudo reiniciar la transcripción: modelo no disponible y no se pudo "
+"descargar."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
-msgstr "No se pudo reiniciar la transcripción: no se encontró el trabajador del transcriptor."
+msgstr ""
+"No se pudo reiniciar la transcripción: no se encontró el trabajador del "
+"transcriptor."
 
 # automatic translation
 #: buzz/widgets/recording_transcriber_widget.py
@@ -938,7 +946,9 @@ msgstr "Longitud deseada de los subtítulos"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were disabled during transcription"
-msgstr "Disponible solo si los tiempos a nivel de palabra estaban desactivados durante la transcripción"
+msgstr ""
+"Disponible solo si los tiempos a nivel de palabra estaban desactivados "
+"durante la transcripción"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge Options"
@@ -962,12 +972,16 @@ msgstr "Fusión"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
-msgstr "Disponible solo si los tiempos a nivel de palabra estaban activados durante la transcripción"
+msgstr ""
+"Disponible solo si los tiempos a nivel de palabra estaban activados durante "
+"la transcripción"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
 "Speaker identification is not available: failed to load required libraries."
-msgstr "La identificación de hablantes no está disponible: no se pudieron cargar las bibliotecas requeridas."
+msgstr ""
+"La identificación de hablantes no está disponible: no se pudieron cargar las "
+"bibliotecas requeridas."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "1/8 Collecting transcripts"
@@ -989,7 +1003,9 @@ msgstr "3/8 Cargando modelo de alineación (reintentando con caché...)"
 msgid ""
 "Failed to load alignment model. Please check your internet connection and "
 "try again."
-msgstr "No se pudo cargar el modelo de alineación. Por favor, compruebe su conexión a internet e inténtelo de nuevo."
+msgstr ""
+"No se pudo cargar el modelo de alineación. Por favor, compruebe su conexión "
+"a internet e inténtelo de nuevo."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "4/8 Processing audio"
@@ -1610,15 +1626,16 @@ msgstr "Añadir arriba"
 msgid "Append and correct"
 msgstr "Añadir y corregir"
 
-#: buzz/translator.py
-msgid "Translation error, see logs!"
-msgstr "¡Error de traducción, consulte los registros!"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
-msgstr "¡Extracción de voz fallida! Compruebe su conexión a internet — es posible que sea necesario descargar un modelo."
+msgstr ""
+"¡Extracción de voz fallida! Compruebe su conexión a internet — es posible "
+"que sea necesario descargar un modelo."
+
+#~ msgid "Translation error, see logs!"
+#~ msgstr "¡Error de traducción, consulte los registros!"
 
 #~ msgid "Snap permission notice"
 #~ msgstr "Aviso de permiso Snap"

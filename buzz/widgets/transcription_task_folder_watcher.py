@@ -111,6 +111,7 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
                     model_path=model_path,
                     output_directory=output_directory,
                     source=FileTranscriptionTask.Source.FOLDER_WATCH,
+                    delete_source_file=self.preferences.delete_processed_files,
                 )
                 self.task_found.emit(task)
                 self.paths_emitted.add(file_path)

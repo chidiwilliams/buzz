@@ -44,6 +44,11 @@ class FolderWatchPreferencesWidget(QWidget):
         checkbox.setObjectName("EnableFolderWatchCheckbox")
         checkbox.stateChanged.connect(self.on_enable_changed)
 
+        delete_checkbox = QCheckBox(_("Delete processed files"))
+        delete_checkbox.setChecked(config.delete_processed_files)
+        delete_checkbox.setObjectName("DeleteProcessedFilesCheckbox")
+        delete_checkbox.stateChanged.connect(self.on_delete_processed_files_changed)
+
         input_folder_browse_button = QPushButton(_("Browse"))
         input_folder_browse_button.clicked.connect(self.on_click_browse_input_folder)
 
@@ -93,6 +98,7 @@ class FolderWatchPreferencesWidget(QWidget):
         folders_form_layout.addRow("", checkbox)
         folders_form_layout.addRow(_("Input folder"), input_folder_row)
         folders_form_layout.addRow(_("Output folder"), output_folder_row)
+        folders_form_layout.addRow("", delete_checkbox)
         folders_form_layout.addWidget(transcription_form_widget)
 
         layout.addLayout(folders_form_layout)
@@ -121,6 +127,10 @@ class FolderWatchPreferencesWidget(QWidget):
 
     def on_enable_changed(self, state: int):
         self.config.enabled = state == 2
+        self.config_changed.emit(self.config)
+
+    def on_delete_processed_files_changed(self, state: int):
+        self.config.delete_processed_files = state == 2
         self.config_changed.emit(self.config)
 
     def on_transcription_options_changed(

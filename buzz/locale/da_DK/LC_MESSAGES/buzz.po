@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 09:07+0200\n"
+"POT-Creation-Date: 2026-02-27 16:46+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Ole Guldberg2 <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -205,7 +205,9 @@ msgstr "Brug kun CPU og deaktiver GPU-acceleration"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
-msgstr "Aktivér dette hvis større modeller ikke passer i GPU-hukommelsen og Buzz crasher"
+msgstr ""
+"Aktivér dette hvis større modeller ikke passer i GPU-hukommelsen og Buzz "
+"crasher"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Disable GPU"
@@ -253,6 +255,10 @@ msgstr ""
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Enable folder watch"
 msgstr "Aktiver mappeovervågning"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Delete processed files"
+msgstr "Slet behandlede filer"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
@@ -618,12 +624,13 @@ msgid ""
 "Could not restart transcription: model not available and could not be "
 "downloaded."
 msgstr ""
-"Kunne ikke genstarte transkription: modellen er ikke tilgængelig og "
-"kunne ikke downloades."
+"Kunne ikke genstarte transkription: modellen er ikke tilgængelig og kunne "
+"ikke downloades."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
-msgstr "Kunne ikke genstarte transkription: transkriptionsprocessen blev ikke fundet."
+msgstr ""
+"Kunne ikke genstarte transkription: transkriptionsprocessen blev ikke fundet."
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -892,7 +899,9 @@ msgstr "Ønskede undertekst længde"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were disabled during transcription"
-msgstr "Kun tilgængeligt hvis ordniveau-tidsstempler var deaktiveret under transkription"
+msgstr ""
+"Kun tilgængeligt hvis ordniveau-tidsstempler var deaktiveret under "
+"transkription"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge Options"
@@ -916,13 +925,16 @@ msgstr "Sammenflet"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
-msgstr "Kun tilgængeligt hvis ordniveau-tidsstempler var aktiveret under transkription"
+msgstr ""
+"Kun tilgængeligt hvis ordniveau-tidsstempler var aktiveret under "
+"transkription"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
 "Speaker identification is not available: failed to load required libraries."
 msgstr ""
-"Taler-identifikation er ikke tilgængelig: kunne ikke indlæse nødvendige biblioteker."
+"Taler-identifikation er ikke tilgængelig: kunne ikke indlæse nødvendige "
+"biblioteker."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "1/8 Collecting transcripts"
@@ -1491,3 +1503,68 @@ msgstr "Vis transkriberede oversættelse"
 #: buzz/settings/shortcut.py
 msgid "View Transcript Timestamps"
 msgstr "Vis transkriptionstidstempler "
+
+#: buzz/settings/shortcut.py
+#, fuzzy
+msgid "Search Transcript"
+msgstr "Åben transkription"
+
+#: buzz/settings/shortcut.py
+msgid "Go to Next Transcript Search Result"
+msgstr ""
+
+#: buzz/settings/shortcut.py
+msgid "Go to Previous Transcript Search Result"
+msgstr ""
+
+#: buzz/settings/shortcut.py
+#, fuzzy
+msgid "Scroll to Current Text"
+msgstr "Rul til aktuel"
+
+#: buzz/settings/shortcut.py
+msgid "Play/Pause Audio"
+msgstr ""
+
+#: buzz/settings/shortcut.py
+msgid "Replay Current Segment"
+msgstr ""
+
+#: buzz/settings/shortcut.py
+#, fuzzy
+msgid "Toggle Playback Controls"
+msgstr "Afspilningskontroller:"
+
+#: buzz/settings/shortcut.py
+msgid "Decrease Segment Start Time"
+msgstr ""
+
+#: buzz/settings/shortcut.py
+msgid "Increase Segment Start Time"
+msgstr ""
+
+#: buzz/settings/shortcut.py
+msgid "Decrease Segment End Time"
+msgstr ""
+
+#: buzz/settings/shortcut.py
+msgid "Increase Segment End Time"
+msgstr ""
+
+#: buzz/settings/recording_transcriber_mode.py
+msgid "Append below"
+msgstr ""
+
+#: buzz/settings/recording_transcriber_mode.py
+msgid "Append above"
+msgstr ""
+
+#: buzz/settings/recording_transcriber_mode.py
+msgid "Append and correct"
+msgstr ""
+
+#: buzz/file_transcriber_queue_worker.py
+msgid ""
+"Speech extraction failed! Check your internet connection — a model may need "
+"to be downloaded."
+msgstr ""

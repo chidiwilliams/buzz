@@ -155,13 +155,16 @@ class FileTranscriber(QObject):
                 or self.transcription_task.file_path
             )
             if source_path and os.path.exists(source_path):
-                shutil.move(
-                    source_path,
-                    os.path.join(
-                        self.transcription_task.output_directory,
-                        os.path.basename(source_path),
-                    ),
-                )
+                if self.transcription_task.delete_source_file:
+                    os.remove(source_path)
+                else:
+                    shutil.move(
+                        source_path,
+                        os.path.join(
+                            self.transcription_task.output_directory,
+                            os.path.basename(source_path),
+                        ),
+                    )
 
     def on_download_progress(self, data: dict):
         if data["status"] == "downloading":

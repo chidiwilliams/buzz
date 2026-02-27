@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 09:07+0200\n"
+"POT-Creation-Date: 2026-02-27 16:46+0200\n"
 "PO-Revision-Date: 2024-03-17 20:50+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -208,7 +208,9 @@ msgstr "Używaj tylko CPU i wyłącz akcelerację GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
-msgstr "Ustaw to, jeśli większe modele nie mieszczą się w pamięci GPU i Buzz się zawiesza"
+msgstr ""
+"Ustaw to, jeśli większe modele nie mieszczą się w pamięci GPU i Buzz się "
+"zawiesza"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Disable GPU"
@@ -250,12 +252,16 @@ msgid ""
 "validation."
 msgstr ""
 "OpenAI API zwróciło nieprawidłową odpowiedź. Sprawdź adres URL API lub swój "
-"klucz. Transkrypcja i tłumaczenie mogą nadal działać, jeśli API nie obsługuje "
-"weryfikacji klucza."
+"klucz. Transkrypcja i tłumaczenie mogą nadal działać, jeśli API nie "
+"obsługuje weryfikacji klucza."
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Enable folder watch"
 msgstr "Włącz obserwację folderu"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Delete processed files"
+msgstr "Usuń przetworzonych pliki"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
@@ -610,7 +616,8 @@ msgstr "Nie można ponownie uruchomić"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Only failed or canceled transcriptions can be restarted."
-msgstr "Tylko nieudane lub anulowane transkrypcje mogą być uruchomione ponownie."
+msgstr ""
+"Tylko nieudane lub anulowane transkrypcje mogą być uruchomione ponownie."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Failed to restart transcription: {}"
@@ -626,7 +633,9 @@ msgstr ""
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
-msgstr "Nie można uruchomić ponownie transkrypcji: nie znaleziono procesu transkrypcji."
+msgstr ""
+"Nie można uruchomić ponownie transkrypcji: nie znaleziono procesu "
+"transkrypcji."
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -895,7 +904,8 @@ msgstr "Żądana długość napisów"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were disabled during transcription"
-msgstr "Dostępne tylko jeśli znaczniki dla słów były wyłączone podczas transkrypcji"
+msgstr ""
+"Dostępne tylko jeśli znaczniki dla słów były wyłączone podczas transkrypcji"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge Options"
@@ -919,13 +929,15 @@ msgstr "Scal"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
-msgstr "Dostępne tylko jeśli znaczniki dla słów były włączone podczas transkrypcji"
+msgstr ""
+"Dostępne tylko jeśli znaczniki dla słów były włączone podczas transkrypcji"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
 "Speaker identification is not available: failed to load required libraries."
 msgstr ""
-"Identyfikacja mówcy jest niedostępna: nie udało się załadować wymaganych bibliotek."
+"Identyfikacja mówcy jest niedostępna: nie udało się załadować wymaganych "
+"bibliotek."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "1/8 Collecting transcripts"
@@ -941,7 +953,8 @@ msgstr "3/8 Ładowanie modelu wyrównania"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "3/8 Loading alignment model (retrying with cache...)"
-msgstr "3/8 Ładowanie modelu wyrównania (ponowna próba z pamięcią podręczną...)"
+msgstr ""
+"3/8 Ładowanie modelu wyrównania (ponowna próba z pamięcią podręczną...)"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
@@ -1092,8 +1105,8 @@ msgid ""
 "variable."
 msgstr ""
 "Serwer Whisper nie uruchomił się z powodu niewystarczającej pamięci. Spróbuj "
-"ponownie z mniejszym modelem. Aby wymusić tryb CPU, użyj zmiennej środowiskowej "
-"BUZZ_FORCE_CPU=TRUE."
+"ponownie z mniejszym modelem. Aby wymusić tryb CPU, użyj zmiennej "
+"środowiskowej BUZZ_FORCE_CPU=TRUE."
 
 #: buzz/transcriber/transcriber.py
 msgid "Translate to English"
@@ -1551,17 +1564,16 @@ msgstr "Dodaj powyżej"
 msgid "Append and correct"
 msgstr "Dodaj i popraw"
 
-#: buzz/translator.py
-msgid "Translation error, see logs!"
-msgstr "Błąd tłumaczenia, sprawdź logi!"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
 msgstr ""
-"Wyodrębnianie mowy nie powiodło się! Sprawdź połączenie internetowe — "
-"może być konieczne pobranie modelu."
+"Wyodrębnianie mowy nie powiodło się! Sprawdź połączenie internetowe — może "
+"być konieczne pobranie modelu."
+
+#~ msgid "Translation error, see logs!"
+#~ msgstr "Błąd tłumaczenia, sprawdź logi!"
 
 #~ msgid "ID"
 #~ msgstr "ID"

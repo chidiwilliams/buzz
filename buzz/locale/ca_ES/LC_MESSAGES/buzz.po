@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 09:07+0200\n"
+"POT-Creation-Date: 2026-02-27 16:46+0200\n"
 "PO-Revision-Date: 2025-10-17 07:59+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: Catalan <jmas@softcatala.org>\n"
@@ -184,7 +184,8 @@ msgid ""
 "in the Live Recording screen in a future version."
 msgstr ""
 "Nota: La configuració d'exportació d'enregistrament en directe es mourà a la "
-"Configuració avançada a la pantalla d'enregistrament en directe en una versió futura."
+"Configuració avançada a la pantalla d'enregistrament en directe en una "
+"versió futura."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use 8-bit quantization to reduce memory usage"
@@ -258,6 +259,10 @@ msgstr ""
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Enable folder watch"
 msgstr "Habilita el seguiment de carpetes"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Delete processed files"
+msgstr "Eliminar fitxers processats"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
@@ -623,11 +628,15 @@ msgstr "No s'ha pogut reiniciar la transcripció: {}"
 msgid ""
 "Could not restart transcription: model not available and could not be "
 "downloaded."
-msgstr "No s'ha pogut reiniciar la transcripció: el model no està disponible i no s'ha pogut descarregar."
+msgstr ""
+"No s'ha pogut reiniciar la transcripció: el model no està disponible i no "
+"s'ha pogut descarregar."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
-msgstr "No s'ha pogut reiniciar la transcripció: no s'ha trobat el treballador del transcriptor."
+msgstr ""
+"No s'ha pogut reiniciar la transcripció: no s'ha trobat el treballador del "
+"transcriptor."
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -896,7 +905,9 @@ msgstr "Longitud desitjada dels subtítols"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were disabled during transcription"
-msgstr "Disponible només si els temps a nivell de paraula estaven desactivats durant la transcripció"
+msgstr ""
+"Disponible només si els temps a nivell de paraula estaven desactivats durant "
+"la transcripció"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge Options"
@@ -920,12 +931,16 @@ msgstr "Fusiona"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
-msgstr "Disponible només si els temps a nivell de paraula estaven activats durant la transcripció"
+msgstr ""
+"Disponible només si els temps a nivell de paraula estaven activats durant la "
+"transcripció"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
 "Speaker identification is not available: failed to load required libraries."
-msgstr "La identificació de parlants no està disponible: no s'han pogut carregar les biblioteques necessàries."
+msgstr ""
+"La identificació de parlants no està disponible: no s'han pogut carregar les "
+"biblioteques necessàries."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "1/8 Collecting transcripts"
@@ -941,13 +956,16 @@ msgstr "3/8 Carregant el model d'alineació"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "3/8 Loading alignment model (retrying with cache...)"
-msgstr "3/8 Carregant el model d'alineació (tornant a intentar amb la memòria cau...)"
+msgstr ""
+"3/8 Carregant el model d'alineació (tornant a intentar amb la memòria cau...)"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
 "Failed to load alignment model. Please check your internet connection and "
 "try again."
-msgstr "No s'ha pogut carregar el model d'alineació. Comproveu la vostra connexió a Internet i torneu-ho a intentar."
+msgstr ""
+"No s'ha pogut carregar el model d'alineació. Comproveu la vostra connexió a "
+"Internet i torneu-ho a intentar."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "4/8 Processing audio"
@@ -1551,15 +1569,16 @@ msgstr "Afegeix a sobre"
 msgid "Append and correct"
 msgstr "Afegeix i corregeix"
 
-#: buzz/translator.py
-msgid "Translation error, see logs!"
-msgstr "Error de traducció, vegeu els registres!"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
-msgstr "Ha fallat l'extracció de veu! Comproveu la vostra connexió a Internet — pot ser que s'hagi de descarregar un model."
+msgstr ""
+"Ha fallat l'extracció de veu! Comproveu la vostra connexió a Internet — pot "
+"ser que s'hagi de descarregar un model."
+
+#~ msgid "Translation error, see logs!"
+#~ msgstr "Error de traducció, vegeu els registres!"
 
 #~ msgid "Snap permission notice"
 #~ msgstr "Avís de permís d'ajust"

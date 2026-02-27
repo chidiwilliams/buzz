@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 09:07+0200\n"
+"POT-Creation-Date: 2026-02-27 16:46+0200\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: lamb \n"
@@ -182,8 +182,7 @@ msgstr "实时录制模式"
 msgid ""
 "Note: Live recording export settings will be moved to the Advanced Settings "
 "in the Live Recording screen in a future version."
-msgstr ""
-"注意：实时录制导出设置将在未来版本中移至实时录制界面的高级设置中。"
+msgstr "注意：实时录制导出设置将在未来版本中移至实时录制界面的高级设置中。"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use 8-bit quantization to reduce memory usage"
@@ -194,8 +193,8 @@ msgid ""
 "Applies to Huggingface and Faster Whisper models. Reduces GPU memory usage "
 "but may slightly decrease transcription quality."
 msgstr ""
-"适用于 Huggingface 和 Faster Whisper 模型。可减少 GPU 内存占用，但可能略微"
-"降低转录质量。"
+"适用于 Huggingface 和 Faster Whisper 模型。可减少 GPU 内存占用，但可能略微降"
+"低转录质量。"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Reduce GPU RAM"
@@ -251,6 +250,10 @@ msgstr ""
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Enable folder watch"
 msgstr "开启文件夹监控"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Delete processed files"
+msgstr "删除已处理的文件"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
@@ -820,8 +823,7 @@ msgstr "跟随音频"
 msgid ""
 "Enable/disable following the current audio position in the transcript. When "
 "enabled, automatically scrolls to current text."
-msgstr ""
-"在识别文本中启用/禁用跟随当前音频位置。启用后，自动滚动到当前文本。"
+msgstr "在识别文本中启用/禁用跟随当前音频位置。启用后，自动滚动到当前文本。"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Scroll to Current"
@@ -1076,8 +1078,8 @@ msgid ""
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
 "variable."
 msgstr ""
-"Whisper 服务器因内存不足而启动失败。请尝试使用较小的模型。如需强制使用 CPU "
-"模式，请设置环境变量 BUZZ_FORCE_CPU=TRUE。"
+"Whisper 服务器因内存不足而启动失败。请尝试使用较小的模型。如需强制使用 CPU 模"
+"式，请设置环境变量 BUZZ_FORCE_CPU=TRUE。"
 
 #: buzz/transcriber/transcriber.py
 msgid "Translate to English"
@@ -1535,16 +1537,14 @@ msgstr "增加上方"
 msgid "Append and correct"
 msgstr "增加并纠正"
 
-#: buzz/translator.py
-msgid "Translation error, see logs!"
-msgstr "翻译出错，请查看日志！"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
-msgstr ""
-"语音提取失败！请检查您的网络连接——可能需要下载模型。"
+msgstr "语音提取失败！请检查您的网络连接——可能需要下载模型。"
+
+#~ msgid "Translation error, see logs!"
+#~ msgstr "翻译出错，请查看日志！"
 
 #~ msgid "Snap permission notice"
 #~ msgstr "快照权限通知"

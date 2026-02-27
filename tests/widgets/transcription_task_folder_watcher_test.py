@@ -322,6 +322,76 @@ class TestTranscriptionTaskFolderWatcher:
         task: FileTranscriptionTask = blocker.args[0]
         assert task.file_path == os.path.join(input_directory, "whisper-french.mp3")
 
+    def test_should_set_delete_source_file_when_preference_enabled(self, qtbot: QtBot):
+        input_directory = mkdtemp()
+        output_directory = mkdtemp()
+
+        watcher = TranscriptionTaskFolderWatcher(
+            tasks={},
+            preferences=FolderWatchPreferences(
+                enabled=True,
+                input_directory=input_directory,
+                output_directory=output_directory,
+                delete_processed_files=True,
+                file_transcription_options=FileTranscriptionPreferences(
+                    language=None,
+                    task=Task.TRANSCRIBE,
+                    model=self.default_model(),
+                    word_level_timings=False,
+                    extract_speech=False,
+                    temperature=DEFAULT_WHISPER_TEMPERATURE,
+                    initial_prompt="",
+                    enable_llm_translation=False,
+                    llm_model="",
+                    llm_prompt="",
+                    output_formats=set(),
+                ),
+            ),
+        )
+
+        shutil.copy(test_audio_path, input_directory)
+
+        with qtbot.wait_signal(watcher.task_found, timeout=10_000) as blocker:
+            pass
+
+        task: FileTranscriptionTask = blocker.args[0]
+        assert task.delete_source_file is True
+
+    def test_should_not_set_delete_source_file_when_preference_disabled(self, qtbot: QtBot):
+        input_directory = mkdtemp()
+        output_directory = mkdtemp()
+
+        watcher = TranscriptionTaskFolderWatcher(
+            tasks={},
+            preferences=FolderWatchPreferences(
+                enabled=True,
+                input_directory=input_directory,
+                output_directory=output_directory,
+                delete_processed_files=False,
+                file_transcription_options=FileTranscriptionPreferences(
+                    language=None,
+                    task=Task.TRANSCRIBE,
+                    model=self.default_model(),
+                    word_level_timings=False,
+                    extract_speech=False,
+                    temperature=DEFAULT_WHISPER_TEMPERATURE,
+                    initial_prompt="",
+                    enable_llm_translation=False,
+                    llm_model="",
+                    llm_prompt="",
+                    output_formats=set(),
+                ),
+            ),
+        )
+
+        shutil.copy(test_audio_path, input_directory)
+
+        with qtbot.wait_signal(watcher.task_found, timeout=10_000) as blocker:
+            pass
+
+        task: FileTranscriptionTask = blocker.args[0]
+        assert task.delete_source_file is False
+
     def test_should_set_original_file_path(self, qtbot: QtBot):
         input_directory = mkdtemp()
         output_directory = mkdtemp()

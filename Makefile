@@ -188,20 +188,20 @@ gh_upgrade_pr:
 # Internationalization
 
 translation_po_all:
-	$(MAKE) translation_po locale=en_US
 	$(MAKE) translation_po locale=ca_ES
-	$(MAKE) translation_po locale=es_ES
-	$(MAKE) translation_po locale=pl_PL
-	$(MAKE) translation_po locale=zh_CN
-	$(MAKE) translation_po locale=zh_TW
-	$(MAKE) translation_po locale=it_IT
-	$(MAKE) translation_po locale=lv_LV
-	$(MAKE) translation_po locale=uk_UA
-	$(MAKE) translation_po locale=ja_JP
 	$(MAKE) translation_po locale=da_DK
 	$(MAKE) translation_po locale=de_DE
+	$(MAKE) translation_po locale=en_US
+	$(MAKE) translation_po locale=es_ES
+	$(MAKE) translation_po locale=it_IT
+	$(MAKE) translation_po locale=ja_JP
+	$(MAKE) translation_po locale=lv_LV
 	$(MAKE) translation_po locale=nl
+	$(MAKE) translation_po locale=pl_PL
 	$(MAKE) translation_po locale=pt_BR
+	$(MAKE) translation_po locale=uk_UA
+	$(MAKE) translation_po locale=zh_CN
+	$(MAKE) translation_po locale=zh_TW
 
 TMP_POT_FILE_PATH := $(shell mktemp)
 PO_FILE_PATH := buzz/locale/${locale}/LC_MESSAGES/buzz.po

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 09:07+0200\n"
+"POT-Creation-Date: 2026-02-27 16:46+0200\n"
 "PO-Revision-Date: 2025-03-20 18:30+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: none\n"
@@ -186,7 +186,8 @@ msgid ""
 "in the Live Recording screen in a future version."
 msgstr ""
 "Opmerking: de exportinstellingen voor live-opnames worden in een toekomstige "
-"versie verplaatst naar de geavanceerde instellingen in het scherm Live-opname."
+"versie verplaatst naar de geavanceerde instellingen in het scherm Live-"
+"opname."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use 8-bit quantization to reduce memory usage"
@@ -210,7 +211,9 @@ msgstr "Alleen CPU gebruiken en GPU-versnelling uitschakelen"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
-msgstr "Gebruik dit als grotere modellen niet in het GPU-geheugen passen en Buzz crasht"
+msgstr ""
+"Gebruik dit als grotere modellen niet in het GPU-geheugen passen en Buzz "
+"crasht"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Disable GPU"
@@ -258,6 +261,10 @@ msgstr ""
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Enable folder watch"
 msgstr "Map bijhouden"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Delete processed files"
+msgstr "Verwerkte bestanden verwijderen"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
@@ -437,7 +444,8 @@ msgstr "AI-model:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Please translate each text sent to you from English to Spanish."
-msgstr "Vertaal elke tekst die naar u wordt verzonden van het Engels naar het Spaans."
+msgstr ""
+"Vertaal elke tekst die naar u wordt verzonden van het Engels naar het Spaans."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -614,7 +622,8 @@ msgstr "Kan niet opnieuw starten"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Only failed or canceled transcriptions can be restarted."
-msgstr "Alleen mislukte of afgebroken transcripties kunnen opnieuw worden gestart."
+msgstr ""
+"Alleen mislukte of afgebroken transcripties kunnen opnieuw worden gestart."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Failed to restart transcription: {}"
@@ -630,7 +639,9 @@ msgstr ""
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
-msgstr "Transcriptie kon niet opnieuw worden gestart: transcriptieproces niet gevonden."
+msgstr ""
+"Transcriptie kon niet opnieuw worden gestart: transcriptieproces niet "
+"gevonden."
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -897,7 +908,9 @@ msgstr "Voorkeurslengte van ondertiteling"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were disabled during transcription"
-msgstr "Alleen beschikbaar als timings op woordniveau zijn uitgeschakeld tijdens transcriptie"
+msgstr ""
+"Alleen beschikbaar als timings op woordniveau zijn uitgeschakeld tijdens "
+"transcriptie"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge Options"
@@ -921,7 +934,9 @@ msgstr "Samenvoegen"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
-msgstr "Alleen beschikbaar als timings op woordniveau zijn ingeschakeld tijdens transcriptie"
+msgstr ""
+"Alleen beschikbaar als timings op woordniveau zijn ingeschakeld tijdens "
+"transcriptie"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
@@ -951,8 +966,8 @@ msgid ""
 "Failed to load alignment model. Please check your internet connection and "
 "try again."
 msgstr ""
-"Het laden van het uitlijningsmodel is mislukt. Controleer uw internetverbinding "
-"en probeer het opnieuw."
+"Het laden van het uitlijningsmodel is mislukt. Controleer uw "
+"internetverbinding en probeer het opnieuw."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "4/8 Processing audio"
@@ -1085,7 +1100,9 @@ msgstr "De OpenAI-api-sleutel kan niet worden bewaard in de sleutelbos"
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
 msgid "Whisper server failed to start. Check logs for details."
-msgstr "De Whisper-server kon niet worden gestart. Raadpleeg de logboeken voor meer informatie."
+msgstr ""
+"De Whisper-server kon niet worden gestart. Raadpleeg de logboeken voor meer "
+"informatie."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
@@ -1094,8 +1111,8 @@ msgid ""
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
 "variable."
 msgstr ""
-"De Whisper-server kon niet worden gestart wegens onvoldoende geheugen. Probeer "
-"het opnieuw met een kleiner model. Gebruik de omgevingsvariabele "
+"De Whisper-server kon niet worden gestart wegens onvoldoende geheugen. "
+"Probeer het opnieuw met een kleiner model. Gebruik de omgevingsvariabele "
 "BUZZ_FORCE_CPU=TRUE om CPU-modus te forceren."
 
 #: buzz/transcriber/transcriber.py
@@ -1554,10 +1571,6 @@ msgstr "Bovenaan toevoegen"
 msgid "Append and correct"
 msgstr "Toevoegen en corrigeren"
 
-#: buzz/translator.py
-msgid "Translation error, see logs!"
-msgstr "Vertaalfout, raadpleeg de logboeken!"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
@@ -1565,6 +1578,9 @@ msgid ""
 msgstr ""
 "Spraakextractie mislukt! Controleer uw internetverbinding — mogelijk moet er "
 "een model worden gedownload."
+
+#~ msgid "Translation error, see logs!"
+#~ msgstr "Vertaalfout, raadpleeg de logboeken!"
 
 #~ msgid "Snap permission notice"
 #~ msgstr "Snap-rechten"
