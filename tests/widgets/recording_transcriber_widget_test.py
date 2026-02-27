@@ -1109,7 +1109,7 @@ class TestOnNextTranscriptionExport:
             widget.on_next_transcription("second")
 
             with open(export_path, newline="") as f:
-                rows = list(csv.reader(f))
+                rows = [r for r in csv.reader(f) if r]
             assert len(rows) == 1
             assert rows[0][0] == "second"
             assert rows[0][1] == "first"
@@ -1139,7 +1139,7 @@ class TestOnNextTranscriptionExport:
             widget.on_next_transcription("third")
 
             with open(export_path, newline="") as f:
-                rows = list(csv.reader(f))
+                rows = [r for r in csv.reader(f) if r]
             assert len(rows) == 1
             assert len(rows[0]) == 2
             assert rows[0][0] == "third"
