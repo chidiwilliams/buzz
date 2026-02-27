@@ -730,12 +730,16 @@ class RecordingTranscriberWidget(QWidget):
         """Append a new column to a single-row CSV export file, applying max_entries limit."""
         existing_columns = []
         if os.path.isfile(file_path):
-            raw = RecordingTranscriberWidget.read_export_file(file_path)
-            if raw.strip():
-                reader = csv.reader(io.StringIO(raw))
-                for row in reader:
-                    existing_columns = row
-                    break
+            try:
+                with open(file_path, "r", encoding="utf-8-sig") as f:
+                    raw = f.read()
+                if raw.strip():
+                    reader = csv.reader(io.StringIO(raw))
+                    for row in reader:
+                        existing_columns = row
+                        break
+            except OSError:
+                pass
         existing_columns.append(text)
         if max_entries > 0:
             existing_columns = existing_columns[-max_entries:]
