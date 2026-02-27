@@ -54,9 +54,8 @@ msgid "The URL you entered is invalid."
 msgstr "L'URL que heu introduït no és vàlid."
 
 #: buzz/widgets/presentation_window.py
-#, fuzzy
 msgid "Live Transcript Presentation"
-msgstr "Veure la traducció de transcripció"
+msgstr "Presentació de transcripció en directe"
 
 #: buzz/widgets/preferences_dialog/shortcuts_editor_preferences_widget.py
 msgid "Reset to Defaults"
@@ -154,9 +153,8 @@ msgid "OpenAI base url"
 msgstr "URL base d'OpenAI"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#, fuzzy
 msgid "OpenAI API model"
-msgstr "Clau de l'API d'OpenAI"
+msgstr "Model de l'API d'OpenAI"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Default export file name"
@@ -185,20 +183,24 @@ msgid ""
 "Note: Live recording export settings will be moved to the Advanced Settings "
 "in the Live Recording screen in a future version."
 msgstr ""
+"Nota: La configuració d'exportació d'enregistrament en directe es mourà a la "
+"Configuració avançada a la pantalla d'enregistrament en directe en una versió futura."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use 8-bit quantization to reduce memory usage"
-msgstr ""
+msgstr "Utilitza la quantització de 8 bits per reduir l'ús de memòria"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "Applies to Huggingface and Faster Whisper models. Reduces GPU memory usage "
 "but may slightly decrease transcription quality."
 msgstr ""
+"S'aplica als models Huggingface i Faster Whisper. Redueix l'ús de memòria de "
+"la GPU, però pot reduir lleugerament la qualitat de la transcripció."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Reduce GPU RAM"
-msgstr ""
+msgstr "Redueix la RAM de la GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use only CPU and disable GPU acceleration"
@@ -358,7 +360,7 @@ msgstr "Detecta l'idioma"
 
 #: buzz/widgets/transcriber/mms_language_line_edit.py
 msgid "e.g., eng, fra, deu"
-msgstr ""
+msgstr "p. ex., eng, fra, deu"
 
 #: buzz/widgets/transcriber/mms_language_line_edit.py
 msgid ""
@@ -366,6 +368,9 @@ msgid ""
 "Examples: eng (English), fra (French), deu (German),\n"
 "spa (Spanish), lav (Latvian)"
 msgstr ""
+"Introduïu un codi d'idioma ISO 639-3 (3 lletres).\n"
+"Exemples: eng (anglès), fra (francès), deu (alemany),\n"
+"spa (castellà), lav (letó)"
 
 #: buzz/widgets/transcriber/file_transcriber_widget.py
 msgid "Run"
@@ -430,68 +435,60 @@ msgid "AI model:"
 msgstr "Model d'IA:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Please translate each text sent to you from English to Spanish."
-msgstr ""
-"Introdueix instruccions per a la IA sobre com traduir, per exemple 'Si us "
-"plau, tradueix cada text que t'hagi enviat de l'anglès al castellà'."
+msgstr "Si us plau, tradueix cada text que t'enviï de l'anglès al castellà."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
 msgstr "Instruccions per a la IA:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Recording settings"
-msgstr "Configuració de la traducció"
+msgstr "Configuració d'enregistrament"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Silence threshold:"
-msgstr ""
+msgstr "Llindar de silenci:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Line separator:"
-msgstr ""
+msgstr "Separador de línies:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Live recording mode:"
-msgstr "Mode d'enregistrament en directe"
+msgstr "Mode d'enregistrament en directe:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Enable live recording export"
-msgstr "Activa l'exportació de transcripcions en directe"
+msgstr "Activa l'exportació d'enregistrament en directe"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Export folder:"
-msgstr "Exporta la carpeta"
+msgstr "Carpeta d'exportació:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Export file name:"
-msgstr "Nom del fitxer d'exportació per defecte"
+msgstr "Nom del fitxer d'exportació:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Text file (.txt)"
-msgstr "Fitxers de text"
+msgstr "Fitxer de text (.txt)"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "CSV (.csv)"
-msgstr ""
+msgstr "CSV (.csv)"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Export file type:"
-msgstr "Exporta la carpeta"
+msgstr "Tipus de fitxer d'exportació:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid ""
 "Limit export entries\n"
 "(0 = export all):"
 msgstr ""
+"Limita les entrades d'exportació\n"
+"(0 = exporta tot):"
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py
 msgid "Word-level timings"
@@ -580,61 +577,57 @@ msgstr "Data d'addició"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Notes"
-msgstr ""
+msgstr "Notes"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Reset Column Order"
-msgstr ""
+msgstr "Restableix l'ordre de les columnes"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-#, fuzzy
 msgid "Restart Transcription"
-msgstr "Cancel·la la transcripció"
+msgstr "Reinicia la transcripció"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-#, fuzzy
 msgid "Rename"
-msgstr "Vietnamita"
+msgstr "Canvia el nom"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Add/Edit Notes"
-msgstr ""
+msgstr "Afegeix/Edita notes"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-#, fuzzy
 msgid "Rename Transcription"
-msgstr "Cancel·la la transcripció"
+msgstr "Canvia el nom de la transcripció"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Enter new name:"
-msgstr ""
+msgstr "Introduïu el nou nom:"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Enter some relevant notes for this transcription:"
-msgstr ""
+msgstr "Introduïu algunes notes rellevants per a aquesta transcripció:"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Cannot Restart"
-msgstr ""
+msgstr "No es pot reiniciar"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Only failed or canceled transcriptions can be restarted."
-msgstr ""
+msgstr "Només es poden reiniciar les transcripcions fallides o cancel·lades."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-#, fuzzy
 msgid "Failed to restart transcription: {}"
-msgstr "Cancel·la la transcripció"
+msgstr "No s'ha pogut reiniciar la transcripció: {}"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid ""
 "Could not restart transcription: model not available and could not be "
 "downloaded."
-msgstr ""
+msgstr "No s'ha pogut reiniciar la transcripció: el model no està disponible i no s'ha pogut descarregar."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
-msgstr ""
+msgstr "No s'ha pogut reiniciar la transcripció: no s'ha trobat el treballador del transcriptor."
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -654,72 +647,67 @@ msgstr "Micròfon:"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Show in new window"
-msgstr ""
+msgstr "Mostra en una nova finestra"
 
 #: buzz/widgets/recording_transcriber_widget.py
-#, fuzzy
 msgid "Text Size:"
-msgstr "Fitxers de text"
+msgstr "Mida del text:"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Theme"
-msgstr ""
+msgstr "Tema"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Light"
-msgstr ""
+msgstr "Clar"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Dark"
-msgstr ""
+msgstr "Fosc"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Custom"
-msgstr ""
+msgstr "Personalitzat"
 
 #: buzz/widgets/recording_transcriber_widget.py
-#, fuzzy
 msgid "Text Color"
-msgstr "Fitxers de text"
+msgstr "Color del text"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Background Color"
-msgstr ""
+msgstr "Color de fons"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Fullscreen"
-msgstr ""
+msgstr "Pantalla completa"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Copy"
-msgstr ""
+msgstr "Copia"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Copy transcription to clipboard"
-msgstr ""
+msgstr "Copia la transcripció al porta-retalls"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Nothing to copy!"
-msgstr ""
+msgstr "Res per copiar!"
 
 #: buzz/widgets/recording_transcriber_widget.py
-#, fuzzy
 msgid "Copy failed"
-msgstr "Descàrrega fallida"
+msgstr "Ha fallat la còpia"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Copied!"
-msgstr ""
+msgstr "Copiat!"
 
 #: buzz/widgets/recording_transcriber_widget.py
-#, fuzzy
 msgid "Select Text Color"
-msgstr "Selecciona la carpeta d'exportació"
+msgstr "Selecciona el color del text"
 
 #: buzz/widgets/recording_transcriber_widget.py
-#, fuzzy
 msgid "Select Background Color"
-msgstr "Selecciona un fitxer d'àudio"
+msgstr "Selecciona el color de fons"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "An error occurred while starting a new recording:"
@@ -739,7 +727,7 @@ msgstr "Comprova si hi ha actualitzacions"
 
 #: buzz/widgets/about_dialog.py
 msgid "Show logs"
-msgstr ""
+msgstr "Mostra els registres"
 
 #: buzz/widgets/about_dialog.py
 msgid "You're up to date!"
@@ -747,7 +735,7 @@ msgstr "Estàs al dia!"
 
 #: buzz/widgets/audio_meter_widget.py
 msgid "Average volume"
-msgstr ""
+msgstr "Volum mitjà"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "Start"
@@ -792,7 +780,7 @@ msgstr "Redimensionar"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Identify Speakers"
-msgstr ""
+msgstr "Identifica els parlants"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Find"
@@ -889,15 +877,15 @@ msgstr "Introduïu la clau API d'OpenAI a les preferències"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Extend end time"
-msgstr ""
+msgstr "Amplia el temps final"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Extend endings by up to (seconds)"
-msgstr ""
+msgstr "Amplia els finals fins a (segons)"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Extend endings"
-msgstr ""
+msgstr "Amplia els finals"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Resize Options"
@@ -909,7 +897,7 @@ msgstr "Longitud desitjada dels subtítols"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were disabled during transcription"
-msgstr ""
+msgstr "Disponible només si els temps a nivell de paraula estaven desactivats durant la transcripció"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge Options"
@@ -933,100 +921,96 @@ msgstr "Fusiona"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
-msgstr ""
+msgstr "Disponible només si els temps a nivell de paraula estaven activats durant la transcripció"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
 "Speaker identification is not available: failed to load required libraries."
-msgstr ""
+msgstr "La identificació de parlants no està disponible: no s'han pogut carregar les biblioteques necessàries."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "1/8 Collecting transcripts"
-msgstr ""
+msgstr "1/8 Recollint transcripcions"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "2/8 Loading audio"
-msgstr ""
+msgstr "2/8 Carregant àudio"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "3/8 Loading alignment model"
-msgstr ""
+msgstr "3/8 Carregant el model d'alineació"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "3/8 Loading alignment model (retrying with cache...)"
-msgstr ""
+msgstr "3/8 Carregant el model d'alineació (tornant a intentar amb la memòria cau...)"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
 "Failed to load alignment model. Please check your internet connection and "
 "try again."
-msgstr ""
+msgstr "No s'ha pogut carregar el model d'alineació. Comproveu la vostra connexió a Internet i torneu-ho a intentar."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "4/8 Processing audio"
-msgstr ""
+msgstr "4/8 Processant àudio"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-#, fuzzy
 msgid "5/8 Preparing transcripts"
-msgstr "Cancel·la la transcripció"
+msgstr "5/8 Preparant transcripcions"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "6/8 Identifying speakers"
-msgstr ""
+msgstr "6/8 Identificant parlants"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "7/8 Mapping speakers to transcripts"
-msgstr ""
+msgstr "7/8 Assignant parlants a transcripcions"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "8/8 Identification done"
-msgstr ""
+msgstr "8/8 Identificació completada"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "0/0 Error identifying speakers"
-msgstr ""
+msgstr "0/0 Error en identificar parlants"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 1: Identify speakers"
-msgstr ""
+msgstr "Pas 1: Identifica els parlants"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Identify"
-msgstr ""
+msgstr "Identifica"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Ready to identify speakers"
-msgstr ""
+msgstr "Llest per identificar parlants"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Audio file not found"
-msgstr ""
+msgstr "Fitxer d'àudio no trobat"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
-msgstr ""
+msgstr "Pas 2: Anomena els parlants"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Play sample"
-msgstr ""
+msgstr "Reprodueix la mostra"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Merge speaker sentences"
-msgstr ""
+msgstr "Fusiona les frases del parlant"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-#, fuzzy
 msgid "Save"
-msgstr "Desa el fitxer"
+msgstr "Desa"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-#, fuzzy
 msgid "Cancelling..."
-msgstr "Cancel·lar"
+msgstr "Cancel·lant..."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-#, fuzzy
 msgid "Cancelled"
 msgstr "Cancel·lat"
 
@@ -1487,9 +1471,8 @@ msgid "Starting Whisper.cpp..."
 msgstr "Començant Whisper.cpp..."
 
 #: buzz/transcriber/recording_transcriber.py
-#, fuzzy
 msgid "Starting transcription..."
-msgstr "Cancel·la la transcripció"
+msgstr "Iniciant la transcripció..."
 
 #: buzz/settings/shortcut.py
 msgid "Open Record Window"
@@ -1521,11 +1504,11 @@ msgstr "Cerca una transcripció"
 
 #: buzz/settings/shortcut.py
 msgid "Go to Next Transcript Search Result"
-msgstr ""
+msgstr "Ves al resultat de cerca de transcripció següent"
 
 #: buzz/settings/shortcut.py
 msgid "Go to Previous Transcript Search Result"
-msgstr ""
+msgstr "Ves al resultat de cerca de transcripció anterior"
 
 #: buzz/settings/shortcut.py
 msgid "Scroll to Current Text"
@@ -1572,15 +1555,14 @@ msgid "Append and correct"
 msgstr "Afegeix i corregeix"
 
 #: buzz/translator.py
-#, fuzzy
 msgid "Translation error, see logs!"
-msgstr "Configuració de la traducció"
+msgstr "Error de traducció, vegeu els registres!"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
-msgstr ""
+msgstr "Ha fallat l'extracció de veu! Comproveu la vostra connexió a Internet — pot ser que s'hagi de descarregar un model."
 
 #~ msgid "Snap permission notice"
 #~ msgstr "Avís de permís d'ajust"

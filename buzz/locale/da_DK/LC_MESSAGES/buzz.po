@@ -51,9 +51,8 @@ msgid "The URL you entered is invalid."
 msgstr "Den URL du har angivet er ikke gyldig."
 
 #: buzz/widgets/presentation_window.py
-#, fuzzy
 msgid "Live Transcript Presentation"
-msgstr "Vis transkriberede oversættelse"
+msgstr "Live transkriptionspræsentation"
 
 #: buzz/widgets/preferences_dialog/shortcuts_editor_preferences_widget.py
 msgid "Reset to Defaults"
@@ -62,79 +61,77 @@ msgstr "Gendan standard-indstillinger"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
 msgid "English"
-msgstr ""
+msgstr "Engelsk"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
 msgid "Catalan"
-msgstr ""
+msgstr "Catalansk"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
 msgid "Danish"
-msgstr ""
+msgstr "Dansk"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
 msgid "Dutch"
-msgstr ""
+msgstr "Nederlandsk"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
 msgid "German"
-msgstr ""
+msgstr "Tysk"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
 msgid "Spanish"
-msgstr ""
+msgstr "Spansk"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
 msgid "Italian"
-msgstr ""
+msgstr "Italiensk"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
 msgid "Japanese"
-msgstr ""
+msgstr "Japansk"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
 msgid "Latvian"
-msgstr ""
+msgstr "Lettisk"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
 msgid "Polish"
-msgstr ""
+msgstr "Polsk"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Portuguese (Brazil)"
-msgstr ""
+msgstr "Portugisisk (Brasilien)"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
-#, fuzzy
 msgid "Ukrainian"
-msgstr "tilbageværende"
+msgstr "Ukrainsk"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Chinese (Simplified)"
-msgstr ""
+msgstr "Kinesisk (forenklet)"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Chinese (Traditional)"
-msgstr ""
+msgstr "Kinesisk (traditionelt)"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Restart required!"
-msgstr ""
+msgstr "Genstart påkrævet!"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#, fuzzy
 msgid "Ui Language"
-msgstr "Sprog:"
+msgstr "Brugerfladesprog"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Font Size"
@@ -153,9 +150,8 @@ msgid "OpenAI base url"
 msgstr "OpenAI base-URL"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#, fuzzy
 msgid "OpenAI API model"
-msgstr "OpenAI API-nøgle"
+msgstr "OpenAI API-model"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Default export file name"
@@ -176,41 +172,44 @@ msgid "Export folder"
 msgstr "Eksportmappe"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#, fuzzy
 msgid "Live recording mode"
-msgstr "Live optagelsesmode"
+msgstr "Live optagelsestilstand"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "Note: Live recording export settings will be moved to the Advanced Settings "
 "in the Live Recording screen in a future version."
 msgstr ""
+"Bemærk: Indstillinger for live optagelseseksport vil i en fremtidig version "
+"blive flyttet til Avancerede indstillinger på skærmen for live optagelse."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use 8-bit quantization to reduce memory usage"
-msgstr ""
+msgstr "Brug 8-bit kvantisering for at reducere hukommelsesforbruget"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "Applies to Huggingface and Faster Whisper models. Reduces GPU memory usage "
 "but may slightly decrease transcription quality."
 msgstr ""
+"Gælder for Huggingface og Faster Whisper modeller. Reducerer GPU "
+"hukommelsesforbrug, men kan en smule forringe transkriptionskvaliteten."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Reduce GPU RAM"
-msgstr ""
+msgstr "Reducer GPU RAM"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use only CPU and disable GPU acceleration"
-msgstr ""
+msgstr "Brug kun CPU og deaktiver GPU-acceleration"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
-msgstr ""
+msgstr "Aktivér dette hvis større modeller ikke passer i GPU-hukommelsen og Buzz crasher"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Disable GPU"
-msgstr ""
+msgstr "Deaktiver GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "OpenAI API Key Test"
@@ -225,7 +224,6 @@ msgstr ""
 "transkription og AI oversættelser."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#, fuzzy
 msgid "Invalid API key"
 msgstr "Ugyldig API-nøgle"
 
@@ -357,7 +355,7 @@ msgstr "Detekter sprog"
 
 #: buzz/widgets/transcriber/mms_language_line_edit.py
 msgid "e.g., eng, fra, deu"
-msgstr ""
+msgstr "f.eks. eng, fra, deu"
 
 #: buzz/widgets/transcriber/mms_language_line_edit.py
 msgid ""
@@ -365,6 +363,9 @@ msgid ""
 "Examples: eng (English), fra (French), deu (German),\n"
 "spa (Spanish), lav (Latvian)"
 msgstr ""
+"Indtast en ISO 639-3 sprogkode (3 bogstaver).\n"
+"Eksempler: eng (engelsk), fra (fransk), deu (tysk),\n"
+"spa (spansk), lav (lettisk)"
 
 #: buzz/widgets/transcriber/file_transcriber_widget.py
 msgid "Run"
@@ -429,64 +430,59 @@ msgstr "AI model:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Please translate each text sent to you from English to Spanish."
-msgstr ""
+msgstr "Oversæt venligst hver tekst du modtager fra engelsk til spansk."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
 msgstr "Instruktioner for AI:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Recording settings"
-msgstr "Oversættelsesindstillinger"
+msgstr "Optagelsesindstillinger"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Silence threshold:"
-msgstr ""
+msgstr "Tærskelværdi for stilhed:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Line separator:"
-msgstr ""
+msgstr "Linjeseparator:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Live recording mode:"
-msgstr "Live optagelsesmode"
+msgstr "Live optagelsestilstand:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Enable live recording export"
-msgstr "Slå transkription af live optagelse eksport til"
+msgstr "Aktiver eksport af live optagelse"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Export folder:"
-msgstr "Eksportmappe"
+msgstr "Eksportmappe:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Export file name:"
-msgstr "Standard eksport filnavn"
+msgstr "Eksport filnavn:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Text file (.txt)"
-msgstr "Tekst filer"
+msgstr "Tekstfil (.txt)"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "CSV (.csv)"
-msgstr ""
+msgstr "CSV (.csv)"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Export file type:"
-msgstr "Eksportmappe"
+msgstr "Eksport filtype:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid ""
 "Limit export entries\n"
 "(0 = export all):"
 msgstr ""
+"Begræns eksportposter\n"
+"(0 = eksporter alle):"
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py
 msgid "Word-level timings"
@@ -509,14 +505,12 @@ msgid "Advanced..."
 msgstr "Advanceret..."
 
 #: buzz/widgets/main_window_toolbar.py
-#, fuzzy
 msgid "New File Transcription"
-msgstr "Ny fil transkription"
+msgstr "Ny filtranskription"
 
 #: buzz/widgets/main_window_toolbar.py
-#, fuzzy
 msgid "New URL Transcription"
-msgstr "Ny URL transkription"
+msgstr "Ny URL-transkription"
 
 #: buzz/widgets/main_window_toolbar.py
 msgid "Open Transcript"
@@ -577,60 +571,59 @@ msgstr "Dato for tilføjelse"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Notes"
-msgstr ""
+msgstr "Noter"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Reset Column Order"
-msgstr ""
+msgstr "Nulstil kolonnerækkefølge"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-#, fuzzy
 msgid "Restart Transcription"
-msgstr "Afbryd transkription"
+msgstr "Genstart transkription"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Rename"
-msgstr ""
+msgstr "Omdøb"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Add/Edit Notes"
-msgstr ""
+msgstr "Tilføj/rediger noter"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-#, fuzzy
 msgid "Rename Transcription"
-msgstr "Afbryd transkription"
+msgstr "Omdøb transkription"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Enter new name:"
-msgstr ""
+msgstr "Indtast nyt navn:"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Enter some relevant notes for this transcription:"
-msgstr ""
+msgstr "Indtast relevante noter til denne transkription:"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Cannot Restart"
-msgstr ""
+msgstr "Kan ikke genstarte"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Only failed or canceled transcriptions can be restarted."
-msgstr ""
+msgstr "Kun mislykkede eller annullerede transkriptioner kan genstartes."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-#, fuzzy
 msgid "Failed to restart transcription: {}"
-msgstr "Afbryd transkription"
+msgstr "Kunne ikke genstarte transkription: {}"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid ""
 "Could not restart transcription: model not available and could not be "
 "downloaded."
 msgstr ""
+"Kunne ikke genstarte transkription: modellen er ikke tilgængelig og "
+"kunne ikke downloades."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
-msgstr ""
+msgstr "Kunne ikke genstarte transkription: transkriptionsprocessen blev ikke fundet."
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -650,72 +643,67 @@ msgstr "Mikrofon:"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Show in new window"
-msgstr ""
+msgstr "Vis i nyt vindue"
 
 #: buzz/widgets/recording_transcriber_widget.py
-#, fuzzy
 msgid "Text Size:"
-msgstr "Tekst filer"
+msgstr "Tekststørrelse:"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Theme"
-msgstr ""
+msgstr "Tema"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Light"
-msgstr ""
+msgstr "Lys"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Dark"
-msgstr ""
+msgstr "Mørk"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Custom"
-msgstr ""
+msgstr "Brugerdefineret"
 
 #: buzz/widgets/recording_transcriber_widget.py
-#, fuzzy
 msgid "Text Color"
-msgstr "Tekst filer"
+msgstr "Tekstfarve"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Background Color"
-msgstr ""
+msgstr "Baggrundsfarve"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Fullscreen"
-msgstr ""
+msgstr "Fuldskærm"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Copy"
-msgstr ""
+msgstr "Kopiér"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Copy transcription to clipboard"
-msgstr ""
+msgstr "Kopiér transkription til udklipsholder"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Nothing to copy!"
-msgstr ""
+msgstr "Intet at kopiere!"
 
 #: buzz/widgets/recording_transcriber_widget.py
-#, fuzzy
 msgid "Copy failed"
-msgstr "Download mislykkedes"
+msgstr "Kopiering mislykkedes"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Copied!"
-msgstr ""
+msgstr "Kopieret!"
 
 #: buzz/widgets/recording_transcriber_widget.py
-#, fuzzy
 msgid "Select Text Color"
-msgstr "Vælg eksport-mappe"
+msgstr "Vælg tekstfarve"
 
 #: buzz/widgets/recording_transcriber_widget.py
-#, fuzzy
 msgid "Select Background Color"
-msgstr "Vælg audio-fil"
+msgstr "Vælg baggrundsfarve"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "An error occurred while starting a new recording:"
@@ -735,7 +723,7 @@ msgstr "Tjek for opdateringer"
 
 #: buzz/widgets/about_dialog.py
 msgid "Show logs"
-msgstr ""
+msgstr "Vis logfiler"
 
 #: buzz/widgets/about_dialog.py
 msgid "You're up to date!"
@@ -743,7 +731,7 @@ msgstr "Du er opdateret!"
 
 #: buzz/widgets/audio_meter_widget.py
 msgid "Average volume"
-msgstr ""
+msgstr "Gennemsnitlig lydstyrke"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "Start"
@@ -788,89 +776,91 @@ msgstr "Behandel størrelse"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Identify Speakers"
-msgstr ""
+msgstr "Identificer talere"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Find"
-msgstr ""
+msgstr "Find"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Show/Hide Search Bar (Ctrl+F)"
-msgstr ""
+msgstr "Vis/skjul søgebjælke (Ctrl+F)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Find:"
-msgstr ""
+msgstr "Find:"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Enter text to find..."
-msgstr ""
+msgstr "Indtast tekst at søge efter..."
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Previous match (Shift+Enter)"
-msgstr ""
+msgstr "Forrige match (Shift+Enter)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Next match (Ctrl+Enter)"
-msgstr ""
+msgstr "Næste match (Ctrl+Enter)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Clear"
-msgstr ""
+msgstr "Ryd"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Playback Controls:"
-msgstr ""
+msgstr "Afspilningskontroller:"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Loop Segment"
-msgstr ""
+msgstr "Gentag segment"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Enable/disable looping when clicking on transcript segments"
-msgstr ""
+msgstr "Aktiver/deaktiver gentagelse ved klik på transkriptionssegmenter"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Follow Audio"
-msgstr ""
+msgstr "Følg lyd"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid ""
 "Enable/disable following the current audio position in the transcript. When "
 "enabled, automatically scrolls to current text."
 msgstr ""
+"Aktiver/deaktiver at følge den aktuelle lydposition i transkriptionen. Når "
+"aktiveret, scrolles der automatisk til den aktuelle tekst."
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Scroll to Current"
-msgstr ""
+msgstr "Rul til aktuel"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Scroll to the currently spoken text"
-msgstr ""
+msgstr "Rul til den tekst der tales i øjeblikket"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "1 of 100+ matches"
-msgstr ""
+msgstr "1 af 100+ matches"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "1 of "
-msgstr ""
+msgstr "1 af "
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid " matches"
-msgstr ""
+msgstr " matches"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "No matches found"
-msgstr ""
+msgstr "Ingen matches fundet"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid " of 100+ matches"
-msgstr ""
+msgstr " af 100+ matches"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid " of "
-msgstr ""
+msgstr " af "
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "API Key Required"
@@ -882,15 +872,15 @@ msgstr "Indtast venligst OpenAI API-nøgle i indstillinger"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Extend end time"
-msgstr ""
+msgstr "Forlæng sluttidspunkt"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Extend endings by up to (seconds)"
-msgstr ""
+msgstr "Forlæng slutninger med op til (sekunder)"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Extend endings"
-msgstr ""
+msgstr "Forlæng slutninger"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Resize Options"
@@ -902,7 +892,7 @@ msgstr "Ønskede undertekst længde"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were disabled during transcription"
-msgstr ""
+msgstr "Kun tilgængeligt hvis ordniveau-tidsstempler var deaktiveret under transkription"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge Options"
@@ -926,102 +916,101 @@ msgstr "Sammenflet"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
-msgstr ""
+msgstr "Kun tilgængeligt hvis ordniveau-tidsstempler var aktiveret under transkription"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
 "Speaker identification is not available: failed to load required libraries."
 msgstr ""
+"Taler-identifikation er ikke tilgængelig: kunne ikke indlæse nødvendige biblioteker."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "1/8 Collecting transcripts"
-msgstr ""
+msgstr "1/8 Indsamler transkriptioner"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "2/8 Loading audio"
-msgstr ""
+msgstr "2/8 Indlæser lyd"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "3/8 Loading alignment model"
-msgstr ""
+msgstr "3/8 Indlæser justeringsmodel"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "3/8 Loading alignment model (retrying with cache...)"
-msgstr ""
+msgstr "3/8 Indlæser justeringsmodel (prøver igen med cache...)"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
 "Failed to load alignment model. Please check your internet connection and "
 "try again."
 msgstr ""
+"Kunne ikke indlæse justeringsmodel. Tjek venligst din internetforbindelse og "
+"prøv igen."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "4/8 Processing audio"
-msgstr ""
+msgstr "4/8 Behandler lyd"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-#, fuzzy
 msgid "5/8 Preparing transcripts"
-msgstr "Afbryd transkription"
+msgstr "5/8 Forbereder transkriptioner"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "6/8 Identifying speakers"
-msgstr ""
+msgstr "6/8 Identificerer talere"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "7/8 Mapping speakers to transcripts"
-msgstr ""
+msgstr "7/8 Kortlægger talere til transkriptioner"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "8/8 Identification done"
-msgstr ""
+msgstr "8/8 Identifikation afsluttet"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "0/0 Error identifying speakers"
-msgstr ""
+msgstr "0/0 Fejl ved identifikation af talere"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 1: Identify speakers"
-msgstr ""
+msgstr "Trin 1: Identificer talere"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Identify"
-msgstr ""
+msgstr "Identificer"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Ready to identify speakers"
-msgstr ""
+msgstr "Klar til at identificere talere"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Audio file not found"
-msgstr ""
+msgstr "Lydfil ikke fundet"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
-msgstr ""
+msgstr "Trin 2: Navngiv talere"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Play sample"
-msgstr ""
+msgstr "Afspil eksempel"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Merge speaker sentences"
-msgstr ""
+msgstr "Sammenflet talerens sætninger"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-#, fuzzy
 msgid "Save"
-msgstr "Gem fil"
+msgstr "Gem"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-#, fuzzy
 msgid "Cancelling..."
-msgstr "Afbryd"
+msgstr "Annullerer..."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-#, fuzzy
 msgid "Cancelled"
-msgstr "Afbrudt"
+msgstr "Annulleret"
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py
 msgid "Save File"
@@ -1092,7 +1081,7 @@ msgstr "Kan ikke gemme OpenAI API-nøgle i nøgleringen"
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
 msgid "Whisper server failed to start. Check logs for details."
-msgstr ""
+msgstr "Whisper-serveren kunne ikke starte. Tjek logfilerne for detaljer."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
@@ -1101,11 +1090,13 @@ msgid ""
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
 "variable."
 msgstr ""
+"Whisper-serveren kunne ikke starte på grund af utilstrækkelig hukommelse. "
+"Prøv igen med en mindre model. For at tvinge CPU-tilstand, brug "
+"miljøvariablen BUZZ_FORCE_CPU=TRUE."
 
 #: buzz/transcriber/transcriber.py
-#, fuzzy
 msgid "Translate to English"
-msgstr "Oversættelsesindstillinger"
+msgstr "Oversæt til engelsk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Transcribe"
@@ -1113,359 +1104,359 @@ msgstr "Transkriber"
 
 #: buzz/transcriber/transcriber.py
 msgid "Chinese"
-msgstr ""
+msgstr "Kinesisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Russian"
-msgstr ""
+msgstr "Russisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Korean"
-msgstr ""
+msgstr "Koreansk"
 
 #: buzz/transcriber/transcriber.py
 msgid "French"
-msgstr ""
+msgstr "Fransk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Portuguese"
-msgstr ""
+msgstr "Portugisisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Turkish"
-msgstr ""
+msgstr "Tyrkisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Arabic"
-msgstr ""
+msgstr "Arabisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Swedish"
-msgstr ""
+msgstr "Svensk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Indonesian"
-msgstr ""
+msgstr "Indonesisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Hindi"
-msgstr ""
+msgstr "Hindi"
 
 #: buzz/transcriber/transcriber.py
 msgid "Finnish"
-msgstr ""
+msgstr "Finsk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Vietnamese"
-msgstr ""
+msgstr "Vietnamesisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Hebrew"
-msgstr ""
+msgstr "Hebraisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Greek"
-msgstr ""
+msgstr "Græsk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Malay"
-msgstr ""
+msgstr "Malaysisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Czech"
-msgstr ""
+msgstr "Tjekkisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Romanian"
-msgstr ""
+msgstr "Rumænsk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Hungarian"
-msgstr ""
+msgstr "Ungarsk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Tamil"
-msgstr ""
+msgstr "Tamilsk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Norwegian"
-msgstr ""
+msgstr "Norsk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Thai"
-msgstr ""
+msgstr "Thailandsk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Urdu"
-msgstr ""
+msgstr "Urdu"
 
 #: buzz/transcriber/transcriber.py
 msgid "Croatian"
-msgstr ""
+msgstr "Kroatisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Bulgarian"
-msgstr ""
+msgstr "Bulgarsk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Lithuanian"
-msgstr ""
+msgstr "Litauisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Latin"
-msgstr ""
+msgstr "Latin"
 
 #: buzz/transcriber/transcriber.py
 msgid "Maori"
-msgstr ""
+msgstr "Maori"
 
 #: buzz/transcriber/transcriber.py
 msgid "Malayalam"
-msgstr ""
+msgstr "Malayalam"
 
 #: buzz/transcriber/transcriber.py
 msgid "Welsh"
-msgstr ""
+msgstr "Walisisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Slovak"
-msgstr ""
+msgstr "Slovakisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Telugu"
-msgstr ""
+msgstr "Telugu"
 
 #: buzz/transcriber/transcriber.py
 msgid "Persian"
-msgstr ""
+msgstr "Persisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Bengali"
-msgstr ""
+msgstr "Bengalsk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Serbian"
-msgstr ""
+msgstr "Serbisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Azerbaijani"
-msgstr ""
+msgstr "Aserbajdsjansk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Slovenian"
-msgstr ""
+msgstr "Slovensk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Kannada"
-msgstr ""
+msgstr "Kannada"
 
 #: buzz/transcriber/transcriber.py
 msgid "Estonian"
-msgstr ""
+msgstr "Estisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Macedonian"
-msgstr ""
+msgstr "Makedonsk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Breton"
-msgstr ""
+msgstr "Bretonsk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Basque"
-msgstr ""
+msgstr "Baskisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Icelandic"
-msgstr ""
+msgstr "Islandsk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Armenian"
-msgstr ""
+msgstr "Armensk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Nepali"
-msgstr ""
+msgstr "Nepalesisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Mongolian"
-msgstr ""
+msgstr "Mongolsk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Bosnian"
-msgstr ""
+msgstr "Bosnisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Kazakh"
-msgstr ""
+msgstr "Kasakhisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Albanian"
-msgstr ""
+msgstr "Albansk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Swahili"
-msgstr ""
+msgstr "Swahili"
 
 #: buzz/transcriber/transcriber.py
 msgid "Galician"
-msgstr ""
+msgstr "Galicisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Marathi"
-msgstr ""
+msgstr "Marathi"
 
 #: buzz/transcriber/transcriber.py
 msgid "Punjabi"
-msgstr ""
+msgstr "Punjabi"
 
 #: buzz/transcriber/transcriber.py
 msgid "Sinhala"
-msgstr ""
+msgstr "Singalesisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Khmer"
-msgstr ""
+msgstr "Khmer"
 
 #: buzz/transcriber/transcriber.py
 msgid "Shona"
-msgstr ""
+msgstr "Shona"
 
 #: buzz/transcriber/transcriber.py
 msgid "Yoruba"
-msgstr ""
+msgstr "Yoruba"
 
 #: buzz/transcriber/transcriber.py
 msgid "Somali"
-msgstr ""
+msgstr "Somalisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Afrikaans"
-msgstr ""
+msgstr "Afrikaans"
 
 #: buzz/transcriber/transcriber.py
 msgid "Occitan"
-msgstr ""
+msgstr "Occitansk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Georgian"
-msgstr ""
+msgstr "Georgisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Belarusian"
-msgstr ""
+msgstr "Hviderussisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Tajik"
-msgstr ""
+msgstr "Tadsjikisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Sindhi"
-msgstr ""
+msgstr "Sindhi"
 
 #: buzz/transcriber/transcriber.py
 msgid "Gujarati"
-msgstr ""
+msgstr "Gujarati"
 
 #: buzz/transcriber/transcriber.py
 msgid "Amharic"
-msgstr ""
+msgstr "Amharisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Yiddish"
-msgstr ""
+msgstr "Jiddisch"
 
 #: buzz/transcriber/transcriber.py
 msgid "Lao"
-msgstr ""
+msgstr "Laotisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Uzbek"
-msgstr ""
+msgstr "Usbekisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Faroese"
-msgstr ""
+msgstr "Færøsk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Haitian Creole"
-msgstr ""
+msgstr "Haitiansk kreolsk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Pashto"
-msgstr ""
+msgstr "Pashto"
 
 #: buzz/transcriber/transcriber.py
 msgid "Turkmen"
-msgstr ""
+msgstr "Turkmensk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Nynorsk"
-msgstr ""
+msgstr "Nynorsk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Maltese"
-msgstr ""
+msgstr "Maltesisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Sanskrit"
-msgstr ""
+msgstr "Sanskrit"
 
 #: buzz/transcriber/transcriber.py
 msgid "Luxembourgish"
-msgstr ""
+msgstr "Luxembourgsk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Myanmar"
-msgstr ""
+msgstr "Burmesisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Tibetan"
-msgstr ""
+msgstr "Tibetansk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Tagalog"
-msgstr ""
+msgstr "Tagalog"
 
 #: buzz/transcriber/transcriber.py
 msgid "Malagasy"
-msgstr ""
+msgstr "Malagassisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Assamese"
-msgstr ""
+msgstr "Assamesisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Tatar"
-msgstr ""
+msgstr "Tatarisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Hawaiian"
-msgstr ""
+msgstr "Hawaiiansk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Lingala"
-msgstr ""
+msgstr "Lingala"
 
 #: buzz/transcriber/transcriber.py
 msgid "Hausa"
-msgstr ""
+msgstr "Hausa"
 
 #: buzz/transcriber/transcriber.py
 msgid "Bashkir"
-msgstr ""
+msgstr "Basjkirsk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Javanese"
-msgstr ""
+msgstr "Javanesisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Sundanese"
-msgstr ""
+msgstr "Sundanesisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Cantonese"
-msgstr ""
+msgstr "Kantonesisk"
 
 #: buzz/transcriber/recording_transcriber.py buzz/model_loader.py
 msgid "A connection error occurred"
@@ -1473,12 +1464,11 @@ msgstr "Der er opstået en forbindelsesfejl"
 
 #: buzz/transcriber/recording_transcriber.py
 msgid "Starting Whisper.cpp..."
-msgstr ""
+msgstr "Starter Whisper.cpp..."
 
 #: buzz/transcriber/recording_transcriber.py
-#, fuzzy
 msgid "Starting transcription..."
-msgstr "Afbryd transkription"
+msgstr "Starter transkription..."
 
 #: buzz/settings/shortcut.py
 msgid "Open Record Window"
@@ -1503,93 +1493,3 @@ msgstr "Vis transkriberede oversættelse"
 #: buzz/settings/shortcut.py
 msgid "View Transcript Timestamps"
 msgstr "Vis transkriptionstidstempler "
-
-#: buzz/settings/shortcut.py
-#, fuzzy
-msgid "Search Transcript"
-msgstr "Åben transkription"
-
-#: buzz/settings/shortcut.py
-msgid "Go to Next Transcript Search Result"
-msgstr ""
-
-#: buzz/settings/shortcut.py
-msgid "Go to Previous Transcript Search Result"
-msgstr ""
-
-#: buzz/settings/shortcut.py
-msgid "Scroll to Current Text"
-msgstr ""
-
-#: buzz/settings/shortcut.py
-msgid "Play/Pause Audio"
-msgstr ""
-
-#: buzz/settings/shortcut.py
-msgid "Replay Current Segment"
-msgstr ""
-
-#: buzz/settings/shortcut.py
-msgid "Toggle Playback Controls"
-msgstr ""
-
-#: buzz/settings/shortcut.py
-msgid "Decrease Segment Start Time"
-msgstr ""
-
-#: buzz/settings/shortcut.py
-msgid "Increase Segment Start Time"
-msgstr ""
-
-#: buzz/settings/shortcut.py
-msgid "Decrease Segment End Time"
-msgstr ""
-
-#: buzz/settings/shortcut.py
-msgid "Increase Segment End Time"
-msgstr ""
-
-#: buzz/settings/recording_transcriber_mode.py
-msgid "Append below"
-msgstr "tilføj herunder"
-
-#: buzz/settings/recording_transcriber_mode.py
-msgid "Append above"
-msgstr "Tilføj herover"
-
-#: buzz/settings/recording_transcriber_mode.py
-msgid "Append and correct"
-msgstr "Tilføj og ret"
-
-#: buzz/translator.py
-#, fuzzy
-msgid "Translation error, see logs!"
-msgstr "Oversættelsesindstillinger"
-
-#: buzz/file_transcriber_queue_worker.py
-msgid ""
-"Speech extraction failed! Check your internet connection — a model may need "
-"to be downloaded."
-msgstr ""
-
-#~ msgid "Snap permission notice"
-#~ msgstr "Snap tilladelse notifikationer"
-
-#~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
-#~ msgstr ""
-#~ "Detekterede manglene tilladelser, tjek om venligst Snap tilladelserne er "
-#~ "givne"
-
-#~ msgid ""
-#~ "To enable necessary permissions run the following commands in the terminal"
-#~ msgstr ""
-#~ "For at give de nødvendige tilladelser kør den følgende kommando i et "
-#~ "terminalvindue"
-
-#~ msgid "Close"
-#~ msgstr "Luk"
-
-#~ msgid "Enter instructions for AI on how to translate..."
-#~ msgstr "Indtast instruktioner til AI om hvordan den skal oversætte..."

@@ -182,6 +182,9 @@ msgid ""
 "Note: Live recording export settings will be moved to the Advanced Settings "
 "in the Live Recording screen in a future version."
 msgstr ""
+"Nota: le impostazioni di esportazione della registrazione live verranno "
+"spostate nelle Impostazioni avanzate nella schermata di Registrazione live "
+"in una versione futura."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use 8-bit quantization to reduce memory usage"
@@ -434,68 +437,60 @@ msgid "AI model:"
 msgstr "Modello AI:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Please translate each text sent to you from English to Spanish."
-msgstr ""
-"Inserisci le istruzioni per l'IA su come tradurre, ad esempio 'Per favore, "
-"traduci ogni testo che ti viene inviato dall'inglese allo spagnolo.'"
+msgstr "Per favore, traduci ogni testo che ti viene inviato dall'inglese allo spagnolo."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
 msgstr "Istruzioni per l'AI:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Recording settings"
-msgstr "Impostazioni di traduzione"
+msgstr "Impostazioni di registrazione"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Silence threshold:"
-msgstr ""
+msgstr "Soglia del silenzio:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Line separator:"
-msgstr ""
+msgstr "Separatore di riga:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Live recording mode:"
-msgstr "Modalità di registrazione in diretta"
+msgstr "Modalità di registrazione in diretta:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Enable live recording export"
-msgstr "Abilita l'esportazione della trascrizione della registrazione live"
+msgstr "Abilita l'esportazione della registrazione live"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Export folder:"
-msgstr "Esporta cartella"
+msgstr "Cartella di esportazione:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Export file name:"
-msgstr "Nome file di esportazione predefinito"
+msgstr "Nome del file di esportazione:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Text file (.txt)"
-msgstr "File di testo"
+msgstr "File di testo (.txt)"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "CSV (.csv)"
-msgstr ""
+msgstr "CSV (.csv)"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Export file type:"
-msgstr "Esporta cartella"
+msgstr "Tipo di file di esportazione:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid ""
 "Limit export entries\n"
 "(0 = export all):"
 msgstr ""
+"Limita le voci di esportazione\n"
+"(0 = esporta tutto):"
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py
 msgid "Word-level timings"
@@ -692,24 +687,23 @@ msgstr "Schermo intero"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Copy"
-msgstr ""
+msgstr "Copia"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Copy transcription to clipboard"
-msgstr ""
+msgstr "Copia la trascrizione negli appunti"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Nothing to copy!"
-msgstr ""
+msgstr "Nessun testo da copiare!"
 
 #: buzz/widgets/recording_transcriber_widget.py
-#, fuzzy
 msgid "Copy failed"
-msgstr "Download non riuscito"
+msgstr "Copia non riuscita"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Copied!"
-msgstr ""
+msgstr "Copiato!"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Select Text Color"
@@ -745,7 +739,7 @@ msgstr "Il programma è aggiornato!"
 
 #: buzz/widgets/audio_meter_widget.py
 msgid "Average volume"
-msgstr ""
+msgstr "Volume medio"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "Start"
@@ -942,6 +936,8 @@ msgstr ""
 msgid ""
 "Speaker identification is not available: failed to load required libraries."
 msgstr ""
+"L'identificazione del parlante non è disponibile: impossibile caricare le "
+"librerie richieste."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "1/8 Collecting transcripts"
@@ -1025,12 +1021,10 @@ msgid "Save"
 msgstr "Salva"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-#, fuzzy
 msgid "Cancelling..."
-msgstr "Annulla"
+msgstr "Annullamento in corso..."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-#, fuzzy
 msgid "Cancelled"
 msgstr "Annullato"
 
@@ -1574,15 +1568,16 @@ msgid "Append and correct"
 msgstr "Aggiungere e correggere"
 
 #: buzz/translator.py
-#, fuzzy
 msgid "Translation error, see logs!"
-msgstr "Impostazioni di traduzione"
+msgstr "Errore di traduzione, controlla i log!"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
 msgstr ""
+"Estrazione del parlato non riuscita! Controlla la tua connessione Internet — "
+"potrebbe essere necessario scaricare un modello."
 
 #~ msgid "Snap permission notice"
 #~ msgstr "Avviso di autorizzazione Snap"

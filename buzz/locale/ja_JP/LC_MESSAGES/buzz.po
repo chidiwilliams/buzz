@@ -49,9 +49,8 @@ msgid "The URL you entered is invalid."
 msgstr "入力されたURLは無効です。"
 
 #: buzz/widgets/presentation_window.py
-#, fuzzy
 msgid "Live Transcript Presentation"
-msgstr "文字起こしの翻訳を表示する"
+msgstr "ライブ文字起こしプレゼンテーション"
 
 #: buzz/widgets/preferences_dialog/shortcuts_editor_preferences_widget.py
 msgid "Reset to Defaults"
@@ -60,79 +59,77 @@ msgstr "デフォルトに戻す"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
 msgid "English"
-msgstr ""
+msgstr "英語"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
 msgid "Catalan"
-msgstr ""
+msgstr "カタルーニャ語"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
 msgid "Danish"
-msgstr ""
+msgstr "デンマーク語"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
 msgid "Dutch"
-msgstr ""
+msgstr "オランダ語"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
 msgid "German"
-msgstr ""
+msgstr "ドイツ語"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
 msgid "Spanish"
-msgstr ""
+msgstr "スペイン語"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
 msgid "Italian"
-msgstr ""
+msgstr "イタリア語"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
 msgid "Japanese"
-msgstr ""
+msgstr "日本語"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
 msgid "Latvian"
-msgstr ""
+msgstr "ラトビア語"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
 msgid "Polish"
-msgstr ""
+msgstr "ポーランド語"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Portuguese (Brazil)"
-msgstr ""
+msgstr "ポルトガル語（ブラジル）"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
-#, fuzzy
 msgid "Ukrainian"
-msgstr "残り"
+msgstr "ウクライナ語"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Chinese (Simplified)"
-msgstr ""
+msgstr "中国語（簡体字）"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Chinese (Traditional)"
-msgstr ""
+msgstr "中国語（繁体字）"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Restart required!"
-msgstr ""
+msgstr "再起動が必要です！"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#, fuzzy
 msgid "Ui Language"
-msgstr "言語:"
+msgstr "UIの言語"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Font Size"
@@ -151,9 +148,8 @@ msgid "OpenAI base url"
 msgstr "OpenAI ベースURL"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#, fuzzy
 msgid "OpenAI API model"
-msgstr "OpenAI APIキー"
+msgstr "OpenAI APIモデル"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Default export file name"
@@ -174,41 +170,44 @@ msgid "Export folder"
 msgstr "出力フォルダ"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#, fuzzy
 msgid "Live recording mode"
-msgstr "ライブ録音"
+msgstr "ライブ録音モード"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "Note: Live recording export settings will be moved to the Advanced Settings "
 "in the Live Recording screen in a future version."
 msgstr ""
+"注意：ライブ録音の出力設定は、将来のバージョンでライブ録音画面の詳細設定に移動"
+"されます。"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use 8-bit quantization to reduce memory usage"
-msgstr ""
+msgstr "メモリ使用量を削減するために8ビット量子化を使用する"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "Applies to Huggingface and Faster Whisper models. Reduces GPU memory usage "
 "but may slightly decrease transcription quality."
 msgstr ""
+"HuggingfaceおよびFaster Whisperモデルに適用されます。GPUメモリ使用量を削減しま"
+"すが、文字起こしの品質がわずかに低下する場合があります。"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Reduce GPU RAM"
-msgstr ""
+msgstr "GPU RAMを削減する"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use only CPU and disable GPU acceleration"
-msgstr ""
+msgstr "CPUのみを使用してGPUアクセラレーションを無効にする"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
-msgstr ""
+msgstr "大きなモデルがGPUメモリに収まらずBuzzがクラッシュする場合に設定してください"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Disable GPU"
-msgstr ""
+msgstr "GPUを無効にする"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "OpenAI API Key Test"
@@ -223,15 +222,16 @@ msgstr ""
 "翻訳を行います。"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#, fuzzy
 msgid "Invalid API key"
-msgstr "OpenAI APIキー"
+msgstr "無効なAPIキー"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
 msgstr ""
+"APIはbase64文字（A-Za-z0-9+/=_-）のみをサポートしています。APIキーにその他の"
+"文字が含まれているとエラーが発生する場合があります。"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
@@ -353,7 +353,7 @@ msgstr "自動検出"
 
 #: buzz/widgets/transcriber/mms_language_line_edit.py
 msgid "e.g., eng, fra, deu"
-msgstr ""
+msgstr "例: eng, fra, deu"
 
 #: buzz/widgets/transcriber/mms_language_line_edit.py
 msgid ""
@@ -361,6 +361,9 @@ msgid ""
 "Examples: eng (English), fra (French), deu (German),\n"
 "spa (Spanish), lav (Latvian)"
 msgstr ""
+"ISO 639-3言語コード（3文字）を入力してください。\n"
+"例: eng（英語）、fra（フランス語）、deu（ドイツ語）、\n"
+"spa（スペイン語）、lav（ラトビア語）"
 
 #: buzz/widgets/transcriber/file_transcriber_widget.py
 msgid "Run"
@@ -373,7 +376,7 @@ msgstr "モデル:"
 #: buzz/widgets/transcriber/transcription_options_group_box.py
 #: buzz/transcriber/recording_transcriber.py
 msgid "First time use of a model may take up to several minutest to load."
-msgstr ""
+msgstr "モデルの初回使用時は読み込みに数分かかる場合があります。"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py
 msgid "Api Key:"
@@ -425,64 +428,59 @@ msgstr "AIのモデル:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Please translate each text sent to you from English to Spanish."
-msgstr ""
+msgstr "送られてくる各テキストを英語からスペイン語に翻訳してください。"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
 msgstr "AIへの指示:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Recording settings"
-msgstr "翻訳設定"
+msgstr "録音設定"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Silence threshold:"
-msgstr ""
+msgstr "無音閾値:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Line separator:"
-msgstr ""
+msgstr "行区切り:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Live recording mode:"
-msgstr "ライブ録音"
+msgstr "ライブ録音モード:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Enable live recording export"
-msgstr "ライブ録音書き起こしの出力を有効にする"
+msgstr "ライブ録音の出力を有効にする"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Export folder:"
-msgstr "出力フォルダ"
+msgstr "出力フォルダ:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Export file name:"
-msgstr "デフォルトの出力ファイル名"
+msgstr "出力ファイル名:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Text file (.txt)"
-msgstr "テキストファイル"
+msgstr "テキストファイル (.txt)"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "CSV (.csv)"
-msgstr ""
+msgstr "CSV (.csv)"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Export file type:"
-msgstr "出力フォルダ"
+msgstr "出力ファイル形式:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid ""
 "Limit export entries\n"
 "(0 = export all):"
 msgstr ""
+"出力エントリ数の制限\n"
+"（0 = すべて出力）:"
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py
 msgid "Word-level timings"
@@ -490,7 +488,7 @@ msgstr "単語レベルでのタイミング"
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py
 msgid "Extract speech"
-msgstr ""
+msgstr "音声を抽出する"
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py
 msgid "Export:"
@@ -505,14 +503,12 @@ msgid "Advanced..."
 msgstr "高度な設定..."
 
 #: buzz/widgets/main_window_toolbar.py
-#, fuzzy
 msgid "New File Transcription"
-msgstr "新しい文字起こし"
+msgstr "新しいファイルの文字起こし"
 
 #: buzz/widgets/main_window_toolbar.py
-#, fuzzy
 msgid "New URL Transcription"
-msgstr "新しい文字起こし"
+msgstr "新しいURLの文字起こし"
 
 #: buzz/widgets/main_window_toolbar.py
 msgid "Open Transcript"
@@ -573,60 +569,59 @@ msgstr "追加日"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Notes"
-msgstr ""
+msgstr "メモ"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Reset Column Order"
-msgstr ""
+msgstr "列の順序をリセット"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-#, fuzzy
 msgid "Restart Transcription"
-msgstr "文字起こしをキャンセルする"
+msgstr "文字起こしを再開する"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Rename"
-msgstr ""
+msgstr "名前を変更"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Add/Edit Notes"
-msgstr ""
+msgstr "メモを追加・編集"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-#, fuzzy
 msgid "Rename Transcription"
-msgstr "文字起こしをキャンセルする"
+msgstr "文字起こしの名前を変更"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Enter new name:"
-msgstr ""
+msgstr "新しい名前を入力してください:"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Enter some relevant notes for this transcription:"
-msgstr ""
+msgstr "この文字起こしに関するメモを入力してください:"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Cannot Restart"
-msgstr ""
+msgstr "再開できません"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Only failed or canceled transcriptions can be restarted."
-msgstr ""
+msgstr "再開できるのは失敗またはキャンセルされた文字起こしのみです。"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-#, fuzzy
 msgid "Failed to restart transcription: {}"
-msgstr "文字起こしをキャンセルする"
+msgstr "文字起こしの再開に失敗しました: {}"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid ""
 "Could not restart transcription: model not available and could not be "
 "downloaded."
 msgstr ""
+"文字起こしを再開できませんでした: モデルが利用できず、ダウンロードもできません"
+"でした。"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
-msgstr ""
+msgstr "文字起こしを再開できませんでした: 文字起こしワーカーが見つかりません。"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -646,72 +641,67 @@ msgstr "マイク:"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Show in new window"
-msgstr ""
+msgstr "新しいウィンドウで表示"
 
 #: buzz/widgets/recording_transcriber_widget.py
-#, fuzzy
 msgid "Text Size:"
-msgstr "テキストファイル"
+msgstr "テキストサイズ:"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Theme"
-msgstr ""
+msgstr "テーマ"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Light"
-msgstr ""
+msgstr "ライト"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Dark"
-msgstr ""
+msgstr "ダーク"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Custom"
-msgstr ""
+msgstr "カスタム"
 
 #: buzz/widgets/recording_transcriber_widget.py
-#, fuzzy
 msgid "Text Color"
-msgstr "テキストファイル"
+msgstr "テキストの色"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Background Color"
-msgstr ""
+msgstr "背景の色"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Fullscreen"
-msgstr ""
+msgstr "全画面表示"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Copy"
-msgstr ""
+msgstr "コピー"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Copy transcription to clipboard"
-msgstr ""
+msgstr "文字起こしをクリップボードにコピー"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Nothing to copy!"
-msgstr ""
+msgstr "コピーするものがありません！"
 
 #: buzz/widgets/recording_transcriber_widget.py
-#, fuzzy
 msgid "Copy failed"
-msgstr "ダウンロード失敗"
+msgstr "コピーに失敗しました"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Copied!"
-msgstr ""
+msgstr "コピーしました！"
 
 #: buzz/widgets/recording_transcriber_widget.py
-#, fuzzy
 msgid "Select Text Color"
-msgstr "出力フォルダを選択"
+msgstr "テキストの色を選択"
 
 #: buzz/widgets/recording_transcriber_widget.py
-#, fuzzy
 msgid "Select Background Color"
-msgstr "音声ファイルを選択"
+msgstr "背景の色を選択"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "An error occurred while starting a new recording:"
@@ -731,7 +721,7 @@ msgstr "アップデートを確認する"
 
 #: buzz/widgets/about_dialog.py
 msgid "Show logs"
-msgstr ""
+msgstr "ログを表示"
 
 #: buzz/widgets/about_dialog.py
 msgid "You're up to date!"
@@ -739,7 +729,7 @@ msgstr "最新の状態です!"
 
 #: buzz/widgets/audio_meter_widget.py
 msgid "Average volume"
-msgstr ""
+msgstr "平均音量"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "Start"
@@ -784,89 +774,91 @@ msgstr "リサイズ"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Identify Speakers"
-msgstr ""
+msgstr "話者を識別する"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Find"
-msgstr ""
+msgstr "検索"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Show/Hide Search Bar (Ctrl+F)"
-msgstr ""
+msgstr "検索バーの表示・非表示 (Ctrl+F)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Find:"
-msgstr ""
+msgstr "検索:"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Enter text to find..."
-msgstr ""
+msgstr "検索するテキストを入力..."
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Previous match (Shift+Enter)"
-msgstr ""
+msgstr "前の一致 (Shift+Enter)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Next match (Ctrl+Enter)"
-msgstr ""
+msgstr "次の一致 (Ctrl+Enter)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Clear"
-msgstr ""
+msgstr "クリア"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Playback Controls:"
-msgstr ""
+msgstr "再生コントロール:"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Loop Segment"
-msgstr ""
+msgstr "セグメントをループ"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Enable/disable looping when clicking on transcript segments"
-msgstr ""
+msgstr "文字起こしセグメントをクリックしたときのループを有効・無効にする"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Follow Audio"
-msgstr ""
+msgstr "音声に追従"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid ""
 "Enable/disable following the current audio position in the transcript. When "
 "enabled, automatically scrolls to current text."
 msgstr ""
+"文字起こし内で現在の音声位置への追従を有効・無効にします。有効にすると、現在"
+"のテキストに自動的にスクロールします。"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Scroll to Current"
-msgstr ""
+msgstr "現在位置にスクロール"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Scroll to the currently spoken text"
-msgstr ""
+msgstr "現在話されているテキストにスクロールする"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "1 of 100+ matches"
-msgstr ""
+msgstr "100件以上中の1件目"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "1 of "
-msgstr ""
+msgstr "1 / "
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid " matches"
-msgstr ""
+msgstr " 件一致"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "No matches found"
-msgstr ""
+msgstr "一致する項目が見つかりません"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid " of 100+ matches"
-msgstr ""
+msgstr " / 100件以上一致"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid " of "
-msgstr ""
+msgstr " / "
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "API Key Required"
@@ -878,20 +870,19 @@ msgstr "設定画面でOpenAI APIキーを入力してください"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Extend end time"
-msgstr ""
+msgstr "終了時刻を延長"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Extend endings by up to (seconds)"
-msgstr ""
+msgstr "終了を最大（秒）まで延長"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Extend endings"
-msgstr ""
+msgstr "終了を延長"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-#, fuzzy
 msgid "Resize Options"
-msgstr "リサイズ"
+msgstr "リサイズオプション"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Desired subtitle length"
@@ -899,124 +890,123 @@ msgstr "希望する字幕の長さ"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were disabled during transcription"
-msgstr ""
+msgstr "文字起こし時に単語レベルのタイミングが無効だった場合のみ使用可能"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge Options"
-msgstr ""
+msgstr "結合オプション"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge by gap"
-msgstr ""
+msgstr "間隔で結合"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Split by punctuation"
-msgstr ""
+msgstr "句読点で分割"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Split by max length"
-msgstr ""
+msgstr "最大文字数で分割"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge"
-msgstr ""
+msgstr "結合"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
-msgstr ""
+msgstr "文字起こし時に単語レベルのタイミングが有効だった場合のみ使用可能"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
 "Speaker identification is not available: failed to load required libraries."
 msgstr ""
+"話者識別は利用できません: 必要なライブラリの読み込みに失敗しました。"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "1/8 Collecting transcripts"
-msgstr ""
+msgstr "1/8 文字起こしを収集中"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "2/8 Loading audio"
-msgstr ""
+msgstr "2/8 音声を読み込み中"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "3/8 Loading alignment model"
-msgstr ""
+msgstr "3/8 アライメントモデルを読み込み中"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "3/8 Loading alignment model (retrying with cache...)"
-msgstr ""
+msgstr "3/8 アライメントモデルを読み込み中（キャッシュで再試行中...）"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
 "Failed to load alignment model. Please check your internet connection and "
 "try again."
 msgstr ""
+"アライメントモデルの読み込みに失敗しました。インターネット接続を確認して再度"
+"お試しください。"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "4/8 Processing audio"
-msgstr ""
+msgstr "4/8 音声を処理中"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-#, fuzzy
 msgid "5/8 Preparing transcripts"
-msgstr "文字起こしをキャンセルする"
+msgstr "5/8 文字起こしを準備中"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "6/8 Identifying speakers"
-msgstr ""
+msgstr "6/8 話者を識別中"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "7/8 Mapping speakers to transcripts"
-msgstr ""
+msgstr "7/8 話者を文字起こしにマッピング中"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "8/8 Identification done"
-msgstr ""
+msgstr "8/8 識別完了"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "0/0 Error identifying speakers"
-msgstr ""
+msgstr "0/0 話者識別中にエラーが発生しました"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 1: Identify speakers"
-msgstr ""
+msgstr "ステップ1: 話者を識別する"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Identify"
-msgstr ""
+msgstr "識別"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Ready to identify speakers"
-msgstr ""
+msgstr "話者を識別する準備ができました"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Audio file not found"
-msgstr ""
+msgstr "音声ファイルが見つかりません"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
-msgstr ""
+msgstr "ステップ2: 話者に名前を付ける"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Play sample"
-msgstr ""
+msgstr "サンプルを再生"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Merge speaker sentences"
-msgstr ""
+msgstr "話者の文を結合"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-#, fuzzy
 msgid "Save"
-msgstr "ファイルを保存"
+msgstr "保存"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-#, fuzzy
 msgid "Cancelling..."
-msgstr "キャンセル"
+msgstr "キャンセル中..."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-#, fuzzy
 msgid "Cancelled"
 msgstr "キャンセル済み"
 
@@ -1087,7 +1077,7 @@ msgstr "OpenAI API キーをkeyringに保存できません"
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
 msgid "Whisper server failed to start. Check logs for details."
-msgstr ""
+msgstr "Whisperサーバーの起動に失敗しました。詳細はログを確認してください。"
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
@@ -1096,11 +1086,13 @@ msgid ""
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
 "variable."
 msgstr ""
+"メモリ不足のためWhisperサーバーの起動に失敗しました。より小さいモデルで再試行"
+"してください。CPUモードを強制するには環境変数BUZZ_FORCE_CPU=TRUEを使用してくだ"
+"さい。"
 
 #: buzz/transcriber/transcriber.py
-#, fuzzy
 msgid "Translate to English"
-msgstr "翻訳設定"
+msgstr "英語に翻訳"
 
 #: buzz/transcriber/transcriber.py
 msgid "Transcribe"
@@ -1108,359 +1100,359 @@ msgstr "文字起こし"
 
 #: buzz/transcriber/transcriber.py
 msgid "Chinese"
-msgstr ""
+msgstr "中国語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Russian"
-msgstr ""
+msgstr "ロシア語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Korean"
-msgstr ""
+msgstr "韓国語"
 
 #: buzz/transcriber/transcriber.py
 msgid "French"
-msgstr ""
+msgstr "フランス語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Portuguese"
-msgstr ""
+msgstr "ポルトガル語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Turkish"
-msgstr ""
+msgstr "トルコ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Arabic"
-msgstr ""
+msgstr "アラビア語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Swedish"
-msgstr ""
+msgstr "スウェーデン語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Indonesian"
-msgstr ""
+msgstr "インドネシア語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Hindi"
-msgstr ""
+msgstr "ヒンディー語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Finnish"
-msgstr ""
+msgstr "フィンランド語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Vietnamese"
-msgstr ""
+msgstr "ベトナム語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Hebrew"
-msgstr ""
+msgstr "ヘブライ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Greek"
-msgstr ""
+msgstr "ギリシャ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Malay"
-msgstr ""
+msgstr "マレー語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Czech"
-msgstr ""
+msgstr "チェコ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Romanian"
-msgstr ""
+msgstr "ルーマニア語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Hungarian"
-msgstr ""
+msgstr "ハンガリー語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Tamil"
-msgstr ""
+msgstr "タミル語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Norwegian"
-msgstr ""
+msgstr "ノルウェー語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Thai"
-msgstr ""
+msgstr "タイ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Urdu"
-msgstr ""
+msgstr "ウルドゥー語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Croatian"
-msgstr ""
+msgstr "クロアチア語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Bulgarian"
-msgstr ""
+msgstr "ブルガリア語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Lithuanian"
-msgstr ""
+msgstr "リトアニア語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Latin"
-msgstr ""
+msgstr "ラテン語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Maori"
-msgstr ""
+msgstr "マオリ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Malayalam"
-msgstr ""
+msgstr "マラヤーラム語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Welsh"
-msgstr ""
+msgstr "ウェールズ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Slovak"
-msgstr ""
+msgstr "スロバキア語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Telugu"
-msgstr ""
+msgstr "テルグ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Persian"
-msgstr ""
+msgstr "ペルシャ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Bengali"
-msgstr ""
+msgstr "ベンガル語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Serbian"
-msgstr ""
+msgstr "セルビア語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Azerbaijani"
-msgstr ""
+msgstr "アゼルバイジャン語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Slovenian"
-msgstr ""
+msgstr "スロベニア語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Kannada"
-msgstr ""
+msgstr "カンナダ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Estonian"
-msgstr ""
+msgstr "エストニア語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Macedonian"
-msgstr ""
+msgstr "マケドニア語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Breton"
-msgstr ""
+msgstr "ブルトン語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Basque"
-msgstr ""
+msgstr "バスク語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Icelandic"
-msgstr ""
+msgstr "アイスランド語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Armenian"
-msgstr ""
+msgstr "アルメニア語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Nepali"
-msgstr ""
+msgstr "ネパール語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Mongolian"
-msgstr ""
+msgstr "モンゴル語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Bosnian"
-msgstr ""
+msgstr "ボスニア語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Kazakh"
-msgstr ""
+msgstr "カザフ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Albanian"
-msgstr ""
+msgstr "アルバニア語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Swahili"
-msgstr ""
+msgstr "スワヒリ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Galician"
-msgstr ""
+msgstr "ガリシア語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Marathi"
-msgstr ""
+msgstr "マラーティー語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Punjabi"
-msgstr ""
+msgstr "パンジャブ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Sinhala"
-msgstr ""
+msgstr "シンハラ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Khmer"
-msgstr ""
+msgstr "クメール語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Shona"
-msgstr ""
+msgstr "ショナ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Yoruba"
-msgstr ""
+msgstr "ヨルバ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Somali"
-msgstr ""
+msgstr "ソマリ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Afrikaans"
-msgstr ""
+msgstr "アフリカーンス語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Occitan"
-msgstr ""
+msgstr "オック語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Georgian"
-msgstr ""
+msgstr "ジョージア語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Belarusian"
-msgstr ""
+msgstr "ベラルーシ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Tajik"
-msgstr ""
+msgstr "タジク語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Sindhi"
-msgstr ""
+msgstr "シンド語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Gujarati"
-msgstr ""
+msgstr "グジャラート語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Amharic"
-msgstr ""
+msgstr "アムハラ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Yiddish"
-msgstr ""
+msgstr "イディッシュ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Lao"
-msgstr ""
+msgstr "ラオス語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Uzbek"
-msgstr ""
+msgstr "ウズベク語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Faroese"
-msgstr ""
+msgstr "フェロー語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Haitian Creole"
-msgstr ""
+msgstr "ハイチ・クレオール語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Pashto"
-msgstr ""
+msgstr "パシュトー語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Turkmen"
-msgstr ""
+msgstr "トルクメン語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Nynorsk"
-msgstr ""
+msgstr "ニーノシュク語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Maltese"
-msgstr ""
+msgstr "マルタ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Sanskrit"
-msgstr ""
+msgstr "サンスクリット語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Luxembourgish"
-msgstr ""
+msgstr "ルクセンブルク語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Myanmar"
-msgstr ""
+msgstr "ミャンマー語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Tibetan"
-msgstr ""
+msgstr "チベット語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Tagalog"
-msgstr ""
+msgstr "タガログ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Malagasy"
-msgstr ""
+msgstr "マラガシ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Assamese"
-msgstr ""
+msgstr "アッサム語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Tatar"
-msgstr ""
+msgstr "タタール語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Hawaiian"
-msgstr ""
+msgstr "ハワイ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Lingala"
-msgstr ""
+msgstr "リンガラ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Hausa"
-msgstr ""
+msgstr "ハウサ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Bashkir"
-msgstr ""
+msgstr "バシキール語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Javanese"
-msgstr ""
+msgstr "ジャワ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Sundanese"
-msgstr ""
+msgstr "スンダ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Cantonese"
-msgstr ""
+msgstr "広東語"
 
 #: buzz/transcriber/recording_transcriber.py buzz/model_loader.py
 msgid "A connection error occurred"
@@ -1468,12 +1460,11 @@ msgstr "接続エラーが発生しました"
 
 #: buzz/transcriber/recording_transcriber.py
 msgid "Starting Whisper.cpp..."
-msgstr ""
+msgstr "Whisper.cppを起動中..."
 
 #: buzz/transcriber/recording_transcriber.py
-#, fuzzy
 msgid "Starting transcription..."
-msgstr "文字起こしをキャンセルする"
+msgstr "文字起こしを開始中..."
 
 #: buzz/settings/shortcut.py
 msgid "Open Record Window"
@@ -1500,72 +1491,72 @@ msgid "View Transcript Timestamps"
 msgstr "文字起こしのタイムスタンプを表示する"
 
 #: buzz/settings/shortcut.py
-#, fuzzy
 msgid "Search Transcript"
-msgstr "文字起こしを開く"
+msgstr "文字起こしを検索"
 
 #: buzz/settings/shortcut.py
 msgid "Go to Next Transcript Search Result"
-msgstr ""
+msgstr "次の文字起こし検索結果へ移動"
 
 #: buzz/settings/shortcut.py
 msgid "Go to Previous Transcript Search Result"
-msgstr ""
+msgstr "前の文字起こし検索結果へ移動"
 
 #: buzz/settings/shortcut.py
 msgid "Scroll to Current Text"
-msgstr ""
+msgstr "現在のテキストにスクロール"
 
 #: buzz/settings/shortcut.py
 msgid "Play/Pause Audio"
-msgstr ""
+msgstr "音声の再生・一時停止"
 
 #: buzz/settings/shortcut.py
 msgid "Replay Current Segment"
-msgstr ""
+msgstr "現在のセグメントを再再生"
 
 #: buzz/settings/shortcut.py
 msgid "Toggle Playback Controls"
-msgstr ""
+msgstr "再生コントロールの表示切替"
 
 #: buzz/settings/shortcut.py
 msgid "Decrease Segment Start Time"
-msgstr ""
+msgstr "セグメント開始時刻を早める"
 
 #: buzz/settings/shortcut.py
 msgid "Increase Segment Start Time"
-msgstr ""
+msgstr "セグメント開始時刻を遅らせる"
 
 #: buzz/settings/shortcut.py
 msgid "Decrease Segment End Time"
-msgstr ""
+msgstr "セグメント終了時刻を早める"
 
 #: buzz/settings/shortcut.py
 msgid "Increase Segment End Time"
-msgstr ""
+msgstr "セグメント終了時刻を遅らせる"
 
 #: buzz/settings/recording_transcriber_mode.py
 msgid "Append below"
-msgstr ""
+msgstr "下に追加"
 
 #: buzz/settings/recording_transcriber_mode.py
 msgid "Append above"
-msgstr ""
+msgstr "上に追加"
 
 #: buzz/settings/recording_transcriber_mode.py
 msgid "Append and correct"
-msgstr ""
+msgstr "追加して修正"
 
 #: buzz/translator.py
-#, fuzzy
 msgid "Translation error, see logs!"
-msgstr "翻訳設定"
+msgstr "翻訳エラーが発生しました。ログを確認してください！"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
 msgstr ""
+"音声抽出に失敗しました！インターネット接続を確認してください。モデルのダウン"
+"ロードが必要な場合があります。"
 
 #~ msgid "Snap permission notice"
 #~ msgstr "Snap権限通知"

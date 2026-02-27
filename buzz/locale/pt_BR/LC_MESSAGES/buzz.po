@@ -54,9 +54,8 @@ msgid "The URL you entered is invalid."
 msgstr "A URL inserida é inválida."
 
 #: buzz/widgets/presentation_window.py
-#, fuzzy
 msgid "Live Transcript Presentation"
-msgstr "Ver Tradução da Transcrição"
+msgstr "Apresentação de Transcrição ao Vivo"
 
 #: buzz/widgets/preferences_dialog/shortcuts_editor_preferences_widget.py
 msgid "Reset to Defaults"
@@ -154,9 +153,8 @@ msgid "OpenAI base url"
 msgstr "URL base da OpenAI"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#, fuzzy
 msgid "OpenAI API model"
-msgstr "Chave API da OpenAI"
+msgstr "Modelo de API da OpenAI"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Default export file name"
@@ -185,20 +183,24 @@ msgid ""
 "Note: Live recording export settings will be moved to the Advanced Settings "
 "in the Live Recording screen in a future version."
 msgstr ""
+"Nota: As configurações de exportação de gravação ao vivo serão movidas para "
+"as Configurações Avançadas na tela de Gravação ao Vivo em uma versão futura."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use 8-bit quantization to reduce memory usage"
-msgstr ""
+msgstr "Usar quantização de 8 bits para reduzir o uso de memória"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "Applies to Huggingface and Faster Whisper models. Reduces GPU memory usage "
 "but may slightly decrease transcription quality."
 msgstr ""
+"Aplica-se aos modelos Huggingface e Faster Whisper. Reduz o uso de memória "
+"da GPU, mas pode diminuir ligeiramente a qualidade da transcrição."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Reduce GPU RAM"
-msgstr ""
+msgstr "Reduzir RAM da GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use only CPU and disable GPU acceleration"
@@ -357,7 +359,7 @@ msgstr "Detectar Idioma"
 
 #: buzz/widgets/transcriber/mms_language_line_edit.py
 msgid "e.g., eng, fra, deu"
-msgstr ""
+msgstr "ex.: eng, fra, deu"
 
 #: buzz/widgets/transcriber/mms_language_line_edit.py
 msgid ""
@@ -365,6 +367,9 @@ msgid ""
 "Examples: eng (English), fra (French), deu (German),\n"
 "spa (Spanish), lav (Latvian)"
 msgstr ""
+"Insira um código de idioma ISO 639-3 (3 letras).\n"
+"Exemplos: eng (Inglês), fra (Francês), deu (Alemão),\n"
+"spa (Espanhol), lav (Letão)"
 
 #: buzz/widgets/transcriber/file_transcriber_widget.py
 msgid "Run"
@@ -428,68 +433,60 @@ msgid "AI model:"
 msgstr "Modelo de IA:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Please translate each text sent to you from English to Spanish."
-msgstr ""
-"Instrua a IA sobre como traduzir, por exemplo: \"Por favor, traduza cada "
-"texto enviado a você do Inglês para o Português\"."
+msgstr "Por favor, traduza cada texto enviado a você do Inglês para o Espanhol."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
 msgstr "Instruções para a IA:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Recording settings"
-msgstr "Configurações de tradução"
+msgstr "Configurações de gravação"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Silence threshold:"
-msgstr ""
+msgstr "Limiar de silêncio:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Line separator:"
-msgstr ""
+msgstr "Separador de linha:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Live recording mode:"
-msgstr "Modo de gravação ao vivo"
+msgstr "Modo de gravação ao vivo:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Enable live recording export"
-msgstr "Habilitar exportação da transcrição ao vivo"
+msgstr "Habilitar exportação de gravação ao vivo"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Export folder:"
-msgstr "Pasta de exportação"
+msgstr "Pasta de exportação:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Export file name:"
-msgstr "Nome padrão do arquivo de exportação"
+msgstr "Nome do arquivo de exportação:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Text file (.txt)"
-msgstr "Arquivos de texto"
+msgstr "Arquivo de texto (.txt)"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "CSV (.csv)"
-msgstr ""
+msgstr "CSV (.csv)"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-#, fuzzy
 msgid "Export file type:"
-msgstr "Pasta de exportação"
+msgstr "Tipo de arquivo de exportação:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid ""
 "Limit export entries\n"
 "(0 = export all):"
 msgstr ""
+"Limitar entradas de exportação\n"
+"(0 = exportar tudo):"
 
 #: buzz/widgets/transcriber/file_transcription_form_widget.py
 msgid "Word-level timings"
@@ -578,61 +575,59 @@ msgstr "Data de Adição"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Notes"
-msgstr ""
+msgstr "Notas"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Reset Column Order"
-msgstr ""
+msgstr "Redefinir Ordem das Colunas"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-#, fuzzy
 msgid "Restart Transcription"
-msgstr "Iniciando transcrição..."
+msgstr "Reiniciar Transcrição"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-#, fuzzy
 msgid "Rename"
-msgstr "Vietnamita"
+msgstr "Renomear"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Add/Edit Notes"
-msgstr ""
+msgstr "Adicionar/Editar Notas"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-#, fuzzy
 msgid "Rename Transcription"
-msgstr "Cancelar Transcrição"
+msgstr "Renomear Transcrição"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Enter new name:"
-msgstr ""
+msgstr "Digite o novo nome:"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Enter some relevant notes for this transcription:"
-msgstr ""
+msgstr "Digite algumas notas relevantes para esta transcrição:"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Cannot Restart"
-msgstr ""
+msgstr "Não é possível reiniciar"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Only failed or canceled transcriptions can be restarted."
-msgstr ""
+msgstr "Somente transcrições com falha ou canceladas podem ser reiniciadas."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-#, fuzzy
 msgid "Failed to restart transcription: {}"
-msgstr "Iniciando transcrição..."
+msgstr "Falha ao reiniciar a transcrição: {}"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid ""
 "Could not restart transcription: model not available and could not be "
 "downloaded."
 msgstr ""
+"Não foi possível reiniciar a transcrição: o modelo não está disponível e "
+"não pôde ser baixado."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
-msgstr ""
+msgstr "Não foi possível reiniciar a transcrição: trabalhador de transcrição não encontrado."
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -652,72 +647,67 @@ msgstr "Microfone:"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Show in new window"
-msgstr ""
+msgstr "Mostrar em nova janela"
 
 #: buzz/widgets/recording_transcriber_widget.py
-#, fuzzy
 msgid "Text Size:"
-msgstr "Arquivos de texto"
+msgstr "Tamanho do Texto:"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Theme"
-msgstr ""
+msgstr "Tema"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Light"
-msgstr ""
+msgstr "Claro"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Dark"
-msgstr ""
+msgstr "Escuro"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Custom"
-msgstr ""
+msgstr "Personalizado"
 
 #: buzz/widgets/recording_transcriber_widget.py
-#, fuzzy
 msgid "Text Color"
-msgstr "Arquivos de texto"
+msgstr "Cor do Texto"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Background Color"
-msgstr ""
+msgstr "Cor de Fundo"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Fullscreen"
-msgstr ""
+msgstr "Tela Cheia"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Copy"
-msgstr ""
+msgstr "Copiar"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Copy transcription to clipboard"
-msgstr ""
+msgstr "Copiar transcrição para a área de transferência"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Nothing to copy!"
-msgstr ""
+msgstr "Nada para copiar!"
 
 #: buzz/widgets/recording_transcriber_widget.py
-#, fuzzy
 msgid "Copy failed"
-msgstr "Falha ao baixar"
+msgstr "Falha ao copiar"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Copied!"
-msgstr ""
+msgstr "Copiado!"
 
 #: buzz/widgets/recording_transcriber_widget.py
-#, fuzzy
 msgid "Select Text Color"
-msgstr "Selecionar Pasta de Exportação"
+msgstr "Selecionar Cor do Texto"
 
 #: buzz/widgets/recording_transcriber_widget.py
-#, fuzzy
 msgid "Select Background Color"
-msgstr "Selecionar arquivo de áudio"
+msgstr "Selecionar Cor de Fundo"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "An error occurred while starting a new recording:"
@@ -737,7 +727,7 @@ msgstr "Verificar atualizações"
 
 #: buzz/widgets/about_dialog.py
 msgid "Show logs"
-msgstr ""
+msgstr "Mostrar logs"
 
 #: buzz/widgets/about_dialog.py
 msgid "You're up to date!"
@@ -745,7 +735,7 @@ msgstr "Você está atualizado!"
 
 #: buzz/widgets/audio_meter_widget.py
 msgid "Average volume"
-msgstr ""
+msgstr "Volume médio"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "Start"
@@ -790,7 +780,7 @@ msgstr "Redimensionar"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Identify Speakers"
-msgstr ""
+msgstr "Identificar Falantes"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Find"
@@ -813,9 +803,8 @@ msgid "Previous match (Shift+Enter)"
 msgstr "Encontro prévio (Shift+Enter)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
-#, fuzzy
 msgid "Next match (Ctrl+Enter)"
-msgstr "Póximo encontro (Enter)"
+msgstr "Próximo encontro (Ctrl+Enter)"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Clear"
@@ -887,15 +876,15 @@ msgstr "Insira a chave API OpenAI nas preferências"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Extend end time"
-msgstr ""
+msgstr "Estender o tempo final"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Extend endings by up to (seconds)"
-msgstr ""
+msgstr "Estender finais em até (segundos)"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Extend endings"
-msgstr ""
+msgstr "Estender finais"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Resize Options"
@@ -907,7 +896,7 @@ msgstr "Duração desejada da legenda"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were disabled during transcription"
-msgstr ""
+msgstr "Disponível apenas se os tempos em nível de palavra foram desabilitados durante a transcrição"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge Options"
@@ -931,100 +920,100 @@ msgstr "Mesclar"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
-msgstr ""
+msgstr "Disponível apenas se os tempos em nível de palavra foram habilitados durante a transcrição"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
 "Speaker identification is not available: failed to load required libraries."
 msgstr ""
+"Identificação de falantes não está disponível: falha ao carregar as "
+"bibliotecas necessárias."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "1/8 Collecting transcripts"
-msgstr ""
+msgstr "1/8 Coletando transcrições"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "2/8 Loading audio"
-msgstr ""
+msgstr "2/8 Carregando áudio"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "3/8 Loading alignment model"
-msgstr ""
+msgstr "3/8 Carregando modelo de alinhamento"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "3/8 Loading alignment model (retrying with cache...)"
-msgstr ""
+msgstr "3/8 Carregando modelo de alinhamento (tentando novamente com cache...)"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
 "Failed to load alignment model. Please check your internet connection and "
 "try again."
 msgstr ""
+"Falha ao carregar o modelo de alinhamento. Verifique sua conexão com a "
+"internet e tente novamente."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "4/8 Processing audio"
-msgstr ""
+msgstr "4/8 Processando áudio"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-#, fuzzy
 msgid "5/8 Preparing transcripts"
-msgstr "Iniciando transcrição..."
+msgstr "5/8 Preparando transcrições"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "6/8 Identifying speakers"
-msgstr ""
+msgstr "6/8 Identificando falantes"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "7/8 Mapping speakers to transcripts"
-msgstr ""
+msgstr "7/8 Mapeando falantes para transcrições"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "8/8 Identification done"
-msgstr ""
+msgstr "8/8 Identificação concluída"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "0/0 Error identifying speakers"
-msgstr ""
+msgstr "0/0 Erro ao identificar falantes"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 1: Identify speakers"
-msgstr ""
+msgstr "Passo 1: Identificar falantes"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Identify"
-msgstr ""
+msgstr "Identificar"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Ready to identify speakers"
-msgstr ""
+msgstr "Pronto para identificar falantes"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Audio file not found"
-msgstr ""
+msgstr "Arquivo de áudio não encontrado"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
-msgstr ""
+msgstr "Passo 2: Nomear falantes"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Play sample"
-msgstr ""
+msgstr "Reproduzir amostra"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Merge speaker sentences"
-msgstr ""
+msgstr "Mesclar frases do falante"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-#, fuzzy
 msgid "Save"
-msgstr "Salvar Arquivo"
+msgstr "Salvar"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-#, fuzzy
 msgid "Cancelling..."
-msgstr "Cancelar"
+msgstr "Cancelando..."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-#, fuzzy
 msgid "Cancelled"
 msgstr "Cancelado"
 
@@ -1483,7 +1472,6 @@ msgid "Starting Whisper.cpp..."
 msgstr "Iniciando Whisper.cpp..."
 
 #: buzz/transcriber/recording_transcriber.py
-#, fuzzy
 msgid "Starting transcription..."
 msgstr "Iniciando transcrição..."
 
@@ -1517,11 +1505,11 @@ msgstr "Pesquisar Transcrição"
 
 #: buzz/settings/shortcut.py
 msgid "Go to Next Transcript Search Result"
-msgstr ""
+msgstr "Ir para o Próximo Resultado de Pesquisa na Transcrição"
 
 #: buzz/settings/shortcut.py
 msgid "Go to Previous Transcript Search Result"
-msgstr ""
+msgstr "Ir para o Resultado de Pesquisa Anterior na Transcrição"
 
 #: buzz/settings/shortcut.py
 msgid "Scroll to Current Text"
@@ -1568,15 +1556,16 @@ msgid "Append and correct"
 msgstr "Acrescentar e corrigir"
 
 #: buzz/translator.py
-#, fuzzy
 msgid "Translation error, see logs!"
-msgstr "Configurações de tradução"
+msgstr "Erro de tradução, verifique os logs!"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
 msgstr ""
+"Falha na extração de fala! Verifique sua conexão com a internet — pode ser "
+"necessário baixar um modelo."
 
 #~ msgid "Snap permission notice"
 #~ msgstr "Aviso de permissão do Snap"
@@ -1607,4 +1596,3 @@ msgstr ""
 #~ msgstr "Desfazer"
 
 #~ msgid "Redo"
-#~ msgstr "Refazer"
