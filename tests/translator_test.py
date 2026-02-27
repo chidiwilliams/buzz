@@ -24,7 +24,7 @@ class TestParseBatchResponse:
         result = Translator._parse_batch_response(response, 3)
         assert len(result) == 3
         assert result[0] == "Hello"
-        assert result[1] == _("Translation error, see logs!")
+        assert result[1] == ""
         assert result[2] == "World"
 
     def test_multiline_entries(self):
@@ -44,8 +44,8 @@ class TestParseBatchResponse:
         response = ""
         result = Translator._parse_batch_response(response, 2)
         assert len(result) == 2
-        assert result[0] == _("Translation error, see logs!")
-        assert result[1] == _("Translation error, see logs!")
+        assert result[0] == ""
+        assert result[1] == ""
 
     def test_whitespace_handling(self):
         response = "[1]   Hello with spaces   \n[2]   World   "
