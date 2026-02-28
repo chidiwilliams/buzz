@@ -47,7 +47,6 @@ class UpdateDialog(QDialog):
 
         self._setup_ui()
 
-
     def _setup_ui(self):
         self.setWindowTitle(_("Update Available"))
         self.setWindowIcon(QIcon(BUZZ_ICON_PATH))
@@ -72,7 +71,6 @@ class UpdateDialog(QDialog):
 
         new_version_label = QLabel(_("New version:"))
         new_version_value = QLabel(f"<b>{self.update_info.version}</b>")
-        new_version_value.setStyleSheet("color: green;")
 
         version_layout.addWidget(current_version_label)
         version_layout.addWidget(current_version_value)
@@ -237,7 +235,6 @@ class UpdateDialog(QDialog):
         self.status_label.setText(_("Download complete!"))
         self._run_installer()
 
-
     def _run_installer(self):
         """Run the downloaded installer"""
         if not self._temp_file_paths:
@@ -248,21 +245,14 @@ class UpdateDialog(QDialog):
 
         try:
             if system == "Windows":
-                self.status_label.setText(_("Launching installer..."))
                 subprocess.Popen([installer_path], shell=True)
-                self.accept()
 
             elif system == "Darwin":
                 #open the DMG file
-                self.status_label.setText(_("Opening disk image..."))
                 subprocess.Popen(["open", installer_path])
 
-                QMessageBox.information(
-                    self,
-                    _("Install Update"),
-                    _("The disk image has been opened. Please drag Buzz to your Applications folder to complete the update.")
-                )
-                self.accept()
+            # Close update dialog
+            self.accept()
 
         except Exception as e:
             logging.error(f"Failed to run installer: {e}")
@@ -272,14 +262,12 @@ class UpdateDialog(QDialog):
                 _("Failed to run the installer: {}").format(str(e))
             )
 
-
     def _reset_ui(self):
         """Reset the UI to initial state after an error"""
         self.download_button.setEnabled(True)
         self.cancel_button.setText(_("Later"))
         self.progress_bar.setVisible(False)
         self.status_label.setText("")
-
 
     def reject(self):
         """Cancel download in progress when user clicks Cancel or Later"""
@@ -289,10 +277,3 @@ class UpdateDialog(QDialog):
             self._download_reply = None
 
         super().reject()
-
-
-
-
-
-
-

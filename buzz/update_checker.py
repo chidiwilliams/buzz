@@ -1,8 +1,8 @@
 import json
 import logging
 import platform
-from datetime import datetime, timedelta
-from typing import Optional, Callable
+from datetime import datetime
+from typing import Optional
 from dataclasses import dataclass
 
 from PyQt6.QtCore import QObject, pyqtSignal, QUrl
@@ -44,7 +44,7 @@ class UpdateChecker(QObject):
         self.network_manager.finished.connect(self._on_reply_finished)
 
     def should_check_for_updates(self) -> bool:
-        """"Check if we are on Windows/macOS and if 7 days passed"""
+        """Check if we are on Windows/macOS and if 7 days passed"""
         system = platform.system()
         if system not in ("Windows", "Darwin"):
             logging.debug("Skipping update check on linux")
@@ -169,7 +169,3 @@ class UpdateChecker(QObject):
         except ValueError:
             logging.error(f"Invalid version format: {VERSION} or {remote_version}")
             return False
-
-
-
-
