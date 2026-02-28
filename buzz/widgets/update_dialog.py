@@ -44,6 +44,7 @@ class UpdateDialog(QDialog):
         self._download_reply: Optional[QNetworkReply] = None
         self._temp_file_paths: list = []
         self._pending_urls: list = []
+        self._temp_dir: Optional[str] = None
 
         self._setup_ui()
 
@@ -135,6 +136,7 @@ class UpdateDialog(QDialog):
         self.progress_bar.setValue(0)
         self._temp_file_paths = []
         self._pending_urls = list(self.update_info.download_urls)
+        self._temp_dir = tempfile.mkdtemp()
         self._download_next_file()
 
     def _download_next_file(self):
@@ -198,22 +200,15 @@ class UpdateDialog(QDialog):
         self._download_reply = None
 
         url_str = self._pending_urls.pop(0)
-        system = platform.system()
 
-        # Determine suffix: first file gets platform suffix, rest get .bin
-        if len(self._temp_file_paths) == 0:
-            if system == "Windows":
-                suffix = ".exe"
-            elif system == "Darwin":
-                suffix = ".dmg"
-            else:
-                suffix = ""
-        else:
-            suffix = ".bin"
+        # Extract original filename from URL to preserve it
+        original_filename = QUrl(url_str).fileName()
+        if not original_filename:
+            original_filename = f"download_{len(self._temp_file_paths)}"
 
         try:
-            fd, temp_path = tempfile.mkstemp(suffix=suffix)
-            with os.fdopen(fd, "wb") as f:
+            temp_path = os.path.join(self._temp_dir, original_filename)
+            with open(temp_path, "wb") as f:
                 f.write(data)
             self._temp_file_paths.append(temp_path)
             logging.info(f"File saved to: {temp_path}")
