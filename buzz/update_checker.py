@@ -20,10 +20,6 @@ class UpdateInfo:
 class UpdateChecker(QObject):
     update_available = pyqtSignal(object)
 
-    no_update_available = pyqtSignal()
-
-    check_failed = pyqtSignal(str)
-
     VERSION_JSON_URL = "https://github.com/chidiwilliams/buzz/releases/latest/download/version_info.json"
 
     CHECK_INTERVAL_DAYS = 7
@@ -73,7 +69,6 @@ class UpdateChecker(QObject):
     def check_for_updates(self) -> None:
         """Start the network request"""
         if not self.should_check_for_updates():
-            self.no_update_available.emit()
             return
 
         logging.info("Checking for updates...")
@@ -92,7 +87,6 @@ class UpdateChecker(QObject):
         if reply.error() != QNetworkReply.NetworkError.NoError:
             error_msg = f"Failed to check for updates: {reply.errorString()}"
             logging.error(error_msg)
-            self.check_failed.emit(error_msg)
             reply.deleteLater()
             return
 
@@ -129,12 +123,10 @@ class UpdateChecker(QObject):
                     Settings.Key.UPDATE_AVAILABLE_VERSION,
                     ""
                 )
-                self.no_update_available.emit()
 
         except (json.JSONDecodeError, KeyError) as e:
             error_msg = f"Failed to parse version info: {e}"
             logging.error(error_msg)
-            self.check_failed.emit(error_msg)
 
     def _get_download_url(self, download_urls: dict) -> list:
         system = platform.system()

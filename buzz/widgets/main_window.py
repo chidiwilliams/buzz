@@ -507,20 +507,14 @@ class MainWindow(QMainWindow):
         """Initializes and runs the update checker."""
         self.update_checker = UpdateChecker(settings=self.settings, parent=self)
         self.update_checker.update_available.connect(self._on_update_available)
-        self.update_checker.check_failed.connect(self._on_update_check_failed)
 
         # Check for updates on startup
         self.update_checker.check_for_updates()
 
     def _on_update_available(self, update_info: UpdateInfo):
         """Called when an update is available."""
-        logging.info(f"Update available: {update_info.version}")
         self._update_info = update_info
         self.toolbar.set_update_available(True)
-
-    def _on_update_check_failed(self, error: str):
-        """Called when update check fails."""
-        logging.warning(f"Update check failed: {error}")
 
     def on_update_action_triggered(self):
         """Called when user clicks the update action in toolbar."""
