@@ -88,6 +88,10 @@ pip3 install nvidia-cublas-cu12==12.9.1.4 nvidia-cuda-cupti-cu12==12.9.79 nvidia
 
 For info on how to get latest development version with latest features and bug fixes see [FAQ](https://chidiwilliams.github.io/buzz/docs/faq#9-where-can-i-get-latest-development-version).
 
+### Support Buzz
+
+You can help the Buzz by starring 🌟 the repo and sharing it with your friends.
+
 ### Screenshots
 
 <div style="display: flex; flex-wrap: wrap;">

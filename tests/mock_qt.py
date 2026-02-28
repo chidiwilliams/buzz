@@ -15,6 +15,9 @@ class MockNetworkReply(QNetworkReply):
     def error(self) -> "QNetworkReply.NetworkError":
         return QNetworkReply.NetworkError.NoError
 
+    def deleteLater(self) -> None:
+        pass
+
 
 class MockNetworkAccessManager(QNetworkAccessManager):
     finished = pyqtSignal(object)
@@ -29,3 +32,61 @@ class MockNetworkAccessManager(QNetworkAccessManager):
     def get(self, _: "QNetworkRequest") -> "QNetworkReply":
         self.finished.emit(self.reply)
         return self.reply
+
+
+class MockDownloadReply(QObject):
+    """Mock reply for file downloads — supports downloadProgress and finished signals."""
+    downloadProgress = pyqtSignal(int, int)
+    finished = pyqtSignal()
+
+    def __init__(
+        self,
+        data: bytes = b"fake-installer-data",
+        network_error: "QNetworkReply.NetworkError" = QNetworkReply.NetworkError.NoError,
+        error_string: str = "",
+        parent: Optional[QObject] = None,
+    ) -> None:
+        super().__init__(parent)
+        self._data = data
+        self._network_error = network_error
+        self._error_string = error_string
+        self._aborted = False
+
+    def readAll(self) -> QByteArray:
+        return QByteArray(self._data)
+
+    def error(self) -> "QNetworkReply.NetworkError":
+        return self._network_error
+
+    def errorString(self) -> str:
+        return self._error_string
+
+    def abort(self) -> None:
+        self._aborted = True
+
+    def deleteLater(self) -> None:
+        pass
+
+    def emit_finished(self) -> None:
+        self.finished.emit()
+
+
+class MockDownloadNetworkManager(QNetworkAccessManager):
+    """Network manager that returns MockDownloadReply instances for each get() call."""
+
+    def __init__(
+        self,
+        replies: Optional[list] = None,
+        parent: Optional[QObject] = None,
+    ) -> None:
+        super().__init__(parent)
+        self._replies = list(replies) if replies else []
+        self._index = 0
+
+    def get(self, _: "QNetworkRequest") -> "MockDownloadReply":
+        if self._index < len(self._replies):
+            reply = self._replies[self._index]
+        else:
+            reply = MockDownloadReply()
+        self._index += 1
+        return reply
