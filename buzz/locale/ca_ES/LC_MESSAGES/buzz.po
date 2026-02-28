@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 16:46+0200\n"
+"POT-Creation-Date: 2026-02-28 10:38+0200\n"
 "PO-Revision-Date: 2025-10-17 07:59+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: Catalan <jmas@softcatala.org>\n"
@@ -345,7 +345,8 @@ msgid "Download failed"
 msgstr "Descàrrega fallida"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
-#: buzz/widgets/transcription_tasks_table_widget.py buzz/widgets/main_window.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/widgets/update_dialog.py buzz/widgets/main_window.py
 #: buzz/model_loader.py
 msgid "Error"
 msgstr "Error"
@@ -535,6 +536,10 @@ msgstr "Cancel·la la transcripció"
 #: buzz/settings/shortcut.py
 msgid "Clear History"
 msgstr "Neteja l'historial"
+
+#: buzz/widgets/main_window_toolbar.py buzz/widgets/update_dialog.py
+msgid "Update Available"
+msgstr "Actualització disponible"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "In Progress"
@@ -729,6 +734,58 @@ msgid ""
 msgstr ""
 "Comproveu els vostres dispositius d'àudio o els registres de l'aplicació per "
 "a més informació."
+
+#: buzz/widgets/update_dialog.py
+msgid "A new version of Buzz is available!"
+msgstr "Hi ha una nova versió de Buzz disponible!"
+
+#: buzz/widgets/update_dialog.py
+msgid "Current version:"
+msgstr "Versió actual:"
+
+#: buzz/widgets/update_dialog.py
+msgid "New version:"
+msgstr "Nova versió:"
+
+#: buzz/widgets/update_dialog.py
+msgid "Release Notes:"
+msgstr "Notes de la versió:"
+
+#: buzz/widgets/update_dialog.py
+msgid "Download and Install"
+msgstr "Descarrega i instal·la"
+
+#: buzz/widgets/update_dialog.py
+msgid "No download URL available for your platform."
+msgstr "No hi ha cap URL de descàrrega disponible per a la vostra plataforma."
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {}..."
+msgstr "S'està descarregant el fitxer {} de {}..."
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {} ({:.1f} MB / {:.1f} MB)..."
+msgstr "S'està descarregant el fitxer {} de {} ({:.1f} MB / {:.1f} MB)..."
+
+#: buzz/widgets/update_dialog.py
+msgid "Download Failed"
+msgstr "Descàrrega fallida"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to download the update: {}"
+msgstr "No s'ha pogut descarregar l'actualització: {}"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to save the installer: {}"
+msgstr "No s'ha pogut desar l'instal·lador: {}"
+
+#: buzz/widgets/update_dialog.py
+msgid "Download complete!"
+msgstr "Descàrrega completada!"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to run the installer: {}"
+msgstr "No s'ha pogut executar l'instal·lador: {}"
 
 #: buzz/widgets/about_dialog.py
 msgid "Check for updates"

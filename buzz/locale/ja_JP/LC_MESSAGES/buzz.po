@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 16:46+0200\n"
+"POT-Creation-Date: 2026-02-28 10:38+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: nunawa <71294849+nunawa@users.noreply.github.com>\n"
 "Language-Team: \n"
@@ -338,7 +338,8 @@ msgid "Download failed"
 msgstr "ダウンロード失敗"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
-#: buzz/widgets/transcription_tasks_table_widget.py buzz/widgets/main_window.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/widgets/update_dialog.py buzz/widgets/main_window.py
 #: buzz/model_loader.py
 msgid "Error"
 msgstr "エラー"
@@ -527,6 +528,10 @@ msgstr "文字起こしをキャンセルする"
 #: buzz/settings/shortcut.py
 msgid "Clear History"
 msgstr "履歴を削除する"
+
+#: buzz/widgets/main_window_toolbar.py buzz/widgets/update_dialog.py
+msgid "Update Available"
+msgstr "アップデートあり"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "In Progress"
@@ -719,6 +724,58 @@ msgid ""
 msgstr ""
 "オーディオデバイスを確認するか、詳細をアプリケーションのログで確認してくださ"
 "い。"
+
+#: buzz/widgets/update_dialog.py
+msgid "A new version of Buzz is available!"
+msgstr "Buzzの新しいバージョンが利用可能です！"
+
+#: buzz/widgets/update_dialog.py
+msgid "Current version:"
+msgstr "現在のバージョン:"
+
+#: buzz/widgets/update_dialog.py
+msgid "New version:"
+msgstr "新しいバージョン:"
+
+#: buzz/widgets/update_dialog.py
+msgid "Release Notes:"
+msgstr "リリースノート:"
+
+#: buzz/widgets/update_dialog.py
+msgid "Download and Install"
+msgstr "ダウンロードしてインストール"
+
+#: buzz/widgets/update_dialog.py
+msgid "No download URL available for your platform."
+msgstr "お使いのプラットフォーム向けのダウンロードURLがありません。"
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {}..."
+msgstr "ファイル {} / {} をダウンロード中..."
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {} ({:.1f} MB / {:.1f} MB)..."
+msgstr "ファイル {} / {} をダウンロード中 ({:.1f} MB / {:.1f} MB)..."
+
+#: buzz/widgets/update_dialog.py
+msgid "Download Failed"
+msgstr "ダウンロード失敗"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to download the update: {}"
+msgstr "アップデートのダウンロードに失敗しました: {}"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to save the installer: {}"
+msgstr "インストーラーの保存に失敗しました: {}"
+
+#: buzz/widgets/update_dialog.py
+msgid "Download complete!"
+msgstr "ダウンロード完了！"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to run the installer: {}"
+msgstr "インストーラーの実行に失敗しました: {}"
 
 #: buzz/widgets/about_dialog.py
 msgid "Check for updates"

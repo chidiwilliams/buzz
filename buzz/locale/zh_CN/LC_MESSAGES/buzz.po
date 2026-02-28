@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 16:46+0200\n"
+"POT-Creation-Date: 2026-02-28 10:41+0200\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: lamb \n"
@@ -336,7 +336,8 @@ msgid "Download failed"
 msgstr "下载失败"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
-#: buzz/widgets/transcription_tasks_table_widget.py buzz/widgets/main_window.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/widgets/update_dialog.py buzz/widgets/main_window.py
 #: buzz/model_loader.py
 msgid "Error"
 msgstr "错误"
@@ -526,6 +527,10 @@ msgstr "取消识别"
 msgid "Clear History"
 msgstr "清除历史纪录"
 
+#: buzz/widgets/main_window_toolbar.py buzz/widgets/update_dialog.py
+msgid "Update Available"
+msgstr "有可用更新"
+
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "In Progress"
 msgstr "运行中"
@@ -713,6 +718,58 @@ msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
 msgstr "请检查您的音频设备或检查应用程序日志以获取更多信息。"
+
+#: buzz/widgets/update_dialog.py
+msgid "A new version of Buzz is available!"
+msgstr "Buzz 有新版本可用！"
+
+#: buzz/widgets/update_dialog.py
+msgid "Current version:"
+msgstr "当前版本："
+
+#: buzz/widgets/update_dialog.py
+msgid "New version:"
+msgstr "新版本："
+
+#: buzz/widgets/update_dialog.py
+msgid "Release Notes:"
+msgstr "发行说明："
+
+#: buzz/widgets/update_dialog.py
+msgid "Download and Install"
+msgstr "下载并安装"
+
+#: buzz/widgets/update_dialog.py
+msgid "No download URL available for your platform."
+msgstr "您的平台没有可用的下载链接。"
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {}..."
+msgstr "正在下载第 {} 个文件，共 {} 个..."
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {} ({:.1f} MB / {:.1f} MB)..."
+msgstr "正在下载第 {} 个文件，共 {} 个（{:.1f} MB / {:.1f} MB）..."
+
+#: buzz/widgets/update_dialog.py
+msgid "Download Failed"
+msgstr "下载失败"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to download the update: {}"
+msgstr "下载更新失败：{}"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to save the installer: {}"
+msgstr "无法保存安装程序：{}"
+
+#: buzz/widgets/update_dialog.py
+msgid "Download complete!"
+msgstr "下载完成！"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to run the installer: {}"
+msgstr "无法运行安装程序：{}"
 
 #: buzz/widgets/about_dialog.py
 msgid "Check for updates"

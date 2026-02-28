@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 16:46+0200\n"
+"POT-Creation-Date: 2026-02-28 10:38+0200\n"
 "PO-Revision-Date: 2025-03-20 18:30+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: none\n"
@@ -347,7 +347,8 @@ msgid "Download failed"
 msgstr "Het downloaden is mislukt"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
-#: buzz/widgets/transcription_tasks_table_widget.py buzz/widgets/main_window.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/widgets/update_dialog.py buzz/widgets/main_window.py
 #: buzz/model_loader.py
 msgid "Error"
 msgstr "Foutmelding"
@@ -539,6 +540,10 @@ msgstr "Transcriptie wissen"
 #: buzz/settings/shortcut.py
 msgid "Clear History"
 msgstr "Geschiedenis wissen"
+
+#: buzz/widgets/main_window_toolbar.py buzz/widgets/update_dialog.py
+msgid "Update Available"
+msgstr "Update Beschikbaar"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "In Progress"
@@ -732,6 +737,58 @@ msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
 msgstr "Controleer uw geluidsapparatuur of het programmalogboek."
+
+#: buzz/widgets/update_dialog.py
+msgid "A new version of Buzz is available!"
+msgstr "Er is een nieuwe versie van Buzz beschikbaar!"
+
+#: buzz/widgets/update_dialog.py
+msgid "Current version:"
+msgstr "Huidige versie:"
+
+#: buzz/widgets/update_dialog.py
+msgid "New version:"
+msgstr "Versie:"
+
+#: buzz/widgets/update_dialog.py
+msgid "Release Notes:"
+msgstr "Release-opmerkingen:"
+
+#: buzz/widgets/update_dialog.py
+msgid "Download and Install"
+msgstr "Downloaden en installeren"
+
+#: buzz/widgets/update_dialog.py
+msgid "No download URL available for your platform."
+msgstr "Geen download-URL beschikbaar voor uw platform."
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {}..."
+msgstr "Bestand {} van {} downloaden..."
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {} ({:.1f} MB / {:.1f} MB)..."
+msgstr "Bestand {} van {} downloaden ({:.1f} MB / {:.1f} MB)..."
+
+#: buzz/widgets/update_dialog.py
+msgid "Download Failed"
+msgstr "Download mislukt"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to download the update: {}"
+msgstr "Het downloaden van de update is mislukt: {}"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to save the installer: {}"
+msgstr "Kan het installatieprogramma niet opslaan: {}"
+
+#: buzz/widgets/update_dialog.py
+msgid "Download complete!"
+msgstr "Download voltooid!"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to run the installer: {}"
+msgstr "Kan het installatieprogramma niet uitvoeren: {}"
 
 #: buzz/widgets/about_dialog.py
 msgid "Check for updates"
@@ -1602,6 +1659,3 @@ msgstr ""
 
 #~ msgid "Enter instructions for AI on how to translate..."
 #~ msgstr "Voer vertaalinstructies in…"
-
-#~ msgid "Version"
-#~ msgstr "Versie"

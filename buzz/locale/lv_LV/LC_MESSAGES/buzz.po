@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 16:46+0200\n"
-"PO-Revision-Date: 2026-02-27 16:47+0200\n"
+"POT-Creation-Date: 2026-02-28 10:38+0200\n"
+"PO-Revision-Date: 2026-02-28 10:46+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -186,7 +186,7 @@ msgid ""
 "in the Live Recording screen in a future version."
 msgstr ""
 "Piezīme: Dzīvā ieraksta iestatījumi nākotnes Buzz versijās tiks pārvietoti "
-"uz Papildu iestatījumu sadaļu Dzīvā ieraksta logā"
+"uz Papildu iestatījumu sadaļu Dzīvā ieraksta logā."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use 8-bit quantization to reduce memory usage"
@@ -346,7 +346,8 @@ msgid "Download failed"
 msgstr "Lejupielāde neizdevās"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
-#: buzz/widgets/transcription_tasks_table_widget.py buzz/widgets/main_window.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/widgets/update_dialog.py buzz/widgets/main_window.py
 #: buzz/model_loader.py
 msgid "Error"
 msgstr "Kļūda"
@@ -540,6 +541,10 @@ msgstr "Atcelt atpazīšanu"
 msgid "Clear History"
 msgstr "Notīrīt vēsturi"
 
+#: buzz/widgets/main_window_toolbar.py buzz/widgets/update_dialog.py
+msgid "Update Available"
+msgstr "Pieejams atjauninājums"
+
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "In Progress"
 msgstr "Apstrādā"
@@ -730,6 +735,58 @@ msgid ""
 msgstr ""
 "Lūdzu pārbaudiet savas audio ierīces vai pārbaudiet lietotnes ziņojumu "
 "žurnālus, lai iegūtu papildu informāciju."
+
+#: buzz/widgets/update_dialog.py
+msgid "A new version of Buzz is available!"
+msgstr "Pieejama jauna Buzz versija!"
+
+#: buzz/widgets/update_dialog.py
+msgid "Current version:"
+msgstr "Instalētā versija:"
+
+#: buzz/widgets/update_dialog.py
+msgid "New version:"
+msgstr "Jaunā versija:"
+
+#: buzz/widgets/update_dialog.py
+msgid "Release Notes:"
+msgstr "Jaunās versijas piezīmes:"
+
+#: buzz/widgets/update_dialog.py
+msgid "Download and Install"
+msgstr "Lejupielādēt un instalēt"
+
+#: buzz/widgets/update_dialog.py
+msgid "No download URL available for your platform."
+msgstr "Jūsu datoram nav pieejama atjauninājum versija."
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {}..."
+msgstr "Lejupielādē {} no {}..."
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {} ({:.1f} MB / {:.1f} MB)..."
+msgstr "Lejupielādē {} no {} ({:.1f} MB / {:.1f} MB)..."
+
+#: buzz/widgets/update_dialog.py
+msgid "Download Failed"
+msgstr "Lejupielāde neizdevās"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to download the update: {}"
+msgstr "Neizdevās lejupielādēt atjauninājumu: {}"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to save the installer: {}"
+msgstr "Neizdevās saglabāt atjauninājumu: {}"
+
+#: buzz/widgets/update_dialog.py
+msgid "Download complete!"
+msgstr "Lejupielāde pabeigta!"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to run the installer: {}"
+msgstr "Neizdevās sākt atjauninājumu: {}"
 
 #: buzz/widgets/about_dialog.py
 msgid "Check for updates"

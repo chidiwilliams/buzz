@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 16:46+0200\n"
+"POT-Creation-Date: 2026-02-28 10:38+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -331,7 +331,8 @@ msgid "Download failed"
 msgstr ""
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
-#: buzz/widgets/transcription_tasks_table_widget.py buzz/widgets/main_window.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/widgets/update_dialog.py buzz/widgets/main_window.py
 #: buzz/model_loader.py
 msgid "Error"
 msgstr ""
@@ -514,6 +515,10 @@ msgstr ""
 #: buzz/widgets/main_window_toolbar.py buzz/widgets/main_window.py
 #: buzz/settings/shortcut.py
 msgid "Clear History"
+msgstr ""
+
+#: buzz/widgets/main_window_toolbar.py buzz/widgets/update_dialog.py
+msgid "Update Available"
 msgstr ""
 
 #: buzz/widgets/transcription_tasks_table_widget.py
@@ -702,6 +707,58 @@ msgstr ""
 msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
+msgstr ""
+
+#: buzz/widgets/update_dialog.py
+msgid "A new version of Buzz is available!"
+msgstr ""
+
+#: buzz/widgets/update_dialog.py
+msgid "Current version:"
+msgstr ""
+
+#: buzz/widgets/update_dialog.py
+msgid "New version:"
+msgstr ""
+
+#: buzz/widgets/update_dialog.py
+msgid "Release Notes:"
+msgstr ""
+
+#: buzz/widgets/update_dialog.py
+msgid "Download and Install"
+msgstr ""
+
+#: buzz/widgets/update_dialog.py
+msgid "No download URL available for your platform."
+msgstr ""
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {}..."
+msgstr ""
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {} ({:.1f} MB / {:.1f} MB)..."
+msgstr ""
+
+#: buzz/widgets/update_dialog.py
+msgid "Download Failed"
+msgstr ""
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to download the update: {}"
+msgstr ""
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to save the installer: {}"
+msgstr ""
+
+#: buzz/widgets/update_dialog.py
+msgid "Download complete!"
+msgstr ""
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to run the installer: {}"
 msgstr ""
 
 #: buzz/widgets/about_dialog.py

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 16:46+0200\n"
+"POT-Creation-Date: 2026-02-28 10:41+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Yevhen Popok <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -340,7 +340,8 @@ msgid "Download failed"
 msgstr "Невдале завантаження"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
-#: buzz/widgets/transcription_tasks_table_widget.py buzz/widgets/main_window.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/widgets/update_dialog.py buzz/widgets/main_window.py
 #: buzz/model_loader.py
 msgid "Error"
 msgstr "Помилка"
@@ -531,6 +532,10 @@ msgstr "Скасувати транскрипцію"
 #: buzz/settings/shortcut.py
 msgid "Clear History"
 msgstr "Очистити історію"
+
+#: buzz/widgets/main_window_toolbar.py buzz/widgets/update_dialog.py
+msgid "Update Available"
+msgstr "Доступне оновлення"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "In Progress"
@@ -724,6 +729,58 @@ msgid ""
 msgstr ""
 "Будь ласка, перевірте свої аудіопристрої або пошукайте додаткову інформацію "
 "в звітах програми."
+
+#: buzz/widgets/update_dialog.py
+msgid "A new version of Buzz is available!"
+msgstr "Доступна нова версія Buzz!"
+
+#: buzz/widgets/update_dialog.py
+msgid "Current version:"
+msgstr "Поточна версія:"
+
+#: buzz/widgets/update_dialog.py
+msgid "New version:"
+msgstr "Нова версія:"
+
+#: buzz/widgets/update_dialog.py
+msgid "Release Notes:"
+msgstr "Примітки до випуску:"
+
+#: buzz/widgets/update_dialog.py
+msgid "Download and Install"
+msgstr "Завантажити та встановити"
+
+#: buzz/widgets/update_dialog.py
+msgid "No download URL available for your platform."
+msgstr "Посилання для завантаження для вашої платформи відсутнє."
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {}..."
+msgstr "Завантаження файлу {} з {}..."
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {} ({:.1f} MB / {:.1f} MB)..."
+msgstr "Завантаження файлу {} з {} ({:.1f} МБ / {:.1f} МБ)..."
+
+#: buzz/widgets/update_dialog.py
+msgid "Download Failed"
+msgstr "Помилка завантаження"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to download the update: {}"
+msgstr "Не вдалося завантажити оновлення: {}"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to save the installer: {}"
+msgstr "Не вдалося зберегти інсталятор: {}"
+
+#: buzz/widgets/update_dialog.py
+msgid "Download complete!"
+msgstr "Завантаження завершено!"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to run the installer: {}"
+msgstr "Не вдалося запустити інсталятор: {}"
 
 #: buzz/widgets/about_dialog.py
 msgid "Check for updates"

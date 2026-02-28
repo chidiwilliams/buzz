@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 16:46+0200\n"
+"POT-Creation-Date: 2026-02-28 10:38+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Ole Guldberg2 <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -341,7 +341,8 @@ msgid "Download failed"
 msgstr "Download mislykkedes"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
-#: buzz/widgets/transcription_tasks_table_widget.py buzz/widgets/main_window.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/widgets/update_dialog.py buzz/widgets/main_window.py
 #: buzz/model_loader.py
 msgid "Error"
 msgstr "Fejl"
@@ -530,6 +531,10 @@ msgstr "Afbryd transkription"
 #: buzz/settings/shortcut.py
 msgid "Clear History"
 msgstr "Ryd historik"
+
+#: buzz/widgets/main_window_toolbar.py buzz/widgets/update_dialog.py
+msgid "Update Available"
+msgstr "Opdatering tilgængelig"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "In Progress"
@@ -723,6 +728,58 @@ msgid ""
 msgstr ""
 "Tjek venligst dine audioenheder eller tjek applikationens logs for "
 "mereinformation."
+
+#: buzz/widgets/update_dialog.py
+msgid "A new version of Buzz is available!"
+msgstr "En ny version af Buzz er tilgængelig!"
+
+#: buzz/widgets/update_dialog.py
+msgid "Current version:"
+msgstr "Nuværende version:"
+
+#: buzz/widgets/update_dialog.py
+msgid "New version:"
+msgstr "Ny version:"
+
+#: buzz/widgets/update_dialog.py
+msgid "Release Notes:"
+msgstr "Udgivelsesnoter:"
+
+#: buzz/widgets/update_dialog.py
+msgid "Download and Install"
+msgstr "Download og installer"
+
+#: buzz/widgets/update_dialog.py
+msgid "No download URL available for your platform."
+msgstr "Ingen download-URL tilgængelig for din platform."
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {}..."
+msgstr "Downloader fil {} af {}..."
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {} ({:.1f} MB / {:.1f} MB)..."
+msgstr "Downloader fil {} af {} ({:.1f} MB / {:.1f} MB)..."
+
+#: buzz/widgets/update_dialog.py
+msgid "Download Failed"
+msgstr "Download mislykkedes"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to download the update: {}"
+msgstr "Kunne ikke downloade opdateringen: {}"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to save the installer: {}"
+msgstr "Kunne ikke gemme installationsprogrammet: {}"
+
+#: buzz/widgets/update_dialog.py
+msgid "Download complete!"
+msgstr "Download fuldført!"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to run the installer: {}"
+msgstr "Kunne ikke køre installationsprogrammet: {}"
 
 #: buzz/widgets/about_dialog.py
 msgid "Check for updates"
@@ -1564,4 +1621,6 @@ msgstr "Tilføj og ret"
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
-msgstr "Taleoprydning mislykkedes! Kontroller din internetforbindelse — en model skal muligvis hentes ned."
+msgstr ""
+"Taleoprydning mislykkedes! Kontroller din internetforbindelse — en model "
+"skal muligvis hentes ned."

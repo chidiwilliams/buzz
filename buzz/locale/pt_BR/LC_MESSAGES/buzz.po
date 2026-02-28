@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 09:07+0200\n"
+"POT-Creation-Date: 2026-02-28 10:41+0200\n"
 "PO-Revision-Date: 2025-11-01 17:43-0300\n"
 "Last-Translator: Paulo Schopf <pschopf@gmail.com>\n"
 "Language-Team: none\n"
@@ -343,7 +343,8 @@ msgid "Download failed"
 msgstr "Falha ao baixar"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
-#: buzz/widgets/transcription_tasks_table_widget.py buzz/widgets/main_window.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/widgets/update_dialog.py buzz/widgets/main_window.py
 #: buzz/model_loader.py
 msgid "Error"
 msgstr "Erro"
@@ -438,7 +439,8 @@ msgstr "Modelo de IA:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Please translate each text sent to you from English to Spanish."
-msgstr "Por favor, traduza cada texto enviado a você do Inglês para o Espanhol."
+msgstr ""
+"Por favor, traduza cada texto enviado a você do Inglês para o Espanhol."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -533,6 +535,10 @@ msgstr "Cancelar Transcrição"
 msgid "Clear History"
 msgstr "Limpar Histórico"
 
+#: buzz/widgets/main_window_toolbar.py buzz/widgets/update_dialog.py
+msgid "Update Available"
+msgstr "Atualização Disponível"
+
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "In Progress"
 msgstr "Em Progresso"
@@ -626,12 +632,14 @@ msgid ""
 "Could not restart transcription: model not available and could not be "
 "downloaded."
 msgstr ""
-"Não foi possível reiniciar a transcrição: o modelo não está disponível e "
-"não pôde ser baixado."
+"Não foi possível reiniciar a transcrição: o modelo não está disponível e não "
+"pôde ser baixado."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
-msgstr "Não foi possível reiniciar a transcrição: trabalhador de transcrição não encontrado."
+msgstr ""
+"Não foi possível reiniciar a transcrição: trabalhador de transcrição não "
+"encontrado."
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -724,6 +732,58 @@ msgid ""
 msgstr ""
 "Verifique seus dispositivos de áudio ou os logs do aplicativo para mais "
 "informações."
+
+#: buzz/widgets/update_dialog.py
+msgid "A new version of Buzz is available!"
+msgstr "Uma nova versão do Buzz está disponível!"
+
+#: buzz/widgets/update_dialog.py
+msgid "Current version:"
+msgstr "Versão atual:"
+
+#: buzz/widgets/update_dialog.py
+msgid "New version:"
+msgstr "Nova versão:"
+
+#: buzz/widgets/update_dialog.py
+msgid "Release Notes:"
+msgstr "Notas de Versão:"
+
+#: buzz/widgets/update_dialog.py
+msgid "Download and Install"
+msgstr "Baixar e instalar"
+
+#: buzz/widgets/update_dialog.py
+msgid "No download URL available for your platform."
+msgstr "Nenhuma URL de download disponível para sua plataforma."
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {}..."
+msgstr "Baixando arquivo {} de {}..."
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {} ({:.1f} MB / {:.1f} MB)..."
+msgstr "Baixando arquivo {} de {} ({:.1f} MB / {:.1f} MB)..."
+
+#: buzz/widgets/update_dialog.py
+msgid "Download Failed"
+msgstr "Falha no download"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to download the update: {}"
+msgstr "Falha ao baixar a atualização: {}"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to save the installer: {}"
+msgstr "Falha ao salvar o instalador: {}"
+
+#: buzz/widgets/update_dialog.py
+msgid "Download complete!"
+msgstr "Download concluído!"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to run the installer: {}"
+msgstr "Falha ao executar o instalador: {}"
 
 #: buzz/widgets/about_dialog.py
 msgid "Check for updates"
@@ -900,7 +960,9 @@ msgstr "Duração desejada da legenda"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were disabled during transcription"
-msgstr "Disponível apenas se os tempos em nível de palavra foram desabilitados durante a transcrição"
+msgstr ""
+"Disponível apenas se os tempos em nível de palavra foram desabilitados "
+"durante a transcrição"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge Options"
@@ -924,7 +986,9 @@ msgstr "Mesclar"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
-msgstr "Disponível apenas se os tempos em nível de palavra foram habilitados durante a transcrição"
+msgstr ""
+"Disponível apenas se os tempos em nível de palavra foram habilitados durante "
+"a transcrição"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
@@ -1557,10 +1621,6 @@ msgstr "Acrescentar acima"
 msgid "Append and correct"
 msgstr "Acrescentar e corrigir"
 
-#: buzz/translator.py
-msgid "Translation error, see logs!"
-msgstr "Erro de tradução, verifique os logs!"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
@@ -1568,6 +1628,9 @@ msgid ""
 msgstr ""
 "Falha na extração de fala! Verifique sua conexão com a internet — pode ser "
 "necessário baixar um modelo."
+
+#~ msgid "Translation error, see logs!"
+#~ msgstr "Erro de tradução, verifique os logs!"
 
 #~ msgid "Snap permission notice"
 #~ msgstr "Aviso de permissão do Snap"
@@ -1596,5 +1659,3 @@ msgstr ""
 
 #~ msgid "Undo"
 #~ msgstr "Desfazer"
-
-#~ msgid "Redo"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 16:46+0200\n"
+"POT-Creation-Date: 2026-02-28 10:38+0200\n"
 "PO-Revision-Date: 2024-03-17 20:50+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -344,7 +344,8 @@ msgid "Download failed"
 msgstr "Pobieranie nie powiodło się"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
-#: buzz/widgets/transcription_tasks_table_widget.py buzz/widgets/main_window.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/widgets/update_dialog.py buzz/widgets/main_window.py
 #: buzz/model_loader.py
 msgid "Error"
 msgstr "Błąd"
@@ -533,6 +534,10 @@ msgstr "Anuluj transkrypcję"
 #: buzz/settings/shortcut.py
 msgid "Clear History"
 msgstr "Wyczyść historię"
+
+#: buzz/widgets/main_window_toolbar.py buzz/widgets/update_dialog.py
+msgid "Update Available"
+msgstr "Dostępna aktualizacja"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "In Progress"
@@ -728,6 +733,58 @@ msgid ""
 msgstr ""
 "Sprawdź urządzenia audio lub przejrzyj logi aplikacji, by uzyskać więcej "
 "informacji."
+
+#: buzz/widgets/update_dialog.py
+msgid "A new version of Buzz is available!"
+msgstr "Dostępna jest nowa wersja Buzz!"
+
+#: buzz/widgets/update_dialog.py
+msgid "Current version:"
+msgstr "Aktualna wersja:"
+
+#: buzz/widgets/update_dialog.py
+msgid "New version:"
+msgstr "Nowa wersja:"
+
+#: buzz/widgets/update_dialog.py
+msgid "Release Notes:"
+msgstr "Informacje o wydaniu:"
+
+#: buzz/widgets/update_dialog.py
+msgid "Download and Install"
+msgstr "Pobierz i zainstaluj"
+
+#: buzz/widgets/update_dialog.py
+msgid "No download URL available for your platform."
+msgstr "Brak adresu URL do pobrania dla Twojej platformy."
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {}..."
+msgstr "Pobieranie pliku {} z {}..."
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {} ({:.1f} MB / {:.1f} MB)..."
+msgstr "Pobieranie pliku {} z {} ({:.1f} MB / {:.1f} MB)..."
+
+#: buzz/widgets/update_dialog.py
+msgid "Download Failed"
+msgstr "Pobieranie nie powiodło się"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to download the update: {}"
+msgstr "Nie udało się pobrać aktualizacji: {}"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to save the installer: {}"
+msgstr "Nie udało się zapisać instalatora: {}"
+
+#: buzz/widgets/update_dialog.py
+msgid "Download complete!"
+msgstr "Pobieranie zakończone!"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to run the installer: {}"
+msgstr "Nie udało się uruchomić instalatora: {}"
 
 #: buzz/widgets/about_dialog.py
 msgid "Check for updates"
