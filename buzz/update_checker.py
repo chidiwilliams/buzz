@@ -7,8 +7,6 @@ from dataclasses import dataclass
 
 from PyQt6.QtCore import QObject, pyqtSignal, QUrl
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
-from sympy import true
-
 from buzz.__version__ import VERSION
 from buzz.settings.settings import Settings
 
@@ -17,7 +15,7 @@ from buzz.settings.settings import Settings
 class UpdateInfo:
     version: str
     release_notes: str
-    download_url: str
+    download_urls: list
 
 class UpdateChecker(QObject):
     update_available = pyqtSignal(object)
@@ -26,7 +24,7 @@ class UpdateChecker(QObject):
 
     check_failed = pyqtSignal(str)
 
-    VERSION_JSON_URL = "https://raw.githubusercontent.com/chidiwilliams/buzz/refs/heads/main/version.json"
+    VERSION_JSON_URL = "https://github.com/chidiwilliams/buzz/releases/latest/download/version_info.json"
 
     CHECK_INTERVAL_DAYS = 7
 
@@ -44,9 +42,6 @@ class UpdateChecker(QObject):
             network_manager = QNetworkAccessManager(self)
         self.network_manager = network_manager
         self.network_manager.finished.connect(self._on_reply_finished)
-
-        self._force_check = False
-
 
     def should_check_for_updates(self) -> bool:
         """"Check if we are on Windows/macOS and if 7 days passed"""
@@ -75,11 +70,9 @@ class UpdateChecker(QObject):
 
         return True
 
-    def check_for_updates(self, force: bool = False) -> None:
+    def check_for_updates(self) -> None:
         """Start the network request"""
-        self._force_check = force
-
-        if not force and not self.should_check_for_updates():
+        if not self.should_check_for_updates():
             self.no_update_available.emit()
             return
 
@@ -126,7 +119,7 @@ class UpdateChecker(QObject):
                 update_info = UpdateInfo(
                     version=remote_version,
                     release_notes=release_notes,
-                    download_url=download_url
+                    download_urls=download_url
                 )
                 self.update_available.emit(update_info)
 
@@ -143,19 +136,21 @@ class UpdateChecker(QObject):
             logging.error(error_msg)
             self.check_failed.emit(error_msg)
 
-    def _get_download_url(self, download_urls: dict) -> str:
+    def _get_download_url(self, download_urls: dict) -> list:
         system = platform.system()
         machine = platform.machine().lower()
 
         if system == "Windows":
-            return download_urls.get("windows_x64", "")
+            urls = download_urls.get("windows_x64", [])
         elif system == "Darwin":
             if machine in ("arm64", "aarch64"):
-                return download_urls.get("macos_arm", "")
+                urls = download_urls.get("macos_arm", [])
             else:
-                return download_urls.get("macos_x86", "")
+                urls = download_urls.get("macos_x86", [])
+        else:
+            urls = []
 
-        return ""
+        return urls if isinstance(urls, list) else [urls]
 
     def _is_newer_version(self, remote_version: str) -> bool:
         """Compare remote version with current version"""

@@ -42,7 +42,8 @@ class UpdateDialog(QDialog):
         self.network_manager = network_manager
 
         self._download_reply: Optional[QNetworkReply] = None
-        self._temp_file_path: Optional[str] = None
+        self._temp_file_paths: list = []
+        self._pending_urls: list = []
 
         self._setup_ui()
 
@@ -122,7 +123,7 @@ class UpdateDialog(QDialog):
 
     def _on_download_clicked(self):
         """Starts downloading the installer"""
-        if not self.update_info.download_url:
+        if not self.update_info.download_urls:
             QMessageBox.warning(
                 self,
                 _("Error"),
@@ -134,9 +135,24 @@ class UpdateDialog(QDialog):
         self.cancel_button.setText(_("Cancel"))
         self.progress_bar.setVisible(True)
         self.progress_bar.setValue(0)
-        self.status_label.setText(_("Downloading..."))
+        self._temp_file_paths = []
+        self._pending_urls = list(self.update_info.download_urls)
+        self._download_next_file()
 
-        url = QUrl(self.update_info.download_url)
+    def _download_next_file(self):
+        """Download the next file in the queue"""
+        if not self._pending_urls:
+            self._all_downloads_finished()
+            return
+
+        url_str = self._pending_urls[0]
+        file_index = len(self.update_info.download_urls) - len(self._pending_urls) + 1
+        total_files = len(self.update_info.download_urls)
+        self.status_label.setText(
+            _("Downloading file {} of {}...").format(file_index, total_files)
+        )
+
+        url = QUrl(url_str)
         request = QNetworkRequest(url)
 
         self._download_reply = self.network_manager.get(request)
@@ -149,15 +165,18 @@ class UpdateDialog(QDialog):
             progress = int((bytes_received / bytes_total) * 100)
             self.progress_bar.setValue(progress)
 
-            #show size info
             mb_received = bytes_received / (1024 * 1024)
             mb_total = bytes_total / (1024 * 1024)
+            file_index = len(self.update_info.download_urls) - len(self._pending_urls) + 1
+            total_files = len(self.update_info.download_urls)
             self.status_label.setText(
-                _("Downloading... {:.1f} MB / {:.1f} MB").format(mb_received, mb_total)
+                _("Downloading file {} of {} ({:.1f} MB / {:.1f} MB)...").format(
+                    file_index, total_files, mb_received, mb_total
+                )
             )
 
     def _on_download_finished(self):
-        """Handles download completion"""
+        """Handles download completion for one file"""
         if self._download_reply is None:
             return
 
@@ -176,61 +195,67 @@ class UpdateDialog(QDialog):
             self._download_reply = None
             return
 
-        #save to temp file
         data = self._download_reply.readAll().data()
         self._download_reply.deleteLater()
         self._download_reply = None
 
-        #determine file extension based on platform
+        url_str = self._pending_urls.pop(0)
         system = platform.system()
-        if system == "Windows":
-            suffix = ".exe"
-        elif system == "Darwin":
-            suffix = ".dmg"
+
+        # Determine suffix: first file gets platform suffix, rest get .bin
+        if len(self._temp_file_paths) == 0:
+            if system == "Windows":
+                suffix = ".exe"
+            elif system == "Darwin":
+                suffix = ".dmg"
+            else:
+                suffix = ""
         else:
-            suffix = ""
+            suffix = ".bin"
 
         try:
-            #temp file
-            fd, self._temp_file_path = tempfile.mkstemp(suffix=suffix)
+            fd, temp_path = tempfile.mkstemp(suffix=suffix)
             with os.fdopen(fd, "wb") as f:
                 f.write(data)
-
-            logging.info(f"Installer saved to: {self._temp_file_path}")
-
-            self.progress_bar.setValue(100)
-            self.status_label.setText(_("Download complete!"))
-
-            #run the installer
-            self._run_installer()
-
+            self._temp_file_paths.append(temp_path)
+            logging.info(f"File saved to: {temp_path}")
         except Exception as e:
-            logging.error(f"Failed to save installer: {e}")
+            logging.error(f"Failed to save file: {e}")
             QMessageBox.critical(
                 self,
                 _("Error"),
                 _("Failed to save the installer: {}").format(str(e))
             )
             self._reset_ui()
+            return
+
+        self._download_next_file()
+
+    def _all_downloads_finished(self):
+        """All files downloaded, run the installer"""
+        self.progress_bar.setValue(100)
+        self.status_label.setText(_("Download complete!"))
+        self._run_installer()
 
 
     def _run_installer(self):
         """Run the downloaded installer"""
-        if not self._temp_file_path:
+        if not self._temp_file_paths:
             return
 
+        installer_path = self._temp_file_paths[0]
         system = platform.system()
 
         try:
             if system == "Windows":
                 self.status_label.setText(_("Launching installer..."))
-                subprocess.Popen([self._temp_file_path], shell=True)
+                subprocess.Popen([installer_path], shell=True)
                 self.accept()
 
             elif system == "Darwin":
                 #open the DMG file
                 self.status_label.setText(_("Opening disk image..."))
-                subprocess.Popen(["open", self._temp_file_path])
+                subprocess.Popen(["open", installer_path])
 
                 QMessageBox.information(
                     self,
