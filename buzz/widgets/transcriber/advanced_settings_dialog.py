@@ -117,12 +117,6 @@ class AdvancedSettingsDialog(QDialog):
             self.silence_threshold_spin_box.valueChanged.connect(self.on_silence_threshold_changed)
             layout.addRow(_("Silence threshold:"), self.silence_threshold_spin_box)
 
-            self.line_separator_line_edit = QLineEdit(self)
-            line_sep_display = repr(transcription_options.line_separator)[1:-1] or r"\n\n"
-            self.line_separator_line_edit.setText(line_sep_display)
-            self.line_separator_line_edit.textChanged.connect(self.on_line_separator_changed)
-            layout.addRow(_("Line separator:"), self.line_separator_line_edit)
-
             # Live recording mode
             self.recording_mode_combo = QComboBox(self)
             for mode in RecordingTranscriberMode:
@@ -132,6 +126,26 @@ class AdvancedSettingsDialog(QDialog):
             )
             self.recording_mode_combo.currentIndexChanged.connect(self.on_recording_mode_changed)
             layout.addRow(_("Live recording mode:"), self.recording_mode_combo)
+
+            self.line_separator_line_edit = QLineEdit(self)
+            line_sep_display = repr(transcription_options.line_separator)[1:-1] or r"\n\n"
+            self.line_separator_line_edit.setText(line_sep_display)
+            self.line_separator_line_edit.textChanged.connect(self.on_line_separator_changed)
+            self.line_separator_label = QLabel(_("Line separator:"))
+            layout.addRow(self.line_separator_label, self.line_separator_line_edit)
+
+            self.transcription_step_spin_box = QDoubleSpinBox(self)
+            self.transcription_step_spin_box.setRange(2.0, 5.0)
+            self.transcription_step_spin_box.setSingleStep(0.1)
+            self.transcription_step_spin_box.setDecimals(1)
+            self.transcription_step_spin_box.setValue(transcription_options.transcription_step)
+            self.transcription_step_spin_box.valueChanged.connect(self.on_transcription_step_changed)
+            self.transcription_step_label = QLabel(_("Transcription step:"))
+            layout.addRow(self.transcription_step_label, self.transcription_step_spin_box)
+
+            self._update_recording_mode_visibility(
+                RecordingTranscriberMode(self.recording_mode_combo.currentText())
+            )
 
             # Export enabled checkbox
             self._export_enabled = self.settings.value(
@@ -245,6 +259,19 @@ class AdvancedSettingsDialog(QDialog):
 
     def on_recording_mode_changed(self, index: int):
         self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_MODE, index)
+        mode = list(RecordingTranscriberMode)[index]
+        self._update_recording_mode_visibility(mode)
+
+    def _update_recording_mode_visibility(self, mode: RecordingTranscriberMode):
+        is_append_and_correct = mode == RecordingTranscriberMode.APPEND_AND_CORRECT
+        self.line_separator_label.setVisible(not is_append_and_correct)
+        self.line_separator_line_edit.setVisible(not is_append_and_correct)
+        self.transcription_step_label.setVisible(is_append_and_correct)
+        self.transcription_step_spin_box.setVisible(is_append_and_correct)
+
+    def on_transcription_step_changed(self, value: float):
+        self.transcription_options.transcription_step = round(value, 1)
+        self.transcription_options_changed.emit(self.transcription_options)
 
     def on_export_enabled_changed(self, state: int):
         self._export_enabled = state == 2

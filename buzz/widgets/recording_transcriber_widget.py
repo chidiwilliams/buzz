@@ -160,6 +160,10 @@ class RecordingTranscriberWidget(QWidget):
                 key=Settings.Key.RECORDING_TRANSCRIBER_LINE_SEPARATOR,
                 default_value="\n\n",
             ),
+            transcription_step=self.settings.value(
+                key=Settings.Key.RECORDING_TRANSCRIBER_TRANSCRIPTION_STEP,
+                default_value=3.5,
+            ),
         )
 
         self.audio_devices_combo_box = AudioDevicesComboBox(self)
@@ -1173,4 +1177,8 @@ class RecordingTranscriberWidget(QWidget):
         self.settings.set_value(
             Settings.Key.RECORDING_TRANSCRIBER_LINE_SEPARATOR,
             self.transcription_options.line_separator,
+        )
+        self.settings.set_value(
+            Settings.Key.RECORDING_TRANSCRIBER_TRANSCRIPTION_STEP,
+            self.transcription_options.transcription_step,
         )
