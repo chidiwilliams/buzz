@@ -50,8 +50,23 @@ parts:
     prime:
       - etc/asound.conf
 
-  buzz:
+  portaudio:
     after: [ alsa-pulseaudio ]
+    plugin: autotools
+    source: https://files.portaudio.com/archives/pa_stable_v190700_20210406.tgz
+    build-packages:
+      - libasound2-dev
+      - libpulse-dev
+    autotools-configure-parameters:
+      - --enable-shared
+      - --disable-static
+    stage:
+      - usr/local/lib/libportaudio*
+    prime:
+      - usr/local/lib/libportaudio*
+
+  buzz:
+    after: [ alsa-pulseaudio, portaudio ]
     plugin: uv
     source: .
     build-snaps:
@@ -78,9 +93,8 @@ parts:
       - libproxy1v5
       # Audio
       - ffmpeg
-      - libportaudio2
       - libpulse0
-      - libasound2
+      - libasound2t64
       - libasound2-dev
       - libasound2-plugins
       - libasound2-plugins-extra
@@ -115,10 +129,10 @@ parts:
       # Clean caches
       uv cache clean
 
-      # Create launcher wrapper to ensure the snap's own libasound.so.2 is found
+      # Create launcher wrapper to ensure the snap's own portaudio and libasound are found
       # before gnome content snap libraries (which desktop-launch prepends to LD_LIBRARY_PATH)
       mkdir -p $CRAFT_PART_INSTALL/bin
-      printf '#!/bin/sh\nexport LD_LIBRARY_PATH="$SNAP/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"\nexec "$SNAP/bin/python" -m buzz "$@"\n' > $CRAFT_PART_INSTALL/bin/buzz-launcher
+      printf '#!/bin/sh\nexport LD_LIBRARY_PATH="$SNAP/usr/local/lib:$SNAP/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"\nexec "$SNAP/bin/python" -m buzz "$@"\n' > $CRAFT_PART_INSTALL/bin/buzz-launcher
       chmod +x $CRAFT_PART_INSTALL/bin/buzz-launcher
 
       # Copy source files
@@ -158,7 +172,7 @@ apps:
     desktop: usr/share/applications/buzz.desktop
     environment:
       PATH: $SNAP/usr/bin:$SNAP/bin:$PATH
-      LD_LIBRARY_PATH: $SNAP/lib/python3.12/site-packages/nvidia/cudnn/lib:$SNAP/lib/python3.12/site-packages/PyQt6:$SNAP/lib/python3.12/site-packages/PyQt6/Qt6/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/lapack:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/blas:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/oss4-libsalsa:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libproxy:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/alsa-lib:$SNAP:$LD_LIBRARY_PATH
+      LD_LIBRARY_PATH: $SNAP/usr/local/lib:$SNAP/lib/python3.12/site-packages/nvidia/cudnn/lib:$SNAP/lib/python3.12/site-packages/PyQt6:$SNAP/lib/python3.12/site-packages/PyQt6/Qt6/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/lapack:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/blas:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/oss4-libsalsa:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libproxy:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/alsa-lib:$SNAP:$LD_LIBRARY_PATH
       PYTHONPATH: $SNAP:$SNAP/lib/python3.12/site-packages/PyQt6:$SNAP/lib/python3.12/site-packages/PyQt6/Qt6/lib:$SNAP/usr/lib/python3/dist-packages:$SNAP/usr/lib/python3.12/site-packages:$SNAP/usr/local/lib/python3.12/dist-packages:$SNAP/usr/lib/python3.12/dist-packages:$PYTHONPATH
       QT_MEDIA_BACKEND: ffmpeg
       PULSE_LATENCY_MSEC: "30"

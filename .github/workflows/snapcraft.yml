@@ -66,9 +66,6 @@ jobs:
         run: |
           sudo -E snapcraft pack --verbose --destructive-mode
           echo "snap=$(ls *.snap)" >> $GITHUB_OUTPUT
-      - run: |
-          sudo apt-get update
-          sudo apt-get install libportaudio2 libtbb-dev
       - run: sudo snap install --devmode *.snap
       - run: |
           cd $HOME
