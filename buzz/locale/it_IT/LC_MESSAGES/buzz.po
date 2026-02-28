@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-28 10:38+0200\n"
+"POT-Creation-Date: 2026-02-28 16:43+0200\n"
 "PO-Revision-Date: 2026-01-25 21:42+0200\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
@@ -460,12 +460,16 @@ msgid "Silence threshold:"
 msgstr "Soglia del silenzio:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Live recording mode:"
+msgstr "Modalità di registrazione in diretta:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Line separator:"
 msgstr "Separatore di riga:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Live recording mode:"
-msgstr "Modalità di registrazione in diretta:"
+msgid "Transcription step:"
+msgstr "Passo di trascrizione:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Enable live recording export"

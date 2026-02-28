@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-28 10:38+0200\n"
+"POT-Creation-Date: 2026-02-28 16:43+0200\n"
 "PO-Revision-Date: 2025-10-17 07:59+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: Catalan <jmas@softcatala.org>\n"
@@ -457,12 +457,16 @@ msgid "Silence threshold:"
 msgstr "Llindar de silenci:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Live recording mode:"
+msgstr "Mode d'enregistrament en directe:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Line separator:"
 msgstr "Separador de línies:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Live recording mode:"
-msgstr "Mode d'enregistrament en directe:"
+msgid "Transcription step:"
+msgstr "Pas de transcripció:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Enable live recording export"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-28 10:38+0200\n"
+"POT-Creation-Date: 2026-02-28 16:43+0200\n"
 "PO-Revision-Date: 2024-03-17 20:50+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -455,12 +455,16 @@ msgid "Silence threshold:"
 msgstr "Próg ciszy:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Live recording mode:"
+msgstr "Tryb nagrywania na żywo:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Line separator:"
 msgstr "Separator wierszy:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Live recording mode:"
-msgstr "Tryb nagrywania na żywo:"
+msgid "Transcription step:"
+msgstr "Krok transkrypcji:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Enable live recording export"

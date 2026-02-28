@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-28 10:38+0200\n"
+"POT-Creation-Date: 2026-02-28 16:43+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Ole Guldberg2 <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -452,12 +452,16 @@ msgid "Silence threshold:"
 msgstr "Tærskelværdi for stilhed:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Live recording mode:"
+msgstr "Live optagelsestilstand:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Line separator:"
 msgstr "Linjeseparator:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Live recording mode:"
-msgstr "Live optagelsestilstand:"
+msgid "Transcription step:"
+msgstr "Transskriberingstrin:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Enable live recording export"

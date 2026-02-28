@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-28 10:38+0200\n"
-"PO-Revision-Date: 2026-02-28 10:46+0200\n"
+"POT-Creation-Date: 2026-02-28 16:44+0200\n"
+"PO-Revision-Date: 2026-02-28 16:44+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -459,14 +459,18 @@ msgid "Silence threshold:"
 msgstr "Klusuma slieksnis:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Line separator:"
-msgstr "Rindiņu atdalītājs:"
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Live recording mode:"
 msgstr ""
 "Dzīvā ieraksta\n"
 "režīms:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Line separator:"
+msgstr "Rindiņu atdalītājs:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Transcription step:"
+msgstr "Atpazīšanas solis:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Enable live recording export"
