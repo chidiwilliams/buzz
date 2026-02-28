@@ -135,7 +135,12 @@ class MockInputStream:
             if self._stop_event.is_set():
                 break
             chunk = audio[seek : seek + num_samples_in_chunk]
-            self.callback(chunk, 0, None, None)
+            try:
+                self.callback(chunk, 0, None, None)
+            except RuntimeError:
+                # Qt object was deleted between the stop-event check and
+                # the callback invocation; treat it as a stop signal.
+                break
             seek += num_samples_in_chunk
 
             # loop back around
