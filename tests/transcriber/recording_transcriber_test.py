@@ -197,7 +197,7 @@ class TestRecordingTranscriberInit:
             )
 
             # APPEND_AND_CORRECT mode should use smaller batch size and longer keep duration
-            assert transcriber.n_batch_samples == 3 * 16000
+            assert transcriber.n_batch_samples == int(transcription_options.transcription_step * 16000)
             assert transcriber.keep_sample_seconds == 1.5
 
     def test_init_stores_silence_threshold(self):

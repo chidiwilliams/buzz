@@ -43,10 +43,10 @@ class TestRecordingTranscriberInit:
         t = make_transcriber(mode_index=0)
         assert t.n_batch_samples == 5 * t.sample_rate
 
-    def test_append_and_correct_mode_batch_size_is_3_seconds(self):
+    def test_append_and_correct_mode_batch_size_uses_transcription_step(self):
         mode_index = list(RecordingTranscriberMode).index(RecordingTranscriberMode.APPEND_AND_CORRECT)
         t = make_transcriber(mode_index=mode_index)
-        assert t.n_batch_samples == 3 * t.sample_rate
+        assert t.n_batch_samples == int(t.transcription_options.transcription_step * t.sample_rate)
 
     def test_append_and_correct_mode_keep_sample_seconds(self):
         mode_index = list(RecordingTranscriberMode).index(RecordingTranscriberMode.APPEND_AND_CORRECT)
