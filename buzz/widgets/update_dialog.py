@@ -6,6 +6,7 @@ import tempfile
 from typing import Optional
 
 from PyQt6.QtCore import Qt, QUrl
+from PyQt6.QtWidgets import QApplication
 from PyQt6.QtGui import QIcon
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from PyQt6.QtWidgets import (
@@ -111,11 +112,7 @@ class UpdateDialog(QDialog):
         self.download_button.clicked.connect(self._on_download_clicked)
         self.download_button.setDefault(True)
 
-        self.cancel_button = QPushButton(_("Later"))
-        self.cancel_button.clicked.connect(self.reject)
-
         button_layout.addStretch()
-        button_layout.addWidget(self.cancel_button)
         button_layout.addWidget(self.download_button)
 
         layout.addLayout(button_layout)
@@ -131,7 +128,6 @@ class UpdateDialog(QDialog):
             return
 
         self.download_button.setEnabled(False)
-        self.cancel_button.setText(_("Cancel"))
         self.progress_bar.setVisible(True)
         self.progress_bar.setValue(0)
         self._temp_file_paths = []
@@ -246,8 +242,9 @@ class UpdateDialog(QDialog):
                 #open the DMG file
                 subprocess.Popen(["open", installer_path])
 
-            # Close update dialog
+            # Close the app so the installer can replace files
             self.accept()
+            QApplication.quit()
 
         except Exception as e:
             logging.error(f"Failed to run installer: {e}")
@@ -260,15 +257,6 @@ class UpdateDialog(QDialog):
     def _reset_ui(self):
         """Reset the UI to initial state after an error"""
         self.download_button.setEnabled(True)
-        self.cancel_button.setText(_("Later"))
         self.progress_bar.setVisible(False)
         self.status_label.setText("")
 
-    def reject(self):
-        """Cancel download in progress when user clicks Cancel or Later"""
-        if self._download_reply is not None:
-            self._download_reply.abort()
-            self._download_reply.deleteLater()
-            self._download_reply = None
-
-        super().reject()
