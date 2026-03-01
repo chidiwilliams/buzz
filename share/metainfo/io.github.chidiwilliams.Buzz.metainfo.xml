@@ -65,6 +65,18 @@
   <content_rating type="oars-1.1"/>
 
   <releases>
+      <release version="1.4.4" date="2026-03-08">
+      <url type="details">https://github.com/chidiwilliams/buzz/releases/tag/v1.4.4</url>
+      <description>
+        <p>Bug fixes and minor improvements.</p>
+        <ul>
+          <li>Fixed Youtube link downloading</li>
+          <li>Added option to import folder</li>
+          <li>Extra settings for live recordings</li>
+          <li>Update checked for Windows and Macs</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.4.3" date="2026-01-26">
       <url type="details">https://github.com/chidiwilliams/buzz/releases/tag/v1.4.3</url>
       <description>

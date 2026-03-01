@@ -179,7 +179,6 @@ class FileTranscriber(QObject):
         ...
 
 
-# TODO: Move to transcription service
 def write_output(
     path: str,
     segments: List[Segment],
