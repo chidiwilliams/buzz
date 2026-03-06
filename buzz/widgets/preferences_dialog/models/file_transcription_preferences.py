@@ -7,7 +7,6 @@ from buzz.model_loader import TranscriptionModel
 from buzz.transcriber.transcriber import (
     Task,
     OutputFormat,
-    DEFAULT_WHISPER_TEMPERATURE,
     TranscriptionOptions,
     FileTranscriptionOptions,
 )
@@ -20,7 +19,6 @@ class FileTranscriptionPreferences:
     model: TranscriptionModel
     word_level_timings: bool
     extract_speech: bool
-    temperature: Tuple[float, ...]
     initial_prompt: str
     enable_llm_translation: bool
     llm_prompt: str
@@ -33,7 +31,6 @@ class FileTranscriptionPreferences:
         settings.setValue("model", self.model)
         settings.setValue("word_level_timings", self.word_level_timings)
         settings.setValue("extract_speech", self.extract_speech)
-        settings.setValue("temperature", self.temperature)
         settings.setValue("initial_prompt", self.initial_prompt)
         settings.setValue("enable_llm_translation", self.enable_llm_translation)
         settings.setValue("llm_model", self.llm_model)
@@ -59,7 +56,6 @@ class FileTranscriptionPreferences:
         extract_speech = False if extract_speech_value == "false" \
             else bool(extract_speech_value)
 
-        temperature = settings.value("temperature", DEFAULT_WHISPER_TEMPERATURE)
         initial_prompt = settings.value("initial_prompt", "")
         enable_llm_translation_value = settings.value("enable_llm_translation", False)
         enable_llm_translation = False if enable_llm_translation_value == "false" \
@@ -75,7 +71,6 @@ class FileTranscriptionPreferences:
             else TranscriptionModel.default(),
             word_level_timings=word_level_timings,
             extract_speech=extract_speech,
-            temperature=temperature,
             initial_prompt=initial_prompt,
             enable_llm_translation=enable_llm_translation,
             llm_model=llm_model,
@@ -94,7 +89,6 @@ class FileTranscriptionPreferences:
         return FileTranscriptionPreferences(
             task=transcription_options.task,
             language=transcription_options.language,
-            temperature=transcription_options.temperature,
             initial_prompt=transcription_options.initial_prompt,
             enable_llm_translation=transcription_options.enable_llm_translation,
             llm_model=transcription_options.llm_model,
@@ -115,7 +109,6 @@ class FileTranscriptionPreferences:
             TranscriptionOptions(
                 task=self.task,
                 language=self.language,
-                temperature=self.temperature,
                 initial_prompt=self.initial_prompt,
                 enable_llm_translation=self.enable_llm_translation,
                 llm_model=self.llm_model,

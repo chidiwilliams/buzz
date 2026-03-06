@@ -3,7 +3,7 @@ from unittest.mock import Mock
 from PyQt6.QtWidgets import QCheckBox, QLineEdit
 
 from buzz.model_loader import TranscriptionModel
-from buzz.transcriber.transcriber import Task, DEFAULT_WHISPER_TEMPERATURE
+from buzz.transcriber.transcriber import Task
 from buzz.widgets.preferences_dialog.folder_watch_preferences_widget import (
     FolderWatchPreferencesWidget,
 )
@@ -28,7 +28,6 @@ class TestFolderWatchPreferencesWidget:
                     model=TranscriptionModel.default(),
                     word_level_timings=False,
                     extract_speech=False,
-                    temperature=DEFAULT_WHISPER_TEMPERATURE,
                     initial_prompt="",
                     enable_llm_translation=False,
                     llm_model="",
@@ -74,7 +73,6 @@ class TestFolderWatchPreferencesWidget:
                     model=TranscriptionModel.default(),
                     word_level_timings=False,
                     extract_speech=False,
-                    temperature=DEFAULT_WHISPER_TEMPERATURE,
                     initial_prompt="",
                     enable_llm_translation=False,
                     llm_model="",

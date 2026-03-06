@@ -42,7 +42,6 @@ from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
 from buzz.transcriber.recording_transcriber import RecordingTranscriber
 from buzz.transcriber.transcriber import (
     TranscriptionOptions,
-    DEFAULT_WHISPER_TEMPERATURE,
     Task,
 )
 from buzz.translator import Translator
@@ -136,10 +135,6 @@ class RecordingTranscriberWidget(QWidget):
             openai_access_token=openai_access_token,
             initial_prompt=self.settings.value(
                 key=Settings.Key.RECORDING_TRANSCRIBER_INITIAL_PROMPT, default_value=""
-            ),
-            temperature=self.settings.value(
-                key=Settings.Key.RECORDING_TRANSCRIBER_TEMPERATURE,
-                default_value=DEFAULT_WHISPER_TEMPERATURE,
             ),
             word_level_timings=False,
             enable_llm_translation=self.settings.value(
@@ -1152,10 +1147,6 @@ class RecordingTranscriberWidget(QWidget):
         )
         self.settings.set_value(
             Settings.Key.RECORDING_TRANSCRIBER_TASK, self.transcription_options.task
-        )
-        self.settings.set_value(
-            Settings.Key.RECORDING_TRANSCRIBER_TEMPERATURE,
-            self.transcription_options.temperature,
         )
         self.settings.set_value(
             Settings.Key.RECORDING_TRANSCRIBER_INITIAL_PROMPT,

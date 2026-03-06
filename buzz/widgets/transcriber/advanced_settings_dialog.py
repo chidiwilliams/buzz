@@ -17,13 +17,11 @@ from PyQt6.QtWidgets import (
 )
 
 from buzz.locale import _
-from buzz.model_loader import ModelType
 from buzz.transcriber.transcriber import TranscriptionOptions
 from buzz.settings.settings import Settings
 from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
 from buzz.widgets.line_edit import LineEdit
 from buzz.widgets.transcriber.initial_prompt_text_edit import InitialPromptTextEdit
-from buzz.widgets.transcriber.temperature_validator import TemperatureValidator
 
 
 class AdvancedSettingsDialog(QDialog):
@@ -50,22 +48,6 @@ class AdvancedSettingsDialog(QDialog):
         transcription_settings_title= _("Speech recognition settings")
         transcription_settings_title_label = QLabel(f"<h4>{transcription_settings_title}</h4>", self)
         layout.addRow("", transcription_settings_title_label)
-
-        default_temperature_text = ", ".join(
-            [str(temp) for temp in transcription_options.temperature]
-        )
-        self.temperature_line_edit = LineEdit(default_temperature_text, self)
-        self.temperature_line_edit.setPlaceholderText(
-            _('Comma-separated, e.g. "0.0, 0.2, 0.4, 0.6, 0.8, 1.0"')
-        )
-        self.temperature_line_edit.setMinimumWidth(250)
-        self.temperature_line_edit.textChanged.connect(self.on_temperature_changed)
-        self.temperature_line_edit.setValidator(TemperatureValidator(self))
-        self.temperature_line_edit.setEnabled(
-            transcription_options.model.model_type == ModelType.WHISPER
-        )
-
-        layout.addRow(_("Temperature:"), self.temperature_line_edit)
 
         self.initial_prompt_text_edit = InitialPromptTextEdit(
             transcription_options.initial_prompt,
@@ -216,14 +198,6 @@ class AdvancedSettingsDialog(QDialog):
         layout.addWidget(button_box)
 
         self.setLayout(layout)
-
-    def on_temperature_changed(self, text: str):
-        try:
-            temperatures = [float(temp.strip()) for temp in text.split(",")]
-            self.transcription_options.temperature = tuple(temperatures)
-            self.transcription_options_changed.emit(self.transcription_options)
-        except ValueError:
-            pass
 
     def on_initial_prompt_changed(self):
         self.transcription_options.initial_prompt = (
