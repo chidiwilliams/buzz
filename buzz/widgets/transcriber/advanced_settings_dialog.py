@@ -43,6 +43,7 @@ class AdvancedSettingsDialog(QDialog):
         self.settings = Settings()
 
         self.setWindowTitle(_("Advanced Settings"))
+        self.setMinimumWidth(800)
 
         layout = QFormLayout(self)
 
