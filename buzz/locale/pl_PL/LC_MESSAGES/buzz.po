@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-28 16:43+0200\n"
+"POT-Creation-Date: 2026-03-06 12:22+0200\n"
 "PO-Revision-Date: 2024-03-17 20:50+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -439,8 +439,11 @@ msgid "AI model:"
 msgstr "Model AI:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Please translate each text sent to you from English to Spanish."
-msgstr "Proszę przetłumacz każdy przesłany tekst z angielskiego na hiszpański."
+msgid ""
+"Please translate each text sent to you from English to Spanish. Translation "
+"will be used in an automated system, please do not add any comments or "
+"notes, just the translation."
+msgstr "Proszę przetłumaczyć każdy przesłany tekst z języka angielskiego na hiszpański. Tłumaczenie będzie używane w systemie automatycznym, dlatego prosimy nie dodawać żadnych komentarzy ani uwag, tylko samo tłumaczenie."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -1632,6 +1635,10 @@ msgid ""
 msgstr ""
 "Wyodrębnianie mowy nie powiodło się! Sprawdź połączenie internetowe — może "
 "być konieczne pobranie modelu."
+
+#~ msgid "Please translate each text sent to you from English to Spanish."
+#~ msgstr ""
+#~ "Proszę przetłumacz każdy przesłany tekst z angielskiego na hiszpański."
 
 #~ msgid "Translation error, see logs!"
 #~ msgstr "Błąd tłumaczenia, sprawdź logi!"

@@ -96,7 +96,7 @@ class AdvancedSettingsDialog(QDialog):
         layout.addRow(_("AI model:"), self.llm_model_line_edit)
 
         default_llm_prompt = self.transcription_options.llm_prompt or _(
-            "Please translate each text sent to you from English to Spanish."
+            "Please translate each text sent to you from English to Spanish. Translation will be used in an automated system, please do not add any comments or notes, just the translation."
         )
         self.llm_prompt_text_edit = QPlainTextEdit(default_llm_prompt)
         self.llm_prompt_text_edit.setEnabled(self.transcription_options.enable_llm_translation)
