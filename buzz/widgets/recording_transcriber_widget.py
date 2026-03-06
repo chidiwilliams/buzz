@@ -189,6 +189,9 @@ class RecordingTranscriberWidget(QWidget):
         self.transcription_options_group_box.transcription_options_changed.connect(
             self.on_transcription_options_changed
         )
+        self.transcription_options_group_box.advanced_settings_dialog.recording_mode_changed.connect(
+            self.on_recording_mode_changed
+        )
 
         recording_options_layout = QFormLayout()
         recording_options_layout.addRow(_("Microphone:"), self.audio_devices_combo_box)
@@ -491,6 +494,9 @@ class RecordingTranscriberWidget(QWidget):
         for path in (self.transcript_export_file, self.translation_export_file):
             if os.path.isfile(path):
                 self.write_to_export_file(path, "", mode="w")
+
+    def on_recording_mode_changed(self, mode: RecordingTranscriberMode):
+        self.transcriber_mode = mode
 
     def on_transcription_options_changed(
         self, transcription_options: TranscriptionOptions

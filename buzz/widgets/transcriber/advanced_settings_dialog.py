@@ -29,6 +29,7 @@ from buzz.widgets.transcriber.temperature_validator import TemperatureValidator
 class AdvancedSettingsDialog(QDialog):
     transcription_options: TranscriptionOptions
     transcription_options_changed = pyqtSignal(TranscriptionOptions)
+    recording_mode_changed = pyqtSignal(RecordingTranscriberMode)
 
     def __init__(
         self,
@@ -261,6 +262,7 @@ class AdvancedSettingsDialog(QDialog):
         self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_MODE, index)
         mode = list(RecordingTranscriberMode)[index]
         self._update_recording_mode_visibility(mode)
+        self.recording_mode_changed.emit(mode)
 
     def _update_recording_mode_visibility(self, mode: RecordingTranscriberMode):
         is_append_and_correct = mode == RecordingTranscriberMode.APPEND_AND_CORRECT
