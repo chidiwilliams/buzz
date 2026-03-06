@@ -189,7 +189,8 @@ class RecordingTranscriberWidget(QWidget):
         )
 
         recording_options_layout = QFormLayout()
-        recording_options_layout.addRow(_("Microphone:"), self.audio_devices_combo_box)
+        self.microphone_label = QLabel(_("Microphone:"))
+        recording_options_layout.addRow(self.microphone_label, self.audio_devices_combo_box)
 
         self.audio_meter_widget = AudioMeterWidget(self)
 
@@ -568,6 +569,7 @@ class RecordingTranscriberWidget(QWidget):
             self.record_button.set_recording()
             self.transcription_options_group_box.setEnabled(False)
             self.audio_devices_combo_box.setEnabled(False)
+            self.microphone_label.setEnabled(False)
             self.presentation_options_bar.show()
             self.copy_actions_bar.hide()
 
@@ -695,6 +697,7 @@ class RecordingTranscriberWidget(QWidget):
         self.current_status = self.RecordingStatus.STOPPED
         self.transcription_options_group_box.setEnabled(True)
         self.audio_devices_combo_box.setEnabled(True)
+        self.microphone_label.setEnabled(True)
         self.presentation_options_bar.hide()
         self.copy_actions_bar.show() #added this here
 
