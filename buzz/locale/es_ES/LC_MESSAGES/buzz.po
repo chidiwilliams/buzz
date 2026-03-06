@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-28 16:43+0200\n"
+"POT-Creation-Date: 2026-03-06 12:22+0200\n"
 "PO-Revision-Date: 2025-09-08 12:43+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: \n"
@@ -461,8 +461,11 @@ msgid "AI model:"
 msgstr "Modelo de IA:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Please translate each text sent to you from English to Spanish."
-msgstr "Por favor, traduzca cada texto que se le envíe del inglés al español."
+msgid ""
+"Please translate each text sent to you from English to Spanish. Translation "
+"will be used in an automated system, please do not add any comments or "
+"notes, just the translation."
+msgstr "Por favor, traduce cada texto que se te envíe del inglés al español. La traducción se utilizará en un sistema automatizado, por favor no añadas comentarios ni notas, solo la traducción."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -1695,6 +1698,10 @@ msgid ""
 msgstr ""
 "¡Extracción de voz fallida! Compruebe su conexión a internet — es posible "
 "que sea necesario descargar un modelo."
+
+#~ msgid "Please translate each text sent to you from English to Spanish."
+#~ msgstr ""
+#~ "Por favor, traduzca cada texto que se le envíe del inglés al español."
 
 #~ msgid "Translation error, see logs!"
 #~ msgstr "¡Error de traducción, consulte los registros!"

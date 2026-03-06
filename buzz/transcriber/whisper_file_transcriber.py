@@ -25,7 +25,7 @@ from buzz.conn import pipe_stderr
 from buzz.model_loader import ModelType, WhisperModelSize, map_language_to_mms
 from buzz.transformers_whisper import TransformersTranscriber
 from buzz.transcriber.file_transcriber import FileTranscriber
-from buzz.transcriber.transcriber import FileTranscriptionTask, Segment, Task
+from buzz.transcriber.transcriber import FileTranscriptionTask, Segment, Task, DEFAULT_WHISPER_TEMPERATURE
 from buzz.transcriber.whisper_cpp import WhisperCpp
 
 import av
@@ -292,7 +292,7 @@ class WhisperFileTranscriber(FileTranscriber):
             language=task.transcription_options.language,
             task=task.transcription_options.task.value,
             # Prevent crash on Windows https://github.com/SYSTRAN/faster-whisper/issues/71#issuecomment-1526263764
-            temperature = 0 if platform.system() == "Windows" else task.transcription_options.temperature,
+            temperature = 0 if platform.system() == "Windows" else DEFAULT_WHISPER_TEMPERATURE,
             initial_prompt=task.transcription_options.initial_prompt,
             word_timestamps=task.transcription_options.word_level_timings,
             no_speech_threshold=0.4,
@@ -349,7 +349,7 @@ class WhisperFileTranscriber(FileTranscriber):
                 audio=whisper_audio.load_audio(task.file_path),
                 language=task.transcription_options.language,
                 task=task.transcription_options.task.value,
-                temperature=task.transcription_options.temperature,
+                temperature=DEFAULT_WHISPER_TEMPERATURE,
                 initial_prompt=task.transcription_options.initial_prompt,
                 no_speech_threshold=0.4,
                 fp16=False,

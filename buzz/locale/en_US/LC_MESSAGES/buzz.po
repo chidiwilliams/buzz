@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-28 16:43+0200\n"
+"POT-Creation-Date: 2026-03-06 12:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -423,7 +423,10 @@ msgid "AI model:"
 msgstr ""
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Please translate each text sent to you from English to Spanish."
+msgid ""
+"Please translate each text sent to you from English to Spanish. Translation "
+"will be used in an automated system, please do not add any comments or "
+"notes, just the translation."
 msgstr ""
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py

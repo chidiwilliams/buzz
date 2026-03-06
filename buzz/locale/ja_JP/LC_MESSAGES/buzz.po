@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-28 16:43+0200\n"
+"POT-Creation-Date: 2026-03-06 12:22+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: nunawa <71294849+nunawa@users.noreply.github.com>\n"
 "Language-Team: \n"
@@ -433,8 +433,11 @@ msgid "AI model:"
 msgstr "AIのモデル:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Please translate each text sent to you from English to Spanish."
-msgstr "送られてくる各テキストを英語からスペイン語に翻訳してください。"
+msgid ""
+"Please translate each text sent to you from English to Spanish. Translation "
+"will be used in an automated system, please do not add any comments or "
+"notes, just the translation."
+msgstr "送信された各テキストを英語からスペイン語に翻訳してください。翻訳は自動化されたシステムで使用されます。コメントやメモは追加せず、翻訳のみを提供してください。"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -1616,6 +1619,9 @@ msgid ""
 msgstr ""
 "音声抽出に失敗しました！インターネット接続を確認してください。モデルのダウン"
 "ロードが必要な場合があります。"
+
+#~ msgid "Please translate each text sent to you from English to Spanish."
+#~ msgstr "送られてくる各テキストを英語からスペイン語に翻訳してください。"
 
 #~ msgid "Translation error, see logs!"
 #~ msgstr "翻訳エラーが発生しました。ログを確認してください！"

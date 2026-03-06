@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-28 16:43+0200\n"
+"POT-Creation-Date: 2026-03-06 12:22+0200\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: Lamb\n"
@@ -432,8 +432,11 @@ msgid "AI model:"
 msgstr "AI 模型："
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Please translate each text sent to you from English to Spanish."
-msgstr "請將傳送給您的每段文字從英語翻譯為西班牙語。"
+msgid ""
+"Please translate each text sent to you from English to Spanish. Translation "
+"will be used in an automated system, please do not add any comments or "
+"notes, just the translation."
+msgstr "請將傳送給您的每段文字從英文翻譯成西班牙文。翻譯將用於自動化系統，請勿添加任何評論或備註，僅提供翻譯即可。"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -1604,6 +1607,9 @@ msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
 msgstr "語音提取失敗！請檢查您的網路連線——可能需要下載模型。"
+
+#~ msgid "Please translate each text sent to you from English to Spanish."
+#~ msgstr "請將傳送給您的每段文字從英語翻譯為西班牙語。"
 
 #~ msgid "Translation error, see logs!"
 #~ msgstr "翻譯錯誤，請查看日誌！"

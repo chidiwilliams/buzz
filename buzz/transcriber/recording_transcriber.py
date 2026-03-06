@@ -26,7 +26,7 @@ from buzz.locale import _
 from buzz.assets import APP_BASE_DIR
 from buzz.model_loader import ModelType, map_language_to_mms
 from buzz.settings.settings import Settings
-from buzz.transcriber.transcriber import TranscriptionOptions, Task
+from buzz.transcriber.transcriber import TranscriptionOptions, Task, DEFAULT_WHISPER_TEMPERATURE
 from buzz.transformers_whisper import TransformersTranscriber
 from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
 
@@ -206,7 +206,7 @@ class RecordingTranscriber(QObject):
                                 language=self.transcription_options.language,
                                 task=self.transcription_options.task.value,
                                 initial_prompt=initial_prompt,
-                                temperature=self.transcription_options.temperature,
+                                temperature=DEFAULT_WHISPER_TEMPERATURE,
                                 no_speech_threshold=0.4,
                                 fp16=False,
                             )
@@ -222,7 +222,7 @@ class RecordingTranscriber(QObject):
                                 else None,
                                 task=self.transcription_options.task.value,
                                 # Prevent crash on Windows https://github.com/SYSTRAN/faster-whisper/issues/71#issuecomment-1526263764
-                                temperature=0 if platform.system() == "Windows" else self.transcription_options.temperature,
+                                temperature=0 if platform.system() == "Windows" else DEFAULT_WHISPER_TEMPERATURE,
                                 initial_prompt=self.transcription_options.initial_prompt,
                                 word_timestamps=False,
                                 without_timestamps=True,

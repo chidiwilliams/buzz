@@ -42,7 +42,6 @@ from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
 from buzz.transcriber.recording_transcriber import RecordingTranscriber
 from buzz.transcriber.transcriber import (
     TranscriptionOptions,
-    DEFAULT_WHISPER_TEMPERATURE,
     Task,
 )
 from buzz.translator import Translator
@@ -137,10 +136,6 @@ class RecordingTranscriberWidget(QWidget):
             initial_prompt=self.settings.value(
                 key=Settings.Key.RECORDING_TRANSCRIBER_INITIAL_PROMPT, default_value=""
             ),
-            temperature=self.settings.value(
-                key=Settings.Key.RECORDING_TRANSCRIBER_TEMPERATURE,
-                default_value=DEFAULT_WHISPER_TEMPERATURE,
-            ),
             word_level_timings=False,
             enable_llm_translation=self.settings.value(
                 key=Settings.Key.RECORDING_TRANSCRIBER_ENABLE_LLM_TRANSLATION,
@@ -189,9 +184,13 @@ class RecordingTranscriberWidget(QWidget):
         self.transcription_options_group_box.transcription_options_changed.connect(
             self.on_transcription_options_changed
         )
+        self.transcription_options_group_box.advanced_settings_dialog.recording_mode_changed.connect(
+            self.on_recording_mode_changed
+        )
 
         recording_options_layout = QFormLayout()
-        recording_options_layout.addRow(_("Microphone:"), self.audio_devices_combo_box)
+        self.microphone_label = QLabel(_("Microphone:"))
+        recording_options_layout.addRow(self.microphone_label, self.audio_devices_combo_box)
 
         self.audio_meter_widget = AudioMeterWidget(self)
 
@@ -492,6 +491,9 @@ class RecordingTranscriberWidget(QWidget):
             if os.path.isfile(path):
                 self.write_to_export_file(path, "", mode="w")
 
+    def on_recording_mode_changed(self, mode: RecordingTranscriberMode):
+        self.transcriber_mode = mode
+
     def on_transcription_options_changed(
         self, transcription_options: TranscriptionOptions
     ):
@@ -567,6 +569,7 @@ class RecordingTranscriberWidget(QWidget):
             self.record_button.set_recording()
             self.transcription_options_group_box.setEnabled(False)
             self.audio_devices_combo_box.setEnabled(False)
+            self.microphone_label.setEnabled(False)
             self.presentation_options_bar.show()
             self.copy_actions_bar.hide()
 
@@ -694,6 +697,7 @@ class RecordingTranscriberWidget(QWidget):
         self.current_status = self.RecordingStatus.STOPPED
         self.transcription_options_group_box.setEnabled(True)
         self.audio_devices_combo_box.setEnabled(True)
+        self.microphone_label.setEnabled(True)
         self.presentation_options_bar.hide()
         self.copy_actions_bar.show() #added this here
 
@@ -1146,10 +1150,6 @@ class RecordingTranscriberWidget(QWidget):
         )
         self.settings.set_value(
             Settings.Key.RECORDING_TRANSCRIBER_TASK, self.transcription_options.task
-        )
-        self.settings.set_value(
-            Settings.Key.RECORDING_TRANSCRIBER_TEMPERATURE,
-            self.transcription_options.temperature,
         )
         self.settings.set_value(
             Settings.Key.RECORDING_TRANSCRIBER_INITIAL_PROMPT,

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-28 16:43+0200\n"
+"POT-Creation-Date: 2026-03-06 12:22+0200\n"
 "PO-Revision-Date: 2025-10-17 07:59+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: Catalan <jmas@softcatala.org>\n"
@@ -441,8 +441,11 @@ msgid "AI model:"
 msgstr "Model d'IA:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Please translate each text sent to you from English to Spanish."
-msgstr "Si us plau, tradueix cada text que t'enviï de l'anglès al castellà."
+msgid ""
+"Please translate each text sent to you from English to Spanish. Translation "
+"will be used in an automated system, please do not add any comments or "
+"notes, just the translation."
+msgstr "Si us plau, traduïu cada text que us enviï de l'anglès al castellà. La traducció s'utilitzarà en un sistema automatitzat; si us plau, no afegiu cap comentari ni nota, només la traducció."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -1637,6 +1640,9 @@ msgid ""
 msgstr ""
 "Ha fallat l'extracció de veu! Comproveu la vostra connexió a Internet — pot "
 "ser que s'hagi de descarregar un model."
+
+#~ msgid "Please translate each text sent to you from English to Spanish."
+#~ msgstr "Si us plau, tradueix cada text que t'enviï de l'anglès al castellà."
 
 #~ msgid "Translation error, see logs!"
 #~ msgstr "Error de traducció, vegeu els registres!"

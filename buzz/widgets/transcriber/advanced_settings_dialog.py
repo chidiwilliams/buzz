@@ -17,18 +17,17 @@ from PyQt6.QtWidgets import (
 )
 
 from buzz.locale import _
-from buzz.model_loader import ModelType
 from buzz.transcriber.transcriber import TranscriptionOptions
 from buzz.settings.settings import Settings
 from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
 from buzz.widgets.line_edit import LineEdit
 from buzz.widgets.transcriber.initial_prompt_text_edit import InitialPromptTextEdit
-from buzz.widgets.transcriber.temperature_validator import TemperatureValidator
 
 
 class AdvancedSettingsDialog(QDialog):
     transcription_options: TranscriptionOptions
     transcription_options_changed = pyqtSignal(TranscriptionOptions)
+    recording_mode_changed = pyqtSignal(RecordingTranscriberMode)
 
     def __init__(
         self,
@@ -42,28 +41,13 @@ class AdvancedSettingsDialog(QDialog):
         self.settings = Settings()
 
         self.setWindowTitle(_("Advanced Settings"))
+        self.setMinimumWidth(800)
 
         layout = QFormLayout(self)
 
         transcription_settings_title= _("Speech recognition settings")
         transcription_settings_title_label = QLabel(f"<h4>{transcription_settings_title}</h4>", self)
         layout.addRow("", transcription_settings_title_label)
-
-        default_temperature_text = ", ".join(
-            [str(temp) for temp in transcription_options.temperature]
-        )
-        self.temperature_line_edit = LineEdit(default_temperature_text, self)
-        self.temperature_line_edit.setPlaceholderText(
-            _('Comma-separated, e.g. "0.0, 0.2, 0.4, 0.6, 0.8, 1.0"')
-        )
-        self.temperature_line_edit.setMinimumWidth(250)
-        self.temperature_line_edit.textChanged.connect(self.on_temperature_changed)
-        self.temperature_line_edit.setValidator(TemperatureValidator(self))
-        self.temperature_line_edit.setEnabled(
-            transcription_options.model.model_type == ModelType.WHISPER
-        )
-
-        layout.addRow(_("Temperature:"), self.temperature_line_edit)
 
         self.initial_prompt_text_edit = InitialPromptTextEdit(
             transcription_options.initial_prompt,
@@ -95,7 +79,7 @@ class AdvancedSettingsDialog(QDialog):
         layout.addRow(_("AI model:"), self.llm_model_line_edit)
 
         default_llm_prompt = self.transcription_options.llm_prompt or _(
-            "Please translate each text sent to you from English to Spanish."
+            "Please translate each text sent to you from English to Spanish. Translation will be used in an automated system, please do not add any comments or notes, just the translation."
         )
         self.llm_prompt_text_edit = QPlainTextEdit(default_llm_prompt)
         self.llm_prompt_text_edit.setEnabled(self.transcription_options.enable_llm_translation)
@@ -215,14 +199,6 @@ class AdvancedSettingsDialog(QDialog):
 
         self.setLayout(layout)
 
-    def on_temperature_changed(self, text: str):
-        try:
-            temperatures = [float(temp.strip()) for temp in text.split(",")]
-            self.transcription_options.temperature = tuple(temperatures)
-            self.transcription_options_changed.emit(self.transcription_options)
-        except ValueError:
-            pass
-
     def on_initial_prompt_changed(self):
         self.transcription_options.initial_prompt = (
             self.initial_prompt_text_edit.toPlainText()
@@ -261,6 +237,7 @@ class AdvancedSettingsDialog(QDialog):
         self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_MODE, index)
         mode = list(RecordingTranscriberMode)[index]
         self._update_recording_mode_visibility(mode)
+        self.recording_mode_changed.emit(mode)
 
     def _update_recording_mode_visibility(self, mode: RecordingTranscriberMode):
         is_append_and_correct = mode == RecordingTranscriberMode.APPEND_AND_CORRECT

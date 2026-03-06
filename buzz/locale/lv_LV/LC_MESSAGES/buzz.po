@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-28 16:44+0200\n"
-"PO-Revision-Date: 2026-02-28 16:44+0200\n"
+"POT-Creation-Date: 2026-03-06 12:22+0200\n"
+"PO-Revision-Date: 2026-03-06 13:23+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -25,19 +25,13 @@ msgstr "Importēt URL"
 msgid "https://example.com/audio.mp3"
 msgstr "https://example.com/audio.mp3"
 
-#: buzz/widgets/import_url_dialog.py
-#: buzz/widgets/preferences_dialog/preferences_dialog.py
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
-#: buzz/widgets/main_window.py
+#: buzz/widgets/import_url_dialog.py buzz/widgets/preferences_dialog/preferences_dialog.py buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/transcriber/advanced_settings_dialog.py buzz/widgets/main_window.py
 msgid "Ok"
 msgstr "Labi"
 
-#: buzz/widgets/import_url_dialog.py
-#: buzz/widgets/preferences_dialog/preferences_dialog.py
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-#: buzz/widgets/model_download_progress_dialog.py buzz/widgets/main_window.py
+#: buzz/widgets/import_url_dialog.py buzz/widgets/preferences_dialog/preferences_dialog.py buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py buzz/widgets/model_download_progress_dialog.py buzz/widgets/main_window.py
 msgid "Cancel"
 msgstr "Atcelt"
 
@@ -61,53 +55,43 @@ msgstr "Dzīvais ieraksts"
 msgid "Reset to Defaults"
 msgstr "Atjaunot noklusētos"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#: buzz/transcriber/transcriber.py
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py buzz/transcriber/transcriber.py
 msgid "English"
 msgstr "Angļu"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#: buzz/transcriber/transcriber.py
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py buzz/transcriber/transcriber.py
 msgid "Catalan"
 msgstr "Katalāņu"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#: buzz/transcriber/transcriber.py
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py buzz/transcriber/transcriber.py
 msgid "Danish"
 msgstr "Dāņu"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#: buzz/transcriber/transcriber.py
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py buzz/transcriber/transcriber.py
 msgid "Dutch"
 msgstr "Holandiešu"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#: buzz/transcriber/transcriber.py
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py buzz/transcriber/transcriber.py
 msgid "German"
 msgstr "Vācu"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#: buzz/transcriber/transcriber.py
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py buzz/transcriber/transcriber.py
 msgid "Spanish"
 msgstr "Spāņu"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#: buzz/transcriber/transcriber.py
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py buzz/transcriber/transcriber.py
 msgid "Italian"
 msgstr "Itāļu"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#: buzz/transcriber/transcriber.py
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py buzz/transcriber/transcriber.py
 msgid "Japanese"
 msgstr "Japāņu"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#: buzz/transcriber/transcriber.py
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py buzz/transcriber/transcriber.py
 msgid "Latvian"
 msgstr "Latviešu"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#: buzz/transcriber/transcriber.py
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py buzz/transcriber/transcriber.py
 msgid "Polish"
 msgstr "Poļu"
 
@@ -115,8 +99,7 @@ msgstr "Poļu"
 msgid "Portuguese (Brazil)"
 msgstr "Portugāļu (Brazīlijas)"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#: buzz/transcriber/transcriber.py
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py buzz/transcriber/transcriber.py
 msgid "Ukrainian"
 msgstr "Ukraiņu"
 
@@ -164,9 +147,7 @@ msgstr "Eksporta fails"
 msgid "Enable live recording transcription export"
 msgstr "Eksportēt dzīvā ieraksta transkriptus"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Browse"
 msgstr "Izvēlēties"
 
@@ -181,24 +162,16 @@ msgstr ""
 "režīms"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
-msgid ""
-"Note: Live recording export settings will be moved to the Advanced Settings "
-"in the Live Recording screen in a future version."
-msgstr ""
-"Piezīme: Dzīvā ieraksta iestatījumi nākotnes Buzz versijās tiks pārvietoti "
-"uz Papildu iestatījumu sadaļu Dzīvā ieraksta logā."
+msgid "Note: Live recording export settings will be moved to the Advanced Settings in the Live Recording screen in a future version."
+msgstr "Piezīme: Dzīvā ieraksta iestatījumi nākotnes Buzz versijās tiks pārvietoti uz Papildu iestatījumu sadaļu Dzīvā ieraksta logā."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use 8-bit quantization to reduce memory usage"
 msgstr "Izmantot 8bitu kvantizāciju, lai samazinātu nepieciešamo atmiņu"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
-msgid ""
-"Applies to Huggingface and Faster Whisper models. Reduces GPU memory usage "
-"but may slightly decrease transcription quality."
-msgstr ""
-"Izmantojams Huggingface un Faster whisper modeļiem, lai samazinātu "
-"nepieciešamo atmiņas daudzumu, nedaudz zaudējot atpazīšanas kvalitāti."
+msgid "Applies to Huggingface and Faster Whisper models. Reduces GPU memory usage but may slightly decrease transcription quality."
+msgstr "Izmantojams Huggingface un Faster whisper modeļiem, lai samazinātu nepieciešamo atmiņas daudzumu, nedaudz zaudējot atpazīšanas kvalitāti."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Reduce GPU RAM"
@@ -210,9 +183,7 @@ msgstr "Izmantot tikai CPU un deaktivēt GPU paātrināšanu"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
-msgstr ""
-"Aktivizējiet šo, ja lielāki modeļi neietilpst jūsu video kartes atmiņā un "
-"Buzz avarē"
+msgstr "Aktivizējiet šo, ja lielāki modeļi neietilpst jūsu video kartes atmiņā un Buzz avarē"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Disable GPU"
@@ -223,39 +194,24 @@ msgid "OpenAI API Key Test"
 msgstr "OpenAI API atslēgas pārbaude"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
-msgid ""
-"Your API key is valid. Buzz will use this key to perform Whisper API "
-"transcriptions and AI translations."
-msgstr ""
-"Jūsu API atslēga ir derīga. Buzz izmantos to runas atpazīšanai ar Whisper "
-"API un tulkošanai."
+msgid "Your API key is valid. Buzz will use this key to perform Whisper API transcriptions and AI translations."
+msgstr "Jūsu API atslēga ir derīga. Buzz izmantos to runas atpazīšanai ar Whisper API un tulkošanai."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Invalid API key"
 msgstr "Nederīga API atslēga"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
-msgid ""
-"API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
-"API key may cause errors."
-msgstr ""
-"API atbalsta tikai base64 simbolus (A-Za-z0-9+/=_-). Citi simboli API "
-"atslēgā var radīt kļūdas."
+msgid "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in API key may cause errors."
+msgstr "API atbalsta tikai base64 simbolus (A-Za-z0-9+/=_-). Citi simboli API atslēgā var radīt kļūdas."
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Select Export Folder"
 msgstr "Izvēlieties mapi kurā eksportēt"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
-msgid ""
-"OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key "
-"validation."
-msgstr ""
-"OpenAI API atbilde ir nederīga. Lūdzu pārbaudiet API Adresi un savu atslēgu. "
-"Atpazīšana un tulkošana joprojām var strādāt, ja API neatbalsta atslēgu "
-"pārbaudi."
+msgid "OpenAI API returned invalid response. Please check the API url or your key. Transcription and translation may still work if the API does not support key validation."
+msgstr "OpenAI API atbilde ir nederīga. Lūdzu pārbaudiet API Adresi un savu atslēgu. Atpazīšana un tulkošana joprojām var strādāt, ja API neatbalsta atslēgu pārbaudi."
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Enable folder watch"
@@ -345,10 +301,7 @@ msgstr "Vai tiešām dzēst izvēlēto modeli?"
 msgid "Download failed"
 msgstr "Lejupielāde neizdevās"
 
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py
-#: buzz/widgets/transcription_tasks_table_widget.py
-#: buzz/widgets/update_dialog.py buzz/widgets/main_window.py
-#: buzz/model_loader.py
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py buzz/widgets/transcription_tasks_table_widget.py buzz/widgets/update_dialog.py buzz/widgets/main_window.py buzz/model_loader.py
 msgid "Error"
 msgstr "Kļūda"
 
@@ -360,8 +313,7 @@ msgstr "Ierakstīt"
 msgid "Stop"
 msgstr "Apturēt"
 
-#: buzz/widgets/transcriber/languages_combo_box.py
-#: buzz/transcriber/transcriber.py
+#: buzz/widgets/transcriber/languages_combo_box.py buzz/transcriber/transcriber.py
 msgid "Detect Language"
 msgstr "Noteikt valodu"
 
@@ -387,8 +339,7 @@ msgstr "Apstrādāt"
 msgid "Model:"
 msgstr "Modelis:"
 
-#: buzz/widgets/transcriber/transcription_options_group_box.py
-#: buzz/transcriber/recording_transcriber.py
+#: buzz/widgets/transcriber/transcription_options_group_box.py buzz/transcriber/recording_transcriber.py
 msgid "First time use of a model may take up to several minutest to load."
 msgstr "Pirmā modeļa ielādes reize var aizņemt pat vairākas minūtes."
 
@@ -443,8 +394,8 @@ msgid "AI model:"
 msgstr "AI modelis:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Please translate each text sent to you from English to Spanish."
-msgstr "Lūdzu, iztulko katru tev atsūtīto tekstu no angļu valodas latviski."
+msgid "Please translate each text sent to you from English to Spanish. Translation will be used in an automated system, please do not add any comments or notes, just the translation."
+msgstr "Lūdzu, iztulko katru nosūtīto tekstu no angļu valodas spāņu valodā. Tulkojums tiks izmantots automatizētā sistēmā, lūdzu, nepievienojiet nekādus komentārus vai piezīmes, tikai tulkojumu."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -540,8 +491,7 @@ msgstr "Atvērt transkriptu"
 msgid "Cancel Transcription"
 msgstr "Atcelt atpazīšanu"
 
-#: buzz/widgets/main_window_toolbar.py buzz/widgets/main_window.py
-#: buzz/settings/shortcut.py
+#: buzz/widgets/main_window_toolbar.py buzz/widgets/main_window.py buzz/settings/shortcut.py
 msgid "Clear History"
 msgstr "Notīrīt vēsturi"
 
@@ -638,11 +588,8 @@ msgid "Failed to restart transcription: {}"
 msgstr "Neizdevās sākt atpazīšanu: {}"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-msgid ""
-"Could not restart transcription: model not available and could not be "
-"downloaded."
-msgstr ""
-"Neizdevās sākt atpazīšanu: modelis nav pieejams un to nevar lejupielādēt."
+msgid "Could not restart transcription: model not available and could not be downloaded."
+msgstr "Neizdevās sākt atpazīšanu: modelis nav pieejams un to nevar lejupielādēt."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
@@ -733,12 +680,8 @@ msgid "An error occurred while starting a new recording:"
 msgstr "Sākot jaunu ierakstu notikusi kļūda:"
 
 #: buzz/widgets/recording_transcriber_widget.py
-msgid ""
-"Please check your audio devices or check the application logs for more "
-"information."
-msgstr ""
-"Lūdzu pārbaudiet savas audio ierīces vai pārbaudiet lietotnes ziņojumu "
-"žurnālus, lai iegūtu papildu informāciju."
+msgid "Please check your audio devices or check the application logs for more information."
+msgstr "Lūdzu pārbaudiet savas audio ierīces vai pārbaudiet lietotnes ziņojumu žurnālus, lai iegūtu papildu informāciju."
 
 #: buzz/widgets/update_dialog.py
 msgid "A new version of Buzz is available!"
@@ -816,14 +759,12 @@ msgstr "Sākums"
 msgid "End"
 msgstr "Beigas"
 
-#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
-#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py
 msgid "Text"
 msgstr "Teksts"
 
-#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
-#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py
 msgid "Translation"
 msgstr "Tulkojums"
@@ -844,8 +785,7 @@ msgstr "Eksportēt"
 msgid "Translate"
 msgstr "Tulkot"
 
-#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
-#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Resize"
 msgstr "Mainīt garumu"
 
@@ -898,12 +838,8 @@ msgid "Follow Audio"
 msgstr "Sekot audio"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
-msgid ""
-"Enable/disable following the current audio position in the transcript. When "
-"enabled, automatically scrolls to current text."
-msgstr ""
-"Nosaka vai atskaņojot audio iezīmētajam segmentam vajadzētu automātiski "
-"sekot tam kas tiek atskaņots."
+msgid "Enable/disable following the current audio position in the transcript. When enabled, automatically scrolls to current text."
+msgstr "Nosaka vai atskaņojot audio iezīmētajam segmentam vajadzētu automātiski sekot tam kas tiek atskaņots."
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Scroll to Current"
@@ -994,11 +930,8 @@ msgid "Available only if word level timings were enabled during transcription"
 msgstr "Pieejami tikai, ierakstiem, kas atpazīti ar dalīšanu pa vārdiem"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid ""
-"Speaker identification is not available: failed to load required libraries."
-msgstr ""
-"Runātāju noteikšana nav pieejama, neizdevās ielādēt nepieciešamās "
-"bibliotēkas."
+msgid "Speaker identification is not available: failed to load required libraries."
+msgstr "Runātāju noteikšana nav pieejama, neizdevās ielādēt nepieciešamās bibliotēkas."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "1/8 Collecting transcripts"
@@ -1017,12 +950,8 @@ msgid "3/8 Loading alignment model (retrying with cache...)"
 msgstr "3/8 Ielādē identifikācijas modeli (atkārto...)"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid ""
-"Failed to load alignment model. Please check your internet connection and "
-"try again."
-msgstr ""
-"Neizdevās ielādēt modeli. Lūdzu pārbaidiet savu interneta savienojumu un "
-"mēģiniet vēlreiz."
+msgid "Failed to load alignment model. Please check your internet connection and try again."
+msgstr "Neizdevās ielādēt modeli. Lūdzu pārbaidiet savu interneta savienojumu un mēģiniet vēlreiz."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "4/8 Processing audio"
@@ -1133,12 +1062,8 @@ msgid "File"
 msgstr "Fails"
 
 #: buzz/widgets/main_window.py
-msgid ""
-"Are you sure you want to delete the selected transcription(s)? This action "
-"cannot be undone."
-msgstr ""
-"Vai tiešām vēlaties dzēst izvēlētos transkriptus? Šī ir neatgriezeniska "
-"darbība."
+msgid "Are you sure you want to delete the selected transcription(s)? This action cannot be undone."
+msgstr "Vai tiešām vēlaties dzēst izvēlētos transkriptus? Šī ir neatgriezeniska darbība."
 
 #: buzz/widgets/main_window.py
 msgid "Select audio file"
@@ -1152,23 +1077,13 @@ msgstr "Izvēlieties mapi"
 msgid "Unable to save OpenAI API key to keyring"
 msgstr "Neizdevās saglabāt OpenAI API atslēgu atslēgu saišķī"
 
-#: buzz/transcriber/local_whisper_cpp_server_transcriber.py
-#: buzz/transcriber/recording_transcriber.py
+#: buzz/transcriber/local_whisper_cpp_server_transcriber.py buzz/transcriber/recording_transcriber.py
 msgid "Whisper server failed to start. Check logs for details."
-msgstr ""
-"Whisper serverim neizdevās ieslēgties. Lūdzu pārbaudiet lietotnes žurnāla "
-"ierakstus."
+msgstr "Whisper serverim neizdevās ieslēgties. Lūdzu pārbaudiet lietotnes žurnāla ierakstus."
 
-#: buzz/transcriber/local_whisper_cpp_server_transcriber.py
-#: buzz/transcriber/recording_transcriber.py
-msgid ""
-"Whisper server failed to start due to insufficient memory. Please try again "
-"with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
-"variable."
-msgstr ""
-"Whisper serverim neizdevās ieslēgties, jo nepietika atmiņas. Lūdzu mēģiniet "
-"vēlreiz ar mazāku modeli. Lai izmantotu tikai CPU iestatiet "
-"BUZZ_FORCE_CPU=TRUE vides mainīgo."
+#: buzz/transcriber/local_whisper_cpp_server_transcriber.py buzz/transcriber/recording_transcriber.py
+msgid "Whisper server failed to start due to insufficient memory. Please try again with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment variable."
+msgstr "Whisper serverim neizdevās ieslēgties, jo nepietika atmiņas. Lūdzu mēģiniet vēlreiz ar mazāku modeli. Lai izmantotu tikai CPU iestatiet BUZZ_FORCE_CPU=TRUE vides mainīgo."
 
 #: buzz/transcriber/transcriber.py
 msgid "Translate to English"
@@ -1627,12 +1542,11 @@ msgid "Append and correct"
 msgstr "Papildināt un labot esošo"
 
 #: buzz/file_transcriber_queue_worker.py
-msgid ""
-"Speech extraction failed! Check your internet connection — a model may need "
-"to be downloaded."
-msgstr ""
-"Runas atdalīšana neizdevās! Pārbaudiet interneta savienojumu, iespējams "
-"jālejupielādē modelis."
+msgid "Speech extraction failed! Check your internet connection — a model may need to be downloaded."
+msgstr "Runas atdalīšana neizdevās! Pārbaudiet interneta savienojumu, iespējams jālejupielādē modelis."
+
+#~ msgid "Please translate each text sent to you from English to Spanish."
+#~ msgstr "Lūdzu, iztulko katru tev atsūtīto tekstu no angļu valodas latviski."
 
 #~ msgid "Translation error, see logs!"
 #~ msgstr "Kļūda tulkojot, skatiet sistēmas žurnālu!"
@@ -1640,15 +1554,10 @@ msgstr ""
 #~ msgid "Snap permission notice"
 #~ msgstr "Snap atļauju piezīme"
 
-#~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
-#~ msgstr ""
-#~ "Ne visi nepieciešamie moduļi darbojas korekti, iespējams nav piešķirtas "
-#~ "snap atļaujas"
+#~ msgid "Detected missing permissions, please check that snap permissions have been granted"
+#~ msgstr "Ne visi nepieciešamie moduļi darbojas korekti, iespējams nav piešķirtas snap atļaujas"
 
-#~ msgid ""
-#~ "To enable necessary permissions run the following commands in the terminal"
+#~ msgid "To enable necessary permissions run the following commands in the terminal"
 #~ msgstr "Lai piešķirtu nepieciešamās atļaujas izpildiet šīs komandas"
 
 #~ msgid "Close"

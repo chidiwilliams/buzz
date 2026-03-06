@@ -193,6 +193,7 @@ class GeneralPreferencesWidget(QWidget):
             self,
         )
         export_note_label.setWordWrap(True)
+        export_note_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         layout.addRow("", export_note_label)
 
         self.reduce_gpu_memory_enabled = self.settings.value(

@@ -6,7 +6,7 @@ from unittest.mock import Mock, patch
 import pytest
 import sounddevice
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QValidator, QKeyEvent
+from PyQt6.QtGui import QKeyEvent
 from PyQt6.QtWidgets import (
     QApplication,
     QMessageBox,
@@ -21,7 +21,6 @@ from buzz.widgets.transcriber.hugging_face_search_line_edit import (
     HuggingFaceSearchLineEdit,
 )
 from buzz.widgets.transcriber.languages_combo_box import LanguagesComboBox
-from buzz.widgets.transcriber.temperature_validator import TemperatureValidator
 from buzz.widgets.about_dialog import AboutDialog
 from buzz.settings.settings import Settings
 from buzz.transcriber.transcriber import (
@@ -115,7 +114,6 @@ class TestAdvancedSettingsDialog:
     def test_should_update_advanced_settings(self, qtbot: QtBot):
         dialog = AdvancedSettingsDialog(
             transcription_options=TranscriptionOptions(
-                temperature=(0.0, 0.8),
                 initial_prompt="prompt",
                 enable_llm_translation=False,
                 llm_model="",
@@ -128,38 +126,20 @@ class TestAdvancedSettingsDialog:
         dialog.transcription_options_changed.connect(transcription_options_mock)
 
         assert dialog.windowTitle() == _("Advanced Settings")
-        assert dialog.temperature_line_edit.text() == "0.0, 0.8"
         assert dialog.initial_prompt_text_edit.toPlainText() == "prompt"
         assert dialog.enable_llm_translation_checkbox.isChecked() is False
         assert dialog.llm_model_line_edit.text() == "gpt-4.1-mini"
-        assert dialog.llm_prompt_text_edit.toPlainText() == _("Please translate each text sent to you from English to Spanish.")
+        assert dialog.llm_prompt_text_edit.toPlainText() == _("Please translate each text sent to you from English to Spanish. Translation will be used in an automated system, please do not add any comments or notes, just the translation.")
 
-        dialog.temperature_line_edit.setText("0.0, 0.8, 1.0")
         dialog.initial_prompt_text_edit.setPlainText("new prompt")
         dialog.enable_llm_translation_checkbox.setChecked(True)
         dialog.llm_model_line_edit.setText("model")
         dialog.llm_prompt_text_edit.setPlainText("Please translate this text")
 
-        assert transcription_options_mock.call_args[0][0].temperature == (0.0, 0.8, 1.0)
         assert transcription_options_mock.call_args[0][0].initial_prompt == "new prompt"
         assert transcription_options_mock.call_args[0][0].enable_llm_translation is True
         assert transcription_options_mock.call_args[0][0].llm_model == "model"
         assert transcription_options_mock.call_args[0][0].llm_prompt == "Please translate this text"
-
-
-class TestTemperatureValidator:
-    validator = TemperatureValidator(None)
-
-    @pytest.mark.parametrize(
-        "text,state",
-        [
-            ("0.0,0.5,1.0", QValidator.State.Acceptable),
-            ("0.0,0.5,", QValidator.State.Intermediate),
-            ("0.0,0.5,p", QValidator.State.Invalid),
-        ],
-    )
-    def test_should_validate_temperature(self, text: str, state: QValidator.State):
-        assert self.validator.validate(text, 0)[0] == state
 
 
 @pytest.mark.skipif(
