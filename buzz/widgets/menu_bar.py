@@ -49,11 +49,11 @@ class MenuBar(QMenuBar):
         about_label = _("About")
         about_action = QAction(f'{about_label} {APP_NAME}', self)
         about_action.triggered.connect(self.on_about_action_triggered)
-        about_action.setMenuRole(QAction.MenuRole.NoRole)
+        about_action.setMenuRole(QAction.MenuRole.AboutRole)
 
         self.preferences_action = QAction(_("Preferences..."), self)
         self.preferences_action.triggered.connect(self.on_preferences_action_triggered)
-        self.preferences_action.setMenuRole(QAction.MenuRole.NoRole)
+        self.preferences_action.setMenuRole(QAction.MenuRole.PreferencesRole)
 
         help_label = _("Help")
         help_action = QAction(f'{help_label}', self)
