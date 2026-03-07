@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-06 12:22+0200\n"
+"POT-Creation-Date: 2026-03-07 11:02+0200\n"
 "PO-Revision-Date: 2025-03-05 14:41+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -418,14 +418,6 @@ msgid "Speech recognition settings"
 msgstr "Einstellungen für die Spracherkennung"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-msgstr "Durch Kommas getrennt, z.B. \"0,0, 0,2, 0,4, 0,6, 0,8, 1,0\""
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Temperature:"
-msgstr "Temperatur:"
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Initial Prompt:"
 msgstr "Erste Anweisung:"
 
@@ -446,7 +438,10 @@ msgid ""
 "Please translate each text sent to you from English to Spanish. Translation "
 "will be used in an automated system, please do not add any comments or "
 "notes, just the translation."
-msgstr "Bitte übersetzen Sie jeden Text, der Ihnen gesendet wird, vom Englischen ins Spanische. Die Übersetzung wird in einem automatisierten System verwendet. Bitte fügen Sie keine Kommentare oder Anmerkungen hinzu, nur die Übersetzung."
+msgstr ""
+"Bitte übersetzen Sie jeden Text, der Ihnen gesendet wird, vom Englischen ins "
+"Spanische. Die Übersetzung wird in einem automatisierten System verwendet. "
+"Bitte fügen Sie keine Kommentare oder Anmerkungen hinzu, nur die Übersetzung."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -812,6 +807,10 @@ msgstr "Sie sind auf dem Laufenden!"
 #: buzz/widgets/audio_meter_widget.py
 msgid "Average volume"
 msgstr "Durchschnittliche Lautstärke"
+
+#: buzz/widgets/audio_meter_widget.py
+msgid "Queue"
+msgstr "Warteschlange"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "Start"
@@ -1645,6 +1644,12 @@ msgid ""
 msgstr ""
 "Sprachextraktion fehlgeschlagen! Bitte Internetverbindung prüfen — ein "
 "Modell muss möglicherweise heruntergeladen werden."
+
+#~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+#~ msgstr "Durch Kommas getrennt, z.B. \"0,0, 0,2, 0,4, 0,6, 0,8, 1,0\""
+
+#~ msgid "Temperature:"
+#~ msgstr "Temperatur:"
 
 #~ msgid "Please translate each text sent to you from English to Spanish."
 #~ msgstr ""

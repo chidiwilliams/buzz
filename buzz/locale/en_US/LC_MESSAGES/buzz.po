@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-06 12:22+0200\n"
+"POT-Creation-Date: 2026-03-07 11:02+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -399,14 +399,6 @@ msgid "Speech recognition settings"
 msgstr ""
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-msgstr ""
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Temperature:"
-msgstr ""
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Initial Prompt:"
 msgstr ""
 
@@ -782,6 +774,10 @@ msgstr ""
 
 #: buzz/widgets/audio_meter_widget.py
 msgid "Average volume"
+msgstr ""
+
+#: buzz/widgets/audio_meter_widget.py
+msgid "Queue"
 msgstr ""
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py

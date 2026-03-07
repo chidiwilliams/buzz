@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-06 12:22+0200\n"
+"POT-Creation-Date: 2026-03-07 11:02+0200\n"
 "PO-Revision-Date: 2025-03-20 18:30+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: none\n"
@@ -420,14 +420,6 @@ msgid "Speech recognition settings"
 msgstr "Spraakherkenningsinstellingen"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-msgstr "Kommagescheiden, bijv. '0.0, 0.2, 0.4, 0.6, 0.8, 1.0'"
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Temperature:"
-msgstr "Temperatuur:"
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Initial Prompt:"
 msgstr "Hoofdinvoer:"
 
@@ -448,7 +440,10 @@ msgid ""
 "Please translate each text sent to you from English to Spanish. Translation "
 "will be used in an automated system, please do not add any comments or "
 "notes, just the translation."
-msgstr "Vertaal elke tekst die naar u wordt gestuurd van het Engels naar het Spaans. De vertaling wordt gebruikt in een geautomatiseerd systeem. Voeg geen opmerkingen of notities toe, alleen de vertaling."
+msgstr ""
+"Vertaal elke tekst die naar u wordt gestuurd van het Engels naar het Spaans. "
+"De vertaling wordt gebruikt in een geautomatiseerd systeem. Voeg geen "
+"opmerkingen of notities toe, alleen de vertaling."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -811,6 +806,10 @@ msgstr "De software is actueel!"
 #: buzz/widgets/audio_meter_widget.py
 msgid "Average volume"
 msgstr "Gemiddeld volume"
+
+#: buzz/widgets/audio_meter_widget.py
+msgid "Queue"
+msgstr "Wachtrij"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "Start"
@@ -1641,6 +1640,12 @@ msgid ""
 msgstr ""
 "Spraakextractie mislukt! Controleer uw internetverbinding — mogelijk moet er "
 "een model worden gedownload."
+
+#~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+#~ msgstr "Kommagescheiden, bijv. '0.0, 0.2, 0.4, 0.6, 0.8, 1.0'"
+
+#~ msgid "Temperature:"
+#~ msgstr "Temperatuur:"
 
 #~ msgid "Please translate each text sent to you from English to Spanish."
 #~ msgstr ""

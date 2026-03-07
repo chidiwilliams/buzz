@@ -633,6 +633,9 @@ class RecordingTranscriberWidget(QWidget):
         self.transcriber.average_amplitude_changed.connect(
             self.audio_meter_widget.update_average_amplitude, Qt.ConnectionType.QueuedConnection
         )
+        self.transcriber.queue_size_changed.connect(
+            self.audio_meter_widget.update_queue_size, Qt.ConnectionType.QueuedConnection
+        )
 
         # Stop the separate amplitude listener to avoid two streams on the same device
         if self.recording_amplitude_listener is not None:

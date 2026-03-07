@@ -40,6 +40,7 @@ class RecordingTranscriber(QObject):
     error = pyqtSignal(str)
     amplitude_changed = pyqtSignal(float)
     average_amplitude_changed = pyqtSignal(float)
+    queue_size_changed = pyqtSignal(int)
     is_running = False
     SAMPLE_RATE = whisper_audio.SAMPLE_RATE
 
@@ -180,6 +181,7 @@ class RecordingTranscriber(QObject):
 
                         amplitude = self.amplitude(samples)
                         self.average_amplitude_changed.emit(amplitude)
+                        self.queue_size_changed.emit(self.queue.size)
 
                         logging.debug(
                             "Processing next frame, sample size = %s, queue size = %s, amplitude = %s",

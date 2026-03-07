@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-06 12:22+0200\n"
+"POT-Creation-Date: 2026-03-07 11:02+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: nunawa <71294849+nunawa@users.noreply.github.com>\n"
 "Language-Team: \n"
@@ -409,14 +409,6 @@ msgid "Speech recognition settings"
 msgstr "音声認識設定"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-msgstr "コンマ区切り、例: \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Temperature:"
-msgstr "サンプリング温度:"
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Initial Prompt:"
 msgstr "プロンプト:"
 
@@ -437,7 +429,10 @@ msgid ""
 "Please translate each text sent to you from English to Spanish. Translation "
 "will be used in an automated system, please do not add any comments or "
 "notes, just the translation."
-msgstr "送信された各テキストを英語からスペイン語に翻訳してください。翻訳は自動化されたシステムで使用されます。コメントやメモは追加せず、翻訳のみを提供してください。"
+msgstr ""
+"送信された各テキストを英語からスペイン語に翻訳してください。翻訳は自動化され"
+"たシステムで使用されます。コメントやメモは追加せず、翻訳のみを提供してくださ"
+"い。"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -799,6 +794,10 @@ msgstr "最新の状態です!"
 #: buzz/widgets/audio_meter_widget.py
 msgid "Average volume"
 msgstr "平均音量"
+
+#: buzz/widgets/audio_meter_widget.py
+msgid "Queue"
+msgstr "キュー"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "Start"
@@ -1619,6 +1618,12 @@ msgid ""
 msgstr ""
 "音声抽出に失敗しました！インターネット接続を確認してください。モデルのダウン"
 "ロードが必要な場合があります。"
+
+#~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+#~ msgstr "コンマ区切り、例: \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+
+#~ msgid "Temperature:"
+#~ msgstr "サンプリング温度:"
 
 #~ msgid "Please translate each text sent to you from English to Spanish."
 #~ msgstr "送られてくる各テキストを英語からスペイン語に翻訳してください。"

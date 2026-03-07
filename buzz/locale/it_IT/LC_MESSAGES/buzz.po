@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-06 12:22+0200\n"
+"POT-Creation-Date: 2026-03-07 11:02+0200\n"
 "PO-Revision-Date: 2026-01-25 21:42+0200\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
@@ -418,14 +418,6 @@ msgid "Speech recognition settings"
 msgstr "Impostazioni di riconoscimento vocale"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-msgstr "Separate da virgola, esempio: \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Temperature:"
-msgstr "Temperatura:"
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Initial Prompt:"
 msgstr "Domanda iniziale:"
 
@@ -446,7 +438,10 @@ msgid ""
 "Please translate each text sent to you from English to Spanish. Translation "
 "will be used in an automated system, please do not add any comments or "
 "notes, just the translation."
-msgstr "Si prega di tradurre ogni testo inviato dall'inglese allo spagnolo. La traduzione verrà utilizzata in un sistema automatizzato, quindi non aggiungere commenti o note, solo la traduzione."
+msgstr ""
+"Si prega di tradurre ogni testo inviato dall'inglese allo spagnolo. La "
+"traduzione verrà utilizzata in un sistema automatizzato, quindi non "
+"aggiungere commenti o note, solo la traduzione."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -808,6 +803,10 @@ msgstr "Il programma è aggiornato!"
 #: buzz/widgets/audio_meter_widget.py
 msgid "Average volume"
 msgstr "Volume medio"
+
+#: buzz/widgets/audio_meter_widget.py
+msgid "Queue"
+msgstr "Coda"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "Start"
@@ -1640,6 +1639,12 @@ msgid ""
 msgstr ""
 "Estrazione del parlato non riuscita! Controlla la tua connessione Internet — "
 "potrebbe essere necessario scaricare un modello."
+
+#~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+#~ msgstr "Separate da virgola, esempio: \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+
+#~ msgid "Temperature:"
+#~ msgstr "Temperatura:"
 
 #~ msgid "Please translate each text sent to you from English to Spanish."
 #~ msgstr ""

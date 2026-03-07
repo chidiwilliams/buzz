@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-06 12:22+0200\n"
+"POT-Creation-Date: 2026-03-07 11:02+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Yevhen Popok <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -411,14 +411,6 @@ msgid "Speech recognition settings"
 msgstr "Параметри розпізнавання мовлення"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-msgstr "Значення розділені комами, напр., \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Temperature:"
-msgstr "Температура:"
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Initial Prompt:"
 msgstr "Початкова підказка:"
 
@@ -439,7 +431,10 @@ msgid ""
 "Please translate each text sent to you from English to Spanish. Translation "
 "will be used in an automated system, please do not add any comments or "
 "notes, just the translation."
-msgstr "Будь ласка, перекладайте кожен надісланий вам текст з англійської на іспанську. Переклад використовуватиметься в автоматизованій системі, тому, будь ласка, не додавайте жодних коментарів чи приміток, лише переклад."
+msgstr ""
+"Будь ласка, перекладайте кожен надісланий вам текст з англійської на "
+"іспанську. Переклад використовуватиметься в автоматизованій системі, тому, "
+"будь ласка, не додавайте жодних коментарів чи приміток, лише переклад."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -802,6 +797,10 @@ msgstr "У вас актуальна версія!"
 #: buzz/widgets/audio_meter_widget.py
 msgid "Average volume"
 msgstr "Середній рівень гучності"
+
+#: buzz/widgets/audio_meter_widget.py
+msgid "Queue"
+msgstr "Черга"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "Start"
@@ -1629,6 +1628,12 @@ msgid ""
 msgstr ""
 "Не вдалося витягти мовлення! Перевірте підключення до інтернету — можливо, "
 "потрібно завантажити модель."
+
+#~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+#~ msgstr "Значення розділені комами, напр., \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+
+#~ msgid "Temperature:"
+#~ msgstr "Температура:"
 
 #~ msgid "Please translate each text sent to you from English to Spanish."
 #~ msgstr ""
