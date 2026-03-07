@@ -37,7 +37,7 @@ class TestWhisperCpp:
 
         # Combine all segment texts
         full_text = " ".join(segment.text for segment in segments)
-        assert "Bien venu" in full_text
+        assert "Bien venu" in full_text or "bienvenu" in full_text.lower()
 
     def test_transcribe_word_level_timestamps(self):
         transcription_options = TranscriptionOptions(

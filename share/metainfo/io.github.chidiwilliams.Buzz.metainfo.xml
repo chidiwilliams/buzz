@@ -74,6 +74,7 @@
           <li>Added option to import folder</li>
           <li>Extra settings for live recordings</li>
           <li>Update checker for Windows and Macs</li>
+          <li>Added voice activity detection to whisper.cpp</li>
         </ul>
       </description>
     </release>

@@ -22,6 +22,7 @@ class RecordingAmplitudeListener(QObject):
         self.input_device_index = input_device_index
         self.buffer = np.ndarray([], dtype=np.float32)
         self.accumulation_size = 0
+        self._active = True
 
     def start_recording(self):
         try:
@@ -38,11 +39,14 @@ class RecordingAmplitudeListener(QObject):
             logging.exception("Failed to start audio stream on device %s: %s", self.input_device_index, e)
 
     def stop_recording(self):
+        self._active = False
         if self.stream is not None:
             self.stream.stop()
             self.stream.close()
 
     def stream_callback(self, in_data: np.ndarray, frame_count, time_info, status):
+        if not self._active:
+            return
         chunk = in_data.ravel()
         self.amplitude_changed.emit(float(np.sqrt(np.mean(chunk**2))))
 
