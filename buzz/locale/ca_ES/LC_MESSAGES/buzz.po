@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-07 11:02+0200\n"
+"POT-Creation-Date: 2026-03-07 20:20+0200\n"
 "PO-Revision-Date: 2025-10-17 07:59+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: Catalan <jmas@softcatala.org>\n"
@@ -465,6 +465,10 @@ msgstr "Separador de línies:"
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Transcription step:"
 msgstr "Pas de transcripció:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Hide unconfirmed"
+msgstr "Amaga el no confirmat"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Enable live recording export"
