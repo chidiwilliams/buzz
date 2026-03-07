@@ -1,3 +1,4 @@
+import platform
 import webbrowser
 from typing import Optional
 
@@ -48,9 +49,11 @@ class MenuBar(QMenuBar):
         about_label = _("About")
         about_action = QAction(f'{about_label} {APP_NAME}', self)
         about_action.triggered.connect(self.on_about_action_triggered)
+        about_action.setMenuRole(QAction.MenuRole.NoRole)
 
         self.preferences_action = QAction(_("Preferences..."), self)
         self.preferences_action.triggered.connect(self.on_preferences_action_triggered)
+        self.preferences_action.setMenuRole(QAction.MenuRole.NoRole)
 
         help_label = _("Help")
         help_action = QAction(f'{help_label}', self)
@@ -63,7 +66,8 @@ class MenuBar(QMenuBar):
         file_menu.addAction(self.import_url_action)
         file_menu.addAction(self.import_folder_action)
 
-        help_menu = self.addMenu(_("Help"))
+        help_menu_title = _("Help") + ("\u200B" if platform.system() == "Darwin" else "")
+        help_menu = self.addMenu(help_menu_title)
         help_menu.addAction(about_action)
         help_menu.addAction(help_action)
         help_menu.addAction(self.preferences_action)
