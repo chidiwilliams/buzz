@@ -176,9 +176,7 @@ msgstr "Eksportēt mapē"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Live recording mode"
-msgstr ""
-"Dzīvā ieraksta\n"
-"režīms"
+msgstr "Dzīvā ieraksta režīms"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
@@ -458,9 +456,7 @@ msgstr "Klusuma slieksnis:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Live recording mode:"
-msgstr ""
-"Dzīvā ieraksta\n"
-"režīms:"
+msgstr "Dzīvā ieraksta režīms:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Line separator:"

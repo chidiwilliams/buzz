@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import QWidget, QFormLayout, QPushButton
 from buzz.locale import _
 from buzz.settings.shortcut import Shortcut
 from buzz.settings.shortcuts import Shortcuts
+from buzz.widgets.line_edit import LineEdit
 from buzz.widgets.sequence_edit import SequenceEdit
 
 
@@ -19,8 +20,10 @@ class ShortcutsEditorPreferencesWidget(QWidget):
         self.shortcuts = shortcuts
 
         self.layout = QFormLayout(self)
+        _field_height = LineEdit().sizeHint().height()
         for shortcut in Shortcut:
             sequence_edit = SequenceEdit(shortcuts.get(shortcut), self)
+            sequence_edit.setFixedHeight(_field_height)
             sequence_edit.keySequenceChanged.connect(
                 self.get_key_sequence_changed(shortcut)
             )
