@@ -218,6 +218,8 @@ class RecordingTranscriberWidget(QWidget):
         self._closing = False
         self.transcript_export_file = None
         self.translation_export_file = None
+        self.export_file_type = "txt"
+        self.export_max_entries = 0
         self.export_enabled = self.settings.value(
             key=Settings.Key.RECORDING_TRANSCRIBER_EXPORT_ENABLED,
             default_value=False,
@@ -464,11 +466,14 @@ class RecordingTranscriberWidget(QWidget):
         )
         export_file_name_template = custom_template if custom_template else Settings().get_default_export_file_template()
 
-        export_file_type = self.settings.value(
+        self.export_file_type = self.settings.value(
             key=Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FILE_TYPE,
             default_value="txt",
         )
-        ext = ".csv" if export_file_type == "csv" else ".txt"
+        self.export_max_entries = self.settings.value(
+            Settings.Key.RECORDING_TRANSCRIBER_EXPORT_MAX_ENTRIES, 0, int
+        )
+        ext = ".csv" if self.export_file_type == "csv" else ".txt"
 
         export_file_name = (
                 export_file_name_template.replace("{{ input_file_name }}", "live recording")
@@ -877,10 +882,7 @@ class RecordingTranscriberWidget(QWidget):
         text_box.moveCursor(QTextCursor.MoveOperation.End)
 
         if self.export_enabled and export_file:
-            export_file_type = self.settings.value(
-                Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FILE_TYPE, "txt"
-            )
-            if export_file_type == "csv":
+            if self.export_file_type == "csv":
                 # For APPEND_AND_CORRECT mode, rewrite the whole CSV with all merged text as a single entry
                 self.write_to_export_file(export_file, "", mode="w")
                 self.write_csv_export(export_file, merged_texts, 0)
@@ -896,13 +898,6 @@ class RecordingTranscriberWidget(QWidget):
         if self.translator is not None:
             self.translator.enqueue(text)
 
-        export_file_type = self.settings.value(
-            Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FILE_TYPE, "txt"
-        )
-        max_entries = self.settings.value(
-            Settings.Key.RECORDING_TRANSCRIBER_EXPORT_MAX_ENTRIES, 0, int
-        )
-
         if self.transcriber_mode == RecordingTranscriberMode.APPEND_BELOW:
             self.transcription_text_box.moveCursor(QTextCursor.MoveOperation.End)
             if len(self.transcription_text_box.toPlainText()) > 0:
@@ -911,10 +906,10 @@ class RecordingTranscriberWidget(QWidget):
             self.transcription_text_box.moveCursor(QTextCursor.MoveOperation.End)
 
             if self.export_enabled and self.transcript_export_file:
-                if export_file_type == "csv":
-                    self.write_csv_export(self.transcript_export_file, text, max_entries)
+                if self.export_file_type == "csv":
+                    self.write_csv_export(self.transcript_export_file, text, self.export_max_entries)
                 else:
-                    self.write_txt_export(self.transcript_export_file, text, "a", max_entries, self.transcription_options.line_separator)
+                    self.write_txt_export(self.transcript_export_file, text, "a", self.export_max_entries, self.transcription_options.line_separator)
 
         elif self.transcriber_mode == RecordingTranscriberMode.APPEND_ABOVE:
             self.transcription_text_box.moveCursor(QTextCursor.MoveOperation.Start)
@@ -923,7 +918,7 @@ class RecordingTranscriberWidget(QWidget):
             self.transcription_text_box.moveCursor(QTextCursor.MoveOperation.Start)
 
             if self.export_enabled and self.transcript_export_file:
-                if export_file_type == "csv":
+                if self.export_file_type == "csv":
                     # For APPEND_ABOVE, prepend in CSV means inserting at beginning of columns
                     existing_columns = []
                     if os.path.isfile(self.transcript_export_file):
@@ -934,14 +929,14 @@ class RecordingTranscriberWidget(QWidget):
                                 existing_columns = row
                                 break
                     new_columns = [text] + existing_columns
-                    if max_entries > 0:
-                        new_columns = new_columns[:max_entries]
+                    if self.export_max_entries > 0:
+                        new_columns = new_columns[:self.export_max_entries]
                     buf = io.StringIO()
                     writer = csv.writer(buf)
                     writer.writerow(new_columns)
                     self.write_to_export_file(self.transcript_export_file, buf.getvalue(), mode="w")
                 else:
-                    self.write_txt_export(self.transcript_export_file, text, "prepend", max_entries, self.transcription_options.line_separator)
+                    self.write_txt_export(self.transcript_export_file, text, "prepend", self.export_max_entries, self.transcription_options.line_separator)
 
         elif self.transcriber_mode == RecordingTranscriberMode.APPEND_AND_CORRECT:
             self.process_transcription_merge(text, self.transcripts, self.transcription_text_box, self.transcript_export_file)
@@ -968,13 +963,6 @@ class RecordingTranscriberWidget(QWidget):
         if len(text) == 0:
             return
 
-        export_file_type = self.settings.value(
-            Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FILE_TYPE, "txt"
-        )
-        max_entries = self.settings.value(
-            Settings.Key.RECORDING_TRANSCRIBER_EXPORT_MAX_ENTRIES, 0, int
-        )
-
         if self.transcriber_mode == RecordingTranscriberMode.APPEND_BELOW:
             self.translation_text_box.moveCursor(QTextCursor.MoveOperation.End)
             if len(self.translation_text_box.toPlainText()) > 0:
@@ -983,10 +971,10 @@ class RecordingTranscriberWidget(QWidget):
             self.translation_text_box.moveCursor(QTextCursor.MoveOperation.End)
 
             if self.export_enabled and self.translation_export_file:
-                if export_file_type == "csv":
-                    self.write_csv_export(self.translation_export_file, text, max_entries)
+                if self.export_file_type == "csv":
+                    self.write_csv_export(self.translation_export_file, text, self.export_max_entries)
                 else:
-                    self.write_txt_export(self.translation_export_file, text, "a", max_entries, self.transcription_options.line_separator)
+                    self.write_txt_export(self.translation_export_file, text, "a", self.export_max_entries, self.transcription_options.line_separator)
 
         elif self.transcriber_mode == RecordingTranscriberMode.APPEND_ABOVE:
             self.translation_text_box.moveCursor(QTextCursor.MoveOperation.Start)
@@ -995,7 +983,7 @@ class RecordingTranscriberWidget(QWidget):
             self.translation_text_box.moveCursor(QTextCursor.MoveOperation.Start)
 
             if self.export_enabled and self.translation_export_file:
-                if export_file_type == "csv":
+                if self.export_file_type == "csv":
                     existing_columns = []
                     if os.path.isfile(self.translation_export_file):
                         raw = self.read_export_file(self.translation_export_file)
@@ -1005,14 +993,14 @@ class RecordingTranscriberWidget(QWidget):
                                 existing_columns = row
                                 break
                     new_columns = [text] + existing_columns
-                    if max_entries > 0:
-                        new_columns = new_columns[:max_entries]
+                    if self.export_max_entries > 0:
+                        new_columns = new_columns[:self.export_max_entries]
                     buf = io.StringIO()
                     writer = csv.writer(buf)
                     writer.writerow(new_columns)
                     self.write_to_export_file(self.translation_export_file, buf.getvalue(), mode="w")
                 else:
-                    self.write_txt_export(self.translation_export_file, text, "prepend", max_entries, self.transcription_options.line_separator)
+                    self.write_txt_export(self.translation_export_file, text, "prepend", self.export_max_entries, self.transcription_options.line_separator)
 
         elif self.transcriber_mode == RecordingTranscriberMode.APPEND_AND_CORRECT:
             self.process_transcription_merge(text, self.translations, self.translation_text_box, self.translation_export_file)
