@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-06 12:22+0200\n"
+"POT-Creation-Date: 2026-03-07 11:02+0200\n"
 "PO-Revision-Date: 2025-10-17 07:59+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: Catalan <jmas@softcatala.org>\n"
@@ -417,14 +417,6 @@ msgid "Speech recognition settings"
 msgstr "Configuració del reconeixement de veu"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-msgstr "Separat per comes, p. ex. «0.0, 0.2, 0.4, 0.6, 0.8, 1.0»"
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Temperature:"
-msgstr "Temperatura:"
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Initial Prompt:"
 msgstr "Pregunta inicial:"
 
@@ -445,7 +437,10 @@ msgid ""
 "Please translate each text sent to you from English to Spanish. Translation "
 "will be used in an automated system, please do not add any comments or "
 "notes, just the translation."
-msgstr "Si us plau, traduïu cada text que us enviï de l'anglès al castellà. La traducció s'utilitzarà en un sistema automatitzat; si us plau, no afegiu cap comentari ni nota, només la traducció."
+msgstr ""
+"Si us plau, traduïu cada text que us enviï de l'anglès al castellà. La "
+"traducció s'utilitzarà en un sistema automatitzat; si us plau, no afegiu cap "
+"comentari ni nota, només la traducció."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -809,6 +804,10 @@ msgstr "Estàs al dia!"
 #: buzz/widgets/audio_meter_widget.py
 msgid "Average volume"
 msgstr "Volum mitjà"
+
+#: buzz/widgets/audio_meter_widget.py
+msgid "Queue"
+msgstr "Cua"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "Start"
@@ -1640,6 +1639,12 @@ msgid ""
 msgstr ""
 "Ha fallat l'extracció de veu! Comproveu la vostra connexió a Internet — pot "
 "ser que s'hagi de descarregar un model."
+
+#~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+#~ msgstr "Separat per comes, p. ex. «0.0, 0.2, 0.4, 0.6, 0.8, 1.0»"
+
+#~ msgid "Temperature:"
+#~ msgstr "Temperatura:"
 
 #~ msgid "Please translate each text sent to you from English to Spanish."
 #~ msgstr "Si us plau, tradueix cada text que t'enviï de l'anglès al castellà."

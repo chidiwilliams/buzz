@@ -120,31 +120,32 @@ class TestRecordingTranscriber:
             transcriber.transcription.connect(on_transcription)
 
             thread.start()
-            qtbot.waitUntil(lambda: len(transcriptions) == 3, timeout=60_000)
+            try:
+                qtbot.waitUntil(lambda: len(transcriptions) == 3, timeout=120_000)
 
-            # any string in any transcription
-            strings_to_check = [_("Starting Whisper.cpp..."), "Bienvenue dans Passe"]
-            assert any(s in t for s in strings_to_check for t in transcriptions)
+                # any string in any transcription
+                strings_to_check = [_("Starting Whisper.cpp..."), "Bienvenue dans Passe"]
+                assert any(s in t for s in strings_to_check for t in transcriptions)
+            finally:
+                # Ensure cleanup runs even if waitUntil times out
+                transcriber.stop_recording()
+                time.sleep(10)
 
-            # Wait for the thread to finish
-            transcriber.stop_recording()
-            time.sleep(10)
+                thread.quit()
+                thread.wait()
 
-            thread.quit()
-            thread.wait()
+                # Ensure process is cleaned up
+                if transcriber.process and transcriber.process.poll() is None:
+                    transcriber.process.terminate()
+                    try:
+                        transcriber.process.wait(timeout=2)
+                    except:
+                        pass
 
-            # Ensure process is cleaned up
-            if transcriber.process and transcriber.process.poll() is None:
-                transcriber.process.terminate()
-                try:
-                    transcriber.process.wait(timeout=2)
-                except:
-                    pass
-
-            # Process pending events to ensure cleanup
-            from PyQt6.QtCore import QCoreApplication
-            QCoreApplication.processEvents()
-            time.sleep(0.1)
+                # Process pending events to ensure cleanup
+                from PyQt6.QtCore import QCoreApplication
+                QCoreApplication.processEvents()
+                time.sleep(0.1)
 
 
 class TestRecordingTranscriberInit:

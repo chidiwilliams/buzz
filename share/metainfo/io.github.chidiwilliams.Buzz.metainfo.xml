@@ -73,6 +73,7 @@
           <li>Fixed Youtube link downloading</li>
           <li>Added option to import folder</li>
           <li>Extra settings for live recordings</li>
+          <li>Adjusted live recording batching process to avoid min-word cuts</li>
           <li>Update checker for Windows and Macs</li>
           <li>Added voice activity detection to whisper.cpp</li>
         </ul>

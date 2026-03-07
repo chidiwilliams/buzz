@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-06 12:22+0200\n"
+"POT-Creation-Date: 2026-03-07 11:02+0200\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: Lamb\n"
@@ -408,14 +408,6 @@ msgid "Speech recognition settings"
 msgstr "語音識別設定"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-msgstr "逗號分隔，例如\"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Temperature:"
-msgstr "溫度:"
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Initial Prompt:"
 msgstr "初始提示："
 
@@ -436,7 +428,9 @@ msgid ""
 "Please translate each text sent to you from English to Spanish. Translation "
 "will be used in an automated system, please do not add any comments or "
 "notes, just the translation."
-msgstr "請將傳送給您的每段文字從英文翻譯成西班牙文。翻譯將用於自動化系統，請勿添加任何評論或備註，僅提供翻譯即可。"
+msgstr ""
+"請將傳送給您的每段文字從英文翻譯成西班牙文。翻譯將用於自動化系統，請勿添加任"
+"何評論或備註，僅提供翻譯即可。"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -794,6 +788,10 @@ msgstr "你是最新的！"
 #: buzz/widgets/audio_meter_widget.py
 msgid "Average volume"
 msgstr "平均音量"
+
+#: buzz/widgets/audio_meter_widget.py
+msgid "Queue"
+msgstr "佇列"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "Start"
@@ -1607,6 +1605,12 @@ msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
 msgstr "語音提取失敗！請檢查您的網路連線——可能需要下載模型。"
+
+#~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+#~ msgstr "逗號分隔，例如\"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+
+#~ msgid "Temperature:"
+#~ msgstr "溫度:"
 
 #~ msgid "Please translate each text sent to you from English to Spanish."
 #~ msgstr "請將傳送給您的每段文字從英語翻譯為西班牙語。"

@@ -58,7 +58,7 @@ class TestRecordingTranscriberWidget:
             widget.record_button.click()
             qtbot.wait_until(callback=assert_text_box_contains_text, timeout=60 * 1000)
 
-            with qtbot.wait_signal(widget.transcription_thread.finished, timeout=60 * 1000):
+            with qtbot.wait_signal(widget.transcription_stopped, timeout=60 * 1000):
                 widget.stop_recording()
 
             assert len(widget.transcription_text_box.toPlainText()) > 0
@@ -104,7 +104,7 @@ class TestRecordingTranscriberWidget:
             widget.record_button.click()
             qtbot.wait_until(callback=assert_text_box_contains_text, timeout=60 * 1000)
 
-            with qtbot.wait_signal(widget.transcription_thread.finished, timeout=60 * 1000):
+            with qtbot.wait_signal(widget.transcription_stopped, timeout=60 * 1000):
                 widget.stop_recording()
 
             assert len(widget.transcription_text_box.toPlainText()) > 0

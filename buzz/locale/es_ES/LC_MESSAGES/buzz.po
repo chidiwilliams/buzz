@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-06 12:22+0200\n"
+"POT-Creation-Date: 2026-03-07 11:02+0200\n"
 "PO-Revision-Date: 2025-09-08 12:43+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: \n"
@@ -434,16 +434,6 @@ msgstr "Configuración de reconocimiento de voz"
 
 # automatic translation
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-msgstr "Separados por comas, p. ej., «0.0, 0.2, 0.4, 0.6, 0.8, 1.0»"
-
-# automatic translation
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Temperature:"
-msgstr "Temperatura:"
-
-# automatic translation
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Initial Prompt:"
 msgstr "Indicación inicial:"
 
@@ -465,7 +455,10 @@ msgid ""
 "Please translate each text sent to you from English to Spanish. Translation "
 "will be used in an automated system, please do not add any comments or "
 "notes, just the translation."
-msgstr "Por favor, traduce cada texto que se te envíe del inglés al español. La traducción se utilizará en un sistema automatizado, por favor no añadas comentarios ni notas, solo la traducción."
+msgstr ""
+"Por favor, traduce cada texto que se te envíe del inglés al español. La "
+"traducción se utilizará en un sistema automatizado, por favor no añadas "
+"comentarios ni notas, solo la traducción."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -847,6 +840,10 @@ msgstr "¡Estás al día!"
 #: buzz/widgets/audio_meter_widget.py
 msgid "Average volume"
 msgstr "Volumen promedio"
+
+#: buzz/widgets/audio_meter_widget.py
+msgid "Queue"
+msgstr "Cola"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "Start"
@@ -1698,6 +1695,14 @@ msgid ""
 msgstr ""
 "¡Extracción de voz fallida! Compruebe su conexión a internet — es posible "
 "que sea necesario descargar un modelo."
+
+# automatic translation
+#~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+#~ msgstr "Separados por comas, p. ej., «0.0, 0.2, 0.4, 0.6, 0.8, 1.0»"
+
+# automatic translation
+#~ msgid "Temperature:"
+#~ msgstr "Temperatura:"
 
 #~ msgid "Please translate each text sent to you from English to Spanish."
 #~ msgstr ""

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-06 12:22+0200\n"
+"POT-Creation-Date: 2026-03-07 11:02+0200\n"
 "PO-Revision-Date: 2024-03-17 20:50+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -415,14 +415,6 @@ msgid "Speech recognition settings"
 msgstr "Ustawienia rozpoznawania mowy"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-msgstr "Oddzielone przecinkiem, np. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Temperature:"
-msgstr "Temperatura:"
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Initial Prompt:"
 msgstr "Wstępne instrukcje:"
 
@@ -443,7 +435,10 @@ msgid ""
 "Please translate each text sent to you from English to Spanish. Translation "
 "will be used in an automated system, please do not add any comments or "
 "notes, just the translation."
-msgstr "Proszę przetłumaczyć każdy przesłany tekst z języka angielskiego na hiszpański. Tłumaczenie będzie używane w systemie automatycznym, dlatego prosimy nie dodawać żadnych komentarzy ani uwag, tylko samo tłumaczenie."
+msgstr ""
+"Proszę przetłumaczyć każdy przesłany tekst z języka angielskiego na "
+"hiszpański. Tłumaczenie będzie używane w systemie automatycznym, dlatego "
+"prosimy nie dodawać żadnych komentarzy ani uwag, tylko samo tłumaczenie."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -808,6 +803,10 @@ msgstr "Posiadasz najnowszą wersję!"
 #: buzz/widgets/audio_meter_widget.py
 msgid "Average volume"
 msgstr "Średnia głośność"
+
+#: buzz/widgets/audio_meter_widget.py
+msgid "Queue"
+msgstr "Kolejka"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "Start"
@@ -1635,6 +1634,12 @@ msgid ""
 msgstr ""
 "Wyodrębnianie mowy nie powiodło się! Sprawdź połączenie internetowe — może "
 "być konieczne pobranie modelu."
+
+#~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+#~ msgstr "Oddzielone przecinkiem, np. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+
+#~ msgid "Temperature:"
+#~ msgstr "Temperatura:"
 
 #~ msgid "Please translate each text sent to you from English to Spanish."
 #~ msgstr ""
