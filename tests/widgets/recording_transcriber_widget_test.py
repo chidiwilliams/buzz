@@ -178,6 +178,7 @@ class TestRecordingTranscriberWidget:
             qtbot.add_widget(widget)
 
             widget.transcriber_mode = RecordingTranscriberMode.APPEND_AND_CORRECT
+            widget.hide_unconfirmed = False
 
             widget.on_next_transcription('Bienvenue dans la transcription en direct de Buzz.')
             assert widget.transcription_text_box.toPlainText() == 'Bienvenue dans la transcription en direct de Buzz.'
@@ -1102,9 +1103,7 @@ class TestOnNextTranscriptionExport:
             widget.transcriber_mode = RecordingTranscriberMode.APPEND_ABOVE
             widget.export_enabled = True
             widget.transcript_export_file = export_path
-            widget.settings.set_value(
-                Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FILE_TYPE, "csv"
-            )
+            widget.export_file_type = "csv"
             widget.on_next_transcription("first")
             widget.on_next_transcription("second")
 
@@ -1128,12 +1127,8 @@ class TestOnNextTranscriptionExport:
             widget.transcriber_mode = RecordingTranscriberMode.APPEND_ABOVE
             widget.export_enabled = True
             widget.transcript_export_file = export_path
-            widget.settings.set_value(
-                Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FILE_TYPE, "csv"
-            )
-            widget.settings.set_value(
-                Settings.Key.RECORDING_TRANSCRIBER_EXPORT_MAX_ENTRIES, 2
-            )
+            widget.export_file_type = "csv"
+            widget.export_max_entries = 2
             widget.on_next_transcription("first")
             widget.on_next_transcription("second")
             widget.on_next_transcription("third")
@@ -1214,6 +1209,7 @@ class TestOnNextTranslation:
     def test_append_and_correct_merges_translation(self, qtbot):
         with _widget_ctx(qtbot) as widget:
             widget.transcriber_mode = RecordingTranscriberMode.APPEND_AND_CORRECT
+            widget.hide_unconfirmed = False
             widget.on_next_translation("Hello world.")
             widget.on_next_translation("world. Goodbye.")
             text = widget.translation_text_box.toPlainText()

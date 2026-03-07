@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-07 11:02+0200\n"
+"POT-Creation-Date: 2026-03-07 20:20+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Yevhen Popok <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -459,6 +459,10 @@ msgstr "Роздільник рядків:"
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Transcription step:"
 msgstr "Крок транскрибування:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Hide unconfirmed"
+msgstr "Приховати непідтверджене"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Enable live recording export"
