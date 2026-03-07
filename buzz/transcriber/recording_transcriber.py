@@ -325,13 +325,14 @@ class RecordingTranscriber(QObject):
             self.error.emit(str(exc))
             return
 
-        self.finished.emit()
-
-        # Cleanup
+        # Cleanup before emitting finished to avoid destroying QThread
+        # while this function is still on the call stack
         if model:
             del model
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
+
+        self.finished.emit()
 
     @staticmethod
     def get_device_sample_rate(device_id: Optional[int]) -> int:
