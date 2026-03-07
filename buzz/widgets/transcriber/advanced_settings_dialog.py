@@ -28,6 +28,7 @@ class AdvancedSettingsDialog(QDialog):
     transcription_options: TranscriptionOptions
     transcription_options_changed = pyqtSignal(TranscriptionOptions)
     recording_mode_changed = pyqtSignal(RecordingTranscriberMode)
+    hide_unconfirmed_changed = pyqtSignal(bool)
 
     def __init__(
         self,
@@ -71,12 +72,12 @@ class AdvancedSettingsDialog(QDialog):
 
         llm_model = self.transcription_options.llm_model or "gpt-4.1-mini"
         self.llm_model_line_edit = LineEdit(llm_model, self)
-        self.llm_model_line_edit.textChanged.connect(
-            self.on_llm_model_changed
-        )
+        self.llm_model_line_edit.textChanged.connect(self.on_llm_model_changed)
         self.llm_model_line_edit.setMinimumWidth(170)
         self.llm_model_line_edit.setEnabled(self.transcription_options.enable_llm_translation)
-        layout.addRow(_("AI model:"), self.llm_model_line_edit)
+        self.llm_model_label = QLabel(_("AI model:"))
+        self.llm_model_label.setEnabled(self.transcription_options.enable_llm_translation)
+        layout.addRow(self.llm_model_label, self.llm_model_line_edit)
 
         default_llm_prompt = self.transcription_options.llm_prompt or _(
             "Please translate each text sent to you from English to Spanish. Translation will be used in an automated system, please do not add any comments or notes, just the translation."
@@ -86,7 +87,9 @@ class AdvancedSettingsDialog(QDialog):
         self.llm_prompt_text_edit.setMinimumWidth(170)
         self.llm_prompt_text_edit.setFixedHeight(80)
         self.llm_prompt_text_edit.textChanged.connect(self.on_llm_prompt_changed)
-        layout.addRow(_("Instructions for AI:"), self.llm_prompt_text_edit)
+        self.llm_prompt_label = QLabel(_("Instructions for AI:"))
+        self.llm_prompt_label.setEnabled(self.transcription_options.enable_llm_translation)
+        layout.addRow(self.llm_prompt_label, self.llm_prompt_text_edit)
 
         if show_recording_settings:
             recording_settings_title = _("Recording settings")
@@ -127,6 +130,15 @@ class AdvancedSettingsDialog(QDialog):
             self.transcription_step_label = QLabel(_("Transcription step:"))
             layout.addRow(self.transcription_step_label, self.transcription_step_spin_box)
 
+            hide_unconfirmed = self.settings.value(
+                Settings.Key.RECORDING_TRANSCRIBER_HIDE_UNCONFIRMED, True
+            )
+            self.hide_unconfirmed_checkbox = QCheckBox(_("Hide unconfirmed"))
+            self.hide_unconfirmed_checkbox.setChecked(hide_unconfirmed)
+            self.hide_unconfirmed_checkbox.stateChanged.connect(self.on_hide_unconfirmed_changed)
+            self.hide_unconfirmed_label = QLabel("")
+            layout.addRow(self.hide_unconfirmed_label, self.hide_unconfirmed_checkbox)
+
             self._update_recording_mode_visibility(
                 RecordingTranscriberMode(self.recording_mode_combo.currentText())
             )
@@ -153,7 +165,9 @@ class AdvancedSettingsDialog(QDialog):
             export_folder_row = QHBoxLayout()
             export_folder_row.addWidget(self.export_folder_line_edit)
             export_folder_row.addWidget(self.export_folder_browse_button)
-            layout.addRow(_("Export folder:"), export_folder_row)
+            self.export_folder_label = QLabel(_("Export folder:"))
+            self.export_folder_label.setEnabled(self._export_enabled)
+            layout.addRow(self.export_folder_label, export_folder_row)
 
             # Export file name template
             export_file_name = self.settings.value(
@@ -162,7 +176,9 @@ class AdvancedSettingsDialog(QDialog):
             self.export_file_name_line_edit = LineEdit(export_file_name, self)
             self.export_file_name_line_edit.setEnabled(self._export_enabled)
             self.export_file_name_line_edit.textChanged.connect(self.on_export_file_name_changed)
-            layout.addRow(_("Export file name:"), self.export_file_name_line_edit)
+            self.export_file_name_label = QLabel(_("Export file name:"))
+            self.export_file_name_label.setEnabled(self._export_enabled)
+            layout.addRow(self.export_file_name_label, self.export_file_name_line_edit)
 
             # Export file type
             self.export_file_type_combo = QComboBox(self)
@@ -176,7 +192,9 @@ class AdvancedSettingsDialog(QDialog):
                 self.export_file_type_combo.setCurrentIndex(type_index)
             self.export_file_type_combo.setEnabled(self._export_enabled)
             self.export_file_type_combo.currentIndexChanged.connect(self.on_export_file_type_changed)
-            layout.addRow(_("Export file type:"), self.export_file_type_combo)
+            self.export_file_type_label = QLabel(_("Export file type:"))
+            self.export_file_type_label.setEnabled(self._export_enabled)
+            layout.addRow(self.export_file_type_label, self.export_file_type_combo)
 
             # Max entries
             max_entries = self.settings.value(
@@ -187,7 +205,9 @@ class AdvancedSettingsDialog(QDialog):
             self.export_max_entries_spin.setValue(max_entries)
             self.export_max_entries_spin.setEnabled(self._export_enabled)
             self.export_max_entries_spin.valueChanged.connect(self.on_export_max_entries_changed)
-            layout.addRow(_("Limit export entries\n(0 = export all):"), self.export_max_entries_spin)
+            self.export_max_entries_label = QLabel(_("Limit export entries\n(0 = export all):"))
+            self.export_max_entries_label.setEnabled(self._export_enabled)
+            layout.addRow(self.export_max_entries_label, self.export_max_entries_spin)
 
         button_box = QDialogButtonBox(
             QDialogButtonBox.StandardButton(QDialogButtonBox.StandardButton.Ok), self
@@ -209,8 +229,11 @@ class AdvancedSettingsDialog(QDialog):
         self.transcription_options.enable_llm_translation = state == 2
         self.transcription_options_changed.emit(self.transcription_options)
 
-        self.llm_model_line_edit.setEnabled(self.transcription_options.enable_llm_translation)
-        self.llm_prompt_text_edit.setEnabled(self.transcription_options.enable_llm_translation)
+        enabled = self.transcription_options.enable_llm_translation
+        self.llm_model_label.setEnabled(enabled)
+        self.llm_model_line_edit.setEnabled(enabled)
+        self.llm_prompt_label.setEnabled(enabled)
+        self.llm_prompt_text_edit.setEnabled(enabled)
 
     def on_llm_model_changed(self, text: str):
         self.transcription_options.llm_model = text
@@ -245,19 +268,33 @@ class AdvancedSettingsDialog(QDialog):
         self.line_separator_line_edit.setVisible(not is_append_and_correct)
         self.transcription_step_label.setVisible(is_append_and_correct)
         self.transcription_step_spin_box.setVisible(is_append_and_correct)
+        self.hide_unconfirmed_label.setVisible(is_append_and_correct)
+        self.hide_unconfirmed_checkbox.setVisible(is_append_and_correct)
 
     def on_transcription_step_changed(self, value: float):
         self.transcription_options.transcription_step = round(value, 1)
         self.transcription_options_changed.emit(self.transcription_options)
 
+    def on_hide_unconfirmed_changed(self, state: int):
+        value = state == 2
+        self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_HIDE_UNCONFIRMED, value)
+        self.hide_unconfirmed_changed.emit(value)
+
     def on_export_enabled_changed(self, state: int):
         self._export_enabled = state == 2
         self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_EXPORT_ENABLED, self._export_enabled)
-        self.export_folder_line_edit.setEnabled(self._export_enabled)
-        self.export_folder_browse_button.setEnabled(self._export_enabled)
-        self.export_file_name_line_edit.setEnabled(self._export_enabled)
-        self.export_file_type_combo.setEnabled(self._export_enabled)
-        self.export_max_entries_spin.setEnabled(self._export_enabled)
+        for widget in (
+            self.export_folder_label,
+            self.export_folder_line_edit,
+            self.export_folder_browse_button,
+            self.export_file_name_label,
+            self.export_file_name_line_edit,
+            self.export_file_type_label,
+            self.export_file_type_combo,
+            self.export_max_entries_label,
+            self.export_max_entries_spin,
+        ):
+            widget.setEnabled(self._export_enabled)
 
     def on_export_folder_changed(self, text: str):
         self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FOLDER, text)

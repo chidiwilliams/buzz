@@ -189,6 +189,9 @@ class RecordingTranscriberWidget(QWidget):
         self.transcription_options_group_box.advanced_settings_dialog.recording_mode_changed.connect(
             self.on_recording_mode_changed
         )
+        self.transcription_options_group_box.advanced_settings_dialog.hide_unconfirmed_changed.connect(
+            self.on_hide_unconfirmed_changed
+        )
 
         recording_options_layout = QFormLayout()
         self.microphone_label = QLabel(_("Microphone:"))
@@ -220,6 +223,9 @@ class RecordingTranscriberWidget(QWidget):
         self.translation_export_file = None
         self.export_file_type = "txt"
         self.export_max_entries = 0
+        self.hide_unconfirmed = self.settings.value(
+            Settings.Key.RECORDING_TRANSCRIBER_HIDE_UNCONFIRMED, True
+        )
         self.export_enabled = self.settings.value(
             key=Settings.Key.RECORDING_TRANSCRIBER_EXPORT_ENABLED,
             default_value=False,
@@ -473,6 +479,9 @@ class RecordingTranscriberWidget(QWidget):
         self.export_max_entries = self.settings.value(
             Settings.Key.RECORDING_TRANSCRIBER_EXPORT_MAX_ENTRIES, 0, int
         )
+        self.hide_unconfirmed = self.settings.value(
+            Settings.Key.RECORDING_TRANSCRIBER_HIDE_UNCONFIRMED, True
+        )
         ext = ".csv" if self.export_file_type == "csv" else ".txt"
 
         export_file_name = (
@@ -500,6 +509,9 @@ class RecordingTranscriberWidget(QWidget):
 
     def on_recording_mode_changed(self, mode: RecordingTranscriberMode):
         self.transcriber_mode = mode
+
+    def on_hide_unconfirmed_changed(self, value: bool):
+        self.hide_unconfirmed = value
 
     def on_transcription_options_changed(
         self, transcription_options: TranscriptionOptions
@@ -871,15 +883,29 @@ class RecordingTranscriberWidget(QWidget):
         #     del texts[:len(texts) - 20]
 
         # Remove possibly errorous parts from overlapping audio chunks
+        last_common_length = None
         for i in range(len(texts) - 1):
             common_part = self.find_common_part(texts[i], texts[i + 1])
             if common_part:
                 common_length = len(common_part)
                 texts[i] = texts[i][:texts[i].rfind(common_part) + common_length]
                 texts[i + 1] = texts[i + 1][texts[i + 1].find(common_part):]
+                if i == len(texts) - 2:
+                    last_common_length = common_length
+            elif i == len(texts) - 2:
+                last_common_length = None
+
+        # When hiding unconfirmed: trim the last text to only the part confirmed by overlap
+        # with the previous chunk. If no overlap found, drop the last text entirely.
+        display_texts = list(texts)
+        if self.hide_unconfirmed and len(display_texts) > 1:
+            if last_common_length is not None:
+                display_texts[-1] = display_texts[-1][:last_common_length]
+            else:
+                display_texts = display_texts[:-1]
 
         merged_texts = ""
-        for text in texts:
+        for text in display_texts:
             merged_texts = self.merge_text_no_overlap(merged_texts, text)
 
         merged_texts = NO_SPACE_BETWEEN_SENTENCES.sub(r'\1 \2', merged_texts)
