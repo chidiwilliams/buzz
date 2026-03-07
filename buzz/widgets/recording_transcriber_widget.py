@@ -11,7 +11,7 @@ import sounddevice
 from enum import auto
 from typing import Optional, Tuple, Any
 
-from PyQt6.QtCore import QThread, Qt, QThreadPool, QTimer
+from PyQt6.QtCore import QThread, Qt, QThreadPool, QTimer, pyqtSignal
 from PyQt6.QtGui import QTextCursor, QCloseEvent, QColor
 from PyQt6.QtWidgets import (
     QWidget,
@@ -70,6 +70,8 @@ class RecordingTranscriberWidget(QWidget):
     transcription_thread: Optional[QThread] = None
     recording_amplitude_listener: Optional[RecordingAmplitudeListener] = None
     device_sample_rate: Optional[int] = None
+
+    transcription_stopped = pyqtSignal()
 
     class RecordingStatus(enum.Enum):
         STOPPED = auto()
@@ -1045,6 +1047,7 @@ class RecordingTranscriberWidget(QWidget):
         self.reset_record_button()
         # Restart amplitude listener now that the transcription stream is closed
         self.reset_recording_amplitude_listener()
+        self.transcription_stopped.emit()
 
     def on_transcriber_error(self, error: str):
         self.reset_record_button()
