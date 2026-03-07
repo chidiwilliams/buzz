@@ -65,6 +65,7 @@ ifeq ($(OS), Windows_NT)
 	cp whisper.cpp/build/bin/Release/whisper-cli.exe buzz/whisper_cpp/
 	cp whisper.cpp/build/bin/Release/whisper-server.exe buzz/whisper_cpp/
 	cp dll_backup/SDL2.dll buzz/whisper_cpp
+	PowerShell -NoProfile -ExecutionPolicy Bypass -Command "if (-not (Test-Path 'buzz\whisper_cpp\ggml-silero-v6.2.0.bin')) { Start-BitsTransfer -Source https://huggingface.co/ggml-org/whisper-vad/resolve/main/ggml-silero-v6.2.0.bin -Destination 'buzz\whisper_cpp\ggml-silero-v6.2.0.bin' }"
 endif
 
 ifeq ($(shell uname -s), Linux)
@@ -82,6 +83,7 @@ ifeq ($(shell uname -s), Linux)
 	cp -P whisper.cpp/build/ggml/src/libggml-base.so* buzz/whisper_cpp/ || true
 	cp -P whisper.cpp/build/ggml/src/libggml-cpu.so* buzz/whisper_cpp/ || true
 	cp -P whisper.cpp/build/ggml/src/ggml-vulkan/libggml-vulkan.so* buzz/whisper_cpp/ || true
+	test -f buzz/whisper_cpp/ggml-silero-v6.2.0.bin || curl -L -o buzz/whisper_cpp/ggml-silero-v6.2.0.bin https://huggingface.co/ggml-org/whisper-vad/resolve/main/ggml-silero-v6.2.0.bin
 endif
 
 # Build on Macs
@@ -101,6 +103,7 @@ endif
 	cp whisper.cpp/build/bin/whisper-server buzz/whisper_cpp/ || true
 	cp whisper.cpp/build/src/libwhisper.dylib buzz/whisper_cpp/ || true
 	cp whisper.cpp/build/ggml/src/libggml* buzz/whisper_cpp/ || true
+	test -f buzz/whisper_cpp/ggml-silero-v6.2.0.bin || curl -L -o buzz/whisper_cpp/ggml-silero-v6.2.0.bin https://huggingface.co/ggml-org/whisper-vad/resolve/main/ggml-silero-v6.2.0.bin
 endif
 
 # Prints all the Mac developer identities used for code signing

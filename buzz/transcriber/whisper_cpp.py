@@ -109,6 +109,11 @@ class WhisperCpp:
             "-f", file_to_process,
         ]
     
+        # Add VAD if the model is available
+        vad_model_path = os.path.join(os.path.dirname(whisper_cli_path), "ggml-silero-v6.2.0.bin")
+        if os.path.exists(vad_model_path):
+            cmd.extend(["--vad", "--vad-model", vad_model_path])
+
         # Add translate flag if needed
         if task.transcription_options.task == Task.TRANSLATE:
             cmd.extend(["--translate"])
