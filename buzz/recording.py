@@ -22,7 +22,7 @@ class RecordingAmplitudeListener(QObject):
         self.input_device_index = input_device_index
         self.buffer = np.ndarray([], dtype=np.float32)
         self.accumulation_size = 0
-        self._active = False
+        self._active = True
 
     def start_recording(self):
         try:
@@ -34,7 +34,6 @@ class RecordingAmplitudeListener(QObject):
             )
             self.stream.start()
             self.accumulation_size = int(self.stream.samplerate * self.ACCUMULATION_SECONDS)
-            self._active = True
         except Exception as e:
             self.stop_recording()
             logging.exception("Failed to start audio stream on device %s: %s", self.input_device_index, e)
