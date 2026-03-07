@@ -864,6 +864,12 @@ class RecordingTranscriberWidget(QWidget):
     def process_transcription_merge(self, text: str, texts, text_box, export_file):
         texts.append(text)
 
+        # Possibly in future we want to tie this to some setting, to limit amount of data that needs
+        # to be processed and exported. Value should not be less than ~10, so we have enough data to
+        # work with.
+        # if len(texts) > 20:
+        #     del texts[:len(texts) - 20]
+
         # Remove possibly errorous parts from overlapping audio chunks
         for i in range(len(texts) - 1):
             common_part = self.find_common_part(texts[i], texts[i + 1])

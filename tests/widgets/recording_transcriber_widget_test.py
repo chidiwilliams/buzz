@@ -1102,9 +1102,7 @@ class TestOnNextTranscriptionExport:
             widget.transcriber_mode = RecordingTranscriberMode.APPEND_ABOVE
             widget.export_enabled = True
             widget.transcript_export_file = export_path
-            widget.settings.set_value(
-                Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FILE_TYPE, "csv"
-            )
+            widget.export_file_type = "csv"
             widget.on_next_transcription("first")
             widget.on_next_transcription("second")
 
@@ -1128,12 +1126,8 @@ class TestOnNextTranscriptionExport:
             widget.transcriber_mode = RecordingTranscriberMode.APPEND_ABOVE
             widget.export_enabled = True
             widget.transcript_export_file = export_path
-            widget.settings.set_value(
-                Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FILE_TYPE, "csv"
-            )
-            widget.settings.set_value(
-                Settings.Key.RECORDING_TRANSCRIBER_EXPORT_MAX_ENTRIES, 2
-            )
+            widget.export_file_type = "csv"
+            widget.export_max_entries = 2
             widget.on_next_transcription("first")
             widget.on_next_transcription("second")
             widget.on_next_transcription("third")
