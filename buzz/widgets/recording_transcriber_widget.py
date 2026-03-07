@@ -209,7 +209,7 @@ class RecordingTranscriberWidget(QWidget):
             self.translation_text_box.hide()
 
         self.setLayout(layout)
-        self.resize(550, 600)
+        self.resize(700, 600)
 
         self.reset_recording_amplitude_listener()
 

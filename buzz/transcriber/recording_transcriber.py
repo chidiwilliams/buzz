@@ -133,14 +133,6 @@ class RecordingTranscriber(QObject):
                 cpu_threads=(os.cpu_count() or 8)//2,
             )
 
-            # This was commented out as it was causing issues. On the other hand some users are reporting errors without
-            # this. It is possible issues were present in older model versions without some config files and now are fixed
-            #
-            # Fix for large-v3 https://github.com/guillaumekln/faster-whisper/issues/547#issuecomment-1797962599
-            # if self.transcription_options.model.whisper_model_size in {WhisperModelSize.LARGEV3, WhisperModelSize.LARGEV3TURBO}:
-            #     model.feature_extractor.mel_filters = model.feature_extractor.get_mel_filters(
-            #         model.feature_extractor.sampling_rate, model.feature_extractor.n_fft, n_mels=128
-            #     )
         elif self.transcription_options.model.model_type == ModelType.OPEN_AI_WHISPER_API:
             custom_openai_base_url = self.settings.value(
                 key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value=""
@@ -176,8 +168,14 @@ class RecordingTranscriber(QObject):
                 while self.is_running:
                     if self.queue.size >= self.n_batch_samples:
                         self.mutex.acquire()
-                        samples = self.queue[: self.n_batch_samples]
-                        self.queue = self.queue[self.n_batch_samples - keep_samples:]
+                        cut = self.find_silence_cut_point(
+                            self.queue[:self.n_batch_samples], self.sample_rate
+                        )
+                        samples = self.queue[:cut]
+                        if self.transcriber_mode == RecordingTranscriberMode.APPEND_AND_CORRECT:
+                            self.queue = self.queue[cut - keep_samples:]
+                        else:
+                            self.queue = self.queue[cut:]
                         self.mutex.release()
 
                         amplitude = self.amplitude(samples)
@@ -359,6 +357,38 @@ class RecordingTranscriber(QObject):
         with self.mutex:
             if self.queue.size < self.max_queue_size:
                 self.queue = np.append(self.queue, chunk)
+
+    @staticmethod
+    def find_silence_cut_point(samples: np.ndarray, sample_rate: int,
+                               search_seconds: float = 1.5,
+                               window_seconds: float = 0.02,
+                               silence_ratio: float = 0.5) -> int:
+        """Return index of the last quiet point in the final search_seconds of samples.
+
+        Scans backwards through short windows; returns the midpoint of the rightmost
+        window whose RMS is below silence_ratio * mean_rms of the search region.
+        Falls back to len(samples) if no quiet window is found.
+        """
+        window = int(window_seconds * sample_rate)
+        search_start = max(0, len(samples) - int(search_seconds * sample_rate))
+        region = samples[search_start:]
+        n_windows = (len(region) - window) // window
+        if n_windows < 1:
+            return len(samples)
+
+        energies = np.array([
+            np.sqrt(np.mean(region[i * window:(i + 1) * window] ** 2))
+            for i in range(n_windows)
+        ])
+        mean_energy = energies.mean()
+        threshold = silence_ratio * mean_energy
+
+        for i in range(n_windows - 1, -1, -1):
+            if energies[i] < threshold:
+                cut = search_start + i * window + window // 2
+                return cut
+
+        return len(samples)
 
     @staticmethod
     def amplitude(arr: np.ndarray):
