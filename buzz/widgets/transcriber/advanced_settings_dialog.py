@@ -115,7 +115,7 @@ class AdvancedSettingsDialog(QDialog):
             )
             self.recording_mode_combo.currentIndexChanged.connect(self.on_recording_mode_changed)
             self.recording_mode_combo.setFixedWidth(200)
-            layout.addRow(_("Live recording mode:"), self.recording_mode_combo)
+            layout.addRow(_("Live recording mode") + ":", self.recording_mode_combo)
 
             self.line_separator_line_edit = QLineEdit(self)
             line_sep_display = repr(transcription_options.line_separator)[1:-1] or r"\n\n"
