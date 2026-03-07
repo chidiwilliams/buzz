@@ -45,6 +45,7 @@ class AdvancedSettingsDialog(QDialog):
         self.setMinimumWidth(800)
 
         layout = QFormLayout(self)
+        layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
 
         transcription_settings_title= _("Speech recognition settings")
         transcription_settings_title_label = QLabel(f"<h4>{transcription_settings_title}</h4>", self)
@@ -102,6 +103,7 @@ class AdvancedSettingsDialog(QDialog):
             self.silence_threshold_spin_box.setDecimals(4)
             self.silence_threshold_spin_box.setValue(transcription_options.silence_threshold)
             self.silence_threshold_spin_box.valueChanged.connect(self.on_silence_threshold_changed)
+            self.silence_threshold_spin_box.setFixedWidth(70)
             layout.addRow(_("Silence threshold:"), self.silence_threshold_spin_box)
 
             # Live recording mode
@@ -112,6 +114,7 @@ class AdvancedSettingsDialog(QDialog):
                 self.settings.value(Settings.Key.RECORDING_TRANSCRIBER_MODE, 0)
             )
             self.recording_mode_combo.currentIndexChanged.connect(self.on_recording_mode_changed)
+            self.recording_mode_combo.setFixedWidth(200)
             layout.addRow(_("Live recording mode:"), self.recording_mode_combo)
 
             self.line_separator_line_edit = QLineEdit(self)
@@ -127,6 +130,7 @@ class AdvancedSettingsDialog(QDialog):
             self.transcription_step_spin_box.setDecimals(1)
             self.transcription_step_spin_box.setValue(transcription_options.transcription_step)
             self.transcription_step_spin_box.valueChanged.connect(self.on_transcription_step_changed)
+            self.transcription_step_spin_box.setFixedWidth(80)
             self.transcription_step_label = QLabel(_("Transcription step:"))
             layout.addRow(self.transcription_step_label, self.transcription_step_spin_box)
 
@@ -192,6 +196,7 @@ class AdvancedSettingsDialog(QDialog):
                 self.export_file_type_combo.setCurrentIndex(type_index)
             self.export_file_type_combo.setEnabled(self._export_enabled)
             self.export_file_type_combo.currentIndexChanged.connect(self.on_export_file_type_changed)
+            self.export_file_type_combo.setFixedWidth(200)
             self.export_file_type_label = QLabel(_("Export file type:"))
             self.export_file_type_label.setEnabled(self._export_enabled)
             layout.addRow(self.export_file_type_label, self.export_file_type_combo)
@@ -205,9 +210,21 @@ class AdvancedSettingsDialog(QDialog):
             self.export_max_entries_spin.setValue(max_entries)
             self.export_max_entries_spin.setEnabled(self._export_enabled)
             self.export_max_entries_spin.valueChanged.connect(self.on_export_max_entries_changed)
+            self.export_max_entries_spin.setFixedWidth(70)
             self.export_max_entries_label = QLabel(_("Limit export entries\n(0 = export all):"))
             self.export_max_entries_label.setEnabled(self._export_enabled)
             layout.addRow(self.export_max_entries_label, self.export_max_entries_spin)
+
+            _field_height = self.llm_model_line_edit.sizeHint().height()
+            for widget in (
+                self.line_separator_line_edit,
+                self.silence_threshold_spin_box,
+                self.recording_mode_combo,
+                self.transcription_step_spin_box,
+                self.export_file_type_combo,
+                self.export_max_entries_spin,
+            ):
+                widget.setFixedHeight(_field_height)
 
         button_box = QDialogButtonBox(
             QDialogButtonBox.StandardButton(QDialogButtonBox.StandardButton.Ok), self
