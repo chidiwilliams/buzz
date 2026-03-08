@@ -34,6 +34,7 @@ class Application(QApplication):
 
         if darkdetect.isDark():
             self.styleHints().setColorScheme(Qt.ColorScheme.Dark)
+            self.setStyleSheet("QCheckBox::indicator:unchecked { border: 1px solid white; }")
 
         if sys.platform.startswith("win"):
             self.setStyle(QStyleFactory.create("Fusion"))
