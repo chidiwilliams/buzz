@@ -9,7 +9,7 @@ The transcription viewer is organized into several key sections:
 - **Top Toolbar**: Contains view mode, export, translate, resize, and search
 - **Search Bar**: Find and navigate through transcript text
 - **Transcription Segments**: Table view of all transcription segments with timestamps
-- **Playback Controls**: Audio playback settings and speed controls (since version 1.3.0)
+- **Playback Controls**: Audio playback settings and speed controls
 - **Audio Player**: Standard media player with progress bar
 - **Current Segment Display**: Shows the currently selected or playing segment
 
@@ -37,25 +37,21 @@ The transcription viewer is organized into several key sections:
 - **More information**: See [Edit and Resize](https://chidiwilliams.github.io/buzz/docs/usage/edit_and_resize) section
 
 ### Playback Controls Button
-(since version 1.3.0)
 - **Function**: Show/hide playback control panel
 - **Shortcut**: `Ctrl+Alt+P` (Windows/Linux) or `Cmd+Alt+P` (macOS)
 - **Behavior**: Toggle button that shows/hides the playback controls below
 
 ### Find Button
-(since version 1.3.0)
 - **Function**: Show/hide search functionality
 - **Shortcut**: `Ctrl+F` (Windows/Linux) or `Cmd+F` (macOS)
 - **Behavior**: Toggle button that shows/hides the search bar
 
 ### Scroll to Current Button
-(since version 1.3.0)
 - **Function**: Automatically scroll to the currently playing text
 - **Shortcut**: `Ctrl+G` (Windows/Linux) or `Cmd+G` (macOS)
 - **Usage**: Click to jump to the current audio position in the transcript
 
 ## Search Functionality
-(since version 1.3.0)
 
 ### Search Bar
 The search bar appears below the toolbar when activated and provides:
@@ -80,7 +76,6 @@ The search bar appears below the toolbar when activated and provides:
 - **Cross-view Search**: Works in all view modes (Timestamps, Text, Translation)
 
 ## Playback Controls
-(since version 1.3.0)
 
 ### Loop Segment
 - **Function**: Automatically loop playback of selected segments
@@ -105,7 +100,6 @@ The search bar appears below the toolbar when activated and provides:
 - **Button Sizing**: Speed control buttons match the size of search navigation buttons for visual consistency
 
 ## Keyboard Shortcuts
-(since version 1.3.0)
 
 ### Audio Playback
 - **`Ctrl+P` / `Cmd+P`**: Play/Pause audio

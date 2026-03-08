@@ -20,12 +20,16 @@ To start a live recording:
 
 #### Advanced preferences
 **Silence threshold** Set threshold to for transcriptions to be processed. If average volume level is under this setting the sentence will not be transcribed. Available since 1.4.4.
+
 **Line separator** Marking to add to the transcription and translation lines. Default value is two new lines (`\n\n`) that result in an empty space between translation or transcription lines. To have no empty line use `\n`. Available since 1.4.4.
 
+**Transcription step** If live recording mode is set to `Append and correct`, you can also set a transcription step. Shorter steps will reduce latency but cause larger load on the system. Monitor the `Queue` while transcribing in this mode, if it grows too much, increase the transcription step, to reduce load. Available since 1.4.4.
+
+**Hide unconfirmed** If live recording mode is set to `Append and correct`, you can also hide the unconfirmed part of the last transcript. This part may be incorrect as the Buzz has seen it only in one overlapping transcription segment. Hiding it will increase latency, but result will show only the correct transcripts. Available since 1.4.4.
 
 #### Presentation Window 
 
-Since 1.4.2 Buzz has an easy to use presentation window you can use to show live transcriptions during events and presentations. To open it start the recording and new options for the `Presentation window` will appear.
+Buzz has an easy to use presentation window you can use to show live transcriptions during events and presentations. To open it start the recording and new options for the `Presentation window` will appear.
 
 ### Record audio playing from computer (macOS)
 
