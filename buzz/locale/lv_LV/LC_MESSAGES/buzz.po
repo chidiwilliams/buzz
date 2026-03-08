@@ -439,7 +439,7 @@ msgid ""
 "notes, just the translation."
 msgstr ""
 "Lūdzu, iztulko katru nosūtīto tekstu no angļu valodas spāņu valodā. "
-"Tulkojums tiks izmantots automatizētā sistēmā, lūdzu, nepievienojiet nekādus "
+"Tulkojums tiks izmantots automatizētā sistēmā, lūdzu, nepievieno nekādus "
 "komentārus vai piezīmes, tikai tulkojumu."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
