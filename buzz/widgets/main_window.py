@@ -165,6 +165,9 @@ class MainWindow(QMainWindow):
         #Initialize and run update checker
         self._init_update_checker()
 
+        #Offer CUDA installation on Windows if not done before
+        self._maybe_show_cuda_prompt()
+
     def on_preferences_changed(self, preferences: Preferences):
         self.preferences = preferences
         self.save_preferences(preferences)
@@ -515,6 +518,24 @@ class MainWindow(QMainWindow):
         """Called when an update is available."""
         self._update_info = update_info
         self.toolbar.set_update_available(True)
+
+    def _maybe_show_cuda_prompt(self):
+        """On first launch (Windows/Snap/Flatpak), offer CUDA installation if an NVIDIA GPU is present."""
+        from buzz import cuda_manager
+        if not cuda_manager.should_offer_cuda_prompt():
+            return
+        if self.settings.value(Settings.Key.CUDA_PROMPT_SHOWN, False):
+            return
+        self.settings.set_value(Settings.Key.CUDA_PROMPT_SHOWN, True)
+
+        if not cuda_manager.is_nvidia_gpu_present():
+            return
+        if cuda_manager.is_cuda_torch_installed():
+            return
+
+        from buzz.widgets.cuda_installer_widget import CudaInstallerDialog
+        dialog = CudaInstallerDialog(self)
+        dialog.show()
 
     def on_update_action_triggered(self):
         """Called when user clicks the update action in toolbar."""
