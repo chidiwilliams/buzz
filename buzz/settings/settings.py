@@ -94,6 +94,9 @@ class Settings:
 
         PLUGINS = "plugins"
 
+        CUDA_PROMPT_SHOWN = "cuda/prompt-shown"
+        CUDA_INSTALL_DECLINED = "cuda/install-declined"
+
     def get_user_identifier(self) -> str:
         user_id = self.value(self.Key.USER_IDENTIFIER, "")
         if not user_id:

@@ -25,8 +25,12 @@ def _get_nvidia_package_lib_dirs() -> list[Path]:
     """Find all nvidia package library directories in site-packages."""
     lib_dirs = []
 
-    # Find site-packages directories
+    # Find site-packages directories (including user site-packages for runtime-installed CUDA)
     site_packages_dirs = []
+    import site
+    user_site = site.getusersitepackages()
+    if user_site:
+        site_packages_dirs.append(Path(user_site))
     for path in sys.path:
         if "site-packages" in path:
             site_packages_dirs.append(Path(path))
