@@ -25,7 +25,6 @@ PrivilegesRequiredOverridesAllowed=dialog
 OutputDir={#OutputDir}
 OutputBaseFilename={#AppName}-{#AppVersion}-windows
 SetupIconFile={#AppIconPath}
-DiskSpanning=yes
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
