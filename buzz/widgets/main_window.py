@@ -528,14 +528,16 @@ class MainWindow(QMainWindow):
             return
         self.settings.set_value(Settings.Key.CUDA_PROMPT_SHOWN, True)
 
-        if not cuda_manager.is_nvidia_gpu_present():
-            return
-        if cuda_manager.is_cuda_torch_installed():
-            return
-
+        from PyQt6.QtCore import QTimer
         from buzz.widgets.cuda_installer_widget import CudaInstallerDialog
-        dialog = CudaInstallerDialog(self)
-        dialog.show()
+
+        def _show():
+            dialog = CudaInstallerDialog(self)
+            dialog.show()
+            dialog.raise_()
+            dialog.activateWindow()
+
+        QTimer.singleShot(500, _show)
 
     def on_update_action_triggered(self):
         """Called when user clicks the update action in toolbar."""
