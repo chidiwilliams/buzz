@@ -5,7 +5,7 @@ Dialog for installing GPU (CUDA) acceleration at runtime.
 import logging
 from typing import Optional
 
-from PyQt6.QtCore import QRunnable, QThreadPool, pyqtSignal, QObject
+from PyQt6.QtCore import QRunnable, QThreadPool, Qt, pyqtSignal, QObject
 from PyQt6.QtWidgets import (
     QDialog,
     QVBoxLayout,
@@ -53,6 +53,7 @@ class CudaInstallerDialog(QDialog):
         self.setWindowTitle(_("GPU Acceleration"))
         self.setWindowIcon(QIcon(BUZZ_ICON_PATH))
         self.setMinimumWidth(500)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.WindowStaysOnTopHint)
 
         layout = QVBoxLayout(self)
         layout.setSpacing(12)
