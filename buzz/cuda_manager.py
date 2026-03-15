@@ -74,9 +74,17 @@ def is_nvidia_gpu_present() -> bool:
     return Path("/proc/driver/nvidia/version").exists()
 
 
+def _in_virtualenv() -> bool:
+    """Returns True if running inside a virtualenv or uv venv."""
+    return sys.prefix != sys.base_prefix or "VIRTUAL_ENV" in os.environ
+
+
 def install_cuda(progress_callback=None):
     """
-    Install CUDA-enabled torch and nvidia libraries into user site-packages.
+    Install CUDA-enabled torch and nvidia libraries.
+
+    Installs to user site-packages when possible. Inside a virtualenv the
+    --user flag is omitted (pip forbids it) and packages go into the venv.
 
     Args:
         progress_callback: Optional callable(str) called with status messages.
@@ -86,25 +94,72 @@ def install_cuda(progress_callback=None):
         if progress_callback:
             progress_callback(msg)
 
+    user_flag = [] if _in_virtualenv() else ["--user"]
+
     report("Installing CUDA-enabled PyTorch...")
     _pip_install(
         CUDA_TORCH_PACKAGES,
-        extra_args=["--index-url", CUDA_INDEX_URL, "--user"],
+        extra_args=["--index-url", CUDA_INDEX_URL] + user_flag,
         progress_callback=report,
     )
 
     report("Installing NVIDIA CUDA libraries...")
     _pip_install(
         CUDA_NVIDIA_PACKAGES,
-        extra_args=["--extra-index-url", CUDA_NVIDIA_INDEX_URL, "--user"],
+        extra_args=["--extra-index-url", CUDA_NVIDIA_INDEX_URL] + user_flag,
         progress_callback=report,
     )
 
     report("CUDA installation complete. Please restart Buzz to enable GPU acceleration.")
 
 
+def _get_pip_cmd() -> list[str]:
+    """Return a [python, '-m', 'pip'] command that is guaranteed to work.
+
+    Handles three environments:
+    - PyInstaller frozen bundle: sys.executable is the app binary; find a real
+      Python interpreter in PATH instead.
+    - Normal Python without pip (uv venv, minimal snap/flatpak image): bootstrap
+      pip via ensurepip, then retry.
+    - Normal Python with pip: use sys.executable directly.
+    """
+    import shutil
+
+    # Frozen PyInstaller bundle — sys.executable can't run -m pip
+    if getattr(sys, "frozen", False):
+        for candidate in ("python3", "python"):
+            python = shutil.which(candidate)
+            if python:
+                return [python, "-m", "pip"]
+        raise RuntimeError(
+            "Could not find a Python interpreter in PATH to run pip. "
+            "Please install Python and try again."
+        )
+
+    pip_cmd = [sys.executable, "-m", "pip"]
+
+    # Check if pip is already available
+    probe = subprocess.run(pip_cmd + ["--version"], capture_output=True, timeout=15)
+    if probe.returncode == 0:
+        return pip_cmd
+
+    # Try to bootstrap pip via ensurepip (available in CPython stdlib)
+    logger.info("pip not found, bootstrapping via ensurepip...")
+    bootstrap = subprocess.run(
+        [sys.executable, "-m", "ensurepip", "--upgrade"],
+        capture_output=True, timeout=60,
+    )
+    if bootstrap.returncode != 0:
+        raise RuntimeError(
+            "pip is not available and ensurepip failed. "
+            "Please install pip manually and try again."
+        )
+
+    return pip_cmd
+
+
 def _pip_install(packages, extra_args=None, progress_callback=None):
-    cmd = [sys.executable, "-m", "pip", "install"] + packages
+    cmd = _get_pip_cmd() + ["install"] + packages
     if extra_args:
         cmd += extra_args
 
