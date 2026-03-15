@@ -124,7 +124,9 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    # pyarrow is excluded because its Windows wheel requires AVX2 CPU instructions,
+    # causing a crash (0xc000001d) on older hardware. Buzz does not use pyarrow directly;
+    excludes=["pyarrow"],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,
