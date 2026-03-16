@@ -8,6 +8,12 @@ from PyQt6.QtWidgets import QProgressDialog, QWidget, QPushButton
 from buzz.locale import _
 from buzz.model_loader import ModelType
 
+NO_PROGRESS_MODEL_TYPES = {
+    ModelType.HUGGING_FACE,
+    ModelType.FASTER_WHISPER,
+    ModelType.WHISPER_CPP,
+}
+
 
 class ModelDownloadProgressDialog(QProgressDialog):
     def __init__(
@@ -22,16 +28,23 @@ class ModelDownloadProgressDialog(QProgressDialog):
         self.cancelable = (
             model_type == ModelType.WHISPER
         )
+        self.has_no_progress = model_type in NO_PROGRESS_MODEL_TYPES
         self.start_time = datetime.now()
-        self.setRange(0, 100)
         self.setMinimumDuration(0)
         self.setWindowModality(modality)
-        self.update_label_text(0)
         cancel_button = QPushButton(_("Cancel"), self)
         self.setCancelButton(cancel_button)
 
         if not self.cancelable:
             cancel_button.setEnabled(False)
+
+        if self.has_no_progress:
+            self.setRange(0, 0)
+            self.setLabelText(_("Downloading model"))
+            self.show()
+        else:
+            self.setRange(0, 100)
+            self.update_label_text(0)
 
     def update_label_text(self, fraction_completed: float):
         downloading_text = _("Downloading model")
@@ -47,6 +60,8 @@ class ModelDownloadProgressDialog(QProgressDialog):
 
     def set_value(self, fraction_completed: float):
         if self.wasCanceled():
+            return
+        if self.has_no_progress:
             return
         self.setValue(int(fraction_completed * self.maximum()))
         self.update_label_text(fraction_completed)

@@ -261,6 +261,7 @@ class ModelsPreferencesWidget(QWidget):
         self.model.open_file_location()
 
     def on_download_completed(self, _: str):
+        self.progress_dialog.close()
         self.progress_dialog = None
         self.download_button.setEnabled(True)
         self.reset()
