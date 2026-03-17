@@ -554,13 +554,19 @@ def download_from_huggingface(
 ):
     progress.emit((0, 100))
 
+    # On Windows, parallel downloads cause lock contention with huggingface_hub's
+    # file-based locking, leading to downloads appearing stuck.
+    # Use a single worker on Windows to avoid this issue.
+    max_workers = 1 if sys.platform == "win32" else 8
+
     try:
         model_root = huggingface_hub.snapshot_download(
             repo_id,
             # all, but largest
             allow_patterns=allow_patterns[num_large_files:],
             cache_dir=model_root_dir,
-            etag_timeout=60
+            etag_timeout=60,
+            max_workers=max_workers,
         )
     except Exception as exc:
         logging.exception(exc)
@@ -589,7 +595,8 @@ def download_from_huggingface(
             repo_id,
             allow_patterns=allow_patterns[:num_large_files],  # largest
             cache_dir=model_root_dir,
-            etag_timeout=60
+            etag_timeout=60,
+            max_workers=max_workers,
         )
     except Exception as exc:
         logging.exception(exc)
