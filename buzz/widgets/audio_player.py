@@ -32,19 +32,12 @@ class AudioPlayer(QWidget):
         self.audio_output = QAudioOutput()
         self.audio_output.setVolume(100)
 
-        # Log audio device info for debugging
-        default_device = QMediaDevices.defaultAudioOutput()
-        if default_device.isNull():
-            logging.warning("No default audio output device found!")
-        else:
-            logging.info(f"Audio output device: {default_device.description()}")
-
-        audio_outputs = QMediaDevices.audioOutputs()
-        logging.info(f"Available audio outputs: {[d.description() for d in audio_outputs]}")
-
         self.media_player = QMediaPlayer()
         self.media_player.setSource(QUrl.fromLocalFile(file_path))
         self.media_player.setAudioOutput(self.audio_output)
+
+        self.media_devices = QMediaDevices()
+        self.media_devices.audioOutputsChanged.connect(self.on_audio_outputs_changed)
 
         if self.is_video:
             from PyQt6.QtMultimediaWidgets import QVideoWidget
@@ -216,6 +209,16 @@ class AudioPlayer(QWidget):
         position_time = QTime(0, 0).addMSecs(self.position_ms).toString()
         duration_time = QTime(0, 0).addMSecs(self.duration_ms).toString()
         self.time_label.setText(f"{position_time} / {duration_time}")
+
+    def on_audio_outputs_changed(self):
+        was_playing = self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState
+        position = self.media_player.position()
+        self.audio_output = QAudioOutput()
+        self.audio_output.setVolume(100)
+        self.media_player.setAudioOutput(self.audio_output)
+        self.media_player.setPosition(position)
+        if was_playing:
+            self.media_player.play()
 
     def stop(self):
         self.media_player.stop()
