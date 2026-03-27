@@ -36,14 +36,10 @@ dependencies = [
     "torch==2.2.2; sys_platform == 'darwin' and platform_machine == 'x86_64'",
     "torchaudio==2.2.2; sys_platform == 'darwin' and platform_machine == 'x86_64'",
     "ctranslate2==4.3.1; sys_platform == 'darwin' and platform_machine == 'x86_64'",
-    # For ARM macOS (arm64) - use latest CPU-only versions from PyPI
-    "torch==2.8.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
-    "torchaudio==2.8.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
-    "ctranslate2>=4.6.2,<5; sys_platform == 'darwin' and platform_machine == 'arm64'",
-    # For Linux/Windows - use CUDA versions from pytorch index
-    "torch==2.8.0; sys_platform != 'darwin'",
-    "torchaudio==2.8.0; sys_platform != 'darwin'",
+    # For Linux/Windows/ARM Mac - use CPU versions from pytorch index
     "ctranslate2>=4.6.2,<5; sys_platform != 'darwin'",
+    "torch==2.8.0+cpu; sys_platform != 'darwin' or platform_machine != 'x86_64'",
+    "torchaudio==2.8.0+cpu; sys_platform != 'darwin' or platform_machine != 'x86_64'",
     # faster whisper need cudnn 9
     "nvidia-cudnn-cu12>=9,<10; sys_platform != 'darwin'",
     # CUDA runtime libraries are provided by torch dependencies, no need to specify explicitly
@@ -82,8 +78,6 @@ dependencies = [
     "certifi>=2025.11.12",
     "truststore>=0.10.0",
     "torchcodec>=0.9.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
-    "torch>=2.2.2",
-    "torchaudio>=2.2.2",
     "datasets>=4.4.1",
 ]
 repository = "https://github.com/chidiwilliams/buzz"
@@ -131,26 +125,15 @@ override-dependencies = [
 
 [tool.uv.sources]
 torch = [
-    { index = "PyPI", marker = "sys_platform == 'darwin'" },
-    { index = "pytorch-cu129", marker = "sys_platform != 'darwin'" },
+  { index = "pytorch-cpu", marker = "sys_platform != 'darwin' or platform_machine != 'x86_64'" },
 ]
 torchaudio = [
-    { index = "PyPI", marker = "sys_platform == 'darwin'" },
-    { index = "pytorch-cu129", marker = "sys_platform != 'darwin'" },
+  { index = "pytorch-cpu", marker = "sys_platform != 'darwin' or platform_machine != 'x86_64'" },
 ]
-
 [[tool.uv.index]]
-name = "nvidia"
-url = "https://pypi.ngc.nvidia.com/"
-
-[[tool.uv.index]]
-name = "pytorch-cu129"
-url = "https://download.pytorch.org/whl/cu129"
-
-[[tool.uv.index]]
-name = "PyPI"
-url = "https://pypi.org/simple/"
-default = true
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
 
 [tool.hatch.metadata]
 allow-direct-references = true
