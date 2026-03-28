@@ -50,22 +50,24 @@ class CudaInstallerDialog(QDialog):
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
-        self.setWindowTitle(_("GPU Acceleration"))
+        self.setWindowTitle(_("Nvidia GPU Acceleration"))
         self.setWindowIcon(QIcon(BUZZ_ICON_PATH))
-        self.setMinimumWidth(500)
+        self.setMinimumWidth(600)
+        self.setMinimumHeight(400)
         self.setWindowFlags(self.windowFlags() | Qt.WindowType.WindowStaysOnTopHint)
 
         layout = QVBoxLayout(self)
         layout.setSpacing(12)
 
-        header = QLabel(_("Install GPU Acceleration?"))
+        header = QLabel(_("Install Nvidia GPU Acceleration?"))
         header.setStyleSheet("font-size: 15px; font-weight: bold;")
         layout.addWidget(header)
 
         desc = QLabel(
             _(
-                "An NVIDIA GPU was detected. Installing GPU acceleration allows Buzz "
-                "to transcribe audio significantly faster using CUDA.\n\n"
+                "Installing GPU acceleration for Nvidia GPUS allows Buzz "
+                "to transcribe audio significantly faster using CUDA. "
+                "For other GPU brands this acceleration will have no effect\n\n"
                 "This will download and install PyTorch with CUDA support (~2 GB). "
                 "Buzz must be restarted after installation."
             )
