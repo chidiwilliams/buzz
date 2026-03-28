@@ -33,11 +33,8 @@ def _get_cuda_target_dir() -> Path | None:
     return None
 
 
-def _get_nvidia_package_lib_dirs() -> list[Path]:
-    """Find all nvidia package library directories in site-packages."""
-    lib_dirs = []
-
-    # Find site-packages directories (including user site-packages for runtime-installed CUDA)
+def _get_site_packages_dirs() -> list[Path]:
+    """Return all site-packages directories, including user site-packages."""
     site_packages_dirs = []
     import site
 
@@ -47,13 +44,29 @@ def _get_nvidia_package_lib_dirs() -> list[Path]:
         if str(cuda_target) not in sys.path:
             sys.path.insert(0, str(cuda_target))
         site_packages_dirs.append(cuda_target)
+        logger.info("CUDA target dir (snap/flatpak): %s", cuda_target)
 
     user_site = site.getusersitepackages()
     if user_site:
-        site_packages_dirs.append(Path(user_site))
+        user_site_path = Path(user_site)
+        site_packages_dirs.append(user_site_path)
+        logger.info("User site-packages: %s (exists=%s)", user_site_path, user_site_path.exists())
+        # Ensure user site-packages is on sys.path so torch can be imported
+        if str(user_site_path) not in sys.path and user_site_path.exists():
+            sys.path.insert(0, str(user_site_path))
+            logger.info("Added user site-packages to sys.path: %s", user_site_path)
     for path in sys.path:
         if "site-packages" in path:
             site_packages_dirs.append(Path(path))
+
+    return site_packages_dirs
+
+
+def _get_nvidia_package_lib_dirs() -> list[Path]:
+    """Find all nvidia package library directories in site-packages."""
+    lib_dirs = []
+
+    site_packages_dirs = _get_site_packages_dirs()
 
     # Also check relative to the current module for frozen apps
     if getattr(sys, "frozen", False):
@@ -71,7 +84,7 @@ def _get_nvidia_package_lib_dirs() -> list[Path]:
                     if bin_subdir.exists():
                         lib_dirs.append(bin_subdir)
 
-    # Check each site-packages for nvidia packages
+    # Check each site-packages for nvidia packages AND torch/lib
     for sp_dir in site_packages_dirs:
         nvidia_dir = sp_dir / "nvidia"
         if nvidia_dir.exists():
@@ -84,6 +97,10 @@ def _get_nvidia_package_lib_dirs() -> list[Path]:
                     bin_subdir = pkg_dir / "bin"
                     if bin_subdir.exists():
                         lib_dirs.append(bin_subdir)
+        # torch/lib contains torch_cuda and other CUDA-related DLLs
+        torch_lib_dir = sp_dir / "torch" / "lib"
+        if torch_lib_dir.exists():
+            lib_dirs.append(torch_lib_dir)
 
     return lib_dirs
 
@@ -91,11 +108,14 @@ def _get_nvidia_package_lib_dirs() -> list[Path]:
 def _setup_windows_dll_directories():
     """Add nvidia library directories to Windows DLL search path."""
     lib_dirs = _get_nvidia_package_lib_dirs()
+    if not lib_dirs:
+        logger.warning("CUDA setup: no nvidia/torch library directories found")
     for lib_dir in lib_dirs:
         try:
             os.add_dll_directory(str(lib_dir))
+            logger.info("CUDA setup: added DLL directory: %s", lib_dir)
         except (OSError, AttributeError) as e:
-            pass
+            logger.warning("CUDA setup: failed to add DLL directory %s: %s", lib_dir, e)
 
 
 def _preload_linux_libraries():
@@ -142,12 +162,15 @@ def setup_cuda_libraries():
     or CUDA-dependent libraries are imported.
     """
     system = platform.system()
+    logger.info("CUDA setup: platform=%s, frozen=%s", system, getattr(sys, "frozen", False))
 
     if system == "Windows":
         _setup_windows_dll_directories()
     elif system == "Linux":
         _preload_linux_libraries()
     # macOS doesn't have CUDA support, so nothing to do
+
+    logger.info("CUDA setup: complete")
 
 
 # Auto-run setup when this module is imported

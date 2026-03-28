@@ -7,6 +7,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -47,8 +48,24 @@ def is_cuda_torch_installed() -> bool:
     """Returns True if torch with CUDA support is available."""
     try:
         import torch
-        return torch.cuda.is_available()
+        cuda_available = torch.cuda.is_available()
+        logger.info(
+            "CUDA check: torch version=%s, cuda_built=%s, cuda_available=%s, cuda_version=%s",
+            torch.__version__,
+            torch.version.cuda,
+            cuda_available,
+            torch.version.cuda if cuda_available else "N/A",
+        )
+        if not cuda_available and torch.version.cuda:
+            # CUDA was compiled in but is not available at runtime — likely a DLL loading issue
+            logger.warning(
+                "CUDA check: torch was built with CUDA %s but cuda is not available. "
+                "This usually means CUDA DLLs failed to load. torch.cuda.is_available() returned False.",
+                torch.version.cuda,
+            )
+        return cuda_available
     except ImportError:
+        logger.info("CUDA check: torch is not installed")
         return False
 
 
@@ -64,6 +81,7 @@ def is_nvidia_gpu_present() -> bool:
             ["nvidia-smi"],
             capture_output=True,
             timeout=5,
+            **_subprocess_hide_window_kwargs(),
         )
         if result.returncode == 0:
             return True
@@ -148,21 +166,30 @@ def _get_pip_cmd() -> list[str]:
     """
     import shutil
 
-    # Frozen PyInstaller bundle — sys.executable can't run -m pip
+    # Frozen PyInstaller bundle — sys.executable can't run -m pip.
+    # Use the bundled Python 3.12 interpreter shipped alongside the app.
     if getattr(sys, "frozen", False):
-        for candidate in ("python3", "python"):
+        # PyInstaller extracts bundled data to sys._MEIPASS (_internal dir)
+        internal_dir = Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent))
+        python_name = "python.exe" if sys.platform == "win32" else "python3"
+        bundled_python = internal_dir / "python" / python_name
+        if bundled_python.is_file():
+            return [str(bundled_python), "-m", "pip"]
+        # Fallback: look in PATH
+        for candidate in ("python3.12", "python3", "python"):
             python = shutil.which(candidate)
             if python:
                 return [python, "-m", "pip"]
         raise RuntimeError(
-            "Could not find a Python interpreter in PATH to run pip. "
-            "Please install Python and try again."
+            "Could not find a Python interpreter. "
+            "Please install Python 3.12 and try again."
         )
 
     pip_cmd = [sys.executable, "-m", "pip"]
+    hide_kwargs = _subprocess_hide_window_kwargs()
 
     # Check if pip is already available
-    probe = subprocess.run(pip_cmd + ["--version"], capture_output=True, timeout=15)
+    probe = subprocess.run(pip_cmd + ["--version"], capture_output=True, timeout=15, **hide_kwargs)
     if probe.returncode == 0:
         return pip_cmd
 
@@ -170,7 +197,7 @@ def _get_pip_cmd() -> list[str]:
     logger.info("pip not found, bootstrapping via ensurepip...")
     bootstrap = subprocess.run(
         [sys.executable, "-m", "ensurepip", "--upgrade"],
-        capture_output=True, timeout=60,
+        capture_output=True, timeout=60, **hide_kwargs,
     )
     if bootstrap.returncode != 0:
         raise RuntimeError(
@@ -181,8 +208,18 @@ def _get_pip_cmd() -> list[str]:
     return pip_cmd
 
 
+def _subprocess_hide_window_kwargs() -> dict[str, Any]:
+    """Return kwargs to hide the console window on Windows."""
+    if sys.platform == "win32":
+        si = subprocess.STARTUPINFO()
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        si.wShowWindow = subprocess.SW_HIDE
+        return {"startupinfo": si, "creationflags": subprocess.CREATE_NO_WINDOW}
+    return {}
+
+
 def _pip_install(packages, extra_args=None, progress_callback=None):
-    cmd = _get_pip_cmd() + ["install"] + packages
+    cmd = _get_pip_cmd() + ["install", "--break-system-packages"] + packages
     if extra_args:
         cmd += extra_args
 
@@ -191,6 +228,7 @@ def _pip_install(packages, extra_args=None, progress_callback=None):
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
+        **_subprocess_hide_window_kwargs(),
     )
     for line in process.stdout:
         line = line.rstrip()

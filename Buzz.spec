@@ -94,6 +94,30 @@ else:
 
 binaries.append(("buzz/whisper_cpp/*", "buzz/whisper_cpp"))
 
+# Bundle a standalone Python 3.12 interpreter for runtime pip installs (e.g. CUDA).
+# We copy python.exe, DLLs, and the stdlib from the uv-managed base interpreter.
+if platform.system() == "Windows":
+    import sys as _sys
+    _base = _sys.base_prefix  # e.g. .../uv/python/cpython-3.12.12-windows-x86_64-none
+    _py_dest = "python"
+    if os.path.isfile(os.path.join(_base, "python.exe")):
+        binaries.append((os.path.join(_base, "python.exe"), _py_dest))
+        binaries.append((os.path.join(_base, "python3.dll"), _py_dest))
+        binaries.append((os.path.join(_base, "python312.dll"), _py_dest))
+        for _vcrt in ("vcruntime140.dll", "vcruntime140_1.dll"):
+            _vcrt_path = os.path.join(_base, _vcrt)
+            if os.path.isfile(_vcrt_path):
+                binaries.append((_vcrt_path, _py_dest))
+        # Bundle DLLs directory (C extensions like _ssl, _socket, etc.)
+        _dlls_dir = os.path.join(_base, "DLLs")
+        if os.path.isdir(_dlls_dir):
+            for _f in os.listdir(_dlls_dir):
+                binaries.append((os.path.join(_dlls_dir, _f), os.path.join(_py_dest, "DLLs")))
+        # Bundle standard library
+        datas.append((os.path.join(_base, "Lib"), os.path.join(_py_dest, "Lib")))
+    else:
+        print(f"WARNING: Could not find bundleable Python at {_base}")
+
 if platform.system() == "Windows":
     datas += [("dll_backup", "dll_backup")]
     datas += collect_data_files("msvc-runtime")
