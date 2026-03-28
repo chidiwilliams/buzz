@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-03 09:00+0300\n"
+"POT-Creation-Date: 2026-03-28 21:04+0200\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: lamb \n"
@@ -644,6 +644,48 @@ msgstr "无法重新开始识别：模型不可用且无法下载。"
 msgid "Could not restart transcription: transcriber worker not found."
 msgstr "无法重新开始识别：未找到识别工作进程。"
 
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Nvidia GPU Acceleration"
+msgstr "Nvidia GPU 加速"
+
+#: buzz/widgets/cuda_installer_widget.py
+#, fuzzy
+msgid "Install Nvidia GPU Acceleration?"
+msgstr "仅使用 CPU 并禁用 GPU 加速"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid ""
+"Installing GPU acceleration for Nvidia GPUS allows Buzz to transcribe audio "
+"significantly faster using CUDA. For other GPU brands this acceleration will "
+"have no effect\n"
+"\n"
+"This will download and install PyTorch with CUDA support (~2 GB). Buzz must "
+"be restarted after installation."
+msgstr ""
+"为 Nvidia GPU 安装 GPU 加速后，Buzz 可以使用 CUDA 显著加快音频转录速度。对于其他品牌的 GPU，此加速将不起作用。\n"
+"\n"
+"这将下载并安装支持 CUDA 的 PyTorch（约 2 GB）。安装完成后必须重启 Buzz。"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install GPU Support"
+msgstr "安装 GPU 支持"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Not Now"
+msgstr "暂不安装"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation complete! Restart Buzz to enable GPU acceleration."
+msgstr "安装完成！请重启 Buzz 以启用 GPU 加速。"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Close"
+msgstr "关闭"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation failed: {}"
+msgstr "安装失败：{}"
+
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
 msgstr "实时录制"
@@ -793,6 +835,10 @@ msgstr "检查更新"
 #: buzz/widgets/about_dialog.py
 msgid "Show logs"
 msgstr "显示日志"
+
+#: buzz/widgets/about_dialog.py
+msgid "Install CUDA Acceleration"
+msgstr "安装 CUDA 加速"
 
 #: buzz/widgets/about_dialog.py
 msgid "You're up to date!"
@@ -1641,9 +1687,6 @@ msgstr "语音提取失败！请检查您的网络连接——可能需要下载
 #~ msgid ""
 #~ "To enable necessary permissions run the following commands in the terminal"
 #~ msgstr "要启用必要的权限，请在终端中运行以下命令"
-
-#~ msgid "Close"
-#~ msgstr "关闭"
 
 #~ msgid "Enter instructions for AI on how to translate..."
 #~ msgstr "输入AI如何翻译的说明..."

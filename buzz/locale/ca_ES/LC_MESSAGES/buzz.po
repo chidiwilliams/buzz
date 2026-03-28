@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-03 09:00+0300\n"
+"POT-Creation-Date: 2026-03-28 21:04+0200\n"
 "PO-Revision-Date: 2025-10-17 07:59+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: Catalan <jmas@softcatala.org>\n"
@@ -659,6 +659,48 @@ msgstr ""
 "No s'ha pogut reiniciar la transcripció: no s'ha trobat el treballador del "
 "transcriptor."
 
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Nvidia GPU Acceleration"
+msgstr "Acceleració GPU Nvidia"
+
+#: buzz/widgets/cuda_installer_widget.py
+#, fuzzy
+msgid "Install Nvidia GPU Acceleration?"
+msgstr "Utilitza només la CPU i desactiveu l'acceleració de la GPU"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid ""
+"Installing GPU acceleration for Nvidia GPUS allows Buzz to transcribe audio "
+"significantly faster using CUDA. For other GPU brands this acceleration will "
+"have no effect\n"
+"\n"
+"This will download and install PyTorch with CUDA support (~2 GB). Buzz must "
+"be restarted after installation."
+msgstr ""
+"L'acceleració GPU per a Nvidia permet a Buzz transcriure àudio significativament més ràpid mitjançant CUDA. Per a altres marques de GPU, aquesta acceleració no tindrà cap efecte.\n"
+"\n"
+"Això descarregarà i instal·larà PyTorch amb suport CUDA (~2 GB). Buzz s'ha de reiniciar després de la instal·lació."
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install GPU Support"
+msgstr "Instal·lar suport GPU"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Not Now"
+msgstr "Ara no"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation complete! Restart Buzz to enable GPU acceleration."
+msgstr "Instal·lació completada! Reinicieu Buzz per activar l'acceleració GPU."
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Close"
+msgstr "Tanca"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation failed: {}"
+msgstr "La instal·lació ha fallat: {}"
+
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
 msgstr "Enregistrament en directe"
@@ -810,6 +852,10 @@ msgstr "Comprova si hi ha actualitzacions"
 #: buzz/widgets/about_dialog.py
 msgid "Show logs"
 msgstr "Mostra els registres"
+
+#: buzz/widgets/about_dialog.py
+msgid "Install CUDA Acceleration"
+msgstr "Instal·lar acceleració CUDA"
 
 #: buzz/widgets/about_dialog.py
 msgid "You're up to date!"
@@ -1680,9 +1726,6 @@ msgstr ""
 #~ msgstr ""
 #~ "Per habilitar els permisos necessaris, executeu les ordres següents al "
 #~ "terminal"
-
-#~ msgid "Close"
-#~ msgstr "Tanca"
 
 #~ msgid "Enter instructions for AI on how to translate..."
 #~ msgstr "Introduïu les instruccions per a la IA sobre com traduir..."

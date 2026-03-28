@@ -522,6 +522,12 @@ class MainWindow(QMainWindow):
     def _maybe_show_cuda_prompt(self):
         """On first launch (Windows/Snap/Flatpak), offer CUDA installation if an NVIDIA GPU is present."""
         from buzz import cuda_manager
+        is_nvidia_gpu_present = cuda_manager.is_nvidia_gpu_present()
+
+        logging.debug(f"Nvidia GPU detected: {is_nvidia_gpu_present}")
+
+        if not is_nvidia_gpu_present:
+            return
         if not cuda_manager.should_offer_cuda_prompt():
             return
         if self.settings.value(Settings.Key.CUDA_PROMPT_SHOWN, False):
