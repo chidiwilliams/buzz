@@ -75,9 +75,9 @@ class CudaInstallerDialog(QDialog):
 
         self.log_view = QTextEdit()
         self.log_view.setReadOnly(True)
-        self.log_view.setMaximumHeight(120)
+        self.log_view.setMinimumHeight(120)
         self.log_view.setVisible(False)
-        layout.addWidget(self.log_view)
+        layout.addWidget(self.log_view, 1)  # stretch factor so it expands with window
 
         self.progress_bar = QProgressBar()
         self.progress_bar.setRange(0, 0)  # indeterminate
