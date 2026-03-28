@@ -78,6 +78,7 @@ class RecordingTranscriber(QObject):
         )
         self.process = None
         self._stderr_lines: list[bytes] = []
+        self.use_cuda = False
 
     def start(self):
         self.is_running = True
@@ -166,6 +167,7 @@ class RecordingTranscriber(QObject):
 
         force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
         use_cuda = torch.cuda.is_available() and force_cpu == "false"
+        self.use_cuda = use_cuda
 
         if torch.cuda.is_available():
             logging.debug(f"CUDA version detected: {torch.version.cuda}")
@@ -261,7 +263,7 @@ class RecordingTranscriber(QObject):
             initial_prompt=initial_prompt,
             temperature=DEFAULT_WHISPER_TEMPERATURE,
             no_speech_threshold=0.4,
-            fp16=False,
+            fp16=self.use_cuda,
         )
 
     def _transcribe_faster_whisper(self, samples, model, initial_prompt):
