@@ -79,12 +79,35 @@ def _in_virtualenv() -> bool:
     return sys.prefix != sys.base_prefix or "VIRTUAL_ENV" in os.environ
 
 
+def _get_install_target() -> list[str]:
+    """Return pip target flags for the current environment.
+
+    In Snap/Flatpak the Python interpreter's user-site is disabled or points to
+    the read-only bundle, so we use --target with an explicit writable path.
+    In a virtualenv --user is forbidden; packages go into the venv directly.
+    Otherwise we use --user so packages land in ~/.local.
+    """
+    if is_snap():
+        snap_user_data = os.environ.get("SNAP_USER_DATA")
+        if snap_user_data:
+            target = str(Path(snap_user_data) / "cuda_packages")
+        else:
+            target = str(Path.home() / ".local" / "share" / "buzz" / "cuda_packages")
+        Path(target).mkdir(parents=True, exist_ok=True)
+        return ["--target", target]
+    if is_flatpak():
+        xdg_data = os.environ.get("XDG_DATA_HOME", str(Path.home() / ".local" / "share"))
+        target = str(Path(xdg_data) / "buzz" / "cuda_packages")
+        Path(target).mkdir(parents=True, exist_ok=True)
+        return ["--target", target]
+    if _in_virtualenv():
+        return []
+    return ["--user"]
+
+
 def install_cuda(progress_callback=None):
     """
     Install CUDA-enabled torch and nvidia libraries.
-
-    Installs to user site-packages when possible. Inside a virtualenv the
-    --user flag is omitted (pip forbids it) and packages go into the venv.
 
     Args:
         progress_callback: Optional callable(str) called with status messages.
@@ -94,19 +117,19 @@ def install_cuda(progress_callback=None):
         if progress_callback:
             progress_callback(msg)
 
-    user_flag = [] if _in_virtualenv() else ["--user"]
-
-    report("Installing CUDA-enabled PyTorch...")
-    _pip_install(
-        CUDA_TORCH_PACKAGES,
-        extra_args=["--index-url", CUDA_INDEX_URL] + user_flag,
-        progress_callback=report,
-    )
+    target_flags = _get_install_target()
 
     report("Installing NVIDIA CUDA libraries...")
     _pip_install(
         CUDA_NVIDIA_PACKAGES,
-        extra_args=["--extra-index-url", CUDA_NVIDIA_INDEX_URL] + user_flag,
+        extra_args=["--extra-index-url", CUDA_NVIDIA_INDEX_URL] + target_flags,
+        progress_callback=report,
+    )
+
+    report("Installing CUDA-enabled PyTorch...")
+    _pip_install(
+        CUDA_TORCH_PACKAGES,
+        extra_args=["--index-url", CUDA_INDEX_URL] + target_flags,
         progress_callback=report,
     )
 

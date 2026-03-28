@@ -21,6 +21,18 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 
+def _get_cuda_target_dir() -> Path | None:
+    """Return the --target directory used during CUDA install for snap/flatpak, or None."""
+    snap_user_data = os.environ.get("SNAP_USER_DATA")
+    if snap_user_data:
+        return Path(snap_user_data) / "cuda_packages"
+    flatpak_id = os.environ.get("FLATPAK_ID")
+    if flatpak_id:
+        xdg_data = os.environ.get("XDG_DATA_HOME", str(Path.home() / ".local" / "share"))
+        return Path(xdg_data) / "buzz" / "cuda_packages"
+    return None
+
+
 def _get_nvidia_package_lib_dirs() -> list[Path]:
     """Find all nvidia package library directories in site-packages."""
     lib_dirs = []
@@ -28,6 +40,14 @@ def _get_nvidia_package_lib_dirs() -> list[Path]:
     # Find site-packages directories (including user site-packages for runtime-installed CUDA)
     site_packages_dirs = []
     import site
+
+    # For snap/flatpak, packages are installed to an explicit --target directory
+    cuda_target = _get_cuda_target_dir()
+    if cuda_target and cuda_target.exists():
+        if str(cuda_target) not in sys.path:
+            sys.path.insert(0, str(cuda_target))
+        site_packages_dirs.append(cuda_target)
+
     user_site = site.getusersitepackages()
     if user_site:
         site_packages_dirs.append(Path(user_site))

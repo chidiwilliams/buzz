@@ -208,7 +208,7 @@ class RecordingTranscriber(QObject):
                                 initial_prompt=initial_prompt,
                                 temperature=DEFAULT_WHISPER_TEMPERATURE,
                                 no_speech_threshold=0.4,
-                                fp16=False,
+                                fp16=use_cuda,
                             )
                         elif (
                                 self.transcription_options.model.model_type

@@ -360,7 +360,7 @@ class WhisperFileTranscriber(FileTranscriber):
                 temperature=DEFAULT_WHISPER_TEMPERATURE,
                 initial_prompt=task.transcription_options.initial_prompt,
                 no_speech_threshold=0.4,
-                fp16=False,
+                fp16=use_cuda,
             )
             return [
                 Segment(
@@ -380,7 +380,7 @@ class WhisperFileTranscriber(FileTranscriber):
             temperature=task.transcription_options.temperature,
             initial_prompt=task.transcription_options.initial_prompt,
             verbose=False,
-            fp16=False,
+            fp16=use_cuda,
         )
         segments = result.get("segments")
         return [
