@@ -20,6 +20,7 @@ from buzz.__version__ import VERSION
 from buzz.widgets.icon import BUZZ_ICON_PATH, BUZZ_LARGE_ICON_PATH
 from buzz.locale import _
 from buzz.settings.settings import APP_NAME
+from buzz.widgets.cuda_installer_widget import CudaInstallerDialog
 
 
 class AboutDialog(QDialog):
@@ -84,6 +85,9 @@ class AboutDialog(QDialog):
         self.show_logs_button = QPushButton(_("Show logs"), self)
         self.show_logs_button.clicked.connect(self.on_click_show_logs)
 
+        self.cuda_installer_button = QPushButton(_("Install CUDA Acceleration"), self)
+        self.cuda_installer_button.clicked.connect(self.on_click_cuda_installer)
+
         button_box = QDialogButtonBox(
             QDialogButtonBox.StandardButton(QDialogButtonBox.StandardButton.Close), self
         )
@@ -95,6 +99,7 @@ class AboutDialog(QDialog):
         layout.addWidget(version_label)
         layout.addWidget(self.check_updates_button)
         layout.addWidget(self.show_logs_button)
+        layout.addWidget(self.cuda_installer_button)
         layout.addWidget(button_box)
 
         self.setLayout(layout)
@@ -108,6 +113,12 @@ class AboutDialog(QDialog):
     def on_click_show_logs(self):
         log_dir = user_log_dir(appname="Buzz")
         QDesktopServices.openUrl(QUrl.fromLocalFile(log_dir))
+
+    def on_click_cuda_installer(self):
+        dialog = CudaInstallerDialog(self)
+        dialog.show()
+        dialog.raise_()
+        dialog.activateWindow()
 
     def on_latest_release_reply(self, reply: QNetworkReply):
         if reply.error() == QNetworkReply.NetworkError.NoError:
