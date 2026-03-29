@@ -1124,11 +1124,7 @@ class RecordingTranscriberWidget(QWidget):
             super().closeEvent(event)
             return
 
-        thread_running = (
-            self.transcription_thread is not None
-            and self.transcription_thread.isRunning()
-        )
-        if self.current_status == self.RecordingStatus.RECORDING or thread_running:
+        if self.current_status == self.RecordingStatus.RECORDING or self.transcription_thread is not None:
             # Defer the close until the transcription thread finishes to avoid
             # blocking the GUI thread with a synchronous wait.
             event.ignore()
