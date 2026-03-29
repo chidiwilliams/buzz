@@ -54,3 +54,30 @@ class TestAudioMeterWidget:
         widget = AudioMeterWidget()
         qtbot.add_widget(widget)
         assert widget.height() == 56
+
+    def test_update_queue_size(self, qtbot: QtBot):
+        widget = AudioMeterWidget()
+        qtbot.add_widget(widget)
+        widget.update_queue_size(5)
+        assert widget.queue_size == 5
+
+    def test_reset_amplitude_clears_queue_size(self, qtbot: QtBot):
+        widget = AudioMeterWidget()
+        qtbot.add_widget(widget)
+        widget.update_queue_size(3)
+        widget.reset_amplitude()
+        assert widget.queue_size == 0
+
+    def test_initial_queue_size_is_zero(self, qtbot: QtBot):
+        widget = AudioMeterWidget()
+        qtbot.add_widget(widget)
+        assert widget.queue_size == 0
+
+    def test_paint_event_does_not_raise(self, qtbot: QtBot):
+        widget = AudioMeterWidget()
+        qtbot.add_widget(widget)
+        widget.show()
+        widget.update_amplitude(0.5)
+        widget.update_average_amplitude(0.1)
+        widget.update_queue_size(2)
+        widget.repaint()  # triggers paintEvent
