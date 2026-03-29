@@ -646,7 +646,7 @@ msgid ""
 "significantly faster using CUDA. For other GPU brands this acceleration will "
 "have no effect\n"
 "\n"
-"This will download and install PyTorch with CUDA support (~2 GB). Buzz must "
+"This will download and install PyTorch with CUDA support (~8 GB). Buzz must "
 "be restarted after installation."
 msgstr ""
 

@@ -23,8 +23,6 @@ CUDA_TORCH_PACKAGES = [
 
 # NVIDIA runtime libraries — sourced from the official NVIDIA PyPI index.
 # Versions are pinned to those resolved in uv.lock to prevent accidental upgrades.
-CUDA_NVIDIA_INDEX_URL = "https://pypi.ngc.nvidia.com"
-
 # Packages that have wheels for both Linux and Windows (verified via uv.lock).
 CUDA_NVIDIA_PACKAGES_COMMON = [
     "nvidia-cublas-cu12==12.9.1.4",
@@ -166,7 +164,7 @@ def install_cuda(progress_callback=None):
     report("Installing NVIDIA CUDA libraries...")
     _pip_install(
         nvidia_packages,
-        extra_args=["--index-url", CUDA_NVIDIA_INDEX_URL] + target_flags,
+        extra_args=["--index-url", CUDA_INDEX_URL] + target_flags,
         progress_callback=report,
     )
 
