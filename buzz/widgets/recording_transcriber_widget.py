@@ -1077,6 +1077,7 @@ class RecordingTranscriberWidget(QWidget):
         self.reset_record_button()
         self.set_recording_status_stopped()
         self.reset_recording_amplitude_listener()
+        self.transcription_stopped.emit()
         QMessageBox.critical(
             self,
             "",
@@ -1123,7 +1124,11 @@ class RecordingTranscriberWidget(QWidget):
             super().closeEvent(event)
             return
 
-        if self.current_status == self.RecordingStatus.RECORDING:
+        thread_running = (
+            self.transcription_thread is not None
+            and self.transcription_thread.isRunning()
+        )
+        if self.current_status == self.RecordingStatus.RECORDING or thread_running:
             # Defer the close until the transcription thread finishes to avoid
             # blocking the GUI thread with a synchronous wait.
             event.ignore()
