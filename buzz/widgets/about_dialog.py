@@ -91,6 +91,7 @@ class AboutDialog(QDialog):
         button_box = QDialogButtonBox(
             QDialogButtonBox.StandardButton(QDialogButtonBox.StandardButton.Close), self
         )
+        button_box.button(QDialogButtonBox.StandardButton.Close).setText(_("Close"))
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
 
