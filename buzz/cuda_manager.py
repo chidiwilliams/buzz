@@ -11,18 +11,33 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-# Pinned CUDA torch versions for in-app installation
+# Pinned versions matching uv.lock for the cu129 build of PyTorch.
+# All packages are served from the PyTorch wheel index; pip selects the
+# correct platform wheel automatically (Linux-only packages have no
+# Windows wheel and are silently skipped by pip on Windows).
 CUDA_INDEX_URL = "https://download.pytorch.org/whl/cu129"
 CUDA_TORCH_PACKAGES = [
     "torch==2.8.0+cu129",
     "torchaudio==2.8.0+cu129",
 ]
+# Full set of NVIDIA runtime libraries required by torch+cu129.
+# Versions are pinned to those resolved in uv.lock to prevent accidental upgrades.
 CUDA_NVIDIA_PACKAGES = [
     "nvidia-cublas-cu12==12.9.1.4",
     "nvidia-cuda-cupti-cu12==12.9.79",
+    "nvidia-cuda-nvrtc-cu12==12.9.86",
     "nvidia-cuda-runtime-cu12==12.9.79",
+    "nvidia-cudnn-cu12==9.10.2.21",
+    "nvidia-cufft-cu12==11.4.1.4",
+    "nvidia-cufile-cu12==1.14.1.1",
+    "nvidia-curand-cu12==10.3.10.19",
+    "nvidia-cusolver-cu12==11.7.5.82",
+    "nvidia-cusparse-cu12==12.5.10.65",
+    "nvidia-cusparselt-cu12==0.7.1",
+    "nvidia-nccl-cu12==2.27.3",
+    "nvidia-nvjitlink-cu12==12.9.86",
+    "nvidia-nvtx-cu12==12.9.79",
 ]
-CUDA_NVIDIA_INDEX_URL = "https://pypi.ngc.nvidia.com"
 
 
 def is_snap() -> bool:
@@ -140,14 +155,14 @@ def install_cuda(progress_callback=None):
     report("Installing NVIDIA CUDA libraries...")
     _pip_install(
         CUDA_NVIDIA_PACKAGES,
-        extra_args=["--extra-index-url", CUDA_NVIDIA_INDEX_URL] + target_flags,
+        extra_args=["--index-url", CUDA_INDEX_URL] + target_flags,
         progress_callback=report,
     )
 
     report("Installing CUDA-enabled PyTorch...")
     _pip_install(
         CUDA_TORCH_PACKAGES,
-        extra_args=["--index-url", CUDA_INDEX_URL] + target_flags,
+        extra_args=["--index-url", CUDA_INDEX_URL, "--no-deps"] + target_flags,
         progress_callback=report,
     )
 
