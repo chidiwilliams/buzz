@@ -174,11 +174,19 @@ def get_expected_whisper_model_size(size: WhisperModelSize) -> Optional[int]:
     return WHISPER_MODEL_SIZES.get(size, None)
 
 class ModelType(enum.Enum):
-    WHISPER = "Whisper"
     WHISPER_CPP = "Whisper.cpp"
     HUGGING_FACE = "Hugging Face"
     FASTER_WHISPER = "Faster Whisper"
+    WHISPER = "OpenAI Whisper"
     OPEN_AI_WHISPER_API = "OpenAI Whisper API"
+
+    @classmethod
+    def _missing_(cls, value):
+        # Migrate old stored values to new display names
+        legacy_map = {
+            "Whisper": cls.WHISPER,
+        }
+        return legacy_map.get(value)
 
     @property
     def supports_initial_prompt(self):
