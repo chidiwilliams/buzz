@@ -328,7 +328,7 @@ class TranscriptionModel:
     def __str__(self):
         match self.model_type:
             case ModelType.WHISPER:
-                return f"Whisper ({self.whisper_model_size})"
+                return f"OpenAI Whisper ({self.whisper_model_size})"
             case ModelType.WHISPER_CPP:
                 return f"Whisper.cpp ({self.whisper_model_size})"
             case ModelType.HUGGING_FACE:
