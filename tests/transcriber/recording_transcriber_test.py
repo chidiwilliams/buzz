@@ -414,6 +414,7 @@ class TestStartLocalWhisperServer:
             # Mock a successful process
             mock_process = MagicMock()
             mock_process.poll.return_value = None  # Process is running
+            mock_process.stderr = iter([])
             mock_popen.return_value = mock_process
 
             transcriber = RecordingTranscriber(
@@ -522,7 +523,7 @@ class TestStartLocalWhisperServer:
             # Mock a failed process
             mock_process = MagicMock()
             mock_process.poll.return_value = 1  # Process terminated with error
-            mock_process.stderr.read.return_value = b"Error loading model"
+            mock_process.stderr = iter([b"Error loading model"])
             mock_popen.return_value = mock_process
 
             transcriber = RecordingTranscriber(
