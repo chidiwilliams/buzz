@@ -36,10 +36,13 @@ dependencies = [
     "torch==2.2.2; sys_platform == 'darwin' and platform_machine == 'x86_64'",
     "torchaudio==2.2.2; sys_platform == 'darwin' and platform_machine == 'x86_64'",
     "ctranslate2==4.3.1; sys_platform == 'darwin' and platform_machine == 'x86_64'",
-    # For Linux/Windows/ARM Mac - use CPU versions from pytorch index
+    # For Linux/Windows - use CPU versions from pytorch index
     "ctranslate2>=4.6.2,<5; sys_platform != 'darwin'",
-    "torch==2.8.0+cpu; sys_platform != 'darwin' or platform_machine != 'x86_64'",
-    "torchaudio==2.8.0+cpu; sys_platform != 'darwin' or platform_machine != 'x86_64'",
+    "torch==2.8.0+cpu; sys_platform != 'darwin'",
+    "torchaudio==2.8.0+cpu; sys_platform != 'darwin'",
+    # For ARM Mac - use regular PyPI torch
+    "torch==2.8.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "torchaudio==2.8.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
     # faster whisper need cudnn 9
     "nvidia-cudnn-cu12>=9,<10; sys_platform != 'darwin'",
     # CUDA runtime libraries are provided by torch dependencies, no need to specify explicitly
@@ -125,10 +128,10 @@ override-dependencies = [
 
 [tool.uv.sources]
 torch = [
-  { index = "pytorch-cpu", marker = "sys_platform != 'darwin' or platform_machine != 'x86_64'" },
+  { index = "pytorch-cpu", marker = "sys_platform != 'darwin'" },
 ]
 torchaudio = [
-  { index = "pytorch-cpu", marker = "sys_platform != 'darwin' or platform_machine != 'x86_64'" },
+  { index = "pytorch-cpu", marker = "sys_platform != 'darwin'" },
 ]
 [[tool.uv.index]]
 name = "pytorch-cpu"
