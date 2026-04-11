@@ -62,7 +62,7 @@ jobs:
       - uses: AnimMouse/setup-ffmpeg@v1
         id: setup-ffmpeg
         with:
-          version: ${{ matrix.os == 'macos-15-intel' && '7.1.1' || matrix.os == 'macos-latest' && '80' || '8.0' }}
+          version: ${{ matrix.os == 'macos-15-intel' && '7.1.1' || matrix.os == 'macos-latest' && '711' || '7.1' }}
 
       - name: Test ffmpeg
         run: ffmpeg -i ./testdata/audio-long.mp3 ./testdata/audio-long.wav
@@ -179,7 +179,7 @@ jobs:
       - uses: AnimMouse/setup-ffmpeg@v1
         id: setup-ffmpeg
         with:
-          version: ${{ matrix.os == 'macos-15-intel' && '7.1.1' || matrix.os == 'macos-latest' && '80' || '8.0' }}
+          version: ${{ matrix.os == 'macos-15-intel' && '7.1.1' || matrix.os == 'macos-latest' && '711' || '7.1' }}
 
       - name: Install MSVC for Windows
         run: |
