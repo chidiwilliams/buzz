@@ -67,6 +67,8 @@ If a model download was incomplete or corrupted, Buzz may crash. Try to delete t
 
 If that does not help, check the log file for errors and [report the issue](https://github.com/chidiwilliams/buzz/issues) so we can fix it. If possible attach the log file to the issue. Since Version `1.3.4`, to get to the logs folder go to `Help -> About Buzz` and click on `Show logs` button.
 
+Also note that Buzz needs AVX2 support in your CPU, very old computers are not supported.
+
 ### 9. Where can I get latest development version?
 
 Latest development version will have latest bug fixes and most recent features. If you feel a bit adventurous it is recommended to try the latest development version as they needs some testing before they get released to everybody.
