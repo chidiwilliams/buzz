@@ -253,6 +253,12 @@ class WhisperFileTranscriber(FileTranscriber):
     def transcribe_faster_whisper(cls, task: FileTranscriptionTask) -> List[Segment]:
         # Use the already-resolved local model path so we never hit the network
         model_size_or_path = task.model_path
+        if not model_size_or_path:
+            raise FileNotFoundError(
+                "Faster Whisper model is not available locally. "
+                "Check BUZZ_MODEL_ROOT and download the model into that cache first."
+            )
+            return []
 
         model_root_dir = user_cache_dir("Buzz")
         model_root_dir = os.path.join(model_root_dir, "models")
