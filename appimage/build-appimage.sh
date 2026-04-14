@@ -74,6 +74,7 @@ cp "$PROJECT_DIR/share/icons/io.github.chidiwilliams.Buzz.svg" \
 # AppStream metainfo (appimagetool expects .appdata.xml suffix)
 cp "$PROJECT_DIR/share/metainfo/io.github.chidiwilliams.Buzz.metainfo.xml" \
    "$APPDIR/usr/share/metainfo/io.github.chidiwilliams.Buzz.appdata.xml"
+APPSTREAM_FILE="$APPDIR/usr/share/metainfo/io.github.chidiwilliams.Buzz.appdata.xml"
 
 # ── Step 4: AppRun entry point ──────────────────────────────────────────────
 cat > "$APPDIR/AppRun" << 'APPRUN'
@@ -111,9 +112,23 @@ if [ ! -f "$RUNTIME" ]; then
 fi
 
 # Use --appimage-extract-and-run when FUSE is unavailable (CI, containers)
-EXTRA_ARGS=(--runtime-file "$RUNTIME")
+EXTRA_ARGS=(--runtime-file "$RUNTIME" --no-appstream)
 if [ "${CI:-}" = "true" ] || ! command -v fusermount &>/dev/null; then
     EXTRA_ARGS+=(--appimage-extract-and-run)
+fi
+
+# Validate AppStream metadata ourselves in offline mode. appimagetool's internal
+# appstream-util invocation performs network checks for remote screenshots,
+# which breaks in proxied or restricted build environments even when the
+# metadata itself is otherwise valid.
+if command -v appstreamcli >/dev/null 2>&1; then
+    echo "==> Validating AppStream metadata with appstreamcli (--no-net)..."
+    appstreamcli validate --no-net "$APPSTREAM_FILE"
+fi
+
+if command -v appstream-util >/dev/null 2>&1; then
+    echo "==> Validating AppStream metadata with appstream-util (--nonet)..."
+    appstream-util validate-relax --nonet "$APPSTREAM_FILE"
 fi
 
 ARCH="$ARCH" "$APPIMAGETOOL" "${EXTRA_ARGS[@]}" "$APPDIR" "$OUTPUT"
