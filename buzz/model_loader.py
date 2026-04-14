@@ -331,10 +331,28 @@ class TranscriptionModel:
 
     @staticmethod
     def default():
-        model_type = next(
-            model_type for model_type in ModelType if model_type.is_available()
-        )
-        return TranscriptionModel(model_type=model_type)
+        default_type_env = os.getenv("BUZZ_DEFAULT_MODEL_TYPE")
+        default_size_env = os.getenv("BUZZ_DEFAULT_MODEL_SIZE")
+
+        if default_type_env:
+            try:
+                model_type = ModelType(default_type_env)
+            except ValueError:
+                logging.warning("Unknown BUZZ_DEFAULT_MODEL_TYPE=%r, using default", default_type_env)
+                model_type = next(mt for mt in ModelType if mt.is_available())
+        else:
+            model_type = next(mt for mt in ModelType if mt.is_available())
+
+        if default_size_env:
+            try:
+                model_size = WhisperModelSize(default_size_env)
+            except ValueError:
+                logging.warning("Unknown BUZZ_DEFAULT_MODEL_SIZE=%r, using default", default_size_env)
+                model_size = WhisperModelSize.TINY
+        else:
+            model_size = WhisperModelSize.TINY
+
+        return TranscriptionModel(model_type=model_type, whisper_model_size=model_size)
 
     @staticmethod
     def open_path(path: str):
