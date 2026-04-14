@@ -12,7 +12,13 @@ Use --model-type and --model-size to download selectively:
 """
 
 import argparse
+import os
 import sys
+
+# Mirror the HF_HOME logic from buzz/buzz.py so downloads go to the right place
+_model_root = os.environ.get("BUZZ_MODEL_ROOT")
+if _model_root:
+    os.environ.setdefault("HF_HOME", os.path.dirname(_model_root))
 
 from PyQt6.QtCore import QCoreApplication
 
