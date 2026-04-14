@@ -85,6 +85,7 @@ class Application(QApplication):
                 "machine": platform.machine(),
                 "version": platform.version(),
             })
+            posthog.shutdown()
 
         logging.debug(f"Launching Buzz: {VERSION}, " 
                       f"locale: {locale.getlocale()}, "
