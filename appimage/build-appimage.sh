@@ -111,10 +111,10 @@ if [ ! -f "$RUNTIME" ]; then
         "https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-${ARCH}"
 fi
 
-# Use --appimage-extract-and-run when FUSE is unavailable (CI, containers)
+# Use APPIMAGETOOL_EXTRACT_AND_RUN when FUSE is unavailable (CI, containers)
 EXTRA_ARGS=(--runtime-file "$RUNTIME" --no-appstream)
 if [ "${CI:-}" = "true" ] || ! command -v fusermount &>/dev/null; then
-    EXTRA_ARGS+=(--appimage-extract-and-run)
+    export APPIMAGETOOL_EXTRACT_AND_RUN=1
 fi
 
 # Validate AppStream metadata ourselves in offline mode. appimagetool's internal
