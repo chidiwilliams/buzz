@@ -428,4 +428,21 @@ class TestWhisperFileTranscriber:
         # Assert that file was not created
         assert os.path.isfile(output_file_path) is False
 
+
+class TestTranscribeFasterWhisper:
+    def test_raises_when_model_path_is_empty(self):
+        task = FileTranscriptionTask(
+            model_path="",
+            transcription_options=TranscriptionOptions(
+                model=TranscriptionModel(
+                    model_type=ModelType.FASTER_WHISPER,
+                    whisper_model_size=WhisperModelSize.TINY,
+                )
+            ),
+            file_transcription_options=FileTranscriptionOptions(file_paths=[test_audio_path]),
+            file_path=test_audio_path,
+        )
+        with pytest.raises(FileNotFoundError, match="BUZZ_MODEL_ROOT"):
+            WhisperFileTranscriber.transcribe_faster_whisper(task)
+
         time.sleep(3)

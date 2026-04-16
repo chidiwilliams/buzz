@@ -182,6 +182,26 @@ class TestTranscriptionModel:
         assert model.model_type in list(ModelType)
         assert model.model_type.is_available() is True
 
+    def test_default_respects_model_type_env(self, monkeypatch):
+        monkeypatch.setenv("BUZZ_DEFAULT_MODEL_TYPE", "Faster Whisper")
+        model = TranscriptionModel.default()
+        assert model.model_type == ModelType.FASTER_WHISPER
+
+    def test_default_respects_model_size_env(self, monkeypatch):
+        monkeypatch.setenv("BUZZ_DEFAULT_MODEL_SIZE", "base")
+        model = TranscriptionModel.default()
+        assert model.whisper_model_size == WhisperModelSize.BASE
+
+    def test_default_invalid_model_type_env_falls_back(self, monkeypatch):
+        monkeypatch.setenv("BUZZ_DEFAULT_MODEL_TYPE", "NotAModelType")
+        model = TranscriptionModel.default()
+        assert model.model_type.is_available() is True
+
+    def test_default_invalid_model_size_env_falls_back(self, monkeypatch):
+        monkeypatch.setenv("BUZZ_DEFAULT_MODEL_SIZE", "not-a-size")
+        model = TranscriptionModel.default()
+        assert model.whisper_model_size == WhisperModelSize.TINY
+
     def test_get_local_model_path_openai_api(self):
         model = TranscriptionModel(model_type=ModelType.OPEN_AI_WHISPER_API)
         assert model.get_local_model_path() == ""
