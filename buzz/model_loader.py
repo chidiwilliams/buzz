@@ -13,14 +13,30 @@ import platform
 
 # Fix SSL certificate verification for bundled applications (macOS, Windows).
 # This must be done before importing libraries that make HTTPS requests.
+#
+# Try truststore first: it injects the OS/system certificate store (Windows
+# certificate store, macOS keychain) so corporate/enterprise proxy CAs are
+# trusted automatically. Fall back to certifi for environments where the
+# system store is sufficient but the bundled Python lacks its own CA bundle.
+_truststore_available = False
+try:
+    import truststore
+    truststore.inject_into_ssl()
+    _truststore_available = True
+    logging.debug("SSL: using system trust store via truststore")
+except ImportError:
+    pass
+except Exception as e:
+    logging.debug(f"SSL: truststore inject failed: {e}")
+
 try:
     import certifi
     _certifi_ca_bundle = certifi.where()
-    os.environ.setdefault("REQUESTS_CA_BUNDLE", _certifi_ca_bundle)
-    os.environ.setdefault("SSL_CERT_FILE", _certifi_ca_bundle)
-    os.environ.setdefault("SSL_CERT_DIR", os.path.dirname(_certifi_ca_bundle))
-    # Also update the default SSL context for urllib
-    ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=_certifi_ca_bundle)
+    if not _truststore_available:
+        os.environ.setdefault("REQUESTS_CA_BUNDLE", _certifi_ca_bundle)
+        os.environ.setdefault("SSL_CERT_FILE", _certifi_ca_bundle)
+        os.environ.setdefault("SSL_CERT_DIR", os.path.dirname(_certifi_ca_bundle))
+        ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=_certifi_ca_bundle)
 except ImportError:
     _certifi_ca_bundle = None
 
@@ -37,23 +53,23 @@ from huggingface_hub.errors import LocalEntryNotFoundError
 
 from buzz.locale import _
 
-# Configure huggingface_hub to use certifi certificates directly.
-# This is more reliable than environment variables for frozen apps.
-if _certifi_ca_bundle is not None:
-    try:
-        from huggingface_hub import configure_http_backend
+# Configure huggingface_hub HTTP backend.
+# When truststore is active, a plain session inherits the patched SSL context.
+# When falling back to certifi, explicitly set session.verify to the CA bundle.
+try:
+    from huggingface_hub import configure_http_backend
 
-        def _hf_session_factory() -> requests.Session:
-            session = requests.Session()
+    def _hf_session_factory() -> requests.Session:
+        session = requests.Session()
+        if not _truststore_available and _certifi_ca_bundle is not None:
             session.verify = _certifi_ca_bundle
-            return session
+        return session
 
-        configure_http_backend(backend_factory=_hf_session_factory)
-    except ImportError:
-        # configure_http_backend not available in older huggingface_hub versions
-        pass
-    except Exception as e:
-        logging.debug(f"Failed to configure huggingface_hub HTTP backend: {e}")
+    configure_http_backend(backend_factory=_hf_session_factory)
+except ImportError:
+    pass
+except Exception as e:
+    logging.debug(f"Failed to configure huggingface_hub HTTP backend: {e}")
 
 # On Windows, creating symlinks requires special privileges (Developer Mode or
 # SeCreateSymbolicLinkPrivilege). Monkey-patch huggingface_hub to use file

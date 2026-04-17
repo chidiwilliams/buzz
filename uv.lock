@@ -338,6 +338,7 @@ dependencies = [
     { name = "tqdm" },
     { name = "transformers" },
     { name = "treetable" },
+    { name = "truststore" },
     { name = "urllib3" },
     { name = "uroman" },
     { name = "vulkan" },
@@ -432,6 +433,7 @@ requires-dist = [
     { name = "tqdm", specifier = ">=4.67.1,<5" },
     { name = "transformers", specifier = ">=4.53,<5" },
     { name = "treetable", specifier = ">=0.2.5,<0.3" },
+    { name = "truststore", specifier = ">=0.10.0" },
     { name = "urllib3", specifier = ">=2.6.0,<3" },
     { name = "uroman", specifier = ">=1.3.1.1" },
     { name = "vulkan", specifier = ">=1.3.275.1,<2" },
@@ -4134,9 +4136,9 @@ dependencies = [
     { name = "typing-extensions", marker = "sys_platform != 'darwin'" },
 ]
 wheels = [
-    { url = "https://download.pytorch.org/whl/cu129/torch-2.8.0%2Bcu129-cp312-cp312-manylinux_2_28_aarch64.whl", hash = "sha256:692fe6e513b667f789a543fa9b1baba58e77a46d5c8629764ca0c00a56823e1f" },
-    { url = "https://download.pytorch.org/whl/cu129/torch-2.8.0%2Bcu129-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:02c7258e917f3043c978b53acf6f02b818db0d0d85db0e58ae578af333b9b4e2" },
-    { url = "https://download.pytorch.org/whl/cu129/torch-2.8.0%2Bcu129-cp312-cp312-win_amd64.whl", hash = "sha256:2bc729898e422b9f3da54349eed98f2f0b5dd415434508ee2ab2a13fb021815d" },
+    { url = "https://download-r2.pytorch.org/whl/cu129/torch-2.8.0%2Bcu129-cp312-cp312-manylinux_2_28_aarch64.whl", hash = "sha256:692fe6e513b667f789a543fa9b1baba58e77a46d5c8629764ca0c00a56823e1f" },
+    { url = "https://download-r2.pytorch.org/whl/cu129/torch-2.8.0%2Bcu129-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:02c7258e917f3043c978b53acf6f02b818db0d0d85db0e58ae578af333b9b4e2" },
+    { url = "https://download-r2.pytorch.org/whl/cu129/torch-2.8.0%2Bcu129-cp312-cp312-win_amd64.whl", hash = "sha256:2bc729898e422b9f3da54349eed98f2f0b5dd415434508ee2ab2a13fb021815d" },
 ]
 
 [[package]]
@@ -4283,8 +4285,8 @@ dependencies = [
     { name = "setuptools", marker = "sys_platform != 'darwin'" },
 ]
 wheels = [
-    { url = "https://download.pytorch.org/whl/triton-3.4.0-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:00ea4a1c15f079bbf49ff02c312210fdb8ff05b1503ea30812610e2a3b171f3b" },
-    { url = "https://download.pytorch.org/whl/triton-3.4.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:8550672b1184f05187f4140db32e33e61b592046fd3e1eb907e3b7db5321b750" },
+    { url = "https://download-r2.pytorch.org/whl/triton-3.4.0-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:00ea4a1c15f079bbf49ff02c312210fdb8ff05b1503ea30812610e2a3b171f3b" },
+    { url = "https://download-r2.pytorch.org/whl/triton-3.4.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:8550672b1184f05187f4140db32e33e61b592046fd3e1eb907e3b7db5321b750" },
 ]
 
 [[package]]
@@ -4294,6 +4296,15 @@ source = { registry = "https://pypi.org/simple/" }
 sdist = { url = "https://files.pythonhosted.org/packages/80/e1/000add3b3e0725ce7ee0ea6ea4543f1e1d9519742f3b2320de41eeefa7c7/trove_classifiers-2025.12.1.14.tar.gz", hash = "sha256:a74f0400524fc83620a9be74a07074b5cbe7594fd4d97fd4c2bfde625fdc1633", size = 16985, upload-time = "2025-12-01T14:47:11.456Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/4f/7e/bc19996fa86cad8801e8ffe6f1bba5836ca0160df76d0410d27432193712/trove_classifiers-2025.12.1.14-py3-none-any.whl", hash = "sha256:a8206978ede95937b9959c3aff3eb258bbf7b07dff391ddd4ea7e61f316635ab", size = 14184, upload-time = "2025-12-01T14:47:10.113Z" },
+]
+
+[[package]]
+name = "truststore"
+version = "0.10.4"
+source = { registry = "https://pypi.org/simple/" }
+sdist = { url = "https://files.pythonhosted.org/packages/53/a3/1585216310e344e8102c22482f6060c7a6ea0322b63e026372e6dcefcfd6/truststore-0.10.4.tar.gz", hash = "sha256:9d91bd436463ad5e4ee4aba766628dd6cd7010cf3e2461756b3303710eebc301", size = 26169, upload-time = "2025-08-12T18:49:02.73Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/19/97/56608b2249fe206a67cd573bc93cd9896e1efb9e98bce9c163bcdc704b88/truststore-0.10.4-py3-none-any.whl", hash = "sha256:adaeaecf1cbb5f4de3b1959b42d41f6fab57b2b1666adb59e89cb0b53361d981", size = 18660, upload-time = "2025-08-12T18:49:01.46Z" },
 ]
 
 [[package]]
