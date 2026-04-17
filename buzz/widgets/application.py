@@ -3,6 +3,7 @@ import os
 import sys
 import locale
 import platform
+import threading
 import darkdetect
 
 from posthog import Posthog
@@ -85,6 +86,7 @@ class Application(QApplication):
                 "machine": platform.machine(),
                 "version": platform.version(),
             })
+            threading.Thread(target=posthog.shutdown, daemon=True).start()
 
         logging.debug(f"Launching Buzz: {VERSION}, " 
                       f"locale: {locale.getlocale()}, "

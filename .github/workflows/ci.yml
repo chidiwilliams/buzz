@@ -117,6 +117,7 @@ jobs:
           - os: macos-15-intel
           - os: macos-latest
           - os: windows-latest
+          - os: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -247,6 +248,10 @@ jobs:
             cp -r ./dll_backup ./buzz/
             uv run make bundle_windows
 
+          elif [ "$RUNNER_OS" == "Linux" ]; then
+
+            uv run make bundle_appimage
+
           fi
         env:
           BUZZ_CODESIGN_IDENTITY: ${{ secrets.BUZZ_CODESIGN_IDENTITY }}
@@ -266,6 +271,7 @@ jobs:
             dist/Buzz*-windows.exe
             dist/Buzz*-windows-*.bin
             dist/Buzz*-mac.dmg
+            dist/Buzz*.AppImage
 
   build_wheels:
     runs-on: ${{ matrix.os }}
@@ -339,6 +345,7 @@ jobs:
           - os: macos-15-intel
           - os: macos-latest
           - os: windows-latest
+          - os: ubuntu-latest
     needs: [build, test]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
@@ -365,6 +372,7 @@ jobs:
             Buzz*.exe
             Buzz*.bin
             Buzz*.dmg
+            Buzz*.AppImage
 
 #  Brew Cask deployment fails and the app is deprecated on Brew.
 #  deploy_brew_cask:

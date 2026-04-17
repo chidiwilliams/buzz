@@ -22,7 +22,7 @@ from PyQt6.QtCore import QObject
 
 from buzz import whisper_audio
 from buzz.conn import pipe_stderr
-from buzz.model_loader import ModelType, WhisperModelSize, map_language_to_mms
+from buzz.model_loader import ModelType, map_language_to_mms
 from buzz.transformers_whisper import TransformersTranscriber
 from buzz.transcriber.file_transcriber import FileTranscriber
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment, Task, DEFAULT_WHISPER_TEMPERATURE
@@ -253,10 +253,14 @@ class WhisperFileTranscriber(FileTranscriber):
 
     @classmethod
     def transcribe_faster_whisper(cls, task: FileTranscriptionTask) -> List[Segment]:
-        if task.transcription_options.model.whisper_model_size == WhisperModelSize.CUSTOM:
-            model_size_or_path = task.transcription_options.model.hugging_face_model_id
-        else:
-            model_size_or_path = task.transcription_options.model.whisper_model_size.to_faster_whisper_model_size()
+        # Use the already-resolved local model path so we never hit the network
+        model_size_or_path = task.model_path
+        if not model_size_or_path:
+            raise FileNotFoundError(
+                "Faster Whisper model is not available locally. "
+                "Check BUZZ_MODEL_ROOT and download the model into that cache first."
+            )
+            return []
 
         model_root_dir = user_cache_dir("Buzz")
         model_root_dir = os.path.join(model_root_dir, "models")

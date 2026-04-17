@@ -1,8 +1,10 @@
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from PyQt6.QtCore import Qt
 from pytestqt.qtbot import QtBot
 
+from buzz.model_loader import ModelType, TranscriptionModel
+from buzz.transcriber.transcriber import TranscriptionOptions
 from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
 from tests.audio import test_audio_path
 
@@ -35,3 +37,35 @@ class TestFileTranscriberWidget:
         assert transcription_options.language is None
         assert file_transcription_options.file_paths == [test_audio_path]
         assert len(model_path) > 0
+
+    def test_on_model_loaded_empty_path_shows_error_for_local_model(self, qtbot: QtBot):
+        widget = FileTranscriberWidget(file_paths=[test_audio_path])
+        qtbot.add_widget(widget)
+        widget.transcription_options = TranscriptionOptions(
+            model=TranscriptionModel(model_type=ModelType.FASTER_WHISPER)
+        )
+
+        mock_triggered = Mock()
+        widget.triggered.connect(mock_triggered)
+
+        with patch("buzz.widgets.transcriber.file_transcriber_widget.show_model_download_error_dialog") as mock_err, \
+             patch.object(widget, "save_preferences"):
+            widget.on_model_loaded("")
+            mock_err.assert_called_once()
+            mock_triggered.assert_not_called()
+
+    def test_on_model_loaded_empty_path_allowed_for_openai_api(self, qtbot: QtBot):
+        widget = FileTranscriberWidget(file_paths=[test_audio_path])
+        qtbot.add_widget(widget)
+        widget.transcription_options = TranscriptionOptions(
+            model=TranscriptionModel(model_type=ModelType.OPEN_AI_WHISPER_API)
+        )
+
+        mock_triggered = Mock()
+        widget.triggered.connect(mock_triggered)
+
+        with patch("buzz.widgets.transcriber.file_transcriber_widget.show_model_download_error_dialog") as mock_err, \
+             patch.object(widget, "save_preferences"):
+            widget.on_model_loaded("")
+            mock_err.assert_not_called()
+            mock_triggered.assert_called_once()

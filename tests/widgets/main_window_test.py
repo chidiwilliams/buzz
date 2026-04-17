@@ -19,7 +19,10 @@ from pytestqt.qtbot import QtBot
 from buzz.locale import _
 from buzz.db.entity.transcription import Transcription
 from buzz.db.service.transcription_service import TranscriptionService
+from buzz.model_loader import TranscriptionModel, ModelType, WhisperModelSize
+from buzz.transcriber.transcriber import Task, OutputFormat
 from buzz.widgets.main_window import MainWindow
+from buzz.widgets.preferences_dialog.models.file_transcription_preferences import FileTranscriptionPreferences
 from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
 
 mock_transcriptions: List[Transcription] = [
@@ -359,9 +362,27 @@ class TestMainWindow:
     def _import_file_and_start_transcription(
         window: MainWindow, long_audio: bool = False
     ):
+        default_prefs = FileTranscriptionPreferences(
+            language=None,
+            task=Task.TRANSCRIBE,
+            model=TranscriptionModel(
+                model_type=ModelType.WHISPER,
+                whisper_model_size=WhisperModelSize.TINY,
+            ),
+            word_level_timings=False,
+            extract_speech=False,
+            initial_prompt="",
+            enable_llm_translation=False,
+            llm_prompt="",
+            llm_model="",
+            output_formats={OutputFormat.TXT},
+        )
+
         with patch(
             "PyQt6.QtWidgets.QFileDialog.getOpenFileNames"
-        ) as open_file_names_mock:
+        ) as open_file_names_mock, patch.object(
+            FileTranscriberWidget, "load_preferences", return_value=default_prefs
+        ):
             open_file_names_mock.return_value = (
                 [
                     get_test_asset(

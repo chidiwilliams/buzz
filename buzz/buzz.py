@@ -13,8 +13,14 @@ import buzz.cuda_setup  # noqa: F401
 
 from platformdirs import user_log_dir, user_cache_dir, user_data_dir
 
-# Will download all Huggingface data to the app cache directory
-os.environ.setdefault("HF_HOME", user_cache_dir("Buzz"))
+# Will download all Huggingface data to the app cache directory.
+# When BUZZ_MODEL_ROOT is set, derive HF_HOME from it so that HuggingFace
+# adapter downloads (e.g. MMS language adapters) also go to the custom path.
+_model_root = os.environ.get("BUZZ_MODEL_ROOT")
+if _model_root:
+    os.environ.setdefault("HF_HOME", os.path.dirname(_model_root))
+else:
+    os.environ.setdefault("HF_HOME", user_cache_dir("Buzz"))
 
 from buzz.assets import APP_BASE_DIR
 
