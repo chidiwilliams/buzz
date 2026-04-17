@@ -370,7 +370,7 @@ class WhisperFileTranscriber(FileTranscriber):
             ]
 
         result: dict = model.transcribe(
-            audio=task.file_path,
+            audio=whisper_audio.load_audio(task.file_path),
             language=task.transcription_options.language,
             task=task.transcription_options.task.value,
             temperature=task.transcription_options.temperature,

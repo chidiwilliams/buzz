@@ -63,11 +63,8 @@ def load_audio(file: str, sr: int = SAMPLE_RATE):
     else:
         result = subprocess.run(cmd, capture_output=True)
 
-    if result.returncode != 0:
-        logging.warning(f"FFMPEG audio load warning. Process return code was not zero: {result.returncode}")
-
-    if len(result.stderr):
-        logging.warning(f"FFMPEG audio load error. Error: {result.stderr.decode()}")
-        raise RuntimeError(f"FFMPEG Failed to load audio: {result.stderr.decode()}")
+    if result.returncode != 0 and len(result.stderr):
+        error_text = result.stderr.decode("utf-8", errors="replace")
+        raise RuntimeError(f"FFMPEG Failed to load audio: {error_text}")
 
     return np.frombuffer(result.stdout, np.int16).flatten().astype(np.float32) / 32768.0

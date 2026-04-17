@@ -135,6 +135,8 @@ class WhisperCpp:
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.PIPE,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 startupinfo=si,
                 env=app_env,
                 creationflags=subprocess.CREATE_NO_WINDOW
@@ -145,6 +147,8 @@ class WhisperCpp:
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.PIPE,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
             )
     
         # Capture stderr for progress updates
