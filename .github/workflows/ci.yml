@@ -172,6 +172,19 @@ jobs:
           fi
 
           sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev ccache
+          
+          # Remove unused build tools to free up space
+          sudo apt-get remove -y azure-cli google-cloud-sdk hhvm google-chrome-stable firefox powershell mono-devel || true
+          sudo apt-get autoremove -y
+          sudo apt-get clean
+          python -m pip cache purge
+          rm -rf /opt/hostedtoolcache || true
+          
+          # Check available disk space
+          echo "=== Disk space ==="
+          df -h
+          echo "=== Memory ==="
+          free -h
         if: "startsWith(matrix.os, 'ubuntu-')"
 
       - name: Install dependencies
