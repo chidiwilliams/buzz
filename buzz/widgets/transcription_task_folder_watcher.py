@@ -39,7 +39,7 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
         self.preferences = preferences
         if len(self.directories()) > 0:
             self.removePaths(self.directories())
-        if preferences.enabled:
+        if preferences.enabled and preferences.input_directory:
             # Add the input directory and all subdirectories to the watcher
             for dirpath, dirnames, _ in os.walk(preferences.input_directory):
                 # Skip hidden directories
@@ -54,7 +54,7 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
         input_directory = self.preferences.input_directory
         tasks = {task.file_path: task for task in self.tasks.values()}
 
-        if not self.preferences.enabled:
+        if not self.preferences.enabled or not self.preferences.input_directory:
             return
 
         for dirpath, dirnames, filenames in os.walk(input_directory):
