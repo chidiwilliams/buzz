@@ -177,18 +177,21 @@ jobs:
           sudo apt-get remove -y azure-cli google-cloud-sdk hhvm google-chrome-stable firefox powershell mono-devel || true
           sudo apt-get autoremove -y
           sudo apt-get clean
-          python -m pip cache purge
           rm -rf /opt/hostedtoolcache || true
           
           # Check available disk space
           echo "=== Disk space ==="
           df -h
-          echo "=== Memory ==="
-          free -h
         if: "startsWith(matrix.os, 'ubuntu-')"
 
       - name: Install dependencies
-        run: uv sync
+        run: |
+          uv sync
+          python -m pip cache purge
+          
+          # Check available disk space
+          echo "=== Disk space ==="
+          df -h
 
       - uses: AnimMouse/setup-ffmpeg@v1
         id: setup-ffmpeg
