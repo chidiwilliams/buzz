@@ -48,7 +48,8 @@ class TestFileTranscriberWidget:
         mock_triggered = Mock()
         widget.triggered.connect(mock_triggered)
 
-        with patch("buzz.widgets.transcriber.file_transcriber_widget.show_model_download_error_dialog") as mock_err:
+        with patch("buzz.widgets.transcriber.file_transcriber_widget.show_model_download_error_dialog") as mock_err, \
+             patch.object(widget, "save_preferences"):
             widget.on_model_loaded("")
             mock_err.assert_called_once()
             mock_triggered.assert_not_called()
@@ -63,7 +64,8 @@ class TestFileTranscriberWidget:
         mock_triggered = Mock()
         widget.triggered.connect(mock_triggered)
 
-        with patch("buzz.widgets.transcriber.file_transcriber_widget.show_model_download_error_dialog") as mock_err:
+        with patch("buzz.widgets.transcriber.file_transcriber_widget.show_model_download_error_dialog") as mock_err, \
+             patch.object(widget, "save_preferences"):
             widget.on_model_loaded("")
             mock_err.assert_not_called()
             mock_triggered.assert_called_once()
