@@ -1,6 +1,7 @@
 import enum
 import hashlib
 import logging
+import multiprocessing
 import os
 import time
 import threading
@@ -581,11 +582,27 @@ def get_file_size(url):
     return int(response.headers['Content-Length'])
 
 
+def _snapshot_download_worker(result_queue, repo_id, allow_patterns, cache_dir, etag_timeout, max_workers):
+    """Runs snapshot_download in a child process so it can be killed on cancel."""
+    try:
+        result = huggingface_hub.snapshot_download(
+            repo_id,
+            allow_patterns=allow_patterns,
+            cache_dir=cache_dir,
+            etag_timeout=etag_timeout,
+            max_workers=max_workers,
+        )
+        result_queue.put(('ok', result))
+    except Exception as exc:
+        result_queue.put(('error', str(exc)))
+
+
 def download_from_huggingface(
         repo_id: str,
         allow_patterns: List[str],
         progress: pyqtSignal(tuple),
-        num_large_files: int = 1
+        num_large_files: int = 1,
+        on_process=None,
 ):
     progress.emit((0, 100))
 
@@ -618,34 +635,44 @@ def download_from_huggingface(
             if file_size > largest_file_size:
                 largest_file_size = file_size
 
-        except requests.exceptions.RequestException as e:
+        except requests.exceptions.RequestException:
             continue
 
     model_download_monitor = HuggingfaceDownloadMonitor(
         model_root, progress, largest_file_size)
+
+    result_queue = multiprocessing.Queue()
+    proc = multiprocessing.Process(
+        target=_snapshot_download_worker,
+        args=(result_queue, repo_id, allow_patterns[:num_large_files], model_root_dir, 60, max_workers),
+        daemon=True,
+    )
+    if on_process is not None:
+        on_process(proc)
+    proc.start()
+
     model_download_monitor.start_monitoring()
+    proc.join()
+    model_download_monitor.stop_monitoring()
 
-    try:
-        huggingface_hub.snapshot_download(
-            repo_id,
-            allow_patterns=allow_patterns[:num_large_files],  # largest
-            cache_dir=model_root_dir,
-            etag_timeout=60,
-            max_workers=max_workers,
-        )
-    except Exception as exc:
-        logging.exception(exc)
-        model_download_monitor.stop_monitoring()
-
+    if proc.exitcode != 0:
         return ""
 
-    model_download_monitor.stop_monitoring()
+    try:
+        status, result = result_queue.get_nowait()
+        if status != 'ok':
+            logging.error("snapshot_download subprocess error: %s", result)
+            return ""
+    except Exception as exc:
+        logging.exception(exc)
+        return ""
 
     return model_root
 
 
 def download_faster_whisper_model(
-    model: TranscriptionModel, local_files_only=False, progress: pyqtSignal(tuple) = None
+    model: TranscriptionModel, local_files_only=False, progress: pyqtSignal(tuple) = None,
+    on_process=None,
 ):
     size = model.whisper_model_size.to_faster_whisper_model_size()
     custom_repo_id = model.hugging_face_model_id
@@ -683,7 +710,8 @@ def download_faster_whisper_model(
         repo_id,
         allow_patterns=allow_patterns,
         progress=progress,
-        num_large_files=2
+        num_large_files=2,
+        on_process=on_process,
     )
 
 
@@ -702,6 +730,10 @@ class ModelDownloader(QRunnable):
         self.model = model
         self.stopped = False
         self.custom_model_url = custom_model_url
+        self._download_process: Optional[multiprocessing.Process] = None
+
+    def _register_process(self, proc: multiprocessing.Process):
+        self._download_process = proc
 
     def run(self) -> None:
         logging.debug("Downloading model: %s, %s", self.model,
@@ -738,8 +770,12 @@ class ModelDownloader(QRunnable):
                 repo_id=repo_id,
                 allow_patterns=whisper_cpp_model_files,
                 progress=self.signals.progress,
-                num_large_files=num_large_files
+                num_large_files=num_large_files,
+                on_process=self._register_process,
             )
+
+            if self.stopped:
+                return
 
             if self.is_coreml_supported:
                 import tempfile
@@ -795,7 +831,11 @@ class ModelDownloader(QRunnable):
             model_path = download_faster_whisper_model(
                 model=self.model,
                 progress=self.signals.progress,
+                on_process=self._register_process,
             )
+
+            if self.stopped:
+                return
 
             if model_path == "":
                 self.signals.error.emit(_("Error"))
@@ -808,8 +848,12 @@ class ModelDownloader(QRunnable):
                 self.model.hugging_face_model_id,
                 allow_patterns=HUGGING_FACE_MODEL_ALLOW_PATTERNS,
                 progress=self.signals.progress,
-                num_large_files=4
+                num_large_files=4,
+                on_process=self._register_process,
             )
+
+            if self.stopped:
+                return
 
             if model_path == "":
                 self.signals.error.emit(_("Error"))
@@ -1048,3 +1092,6 @@ class ModelDownloader(QRunnable):
 
     def cancel(self):
         self.stopped = True
+        if self._download_process is not None and self._download_process.is_alive():
+            self._download_process.terminate()
+            self._download_process = None

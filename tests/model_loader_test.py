@@ -680,6 +680,7 @@ class TestModelDownloaderWhisperCpp:
             allow_patterns=[f"ggml-{model_name}.bin", "README.md"],
             progress=downloader.signals.progress,
             num_large_files=1,
+            on_process=downloader._register_process,
         )
         downloader.signals.finished.emit.assert_called_once_with(
             os.path.join("/fake/path", f"ggml-{model_name}.bin")
