@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-07 20:20+0200\n"
+"POT-Creation-Date: 2026-04-17 21:35+0300\n"
 "PO-Revision-Date: 2025-03-20 18:30+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: none\n"
@@ -177,6 +177,7 @@ msgid "Export folder"
 msgstr "Exportmap"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Live recording mode"
 msgstr "Live-opnamemodus"
 
@@ -301,6 +302,10 @@ msgstr "Sneltoetsen"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 msgid "Folder Watch"
 msgstr "Map bijhouden"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "What model should I use?"
+msgstr "Welk model moet ik gebruiken?"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Group"
@@ -456,10 +461,6 @@ msgstr "Opname-instellingen"
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Silence threshold:"
 msgstr "Stiltedrempel:"
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Live recording mode:"
-msgstr "Live-opnamemodus:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Line separator:"
@@ -1644,6 +1645,9 @@ msgid ""
 msgstr ""
 "Spraakextractie mislukt! Controleer uw internetverbinding — mogelijk moet er "
 "een model worden gedownload."
+
+#~ msgid "Live recording mode:"
+#~ msgstr "Live-opnamemodus:"
 
 #~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
 #~ msgstr "Kommagescheiden, bijv. '0.0, 0.2, 0.4, 0.6, 0.8, 1.0'"

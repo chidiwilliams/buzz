@@ -1,7 +1,8 @@
 import logging
 from typing import Optional
 
-from PyQt6.QtCore import Qt, QThreadPool, QLocale
+from PyQt6.QtCore import Qt, QThreadPool, QLocale, QUrl
+from PyQt6.QtGui import QDesktopServices, QIcon
 from PyQt6.QtWidgets import (
     QWidget,
     QFormLayout,
@@ -10,7 +11,8 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QMessageBox,
     QHBoxLayout,
-    QLayout
+    QLayout,
+    QToolButton,
 )
 
 from buzz.locale import _
@@ -68,7 +70,22 @@ class ModelsPreferencesWidget(QWidget):
             parent=self,
         )
         model_type_combo_box.changed.connect(self.on_model_type_changed)
-        layout.addRow(_("Group"), model_type_combo_box)
+
+        info_button = QToolButton()
+        info_button.setIcon(QIcon.fromTheme("dialog-information"))
+        info_button.setToolTip(_("What model should I use?"))
+        info_button.clicked.connect(lambda: QDesktopServices.openUrl(
+            QUrl("https://chidiwilliams.github.io/buzz/docs/faq#4-what-model-should-i-use")
+        ))
+
+        group_layout = QHBoxLayout()
+        group_layout.addWidget(model_type_combo_box)
+        group_layout.addWidget(info_button)
+        group_layout.setContentsMargins(0, 0, 0, 0)
+        group_widget = QWidget()
+        group_widget.setLayout(group_layout)
+
+        layout.addRow(_("Group"), group_widget)
 
         self.model_list_widget = QTreeWidget()
         self.model_list_widget.setColumnCount(1)

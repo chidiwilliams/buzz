@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-07 20:20+0200\n"
+"POT-Creation-Date: 2026-04-17 21:35+0300\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: Lamb\n"
@@ -175,6 +175,7 @@ msgid "Export folder"
 msgstr "匯出資料夾"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Live recording mode"
 msgstr "即時錄製模式"
 
@@ -291,6 +292,10 @@ msgstr "快捷鍵"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 msgid "Folder Watch"
 msgstr "資料夾監視"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "What model should I use?"
+msgstr "我應該使用哪個模型？"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Group"
@@ -443,10 +448,6 @@ msgstr "錄製設定"
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Silence threshold:"
 msgstr "靜音閾值："
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Live recording mode:"
-msgstr "即時錄製模式："
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Line separator:"
@@ -1609,6 +1610,9 @@ msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
 msgstr "語音提取失敗！請檢查您的網路連線——可能需要下載模型。"
+
+#~ msgid "Live recording mode:"
+#~ msgstr "即時錄製模式："
 
 #~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
 #~ msgstr "逗號分隔，例如\"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""

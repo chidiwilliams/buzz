@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-07 20:20+0200\n"
+"POT-Creation-Date: 2026-04-17 21:35+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Yevhen Popok <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -172,6 +172,7 @@ msgid "Export folder"
 msgstr "Тека для експорту"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Live recording mode"
 msgstr "Режим живого запису"
 
@@ -294,6 +295,10 @@ msgstr "Клавіатурні скорочення"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 msgid "Folder Watch"
 msgstr "Нагляд за текою"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "What model should I use?"
+msgstr "Яку модель мені використовувати?"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Group"
@@ -447,10 +452,6 @@ msgstr "Налаштування запису"
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Silence threshold:"
 msgstr "Поріг тиші:"
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Live recording mode:"
-msgstr "Режим живого запису:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Line separator:"
@@ -1632,6 +1633,9 @@ msgid ""
 msgstr ""
 "Не вдалося витягти мовлення! Перевірте підключення до інтернету — можливо, "
 "потрібно завантажити модель."
+
+#~ msgid "Live recording mode:"
+#~ msgstr "Режим живого запису:"
 
 #~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
 #~ msgstr "Значення розділені комами, напр., \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""

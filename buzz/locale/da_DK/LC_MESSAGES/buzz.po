@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-07 20:20+0200\n"
+"POT-Creation-Date: 2026-04-17 21:35+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Ole Guldberg2 <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -172,6 +172,7 @@ msgid "Export folder"
 msgstr "Eksportmappe"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Live recording mode"
 msgstr "Live optagelsestilstand"
 
@@ -295,6 +296,10 @@ msgstr "Genveje"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 msgid "Folder Watch"
 msgstr "Mappeovervågning"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "What model should I use?"
+msgstr "Hvilket model skal jeg bruge?"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Group"
@@ -448,10 +453,6 @@ msgstr "Optagelsesindstillinger"
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Silence threshold:"
 msgstr "Tærskelværdi for stilhed:"
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Live recording mode:"
-msgstr "Live optagelsestilstand:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Line separator:"
@@ -1634,6 +1635,9 @@ msgid ""
 msgstr ""
 "Taleoprydning mislykkedes! Kontroller din internetforbindelse — en model "
 "skal muligvis hentes ned."
+
+#~ msgid "Live recording mode:"
+#~ msgstr "Live optagelsestilstand:"
 
 #~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
 #~ msgstr "Komma-separerede, fx., \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""

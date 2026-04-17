@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-07 20:20+0200\n"
+"POT-Creation-Date: 2026-04-17 21:35+0300\n"
 "PO-Revision-Date: 2025-10-17 07:59+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: Catalan <jmas@softcatala.org>\n"
@@ -175,6 +175,7 @@ msgid "Export folder"
 msgstr "Exporta la carpeta"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Live recording mode"
 msgstr "Mode d'enregistrament en directe"
 
@@ -299,6 +300,10 @@ msgstr "Dreceres"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 msgid "Folder Watch"
 msgstr "Vigila la carpeta"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "What model should I use?"
+msgstr "Quin model hauria d'usar?"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Group"
@@ -453,10 +458,6 @@ msgstr "Configuració d'enregistrament"
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Silence threshold:"
 msgstr "Llindar de silenci:"
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Live recording mode:"
-msgstr "Mode d'enregistrament en directe:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Line separator:"
@@ -1643,6 +1644,9 @@ msgid ""
 msgstr ""
 "Ha fallat l'extracció de veu! Comproveu la vostra connexió a Internet — pot "
 "ser que s'hagi de descarregar un model."
+
+#~ msgid "Live recording mode:"
+#~ msgstr "Mode d'enregistrament en directe:"
 
 #~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
 #~ msgstr "Separat per comes, p. ex. «0.0, 0.2, 0.4, 0.6, 0.8, 1.0»"

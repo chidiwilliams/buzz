@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-07 20:20+0200\n"
+"POT-Creation-Date: 2026-04-17 21:35+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: nunawa <71294849+nunawa@users.noreply.github.com>\n"
 "Language-Team: \n"
@@ -170,6 +170,7 @@ msgid "Export folder"
 msgstr "出力フォルダ"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Live recording mode"
 msgstr "ライブ録音モード"
 
@@ -292,6 +293,10 @@ msgstr "ショートカット"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 msgid "Folder Watch"
 msgstr "フォルダ監視"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "What model should I use?"
+msgstr "どのモデルを使えばいいですか？"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Group"
@@ -445,10 +450,6 @@ msgstr "録音設定"
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Silence threshold:"
 msgstr "無音閾値:"
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Live recording mode:"
-msgstr "ライブ録音モード:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Line separator:"
@@ -1622,6 +1623,9 @@ msgid ""
 msgstr ""
 "音声抽出に失敗しました！インターネット接続を確認してください。モデルのダウン"
 "ロードが必要な場合があります。"
+
+#~ msgid "Live recording mode:"
+#~ msgstr "ライブ録音モード:"
 
 #~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
 #~ msgstr "コンマ区切り、例: \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
