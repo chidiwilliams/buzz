@@ -644,6 +644,9 @@ class RecordingTranscriberWidget(QWidget):
         self.transcription_thread.finished.connect(
             self.transcription_thread.deleteLater
         )
+        self.transcription_thread.finished.connect(
+            lambda: setattr(self, 'transcription_thread', None)
+        )
 
         self.transcriber.transcription.connect(self.on_next_transcription)
         self.transcriber.amplitude_changed.connect(
@@ -663,6 +666,7 @@ class RecordingTranscriberWidget(QWidget):
         self.transcriber.finished.connect(self.on_transcriber_finished)
         self.transcriber.finished.connect(self.transcription_thread.quit)
         self.transcriber.finished.connect(self.transcriber.deleteLater)
+        self.transcriber.finished.connect(lambda: setattr(self, 'transcriber', None))
 
         self.transcriber.error.connect(self.on_transcriber_error)
         self.transcriber.error.connect(self.transcription_thread.quit)
@@ -1064,7 +1068,7 @@ class RecordingTranscriberWidget(QWidget):
         self.record_button.setDisabled(True)
 
     def on_transcriber_finished(self):
-        self.reset_record_button()
+        self.set_recording_status_stopped()
         # Restart amplitude listener now that the transcription stream is closed
         self.reset_recording_amplitude_listener()
         self.transcription_stopped.emit()
