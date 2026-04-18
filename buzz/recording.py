@@ -47,10 +47,13 @@ class RecordingAmplitudeListener(QObject):
     def stream_callback(self, in_data: np.ndarray, frame_count, time_info, status):
         if not self._active:
             return
-        chunk = in_data.ravel()
-        self.amplitude_changed.emit(float(np.sqrt(np.mean(chunk**2))))
+        try:
+            chunk = in_data.ravel()
+            self.amplitude_changed.emit(float(np.sqrt(np.mean(chunk**2))))
 
-        self.buffer = np.append(self.buffer, chunk)
-        if self.buffer.size >= self.accumulation_size:
-            self.average_amplitude_changed.emit(float(np.sqrt(np.mean(self.buffer**2))))
-            self.buffer = np.ndarray([], dtype=np.float32)
+            self.buffer = np.append(self.buffer, chunk)
+            if self.buffer.size >= self.accumulation_size:
+                self.average_amplitude_changed.emit(float(np.sqrt(np.mean(self.buffer**2))))
+                self.buffer = np.ndarray([], dtype=np.float32)
+        except RuntimeError:
+            pass
