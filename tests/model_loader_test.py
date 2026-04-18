@@ -7,7 +7,6 @@ from unittest.mock import patch, MagicMock, call
 
 from buzz.model_loader import (
     ModelDownloader,
-    HuggingfaceDownloadMonitor,
     TranscriptionModel,
     ModelType,
     WhisperModelSize,
@@ -18,6 +17,8 @@ from buzz.model_loader import (
     WHISPER_MODEL_SIZES,
     WHISPER_CPP_REPO_ID,
     WHISPER_CPP_LUMII_REPO_ID,
+    DOWNLOAD_COMPLETE_MARKER,
+    _snapshot_is_complete,
 )
 
 
@@ -421,80 +422,17 @@ class TestTranscriptionModelDeleteLocalFile:
         assert not snapshots_dir.exists()
 
 
-class TestHuggingfaceDownloadMonitorFileSize:
-    def _make_monitor(self, tmp_path):
-        model_root = str(tmp_path / "models--test" / "snapshots" / "abc")
-        os.makedirs(model_root, exist_ok=True)
-        progress = MagicMock()
-        progress.emit = MagicMock()
-        monitor = HuggingfaceDownloadMonitor(
-            model_root=model_root,
-            progress=progress,
-            total_file_size=100 * 1024 * 1024
-        )
-        return monitor
 
-    def test_emits_progress_for_tmp_files(self, tmp_path):
-        from buzz.model_loader import model_root_dir as orig_root
-        monitor = self._make_monitor(tmp_path)
+class TestSnapshotIsComplete:
+    def test_returns_false_when_no_marker(self, tmp_path):
+        assert _snapshot_is_complete(str(tmp_path)) is False
 
-        # Create a tmp file in model_root_dir
-        with patch('buzz.model_loader.model_root_dir', str(tmp_path)):
-            tmp_file = tmp_path / "tmpXYZ123"
-            tmp_file.write_bytes(b"x" * 1024)
+    def test_returns_true_when_marker_present(self, tmp_path):
+        (tmp_path / DOWNLOAD_COMPLETE_MARKER).write_text("")
+        assert _snapshot_is_complete(str(tmp_path)) is True
 
-            monitor.stop_event.clear()
-            # Run one iteration
-            monitor.monitor_file_size.__func__ if hasattr(monitor.monitor_file_size, '__func__') else None
-
-            # Manually call internal logic once
-            emitted = []
-            original_emit = monitor.progress.emit
-            monitor.progress.emit = lambda x: emitted.append(x)
-
-            import buzz.model_loader as ml
-            old_root = ml.model_root_dir
-            ml.model_root_dir = str(tmp_path)
-            try:
-                monitor.stop_event.set()  # stop after one iteration
-                monitor.stop_event.clear()
-                # call once manually by running the loop body
-                for filename in os.listdir(str(tmp_path)):
-                    if filename.startswith("tmp"):
-                        file_size = os.path.getsize(os.path.join(str(tmp_path), filename))
-                        monitor.progress.emit((file_size, monitor.total_file_size))
-                assert len(emitted) > 0
-                assert emitted[0][0] == 1024
-            finally:
-                ml.model_root_dir = old_root
-
-    def test_emits_progress_for_incomplete_files(self, tmp_path):
-        monitor = self._make_monitor(tmp_path)
-
-        blobs_dir = tmp_path / "blobs"
-        blobs_dir.mkdir()
-        incomplete_file = blobs_dir / "somefile.incomplete"
-        incomplete_file.write_bytes(b"y" * 2048)
-
-        emitted = []
-        monitor.incomplete_download_root = str(blobs_dir)
-        monitor.progress.emit = lambda x: emitted.append(x)
-
-        for filename in os.listdir(str(blobs_dir)):
-            if filename.endswith(".incomplete"):
-                file_size = os.path.getsize(os.path.join(str(blobs_dir), filename))
-                monitor.progress.emit((file_size, monitor.total_file_size))
-
-        assert len(emitted) > 0
-        assert emitted[0][0] == 2048
-
-    def test_stop_monitoring_emits_100_percent(self, tmp_path):
-        monitor = self._make_monitor(tmp_path)
-        monitor.monitor_thread = MagicMock()
-        monitor.stop_monitoring()
-        monitor.progress.emit.assert_called_with(
-            (monitor.total_file_size, monitor.total_file_size)
-        )
+    def test_returns_false_for_nonexistent_dir(self, tmp_path):
+        assert _snapshot_is_complete(str(tmp_path / "missing")) is False
 
 
 class TestModelDownloaderDownloadModel:
@@ -679,7 +617,6 @@ class TestModelDownloaderWhisperCpp:
             repo_id=WHISPER_CPP_REPO_ID,
             allow_patterns=[f"ggml-{model_name}.bin", "README.md"],
             progress=downloader.signals.progress,
-            num_large_files=1,
             on_process=downloader._register_process,
         )
         downloader.signals.finished.emit.assert_called_once_with(
@@ -738,7 +675,6 @@ class TestModelDownloaderWhisperCpp:
             downloader.run()
 
         mock_dl.assert_called_once()
-        assert mock_dl.call_args.kwargs["num_large_files"] == 2
         allow_patterns = mock_dl.call_args.kwargs["allow_patterns"]
         assert f"ggml-{model_name}-encoder.mlmodelc.zip" in allow_patterns
 

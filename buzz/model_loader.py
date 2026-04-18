@@ -3,8 +3,6 @@ import hashlib
 import logging
 import multiprocessing
 import os
-import time
-import threading
 import shutil
 import subprocess
 import sys
@@ -123,6 +121,8 @@ model_root_dir = os.getenv("BUZZ_MODEL_ROOT", model_root_dir)
 os.makedirs(model_root_dir, exist_ok=True)
 
 logging.debug("Model root directory: %s", model_root_dir)
+
+DOWNLOAD_COMPLETE_MARKER = ".buzz_complete"
 
 class WhisperModelSize(str, enum.Enum):
     TINY = "tiny"
@@ -301,6 +301,10 @@ def is_mms_model(model_id: str) -> bool:
         return False
 
 
+def _snapshot_is_complete(snapshot_path: str) -> bool:
+    return os.path.exists(os.path.join(snapshot_path, DOWNLOAD_COMPLETE_MARKER))
+
+
 @dataclass()
 class TranscriptionModel:
     def __init__(
@@ -427,6 +431,8 @@ class TranscriptionModel:
             file_path = get_whisper_cpp_file_path(size=self.whisper_model_size)
             if not file_path or not os.path.exists(file_path) or not os.path.isfile(file_path):
                 return None
+            if not _snapshot_is_complete(os.path.dirname(file_path)):
+                return None
             return file_path
 
         if self.model_type == ModelType.WHISPER:
@@ -451,18 +457,21 @@ class TranscriptionModel:
 
         if self.model_type == ModelType.FASTER_WHISPER:
             try:
-                return download_faster_whisper_model(
+                snapshot_path = download_faster_whisper_model(
                     model=self, local_files_only=True
                 )
             except (ValueError, FileNotFoundError):
                 return None
+            if not _snapshot_is_complete(snapshot_path):
+                return None
+            return snapshot_path
 
         if self.model_type == ModelType.OPEN_AI_WHISPER_API:
             return ""
 
         if self.model_type == ModelType.HUGGING_FACE:
             try:
-                return huggingface_hub.snapshot_download(
+                snapshot_path = huggingface_hub.snapshot_download(
                     self.hugging_face_model_id,
                     allow_patterns=HUGGING_FACE_MODEL_ALLOW_PATTERNS,
                     local_files_only=True,
@@ -471,6 +480,9 @@ class TranscriptionModel:
                 )
             except (ValueError, FileNotFoundError):
                 return None
+            if not _snapshot_is_complete(snapshot_path):
+                return None
+            return snapshot_path
 
         raise Exception("Unknown model type")
 
@@ -514,74 +526,6 @@ def get_whisper_file_path(size: WhisperModelSize) -> str:
     return os.path.join(root_dir, os.path.basename(url))
 
 
-class HuggingfaceDownloadMonitor:
-    def __init__(self, model_root: str, progress: pyqtSignal(tuple), total_file_size: int):
-        self.model_root = model_root
-        self.progress = progress
-        self.total_file_size = total_file_size
-        self.incomplete_download_root = None
-        self.stop_event = threading.Event()
-        self.monitor_thread = None
-        self.set_download_roots()
-
-    def set_download_roots(self):
-        normalized_model_root = os.path.normpath(self.model_root)
-        two_dirs_up = os.path.normpath(
-            os.path.join(normalized_model_root, "..", ".."))
-        self.incomplete_download_root = os.path.normpath(
-            os.path.join(two_dirs_up, "blobs"))
-
-    def clean_tmp_files(self):
-        for filename in os.listdir(model_root_dir):
-            if filename.startswith("tmp"):
-                os.remove(os.path.join(model_root_dir, filename))
-
-    def monitor_file_size(self):
-        while not self.stop_event.is_set():
-            try:
-                if model_root_dir is not None and os.path.isdir(model_root_dir):
-                    for filename in os.listdir(model_root_dir):
-                        if filename.startswith("tmp"):
-                            try:
-                                file_size = os.path.getsize(
-                                    os.path.join(model_root_dir, filename))
-                                self.progress.emit((file_size, self.total_file_size))
-                            except OSError:
-                                pass  # File may have been deleted
-
-                if self.incomplete_download_root and os.path.isdir(self.incomplete_download_root):
-                    for filename in os.listdir(self.incomplete_download_root):
-                        if filename.endswith(".incomplete"):
-                            try:
-                                file_size = os.path.getsize(os.path.join(
-                                    self.incomplete_download_root, filename))
-                                self.progress.emit((file_size, self.total_file_size))
-                            except OSError:
-                                pass  # File may have been deleted
-            except OSError:
-                pass  # Directory listing failed, ignore
-
-            time.sleep(2)
-
-    def start_monitoring(self):
-        self.clean_tmp_files()
-        self.monitor_thread = threading.Thread(target=self.monitor_file_size)
-        self.monitor_thread.start()
-
-    def stop_monitoring(self):
-        self.progress.emit((self.total_file_size, self.total_file_size))
-
-        if self.monitor_thread is not None:
-            self.stop_event.set()
-            self.monitor_thread.join()
-
-
-def get_file_size(url):
-    response = requests.head(url, allow_redirects=True)
-    response.raise_for_status()
-    return int(response.headers['Content-Length'])
-
-
 def _snapshot_download_worker(result_queue, repo_id, allow_patterns, cache_dir, etag_timeout, max_workers):
     """Runs snapshot_download in a child process so it can be killed on cancel."""
     try:
@@ -601,7 +545,6 @@ def download_from_huggingface(
         repo_id: str,
         allow_patterns: List[str],
         progress: pyqtSignal(tuple),
-        num_large_files: int = 1,
         on_process=None,
 ):
     progress.emit((0, 100))
@@ -611,61 +554,33 @@ def download_from_huggingface(
     # Use a single worker on Windows to avoid this issue.
     max_workers = 1 if sys.platform == "win32" else 8
 
-    try:
-        model_root = huggingface_hub.snapshot_download(
-            repo_id,
-            # all, but largest
-            allow_patterns=allow_patterns[num_large_files:],
-            cache_dir=model_root_dir,
-            etag_timeout=60,
-            max_workers=max_workers,
-        )
-    except Exception as exc:
-        logging.exception(exc)
-        return ""
-
-    progress.emit((1, 100))
-
-    largest_file_size = 0
-    for pattern in allow_patterns[:num_large_files]:
-        try:
-            file_url = huggingface_hub.hf_hub_url(repo_id, pattern)
-            file_size = get_file_size(file_url)
-
-            if file_size > largest_file_size:
-                largest_file_size = file_size
-
-        except requests.exceptions.RequestException:
-            continue
-
-    model_download_monitor = HuggingfaceDownloadMonitor(
-        model_root, progress, largest_file_size)
-
     result_queue = multiprocessing.Queue()
     proc = multiprocessing.Process(
         target=_snapshot_download_worker,
-        args=(result_queue, repo_id, allow_patterns[:num_large_files], model_root_dir, 60, max_workers),
+        args=(result_queue, repo_id, allow_patterns, model_root_dir, 60, max_workers),
         daemon=True,
     )
     if on_process is not None:
         on_process(proc)
     proc.start()
-
-    model_download_monitor.start_monitoring()
     proc.join()
-    model_download_monitor.stop_monitoring()
 
     if proc.exitcode != 0:
         return ""
 
     try:
-        status, result = result_queue.get_nowait()
+        status, model_root = result_queue.get_nowait()
         if status != 'ok':
-            logging.error("snapshot_download subprocess error: %s", result)
+            logging.error("snapshot_download subprocess error: %s", model_root)
             return ""
     except Exception as exc:
         logging.exception(exc)
         return ""
+
+    try:
+        open(os.path.join(model_root, DOWNLOAD_COMPLETE_MARKER), "w").close()
+    except OSError:
+        pass
 
     return model_root
 
@@ -710,7 +625,6 @@ def download_faster_whisper_model(
         repo_id,
         allow_patterns=allow_patterns,
         progress=progress,
-        num_large_files=2,
         on_process=on_process,
     )
 
@@ -757,20 +671,17 @@ class ModelDownloader(QRunnable):
                 f"ggml-{model_name}.bin",
                 "README.md"
             ]
-            num_large_files = 1
             if self.is_coreml_supported:
                 whisper_cpp_model_files = [
                     f"ggml-{model_name}.bin",
                     f"ggml-{model_name}-encoder.mlmodelc.zip",
                     "README.md"
                 ]
-                num_large_files = 2
 
             model_path = download_from_huggingface(
                 repo_id=repo_id,
                 allow_patterns=whisper_cpp_model_files,
                 progress=self.signals.progress,
-                num_large_files=num_large_files,
                 on_process=self._register_process,
             )
 
@@ -848,7 +759,6 @@ class ModelDownloader(QRunnable):
                 self.model.hugging_face_model_id,
                 allow_patterns=HUGGING_FACE_MODEL_ALLOW_PATTERNS,
                 progress=self.signals.progress,
-                num_large_files=4,
                 on_process=self._register_process,
             )
 
