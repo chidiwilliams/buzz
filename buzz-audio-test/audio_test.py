@@ -4,6 +4,7 @@ import platform
 import subprocess
 import traceback
 
+import numpy as np
 import sounddevice
 from PyQt6.QtCore import Qt, QUrl, QTimer
 from PyQt6.QtMultimedia import QAudioOutput, QMediaPlayer, QMediaDevices, QAudioDevice
@@ -170,6 +171,18 @@ class AudioTestWindow(QMainWindow):
         play_layout.addWidget(self.playback_log_text)
         layout.addWidget(play_group)
 
+        # --- sounddevice playback test ---
+        sd_group = QGroupBox("sounddevice Playback Test  (bypasses Qt multimedia)")
+        sd_layout = QVBoxLayout(sd_group)
+        sd_btn = QPushButton("Play via sounddevice")
+        sd_btn.clicked.connect(self.play_sounddevice)
+        sd_layout.addWidget(sd_btn)
+        self.sd_log_text = QTextEdit()
+        self.sd_log_text.setReadOnly(True)
+        self.sd_log_text.setMaximumHeight(80)
+        sd_layout.addWidget(self.sd_log_text)
+        layout.addWidget(sd_group)
+
         # --- Copy all button ---
         copy_btn = QPushButton("Copy All Debug Info to Clipboard")
         copy_btn.clicked.connect(self.copy_all)
@@ -197,6 +210,7 @@ class AudioTestWindow(QMainWindow):
             self.media_player.playbackStateChanged.connect(self._on_playback_state)
             self.media_player.mediaStatusChanged.connect(self._on_media_status)
             self.media_player.errorOccurred.connect(self._on_error)
+            self.media_player.durationChanged.connect(self._on_duration_changed)
 
             default_out = QMediaDevices.defaultAudioOutput()
             self._log(f"QAudioOutput device: {self.audio_output.device().description()}")
@@ -212,6 +226,10 @@ class AudioTestWindow(QMainWindow):
         if self.media_player is None:
             self._log("Player not initialised.")
             return
+        self._log(f"QAudioOutput volume: {self.audio_output.volume()}")
+        self._log(f"QAudioOutput muted:  {self.audio_output.isMuted()}")
+        self._log(f"Media duration (ms): {self.media_player.duration()}")
+        self._log(f"Media position (ms): {self.media_player.position()}")
         self._log("Calling media_player.play() …")
         self.media_player.play()
         self.play_btn.setEnabled(False)
@@ -249,6 +267,9 @@ class AudioTestWindow(QMainWindow):
         }
         self._log(f"Media status → {names.get(status, str(status))}")
 
+    def _on_duration_changed(self, duration_ms: int):
+        self._log(f"Duration changed → {duration_ms} ms")
+
     def _on_error(self, error: QMediaPlayer.Error, msg: str):
         self._log(f"ERROR {error}: {msg}")
         self.status_label.setText(f"Error: {msg}")
@@ -256,6 +277,28 @@ class AudioTestWindow(QMainWindow):
     def _log(self, msg: str):
         self.playback_log.append(msg)
         self.playback_log_text.append(msg)
+
+    def play_sounddevice(self):
+        import wave
+        import numpy as np
+        sample = os.path.abspath(SAMPLE_FILE)
+        try:
+            with wave.open(sample, "rb") as wf:
+                n_channels = wf.getnchannels()
+                sampwidth = wf.getsampwidth()
+                framerate = wf.getframerate()
+                n_frames = wf.getnframes()
+                raw = wf.readframes(n_frames)
+            dtype = {1: np.int8, 2: np.int16, 4: np.int32}.get(sampwidth, np.int16)
+            data = np.frombuffer(raw, dtype=dtype)
+            if n_channels > 1:
+                data = data.reshape(-1, n_channels)
+            self.sd_log_text.append(f"WAV: {n_frames} frames, {framerate} Hz, {n_channels}ch")
+            sounddevice.play(data.astype(np.float32) / np.iinfo(dtype).max, samplerate=framerate)
+            self.sd_log_text.append("sounddevice.play() called — you should hear audio now")
+        except Exception as e:
+            self.sd_log_text.append(f"ERROR: {e}")
+            self.sd_log_text.append(traceback.format_exc())
 
     def copy_all(self):
         text = "\n\n".join([

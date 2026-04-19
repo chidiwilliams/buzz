@@ -45,6 +45,7 @@ a = Analysis(
     hiddenimports=[
         "sounddevice",
         "_sounddevice_data",
+        "numpy",
     ],
     hookspath=[],
     hooksconfig={},
