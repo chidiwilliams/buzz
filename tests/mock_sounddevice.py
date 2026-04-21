@@ -116,7 +116,7 @@ class MockInputStream:
         )
         self._audio = whisper_audio.load_audio(file_path, sr=sample_rate)
 
-        self.thread = Thread(target=self.target)
+        self.thread = Thread(target=self.target, daemon=True)
 
     def start(self):
         self.thread.start()
