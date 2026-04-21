@@ -52,6 +52,14 @@ class VideoPlayer(QWidget):
         self.media_player.setAudioOutput(self.audio_output)
         # No setVideoOutput — we render frames ourselves via ffmpeg
 
+        # Seed duration from ffprobe immediately so the scrubber is usable
+        # before QMediaPlayer's async durationChanged fires.
+        if self._ffmpeg_player.duration_ms > 0:
+            self.duration_ms = self._ffmpeg_player.duration_ms
+            self.scrubber_initial_max = self._ffmpeg_player.duration_ms
+        else:
+            self.scrubber_initial_max = 0
+
         # --- Video display label ---
         self.video_label = QLabel(self)
         self.video_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -111,6 +119,10 @@ class VideoPlayer(QWidget):
         self.media_player.mediaStatusChanged.connect(self.on_media_status_changed)
         self.media_player.errorOccurred.connect(self.on_error_occurred)
 
+        if self.scrubber_initial_max > 0:
+            self.scrubber.setRange(0, self.scrubber_initial_max)
+            self.update_time_label()
+
     # ------------------------------------------------------------------
     # Frame rendering
     # ------------------------------------------------------------------
@@ -124,7 +136,7 @@ class VideoPlayer(QWidget):
 
     def _display_frame(self, frame: np.ndarray):
         h, w, _ = frame.shape
-        img = QImage(frame.data, w, h, w * 3, QImage.Format.Format_RGB888)
+        img = QImage(frame.tobytes(), w, h, w * 3, QImage.Format.Format_RGB888)
         pixmap = QPixmap.fromImage(img)
         scaled = pixmap.scaled(
             self.video_label.size(),
@@ -153,10 +165,7 @@ class VideoPlayer(QWidget):
         logging.error(f"Media player error: {error} - {error_string}")
 
     def on_media_status_changed(self, status: QMediaPlayer.MediaStatus):
-        # Brief play/pause to trigger duration detection on some backends
-        if status == QMediaPlayer.MediaStatus.LoadedMedia:
-            self.media_player.play()
-            self.media_player.pause()
+        pass  # duration comes from ffprobe (immediate) or durationChanged (async)
 
     def toggle_playback(self):
         if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
