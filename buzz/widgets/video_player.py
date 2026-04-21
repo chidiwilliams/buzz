@@ -1,10 +1,12 @@
 import logging
 from typing import Tuple, Optional
-from PyQt6.QtCore import Qt, QUrl, pyqtSignal, QTime
+from PyQt6.QtCore import Qt, QUrl, pyqtSignal, QTime, QTimer
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput, QMediaDevices
 from PyQt6.QtMultimediaWidgets import QVideoWidget
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QSlider, QPushButton, QHBoxLayout, QLabel, QSizePolicy
 from buzz.widgets.icon import PlayIcon, PauseIcon
+from buzz.sounddevice_player import AudioFilePlayer
+
 
 class VideoPlayer(QWidget):
     position_ms_changed = pyqtSignal(int)
@@ -19,10 +21,29 @@ class VideoPlayer(QWidget):
         self.is_slider_dragging = False
         self.initial_frame_loaded = False
 
+        # --- sounddevice audio engine ---
+        self._sd_player: Optional[AudioFilePlayer] = None
+        self._use_sd = False
+        self._poll_timer = QTimer(self)
+        self._poll_timer.setInterval(16)
+        self._poll_timer.timeout.connect(self._sync_audio)
+
+        try:
+            sd_player = AudioFilePlayer(file_path)
+            if sd_player.ready:
+                self._sd_player = sd_player
+                self._use_sd = True
+            else:
+                sd_player.close()
+        except Exception:
+            logging.warning("VideoPlayer: sounddevice init failed, using Qt audio fallback", exc_info=True)
+
+        # --- Qt multimedia for video rendering ---
         self.audio_output = QAudioOutput(self)
         self.audio_output.setVolume(100)
+        if self._use_sd:
+            self.audio_output.setMuted(True)
 
-        # Log audio device info for debugging
         default_device = QMediaDevices.defaultAudioOutput()
         if default_device.isNull():
             logging.warning("No default audio output device found!")
@@ -36,7 +57,6 @@ class VideoPlayer(QWidget):
         self.video_widget = QVideoWidget(self)
         self.media_player.setVideoOutput(self.video_widget)
 
-        # Size constraints for video widget
         self.video_widget.setMinimumHeight(200)
         self.video_widget.setMaximumHeight(400)
         self.video_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
@@ -46,9 +66,6 @@ class VideoPlayer(QWidget):
         self.scrubber.sliderMoved.connect(self.on_slider_moved)
         self.scrubber.sliderPressed.connect(self.on_slider_pressed)
         self.scrubber.sliderReleased.connect(self.on_slider_released)
-
-        #Track if user is dragging the slider
-        self.is_slider_dragging = False
 
         self.play_icon = PlayIcon(self)
         self.pause_icon = PauseIcon(self)
@@ -75,24 +92,36 @@ class VideoPlayer(QWidget):
 
         self.setLayout(layout)
 
-
         self.media_player.positionChanged.connect(self.on_position_changed)
         self.media_player.durationChanged.connect(self.on_duration_changed)
         self.media_player.playbackStateChanged.connect(self.on_playback_state_changed)
         self.media_player.mediaStatusChanged.connect(self.on_media_status_changed)
         self.media_player.errorOccurred.connect(self.on_error_occurred)
 
+    # ------------------------------------------------------------------
+    # sounddevice sync — keep audio within 200 ms of video position
+    # ------------------------------------------------------------------
+
+    def _sync_audio(self):
+        if self._sd_player is None:
+            return
+        video_pos = self.media_player.position()
+        audio_pos = self._sd_player.position_ms
+        if abs(video_pos - audio_pos) > 200:
+            self._sd_player.seek(video_pos)
+
+    # ------------------------------------------------------------------
+    # Qt multimedia callbacks
+    # ------------------------------------------------------------------
+
     def on_error_occurred(self, error: QMediaPlayer.Error, error_string: str):
         logging.error(f"Media player error: {error} - {error_string}")
 
     def on_media_status_changed(self, status: QMediaPlayer.MediaStatus):
-        # Only do this once on initial load to show first frame
         if self.initial_frame_loaded:
             return
-        # Start playback when loaded to trigger frame decoding
         if status == QMediaPlayer.MediaStatus.LoadedMedia:
             self.media_player.play()
-        # Pause immediately when buffered to show first frame
         elif status == QMediaPlayer.MediaStatus.BufferedMedia:
             self.initial_frame_loaded = True
             self.media_player.pause()
@@ -100,27 +129,32 @@ class VideoPlayer(QWidget):
     def toggle_playback(self):
         if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
             self.media_player.pause()
+            if self._use_sd and self._sd_player:
+                self._sd_player.pause()
+                self._poll_timer.stop()
         else:
             self.media_player.play()
+            if self._use_sd and self._sd_player:
+                self._sd_player.seek(self.media_player.position())
+                self._sd_player.resume()
+                self._poll_timer.start()
 
     def on_slider_moved(self, position):
         self.set_position(position)
 
     def on_slider_pressed(self):
-        """Called when user starts dragging the slider"""
         self.is_slider_dragging = True
 
     def on_slider_released(self):
-        """Called when user releases the slider"""
         self.is_slider_dragging = False
-        # Update position to where use released
         self.set_position(self.scrubber.value())
 
     def set_position(self, position_ms: int):
         self.media_player.setPosition(position_ms)
+        if self._use_sd and self._sd_player:
+            self._sd_player.seek(position_ms)
 
     def on_position_changed(self, position_ms: int):
-        # Don't update slider if user is currently dragging it
         if not self.is_slider_dragging:
             self.scrubber.blockSignals(True)
             self.scrubber.setValue(position_ms)
@@ -130,11 +164,8 @@ class VideoPlayer(QWidget):
         self.position_ms_changed.emit(position_ms)
         self.update_time_label()
 
-        # If a range has been selected and video has reached the end of range
-        #loop back to the start of the range
         if self.range_ms is not None and not self.is_looping:
             start_range_ms, end_range_ms = self.range_ms
-            #Check if video is at or past the end of range
             if position_ms >= (end_range_ms - 50):
                 self.is_looping = True
                 self.set_position(start_range_ms)
@@ -157,16 +188,22 @@ class VideoPlayer(QWidget):
         self.time_label.setText(f"{position_time} / {duration_time}")
 
     def set_range(self, range_ms: Tuple[int, int]):
-        """Set a loop range. Only jump to start if current position is outside the range."""
         self.range_ms = range_ms
         start_range_ms, end_range_ms = range_ms
-
         if self.position_ms < start_range_ms or self.position_ms > end_range_ms:
             self.set_position(start_range_ms)
 
     def clear_range(self):
-        """Clear the current loop range"""
         self.range_ms = None
 
     def stop(self):
         self.media_player.stop()
+        if self._use_sd and self._sd_player:
+            self._poll_timer.stop()
+            self._sd_player.stop()
+
+    def closeEvent(self, event):
+        self.stop()
+        if self._sd_player:
+            self._sd_player.close()
+        super().closeEvent(event)

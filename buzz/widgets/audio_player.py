@@ -2,13 +2,14 @@ import logging
 from typing import Tuple, Optional
 
 from PyQt6 import QtGui
-from PyQt6.QtCore import QTime, QUrl, Qt, pyqtSignal
+from PyQt6.QtCore import QTime, QUrl, Qt, pyqtSignal, QTimer
 from PyQt6.QtMultimedia import QAudioOutput, QMediaPlayer, QMediaDevices
 from PyQt6.QtWidgets import QWidget, QSlider, QPushButton, QLabel, QHBoxLayout, QVBoxLayout
 
 from buzz.widgets.icon import PlayIcon, PauseIcon
 from buzz.settings.settings import Settings
 from buzz.transcriber.file_transcriber import is_video_file
+from buzz.sounddevice_player import AudioFilePlayer
 
 
 class AudioPlayer(QWidget):
@@ -21,17 +22,33 @@ class AudioPlayer(QWidget):
         self.position_ms = 0
         self.duration_ms = 0
         self.invalid_media = None
-        self.is_looping = False  # Flag to prevent recursive position changes
-        self.is_slider_dragging = False # Flag to track if use is dragging slider
+        self.is_looping = False
+        self.is_slider_dragging = False
 
-        # Initialize settings
         self.settings = Settings()
-
         self.is_video = is_video_file(file_path)
 
+        # --- sounddevice engine ---
+        self._sd_player: Optional[AudioFilePlayer] = None
+        self._use_sd = False
+        self._poll_timer = QTimer(self)
+        self._poll_timer.setInterval(16)
+        self._poll_timer.timeout.connect(self._poll_position)
+
+        try:
+            sd_player = AudioFilePlayer(file_path)
+            if sd_player.ready:
+                self._sd_player = sd_player
+                self._use_sd = True
+                self.duration_ms = sd_player.duration_ms
+            else:
+                sd_player.close()
+        except Exception:
+            logging.warning("AudioPlayer: sounddevice init failed, using Qt fallback", exc_info=True)
+
+        # --- Qt multimedia (fallback or always for video output) ---
         self.audio_output = QAudioOutput()
         self.audio_output.setVolume(100)
-
         self.media_player = QMediaPlayer()
         self.media_player.setSource(QUrl.fromLocalFile(file_path))
         self.media_player.setAudioOutput(self.audio_output)
@@ -46,9 +63,12 @@ class AudioPlayer(QWidget):
         else:
             self.video_widget = None
 
-        # Speed control moved to transcription viewer - just set default rate
+        if self._use_sd:
+            # Mute Qt audio — sounddevice handles it
+            self.audio_output.setMuted(True)
+
         saved_rate = self.settings.value(Settings.Key.AUDIO_PLAYBACK_RATE, 1.0, float)
-        saved_rate = max(0.1, min(5.0, saved_rate))  # Ensure valid range
+        saved_rate = max(0.1, min(5.0, saved_rate))
         self.media_player.setPlaybackRate(saved_rate)
 
         self.scrubber = QSlider(Qt.Orientation.Horizontal)
@@ -57,35 +77,27 @@ class AudioPlayer(QWidget):
         self.scrubber.sliderPressed.connect(self.on_slider_pressed)
         self.scrubber.sliderReleased.connect(self.on_slider_released)
 
-        # Track if user is dragging the slider
-        self.is_slider_dragging = False
-
         self.play_icon = PlayIcon(self)
         self.pause_icon = PauseIcon(self)
 
         self.play_button = QPushButton("")
         self.play_button.setIcon(self.play_icon)
         self.play_button.clicked.connect(self.toggle_play)
-        self.play_button.setMaximumWidth(40)  # Match other button widths
-        self.play_button.setMinimumHeight(30)  # Match other button heights
+        self.play_button.setMaximumWidth(40)
+        self.play_button.setMinimumHeight(30)
 
         self.time_label = QLabel()
         self.time_label.setAlignment(Qt.AlignmentFlag.AlignRight)
 
-        # Create main layout - simplified without speed controls
         if self.is_video:
-            #Vertical layout for video
             main_layout = QVBoxLayout()
-            main_layout.addWidget(self.video_widget, stretch=1) # As video takes more space
-
+            main_layout.addWidget(self.video_widget, stretch=1)
             controls_layout = QHBoxLayout()
             controls_layout.addWidget(self.play_button, alignment=Qt.AlignmentFlag.AlignVCenter)
             controls_layout.addWidget(self.scrubber, alignment=Qt.AlignmentFlag.AlignVCenter)
             controls_layout.addWidget(self.time_label, alignment=Qt.AlignmentFlag.AlignVCenter)
-
             main_layout.addLayout(controls_layout)
         else:
-            # Horizontal layout for audio only
             main_layout = QHBoxLayout()
             main_layout.addWidget(self.play_button, alignment=Qt.AlignmentFlag.AlignVCenter)
             main_layout.addWidget(self.scrubber, alignment=Qt.AlignmentFlag.AlignVCenter)
@@ -93,22 +105,64 @@ class AudioPlayer(QWidget):
 
         self.setLayout(main_layout)
 
-        # Connect media player signals to the corresponding slots
         self.media_player.durationChanged.connect(self.on_duration_changed)
         self.media_player.positionChanged.connect(self.on_position_changed)
         self.media_player.playbackStateChanged.connect(self.on_playback_state_changed)
         self.media_player.mediaStatusChanged.connect(self.on_media_status_changed)
         self.media_player.errorOccurred.connect(self.on_error_occurred)
 
-        self.on_duration_changed(self.media_player.duration())
+        if self._use_sd:
+            self.scrubber.setRange(0, self.duration_ms)
+            self.update_time_label()
+        else:
+            self.on_duration_changed(self.media_player.duration())
+
+    # ------------------------------------------------------------------
+    # sounddevice poll loop
+    # ------------------------------------------------------------------
+
+    def _poll_position(self):
+        if self._sd_player is None:
+            return
+        pos = self._sd_player.position_ms
+        dur = self._sd_player.duration_ms
+
+        if not self.is_slider_dragging:
+            self.scrubber.blockSignals(True)
+            self.scrubber.setValue(pos)
+            self.scrubber.blockSignals(False)
+
+        self.position_ms = pos
+        self.position_ms_changed.emit(pos)
+        self.update_time_label()
+
+        # Stop poll timer when playback ends naturally
+        if not self._sd_player.is_playing:
+            self._poll_timer.stop()
+            self.play_button.setIcon(self.play_icon)
+
+        # Loop range handling
+        if self.range_ms is not None and not self.is_looping:
+            start_ms, end_ms = self.range_ms
+            if pos >= (end_ms - 50):
+                self.is_looping = True
+                self._sd_player.seek(start_ms)
+                self.is_looping = False
+
+    # ------------------------------------------------------------------
+    # Qt multimedia callbacks (used when _use_sd is False, or for video)
+    # ------------------------------------------------------------------
 
     def on_duration_changed(self, duration_ms: int):
+        if self._use_sd:
+            return
         self.scrubber.setRange(0, duration_ms)
         self.duration_ms = duration_ms
         self.update_time_label()
 
     def on_position_changed(self, position_ms: int):
-        # Don't update slider if user is currently dragging it
+        if self._use_sd:
+            return
         if not self.is_slider_dragging:
             self.scrubber.blockSignals(True)
             self.scrubber.setValue(position_ms)
@@ -118,19 +172,17 @@ class AudioPlayer(QWidget):
         self.position_ms_changed.emit(self.position_ms)
         self.update_time_label()
 
-        # If a range has been selected as we've reached the end of the range,
-        # loop back to the start of the range
         if self.range_ms is not None and not self.is_looping:
             start_range_ms, end_range_ms = self.range_ms
-            # Check if we're at or past the end of the range (with small buffer for precision)
-            if position_ms >= (end_range_ms - 50):  # Within 50ms of end
+            if position_ms >= (end_range_ms - 50):
                 logging.debug(f"🔄 LOOP: Reached end {end_range_ms}ms, jumping to start {start_range_ms}ms")
-                self.is_looping = True  # Set flag to prevent recursion
+                self.is_looping = True
                 self.set_position(start_range_ms)
-                # Reset flag immediately after setting position
                 self.is_looping = False
 
     def on_playback_state_changed(self, state: QMediaPlayer.PlaybackState):
+        if self._use_sd:
+            return
         if state == QMediaPlayer.PlaybackState.PlayingState:
             self.play_button.setIcon(self.pause_icon)
         else:
@@ -159,51 +211,64 @@ class AudioPlayer(QWidget):
             self.scrubber.setEnabled(True)
             self.time_label.setEnabled(True)
 
+    # ------------------------------------------------------------------
+    # Playback controls
+    # ------------------------------------------------------------------
+
     def toggle_play(self):
-        if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
-            self.media_player.pause()
+        if self._use_sd and self._sd_player:
+            if self._sd_player.is_playing:
+                self._sd_player.pause()
+                self._poll_timer.stop()
+                self.play_button.setIcon(self.play_icon)
+                if self.is_video:
+                    self.media_player.pause()
+            else:
+                self._sd_player.resume()
+                self._poll_timer.start()
+                self.play_button.setIcon(self.pause_icon)
+                if self.is_video:
+                    self.media_player.play()
         else:
-            self.media_player.play()
+            if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
+                self.media_player.pause()
+            else:
+                self.media_player.play()
 
     def set_range(self, range_ms: Tuple[int, int]):
-        """Set a loop range. Only jump to start if current position is outside the range."""
         self.range_ms = range_ms
         start_range_ms, end_range_ms = range_ms
-        
-        # Only jump to start if current position is outside the range
         if self.position_ms < start_range_ms or self.position_ms > end_range_ms:
             logging.debug(f"🔄 LOOP: Position {self.position_ms}ms outside range, jumping to {start_range_ms}ms")
             self.set_position(start_range_ms)
 
     def clear_range(self):
-        """Clear the current loop range"""
         self.range_ms = None
 
     def _reset_looping_flag(self):
-        """Reset the looping flag"""
         self.is_looping = False
 
     def on_slider_moved(self, position_ms: int):
         self.set_position(position_ms)
-        # Only clear range if scrubbed significantly outside the current range
         if self.range_ms is not None:
             start_range_ms, end_range_ms = self.range_ms
-            # Clear range if scrubbed more than 2 seconds outside the range
             if position_ms < (start_range_ms - 2000) or position_ms > (end_range_ms + 2000):
                 self.range_ms = None
 
     def on_slider_pressed(self):
-        """Called when the user starts dragging the slider"""
         self.is_slider_dragging = True
 
     def on_slider_released(self):
-        """Called when user releases the slider"""
         self.is_slider_dragging = False
-        # Update the position where user released
         self.set_position(self.scrubber.value())
 
     def set_position(self, position_ms: int):
-        self.media_player.setPosition(position_ms)
+        if self._use_sd and self._sd_player:
+            self._sd_player.seek(position_ms)
+            if self.is_video:
+                self.media_player.setPosition(position_ms)
+        else:
+            self.media_player.setPosition(position_ms)
 
     def update_time_label(self):
         position_time = QTime(0, 0).addMSecs(self.position_ms).toString()
@@ -211,6 +276,9 @@ class AudioPlayer(QWidget):
         self.time_label.setText(f"{position_time} / {duration_time}")
 
     def on_audio_outputs_changed(self):
+        if self._use_sd:
+            # sounddevice always uses system default; nothing to reconnect
+            return
         was_playing = self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState
         position = self.media_player.position()
         self.audio_output = QAudioOutput()
@@ -221,10 +289,19 @@ class AudioPlayer(QWidget):
             self.media_player.play()
 
     def stop(self):
-        self.media_player.stop()
+        if self._use_sd and self._sd_player:
+            self._poll_timer.stop()
+            self._sd_player.stop()
+            self.play_button.setIcon(self.play_icon)
+            if self.is_video:
+                self.media_player.stop()
+        else:
+            self.media_player.stop()
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         self.stop()
+        if self._sd_player:
+            self._sd_player.close()
         super().closeEvent(a0)
 
     def hideEvent(self, a0: QtGui.QHideEvent) -> None:

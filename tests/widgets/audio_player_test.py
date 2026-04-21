@@ -29,8 +29,9 @@ class TestAudioPlayer:
         widget = AudioPlayer(test_audio_path)
         qtbot.add_widget(widget)
 
-        widget.on_duration_changed(2000)
-        widget.on_position_changed(1000)
+        widget.position_ms = 1000
+        widget.duration_ms = 2000
+        widget.update_time_label()
 
         position_time = QTime(0, 0).addMSecs(1000).toString()
         duration_time = QTime(0, 0).addMSecs(2000).toString()
@@ -41,6 +42,8 @@ class TestAudioPlayer:
         widget = AudioPlayer(test_audio_path)
         qtbot.add_widget(widget)
 
+        # Force Qt path for icon state testing
+        widget._use_sd = False
         widget.on_playback_state_changed(QMediaPlayer.PlaybackState.PlayingState)
         assert widget.play_button.icon().themeName() == widget.pause_icon.themeName()
 

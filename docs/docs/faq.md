@@ -63,11 +63,13 @@ For method 2 there is no need to uninstall the antivirus, but see if you can tem
 
 Yes, Buzz can be used without internet connection if you download the necessary models on some other computer that has the internet and manually move them to the offline computer. The easiest way to find where the models are stored is to go to Help -> Preferences -> Models. Then download some model, and push "Show file location" button. This will open the folder where the models are stored. Copy the models folder to the same location on the offline computer. F.e. for Linux it is `.cache/Buzz/models` in your home directory.
 
+Please also check [`scripts/download-models.py`](https://github.com/chidiwilliams/buzz/blob/main/scripts/download-models.py). This is a script that can help you prepare model cache of offline use.
+
 ### 8. Buzz crashes, what to do?
 
 If a model download was incomplete or corrupted, Buzz may crash. Try to delete the downloaded model files in `Help -> Preferences -> Models` and re-download them.
 
-If that does not help, check the log file for errors and [report the issue](https://github.com/chidiwilliams/buzz/issues) so we can fix it. If possible attach the log file to the issue. Since Version `1.3.4`, to get to the logs folder go to `Help -> About Buzz` and click on `Show logs` button.
+If that does not help, check the log file for errors and [report the issue](https://github.com/chidiwilliams/buzz/issues) so we can fix it. If possible attach the log file to the issue. To get to the logs folder go to `Help -> About Buzz` and click on `Show logs` button.
 
 Also note that Buzz needs AVX2 support in your CPU, very old computers are not supported.
 
