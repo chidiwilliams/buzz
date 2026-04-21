@@ -1,11 +1,17 @@
 import logging
 from typing import Tuple, Optional
+
+import numpy as np
 from PyQt6.QtCore import Qt, QUrl, pyqtSignal, QTime, QTimer
-from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput, QMediaDevices
-from PyQt6.QtMultimediaWidgets import QVideoWidget
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QSlider, QPushButton, QHBoxLayout, QLabel, QSizePolicy
+from PyQt6.QtGui import QImage, QPixmap
+from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
+from PyQt6.QtWidgets import (
+    QWidget, QVBoxLayout, QSlider, QPushButton,
+    QHBoxLayout, QLabel, QSizePolicy,
+)
 from buzz.widgets.icon import PlayIcon, PauseIcon
 from buzz.sounddevice_player import AudioFilePlayer
+from buzz.ffmpeg_video_player import FfmpegVideoPlayer
 
 
 class VideoPlayer(QWidget):
@@ -19,15 +25,15 @@ class VideoPlayer(QWidget):
         self.duration_ms = 0
         self.is_looping = False
         self.is_slider_dragging = False
-        self.initial_frame_loaded = False
+
+        # --- ffmpeg software video decoder (avoids Qt GPU renderer artefacts) ---
+        self._ffmpeg_player = FfmpegVideoPlayer(file_path)
+        if self._ffmpeg_player.has_video:
+            self._ffmpeg_player.start(0)
 
         # --- sounddevice audio engine ---
         self._sd_player: Optional[AudioFilePlayer] = None
         self._use_sd = False
-        self._poll_timer = QTimer(self)
-        self._poll_timer.setInterval(16)
-        self._poll_timer.timeout.connect(self._sync_audio)
-
         try:
             sd_player = AudioFilePlayer(file_path)
             if sd_player.ready:
@@ -36,31 +42,39 @@ class VideoPlayer(QWidget):
             else:
                 sd_player.close()
         except Exception:
-            logging.warning("VideoPlayer: sounddevice init failed, using Qt audio fallback", exc_info=True)
+            logging.warning("VideoPlayer: sounddevice init failed, no audio", exc_info=True)
 
-        # --- Qt multimedia for video rendering ---
+        # --- Qt multimedia: position/duration clock only (muted, no video output) ---
         self.audio_output = QAudioOutput(self)
-        self.audio_output.setVolume(100)
-        if self._use_sd:
-            self.audio_output.setMuted(True)
-
-        default_device = QMediaDevices.defaultAudioOutput()
-        if default_device.isNull():
-            logging.warning("No default audio output device found!")
-        else:
-            logging.info(f"Audio output device: {default_device.description()}")
-
+        self.audio_output.setMuted(True)
         self.media_player = QMediaPlayer(self)
         self.media_player.setSource(QUrl.fromLocalFile(file_path))
         self.media_player.setAudioOutput(self.audio_output)
+        # No setVideoOutput — we render frames ourselves via ffmpeg
 
-        self.video_widget = QVideoWidget(self)
-        self.media_player.setVideoOutput(self.video_widget)
+        # --- Video display label ---
+        self.video_label = QLabel(self)
+        self.video_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.video_label.setMinimumHeight(200)
+        self.video_label.setMaximumHeight(400)
+        self.video_label.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred,
+        )
+        self.video_label.setStyleSheet("background-color: black;")
 
-        self.video_widget.setMinimumHeight(200)
-        self.video_widget.setMaximumHeight(400)
-        self.video_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        # Render timer — fires at video fps, updates the label with the current frame
+        render_interval_ms = max(16, int(1000 / self._ffmpeg_player.fps))
+        self._render_timer = QTimer(self)
+        self._render_timer.setInterval(render_interval_ms)
+        self._render_timer.timeout.connect(self._render_frame)
+        self._render_timer.start()
 
+        # Audio sync timer — keeps sounddevice within 200 ms of QMediaPlayer position
+        self._poll_timer = QTimer(self)
+        self._poll_timer.setInterval(100)
+        self._poll_timer.timeout.connect(self._sync_audio)
+
+        # --- Controls ---
         self.scrubber = QSlider(Qt.Orientation.Horizontal)
         self.scrubber.setRange(0, 0)
         self.scrubber.sliderMoved.connect(self.on_slider_moved)
@@ -87,9 +101,8 @@ class VideoPlayer(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(4)
-        layout.addWidget(self.video_widget, stretch=1)
+        layout.addWidget(self.video_label, stretch=1)
         layout.addLayout(controls)
-
         self.setLayout(layout)
 
         self.media_player.positionChanged.connect(self.on_position_changed)
@@ -99,7 +112,29 @@ class VideoPlayer(QWidget):
         self.media_player.errorOccurred.connect(self.on_error_occurred)
 
     # ------------------------------------------------------------------
-    # sounddevice sync — keep audio within 200 ms of video position
+    # Frame rendering
+    # ------------------------------------------------------------------
+
+    def _render_frame(self):
+        frame = self._ffmpeg_player.get_frame_for_position(self.position_ms)
+        if frame is None:
+            frame = self._ffmpeg_player.last_frame
+        if frame is not None:
+            self._display_frame(frame)
+
+    def _display_frame(self, frame: np.ndarray):
+        h, w, _ = frame.shape
+        img = QImage(frame.data, w, h, w * 3, QImage.Format.Format_RGB888)
+        pixmap = QPixmap.fromImage(img)
+        scaled = pixmap.scaled(
+            self.video_label.size(),
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation,
+        )
+        self.video_label.setPixmap(scaled)
+
+    # ------------------------------------------------------------------
+    # Audio sync
     # ------------------------------------------------------------------
 
     def _sync_audio(self):
@@ -118,12 +153,9 @@ class VideoPlayer(QWidget):
         logging.error(f"Media player error: {error} - {error_string}")
 
     def on_media_status_changed(self, status: QMediaPlayer.MediaStatus):
-        if self.initial_frame_loaded:
-            return
+        # Brief play/pause to trigger duration detection on some backends
         if status == QMediaPlayer.MediaStatus.LoadedMedia:
             self.media_player.play()
-        elif status == QMediaPlayer.MediaStatus.BufferedMedia:
-            self.initial_frame_loaded = True
             self.media_player.pause()
 
     def toggle_playback(self):
@@ -151,6 +183,7 @@ class VideoPlayer(QWidget):
 
     def set_position(self, position_ms: int):
         self.media_player.setPosition(position_ms)
+        self._ffmpeg_player.seek(position_ms)
         if self._use_sd and self._sd_player:
             self._sd_player.seek(position_ms)
 
@@ -198,12 +231,14 @@ class VideoPlayer(QWidget):
 
     def stop(self):
         self.media_player.stop()
+        self._render_timer.stop()
         if self._use_sd and self._sd_player:
             self._poll_timer.stop()
             self._sd_player.stop()
 
     def closeEvent(self, event):
         self.stop()
+        self._ffmpeg_player.close()
         if self._sd_player:
             self._sd_player.close()
         super().closeEvent(event)
