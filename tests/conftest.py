@@ -1,3 +1,4 @@
+import glob
 import multiprocessing
 import os
 import platform
@@ -83,3 +84,17 @@ def settings():
 @pytest.fixture(scope="session")
 def shortcuts(settings):
     return Shortcuts(settings)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def cleanup_testdata_exports():
+    """Remove transcription export files written into testdata/ during the test session."""
+    testdata_dir = os.path.join(os.path.dirname(__file__), "..", "testdata")
+    before = set(glob.glob(os.path.join(testdata_dir, "*")))
+    yield
+    after = set(glob.glob(os.path.join(testdata_dir, "*")))
+    for path in after - before:
+        try:
+            os.remove(path)
+        except OSError:
+            pass
