@@ -513,7 +513,8 @@ class TestModelDownloaderDownloadModel:
         mock_response.raise_for_status = MagicMock()
 
         with patch('requests.head', return_value=mock_head), \
-             patch('requests.get', return_value=mock_response):
+             patch('requests.get', return_value=mock_response), \
+             pytest.warns(UserWarning, match="SHA256 checksum does not match"):
             with pytest.raises(RuntimeError, match="SHA256 checksum does not match"):
                 downloader.download_model(
                     url="http://example.com/model.pt",
