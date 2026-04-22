@@ -1,4 +1,5 @@
 import platform
+import warnings
 import pytest
 
 from buzz.transformers_whisper import TransformersTranscriber
@@ -12,8 +13,10 @@ class TestTransformersTranscriber:
     )
     def test_should_transcribe(self):
         model = TransformersTranscriber("openai/whisper-tiny")
-        result = model.transcribe(
-            audio=test_audio_path, language="fr", task="transcribe"
-        )
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message=".*inputs.*input_features.*", category=FutureWarning)
+            result = model.transcribe(
+                audio=test_audio_path, language="fr", task="transcribe"
+            )
 
         assert "Bienvenue dans Passrel" in result["text"]
