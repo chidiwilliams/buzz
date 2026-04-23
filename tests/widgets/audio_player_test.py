@@ -1,5 +1,6 @@
 import os
 import pytest
+from unittest.mock import patch, MagicMock
 
 from PyQt6.QtCore import QTime
 from PyQt6.QtMultimedia import QMediaPlayer
@@ -232,34 +233,36 @@ class TestAudioPlayer:
         assert abs(widget._sd_player.position_ms - 500) < 50
 
     def test_toggle_play_sounddevice_path(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        with patch("sounddevice.OutputStream", return_value=MagicMock()):
+            widget = AudioPlayer(test_audio_path)
+            qtbot.add_widget(widget)
 
-        if not widget._use_sd:
-            pytest.skip("sounddevice not active")
+            if not widget._use_sd:
+                pytest.skip("sounddevice not active")
 
-        # Start playing
-        widget.toggle_play()
-        assert widget._sd_player.is_playing
-        assert widget._poll_timer.isActive()
+            # Start playing
+            widget.toggle_play()
+            assert widget._sd_player.is_playing
+            assert widget._poll_timer.isActive()
 
-        # Pause
-        widget.toggle_play()
-        assert not widget._sd_player.is_playing
-        assert not widget._poll_timer.isActive()
+            # Pause
+            widget.toggle_play()
+            assert not widget._sd_player.is_playing
+            assert not widget._poll_timer.isActive()
 
     def test_stop_stops_sounddevice(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        with patch("sounddevice.OutputStream", return_value=MagicMock()):
+            widget = AudioPlayer(test_audio_path)
+            qtbot.add_widget(widget)
 
-        if not widget._use_sd:
-            pytest.skip("sounddevice not active")
+            if not widget._use_sd:
+                pytest.skip("sounddevice not active")
 
-        widget.toggle_play()
-        widget.stop()
+            widget.toggle_play()
+            widget.stop()
 
-        assert not widget._sd_player.is_playing
-        assert not widget._poll_timer.isActive()
+            assert not widget._sd_player.is_playing
+            assert not widget._poll_timer.isActive()
 
     def test_range_looping_with_sounddevice(self, qtbot: QtBot):
         widget = AudioPlayer(test_audio_path)
