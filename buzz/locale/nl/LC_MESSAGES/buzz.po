@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-17 21:35+0300\n"
+"POT-Creation-Date: 2026-04-26 17:24+0300\n"
 "PO-Revision-Date: 2025-03-20 18:30+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: none\n"
@@ -116,6 +116,11 @@ msgstr "Pools"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Portuguese (Brazil)"
 msgstr "Portugees (Brazilië)"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "Russian"
+msgstr "Russisch"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
@@ -1193,10 +1198,6 @@ msgstr "Transcriberen"
 #: buzz/transcriber/transcriber.py
 msgid "Chinese"
 msgstr "Chinees"
-
-#: buzz/transcriber/transcriber.py
-msgid "Russian"
-msgstr "Russisch"
 
 #: buzz/transcriber/transcriber.py
 msgid "Korean"

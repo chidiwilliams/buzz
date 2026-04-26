@@ -210,6 +210,7 @@ translation_po_all:
 	$(MAKE) translation_po locale=nl
 	$(MAKE) translation_po locale=pl_PL
 	$(MAKE) translation_po locale=pt_BR
+	$(MAKE) translation_po locale=ru
 	$(MAKE) translation_po locale=uk_UA
 	$(MAKE) translation_po locale=zh_CN
 	$(MAKE) translation_po locale=zh_TW

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-07 20:20+0200\n"
+"POT-Creation-Date: 2026-04-26 17:24+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -10,7 +10,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Generator: Poedit 3.4.4\n"
 
 #: buzz/widgets/import_url_dialog.py buzz/settings/shortcut.py
@@ -113,6 +114,11 @@ msgstr "Португальский (Бразилия)"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
+msgid "Russian"
+msgstr "Русский"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
 msgid "Ukrainian"
 msgstr "Украинский"
 
@@ -171,6 +177,7 @@ msgid "Export folder"
 msgstr "Папка для экспорта"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Live recording mode"
 msgstr "Режим живой записи"
 
@@ -179,8 +186,8 @@ msgid ""
 "Note: Live recording export settings will be moved to the Advanced Settings "
 "in the Live Recording screen in a future version."
 msgstr ""
-"Примечание: Параметры экспорта живой записи будут перенесены в Дополнительные "
-"настройки на экране живой записи в будущей версии."
+"Примечание: Параметры экспорта живой записи будут перенесены в "
+"Дополнительные настройки на экране живой записи в будущей версии."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use 8-bit quantization to reduce memory usage"
@@ -220,8 +227,8 @@ msgid ""
 "Your API key is valid. Buzz will use this key to perform Whisper API "
 "transcriptions and AI translations."
 msgstr ""
-"Ваш API-ключ действителен. Buzz будет использовать этот ключ для транскрипции "
-"через Whisper API и перевода с помощью ИИ."
+"Ваш API-ключ действителен. Buzz будет использовать этот ключ для "
+"транскрипции через Whisper API и перевода с помощью ИИ."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Invalid API key"
@@ -246,8 +253,8 @@ msgid ""
 "Transcription and translation may still work if the API does not support key "
 "validation."
 msgstr ""
-"OpenAI API вернул недопустимый ответ. Пожалуйста, проверьте адрес API или ваш "
-"ключ. Транскрипция и перевод могут работать, если API не поддерживает "
+"OpenAI API вернул недопустимый ответ. Пожалуйста, проверьте адрес API или "
+"ваш ключ. Транскрипция и перевод могут работать, если API не поддерживает "
 "проверку ключа."
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
@@ -293,6 +300,10 @@ msgstr "Горячие клавиши"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 msgid "Folder Watch"
 msgstr "Отслеживание папки"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "What model should I use?"
+msgstr ""
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Group"
@@ -432,8 +443,8 @@ msgid ""
 "notes, just the translation."
 msgstr ""
 "Пожалуйста, переводите каждый отправленный вам текст с английского на "
-"испанский. Перевод будет использоваться в автоматизированной системе, поэтому "
-"не добавляйте никаких комментариев или примечаний, только перевод."
+"испанский. Перевод будет использоваться в автоматизированной системе, "
+"поэтому не добавляйте никаких комментариев или примечаний, только перевод."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -446,10 +457,6 @@ msgstr "Настройки записи"
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Silence threshold:"
 msgstr "Порог тишины:"
-
-#: buzz/widgets/transcriber/advanced_settings_dialog.py
-msgid "Live recording mode:"
-msgstr "Режим живой записи:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Line separator:"
@@ -888,8 +895,7 @@ msgstr "Повторять фрагмент"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Enable/disable looping when clicking on transcript segments"
-msgstr ""
-"Включить/отключить повторение при нажатии на фрагменты транскрипции"
+msgstr "Включить/отключить повторение при нажатии на фрагменты транскрипции"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Follow Audio"
@@ -999,7 +1005,8 @@ msgstr ""
 msgid ""
 "Speaker identification is not available: failed to load required libraries."
 msgstr ""
-"Определение говорящих недоступно: не удалось загрузить необходимые библиотеки."
+"Определение говорящих недоступно: не удалось загрузить необходимые "
+"библиотеки."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "1/8 Collecting transcripts"
@@ -1181,10 +1188,6 @@ msgstr "Транскрибировать"
 #: buzz/transcriber/transcriber.py
 msgid "Chinese"
 msgstr "Китайский"
-
-#: buzz/transcriber/transcriber.py
-msgid "Russian"
-msgstr "Русский"
 
 #: buzz/transcriber/transcriber.py
 msgid "Korean"
@@ -1634,8 +1637,12 @@ msgstr ""
 "Не удалось извлечь речь! Проверьте подключение к интернету — возможно, нужно "
 "скачать модель."
 
+#~ msgid "Live recording mode:"
+#~ msgstr "Режим живой записи:"
+
 #~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-#~ msgstr "Значения, разделённые запятыми, напр., \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+#~ msgstr ""
+#~ "Значения, разделённые запятыми, напр., \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
 
 #~ msgid "Temperature:"
 #~ msgstr "Температура:"
@@ -1661,7 +1668,8 @@ msgstr ""
 #~ msgid ""
 #~ "To enable necessary permissions run the following commands in the terminal"
 #~ msgstr ""
-#~ "Для включения необходимых разрешений выполните следующие команды в терминале"
+#~ "Для включения необходимых разрешений выполните следующие команды в "
+#~ "терминале"
 
 #~ msgid "Close"
 #~ msgstr "Закрыть"

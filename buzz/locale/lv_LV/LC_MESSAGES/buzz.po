@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-17 21:35+0300\n"
+"POT-Creation-Date: 2026-04-26 17:24+0300\n"
 "PO-Revision-Date: 2026-03-06 13:23+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -114,6 +114,11 @@ msgstr "Poļu"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Portuguese (Brazil)"
 msgstr "Portugāļu (Brazīlijas)"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "Russian"
+msgstr "Krievu"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
@@ -1184,10 +1189,6 @@ msgstr "Atpazīt"
 #: buzz/transcriber/transcriber.py
 msgid "Chinese"
 msgstr "Ķīniešu"
-
-#: buzz/transcriber/transcriber.py
-msgid "Russian"
-msgstr "Krievu"
 
 #: buzz/transcriber/transcriber.py
 msgid "Korean"

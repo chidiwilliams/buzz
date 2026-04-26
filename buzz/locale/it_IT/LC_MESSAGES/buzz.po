@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-17 21:35+0300\n"
+"POT-Creation-Date: 2026-04-26 17:24+0300\n"
 "PO-Revision-Date: 2026-04-12 21:42+0200\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
@@ -113,6 +113,11 @@ msgstr "Polacco"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Portuguese (Brazil)"
 msgstr "Portoghese (Brasiliano)"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "Russian"
+msgstr "Russo"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
@@ -1192,10 +1197,6 @@ msgstr "Trascrivere"
 #: buzz/transcriber/transcriber.py
 msgid "Chinese"
 msgstr "Cinese"
-
-#: buzz/transcriber/transcriber.py
-msgid "Russian"
-msgstr "Russo"
 
 #: buzz/transcriber/transcriber.py
 msgid "Korean"

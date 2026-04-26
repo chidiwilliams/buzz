@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-17 21:35+0300\n"
+"POT-Creation-Date: 2026-04-26 17:24+0300\n"
 "PO-Revision-Date: 2025-09-08 12:43+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: \n"
@@ -115,6 +115,11 @@ msgstr "Polaco"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Portuguese (Brazil)"
 msgstr "Portugués (Brasil)"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "Russian"
+msgstr "Ruso"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
@@ -1241,10 +1246,6 @@ msgstr "Transcribir"
 #: buzz/transcriber/transcriber.py
 msgid "Chinese"
 msgstr "China"
-
-#: buzz/transcriber/transcriber.py
-msgid "Russian"
-msgstr "Ruso"
 
 #: buzz/transcriber/transcriber.py
 msgid "Korean"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-17 21:35+0300\n"
+"POT-Creation-Date: 2026-04-26 17:24+0300\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: lamb \n"
@@ -114,6 +114,11 @@ msgstr "波兰语"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Portuguese (Brazil)"
 msgstr "葡萄牙语（巴西）"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "Russian"
+msgstr "俄语"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
@@ -1159,10 +1164,6 @@ msgstr "识别"
 #: buzz/transcriber/transcriber.py
 msgid "Chinese"
 msgstr "中文"
-
-#: buzz/transcriber/transcriber.py
-msgid "Russian"
-msgstr "俄语"
 
 #: buzz/transcriber/transcriber.py
 msgid "Korean"

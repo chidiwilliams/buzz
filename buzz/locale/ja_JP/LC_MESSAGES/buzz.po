@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-17 21:35+0300\n"
+"POT-Creation-Date: 2026-04-26 17:24+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: nunawa <71294849+nunawa@users.noreply.github.com>\n"
 "Language-Team: \n"
@@ -109,6 +109,11 @@ msgstr "ポーランド語"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Portuguese (Brazil)"
 msgstr "ポルトガル語（ブラジル）"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "Russian"
+msgstr "ロシア語"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
@@ -1171,10 +1176,6 @@ msgstr "文字起こし"
 #: buzz/transcriber/transcriber.py
 msgid "Chinese"
 msgstr "中国語"
-
-#: buzz/transcriber/transcriber.py
-msgid "Russian"
-msgstr "ロシア語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Korean"

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-17 21:35+0300\n"
+"POT-Creation-Date: 2026-04-26 17:24+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Ole Guldberg2 <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -111,6 +111,11 @@ msgstr "Polsk"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Portuguese (Brazil)"
 msgstr "Portugisisk (Brasilien)"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "Russian"
+msgstr "Russisk"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
@@ -1183,10 +1188,6 @@ msgstr "Transkriber"
 #: buzz/transcriber/transcriber.py
 msgid "Chinese"
 msgstr "Kinesisk"
-
-#: buzz/transcriber/transcriber.py
-msgid "Russian"
-msgstr "Russisk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Korean"
