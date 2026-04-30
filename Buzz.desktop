@@ -8,10 +8,10 @@ Name=Buzz
 
 Comment=Buzz transcribes and translates audio offline on your personal computer.
 
-Path=/opt/buzz
+Exec=Buzz
 
-Exec=/opt/buzz/Buzz
-
-Icon=buzz
+Icon=Buzz
 
 Terminal=false
+
+Categories=AudioVideo;

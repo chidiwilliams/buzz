@@ -52,24 +52,24 @@ cp -a "$PROJECT_DIR/dist/Buzz/." "$APPDIR/usr/bin/"
 
 # ── Step 3: Desktop integration ─────────────────────────────────────────────
 # Desktop file — Exec must be just the binary name for AppImage spec
-cat > "$APPDIR/io.github.chidiwilliams.Buzz.desktop" << 'EOF'
+cat > "$APPDIR/Buzz.desktop" << 'EOF'
 [Desktop Entry]
 Type=Application
 Name=Buzz
 GenericName=Audio Transcriber
 Comment=Transcribe and translate audio offline
 Exec=Buzz
-Icon=io.github.chidiwilliams.Buzz
+Icon=Buzz
 Terminal=false
 Categories=AudioVideo;Audio;
 MimeType=audio/mpeg;audio/wav;audio/ogg;audio/flac;video/mp4;video/webm;
 EOF
-cp "$APPDIR/io.github.chidiwilliams.Buzz.desktop" "$APPDIR/usr/share/applications/"
+cp "$APPDIR/Buzz.desktop" "$APPDIR/usr/share/applications/"
 
 # Icon (SVG at AppDir root + XDG hicolor location)
-cp "$PROJECT_DIR/share/icons/io.github.chidiwilliams.Buzz.svg" "$APPDIR/"
+cp "$PROJECT_DIR/share/icons/io.github.chidiwilliams.Buzz.svg" "$APPDIR/Buzz.svg"
 cp "$PROJECT_DIR/share/icons/io.github.chidiwilliams.Buzz.svg" \
-   "$APPDIR/usr/share/icons/hicolor/scalable/apps/"
+   "$APPDIR/usr/share/icons/hicolor/scalable/apps/Buzz.svg"
 
 # AppStream metainfo (appimagetool expects .appdata.xml suffix)
 cp "$PROJECT_DIR/share/metainfo/io.github.chidiwilliams.Buzz.metainfo.xml" \
