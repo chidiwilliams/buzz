@@ -65,7 +65,16 @@
   <content_rating type="oars-1.1"/>
 
   <releases>
-      <release version="1.4.4" date="2026-03-08">
+    <release version="1.4.5" date="2026-05-05">
+      <url type="details">https://github.com/chidiwilliams/buzz/releases/tag/v1.4.5</url>
+      <description>
+        <p>Bug fixes and minor improvements.</p>
+        <ul>
+          <li>Appimage support for Linux</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.4.4" date="2026-03-08">
       <url type="details">https://github.com/chidiwilliams/buzz/releases/tag/v1.4.4</url>
       <description>
         <p>Bug fixes and minor improvements.</p>
