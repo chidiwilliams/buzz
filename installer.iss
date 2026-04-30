@@ -38,6 +38,12 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: {#AppSourcePath}; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+; Ship the OpenSSL pair next to Buzz.exe so a system OpenSSL on PATH can't shadow libcrypto
+; while libssl is still loaded from the bundle (mismatched pair => "CRYPTO_calloc not found").
+Source: "dist\Buzz\_internal\libssl-3-x64.dll"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
+Source: "dist\Buzz\_internal\libcrypto-3-x64.dll"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
+; DotLocal redirection: forces the loader to prefer {app} for DLL resolution.
+Source: "assets\Buzz.exe.local"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
