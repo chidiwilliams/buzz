@@ -8,7 +8,7 @@ mac_dmg_path := ./dist/Buzz-${version}-mac.dmg
 bundle_windows: dist/Buzz
 	# Sanity-check: both halves of OpenSSL must ship together, otherwise users with
 	# a system OpenSSL on PATH hit "CRYPTO_calloc not found" from a mismatched pair.
-	powershell -NoProfile -Command "$$root='dist\Buzz'; $$names='libssl-3-x64.dll','libcrypto-3-x64.dll'; foreach ($$n in $$names) { if (-not (Get-ChildItem -Path $$root -Recurse -Filter $$n -ErrorAction SilentlyContinue)) { Write-Error \"Missing $$n in $$root\"; exit 1 } }"
+	powershell -NoProfile -Command "if (-not (Get-ChildItem -Path 'dist\Buzz' -Recurse -Filter 'libssl-3-x64.dll' -ErrorAction SilentlyContinue)) { Write-Error 'Missing libssl-3-x64.dll in dist\Buzz'; exit 1 }; if (-not (Get-ChildItem -Path 'dist\Buzz' -Recurse -Filter 'libcrypto-3-x64.dll' -ErrorAction SilentlyContinue)) { Write-Error 'Missing libcrypto-3-x64.dll in dist\Buzz'; exit 1 }"
 	iscc installer.iss
 
 bundle_mac: dist/Buzz.app codesign_all_mac zip_mac notarize_zip staple_app_mac dmg_mac
