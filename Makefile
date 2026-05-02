@@ -41,10 +41,10 @@ endif
 COVERAGE_THRESHOLD := 70
 
 test: buzz/whisper_cpp
-# A check to get updates of yt-dlp. Should run only on local as part of regular development operations
+# A check to get updates of yt-dlp and certifi. Should run only on local as part of regular development operations
 # Sort of a local "update checker"
 ifndef CI
-	uv lock --upgrade-package yt-dlp
+	uv lock --upgrade-package yt-dlp --upgrade-package certifi
 endif
 	pytest -s -vv --cov=buzz --cov-report=xml --cov-report=html --benchmark-skip --cov-fail-under=${COVERAGE_THRESHOLD} --cov-config=.coveragerc
 

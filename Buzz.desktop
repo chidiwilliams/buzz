@@ -8,7 +8,7 @@ Name=Buzz
 
 Comment=Buzz transcribes and translates audio offline on your personal computer.
 
-Exec=Buzz
+Exec=buzz
 
 Icon=Buzz
 

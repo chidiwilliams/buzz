@@ -79,8 +79,7 @@ dependencies = [
     "uroman>=1.3.1.1",
     "lhotse==1.32.1",
     "coverage==7.12.0",
-    # demucs is bundled directly in the wheel from demucs_repo/, not installed as a dependency
-    "certifi==2025.11.12",
+    "certifi>=2025.11.12",
     "truststore>=0.10.0",
     "torchcodec>=0.9.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
     "torch>=2.2.2",
