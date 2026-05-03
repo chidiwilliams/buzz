@@ -124,8 +124,6 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    # pyarrow is excluded because its Windows wheel requires AVX2 CPU instructions,
-    # causing a crash (0xc000001d) on older hardware. Buzz does not use pyarrow directly;
     excludes=[],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
@@ -138,7 +136,7 @@ exe = EXE(
     pyz,
     a.scripts,
     options,
-    icon="./assets/buzz.ico",
+    icon="./buzz/assets/buzz.ico",
     exclude_binaries=True,
     name="Buzz",
     debug=DEBUG,
@@ -165,7 +163,7 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name="Buzz.app",
-    icon="./assets/buzz.icns",
+    icon="./buzz/assets/buzz.icns",
     bundle_identifier="com.chidiwilliams.buzz",
     version=VERSION,
     info_plist={
