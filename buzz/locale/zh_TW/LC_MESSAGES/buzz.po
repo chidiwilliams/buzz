@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-26 17:24+0300\n"
+"POT-Creation-Date: 2026-05-03 09:00+0300\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: Lamb\n"
@@ -432,6 +432,10 @@ msgstr "啟用 AI 翻譯"
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "AI model:"
 msgstr "AI 模型："
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Open documentation for AI translation models"
+msgstr "開啟 AI 翻譯模型的說明文件"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid ""

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-26 17:24+0300\n"
+"POT-Creation-Date: 2026-05-03 09:00+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Ole Guldberg2 <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -436,6 +436,10 @@ msgstr "Brug AI oversættelse"
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "AI model:"
 msgstr "AI model:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Open documentation for AI translation models"
+msgstr "Åbn dokumentation for AI-oversættelsesmodeller"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid ""

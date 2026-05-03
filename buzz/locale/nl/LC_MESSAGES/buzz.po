@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-26 17:24+0300\n"
+"POT-Creation-Date: 2026-05-03 09:00+0300\n"
 "PO-Revision-Date: 2025-03-20 18:30+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: none\n"
@@ -444,6 +444,10 @@ msgstr "AI-vertaling inschakelen"
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "AI model:"
 msgstr "AI-model:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Open documentation for AI translation models"
+msgstr "Documentatie voor AI-vertaalmodellen openen"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid ""

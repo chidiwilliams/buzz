@@ -1,4 +1,5 @@
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal, QUrl
+from PyQt6.QtGui import QDesktopServices
 from PyQt6.QtWidgets import (
     QDialog,
     QWidget,
@@ -14,6 +15,8 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QSpinBox,
     QFileDialog,
+    QStyle,
+    QToolButton,
 )
 
 from buzz.locale import _
@@ -71,14 +74,31 @@ class AdvancedSettingsDialog(QDialog):
         self.enable_llm_translation_checkbox.stateChanged.connect(self.on_enable_llm_translation_changed)
         layout.addRow("", self.enable_llm_translation_checkbox)
 
-        llm_model = self.transcription_options.llm_model or "gpt-4.1-mini"
+        llm_model = self.transcription_options.llm_model or "add-model-id-here"
         self.llm_model_line_edit = LineEdit(llm_model, self)
         self.llm_model_line_edit.textChanged.connect(self.on_llm_model_changed)
         self.llm_model_line_edit.setMinimumWidth(170)
         self.llm_model_line_edit.setEnabled(self.transcription_options.enable_llm_translation)
         self.llm_model_label = QLabel(_("AI model:"))
         self.llm_model_label.setEnabled(self.transcription_options.enable_llm_translation)
-        layout.addRow(self.llm_model_label, self.llm_model_line_edit)
+
+        self.llm_model_info_button = QToolButton(self)
+        self.llm_model_info_button.setIcon(
+            self.style().standardIcon(QStyle.StandardPixmap.SP_MessageBoxInformation)
+        )
+        self.llm_model_info_button.setToolTip(
+            _("Open documentation for AI translation models")
+        )
+        self.llm_model_info_button.setCursor(self.llm_model_info_button.cursor())
+        self.llm_model_info_button.setAutoRaise(True)
+        self.llm_model_info_button.clicked.connect(self.on_llm_model_info_clicked)
+        self.llm_model_info_button.setEnabled(self.transcription_options.enable_llm_translation)
+
+        llm_model_row = QHBoxLayout()
+        llm_model_row.setContentsMargins(0, 0, 0, 0)
+        llm_model_row.addWidget(self.llm_model_line_edit)
+        llm_model_row.addWidget(self.llm_model_info_button)
+        layout.addRow(self.llm_model_label, llm_model_row)
 
         default_llm_prompt = self.transcription_options.llm_prompt or _(
             "Please translate each text sent to you from English to Spanish. Translation will be used in an automated system, please do not add any comments or notes, just the translation."
@@ -249,8 +269,14 @@ class AdvancedSettingsDialog(QDialog):
         enabled = self.transcription_options.enable_llm_translation
         self.llm_model_label.setEnabled(enabled)
         self.llm_model_line_edit.setEnabled(enabled)
+        self.llm_model_info_button.setEnabled(enabled)
         self.llm_prompt_label.setEnabled(enabled)
         self.llm_prompt_text_edit.setEnabled(enabled)
+
+    def on_llm_model_info_clicked(self):
+        QDesktopServices.openUrl(
+            QUrl("https://chidiwilliams.github.io/buzz/docs/usage/translations")
+        )
 
     def on_llm_model_changed(self, text: str):
         self.transcription_options.llm_model = text
