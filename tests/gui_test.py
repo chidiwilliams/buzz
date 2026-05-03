@@ -128,7 +128,7 @@ class TestAdvancedSettingsDialog:
         assert dialog.windowTitle() == _("Advanced Settings")
         assert dialog.initial_prompt_text_edit.toPlainText() == "prompt"
         assert dialog.enable_llm_translation_checkbox.isChecked() is False
-        assert dialog.llm_model_line_edit.text() == "gpt-4.1-mini"
+        assert dialog.llm_model_line_edit.text() == "add-model-id-here"
         assert dialog.llm_prompt_text_edit.toPlainText() == _("Please translate each text sent to you from English to Spanish. Translation will be used in an automated system, please do not add any comments or notes, just the translation.")
 
         dialog.initial_prompt_text_edit.setPlainText("new prompt")
