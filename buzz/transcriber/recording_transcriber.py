@@ -17,6 +17,7 @@ from buzz import cuda_setup  # noqa: F401
 
 import torch
 import numpy as np
+from buzz.transcriber.cuda_device import cuda_works
 import sounddevice
 from sounddevice import PortAudioError
 from openai import OpenAI
@@ -168,7 +169,7 @@ class RecordingTranscriber(QObject):
         model_path = self.model_path
 
         force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
-        use_cuda = torch.cuda.is_available() and force_cpu == "false"
+        use_cuda = cuda_works() and force_cpu == "false"
         self.use_cuda = use_cuda
 
         if torch.cuda.is_available():
@@ -195,12 +196,11 @@ class RecordingTranscriber(QObject):
             model_root_dir = os.getenv("BUZZ_MODEL_ROOT", model_root_dir)
 
             device = "auto"
-            if torch.cuda.is_available() and torch.version.cuda < "12":
-                logging.debug("Unsupported CUDA version (<12), using CPU")
+            if not cuda_works():
+                logging.debug("CUDA not available or not functional, using CPU")
                 device = "cpu"
-
-            if not torch.cuda.is_available():
-                logging.debug("CUDA is not available, using CPU")
+            elif torch.version.cuda < "12":
+                logging.debug("Unsupported CUDA version (<12), using CPU")
                 device = "cpu"
 
             if force_cpu != "false":

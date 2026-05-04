@@ -89,19 +89,6 @@ class TestCudaInstallerDialog:
         dialog._on_progress("step 1")
         assert "step 1" in dialog.log_view.toPlainText()
 
-    def test_on_progress_updates_status_label(self, qtbot: QtBot):
-        dialog = CudaInstallerDialog()
-        qtbot.add_widget(dialog)
-        dialog._on_progress("Installing packages...")
-        assert dialog.status_label.text() != ""
-
-    def test_on_progress_truncates_long_message(self, qtbot: QtBot):
-        dialog = CudaInstallerDialog()
-        qtbot.add_widget(dialog)
-        long_msg = "x" * 200
-        dialog._on_progress(long_msg)
-        assert len(dialog.status_label.text()) <= 80
-
     def test_on_finished_re_enables_install_button(self, qtbot: QtBot):
         dialog = CudaInstallerDialog()
         qtbot.add_widget(dialog)

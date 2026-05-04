@@ -11,6 +11,8 @@ from buzz import cuda_setup  # noqa: F401
 
 import torch
 import platform
+
+from buzz.transcriber.cuda_device import cuda_works
 import subprocess
 from platformdirs import user_cache_dir
 from multiprocessing.connection import Connection
@@ -320,12 +322,11 @@ class WhisperFileTranscriber(FileTranscriber):
             os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
         device = "auto"
-        if torch.cuda.is_available() and torch.version.cuda < "12":
-            logging.debug("Unsupported CUDA version (<12), using CPU")
+        if not cuda_works():
+            logging.debug("CUDA not available or not functional, using CPU")
             device = "cpu"
-
-        if not torch.cuda.is_available():
-            logging.debug("CUDA is not available, using CPU")
+        elif torch.version.cuda < "12":
+            logging.debug("Unsupported CUDA version (<12), using CPU")
             device = "cpu"
 
         if force_cpu != "false":
@@ -391,7 +392,7 @@ class WhisperFileTranscriber(FileTranscriber):
         if force_cpu != "false":
             os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
-        use_cuda = torch.cuda.is_available() and force_cpu == "false"
+        use_cuda = cuda_works() and force_cpu == "false"
 
         device = "cuda" if use_cuda else "cpu"
 
