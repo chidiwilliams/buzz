@@ -1,8 +1,5 @@
 import sys
-from pathlib import Path
-from unittest.mock import MagicMock, patch
-
-import pytest
+from unittest.mock import patch
 
 
 class TestGetCudaTargetDir:
@@ -117,46 +114,57 @@ class TestSetupLinuxCuda:
     def test_skips_when_no_cuda_target(self, monkeypatch):
         monkeypatch.delenv("SNAP_USER_DATA", raising=False)
         monkeypatch.delenv("FLATPAK_ID", raising=False)
+        monkeypatch.delenv("BUZZ_CUDA_SETUP_DONE", raising=False)
 
         with patch("buzz.cuda_setup._get_cuda_target_dir", return_value=None):
-            from buzz.cuda_setup import _setup_linux_cuda
-            _setup_linux_cuda()  # should not raise
+            with patch("buzz.cuda_setup._collect_site_packages_cuda_lib_dirs", return_value=[]):
+                with patch("multiprocessing.parent_process", return_value=None):
+                    from buzz.cuda_setup import _setup_linux_cuda
+                    _setup_linux_cuda()  # should not raise
 
     def test_skips_when_cuda_target_does_not_exist(self, monkeypatch, tmp_path):
+        monkeypatch.delenv("BUZZ_CUDA_SETUP_DONE", raising=False)
         nonexistent = tmp_path / "nonexistent"
         with patch("buzz.cuda_setup._get_cuda_target_dir", return_value=nonexistent):
-            from buzz.cuda_setup import _setup_linux_cuda
-            _setup_linux_cuda()  # should not raise
+            with patch("buzz.cuda_setup._collect_site_packages_cuda_lib_dirs", return_value=[]):
+                with patch("multiprocessing.parent_process", return_value=None):
+                    from buzz.cuda_setup import _setup_linux_cuda
+                    _setup_linux_cuda()  # should not raise
 
     def test_skips_when_no_torch_lib(self, monkeypatch, tmp_path):
+        monkeypatch.delenv("BUZZ_CUDA_SETUP_DONE", raising=False)
         cuda_target = tmp_path / "cuda_packages"
         cuda_target.mkdir()
         with patch("buzz.cuda_setup._get_cuda_target_dir", return_value=cuda_target):
-            from buzz.cuda_setup import _setup_linux_cuda
-            _setup_linux_cuda()  # should not raise
+            with patch("buzz.cuda_setup._collect_site_packages_cuda_lib_dirs", return_value=[]):
+                with patch("multiprocessing.parent_process", return_value=None):
+                    from buzz.cuda_setup import _setup_linux_cuda
+                    _setup_linux_cuda()  # should not raise
 
-    def test_reexecs_when_sentinel_not_in_ld_path(self, monkeypatch, tmp_path):
+    def test_reexecs_when_sentinel_not_set(self, monkeypatch, tmp_path):
         cuda_target = tmp_path / "cuda_packages"
         torch_lib = cuda_target / "torch" / "lib"
         torch_lib.mkdir(parents=True)
 
+        monkeypatch.delenv("BUZZ_CUDA_SETUP_DONE", raising=False)
         monkeypatch.delenv("LD_LIBRARY_PATH", raising=False)
 
         with patch("buzz.cuda_setup._get_cuda_target_dir", return_value=cuda_target):
             with patch("buzz.cuda_setup._collect_cuda_lib_dirs", return_value=[str(torch_lib)]):
-                with patch("os.execv", side_effect=OSError("test")) as mock_execv:
-                    with patch("buzz.cuda_setup._preload_linux_libraries_fallback") as mock_fallback:
-                        from buzz.cuda_setup import _setup_linux_cuda
-                        _setup_linux_cuda()
+                with patch("multiprocessing.parent_process", return_value=None):
+                    with patch("os.execv", side_effect=OSError("test")):
+                        with patch("buzz.cuda_setup._preload_linux_libraries_fallback") as mock_fallback:
+                            from buzz.cuda_setup import _setup_linux_cuda
+                            _setup_linux_cuda()
 
-                mock_fallback.assert_called_once()
+                    mock_fallback.assert_called_once()
 
-    def test_no_reexec_when_sentinel_already_in_ld_path(self, monkeypatch, tmp_path):
+    def test_no_reexec_when_sentinel_already_set(self, monkeypatch, tmp_path):
         cuda_target = tmp_path / "cuda_packages"
         torch_lib = cuda_target / "torch" / "lib"
         torch_lib.mkdir(parents=True)
 
-        monkeypatch.setenv("LD_LIBRARY_PATH", str(torch_lib))
+        monkeypatch.setenv("BUZZ_CUDA_SETUP_DONE", "1")
 
         with patch("buzz.cuda_setup._get_cuda_target_dir", return_value=cuda_target):
             with patch("os.execv") as mock_execv:
@@ -164,6 +172,21 @@ class TestSetupLinuxCuda:
                 _setup_linux_cuda()
 
             mock_execv.assert_not_called()
+
+    def test_no_reexec_in_worker_subprocess(self, monkeypatch, tmp_path):
+        cuda_target = tmp_path / "cuda_packages"
+        torch_lib = cuda_target / "torch" / "lib"
+        torch_lib.mkdir(parents=True)
+
+        monkeypatch.delenv("BUZZ_CUDA_SETUP_DONE", raising=False)
+
+        with patch("buzz.cuda_setup._get_cuda_target_dir", return_value=cuda_target):
+            with patch("multiprocessing.parent_process", return_value=object()):
+                with patch("os.execv") as mock_execv:
+                    from buzz.cuda_setup import _setup_linux_cuda
+                    _setup_linux_cuda()
+
+                mock_execv.assert_not_called()
 
 
 class TestSetupWindowsDllDirectories:

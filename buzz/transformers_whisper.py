@@ -9,6 +9,7 @@ from buzz import cuda_setup  # noqa: F401
 
 import torch
 import requests
+from buzz.transcriber.cuda_device import cuda_works
 from typing import Union
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline, BitsAndBytesConfig
 from transformers.pipelines import AutomaticSpeechRecognitionPipeline
@@ -245,7 +246,7 @@ class TransformersTranscriber:
     ):
         """Transcribe using Whisper model."""
         force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
-        use_cuda = torch.cuda.is_available() and force_cpu == "false"
+        use_cuda = cuda_works() and force_cpu == "false"
         device = "cuda" if use_cuda else "cpu"
         torch_dtype = torch.float16 if use_cuda else torch.float32
 
@@ -464,7 +465,7 @@ class TransformersTranscriber:
         from transformers.pipelines.audio_utils import ffmpeg_read as mms_ffmpeg_read
 
         force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
-        use_cuda = torch.cuda.is_available() and force_cpu == "false"
+        use_cuda = cuda_works() and force_cpu == "false"
         device = "cuda" if use_cuda else "cpu"
 
         # Map language code to ISO 639-3 for MMS
