@@ -178,6 +178,13 @@ def _setup_linux_cuda():
         logger.info("CUDA setup: already done (sentinel set), proceeding")
         return
 
+    # Never re-exec inside a multiprocessing worker — it would destroy the IPC pipe.
+    # The parent process already set LD_LIBRARY_PATH before spawning workers.
+    import multiprocessing
+    if multiprocessing.parent_process() is not None:
+        logger.debug("CUDA setup: skipping re-exec in worker subprocess")
+        return
+
     # Collect lib dirs from snap/flatpak cuda_packages OR regular site-packages
     cuda_target = _get_cuda_target_dir()
     if cuda_target is not None and cuda_target.exists():
