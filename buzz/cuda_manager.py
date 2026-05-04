@@ -178,6 +178,26 @@ def install_cuda(progress_callback=None):
     report("CUDA installation complete. Please restart Buzz to enable GPU acceleration.")
 
 
+def _ensure_pip(python: str) -> list[str]:
+    """Return [python, '-m', 'pip'], bootstrapping pip via ensurepip if needed."""
+    hide_kwargs = _subprocess_hide_window_kwargs()
+    pip_cmd = [python, "-m", "pip"]
+    probe = subprocess.run(pip_cmd + ["--version"], capture_output=True, timeout=15, **hide_kwargs)
+    if probe.returncode == 0:
+        return pip_cmd
+    logger.info("pip not found for %s, bootstrapping via ensurepip...", python)
+    bootstrap = subprocess.run(
+        [python, "-m", "ensurepip", "--upgrade"],
+        capture_output=True, timeout=60, **hide_kwargs,
+    )
+    if bootstrap.returncode != 0:
+        raise RuntimeError(
+            f"pip is not available for {python} and ensurepip failed. "
+            "Please install pip manually and try again."
+        )
+    return pip_cmd
+
+
 def _get_pip_cmd() -> list[str]:
     """Return a [python, '-m', 'pip'] command that is guaranteed to work.
 
@@ -198,38 +218,18 @@ def _get_pip_cmd() -> list[str]:
         python_name = "python.exe" if sys.platform == "win32" else "python3"
         bundled_python = internal_dir / "python" / python_name
         if bundled_python.is_file():
-            return [str(bundled_python), "-m", "pip"]
+            return _ensure_pip(str(bundled_python))
         # Fallback: look in PATH
         for candidate in ("python3.12", "python3", "python"):
             python = shutil.which(candidate)
             if python:
-                return [python, "-m", "pip"]
+                return _ensure_pip(python)
         raise RuntimeError(
             "Could not find a Python interpreter. "
             "Please install Python 3.12 and try again."
         )
 
-    pip_cmd = [sys.executable, "-m", "pip"]
-    hide_kwargs = _subprocess_hide_window_kwargs()
-
-    # Check if pip is already available
-    probe = subprocess.run(pip_cmd + ["--version"], capture_output=True, timeout=15, **hide_kwargs)
-    if probe.returncode == 0:
-        return pip_cmd
-
-    # Try to bootstrap pip via ensurepip (available in CPython stdlib)
-    logger.info("pip not found, bootstrapping via ensurepip...")
-    bootstrap = subprocess.run(
-        [sys.executable, "-m", "ensurepip", "--upgrade"],
-        capture_output=True, timeout=60, **hide_kwargs,
-    )
-    if bootstrap.returncode != 0:
-        raise RuntimeError(
-            "pip is not available and ensurepip failed. "
-            "Please install pip manually and try again."
-        )
-
-    return pip_cmd
+    return _ensure_pip(sys.executable)
 
 
 def _subprocess_hide_window_kwargs() -> dict[str, Any]:
