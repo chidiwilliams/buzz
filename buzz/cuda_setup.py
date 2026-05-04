@@ -138,8 +138,25 @@ def _collect_cuda_lib_dirs(cuda_target: Path) -> list[str]:
     return lib_dirs
 
 
+def _collect_site_packages_cuda_lib_dirs() -> list[str]:
+    """Return all nvidia/torch lib dirs found in any site-packages directory."""
+    lib_dirs: list[str] = []
+    for sp_dir in _get_site_packages_dirs():
+        torch_lib = sp_dir / "torch" / "lib"
+        if torch_lib.exists():
+            lib_dirs.append(str(torch_lib))
+        nvidia_dir = sp_dir / "nvidia"
+        if nvidia_dir.exists():
+            for pkg_dir in sorted(nvidia_dir.iterdir()):
+                if pkg_dir.is_dir():
+                    lib_subdir = pkg_dir / "lib"
+                    if lib_subdir.exists():
+                        lib_dirs.append(str(lib_subdir))
+    return lib_dirs
+
+
 def _setup_linux_cuda():
-    """Set up CUDA libraries on Linux for snap/flatpak CUDA installs.
+    """Set up CUDA libraries on Linux.
 
     LD_LIBRARY_PATH is read by the dynamic linker only at process start, so
     preloading individual .so files with ctypes is fragile: if *any* library
@@ -148,39 +165,36 @@ def _setup_linux_cuda():
     or torchaudio crash with "cannot open shared object file".
 
     The reliable fix is to re-exec the current process with LD_LIBRARY_PATH
-    extended to include all cuda_packages lib dirs.  After re-exec the dynamic
-    linker finds every CUDA library via the standard search path for the
-    entire lifetime of the process.
+    extended to include all cuda lib dirs.  After re-exec the dynamic linker
+    finds every CUDA library via the standard search path for the entire
+    lifetime of the process.
 
-    A sentinel value in LD_LIBRARY_PATH prevents infinite re-exec loops.
+    A sentinel env var prevents infinite re-exec loops.
     """
-    # Ensure cuda_packages is on sys.path so Python can import torch
+    # Ensure cuda_packages (snap/flatpak) is on sys.path so Python can import torch
     _get_site_packages_dirs()
 
+    if os.environ.get("BUZZ_CUDA_SETUP_DONE"):
+        logger.info("CUDA setup: already done (sentinel set), proceeding")
+        return
+
+    # Collect lib dirs from snap/flatpak cuda_packages OR regular site-packages
     cuda_target = _get_cuda_target_dir()
-    if cuda_target is None or not cuda_target.exists():
-        logger.debug("CUDA setup: no cuda_packages dir found, skipping")
+    if cuda_target is not None and cuda_target.exists():
+        extra_dirs = _collect_cuda_lib_dirs(cuda_target)
+    else:
+        extra_dirs = _collect_site_packages_cuda_lib_dirs()
+
+    if not extra_dirs:
+        logger.debug("CUDA setup: no nvidia/torch lib dirs found, skipping")
         return
 
-    torch_lib = cuda_target / "torch" / "lib"
-    if not torch_lib.exists():
-        logger.debug("CUDA setup: no torch/lib in cuda_packages, skipping")
-        return
-
-    sentinel = str(torch_lib)
     current_ld = os.environ.get("LD_LIBRARY_PATH", "")
-
-    if sentinel in current_ld.split(":"):
-        # Already re-exec'd (or user manually set the path) — nothing to do
-        logger.info("CUDA setup: LD_LIBRARY_PATH already contains cuda torch/lib, proceeding")
-        return
-
-    # Build new LD_LIBRARY_PATH: cuda_packages lib dirs prepended to existing path
-    extra_dirs = _collect_cuda_lib_dirs(cuda_target)
     new_ld = ":".join(extra_dirs)
     if current_ld:
         new_ld = new_ld + ":" + current_ld
     os.environ["LD_LIBRARY_PATH"] = new_ld
+    os.environ["BUZZ_CUDA_SETUP_DONE"] = "1"
 
     # Re-exec the process so the dynamic linker picks up the new LD_LIBRARY_PATH.
     # We read the original argv from /proc/self/cmdline to preserve the exact
