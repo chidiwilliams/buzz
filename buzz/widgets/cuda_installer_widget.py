@@ -107,6 +107,7 @@ class CudaInstallerDialog(QDialog):
         self.decline_button.setEnabled(False)
         self.progress_bar.setVisible(True)
         self.log_view.setVisible(True)
+        self.status_label.setVisible(False)
 
         worker = _InstallWorker()
         worker.signals.progress.connect(self._on_progress)
@@ -117,10 +118,13 @@ class CudaInstallerDialog(QDialog):
 
     def _on_progress(self, message: str):
         self.log_view.append(message)
-        self.status_label.setText(message[:80])
+        self.log_view.verticalScrollBar().setValue(
+            self.log_view.verticalScrollBar().maximum()
+        )
 
     def _on_finished(self):
         self.progress_bar.setVisible(False)
+        self.status_label.setVisible(True)
         self.status_label.setText(
             _("Installation complete! Restart Buzz to enable GPU acceleration.")
         )
@@ -131,6 +135,7 @@ class CudaInstallerDialog(QDialog):
 
     def _on_error(self, error: str):
         self.progress_bar.setVisible(False)
+        self.status_label.setVisible(True)
         self.status_label.setText(_("Installation failed: {}").format(error))
         self.install_button.setEnabled(True)
         self.decline_button.setEnabled(True)
