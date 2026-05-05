@@ -50,7 +50,7 @@ def is_url(path: str) -> bool:
     return all([parsed.scheme, parsed.netloc])
 
 def parse(app: Application, parser: QCommandLineParser):
-    parser.addPositionalArgument("<command>", "One of the following commands:\n- add")
+    parser.addPositionalArgument("<command>", "One of the following commands:\n- add\n- rename")
     parser.parse(app.arguments())
 
     args = parser.positionalArguments()
@@ -62,6 +62,8 @@ def parse(app: Application, parser: QCommandLineParser):
         return
 
     command = args[0]
+    if command == "rename":
+        return _parse_rename(app, parser)
     if command == "add":
         parser.clearPositionalArguments()
 
@@ -251,3 +253,200 @@ def parse_enum_option(
 
 def join_values(enum_class: typing.Type[enum.Enum]) -> str:
     return ", ".join([v.value for v in enum_class])
+
+
+def _parse_rename(app: Application, parser: QCommandLineParser):
+    """Bulk-rename audio files in a folder based on transcribed first words.
+
+    Usage::
+
+        buzz rename --model-type whispercpp --model-size small ./folder
+        buzz rename --dry-run ./folder
+        buzz rename --undo ./folder/.undo_20260505_142315.json
+    """
+    # Lazy imports — keep CLI startup fast and avoid pulling heavy deps
+    # for unrelated commands.
+    from datetime import datetime
+    from pathlib import Path
+    import sys as _sys
+
+    from buzz.transcriber.bulk_renamer import (
+        BulkRenamer,
+        RenamerConfig,
+        apply_plan,
+        undo_from_log,
+    )
+
+    parser.clearPositionalArguments()
+    parser.addPositionalArgument("folder", "Audio folder to rename")
+
+    model_type_option = QCommandLineOption(
+        ["m", "model-type"],
+        f"Model type. Allowed: {join_values(CommandLineModelType)}. "
+        f"Default: {CommandLineModelType.WHISPER_CPP.value}.",
+        "model-type",
+        CommandLineModelType.WHISPER_CPP.value,
+    )
+    model_size_option = QCommandLineOption(
+        ["s", "model-size"],
+        f"Model size. Allowed: {join_values(WhisperModelSize)}. "
+        f"Default: {WhisperModelSize.TINY.value}.",
+        "model-size",
+        WhisperModelSize.TINY.value,
+    )
+    language_option = QCommandLineOption(
+        ["l", "language"],
+        "Language code (e.g. en, fr). Empty = auto-detect.",
+        "language",
+        "en",
+    )
+    trim_option = QCommandLineOption(
+        ["trim"],
+        "Seconds of audio to transcribe per file. Default: 5.",
+        "trim",
+        "5",
+    )
+    words_option = QCommandLineOption(
+        ["words"],
+        "Number of leading words to use for the new filename. Default: 6.",
+        "words",
+        "6",
+    )
+    keep_prefix_option = QCommandLineOption(
+        ["keep-prefix"],
+        "Preserve a leading 'NN_' or 'NN-' from the original filename.",
+    )
+    dry_run_option = QCommandLineOption(
+        ["n", "dry-run"],
+        "Show planned renames without applying.",
+    )
+    undo_option = QCommandLineOption(
+        ["undo"],
+        "Reverse a previous batch using its JSON log path.",
+        "undo",
+        "",
+    )
+    parser.addOptions([
+        model_type_option, model_size_option, language_option,
+        trim_option, words_option, keep_prefix_option,
+        dry_run_option, undo_option,
+    ])
+    parser.addHelpOption()
+    parser.process(app)
+
+    # Undo path — no model needed, no app run
+    undo_path = parser.value(undo_option)
+    if undo_path:
+        result = undo_from_log(Path(undo_path))
+        print(f"Reverted: {result['reverted_count']}, "
+              f"failed: {result['failed_count']}")
+        if not result["failed"]:
+            _sys.exit(0)
+        for entry, why in result["failed"]:
+            print(f"  failed: {entry['from']} -> {entry['to']}: {why}")
+        _sys.exit(1)
+
+    args = parser.positionalArguments()
+    if len(args) < 2:
+        raise CommandLineError("rename: folder argument is required")
+    folder = Path(args[1])
+    if not folder.is_dir():
+        raise CommandLineError(f"rename: not a directory: {folder}")
+
+    cli_model_type = parse_enum_option(model_type_option, parser, CommandLineModelType)
+    model_type = ModelType[cli_model_type.name]
+    model_size = parse_enum_option(model_size_option, parser, WhisperModelSize)
+    model = TranscriptionModel(model_type=model_type, whisper_model_size=model_size)
+    language = parser.value(language_option) or None
+
+    try:
+        trim_seconds = float(parser.value(trim_option))
+        first_words = int(parser.value(words_option))
+    except ValueError:
+        raise CommandLineError("rename: --trim and --words must be numeric")
+
+    # Resolve the model path. We use ModelDownloader synchronously here
+    # rather than via QThreadPool because the CLI doesn't have a UI thread.
+    print(f"Resolving model: {model_type.value}/{model_size.value}…", file=_sys.stderr)
+    downloader = ModelDownloader(model=model)
+    model_path: list = []  # captured by callback
+
+    def _on_finished(path):
+        model_path.append(path)
+
+    def _on_error(err):
+        raise CommandLineError(f"Model download failed: {err}")
+
+    downloader.signals.finished.connect(_on_finished)
+    downloader.signals.error.connect(_on_error)
+    downloader.run()  # synchronous in CLI
+    if not model_path:
+        raise CommandLineError("Model download did not produce a path")
+
+    transcription_options = TranscriptionOptions(
+        language=language,
+        task=Task.TRANSCRIBE,
+        model=model,
+        word_level_timings=False,
+        extract_speech=False,
+    )
+    cfg = RenamerConfig(
+        transcription_options=transcription_options,
+        model_path=model_path[0],
+        trim_seconds=trim_seconds,
+        first_words=first_words,
+        keep_numeric_prefix=parser.isSet(keep_prefix_option),
+    )
+
+    renamer = BulkRenamer(cfg)
+    state = {"done": 0, "total": 0}
+
+    def _progress(done, total, _plan):
+        state["done"], state["total"] = done, total
+        bar = ("#" * (40 * done // total)).ljust(40) if total else "-" * 40
+        _sys.stderr.write(f"\r  [{bar}] {done}/{total}")
+        _sys.stderr.flush()
+
+    def _log(msg, level):
+        if level in ("warn", "error"):
+            _sys.stderr.write(f"\n  [{level}] {msg}\n")
+
+    renamer.progress.connect(_progress)
+    renamer.log.connect(_log)
+    plans = renamer.plan_renames(folder)
+    _sys.stderr.write("\n")
+
+    print(f"\nPlanned renames in {folder}:")
+    for plan in plans:
+        if plan.status == "ready" and plan.will_change:
+            print(f"  {plan.original_path.name}  ->  {plan.proposed_path.name}")
+        elif plan.status == "ready":
+            print(f"  {plan.original_path.name}  (already correctly named)")
+        elif plan.status == "skipped":
+            print(f"  {plan.original_path.name}  SKIP ({plan.error})")
+        else:
+            print(f"  {plan.original_path.name}  ERROR ({plan.error})")
+
+    if parser.isSet(dry_run_option):
+        print("\n(dry run; no changes applied)")
+        _sys.exit(0)
+
+    to_apply = sum(1 for p in plans if p.will_change)
+    if to_apply == 0:
+        print("\nNothing to rename.")
+        _sys.exit(0)
+
+    print(f"\nReady to apply {to_apply} rename(s).")
+    resp = input("Proceed? [y/N] ").strip().lower()
+    if resp != "y":
+        print("Aborted.")
+        _sys.exit(0)
+
+    log_path = folder / f".undo_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    summary = apply_plan(plans, log_path)
+    print(f"\nApplied: {summary['applied_count']}")
+    print(f"Skipped: {summary['skipped_count']}")
+    print(f"Errors:  {summary['error_count']}")
+    print(f"Undo log: {log_path}")
+    print(f"  Undo with: buzz rename --undo {log_path}")
+    _sys.exit(0)

@@ -86,3 +86,51 @@ buzz add --task translate --language fr --model-type openaiapi /Users/user/Downl
 # Transcribe an MP4 using Whisper.cpp "small" model and immediately export to SRT and VTT files
 buzz add --task transcribe --model-type whispercpp --model-size small --prompt "My initial prompt" --srt --vtt /Users/user/Downloads/buzz/1b3b03e4-8db5-ea2c-ace5-b71ff32e3304.mp4
 ```
+
+### `rename`
+
+Bulk-rename audio files in a folder based on the first few transcribed words
+of each file. Uses Buzz's offline Whisper backends — no internet required.
+
+```
+Usage: buzz rename [options] <folder>
+
+Options:
+  -m, --model-type <model-type>  Model type. Allowed: whisper, whispercpp,
+                                 huggingface, fasterwhisper, openaiapi. Default:
+                                 whispercpp.
+  -s, --model-size <model-size>  Model size. Allowed: tiny, base, small, medium,
+                                 large. Default: tiny.
+  -l, --language <code>          Language code. Empty = auto-detect. Default: en.
+  --trim <seconds>               Seconds of audio to transcribe per file.
+                                 Default: 5.
+  --words <n>                    Number of leading words to use for the new
+                                 filename. Default: 6.
+  --keep-prefix                  Preserve a leading 'NN_' or 'NN-' from the
+                                 original filename.
+  -n, --dry-run                  Show planned renames without applying.
+  --undo <log>                   Reverse a previous batch using its JSON log.
+  -h, --help                     Displays help on commandline options.
+
+Arguments:
+  folder                         Folder containing audio files to rename.
+```
+
+**Examples**:
+
+```shell
+# Preview only — show what would be renamed
+buzz rename --dry-run ~/Downloads/voiceovers
+
+# Real run with the small Whisper.cpp model
+buzz rename --model-type whispercpp --model-size small ~/Downloads/voiceovers
+
+# German voice clips with longer trim and 8 words of context
+buzz rename --language de --trim 8 --words 8 ~/Downloads/de_clips
+
+# Reverse the most recent batch
+buzz rename --undo ~/Downloads/voiceovers/.undo_20260505_142315.json
+```
+
+After a successful rename, an `.undo_TIMESTAMP.json` file is written into the
+target folder. Pass that path back via `--undo` to reverse the batch.
