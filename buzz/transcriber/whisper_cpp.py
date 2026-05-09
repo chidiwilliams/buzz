@@ -170,7 +170,8 @@ class WhisperCpp:
                     os.remove(temp_file)
                 except Exception as e:
                     print(f"Failed to remove temporary file {temp_file}: {e}")
-            raise Exception(f"whisper-cli failed with return code {process.returncode}")
+            error_details = "\n".join(stderr_output[-10:]) if stderr_output else "No error output."
+            raise Exception(f"whisper-cli failed with return code {process.returncode}\nDetails: {error_details}")
 
         # Find and read the generated JSON file
         # whisper-cli generates: input_file.ext.json (e.g., file.mp3.json)

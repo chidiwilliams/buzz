@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			".coveragerc": "ini",
+			"Buzz.spec": "python",
+			"iosfwd": "cpp"
+		}
+	}
+}

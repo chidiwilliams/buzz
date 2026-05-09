@@ -92,7 +92,7 @@ else:
         (shutil.which("ffprobe"), "."),
     ]
 
-binaries.append(("buzz/whisper_cpp/*", "buzz/whisper_cpp"))
+binaries.append(("buzz/whisper_cpp", "buzz/whisper_cpp"))
 
 if platform.system() == "Windows":
     datas += [("dll_backup", "dll_backup")]

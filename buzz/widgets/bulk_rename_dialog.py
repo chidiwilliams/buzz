@@ -77,13 +77,38 @@ STATUS_ICON = {
     "applied": "★",
 }
 
-ROW_COLORS = {
-    "ready":   QColor("#e9f6e8"),
-    "applied": QColor("#d8eafd"),
-    "error":   QColor("#fde6e6"),
-    "skipped": QColor("#f4f4f4"),
-    "nochange": QColor("#fafafa"),
-}
+# These are defined as functions so they adapt to the active palette at
+# call time, supporting both light and dark OS themes.
+def _row_colors_for_palette(palette: QPalette) -> dict:
+    """Return status→QColor map that is legible on the current theme."""
+    base = palette.color(QPalette.ColorRole.Base)
+    is_dark = base.lightnessF() < 0.5
+    if is_dark:
+        return {
+            "ready":    QColor(60, 90, 60),
+            "applied":  QColor(50, 70, 110),
+            "error":    QColor(110, 50, 50),
+            "skipped":  QColor(60, 60, 60),
+            "nochange": QColor(50, 50, 50),
+        }
+    else:
+        return {
+            "ready":    QColor("#e9f6e8"),
+            "applied":  QColor("#d8eafd"),
+            "error":    QColor("#fde6e6"),
+            "skipped":  QColor("#f4f4f4"),
+            "nochange": QColor("#fafafa"),
+        }
+
+def _text_color_for_palette(palette: QPalette) -> QColor:
+    """Return a legible foreground color for the current theme."""
+    return palette.color(QPalette.ColorRole.Text)
+
+def _dim_text_color_for_palette(palette: QPalette) -> QColor:
+    """Return a dimmed foreground color for 'no change' / skipped rows."""
+    base = palette.color(QPalette.ColorRole.Base)
+    is_dark = base.lightnessF() < 0.5
+    return QColor("#999") if is_dark else QColor("#888")
 
 
 # ---------------------------------------------------------------------------
@@ -273,9 +298,17 @@ class BulkRenameDialog(QDialog):
     # ------------------------------------------------------------------
     def _log(self, msg: str, level: str = "info") -> None:
         ts = datetime.now().strftime("%H:%M:%S")
-        color = {"info": "#222", "warn": "#a60", "error": "#c00"}.get(level, "#222")
+        pal = self.palette()
+        is_dark = pal.color(QPalette.ColorRole.Base).lightnessF() < 0.5
+        ts_color = "#aaa" if is_dark else "#888"
+        level_colors = {
+            "info":  "#ddd" if is_dark else "#222",
+            "warn":  "#fc0" if is_dark else "#a60",
+            "error": "#f66" if is_dark else "#c00",
+        }
+        color = level_colors.get(level, level_colors["info"])
         self.log_view.append(
-            f'<span style="color:#888">[{ts}]</span> '
+            f'<span style="color:{ts_color}">[{ts}]</span> '
             f'<span style="color:{color}">{msg}</span>'
         )
 
@@ -459,13 +492,18 @@ class BulkRenameDialog(QDialog):
         # find it again from itemChanged callbacks.
         items[self.COL_ORIGINAL].setData(Qt.ItemDataRole.UserRole, id(plan))
 
-        # Row color tag
-        color = ROW_COLORS.get("nochange" if is_no_change else plan.status)
-        if color is not None:
-            for it in items:
+        # Theme-aware row coloring
+        pal = self.palette()
+        row_colors = _row_colors_for_palette(pal)
+        text_color = _text_color_for_palette(pal)
+        dim_color = _dim_text_color_for_palette(pal)
+
+        color = row_colors.get("nochange" if is_no_change else plan.status)
+        for it in items:
+            # Always set an explicit foreground so text is visible
+            it.setForeground(QBrush(dim_color if is_no_change else text_color))
+            if color is not None:
                 it.setBackground(QBrush(color))
-                if is_no_change:
-                    it.setForeground(QBrush(QColor("#888")))
 
         for col, item in enumerate(items):
             self.table.setItem(row, col, item)

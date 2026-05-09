@@ -294,16 +294,16 @@ class BulkRenamer(QObject):
 
         plan.duration_sec = time.monotonic() - t0
         if not text:
-            plan.status = "error"
-            plan.error = "empty transcription"
+            plan.status = "skipped"
+            plan.error = "no speech detected"
             return plan
 
         plan.transcript = text
         snippet = first_n_words(text, self.cfg.first_words)
         stem = sanitize_filename(snippet, self.cfg.max_filename_len)
         if not stem:
-            plan.status = "error"
-            plan.error = "empty transcription after sanitize"
+            plan.status = "skipped"
+            plan.error = "no valid characters for filename"
             return plan
 
         if self.cfg.keep_numeric_prefix:
