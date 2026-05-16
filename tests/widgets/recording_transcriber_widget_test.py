@@ -1153,7 +1153,7 @@ class TestUploadToServer:
             widget.on_next_transcription("hello upload")
             mock_post.assert_called_once_with(
                 url="http://example.com/upload",
-                json={"kind": "transcript", "text": "hello upload"},
+                json={"kind": "transcript", "text": "hello upload", "mode": "append"},
                 headers={"Content-Type": "application/json"},
                 timeout=15,
             )
@@ -1182,7 +1182,7 @@ class TestUploadToServer:
             widget.on_next_translation("bonjour")
             mock_post.assert_called_once_with(
                 url="http://example.com/upload",
-                json={"kind": "translation", "text": "bonjour"},
+                json={"kind": "translation", "text": "bonjour", "mode": "append"},
                 headers={"Content-Type": "application/json"},
                 timeout=15,
             )
