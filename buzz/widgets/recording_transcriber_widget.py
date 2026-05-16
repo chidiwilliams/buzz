@@ -602,6 +602,17 @@ class RecordingTranscriberWidget(QWidget):
         self.transcripts = []
         self.translations = []
 
+        if self.upload_url:
+            try:
+                requests.post(
+                    url=self.upload_url,
+                    json={"kind": "clear", "text": ""},
+                    headers={'Content-Type': 'application/json'},
+                    timeout=15
+                )
+            except Exception as e:
+                logging.error(f"Clear upload failed: {str(e)}")
+
         self.transcription_text_box.clear()
         self.translation_text_box.clear()
 
