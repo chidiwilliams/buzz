@@ -720,6 +720,7 @@ class RecordingTranscriberWidget(QWidget):
 
     def set_recording_status_stopped(self):
         self.record_button.set_stopped()
+        self.record_button.setEnabled(True)
         self.current_status = self.RecordingStatus.STOPPED
         self.transcription_options_group_box.setEnabled(True)
         self.audio_devices_combo_box.setEnabled(True)
@@ -988,7 +989,11 @@ class RecordingTranscriberWidget(QWidget):
             try:
                 requests.post(
                     url=self.upload_url,
-                    json={"kind": "transcript", "text": text},
+                    json={
+                        "kind": "transcript",
+                        "text": text,
+                        "mode": "replace" if self.transcriber_mode == RecordingTranscriberMode.APPEND_AND_CORRECT else "append"
+                    },
                     headers={'Content-Type': 'application/json'},
                     timeout=15
                 )
@@ -1050,7 +1055,11 @@ class RecordingTranscriberWidget(QWidget):
             try:
                 requests.post(
                     url=self.upload_url,
-                    json={"kind": "translation", "text": text},
+                    json={
+                        "kind": "translation",
+                        "text": text,
+                        "mode": "replace" if self.transcriber_mode == RecordingTranscriberMode.APPEND_AND_CORRECT else "append"
+                    },
                     headers={'Content-Type': 'application/json'},
                     timeout=15
                 )
