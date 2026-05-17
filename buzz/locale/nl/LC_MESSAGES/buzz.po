@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-03 09:00+0300\n"
+"POT-Creation-Date: 2026-03-28 21:04+0200\n"
 "PO-Revision-Date: 2025-03-20 18:30+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: none\n"
@@ -663,6 +663,48 @@ msgstr ""
 "Transcriptie kon niet opnieuw worden gestart: transcriptieproces niet "
 "gevonden."
 
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Nvidia GPU Acceleration"
+msgstr "Nvidia GPU-versnelling"
+
+#: buzz/widgets/cuda_installer_widget.py
+#, fuzzy
+msgid "Install Nvidia GPU Acceleration?"
+msgstr "Alleen CPU gebruiken en GPU-versnelling uitschakelen"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid ""
+"Installing GPU acceleration for Nvidia GPUS allows Buzz to transcribe audio "
+"significantly faster using CUDA. For other GPU brands this acceleration will "
+"have no effect\n"
+"\n"
+"This will download and install PyTorch with CUDA support (~8 GB). Buzz must "
+"be restarted after installation."
+msgstr ""
+"Het installeren van GPU-versnelling voor Nvidia GPU's stelt Buzz in staat om audio aanzienlijk sneller te transcriberen met CUDA. Voor andere GPU-merken heeft deze versnelling geen effect.\n"
+"\n"
+"Dit downloadt en installeert PyTorch met CUDA-ondersteuning (~8 GB). Buzz moet na de installatie opnieuw worden gestart."
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install GPU Support"
+msgstr "GPU-ondersteuning installeren"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Not Now"
+msgstr "Niet nu"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation complete! Restart Buzz to enable GPU acceleration."
+msgstr "Installatie voltooid! Herstart Buzz om GPU-versnelling in te schakelen."
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Close"
+msgstr "Sluiten"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation failed: {}"
+msgstr "Installatie mislukt: {}"
+
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
 msgstr "Live-opname"
@@ -812,6 +854,10 @@ msgstr "Controleren op updates"
 #: buzz/widgets/about_dialog.py
 msgid "Show logs"
 msgstr "Logboeken tonen"
+
+#: buzz/widgets/about_dialog.py
+msgid "Install CUDA Acceleration"
+msgstr "CUDA-versnelling installeren"
 
 #: buzz/widgets/about_dialog.py
 msgid "You're up to date!"
@@ -1682,9 +1728,6 @@ msgstr ""
 #~ "To enable necessary permissions run the following commands in the terminal"
 #~ msgstr ""
 #~ "De rechten kunnen met behulp van deze terminalopdrachten worden verleend"
-
-#~ msgid "Close"
-#~ msgstr "Sluiten"
 
 #~ msgid "Enter instructions for AI on how to translate..."
 #~ msgstr "Voer vertaalinstructies in…"

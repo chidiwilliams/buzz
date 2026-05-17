@@ -65,12 +65,13 @@
   <content_rating type="oars-1.1"/>
 
   <releases>
-    <release version="1.4.5" date="2026-05-05">
+    <release version="1.4.5" date="2026-04-08">
       <url type="details">https://github.com/chidiwilliams/buzz/releases/tag/v1.4.5</url>
       <description>
-        <p>Bug fixes and minor improvements.</p>
+        <p>Unbundled CUDA to make app installations smaller. CUDA Acceleration for Nvidia GPUs can be installed optionally from Help - About Buzz</p>
         <ul>
           <li>Appimage support for Linux</li>
+          <li>Minor fixes to model loading and initial prompt processing</li>
         </ul>
       </description>
     </release>

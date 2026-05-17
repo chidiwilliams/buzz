@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-03 09:00+0300\n"
+"POT-Creation-Date: 2026-03-28 21:04+0200\n"
 "PO-Revision-Date: 2026-03-06 13:23+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -656,6 +656,48 @@ msgstr ""
 msgid "Could not restart transcription: transcriber worker not found."
 msgstr "Neizdevās sākt atpazīšanu: Kļūda lietotnē, pārstartējiet."
 
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Nvidia GPU Acceleration"
+msgstr "Nvidia GPU paātrinājums"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install Nvidia GPU Acceleration?"
+msgstr "Instalēt Nvidia GPU paātrināšanu"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid ""
+"Installing GPU acceleration for Nvidia GPUS allows Buzz to transcribe audio "
+"significantly faster using CUDA. For other GPU brands this acceleration will "
+"have no effect\n"
+"\n"
+"This will download and install PyTorch with CUDA support (~8 GB). Buzz must "
+"be restarted after installation."
+msgstr ""
+"GPU paātrinājuma instalēšana Nvidia GPU kartēm ļauj Buzz ievērojami ātrāk atpazīt audio, izmantojot CUDA. "
+"Citu GPU ražotāju kartēm šim paātrinājumam nebūs nekādas ietekmes.\n"
+"\n"
+"Tiks lejupielādēts un instalēts PyTorch ar CUDA atbalstu (~8 GB). Pēc instalēšanas Buzz ir jārestartē."
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install GPU Support"
+msgstr "Instalēt GPU atbalstu"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Not Now"
+msgstr "Ne tagad"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation complete! Restart Buzz to enable GPU acceleration."
+msgstr "Instalēšana pabeigta! Restartējiet Buzz, lai aktivizētu GPU paātrinājumu."
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Close"
+msgstr "Aizvērt"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation failed: {}"
+msgstr "Instalēšana neizdevās: {}"
+
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
 msgstr "Dzīvā ierakstīšana"
@@ -807,6 +849,10 @@ msgstr "Pārbaudīt atjauninājumus"
 #: buzz/widgets/about_dialog.py
 msgid "Show logs"
 msgstr "Parādīt sistēmas žurnālu"
+
+#: buzz/widgets/about_dialog.py
+msgid "Install CUDA Acceleration"
+msgstr "Instalēt CUDA paātrinājumu"
 
 #: buzz/widgets/about_dialog.py
 msgid "You're up to date!"
@@ -1641,41 +1687,3 @@ msgid ""
 msgstr ""
 "Runas atdalīšana neizdevās! Pārbaudiet interneta savienojumu, iespējams "
 "jālejupielādē modelis."
-
-#~ msgid "Live recording mode:"
-#~ msgstr "Dzīvā ieraksta režīms:"
-
-#~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-#~ msgstr "Atdalīti ar komatu, piemēram, \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-
-#~ msgid "Temperature:"
-#~ msgstr "Temperatūra:"
-
-#~ msgid "Please translate each text sent to you from English to Spanish."
-#~ msgstr "Lūdzu, iztulko katru tev atsūtīto tekstu no angļu valodas latviski."
-
-#~ msgid "Translation error, see logs!"
-#~ msgstr "Kļūda tulkojot, skatiet sistēmas žurnālu!"
-
-#~ msgid "Snap permission notice"
-#~ msgstr "Snap atļauju piezīme"
-
-#~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
-#~ msgstr ""
-#~ "Ne visi nepieciešamie moduļi darbojas korekti, iespējams nav piešķirtas "
-#~ "snap atļaujas"
-
-#~ msgid ""
-#~ "To enable necessary permissions run the following commands in the terminal"
-#~ msgstr "Lai piešķirtu nepieciešamās atļaujas izpildiet šīs komandas"
-
-#~ msgid "Close"
-#~ msgstr "Aizvērt"
-
-#~ msgid "Enter instructions for AI on how to translate..."
-#~ msgstr "Ievadiet tulkošanas norādes mākslīgajam intelektam..."
-
-#~ msgid "Enter target characters per subtitle:"
-#~ msgstr "Ievadiet vēlamo simbolu skaitu tekstā:"

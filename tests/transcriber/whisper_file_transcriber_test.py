@@ -81,13 +81,13 @@ class TestWhisperFileTranscriber:
             pytest.param(
                 "/a/b/c.mp4",
                 OutputFormat.SRT,
-                "/a/b/c-translate--Whisper-tiny.srt",
+                "/a/b/c-translate--OpenAI Whisper-tiny.srt",
                 marks=pytest.mark.skipif(platform.system() == "Windows", reason=""),
             ),
             pytest.param(
                 "C:\\a\\b\\c.mp4",
                 OutputFormat.SRT,
-                "C:\\a\\b\\c-translate--Whisper-tiny.srt",
+                "C:\\a\\b\\c-translate--OpenAI Whisper-tiny.srt",
                 marks=pytest.mark.skipif(platform.system() != "Windows", reason=""),
             ),
         ],

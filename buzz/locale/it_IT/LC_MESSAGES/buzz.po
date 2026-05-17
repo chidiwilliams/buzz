@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-03 09:00+0300\n"
-"PO-Revision-Date: 2026-04-12 21:42+0200\n"
+"POT-Creation-Date: 2026-03-28 21:04+0200\n"
+"PO-Revision-Date: 2026-01-25 21:42+0200\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
 "MIME-Version: 1.0\n"
@@ -658,6 +658,48 @@ msgstr ""
 msgid "Could not restart transcription: transcriber worker not found."
 msgstr "Impossibile riavviare la trascrizione: trascrittore non trovato."
 
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Nvidia GPU Acceleration"
+msgstr "Accelerazione GPU Nvidia"
+
+#: buzz/widgets/cuda_installer_widget.py
+#, fuzzy
+msgid "Install Nvidia GPU Acceleration?"
+msgstr "Utilizza solo la CPU e disattiva l'accelerazione GPU"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid ""
+"Installing GPU acceleration for Nvidia GPUS allows Buzz to transcribe audio "
+"significantly faster using CUDA. For other GPU brands this acceleration will "
+"have no effect\n"
+"\n"
+"This will download and install PyTorch with CUDA support (~8 GB). Buzz must "
+"be restarted after installation."
+msgstr ""
+"L'installazione dell'accelerazione GPU per GPU Nvidia consente a Buzz di trascrivere l'audio in modo significativamente più veloce tramite CUDA. Per altre marche di GPU questa accelerazione non avrà alcun effetto.\n"
+"\n"
+"Verranno scaricati e installati PyTorch con supporto CUDA (~8 GB). Buzz deve essere riavviato dopo l'installazione."
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install GPU Support"
+msgstr "Installa supporto GPU"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Not Now"
+msgstr "Non ora"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation complete! Restart Buzz to enable GPU acceleration."
+msgstr "Installazione completata! Riavvia Buzz per abilitare l'accelerazione GPU."
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Close"
+msgstr "Chiudi"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation failed: {}"
+msgstr "Installazione fallita: {}"
+
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
 msgstr "Registrazione in diretta"
@@ -809,6 +851,10 @@ msgstr "Controlla gli aggiornamenti"
 #: buzz/widgets/about_dialog.py
 msgid "Show logs"
 msgstr "Mostra log"
+
+#: buzz/widgets/about_dialog.py
+msgid "Install CUDA Acceleration"
+msgstr "Installa accelerazione CUDA"
 
 #: buzz/widgets/about_dialog.py
 msgid "You're up to date!"
@@ -1682,9 +1728,6 @@ msgstr ""
 #~ msgstr ""
 #~ "Per abilitare le autorizzazioni necessarie, eseguire i seguenti comandi "
 #~ "nel terminale"
-
-#~ msgid "Close"
-#~ msgstr "Chiudi"
 
 #~ msgid "Enter instructions for AI on how to translate..."
 #~ msgstr "Inserisci le istruzioni per l'IA su come tradurre..."

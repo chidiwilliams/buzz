@@ -26,7 +26,6 @@ OutputDir={#OutputDir}
 OutputBaseFilename={#AppName}-{#AppVersion}-windows
 SetupIconFile={#AppIconPath}
 UninstallDisplayIcon={app}\{#AppExeName}
-DiskSpanning=yes
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern

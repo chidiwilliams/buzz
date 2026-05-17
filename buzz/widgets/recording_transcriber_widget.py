@@ -653,7 +653,7 @@ class RecordingTranscriberWidget(QWidget):
 
         self.transcription_thread.started.connect(self.transcriber.start)
         self.transcription_thread.finished.connect(
-            self.transcription_thread.deleteLater
+            self._on_transcription_thread_finished
         )
         self.transcription_thread.finished.connect(
             lambda: setattr(self, 'transcription_thread', None)
@@ -1097,6 +1097,7 @@ class RecordingTranscriberWidget(QWidget):
         self.reset_record_button()
         self.set_recording_status_stopped()
         self.reset_recording_amplitude_listener()
+        self.transcription_stopped.emit()
         QMessageBox.critical(
             self,
             "",
@@ -1143,7 +1144,7 @@ class RecordingTranscriberWidget(QWidget):
             super().closeEvent(event)
             return
 
-        if self.current_status == self.RecordingStatus.RECORDING:
+        if self.current_status == self.RecordingStatus.RECORDING or self.transcription_thread is not None:
             # Defer the close until the transcription thread finishes to avoid
             # blocking the GUI thread with a synchronous wait.
             event.ignore()
@@ -1172,8 +1173,28 @@ class RecordingTranscriberWidget(QWidget):
         self._do_close()
         super().closeEvent(event)
 
-    def _on_close_transcriber_finished(self):
+    def _cleanup_transcription_thread(self):
+        """Wait for the OS thread to exit, schedule deletion, and clear the reference.
+
+        QThread::finished is emitted before the OS thread fully exits, so we
+        must call thread.wait() before dropping the last reference or calling
+        deleteLater() — otherwise Qt destroys the C++ object while the thread
+        is still in its final cleanup steps.
+        """
+        thread = self.transcription_thread
         self.transcription_thread = None
+        if thread is not None:
+            try:
+                thread.wait()
+                thread.deleteLater()
+            except RuntimeError:
+                pass
+
+    def _on_transcription_thread_finished(self):
+        self._cleanup_transcription_thread()
+
+    def _on_close_transcriber_finished(self):
+        self._cleanup_transcription_thread()
         self.close()
 
     def _do_close(self):

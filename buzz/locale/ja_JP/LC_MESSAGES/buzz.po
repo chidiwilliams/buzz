@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-03 09:00+0300\n"
+"POT-Creation-Date: 2026-03-28 21:04+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: nunawa <71294849+nunawa@users.noreply.github.com>\n"
 "Language-Team: \n"
@@ -649,6 +649,48 @@ msgstr ""
 msgid "Could not restart transcription: transcriber worker not found."
 msgstr "文字起こしを再開できませんでした: 文字起こしワーカーが見つかりません。"
 
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Nvidia GPU Acceleration"
+msgstr "Nvidia GPU アクセラレーション"
+
+#: buzz/widgets/cuda_installer_widget.py
+#, fuzzy
+msgid "Install Nvidia GPU Acceleration?"
+msgstr "CPUのみを使用してGPUアクセラレーションを無効にする"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid ""
+"Installing GPU acceleration for Nvidia GPUS allows Buzz to transcribe audio "
+"significantly faster using CUDA. For other GPU brands this acceleration will "
+"have no effect\n"
+"\n"
+"This will download and install PyTorch with CUDA support (~8 GB). Buzz must "
+"be restarted after installation."
+msgstr ""
+"Nvidia GPU 向けの GPU アクセラレーションをインストールすると、CUDA を使用して Buzz が音声をはるかに高速に文字起こしできるようになります。他の GPU ブランドではこのアクセラレーションは効果がありません。\n"
+"\n"
+"CUDA サポート付きの PyTorch がダウンロード・インストールされます（約 2 GB）。インストール後、Buzz を再起動する必要があります。"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install GPU Support"
+msgstr "GPU サポートをインストール"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Not Now"
+msgstr "後で"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation complete! Restart Buzz to enable GPU acceleration."
+msgstr "インストール完了！GPU アクセラレーションを有効にするには Buzz を再起動してください。"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Close"
+msgstr "閉じる"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation failed: {}"
+msgstr "インストールに失敗しました: {}"
+
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
 msgstr "ライブ録音"
@@ -800,6 +842,10 @@ msgstr "アップデートを確認する"
 #: buzz/widgets/about_dialog.py
 msgid "Show logs"
 msgstr "ログを表示"
+
+#: buzz/widgets/about_dialog.py
+msgid "Install CUDA Acceleration"
+msgstr "CUDA アクセラレーションをインストール"
 
 #: buzz/widgets/about_dialog.py
 msgid "You're up to date!"
@@ -1659,9 +1705,6 @@ msgstr ""
 #~ msgstr ""
 #~ "必要なパーミッションを有効にするには、ターミナルで以下のコマンドを実行して"
 #~ "ください"
-
-#~ msgid "Close"
-#~ msgstr "閉じる"
 
 #~ msgid "Enter instructions for AI on how to translate..."
 #~ msgstr "AIのための翻訳方法の指示を入力..."

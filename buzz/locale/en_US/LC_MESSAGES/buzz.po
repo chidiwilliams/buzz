@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-03 09:00+0300\n"
+"POT-Creation-Date: 2026-03-28 21:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -632,6 +632,44 @@ msgstr ""
 msgid "Could not restart transcription: transcriber worker not found."
 msgstr ""
 
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Nvidia GPU Acceleration"
+msgstr ""
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install Nvidia GPU Acceleration?"
+msgstr ""
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid ""
+"Installing GPU acceleration for Nvidia GPUS allows Buzz to transcribe audio "
+"significantly faster using CUDA. For other GPU brands this acceleration will "
+"have no effect\n"
+"\n"
+"This will download and install PyTorch with CUDA support (~8 GB). Buzz must "
+"be restarted after installation."
+msgstr ""
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install GPU Support"
+msgstr ""
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Not Now"
+msgstr ""
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation complete! Restart Buzz to enable GPU acceleration."
+msgstr ""
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Close"
+msgstr ""
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation failed: {}"
+msgstr ""
+
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
 msgstr ""
@@ -780,6 +818,10 @@ msgstr ""
 
 #: buzz/widgets/about_dialog.py
 msgid "Show logs"
+msgstr ""
+
+#: buzz/widgets/about_dialog.py
+msgid "Install CUDA Acceleration"
 msgstr ""
 
 #: buzz/widgets/about_dialog.py

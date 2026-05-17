@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-03 09:00+0300\n"
+"POT-Creation-Date: 2026-03-28 21:04+0200\n"
 "PO-Revision-Date: 2025-09-08 12:43+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: \n"
@@ -687,6 +687,48 @@ msgstr ""
 "No se pudo reiniciar la transcripción: no se encontró el trabajador del "
 "transcriptor."
 
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Nvidia GPU Acceleration"
+msgstr "Aceleración GPU de Nvidia"
+
+#: buzz/widgets/cuda_installer_widget.py
+#, fuzzy
+msgid "Install Nvidia GPU Acceleration?"
+msgstr "Usa solo CPU y desactiva la aceleración de GPU"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid ""
+"Installing GPU acceleration for Nvidia GPUS allows Buzz to transcribe audio "
+"significantly faster using CUDA. For other GPU brands this acceleration will "
+"have no effect\n"
+"\n"
+"This will download and install PyTorch with CUDA support (~8 GB). Buzz must "
+"be restarted after installation."
+msgstr ""
+"Instalar la aceleración GPU para GPUs Nvidia permite a Buzz transcribir audio significativamente más rápido usando CUDA. Para otras marcas de GPU esta aceleración no tendrá efecto.\n"
+"\n"
+"Esto descargará e instalará PyTorch con soporte CUDA (~8 GB). Buzz debe reiniciarse después de la instalación."
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install GPU Support"
+msgstr "Instalar soporte GPU"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Not Now"
+msgstr "Ahora no"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation complete! Restart Buzz to enable GPU acceleration."
+msgstr "¡Instalación completa! Reinicia Buzz para activar la aceleración GPU."
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Close"
+msgstr "Cerrar"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation failed: {}"
+msgstr "La instalación falló: {}"
+
 # automatic translation
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -844,6 +886,10 @@ msgstr "Buscar actualizaciones"
 #: buzz/widgets/about_dialog.py
 msgid "Show logs"
 msgstr "Mostrar registros"
+
+#: buzz/widgets/about_dialog.py
+msgid "Install CUDA Acceleration"
+msgstr "Instalar aceleración CUDA"
 
 # automatic translation
 #: buzz/widgets/about_dialog.py
@@ -1739,9 +1785,6 @@ msgstr ""
 #~ msgstr ""
 #~ "Para habilitar los permisos necesarios ejecute los siguientes comandos en "
 #~ "el terminal"
-
-#~ msgid "Close"
-#~ msgstr "Cerrar"
 
 #~ msgid "Enter instructions for AI on how to translate..."
 #~ msgstr "Introduzca instrucciones para la IA sobre cómo traducir..."

@@ -152,7 +152,7 @@ class TestTranscriptionModel:
         model = TranscriptionModel(
             model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY
         )
-        assert str(model) == "Whisper (Tiny)"
+        assert str(model) == "OpenAI Whisper (Tiny)"
 
     def test_str_whisper_cpp(self):
         model = TranscriptionModel(
