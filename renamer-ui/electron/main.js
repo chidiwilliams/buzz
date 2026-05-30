@@ -54,7 +54,10 @@ let backendProcess = null;
 let backendPort = null;
 
 // ─── Backend launcher ────────────────────────────────────────────────────────
-function launchBackend() {
+// onStatus({percent, message}) is called for each STATUS:<pct>:<msg> line the
+// backend prints during its (slow) import/startup, so the splash can show real
+// progress. Resolves with the port once the backend prints PORT:<n>.
+function launchBackend({ onStatus } = {}) {
   return new Promise((resolve, reject) => {
     const { exe, args, cwd } = getPythonBackendArgs();
 
@@ -67,11 +70,28 @@ function launchBackend() {
       windowsHide: true,
     });
 
-    // Read PORT:<n> from stdout — resolve only once
+    // Parse stdout line-by-line for STATUS:<pct>:<msg> (progress) and
+    // PORT:<n> (ready). Resolve the port only once.
     let stdoutBuf = '';
+    let consumed = 0;       // index up to which we've parsed whole lines
     let portResolved = false;
     const onStdout = (chunk) => {
       stdoutBuf += chunk.toString();
+
+      // Emit a status update for each complete STATUS line.
+      let nl;
+      while ((nl = stdoutBuf.indexOf('\n', consumed)) !== -1) {
+        const line = stdoutBuf.slice(consumed, nl).trim();
+        consumed = nl + 1;
+        if (onStatus && line.startsWith('STATUS:')) {
+          const rest = line.slice('STATUS:'.length);
+          const sep = rest.indexOf(':');
+          const pct = parseInt(rest.slice(0, sep), 10);
+          const message = rest.slice(sep + 1);
+          onStatus({ percent: Number.isNaN(pct) ? undefined : pct, message });
+        }
+      }
+
       if (portResolved) return;
       const match = stdoutBuf.match(/PORT:(\d+)/);
       if (match) {
@@ -175,25 +195,53 @@ ipcMain.on('window:close', () => mainWindow?.close());
 
 // ─── App lifecycle ────────────────────────────────────────────────────────────
 app.whenReady().then(async () => {
-  // Show a lightweight loading window immediately so the user
-  // isn't staring at nothing while PyQt6/torch imports (can take ~60 s)
+  // Show a lightweight loading window immediately so the user isn't staring
+  // at nothing while PyQt6/torch imports (can take ~60 s). It displays real
+  // startup progress fed from the backend's STATUS lines.
   const splash = new BrowserWindow({
-    width: 380,
-    height: 200,
+    width: 440,
+    height: 300,
     frame: false,
     alwaysOnTop: true,
     resizable: false,
+    transparent: false,
     backgroundColor: '#0f1117',
-    webPreferences: { nodeIntegration: true, contextIsolation: false },
+    show: false,
+    webPreferences: {
+      preload: path.join(__dirname, 'splash-preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
   });
-  splash.loadURL('data:text/html,<body style="margin:0;background:#0f1117;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:Inter,sans-serif;color:#e8eaf6"><svg width="40" height="40" viewBox="0 0 24 24" fill="none"><path d="M3 12 Q6 6 9 12 Q12 18 15 12 Q18 6 21 12" stroke="url(#g)" stroke-width="2.5" stroke-linecap="round"/><defs><linearGradient id="g" x1="3" y1="12" x2="21" y2="12" gradientUnits="userSpaceOnUse"><stop stop-color="#8b5cf6"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs></svg><h2 style="margin:16px 0 8px;font-size:18px;font-weight:600">Buzz Renamer</h2><p style="color:#8892b0;font-size:13px;margin:0">Starting up — loading AI models…</p></body>');
+  splash.loadFile(path.join(__dirname, '..', 'renderer', 'splash.html'));
+  splash.once('ready-to-show', () => splash.show());
+
+  // Buffer status updates that arrive before the splash page has loaded,
+  // then flush them so no early stage is lost.
+  let splashLoaded = false;
+  const pending = [];
+  const sendSplash = (channel, payload) => {
+    if (!splash || splash.isDestroyed()) return;
+    if (!splashLoaded) { pending.push([channel, payload]); return; }
+    splash.webContents.send(channel, payload);
+  };
+  splash.webContents.once('did-finish-load', () => {
+    splashLoaded = true;
+    for (const [c, p] of pending) splash.webContents.send(c, p);
+    pending.length = 0;
+  });
 
   try {
-    const port = await launchBackend();
-    splash.close();
+    const port = await launchBackend({
+      onStatus: (s) => sendSplash('splash:status', s),
+    });
+    // Backend is up — animate the bar to 100%, then swap to the main window.
+    sendSplash('splash:ready');
+    await new Promise((r) => setTimeout(r, 650));
+    if (splash && !splash.isDestroyed()) splash.close();
     createWindow(port);
   } catch (err) {
-    splash.close();
+    if (splash && !splash.isDestroyed()) splash.close();
     console.error('[main] Failed to start backend:', err);
     dialog.showErrorBox(
       'Backend failed to start',

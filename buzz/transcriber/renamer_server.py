@@ -52,6 +52,19 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+
+def _status(pct: int, msg: str) -> None:
+    """Emit a startup-progress line the Electron splash parses: STATUS:<pct>:<msg>.
+
+    Guarded so multiprocessing 'spawn' child processes never emit it (they
+    re-import heavy modules but must not pollute the parent's stdout protocol).
+    """
+    if multiprocessing.parent_process() is None:
+        print(f"STATUS:{pct}:{msg}", flush=True)
+
+
+_status(8, "Starting backend")
+
 # ---------------------------------------------------------------------------
 # MUST be imported first — sets up CUDA/nvidia DLL paths before torch loads.
 # Without this, ctranslate2 (faster-whisper) crashes in subprocesses with
@@ -85,6 +98,8 @@ os.environ["PATH"] = os.pathsep.join(
     + [os.environ.get("PATH", "")]
 )
 
+_status(22, "Initializing environment")
+
 # ---------------------------------------------------------------------------
 # A headless QCoreApplication is required before importing any Qt class.
 # WhisperFileTranscriber inherits QObject but its transcribe() method is
@@ -97,6 +112,8 @@ os.environ["PATH"] = os.pathsep.join(
 # with STATUS_ACCESS_VIOLATION (0xC0000005).
 # ---------------------------------------------------------------------------
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+
+_status(34, "Loading Qt runtime")
 
 from PyQt6.QtCore import QCoreApplication  # noqa: E402
 
@@ -117,6 +134,8 @@ except ImportError:
     )
     sys.exit(1)
 
+_status(52, "Loading AI models (Whisper)...")
+
 from buzz.model_loader import (  # noqa: E402
     ModelDownloader,
     ModelType,
@@ -131,6 +150,8 @@ from buzz.transcriber.bulk_renamer import (  # noqa: E402
     undo_from_log,
 )
 from buzz.transcriber.transcriber import LANGUAGES, Task, TranscriptionOptions  # noqa: E402
+
+_status(85, "Finalizing")
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, stream=sys.stderr,
@@ -631,6 +652,8 @@ async def _main() -> None:
             pass
         except Exception:
             log.exception("Unhandled error in session")
+
+    _status(95, "Starting server")
 
     async with websockets.serve(_handler, "127.0.0.1", port):
         # Tell the parent process (Electron main.js) which port we chose
