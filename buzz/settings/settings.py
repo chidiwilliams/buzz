@@ -74,6 +74,8 @@ class Settings:
             "transcription-tasks-table/sort-state"
         )
 
+        LAST_IMPORT_FOLDER = "file-transcriber/last-import-folder"
+
         MAIN_WINDOW = "main-window"
         TRANSCRIPTION_VIEWER = "transcription-viewer"
 

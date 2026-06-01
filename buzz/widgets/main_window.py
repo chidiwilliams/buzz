@@ -255,11 +255,17 @@ class MainWindow(QMainWindow):
             self.on_table_selection_changed()
 
     def on_new_transcription_action_triggered(self):
+        last_folder = self.settings.value(Settings.Key.LAST_IMPORT_FOLDER, "")
+
         (file_paths, __) = QFileDialog.getOpenFileNames(
-            self, _("Select audio file"), "", SUPPORTED_AUDIO_FORMATS
+            self, _("Select audio file"), last_folder, SUPPORTED_AUDIO_FORMATS
         )
         if len(file_paths) == 0:
             return
+
+        self.settings.set_value(
+            Settings.Key.LAST_IMPORT_FOLDER, os.path.dirname(file_paths[0])
+        )
 
         self.open_file_transcriber_widget(file_paths)
 
@@ -269,9 +275,13 @@ class MainWindow(QMainWindow):
             self.open_file_transcriber_widget(url=url)
 
     def on_import_folder_action_triggered(self):
-        folder = QFileDialog.getExistingDirectory(self, _("Select folder"))
+        last_folder = self.settings.value(Settings.Key.LAST_IMPORT_FOLDER, "")
+        folder = QFileDialog.getExistingDirectory(
+            self, _("Select folder"), last_folder
+        )
         if not folder:
             return
+        self.settings.set_value(Settings.Key.LAST_IMPORT_FOLDER, folder)
         file_paths = []
         for dirpath, _dirs, filenames in os.walk(folder):
             for filename in filenames:
