@@ -367,7 +367,20 @@ class TranscriptionSegmentsEditorWidget(QTableView):
     def segment(self, index: QModelIndex) -> QSqlRecord:
         return self.model().record(index.row())
 
+    def fetch_all_rows(self):
+        """Ensure all rows are loaded from the database.
+
+        QSqlTableModel fetches rows lazily (256 at a time), so rowCount()
+        only reflects rows already loaded. For operations that must see the
+        whole transcript (e.g. search), force fetching the remaining rows.
+        """
+        model = self.model()
+        root = QModelIndex()
+        while model.canFetchMore(root):
+            model.fetchMore(root)
+
     def segments(self) -> list[QSqlRecord]:
+        self.fetch_all_rows()
         return [self.model().record(i) for i in range(self.model().rowCount())]
 
     def highlight_and_scroll_to_row(self, row_index: int):
