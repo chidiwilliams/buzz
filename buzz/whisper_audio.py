@@ -45,7 +45,7 @@ def load_audio(file: str, sr: int = SAMPLE_RATE):
         "-ac", "1",
         "-acodec", "pcm_s16le",
         "-ar", str(sr),
-        "-loglevel", "panic",
+        "-loglevel", "error",
         "-"
     ]
     # fmt: on
@@ -63,8 +63,8 @@ def load_audio(file: str, sr: int = SAMPLE_RATE):
     else:
         result = subprocess.run(cmd, capture_output=True)
 
-    if result.returncode != 0 and len(result.stderr):
-        error_text = result.stderr.decode("utf-8", errors="replace")
+    if result.returncode != 0:
+        error_text = result.stderr.decode("utf-8", errors="replace") if result.stderr else "Unknown FFMPEG error"
         raise RuntimeError(f"FFMPEG Failed to load audio: {error_text}")
 
     return np.frombuffer(result.stdout, np.int16).flatten().astype(np.float32) / 32768.0

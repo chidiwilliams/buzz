@@ -53,31 +53,9 @@ class CustomBuildHook(BuildHookInterface):
         project_root = Path(self.root)
 
         try:
-            # Run the make command
-            result = subprocess.run(
-                ["make", "buzz/whisper_cpp"],
-                cwd=project_root,
-                check=True,
-                capture_output=True,
-                text=True
-            )
-            print(result.stdout)
-            if result.stderr:
-                print(result.stderr, file=sys.stderr)
-            print("Successfully built whisper.cpp binaries")
+            print("Skipping 'make buzz/whisper_cpp' inside hatch_build.py")
 
-            # Run the make command for translation files
-            result = subprocess.run(
-                ["make", "translation_mo"],
-                cwd=project_root,
-                check=True,
-                capture_output=True,
-                text=True
-            )
-            print(result.stdout)
-            if result.stderr:
-                print(result.stderr, file=sys.stderr)
-            print("Successfully compiled translation files")
+            print("Skipping 'make translation_mo' inside hatch_build.py")
 
             # Build ctc_forced_aligner C++ extension in-place
             print("Building ctc_forced_aligner C++ extension...")

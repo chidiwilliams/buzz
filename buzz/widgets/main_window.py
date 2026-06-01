@@ -110,6 +110,9 @@ class MainWindow(QMainWindow):
         self.menu_bar.import_folder_action_triggered.connect(
             self.on_import_folder_action_triggered
         )
+        self.menu_bar.bulk_rename_action_triggered.connect(
+            self.on_bulk_rename_action_triggered
+        )
         self.menu_bar.shortcuts_changed.connect(self.on_shortcuts_changed)
         self.menu_bar.openai_api_key_changed.connect(
             self.on_openai_access_token_changed
@@ -291,6 +294,12 @@ class MainWindow(QMainWindow):
         if not file_paths:
             return
         self.open_file_transcriber_widget(file_paths)
+
+    def on_bulk_rename_action_triggered(self):
+        # Lazy import so a missing optional dep doesn't take the whole app down
+        from buzz.widgets.bulk_rename_dialog import BulkRenameDialog
+        dialog = BulkRenameDialog(parent=self)
+        dialog.exec()
 
     def open_file_transcriber_widget(
         self, file_paths: Optional[List[str]] = None, url: Optional[str] = None

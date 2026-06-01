@@ -1,0 +1,55 @@
+{
+  "name": "buzz-renamer",
+  "version": "1.0.0",
+  "description": "Electron UI for Buzz Bulk Audio Renamer",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:win:full": "electron-builder --win zip --x64"
+  },
+  "keywords": ["whisper", "audio", "rename", "transcription"],
+  "author": "idocinthebox",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^42.3.0",
+    "electron-builder": "^26.8.1"
+  },
+  "build": {
+    "appId": "com.buzzrenamer.app",
+    "productName": "Buzz Renamer",
+    "forceCodeSigning": false,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      "renderer/**/*",
+      "node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../dist/renamer_backend",
+        "to": "renamer_backend",
+        "filter": ["**/*"]
+      }
+    ],
+    "win": {
+      "target": [
+        { "target": "zip", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Buzz Renamer"
+    }
+  }
+}
