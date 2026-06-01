@@ -200,8 +200,8 @@ class TranscriptionViewerWidget(QWidget):
                 self.on_audio_player_position_ms_changed
             )
 
-        # Connect to playback state changes to automatically show controls
-        self.audio_player.media_player.playbackStateChanged.connect(
+        # Connect to playback state changes to automatically show controls.
+        self.audio_player.playback_state_changed.connect(
             self.on_audio_playback_state_changed
         )
 

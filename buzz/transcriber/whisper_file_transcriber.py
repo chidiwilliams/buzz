@@ -294,9 +294,11 @@ class WhisperFileTranscriber(FileTranscriber):
             cpu_threads=(os.cpu_count() or 8)//2,
         )
 
+        audio = whisper_audio.load_audio(task.file_path)
+
         batched_model = faster_whisper.BatchedInferencePipeline(model=model)
         whisper_segments, info = batched_model.transcribe(
-            audio=task.file_path,
+            audio=audio,
             language=task.transcription_options.language,
             task=task.transcription_options.task.value,
             # Prevent crash on Windows https://github.com/SYSTRAN/faster-whisper/issues/71#issuecomment-1526263764

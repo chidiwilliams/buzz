@@ -14,6 +14,7 @@ from buzz.sounddevice_player import AudioFilePlayer
 
 class AudioPlayer(QWidget):
     position_ms_changed = pyqtSignal(int)
+    playback_state_changed = pyqtSignal(QMediaPlayer.PlaybackState)
 
     def __init__(self, file_path: str):
         super().__init__()
@@ -140,6 +141,7 @@ class AudioPlayer(QWidget):
         if not self._sd_player.is_playing:
             self._poll_timer.stop()
             self.play_button.setIcon(self.play_icon)
+            self.playback_state_changed.emit(QMediaPlayer.PlaybackState.StoppedState)
 
         # Loop range handling
         if self.range_ms is not None and not self.is_looping:
@@ -187,6 +189,7 @@ class AudioPlayer(QWidget):
             self.play_button.setIcon(self.pause_icon)
         else:
             self.play_button.setIcon(self.play_icon)
+        self.playback_state_changed.emit(state)
 
     def on_media_status_changed(self, status: QMediaPlayer.MediaStatus):
         logging.debug(f"Media status changed: {status}")
@@ -223,12 +226,14 @@ class AudioPlayer(QWidget):
                 self.play_button.setIcon(self.play_icon)
                 if self.is_video:
                     self.media_player.pause()
+                self.playback_state_changed.emit(QMediaPlayer.PlaybackState.PausedState)
             else:
                 self._sd_player.resume()
                 self._poll_timer.start()
                 self.play_button.setIcon(self.pause_icon)
                 if self.is_video:
                     self.media_player.play()
+                self.playback_state_changed.emit(QMediaPlayer.PlaybackState.PlayingState)
         else:
             if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
                 self.media_player.pause()
@@ -295,6 +300,7 @@ class AudioPlayer(QWidget):
             self.play_button.setIcon(self.play_icon)
             if self.is_video:
                 self.media_player.stop()
+            self.playback_state_changed.emit(QMediaPlayer.PlaybackState.StoppedState)
         else:
             self.media_player.stop()
 
