@@ -5,7 +5,7 @@ from typing import Optional
 from uuid import UUID
 
 from PyQt6.QtCore import pyqtSignal, Qt, QModelIndex, QItemSelection, QEvent, QRegularExpression, QObject
-from PyQt6.QtGui import QRegularExpressionValidator
+from PyQt6.QtGui import QRegularExpressionValidator, QAction
 from PyQt6.QtSql import QSqlTableModel, QSqlRecord
 from PyQt6.QtGui import QFontMetrics, QTextOption
 from PyQt6.QtWidgets import (
@@ -15,6 +15,7 @@ from PyQt6.QtWidgets import (
     QAbstractItemView,
     QTextEdit,
     QLineEdit,
+    QMenu,
 )
 
 from buzz.locale import _
@@ -239,9 +240,16 @@ class TranscriptionSegmentModel(QSqlTableModel):
 class TranscriptionSegmentsEditorWidget(QTableView):
     PARENT_PADDINGS = 40
     segment_selected = pyqtSignal(QSqlRecord)
+    segment_deleted = pyqtSignal()
     timestamp_being_edited = pyqtSignal(int, int, int)  # Signal: (row, column, new_value_ms)
 
     def keyPressEvent(self, event):
+        # Delete key removes the entire selected segment (timecode + text)
+        if event.key() in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):
+            if self.state() != QAbstractItemView.State.EditingState:
+                self.delete_selected_segment()
+                event.accept()
+                return
         # Allow Enter/Return to trigger editing
         if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             current_index = self.currentIndex()
@@ -250,6 +258,32 @@ class TranscriptionSegmentsEditorWidget(QTableView):
                 event.accept()
                 return
         super().keyPressEvent(event)
+
+    def contextMenuEvent(self, event):
+        index = self.indexAt(event.pos())
+        if not index.isValid():
+            return
+        self.selectRow(index.row())
+        menu = QMenu(self)
+        delete_action = QAction(_("Delete Segment"), self)
+        delete_action.triggered.connect(self.delete_selected_segment)
+        menu.addAction(delete_action)
+        menu.exec(event.globalPos())
+
+    def delete_selected_segment(self):
+        index = self.currentIndex()
+        if not index.isValid():
+            return
+        row = index.row()
+        model = self.model()
+        if model.removeRow(row):
+            model.submitAll()
+            model.select()
+            self.segment_deleted.emit()
+            # Select the row at the same position (or previous if last row removed)
+            new_row = min(row, model.rowCount() - 1)
+            if new_row >= 0:
+                self.selectRow(new_row)
 
     def __init__(
             self,
@@ -367,20 +401,7 @@ class TranscriptionSegmentsEditorWidget(QTableView):
     def segment(self, index: QModelIndex) -> QSqlRecord:
         return self.model().record(index.row())
 
-    def fetch_all_rows(self):
-        """Ensure all rows are loaded from the database.
-
-        QSqlTableModel fetches rows lazily (256 at a time), so rowCount()
-        only reflects rows already loaded. For operations that must see the
-        whole transcript (e.g. search), force fetching the remaining rows.
-        """
-        model = self.model()
-        root = QModelIndex()
-        while model.canFetchMore(root):
-            model.fetchMore(root)
-
     def segments(self) -> list[QSqlRecord]:
-        self.fetch_all_rows()
         return [self.model().record(i) for i in range(self.model().rowCount())]
 
     def highlight_and_scroll_to_row(self, row_index: int):

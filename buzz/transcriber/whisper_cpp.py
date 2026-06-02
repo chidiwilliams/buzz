@@ -111,8 +111,7 @@ class WhisperCpp:
     
         # Add VAD if the model is available
         vad_model_path = os.path.join(os.path.dirname(whisper_cli_path), "ggml-silero-v6.2.0.bin")
-        vad_enabled = os.path.exists(vad_model_path)
-        if vad_enabled:
+        if os.path.exists(vad_model_path):
             cmd.extend(["--vad", "--vad-model", vad_model_path])
 
         # Add translate flag if needed
@@ -196,38 +195,8 @@ class WhisperCpp:
                 non_space_languages = {"zh", "ja", "th", "lo", "km", "my"}
                 is_non_space_language = language in non_space_languages
 
-                def make_offset_mapper(segment_data):
-                    """Return a function mapping a token offset to original audio time.
-                    """
-                    if not vad_enabled:
-                        return lambda offset: offset
-
-                    token_offsets = [
-                        (
-                            int(t.get("offsets", {}).get("from", 0)),
-                            int(t.get("offsets", {}).get("to", 0)),
-                        )
-                        for t in segment_data.get("tokens", [])
-                        if not t.get("text", "").startswith("[_")
-                    ]
-                    if not token_offsets:
-                        return lambda offset: offset
-
-                    vad_min = min(start for start, _ in token_offsets)
-                    vad_max = max(end for _, end in token_offsets)
-                    orig_from = int(segment_data.get("offsets", {}).get("from", 0))
-                    orig_to = int(segment_data.get("offsets", {}).get("to", 0))
-
-                    span = vad_max - vad_min
-                    if span <= 0:
-                        return lambda offset: orig_from
-
-                    scale = (orig_to - orig_from) / span
-                    return lambda offset: int(orig_from + (offset - vad_min) * scale)
-
                 for segment_data in transcription:
                     tokens = segment_data.get("tokens", [])
-                    map_offset = make_offset_mapper(segment_data)
 
                     if is_non_space_language:
                         # For languages without spaces (Chinese, Japanese, etc.),
@@ -281,8 +250,8 @@ class WhisperCpp:
                             if not token_text:
                                 continue
 
-                            token_start = map_offset(int(token_data.get("offsets", {}).get("from", 0)))
-                            token_end = map_offset(int(token_data.get("offsets", {}).get("to", 0)))
+                            token_start = int(token_data.get("offsets", {}).get("from", 0))
+                            token_end = int(token_data.get("offsets", {}).get("to", 0))
 
                             # Convert latin-1 string back to original bytes
                             token_bytes = token_text.encode("latin-1")
@@ -348,8 +317,8 @@ class WhisperCpp:
                             if token_p < 0.01:
                                 continue
 
-                            token_start = map_offset(int(token_data.get("offsets", {}).get("from", 0)))
-                            token_end = map_offset(int(token_data.get("offsets", {}).get("to", 0)))
+                            token_start = int(token_data.get("offsets", {}).get("from", 0))
+                            token_end = int(token_data.get("offsets", {}).get("to", 0))
 
                             # Convert latin-1 string back to original bytes
                             # (latin-1 preserves byte values as code points)

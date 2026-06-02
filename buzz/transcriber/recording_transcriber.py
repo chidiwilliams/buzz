@@ -29,6 +29,7 @@ from buzz.settings.settings import Settings
 from buzz.transcriber.transcriber import TranscriptionOptions, Task, DEFAULT_WHISPER_TEMPERATURE
 from buzz.transformers_whisper import TransformersTranscriber
 from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
+from buzz.vocab_replacement import load_vocab, apply_vocab
 
 import whisper
 import faster_whisper
@@ -303,6 +304,7 @@ class RecordingTranscriber(QObject):
                             os.unlink(temp_filename)
 
                         next_text: str = result.get("text")
+                        next_text = apply_vocab(next_text, load_vocab())
 
                         # Update initial prompt between successive recording chunks
                         initial_prompt = next_text

@@ -19,6 +19,7 @@ from buzz.transcriber.transcriber import (
     Segment,
     OutputFormat,
 )
+from buzz.vocab_replacement import load_vocab, apply_vocab_to_segments
 
 app_env = os.environ.copy()
 app_env['PATH'] = os.pathsep.join([os.path.join(APP_BASE_DIR, "_internal")] + [app_env['PATH']])
@@ -130,6 +131,9 @@ class FileTranscriber(QObject):
         for segment in segments:
             segment.text = segment.text.strip()
 
+        vocab = load_vocab()
+        apply_vocab_to_segments(segments, vocab)
+
         self.completed.emit(segments)
 
         for (
@@ -179,6 +183,43 @@ class FileTranscriber(QObject):
         ...
 
 
+def wrap_subtitle_text(text: str, max_chars: int) -> str:
+    if max_chars <= 0 or len(text) <= max_chars:
+        return text
+
+    cjk_count = sum(
+        1 for c in text
+        if '一' <= c <= '鿿'
+        or '぀' <= c <= 'ヿ'
+        or '가' <= c <= '힣'
+    )
+    is_cjk = cjk_count > len(text) * 0.3
+
+    lines = []
+    if is_cjk:
+        current = ""
+        for char in text:
+            if len(current) >= max_chars:
+                lines.append(current)
+                current = ""
+            current += char
+        if current:
+            lines.append(current)
+    else:
+        words = text.split()
+        current = ""
+        for word in words:
+            if current and len(current) + 1 + len(word) > max_chars:
+                lines.append(current)
+                current = word
+            else:
+                current = (current + " " + word).strip()
+        if current:
+            lines.append(current)
+
+    return "\n".join(lines)
+
+
 def write_output(
     path: str,
     segments: List[Segment],
@@ -191,6 +232,10 @@ def write_output(
         output_format,
         len(segments),
     )
+
+    from buzz.settings.settings import Settings
+    settings = Settings()
+    subtitle_max_line_length = settings.value(Settings.Key.SUBTITLE_MAX_LINE_LENGTH, 0, int)
 
     with open(os.fsencode(path), "w", encoding="utf-8") as file:
         if output_format == OutputFormat.TXT:
@@ -213,7 +258,8 @@ def write_output(
                 file.write(
                     f"{to_timestamp(segment.start)} --> {to_timestamp(segment.end)}\n"
                 )
-                file.write(f"{getattr(segment, segment_key)}\n\n")
+                text = wrap_subtitle_text(getattr(segment, segment_key), subtitle_max_line_length)
+                file.write(f"{text}\n\n")
 
         elif output_format == OutputFormat.SRT:
             for i, segment in enumerate(segments):
@@ -221,7 +267,8 @@ def write_output(
                 file.write(
                     f'{to_timestamp(segment.start, ms_separator=",")} --> {to_timestamp(segment.end, ms_separator=",")}\n'
                 )
-                file.write(f"{getattr(segment, segment_key)}\n\n")
+                text = wrap_subtitle_text(getattr(segment, segment_key), subtitle_max_line_length)
+                file.write(f"{text}\n\n")
 
     logging.debug("Written transcription output")
 

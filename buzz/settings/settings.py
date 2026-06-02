@@ -74,8 +74,6 @@ class Settings:
             "transcription-tasks-table/sort-state"
         )
 
-        LAST_IMPORT_FOLDER = "file-transcriber/last-import-folder"
-
         MAIN_WINDOW = "main-window"
         TRANSCRIPTION_VIEWER = "transcription-viewer"
 
@@ -83,6 +81,8 @@ class Settings:
 
         FORCE_CPU = "force-cpu"
         REDUCE_GPU_MEMORY = "reduce-gpu-memory"
+
+        SUBTITLE_MAX_LINE_LENGTH = "subtitle/max-line-length"
 
         LAST_UPDATE_CHECK = "update/last-check"
         UPDATE_AVAILABLE_VERSION = "update/available-version"

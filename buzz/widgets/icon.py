@@ -119,6 +119,11 @@ class TextColorIcon(Icon):
         super().__init__(get_path("assets/icons/gui-text-color.svg"), parent)
 
 
+class TrashIcon(Icon):
+    def __init__(self, parent: QWidget):
+        super().__init__(TRASH_ICON_PATH, parent)
+
+
 BUZZ_ICON_PATH = get_path("assets/buzz.ico")
 BUZZ_LARGE_ICON_PATH = get_path("assets/buzz-icon-1024.png")
 

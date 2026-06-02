@@ -22,6 +22,9 @@ from buzz.widgets.preferences_dialog.models_preferences_widget import (
 from buzz.widgets.preferences_dialog.shortcuts_editor_preferences_widget import (
     ShortcutsEditorPreferencesWidget,
 )
+from buzz.widgets.preferences_dialog.vocab_preferences_widget import (
+    VocabPreferencesWidget,
+)
 
 
 class PreferencesDialog(QDialog):
@@ -61,6 +64,9 @@ class PreferencesDialog(QDialog):
         )
         folder_watch_widget.config_changed.connect(self.folder_watch_config_changed)
         tab_widget.addTab(folder_watch_widget, _("Folder Watch"))
+
+        vocab_widget = VocabPreferencesWidget(parent=self)
+        tab_widget.addTab(vocab_widget, _("Vocabulary"))
 
         button_box = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel,

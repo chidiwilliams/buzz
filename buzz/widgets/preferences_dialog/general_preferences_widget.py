@@ -211,6 +211,19 @@ class GeneralPreferencesWidget(QWidget):
         self.reduce_gpu_memory_checkbox.stateChanged.connect(self.on_reduce_gpu_memory_changed)
         layout.addRow(_("Reduce GPU RAM"), self.reduce_gpu_memory_checkbox)
 
+        self.subtitle_max_line_length_spin_box = QSpinBox(self)
+        self.subtitle_max_line_length_spin_box.setMinimum(0)
+        self.subtitle_max_line_length_spin_box.setMaximum(999)
+        self.subtitle_max_line_length_spin_box.setValue(
+            self.settings.value(Settings.Key.SUBTITLE_MAX_LINE_LENGTH, 0, int)
+        )
+        self.subtitle_max_line_length_spin_box.setSpecialValueText(_("Disabled"))
+        self.subtitle_max_line_length_spin_box.setToolTip(
+            _("Wrap subtitle lines at this many characters (0 = disabled). Applies to SRT and VTT export.")
+        )
+        self.subtitle_max_line_length_spin_box.valueChanged.connect(self.on_subtitle_max_line_length_changed)
+        layout.addRow(_("Subtitle max line length"), self.subtitle_max_line_length_spin_box)
+
         self.force_cpu_enabled = self.settings.value(
             key=Settings.Key.FORCE_CPU, default_value=False
         )
@@ -333,6 +346,9 @@ class GeneralPreferencesWidget(QWidget):
             os.environ["BUZZ_REDUCE_GPU_MEMORY"] = "true"
         else:
             os.environ.pop("BUZZ_REDUCE_GPU_MEMORY", None)
+
+    def on_subtitle_max_line_length_changed(self, value: int):
+        self.settings.set_value(Settings.Key.SUBTITLE_MAX_LINE_LENGTH, value)
 
 
 class ValidateOpenAIApiKeyJob(QRunnable):

@@ -39,6 +39,7 @@ from buzz.widgets.audio_player import AudioPlayer
 from buzz.widgets.video_player import VideoPlayer
 from buzz.widgets.icon import (
     FileDownloadIcon,
+    TrashIcon,
     TranslateIcon,
     ResizeIcon,
     ScrollToCurrentIcon,
@@ -166,6 +167,7 @@ class TranscriptionViewerWidget(QWidget):
             parent=self
         )
         self.table_widget.segment_selected.connect(self.on_segment_selected)
+        self.table_widget.segment_deleted.connect(self.on_segment_deleted)
         self.table_widget.timestamp_being_edited.connect(
             self.on_timestamp_being_edited)
 
@@ -200,8 +202,8 @@ class TranscriptionViewerWidget(QWidget):
                 self.on_audio_player_position_ms_changed
             )
 
-        # Connect to playback state changes to automatically show controls.
-        self.audio_player.playback_state_changed.connect(
+        # Connect to playback state changes to automatically show controls
+        self.audio_player.media_player.playbackStateChanged.connect(
             self.on_audio_playback_state_changed
         )
 
@@ -330,6 +332,17 @@ class TranscriptionViewerWidget(QWidget):
         self.find_button.setChecked(False)
         self.find_button.clicked.connect(self.toggle_search_bar_visibility)
         toolbar.addWidget(self.find_button)
+
+        self.delete_segment_button = QToolButton()
+        self.delete_segment_button.setText(_("Delete Segment"))
+        self.delete_segment_button.setIcon(TrashIcon(self))
+        self.delete_segment_button.setToolButtonStyle(
+            Qt.ToolButtonStyle.ToolButtonTextBesideIcon
+        )
+        self.delete_segment_button.setToolTip(_("Delete selected segment and its timecodes (Delete)"))
+        self.delete_segment_button.setEnabled(False)
+        self.delete_segment_button.clicked.connect(self.on_delete_segment_button_clicked)
+        toolbar.addWidget(self.delete_segment_button)
 
         layout.setMenuBar(toolbar)
 
@@ -1191,12 +1204,27 @@ class TranscriptionViewerWidget(QWidget):
         # Store the currently selected segment for loop functionality
         self.currently_selected_segment = segment
 
+        # Enable delete button when a segment is selected
+        self.delete_segment_button.setEnabled(True)
+
         # Show the current segment frame and update the text
         self.current_segment_frame.show()
         self.current_segment_text.setText(segment.value("text"))
 
         # Force the text label to recalculate its size
         self.current_segment_text.adjustSize()
+
+    def on_segment_deleted(self):
+        self.currently_selected_segment = None
+        self.delete_segment_button.setEnabled(
+            self.table_widget.currentIndex().isValid()
+        )
+        if self.table_widget.model().rowCount() == 0:
+            self.current_segment_frame.hide()
+            self.delete_segment_button.setEnabled(False)
+
+    def on_delete_segment_button_clicked(self):
+        self.table_widget.delete_selected_segment()
 
         # Resize the frame to fit the text content
         self.resize_current_segment_frame()
