@@ -40,6 +40,31 @@ def apply_vocab(text: str, vocab: dict[str, str]) -> str:
     return text
 
 
+def build_vocab_prompt_hint(vocab: dict[str, str]) -> str:
+    """Build a prompt hint string from the correct words in the vocabulary.
+
+    Injecting correct domain words into Whisper's initial_prompt biases the
+    model toward recognising those words, improving accuracy before any
+    post-processing replacement runs.
+    """
+    correct_words = [c.strip() for c in vocab.values() if c and c.strip()]
+    if not correct_words:
+        return ""
+    seen: set[str] = set()
+    unique_words = [w for w in correct_words if not (w in seen or seen.add(w))]
+    return "、".join(unique_words)
+
+
+def inject_vocab_into_prompt(existing_prompt: str, vocab: dict[str, str]) -> str:
+    """Return existing_prompt with vocab hint appended (if any new terms exist)."""
+    hint = build_vocab_prompt_hint(vocab)
+    if not hint:
+        return existing_prompt
+    if existing_prompt:
+        return f"{existing_prompt}、{hint}"
+    return hint
+
+
 def apply_vocab_to_segments(segments: list["Segment"], vocab: dict[str, str] | None = None) -> list["Segment"]:
     if vocab is None:
         vocab = load_vocab()

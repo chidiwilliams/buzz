@@ -19,7 +19,7 @@ from buzz.transcriber.transcriber import (
     Segment,
     OutputFormat,
 )
-from buzz.vocab_replacement import load_vocab, apply_vocab_to_segments
+from buzz.vocab_replacement import load_vocab, apply_vocab_to_segments, inject_vocab_into_prompt
 
 app_env = os.environ.copy()
 app_env['PATH'] = os.pathsep.join([os.path.join(APP_BASE_DIR, "_internal")] + [app_env['PATH']])
@@ -121,6 +121,11 @@ class FileTranscriber(QObject):
             self.transcription_task.file_path = wav_file
             logging.debug(f"Downloaded audio to file: {self.transcription_task.file_path}")
 
+        vocab = load_vocab()
+        if vocab:
+            opts = self.transcription_task.transcription_options
+            opts.initial_prompt = inject_vocab_into_prompt(opts.initial_prompt or "", vocab)
+
         try:
             segments = self.transcribe()
         except Exception as exc:
@@ -131,7 +136,6 @@ class FileTranscriber(QObject):
         for segment in segments:
             segment.text = segment.text.strip()
 
-        vocab = load_vocab()
         apply_vocab_to_segments(segments, vocab)
 
         self.completed.emit(segments)

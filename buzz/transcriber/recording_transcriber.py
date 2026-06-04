@@ -29,7 +29,7 @@ from buzz.settings.settings import Settings
 from buzz.transcriber.transcriber import TranscriptionOptions, Task, DEFAULT_WHISPER_TEMPERATURE
 from buzz.transformers_whisper import TransformersTranscriber
 from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
-from buzz.vocab_replacement import load_vocab, apply_vocab
+from buzz.vocab_replacement import load_vocab, apply_vocab, inject_vocab_into_prompt
 
 import whisper
 import faster_whisper
@@ -149,7 +149,10 @@ class RecordingTranscriber(QObject):
         else:  # ModelType.HUGGING_FACE
             model = TransformersTranscriber(model_path)
 
-        initial_prompt = self.transcription_options.initial_prompt
+        vocab = load_vocab()
+        initial_prompt = inject_vocab_into_prompt(
+            self.transcription_options.initial_prompt or "", vocab
+        )
 
         logging.debug(
             "Recording, transcription options = %s, model path = %s, sample rate = %s, device = %s",
