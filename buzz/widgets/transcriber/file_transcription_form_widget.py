@@ -14,6 +14,7 @@ from buzz.transcriber.transcriber import (
 from buzz.widgets.transcriber.transcription_options_group_box import (
     TranscriptionOptionsGroupBox,
 )
+from buzz.widgets.transcriber.auto_replace_widget import AutoReplaceWidget
 
 
 class FileTranscriptionFormWidget(QWidget):
@@ -76,8 +77,11 @@ class FileTranscriptionFormWidget(QWidget):
 
         file_transcription_layout.addRow(_("Export:"), export_format_layout)
 
+        self.auto_replace_widget = AutoReplaceWidget(parent=self)
+
         layout.addWidget(transcription_options_group_box)
         layout.addLayout(file_transcription_layout)
+        layout.addWidget(self.auto_replace_widget)
         self.setLayout(layout)
 
     def on_transcription_options_changed(
