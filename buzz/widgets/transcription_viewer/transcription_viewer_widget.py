@@ -1226,35 +1226,6 @@ class TranscriptionViewerWidget(QWidget):
     def on_delete_segment_button_clicked(self):
         self.table_widget.delete_selected_segment()
 
-        # Resize the frame to fit the text content
-        self.resize_current_segment_frame()
-
-        # Ensure the scroll area updates properly and shows scrollbars when needed
-        self.current_segment_scroll_area.updateGeometry()
-        self.current_segment_scroll_area.verticalScrollBar(
-        ).setVisible(True)  # Ensure scrollbar is visible
-
-        start_time_ms = segment.value("start_time")
-        end_time_ms = segment.value("end_time")
-
-        if not self.current_media_player:
-            return
-
-        if self.current_media_player.position_ms < start_time_ms or self.current_media_player.position_ms > end_time_ms:
-            self.current_media_player.set_position(start_time_ms)
-
-        if self.segment_looping_enabled:
-            self.current_media_player.set_range((start_time_ms, end_time_ms))
-
-            # Reset looping flag to ensure new loops work
-            self.current_media_player.is_looping = False
-        else:
-            segments = self.table_widget.segments()
-            for i, seg in enumerate(segments):
-                if seg.value("id") == segment.value("id"):
-                    self.table_widget.highlight_and_scroll_to_row(i)
-                    break
-
     def on_timestamp_being_edited(self, row: int, column: int, new_value_ms: int):
         """Handle real-time timestamp editing to update loop range immediately"""
         # Only update if looping is enabled and we're editing the currently selected segment
