@@ -49,14 +49,16 @@ class TestTranscriptionResizerWidgetCreateNewTranscript:
 
     @pytest.fixture(autouse=True)
     def _reset_setting(self):
-        settings = Settings()
+        settings = TranscriptionResizerWidget.settings
         settings.settings.remove(
             Settings.Key.TRANSCRIPTION_RESIZER_CREATE_NEW_TRANSCRIPT.value
         )
+        settings.settings.sync()
         yield
         settings.settings.remove(
             Settings.Key.TRANSCRIPTION_RESIZER_CREATE_NEW_TRANSCRIPT.value
         )
+        settings.settings.sync()
 
     def _transcription_count(self, dao) -> int:
         query = QSqlQuery("SELECT COUNT(*) FROM transcription", dao.db)
@@ -85,9 +87,8 @@ class TestTranscriptionResizerWidgetCreateNewTranscript:
 
         widget.create_new_transcript_checkbox.setChecked(False)
 
-        settings = Settings()
         assert (
-            settings.value(
+            widget.settings.value(
                 Settings.Key.TRANSCRIPTION_RESIZER_CREATE_NEW_TRANSCRIPT, True
             )
             is False
@@ -96,8 +97,7 @@ class TestTranscriptionResizerWidgetCreateNewTranscript:
     def test_checkbox_loads_state_from_settings(
         self, qtbot: QtBot, transcription, transcription_service
     ):
-        settings = Settings()
-        settings.set_value(
+        TranscriptionResizerWidget.settings.set_value(
             Settings.Key.TRANSCRIPTION_RESIZER_CREATE_NEW_TRANSCRIPT, False
         )
 
