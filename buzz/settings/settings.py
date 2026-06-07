@@ -100,6 +100,7 @@ class Settings:
 
     def set_value(self, key: Key, value: typing.Any) -> None:
         self.settings.setValue(key.value, value)
+        self.settings.sync()
 
     def save_custom_model_id(self, model) -> None:
         from buzz.model_loader import ModelType
