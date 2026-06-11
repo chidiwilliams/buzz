@@ -518,6 +518,14 @@ class MainWindow(QMainWindow):
         self.update_checker = UpdateChecker(settings=self.settings, parent=self)
         self.update_checker.update_available.connect(self._on_update_available)
 
+        # Allow disabling the automatic startup update check (e.g. in tests).
+        # An in-flight QNetworkAccessManager request interferes with
+        # ``multiprocessing`` spawn on Windows and crashes child transcription
+        # processes; tests should also never depend on network availability.
+        if os.getenv("BUZZ_DISABLE_UPDATE_CHECK"):
+            logging.debug("Startup update check disabled via BUZZ_DISABLE_UPDATE_CHECK")
+            return
+
         # Check for updates on startup
         self.update_checker.check_for_updates()
 

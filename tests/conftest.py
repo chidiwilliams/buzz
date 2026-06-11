@@ -5,6 +5,12 @@ import platform
 import random
 import string
 
+# Disable the GUI startup update check during tests. The check fires an async
+# QNetworkAccessManager HTTPS request which, while in flight, interferes with
+# multiprocessing spawn on Windows and crashes child transcription processes.
+# Tests must also never depend on network availability.
+os.environ.setdefault("BUZZ_DISABLE_UPDATE_CHECK", "1")
+
 import pytest
 
 # Set multiprocessing to use 'spawn' instead of 'fork' on Linux

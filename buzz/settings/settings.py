@@ -47,6 +47,10 @@ class Settings:
         FILE_TRANSCRIBER_WORD_LEVEL_TIMINGS = "file-transcriber/word-level-timings"
         FILE_TRANSCRIBER_EXPORT_FORMATS = "file-transcriber/export-formats"
 
+        TRANSCRIPTION_RESIZER_CREATE_NEW_TRANSCRIPT = (
+            "transcription-resizer/create-new-transcript"
+        )
+
         DEFAULT_EXPORT_FILE_NAME = "transcriber/default-export-file-name"
         CUSTOM_OPENAI_BASE_URL = "transcriber/custom-openai-base-url"
         OPENAI_API_MODEL = "transcriber/openai-api-model"
@@ -96,6 +100,7 @@ class Settings:
 
     def set_value(self, key: Key, value: typing.Any) -> None:
         self.settings.setValue(key.value, value)
+        self.settings.sync()
 
     def save_custom_model_id(self, model) -> None:
         from buzz.model_loader import ModelType
