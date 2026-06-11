@@ -1,4 +1,5 @@
 import uuid
+from unittest.mock import patch
 
 import pytest
 from pytestqt.qtbot import QtBot
@@ -85,23 +86,39 @@ class TestTranscriptionResizerWidgetCreateNewTranscript:
     ):
         widget = self._make_widget(qtbot, transcription, transcription_service)
 
-        widget.create_new_transcript_checkbox.setChecked(False)
+        # Verify that toggling persists the setting by spying on ``set_value``.
+        # Asserting on a QSettings round-trip is unreliable on Windows when the
+        # whole suite runs (the shared "OrganizationDefaults" registry scope is
+        # mutated by other tests), so we assert the persistence call directly.
+        # ``setChecked(True)`` first guarantees a real state transition so the
+        # ``toggled`` signal always fires regardless of the loaded state.
+        widget.create_new_transcript_checkbox.setChecked(True)
 
-        assert (
-            widget.settings.value(
-                Settings.Key.TRANSCRIPTION_RESIZER_CREATE_NEW_TRANSCRIPT, True
-            )
-            is False
+        with patch.object(widget.settings, "set_value") as mock_set_value:
+            widget.create_new_transcript_checkbox.setChecked(False)
+
+        mock_set_value.assert_called_once_with(
+            Settings.Key.TRANSCRIPTION_RESIZER_CREATE_NEW_TRANSCRIPT, False
         )
 
     def test_checkbox_loads_state_from_settings(
         self, qtbot: QtBot, transcription, transcription_service
     ):
-        TranscriptionResizerWidget.settings.set_value(
-            Settings.Key.TRANSCRIPTION_RESIZER_CREATE_NEW_TRANSCRIPT, False
-        )
+        # Asserting on a real QSettings round-trip is unreliable on Windows when
+        # the whole suite runs (the shared "OrganizationDefaults" registry scope
+        # is mutated by other tests), so we patch the settings read directly to
+        # verify the widget applies the stored preference to the checkbox.
+        original_value = TranscriptionResizerWidget.settings.value
 
-        widget = self._make_widget(qtbot, transcription, transcription_service)
+        def fake_value(key, default_value, value_type=None):
+            if key == Settings.Key.TRANSCRIPTION_RESIZER_CREATE_NEW_TRANSCRIPT:
+                return False
+            return original_value(key, default_value, value_type)
+
+        with patch.object(
+            TranscriptionResizerWidget.settings, "value", side_effect=fake_value
+        ):
+            widget = self._make_widget(qtbot, transcription, transcription_service)
 
         assert not widget.create_new_transcript_checkbox.isChecked()
 

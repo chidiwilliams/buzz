@@ -21,6 +21,12 @@ whisper_cpp
 *.so
 buzz/whisper_cpp/*
 
+#ctc_forced_aligner
+*.exp
+*.lib
+*.pyd
+*.obj
+
 # Internationalization - compiled binaries
 *.mo
 *.po~
