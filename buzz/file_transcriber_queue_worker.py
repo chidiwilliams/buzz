@@ -1,3 +1,4 @@
+import gc
 import logging
 import multiprocessing
 import os
@@ -84,6 +85,8 @@ class FileTranscriberQueueWorker(QObject):
         self.canceled_tasks: Set[UUID] = set()
         self.current_transcriber = None
         self.speech_path = None
+        self.speech_extractor = None
+        self.speech_extractor_device = None
         self.is_running = False
         # Use QueuedConnection to ensure run() is called in the correct thread context
         # and doesn't block signal handlers
@@ -125,7 +128,7 @@ class FileTranscriberQueueWorker(QObject):
             def separator_progress_callback(progress):
                 self.task_progress.emit(self.current_task, int(progress["segment_offset"] * 100) / int(progress["audio_length"] * 100))
 
-            separator = None
+            origin = None
             separated = None
             try:
                 # Force CPU if specified, otherwise use CUDA if available
@@ -135,12 +138,27 @@ class FileTranscriberQueueWorker(QObject):
                 else:
                     import torch
                     device = "cuda" if torch.cuda.is_available() else "cpu"
-                separator = demucsApi.Separator(
-                    device=device,
-                    progress=True,
-                    callback=separator_progress_callback,
-                )
-                _origin, separated = separator.separate_audio_file(Path(self.current_task.file_path))
+
+                # Reuse a single Separator across tasks. Recreating it for every
+                # file reloads the (large) demucs model, and torch model graphs
+                # contain reference cycles that `del` alone does not reclaim, so
+                # the freed-but-uncollected models accumulate and exhaust memory.
+                if (
+                    self.speech_extractor is None
+                    or self.speech_extractor_device != device
+                ):
+                    self.speech_extractor = demucsApi.Separator(
+                        device=device,
+                        progress=True,
+                        callback=separator_progress_callback,
+                    )
+                    self.speech_extractor_device = device
+                else:
+                    self.speech_extractor.update_parameter(
+                        callback=separator_progress_callback
+                    )
+                separator = self.speech_extractor
+                origin, separated = separator.separate_audio_file(Path(self.current_task.file_path))
 
                 task_file_path = Path(self.current_task.file_path)
                 self.speech_path = task_file_path.with_name(f"{task_file_path.stem}_speech.mp3")
@@ -156,8 +174,11 @@ class FileTranscriberQueueWorker(QObject):
                 self.is_running = False
                 return
             finally:
-                # Release memory used by speech extractor
-                del separator, separated
+                # Release the per-file audio tensors. gc.collect() is required to
+                # break torch's reference cycles, otherwise these tensors linger
+                # and memory grows with every processed file.
+                del origin, separated
+                gc.collect()
                 try:
                     import torch
                     if torch.cuda.is_available():
@@ -280,3 +301,15 @@ class FileTranscriberQueueWorker(QObject):
         self.tasks_queue.put(None)
         if self.current_transcriber is not None:
             self.current_transcriber.stop()
+
+        # Release the cached speech extractor model.
+        if self.speech_extractor is not None:
+            self.speech_extractor = None
+            self.speech_extractor_device = None
+            gc.collect()
+            try:
+                import torch
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+            except Exception:
+                pass
