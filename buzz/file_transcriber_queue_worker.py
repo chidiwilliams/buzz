@@ -153,6 +153,12 @@ class FileTranscriberQueueWorker(QObject):
                 demucsApi.save_audio(separated["vocals"], self.speech_path, separator.samplerate)
 
                 self.current_task.file_path = str(self.speech_path)
+            except IndexError as e:
+                # File has no audio stream (e.g. a silent video). Skip speech
+                # extraction and transcribe the original file as-is.
+                logging.warning(
+                    f"Skipping speech extraction, file has no audio stream: {e}"
+                )
             except Exception as e:
                 logging.error(f"Error during speech extraction: {e}", exc_info=True)
                 self.task_error.emit(
