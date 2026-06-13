@@ -139,24 +139,12 @@ class FileTranscriberQueueWorker(QObject):
                     import torch
                     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-                # Reuse a single Separator across tasks. Recreating it for every
-                # file reloads the (large) demucs model, and torch model graphs
-                # contain reference cycles that `del` alone does not reclaim, so
-                # the freed-but-uncollected models accumulate and exhaust memory.
-                if (
-                    self.speech_extractor is None
-                    or self.speech_extractor_device != device
-                ):
-                    self.speech_extractor = demucsApi.Separator(
-                        device=device,
-                        progress=True,
-                        callback=separator_progress_callback,
-                    )
-                    self.speech_extractor_device = device
-                else:
-                    self.speech_extractor.update_parameter(
-                        callback=separator_progress_callback
-                    )
+                self.speech_extractor = demucsApi.Separator(
+                    device=device,
+                    progress=True,
+                    callback=separator_progress_callback,
+                )
+                self.speech_extractor_device = device
                 separator = self.speech_extractor
                 origin, separated = separator.separate_audio_file(Path(self.current_task.file_path))
 
@@ -174,17 +162,8 @@ class FileTranscriberQueueWorker(QObject):
                 self.is_running = False
                 return
             finally:
-                # Release the per-file audio tensors. gc.collect() is required to
-                # break torch's reference cycles, otherwise these tensors linger
-                # and memory grows with every processed file.
                 del origin, separated
-                gc.collect()
-                try:
-                    import torch
-                    if torch.cuda.is_available():
-                        torch.cuda.empty_cache()
-                except Exception:
-                    pass
+                self._release_speech_extractor()
 
         logging.debug("Starting next transcription task")
         self.task_progress.emit(self.current_task, 0)
@@ -232,6 +211,35 @@ class FileTranscriberQueueWorker(QObject):
 
         self.task_started.emit(self.current_task)
         self.current_transcriber_thread.start()
+
+    def _release_speech_extractor(self):
+        """Fully unload the demucs model and return its memory to the OS.
+        """
+        self.speech_extractor = None
+        self.speech_extractor_device = None
+        gc.collect()
+
+        try:
+            import torch
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+        except Exception:
+            pass
+
+        if sys.platform == "win32":
+            try:
+                import ctypes
+                kernel32 = ctypes.windll.kernel32
+                # SetProcessWorkingSetSize with (SIZE_T)-1 for both min and max
+                # tells Windows to trim the working set, releasing freed pages
+                # back to the OS.
+                kernel32.SetProcessWorkingSetSize(
+                    ctypes.c_void_p(kernel32.GetCurrentProcess()),
+                    ctypes.c_size_t(-1),
+                    ctypes.c_size_t(-1),
+                )
+            except Exception:
+                pass
 
     def _on_task_finished(self):
         """Called when a task completes or errors, resets state and triggers next run"""
@@ -302,14 +310,6 @@ class FileTranscriberQueueWorker(QObject):
         if self.current_transcriber is not None:
             self.current_transcriber.stop()
 
-        # Release the cached speech extractor model.
+        # Release the speech extractor model if one is still loaded.
         if self.speech_extractor is not None:
-            self.speech_extractor = None
-            self.speech_extractor_device = None
-            gc.collect()
-            try:
-                import torch
-                if torch.cuda.is_available():
-                    torch.cuda.empty_cache()
-            except Exception:
-                pass
+            self._release_speech_extractor()
