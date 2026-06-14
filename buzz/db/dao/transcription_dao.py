@@ -283,6 +283,23 @@ class TranscriptionDAO(DAO[Transcription]):
         if query.numRowsAffected() == 0:
             raise Exception("Transcription not found")
 
+    def update_transcription_language(self, id: UUID, language: str):
+        query = self._create_query()
+        query.prepare(
+            """
+            UPDATE transcription
+            SET language = :language
+            WHERE id = :id
+        """
+        )
+
+        query.bindValue(":id", str(id))
+        query.bindValue(":language", language)
+        if not query.exec():
+            raise Exception(query.lastError().text())
+        if query.numRowsAffected() == 0:
+            raise Exception("Transcription not found")
+
     def update_transcription_notes(self, id: UUID, notes: str):
         query = self._create_query()
         query.prepare(

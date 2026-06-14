@@ -117,6 +117,26 @@ class TestTranscriptionDAO:
         assert query.next()
         assert query.value("notes") == new_notes
 
+    def test_update_transcription_language(self, transcription_dao, sample_transcription):
+        """Test updating transcription language"""
+        transcription_dao.insert(sample_transcription)
+
+        transcription_dao.update_transcription_language(
+            UUID(sample_transcription.id), "lv"
+        )
+
+        query = QSqlQuery(transcription_dao.db)
+        query.prepare("SELECT language FROM transcription WHERE id = :id")
+        query.bindValue(":id", sample_transcription.id)
+        assert query.exec()
+        assert query.next()
+        assert query.value("language") == "lv"
+
+    def test_update_transcription_language_nonexistent_id(self, transcription_dao):
+        """Test updating language for non-existent transcription ID"""
+        with pytest.raises(Exception):
+            transcription_dao.update_transcription_language(uuid4(), "lv")
+
     def test_update_transcription_name_nonexistent_id(self, transcription_dao):
         """Test updating name for non-existent transcription ID"""
         nonexistent_id = uuid4()

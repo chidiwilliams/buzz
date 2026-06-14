@@ -160,10 +160,26 @@ translation:
 }
 ```
 
-Strings without a translation (or when no file matches the active locale) fall
-through unchanged, so a plugin works with no locale files at all. The active
-locale comes from Buzz's `UI_LOCALE` setting. See `ai_summary/locale/lv_LV.json`
-for a worked example.
+The JSON **key must match the English source string exactly** (including
+punctuation, parentheses and whitespace) — it is matched verbatim against the
+string you passed to `_()`. Multi-line source strings assembled via implicit
+string concatenation in Python collapse into a single key, so the key has no
+line breaks. Strings without a translation (or when no file matches the active
+locale) fall through unchanged, so a plugin works with no locale files at all.
+The active locale comes from Buzz's `UI_LOCALE` setting.
+
+Bundled plugins ship a translation file for **every locale Buzz supports**. The
+current set (keep it in sync across all bundled plugins) is:
+
+```
+ca_ES, da_DK, de_DE, es_ES, it_IT, ja_JP, lv_LV, nl,
+pl_PL, pt_BR, ru, uk_UA, zh_CN, zh_TW
+```
+
+When adding or changing a user-facing string in a bundled plugin, update the key
+in **all** of these files. See `ai_summary/locale/` or
+`enhanced_language_detection/locale/` for a complete worked example, and copy the
+file set from an existing plugin so the locale list stays consistent.
 
 ## Packaging & distribution
 
@@ -186,7 +202,9 @@ my_plugin/
 2. Set `metadata` with a unique `id` (match the folder name), `name`,
    `description`, and any `config_fields`.
 3. Implement only the hooks you need; respect the thread rules above.
-4. Use `plugin_gettext(__file__)` for user-facing strings; add `locale/*.json`.
+4. Use `plugin_gettext(__file__)` for user-facing strings; add `locale/*.json`
+   (for bundled plugins, provide all locales listed under **Localization** and
+   keep the keys matching the English source strings exactly).
 5. Keep `pip_dependencies` minimal; reuse bundled packages.
 6. To ship it bundled: add the id to `loader.BUNDLED_PLUGIN_IDS` and add the
    folder to `Buzz.spec` `datas` (e.g. `("buzz/plugins/<id>", "plugins/<id>")`).

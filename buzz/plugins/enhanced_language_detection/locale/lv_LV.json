@@ -1,0 +1,6 @@
+{
+  "Enhanced language detection": "Uzlabota valodas noteikšana",
+  "Detect the spoken language with whisper.cpp before transcription (using the largest downloaded model, or the tiny model otherwise) and use it for the transcription and exported file names. Only runs when the language is set to auto-detect.": "Uzlabo valodas noteikšanu visiem modeļu veidiem, izmantojot whisper.cpp (lieto lielāko lejupielādēto modeli vai tiny modeli). Ļauj izmantot noteikto valodu eksportēto failu nosaukumiem. Darbojas tikai tad, ja valoda ir iestatīta uz automātisku noteikšanu.",
+  "Download tiny model if none available": "Lejupielādēt tiny modeli, ja neviens nav pieejams",
+  "If no whisper.cpp model is downloaded, download the tiny model to use for language detection.": "Ja nav lejupielādēts neviens whisper.cpp modelis, lejupielādē tiny modeli valodas noteikšanai."
+}

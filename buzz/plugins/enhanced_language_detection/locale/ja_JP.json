@@ -1,0 +1,6 @@
+{
+  "Enhanced language detection": "強化された言語検出",
+  "Detect the spoken language with whisper.cpp before transcription (using the largest downloaded model, or the tiny model otherwise) and use it for the transcription and exported file names. Only runs when the language is set to auto-detect.": "文字起こしの前に whisper.cpp で話されている言語を検出し（ダウンロード済みの最大のモデル、なければ tiny モデルを使用）、文字起こしとエクスポートされるファイル名に使用します。言語が自動検出に設定されている場合にのみ実行されます。",
+  "Download tiny model if none available": "利用できるモデルがない場合は tiny モデルをダウンロード",
+  "If no whisper.cpp model is downloaded, download the tiny model to use for language detection.": "whisper.cpp モデルがダウンロードされていない場合、言語検出に使用する tiny モデルをダウンロードします。"
+}

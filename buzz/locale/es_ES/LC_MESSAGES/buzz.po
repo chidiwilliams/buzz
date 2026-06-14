@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 13:25+0300\n"
+"POT-Creation-Date: 2026-06-14 16:54+0300\n"
 "PO-Revision-Date: 2025-09-08 12:43+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: \n"
@@ -263,8 +263,8 @@ msgstr "Seleccione Exportar carpeta"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key "
-"validation."
+"Transcription and translation may still work if the API does not support key"
+" validation."
 msgstr ""
 "La API de OpenAI devolvió una respuesta no válida. Compruebe la URL de la "
 "API o su clave. Es posible que la transcripción y la traducción sigan "
@@ -1018,8 +1018,8 @@ msgstr "Segmento de bucle"
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Enable/disable looping when clicking on transcript segments"
 msgstr ""
-"Activar/desactivar la reproducción en bucle al hacer clic en segmentos de la "
-"transcripción"
+"Activar/desactivar la reproducción en bucle al hacer clic en segmentos de la"
+" transcripción"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Follow Audio"
@@ -1105,7 +1105,8 @@ msgid "Desired subtitle length"
 msgstr "Longitud deseada de los subtítulos"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid "Available only if word level timings were disabled during transcription"
+msgid ""
+"Available only if word level timings were disabled during transcription"
 msgstr ""
 "Disponible solo si los tiempos a nivel de palabra estaban desactivados "
 "durante la transcripción"
@@ -1143,8 +1144,8 @@ msgstr ""
 msgid ""
 "Speaker identification is not available: failed to load required libraries."
 msgstr ""
-"La identificación de hablantes no está disponible: no se pudieron cargar las "
-"bibliotecas requeridas."
+"La identificación de hablantes no está disponible: no se pudieron cargar las"
+" bibliotecas requeridas."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "1/8 Collecting transcripts"
@@ -1295,8 +1296,8 @@ msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
 msgstr ""
-"¿Confirma que quiere eliminar las transcripciones seleccionadas? Esta acción "
-"no se puede deshacer."
+"¿Confirma que quiere eliminar las transcripciones seleccionadas? Esta acción"
+" no se puede deshacer."
 
 # automatic translation
 #: buzz/widgets/main_window.py
@@ -1789,6 +1790,35 @@ msgstr "Añadir arriba"
 msgid "Append and correct"
 msgstr "Añadir y corregir"
 
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Enhanced language detection"
+msgstr "Detección de idioma mejorada"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"Detect the spoken language with whisper.cpp before transcription (using the "
+"largest downloaded model, or the tiny model otherwise) and use it for the "
+"transcription and exported file names. Only runs when the language is set to"
+" auto-detect."
+msgstr ""
+"Detecta el idioma hablado con whisper.cpp antes de la transcripción "
+"(utilizando el modelo más grande descargado o, en su defecto, el modelo "
+"tiny) y lo usa para la transcripción y los nombres de los archivos "
+"exportados. Solo se ejecuta cuando el idioma está configurado en detección "
+"automática."
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Download tiny model if none available"
+msgstr "Descargar el modelo tiny si no hay ninguno disponible"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"If no whisper.cpp model is downloaded, download the tiny model to use for "
+"language detection."
+msgstr ""
+"Si no hay ningún modelo de whisper.cpp descargado, descarga el modelo tiny "
+"para usarlo en la detección de idioma."
+
 #: buzz/plugins/export_docx/plugin.py
 msgid "Export to DOCX"
 msgstr "Exportar a DOCX"
@@ -1801,7 +1831,7 @@ msgstr ""
 "Exporta la transcripción a un archivo de Microsoft Word (.docx) tras la "
 "transcripción, incluyendo opcionalmente marcas de tiempo."
 
-#: buzz/plugins/export_docx/plugin.py
+#: buzz/plugins/export_docx/plugin.py buzz/plugins/ai_summary/plugin.py
 msgid "Leave empty to save next to the source file."
 msgstr "Déjalo vacío para guardar junto al archivo de origen."
 
@@ -1815,13 +1845,13 @@ msgstr "Redimensionador automático de transcripciones"
 
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid ""
-"When a transcription has word-level timings, automatically regroup the words "
-"into properly sized subtitles and replace the result. Mirrors the Merge "
+"When a transcription has word-level timings, automatically regroup the words"
+" into properly sized subtitles and replace the result. Mirrors the Merge "
 "options of the transcript resizer."
 msgstr ""
 "Cuando una transcripción tiene marcas de tiempo por palabra, reagrupa "
-"automáticamente las palabras en subtítulos de tamaño adecuado y reemplaza el "
-"resultado. Reproduce las opciones de fusión del redimensionador de "
+"automáticamente las palabras en subtítulos de tamaño adecuado y reemplaza el"
+" resultado. Reproduce las opciones de fusión del redimensionador de "
 "transcripciones."
 
 #: buzz/plugins/transcript_resizer/plugin.py
@@ -1845,8 +1875,8 @@ msgid ""
 "Generate an AI summary of the transcript via an OpenAI-compatible API and "
 "save it to the Notes field and/or a file."
 msgstr ""
-"Genera un resumen con IA de la transcripción mediante una API compatible con "
-"OpenAI y lo guarda en el campo de notas o en un archivo."
+"Genera un resumen con IA de la transcripción mediante una API compatible con"
+" OpenAI y lo guarda en el campo de notas o en un archivo."
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "API base URL"
@@ -1893,8 +1923,7 @@ msgstr ""
 #~ msgstr "Temperatura:"
 
 #~ msgid "Please translate each text sent to you from English to Spanish."
-#~ msgstr ""
-#~ "Por favor, traduzca cada texto que se le envíe del inglés al español."
+#~ msgstr "Por favor, traduzca cada texto que se le envíe del inglés al español."
 
 #~ msgid "Translation error, see logs!"
 #~ msgstr "¡Error de traducción, consulte los registros!"
@@ -1903,8 +1932,8 @@ msgstr ""
 #~ msgstr "Aviso de permiso Snap"
 
 #~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
+#~ "Detected missing permissions, please check that snap permissions have been "
+#~ "granted"
 #~ msgstr ""
 #~ "Se ha detectado que faltan permisos, compruebe que se han concedido los "
 #~ "permisos snap"
@@ -1912,8 +1941,8 @@ msgstr ""
 #~ msgid ""
 #~ "To enable necessary permissions run the following commands in the terminal"
 #~ msgstr ""
-#~ "Para habilitar los permisos necesarios ejecute los siguientes comandos en "
-#~ "el terminal"
+#~ "Para habilitar los permisos necesarios ejecute los siguientes comandos en el"
+#~ " terminal"
 
 #~ msgid "Close"
 #~ msgstr "Cerrar"

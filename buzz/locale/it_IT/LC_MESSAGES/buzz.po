@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 13:25+0300\n"
+"POT-Creation-Date: 2026-06-14 16:54+0300\n"
 "PO-Revision-Date: 2026-04-12 21:42+0200\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
@@ -259,11 +259,11 @@ msgstr "Seleziona la cartella di esportazione"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key "
-"validation."
+"Transcription and translation may still work if the API does not support key"
+" validation."
 msgstr ""
-"L'API OpenAI ha restituito una risposta non valida. Controlla l'URL dell'API "
-"o la tua chiave.La trascrizione e la traduzione potrebbero comunque "
+"L'API OpenAI ha restituito una risposta non valida. Controlla l'URL dell'API"
+" o la tua chiave.La trascrizione e la traduzione potrebbero comunque "
 "funzionare se l'API non supporta la convalida della chiave."
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
@@ -1064,7 +1064,8 @@ msgid "Desired subtitle length"
 msgstr "Lunghezza desiderata dei sottotitoli"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid "Available only if word level timings were disabled during transcription"
+msgid ""
+"Available only if word level timings were disabled during transcription"
 msgstr ""
 "Disponibile solo se i tempi a livello di parola sono stati disabilitati "
 "durante la trascrizione"
@@ -1095,8 +1096,8 @@ msgstr "Unione"
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
 msgstr ""
-"Disponibile solo se i tempi a livello di parola sono stati abilitati durante "
-"la trascrizione"
+"Disponibile solo se i tempi a livello di parola sono stati abilitati durante"
+" la trascrizione"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
@@ -1120,7 +1121,8 @@ msgstr "3/8 Modello di allineamento del carico"
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "3/8 Loading alignment model (retrying with cache...)"
 msgstr ""
-"3/8 Caricamento del modello di allineamento (nuovo tentativo con la cache...)"
+"3/8 Caricamento del modello di allineamento (nuovo tentativo con la "
+"cache...)"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
@@ -1731,6 +1733,34 @@ msgstr "Aggiungere sopra"
 msgid "Append and correct"
 msgstr "Aggiungere e correggere"
 
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Enhanced language detection"
+msgstr "Rilevamento lingua avanzato"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"Detect the spoken language with whisper.cpp before transcription (using the "
+"largest downloaded model, or the tiny model otherwise) and use it for the "
+"transcription and exported file names. Only runs when the language is set to"
+" auto-detect."
+msgstr ""
+"Rileva la lingua parlata con whisper.cpp prima della trascrizione "
+"(utilizzando il modello più grande scaricato o, in alternativa, il modello "
+"tiny) e la usa per la trascrizione e i nomi dei file esportati. Viene "
+"eseguito solo quando la lingua è impostata sul rilevamento automatico."
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Download tiny model if none available"
+msgstr "Scarica il modello tiny se non ne è disponibile nessuno"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"If no whisper.cpp model is downloaded, download the tiny model to use for "
+"language detection."
+msgstr ""
+"Se non è stato scaricato alcun modello whisper.cpp, scarica il modello tiny "
+"da usare per il rilevamento della lingua."
+
 #: buzz/plugins/export_docx/plugin.py
 msgid "Export to DOCX"
 msgstr "Esporta in DOCX"
@@ -1743,7 +1773,7 @@ msgstr ""
 "Esporta la trascrizione in un file Microsoft Word (.docx) al termine della "
 "trascrizione, includendo facoltativamente i timestamp."
 
-#: buzz/plugins/export_docx/plugin.py
+#: buzz/plugins/export_docx/plugin.py buzz/plugins/ai_summary/plugin.py
 msgid "Leave empty to save next to the source file."
 msgstr "Lascia vuoto per salvare accanto al file di origine."
 
@@ -1757,8 +1787,8 @@ msgstr "Ridimensionamento automatico della trascrizione"
 
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid ""
-"When a transcription has word-level timings, automatically regroup the words "
-"into properly sized subtitles and replace the result. Mirrors the Merge "
+"When a transcription has word-level timings, automatically regroup the words"
+" into properly sized subtitles and replace the result. Mirrors the Merge "
 "options of the transcript resizer."
 msgstr ""
 "Quando una trascrizione ha tempi a livello di parola, raggruppa "
@@ -1787,8 +1817,8 @@ msgid ""
 "Generate an AI summary of the transcript via an OpenAI-compatible API and "
 "save it to the Notes field and/or a file."
 msgstr ""
-"Genera un riassunto con IA della trascrizione tramite un'API compatibile con "
-"OpenAI e lo salva nel campo Note e/o in un file."
+"Genera un riassunto con IA della trascrizione tramite un'API compatibile con"
+" OpenAI e lo salva nel campo Note e/o in un file."
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "API base URL"
@@ -1819,8 +1849,8 @@ msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
 msgstr ""
-"Estrazione del parlato non riuscita! Controlla la tua connessione Internet — "
-"potrebbe essere necessario scaricare un modello."
+"Estrazione del parlato non riuscita! Controlla la tua connessione Internet —"
+" potrebbe essere necessario scaricare un modello."
 
 #~ msgid "Live recording mode:"
 #~ msgstr "Modalità di registrazione in diretta:"
@@ -1843,8 +1873,8 @@ msgstr ""
 #~ msgstr "Avviso di autorizzazione Snap"
 
 #~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
+#~ "Detected missing permissions, please check that snap permissions have been "
+#~ "granted"
 #~ msgstr ""
 #~ "Rilevate autorizzazioni mancanti, verificare che le autorizzazioni snap "
 #~ "siano state concesse"
@@ -1852,8 +1882,8 @@ msgstr ""
 #~ msgid ""
 #~ "To enable necessary permissions run the following commands in the terminal"
 #~ msgstr ""
-#~ "Per abilitare le autorizzazioni necessarie, eseguire i seguenti comandi "
-#~ "nel terminale"
+#~ "Per abilitare le autorizzazioni necessarie, eseguire i seguenti comandi nel "
+#~ "terminale"
 
 #~ msgid "Close"
 #~ msgstr "Chiudi"
@@ -1872,6 +1902,3 @@ msgstr ""
 
 #~ msgid "Redo"
 #~ msgstr "Rifai"
-
-#~ msgid "Downloading model (0%, unknown time remaining)"
-#~ msgstr "Scaricando il modello (0\", tempo restante sconosciuto)"

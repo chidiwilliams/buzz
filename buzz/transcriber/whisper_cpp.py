@@ -1,10 +1,11 @@
 import platform
 import os
+import re
 import sys
 import logging
 import subprocess
 import json
-from typing import List
+from typing import List, Optional
 from buzz.assets import APP_BASE_DIR
 from buzz.transcriber.transcriber import Segment, Task, FileTranscriptionTask
 from buzz.transcriber.file_transcriber import app_env
@@ -32,16 +33,23 @@ except (ImportError, Exception) as e:
     IS_VULKAN_SUPPORTED = False
 
 
+def get_whisper_cli_path() -> str:
+    """Return the path to the bundled whisper-cli executable."""
+    cli_executable = "whisper-cli.exe" if sys.platform == "win32" else "whisper-cli"
+    whisper_cli_path = os.path.join(APP_BASE_DIR, "whisper_cpp", cli_executable)
+
+    # If running Mac and Windows installed version
+    if not os.path.exists(whisper_cli_path):
+        whisper_cli_path = os.path.join(APP_BASE_DIR, "buzz", "whisper_cpp", cli_executable)
+
+    return whisper_cli_path
+
+
 class WhisperCpp:
     @staticmethod
     def transcribe(task: FileTranscriptionTask) -> List[Segment]:
         """Transcribe audio using whisper-cli subprocess."""
-        cli_executable = "whisper-cli.exe" if sys.platform == "win32" else "whisper-cli"
-        whisper_cli_path = os.path.join(APP_BASE_DIR, "whisper_cpp", cli_executable)
-
-        # If running Mac and Windows installed version
-        if not os.path.exists(whisper_cli_path):
-            whisper_cli_path = os.path.join(APP_BASE_DIR, "buzz", "whisper_cpp", cli_executable)
+        whisper_cli_path = get_whisper_cli_path()
 
         language = (
             task.transcription_options.language
@@ -411,6 +419,114 @@ class WhisperCpp:
                     print(f"Failed to remove JSON output file {json_output_path}: {e}")
 
             # Clean up temporary audio file if conversion was done
+            if temp_file and os.path.exists(temp_file):
+                try:
+                    os.remove(temp_file)
+                except Exception as e:
+                    print(f"Failed to remove temporary file {temp_file}: {e}")
+
+    @staticmethod
+    def detect_language(file_path: str, model_path: str) -> Optional[str]:
+        """Detect the spoken language of an audio file using whisper-cli.
+
+        Runs whisper-cli with ``--detect-language`` which exits right after
+        detecting the language (much faster than a full transcription). Returns
+        the detected language code (e.g. ``"en"``) or ``None`` if detection
+        failed.
+        """
+        whisper_cli_path = get_whisper_cli_path()
+
+        # whisper-cli reads flac, mp3, ogg and wav directly. Convert anything
+        # else to WAV first, mirroring transcribe().
+        supported_formats = ('.mp3', '.wav', '.flac', '.ogg')
+        file_ext = os.path.splitext(file_path)[1].lower()
+
+        temp_file = None
+        file_to_process = file_path
+
+        if file_ext not in supported_formats:
+            temp_file = file_path + ".wav"
+            logging.info(f"Converting {file_path} to WAV format for language detection")
+
+            ffmpeg_cmd = [
+                "ffmpeg",
+                "-i", file_path,
+                "-ar", "16000",
+                "-ac", "1",
+                "-y",
+                temp_file,
+            ]
+
+            try:
+                if sys.platform == "win32":
+                    si = subprocess.STARTUPINFO()
+                    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                    si.wShowWindow = subprocess.SW_HIDE
+                    subprocess.run(
+                        ffmpeg_cmd,
+                        capture_output=True,
+                        startupinfo=si,
+                        env=app_env,
+                        creationflags=subprocess.CREATE_NO_WINDOW,
+                        check=True,
+                    )
+                else:
+                    subprocess.run(ffmpeg_cmd, capture_output=True, check=True)
+
+                file_to_process = temp_file
+            except subprocess.CalledProcessError as e:
+                raise Exception(f"Failed to convert audio file: {e.stderr.decode()}")
+            except FileNotFoundError:
+                raise Exception("ffmpeg not found. Please install ffmpeg to process this audio format.")
+
+        cmd = [
+            whisper_cli_path,
+            "--model", model_path,
+            "--detect-language",
+            "-f", file_to_process,
+        ]
+
+        # Force CPU if specified (mirrors transcribe()).
+        force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
+        if force_cpu != "false" or (not IS_VULKAN_SUPPORTED and platform.system() != "Darwin"):
+            cmd.extend(["--no-gpu"])
+
+        print(f"Running Whisper CLI language detection: {' '.join(cmd)}")
+
+        try:
+            if sys.platform == "win32":
+                si = subprocess.STARTUPINFO()
+                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                si.wShowWindow = subprocess.SW_HIDE
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    encoding="utf-8",
+                    errors="replace",
+                    startupinfo=si,
+                    env=app_env,
+                    creationflags=subprocess.CREATE_NO_WINDOW,
+                )
+            else:
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    encoding="utf-8",
+                    errors="replace",
+                )
+
+            # whisper-cli writes the detection line to stderr, e.g.:
+            #   whisper_full_with_state: auto-detected language: fr (p = 0.99)
+            output = (result.stderr or "") + (result.stdout or "")
+            match = re.search(r"auto-detected language:\s*([a-zA-Z]{2,3})", output)
+            if match:
+                return match.group(1).lower()
+
+            logging.warning("Language detection produced no result")
+            return None
+        finally:
             if temp_file and os.path.exists(temp_file):
                 try:
                     os.remove(temp_file)

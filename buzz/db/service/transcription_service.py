@@ -56,6 +56,9 @@ class TranscriptionService:
     def update_transcription_notes(self, id: UUID, notes: str):
         self.transcription_dao.update_transcription_notes(id, notes)
 
+    def update_transcription_language(self, id: UUID, language: str):
+        self.transcription_dao.update_transcription_language(id, language)
+
     def reset_transcription_for_restart(self, id: UUID):
         self.transcription_dao.reset_transcription_for_restart(id)
 

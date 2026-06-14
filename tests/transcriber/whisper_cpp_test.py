@@ -39,6 +39,19 @@ class TestWhisperCpp:
         full_text = " ".join(segment.text for segment in segments)
         assert "Bien venu" in full_text or "bienvenu" in full_text.lower()
 
+    def test_detect_language(self):
+        model = TranscriptionModel(
+            model_type=ModelType.WHISPER_CPP,
+            whisper_model_size=WhisperModelSize.TINY,
+        )
+        model_path = get_model_path(model)
+
+        assert WhisperCpp.detect_language(test_audio_path, model_path) == "fr"
+        assert (
+            WhisperCpp.detect_language(test_multibyte_utf8_audio_path, model_path)
+            == "lv"
+        )
+
     def test_transcribe_word_level_timestamps(self):
         transcription_options = TranscriptionOptions(
             language="lv",

@@ -1,0 +1,6 @@
+{
+  "Enhanced language detection": "Detecção de idioma aprimorada",
+  "Detect the spoken language with whisper.cpp before transcription (using the largest downloaded model, or the tiny model otherwise) and use it for the transcription and exported file names. Only runs when the language is set to auto-detect.": "Detecta o idioma falado com whisper.cpp antes da transcrição (usando o maior modelo baixado ou, caso contrário, o modelo tiny) e o usa para a transcrição e os nomes dos arquivos exportados. Só é executado quando o idioma está definido como detecção automática.",
+  "Download tiny model if none available": "Baixar o modelo tiny se nenhum estiver disponível",
+  "If no whisper.cpp model is downloaded, download the tiny model to use for language detection.": "Se nenhum modelo whisper.cpp estiver baixado, baixa o modelo tiny para usar na detecção de idioma."
+}

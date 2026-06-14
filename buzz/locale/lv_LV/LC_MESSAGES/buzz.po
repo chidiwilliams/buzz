@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 13:25+0300\n"
+"POT-Creation-Date: 2026-06-14 16:54+0300\n"
 "PO-Revision-Date: 2026-03-06 13:23+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -258,11 +258,11 @@ msgstr "Izvēlieties mapi kurā eksportēt"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key "
-"validation."
+"Transcription and translation may still work if the API does not support key"
+" validation."
 msgstr ""
-"OpenAI API atbilde ir nederīga. Lūdzu pārbaudiet API Adresi un savu atslēgu. "
-"Atpazīšana un tulkošana joprojām var strādāt, ja API neatbalsta atslēgu "
+"OpenAI API atbilde ir nederīga. Lūdzu pārbaudiet API Adresi un savu atslēgu."
+" Atpazīšana un tulkošana joprojām var strādāt, ja API neatbalsta atslēgu "
 "pārbaudi."
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
@@ -1060,7 +1060,8 @@ msgid "Desired subtitle length"
 msgstr "Vēlamais teksta garums"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid "Available only if word level timings were disabled during transcription"
+msgid ""
+"Available only if word level timings were disabled during transcription"
 msgstr "Pieejami tikai, ierakstiem, kas atpazīti bez dalīšanas pa vārdiem"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
@@ -1723,6 +1724,34 @@ msgstr "Jaunie teikumi augšā"
 msgid "Append and correct"
 msgstr "Papildināt un labot esošo"
 
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Enhanced language detection"
+msgstr "Uzlabota valodas noteikšana"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"Detect the spoken language with whisper.cpp before transcription (using the "
+"largest downloaded model, or the tiny model otherwise) and use it for the "
+"transcription and exported file names. Only runs when the language is set to"
+" auto-detect."
+msgstr ""
+"Uzlabo valodas noteikšanu visiem modeļu veidiem, izmantojot whisper.cpp "
+"(lieto lielāko lejupielādēto modeli vai tiny modeli). Ļauj izmantot noteikto"
+" valodu eksportēto failu nosaukumiem. Darbojas tikai tad, ja valoda ir "
+"iestatīta uz automātisku noteikšanu."
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Download tiny model if none available"
+msgstr "Lejupielādēt tiny modeli, ja neviens nav pieejams"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"If no whisper.cpp model is downloaded, download the tiny model to use for "
+"language detection."
+msgstr ""
+"Ja nav lejupielādēts neviens whisper.cpp modelis, lejupielādē tiny modeli "
+"valodas noteikšanai."
+
 #: buzz/plugins/export_docx/plugin.py
 msgid "Export to DOCX"
 msgstr "Eksportēt uz DOCX"
@@ -1732,10 +1761,10 @@ msgid ""
 "Export the transcript to a Microsoft Word (.docx) file after transcription, "
 "optionally including timestamps."
 msgstr ""
-"Pēc transkripcijas eksportē transkriptu uz Microsoft Word (.docx) failu, pēc "
-"izvēles iekļaujot laika atzīmes."
+"Pēc transkripcijas eksportē transkriptu uz Microsoft Word (.docx) failu, pēc"
+" izvēles iekļaujot laika atzīmes."
 
-#: buzz/plugins/export_docx/plugin.py
+#: buzz/plugins/export_docx/plugin.py buzz/plugins/ai_summary/plugin.py
 msgid "Leave empty to save next to the source file."
 msgstr "Atstājiet tukšu, lai saglabātu blakus avota failam."
 
@@ -1749,8 +1778,8 @@ msgstr "Automātiska garuma maiņa"
 
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid ""
-"When a transcription has word-level timings, automatically regroup the words "
-"into properly sized subtitles and replace the result. Mirrors the Merge "
+"When a transcription has word-level timings, automatically regroup the words"
+" into properly sized subtitles and replace the result. Mirrors the Merge "
 "options of the transcript resizer."
 msgstr ""
 "Ierakstus, kas ir dalīti pa vārdiem, automātiski pārgrupē pareiza izmēra "
@@ -1831,11 +1860,11 @@ msgstr ""
 #~ msgstr "Snap atļauju piezīme"
 
 #~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
+#~ "Detected missing permissions, please check that snap permissions have been "
+#~ "granted"
 #~ msgstr ""
-#~ "Ne visi nepieciešamie moduļi darbojas korekti, iespējams nav piešķirtas "
-#~ "snap atļaujas"
+#~ "Ne visi nepieciešamie moduļi darbojas korekti, iespējams nav piešķirtas snap"
+#~ " atļaujas"
 
 #~ msgid ""
 #~ "To enable necessary permissions run the following commands in the terminal"

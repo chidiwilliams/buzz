@@ -55,12 +55,22 @@ class TestTranscriptionService:
         """Test updating transcription notes through service"""
         transcription_id = uuid4()
         new_notes = "Updated transcription notes with more details"
-        
+
         # Call the service method
         transcription_service.update_transcription_notes(transcription_id, new_notes)
-        
+
         # Verify the DAO method was called with correct parameters
         mock_transcription_dao.update_transcription_notes.assert_called_once_with(transcription_id, new_notes)
+
+    def test_update_transcription_language(self, transcription_service, mock_transcription_dao):
+        """Test updating transcription language through service"""
+        transcription_id = uuid4()
+
+        transcription_service.update_transcription_language(transcription_id, "lv")
+
+        mock_transcription_dao.update_transcription_language.assert_called_once_with(
+            transcription_id, "lv"
+        )
 
     def test_update_transcription_name_with_empty_string(self, transcription_service, mock_transcription_dao):
         """Test updating transcription name to empty string"""

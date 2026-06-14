@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 13:25+0300\n"
+"POT-Creation-Date: 2026-06-14 16:54+0300\n"
 "PO-Revision-Date: 2025-11-01 17:43-0300\n"
 "Last-Translator: Paulo Schopf <pschopf@gmail.com>\n"
 "Language-Team: none\n"
@@ -219,7 +219,8 @@ msgstr "Usar somente a CPU e desabilitar aceleração por GPU"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
 msgstr ""
-"Marque isso se modelos maiores não couberem na memória da GPU e o Buzz travar"
+"Marque isso se modelos maiores não couberem na memória da GPU e o Buzz "
+"travar"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Disable GPU"
@@ -257,8 +258,8 @@ msgstr "Selecionar Pasta de Exportação"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key "
-"validation."
+"Transcription and translation may still work if the API does not support key"
+" validation."
 msgstr ""
 "A API OpenAI retornou uma resposta inválida. Verifique a URL da API ou sua "
 "chave. A transcrição e tradução ainda podem funcionar se a API não suportar "
@@ -653,8 +654,8 @@ msgid ""
 "Could not restart transcription: model not available and could not be "
 "downloaded."
 msgstr ""
-"Não foi possível reiniciar a transcrição: o modelo não está disponível e não "
-"pôde ser baixado."
+"Não foi possível reiniciar a transcrição: o modelo não está disponível e não"
+" pôde ser baixado."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
@@ -763,8 +764,8 @@ msgid ""
 "Plugins run with full access to your system. Only install plugins from "
 "sources you trust."
 msgstr ""
-"Os plugins têm acesso total ao seu sistema. Instale apenas plugins de fontes "
-"confiáveis."
+"Os plugins têm acesso total ao seu sistema. Instale apenas plugins de fontes"
+" confiáveis."
 
 #: buzz/widgets/plugins_dialog/plugins_dialog.py
 msgid "Add by URL..."
@@ -1060,7 +1061,8 @@ msgid "Desired subtitle length"
 msgstr "Duração desejada da legenda"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid "Available only if word level timings were disabled during transcription"
+msgid ""
+"Available only if word level timings were disabled during transcription"
 msgstr ""
 "Disponível apenas se os tempos em nível de palavra foram desabilitados "
 "durante a transcrição"
@@ -1091,8 +1093,8 @@ msgstr "Mesclar"
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
 msgstr ""
-"Disponível apenas se os tempos em nível de palavra foram habilitados durante "
-"a transcrição"
+"Disponível apenas se os tempos em nível de palavra foram habilitados durante"
+" a transcrição"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
@@ -1115,7 +1117,8 @@ msgstr "3/8 Carregando modelo de alinhamento"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "3/8 Loading alignment model (retrying with cache...)"
-msgstr "3/8 Carregando modelo de alinhamento (tentando novamente com cache...)"
+msgstr ""
+"3/8 Carregando modelo de alinhamento (tentando novamente com cache...)"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
@@ -1725,6 +1728,34 @@ msgstr "Acrescentar acima"
 msgid "Append and correct"
 msgstr "Acrescentar e corrigir"
 
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Enhanced language detection"
+msgstr "Detecção de idioma aprimorada"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"Detect the spoken language with whisper.cpp before transcription (using the "
+"largest downloaded model, or the tiny model otherwise) and use it for the "
+"transcription and exported file names. Only runs when the language is set to"
+" auto-detect."
+msgstr ""
+"Detecta o idioma falado com whisper.cpp antes da transcrição (usando o maior"
+" modelo baixado ou, caso contrário, o modelo tiny) e o usa para a "
+"transcrição e os nomes dos arquivos exportados. Só é executado quando o "
+"idioma está definido como detecção automática."
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Download tiny model if none available"
+msgstr "Baixar o modelo tiny se nenhum estiver disponível"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"If no whisper.cpp model is downloaded, download the tiny model to use for "
+"language detection."
+msgstr ""
+"Se nenhum modelo whisper.cpp estiver baixado, baixa o modelo tiny para usar "
+"na detecção de idioma."
+
 #: buzz/plugins/export_docx/plugin.py
 msgid "Export to DOCX"
 msgstr "Exportar para DOCX"
@@ -1737,7 +1768,7 @@ msgstr ""
 "Exporta a transcrição para um arquivo do Microsoft Word (.docx) após a "
 "transcrição, incluindo opcionalmente marcações de tempo."
 
-#: buzz/plugins/export_docx/plugin.py
+#: buzz/plugins/export_docx/plugin.py buzz/plugins/ai_summary/plugin.py
 msgid "Leave empty to save next to the source file."
 msgstr "Deixe em branco para salvar ao lado do arquivo de origem."
 
@@ -1751,13 +1782,14 @@ msgstr "Redimensionador automático de transcrição"
 
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid ""
-"When a transcription has word-level timings, automatically regroup the words "
-"into properly sized subtitles and replace the result. Mirrors the Merge "
+"When a transcription has word-level timings, automatically regroup the words"
+" into properly sized subtitles and replace the result. Mirrors the Merge "
 "options of the transcript resizer."
 msgstr ""
 "Quando uma transcrição tem marcação de tempo por palavra, reagrupa "
 "automaticamente as palavras em legendas de tamanho adequado e substitui o "
-"resultado. Reproduz as opções de mesclagem do redimensionador de transcrição."
+"resultado. Reproduz as opções de mesclagem do redimensionador de "
+"transcrição."
 
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid "Merge gap (seconds)"
@@ -1835,8 +1867,8 @@ msgstr ""
 #~ msgstr "Aviso de permissão do Snap"
 
 #~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
+#~ "Detected missing permissions, please check that snap permissions have been "
+#~ "granted"
 #~ msgstr ""
 #~ "Permissões ausentes detectadas, verifique se as permissões do Snap foram "
 #~ "concedidas"
@@ -1844,8 +1876,8 @@ msgstr ""
 #~ msgid ""
 #~ "To enable necessary permissions run the following commands in the terminal"
 #~ msgstr ""
-#~ "Para habilitar as permissões necessárias, execute os seguintes comandos "
-#~ "no terminal"
+#~ "Para habilitar as permissões necessárias, execute os seguintes comandos no "
+#~ "terminal"
 
 #~ msgid "Close"
 #~ msgstr "Fechar"
