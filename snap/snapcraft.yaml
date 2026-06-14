@@ -5,6 +5,9 @@
 # sudo snap connect buzz:audio-record :audio-record
 # sudo snap connect buzz:removable-media :removable-media
 # sudo snap connect buzz:password-manager-service :password-manager-service
+
+# The private shared-memory plug auto-connects; verify with `snap connections buzz`.
+# If it shows as not connected: sudo snap connect buzz:shared-memory
 name: buzz
 base: core24
 version: git
@@ -197,6 +200,12 @@ apps:
       - audio-record
       # Fallback for keyring support if secrets portal is missing, user has to connect this manually
       - password-manager-service
+      # For multiprocessing queues to work
+      - shared-memory
+
+plugs:
+  shared-memory:
+    private: true
 
 layout:
   /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/alsa-lib:
