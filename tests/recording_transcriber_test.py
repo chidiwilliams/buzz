@@ -296,3 +296,184 @@ class TestStartPortAudioError:
                 t.start()
 
         assert len(errors) == 1
+
+
+class TestFindSilenceCutPoint:
+    def test_returns_len_when_region_too_short(self):
+        samples = np.ones(10, dtype=np.float32)
+        cut = RecordingTranscriber.find_silence_cut_point(samples, sample_rate=2000)
+        assert cut == len(samples)
+
+    def test_uniform_loud_signal_returns_len(self):
+        # Every window has identical energy, so none falls below the threshold.
+        samples = np.ones(4000, dtype=np.float32)
+        cut = RecordingTranscriber.find_silence_cut_point(samples, sample_rate=2000)
+        assert cut == len(samples)
+
+    def test_cuts_at_trailing_silence(self):
+        loud = np.ones(2000, dtype=np.float32)
+        silent = np.zeros(2000, dtype=np.float32)
+        samples = np.concatenate([loud, silent])
+        cut = RecordingTranscriber.find_silence_cut_point(samples, sample_rate=2000)
+        # The cut should land inside the trailing silent region.
+        assert cut < len(samples)
+        assert cut >= len(loud)
+
+
+def _drive_one_cycle(transcriber, samples):
+    """Run the transcription loop for exactly one batch then stop."""
+    received = []
+    transcriber.transcription.connect(received.append)
+    transcriber.queue = samples.copy()
+    transcriber.is_running = True
+
+    def stop_after_first(_text):
+        transcriber.is_running = False
+
+    transcriber.transcription.connect(stop_after_first)
+
+    stream_ctx = MagicMock()
+    stream_ctx.__enter__ = MagicMock(return_value=stream_ctx)
+    stream_ctx.__exit__ = MagicMock(return_value=False)
+    transcriber.sounddevice.InputStream.return_value = stream_ctx
+
+    transcriber.start()
+    return received
+
+
+class TestModelBackends:
+    def test_faster_whisper_joins_segment_text(self):
+        t = make_transcriber(model_type=ModelType.FASTER_WHISPER)
+        samples = np.ones(t.n_batch_samples, dtype=np.float32)
+
+        class FakeWhisperModel:
+            def __init__(self, **kwargs):
+                pass
+
+            def transcribe(self, **kwargs):
+                seg1 = MagicMock()
+                seg1.text = "hello"
+                seg2 = MagicMock()
+                seg2.text = "world"
+                return [seg1, seg2], MagicMock()
+
+        with patch("buzz.transcriber.recording_transcriber.torch") as mock_torch, \
+             patch("buzz.transcriber.recording_transcriber.faster_whisper") as mock_fw:
+            mock_torch.cuda.is_available.return_value = False
+            mock_fw.WhisperModel = FakeWhisperModel
+
+            received = _drive_one_cycle(t, samples)
+
+        assert received == ["hello world"]
+
+    def test_openai_api_returns_text(self):
+        t = make_transcriber(model_type=ModelType.OPEN_AI_WHISPER_API)
+        samples = np.ones(t.n_batch_samples, dtype=np.float32)
+
+        transcript = MagicMock()
+        transcript.model_extra = {}
+        transcript.text = "api text"
+
+        with patch("buzz.transcriber.recording_transcriber.torch") as mock_torch, \
+             patch("buzz.transcriber.recording_transcriber.OpenAI") as MockOpenAI:
+            mock_torch.cuda.is_available.return_value = False
+            client = MockOpenAI.return_value
+            client.audio.transcriptions.create.return_value = transcript
+
+            received = _drive_one_cycle(t, samples)
+
+        assert received == ["api text"]
+
+    def test_hugging_face_returns_text(self):
+        t = make_transcriber(model_type=ModelType.HUGGING_FACE)
+        samples = np.ones(t.n_batch_samples, dtype=np.float32)
+
+        class FakeTransformers:
+            is_mms_model = False
+
+            def __init__(self, path):
+                pass
+
+            def transcribe(self, audio, language, task):
+                return {"text": "hf text"}
+
+        with patch("buzz.transcriber.recording_transcriber.torch") as mock_torch, \
+             patch(
+                 "buzz.transcriber.recording_transcriber.TransformersTranscriber",
+                 FakeTransformers,
+             ):
+            mock_torch.cuda.is_available.return_value = False
+            received = _drive_one_cycle(t, samples)
+
+        assert received == ["hf text"]
+
+
+class TestStartLocalWhisperServer:
+    def test_success_creates_openai_client(self):
+        t = make_transcriber()
+        emitted = []
+        t.transcription.connect(emitted.append)
+
+        process = MagicMock()
+        process.poll.return_value = None  # still running
+        process.stderr = []
+
+        with patch("buzz.transcriber.recording_transcriber.subprocess.Popen", return_value=process) as popen, \
+             patch("buzz.transcriber.recording_transcriber.time.sleep"), \
+             patch("buzz.transcriber.recording_transcriber._", lambda s: s), \
+             patch("buzz.transcriber.recording_transcriber.OpenAI") as MockOpenAI:
+            t.is_running = True
+            t.start_local_whisper_server()
+
+        assert t.openai_client is MockOpenAI.return_value
+        cmd = popen.call_args[0][0]
+        assert "--language" in cmd and "auto" in cmd
+        assert any("transcription" in m.lower() for m in emitted)
+
+    def test_failure_emits_error_message(self):
+        t = make_transcriber()
+        emitted = []
+        t.transcription.connect(emitted.append)
+
+        process = MagicMock()
+        process.poll.return_value = 1  # exited immediately
+        process.stderr = [b"some failure\n"]
+
+        with patch("buzz.transcriber.recording_transcriber.subprocess.Popen", return_value=process), \
+             patch("buzz.transcriber.recording_transcriber.time.sleep"), \
+             patch("buzz.transcriber.recording_transcriber._", lambda s: s):
+            t.is_running = True
+            t.start_local_whisper_server()
+
+        assert t.openai_client is None
+        assert any("failed to start" in m.lower() for m in emitted)
+
+    def test_out_of_memory_emits_specific_message(self):
+        t = make_transcriber()
+        emitted = []
+        t.transcription.connect(emitted.append)
+
+        process = MagicMock()
+        process.poll.return_value = 1
+        process.stderr = [b"ErrorOutOfDeviceMemory\n"]
+
+        with patch("buzz.transcriber.recording_transcriber.subprocess.Popen", return_value=process), \
+             patch("buzz.transcriber.recording_transcriber.time.sleep"), \
+             patch("buzz.transcriber.recording_transcriber._", lambda s: s):
+            t.is_running = True
+            t.start_local_whisper_server()
+
+        assert any("memory" in m.lower() for m in emitted)
+
+    def test_popen_failure_is_handled(self):
+        t = make_transcriber()
+
+        with patch(
+            "buzz.transcriber.recording_transcriber.subprocess.Popen",
+            side_effect=OSError("cannot exec"),
+        ):
+            t.is_running = True
+            t.start_local_whisper_server()
+
+        assert t.openai_client is None
+        assert t.process is None
