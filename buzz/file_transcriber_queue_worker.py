@@ -183,6 +183,12 @@ class FileTranscriberQueueWorker(QObject):
 
             if status == "ok":
                 self.speech_path = speech_path
+                # Remember the original audio path: file_path is about to point
+                # at the temporary "_speech.mp3", which is deleted once the
+                # transcription completes. Plugins (e.g. the transcript resizer)
+                # need the original file in their post-completion hooks.
+                if not self.current_task.original_file_path:
+                    self.current_task.original_file_path = str(task_file_path)
                 self.current_task.file_path = str(speech_path)
             # status == "no_audio": transcribe the original file as-is.
 

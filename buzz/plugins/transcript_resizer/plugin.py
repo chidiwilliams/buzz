@@ -151,20 +151,16 @@ class TranscriptResizerPlugin(BuzzPlugin):
         return os.getenv("BUZZ_MERGE_REGROUP_RULE", regroup_string)
 
     def _resolve_audio_path(self, task):
+        # Prefer the original source file. When "Extract speech" is enabled,
+        # task.file_path points at a temporary "_speech.mp3" that Buzz deletes
+        # once the transcription completes, so it is already gone by the time
+        # this hook runs. original_file_path holds the real source, which is
+        # stable and shares the same timeline (regrouping runs with VAD and
+        # silence suppression off, so it does not need the trimmed audio).
         candidates = [
-            getattr(task, "file_path", None),
             getattr(task, "original_file_path", None),
+            getattr(task, "file_path", None),
         ]
-        # Prefer the speech-extracted file if it exists alongside the source.
-        for base in list(candidates):
-            if base:
-                from pathlib import Path
-
-                p = Path(base)
-                speech = p.with_name(f"{p.stem}_speech.mp3")
-                if speech.exists():
-                    candidates.insert(0, str(speech))
-                break
         for path in candidates:
             if path and os.path.exists(path):
                 return path

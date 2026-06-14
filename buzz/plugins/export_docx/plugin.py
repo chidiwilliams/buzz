@@ -6,13 +6,15 @@ After a transcription completes, writes the transcript to a Microsoft Word
 includes per-segment timestamps. Otherwise the text is grouped into paragraphs
 using the same gap rule as Buzz's plain-text export.
 
-Requires the ``python-docx`` package, declared as a pip dependency and installed
-into the user cache on first load. The import is deferred to the hook so it does
-not affect application startup.
+The ``.docx`` is built directly from the standard library (``zipfile`` plus a
+handful of XML parts), so the plugin has no third-party dependencies. This keeps
+it working in the frozen app, where binary wheels such as ``python-docx``'s
+``lxml`` dependency fail to load from the plugin dependency cache.
 """
 
 import logging
 import os
+from xml.sax.saxutils import escape
 
 from buzz.plugins.base import (
     BuzzPlugin,
@@ -30,6 +32,34 @@ _ = plugin_gettext(__file__)
 # Same default gap (ms) used by the TXT exporter to split paragraphs.
 PARAGRAPH_SPLIT_TIME = 2000
 
+_CONTENT_TYPES_XML = (
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+    '<Default Extension="rels" '
+    'ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+    '<Default Extension="xml" ContentType="application/xml"/>'
+    '<Override PartName="/word/document.xml" '
+    'ContentType="application/vnd.openxmlformats-officedocument.'
+    'wordprocessingml.document.main+xml"/>'
+    "</Types>"
+)
+
+_RELS_XML = (
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    '<Relationship Id="rId1" '
+    'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" '
+    'Target="word/document.xml"/>'
+    "</Relationships>"
+)
+
+_DOCUMENT_TEMPLATE = (
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+    "<w:body>{body}<w:sectPr/></w:body>"
+    "</w:document>"
+)
+
 
 class ExportDocxPlugin(BuzzPlugin):
     metadata = PluginMetadata(
@@ -40,7 +70,7 @@ class ExportDocxPlugin(BuzzPlugin):
             "transcription, optionally including timestamps."
         ),
         version="1.0.0",
-        pip_dependencies=["python-docx"],
+        pip_dependencies=[],
         config_fields=[
             ConfigField(
                 key="output_folder",
@@ -66,7 +96,14 @@ class ExportDocxPlugin(BuzzPlugin):
             context.log.info("Export to DOCX skipped: no segments")
             return
 
-        source_path = task.file_path or task.original_file_path or "transcript"
+        # Prefer the original source path. When "Extract speech" is enabled,
+        # task.file_path points at the temporary "_speech.mp3"; original_file_path
+        # holds the real source, so the file name and heading match it.
+        source_path = (
+            getattr(task, "original_file_path", None)
+            or task.file_path
+            or "transcript"
+        )
         stem = os.path.splitext(os.path.basename(source_path))[0] or "transcript"
 
         folder = (context.config.get("output_folder") or "").strip()
@@ -87,11 +124,11 @@ class ExportDocxPlugin(BuzzPlugin):
             context.log.error("Export to DOCX failed: %s", exc)
 
     def _write_docx(self, out_path, title, segments, include_timestamps):
-        from docx import Document
+        import zipfile
+
         from buzz.transcriber.file_transcriber import to_timestamp
 
-        document = Document()
-        document.add_heading(title, level=1)
+        paragraphs = [_heading_xml(title)]
 
         if include_timestamps:
             for segment in segments:
@@ -102,10 +139,9 @@ class ExportDocxPlugin(BuzzPlugin):
                     f"[{to_timestamp(segment.start_time)} --> "
                     f"{to_timestamp(segment.end_time)}]"
                 )
-                paragraph = document.add_paragraph()
-                run = paragraph.add_run(stamp + " ")
-                run.bold = True
-                paragraph.add_run(text)
+                paragraphs.append(
+                    _paragraph_xml([(stamp + " ", True), (text, False)])
+                )
         else:
             # Group into paragraphs on long gaps, mirroring the TXT exporter.
             current = []
@@ -116,16 +152,38 @@ class ExportDocxPlugin(BuzzPlugin):
                     and (segment.start_time - previous_end) >= PARAGRAPH_SPLIT_TIME
                     and current
                 ):
-                    document.add_paragraph(" ".join(current))
+                    paragraphs.append(_paragraph_xml([(" ".join(current), False)]))
                     current = []
                 text = segment.text.strip()
                 if text:
                     current.append(text)
                 previous_end = segment.end_time
             if current:
-                document.add_paragraph(" ".join(current))
+                paragraphs.append(_paragraph_xml([(" ".join(current), False)]))
 
-        document.save(out_path)
+        document_xml = _DOCUMENT_TEMPLATE.format(body="".join(paragraphs))
+
+        with zipfile.ZipFile(out_path, "w", zipfile.ZIP_DEFLATED) as docx:
+            docx.writestr("[Content_Types].xml", _CONTENT_TYPES_XML)
+            docx.writestr("_rels/.rels", _RELS_XML)
+            docx.writestr("word/document.xml", document_xml)
+
+
+def _run_xml(text, bold):
+    props = "<w:rPr><w:b/></w:rPr>" if bold else ""
+    return f'<w:r>{props}<w:t xml:space="preserve">{escape(text)}</w:t></w:r>'
+
+
+def _paragraph_xml(runs):
+    return "<w:p>" + "".join(_run_xml(text, bold) for text, bold in runs) + "</w:p>"
+
+
+def _heading_xml(title):
+    return (
+        '<w:p><w:pPr><w:spacing w:after="200"/></w:pPr>'
+        '<w:r><w:rPr><w:b/><w:sz w:val="36"/><w:szCs w:val="36"/></w:rPr>'
+        f'<w:t xml:space="preserve">{escape(title)}</w:t></w:r></w:p>'
+    )
 
 
 def _coerce_bool(value) -> bool:

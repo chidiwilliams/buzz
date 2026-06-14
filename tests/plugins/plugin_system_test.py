@@ -343,12 +343,11 @@ def test_export_docx_loads():
 
     plugin = load_plugin_from_dir("buzz/plugins/export_docx")
     assert plugin.metadata.id == "export_docx"
-    assert "python-docx" in plugin.metadata.pip_dependencies
+    # The DOCX is built from the standard library; no third-party deps.
+    assert plugin.metadata.pip_dependencies == []
 
 
 def test_export_docx_writes_file(tmp_path):
-    pytest.importorskip("docx")
-
     import logging
     from buzz.plugins.export_docx import plugin as ed
     from buzz.plugins.base import PluginContext
@@ -378,12 +377,14 @@ def test_export_docx_writes_file(tmp_path):
     out = tmp_path / "myaudio.docx"
     assert out.exists() and out.stat().st_size > 0
 
-    from docx import Document
+    import zipfile
 
-    doc = Document(str(out))
-    texts = [p.text for p in doc.paragraphs]
-    assert "myaudio" in texts  # heading uses the file stem
-    assert any("Hello world." in t for t in texts)
+    with zipfile.ZipFile(out) as docx:
+        assert "word/document.xml" in docx.namelist()
+        document = docx.read("word/document.xml").decode("utf-8")
+
+    assert "myaudio" in document  # heading uses the file stem
+    assert "Hello world." in document
 
 
 def test_plugins_dialog_builds_and_wraps(qtbot):
