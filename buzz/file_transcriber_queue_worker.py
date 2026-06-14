@@ -1,4 +1,3 @@
-import gc
 import logging
 import multiprocessing
 import os
@@ -55,6 +54,40 @@ if sys.platform == "win32":
 from demucs import api as demucsApi
 
 from buzz.locale import _
+
+
+def _speech_extraction_worker(conn, file_path: str, speech_path: str, device: str) -> None:
+    """Extract speech with demucs in a dedicated process.
+    """
+    try:
+        def callback(progress):
+            try:
+                conn.send(
+                    ("progress", progress["segment_offset"], progress["audio_length"])
+                )
+            except Exception:
+                pass
+
+        separator = demucsApi.Separator(
+            device=device,
+            progress=True,
+            callback=callback,
+        )
+        _origin, separated = separator.separate_audio_file(Path(file_path))
+        demucsApi.save_audio(separated["vocals"], speech_path, separator.samplerate)
+        conn.send(("done", None))
+    except IndexError as e:
+        # File has no audio stream (e.g. a silent video). Signal the parent to
+        # skip speech extraction and transcribe the original file as-is.
+        conn.send(("no_audio", str(e)))
+    except Exception as e:
+        logging.error(f"Error during speech extraction: {e}", exc_info=True)
+        conn.send(("error", str(e)))
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
 from buzz.model_loader import ModelType
 from buzz.transcriber.file_transcriber import FileTranscriber
 from buzz.transcriber.openai_whisper_api_file_transcriber import (
@@ -85,8 +118,7 @@ class FileTranscriberQueueWorker(QObject):
         self.canceled_tasks: Set[UUID] = set()
         self.current_transcriber = None
         self.speech_path = None
-        self.speech_extractor = None
-        self.speech_extractor_device = None
+        self.speech_extractor_process = None
         self.is_running = False
         # Use QueuedConnection to ensure run() is called in the correct thread context
         # and doesn't block signal handlers
@@ -125,51 +157,31 @@ class FileTranscriberQueueWorker(QObject):
         if self.current_task.transcription_options.extract_speech:
             logging.debug("Will extract speech")
 
-            def separator_progress_callback(progress):
-                self.task_progress.emit(self.current_task, int(progress["segment_offset"] * 100) / int(progress["audio_length"] * 100))
+            # Force CPU if specified, otherwise use CUDA if available
+            force_cpu = os.getenv("BUZZ_FORCE_CPU", "false").lower() == "true"
+            if force_cpu:
+                device = "cpu"
+            else:
+                import torch
+                device = "cuda" if torch.cuda.is_available() else "cpu"
 
-            origin = None
-            separated = None
-            try:
-                # Force CPU if specified, otherwise use CUDA if available
-                force_cpu = os.getenv("BUZZ_FORCE_CPU", "false").lower() == "true"
-                if force_cpu:
-                    device = "cpu"
-                else:
-                    import torch
-                    device = "cuda" if torch.cuda.is_available() else "cpu"
+            task_file_path = Path(self.current_task.file_path)
+            speech_path = task_file_path.with_name(f"{task_file_path.stem}_speech.mp3")
 
-                self.speech_extractor = demucsApi.Separator(
-                    device=device,
-                    progress=True,
-                    callback=separator_progress_callback,
-                )
-                self.speech_extractor_device = device
-                separator = self.speech_extractor
-                origin, separated = separator.separate_audio_file(Path(self.current_task.file_path))
+            status = self._extract_speech(str(task_file_path), str(speech_path), device)
 
-                task_file_path = Path(self.current_task.file_path)
-                self.speech_path = task_file_path.with_name(f"{task_file_path.stem}_speech.mp3")
-                demucsApi.save_audio(separated["vocals"], self.speech_path, separator.samplerate)
-
-                self.current_task.file_path = str(self.speech_path)
-            except IndexError as e:
-                # File has no audio stream (e.g. a silent video). Skip speech
-                # extraction and transcribe the original file as-is.
-                logging.warning(
-                    f"Skipping speech extraction, file has no audio stream: {e}"
-                )
-            except Exception as e:
-                logging.error(f"Error during speech extraction: {e}", exc_info=True)
+            if status == "error":
                 self.task_error.emit(
                     self.current_task,
                     _("Speech extraction failed! Check your internet connection — a model may need to be downloaded."),
                 )
                 self.is_running = False
                 return
-            finally:
-                del origin, separated
-                self._release_speech_extractor()
+
+            if status == "ok":
+                self.speech_path = speech_path
+                self.current_task.file_path = str(speech_path)
+            # status == "no_audio": transcribe the original file as-is.
 
         logging.debug("Starting next transcription task")
         self.task_progress.emit(self.current_task, 0)
@@ -218,34 +230,81 @@ class FileTranscriberQueueWorker(QObject):
         self.task_started.emit(self.current_task)
         self.current_transcriber_thread.start()
 
-    def _release_speech_extractor(self):
-        """Fully unload the demucs model and return its memory to the OS.
+    def _extract_speech(self, file_path: str, speech_path: str, device: str) -> str:
+        """Run demucs speech extraction in a separate process.
+
+        Returns one of ``"ok"``, ``"no_audio"`` or ``"error"``.
         """
-        self.speech_extractor = None
-        self.speech_extractor_device = None
-        gc.collect()
+        recv_conn, send_conn = multiprocessing.Pipe(duplex=False)
+        process = multiprocessing.Process(
+            target=_speech_extraction_worker,
+            args=(send_conn, file_path, speech_path, device),
+        )
+        self.speech_extractor_process = process
+        process.start()
+        # The parent only reads; close its copy of the send end so recv() gets
+        # EOF once the child exits.
+        send_conn.close()
 
+        status = None
+        error_detail = None
         try:
-            import torch
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
-        except Exception:
-            pass
+            while True:
+                try:
+                    message = recv_conn.recv()
+                except EOFError:
+                    break
 
-        if sys.platform == "win32":
+                kind = message[0]
+                if kind == "progress":
+                    audio_length = int(message[2] * 100)
+                    if audio_length:
+                        self.task_progress.emit(
+                            self.current_task,
+                            int(message[1] * 100) / audio_length,
+                        )
+                elif kind == "done":
+                    status = "ok"
+                elif kind == "no_audio":
+                    status = "no_audio"
+                    logging.warning(
+                        f"Skipping speech extraction, file has no audio stream: {message[1]}"
+                    )
+                elif kind == "error":
+                    status = "error"
+                    error_detail = message[1]
+        finally:
             try:
-                import ctypes
-                kernel32 = ctypes.windll.kernel32
-                # SetProcessWorkingSetSize with (SIZE_T)-1 for both min and max
-                # tells Windows to trim the working set, releasing freed pages
-                # back to the OS.
-                kernel32.SetProcessWorkingSetSize(
-                    ctypes.c_void_p(kernel32.GetCurrentProcess()),
-                    ctypes.c_size_t(-1),
-                    ctypes.c_size_t(-1),
-                )
-            except Exception:
+                recv_conn.close()
+            except OSError:
                 pass
+            process.join()
+            self.speech_extractor_process = None
+
+        if status is None:
+            # Child died without reporting a terminal result (e.g. killed).
+            status = "error"
+            error_detail = (
+                f"speech extraction process exited with code {process.exitcode}"
+            )
+
+        if status == "error":
+            logging.error(f"Error during speech extraction: {error_detail}")
+
+        return status
+
+    def _terminate_speech_extractor_process(self):
+        """Terminate the speech extraction process if one is still running."""
+        process = self.speech_extractor_process
+        if process is not None and process.is_alive():
+            process.terminate()
+            process.join(timeout=5)
+            if process.is_alive():
+                logging.warning(
+                    "Speech extraction process did not terminate gracefully, killing it"
+                )
+                process.kill()
+                process.join(timeout=5)
 
     def _on_task_finished(self):
         """Called when a task completes or errors, resets state and triggers next run"""
@@ -268,9 +327,11 @@ class FileTranscriberQueueWorker(QObject):
         self.canceled_tasks.add(task_id)
 
         if self.current_task is not None and self.current_task.uid == task_id:
+            self._terminate_speech_extractor_process()
+
             if self.current_transcriber is not None:
                 self.current_transcriber.stop()
-                
+
             if self.current_transcriber_thread is not None:
                 if not self.current_transcriber_thread.wait(5000):
                     logging.warning("Transcriber thread did not terminate gracefully")
@@ -316,6 +377,5 @@ class FileTranscriberQueueWorker(QObject):
         if self.current_transcriber is not None:
             self.current_transcriber.stop()
 
-        # Release the speech extractor model if one is still loaded.
-        if self.speech_extractor is not None:
-            self._release_speech_extractor()
+        # Terminate the speech extraction process if one is still running.
+        self._terminate_speech_extractor_process()

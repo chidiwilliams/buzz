@@ -131,6 +131,7 @@ class FileTranscriberWidget(QWidget):
 
     def on_model_loaded(self, model_path: str):
         self.reset_transcriber_controls()
+        self.reset_model_download()
 
         if model_path == "" and self.transcription_options.model.model_type != ModelType.OPEN_AI_WHISPER_API:
             show_model_download_error_dialog(
