@@ -326,14 +326,72 @@ class TestFileTranscriberQueueWorkerRun:
         error_spy = unittest.mock.Mock()
         simple_worker.task_error.connect(error_spy)
 
-        with unittest.mock.patch('buzz.file_transcriber_queue_worker.demucsApi.Separator',
-                                  side_effect=RuntimeError("No internet")):
+        with unittest.mock.patch.object(
+            FileTranscriberQueueWorker, '_extract_speech', return_value="error"
+        ):
             simple_worker.run()
 
         error_spy.assert_called_once()
         args = error_spy.call_args[0]
         assert args[0] == task
         assert simple_worker.is_running is False
+
+    def _run_extract_speech(self, simple_worker, messages, exitcode=0):
+        """Drive _extract_speech with a scripted sequence of pipe messages."""
+        task = self._make_task(extract_speech=True)
+        simple_worker.current_task = task
+
+        recv_conn = unittest.mock.Mock()
+        recv_conn.recv.side_effect = list(messages) + [EOFError()]
+        send_conn = unittest.mock.Mock()
+        process = unittest.mock.Mock()
+        process.exitcode = exitcode
+
+        with unittest.mock.patch(
+            'buzz.file_transcriber_queue_worker.multiprocessing.Pipe',
+            return_value=(recv_conn, send_conn),
+        ), unittest.mock.patch(
+            'buzz.file_transcriber_queue_worker.multiprocessing.Process',
+            return_value=process,
+        ):
+            status = simple_worker._extract_speech("in.mp3", "out.mp3", "cpu")
+
+        return status, process
+
+    def test_extract_speech_runs_out_of_process_and_returns_ok(self, simple_worker):
+        progress_spy = unittest.mock.Mock()
+        simple_worker.task_progress.connect(progress_spy)
+
+        status, process = self._run_extract_speech(
+            simple_worker,
+            [("progress", 50.0, 100.0), ("done", None)],
+        )
+
+        assert status == "ok"
+        process.start.assert_called_once()
+        process.join.assert_called()
+        # Progress is forwarded to the UI and the process handle is cleared.
+        progress_spy.assert_called_once()
+        assert simple_worker.speech_extractor_process is None
+
+    def test_extract_speech_no_audio_stream(self, simple_worker):
+        status, _process = self._run_extract_speech(
+            simple_worker, [("no_audio", "list index out of range")]
+        )
+        assert status == "no_audio"
+
+    def test_extract_speech_error_message(self, simple_worker):
+        status, _process = self._run_extract_speech(
+            simple_worker, [("error", "boom")]
+        )
+        assert status == "error"
+
+    def test_extract_speech_child_crash_is_error(self, simple_worker):
+        # Child exits without reporting a terminal result.
+        status, _process = self._run_extract_speech(
+            simple_worker, [], exitcode=1
+        )
+        assert status == "error"
 
 
 def test_transcription_with_whisper_cpp_tiny_no_speech_extraction(worker):
@@ -375,15 +433,12 @@ def test_transcription_with_whisper_cpp_tiny_with_speech_extraction(worker):
     task = FileTranscriptionTask(file_path=str(test_multibyte_utf8_audio_path), transcription_options=options,
                                  file_transcription_options=FileTranscriptionOptions(), model_path="mock_path")
 
-    with unittest.mock.patch('demucs.api.Separator') as mock_separator_class, \
-            unittest.mock.patch('demucs.api.save_audio') as mock_save_audio, \
+    # Speech extraction now runs in a separate process (#1509). Patch the
+    # method that manages that process rather than demucs internals, which live
+    # in the spawned child and are not reachable from the test process.
+    with unittest.mock.patch.object(
+            FileTranscriberQueueWorker, '_extract_speech', return_value="ok") as mock_extract, \
             unittest.mock.patch.object(WhisperFileTranscriber, 'run') as mock_run:
-        # Mock demucs.api.Separator and save_audio
-        mock_separator_instance = unittest.mock.Mock()
-        mock_separator_instance.separate_audio_file.return_value = (None, {"vocals": "mock_vocals_data"})
-        mock_separator_instance.samplerate = 44100
-        mock_separator_class.return_value = mock_separator_instance
-
         mock_run.side_effect = lambda: worker.current_transcriber.completed.emit([
             {"start": 0, "end": 1000, "text": "Test transcription with speech extraction."}
         ])
@@ -399,8 +454,7 @@ def test_transcription_with_whisper_cpp_tiny_with_speech_extraction(worker):
             QCoreApplication.processEvents()
             time.sleep(0.1)
 
-        mock_separator_class.assert_called_once()
-        mock_save_audio.assert_called_once()
+        mock_extract.assert_called_once()
         completed_spy.assert_called_once()
         args, kwargs = completed_spy.call_args
         assert args[0] == task
