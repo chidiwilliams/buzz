@@ -56,7 +56,7 @@ jobs:
         shell: pwsh
         run: |
           $ver = '1.4.309.0'
-          curl.exe -o "$env:RUNNER_TEMP/VulkanSDK-Installer.exe" -L "https://sdk.lunarg.com/sdk/download/$ver/windows/vulkansdk-windows-X64-$ver.exe"
+          curl.exe -f -o "$env:RUNNER_TEMP/VulkanSDK-Installer.exe" -L "https://sdk.lunarg.com/sdk/download/$ver/windows/vulkan-sdk.exe"
           & "$env:RUNNER_TEMP/VulkanSDK-Installer.exe" --accept-licenses --default-answer --confirm-command install
           Add-Content $env:GITHUB_ENV "VULKAN_SDK=C:\VulkanSDK\$ver"
           Add-Content $env:GITHUB_PATH "C:\VulkanSDK\$ver\bin"
@@ -152,7 +152,7 @@ jobs:
         shell: pwsh
         run: |
           $ver = '1.4.309.0'
-          curl.exe -o "$env:RUNNER_TEMP/VulkanSDK-Installer.exe" -L "https://sdk.lunarg.com/sdk/download/$ver/windows/vulkansdk-windows-X64-$ver.exe"
+          curl.exe -f -o "$env:RUNNER_TEMP/VulkanSDK-Installer.exe" -L "https://sdk.lunarg.com/sdk/download/$ver/windows/vulkan-sdk.exe"
           & "$env:RUNNER_TEMP/VulkanSDK-Installer.exe" --accept-licenses --default-answer --confirm-command install
           Add-Content $env:GITHUB_ENV "VULKAN_SDK=C:\VulkanSDK\$ver"
           Add-Content $env:GITHUB_PATH "C:\VulkanSDK\$ver\bin"
@@ -330,7 +330,7 @@ jobs:
         shell: pwsh
         run: |
           $ver = '1.4.309.0'
-          curl.exe -o "$env:RUNNER_TEMP/VulkanSDK-Installer.exe" -L "https://sdk.lunarg.com/sdk/download/$ver/windows/vulkansdk-windows-X64-$ver.exe"
+          curl.exe -f -o "$env:RUNNER_TEMP/VulkanSDK-Installer.exe" -L "https://sdk.lunarg.com/sdk/download/$ver/windows/vulkan-sdk.exe"
           & "$env:RUNNER_TEMP/VulkanSDK-Installer.exe" --accept-licenses --default-answer --confirm-command install
           Add-Content $env:GITHUB_ENV "VULKAN_SDK=C:\VulkanSDK\$ver"
           Add-Content $env:GITHUB_PATH "C:\VulkanSDK\$ver\bin"
