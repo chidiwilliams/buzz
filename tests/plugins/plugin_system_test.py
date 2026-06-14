@@ -466,6 +466,182 @@ def test_plugin_gettext_no_locale_dir(tmp_path, monkeypatch):
     assert translate("Anything") == "Anything"
 
 
+def _eld_plugin():
+    from buzz.plugins.enhanced_language_detection import plugin as eld
+
+    return eld.EnhancedLanguageDetectionPlugin()
+
+
+def _eld_context(config=None):
+    import logging
+    from buzz.plugins.base import PluginContext
+
+    captured = {}
+
+    class _Service:
+        def update_transcription_language(self, tid, language):
+            captured["lang"] = (tid, language)
+
+    ctx = PluginContext(
+        config=config or {},
+        transcription_service=_Service(),
+        settings=None,
+        logger=logging.getLogger("test"),
+    )
+    return ctx, captured
+
+
+class _EldOptions:
+    def __init__(self, language):
+        self.language = language
+
+
+class _EldTask:
+    def __init__(self, language, file_path="/tmp/a.wav", uid="tid-1"):
+        self.transcription_options = _EldOptions(language)
+        self.file_path = file_path
+        self.uid = uid
+
+
+def test_enhanced_language_detection_loads():
+    plugin = load_plugin_from_dir("buzz/plugins/enhanced_language_detection")
+    assert plugin.metadata.id == "enhanced_language_detection"
+    keys = [f.key for f in plugin.metadata.config_fields]
+    assert "download_tiny_if_missing" in keys
+
+
+def test_eld_skips_explicit_language(monkeypatch):
+    plugin = _eld_plugin()
+    ctx, captured = _eld_context()
+
+    # Detection must never be invoked for an explicit, non-default language.
+    monkeypatch.setattr(
+        plugin, "_resolve_model_path", lambda c: (_ for _ in ()).throw(AssertionError())
+    )
+
+    task = _EldTask(language="de")
+    plugin.before_transcription(task, ctx)
+
+    assert task.transcription_options.language == "de"
+    assert "lang" not in captured
+
+
+@pytest.mark.parametrize("language", [None, "", "en", "EN"])
+def test_eld_detects_when_auto_or_en(monkeypatch, language):
+    plugin = _eld_plugin()
+    ctx, captured = _eld_context()
+
+    monkeypatch.setattr(plugin, "_resolve_model_path", lambda c: "/fake/model.bin")
+    from buzz.transcriber import whisper_cpp
+
+    monkeypatch.setattr(
+        whisper_cpp.WhisperCpp, "detect_language", staticmethod(lambda f, m: "fr")
+    )
+
+    task = _EldTask(language=language)
+    plugin.before_transcription(task, ctx)
+
+    assert task.transcription_options.language == "fr"
+    assert captured["lang"] == ("tid-1", "fr")
+
+
+def test_eld_skips_without_file_path(monkeypatch):
+    plugin = _eld_plugin()
+    ctx, captured = _eld_context()
+    monkeypatch.setattr(
+        plugin, "_resolve_model_path", lambda c: (_ for _ in ()).throw(AssertionError())
+    )
+
+    task = _EldTask(language=None, file_path=None)
+    plugin.before_transcription(task, ctx)
+
+    assert task.transcription_options.language is None
+    assert "lang" not in captured
+
+
+def test_eld_keeps_language_when_no_detection(monkeypatch):
+    plugin = _eld_plugin()
+    ctx, captured = _eld_context()
+
+    monkeypatch.setattr(plugin, "_resolve_model_path", lambda c: "/fake/model.bin")
+    from buzz.transcriber import whisper_cpp
+
+    monkeypatch.setattr(
+        whisper_cpp.WhisperCpp, "detect_language", staticmethod(lambda f, m: None)
+    )
+
+    task = _EldTask(language=None)
+    plugin.before_transcription(task, ctx)
+
+    assert task.transcription_options.language is None
+    assert "lang" not in captured
+
+
+def test_eld_resolve_model_path_picks_largest_skips_custom_lumii(monkeypatch):
+    from buzz import model_loader
+    from buzz.model_loader import WhisperModelSize
+
+    available = {
+        WhisperModelSize.TINY: "/models/tiny.bin",
+        WhisperModelSize.SMALL: "/models/small.bin",
+        WhisperModelSize.LUMII: "/models/lumii.bin",
+        WhisperModelSize.CUSTOM: "/models/custom.bin",
+    }
+
+    def fake_path(self):
+        return available.get(self.whisper_model_size)
+
+    monkeypatch.setattr(
+        model_loader.TranscriptionModel, "get_local_model_path", fake_path
+    )
+
+    plugin = _eld_plugin()
+    ctx, _ = _eld_context()
+    # SMALL outranks TINY; LUMII/CUSTOM are excluded even though available.
+    assert plugin._resolve_model_path(ctx) == "/models/small.bin"
+
+
+def test_eld_resolve_model_path_returns_none_when_download_disabled(monkeypatch):
+    from buzz import model_loader
+
+    monkeypatch.setattr(
+        model_loader.TranscriptionModel, "get_local_model_path", lambda self: None
+    )
+
+    plugin = _eld_plugin()
+    ctx, _ = _eld_context(config={"download_tiny_if_missing": False})
+    assert plugin._resolve_model_path(ctx) is None
+
+
+def test_eld_resolve_model_path_downloads_tiny_when_missing(monkeypatch):
+    from buzz import model_loader
+    from buzz.model_loader import WhisperModelSize
+
+    state = {"downloaded": False}
+
+    def fake_path(self):
+        if state["downloaded"] and self.whisper_model_size == WhisperModelSize.TINY:
+            return "/models/tiny.bin"
+        return None
+
+    class _FakeDownloader:
+        def __init__(self, model=None):
+            self.model = model
+
+        def run(self):
+            state["downloaded"] = True
+
+    monkeypatch.setattr(
+        model_loader.TranscriptionModel, "get_local_model_path", fake_path
+    )
+    monkeypatch.setattr(model_loader, "ModelDownloader", _FakeDownloader)
+
+    plugin = _eld_plugin()
+    ctx, _ = _eld_context(config={"download_tiny_if_missing": True})
+    assert plugin._resolve_model_path(ctx) == "/models/tiny.bin"
+    assert state["downloaded"] is True
+
+
 def test_before_and_after_hooks(qtbot, isolated_plugins, transcription_service, plugin_settings):
     plugins_dir, _deps, _secrets = isolated_plugins
     _write_plugin(str(plugins_dir / "my_plugin"))
