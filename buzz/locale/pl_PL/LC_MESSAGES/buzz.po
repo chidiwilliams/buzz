@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 11:29+0300\n"
+"POT-Creation-Date: 2026-06-14 12:58+0300\n"
 "PO-Revision-Date: 2024-03-17 20:50+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -29,6 +29,8 @@ msgstr "https://przyklad.pl/audio.mp3"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/main_window.py
 msgid "Ok"
 msgstr "OK"
@@ -36,6 +38,8 @@ msgstr "OK"
 #: buzz/widgets/import_url_dialog.py
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 #: buzz/widgets/model_download_progress_dialog.py buzz/widgets/main_window.py
 msgid "Cancel"
@@ -1067,14 +1071,17 @@ msgid "Merge Options"
 msgstr "Opcje scalania"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Merge by gap"
-msgstr "Scal według przerwy"
+msgstr "Scal według odstępu"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by punctuation"
 msgstr "Podziel według interpunkcji"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by max length"
 msgstr "Podziel według maksymalnej długości"
 
@@ -1720,41 +1727,67 @@ msgstr "Dodaj powyżej"
 msgid "Append and correct"
 msgstr "Dodaj i popraw"
 
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Automatic Transcript Resizer"
+msgstr "Automatyczna zmiana rozmiaru transkrypcji"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid ""
+"When a transcription has word-level timings, automatically regroup the words"
+" into properly sized subtitles and replace the result. Mirrors the Merge "
+"options of the transcript resizer."
+msgstr ""
+"Gdy transkrypcja ma znaczniki czasu na poziomie słów, automatycznie grupuje "
+"słowa w napisy o odpowiednim rozmiarze i zastępuje wynik. Odzwierciedla "
+"opcje scalania w narzędziu do zmiany rozmiaru transkrypcji."
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Merge gap (seconds)"
+msgstr "Odstęp scalania (sekundy)"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Punctuation"
+msgstr "Interpunkcja"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Maximum subtitle length"
+msgstr "Maksymalna długość napisu"
+
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"
-msgstr ""
+msgstr "Podsumowanie AI"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid ""
 "Generate an AI summary of the transcript via an OpenAI-compatible API and "
 "save it to the Notes field and/or a file."
 msgstr ""
+"Generuje podsumowanie transkrypcji przy użyciu AI za pośrednictwem API "
+"zgodnego z OpenAI i zapisuje je w polu notatek i/lub pliku."
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "API base URL"
-msgstr ""
+msgstr "Bazowy adres URL API"
 
 #: buzz/plugins/ai_summary/plugin.py
-#, fuzzy
 msgid "API key"
-msgstr "Klucz API OpenAI"
+msgstr "Klucz API"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "Summarization prompt"
-msgstr ""
+msgstr "Polecenie podsumowania"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "Save summary to Notes"
-msgstr ""
+msgstr "Zapisz podsumowanie w notatkach"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "Save summary to a file"
-msgstr ""
+msgstr "Zapisz podsumowanie w pliku"
 
 #: buzz/plugins/ai_summary/plugin.py
-#, fuzzy
 msgid "Output folder (for file)"
-msgstr "Folder wyjściowy"
+msgstr "Folder wyjściowy (dla pliku)"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""

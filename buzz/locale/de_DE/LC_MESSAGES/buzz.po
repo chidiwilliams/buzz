@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 11:29+0300\n"
+"POT-Creation-Date: 2026-06-14 12:58+0300\n"
 "PO-Revision-Date: 2025-03-05 14:41+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -28,6 +28,8 @@ msgstr "https://example.com/audio.mp3"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/main_window.py
 msgid "Ok"
 msgstr "OK"
@@ -35,6 +37,8 @@ msgstr "OK"
 #: buzz/widgets/import_url_dialog.py
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 #: buzz/widgets/model_download_progress_dialog.py buzz/widgets/main_window.py
 msgid "Cancel"
@@ -756,6 +760,74 @@ msgstr ""
 "Bitte überprüfen Sie Ihre Audiogeräte oder prüfen Sie die "
 "Anwendungsprotokolle für weitere Informationen."
 
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Plugins"
+msgstr "Plugins"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid ""
+"Plugins run with full access to your system. Only install plugins from "
+"sources you trust."
+msgstr ""
+"Plugins haben vollen Zugriff auf Ihr System. Installieren Sie nur Plugins "
+"aus vertrauenswürdigen Quellen."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add by URL..."
+msgstr "Über URL hinzufügen..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Settings..."
+msgstr "Einstellungen..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Move Up"
+msgstr "Nach oben"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Move Down"
+msgstr "Nach unten"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove"
+msgstr "Entfernen"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove plugin"
+msgstr "Plugin entfernen"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove plugin '{}'?"
+msgstr "Plugin '{}' entfernen?"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add plugin"
+msgstr "Plugin hinzufügen"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Plugin URL (.zip):"
+msgstr "Plugin-URL (.zip):"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Installing plugin..."
+msgstr "Plugin wird installiert..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add plugin failed"
+msgstr "Hinzufügen des Plugins fehlgeschlagen"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid ""
+"Could not install the plugin:\n"
+"{}"
+msgstr ""
+"Plugin konnte nicht installiert werden:\n"
+"{}"
+
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
+msgid "Plugin not available."
+msgstr "Plugin nicht verfügbar."
+
 #: buzz/widgets/update_dialog.py
 msgid "A new version of Buzz is available!"
 msgstr "Eine neue Version von Buzz ist verfügbar!"
@@ -1006,16 +1078,19 @@ msgid "Merge Options"
 msgstr "Zusammenführungsoptionen"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Merge by gap"
-msgstr "Nach Abstand zusammenführen"
+msgstr "Nach Pause zusammenführen"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by punctuation"
-msgstr "Durch Satzzeichen getrennt"
+msgstr "Nach Satzzeichen teilen"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by max length"
-msgstr "Aufgeteilt nach maximaler Länge"
+msgstr "Nach maximaler Länge teilen"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge"
@@ -1662,41 +1737,67 @@ msgstr "Oben anhängen"
 msgid "Append and correct"
 msgstr "Anhängen und korrigieren"
 
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Automatic Transcript Resizer"
+msgstr "Automatische Transkript-Anpassung"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid ""
+"When a transcription has word-level timings, automatically regroup the words"
+" into properly sized subtitles and replace the result. Mirrors the Merge "
+"options of the transcript resizer."
+msgstr ""
+"Wenn ein Transkript Zeitangaben auf Wortebene hat, werden die Wörter "
+"automatisch zu passend großen Untertiteln gruppiert und das Ergebnis "
+"ersetzt. Entspricht den Zusammenführungsoptionen des Transkript-Editors."
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Merge gap (seconds)"
+msgstr "Pause beim Zusammenführen (Sekunden)"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Punctuation"
+msgstr "Satzzeichen"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Maximum subtitle length"
+msgstr "Maximale Untertitellänge"
+
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"
-msgstr ""
+msgstr "KI-Zusammenfassung"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid ""
 "Generate an AI summary of the transcript via an OpenAI-compatible API and "
 "save it to the Notes field and/or a file."
 msgstr ""
+"Erstellt eine KI-Zusammenfassung des Transkripts über eine OpenAI-kompatible"
+" API und speichert sie im Notizfeld und/oder in einer Datei."
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "API base URL"
-msgstr ""
+msgstr "API-Basis-URL"
 
 #: buzz/plugins/ai_summary/plugin.py
-#, fuzzy
 msgid "API key"
-msgstr "OpenAI-API-Schlüssel"
+msgstr "API-Schlüssel"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "Summarization prompt"
-msgstr ""
+msgstr "Zusammenfassungs-Prompt"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "Save summary to Notes"
-msgstr ""
+msgstr "Zusammenfassung in Notizen speichern"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "Save summary to a file"
-msgstr ""
+msgstr "Zusammenfassung in einer Datei speichern"
 
 #: buzz/plugins/ai_summary/plugin.py
-#, fuzzy
 msgid "Output folder (for file)"
-msgstr "Ausgabeordner"
+msgstr "Ausgabeordner (für Datei)"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""

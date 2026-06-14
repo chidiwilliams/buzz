@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 11:29+0300\n"
+"POT-Creation-Date: 2026-06-14 12:58+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: nunawa <71294849+nunawa@users.noreply.github.com>\n"
 "Language-Team: \n"
@@ -25,6 +25,8 @@ msgstr "https://example.com/audio.mp3"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/main_window.py
 msgid "Ok"
 msgstr "Ok"
@@ -32,6 +34,8 @@ msgstr "Ok"
 #: buzz/widgets/import_url_dialog.py
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 #: buzz/widgets/model_download_progress_dialog.py buzz/widgets/main_window.py
 msgid "Cancel"
@@ -732,6 +736,68 @@ msgstr ""
 "プラグインをインストールできませんでした:\n"
 "{}"
 
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Plugins"
+msgstr "プラグイン"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid ""
+"Plugins run with full access to your system. Only install plugins from "
+"sources you trust."
+msgstr "プラグインはシステムへのフルアクセス権を持ちます。信頼できるソースのプラグインのみをインストールしてください。"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add by URL..."
+msgstr "URLで追加..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Settings..."
+msgstr "設定..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Move Up"
+msgstr "上へ"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Move Down"
+msgstr "下へ"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove"
+msgstr "削除"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove plugin"
+msgstr "プラグインを削除"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove plugin '{}'?"
+msgstr "プラグイン '{}' を削除しますか？"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add plugin"
+msgstr "プラグインを追加"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Plugin URL (.zip):"
+msgstr "プラグインのURL (.zip):"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Installing plugin..."
+msgstr "プラグインをインストールしています..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add plugin failed"
+msgstr "プラグインの追加に失敗しました"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid ""
+"Could not install the plugin:\n"
+"{}"
+msgstr ""
+"プラグインをインストールできませんでした:\n"
+"{}"
+
 #: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 msgid "Plugin not available."
 msgstr "プラグインは利用できません。"
@@ -981,16 +1047,19 @@ msgid "Merge Options"
 msgstr "結合オプション"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Merge by gap"
 msgstr "間隔で結合"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by punctuation"
 msgstr "句読点で分割"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by max length"
-msgstr "最大文字数で分割"
+msgstr "最大長で分割"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge"
@@ -1623,41 +1692,63 @@ msgstr "上に追加"
 msgid "Append and correct"
 msgstr "追加して修正"
 
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Automatic Transcript Resizer"
+msgstr "自動文字起こしリサイズ"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid ""
+"When a transcription has word-level timings, automatically regroup the words"
+" into properly sized subtitles and replace the result. Mirrors the Merge "
+"options of the transcript resizer."
+msgstr ""
+"文字起こしに単語レベルのタイミングがある場合、単語を適切なサイズの字幕に自動的に再グループ化し、結果を置き換えます。文字起こしリサイザーの結合オプションを再現します。"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Merge gap (seconds)"
+msgstr "結合の間隔（秒）"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Punctuation"
+msgstr "句読点"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Maximum subtitle length"
+msgstr "字幕の最大長"
+
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"
-msgstr ""
+msgstr "AI要約"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid ""
 "Generate an AI summary of the transcript via an OpenAI-compatible API and "
 "save it to the Notes field and/or a file."
-msgstr ""
+msgstr "OpenAI互換APIを使用して文字起こしのAI要約を生成し、メモ欄やファイルに保存します。"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "API base URL"
-msgstr ""
+msgstr "APIベースURL"
 
 #: buzz/plugins/ai_summary/plugin.py
-#, fuzzy
 msgid "API key"
-msgstr "OpenAI APIキー"
+msgstr "APIキー"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "Summarization prompt"
-msgstr ""
+msgstr "要約プロンプト"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "Save summary to Notes"
-msgstr ""
+msgstr "要約をメモに保存"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "Save summary to a file"
-msgstr ""
+msgstr "要約をファイルに保存"
 
 #: buzz/plugins/ai_summary/plugin.py
-#, fuzzy
 msgid "Output folder (for file)"
-msgstr "出力フォルダ"
+msgstr "出力フォルダ（ファイル用）"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""

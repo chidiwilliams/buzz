@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 11:29+0300\n"
+"POT-Creation-Date: 2026-06-14 12:58+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Ole Guldberg2 <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -26,6 +26,8 @@ msgstr "https://example.com/audio.mp3"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/main_window.py
 msgid "Ok"
 msgstr "OK"
@@ -33,6 +35,8 @@ msgstr "OK"
 #: buzz/widgets/import_url_dialog.py
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 #: buzz/widgets/model_download_progress_dialog.py buzz/widgets/main_window.py
 msgid "Cancel"
@@ -747,6 +751,74 @@ msgstr ""
 "Tjek venligst dine audioenheder eller tjek applikationens logs for "
 "mereinformation."
 
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Plugins"
+msgstr "Plugins"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid ""
+"Plugins run with full access to your system. Only install plugins from "
+"sources you trust."
+msgstr ""
+"Plugins har fuld adgang til dit system. Installér kun plugins fra kilder, du"
+" har tillid til."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add by URL..."
+msgstr "Tilføj via URL..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Settings..."
+msgstr "Indstillinger..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Move Up"
+msgstr "Flyt op"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Move Down"
+msgstr "Flyt ned"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove"
+msgstr "Fjern"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove plugin"
+msgstr "Fjern plugin"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove plugin '{}'?"
+msgstr "Fjern plugin '{}'?"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add plugin"
+msgstr "Tilføj plugin"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Plugin URL (.zip):"
+msgstr "Plugin-URL (.zip):"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Installing plugin..."
+msgstr "Installerer plugin..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add plugin failed"
+msgstr "Tilføjelse af plugin mislykkedes"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid ""
+"Could not install the plugin:\n"
+"{}"
+msgstr ""
+"Kunne ikke installere plugin'et:\n"
+"{}"
+
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
+msgid "Plugin not available."
+msgstr "Plugin ikke tilgængeligt."
+
 #: buzz/widgets/update_dialog.py
 msgid "A new version of Buzz is available!"
 msgstr "En ny version af Buzz er tilgængelig!"
@@ -996,16 +1068,19 @@ msgid "Merge Options"
 msgstr "Sammenfletningsindstillinger"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Merge by gap"
-msgstr "Sammenflet ved hul"
+msgstr "Flet efter mellemrum"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by punctuation"
-msgstr "Split ved punktum"
+msgstr "Opdel efter tegnsætning"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by max length"
-msgstr "Split ved max længde"
+msgstr "Opdel efter maksimal længde"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge"
@@ -1648,41 +1723,67 @@ msgstr "Tilføj herover"
 msgid "Append and correct"
 msgstr "Tilføj og ret"
 
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Automatic Transcript Resizer"
+msgstr "Automatisk tilpasning af transskription"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid ""
+"When a transcription has word-level timings, automatically regroup the words"
+" into properly sized subtitles and replace the result. Mirrors the Merge "
+"options of the transcript resizer."
+msgstr ""
+"Når en transskription har tidsmarkeringer på ordniveau, grupperes ordene "
+"automatisk i passende store undertekster, og resultatet erstattes. Svarer "
+"til fletteindstillingerne i transskriptionstilpasseren."
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Merge gap (seconds)"
+msgstr "Fletteinterval (sekunder)"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Punctuation"
+msgstr "Tegnsætning"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Maximum subtitle length"
+msgstr "Maksimal undertekstlængde"
+
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"
-msgstr ""
+msgstr "AI-resumé"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid ""
 "Generate an AI summary of the transcript via an OpenAI-compatible API and "
 "save it to the Notes field and/or a file."
 msgstr ""
+"Genererer et AI-resumé af transskriptionen via en OpenAI-kompatibel API og "
+"gemmer det i notefeltet og/eller en fil."
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "API base URL"
-msgstr ""
+msgstr "API-basis-URL"
 
 #: buzz/plugins/ai_summary/plugin.py
-#, fuzzy
 msgid "API key"
-msgstr "OpenAI API-nøgle"
+msgstr "API-nøgle"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "Summarization prompt"
-msgstr ""
+msgstr "Resuméprompt"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "Save summary to Notes"
-msgstr ""
+msgstr "Gem resumé i noter"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "Save summary to a file"
-msgstr ""
+msgstr "Gem resumé i en fil"
 
 #: buzz/plugins/ai_summary/plugin.py
-#, fuzzy
 msgid "Output folder (for file)"
-msgstr "Outputmappe"
+msgstr "Outputmappe (til fil)"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""

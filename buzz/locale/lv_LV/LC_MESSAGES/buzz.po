@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 11:29+0300\n"
+"POT-Creation-Date: 2026-06-14 12:58+0300\n"
 "PO-Revision-Date: 2026-03-06 13:23+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -29,6 +29,8 @@ msgstr "https://example.com/audio.mp3"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/main_window.py
 msgid "Ok"
 msgstr "Labi"
@@ -36,6 +38,8 @@ msgstr "Labi"
 #: buzz/widgets/import_url_dialog.py
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 #: buzz/widgets/model_download_progress_dialog.py buzz/widgets/main_window.py
 msgid "Cancel"
@@ -1064,14 +1068,17 @@ msgid "Merge Options"
 msgstr "Apvienošanas iestatījumi"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Merge by gap"
-msgstr "Apvienot pēc attāluma"
+msgstr "Apvienot pēc atstarpes"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by punctuation"
 msgstr "Dalīt pie pieturzīmēm"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by max length"
 msgstr "Dalīt pie maksimālā garuma"
 
@@ -1716,41 +1723,66 @@ msgstr "Jaunie teikumi augšā"
 msgid "Append and correct"
 msgstr "Papildināt un labot esošo"
 
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Automatic Transcript Resizer"
+msgstr "Automātiska garuma maiņa"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid ""
+"When a transcription has word-level timings, automatically regroup the words"
+" into properly sized subtitles and replace the result. Mirrors the Merge "
+"options of the transcript resizer."
+msgstr ""
+"Ierakstus, kas ir dalīti pa vārdiem, automātiski pārgrupē pareiza izmēra "
+"subtitros."
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Merge gap (seconds)"
+msgstr "Apvienošanas atstarpe (sekundes)"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Punctuation"
+msgstr "Pieturzīmes"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Maximum subtitle length"
+msgstr "Maksimālais subtitru garums"
+
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"
-msgstr ""
+msgstr "MI kopsavilkums"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid ""
 "Generate an AI summary of the transcript via an OpenAI-compatible API and "
 "save it to the Notes field and/or a file."
 msgstr ""
+"Izveido transkripta MI kopsavilkumu, izmantojot OpenAI saderīgu API, un "
+"saglabā to piezīmju laukā un/vai failā."
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "API base URL"
-msgstr ""
+msgstr "API bāzes URL"
 
 #: buzz/plugins/ai_summary/plugin.py
-#, fuzzy
 msgid "API key"
-msgstr "OpenAI API atslēga"
+msgstr "API atslēga"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "Summarization prompt"
-msgstr ""
+msgstr "MI instrikcija"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "Save summary to Notes"
-msgstr ""
+msgstr "Saglabāt piezīmēs"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "Save summary to a file"
-msgstr ""
+msgstr "Saglabāt failā"
 
 #: buzz/plugins/ai_summary/plugin.py
-#, fuzzy
 msgid "Output folder (for file)"
-msgstr "Rezultātu mape"
+msgstr "Izvades mape"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
