@@ -1,7 +1,9 @@
+import html
 import logging
 from typing import Optional
 
-from PyQt6.QtCore import Qt, QThreadPool
+from PyQt6.QtCore import Qt, QThreadPool, QSize, QRectF
+from PyQt6.QtGui import QTextDocument, QAbstractTextDocumentLayout, QPalette
 from PyQt6.QtWidgets import (
     QDialog,
     QWidget,
@@ -11,13 +13,84 @@ from PyQt6.QtWidgets import (
     QListWidgetItem,
     QPushButton,
     QLabel,
+    QLineEdit,
     QInputDialog,
     QMessageBox,
     QProgressDialog,
+    QStyledItemDelegate,
+    QStyleOptionViewItem,
+    QStyle,
+    QApplication,
 )
 
 from buzz.locale import _
 from buzz.plugins.post_processing import FnRunnable
+
+
+class _HtmlItemDelegate(QStyledItemDelegate):
+    """Renders list item text as rich text (HTML) with word wrapping.
+
+    Used so a plugin's name can be bold while its description stays regular,
+    while preserving the native check indicator and selection background.
+    """
+
+    def _document(self, option: QStyleOptionViewItem, width: int) -> QTextDocument:
+        doc = QTextDocument()
+        doc.setDefaultFont(option.font)
+        doc.setHtml(option.text)
+        doc.setTextWidth(width)
+        return doc
+
+    def paint(self, painter, option, index):
+        options = QStyleOptionViewItem(option)
+        self.initStyleOption(options, index)
+
+        style = options.widget.style() if options.widget else QApplication.style()
+
+        text_rect = style.subElementRect(
+            QStyle.SubElement.SE_ItemViewItemText, options, options.widget
+        )
+
+        doc = self._document(options, text_rect.width())
+
+        # Let the style paint everything except the text (background, selection,
+        # and the check indicator).
+        options.text = ""
+        style.drawControl(
+            QStyle.ControlElement.CE_ItemViewItem, options, painter, options.widget
+        )
+
+        # Draw the rich text using the palette's text color so it is visible on
+        # both light and dark themes.
+        ctx = QAbstractTextDocumentLayout.PaintContext()
+        if option.state & QStyle.StateFlag.State_Selected:
+            ctx.palette.setColor(
+                QPalette.ColorRole.Text,
+                option.palette.color(QPalette.ColorRole.HighlightedText),
+            )
+        else:
+            ctx.palette.setColor(
+                QPalette.ColorRole.Text,
+                option.palette.color(QPalette.ColorRole.Text),
+            )
+
+        painter.save()
+        painter.translate(text_rect.topLeft())
+        painter.setClipRect(QRectF(0, 0, text_rect.width(), text_rect.height()))
+        doc.documentLayout().draw(painter, ctx)
+        painter.restore()
+
+    def sizeHint(self, option, index):
+        options = QStyleOptionViewItem(option)
+        self.initStyleOption(options, index)
+
+        style = options.widget.style() if options.widget else QApplication.style()
+        text_rect = style.subElementRect(
+            QStyle.SubElement.SE_ItemViewItemText, options, options.widget
+        )
+        width = text_rect.width() if text_rect.width() > 0 else options.rect.width()
+        doc = self._document(options, width)
+        return QSize(int(doc.idealWidth()), int(doc.size().height()) + 8)
 
 
 class PluginsDialog(QDialog):
@@ -55,6 +128,7 @@ class PluginsDialog(QDialog):
             Qt.ScrollBarPolicy.ScrollBarAlwaysOff
         )
         self.list_widget.setTextElideMode(Qt.TextElideMode.ElideNone)
+        self.list_widget.setItemDelegate(_HtmlItemDelegate(self.list_widget))
         self.list_widget.itemChanged.connect(self.on_item_changed)
         self.list_widget.currentRowChanged.connect(self.update_buttons)
         body.addWidget(self.list_widget, 1)
@@ -96,9 +170,9 @@ class PluginsDialog(QDialog):
         self.list_widget.clear()
         for plugin in self.plugin_manager.all_plugins_in_order():
             meta = plugin.metadata
-            text = meta.name
+            text = f"<b>{html.escape(meta.name)}</b>"
             if meta.description:
-                text += f"\n{meta.description}"
+                text += f"<br>{html.escape(meta.description)}"
             item = QListWidgetItem(text)
             item.setData(Qt.ItemDataRole.UserRole, meta.id)
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
@@ -171,12 +245,23 @@ class PluginsDialog(QDialog):
         self.refresh()
 
     def on_add_clicked(self):
-        url, ok = QInputDialog.getText(
-            self, _("Add plugin"), _("Plugin URL (.zip):")
-        )
-        if not ok or not url.strip():
+        dialog = QInputDialog(self)
+        dialog.setInputMode(QInputDialog.InputMode.TextInput)
+        dialog.setWindowTitle(_("Add plugin"))
+        dialog.setLabelText(_("Plugin URL (.zip):"))
+        dialog.setOkButtonText(_("Ok"))
+        dialog.setCancelButtonText(_("Cancel"))
+        # Match the width of the Plugins / Settings dialogs.
+        dialog.setMinimumWidth(self.width())
+        line_edit = dialog.findChild(QLineEdit)
+        if line_edit is not None:
+            line_edit.setMinimumWidth(self.width() - 80)
+
+        if dialog.exec() != QDialog.DialogCode.Accepted:
             return
-        url = url.strip()
+        url = dialog.textValue().strip()
+        if not url:
+            return
 
         self._progress = QProgressDialog(
             _("Installing plugin..."), "", 0, 0, self

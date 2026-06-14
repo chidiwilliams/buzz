@@ -65,6 +65,8 @@ class PluginSettingsDialog(QDialog):
             | QDialogButtonBox.StandardButton.Cancel,
             self,
         )
+        button_box.button(QDialogButtonBox.StandardButton.Ok).setText(_("Ok"))
+        button_box.button(QDialogButtonBox.StandardButton.Cancel).setText(_("Cancel"))
         button_box.accepted.connect(self.on_accept)
         button_box.rejected.connect(self.reject)
         layout.addWidget(button_box)
