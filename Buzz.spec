@@ -54,6 +54,7 @@ datas += [("buzz/assets/*", "assets")]
 datas += [("buzz/locale", "locale")]
 datas += [("buzz/schema.sql", ".")]
 datas += [("buzz/plugins/ai_summary", "plugins/ai_summary")]
+datas += [("buzz/plugins/transcript_resizer", "plugins/transcript_resizer")]
 
 block_cipher = None
 

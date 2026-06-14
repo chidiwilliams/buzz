@@ -231,6 +231,113 @@ def test_ai_summary_on_complete_writes_notes(monkeypatch):
     assert captured["notes"] == ("tid-1", "A short summary.")
 
 
+def test_transcript_resizer_loads():
+    from buzz.plugins.loader import load_plugin_from_dir
+
+    plugin = load_plugin_from_dir("buzz/plugins/transcript_resizer")
+    assert plugin.metadata.id == "transcript_resizer"
+    keys = [f.key for f in plugin.metadata.config_fields]
+    assert "merge_by_gap" in keys and "max_length" in keys
+
+
+def test_transcript_resizer_skips_without_word_timings():
+    from buzz.plugins.transcript_resizer import plugin as resizer
+    from buzz.plugins.base import PluginContext
+    import logging
+
+    replaced = {}
+
+    class _Service:
+        def replace_transcription_segments(self, tid, segs):
+            replaced["called"] = True
+
+    class _Options:
+        word_level_timings = False
+
+    class _Task:
+        transcription_options = _Options()
+        file_path = "/tmp/a.wav"
+        original_file_path = "/tmp/a.wav"
+
+    ctx = PluginContext(
+        config={}, transcription_service=_Service(), settings=None,
+        logger=logging.getLogger("test"),
+    )
+    resizer.TranscriptResizerPlugin().on_complete("tid", _Task(), [], ctx)
+    assert "called" not in replaced
+
+
+def test_transcript_resizer_regroups_with_word_timings(tmp_path, monkeypatch):
+    from buzz.plugins.transcript_resizer import plugin as resizer
+    from buzz.plugins.base import PluginContext
+    from buzz.transcriber.transcriber import Segment
+    import logging
+
+    # A real (silent) audio file so load_audio succeeds.
+    audio = tmp_path / "a.wav"
+    audio.write_bytes(b"")  # load_audio is mocked, content irrelevant
+
+    captured = {}
+
+    class _DBSeg:
+        def __init__(self, text, start, end):
+            self.text = text
+            self.start_time = start
+            self.end_time = end
+
+    class _Service:
+        def get_transcription_segments(self, transcription_id):
+            return [_DBSeg("Hello.", 0, 100), _DBSeg("World.", 100, 200)]
+
+        def replace_transcription_segments(self, tid, segs):
+            captured["segs"] = segs
+
+    class _Options:
+        word_level_timings = True
+        language = "en"
+
+    class _Task:
+        transcription_options = _Options()
+        file_path = str(audio)
+        original_file_path = str(audio)
+
+    # Mock the heavy audio + stable_whisper machinery.
+    import buzz.whisper_audio as wa
+    monkeypatch.setattr(wa, "load_audio", lambda path: b"audio")
+
+    class _ResSeg:
+        def __init__(self, start, end, text):
+            self.start = start
+            self.end = end
+            self.text = text
+
+    class _Result:
+        segments = [_ResSeg(0.0, 2.0, "Hello. World.")]
+
+    import stable_whisper
+    monkeypatch.setattr(
+        stable_whisper, "transcribe_any",
+        lambda func, **kw: (func(kw.get("audio")), _Result())[1],
+    )
+
+    ctx = PluginContext(
+        config={"merge_by_gap": True, "merge_gap_seconds": "0.2",
+                "split_by_max_length": True, "max_length": "42",
+                "split_by_punctuation": True, "punctuation": ".?!"},
+        transcription_service=_Service(), settings=None,
+        logger=logging.getLogger("test"),
+    )
+    resizer.TranscriptResizerPlugin().on_complete(
+        "tid", _Task(), [Segment(0, 100, "Hello.")], ctx
+    )
+
+    assert "segs" in captured
+    assert len(captured["segs"]) == 1
+    assert captured["segs"][0].text == "Hello. World."
+    assert captured["segs"][0].start == 0
+    assert captured["segs"][0].end == 200  # 2.0s * 100
+
+
 def test_plugins_dialog_builds_and_wraps(qtbot):
     from PyQt6.QtCore import Qt
     from buzz.widgets.plugins_dialog.plugins_dialog import PluginsDialog

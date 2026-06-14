@@ -1,0 +1,10 @@
+{
+  "Automatic Transcript Resizer": "自动转录文本调整",
+  "When a transcription has word-level timings, automatically regroup the words into properly sized subtitles and replace the result. Mirrors the Merge options of the transcript resizer.": "当转录具有单词级时间戳时，自动将单词重新分组为大小合适的字幕并替换结果。与转录调整器的合并选项相同。",
+  "Merge by gap": "按间隔合并",
+  "Merge gap (seconds)": "合并间隔（秒）",
+  "Split by punctuation": "按标点分割",
+  "Punctuation": "标点符号",
+  "Split by max length": "按最大长度分割",
+  "Maximum subtitle length": "字幕最大长度"
+}
