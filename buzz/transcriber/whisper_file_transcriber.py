@@ -186,9 +186,9 @@ class WhisperFileTranscriber(FileTranscriber):
                 if task.transcription_options.model.model_type == ModelType.WHISPER_CPP:
                     segments = cls.transcribe_whisper_cpp(task)
                 elif task.transcription_options.model.model_type == ModelType.HUGGING_FACE:
-                    sys.stderr.write("0%\n")
+                    if sys.stderr: sys.stderr.write("0%\n")
                     segments = cls.transcribe_hugging_face(task)
-                    sys.stderr.write("100%\n")
+                    if sys.stderr: sys.stderr.write("100%\n")
                 elif (
                     task.transcription_options.model.model_type == ModelType.FASTER_WHISPER
                 ):
@@ -201,13 +201,15 @@ class WhisperFileTranscriber(FileTranscriber):
                     )
 
                 segments_json = json.dumps(segments, ensure_ascii=True, default=vars)
-                sys.stderr.write(f"segments = {segments_json}\n")
-                sys.stderr.write(WhisperFileTranscriber.READ_LINE_THREAD_STOP_TOKEN + "\n")
+                if sys.stderr:
+                    sys.stderr.write(f"segments = {segments_json}\n")
+                    sys.stderr.write(WhisperFileTranscriber.READ_LINE_THREAD_STOP_TOKEN + "\n")
         except Exception as e:
             # Send error message back to the parent process
             stderr_conn.send(f"error = {str(e)}\n")
             stderr_conn.send(WhisperFileTranscriber.READ_LINE_THREAD_STOP_TOKEN + "\n")
-            raise
+            # Do NOT re-raise, or PyInstaller's multiprocessing crash handler
+            # will try to print to sys.stderr (which is None) and crash with AttributeError.
 
     @classmethod
     def transcribe_whisper_cpp(cls, task: FileTranscriptionTask) -> List[Segment]:

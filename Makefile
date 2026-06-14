@@ -59,18 +59,13 @@ version:
 
 buzz/whisper_cpp: translation_mo
 ifeq ($(OS), Windows_NT)
-	# Build Whisper with Vulkan support.
-	# The _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR is needed to prevent mutex lock issues on Windows
-	# https://github.com/actions/runner-images/issues/10004#issuecomment-2156109231
-	# -DCMAKE_[C|CXX]_COMPILER_WORKS=TRUE is used to prevent issue in building test program that fails on CI
-	# GGML_NATIVE=OFF ensures we don't use -march=native (which would target the build machine's CPU)
 	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DCMAKE_C_FLAGS="-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR"  -DCMAKE_CXX_FLAGS="-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" -DCMAKE_C_COMPILER_WORKS=TRUE -DCMAKE_CXX_COMPILER_WORKS=TRUE -DGGML_VULKAN=1 -DGGML_NATIVE=OFF
 	cmake --build whisper.cpp/build -j --config Release --verbose
 
-	-mkdir buzz/whisper_cpp
-	cp whisper.cpp/build/bin/Release/whisper-cli.exe buzz/whisper_cpp/
-	cp whisper.cpp/build/bin/Release/whisper-server.exe buzz/whisper_cpp/
-	cp dll_backup/SDL2.dll buzz/whisper_cpp
+	-mkdir buzz\whisper_cpp
+	copy whisper.cpp\build\bin\Release\whisper-cli.exe buzz\whisper_cpp\
+	copy whisper.cpp\build\bin\Release\whisper-server.exe buzz\whisper_cpp\
+	copy dll_backup\SDL2.dll buzz\whisper_cpp\
 	PowerShell -NoProfile -ExecutionPolicy Bypass -Command "if (-not (Test-Path 'buzz\whisper_cpp\ggml-silero-v6.2.0.bin')) { Start-BitsTransfer -Source https://huggingface.co/ggml-org/whisper-vad/resolve/main/ggml-silero-v6.2.0.bin -Destination 'buzz\whisper_cpp\ggml-silero-v6.2.0.bin' }"
 endif
 
@@ -235,9 +230,7 @@ translation_po:
 translation_mo:
 ifeq ($(OS), Windows_NT)
 	-forfiles /p buzz\locale /c "cmd /c python ..\..\msgfmt.py -o @path\LC_MESSAGES\buzz.mo @path\LC_MESSAGES\buzz.po"
-	-for dir in buzz/locale/*/ ; do \
-		python msgfmt.py -o $$dir/LC_MESSAGES/buzz.mo $$dir/LC_MESSAGES/buzz.po; \
-	done
+
 else
 	for dir in buzz/locale/*/ ; do \
 		python3 msgfmt.py -o $$dir/LC_MESSAGES/buzz.mo $$dir/LC_MESSAGES/buzz.po; \

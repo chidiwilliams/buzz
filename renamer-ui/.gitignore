@@ -1,0 +1,11 @@
+# Electron app — build output & dependencies (do not commit)
+node_modules/
+dist/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+
+# Local diagnostic logs
+scripts/*.log
+scripts/ssl_probe*.txt

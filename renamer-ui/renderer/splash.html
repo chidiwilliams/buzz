@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Buzz Renamer</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --accent: #8b5cf6;
+      --accent-2: #06b6d4;
+      --text: #8892b0;
+      --text-bright: #e8eaf6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      background: var(--bg);
+      color: var(--text-bright);
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      user-select: none;
+      cursor: default;
+      overflow: hidden;
+      /* subtle radial glow behind the content */
+      background:
+        radial-gradient(circle at 50% 38%, rgba(139, 92, 246, 0.16), transparent 60%),
+        var(--bg);
+      border: 1px solid rgba(139, 92, 246, 0.18);
+      border-radius: 12px;
+    }
+
+    /* ── Animated waveform logo ─────────────────────────────── */
+    .logo {
+      width: 56px;
+      height: 56px;
+      animation: float 3s ease-in-out infinite;
+    }
+    .logo path {
+      stroke-dasharray: 40;
+      stroke-dashoffset: 40;
+      animation: draw 2.2s ease-in-out infinite;
+    }
+    @keyframes draw {
+      0%   { stroke-dashoffset: 40; }
+      50%  { stroke-dashoffset: 0;  }
+      100% { stroke-dashoffset: -40; }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-4px); }
+    }
+
+    h1 {
+      margin-top: 18px;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    /* ── "Launching" with animated dots ─────────────────────── */
+    .status {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--text);
+      min-height: 18px;
+      transition: color 0.3s;
+    }
+    .dots::after {
+      content: '';
+      animation: dots 1.4s steps(4, end) infinite;
+    }
+    @keyframes dots {
+      0%   { content: ''; }
+      25%  { content: '.'; }
+      50%  { content: '..'; }
+      75%  { content: '...'; }
+      100% { content: ''; }
+    }
+
+    /* ── Progress bar ───────────────────────────────────────── */
+    .bar {
+      position: relative;
+      margin-top: 22px;
+      width: 280px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width 0.18s ease-out;
+    }
+    /* moving shine sweeping across the filled portion */
+    .fill::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      height: 100%;
+      width: 80px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+      animation: shine 1.6s ease-in-out infinite;
+    }
+    @keyframes shine {
+      0%   { transform: translateX(-90px); }
+      100% { transform: translateX(280px); }
+    }
+
+    .pct {
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+  <svg class="logo" viewBox="0 0 24 24" fill="none">
+    <path d="M3 12 Q6 6 9 12 Q12 18 15 12 Q18 6 21 12"
+          stroke="url(#g)" stroke-width="2.5" stroke-linecap="round"/>
+    <defs>
+      <linearGradient id="g" x1="3" y1="12" x2="21" y2="12" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#8b5cf6"/>
+        <stop offset="1" stop-color="#06b6d4"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <h1>Buzz Renamer</h1>
+  <div class="status"><span id="statusText">Launching</span><span id="dots" class="dots"></span></div>
+
+  <div class="bar"><div class="fill" id="fill"></div></div>
+  <div class="pct" id="pct">0%</div>
+
+  <script>
+    const fill = document.getElementById('fill');
+    const pctEl = document.getElementById('pct');
+    const statusText = document.getElementById('statusText');
+    const dots = document.getElementById('dots');
+
+    let target = 8;     // where the bar is heading (%)
+    let current = 0;    // currently displayed (%)
+    let finished = false;
+
+    // Smoothly ease the bar toward its target every frame. While we have no
+    // fresh stage update, gently creep the target upward (capped) so the bar
+    // never looks frozen during the long torch/Whisper import.
+    function tick() {
+      if (!finished && target < 90) {
+        target = Math.min(90, target + 0.06);
+      }
+      current += (target - current) * 0.08;
+      fill.style.width = current.toFixed(1) + '%';
+      pctEl.textContent = Math.round(current) + '%';
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+
+    // splashAPI is provided by splash-preload.js in the real Electron window.
+    // Guard it so a plain-browser preview just shows the idle animation.
+    if (window.splashAPI) {
+      // Real startup stages from the Python backend (STATUS:<pct>:<msg>).
+      window.splashAPI.onStatus(({ percent, message }) => {
+        if (typeof percent === 'number' && !Number.isNaN(percent)) {
+          target = Math.max(target, percent);
+        }
+        if (message) {
+          statusText.textContent = message;
+          dots.classList.add('dots'); // keep animating
+        }
+      });
+
+      // Backend is up — fill to 100% and let main.js close us shortly after.
+      window.splashAPI.onReady(() => {
+        finished = true;
+        target = 100;
+        statusText.textContent = 'Ready';
+        dots.classList.remove('dots');
+        dots.textContent = '';
+      });
+    }
+  </script>
+</body>
+</html>
