@@ -7,6 +7,7 @@ from PyQt6 import QtGui
 from PyQt6.QtCore import (
     Qt,
     QThread,
+    QThreadPool,
     QModelIndex,
     pyqtSignal
 )
@@ -23,6 +24,8 @@ from buzz.db.entity.transcription import Transcription
 from buzz.db.service.transcription_service import TranscriptionService
 from buzz.file_transcriber_queue_worker import FileTranscriberQueueWorker
 from buzz.locale import _
+from buzz.plugins.manager import PluginManager
+from buzz.plugins.post_processing import FnRunnable
 from buzz.settings.settings import APP_NAME, Settings
 from buzz.update_checker import UpdateChecker, UpdateInfo
 from buzz.widgets.update_dialog import UpdateDialog
@@ -72,6 +75,12 @@ class MainWindow(QMainWindow):
         self.quit_on_complete = False
         self.transcription_service = transcription_service
 
+        self.plugin_manager = PluginManager(self.transcription_service, self.settings)
+        try:
+            self.plugin_manager.initialize()
+        except Exception as exc:
+            logging.error(f"Failed to initialize plugins: {exc}", exc_info=True)
+
         #update checker
         self._update_info: Optional[UpdateInfo] = None
 
@@ -99,6 +108,7 @@ class MainWindow(QMainWindow):
         self.menu_bar = MenuBar(
             shortcuts=self.shortcuts,
             preferences=self.preferences,
+            plugin_manager=self.plugin_manager,
             parent=self,
         )
         self.menu_bar.import_action_triggered.connect(
@@ -135,6 +145,7 @@ class MainWindow(QMainWindow):
         self.transcriber_thread = QThread()
 
         self.transcriber_worker = FileTranscriberQueueWorker()
+        self.transcriber_worker.plugin_manager = self.plugin_manager
         self.transcriber_worker.moveToThread(self.transcriber_thread)
 
         self.transcriber_worker.task_started.connect(self.on_task_started)
@@ -429,8 +440,31 @@ class MainWindow(QMainWindow):
             name = os.path.splitext(basename)[0]  # Remove .wav extension
             self.transcription_service.update_transcription_file_and_name(task.uid, task.file_path, name)
 
-        self.transcription_service.update_transcription_as_completed(task.uid, segments)
-        self.table_widget.refresh_row(task.uid)
+        # When plugins are enabled, run the after_transcription / save / on_complete
+        # pipeline on a background thread so slow plugin work (e.g. network calls)
+        # doesn't freeze the UI. DB writes are marshaled back to the main thread by
+        # the plugin manager. When quitting on complete we run synchronously so the
+        # work isn't cut short.
+        run_async = (
+            self.plugin_manager.has_enabled_post_hooks() and not self.quit_on_complete
+        )
+        if run_async:
+            runnable = FnRunnable(
+                lambda: self.plugin_manager.process_completed(task, segments)
+            )
+            runnable.signals.finished.connect(
+                lambda: self.table_widget.refresh_row(task.uid)
+            )
+            runnable.signals.error.connect(
+                lambda e: logging.error(f"Plugin post-processing failed: {e}")
+            )
+            QThreadPool.globalInstance().start(runnable)
+        elif self.plugin_manager.has_enabled_post_hooks():
+            self.plugin_manager.process_completed(task, segments)
+            self.table_widget.refresh_row(task.uid)
+        else:
+            self.transcription_service.update_transcription_as_completed(task.uid, segments)
+            self.table_widget.refresh_row(task.uid)
 
         if self.quit_on_complete:
             self.close()

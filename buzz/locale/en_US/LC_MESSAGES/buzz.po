@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-07 18:01+0300\n"
+"POT-Creation-Date: 2026-06-14 11:29+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -559,6 +559,7 @@ msgid "File Name / URL"
 msgstr ""
 
 #: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
 msgid "Model"
 msgstr ""
 
@@ -1117,6 +1118,10 @@ msgid "Help"
 msgstr ""
 
 #: buzz/widgets/menu_bar.py
+msgid "Plugins..."
+msgstr ""
+
+#: buzz/widgets/menu_bar.py
 msgid "File"
 msgstr ""
 
@@ -1601,6 +1606,40 @@ msgstr ""
 
 #: buzz/settings/recording_transcriber_mode.py
 msgid "Append and correct"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "AI Summary"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid ""
+"Generate an AI summary of the transcript via an OpenAI-compatible API and "
+"save it to the Notes field and/or a file."
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "API base URL"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "API key"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Summarization prompt"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to Notes"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to a file"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Output folder (for file)"
 msgstr ""
 
 #: buzz/file_transcriber_queue_worker.py

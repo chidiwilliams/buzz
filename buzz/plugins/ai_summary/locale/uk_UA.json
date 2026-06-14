@@ -1,0 +1,11 @@
+{
+  "AI Summary": "ШІ-резюме",
+  "Generate an AI summary of the transcript via an OpenAI-compatible API and save it to the Notes field and/or a file.": "Створює ШІ-резюме транскрипції через OpenAI-сумісний API та зберігає його в полі нотаток та/або у файл.",
+  "API base URL": "Базовий URL API",
+  "API key": "Ключ API",
+  "Model": "Модель",
+  "Summarization prompt": "Запит для резюме",
+  "Save summary to Notes": "Зберегти резюме в нотатки",
+  "Save summary to a file": "Зберегти резюме у файл",
+  "Output folder (for file)": "Папка виводу (для файлу)"
+}

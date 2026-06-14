@@ -53,6 +53,7 @@ datas += collect_data_files("pytorch_lightning", include_py_files=True)
 datas += [("buzz/assets/*", "assets")]
 datas += [("buzz/locale", "locale")]
 datas += [("buzz/schema.sql", ".")]
+datas += [("buzz/plugins/ai_summary", "plugins/ai_summary")]
 
 block_cipher = None
 

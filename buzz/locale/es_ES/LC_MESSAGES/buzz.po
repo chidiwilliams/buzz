@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-07 18:01+0300\n"
+"POT-Creation-Date: 2026-06-14 11:29+0300\n"
 "PO-Revision-Date: 2025-09-08 12:43+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: \n"
@@ -259,8 +259,8 @@ msgstr "Seleccione Exportar carpeta"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key "
-"validation."
+"Transcription and translation may still work if the API does not support key"
+" validation."
 msgstr ""
 "La API de OpenAI devolvió una respuesta no válida. Compruebe la URL de la "
 "API o su clave. Es posible que la transcripción y la traducción sigan "
@@ -609,6 +609,7 @@ msgstr "Nombre de archivo / URL"
 
 # automatic translation
 #: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
 msgid "Model"
 msgstr "Modelo"
 
@@ -943,8 +944,8 @@ msgstr "Segmento de bucle"
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Enable/disable looping when clicking on transcript segments"
 msgstr ""
-"Activar/desactivar la reproducción en bucle al hacer clic en segmentos de la "
-"transcripción"
+"Activar/desactivar la reproducción en bucle al hacer clic en segmentos de la"
+" transcripción"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Follow Audio"
@@ -1030,7 +1031,8 @@ msgid "Desired subtitle length"
 msgstr "Longitud deseada de los subtítulos"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid "Available only if word level timings were disabled during transcription"
+msgid ""
+"Available only if word level timings were disabled during transcription"
 msgstr ""
 "Disponible solo si los tiempos a nivel de palabra estaban desactivados "
 "durante la transcripción"
@@ -1065,8 +1067,8 @@ msgstr ""
 msgid ""
 "Speaker identification is not available: failed to load required libraries."
 msgstr ""
-"La identificación de hablantes no está disponible: no se pudieron cargar las "
-"bibliotecas requeridas."
+"La identificación de hablantes no está disponible: no se pudieron cargar las"
+" bibliotecas requeridas."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "1/8 Collecting transcripts"
@@ -1202,6 +1204,10 @@ msgstr "Preferencias..."
 msgid "Help"
 msgstr "Ayuda"
 
+#: buzz/widgets/menu_bar.py
+msgid "Plugins..."
+msgstr "Complementos..."
+
 # automatic translation
 #: buzz/widgets/menu_bar.py
 msgid "File"
@@ -1213,8 +1219,8 @@ msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
 msgstr ""
-"¿Confirma que quiere eliminar las transcripciones seleccionadas? Esta acción "
-"no se puede deshacer."
+"¿Confirma que quiere eliminar las transcripciones seleccionadas? Esta acción"
+" no se puede deshacer."
 
 # automatic translation
 #: buzz/widgets/main_window.py
@@ -1707,6 +1713,42 @@ msgstr "Añadir arriba"
 msgid "Append and correct"
 msgstr "Añadir y corregir"
 
+#: buzz/plugins/ai_summary/plugin.py
+msgid "AI Summary"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid ""
+"Generate an AI summary of the transcript via an OpenAI-compatible API and "
+"save it to the Notes field and/or a file."
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "API base URL"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+#, fuzzy
+msgid "API key"
+msgstr "Clave API de OpenAI"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Summarization prompt"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to Notes"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to a file"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+#, fuzzy
+msgid "Output folder (for file)"
+msgstr "Carpeta de salida"
+
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
@@ -1728,8 +1770,7 @@ msgstr ""
 #~ msgstr "Temperatura:"
 
 #~ msgid "Please translate each text sent to you from English to Spanish."
-#~ msgstr ""
-#~ "Por favor, traduzca cada texto que se le envíe del inglés al español."
+#~ msgstr "Por favor, traduzca cada texto que se le envíe del inglés al español."
 
 #~ msgid "Translation error, see logs!"
 #~ msgstr "¡Error de traducción, consulte los registros!"
@@ -1738,8 +1779,8 @@ msgstr ""
 #~ msgstr "Aviso de permiso Snap"
 
 #~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
+#~ "Detected missing permissions, please check that snap permissions have been "
+#~ "granted"
 #~ msgstr ""
 #~ "Se ha detectado que faltan permisos, compruebe que se han concedido los "
 #~ "permisos snap"
@@ -1747,8 +1788,8 @@ msgstr ""
 #~ msgid ""
 #~ "To enable necessary permissions run the following commands in the terminal"
 #~ msgstr ""
-#~ "Para habilitar los permisos necesarios ejecute los siguientes comandos en "
-#~ "el terminal"
+#~ "Para habilitar los permisos necesarios ejecute los siguientes comandos en el"
+#~ " terminal"
 
 #~ msgid "Close"
 #~ msgstr "Cerrar"

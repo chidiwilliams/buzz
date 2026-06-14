@@ -1,8 +1,9 @@
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-07 18:01+0300\n"
+"POT-Creation-Date: 2026-06-14 11:29+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Ole Guldberg2 <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -10,8 +11,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=n==1 ? 3 : n%10==1 && n%100!=11 ? 0 : "
-"n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Plural-Forms: nplurals=4; plural=n==1 ? 3 : n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 
 # "X-Generator: Poedit 3.4.4\n"
 #: buzz/widgets/import_url_dialog.py buzz/settings/shortcut.py
@@ -251,8 +251,8 @@ msgstr "Vælg eksport-mappe"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key "
-"validation."
+"Transcription and translation may still work if the API does not support key"
+" validation."
 msgstr ""
 "OpenAI API returnerede et ugyldigt svar. Tjek venligst API-URL og nøgle. "
 "Transkription og oversættelse virker måske stadig, selvom API'et ikke "
@@ -577,6 +577,7 @@ msgid "File Name / URL"
 msgstr "Filnavn / URL"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
 msgid "Model"
 msgstr "Model"
 
@@ -651,7 +652,8 @@ msgstr ""
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
 msgstr ""
-"Kunne ikke genstarte transkription: transkriptionsprocessen blev ikke fundet."
+"Kunne ikke genstarte transkription: transkriptionsprocessen blev ikke "
+"fundet."
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -983,7 +985,8 @@ msgid "Desired subtitle length"
 msgstr "Ønskede undertekst længde"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid "Available only if word level timings were disabled during transcription"
+msgid ""
+"Available only if word level timings were disabled during transcription"
 msgstr ""
 "Kun tilgængeligt hvis ordniveau-tidsstempler var deaktiveret under "
 "transkription"
@@ -1042,8 +1045,8 @@ msgid ""
 "Failed to load alignment model. Please check your internet connection and "
 "try again."
 msgstr ""
-"Kunne ikke indlæse justeringsmodel. Tjek venligst din internetforbindelse og "
-"prøv igen."
+"Kunne ikke indlæse justeringsmodel. Tjek venligst din internetforbindelse og"
+" prøv igen."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "4/8 Processing audio"
@@ -1148,6 +1151,10 @@ msgstr "Indstillinger..."
 #: buzz/widgets/menu_bar.py
 msgid "Help"
 msgstr "Hjælp"
+
+#: buzz/widgets/menu_bar.py
+msgid "Plugins..."
+msgstr "Plugins..."
 
 #: buzz/widgets/menu_bar.py
 msgid "File"
@@ -1640,6 +1647,42 @@ msgstr "Tilføj herover"
 #: buzz/settings/recording_transcriber_mode.py
 msgid "Append and correct"
 msgstr "Tilføj og ret"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "AI Summary"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid ""
+"Generate an AI summary of the transcript via an OpenAI-compatible API and "
+"save it to the Notes field and/or a file."
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "API base URL"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+#, fuzzy
+msgid "API key"
+msgstr "OpenAI API-nøgle"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Summarization prompt"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to Notes"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to a file"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+#, fuzzy
+msgid "Output folder (for file)"
+msgstr "Outputmappe"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""

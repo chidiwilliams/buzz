@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-07 18:01+0300\n"
+"POT-Creation-Date: 2026-06-14 11:29+0300\n"
 "PO-Revision-Date: 2025-11-01 17:43-0300\n"
 "Last-Translator: Paulo Schopf <pschopf@gmail.com>\n"
 "Language-Team: none\n"
@@ -215,7 +215,8 @@ msgstr "Usar somente a CPU e desabilitar aceleração por GPU"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
 msgstr ""
-"Marque isso se modelos maiores não couberem na memória da GPU e o Buzz travar"
+"Marque isso se modelos maiores não couberem na memória da GPU e o Buzz "
+"travar"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Disable GPU"
@@ -253,8 +254,8 @@ msgstr "Selecionar Pasta de Exportação"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key "
-"validation."
+"Transcription and translation may still work if the API does not support key"
+" validation."
 msgstr ""
 "A API OpenAI retornou uma resposta inválida. Verifique a URL da API ou sua "
 "chave. A transcrição e tradução ainda podem funcionar se a API não suportar "
@@ -579,6 +580,7 @@ msgid "File Name / URL"
 msgstr "Nome do Arquivo / URL"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
 msgid "Model"
 msgstr "Modelo"
 
@@ -647,8 +649,8 @@ msgid ""
 "Could not restart transcription: model not available and could not be "
 "downloaded."
 msgstr ""
-"Não foi possível reiniciar a transcrição: o modelo não está disponível e não "
-"pôde ser baixado."
+"Não foi possível reiniciar a transcrição: o modelo não está disponível e não"
+" pôde ser baixado."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
@@ -986,7 +988,8 @@ msgid "Desired subtitle length"
 msgstr "Duração desejada da legenda"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid "Available only if word level timings were disabled during transcription"
+msgid ""
+"Available only if word level timings were disabled during transcription"
 msgstr ""
 "Disponível apenas se os tempos em nível de palavra foram desabilitados "
 "durante a transcrição"
@@ -1014,8 +1017,8 @@ msgstr "Mesclar"
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
 msgstr ""
-"Disponível apenas se os tempos em nível de palavra foram habilitados durante "
-"a transcrição"
+"Disponível apenas se os tempos em nível de palavra foram habilitados durante"
+" a transcrição"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
@@ -1038,7 +1041,8 @@ msgstr "3/8 Carregando modelo de alinhamento"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "3/8 Loading alignment model (retrying with cache...)"
-msgstr "3/8 Carregando modelo de alinhamento (tentando novamente com cache...)"
+msgstr ""
+"3/8 Carregando modelo de alinhamento (tentando novamente com cache...)"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
@@ -1151,6 +1155,10 @@ msgstr "Preferências..."
 #: buzz/widgets/menu_bar.py
 msgid "Help"
 msgstr "Ajuda"
+
+#: buzz/widgets/menu_bar.py
+msgid "Plugins..."
+msgstr "Plugins..."
 
 #: buzz/widgets/menu_bar.py
 msgid "File"
@@ -1672,8 +1680,8 @@ msgstr ""
 #~ msgstr "Aviso de permissão do Snap"
 
 #~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
+#~ "Detected missing permissions, please check that snap permissions have been "
+#~ "granted"
 #~ msgstr ""
 #~ "Permissões ausentes detectadas, verifique se as permissões do Snap foram "
 #~ "concedidas"
@@ -1681,8 +1689,8 @@ msgstr ""
 #~ msgid ""
 #~ "To enable necessary permissions run the following commands in the terminal"
 #~ msgstr ""
-#~ "Para habilitar as permissões necessárias, execute os seguintes comandos "
-#~ "no terminal"
+#~ "Para habilitar as permissões necessárias, execute os seguintes comandos no "
+#~ "terminal"
 
 #~ msgid "Close"
 #~ msgstr "Fechar"

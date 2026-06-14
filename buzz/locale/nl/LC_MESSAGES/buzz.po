@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-07 18:01+0300\n"
+"POT-Creation-Date: 2026-06-14 11:29+0300\n"
 "PO-Revision-Date: 2025-03-20 18:30+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: none\n"
@@ -191,8 +191,8 @@ msgid ""
 "Note: Live recording export settings will be moved to the Advanced Settings "
 "in the Live Recording screen in a future version."
 msgstr ""
-"Opmerking: de exportinstellingen voor live-opnames worden in een toekomstige "
-"versie verplaatst naar de geavanceerde instellingen in het scherm Live-"
+"Opmerking: de exportinstellingen voor live-opnames worden in een toekomstige"
+" versie verplaatst naar de geavanceerde instellingen in het scherm Live-"
 "opname."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
@@ -257,8 +257,8 @@ msgstr "Kies een exportmap"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key "
-"validation."
+"Transcription and translation may still work if the API does not support key"
+" validation."
 msgstr ""
 "De api gaf een ongeldig antwoord terug. Controleer de url of sleutel. "
 "Transcriptie en vertaling werkt mogelijk nog steeds als de api niet om "
@@ -455,8 +455,8 @@ msgid ""
 "will be used in an automated system, please do not add any comments or "
 "notes, just the translation."
 msgstr ""
-"Vertaal elke tekst die naar u wordt gestuurd van het Engels naar het Spaans. "
-"De vertaling wordt gebruikt in een geautomatiseerd systeem. Voeg geen "
+"Vertaal elke tekst die naar u wordt gestuurd van het Engels naar het Spaans."
+" De vertaling wordt gebruikt in een geautomatiseerd systeem. Voeg geen "
 "opmerkingen of notities toe, alleen de vertaling."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
@@ -585,6 +585,7 @@ msgid "File Name / URL"
 msgstr "Bestandsnaam/Url"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
 msgid "Model"
 msgstr "Model"
 
@@ -991,7 +992,8 @@ msgid "Desired subtitle length"
 msgstr "Voorkeurslengte van ondertiteling"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid "Available only if word level timings were disabled during transcription"
+msgid ""
+"Available only if word level timings were disabled during transcription"
 msgstr ""
 "Alleen beschikbaar als timings op woordniveau zijn uitgeschakeld tijdens "
 "transcriptie"
@@ -1156,6 +1158,10 @@ msgstr "Instellingen…"
 #: buzz/widgets/menu_bar.py
 msgid "Help"
 msgstr "Hulp"
+
+#: buzz/widgets/menu_bar.py
+msgid "Plugins..."
+msgstr "Plug-ins..."
 
 #: buzz/widgets/menu_bar.py
 msgid "File"
@@ -1656,8 +1662,8 @@ msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
 msgstr ""
-"Spraakextractie mislukt! Controleer uw internetverbinding — mogelijk moet er "
-"een model worden gedownload."
+"Spraakextractie mislukt! Controleer uw internetverbinding — mogelijk moet er"
+" een model worden gedownload."
 
 #~ msgid "Live recording mode:"
 #~ msgstr "Live-opnamemodus:"
@@ -1680,11 +1686,11 @@ msgstr ""
 #~ msgstr "Snap-rechten"
 
 #~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
+#~ "Detected missing permissions, please check that snap permissions have been "
+#~ "granted"
 #~ msgstr ""
-#~ "Er ontbreken toegangsrechten - controleer of ze daadwerkelijk allemaal "
-#~ "zijn toegekend"
+#~ "Er ontbreken toegangsrechten - controleer of ze daadwerkelijk allemaal zijn "
+#~ "toegekend"
 
 #~ msgid ""
 #~ "To enable necessary permissions run the following commands in the terminal"

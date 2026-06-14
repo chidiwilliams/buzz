@@ -30,12 +30,14 @@ class MenuBar(QMenuBar):
         self,
         shortcuts: Shortcuts,
         preferences: Preferences,
+        plugin_manager=None,
         parent: Optional[QWidget] = None,
     ):
         super().__init__(parent)
 
         self.shortcuts = shortcuts
         self.preferences = preferences
+        self.plugin_manager = plugin_manager
 
         self.import_action = QAction(_("Import File..."), self)
         self.import_action.triggered.connect(self.import_action_triggered)
@@ -59,6 +61,9 @@ class MenuBar(QMenuBar):
         help_action = QAction(f'{help_label}', self)
         help_action.triggered.connect(self.on_help_action_triggered)
 
+        self.plugins_action = QAction(_("Plugins..."), self)
+        self.plugins_action.triggered.connect(self.on_plugins_action_triggered)
+
         self.reset_shortcuts()
 
         file_menu = self.addMenu(_("File"))
@@ -70,6 +75,7 @@ class MenuBar(QMenuBar):
         help_menu = self.addMenu(help_menu_title)
         help_menu.addAction(about_action)
         help_menu.addAction(help_action)
+        help_menu.addAction(self.plugins_action)
         help_menu.addAction(self.preferences_action)
 
     def on_about_action_triggered(self):
@@ -97,6 +103,12 @@ class MenuBar(QMenuBar):
 
     def on_help_action_triggered(self):
         webbrowser.open("https://chidiwilliams.github.io/buzz/docs")
+
+    def on_plugins_action_triggered(self):
+        from buzz.widgets.plugins_dialog.plugins_dialog import PluginsDialog
+
+        dialog = PluginsDialog(plugin_manager=self.plugin_manager, parent=self)
+        dialog.open()
 
     def reset_shortcuts(self):
         self.import_action.setShortcut(

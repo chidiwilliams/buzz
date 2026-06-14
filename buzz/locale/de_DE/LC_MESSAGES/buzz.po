@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-07 18:01+0300\n"
+"POT-Creation-Date: 2026-06-14 11:29+0300\n"
 "PO-Revision-Date: 2025-03-05 14:41+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -254,8 +254,8 @@ msgstr "Exportordner auswählen"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key "
-"validation."
+"Transcription and translation may still work if the API does not support key"
+" validation."
 msgstr ""
 "Die OpenAI-API hat eine ungültige Antwort zurückgegeben. Bitte überprüfen "
 "Sie die API-URL oder Ihren Schlüssel. Transkription und Übersetzung "
@@ -453,9 +453,10 @@ msgid ""
 "will be used in an automated system, please do not add any comments or "
 "notes, just the translation."
 msgstr ""
-"Bitte übersetzen Sie jeden Text, der Ihnen gesendet wird, vom Englischen ins "
-"Spanische. Die Übersetzung wird in einem automatisierten System verwendet. "
-"Bitte fügen Sie keine Kommentare oder Anmerkungen hinzu, nur die Übersetzung."
+"Bitte übersetzen Sie jeden Text, der Ihnen gesendet wird, vom Englischen ins"
+" Spanische. Die Übersetzung wird in einem automatisierten System verwendet. "
+"Bitte fügen Sie keine Kommentare oder Anmerkungen hinzu, nur die "
+"Übersetzung."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -583,6 +584,7 @@ msgid "File Name / URL"
 msgstr "Dateiname/URL"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
 msgid "Model"
 msgstr "Modell"
 
@@ -659,8 +661,8 @@ msgstr ""
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
 msgstr ""
-"Transkription konnte nicht neu gestartet werden: Transkriptions-Worker nicht "
-"gefunden."
+"Transkription konnte nicht neu gestartet werden: Transkriptions-Worker nicht"
+" gefunden."
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -993,7 +995,8 @@ msgid "Desired subtitle length"
 msgstr "Gewünschte Untertitellänge"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid "Available only if word level timings were disabled during transcription"
+msgid ""
+"Available only if word level timings were disabled during transcription"
 msgstr ""
 "Nur verfügbar, wenn Zeitangaben auf Wortebene bei der Transkription "
 "deaktiviert waren"
@@ -1158,6 +1161,10 @@ msgstr "Einstellungen..."
 #: buzz/widgets/menu_bar.py
 msgid "Help"
 msgstr "Hilfe"
+
+#: buzz/widgets/menu_bar.py
+msgid "Plugins..."
+msgstr "Plugins..."
 
 #: buzz/widgets/menu_bar.py
 msgid "File"
@@ -1655,6 +1662,42 @@ msgstr "Oben anhängen"
 msgid "Append and correct"
 msgstr "Anhängen und korrigieren"
 
+#: buzz/plugins/ai_summary/plugin.py
+msgid "AI Summary"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid ""
+"Generate an AI summary of the transcript via an OpenAI-compatible API and "
+"save it to the Notes field and/or a file."
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "API base URL"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+#, fuzzy
+msgid "API key"
+msgstr "OpenAI-API-Schlüssel"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Summarization prompt"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to Notes"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to a file"
+msgstr ""
+
+#: buzz/plugins/ai_summary/plugin.py
+#, fuzzy
+msgid "Output folder (for file)"
+msgstr "Ausgabeordner"
+
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
@@ -1684,8 +1727,8 @@ msgstr ""
 #~ msgstr "Snap-Berechtigungsmitteilung"
 
 #~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
+#~ "Detected missing permissions, please check that snap permissions have been "
+#~ "granted"
 #~ msgstr ""
 #~ "Es wurden fehlende Berechtigungen festgestellt. Bitte überprüfen Sie, ob "
 #~ "Snap-Berechtigungen erteilt wurden"
@@ -1693,8 +1736,8 @@ msgstr ""
 #~ msgid ""
 #~ "To enable necessary permissions run the following commands in the terminal"
 #~ msgstr ""
-#~ "Um die erforderlichen Berechtigungen zu aktivieren, führen Sie die "
-#~ "folgenden Befehle im Terminal aus"
+#~ "Um die erforderlichen Berechtigungen zu aktivieren, führen Sie die folgenden"
+#~ " Befehle im Terminal aus"
 
 #~ msgid "Close"
 #~ msgstr "Schließen"

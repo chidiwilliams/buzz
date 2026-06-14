@@ -1,0 +1,11 @@
+{
+  "AI Summary": "MI kopsavilkums",
+  "Generate an AI summary of the transcript via an OpenAI-compatible API and save it to the Notes field and/or a file.": "Izveido transkripta MI kopsavilkumu, izmantojot OpenAI saderīgu API, un saglabā to piezīmju laukā un/vai failā.",
+  "API base URL": "API bāzes URL",
+  "API key": "API atslēga",
+  "Model": "Modelis",
+  "Summarization prompt": "MI instrikcija",
+  "Save summary to Notes": "Saglabāt piezīmēs",
+  "Save summary to a file": "Saglabāt failā",
+  "Output folder (for file)": "Izvades mape"
+}

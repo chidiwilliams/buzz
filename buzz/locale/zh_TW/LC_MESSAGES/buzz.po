@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-07 18:01+0300\n"
+"POT-Creation-Date: 2026-06-14 11:29+0300\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: Lamb\n"
@@ -198,9 +198,7 @@ msgstr "使用 8 位元量化以降低記憶體使用量"
 msgid ""
 "Applies to Huggingface and Faster Whisper models. Reduces GPU memory usage "
 "but may slightly decrease transcription quality."
-msgstr ""
-"適用於 Huggingface 和 Faster Whisper 模型。可降低 GPU 記憶體使用量，但可能略"
-"微降低轉錄品質。"
+msgstr "適用於 Huggingface 和 Faster Whisper 模型。可降低 GPU 記憶體使用量，但可能略微降低轉錄品質。"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Reduce GPU RAM"
@@ -236,9 +234,7 @@ msgstr "無效的 API 金鑰"
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
-msgstr ""
-"API 僅支援 base64 字元（A-Za-z0-9+/=_-）。API 金鑰中的其他字元可能會導致錯"
-"誤。"
+msgstr "API 僅支援 base64 字元（A-Za-z0-9+/=_-）。API 金鑰中的其他字元可能會導致錯誤。"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
@@ -248,11 +244,9 @@ msgstr "選擇匯出資料夾"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key "
-"validation."
-msgstr ""
-"OpenAI API 傳回無效回應。請檢查 API 網址或您的金鑰。若 API 不支援金鑰驗證，轉"
-"錄和翻譯仍可能正常運作。"
+"Transcription and translation may still work if the API does not support key"
+" validation."
+msgstr "OpenAI API 傳回無效回應。請檢查 API 網址或您的金鑰。若 API 不支援金鑰驗證，轉錄和翻譯仍可能正常運作。"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Enable folder watch"
@@ -442,9 +436,7 @@ msgid ""
 "Please translate each text sent to you from English to Spanish. Translation "
 "will be used in an automated system, please do not add any comments or "
 "notes, just the translation."
-msgstr ""
-"請將傳送給您的每段文字從英文翻譯成西班牙文。翻譯將用於自動化系統，請勿添加任"
-"何評論或備註，僅提供翻譯即可。"
+msgstr "請將傳送給您的每段文字從英文翻譯成西班牙文。翻譯將用於自動化系統，請勿添加任何評論或備註，僅提供翻譯即可。"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -572,6 +564,7 @@ msgid "File Name / URL"
 msgstr "檔案名稱 / 網址"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
 msgid "Model"
 msgstr "模型"
 
@@ -971,7 +964,8 @@ msgid "Desired subtitle length"
 msgstr "理想字幕長度"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid "Available only if word level timings were disabled during transcription"
+msgid ""
+"Available only if word level timings were disabled during transcription"
 msgstr "僅在轉錄時停用單字級別時間戳記時可用"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
@@ -1130,6 +1124,10 @@ msgid "Help"
 msgstr "幫助"
 
 #: buzz/widgets/menu_bar.py
+msgid "Plugins..."
+msgstr "外掛..."
+
+#: buzz/widgets/menu_bar.py
 msgid "File"
 msgstr "檔案"
 
@@ -1163,8 +1161,7 @@ msgid ""
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
 "variable."
 msgstr ""
-"Whisper 伺服器因記憶體不足而啟動失敗。請改用較小的模型重試。若要強制使用 CPU "
-"模式，請設定環境變數 BUZZ_FORCE_CPU=TRUE。"
+"Whisper 伺服器因記憶體不足而啟動失敗。請改用較小的模型重試。若要強制使用 CPU 模式，請設定環境變數 BUZZ_FORCE_CPU=TRUE。"
 
 #: buzz/transcriber/transcriber.py
 msgid "Translate to English"
