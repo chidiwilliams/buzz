@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 12:58+0300\n"
+"POT-Creation-Date: 2026-06-14 13:25+0300\n"
 "PO-Revision-Date: 2024-03-17 20:50+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -258,8 +258,8 @@ msgstr "Wybierz folder eksportu"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key"
-" validation."
+"Transcription and translation may still work if the API does not support key "
+"validation."
 msgstr ""
 "OpenAI API zwróciło nieprawidłową odpowiedź. Sprawdź adres URL API lub swój "
 "klucz. Transkrypcja i tłumaczenie mogą nadal działać, jeśli API nie "
@@ -278,6 +278,7 @@ msgid "Input folder"
 msgstr "Folder wejściowy"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/plugins/export_docx/plugin.py
 msgid "Output folder"
 msgstr "Folder wyjściowy"
 
@@ -1061,8 +1062,7 @@ msgid "Desired subtitle length"
 msgstr "Żądana długość napisów"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid ""
-"Available only if word level timings were disabled during transcription"
+msgid "Available only if word level timings were disabled during transcription"
 msgstr ""
 "Dostępne tylko jeśli znaczniki dla słów były wyłączone podczas transkrypcji"
 
@@ -1261,8 +1261,7 @@ msgstr "Nie można zapisać klucza API OpenAI w breloku kluczy"
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
 msgid "Whisper server failed to start. Check logs for details."
-msgstr ""
-"Serwer Whisper nie uruchomił się. Sprawdź logi, aby uzyskać szczegóły."
+msgstr "Serwer Whisper nie uruchomił się. Sprawdź logi, aby uzyskać szczegóły."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
@@ -1271,8 +1270,8 @@ msgid ""
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
 "variable."
 msgstr ""
-"Serwer Whisper nie uruchomił się z powodu niewystarczającej pamięci. Spróbuj"
-" ponownie z mniejszym modelem. Aby wymusić tryb CPU, użyj zmiennej "
+"Serwer Whisper nie uruchomił się z powodu niewystarczającej pamięci. Spróbuj "
+"ponownie z mniejszym modelem. Aby wymusić tryb CPU, użyj zmiennej "
 "środowiskowej BUZZ_FORCE_CPU=TRUE."
 
 #: buzz/transcriber/transcriber.py
@@ -1727,14 +1726,34 @@ msgstr "Dodaj powyżej"
 msgid "Append and correct"
 msgstr "Dodaj i popraw"
 
+#: buzz/plugins/export_docx/plugin.py
+msgid "Export to DOCX"
+msgstr "Eksportuj do DOCX"
+
+#: buzz/plugins/export_docx/plugin.py
+msgid ""
+"Export the transcript to a Microsoft Word (.docx) file after transcription, "
+"optionally including timestamps."
+msgstr ""
+"Eksportuje transkrypcję do pliku Microsoft Word (.docx) po transkrypcji, "
+"opcjonalnie z znacznikami czasu."
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Leave empty to save next to the source file."
+msgstr "Pozostaw puste, aby zapisać obok pliku źródłowego."
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Include timestamps"
+msgstr "Dołącz znaczniki czasu"
+
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid "Automatic Transcript Resizer"
 msgstr "Automatyczna zmiana rozmiaru transkrypcji"
 
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid ""
-"When a transcription has word-level timings, automatically regroup the words"
-" into properly sized subtitles and replace the result. Mirrors the Merge "
+"When a transcription has word-level timings, automatically regroup the words "
+"into properly sized subtitles and replace the result. Mirrors the Merge "
 "options of the transcript resizer."
 msgstr ""
 "Gdy transkrypcja ma znaczniki czasu na poziomie słów, automatycznie grupuje "

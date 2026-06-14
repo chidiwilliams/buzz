@@ -7,5 +7,6 @@
   "Summarization prompt": "Prompt di riepilogo",
   "Save summary to Notes": "Salva il riepilogo nelle note",
   "Save summary to a file": "Salva il riepilogo in un file",
-  "Output folder (for file)": "Cartella di output (per il file)"
+  "Output folder (for file)": "Cartella di output (per il file)",
+  "Leave empty to save next to the source file.": "Lascia vuoto per salvare accanto al file di origine."
 }

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 12:58+0300\n"
+"POT-Creation-Date: 2026-06-14 13:25+0300\n"
 "PO-Revision-Date: 2025-03-20 18:30+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: none\n"
@@ -195,8 +195,8 @@ msgid ""
 "Note: Live recording export settings will be moved to the Advanced Settings "
 "in the Live Recording screen in a future version."
 msgstr ""
-"Opmerking: de exportinstellingen voor live-opnames worden in een toekomstige"
-" versie verplaatst naar de geavanceerde instellingen in het scherm Live-"
+"Opmerking: de exportinstellingen voor live-opnames worden in een toekomstige "
+"versie verplaatst naar de geavanceerde instellingen in het scherm Live-"
 "opname."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
@@ -261,8 +261,8 @@ msgstr "Kies een exportmap"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key"
-" validation."
+"Transcription and translation may still work if the API does not support key "
+"validation."
 msgstr ""
 "De api gaf een ongeldig antwoord terug. Controleer de url of sleutel. "
 "Transcriptie en vertaling werkt mogelijk nog steeds als de api niet om "
@@ -281,6 +281,7 @@ msgid "Input folder"
 msgstr "Invoermap"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/plugins/export_docx/plugin.py
 msgid "Output folder"
 msgstr "Uitvoermap"
 
@@ -459,8 +460,8 @@ msgid ""
 "will be used in an automated system, please do not add any comments or "
 "notes, just the translation."
 msgstr ""
-"Vertaal elke tekst die naar u wordt gestuurd van het Engels naar het Spaans."
-" De vertaling wordt gebruikt in een geautomatiseerd systeem. Voeg geen "
+"Vertaal elke tekst die naar u wordt gestuurd van het Engels naar het Spaans. "
+"De vertaling wordt gebruikt in een geautomatiseerd systeem. Voeg geen "
 "opmerkingen of notities toe, alleen de vertaling."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
@@ -767,8 +768,8 @@ msgid ""
 "Plugins run with full access to your system. Only install plugins from "
 "sources you trust."
 msgstr ""
-"Plug-ins hebben volledige toegang tot je systeem. Installeer alleen plug-ins"
-" van bronnen die je vertrouwt."
+"Plug-ins hebben volledige toegang tot je systeem. Installeer alleen plug-ins "
+"van bronnen die je vertrouwt."
 
 #: buzz/widgets/plugins_dialog/plugins_dialog.py
 msgid "Add by URL..."
@@ -1064,8 +1065,7 @@ msgid "Desired subtitle length"
 msgstr "Voorkeurslengte van ondertiteling"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid ""
-"Available only if word level timings were disabled during transcription"
+msgid "Available only if word level timings were disabled during transcription"
 msgstr ""
 "Alleen beschikbaar als timings op woordniveau zijn uitgeschakeld tijdens "
 "transcriptie"
@@ -1732,20 +1732,40 @@ msgstr "Bovenaan toevoegen"
 msgid "Append and correct"
 msgstr "Toevoegen en corrigeren"
 
+#: buzz/plugins/export_docx/plugin.py
+msgid "Export to DOCX"
+msgstr "Exporteren naar DOCX"
+
+#: buzz/plugins/export_docx/plugin.py
+msgid ""
+"Export the transcript to a Microsoft Word (.docx) file after transcription, "
+"optionally including timestamps."
+msgstr ""
+"Exporteert de transcriptie na het transcriberen naar een Microsoft Word-"
+"bestand (.docx), optioneel met tijdcodes."
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Leave empty to save next to the source file."
+msgstr "Laat leeg om naast het bronbestand op te slaan."
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Include timestamps"
+msgstr "Tijdcodes opnemen"
+
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid "Automatic Transcript Resizer"
 msgstr "Automatisch transcriptie aanpassen"
 
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid ""
-"When a transcription has word-level timings, automatically regroup the words"
-" into properly sized subtitles and replace the result. Mirrors the Merge "
+"When a transcription has word-level timings, automatically regroup the words "
+"into properly sized subtitles and replace the result. Mirrors the Merge "
 "options of the transcript resizer."
 msgstr ""
 "Wanneer een transcriptie tijdsmarkeringen op woordniveau heeft, worden de "
 "woorden automatisch hergroepeerd in passend grote ondertitels en wordt het "
-"resultaat vervangen. Komt overeen met de samenvoegopties van de "
-"transcriptie-aanpasser."
+"resultaat vervangen. Komt overeen met de samenvoegopties van de transcriptie-"
+"aanpasser."
 
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid "Merge gap (seconds)"
@@ -1768,8 +1788,8 @@ msgid ""
 "Generate an AI summary of the transcript via an OpenAI-compatible API and "
 "save it to the Notes field and/or a file."
 msgstr ""
-"Genereert een AI-samenvatting van de transcriptie via een OpenAI-compatibele"
-" API en slaat deze op in het notitieveld en/of een bestand."
+"Genereert een AI-samenvatting van de transcriptie via een OpenAI-compatibele "
+"API en slaat deze op in het notitieveld en/of een bestand."
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "API base URL"
@@ -1800,8 +1820,8 @@ msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
 msgstr ""
-"Spraakextractie mislukt! Controleer uw internetverbinding — mogelijk moet er"
-" een model worden gedownload."
+"Spraakextractie mislukt! Controleer uw internetverbinding — mogelijk moet er "
+"een model worden gedownload."
 
 #~ msgid "Live recording mode:"
 #~ msgstr "Live-opnamemodus:"
@@ -1824,11 +1844,11 @@ msgstr ""
 #~ msgstr "Snap-rechten"
 
 #~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have been "
-#~ "granted"
+#~ "Detected missing permissions, please check that snap permissions have "
+#~ "been granted"
 #~ msgstr ""
-#~ "Er ontbreken toegangsrechten - controleer of ze daadwerkelijk allemaal zijn "
-#~ "toegekend"
+#~ "Er ontbreken toegangsrechten - controleer of ze daadwerkelijk allemaal "
+#~ "zijn toegekend"
 
 #~ msgid ""
 #~ "To enable necessary permissions run the following commands in the terminal"

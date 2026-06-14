@@ -7,5 +7,6 @@
   "Summarization prompt": "MI instrikcija",
   "Save summary to Notes": "Saglabāt piezīmēs",
   "Save summary to a file": "Saglabāt failā",
-  "Output folder (for file)": "Izvades mape"
+  "Output folder (for file)": "Rezultātu mape",
+  "Leave empty to save next to the source file.": "Atstājiet tukšu, lai saglabātu blakus avota failam."
 }

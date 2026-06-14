@@ -7,5 +7,6 @@
   "Summarization prompt": "Samenvattingsprompt",
   "Save summary to Notes": "Samenvatting in notities opslaan",
   "Save summary to a file": "Samenvatting in een bestand opslaan",
-  "Output folder (for file)": "Uitvoermap (voor bestand)"
+  "Output folder (for file)": "Uitvoermap (voor bestand)",
+  "Leave empty to save next to the source file.": "Laat leeg om naast het bronbestand op te slaan."
 }

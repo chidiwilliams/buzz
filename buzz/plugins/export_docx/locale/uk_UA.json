@@ -1,0 +1,7 @@
+{
+  "Export to DOCX": "Експорт у DOCX",
+  "Export the transcript to a Microsoft Word (.docx) file after transcription, optionally including timestamps.": "Експортує транскрипцію у файл Microsoft Word (.docx) після розпізнавання, за бажанням із часовими позначками.",
+  "Output folder": "Папка виводу",
+  "Leave empty to save next to the source file.": "Залиште порожнім, щоб зберегти поруч із вихідним файлом.",
+  "Include timestamps": "Включити часові позначки"
+}

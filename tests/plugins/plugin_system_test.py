@@ -338,6 +338,54 @@ def test_transcript_resizer_regroups_with_word_timings(tmp_path, monkeypatch):
     assert captured["segs"][0].end == 200  # 2.0s * 100
 
 
+def test_export_docx_loads():
+    from buzz.plugins.loader import load_plugin_from_dir
+
+    plugin = load_plugin_from_dir("buzz/plugins/export_docx")
+    assert plugin.metadata.id == "export_docx"
+    assert "python-docx" in plugin.metadata.pip_dependencies
+
+
+def test_export_docx_writes_file(tmp_path):
+    pytest.importorskip("docx")
+
+    import logging
+    from buzz.plugins.export_docx import plugin as ed
+    from buzz.plugins.base import PluginContext
+
+    class _DBSeg:
+        def __init__(self, text, start, end):
+            self.text = text
+            self.start_time = start
+            self.end_time = end
+
+    class _Service:
+        def get_transcription_segments(self, transcription_id):
+            return [_DBSeg("Hello world.", 0, 1500), _DBSeg("Second part.", 5000, 7000)]
+
+    class _Task:
+        file_path = "/tmp/myaudio.wav"
+        original_file_path = "/tmp/myaudio.wav"
+
+    ctx = PluginContext(
+        config={"output_folder": str(tmp_path), "include_timestamps": False},
+        transcription_service=_Service(),
+        settings=None,
+        logger=logging.getLogger("test"),
+    )
+    ed.ExportDocxPlugin().on_complete("tid", _Task(), [], ctx)
+
+    out = tmp_path / "myaudio.docx"
+    assert out.exists() and out.stat().st_size > 0
+
+    from docx import Document
+
+    doc = Document(str(out))
+    texts = [p.text for p in doc.paragraphs]
+    assert "myaudio" in texts  # heading uses the file stem
+    assert any("Hello world." in t for t in texts)
+
+
 def test_plugins_dialog_builds_and_wraps(qtbot):
     from PyQt6.QtCore import Qt
     from buzz.widgets.plugins_dialog.plugins_dialog import PluginsDialog

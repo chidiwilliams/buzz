@@ -7,5 +7,6 @@
   "Summarization prompt": "Zusammenfassungs-Prompt",
   "Save summary to Notes": "Zusammenfassung in Notizen speichern",
   "Save summary to a file": "Zusammenfassung in einer Datei speichern",
-  "Output folder (for file)": "Ausgabeordner (für Datei)"
+  "Output folder (for file)": "Ausgabeordner (für Datei)",
+  "Leave empty to save next to the source file.": "Leer lassen, um neben der Quelldatei zu speichern."
 }

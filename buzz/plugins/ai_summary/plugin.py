@@ -88,6 +88,7 @@ class AISummaryPlugin(BuzzPlugin):
                 label=_("Output folder (for file)"),
                 type=ConfigFieldType.TEXT,
                 default="",
+                description=_("Leave empty to save next to the source file."),
             ),
         ],
     )

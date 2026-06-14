@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 12:58+0300\n"
+"POT-Creation-Date: 2026-06-14 13:25+0300\n"
 "PO-Revision-Date: 2025-10-17 07:59+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: Catalan <jmas@softcatala.org>\n"
@@ -193,8 +193,8 @@ msgid ""
 "Note: Live recording export settings will be moved to the Advanced Settings "
 "in the Live Recording screen in a future version."
 msgstr ""
-"Nota: La configuració d'exportació d'enregistrament en directe es mourà a la"
-" Configuració avançada a la pantalla d'enregistrament en directe en una "
+"Nota: La configuració d'exportació d'enregistrament en directe es mourà a la "
+"Configuració avançada a la pantalla d'enregistrament en directe en una "
 "versió futura."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
@@ -206,8 +206,8 @@ msgid ""
 "Applies to Huggingface and Faster Whisper models. Reduces GPU memory usage "
 "but may slightly decrease transcription quality."
 msgstr ""
-"S'aplica als models Huggingface i Faster Whisper. Redueix l'ús de memòria de"
-" la GPU, però pot reduir lleugerament la qualitat de la transcripció."
+"S'aplica als models Huggingface i Faster Whisper. Redueix l'ús de memòria de "
+"la GPU, però pot reduir lleugerament la qualitat de la transcripció."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Reduce GPU RAM"
@@ -259,8 +259,8 @@ msgstr "Selecciona la carpeta d'exportació"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key"
-" validation."
+"Transcription and translation may still work if the API does not support key "
+"validation."
 msgstr ""
 "L'API d'OpenAI ha retornat una resposta no vàlida. Comproveu l'URL de l'API "
 "o la vostra clau. La transcripció i la traducció encara poden funcionar si "
@@ -279,6 +279,7 @@ msgid "Input folder"
 msgstr "Carpeta d'entrada"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/plugins/export_docx/plugin.py
 msgid "Output folder"
 msgstr "Carpeta de sortida"
 
@@ -457,8 +458,8 @@ msgid ""
 "notes, just the translation."
 msgstr ""
 "Si us plau, traduïu cada text que us enviï de l'anglès al castellà. La "
-"traducció s'utilitzarà en un sistema automatitzat; si us plau, no afegiu cap"
-" comentari ni nota, només la traducció."
+"traducció s'utilitzarà en un sistema automatitzat; si us plau, no afegiu cap "
+"comentari ni nota, només la traducció."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -753,8 +754,8 @@ msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
 msgstr ""
-"Comproveu els vostres dispositius d'àudio o els registres de l'aplicació per"
-" a més informació."
+"Comproveu els vostres dispositius d'àudio o els registres de l'aplicació per "
+"a més informació."
 
 #: buzz/widgets/plugins_dialog/plugins_dialog.py
 msgid "Plugins"
@@ -1062,11 +1063,10 @@ msgid "Desired subtitle length"
 msgstr "Longitud desitjada dels subtítols"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid ""
-"Available only if word level timings were disabled during transcription"
+msgid "Available only if word level timings were disabled during transcription"
 msgstr ""
-"Disponible només si els temps a nivell de paraula estaven desactivats durant"
-" la transcripció"
+"Disponible només si els temps a nivell de paraula estaven desactivats durant "
+"la transcripció"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge Options"
@@ -1094,15 +1094,15 @@ msgstr "Fusiona"
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
 msgstr ""
-"Disponible només si els temps a nivell de paraula estaven activats durant la"
-" transcripció"
+"Disponible només si els temps a nivell de paraula estaven activats durant la "
+"transcripció"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
 "Speaker identification is not available: failed to load required libraries."
 msgstr ""
-"La identificació de parlants no està disponible: no s'han pogut carregar les"
-" biblioteques necessàries."
+"La identificació de parlants no està disponible: no s'han pogut carregar les "
+"biblioteques necessàries."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "1/8 Collecting transcripts"
@@ -1119,8 +1119,7 @@ msgstr "3/8 Carregant el model d'alineació"
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "3/8 Loading alignment model (retrying with cache...)"
 msgstr ""
-"3/8 Carregant el model d'alineació (tornant a intentar amb la memòria "
-"cau...)"
+"3/8 Carregant el model d'alineació (tornant a intentar amb la memòria cau...)"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
@@ -1276,8 +1275,8 @@ msgid ""
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
 "variable."
 msgstr ""
-"El servidor Whisper no s'ha pogut iniciar a causa de la memòria insuficient."
-" Si us plau, torneu-ho a provar amb un model més petit. Per forçar el mode "
+"El servidor Whisper no s'ha pogut iniciar a causa de la memòria insuficient. "
+"Si us plau, torneu-ho a provar amb un model més petit. Per forçar el mode "
 "CPU, utilitzeu la variable d'entorn BUZZ_FORCE_CPU=TRUE."
 
 #: buzz/transcriber/transcriber.py
@@ -1732,14 +1731,34 @@ msgstr "Afegeix a sobre"
 msgid "Append and correct"
 msgstr "Afegeix i corregeix"
 
+#: buzz/plugins/export_docx/plugin.py
+msgid "Export to DOCX"
+msgstr "Exporta a DOCX"
+
+#: buzz/plugins/export_docx/plugin.py
+msgid ""
+"Export the transcript to a Microsoft Word (.docx) file after transcription, "
+"optionally including timestamps."
+msgstr ""
+"Exporta la transcripció a un fitxer de Microsoft Word (.docx) després de la "
+"transcripció, incloent-hi opcionalment marques de temps."
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Leave empty to save next to the source file."
+msgstr "Deixeu-ho buit per desar al costat del fitxer d'origen."
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Include timestamps"
+msgstr "Inclou marques de temps"
+
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid "Automatic Transcript Resizer"
 msgstr "Redimensionador automàtic de transcripcions"
 
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid ""
-"When a transcription has word-level timings, automatically regroup the words"
-" into properly sized subtitles and replace the result. Mirrors the Merge "
+"When a transcription has word-level timings, automatically regroup the words "
+"into properly sized subtitles and replace the result. Mirrors the Merge "
 "options of the transcript resizer."
 msgstr ""
 "Quan una transcripció té marques de temps per paraula, reagrupa "
@@ -1822,11 +1841,11 @@ msgstr ""
 #~ msgstr "Avís de permís d'ajust"
 
 #~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have been "
-#~ "granted"
+#~ "Detected missing permissions, please check that snap permissions have "
+#~ "been granted"
 #~ msgstr ""
-#~ "S'han detectat permisos que manquen, comproveu que s'han concedit permisos "
-#~ "de captura"
+#~ "S'han detectat permisos que manquen, comproveu que s'han concedit "
+#~ "permisos de captura"
 
 #~ msgid ""
 #~ "To enable necessary permissions run the following commands in the terminal"

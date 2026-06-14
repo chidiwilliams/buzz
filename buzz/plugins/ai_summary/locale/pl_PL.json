@@ -7,5 +7,6 @@
   "Summarization prompt": "Polecenie podsumowania",
   "Save summary to Notes": "Zapisz podsumowanie w notatkach",
   "Save summary to a file": "Zapisz podsumowanie w pliku",
-  "Output folder (for file)": "Folder wyjściowy (dla pliku)"
+  "Output folder (for file)": "Folder wyjściowy (dla pliku)",
+  "Leave empty to save next to the source file.": "Pozostaw puste, aby zapisać obok pliku źródłowego."
 }

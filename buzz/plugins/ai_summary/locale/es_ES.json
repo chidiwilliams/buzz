@@ -7,5 +7,6 @@
   "Summarization prompt": "Indicación de resumen",
   "Save summary to Notes": "Guardar resumen en notas",
   "Save summary to a file": "Guardar resumen en un archivo",
-  "Output folder (for file)": "Carpeta de salida (para el archivo)"
+  "Output folder (for file)": "Carpeta de salida (para el archivo)",
+  "Leave empty to save next to the source file.": "Déjalo vacío para guardar junto al archivo de origen."
 }

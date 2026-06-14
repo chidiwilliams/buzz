@@ -7,5 +7,6 @@
   "Summarization prompt": "Resuméprompt",
   "Save summary to Notes": "Gem resumé i noter",
   "Save summary to a file": "Gem resumé i en fil",
-  "Output folder (for file)": "Outputmappe (til fil)"
+  "Output folder (for file)": "Outputmappe (til fil)",
+  "Leave empty to save next to the source file.": "Lad stå tom for at gemme ved siden af kildefilen."
 }

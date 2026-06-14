@@ -7,5 +7,6 @@
   "Summarization prompt": "Запит для резюме",
   "Save summary to Notes": "Зберегти резюме в нотатки",
   "Save summary to a file": "Зберегти резюме у файл",
-  "Output folder (for file)": "Папка виводу (для файлу)"
+  "Output folder (for file)": "Папка виводу (для файлу)",
+  "Leave empty to save next to the source file.": "Залиште порожнім, щоб зберегти поруч із вихідним файлом."
 }

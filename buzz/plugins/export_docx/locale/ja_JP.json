@@ -1,0 +1,7 @@
+{
+  "Export to DOCX": "DOCXにエクスポート",
+  "Export the transcript to a Microsoft Word (.docx) file after transcription, optionally including timestamps.": "文字起こし後、トランスクリプトをMicrosoft Word（.docx）ファイルにエクスポートします。オプションでタイムスタンプを含めます。",
+  "Output folder": "出力フォルダ",
+  "Leave empty to save next to the source file.": "空欄にするとソースファイルの隣に保存します。",
+  "Include timestamps": "タイムスタンプを含める"
+}

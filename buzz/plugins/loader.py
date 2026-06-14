@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 # Bundled plugins shipped in the source tree and copied to the user folder on
 # first launch.
-BUNDLED_PLUGIN_IDS = ["ai_summary", "transcript_resizer"]
+BUNDLED_PLUGIN_IDS = ["ai_summary", "transcript_resizer", "export_docx"]
 
 ENTRY_MODULE = "plugin.py"
 

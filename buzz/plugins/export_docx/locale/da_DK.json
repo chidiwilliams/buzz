@@ -1,0 +1,7 @@
+{
+  "Export to DOCX": "Eksportér til DOCX",
+  "Export the transcript to a Microsoft Word (.docx) file after transcription, optionally including timestamps.": "Eksporterer transskriptionen til en Microsoft Word-fil (.docx) efter transskription, eventuelt med tidsstempler.",
+  "Output folder": "Outputmappe",
+  "Leave empty to save next to the source file.": "Lad stå tom for at gemme ved siden af kildefilen.",
+  "Include timestamps": "Inkludér tidsstempler"
+}

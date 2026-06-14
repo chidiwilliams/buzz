@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 12:58+0300\n"
+"POT-Creation-Date: 2026-06-14 13:25+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -265,6 +265,7 @@ msgid "Input folder"
 msgstr ""
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/plugins/export_docx/plugin.py
 msgid "Output folder"
 msgstr ""
 
@@ -1677,6 +1678,24 @@ msgstr ""
 
 #: buzz/settings/recording_transcriber_mode.py
 msgid "Append and correct"
+msgstr ""
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Export to DOCX"
+msgstr ""
+
+#: buzz/plugins/export_docx/plugin.py
+msgid ""
+"Export the transcript to a Microsoft Word (.docx) file after transcription, "
+"optionally including timestamps."
+msgstr ""
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Leave empty to save next to the source file."
+msgstr ""
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Include timestamps"
 msgstr ""
 
 #: buzz/plugins/transcript_resizer/plugin.py

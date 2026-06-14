@@ -55,7 +55,12 @@ class PluginSettingsDialog(QDialog):
             value = values.get(field.key, field.default)
             editor = self._create_editor(field, value)
             self._editors[field.key] = (field, editor)
-            label = field.label or field.key
+            label = QLabel(field.label or field.key)
+            # Show the field's description as a tooltip on both the label and
+            # the input, since it is the only place the description surfaces.
+            if field.description:
+                label.setToolTip(field.description)
+                editor.setToolTip(field.description)
             form.addRow(label, editor)
 
         layout.addLayout(form)

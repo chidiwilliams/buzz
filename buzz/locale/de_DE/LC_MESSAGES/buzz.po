@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 12:58+0300\n"
+"POT-Creation-Date: 2026-06-14 13:25+0300\n"
 "PO-Revision-Date: 2025-03-05 14:41+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -258,8 +258,8 @@ msgstr "Exportordner auswählen"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key"
-" validation."
+"Transcription and translation may still work if the API does not support key "
+"validation."
 msgstr ""
 "Die OpenAI-API hat eine ungültige Antwort zurückgegeben. Bitte überprüfen "
 "Sie die API-URL oder Ihren Schlüssel. Transkription und Übersetzung "
@@ -279,6 +279,7 @@ msgid "Input folder"
 msgstr "Eingabeordner"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/plugins/export_docx/plugin.py
 msgid "Output folder"
 msgstr "Ausgabeordner"
 
@@ -457,10 +458,9 @@ msgid ""
 "will be used in an automated system, please do not add any comments or "
 "notes, just the translation."
 msgstr ""
-"Bitte übersetzen Sie jeden Text, der Ihnen gesendet wird, vom Englischen ins"
-" Spanische. Die Übersetzung wird in einem automatisierten System verwendet. "
-"Bitte fügen Sie keine Kommentare oder Anmerkungen hinzu, nur die "
-"Übersetzung."
+"Bitte übersetzen Sie jeden Text, der Ihnen gesendet wird, vom Englischen ins "
+"Spanische. Die Übersetzung wird in einem automatisierten System verwendet. "
+"Bitte fügen Sie keine Kommentare oder Anmerkungen hinzu, nur die Übersetzung."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -665,8 +665,8 @@ msgstr ""
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
 msgstr ""
-"Transkription konnte nicht neu gestartet werden: Transkriptions-Worker nicht"
-" gefunden."
+"Transkription konnte nicht neu gestartet werden: Transkriptions-Worker nicht "
+"gefunden."
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -1067,8 +1067,7 @@ msgid "Desired subtitle length"
 msgstr "Gewünschte Untertitellänge"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid ""
-"Available only if word level timings were disabled during transcription"
+msgid "Available only if word level timings were disabled during transcription"
 msgstr ""
 "Nur verfügbar, wenn Zeitangaben auf Wortebene bei der Transkription "
 "deaktiviert waren"
@@ -1737,14 +1736,34 @@ msgstr "Oben anhängen"
 msgid "Append and correct"
 msgstr "Anhängen und korrigieren"
 
+#: buzz/plugins/export_docx/plugin.py
+msgid "Export to DOCX"
+msgstr "Als DOCX exportieren"
+
+#: buzz/plugins/export_docx/plugin.py
+msgid ""
+"Export the transcript to a Microsoft Word (.docx) file after transcription, "
+"optionally including timestamps."
+msgstr ""
+"Exportiert das Transkript nach der Transkription in eine Microsoft Word-"
+"Datei (.docx), optional mit Zeitstempeln."
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Leave empty to save next to the source file."
+msgstr "Leer lassen, um neben der Quelldatei zu speichern."
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Include timestamps"
+msgstr "Zeitstempel einschließen"
+
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid "Automatic Transcript Resizer"
 msgstr "Automatische Transkript-Anpassung"
 
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid ""
-"When a transcription has word-level timings, automatically regroup the words"
-" into properly sized subtitles and replace the result. Mirrors the Merge "
+"When a transcription has word-level timings, automatically regroup the words "
+"into properly sized subtitles and replace the result. Mirrors the Merge "
 "options of the transcript resizer."
 msgstr ""
 "Wenn ein Transkript Zeitangaben auf Wortebene hat, werden die Wörter "
@@ -1772,8 +1791,8 @@ msgid ""
 "Generate an AI summary of the transcript via an OpenAI-compatible API and "
 "save it to the Notes field and/or a file."
 msgstr ""
-"Erstellt eine KI-Zusammenfassung des Transkripts über eine OpenAI-kompatible"
-" API und speichert sie im Notizfeld und/oder in einer Datei."
+"Erstellt eine KI-Zusammenfassung des Transkripts über eine OpenAI-kompatible "
+"API und speichert sie im Notizfeld und/oder in einer Datei."
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "API base URL"
@@ -1828,8 +1847,8 @@ msgstr ""
 #~ msgstr "Snap-Berechtigungsmitteilung"
 
 #~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have been "
-#~ "granted"
+#~ "Detected missing permissions, please check that snap permissions have "
+#~ "been granted"
 #~ msgstr ""
 #~ "Es wurden fehlende Berechtigungen festgestellt. Bitte überprüfen Sie, ob "
 #~ "Snap-Berechtigungen erteilt wurden"
@@ -1837,8 +1856,8 @@ msgstr ""
 #~ msgid ""
 #~ "To enable necessary permissions run the following commands in the terminal"
 #~ msgstr ""
-#~ "Um die erforderlichen Berechtigungen zu aktivieren, führen Sie die folgenden"
-#~ " Befehle im Terminal aus"
+#~ "Um die erforderlichen Berechtigungen zu aktivieren, führen Sie die "
+#~ "folgenden Befehle im Terminal aus"
 
 #~ msgid "Close"
 #~ msgstr "Schließen"

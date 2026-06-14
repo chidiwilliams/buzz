@@ -7,5 +7,6 @@
   "Summarization prompt": "Prompt de resumo",
   "Save summary to Notes": "Salvar resumo nas notas",
   "Save summary to a file": "Salvar resumo em um arquivo",
-  "Output folder (for file)": "Pasta de saída (para o arquivo)"
+  "Output folder (for file)": "Pasta de saída (para o arquivo)",
+  "Leave empty to save next to the source file.": "Deixe em branco para salvar ao lado do arquivo de origem."
 }

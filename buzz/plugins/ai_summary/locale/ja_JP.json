@@ -7,5 +7,6 @@
   "Summarization prompt": "要約プロンプト",
   "Save summary to Notes": "要約をメモに保存",
   "Save summary to a file": "要約をファイルに保存",
-  "Output folder (for file)": "出力フォルダ（ファイル用）"
+  "Output folder (for file)": "出力フォルダ（ファイル用）",
+  "Leave empty to save next to the source file.": "空欄にするとソースファイルの隣に保存します。"
 }
