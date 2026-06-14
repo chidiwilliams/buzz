@@ -41,12 +41,25 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install Vulkan SDK
-        if: "startsWith(matrix.os, 'ubuntu-') || matrix.os == 'windows-latest'"
+      - name: Install Vulkan SDK (Linux)
+        if: startsWith(matrix.os, 'ubuntu-')
         uses: humbletim/install-vulkan-sdk@v1.2
         with:
           version: 1.4.309.0
           cache: true
+
+      # whisper.cpp 1.8.6's ggml-vulkan backend requires the SPIRV-Headers CMake
+      # config package, which the humbletim prebuilt SDK does not ship on Windows.
+      # Use LunarG's official installer (same approach as llama.cpp CI) instead.
+      - name: Install Vulkan SDK (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $ver = '1.4.309.0'
+          curl.exe -o "$env:RUNNER_TEMP/VulkanSDK-Installer.exe" -L "https://sdk.lunarg.com/sdk/download/$ver/windows/vulkansdk-windows-X64-$ver.exe"
+          & "$env:RUNNER_TEMP/VulkanSDK-Installer.exe" --accept-licenses --default-answer --confirm-command install
+          Add-Content $env:GITHUB_ENV "VULKAN_SDK=C:\VulkanSDK\$ver"
+          Add-Content $env:GITHUB_PATH "C:\VulkanSDK\$ver\bin"
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
@@ -73,7 +86,7 @@ jobs:
       - name: Install apt dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev ccache
+          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev spirv-headers ccache
         if: "startsWith(matrix.os, 'ubuntu-')"
 
       - name: Install dependencies
@@ -124,12 +137,25 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install Vulkan SDK
-        if: "startsWith(matrix.os, 'ubuntu-') || matrix.os == 'windows-latest'"
+      - name: Install Vulkan SDK (Linux)
+        if: startsWith(matrix.os, 'ubuntu-')
         uses: humbletim/install-vulkan-sdk@v1.2
         with:
           version: 1.4.309.0
           cache: true
+
+      # whisper.cpp 1.8.6's ggml-vulkan backend requires the SPIRV-Headers CMake
+      # config package, which the humbletim prebuilt SDK does not ship on Windows.
+      # Use LunarG's official installer (same approach as llama.cpp CI) instead.
+      - name: Install Vulkan SDK (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $ver = '1.4.309.0'
+          curl.exe -o "$env:RUNNER_TEMP/VulkanSDK-Installer.exe" -L "https://sdk.lunarg.com/sdk/download/$ver/windows/vulkansdk-windows-X64-$ver.exe"
+          & "$env:RUNNER_TEMP/VulkanSDK-Installer.exe" --accept-licenses --default-answer --confirm-command install
+          Add-Content $env:GITHUB_ENV "VULKAN_SDK=C:\VulkanSDK\$ver"
+          Add-Content $env:GITHUB_PATH "C:\VulkanSDK\$ver\bin"
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
@@ -150,8 +176,8 @@ jobs:
       - name: Install apt dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev ccache
-          
+          sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev spirv-headers ccache
+
           # Remove unused build tools to free up space
           sudo apt-get remove -y azure-cli google-cloud-sdk hhvm google-chrome-stable firefox powershell mono-devel || true
           sudo apt-get autoremove -y
@@ -289,12 +315,25 @@ jobs:
           xcode-version: '16.0.0'
         if: matrix.os == 'macos-latest'
 
-      - name: Install Vulkan SDK
-        if: "startsWith(matrix.os, 'ubuntu-') || matrix.os == 'windows-latest'"
+      - name: Install Vulkan SDK (Linux)
+        if: startsWith(matrix.os, 'ubuntu-')
         uses: humbletim/install-vulkan-sdk@v1.2
         with:
           version: 1.4.309.0
           cache: true
+
+      # whisper.cpp 1.8.6's ggml-vulkan backend requires the SPIRV-Headers CMake
+      # config package, which the humbletim prebuilt SDK does not ship on Windows.
+      # Use LunarG's official installer (same approach as llama.cpp CI) instead.
+      - name: Install Vulkan SDK (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $ver = '1.4.309.0'
+          curl.exe -o "$env:RUNNER_TEMP/VulkanSDK-Installer.exe" -L "https://sdk.lunarg.com/sdk/download/$ver/windows/vulkansdk-windows-X64-$ver.exe"
+          & "$env:RUNNER_TEMP/VulkanSDK-Installer.exe" --accept-licenses --default-answer --confirm-command install
+          Add-Content $env:GITHUB_ENV "VULKAN_SDK=C:\VulkanSDK\$ver"
+          Add-Content $env:GITHUB_PATH "C:\VulkanSDK\$ver\bin"
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
