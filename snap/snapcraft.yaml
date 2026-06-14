@@ -1,6 +1,10 @@
 # Development notes:
 # - To build the snap run `snapcraft clean` and `snapcraft pack --verbose`
 # - To install local snap `snap install ./buzz_*.snap --dangerous`
+# - Add permissions
+# sudo snap connect buzz:audio-record :audio-record
+# sudo snap connect buzz:removable-media :removable-media
+# sudo snap connect buzz:password-manager-service :password-manager-service
 name: buzz
 base: core24
 version: git
