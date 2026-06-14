@@ -46,7 +46,7 @@ class WhisperCpp:
         language = (
             task.transcription_options.language
             if task.transcription_options.language is not None
-            else "en"
+            else "auto"
         )
 
         # Check if file format is supported, convert to WAV if not
