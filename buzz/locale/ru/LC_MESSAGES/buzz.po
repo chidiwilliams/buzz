@@ -1,8 +1,9 @@
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-07 18:01+0300\n"
+"POT-Creation-Date: 2026-06-14 16:54+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -10,8 +11,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Generator: Poedit 3.4.4\n"
 
 #: buzz/widgets/import_url_dialog.py buzz/settings/shortcut.py
@@ -26,6 +26,8 @@ msgstr "https://example.com/audio.mp3"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/main_window.py
 msgid "Ok"
 msgstr "ОК"
@@ -33,6 +35,8 @@ msgstr "ОК"
 #: buzz/widgets/import_url_dialog.py
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 #: buzz/widgets/model_download_progress_dialog.py buzz/widgets/main_window.py
 msgid "Cancel"
@@ -250,8 +254,8 @@ msgstr "Выберите папку для экспорта"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key "
-"validation."
+"Transcription and translation may still work if the API does not support key"
+" validation."
 msgstr ""
 "OpenAI API вернул недопустимый ответ. Пожалуйста, проверьте адрес API или "
 "ваш ключ. Транскрипция и перевод могут работать, если API не поддерживает "
@@ -270,8 +274,9 @@ msgid "Input folder"
 msgstr "Входная папка"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/plugins/export_docx/plugin.py
 msgid "Output folder"
-msgstr "Выходная папка"
+msgstr "Папка вывода"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Select Input Folder"
@@ -303,7 +308,7 @@ msgstr "Отслеживание папки"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "What model should I use?"
-msgstr ""
+msgstr "Какую модель использовать?"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Group"
@@ -394,7 +399,8 @@ msgstr "Модель:"
 #: buzz/widgets/transcriber/transcription_options_group_box.py
 #: buzz/transcriber/recording_transcriber.py
 msgid "First time use of a model may take up to several minutest to load."
-msgstr "Первое использование модели может занять несколько минут для загрузки."
+msgstr ""
+"Первое использование модели может занять несколько минут для загрузки."
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py
 msgid "Api Key:"
@@ -576,6 +582,7 @@ msgid "File Name / URL"
 msgstr "Имя файла / Ссылка"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
 msgid "Model"
 msgstr "Модель"
 
@@ -741,8 +748,76 @@ msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
 msgstr ""
-"Пожалуйста, проверьте ваши аудиоустройства или посмотрите журналы приложения "
-"для получения дополнительной информации."
+"Пожалуйста, проверьте ваши аудиоустройства или посмотрите журналы приложения"
+" для получения дополнительной информации."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Plugins"
+msgstr "Плагины"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid ""
+"Plugins run with full access to your system. Only install plugins from "
+"sources you trust."
+msgstr ""
+"Плагины имеют полный доступ к вашей системе. Устанавливайте плагины только "
+"из доверенных источников."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add by URL..."
+msgstr "Добавить по URL..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Settings..."
+msgstr "Настройки..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Move Up"
+msgstr "Вверх"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Move Down"
+msgstr "Вниз"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove"
+msgstr "Удалить"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove plugin"
+msgstr "Удалить плагин"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove plugin '{}'?"
+msgstr "Удалить плагин '{}'?"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add plugin"
+msgstr "Добавить плагин"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Plugin URL (.zip):"
+msgstr "URL плагина (.zip):"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Installing plugin..."
+msgstr "Установка плагина..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add plugin failed"
+msgstr "Не удалось добавить плагин"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid ""
+"Could not install the plugin:\n"
+"{}"
+msgstr ""
+"Не удалось установить плагин:\n"
+"{}"
+
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
+msgid "Plugin not available."
+msgstr "Плагин недоступен."
 
 #: buzz/widgets/update_dialog.py
 msgid "A new version of Buzz is available!"
@@ -982,7 +1057,8 @@ msgid "Desired subtitle length"
 msgstr "Желаемая длина субтитров"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid "Available only if word level timings were disabled during transcription"
+msgid ""
+"Available only if word level timings were disabled during transcription"
 msgstr ""
 "Доступно только если тайминги на уровне слов были отключены во время "
 "транскрипции"
@@ -992,16 +1068,19 @@ msgid "Merge Options"
 msgstr "Параметры объединения"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Merge by gap"
-msgstr "Объединить по паузе"
+msgstr "Объединять по паузе"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by punctuation"
-msgstr "Разделить по пунктуации"
+msgstr "Разделять по пунктуации"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by max length"
-msgstr "Разделить по максимальной длине"
+msgstr "Разделять по максимальной длине"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge"
@@ -1149,6 +1228,10 @@ msgid "Help"
 msgstr "Справка"
 
 #: buzz/widgets/menu_bar.py
+msgid "Plugins..."
+msgstr "Плагины..."
+
+#: buzz/widgets/menu_bar.py
 msgid "File"
 msgstr "Файл"
 
@@ -1176,7 +1259,8 @@ msgstr "Не удалось сохранить API-ключ OpenAI в связк
 #: buzz/transcriber/recording_transcriber.py
 msgid "Whisper server failed to start. Check logs for details."
 msgstr ""
-"Не удалось запустить сервер Whisper. Проверьте журналы для получения деталей."
+"Не удалось запустить сервер Whisper. Проверьте журналы для получения "
+"деталей."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
@@ -1641,20 +1725,130 @@ msgstr "Добавить вверху"
 msgid "Append and correct"
 msgstr "Добавить и исправить"
 
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Enhanced language detection"
+msgstr "Улучшенное определение языка"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"Detect the spoken language with whisper.cpp before transcription (using the "
+"largest downloaded model, or the tiny model otherwise) and use it for the "
+"transcription and exported file names. Only runs when the language is set to"
+" auto-detect."
+msgstr ""
+"Определяет язык речи с помощью whisper.cpp перед расшифровкой (используя "
+"самую большую загруженную модель или, в противном случае, модель tiny) и "
+"использует его для расшифровки и имён экспортируемых файлов. Выполняется "
+"только когда язык установлен в режим автоматического определения."
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Download tiny model if none available"
+msgstr "Загрузить модель tiny, если ни одна не доступна"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"If no whisper.cpp model is downloaded, download the tiny model to use for "
+"language detection."
+msgstr ""
+"Если ни одна модель whisper.cpp не загружена, загружает модель tiny для "
+"определения языка."
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Export to DOCX"
+msgstr "Экспорт в DOCX"
+
+#: buzz/plugins/export_docx/plugin.py
+msgid ""
+"Export the transcript to a Microsoft Word (.docx) file after transcription, "
+"optionally including timestamps."
+msgstr ""
+"Экспортирует транскрипцию в файл Microsoft Word (.docx) после расшифровки, "
+"при необходимости с временными метками."
+
+#: buzz/plugins/export_docx/plugin.py buzz/plugins/ai_summary/plugin.py
+msgid "Leave empty to save next to the source file."
+msgstr "Оставьте пустым, чтобы сохранить рядом с исходным файлом."
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Include timestamps"
+msgstr "Включить временные метки"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Automatic Transcript Resizer"
+msgstr "Автоматическое изменение размера транскрипции"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid ""
+"When a transcription has word-level timings, automatically regroup the words"
+" into properly sized subtitles and replace the result. Mirrors the Merge "
+"options of the transcript resizer."
+msgstr ""
+"Если у транскрипции есть тайминги на уровне слов, слова автоматически "
+"перегруппируются в субтитры подходящего размера, а результат заменяется. "
+"Повторяет параметры объединения в инструменте изменения размера "
+"транскрипции."
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Merge gap (seconds)"
+msgstr "Пауза объединения (секунды)"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Punctuation"
+msgstr "Пунктуация"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Maximum subtitle length"
+msgstr "Максимальная длина субтитра"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "AI Summary"
+msgstr "ИИ-резюме"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid ""
+"Generate an AI summary of the transcript via an OpenAI-compatible API and "
+"save it to the Notes field and/or a file."
+msgstr ""
+"Создаёт ИИ-резюме транскрипции через OpenAI-совместимый API и сохраняет его "
+"в поле заметок и/или в файл."
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "API base URL"
+msgstr "Базовый URL API"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "API key"
+msgstr "Ключ API"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Summarization prompt"
+msgstr "Запрос для резюме"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to Notes"
+msgstr "Сохранить резюме в заметки"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to a file"
+msgstr "Сохранить резюме в файл"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Output folder (for file)"
+msgstr "Папка вывода (для файла)"
+
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
 msgstr ""
-"Не удалось извлечь речь! Проверьте подключение к интернету — возможно, нужно "
-"скачать модель."
+"Не удалось извлечь речь! Проверьте подключение к интернету — возможно, нужно"
+" скачать модель."
 
 #~ msgid "Live recording mode:"
 #~ msgstr "Режим живой записи:"
 
 #~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-#~ msgstr ""
-#~ "Значения, разделённые запятыми, напр., \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
+#~ msgstr "Значения, разделённые запятыми, напр., \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
 
 #~ msgid "Temperature:"
 #~ msgstr "Температура:"
@@ -1671,8 +1865,8 @@ msgstr ""
 #~ msgstr "Уведомление о разрешениях Snap"
 
 #~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
+#~ "Detected missing permissions, please check that snap permissions have been "
+#~ "granted"
 #~ msgstr ""
 #~ "Обнаружена нехватка разрешений. Пожалуйста, проверьте, были ли выданы "
 #~ "разрешения для Snap"
@@ -1680,8 +1874,7 @@ msgstr ""
 #~ msgid ""
 #~ "To enable necessary permissions run the following commands in the terminal"
 #~ msgstr ""
-#~ "Для включения необходимых разрешений выполните следующие команды в "
-#~ "терминале"
+#~ "Для включения необходимых разрешений выполните следующие команды в терминале"
 
 #~ msgid "Close"
 #~ msgstr "Закрыть"

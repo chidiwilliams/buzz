@@ -1,0 +1,10 @@
+{
+  "Automatic Transcript Resizer": "Automatische Transkript-Anpassung",
+  "When a transcription has word-level timings, automatically regroup the words into properly sized subtitles and replace the result. Mirrors the Merge options of the transcript resizer.": "Wenn ein Transkript Zeitangaben auf Wortebene hat, werden die Wörter automatisch zu passend großen Untertiteln gruppiert und das Ergebnis ersetzt. Entspricht den Zusammenführungsoptionen des Transkript-Editors.",
+  "Merge by gap": "Nach Pause zusammenführen",
+  "Merge gap (seconds)": "Pause beim Zusammenführen (Sekunden)",
+  "Split by punctuation": "Nach Satzzeichen teilen",
+  "Punctuation": "Satzzeichen",
+  "Split by max length": "Nach maximaler Länge teilen",
+  "Maximum subtitle length": "Maximale Untertitellänge"
+}

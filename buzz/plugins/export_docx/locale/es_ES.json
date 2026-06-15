@@ -1,0 +1,7 @@
+{
+  "Export to DOCX": "Exportar a DOCX",
+  "Export the transcript to a Microsoft Word (.docx) file after transcription, optionally including timestamps.": "Exporta la transcripción a un archivo de Microsoft Word (.docx) tras la transcripción, incluyendo opcionalmente marcas de tiempo.",
+  "Output folder": "Carpeta de salida",
+  "Leave empty to save next to the source file.": "Déjalo vacío para guardar junto al archivo de origen.",
+  "Include timestamps": "Incluir marcas de tiempo"
+}

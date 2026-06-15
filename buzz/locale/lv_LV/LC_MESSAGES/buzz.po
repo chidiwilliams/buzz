@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-07 18:01+0300\n"
+"POT-Creation-Date: 2026-06-14 16:54+0300\n"
 "PO-Revision-Date: 2026-03-06 13:23+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -29,6 +29,8 @@ msgstr "https://example.com/audio.mp3"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/main_window.py
 msgid "Ok"
 msgstr "Labi"
@@ -36,6 +38,8 @@ msgstr "Labi"
 #: buzz/widgets/import_url_dialog.py
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 #: buzz/widgets/model_download_progress_dialog.py buzz/widgets/main_window.py
 msgid "Cancel"
@@ -254,11 +258,11 @@ msgstr "Izvēlieties mapi kurā eksportēt"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key "
-"validation."
+"Transcription and translation may still work if the API does not support key"
+" validation."
 msgstr ""
-"OpenAI API atbilde ir nederīga. Lūdzu pārbaudiet API Adresi un savu atslēgu. "
-"Atpazīšana un tulkošana joprojām var strādāt, ja API neatbalsta atslēgu "
+"OpenAI API atbilde ir nederīga. Lūdzu pārbaudiet API Adresi un savu atslēgu."
+" Atpazīšana un tulkošana joprojām var strādāt, ja API neatbalsta atslēgu "
 "pārbaudi."
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
@@ -274,6 +278,7 @@ msgid "Input folder"
 msgstr "Vērojamā mape"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/plugins/export_docx/plugin.py
 msgid "Output folder"
 msgstr "Rezultātu mape"
 
@@ -582,6 +587,7 @@ msgid "File Name / URL"
 msgstr "Fails / URL"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
 msgid "Model"
 msgstr "Modelis"
 
@@ -747,6 +753,74 @@ msgid ""
 msgstr ""
 "Lūdzu pārbaudiet savas audio ierīces vai pārbaudiet lietotnes ziņojumu "
 "žurnālus, lai iegūtu papildu informāciju."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Plugins"
+msgstr "Spraudņi"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid ""
+"Plugins run with full access to your system. Only install plugins from "
+"sources you trust."
+msgstr ""
+"Spraudņiem ir pilna piekļuve jūsu sistēmai. Instalējiet tikai spraudņus no "
+"uzticamiem avotiem."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add by URL..."
+msgstr "Pievienot no URL..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Settings..."
+msgstr "Iestatījumi..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Move Up"
+msgstr "Pārvietot augšup"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Move Down"
+msgstr "Pārvietot lejup"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove"
+msgstr "Noņemt"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove plugin"
+msgstr "Noņemt spraudni"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove plugin '{}'?"
+msgstr "Noņemt spraudni '{}'?"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add plugin"
+msgstr "Pievienot spraudni"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Plugin URL (.zip):"
+msgstr "Spraudņa URL (.zip):"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Installing plugin..."
+msgstr "Notiek spraudņa instalēšana..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add plugin failed"
+msgstr "Neizdevās pievienot spraudni"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid ""
+"Could not install the plugin:\n"
+"{}"
+msgstr ""
+"Neizdevās instalēt spraudni:\n"
+"{}"
+
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
+msgid "Plugin not available."
+msgstr "Spraudnis nav pieejams."
 
 #: buzz/widgets/update_dialog.py
 msgid "A new version of Buzz is available!"
@@ -986,7 +1060,8 @@ msgid "Desired subtitle length"
 msgstr "Vēlamais teksta garums"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid "Available only if word level timings were disabled during transcription"
+msgid ""
+"Available only if word level timings were disabled during transcription"
 msgstr "Pieejami tikai, ierakstiem, kas atpazīti bez dalīšanas pa vārdiem"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
@@ -994,14 +1069,17 @@ msgid "Merge Options"
 msgstr "Apvienošanas iestatījumi"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Merge by gap"
-msgstr "Apvienot pēc attāluma"
+msgstr "Apvienot pēc atstarpes"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by punctuation"
 msgstr "Dalīt pie pieturzīmēm"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by max length"
 msgstr "Dalīt pie maksimālā garuma"
 
@@ -1147,6 +1225,10 @@ msgstr "Iestatījumi..."
 #: buzz/widgets/menu_bar.py
 msgid "Help"
 msgstr "Palīdzība"
+
+#: buzz/widgets/menu_bar.py
+msgid "Plugins..."
+msgstr "Spraudņi..."
 
 #: buzz/widgets/menu_bar.py
 msgid "File"
@@ -1642,6 +1724,115 @@ msgstr "Jaunie teikumi augšā"
 msgid "Append and correct"
 msgstr "Papildināt un labot esošo"
 
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Enhanced language detection"
+msgstr "Uzlabota valodas noteikšana"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"Detect the spoken language with whisper.cpp before transcription (using the "
+"largest downloaded model, or the tiny model otherwise) and use it for the "
+"transcription and exported file names. Only runs when the language is set to"
+" auto-detect."
+msgstr ""
+"Uzlabo valodas noteikšanu visiem modeļu veidiem, izmantojot whisper.cpp "
+"(lieto lielāko lejupielādēto modeli vai tiny modeli). Ļauj izmantot noteikto"
+" valodu eksportēto failu nosaukumiem. Darbojas tikai tad, ja valoda ir "
+"iestatīta uz automātisku noteikšanu."
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Download tiny model if none available"
+msgstr "Lejupielādēt tiny modeli, ja neviens nav pieejams"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"If no whisper.cpp model is downloaded, download the tiny model to use for "
+"language detection."
+msgstr ""
+"Ja nav lejupielādēts neviens whisper.cpp modelis, lejupielādē tiny modeli "
+"valodas noteikšanai."
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Export to DOCX"
+msgstr "Eksportēt uz DOCX"
+
+#: buzz/plugins/export_docx/plugin.py
+msgid ""
+"Export the transcript to a Microsoft Word (.docx) file after transcription, "
+"optionally including timestamps."
+msgstr ""
+"Pēc transkripcijas eksportē transkriptu uz Microsoft Word (.docx) failu, pēc"
+" izvēles iekļaujot laika atzīmes."
+
+#: buzz/plugins/export_docx/plugin.py buzz/plugins/ai_summary/plugin.py
+msgid "Leave empty to save next to the source file."
+msgstr "Atstājiet tukšu, lai saglabātu blakus avota failam."
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Include timestamps"
+msgstr "Iekļaut laika atzīmes"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Automatic Transcript Resizer"
+msgstr "Automātiska garuma maiņa"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid ""
+"When a transcription has word-level timings, automatically regroup the words"
+" into properly sized subtitles and replace the result. Mirrors the Merge "
+"options of the transcript resizer."
+msgstr ""
+"Ierakstus, kas ir dalīti pa vārdiem, automātiski pārgrupē pareiza izmēra "
+"subtitros."
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Merge gap (seconds)"
+msgstr "Apvienošanas atstarpe (sekundes)"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Punctuation"
+msgstr "Pieturzīmes"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Maximum subtitle length"
+msgstr "Maksimālais subtitru garums"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "AI Summary"
+msgstr "MI kopsavilkums"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid ""
+"Generate an AI summary of the transcript via an OpenAI-compatible API and "
+"save it to the Notes field and/or a file."
+msgstr ""
+"Izveido transkripta MI kopsavilkumu, izmantojot OpenAI saderīgu API, un "
+"saglabā to piezīmju laukā un/vai failā."
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "API base URL"
+msgstr "API bāzes URL"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "API key"
+msgstr "API atslēga"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Summarization prompt"
+msgstr "MI instrikcija"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to Notes"
+msgstr "Saglabāt piezīmēs"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to a file"
+msgstr "Saglabāt failā"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Output folder (for file)"
+msgstr "Izvades mape"
+
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
@@ -1669,11 +1860,11 @@ msgstr ""
 #~ msgstr "Snap atļauju piezīme"
 
 #~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
+#~ "Detected missing permissions, please check that snap permissions have been "
+#~ "granted"
 #~ msgstr ""
-#~ "Ne visi nepieciešamie moduļi darbojas korekti, iespējams nav piešķirtas "
-#~ "snap atļaujas"
+#~ "Ne visi nepieciešamie moduļi darbojas korekti, iespējams nav piešķirtas snap"
+#~ " atļaujas"
 
 #~ msgid ""
 #~ "To enable necessary permissions run the following commands in the terminal"

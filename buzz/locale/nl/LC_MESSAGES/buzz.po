@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-07 18:01+0300\n"
+"POT-Creation-Date: 2026-06-14 16:54+0300\n"
 "PO-Revision-Date: 2025-03-20 18:30+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: none\n"
@@ -31,6 +31,8 @@ msgstr "https://voorbeeld.nl/audio.mp3"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/main_window.py
 msgid "Ok"
 msgstr "Oké"
@@ -38,6 +40,8 @@ msgstr "Oké"
 #: buzz/widgets/import_url_dialog.py
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 #: buzz/widgets/model_download_progress_dialog.py buzz/widgets/main_window.py
 msgid "Cancel"
@@ -191,8 +195,8 @@ msgid ""
 "Note: Live recording export settings will be moved to the Advanced Settings "
 "in the Live Recording screen in a future version."
 msgstr ""
-"Opmerking: de exportinstellingen voor live-opnames worden in een toekomstige "
-"versie verplaatst naar de geavanceerde instellingen in het scherm Live-"
+"Opmerking: de exportinstellingen voor live-opnames worden in een toekomstige"
+" versie verplaatst naar de geavanceerde instellingen in het scherm Live-"
 "opname."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
@@ -257,8 +261,8 @@ msgstr "Kies een exportmap"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key "
-"validation."
+"Transcription and translation may still work if the API does not support key"
+" validation."
 msgstr ""
 "De api gaf een ongeldig antwoord terug. Controleer de url of sleutel. "
 "Transcriptie en vertaling werkt mogelijk nog steeds als de api niet om "
@@ -277,6 +281,7 @@ msgid "Input folder"
 msgstr "Invoermap"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/plugins/export_docx/plugin.py
 msgid "Output folder"
 msgstr "Uitvoermap"
 
@@ -455,8 +460,8 @@ msgid ""
 "will be used in an automated system, please do not add any comments or "
 "notes, just the translation."
 msgstr ""
-"Vertaal elke tekst die naar u wordt gestuurd van het Engels naar het Spaans. "
-"De vertaling wordt gebruikt in een geautomatiseerd systeem. Voeg geen "
+"Vertaal elke tekst die naar u wordt gestuurd van het Engels naar het Spaans."
+" De vertaling wordt gebruikt in een geautomatiseerd systeem. Voeg geen "
 "opmerkingen of notities toe, alleen de vertaling."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
@@ -585,6 +590,7 @@ msgid "File Name / URL"
 msgstr "Bestandsnaam/Url"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
 msgid "Model"
 msgstr "Model"
 
@@ -752,6 +758,74 @@ msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
 msgstr "Controleer uw geluidsapparatuur of het programmalogboek."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Plugins"
+msgstr "Plug-ins"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid ""
+"Plugins run with full access to your system. Only install plugins from "
+"sources you trust."
+msgstr ""
+"Plug-ins hebben volledige toegang tot je systeem. Installeer alleen plug-ins"
+" van bronnen die je vertrouwt."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add by URL..."
+msgstr "Toevoegen via URL..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Settings..."
+msgstr "Instellingen..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Move Up"
+msgstr "Omhoog"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Move Down"
+msgstr "Omlaag"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove"
+msgstr "Verwijderen"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove plugin"
+msgstr "Plug-in verwijderen"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove plugin '{}'?"
+msgstr "Plug-in '{}' verwijderen?"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add plugin"
+msgstr "Plug-in toevoegen"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Plugin URL (.zip):"
+msgstr "Plug-in-URL (.zip):"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Installing plugin..."
+msgstr "Plug-in installeren..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add plugin failed"
+msgstr "Toevoegen van plug-in mislukt"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid ""
+"Could not install the plugin:\n"
+"{}"
+msgstr ""
+"Kan de plug-in niet installeren:\n"
+"{}"
+
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
+msgid "Plugin not available."
+msgstr "Plug-in niet beschikbaar."
 
 #: buzz/widgets/update_dialog.py
 msgid "A new version of Buzz is available!"
@@ -991,7 +1065,8 @@ msgid "Desired subtitle length"
 msgstr "Voorkeurslengte van ondertiteling"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid "Available only if word level timings were disabled during transcription"
+msgid ""
+"Available only if word level timings were disabled during transcription"
 msgstr ""
 "Alleen beschikbaar als timings op woordniveau zijn uitgeschakeld tijdens "
 "transcriptie"
@@ -1001,16 +1076,19 @@ msgid "Merge Options"
 msgstr "Samenvoegopties"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Merge by gap"
-msgstr "Samenvoegen op basis van tussenruimte"
+msgstr "Samenvoegen op interval"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by punctuation"
-msgstr "Splitsen op basis van leestekens"
+msgstr "Splitsen op interpunctie"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by max length"
-msgstr "Splitsen op basis van max. lengte"
+msgstr "Splitsen op maximale lengte"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge"
@@ -1156,6 +1234,10 @@ msgstr "Instellingen…"
 #: buzz/widgets/menu_bar.py
 msgid "Help"
 msgstr "Hulp"
+
+#: buzz/widgets/menu_bar.py
+msgid "Plugins..."
+msgstr "Plug-ins..."
 
 #: buzz/widgets/menu_bar.py
 msgid "File"
@@ -1651,13 +1733,124 @@ msgstr "Bovenaan toevoegen"
 msgid "Append and correct"
 msgstr "Toevoegen en corrigeren"
 
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Enhanced language detection"
+msgstr "Verbeterde taaldetectie"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"Detect the spoken language with whisper.cpp before transcription (using the "
+"largest downloaded model, or the tiny model otherwise) and use it for the "
+"transcription and exported file names. Only runs when the language is set to"
+" auto-detect."
+msgstr ""
+"Detecteert de gesproken taal met whisper.cpp vóór het transcriberen (met het"
+" grootste gedownloade model, of anders het tiny-model) en gebruikt deze voor"
+" de transcriptie en de geëxporteerde bestandsnamen. Wordt alleen uitgevoerd "
+"wanneer de taal is ingesteld op automatische detectie."
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Download tiny model if none available"
+msgstr "Tiny-model downloaden als er geen beschikbaar is"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"If no whisper.cpp model is downloaded, download the tiny model to use for "
+"language detection."
+msgstr ""
+"Als er geen whisper.cpp-model is gedownload, wordt het tiny-model gedownload"
+" voor taaldetectie."
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Export to DOCX"
+msgstr "Exporteren naar DOCX"
+
+#: buzz/plugins/export_docx/plugin.py
+msgid ""
+"Export the transcript to a Microsoft Word (.docx) file after transcription, "
+"optionally including timestamps."
+msgstr ""
+"Exporteert de transcriptie na het transcriberen naar een Microsoft Word-"
+"bestand (.docx), optioneel met tijdcodes."
+
+#: buzz/plugins/export_docx/plugin.py buzz/plugins/ai_summary/plugin.py
+msgid "Leave empty to save next to the source file."
+msgstr "Laat leeg om naast het bronbestand op te slaan."
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Include timestamps"
+msgstr "Tijdcodes opnemen"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Automatic Transcript Resizer"
+msgstr "Automatisch transcriptie aanpassen"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid ""
+"When a transcription has word-level timings, automatically regroup the words"
+" into properly sized subtitles and replace the result. Mirrors the Merge "
+"options of the transcript resizer."
+msgstr ""
+"Wanneer een transcriptie tijdsmarkeringen op woordniveau heeft, worden de "
+"woorden automatisch hergroepeerd in passend grote ondertitels en wordt het "
+"resultaat vervangen. Komt overeen met de samenvoegopties van de "
+"transcriptie-aanpasser."
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Merge gap (seconds)"
+msgstr "Samenvoeginterval (seconden)"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Punctuation"
+msgstr "Interpunctie"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Maximum subtitle length"
+msgstr "Maximale ondertitellengte"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "AI Summary"
+msgstr "AI-samenvatting"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid ""
+"Generate an AI summary of the transcript via an OpenAI-compatible API and "
+"save it to the Notes field and/or a file."
+msgstr ""
+"Genereert een AI-samenvatting van de transcriptie via een OpenAI-compatibele"
+" API en slaat deze op in het notitieveld en/of een bestand."
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "API base URL"
+msgstr "API-basis-URL"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "API key"
+msgstr "API-sleutel"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Summarization prompt"
+msgstr "Samenvattingsprompt"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to Notes"
+msgstr "Samenvatting in notities opslaan"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to a file"
+msgstr "Samenvatting in een bestand opslaan"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Output folder (for file)"
+msgstr "Uitvoermap (voor bestand)"
+
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
 msgstr ""
-"Spraakextractie mislukt! Controleer uw internetverbinding — mogelijk moet er "
-"een model worden gedownload."
+"Spraakextractie mislukt! Controleer uw internetverbinding — mogelijk moet er"
+" een model worden gedownload."
 
 #~ msgid "Live recording mode:"
 #~ msgstr "Live-opnamemodus:"
@@ -1680,11 +1873,11 @@ msgstr ""
 #~ msgstr "Snap-rechten"
 
 #~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
+#~ "Detected missing permissions, please check that snap permissions have been "
+#~ "granted"
 #~ msgstr ""
-#~ "Er ontbreken toegangsrechten - controleer of ze daadwerkelijk allemaal "
-#~ "zijn toegekend"
+#~ "Er ontbreken toegangsrechten - controleer of ze daadwerkelijk allemaal zijn "
+#~ "toegekend"
 
 #~ msgid ""
 #~ "To enable necessary permissions run the following commands in the terminal"

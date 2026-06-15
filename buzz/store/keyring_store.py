@@ -241,3 +241,78 @@ def delete_password(key: Key) -> None:
         pass  # Password doesn't exist, ignore
     except Exception as exc:
         logging.warning("Unable to delete from keyring: %s", exc)
+
+
+# --- String-keyed secrets -------------------------------------------------
+# The Key enum above is for built-in, statically-known secrets. Plugins need
+# secrets under dynamic names (e.g. "plugin:<id>:<field>"), so the following
+# helpers accept a raw string name while reusing the same portal + keyring
+# fallback storage as the enum-based API.
+
+
+def _get_portal_secret_by_name(name: str) -> str | None:
+    portal_secret = _get_portal_secret()
+    if portal_secret is None:
+        return None
+    secrets = _load_local_secrets()
+    encrypted_value = secrets.get(name)
+    if encrypted_value is None:
+        return None
+    try:
+        derived_key = _derive_key(portal_secret, name)
+        return _decrypt_value(encrypted_value, derived_key)
+    except Exception as exc:
+        logging.debug("Failed to decrypt portal secret: %s", exc)
+        return None
+
+
+def _set_portal_secret_by_name(name: str, password: str) -> bool:
+    portal_secret = _get_portal_secret()
+    if portal_secret is None:
+        return False
+    try:
+        derived_key = _derive_key(portal_secret, name)
+        secrets = _load_local_secrets()
+        secrets[name] = _encrypt_value(password, derived_key)
+        _save_local_secrets(secrets)
+        return True
+    except Exception as exc:
+        logging.debug("Failed to set portal secret: %s", exc)
+        return False
+
+
+def get_secret(name: str) -> str:
+    """Get a secret stored under an arbitrary string name. Returns "" if unset."""
+    if _is_linux():
+        result = _get_portal_secret_by_name(name)
+        if result is not None:
+            return result
+    try:
+        password = keyring.get_password(APP_NAME, username=name)
+        return password if password is not None else ""
+    except Exception as exc:
+        logging.warning("Unable to read from keyring: %s", exc)
+        return ""
+
+
+def set_secret(name: str, password: str) -> None:
+    """Set a secret stored under an arbitrary string name."""
+    if _is_linux():
+        if _set_portal_secret_by_name(name, password):
+            return
+    keyring.set_password(APP_NAME, name, password)
+
+
+def delete_secret(name: str) -> None:
+    """Delete a secret stored under an arbitrary string name."""
+    if _is_linux():
+        secrets = _load_local_secrets()
+        if name in secrets:
+            del secrets[name]
+            _save_local_secrets(secrets)
+    try:
+        keyring.delete_password(APP_NAME, name)
+    except keyring.errors.PasswordDeleteError:
+        pass
+    except Exception as exc:
+        logging.warning("Unable to delete from keyring: %s", exc)

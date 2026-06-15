@@ -1,0 +1,12 @@
+{
+  "AI Summary": "Resumen con IA",
+  "Generate an AI summary of the transcript via an OpenAI-compatible API and save it to the Notes field and/or a file.": "Genera un resumen con IA de la transcripción mediante una API compatible con OpenAI y lo guarda en el campo de notas o en un archivo.",
+  "API base URL": "URL base de la API",
+  "API key": "Clave de API",
+  "Model": "Modelo",
+  "Summarization prompt": "Indicación de resumen",
+  "Save summary to Notes": "Guardar resumen en notas",
+  "Save summary to a file": "Guardar resumen en un archivo",
+  "Output folder (for file)": "Carpeta de salida (para el archivo)",
+  "Leave empty to save next to the source file.": "Déjalo vacío para guardar junto al archivo de origen."
+}

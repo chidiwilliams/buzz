@@ -1,0 +1,12 @@
+{
+  "AI Summary": "AI-resumé",
+  "Generate an AI summary of the transcript via an OpenAI-compatible API and save it to the Notes field and/or a file.": "Genererer et AI-resumé af transskriptionen via en OpenAI-kompatibel API og gemmer det i notefeltet og/eller en fil.",
+  "API base URL": "API-basis-URL",
+  "API key": "API-nøgle",
+  "Model": "Model",
+  "Summarization prompt": "Resuméprompt",
+  "Save summary to Notes": "Gem resumé i noter",
+  "Save summary to a file": "Gem resumé i en fil",
+  "Output folder (for file)": "Outputmappe (til fil)",
+  "Leave empty to save next to the source file.": "Lad stå tom for at gemme ved siden af kildefilen."
+}

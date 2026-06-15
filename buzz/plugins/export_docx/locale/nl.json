@@ -1,0 +1,7 @@
+{
+  "Export to DOCX": "Exporteren naar DOCX",
+  "Export the transcript to a Microsoft Word (.docx) file after transcription, optionally including timestamps.": "Exporteert de transcriptie na het transcriberen naar een Microsoft Word-bestand (.docx), optioneel met tijdcodes.",
+  "Output folder": "Uitvoermap",
+  "Leave empty to save next to the source file.": "Laat leeg om naast het bronbestand op te slaan.",
+  "Include timestamps": "Tijdcodes opnemen"
+}

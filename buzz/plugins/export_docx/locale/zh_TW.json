@@ -1,0 +1,7 @@
+{
+  "Export to DOCX": "匯出為 DOCX",
+  "Export the transcript to a Microsoft Word (.docx) file after transcription, optionally including timestamps.": "轉錄完成後將轉錄文字匯出為 Microsoft Word (.docx) 檔案，可選擇包含時間戳。",
+  "Output folder": "輸出資料夾",
+  "Leave empty to save next to the source file.": "留空則儲存在來源檔案旁邊。",
+  "Include timestamps": "包含時間戳"
+}

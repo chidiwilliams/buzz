@@ -1,0 +1,7 @@
+{
+  "Export to DOCX": "Eksportēt uz DOCX",
+  "Export the transcript to a Microsoft Word (.docx) file after transcription, optionally including timestamps.": "Pēc transkripcijas eksportē transkriptu uz Microsoft Word (.docx) failu, pēc izvēles iekļaujot laika atzīmes.",
+  "Output folder": "Rezultātu mape",
+  "Leave empty to save next to the source file.": "Atstājiet tukšu, lai saglabātu blakus avota failam.",
+  "Include timestamps": "Iekļaut laika atzīmes"
+}

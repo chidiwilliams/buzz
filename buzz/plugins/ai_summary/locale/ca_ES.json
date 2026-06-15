@@ -1,0 +1,12 @@
+{
+  "AI Summary": "Resum amb IA",
+  "Generate an AI summary of the transcript via an OpenAI-compatible API and save it to the Notes field and/or a file.": "Genera un resum amb IA de la transcripció mitjançant una API compatible amb OpenAI i el desa al camp de notes i/o en un fitxer.",
+  "API base URL": "URL base de l'API",
+  "API key": "Clau de l'API",
+  "Model": "Model",
+  "Summarization prompt": "Indicació de resum",
+  "Save summary to Notes": "Desa el resum a les notes",
+  "Save summary to a file": "Desa el resum en un fitxer",
+  "Output folder (for file)": "Carpeta de sortida (per al fitxer)",
+  "Leave empty to save next to the source file.": "Deixeu-ho buit per desar al costat del fitxer d'origen."
+}

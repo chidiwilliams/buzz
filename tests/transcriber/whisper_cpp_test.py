@@ -39,6 +39,78 @@ class TestWhisperCpp:
         full_text = " ".join(segment.text for segment in segments)
         assert "Bien venu" in full_text or "bienvenu" in full_text.lower()
 
+    def test_detect_language(self):
+        model = TranscriptionModel(
+            model_type=ModelType.WHISPER_CPP,
+            whisper_model_size=WhisperModelSize.TINY,
+        )
+        model_path = get_model_path(model)
+
+        assert WhisperCpp.detect_language(test_audio_path, model_path) == "fr"
+        assert (
+            WhisperCpp.detect_language(test_multibyte_utf8_audio_path, model_path)
+            == "lv"
+        )
+
+    def test_detect_language_parses_stderr(self):
+        completed = MagicMock(
+            stderr="whisper_full_with_state: auto-detected language: de (p = 0.98)\n",
+            stdout="",
+        )
+        with patch(
+            "buzz.transcriber.whisper_cpp.subprocess.run", return_value=completed
+        ) as run_mock, patch(
+            "buzz.transcriber.whisper_cpp.get_whisper_cli_path",
+            return_value="/fake/whisper-cli",
+        ):
+            result = WhisperCpp.detect_language("/fake/audio.wav", "/fake/model.bin")
+
+        assert result == "de"
+        cmd = run_mock.call_args[0][0]
+        assert "--detect-language" in cmd
+        assert cmd[cmd.index("--model") + 1] == "/fake/model.bin"
+        # A supported format is passed straight through, no conversion.
+        assert cmd[cmd.index("-f") + 1] == "/fake/audio.wav"
+
+    def test_detect_language_no_match_returns_none(self):
+        completed = MagicMock(stderr="no language line here\n", stdout="")
+        with patch(
+            "buzz.transcriber.whisper_cpp.subprocess.run", return_value=completed
+        ), patch(
+            "buzz.transcriber.whisper_cpp.get_whisper_cli_path",
+            return_value="/fake/whisper-cli",
+        ):
+            assert (
+                WhisperCpp.detect_language("/fake/audio.wav", "/fake/model.bin") is None
+            )
+
+    def test_detect_language_converts_unsupported_format(self):
+        # .m4a is not directly supported, so ffmpeg should convert to .wav first
+        # and the converted path should be fed to whisper-cli.
+        detect_result = MagicMock(
+            stderr="auto-detected language: en (p = 0.9)\n", stdout=""
+        )
+        calls = []
+
+        def fake_run(cmd, *args, **kwargs):
+            calls.append(cmd)
+            if cmd[0] == "ffmpeg":
+                return MagicMock(returncode=0)
+            return detect_result
+
+        with patch(
+            "buzz.transcriber.whisper_cpp.subprocess.run", side_effect=fake_run
+        ), patch(
+            "buzz.transcriber.whisper_cpp.get_whisper_cli_path",
+            return_value="/fake/whisper-cli",
+        ):
+            result = WhisperCpp.detect_language("/fake/audio.m4a", "/fake/model.bin")
+
+        assert result == "en"
+        assert calls[0][0] == "ffmpeg"
+        detect_cmd = calls[-1]
+        assert detect_cmd[detect_cmd.index("-f") + 1] == "/fake/audio.m4a.wav"
+
     def test_transcribe_word_level_timestamps(self):
         transcription_options = TranscriptionOptions(
             language="lv",

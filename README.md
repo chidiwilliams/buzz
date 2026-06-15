@@ -30,6 +30,7 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
 - Keyboard shortcuts for efficient navigation
 - Watch folder for automatic transcription of new files
 - Command-Line Interface for scripting and automation
+- Plugin system with plugins like AI summary generation and automated transcript resizing
 
 ## Installation
 

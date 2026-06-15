@@ -91,6 +91,8 @@ class Settings:
         LAST_UPDATE_CHECK = "update/last-check"
         UPDATE_AVAILABLE_VERSION = "update/available-version"
 
+        PLUGINS = "plugins"
+
     def get_user_identifier(self) -> str:
         user_id = self.value(self.Key.USER_IDENTIFIER, "")
         if not user_id:

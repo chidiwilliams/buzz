@@ -1,0 +1,12 @@
+{
+  "AI Summary": "Riepilogo IA",
+  "Generate an AI summary of the transcript via an OpenAI-compatible API and save it to the Notes field and/or a file.": "Genera un riassunto con IA della trascrizione tramite un'API compatibile con OpenAI e lo salva nel campo Note e/o in un file.",
+  "API base URL": "URL base API",
+  "API key": "Chiave API",
+  "Model": "Modello",
+  "Summarization prompt": "Prompt di riepilogo",
+  "Save summary to Notes": "Salva il riepilogo nelle note",
+  "Save summary to a file": "Salva il riepilogo in un file",
+  "Output folder (for file)": "Cartella di output (per il file)",
+  "Leave empty to save next to the source file.": "Lascia vuoto per salvare accanto al file di origine."
+}

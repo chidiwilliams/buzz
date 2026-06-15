@@ -120,6 +120,9 @@ class FileTranscriberQueueWorker(QObject):
         self.speech_path = None
         self.speech_extractor_process = None
         self.is_running = False
+        # Assigned by MainWindow after construction. Duck-typed to avoid an
+        # import cycle with the plugins package.
+        self.plugin_manager = None
         # Use QueuedConnection to ensure run() is called in the correct thread context
         # and doesn't block signal handlers
         self.trigger_run.connect(self.run, Qt.ConnectionType.QueuedConnection)
@@ -180,8 +183,22 @@ class FileTranscriberQueueWorker(QObject):
 
             if status == "ok":
                 self.speech_path = speech_path
+                # Remember the original audio path: file_path is about to point
+                # at the temporary "_speech.mp3", which is deleted once the
+                # transcription completes. Plugins (e.g. the transcript resizer)
+                # need the original file in their post-completion hooks.
+                if not self.current_task.original_file_path:
+                    self.current_task.original_file_path = str(task_file_path)
                 self.current_task.file_path = str(speech_path)
             # status == "no_audio": transcribe the original file as-is.
+
+        # Let plugins process / replace the source audio before transcription.
+        # Runs on this worker thread; plugins may overwrite current_task.file_path.
+        if self.plugin_manager is not None:
+            try:
+                self.plugin_manager.run_before_transcription(self.current_task)
+            except Exception as e:
+                logging.error(f"Plugin before_transcription failed: {e}", exc_info=True)
 
         logging.debug("Starting next transcription task")
         self.task_progress.emit(self.current_task, 0)

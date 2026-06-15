@@ -1,0 +1,12 @@
+{
+  "AI Summary": "KI-Zusammenfassung",
+  "Generate an AI summary of the transcript via an OpenAI-compatible API and save it to the Notes field and/or a file.": "Erstellt eine KI-Zusammenfassung des Transkripts über eine OpenAI-kompatible API und speichert sie im Notizfeld und/oder in einer Datei.",
+  "API base URL": "API-Basis-URL",
+  "API key": "API-Schlüssel",
+  "Model": "Modell",
+  "Summarization prompt": "Zusammenfassungs-Prompt",
+  "Save summary to Notes": "Zusammenfassung in Notizen speichern",
+  "Save summary to a file": "Zusammenfassung in einer Datei speichern",
+  "Output folder (for file)": "Ausgabeordner (für Datei)",
+  "Leave empty to save next to the source file.": "Leer lassen, um neben der Quelldatei zu speichern."
+}

@@ -1,0 +1,12 @@
+{
+  "AI Summary": "AI-samenvatting",
+  "Generate an AI summary of the transcript via an OpenAI-compatible API and save it to the Notes field and/or a file.": "Genereert een AI-samenvatting van de transcriptie via een OpenAI-compatibele API en slaat deze op in het notitieveld en/of een bestand.",
+  "API base URL": "API-basis-URL",
+  "API key": "API-sleutel",
+  "Model": "Model",
+  "Summarization prompt": "Samenvattingsprompt",
+  "Save summary to Notes": "Samenvatting in notities opslaan",
+  "Save summary to a file": "Samenvatting in een bestand opslaan",
+  "Output folder (for file)": "Uitvoermap (voor bestand)",
+  "Leave empty to save next to the source file.": "Laat leeg om naast het bronbestand op te slaan."
+}

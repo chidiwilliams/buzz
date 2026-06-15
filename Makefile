@@ -71,7 +71,7 @@ ifeq ($(OS), Windows_NT)
 	cp whisper.cpp/build/bin/Release/whisper-cli.exe buzz/whisper_cpp/
 	cp whisper.cpp/build/bin/Release/whisper-server.exe buzz/whisper_cpp/
 	cp dll_backup/SDL2.dll buzz/whisper_cpp
-	PowerShell -NoProfile -ExecutionPolicy Bypass -Command "if (-not (Test-Path 'buzz\whisper_cpp\ggml-silero-v6.2.0.bin')) { Start-BitsTransfer -Source https://huggingface.co/ggml-org/whisper-vad/resolve/main/ggml-silero-v6.2.0.bin -Destination 'buzz\whisper_cpp\ggml-silero-v6.2.0.bin' }"
+	test -f buzz/whisper_cpp/ggml-silero-v6.2.0.bin || curl -L -o buzz/whisper_cpp/ggml-silero-v6.2.0.bin https://huggingface.co/ggml-org/whisper-vad/resolve/main/ggml-silero-v6.2.0.bin
 endif
 
 ifeq ($(shell uname -s), Linux)

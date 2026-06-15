@@ -1,8 +1,9 @@
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-07 18:01+0300\n"
+"POT-Creation-Date: 2026-06-14 16:54+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Ole Guldberg2 <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -10,8 +11,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=n==1 ? 3 : n%10==1 && n%100!=11 ? 0 : "
-"n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Plural-Forms: nplurals=4; plural=n==1 ? 3 : n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 
 # "X-Generator: Poedit 3.4.4\n"
 #: buzz/widgets/import_url_dialog.py buzz/settings/shortcut.py
@@ -26,6 +26,8 @@ msgstr "https://example.com/audio.mp3"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/main_window.py
 msgid "Ok"
 msgstr "OK"
@@ -33,6 +35,8 @@ msgstr "OK"
 #: buzz/widgets/import_url_dialog.py
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 #: buzz/widgets/model_download_progress_dialog.py buzz/widgets/main_window.py
 msgid "Cancel"
@@ -251,8 +255,8 @@ msgstr "Vælg eksport-mappe"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key "
-"validation."
+"Transcription and translation may still work if the API does not support key"
+" validation."
 msgstr ""
 "OpenAI API returnerede et ugyldigt svar. Tjek venligst API-URL og nøgle. "
 "Transkription og oversættelse virker måske stadig, selvom API'et ikke "
@@ -271,6 +275,7 @@ msgid "Input folder"
 msgstr "Inputmappe"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/plugins/export_docx/plugin.py
 msgid "Output folder"
 msgstr "Outputmappe"
 
@@ -577,6 +582,7 @@ msgid "File Name / URL"
 msgstr "Filnavn / URL"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
 msgid "Model"
 msgstr "Model"
 
@@ -651,7 +657,8 @@ msgstr ""
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
 msgstr ""
-"Kunne ikke genstarte transkription: transkriptionsprocessen blev ikke fundet."
+"Kunne ikke genstarte transkription: transkriptionsprocessen blev ikke "
+"fundet."
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -744,6 +751,74 @@ msgid ""
 msgstr ""
 "Tjek venligst dine audioenheder eller tjek applikationens logs for "
 "mereinformation."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Plugins"
+msgstr "Plugins"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid ""
+"Plugins run with full access to your system. Only install plugins from "
+"sources you trust."
+msgstr ""
+"Plugins har fuld adgang til dit system. Installér kun plugins fra kilder, du"
+" har tillid til."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add by URL..."
+msgstr "Tilføj via URL..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Settings..."
+msgstr "Indstillinger..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Move Up"
+msgstr "Flyt op"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Move Down"
+msgstr "Flyt ned"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove"
+msgstr "Fjern"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove plugin"
+msgstr "Fjern plugin"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove plugin '{}'?"
+msgstr "Fjern plugin '{}'?"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add plugin"
+msgstr "Tilføj plugin"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Plugin URL (.zip):"
+msgstr "Plugin-URL (.zip):"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Installing plugin..."
+msgstr "Installerer plugin..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add plugin failed"
+msgstr "Tilføjelse af plugin mislykkedes"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid ""
+"Could not install the plugin:\n"
+"{}"
+msgstr ""
+"Kunne ikke installere plugin'et:\n"
+"{}"
+
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
+msgid "Plugin not available."
+msgstr "Plugin ikke tilgængeligt."
 
 #: buzz/widgets/update_dialog.py
 msgid "A new version of Buzz is available!"
@@ -983,7 +1058,8 @@ msgid "Desired subtitle length"
 msgstr "Ønskede undertekst længde"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid "Available only if word level timings were disabled during transcription"
+msgid ""
+"Available only if word level timings were disabled during transcription"
 msgstr ""
 "Kun tilgængeligt hvis ordniveau-tidsstempler var deaktiveret under "
 "transkription"
@@ -993,16 +1069,19 @@ msgid "Merge Options"
 msgstr "Sammenfletningsindstillinger"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Merge by gap"
-msgstr "Sammenflet ved hul"
+msgstr "Flet efter mellemrum"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by punctuation"
-msgstr "Split ved punktum"
+msgstr "Opdel efter tegnsætning"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by max length"
-msgstr "Split ved max længde"
+msgstr "Opdel efter maksimal længde"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge"
@@ -1042,8 +1121,8 @@ msgid ""
 "Failed to load alignment model. Please check your internet connection and "
 "try again."
 msgstr ""
-"Kunne ikke indlæse justeringsmodel. Tjek venligst din internetforbindelse og "
-"prøv igen."
+"Kunne ikke indlæse justeringsmodel. Tjek venligst din internetforbindelse og"
+" prøv igen."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "4/8 Processing audio"
@@ -1148,6 +1227,10 @@ msgstr "Indstillinger..."
 #: buzz/widgets/menu_bar.py
 msgid "Help"
 msgstr "Hjælp"
+
+#: buzz/widgets/menu_bar.py
+msgid "Plugins..."
+msgstr "Plugins..."
 
 #: buzz/widgets/menu_bar.py
 msgid "File"
@@ -1640,6 +1723,116 @@ msgstr "Tilføj herover"
 #: buzz/settings/recording_transcriber_mode.py
 msgid "Append and correct"
 msgstr "Tilføj og ret"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Enhanced language detection"
+msgstr "Forbedret sprogregistrering"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"Detect the spoken language with whisper.cpp before transcription (using the "
+"largest downloaded model, or the tiny model otherwise) and use it for the "
+"transcription and exported file names. Only runs when the language is set to"
+" auto-detect."
+msgstr ""
+"Registrerer det talte sprog med whisper.cpp før transskription (ved hjælp af"
+" den største downloadede model eller ellers tiny-modellen) og bruger det til"
+" transskriptionen og de eksporterede filnavne. Kører kun, når sproget er "
+"indstillet til automatisk registrering."
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Download tiny model if none available"
+msgstr "Download tiny-modellen, hvis ingen er tilgængelig"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"If no whisper.cpp model is downloaded, download the tiny model to use for "
+"language detection."
+msgstr ""
+"Hvis der ikke er downloadet nogen whisper.cpp-model, downloades tiny-"
+"modellen til brug for sprogregistrering."
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Export to DOCX"
+msgstr "Eksportér til DOCX"
+
+#: buzz/plugins/export_docx/plugin.py
+msgid ""
+"Export the transcript to a Microsoft Word (.docx) file after transcription, "
+"optionally including timestamps."
+msgstr ""
+"Eksporterer transskriptionen til en Microsoft Word-fil (.docx) efter "
+"transskription, eventuelt med tidsstempler."
+
+#: buzz/plugins/export_docx/plugin.py buzz/plugins/ai_summary/plugin.py
+msgid "Leave empty to save next to the source file."
+msgstr "Lad stå tom for at gemme ved siden af kildefilen."
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Include timestamps"
+msgstr "Inkludér tidsstempler"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Automatic Transcript Resizer"
+msgstr "Automatisk tilpasning af transskription"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid ""
+"When a transcription has word-level timings, automatically regroup the words"
+" into properly sized subtitles and replace the result. Mirrors the Merge "
+"options of the transcript resizer."
+msgstr ""
+"Når en transskription har tidsmarkeringer på ordniveau, grupperes ordene "
+"automatisk i passende store undertekster, og resultatet erstattes. Svarer "
+"til fletteindstillingerne i transskriptionstilpasseren."
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Merge gap (seconds)"
+msgstr "Fletteinterval (sekunder)"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Punctuation"
+msgstr "Tegnsætning"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Maximum subtitle length"
+msgstr "Maksimal undertekstlængde"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "AI Summary"
+msgstr "AI-resumé"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid ""
+"Generate an AI summary of the transcript via an OpenAI-compatible API and "
+"save it to the Notes field and/or a file."
+msgstr ""
+"Genererer et AI-resumé af transskriptionen via en OpenAI-kompatibel API og "
+"gemmer det i notefeltet og/eller en fil."
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "API base URL"
+msgstr "API-basis-URL"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "API key"
+msgstr "API-nøgle"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Summarization prompt"
+msgstr "Resuméprompt"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to Notes"
+msgstr "Gem resumé i noter"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to a file"
+msgstr "Gem resumé i en fil"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Output folder (for file)"
+msgstr "Outputmappe (til fil)"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""

@@ -7,10 +7,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-07 18:01+0300\n"
+"POT-Creation-Date: 2026-06-14 16:54+0300\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
-"Language-Team: lamb \n"
+"Language-Team: lamb\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -29,6 +29,8 @@ msgstr "https://example.com/audio.mp3"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/main_window.py
 msgid "Ok"
 msgstr "Ok"
@@ -36,6 +38,8 @@ msgstr "Ok"
 #: buzz/widgets/import_url_dialog.py
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 #: buzz/widgets/model_download_progress_dialog.py buzz/widgets/main_window.py
 msgid "Cancel"
@@ -198,9 +202,7 @@ msgstr "使用8位量化以减少内存占用"
 msgid ""
 "Applies to Huggingface and Faster Whisper models. Reduces GPU memory usage "
 "but may slightly decrease transcription quality."
-msgstr ""
-"适用于 Huggingface 和 Faster Whisper 模型。可减少 GPU 内存占用，但可能略微降"
-"低转录质量。"
+msgstr "适用于 Huggingface 和 Faster Whisper 模型。可减少 GPU 内存占用，但可能略微降低转录质量。"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Reduce GPU RAM"
@@ -236,8 +238,7 @@ msgstr "无效的API key"
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
-msgstr ""
-"API只支持 base64字符（A-Za-z0-9+/=_-）。其他字符在API密钥中可能导致错误。"
+msgstr "API只支持 base64字符（A-Za-z0-9+/=_-）。其他字符在API密钥中可能导致错误。"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
@@ -247,11 +248,9 @@ msgstr "选择输出文件夹"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key "
-"validation."
-msgstr ""
-"OpenAI API返回无效响应。请检查API网址或您的密钥。如果API不支持密钥验证，转录"
-"和翻译可能仍然有效翻"
+"Transcription and translation may still work if the API does not support key"
+" validation."
+msgstr "OpenAI API返回无效响应。请检查API网址或您的密钥。如果API不支持密钥验证，转录和翻译可能仍然有效翻"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Enable folder watch"
@@ -266,6 +265,7 @@ msgid "Input folder"
 msgstr "输入文件夹"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/plugins/export_docx/plugin.py
 msgid "Output folder"
 msgstr "输出文件夹"
 
@@ -441,9 +441,7 @@ msgid ""
 "Please translate each text sent to you from English to Spanish. Translation "
 "will be used in an automated system, please do not add any comments or "
 "notes, just the translation."
-msgstr ""
-"请将发送给您的每段文本从英语翻译成西班牙语。翻译将用于自动化系统，请不要添加"
-"任何评论或备注，只需提供翻译即可。"
+msgstr "请将发送给您的每段文本从英语翻译成西班牙语。翻译将用于自动化系统，请不要添加任何评论或备注，只需提供翻译即可。"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -571,6 +569,7 @@ msgid "File Name / URL"
 msgstr "文件名称/URL"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
 msgid "Model"
 msgstr "模型"
 
@@ -733,6 +732,72 @@ msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
 msgstr "请检查您的音频设备或检查应用程序日志以获取更多信息。"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Plugins"
+msgstr "插件"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid ""
+"Plugins run with full access to your system. Only install plugins from "
+"sources you trust."
+msgstr "插件对您的系统具有完全访问权限。请仅安装来自可信来源的插件。"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add by URL..."
+msgstr "通过 URL 添加..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Settings..."
+msgstr "设置..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Move Up"
+msgstr "上移"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Move Down"
+msgstr "下移"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove"
+msgstr "移除"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove plugin"
+msgstr "移除插件"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove plugin '{}'?"
+msgstr "移除插件“{}”？"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add plugin"
+msgstr "添加插件"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Plugin URL (.zip):"
+msgstr "插件 URL (.zip)："
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Installing plugin..."
+msgstr "正在安装插件..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add plugin failed"
+msgstr "添加插件失败"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid ""
+"Could not install the plugin:\n"
+"{}"
+msgstr ""
+"无法安装插件：\n"
+"{}"
+
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
+msgid "Plugin not available."
+msgstr "插件不可用。"
 
 #: buzz/widgets/update_dialog.py
 msgid "A new version of Buzz is available!"
@@ -970,7 +1035,8 @@ msgid "Desired subtitle length"
 msgstr "所需字幕长度"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid "Available only if word level timings were disabled during transcription"
+msgid ""
+"Available only if word level timings were disabled during transcription"
 msgstr "仅在转录时禁用逐词时间戳时可用"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
@@ -978,16 +1044,19 @@ msgid "Merge Options"
 msgstr "合并选项"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Merge by gap"
 msgstr "按间隔合并"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by punctuation"
-msgstr "按标点符号拆分"
+msgstr "按标点分割"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by max length"
-msgstr "按最大长度拆分"
+msgstr "按最大长度分割"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge"
@@ -1129,6 +1198,10 @@ msgid "Help"
 msgstr "帮助"
 
 #: buzz/widgets/menu_bar.py
+msgid "Plugins..."
+msgstr "插件..."
+
+#: buzz/widgets/menu_bar.py
 msgid "File"
 msgstr "文件"
 
@@ -1162,8 +1235,7 @@ msgid ""
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
 "variable."
 msgstr ""
-"Whisper 服务器因内存不足而启动失败。请尝试使用较小的模型。如需强制使用 CPU 模"
-"式，请设置环境变量 BUZZ_FORCE_CPU=TRUE。"
+"Whisper 服务器因内存不足而启动失败。请尝试使用较小的模型。如需强制使用 CPU 模式，请设置环境变量 BUZZ_FORCE_CPU=TRUE。"
 
 #: buzz/transcriber/transcriber.py
 msgid "Translate to English"
@@ -1617,6 +1689,105 @@ msgstr "增加上方"
 msgid "Append and correct"
 msgstr "增加并纠正"
 
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Enhanced language detection"
+msgstr "增强语言检测"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"Detect the spoken language with whisper.cpp before transcription (using the "
+"largest downloaded model, or the tiny model otherwise) and use it for the "
+"transcription and exported file names. Only runs when the language is set to"
+" auto-detect."
+msgstr ""
+"在转录前使用 whisper.cpp 检测所说的语言（使用已下载的最大模型，否则使用 tiny "
+"模型），并将其用于转录和导出的文件名。仅在语言设置为自动检测时运行。"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Download tiny model if none available"
+msgstr "如果没有可用模型则下载 tiny 模型"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"If no whisper.cpp model is downloaded, download the tiny model to use for "
+"language detection."
+msgstr "如果未下载任何 whisper.cpp 模型，则下载 tiny 模型用于语言检测。"
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Export to DOCX"
+msgstr "导出为 DOCX"
+
+#: buzz/plugins/export_docx/plugin.py
+msgid ""
+"Export the transcript to a Microsoft Word (.docx) file after transcription, "
+"optionally including timestamps."
+msgstr "转录完成后将转录文本导出为 Microsoft Word (.docx) 文件，可选择包含时间戳。"
+
+#: buzz/plugins/export_docx/plugin.py buzz/plugins/ai_summary/plugin.py
+msgid "Leave empty to save next to the source file."
+msgstr "留空则保存在源文件旁边。"
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Include timestamps"
+msgstr "包含时间戳"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Automatic Transcript Resizer"
+msgstr "自动转录文本调整"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid ""
+"When a transcription has word-level timings, automatically regroup the words"
+" into properly sized subtitles and replace the result. Mirrors the Merge "
+"options of the transcript resizer."
+msgstr "当转录具有单词级时间戳时，自动将单词重新分组为大小合适的字幕并替换结果。与转录调整器的合并选项相同。"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Merge gap (seconds)"
+msgstr "合并间隔（秒）"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Punctuation"
+msgstr "标点符号"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Maximum subtitle length"
+msgstr "字幕最大长度"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "AI Summary"
+msgstr "AI 摘要"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid ""
+"Generate an AI summary of the transcript via an OpenAI-compatible API and "
+"save it to the Notes field and/or a file."
+msgstr "通过兼容 OpenAI 的 API 生成转录文本的 AI 摘要，并将其保存到备注字段和/或文件中。"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "API base URL"
+msgstr "API 基础 URL"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "API key"
+msgstr "API 密钥"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Summarization prompt"
+msgstr "摘要提示词"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to Notes"
+msgstr "将摘要保存到备注"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to a file"
+msgstr "将摘要保存到文件"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Output folder (for file)"
+msgstr "输出文件夹（用于文件）"
+
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
@@ -1642,8 +1813,8 @@ msgstr "语音提取失败！请检查您的网络连接——可能需要下载
 #~ msgstr "快照权限通知"
 
 #~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
+#~ "Detected missing permissions, please check that snap permissions have been "
+#~ "granted"
 #~ msgstr "检测到缺少权限，请检查是否已获得快照权限"
 
 #~ msgid ""
@@ -1661,6 +1832,3 @@ msgstr "语音提取失败！请检查您的网络连接——可能需要下载
 
 #~ msgid "ID"
 #~ msgstr "ID"
-
-#~ msgid "Downloading model (0%, unknown time remaining)"
-#~ msgstr "正在下载模型 (0%, 剩余时间未知)"

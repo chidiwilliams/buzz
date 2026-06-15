@@ -1,0 +1,12 @@
+{
+  "AI Summary": "AI要約",
+  "Generate an AI summary of the transcript via an OpenAI-compatible API and save it to the Notes field and/or a file.": "OpenAI互換APIを使用して文字起こしのAI要約を生成し、メモ欄やファイルに保存します。",
+  "API base URL": "APIベースURL",
+  "API key": "APIキー",
+  "Model": "モデル",
+  "Summarization prompt": "要約プロンプト",
+  "Save summary to Notes": "要約をメモに保存",
+  "Save summary to a file": "要約をファイルに保存",
+  "Output folder (for file)": "出力フォルダ（ファイル用）",
+  "Leave empty to save next to the source file.": "空欄にするとソースファイルの隣に保存します。"
+}

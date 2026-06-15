@@ -1,0 +1,7 @@
+{
+  "Export to DOCX": "Экспорт в DOCX",
+  "Export the transcript to a Microsoft Word (.docx) file after transcription, optionally including timestamps.": "Экспортирует транскрипцию в файл Microsoft Word (.docx) после расшифровки, при необходимости с временными метками.",
+  "Output folder": "Папка вывода",
+  "Leave empty to save next to the source file.": "Оставьте пустым, чтобы сохранить рядом с исходным файлом.",
+  "Include timestamps": "Включить временные метки"
+}

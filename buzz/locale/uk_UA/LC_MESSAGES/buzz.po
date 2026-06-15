@@ -1,8 +1,9 @@
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-07 18:01+0300\n"
+"POT-Creation-Date: 2026-06-14 16:54+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Yevhen Popok <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -10,8 +11,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=n==1 ? 3 : n%10==1 && n%100!=11 ? 0 : "
-"n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Plural-Forms: nplurals=4; plural=n==1 ? 3 : n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Generator: Poedit 3.4.4\n"
 
 #: buzz/widgets/import_url_dialog.py buzz/settings/shortcut.py
@@ -26,6 +26,8 @@ msgstr "https://example.com/audio.mp3"
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/main_window.py
 msgid "Ok"
 msgstr "Гаразд"
@@ -33,6 +35,8 @@ msgstr "Гаразд"
 #: buzz/widgets/import_url_dialog.py
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 #: buzz/widgets/model_download_progress_dialog.py buzz/widgets/main_window.py
 msgid "Cancel"
@@ -191,7 +195,8 @@ msgstr ""
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use 8-bit quantization to reduce memory usage"
-msgstr "Використовувати 8-бітне квантування для зменшення використання пам'яті"
+msgstr ""
+"Використовувати 8-бітне квантування для зменшення використання пам'яті"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
@@ -239,8 +244,8 @@ msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
 msgstr ""
-"API підтримує лише символи base64 (A-Za-z0-9+/=_-). Інші символи в API-ключі "
-"можуть спричиняти помилки."
+"API підтримує лише символи base64 (A-Za-z0-9+/=_-). Інші символи в API-ключі"
+" можуть спричиняти помилки."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
@@ -250,12 +255,12 @@ msgstr "Виберіть теку для експорту"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key "
-"validation."
+"Transcription and translation may still work if the API does not support key"
+" validation."
 msgstr ""
 "OpenAI API повернув недійсну відповідь. Будь ласка, перевірте адресу вашого "
-"API-ключа. Транскрипція та переклад можуть продовжити працювати, якщо API не "
-"підтримує перевірку ключа."
+"API-ключа. Транскрипція та переклад можуть продовжити працювати, якщо API не"
+" підтримує перевірку ключа."
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Enable folder watch"
@@ -270,8 +275,9 @@ msgid "Input folder"
 msgstr "Тека введення"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/plugins/export_docx/plugin.py
 msgid "Output folder"
-msgstr "Тека виведення"
+msgstr "Папка виводу"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Select Input Folder"
@@ -394,7 +400,8 @@ msgstr "Модель:"
 #: buzz/widgets/transcriber/transcription_options_group_box.py
 #: buzz/transcriber/recording_transcriber.py
 msgid "First time use of a model may take up to several minutest to load."
-msgstr "Перше використання моделі може тривати кілька хвилин для завантаження."
+msgstr ""
+"Перше використання моделі може тривати кілька хвилин для завантаження."
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py
 msgid "Api Key:"
@@ -576,6 +583,7 @@ msgid "File Name / URL"
 msgstr "Назва файлу / посилання"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
 msgid "Model"
 msgstr "Модель"
 
@@ -744,6 +752,74 @@ msgstr ""
 "Будь ласка, перевірте свої аудіопристрої або пошукайте додаткову інформацію "
 "в звітах програми."
 
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Plugins"
+msgstr "Плагіни"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid ""
+"Plugins run with full access to your system. Only install plugins from "
+"sources you trust."
+msgstr ""
+"Плагіни мають повний доступ до вашої системи. Встановлюйте лише плагіни з "
+"джерел, яким ви довіряєте."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add by URL..."
+msgstr "Додати за URL..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Settings..."
+msgstr "Налаштування..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Move Up"
+msgstr "Вгору"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Move Down"
+msgstr "Вниз"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove"
+msgstr "Видалити"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove plugin"
+msgstr "Видалити плагін"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove plugin '{}'?"
+msgstr "Видалити плагін '{}'?"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add plugin"
+msgstr "Додати плагін"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Plugin URL (.zip):"
+msgstr "URL плагіна (.zip):"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Installing plugin..."
+msgstr "Встановлення плагіна..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add plugin failed"
+msgstr "Не вдалося додати плагін"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid ""
+"Could not install the plugin:\n"
+"{}"
+msgstr ""
+"Не вдалося встановити плагін:\n"
+"{}"
+
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
+msgid "Plugin not available."
+msgstr "Плагін недоступний."
+
 #: buzz/widgets/update_dialog.py
 msgid "A new version of Buzz is available!"
 msgstr "Доступна нова версія Buzz!"
@@ -899,7 +975,8 @@ msgstr "Повторювати фрагмент"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Enable/disable looping when clicking on transcript segments"
-msgstr "Увімкнути/вимкнути повторення при натисканні на фрагменти транскрипції"
+msgstr ""
+"Увімкнути/вимкнути повторення при натисканні на фрагменти транскрипції"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Follow Audio"
@@ -982,7 +1059,8 @@ msgid "Desired subtitle length"
 msgstr "Бажана довжина субтитрів"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid "Available only if word level timings were disabled during transcription"
+msgid ""
+"Available only if word level timings were disabled during transcription"
 msgstr ""
 "Доступно лише якщо хронометраж на рівні слів був вимкнений під час "
 "транскрипції"
@@ -992,16 +1070,19 @@ msgid "Merge Options"
 msgstr "Параметри об'єднання"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Merge by gap"
-msgstr "Об'єднати за паузою"
+msgstr "Об'єднувати за паузою"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by punctuation"
-msgstr "Розділити за пунктуацією"
+msgstr "Розділяти за пунктуацією"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
 msgid "Split by max length"
-msgstr "Розділити за максимальною довжиною"
+msgstr "Розділяти за максимальною довжиною"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge"
@@ -1148,6 +1229,10 @@ msgid "Help"
 msgstr "Допомога"
 
 #: buzz/widgets/menu_bar.py
+msgid "Plugins..."
+msgstr "Плагіни..."
+
+#: buzz/widgets/menu_bar.py
 msgid "File"
 msgstr "Файл"
 
@@ -1174,7 +1259,8 @@ msgstr "Не вдається додати до звʼязки ключів API-
 #: buzz/transcriber/recording_transcriber.py
 msgid "Whisper server failed to start. Check logs for details."
 msgstr ""
-"Не вдалося запустити сервер Whisper. Перевірте журнали для отримання деталей."
+"Не вдалося запустити сервер Whisper. Перевірте журнали для отримання "
+"деталей."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
@@ -1639,6 +1725,116 @@ msgstr "Додати зверху"
 msgid "Append and correct"
 msgstr "Додати та виправити"
 
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Enhanced language detection"
+msgstr "Покращене визначення мови"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"Detect the spoken language with whisper.cpp before transcription (using the "
+"largest downloaded model, or the tiny model otherwise) and use it for the "
+"transcription and exported file names. Only runs when the language is set to"
+" auto-detect."
+msgstr ""
+"Визначає мову мовлення за допомогою whisper.cpp перед розпізнаванням "
+"(використовуючи найбільшу завантажену модель або, в іншому разі, модель "
+"tiny) і використовує її для розпізнавання та імен експортованих файлів. "
+"Виконується лише коли мову встановлено на автоматичне визначення."
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Download tiny model if none available"
+msgstr "Завантажити модель tiny, якщо жодної немає"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"If no whisper.cpp model is downloaded, download the tiny model to use for "
+"language detection."
+msgstr ""
+"Якщо не завантажено жодної моделі whisper.cpp, завантажує модель tiny для "
+"визначення мови."
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Export to DOCX"
+msgstr "Експорт у DOCX"
+
+#: buzz/plugins/export_docx/plugin.py
+msgid ""
+"Export the transcript to a Microsoft Word (.docx) file after transcription, "
+"optionally including timestamps."
+msgstr ""
+"Експортує транскрипцію у файл Microsoft Word (.docx) після розпізнавання, за"
+" бажанням із часовими позначками."
+
+#: buzz/plugins/export_docx/plugin.py buzz/plugins/ai_summary/plugin.py
+msgid "Leave empty to save next to the source file."
+msgstr "Залиште порожнім, щоб зберегти поруч із вихідним файлом."
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Include timestamps"
+msgstr "Включити часові позначки"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Automatic Transcript Resizer"
+msgstr "Автоматична зміна розміру транскрипції"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid ""
+"When a transcription has word-level timings, automatically regroup the words"
+" into properly sized subtitles and replace the result. Mirrors the Merge "
+"options of the transcript resizer."
+msgstr ""
+"Якщо транскрипція має таймінги на рівні слів, слова автоматично "
+"перегруповуються в субтитри відповідного розміру, а результат замінюється. "
+"Повторює параметри об'єднання інструмента зміни розміру транскрипції."
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Merge gap (seconds)"
+msgstr "Пауза об'єднання (секунди)"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Punctuation"
+msgstr "Пунктуація"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Maximum subtitle length"
+msgstr "Максимальна довжина субтитра"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "AI Summary"
+msgstr "ШІ-резюме"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid ""
+"Generate an AI summary of the transcript via an OpenAI-compatible API and "
+"save it to the Notes field and/or a file."
+msgstr ""
+"Створює ШІ-резюме транскрипції через OpenAI-сумісний API та зберігає його в "
+"полі нотаток та/або у файл."
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "API base URL"
+msgstr "Базовий URL API"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "API key"
+msgstr "Ключ API"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Summarization prompt"
+msgstr "Запит для резюме"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to Notes"
+msgstr "Зберегти резюме в нотатки"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to a file"
+msgstr "Зберегти резюме у файл"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Output folder (for file)"
+msgstr "Папка виводу (для файлу)"
+
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
@@ -1668,11 +1864,11 @@ msgstr ""
 #~ msgstr "Попередження щодо дозволів Snap"
 
 #~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
+#~ "Detected missing permissions, please check that snap permissions have been "
+#~ "granted"
 #~ msgstr ""
-#~ "Виявлено нестачу повноважень. Будь ласка, перевірте, чи були надані "
-#~ "дозволи для Snap"
+#~ "Виявлено нестачу повноважень. Будь ласка, перевірте, чи були надані дозволи "
+#~ "для Snap"
 
 #~ msgid ""
 #~ "To enable necessary permissions run the following commands in the terminal"

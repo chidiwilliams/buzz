@@ -94,8 +94,25 @@ def shortcuts(settings):
 
 @pytest.fixture(scope="session", autouse=True)
 def cleanup_testdata_exports():
-    """Remove transcription export files written into testdata/ during the test session."""
+    """Remove transcription export files written into testdata/ during the test session.
+
+    Transcription tests (e.g. the MainWindow flow) transcribe a bundled
+    ``testdata/*.mp3`` with no explicit output directory, so the export lands
+    next to the source as ``<name> (transcribed on <date>).<ext>``. Those export
+    files are never checked in, so we additionally sweep that pattern at setup
+    and teardown to clear artifacts leaked by a previous interrupted run.
+    """
     testdata_dir = os.path.join(os.path.dirname(__file__), "..", "testdata")
+    export_glob = os.path.join(testdata_dir, "* (transcribed on *)*")
+
+    def _sweep_leaked_exports():
+        for path in glob.glob(export_glob):
+            try:
+                os.remove(path)
+            except OSError:
+                pass
+
+    _sweep_leaked_exports()
     before = set(glob.glob(os.path.join(testdata_dir, "*")))
     yield
     after = set(glob.glob(os.path.join(testdata_dir, "*")))
@@ -104,3 +121,4 @@ def cleanup_testdata_exports():
             os.remove(path)
         except OSError:
             pass
+    _sweep_leaked_exports()

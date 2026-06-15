@@ -1,0 +1,12 @@
+{
+  "AI Summary": "AI 摘要",
+  "Generate an AI summary of the transcript via an OpenAI-compatible API and save it to the Notes field and/or a file.": "透過相容 OpenAI 的 API 產生轉錄文字的 AI 摘要，並將其儲存到備註欄位和/或檔案中。",
+  "API base URL": "API 基底 URL",
+  "API key": "API 金鑰",
+  "Model": "模型",
+  "Summarization prompt": "摘要提示詞",
+  "Save summary to Notes": "將摘要儲存到備註",
+  "Save summary to a file": "將摘要儲存到檔案",
+  "Output folder (for file)": "輸出資料夾（用於檔案）",
+  "Leave empty to save next to the source file.": "留空則儲存在來源檔案旁邊。"
+}
