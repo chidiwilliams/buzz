@@ -241,6 +241,8 @@ class TranscriptionSegmentsEditorWidget(QTableView):
     segment_selected = pyqtSignal(QSqlRecord)
     timestamp_being_edited = pyqtSignal(int, int, int)  # Signal: (row, column, new_value_ms)
 
+    _segments_cache: list[QSqlRecord] | None = None
+
     def keyPressEvent(self, event):
         # Allow Enter/Return to trigger editing
         if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
@@ -305,6 +307,8 @@ class TranscriptionSegmentsEditorWidget(QTableView):
         self.selectionModel().selectionChanged.connect(self.on_selection_changed)
         model.select()
         model.rowsInserted.connect(self.init_row_height)
+        model.dataChanged.connect(self._invalidate_segments_cache)
+        model.modelReset.connect(self._invalidate_segments_cache)
 
         self.has_translations = self.has_non_empty_translation()
 
@@ -367,7 +371,7 @@ class TranscriptionSegmentsEditorWidget(QTableView):
     def segment(self, index: QModelIndex) -> QSqlRecord:
         return self.model().record(index.row())
 
-    def fetch_all_rows(self):
+    def _fetch_all_rows(self):
         """Ensure all rows are loaded from the database.
 
         QSqlTableModel fetches rows lazily (256 at a time), so rowCount()
@@ -379,9 +383,38 @@ class TranscriptionSegmentsEditorWidget(QTableView):
         while model.canFetchMore(root):
             model.fetchMore(root)
 
+    def _invalidate_segments_cache(self):
+        self._segments_cache = None
+
     def segments(self) -> list[QSqlRecord]:
-        self.fetch_all_rows()
-        return [self.model().record(i) for i in range(self.model().rowCount())]
+        if self._segments_cache is not None:
+            return self._segments_cache
+        self._fetch_all_rows()
+        self._segments_cache = [self.model().record(i) for i in range(self.model().rowCount())]
+        return self._segments_cache
+
+    def find_segment_index_at(self, position_ms: int) -> int:
+        """Binary search for the segment containing position_ms. Returns -1 if not found."""
+        segs = self.segments()
+        lo, hi = 0, len(segs) - 1
+        while lo <= hi:
+            mid = (lo + hi) // 2
+            start = segs[mid].value("start_time")
+            end = segs[mid].value("end_time")
+            if start <= position_ms < end:
+                return mid
+            elif position_ms < start:
+                hi = mid - 1
+            else:
+                lo = mid + 1
+        return -1
+
+    def find_segment_row_by_id(self, segment_id) -> int:
+        """Linear search for segment row by id. Returns -1 if not found."""
+        for i, seg in enumerate(self.segments()):
+            if seg.value("id") == segment_id:
+                return i
+        return -1
 
     def highlight_and_scroll_to_row(self, row_index: int):
         """Highlight a specific row and scroll it into view"""
