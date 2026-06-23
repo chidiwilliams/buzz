@@ -1221,11 +1221,9 @@ class TranscriptionViewerWidget(QWidget):
             # Reset looping flag to ensure new loops work
             self.current_media_player.is_looping = False
         else:
-            segments = self.table_widget.segments()
-            for i, seg in enumerate(segments):
-                if seg.value("id") == segment.value("id"):
-                    self.table_widget.highlight_and_scroll_to_row(i)
-                    break
+            row = self.table_widget.find_segment_row_by_id(segment.value("id"))
+            if row != -1:
+                self.table_widget.highlight_and_scroll_to_row(row)
 
     def on_timestamp_being_edited(self, row: int, column: int, new_value_ms: int):
         """Handle real-time timestamp editing to update loop range immediately"""
@@ -1256,57 +1254,34 @@ class TranscriptionViewerWidget(QWidget):
             self.audio_player.set_range((start_time, new_value_ms))
 
     def on_audio_player_position_ms_changed(self, position_ms: int) -> None:
-        segments = self.table_widget.segments()
-        current_segment = next(
-            (
-                segment
-                for segment in segments
-                if segment.value("start_time")
-                <= position_ms
-                < segment.value("end_time")
-            ),
-            None,
-        )
-        if current_segment is not None:
-            self.current_segment_text.setText(current_segment.value("text"))
-            self.current_segment_frame.show()  # Show the frame when there's a current segment
+        current_segment_index = self.table_widget.find_segment_index_at(position_ms)
+        if current_segment_index == -1:
+            return
 
-            # Force the text label to recalculate its size
+        current_segment = self.table_widget.segments()[current_segment_index]
+        current_text = current_segment.value("text")
+
+        # Only update UI if the displayed text actually changed
+        if self.current_segment_text.text() != current_text:
+            self.current_segment_text.setText(current_text)
+            self.current_segment_frame.show()
             self.current_segment_text.adjustSize()
-
-            # Resize the frame to fit the text content
             self.resize_current_segment_frame()
-
-            # Ensure the scroll area updates properly and shows scrollbars when needed
             self.current_segment_scroll_area.updateGeometry()
-            self.current_segment_scroll_area.verticalScrollBar(
-            ).setVisible(True)  # Ensure scrollbar is visible
-            # Update highlighting based on follow audio and loop settings
-            if self.follow_audio_enabled:
-                # Follow audio mode: highlight the current segment based on audio position
-                if not self.segment_looping_enabled or self.currently_selected_segment is None:
-                    # Normal mode: highlight the current segment
-                    for i, segment in enumerate(segments):
-                        if segment.value("id") == current_segment.value("id"):
-                            self.table_widget.highlight_and_scroll_to_row(i)
-                            break
-                else:
-                    # Loop mode: only highlight if we're in a different segment than the selected one
-                    if current_segment.value("id") != self.currently_selected_segment.value("id"):
-                        for i, segment in enumerate(segments):
-                            if segment.value("id") == current_segment.value("id"):
-                                self.table_widget.highlight_and_scroll_to_row(
-                                    i)
-                                break
+            self.current_segment_scroll_area.verticalScrollBar().setVisible(True)
+
+        if self.follow_audio_enabled:
+            if not self.segment_looping_enabled or self.currently_selected_segment is None:
+                self.table_widget.highlight_and_scroll_to_row(current_segment_index)
             else:
-                # Don't follow audio: keep highlighting on the selected segment
-                if self.currently_selected_segment is not None:
-                    # Find and highlight the selected segment
-                    for i, segment in enumerate(segments):
-                        if segment.value("id") == self.currently_selected_segment.value("id"):
-                            self.table_widget.highlight_and_scroll_to_row(i)
-                            break
-                # Don't do any highlighting if no segment is selected and follow is disabled
+                if current_segment.value("id") != self.currently_selected_segment.value("id"):
+                    self.table_widget.highlight_and_scroll_to_row(current_segment_index)
+        else:
+            if self.currently_selected_segment is not None:
+                selected_row = self.table_widget.find_segment_row_by_id(
+                    self.currently_selected_segment.value("id"))
+                if selected_row != -1:
+                    self.table_widget.highlight_and_scroll_to_row(selected_row)
 
     def resize_current_segment_frame(self):
         """
