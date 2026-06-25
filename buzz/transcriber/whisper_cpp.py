@@ -110,7 +110,7 @@ class WhisperCpp:
             "--suppress-nst",
             # Protections against hallucinated repetition. Seems to be problem on macOS
             # https://github.com/ggml-org/whisper.cpp/issues/1507
-            "--max-context", "64",
+            "--max-context", "0",
             "--entropy-thold", "2.8",
             "--output-json-full",
             "--threads", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8) // 2)),
