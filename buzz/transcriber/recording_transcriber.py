@@ -441,7 +441,7 @@ class RecordingTranscriber(QObject):
             "--no-timestamps",
             # Protections against hallucinated repetition. Seems to be problem on macOS
             # https://github.com/ggml-org/whisper.cpp/issues/1507
-            "--max-context", "64",
+            "--max-context", "8",
             "--entropy-thold", "2.8",
             "--suppress-nst"
         ]
