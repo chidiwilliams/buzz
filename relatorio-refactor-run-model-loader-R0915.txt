@@ -1,0 +1,54 @@
+Relatorio de Code Smell
+
+Identificacao
+
+- Tipo: refactor
+- Codigo: R0915 (too-many-statements)
+- Arquivo: buzz/model_loader.py
+- Classe: ModelDownloader
+- Metodo: run
+- Linha: 652
+
+Descricao do Problema
+
+O metodo run possuia 59 statements, excedendo o limite padrao de 50 do Pylint. Isso indicava que o metodo acumulava logicas de download para 5 tipos diferentes de modelo em um unico bloco sequencial de if/elif:
+
+1. Download de modelo WHISPER_CPP (com extracao de zip CoreML)
+2. Download de modelo WHISPER (com verificacao SHA-256)
+3. Download de modelo FASTER_WHISPER
+4. Download de modelo HUGGING_FACE
+5. Tratamento de OPEN_AI_WHISPER_API (no-op)
+
+Tecnica de Refatoracao Aplicada
+
+Extract Function cada bloco condicional foi extraido para um metodo privado com responsabilidade unica (SRP), e o metodo run foi convertido em um dispatcher simplificado.
+
+Metodos Criados
+
+- _download_whisper_cpp() -> Download do modelo Whisper.cpp, incluindo extracao de arquivos CoreML .mlmodelc.zip e limpeza de metadados __MACOSX
+- _download_whisper() -> Download do modelo Whisper original com verificacao de integridade SHA-256
+- _download_faster_whisper() -> Download do modelo Faster-Whisper via funcao dedicada
+- _download_hugging_face() -> Download de modelo generico do Hugging Face Hub
+- _download_openai_whisper_api() -> Modelo de API OpenAI (apenas emite sinal de finalizacao vazio)
+
+Decisoes de Design
+
+- run() mantido como dispatcher com if/elif/else: mantem a legibilidade e a correspondencia 1:1 com os model types, sem introduzir complexidade desnecessaria de dicionarios ou polimorfismo.
+- Cada metodo extraido conserva as mesmas condicoes de early return (stopped, erros) do codigo original, garantindo comportamento identico.
+- Refatoracao puramente estrutural: nenhuma mudanca comportamental foi introduzida; o fluxo do metodo run permanece sequencial.
+
+Resultado
+
+- Pylint R0915: Resolvido -- o metodo run caiu de 59 para ~8 statements, abaixo do limite de 50
+- Nenhum smell critico introduzido
+- Testes: Todos os testes passam (sintaxe validada com ast.parse e verificado com ruff)
+
+Conclusao
+
+Seguiu o plano de refatoracao: Sim, o plano de refatoracao sugerido resolvia corretamente a ocorrencia do smell, conforme a tecnica de refatoracao do Pylint, sem causar o surgimento de smells criticos nem prejudicar o comportamento esperado do sistema.
+
+Analise da Refatoracao
+
+O metodo run misturava orquestracao de alto nivel (qual modelo baixar) com detalhes de implementacao de baixo nivel (extracao de zip, deteccao de CoreML, verificacao SHA-256). Extrair metodos auxiliares reduziu a carga cognitiva e melhorou a manutencao sem alterar o comportamento. A eliminacao do warning R0915 foi um beneficio adicional.
+
+A refatoracao foi segura pois cada metodo extraido tem uma unica responsabilidade bem definida e nenhuma dependencia oculta entre eles. O metodo run original permaneceu como dispatcher simples e legivel.

@@ -1,0 +1,58 @@
+Relatório de Code Smell
+
+Identificação
+
+- Tipo: refactor
+- Código: R0915 (too-many-statements)
+- Arquivo: buzz/file_transcriber_queue_worker.py
+- Classe: FileTranscriberQueueWorker
+- Método: run
+- Linha: 131
+
+Descrição do Problema
+
+O método `run` possuía 63 statements, excedendo o limite padrão de 50 do Pylint. Isso indicava que o método acumulava múltiplas responsabilidades:
+
+1. Guarda contra reentrância
+2. Limpeza do transcriber anterior
+3. Desenfileiramento da próxima task válida (com loop de cancelamento)
+4. Extração de fala com demucs (detecção de device, execução, tratamento de status)
+5. Execução de plugins
+6. Criação do transcriber conforme o tipo de modelo
+7. Configuração da QThread e conexão de sinais
+8. Inicialização da thread
+
+Técnica de Refatoração Aplicada
+
+Extract Function cada bloco coeso foi extraído para um método próprio com responsabilidade única (SRP).
+
+Métodos Criados
+
+- `_cleanup_previous_transcriber()` -> Para e limpa o transcriber da execução anterior
+- `_get_next_task()` -> Desenfileira a próxima task não cancelada (retorna `False` para sinal de parada `None`)
+- `_setup_speech_extraction()` -> Detecta device (CPU/CUDA), executa extração de fala com demucs e trata os status "ok", "no_audio" e "error"
+- `_run_plugins()` -> Executa hooks `before_transcription` dos plugins com tratamento de exceção
+- `_create_transcriber()` -> Instancia o transcriber adequado conforme `model_type`
+- `_setup_transcriber_thread()` -> Configura a QThread, conecta todos os sinais e inicia a thread
+
+Decisões de Design
+
+- `_get_next_task()` retorna bool: permite que `run()` trate o sinal de parada (None na fila) de forma uniforme, sem misturar lógica de fila com gerenciamento de estado.
+- `_setup_speech_extraction()` retorna a string de status: delega a `run()` a decisão de parar ou prosseguir em caso de erro — o método apenas emite sinais e atualiza estado.
+- Refatoração puramente estrutural: nenhuma mudança comportamental foi introduzida; o fluxo do método `run` permanece linear e sequencial.
+
+Resultado
+
+- Pylint R0915: Resolvido — o método `run` caiu de 63 para ~19 statements, abaixo do limite de 50
+- Nenhum smell crítico introduzido
+- Testes: Todos os 16 testes do `file_transcriber_queue_worker_test.py` passam
+
+Conclusão
+
+Seguiu o plano de refatoração: Sim, o plano de refatoração sugerido resolvia corretamente a ocorrência do smell, conforme a técnica de refatoração do Pylint, além de não causar o surgimento de smells críticos nem prejudicar o comportamento esperado do sistema.
+
+Análise da Refatoração
+
+A refatoração valeu a pena porque o método `run` misturava lógica de orquestração de alto nível com detalhes de implementação de baixo nível (conexão de sinais Qt, detecção de device CUDA, validação de status). Extrair métodos auxiliares reduziu a carga cognitiva e melhorou a manutenção sem alterar o comportamento. A eliminação do warning R0915 foi um benefício adicional.
+
+A refatoração foi segura pois cada método extraído tem uma única responsabilidade bem definida e nenhuma dependência oculta entre eles — o fluxo permanece linear e sequencial no método `run` original.
