@@ -1,0 +1,5 @@
+{
+  "DeepFilterNet Noise Reduction": "DeepFilterNet 降噪",
+  "Removes background noise using DeepFilterNet3 before transcription.": "在轉錄前使用 DeepFilterNet3 移除背景雜音。",
+  "Keep denoised file after transcription": "轉錄後保留降噪檔案"
+}

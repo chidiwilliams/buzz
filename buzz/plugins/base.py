@@ -79,7 +79,8 @@ def plugin_gettext(plugin_file: str) -> Callable[[str], str]:
                 logger.warning("Failed to load plugin locale %s: %s", path, exc)
 
     def translate(text: str) -> str:
-        return translations.get(text, text)
+        value = translations.get(text)
+        return value if value else text
 
     return translate
 
@@ -161,6 +162,16 @@ class BuzzPlugin:
         Runs on a background thread.
         """
         return segments
+
+    def check_skip(
+        self, task: "FileTranscriptionTask", context: PluginContext
+    ) -> Optional[List["Segment"]]:
+        """Return a list of segments to skip transcription (may be empty), or None to proceed.
+
+        Runs on the worker thread. DB access via context.transcription_service is
+        marshaled to the main thread by the host.
+        """
+        return None
 
     def on_complete(
         self,

@@ -101,6 +101,8 @@ def format_record_status_text(record: QSqlRecord) -> str:
             return _("Canceled")
         case FileTranscriptionTask.Status.QUEUED:
             return _("Queued")
+        case FileTranscriptionTask.Status.SKIPPED:
+            return _("Skipped")
         case _: # Case to handle UNKNOWN status
             return ""
 
@@ -316,8 +318,8 @@ class TranscriptionTasksTableWidget(QTableView):
         if selected_rows:
             transcription = self.transcription(selected_rows[0])
 
-            # Add restart/continue action for failed/canceled tasks
-            if transcription.status in ["failed", "canceled"]:
+            # Add restart/continue action for failed/canceled/skipped tasks
+            if transcription.status in ["failed", "canceled", "skipped"]:
                 restart_action = menu.addAction(_("Restart Transcription"))
                 restart_action.triggered.connect(self.on_restart_transcription_action)
                 menu.addSeparator()
@@ -701,12 +703,12 @@ class TranscriptionTasksTableWidget(QTableView):
         transcription = self.transcription(selected_rows[0])
         
         # Check if the task can be restarted
-        if transcription.status not in ["failed", "canceled"]:
+        if transcription.status not in ["failed", "canceled", "skipped"]:
             from PyQt6.QtWidgets import QMessageBox
             QMessageBox.information(
-                self, 
-                _("Cannot Restart"), 
-                _("Only failed or canceled transcriptions can be restarted.")
+                self,
+                _("Cannot Restart"),
+                _("Only failed, canceled, or skipped transcriptions can be restarted.")
             )
             return
         

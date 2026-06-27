@@ -649,133 +649,135 @@ class ModelDownloader(QRunnable):
     def _register_process(self, proc: multiprocessing.Process):
         self._download_process = proc
 
+    def _download_whisper_cpp(self) -> None:
+        if self.custom_model_url:
+            url = self.custom_model_url
+            file_path = get_whisper_cpp_file_path(
+                size=self.model.whisper_model_size)
+            self.download_model_to_path(url=url, file_path=file_path)
+            return
+
+        repo_id = WHISPER_CPP_REPO_ID
+
+        if self.model.whisper_model_size == WhisperModelSize.LUMII:
+            repo_id = WHISPER_CPP_LUMII_REPO_ID
+
+        model_name = self.model.whisper_model_size.to_whisper_cpp_model_size()
+
+        whisper_cpp_model_files = [
+            f"ggml-{model_name}.bin",
+            "README.md"
+        ]
+        if self.is_coreml_supported:
+            whisper_cpp_model_files = [
+                f"ggml-{model_name}.bin",
+                f"ggml-{model_name}-encoder.mlmodelc.zip",
+                "README.md"
+            ]
+
+        model_path = download_from_huggingface(
+            repo_id=repo_id,
+            allow_patterns=whisper_cpp_model_files,
+            progress=self.signals.progress,
+            on_process=self._register_process,
+        )
+
+        if self.stopped:
+            return
+
+        if self.is_coreml_supported:
+            import tempfile
+
+            target_dir = os.path.join(model_path, f"ggml-{model_name}-encoder.mlmodelc")
+            zip_path = os.path.join(model_path, f"ggml-{model_name}-encoder.mlmodelc.zip")
+
+            if os.path.exists(target_dir):
+                shutil.rmtree(target_dir)
+
+            with tempfile.TemporaryDirectory() as temp_dir:
+                with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                    zip_ref.extractall(temp_dir)
+
+                macosx_path = os.path.join(temp_dir, "__MACOSX")
+                if os.path.exists(macosx_path):
+                    shutil.rmtree(macosx_path)
+
+                temp_contents = os.listdir(temp_dir)
+                if len(temp_contents) == 1 and os.path.isdir(os.path.join(temp_dir, temp_contents[0])):
+                    nested_dir = os.path.join(temp_dir, temp_contents[0])
+                    shutil.move(nested_dir, target_dir)
+                else:
+                    os.makedirs(target_dir, exist_ok=True)
+                    for item in temp_contents:
+                        src = os.path.join(temp_dir, item)
+                        dst = os.path.join(target_dir, item)
+                        if os.path.isdir(src):
+                            shutil.copytree(src, dst)
+                        else:
+                            shutil.copy2(src, dst)
+
+        self.signals.finished.emit(os.path.join(
+            model_path, f"ggml-{model_name}.bin"))
+
+    def _download_whisper(self) -> None:
+        url = whisper._MODELS[self.model.whisper_model_size.value]
+        file_path = get_whisper_file_path(
+            size=self.model.whisper_model_size)
+        expected_sha256 = url.split("/")[-2]
+        self.download_model_to_path(
+            url=url, file_path=file_path, expected_sha256=expected_sha256
+        )
+
+    def _download_faster_whisper(self) -> None:
+        model_path = download_faster_whisper_model(
+            model=self.model,
+            progress=self.signals.progress,
+            on_process=self._register_process,
+        )
+
+        if self.stopped:
+            return
+
+        if model_path == "":
+            self.signals.error.emit(_("Error"))
+
+        self.signals.finished.emit(model_path)
+
+    def _download_hugging_face(self) -> None:
+        model_path = download_from_huggingface(
+            self.model.hugging_face_model_id,
+            allow_patterns=HUGGING_FACE_MODEL_ALLOW_PATTERNS,
+            progress=self.signals.progress,
+            on_process=self._register_process,
+        )
+
+        if self.stopped:
+            return
+
+        if model_path == "":
+            self.signals.error.emit(_("Error"))
+
+        self.signals.finished.emit(model_path)
+
+    def _download_openai_whisper_api(self) -> None:
+        self.signals.finished.emit("")
+
     def run(self) -> None:
         logging.debug("Downloading model: %s, %s", self.model,
                       self.model.hugging_face_model_id)
 
         if self.model.model_type == ModelType.WHISPER_CPP:
-            if self.custom_model_url:
-                url = self.custom_model_url
-                file_path = get_whisper_cpp_file_path(
-                    size=self.model.whisper_model_size)
-                return self.download_model_to_path(url=url, file_path=file_path)
-
-            repo_id = WHISPER_CPP_REPO_ID
-
-            if self.model.whisper_model_size == WhisperModelSize.LUMII:
-                repo_id = WHISPER_CPP_LUMII_REPO_ID
-
-            model_name = self.model.whisper_model_size.to_whisper_cpp_model_size()
-
-            whisper_cpp_model_files = [
-                f"ggml-{model_name}.bin",
-                "README.md"
-            ]
-            if self.is_coreml_supported:
-                whisper_cpp_model_files = [
-                    f"ggml-{model_name}.bin",
-                    f"ggml-{model_name}-encoder.mlmodelc.zip",
-                    "README.md"
-                ]
-
-            model_path = download_from_huggingface(
-                repo_id=repo_id,
-                allow_patterns=whisper_cpp_model_files,
-                progress=self.signals.progress,
-                on_process=self._register_process,
-            )
-
-            if self.stopped:
-                return
-
-            if self.is_coreml_supported:
-                import tempfile
-
-                target_dir = os.path.join(model_path, f"ggml-{model_name}-encoder.mlmodelc")
-                zip_path = os.path.join(model_path, f"ggml-{model_name}-encoder.mlmodelc.zip")
-
-                # Remove target directory if it exists
-                if os.path.exists(target_dir):
-                    shutil.rmtree(target_dir)
-
-                # Extract to a temporary directory first
-                with tempfile.TemporaryDirectory() as temp_dir:
-                    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                        zip_ref.extractall(temp_dir)
-
-                    # Remove __MACOSX metadata folders if present
-                    macosx_path = os.path.join(temp_dir, "__MACOSX")
-                    if os.path.exists(macosx_path):
-                        shutil.rmtree(macosx_path)
-
-                    # Check if there's a single top-level directory
-                    temp_contents = os.listdir(temp_dir)
-                    if len(temp_contents) == 1 and os.path.isdir(os.path.join(temp_dir, temp_contents[0])):
-                        # Single directory - move its contents to target
-                        nested_dir = os.path.join(temp_dir, temp_contents[0])
-                        shutil.move(nested_dir, target_dir)
-                    else:
-                        # Multiple items or files - copy everything to target
-                        os.makedirs(target_dir, exist_ok=True)
-                        for item in temp_contents:
-                            src = os.path.join(temp_dir, item)
-                            dst = os.path.join(target_dir, item)
-                            if os.path.isdir(src):
-                                shutil.copytree(src, dst)
-                            else:
-                                shutil.copy2(src, dst)
-
-            self.signals.finished.emit(os.path.join(
-                model_path, f"ggml-{model_name}.bin"))
-            return
-
-        if self.model.model_type == ModelType.WHISPER:
-            url = whisper._MODELS[self.model.whisper_model_size.value]
-            file_path = get_whisper_file_path(
-                size=self.model.whisper_model_size)
-            expected_sha256 = url.split("/")[-2]
-            return self.download_model_to_path(
-                url=url, file_path=file_path, expected_sha256=expected_sha256
-            )
-
-        if self.model.model_type == ModelType.FASTER_WHISPER:
-            model_path = download_faster_whisper_model(
-                model=self.model,
-                progress=self.signals.progress,
-                on_process=self._register_process,
-            )
-
-            if self.stopped:
-                return
-
-            if model_path == "":
-                self.signals.error.emit(_("Error"))
-
-            self.signals.finished.emit(model_path)
-            return
-
-        if self.model.model_type == ModelType.HUGGING_FACE:
-            model_path = download_from_huggingface(
-                self.model.hugging_face_model_id,
-                allow_patterns=HUGGING_FACE_MODEL_ALLOW_PATTERNS,
-                progress=self.signals.progress,
-                on_process=self._register_process,
-            )
-
-            if self.stopped:
-                return
-
-            if model_path == "":
-                self.signals.error.emit(_("Error"))
-
-            self.signals.finished.emit(model_path)
-            return
-
-        if self.model.model_type == ModelType.OPEN_AI_WHISPER_API:
-            self.signals.finished.emit("")
-            return
-
-        raise Exception("Invalid model type: " + self.model.model_type.value)
+            self._download_whisper_cpp()
+        elif self.model.model_type == ModelType.WHISPER:
+            self._download_whisper()
+        elif self.model.model_type == ModelType.FASTER_WHISPER:
+            self._download_faster_whisper()
+        elif self.model.model_type == ModelType.HUGGING_FACE:
+            self._download_hugging_face()
+        elif self.model.model_type == ModelType.OPEN_AI_WHISPER_API:
+            self._download_openai_whisper_api()
+        else:
+            raise Exception("Invalid model type: " + self.model.model_type.value)
 
     def download_model_to_path(
         self, url: str, file_path: str, expected_sha256: Optional[str] = None
