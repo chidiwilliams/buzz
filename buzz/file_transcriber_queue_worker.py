@@ -134,75 +134,79 @@ class FileTranscriberQueueWorker(QObject):
 
         logging.debug("Waiting for next transcription task")
 
-        # Clean up of previous run.
+        self._cleanup_previous_transcriber()
+
+        if not self._get_next_task():
+            self.is_running = False
+            self.completed.emit()
+            return
+
+        self.is_running = True
+
+        if self.current_task.transcription_options.extract_speech:
+            status = self._setup_speech_extraction()
+            if status == "error":
+                self.is_running = False
+                return
+
+        self._run_plugins()
+
+        logging.debug("Starting next transcription task")
+        self.task_progress.emit(self.current_task, 0)
+
+        self._create_transcriber()
+        self._setup_transcriber_thread()
+
+    def _cleanup_previous_transcriber(self):
         if self.current_transcriber is not None:
             self.current_transcriber.stop()
             self.current_transcriber = None
 
-        # Get next non-canceled task from queue
+    def _get_next_task(self) -> bool:
         while True:
-            self.current_task: Optional[FileTranscriptionTask] = self.tasks_queue.get()
-
-            # Stop listening when a "None" task is received
+            self.current_task = self.tasks_queue.get()
             if self.current_task is None:
-                self.is_running = False
-                self.completed.emit()
-                return
-
+                return False
             if self.current_task.uid in self.canceled_tasks:
                 continue
+            return True
 
-            break
+    def _setup_speech_extraction(self) -> str:
+        logging.debug("Will extract speech")
 
-        # Set is_running AFTER we have a valid task to process
-        self.is_running = True
+        force_cpu = os.getenv("BUZZ_FORCE_CPU", "false").lower() == "true"
+        if force_cpu:
+            device = "cpu"
+        else:
+            import torch
+            device = "cuda" if torch.cuda.is_available() else "cpu"
 
-        if self.current_task.transcription_options.extract_speech:
-            logging.debug("Will extract speech")
+        task_file_path = Path(self.current_task.file_path)
+        speech_path = task_file_path.with_name(f"{task_file_path.stem}_speech.mp3")
 
-            # Force CPU if specified, otherwise use CUDA if available
-            force_cpu = os.getenv("BUZZ_FORCE_CPU", "false").lower() == "true"
-            if force_cpu:
-                device = "cpu"
-            else:
-                import torch
-                device = "cuda" if torch.cuda.is_available() else "cpu"
+        status = self._extract_speech(str(task_file_path), str(speech_path), device)
 
-            task_file_path = Path(self.current_task.file_path)
-            speech_path = task_file_path.with_name(f"{task_file_path.stem}_speech.mp3")
+        if status == "error":
+            self.task_error.emit(
+                self.current_task,
+                _("Speech extraction failed! Check your internet connection \u2014 a model may need to be downloaded."),
+            )
+        elif status == "ok":
+            self.speech_path = speech_path
+            if not self.current_task.original_file_path:
+                self.current_task.original_file_path = str(task_file_path)
+            self.current_task.file_path = str(speech_path)
 
-            status = self._extract_speech(str(task_file_path), str(speech_path), device)
+        return status
 
-            if status == "error":
-                self.task_error.emit(
-                    self.current_task,
-                    _("Speech extraction failed! Check your internet connection — a model may need to be downloaded."),
-                )
-                self.is_running = False
-                return
-
-            if status == "ok":
-                self.speech_path = speech_path
-                # Remember the original audio path: file_path is about to point
-                # at the temporary "_speech.mp3", which is deleted once the
-                # transcription completes. Plugins (e.g. the transcript resizer)
-                # need the original file in their post-completion hooks.
-                if not self.current_task.original_file_path:
-                    self.current_task.original_file_path = str(task_file_path)
-                self.current_task.file_path = str(speech_path)
-            # status == "no_audio": transcribe the original file as-is.
-
-        # Let plugins process / replace the source audio before transcription.
-        # Runs on this worker thread; plugins may overwrite current_task.file_path.
+    def _run_plugins(self):
         if self.plugin_manager is not None:
             try:
                 self.plugin_manager.run_before_transcription(self.current_task)
             except Exception as e:
                 logging.error(f"Plugin before_transcription failed: {e}", exc_info=True)
 
-        logging.debug("Starting next transcription task")
-        self.task_progress.emit(self.current_task, 0)
-
+    def _create_transcriber(self):
         model_type = self.current_task.transcription_options.model.model_type
         if model_type == ModelType.OPEN_AI_WHISPER_API:
             self.current_transcriber = OpenAIWhisperAPIFileTranscriber(
@@ -218,6 +222,7 @@ class FileTranscriberQueueWorker(QObject):
         else:
             raise Exception(f"Unknown model type: {model_type}")
 
+    def _setup_transcriber_thread(self):
         self.current_transcriber_thread = QThread(self)
 
         self.current_transcriber.moveToThread(self.current_transcriber_thread)
@@ -240,7 +245,6 @@ class FileTranscriberQueueWorker(QObject):
 
         self.current_transcriber.completed.connect(self.on_task_completed)
 
-        # Wait for next item on the queue
         self.current_transcriber.error.connect(lambda: self._on_task_finished())
         self.current_transcriber.completed.connect(lambda: self._on_task_finished())
 
