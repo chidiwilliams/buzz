@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 16:54+0300\n"
+"POT-Creation-Date: 2026-06-27 15:05+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -555,11 +555,12 @@ msgstr ""
 msgid "Canceled"
 msgstr ""
 
-msgid "Skipped"
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Queued"
 msgstr ""
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-msgid "Queued"
+msgid "Skipped"
 msgstr ""
 
 #: buzz/widgets/transcription_tasks_table_widget.py
@@ -624,7 +625,7 @@ msgid "Cannot Restart"
 msgstr ""
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-msgid "Only failed or canceled transcriptions can be restarted."
+msgid "Only failed, canceled, or skipped transcriptions can be restarted."
 msgstr ""
 
 #: buzz/widgets/transcription_tasks_table_widget.py
@@ -1746,6 +1747,34 @@ msgstr ""
 msgid "Maximum subtitle length"
 msgstr ""
 
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Skip Already Transcribed"
+msgstr ""
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Skip transcription if results already exist on disk or in the database"
+msgstr ""
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Check for existing result files"
+msgstr ""
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid ""
+"Skip if a .txt, .srt, or .vtt file matching the audio filename is found next "
+"to it"
+msgstr ""
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Check in transcription database"
+msgstr ""
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid ""
+"Skip if this file has already been transcribed and the record exists in the "
+"database"
+msgstr ""
+
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"
 msgstr ""
@@ -1782,6 +1811,6 @@ msgstr ""
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
-"Speech extraction failed! Check your internet connection — a model may need "
-"to be downloaded."
+"Speech extraction failed! Check your internet connection \\u2014 a model may "
+"need to be downloaded."
 msgstr ""
