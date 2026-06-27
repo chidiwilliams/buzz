@@ -573,6 +573,9 @@ msgstr "Ошибка"
 msgid "Canceled"
 msgstr "Отменено"
 
+msgid "Skipped"
+msgstr "Пропущено"
+
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Queued"
 msgstr "В очереди"

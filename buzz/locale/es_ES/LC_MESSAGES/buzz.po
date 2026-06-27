@@ -603,6 +603,9 @@ msgstr "Fallido"
 msgid "Canceled"
 msgstr "Cancelado"
 
+msgid "Skipped"
+msgstr "Omitido"
+
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Queued"
 msgstr "En cola"

@@ -555,6 +555,9 @@ msgstr ""
 msgid "Canceled"
 msgstr ""
 
+msgid "Skipped"
+msgstr ""
+
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Queued"
 msgstr ""

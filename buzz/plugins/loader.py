@@ -34,6 +34,7 @@ BUNDLED_PLUGIN_IDS = [
     "transcript_resizer",
     "export_docx",
     "enhanced_language_detection",
+    "skip_already_transcribed",
 ]
 
 ENTRY_MODULE = "plugin.py"

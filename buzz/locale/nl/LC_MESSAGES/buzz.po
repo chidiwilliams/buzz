@@ -581,6 +581,9 @@ msgstr "Mislukt"
 msgid "Canceled"
 msgstr "Afgebroken"
 
+msgid "Skipped"
+msgstr "Overgeslagen"
+
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Queued"
 msgstr "In wachtrij"

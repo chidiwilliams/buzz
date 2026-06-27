@@ -576,6 +576,9 @@ msgstr "Nie powiodło się"
 msgid "Canceled"
 msgstr "Anulowano"
 
+msgid "Skipped"
+msgstr "Pominięto"
+
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Queued"
 msgstr "Kolejka"

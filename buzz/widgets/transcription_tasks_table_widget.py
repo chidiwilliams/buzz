@@ -84,6 +84,8 @@ def format_record_status_text(record: QSqlRecord) -> str:
             return _("Canceled")
         case FileTranscriptionTask.Status.QUEUED:
             return _("Queued")
+        case FileTranscriptionTask.Status.SKIPPED:
+            return _("Skipped")
         case _: # Case to handle UNKNOWN status
             return ""
 

@@ -180,6 +180,7 @@ class FileTranscriptionTask:
         COMPLETED = "completed"
         FAILED = "failed"
         CANCELED = "canceled"
+        SKIPPED = "skipped"
 
     class Source(enum.Enum):
         FILE_IMPORT = "file_import"

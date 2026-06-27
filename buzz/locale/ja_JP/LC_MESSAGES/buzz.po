@@ -562,6 +562,9 @@ msgstr "失敗"
 msgid "Canceled"
 msgstr "キャンセル済み"
 
+msgid "Skipped"
+msgstr "スキップ済み"
+
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Queued"
 msgstr "キュー済み"

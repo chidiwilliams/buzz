@@ -578,6 +578,9 @@ msgstr "Ha fallat"
 msgid "Canceled"
 msgstr "Cancel·lat"
 
+msgid "Skipped"
+msgstr "Omès"
+
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Queued"
 msgstr "A la cua"

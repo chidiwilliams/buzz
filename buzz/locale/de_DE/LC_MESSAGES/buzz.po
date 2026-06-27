@@ -580,6 +580,9 @@ msgstr "Fehlgeschlagen"
 msgid "Canceled"
 msgstr "Abgebrochen"
 
+msgid "Skipped"
+msgstr "Übersprungen"
+
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Queued"
 msgstr "In der Warteschlange"

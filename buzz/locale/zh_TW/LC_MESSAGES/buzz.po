@@ -560,6 +560,9 @@ msgstr "失敗"
 msgid "Canceled"
 msgstr "取消"
 
+msgid "Skipped"
+msgstr "已跳過"
+
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Queued"
 msgstr "排隊中"

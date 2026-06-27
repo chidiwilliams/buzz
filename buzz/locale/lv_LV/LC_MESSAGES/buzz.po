@@ -578,6 +578,9 @@ msgstr "Neizdevās"
 msgid "Canceled"
 msgstr "Atcelts"
 
+msgid "Skipped"
+msgstr "Izlaists"
+
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Queued"
 msgstr "Ierindots"

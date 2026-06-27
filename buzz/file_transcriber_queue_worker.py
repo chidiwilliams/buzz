@@ -149,7 +149,8 @@ class FileTranscriberQueueWorker(QObject):
                 self.is_running = False
                 return
 
-        self._run_plugins()
+        if not self._run_plugins():
+            return
 
         logging.debug("Starting next transcription task")
         self.task_progress.emit(self.current_task, 0)
@@ -199,12 +200,28 @@ class FileTranscriberQueueWorker(QObject):
 
         return status
 
-    def _run_plugins(self):
+    def _run_plugins(self) -> bool:
+        """Run before_transcription and check_skip hooks.
+
+        Returns False if a plugin signaled that the task should be skipped,
+        True to continue with normal transcription.
+        """
         if self.plugin_manager is not None:
             try:
                 self.plugin_manager.run_before_transcription(self.current_task)
             except Exception as e:
                 logging.error(f"Plugin before_transcription failed: {e}", exc_info=True)
+
+            should_skip, skip_segments = self.plugin_manager.run_check_skip(self.current_task)
+            if should_skip:
+                logging.debug("Skipping transcription task (plugin signaled skip)")
+                self.current_task.status = FileTranscriptionTask.Status.SKIPPED
+                self.on_task_completed(skip_segments)
+                self.is_running = False
+                self._on_task_finished()
+                return False
+
+        return True
 
     def _create_transcriber(self):
         model_type = self.current_task.transcription_options.model.model_type

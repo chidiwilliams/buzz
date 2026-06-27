@@ -576,6 +576,9 @@ msgstr "Falhou"
 msgid "Canceled"
 msgstr "Cancelado"
 
+msgid "Skipped"
+msgstr "Ignorado"
+
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Queued"
 msgstr "Na fila"

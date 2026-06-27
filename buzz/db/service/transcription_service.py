@@ -59,6 +59,22 @@ class TranscriptionService:
     def update_transcription_language(self, id: UUID, language: str):
         self.transcription_dao.update_transcription_language(id, language)
 
+    def update_transcription_as_skipped(self, id: UUID, segments: List[Segment]):
+        self.transcription_dao.update_transcription_as_skipped(id)
+        for segment in segments:
+            self.transcription_segment_dao.insert(
+                TranscriptionSegment(
+                    start_time=segment.start,
+                    end_time=segment.end,
+                    text=segment.text,
+                    translation='',
+                    transcription_id=str(id),
+                )
+            )
+
+    def find_completed_transcription_by_filename(self, filename: str):
+        return self.transcription_dao.find_completed_transcription_by_filename(filename)
+
     def reset_transcription_for_restart(self, id: UUID):
         self.transcription_dao.reset_transcription_for_restart(id)
 

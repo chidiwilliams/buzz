@@ -573,6 +573,9 @@ msgstr "Mislykkedes"
 msgid "Canceled"
 msgstr "Afbrudt"
 
+msgid "Skipped"
+msgstr "Sprunget over"
+
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Queued"
 msgstr "Sat i kø"

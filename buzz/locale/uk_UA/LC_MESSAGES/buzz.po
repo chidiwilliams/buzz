@@ -574,6 +574,9 @@ msgstr "Невдача"
 msgid "Canceled"
 msgstr "Скасовано"
 
+msgid "Skipped"
+msgstr "Пропущено"
+
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Queued"
 msgstr "У черзі"
