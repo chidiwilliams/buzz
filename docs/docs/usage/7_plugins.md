@@ -43,6 +43,6 @@ This is useful when re-importing a folder of files where some have already been 
 
 ## Building your own plugin
 
-The built-in plugins are a good starting point for writing a custom plugin. Browse the source code in [buzz/plugins](https://github.com/chidiwilliams/buzz/tree/main/buzz/plugins) to see how they are structured and which hooks they use. 
+The built-in plugins are a good starting point for writing a custom plugin. Browse the source code in [buzz/plugins](https://github.com/chidiwilliams/buzz/tree/main/buzz/plugins) to see how they are structured and which hooks they use. Alternatively point your AI coding agent to this folder and ask to crete the plugin you need.
 
 If you build something useful, please share it with the Buzz community! Open a [GitHub Discussion](https://github.com/chidiwilliams/buzz/discussions) or submit a pull request to have your plugin considered for inclusion as a built-in.
