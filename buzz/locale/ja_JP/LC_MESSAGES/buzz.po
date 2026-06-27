@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-27 15:05+0300\n"
+"POT-Creation-Date: 2026-06-27 18:53+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: nunawa <71294849+nunawa@users.noreply.github.com>\n"
 "Language-Team: \n"
@@ -214,8 +214,9 @@ msgstr "CPUのみを使用してGPUアクセラレーションを無効にする
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
-msgstr "大きなモデルがGPUメモリに収まらずBuzzがクラッシュする場合に設定"
-"大きなモデルがGPUメモリに収まらずBuzzがクラッシュする場合に設定してください"
+msgstr ""
+"大きなモデルがGPUメモリに収まらずBuzzがクラッシュする場合に設定大きなモデルが"
+"GPUメモリに収まらずBuzzがクラッシュする場合に設定してください"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Disable GPU"
@@ -642,7 +643,8 @@ msgstr "再開できません"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Only failed, canceled, or skipped transcriptions can be restarted."
-msgstr "再開できるのは失敗、キャンセル、またはスキップされた文字起こしのみです。"
+msgstr ""
+"再開できるのは失敗、キャンセル、またはスキップされた文字起こしのみです。"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Failed to restart transcription: {}"
@@ -1787,6 +1789,19 @@ msgstr "句読点"
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid "Maximum subtitle length"
 msgstr "字幕の最大長"
+
+#: buzz/plugins/deep_filter_net/plugin.py
+msgid "DeepFilterNet Noise Reduction"
+msgstr "DeepFilterNet ノイズ除去"
+
+#: buzz/plugins/deep_filter_net/plugin.py
+msgid "Removes background noise using DeepFilterNet3 before transcription."
+msgstr "文字起こし前に DeepFilterNet3 で背景雑音を除去します。"
+
+#: buzz/plugins/deep_filter_net/plugin.py
+#, fuzzy
+msgid "Keep denoised file after transcription"
+msgstr "文字起こし後にノイズ除去ファイルを保持する"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip Already Transcribed"

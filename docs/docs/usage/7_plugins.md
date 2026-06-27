@@ -32,6 +32,10 @@ Exports the completed transcript to a Microsoft Word `.docx` file. Timestamps ca
 
 Automatically regroups word-level transcript segments into subtitle-sized chunks after transcription. Supports merging by silence gaps, splitting on punctuation, and enforcing a maximum subtitle length. Requires word-level timings to be enabled on the transcription.
 
+### DeepFilterNet Noise Reduction
+
+Removes background noise from audio using the [DeepFilterNet](https://github.com/Rikorose/DeepFilterNet) model before transcription begins. The denoised audio is saved as a new file with a `_DeepFilterNet3.wav` suffix next to the source file. By default this file is deleted after transcription completes; enable **Keep denoised file after transcription** in the plugin settings to retain it.
+
 ### Skip Already Transcribed
 
 Skips transcription if results for the imported file have already been produced. Supports two detection methods (both can be enabled at the same time):

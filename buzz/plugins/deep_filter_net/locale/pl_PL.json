@@ -1,0 +1,5 @@
+{
+  "DeepFilterNet Noise Reduction": "Redukcja szumów DeepFilterNet",
+  "Removes background noise using DeepFilterNet3 before transcription.": "Usuwa szumy tła za pomocą DeepFilterNet3 przed transkrypcją.",
+  "Keep denoised file after transcription": "Zachowaj plik po usunięciu szumów po transkrypcji"
+}

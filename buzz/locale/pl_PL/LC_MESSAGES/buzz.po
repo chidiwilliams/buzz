@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-27 15:05+0300\n"
+"POT-Creation-Date: 2026-06-27 18:53+0300\n"
 "PO-Revision-Date: 2024-03-17 20:50+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -218,9 +218,10 @@ msgstr "Używaj tylko CPU i wyłącz akcelerację GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
-msgstr "Ustaw to, jeśli większe modele nie mieszczą się w pamięci GPU i Buzz się zawiesza"
+msgstr ""
 "Ustaw to, jeśli większe modele nie mieszczą się w pamięci GPU i Buzz się "
-"zawiesza"
+"zawieszaUstaw to, jeśli większe modele nie mieszczą się w pamięci GPU i Buzz "
+"się zawiesza"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Disable GPU"
@@ -647,7 +648,9 @@ msgstr "Nie można ponownie uruchomić"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Only failed, canceled, or skipped transcriptions can be restarted."
-msgstr "Można ponownie uruchomić tylko transkrypcje zakończone niepowodzeniem, anulowane lub pominięte."
+msgstr ""
+"Można ponownie uruchomić tylko transkrypcje zakończone niepowodzeniem, "
+"anulowane lub pominięte."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Failed to restart transcription: {}"
@@ -663,9 +666,10 @@ msgstr ""
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
-msgstr "Nie można ponownie uruchomić transkrypcji: nie znaleziono pracownika transkrypcji."
-"Nie można uruchomić ponownie transkrypcji: nie znaleziono procesu "
-"transkrypcji."
+msgstr ""
+"Nie można ponownie uruchomić transkrypcji: nie znaleziono pracownika "
+"transkrypcji.Nie można uruchomić ponownie transkrypcji: nie znaleziono "
+"procesu transkrypcji."
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -1066,8 +1070,10 @@ msgstr "Żądana długość napisów"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were disabled during transcription"
-msgstr "Dostępne tylko jeśli znaczniki czasu na poziomie słów były wyłączone podczas transkrypcji"
-"Dostępne tylko jeśli znaczniki dla słów były wyłączone podczas transkrypcji"
+msgstr ""
+"Dostępne tylko jeśli znaczniki czasu na poziomie słów były wyłączone podczas "
+"transkrypcjiDostępne tylko jeśli znaczniki dla słów były wyłączone podczas "
+"transkrypcji"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge Options"
@@ -1094,8 +1100,10 @@ msgstr "Scal"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
-msgstr "Dostępne tylko jeśli znaczniki czasu na poziomie słów były włączone podczas transkrypcji"
-"Dostępne tylko jeśli znaczniki dla słów były włączone podczas transkrypcji"
+msgstr ""
+"Dostępne tylko jeśli znaczniki czasu na poziomie słów były włączone podczas "
+"transkrypcjiDostępne tylko jeśli znaczniki dla słów były włączone podczas "
+"transkrypcji"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
@@ -1118,8 +1126,9 @@ msgstr "3/8 Ładowanie modelu wyrównania"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "3/8 Loading alignment model (retrying with cache...)"
-msgstr "3/8 Wczytywanie modelu wyrównania (ponowna próba z pamięcią podręczną...)"
-"3/8 Ładowanie modelu wyrównania (ponowna próba z pamięcią podręczną...)"
+msgstr ""
+"3/8 Wczytywanie modelu wyrównania (ponowna próba z pamięcią podręczną...)3/8 "
+"Ładowanie modelu wyrównania (ponowna próba z pamięcią podręczną...)"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
@@ -1803,13 +1812,27 @@ msgstr "Interpunkcja"
 msgid "Maximum subtitle length"
 msgstr "Maksymalna długość napisu"
 
+#: buzz/plugins/deep_filter_net/plugin.py
+msgid "DeepFilterNet Noise Reduction"
+msgstr "Redukcja szumów DeepFilterNet"
+
+#: buzz/plugins/deep_filter_net/plugin.py
+msgid "Removes background noise using DeepFilterNet3 before transcription."
+msgstr "Usuwa szumy tła za pomocą DeepFilterNet3 przed transkrypcją."
+
+#: buzz/plugins/deep_filter_net/plugin.py
+#, fuzzy
+msgid "Keep denoised file after transcription"
+msgstr "Zachowaj plik po usunięciu szumów po transkrypcji"
+
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip Already Transcribed"
 msgstr "Pomijaj już transkrybowane"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip transcription if results already exist on disk or in the database"
-msgstr "Pomiń transkrypcję, jeśli wyniki już istnieją na dysku lub w bazie danych"
+msgstr ""
+"Pomiń transkrypcję, jeśli wyniki już istnieją na dysku lub w bazie danych"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Check for existing result files"
