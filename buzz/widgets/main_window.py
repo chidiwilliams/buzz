@@ -1,4 +1,3 @@
-import glob
 import os
 import logging
 from typing import Tuple, List, Optional
@@ -55,23 +54,6 @@ from buzz.widgets.transcription_tasks_table_widget import (
 from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
     TranscriptionViewerWidget,
 )
-
-
-def _has_existing_output(file_path: str) -> bool:
-    """Return True if any output file already exists for the given audio file.
-
-    Checks for .txt, .srt, and .vtt exports with the same base name
-    as *file_path* in the same directory.  This enables the
-    "already transcribed" history-detection feature.
-    """
-    if not file_path or not os.path.isfile(file_path):
-        return False
-    base_dir = os.path.dirname(file_path)
-    base_name = os.path.splitext(os.path.basename(file_path))[0]
-    for ext in ("txt", "srt", "vtt"):
-        if glob.glob(os.path.join(base_dir, f"{base_name}*.{ext}")):
-            return True
-    return False
 
 
 class MainWindow(QMainWindow):
@@ -236,9 +218,6 @@ class MainWindow(QMainWindow):
                     file_path=file_path,
                     source=FileTranscriptionTask.Source.FILE_IMPORT,
                 )
-                # Detect already-transcribed files (history detection)
-                if _has_existing_output(file_path):
-                    task.status = FileTranscriptionTask.Status.HISTORY
                 self.add_task(task)
         else:
             task = FileTranscriptionTask(
@@ -379,9 +358,9 @@ class MainWindow(QMainWindow):
 
     @staticmethod
     def can_open_transcript(transcription: Transcription) -> bool:
-        return (
-            FileTranscriptionTask.Status(transcription.status)
-            == FileTranscriptionTask.Status.COMPLETED
+        return FileTranscriptionTask.Status(transcription.status) in (
+            FileTranscriptionTask.Status.COMPLETED,
+            FileTranscriptionTask.Status.SKIPPED,
         )
 
     def should_enable_stop_transcription_action(self):
@@ -398,6 +377,7 @@ class MainWindow(QMainWindow):
                 FileTranscriptionTask.Status.COMPLETED,
                 FileTranscriptionTask.Status.FAILED,
                 FileTranscriptionTask.Status.CANCELED,
+                FileTranscriptionTask.Status.SKIPPED,
             ]
         )
 
@@ -433,9 +413,7 @@ class MainWindow(QMainWindow):
     def add_task(self, task: FileTranscriptionTask):
         self.transcription_service.create_transcription(task)
         self.table_widget.refresh_all()
-        # HISTORY tasks have existing output — skip transcription queue
-        if task.status != FileTranscriptionTask.Status.HISTORY:
-            self.transcriber_worker.add_task(task)
+        self.transcriber_worker.add_task(task)
 
     def on_transcriptions_updated(self):
         self.table_widget.refresh_all()
@@ -455,6 +433,15 @@ class MainWindow(QMainWindow):
         pass
 
     def on_task_completed(self, task: FileTranscriptionTask, segments: List[Segment]):
+        # Handle skipped tasks (e.g. plugin detected file already transcribed)
+        if task.status == FileTranscriptionTask.Status.SKIPPED:
+            self.transcription_service.update_transcription_as_skipped(task.uid, segments)
+            self.table_widget.refresh_row(task.uid)
+            if self.quit_on_complete:
+                self.close()
+                QApplication.quit()
+            return
+
         # Update file path in database only for URL imports where file is downloaded
         if task.source == FileTranscriptionTask.Source.URL_IMPORT and task.file_path:
             logging.debug(f"Updating transcription file path: {task.file_path}")
