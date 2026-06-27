@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-27 15:05+0300\n"
+"POT-Creation-Date: 2026-06-27 18:53+0300\n"
 "PO-Revision-Date: 2026-03-06 13:23+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -218,9 +218,9 @@ msgstr "Izmantot tikai CPU un deaktivēt GPU paātrināšanu"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
-msgstr "Iestatiet, ja lielāki modeļi neietilpst GPU atmiņā un Buzz avarē"
-"Aktivizējiet šo, ja lielāki modeļi neietilpst jūsu video kartes atmiņā un "
-"Buzz avarē"
+msgstr ""
+"Iestatiet, ja lielāki modeļi neietilpst GPU atmiņā un Buzz avarēAktivizējiet "
+"šo, ja lielāki modeļi neietilpst jūsu video kartes atmiņā un Buzz avarē"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Disable GPU"
@@ -431,8 +431,8 @@ msgstr "Runas atpazīšanas iestatījumi"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Initial Prompt:"
-msgstr "Sākotnējais uzaicinājums:"
-"Sākotnējais\n"
+msgstr ""
+"Sākotnējais uzaicinājums:Sākotnējais\n"
 "vaicājums:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
@@ -1260,9 +1260,9 @@ msgstr "Neizdevās saglabāt OpenAI API atslēgu atslēgu saišķī"
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
 msgid "Whisper server failed to start. Check logs for details."
-msgstr "Whisper serveris neizdevās palaist. Sīkāk skatīt žurnālos."
-"Whisper serverim neizdevās ieslēgties. Lūdzu pārbaudiet lietotnes žurnāla "
-"ierakstus."
+msgstr ""
+"Whisper serveris neizdevās palaist. Sīkāk skatīt žurnālos.Whisper serverim "
+"neizdevās ieslēgties. Lūdzu pārbaudiet lietotnes žurnāla ierakstus."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
@@ -1799,6 +1799,19 @@ msgstr "Pieturzīmes"
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid "Maximum subtitle length"
 msgstr "Maksimālais subtitru garums"
+
+#: buzz/plugins/deep_filter_net/plugin.py
+msgid "DeepFilterNet Noise Reduction"
+msgstr "DeepFilterNet trokšņu samazināšana"
+
+#: buzz/plugins/deep_filter_net/plugin.py
+msgid "Removes background noise using DeepFilterNet3 before transcription."
+msgstr "Pirms transkribēšanas noņem fona troksni, izmantojot DeepFilterNet3."
+
+#: buzz/plugins/deep_filter_net/plugin.py
+#, fuzzy
+msgid "Keep denoised file after transcription"
+msgstr "Saglabāt attīrīto failu pēc transkribēšanas"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip Already Transcribed"

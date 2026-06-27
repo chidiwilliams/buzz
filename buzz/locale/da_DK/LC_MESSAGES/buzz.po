@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-27 15:05+0300\n"
+"POT-Creation-Date: 2026-06-27 18:53+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Ole Guldberg2 <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -216,9 +216,10 @@ msgstr "Brug kun CPU og deaktiver GPU-acceleration"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
-msgstr "Indstil dette, hvis større modeller ikke passer i din GPU-hukommelse og Buzz crasher"
-"Aktivér dette hvis større modeller ikke passer i GPU-hukommelsen og Buzz "
-"crasher"
+msgstr ""
+"Indstil dette, hvis større modeller ikke passer i din GPU-hukommelse og Buzz "
+"crasherAktivér dette hvis større modeller ikke passer i GPU-hukommelsen og "
+"Buzz crasher"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Disable GPU"
@@ -645,7 +646,9 @@ msgstr "Kan ikke genstarte"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Only failed, canceled, or skipped transcriptions can be restarted."
-msgstr "Kun mislykkede, annullerede eller sprunget-over transkriptioner kan genstartes."
+msgstr ""
+"Kun mislykkede, annullerede eller sprunget-over transkriptioner kan "
+"genstartes."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Failed to restart transcription: {}"
@@ -661,7 +664,8 @@ msgstr ""
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
-msgstr "Kunne ikke genstarte transskription: transskriptionsarbejder ikke fundet."
+msgstr ""
+"Kunne ikke genstarte transskription: transskriptionsarbejder ikke fundet."
 "Kunne ikke genstarte transkription: transkriptionsprocessen blev ikke fundet."
 
 #: buzz/widgets/recording_transcriber_widget.py
@@ -1063,9 +1067,10 @@ msgstr "Ønskede undertekst længde"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were disabled during transcription"
-msgstr "Kun tilgængeligt hvis ordniveau-tider var deaktiveret under transskriptionen"
-"Kun tilgængeligt hvis ordniveau-tidsstempler var deaktiveret under "
-"transkription"
+msgstr ""
+"Kun tilgængeligt hvis ordniveau-tider var deaktiveret under "
+"transskriptionenKun tilgængeligt hvis ordniveau-tidsstempler var deaktiveret "
+"under transkription"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge Options"
@@ -1092,9 +1097,10 @@ msgstr "Sammenflet"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
-msgstr "Kun tilgængeligt hvis ordniveau-tider var aktiveret under transskriptionen"
-"Kun tilgængeligt hvis ordniveau-tidsstempler var aktiveret under "
-"transkription"
+msgstr ""
+"Kun tilgængeligt hvis ordniveau-tider var aktiveret under "
+"transskriptionenKun tilgængeligt hvis ordniveau-tidsstempler var aktiveret "
+"under transkription"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
@@ -1801,13 +1807,28 @@ msgstr "Tegnsætning"
 msgid "Maximum subtitle length"
 msgstr "Maksimal undertekstlængde"
 
+#: buzz/plugins/deep_filter_net/plugin.py
+msgid "DeepFilterNet Noise Reduction"
+msgstr "DeepFilterNet støjreduktion"
+
+#: buzz/plugins/deep_filter_net/plugin.py
+msgid "Removes background noise using DeepFilterNet3 before transcription."
+msgstr "Fjerner baggrundsstøj med DeepFilterNet3 før transskription."
+
+#: buzz/plugins/deep_filter_net/plugin.py
+#, fuzzy
+msgid "Keep denoised file after transcription"
+msgstr "Behold den støjreducerede fil efter transskription"
+
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip Already Transcribed"
 msgstr "Spring allerede transkriberede over"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip transcription if results already exist on disk or in the database"
-msgstr "Spring transskription over, hvis resultater allerede findes på disk eller i databasen"
+msgstr ""
+"Spring transskription over, hvis resultater allerede findes på disk eller i "
+"databasen"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Check for existing result files"

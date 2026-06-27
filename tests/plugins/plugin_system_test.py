@@ -903,3 +903,117 @@ def test_sat_run_check_skip_integration(qtbot, isolated_plugins, transcription_s
     assert segments[0].text == "Existing transcript."
 
     manager.remove("skip_already_transcribed")
+
+
+# ---------------------------------------------------------------------------
+# DeepFilterNet plugin tests
+# ---------------------------------------------------------------------------
+
+def _dfn_plugin():
+    from buzz.plugins.loader import load_plugin_from_dir
+    return load_plugin_from_dir("buzz/plugins/deep_filter_net")
+
+
+def _dfn_context(config=None):
+    import logging
+    from buzz.plugins.base import PluginContext
+    return PluginContext(
+        config=config or {},
+        transcription_service=None,
+        settings=None,
+        logger=logging.getLogger("test"),
+    )
+
+
+class _DfnTask:
+    def __init__(self, file_path="/tmp/audio.mp3"):
+        self.file_path = file_path
+        self.original_file_path = file_path
+
+
+def test_deep_filter_net_loads():
+    plugin = _dfn_plugin()
+    assert plugin.metadata.id == "deep_filter_net"
+    keys = [f.key for f in plugin.metadata.config_fields]
+    assert "keep_denoised_file" in keys
+
+
+def test_deep_filter_net_before_transcription_creates_denoised_file(tmp_path):
+    plugin = _dfn_plugin()
+    audio = tmp_path / "audio.mp3"
+    audio.write_bytes(b"")
+
+    import sys
+    from unittest.mock import MagicMock, patch
+
+    mock_audio_tensor = MagicMock()
+    mock_sr = MagicMock()
+    mock_model = MagicMock()
+    mock_df_state = MagicMock()
+    mock_df_state.sr.return_value = mock_sr
+    mock_enhanced = MagicMock()
+
+    df_module = MagicMock()
+    df_module.init_df.return_value = (mock_model, mock_df_state, None)
+    df_module.load_audio.return_value = (mock_audio_tensor, mock_sr)
+    df_module.enhance.return_value = mock_enhanced
+
+    with patch.dict(sys.modules, {"df": MagicMock(), "df.enhance": df_module}):
+        task = _DfnTask(file_path=str(audio))
+        result = plugin.before_transcription(task, _dfn_context())
+
+    expected = str(tmp_path / "audio_DeepFilterNet3.wav")
+    assert result == expected
+    df_module.init_df.assert_called_once()
+    df_module.load_audio.assert_called_once_with(str(audio), sr=mock_sr)
+    df_module.enhance.assert_called_once_with(mock_model, mock_df_state, mock_audio_tensor)
+    df_module.save_audio.assert_called_once_with(expected, mock_enhanced, mock_sr)
+
+
+def test_deep_filter_net_returns_none_on_error():
+    plugin = _dfn_plugin()
+
+    import sys
+    from unittest.mock import MagicMock, patch
+
+    df_module = MagicMock()
+    df_module.init_df.side_effect = RuntimeError("model not found")
+
+    with patch.dict(sys.modules, {"df": MagicMock(), "df.enhance": df_module}):
+        task = _DfnTask(file_path="/tmp/audio.mp3")
+        result = plugin.before_transcription(task, _dfn_context())
+
+    assert result is None
+
+
+def test_deep_filter_net_deletes_file_when_keep_false(tmp_path):
+    plugin = _dfn_plugin()
+    denoised = tmp_path / "audio_DeepFilterNet3.wav"
+    denoised.write_bytes(b"")
+
+    task = _DfnTask(file_path=str(denoised))
+    plugin.on_complete(None, task, [], _dfn_context(config={"keep_denoised_file": False}))
+
+    assert not denoised.exists()
+
+
+def test_deep_filter_net_keeps_file_when_keep_true(tmp_path):
+    plugin = _dfn_plugin()
+    denoised = tmp_path / "audio_DeepFilterNet3.wav"
+    denoised.write_bytes(b"")
+
+    task = _DfnTask(file_path=str(denoised))
+    plugin.on_complete(None, task, [], _dfn_context(config={"keep_denoised_file": True}))
+
+    assert denoised.exists()
+
+
+def test_deep_filter_net_does_not_delete_non_dfn_file(tmp_path):
+    plugin = _dfn_plugin()
+    audio = tmp_path / "audio.mp3"
+    audio.write_bytes(b"")
+
+    task = _DfnTask(file_path=str(audio))
+    plugin.on_complete(None, task, [], _dfn_context(config={"keep_denoised_file": False}))
+
+    assert audio.exists()

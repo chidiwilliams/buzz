@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-27 15:05+0300\n"
+"POT-Creation-Date: 2026-06-27 18:53+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -216,8 +216,10 @@ msgstr "Использовать только CPU и отключить уско
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
-msgstr "Установите это, если большие модели не помещаются в память GPU и Buzz вылетает"
-"Включите это, если большие модели не помещаются в память GPU и Buzz вылетает"
+msgstr ""
+"Установите это, если большие модели не помещаются в память GPU и Buzz "
+"вылетаетВключите это, если большие модели не помещаются в память GPU и Buzz "
+"вылетает"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Disable GPU"
@@ -644,7 +646,9 @@ msgstr "Невозможно перезапустить"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Only failed, canceled, or skipped transcriptions can be restarted."
-msgstr "Перезапустить можно только неудачные, отменённые или пропущенные транскрипции."
+msgstr ""
+"Перезапустить можно только неудачные, отменённые или пропущенные "
+"транскрипции."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Failed to restart transcription: {}"
@@ -660,8 +664,10 @@ msgstr ""
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
-msgstr "Не удалось перезапустить транскрипцию: рабочий процесс транскрибатора не найден."
-"Не удалось перезапустить транскрипцию: обработчик транскрипции не найден."
+msgstr ""
+"Не удалось перезапустить транскрипцию: рабочий процесс транскрибатора не "
+"найден.Не удалось перезапустить транскрипцию: обработчик транскрипции не "
+"найден."
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -1062,9 +1068,10 @@ msgstr "Желаемая длина субтитров"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were disabled during transcription"
-msgstr "Доступно только если временны́е метки на уровне слов были отключены при транскрипции"
-"Доступно только если тайминги на уровне слов были отключены во время "
-"транскрипции"
+msgstr ""
+"Доступно только если временны́е метки на уровне слов были отключены при "
+"транскрипцииДоступно только если тайминги на уровне слов были отключены во "
+"время транскрипции"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge Options"
@@ -1091,9 +1098,10 @@ msgstr "Объединить"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
-msgstr "Доступно только если временны́е метки на уровне слов были включены при транскрипции"
-"Доступно только если тайминги на уровне слов были включены во время "
-"транскрипции"
+msgstr ""
+"Доступно только если временны́е метки на уровне слов были включены при "
+"транскрипцииДоступно только если тайминги на уровне слов были включены во "
+"время транскрипции"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
@@ -1261,8 +1269,10 @@ msgstr "Не удалось сохранить API-ключ OpenAI в связк
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
 msgid "Whisper server failed to start. Check logs for details."
-msgstr "Сервер Whisper не смог запуститься. Проверьте журналы для получения подробностей."
-"Не удалось запустить сервер Whisper. Проверьте журналы для получения деталей."
+msgstr ""
+"Сервер Whisper не смог запуститься. Проверьте журналы для получения "
+"подробностей.Не удалось запустить сервер Whisper. Проверьте журналы для "
+"получения деталей."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
@@ -1801,13 +1811,28 @@ msgstr "Пунктуация"
 msgid "Maximum subtitle length"
 msgstr "Максимальная длина субтитра"
 
+#: buzz/plugins/deep_filter_net/plugin.py
+msgid "DeepFilterNet Noise Reduction"
+msgstr "Шумоподавление DeepFilterNet"
+
+#: buzz/plugins/deep_filter_net/plugin.py
+msgid "Removes background noise using DeepFilterNet3 before transcription."
+msgstr "Удаляет фоновый шум с помощью DeepFilterNet3 перед транскрипцией."
+
+#: buzz/plugins/deep_filter_net/plugin.py
+#, fuzzy
+msgid "Keep denoised file after transcription"
+msgstr "Сохранить файл без шума после транскрипции"
+
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip Already Transcribed"
 msgstr "Пропустить уже транскрибированные"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip transcription if results already exist on disk or in the database"
-msgstr "Пропустить транскрипцию, если результаты уже существуют на диске или в базе данных"
+msgstr ""
+"Пропустить транскрипцию, если результаты уже существуют на диске или в базе "
+"данных"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Check for existing result files"

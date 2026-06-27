@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-27 15:05+0300\n"
+"POT-Creation-Date: 2026-06-27 18:53+0300\n"
 "PO-Revision-Date: 2025-11-01 17:43-0300\n"
 "Last-Translator: Paulo Schopf <pschopf@gmail.com>\n"
 "Language-Team: none\n"
@@ -218,8 +218,10 @@ msgstr "Usar somente a CPU e desabilitar aceleração por GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
-msgstr "Ative isso se modelos maiores não couberem na memória da GPU e o Buzz travar"
-"Marque isso se modelos maiores não couberem na memória da GPU e o Buzz travar"
+msgstr ""
+"Ative isso se modelos maiores não couberem na memória da GPU e o Buzz "
+"travarMarque isso se modelos maiores não couberem na memória da GPU e o Buzz "
+"travar"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Disable GPU"
@@ -646,7 +648,9 @@ msgstr "Não é possível reiniciar"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Only failed, canceled, or skipped transcriptions can be restarted."
-msgstr "Somente transcrições com falha, canceladas ou ignoradas podem ser reiniciadas."
+msgstr ""
+"Somente transcrições com falha, canceladas ou ignoradas podem ser "
+"reiniciadas."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Failed to restart transcription: {}"
@@ -662,9 +666,10 @@ msgstr ""
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
-msgstr "Não foi possível reiniciar a transcrição: trabalhador de transcrição não encontrado."
+msgstr ""
 "Não foi possível reiniciar a transcrição: trabalhador de transcrição não "
-"encontrado."
+"encontrado.Não foi possível reiniciar a transcrição: trabalhador de "
+"transcrição não encontrado."
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -1065,9 +1070,10 @@ msgstr "Duração desejada da legenda"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were disabled during transcription"
-msgstr "Disponível apenas se os tempos de nível de palavra estavam desativados durante a transcrição"
-"Disponível apenas se os tempos em nível de palavra foram desabilitados "
-"durante a transcrição"
+msgstr ""
+"Disponível apenas se os tempos de nível de palavra estavam desativados "
+"durante a transcriçãoDisponível apenas se os tempos em nível de palavra "
+"foram desabilitados durante a transcrição"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge Options"
@@ -1094,9 +1100,10 @@ msgstr "Mesclar"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
-msgstr "Disponível apenas se os tempos de nível de palavra estavam ativados durante a transcrição"
-"Disponível apenas se os tempos em nível de palavra foram habilitados durante "
-"a transcrição"
+msgstr ""
+"Disponível apenas se os tempos de nível de palavra estavam ativados durante "
+"a transcriçãoDisponível apenas se os tempos em nível de palavra foram "
+"habilitados durante a transcrição"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
@@ -1803,13 +1810,28 @@ msgstr "Pontuação"
 msgid "Maximum subtitle length"
 msgstr "Comprimento máximo da legenda"
 
+#: buzz/plugins/deep_filter_net/plugin.py
+msgid "DeepFilterNet Noise Reduction"
+msgstr "Redução de ruído DeepFilterNet"
+
+#: buzz/plugins/deep_filter_net/plugin.py
+msgid "Removes background noise using DeepFilterNet3 before transcription."
+msgstr "Remove ruído de fundo com DeepFilterNet3 antes da transcrição."
+
+#: buzz/plugins/deep_filter_net/plugin.py
+#, fuzzy
+msgid "Keep denoised file after transcription"
+msgstr "Manter arquivo sem ruído após a transcrição"
+
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip Already Transcribed"
 msgstr "Pular já transcritos"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip transcription if results already exist on disk or in the database"
-msgstr "Pular a transcrição se os resultados já existirem no disco ou no banco de dados"
+msgstr ""
+"Pular a transcrição se os resultados já existirem no disco ou no banco de "
+"dados"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Check for existing result files"

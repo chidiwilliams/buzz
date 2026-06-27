@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-27 15:05+0300\n"
+"POT-Creation-Date: 2026-06-27 18:53+0300\n"
 "PO-Revision-Date: 2026-04-12 21:42+0200\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
@@ -198,8 +198,10 @@ msgstr ""
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Use 8-bit quantization to reduce memory usage"
-msgstr "Utilizza la quantizzazione a 8 bit per ridurre l'utilizzo della memoria"
-"Utilizzare la quantizzazione a 8 bit per ridurre l'utilizzo della memoria"
+msgstr ""
+"Utilizza la quantizzazione a 8 bit per ridurre l'utilizzo della "
+"memoriaUtilizzare la quantizzazione a 8 bit per ridurre l'utilizzo della "
+"memoria"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
@@ -219,9 +221,10 @@ msgstr "Utilizza solo la CPU e disattiva l'accelerazione GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
-msgstr "Imposta questo se i modelli più grandi non rientrano nella memoria GPU e Buzz si blocca"
-"Imposta questa opzione se i modelli più grandi non si adattano alla memoria "
-"della tua GPU e Buzz si blocca"
+msgstr ""
+"Imposta questo se i modelli più grandi non rientrano nella memoria GPU e "
+"Buzz si bloccaImposta questa opzione se i modelli più grandi non si adattano "
+"alla memoria della tua GPU e Buzz si blocca"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Disable GPU"
@@ -404,9 +407,10 @@ msgstr "Modello:"
 #: buzz/widgets/transcriber/transcription_options_group_box.py
 #: buzz/transcriber/recording_transcriber.py
 msgid "First time use of a model may take up to several minutest to load."
-msgstr "Il primo utilizzo di un modello potrebbe richiedere diversi minuti per il caricamento."
-"Il caricamento di un modello al primo utilizzo potrebbe richiedere diversi "
-"minuti."
+msgstr ""
+"Il primo utilizzo di un modello potrebbe richiedere diversi minuti per il "
+"caricamento.Il caricamento di un modello al primo utilizzo potrebbe "
+"richiedere diversi minuti."
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py
 msgid "Api Key:"
@@ -650,7 +654,8 @@ msgstr "Impossibile riavviare"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Only failed, canceled, or skipped transcriptions can be restarted."
-msgstr "È possibile riavviare solo le trascrizioni non riuscite, annullate o saltate."
+msgstr ""
+"È possibile riavviare solo le trascrizioni non riuscite, annullate o saltate."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Failed to restart transcription: {}"
@@ -983,8 +988,10 @@ msgstr "Ciclo di segmento"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Enable/disable looping when clicking on transcript segments"
-msgstr "Abilita/disabilita il ciclo quando si fa clic sui segmenti di trascrizione"
-"Abilita/disabilita il loop quando si fa clic sui segmenti della trascrizione"
+msgstr ""
+"Abilita/disabilita il ciclo quando si fa clic sui segmenti di "
+"trascrizioneAbilita/disabilita il loop quando si fa clic sui segmenti della "
+"trascrizione"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Follow Audio"
@@ -1069,9 +1076,10 @@ msgstr "Lunghezza desiderata dei sottotitoli"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were disabled during transcription"
-msgstr "Disponibile solo se i tempi a livello di parola erano disabilitati durante la trascrizione"
-"Disponibile solo se i tempi a livello di parola sono stati disabilitati "
-"durante la trascrizione"
+msgstr ""
+"Disponibile solo se i tempi a livello di parola erano disabilitati durante "
+"la trascrizioneDisponibile solo se i tempi a livello di parola sono stati "
+"disabilitati durante la trascrizione"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge Options"
@@ -1098,9 +1106,10 @@ msgstr "Unione"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
-msgstr "Disponibile solo se i tempi a livello di parola erano abilitati durante la trascrizione"
-"Disponibile solo se i tempi a livello di parola sono stati abilitati durante "
-"la trascrizione"
+msgstr ""
+"Disponibile solo se i tempi a livello di parola erano abilitati durante la "
+"trascrizioneDisponibile solo se i tempi a livello di parola sono stati "
+"abilitati durante la trascrizione"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
@@ -1123,8 +1132,10 @@ msgstr "3/8 Modello di allineamento del carico"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "3/8 Loading alignment model (retrying with cache...)"
-msgstr "3/8 Caricamento del modello di allineamento (nuovo tentativo con cache...)"
-"3/8 Caricamento del modello di allineamento (nuovo tentativo con la cache...)"
+msgstr ""
+"3/8 Caricamento del modello di allineamento (nuovo tentativo con "
+"cache...)3/8 Caricamento del modello di allineamento (nuovo tentativo con la "
+"cache...)"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
@@ -1269,7 +1280,8 @@ msgstr "Impossibile salvare la chiave API OpenAI nel portachiavi"
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
 msgid "Whisper server failed to start. Check logs for details."
-msgstr "Il server Whisper non è riuscito ad avviarsi. Controlla i log per i dettagli."
+msgstr ""
+"Il server Whisper non è riuscito ad avviarsi. Controlla i log per i dettagli."
 "Impossibile avviare il server Whisper. Controllare i log per i dettagli."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
@@ -1810,13 +1822,27 @@ msgstr "Punteggiatura"
 msgid "Maximum subtitle length"
 msgstr "Lunghezza massima del sottotitolo"
 
+#: buzz/plugins/deep_filter_net/plugin.py
+msgid "DeepFilterNet Noise Reduction"
+msgstr "Riduzione del rumore DeepFilterNet"
+
+#: buzz/plugins/deep_filter_net/plugin.py
+msgid "Removes background noise using DeepFilterNet3 before transcription."
+msgstr "Rimuove il rumore di fondo con DeepFilterNet3 prima della trascrizione."
+
+#: buzz/plugins/deep_filter_net/plugin.py
+#, fuzzy
+msgid "Keep denoised file after transcription"
+msgstr "Mantieni il file denoisato dopo la trascrizione"
+
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip Already Transcribed"
 msgstr "Salta i già trascritti"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip transcription if results already exist on disk or in the database"
-msgstr "Salta la trascrizione se i risultati esistono già sul disco o nel database"
+msgstr ""
+"Salta la trascrizione se i risultati esistono già sul disco o nel database"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Check for existing result files"
