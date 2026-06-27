@@ -1,3 +1,4 @@
+import glob
 import os
 import logging
 from typing import Tuple, List, Optional
@@ -54,6 +55,23 @@ from buzz.widgets.transcription_tasks_table_widget import (
 from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
     TranscriptionViewerWidget,
 )
+
+
+def _has_existing_output(file_path: str) -> bool:
+    """Return True if any output file already exists for the given audio file.
+
+    Checks for .txt, .srt, and .vtt exports with the same base name
+    as *file_path* in the same directory.  This enables the
+    "already transcribed" history-detection feature.
+    """
+    if not file_path or not os.path.isfile(file_path):
+        return False
+    base_dir = os.path.dirname(file_path)
+    base_name = os.path.splitext(os.path.basename(file_path))[0]
+    for ext in ("txt", "srt", "vtt"):
+        if glob.glob(os.path.join(base_dir, f"{base_name}*.{ext}")):
+            return True
+    return False
 
 
 class MainWindow(QMainWindow):
@@ -218,6 +236,9 @@ class MainWindow(QMainWindow):
                     file_path=file_path,
                     source=FileTranscriptionTask.Source.FILE_IMPORT,
                 )
+                # Detect already-transcribed files (history detection)
+                if _has_existing_output(file_path):
+                    task.status = FileTranscriptionTask.Status.HISTORY
                 self.add_task(task)
         else:
             task = FileTranscriptionTask(
@@ -412,7 +433,9 @@ class MainWindow(QMainWindow):
     def add_task(self, task: FileTranscriptionTask):
         self.transcription_service.create_transcription(task)
         self.table_widget.refresh_all()
-        self.transcriber_worker.add_task(task)
+        # HISTORY tasks have existing output — skip transcription queue
+        if task.status != FileTranscriptionTask.Status.HISTORY:
+            self.transcriber_worker.add_task(task)
 
     def on_transcriptions_updated(self):
         self.table_widget.refresh_all()
