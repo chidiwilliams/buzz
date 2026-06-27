@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 16:54+0300\n"
+"POT-Creation-Date: 2026-06-27 15:05+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Ole Guldberg2 <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -11,7 +11,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=n==1 ? 3 : n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Plural-Forms: nplurals=4; plural=n==1 ? 3 : n%10==1 && n%100!=11 ? 0 : "
+"n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 
 # "X-Generator: Poedit 3.4.4\n"
 #: buzz/widgets/import_url_dialog.py buzz/settings/shortcut.py
@@ -215,7 +216,7 @@ msgstr "Brug kun CPU og deaktiver GPU-acceleration"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
-msgstr ""
+msgstr "Indstil dette, hvis større modeller ikke passer i din GPU-hukommelse og Buzz crasher"
 "Aktivér dette hvis større modeller ikke passer i GPU-hukommelsen og Buzz "
 "crasher"
 
@@ -255,8 +256,8 @@ msgstr "Vælg eksport-mappe"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key"
-" validation."
+"Transcription and translation may still work if the API does not support key "
+"validation."
 msgstr ""
 "OpenAI API returnerede et ugyldigt svar. Tjek venligst API-URL og nøgle. "
 "Transkription og oversættelse virker måske stadig, selvom API'et ikke "
@@ -578,6 +579,10 @@ msgid "Queued"
 msgstr "Sat i kø"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Skipped"
+msgstr "Sprunget over"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
 msgid "File Name / URL"
 msgstr "Filnavn / URL"
 
@@ -639,8 +644,8 @@ msgid "Cannot Restart"
 msgstr "Kan ikke genstarte"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-msgid "Only failed or canceled transcriptions can be restarted."
-msgstr "Kun mislykkede eller annullerede transkriptioner kan genstartes."
+msgid "Only failed, canceled, or skipped transcriptions can be restarted."
+msgstr "Kun mislykkede, annullerede eller sprunget-over transkriptioner kan genstartes."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Failed to restart transcription: {}"
@@ -656,9 +661,8 @@ msgstr ""
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
-msgstr ""
-"Kunne ikke genstarte transkription: transkriptionsprocessen blev ikke "
-"fundet."
+msgstr "Kunne ikke genstarte transskription: transskriptionsarbejder ikke fundet."
+"Kunne ikke genstarte transkription: transkriptionsprocessen blev ikke fundet."
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -761,8 +765,8 @@ msgid ""
 "Plugins run with full access to your system. Only install plugins from "
 "sources you trust."
 msgstr ""
-"Plugins har fuld adgang til dit system. Installér kun plugins fra kilder, du"
-" har tillid til."
+"Plugins har fuld adgang til dit system. Installér kun plugins fra kilder, du "
+"har tillid til."
 
 #: buzz/widgets/plugins_dialog/plugins_dialog.py
 msgid "Add by URL..."
@@ -1058,9 +1062,8 @@ msgid "Desired subtitle length"
 msgstr "Ønskede undertekst længde"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid ""
-"Available only if word level timings were disabled during transcription"
-msgstr ""
+msgid "Available only if word level timings were disabled during transcription"
+msgstr "Kun tilgængeligt hvis ordniveau-tider var deaktiveret under transskriptionen"
 "Kun tilgængeligt hvis ordniveau-tidsstempler var deaktiveret under "
 "transkription"
 
@@ -1089,7 +1092,7 @@ msgstr "Sammenflet"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
-msgstr ""
+msgstr "Kun tilgængeligt hvis ordniveau-tider var aktiveret under transskriptionen"
 "Kun tilgængeligt hvis ordniveau-tidsstempler var aktiveret under "
 "transkription"
 
@@ -1121,8 +1124,8 @@ msgid ""
 "Failed to load alignment model. Please check your internet connection and "
 "try again."
 msgstr ""
-"Kunne ikke indlæse justeringsmodel. Tjek venligst din internetforbindelse og"
-" prøv igen."
+"Kunne ikke indlæse justeringsmodel. Tjek venligst din internetforbindelse og "
+"prøv igen."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "4/8 Processing audio"
@@ -1732,12 +1735,12 @@ msgstr "Forbedret sprogregistrering"
 msgid ""
 "Detect the spoken language with whisper.cpp before transcription (using the "
 "largest downloaded model, or the tiny model otherwise) and use it for the "
-"transcription and exported file names. Only runs when the language is set to"
-" auto-detect."
+"transcription and exported file names. Only runs when the language is set to "
+"auto-detect."
 msgstr ""
-"Registrerer det talte sprog med whisper.cpp før transskription (ved hjælp af"
-" den største downloadede model eller ellers tiny-modellen) og bruger det til"
-" transskriptionen og de eksporterede filnavne. Kører kun, når sproget er "
+"Registrerer det talte sprog med whisper.cpp før transskription (ved hjælp af "
+"den største downloadede model eller ellers tiny-modellen) og bruger det til "
+"transskriptionen og de eksporterede filnavne. Kører kun, når sproget er "
 "indstillet til automatisk registrering."
 
 #: buzz/plugins/enhanced_language_detection/plugin.py
@@ -1778,8 +1781,8 @@ msgstr "Automatisk tilpasning af transskription"
 
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid ""
-"When a transcription has word-level timings, automatically regroup the words"
-" into properly sized subtitles and replace the result. Mirrors the Merge "
+"When a transcription has word-level timings, automatically regroup the words "
+"into properly sized subtitles and replace the result. Mirrors the Merge "
 "options of the transcript resizer."
 msgstr ""
 "Når en transskription har tidsmarkeringer på ordniveau, grupperes ordene "
@@ -1797,6 +1800,34 @@ msgstr "Tegnsætning"
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid "Maximum subtitle length"
 msgstr "Maksimal undertekstlængde"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Skip Already Transcribed"
+msgstr "Spring allerede transkriberede over"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Skip transcription if results already exist on disk or in the database"
+msgstr "Spring transskription over, hvis resultater allerede findes på disk eller i databasen"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Check for existing result files"
+msgstr "Tjek for eksisterende resultatfiler"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid ""
+"Skip if a .txt, .srt, or .vtt file matching the audio filename is found next "
+"to it"
+msgstr ""
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Check in transcription database"
+msgstr "Tjek i transskriptionsdatabasen"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid ""
+"Skip if this file has already been transcribed and the record exists in the "
+"database"
+msgstr ""
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"
@@ -1836,8 +1867,8 @@ msgstr "Outputmappe (til fil)"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
-"Speech extraction failed! Check your internet connection — a model may need "
-"to be downloaded."
+"Speech extraction failed! Check your internet connection \\u2014 a model may "
+"need to be downloaded."
 msgstr ""
 "Taleoprydning mislykkedes! Kontroller din internetforbindelse — en model "
 "skal muligvis hentes ned."

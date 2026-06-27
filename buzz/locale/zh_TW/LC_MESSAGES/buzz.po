@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 16:54+0300\n"
+"POT-Creation-Date: 2026-06-27 15:05+0300\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: Lamb\n"
@@ -202,7 +202,9 @@ msgstr "使用 8 位元量化以降低記憶體使用量"
 msgid ""
 "Applies to Huggingface and Faster Whisper models. Reduces GPU memory usage "
 "but may slightly decrease transcription quality."
-msgstr "適用於 Huggingface 和 Faster Whisper 模型。可降低 GPU 記憶體使用量，但可能略微降低轉錄品質。"
+msgstr ""
+"適用於 Huggingface 和 Faster Whisper 模型。可降低 GPU 記憶體使用量，但可能略"
+"微降低轉錄品質。"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Reduce GPU RAM"
@@ -238,7 +240,9 @@ msgstr "無效的 API 金鑰"
 msgid ""
 "API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
 "API key may cause errors."
-msgstr "API 僅支援 base64 字元（A-Za-z0-9+/=_-）。API 金鑰中的其他字元可能會導致錯誤。"
+msgstr ""
+"API 僅支援 base64 字元（A-Za-z0-9+/=_-）。API 金鑰中的其他字元可能會導致錯"
+"誤。"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
@@ -248,9 +252,11 @@ msgstr "選擇匯出資料夾"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key"
-" validation."
-msgstr "OpenAI API 傳回無效回應。請檢查 API 網址或您的金鑰。若 API 不支援金鑰驗證，轉錄和翻譯仍可能正常運作。"
+"Transcription and translation may still work if the API does not support key "
+"validation."
+msgstr ""
+"OpenAI API 傳回無效回應。請檢查 API 網址或您的金鑰。若 API 不支援金鑰驗證，轉"
+"錄和翻譯仍可能正常運作。"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Enable folder watch"
@@ -441,7 +447,9 @@ msgid ""
 "Please translate each text sent to you from English to Spanish. Translation "
 "will be used in an automated system, please do not add any comments or "
 "notes, just the translation."
-msgstr "請將傳送給您的每段文字從英文翻譯成西班牙文。翻譯將用於自動化系統，請勿添加任何評論或備註，僅提供翻譯即可。"
+msgstr ""
+"請將傳送給您的每段文字從英文翻譯成西班牙文。翻譯將用於自動化系統，請勿添加任"
+"何評論或備註，僅提供翻譯即可。"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -565,6 +573,10 @@ msgid "Queued"
 msgstr "排隊中"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Skipped"
+msgstr "已跳過"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
 msgid "File Name / URL"
 msgstr "檔案名稱 / 網址"
 
@@ -626,8 +638,8 @@ msgid "Cannot Restart"
 msgstr "無法重新開始"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-msgid "Only failed or canceled transcriptions can be restarted."
-msgstr "只有失敗或已取消的轉錄才能重新開始。"
+msgid "Only failed, canceled, or skipped transcriptions can be restarted."
+msgstr "只有失敗、已取消或已跳過的轉錄才能重新開始。"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Failed to restart transcription: {}"
@@ -1035,8 +1047,7 @@ msgid "Desired subtitle length"
 msgstr "理想字幕長度"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid ""
-"Available only if word level timings were disabled during transcription"
+msgid "Available only if word level timings were disabled during transcription"
 msgstr "僅在轉錄時停用單字級別時間戳記時可用"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
@@ -1235,7 +1246,8 @@ msgid ""
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
 "variable."
 msgstr ""
-"Whisper 伺服器因記憶體不足而啟動失敗。請改用較小的模型重試。若要強制使用 CPU 模式，請設定環境變數 BUZZ_FORCE_CPU=TRUE。"
+"Whisper 伺服器因記憶體不足而啟動失敗。請改用較小的模型重試。若要強制使用 CPU "
+"模式，請設定環境變數 BUZZ_FORCE_CPU=TRUE。"
 
 #: buzz/transcriber/transcriber.py
 msgid "Translate to English"
@@ -1697,8 +1709,8 @@ msgstr "增強語言偵測"
 msgid ""
 "Detect the spoken language with whisper.cpp before transcription (using the "
 "largest downloaded model, or the tiny model otherwise) and use it for the "
-"transcription and exported file names. Only runs when the language is set to"
-" auto-detect."
+"transcription and exported file names. Only runs when the language is set to "
+"auto-detect."
 msgstr ""
 "在轉錄前使用 whisper.cpp 偵測所說的語言（使用已下載的最大模型，否則使用 tiny "
 "模型），並將其用於轉錄和匯出的檔案名稱。僅在語言設定為自動偵測時執行。"
@@ -1721,7 +1733,8 @@ msgstr "匯出為 DOCX"
 msgid ""
 "Export the transcript to a Microsoft Word (.docx) file after transcription, "
 "optionally including timestamps."
-msgstr "轉錄完成後將轉錄文字匯出為 Microsoft Word (.docx) 檔案，可選擇包含時間戳。"
+msgstr ""
+"轉錄完成後將轉錄文字匯出為 Microsoft Word (.docx) 檔案，可選擇包含時間戳。"
 
 #: buzz/plugins/export_docx/plugin.py buzz/plugins/ai_summary/plugin.py
 msgid "Leave empty to save next to the source file."
@@ -1737,10 +1750,12 @@ msgstr "自動轉錄文字調整"
 
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid ""
-"When a transcription has word-level timings, automatically regroup the words"
-" into properly sized subtitles and replace the result. Mirrors the Merge "
+"When a transcription has word-level timings, automatically regroup the words "
+"into properly sized subtitles and replace the result. Mirrors the Merge "
 "options of the transcript resizer."
-msgstr "當轉錄具有單字層級時間戳時，自動將單字重新分組為大小適當的字幕並取代結果。與轉錄調整器的合併選項相同。"
+msgstr ""
+"當轉錄具有單字層級時間戳時，自動將單字重新分組為大小適當的字幕並取代結果。與"
+"轉錄調整器的合併選項相同。"
 
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid "Merge gap (seconds)"
@@ -1754,6 +1769,34 @@ msgstr "標點符號"
 msgid "Maximum subtitle length"
 msgstr "字幕最大長度"
 
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Skip Already Transcribed"
+msgstr "跳過已轉錄檔案"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Skip transcription if results already exist on disk or in the database"
+msgstr "如果磁碟或資料庫中已存在結果，則跳過轉錄"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Check for existing result files"
+msgstr "檢查現有結果檔案"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid ""
+"Skip if a .txt, .srt, or .vtt file matching the audio filename is found next "
+"to it"
+msgstr ""
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Check in transcription database"
+msgstr "在轉錄資料庫中檢查"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid ""
+"Skip if this file has already been transcribed and the record exists in the "
+"database"
+msgstr ""
+
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"
 msgstr "AI 摘要"
@@ -1762,7 +1805,9 @@ msgstr "AI 摘要"
 msgid ""
 "Generate an AI summary of the transcript via an OpenAI-compatible API and "
 "save it to the Notes field and/or a file."
-msgstr "透過相容 OpenAI 的 API 產生轉錄文字的 AI 摘要，並將其儲存到備註欄位和/或檔案中。"
+msgstr ""
+"透過相容 OpenAI 的 API 產生轉錄文字的 AI 摘要，並將其儲存到備註欄位和/或檔案"
+"中。"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "API base URL"
@@ -1790,8 +1835,8 @@ msgstr "輸出資料夾（用於檔案）"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
-"Speech extraction failed! Check your internet connection — a model may need "
-"to be downloaded."
+"Speech extraction failed! Check your internet connection \\u2014 a model may "
+"need to be downloaded."
 msgstr "語音提取失敗！請檢查您的網路連線——可能需要下載模型。"
 
 #~ msgid "Live recording mode:"
