@@ -49,7 +49,7 @@ def check_file_has_audio_stream(file_path: str) -> None:
                 raise ValueError("No audio streams found")
     except av.error.InvalidDataError as e:
         raise ValueError(f"Invalid media file: {e}")
-    except av.error.FileNotFoundError:
+    except (av.error.FileNotFoundError, OSError, UnicodeDecodeError):
         raise ValueError("File not found")
 
 
