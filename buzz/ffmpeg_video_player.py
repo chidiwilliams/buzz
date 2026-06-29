@@ -1,5 +1,6 @@
 import json
 import logging
+from dataclasses import dataclass
 import os
 import subprocess
 import sys
@@ -74,6 +75,16 @@ def probe_video(file_path: str) -> dict:
     }
 
 
+@dataclass
+class _VideoParams:
+    file_path: str
+    width: int
+    height: int
+    fps: float
+    frame_size: int
+    start_ms: float
+
+
 class FfmpegFrameReader:
     """
     Reads raw RGB24 video frames from a file via ffmpeg in a background thread.
@@ -83,15 +94,17 @@ class FfmpegFrameReader:
     MAX_BUFFER = 60
 
     def __init__(self, file_path: str, width: int, height: int, fps: float, start_ms: int = 0):
-        self._file_path = file_path
-        self._width = width
-        self._height = height
-        self._fps = fps
-        self._frame_size = width * height * 3
+        self._params = _VideoParams(
+            file_path=file_path,
+            width=width,
+            height=height,
+            fps=fps,
+            frame_size=width * height * 3,
+            start_ms=float(start_ms),
+        )
 
         self._lock = threading.Lock()
         self._frames: deque = deque()
-        self._start_ms = float(start_ms)
         self._done = False
         self._stop_event = threading.Event()
         self._proc: Optional[subprocess.Popen] = None
@@ -108,12 +121,12 @@ class FfmpegFrameReader:
         ffmpeg = _find_ffmpeg()
         cmd = [
             ffmpeg,
-            "-ss", str(self._start_ms / 1000.0),
-            "-i", self._file_path,
+            "-ss", str(self._params.start_ms / 1000.0),
+            "-i", self._params.file_path,
             "-f", "rawvideo",
             "-pix_fmt", "rgb24",
-            "-s", f"{self._width}x{self._height}",
-            "-r", str(self._fps),
+            "-s", f"{self._params.width}x{self._params.height}",
+            "-r", str(self._params.fps),
             "-an",
             "-",
         ]
@@ -121,8 +134,8 @@ class FfmpegFrameReader:
             self._proc = subprocess.Popen(
                 cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
             )
-            frame_ms = 1000.0 / self._fps
-            pos = self._start_ms
+            frame_ms = 1000.0 / self._params.fps
+            pos = self._params.start_ms
 
             while not self._stop_event.is_set():
                 # Throttle when buffer is full
@@ -135,14 +148,14 @@ class FfmpegFrameReader:
                 if self._stop_event.is_set():
                     break
 
-                raw = self._proc.stdout.read(self._frame_size)
-                if len(raw) < self._frame_size:
+                raw = self._proc.stdout.read(self._params.frame_size)
+                if len(raw) < self._params.frame_size:
                     with self._lock:
                         self._done = True
                     break
 
                 arr = np.frombuffer(raw, dtype=np.uint8).reshape(
-                    (self._height, self._width, 3)
+                    (self._params.height, self._params.width, 3)
                 ).copy()
                 with self._lock:
                     self._frames.append((pos, arr))
@@ -167,7 +180,7 @@ class FfmpegFrameReader:
             if not self._frames:
                 return None
 
-            frame_ms = 1000.0 / self._fps
+            frame_ms = 1000.0 / self._params.fps
             # Drain frames that are more than one frame period behind
             while len(self._frames) > 1:
                 ts, _ = self._frames[0]
