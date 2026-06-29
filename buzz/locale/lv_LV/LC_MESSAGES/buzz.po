@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 16:54+0300\n"
+"POT-Creation-Date: 2026-06-27 18:53+0300\n"
 "PO-Revision-Date: 2026-03-06 13:23+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -219,8 +219,8 @@ msgstr "Izmantot tikai CPU un deaktivēt GPU paātrināšanu"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
 msgstr ""
-"Aktivizējiet šo, ja lielāki modeļi neietilpst jūsu video kartes atmiņā un "
-"Buzz avarē"
+"Iestatiet, ja lielāki modeļi neietilpst GPU atmiņā un Buzz avarēAktivizējiet "
+"šo, ja lielāki modeļi neietilpst jūsu video kartes atmiņā un Buzz avarē"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Disable GPU"
@@ -258,11 +258,11 @@ msgstr "Izvēlieties mapi kurā eksportēt"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key"
-" validation."
+"Transcription and translation may still work if the API does not support key "
+"validation."
 msgstr ""
-"OpenAI API atbilde ir nederīga. Lūdzu pārbaudiet API Adresi un savu atslēgu."
-" Atpazīšana un tulkošana joprojām var strādāt, ja API neatbalsta atslēgu "
+"OpenAI API atbilde ir nederīga. Lūdzu pārbaudiet API Adresi un savu atslēgu. "
+"Atpazīšana un tulkošana joprojām var strādāt, ja API neatbalsta atslēgu "
 "pārbaudi."
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
@@ -432,7 +432,7 @@ msgstr "Runas atpazīšanas iestatījumi"
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Initial Prompt:"
 msgstr ""
-"Sākotnējais\n"
+"Sākotnējais uzaicinājums:Sākotnējais\n"
 "vaicājums:"
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
@@ -583,6 +583,10 @@ msgid "Queued"
 msgstr "Ierindots"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Skipped"
+msgstr "Izlaists"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
 msgid "File Name / URL"
 msgstr "Fails / URL"
 
@@ -644,8 +648,8 @@ msgid "Cannot Restart"
 msgstr "Neizdodas sākt"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-msgid "Only failed or canceled transcriptions can be restarted."
-msgstr "Atkārtoti sākt var tikai kļūdainus vai atceltus ierakstus."
+msgid "Only failed, canceled, or skipped transcriptions can be restarted."
+msgstr "Atkārtoti sākt var tikai kļūdainus, atceltus vai izlaistus ierakstus."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Failed to restart transcription: {}"
@@ -1060,8 +1064,7 @@ msgid "Desired subtitle length"
 msgstr "Vēlamais teksta garums"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid ""
-"Available only if word level timings were disabled during transcription"
+msgid "Available only if word level timings were disabled during transcription"
 msgstr "Pieejami tikai, ierakstiem, kas atpazīti bez dalīšanas pa vārdiem"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
@@ -1258,8 +1261,8 @@ msgstr "Neizdevās saglabāt OpenAI API atslēgu atslēgu saišķī"
 #: buzz/transcriber/recording_transcriber.py
 msgid "Whisper server failed to start. Check logs for details."
 msgstr ""
-"Whisper serverim neizdevās ieslēgties. Lūdzu pārbaudiet lietotnes žurnāla "
-"ierakstus."
+"Whisper serveris neizdevās palaist. Sīkāk skatīt žurnālos.Whisper serverim "
+"neizdevās ieslēgties. Lūdzu pārbaudiet lietotnes žurnāla ierakstus."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
@@ -1732,12 +1735,12 @@ msgstr "Uzlabota valodas noteikšana"
 msgid ""
 "Detect the spoken language with whisper.cpp before transcription (using the "
 "largest downloaded model, or the tiny model otherwise) and use it for the "
-"transcription and exported file names. Only runs when the language is set to"
-" auto-detect."
+"transcription and exported file names. Only runs when the language is set to "
+"auto-detect."
 msgstr ""
 "Uzlabo valodas noteikšanu visiem modeļu veidiem, izmantojot whisper.cpp "
-"(lieto lielāko lejupielādēto modeli vai tiny modeli). Ļauj izmantot noteikto"
-" valodu eksportēto failu nosaukumiem. Darbojas tikai tad, ja valoda ir "
+"(lieto lielāko lejupielādēto modeli vai tiny modeli). Ļauj izmantot noteikto "
+"valodu eksportēto failu nosaukumiem. Darbojas tikai tad, ja valoda ir "
 "iestatīta uz automātisku noteikšanu."
 
 #: buzz/plugins/enhanced_language_detection/plugin.py
@@ -1761,8 +1764,8 @@ msgid ""
 "Export the transcript to a Microsoft Word (.docx) file after transcription, "
 "optionally including timestamps."
 msgstr ""
-"Pēc transkripcijas eksportē transkriptu uz Microsoft Word (.docx) failu, pēc"
-" izvēles iekļaujot laika atzīmes."
+"Pēc transkripcijas eksportē transkriptu uz Microsoft Word (.docx) failu, pēc "
+"izvēles iekļaujot laika atzīmes."
 
 #: buzz/plugins/export_docx/plugin.py buzz/plugins/ai_summary/plugin.py
 msgid "Leave empty to save next to the source file."
@@ -1778,8 +1781,8 @@ msgstr "Automātiska garuma maiņa"
 
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid ""
-"When a transcription has word-level timings, automatically regroup the words"
-" into properly sized subtitles and replace the result. Mirrors the Merge "
+"When a transcription has word-level timings, automatically regroup the words "
+"into properly sized subtitles and replace the result. Mirrors the Merge "
 "options of the transcript resizer."
 msgstr ""
 "Ierakstus, kas ir dalīti pa vārdiem, automātiski pārgrupē pareiza izmēra "
@@ -1796,6 +1799,47 @@ msgstr "Pieturzīmes"
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid "Maximum subtitle length"
 msgstr "Maksimālais subtitru garums"
+
+#: buzz/plugins/deep_filter_net/plugin.py
+msgid "DeepFilterNet Noise Reduction"
+msgstr "DeepFilterNet trokšņu samazināšana"
+
+#: buzz/plugins/deep_filter_net/plugin.py
+msgid "Removes background noise using DeepFilterNet3 before transcription."
+msgstr "Pirms transkribēšanas noņem fona troksni, izmantojot DeepFilterNet3."
+
+#: buzz/plugins/deep_filter_net/plugin.py
+#, fuzzy
+msgid "Keep denoised file after transcription"
+msgstr "Saglabāt attīrīto failu pēc transkribēšanas"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Skip Already Transcribed"
+msgstr "Izlaist jau transkribētos"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Skip transcription if results already exist on disk or in the database"
+msgstr "Izlaist transkripciju, ja rezultāti jau pastāv diskā vai datubāzē"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Check for existing result files"
+msgstr "Pārbaudīt esošos rezultātu failus"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid ""
+"Skip if a .txt, .srt, or .vtt file matching the audio filename is found next "
+"to it"
+msgstr ""
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Check in transcription database"
+msgstr "Pārbaudīt transkripciju datubāzē"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid ""
+"Skip if this file has already been transcribed and the record exists in the "
+"database"
+msgstr ""
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"
@@ -1835,8 +1879,8 @@ msgstr "Izvades mape"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
-"Speech extraction failed! Check your internet connection — a model may need "
-"to be downloaded."
+"Speech extraction failed! Check your internet connection \\u2014 a model may "
+"need to be downloaded."
 msgstr ""
 "Runas atdalīšana neizdevās! Pārbaudiet interneta savienojumu, iespējams "
 "jālejupielādē modelis."
@@ -1860,11 +1904,11 @@ msgstr ""
 #~ msgstr "Snap atļauju piezīme"
 
 #~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have been "
-#~ "granted"
+#~ "Detected missing permissions, please check that snap permissions have "
+#~ "been granted"
 #~ msgstr ""
-#~ "Ne visi nepieciešamie moduļi darbojas korekti, iespējams nav piešķirtas snap"
-#~ " atļaujas"
+#~ "Ne visi nepieciešamie moduļi darbojas korekti, iespējams nav piešķirtas "
+#~ "snap atļaujas"
 
 #~ msgid ""
 #~ "To enable necessary permissions run the following commands in the terminal"

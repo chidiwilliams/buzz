@@ -1,0 +1,8 @@
+{
+  "Skip Already Transcribed": "Spring allerede transkriberede over",
+  "Skip transcription if results already exist on disk or in the database": "Spring transskription over, hvis resultater allerede findes på disk eller i databasen",
+  "Check for existing result files": "Tjek for eksisterende resultatfiler",
+  "Skip if a .txt, .srt, or .vtt file matching the audio filename is found next to it": "Spring over, hvis en .txt-, .srt- eller .vtt-fil med samme lydfilnavn findes ved siden af",
+  "Check in transcription database": "Tjek i transskriptionsdatabasen",
+  "Skip if this file has already been transcribed and the record exists in the database": "Spring over, hvis denne fil allerede er transkriberet og posten findes i databasen"
+}
