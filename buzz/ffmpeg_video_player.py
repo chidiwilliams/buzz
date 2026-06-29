@@ -208,6 +208,15 @@ class FfmpegFrameReader:
                 pass
 
 
+@dataclass
+class _VideoInfo:
+    duration_ms: int
+    fps: float
+    width: int
+    height: int
+    has_video: bool
+
+
 class FfmpegVideoPlayer:
     """
     Provides software-decoded RGB video frames via ffmpeg.
@@ -222,22 +231,43 @@ class FfmpegVideoPlayer:
 
         try:
             info = probe_video(file_path)
+            self._info = _VideoInfo(
+                duration_ms=info["duration_ms"],
+                fps=max(info["fps"], 1.0),
+                width=info["width"],
+                height=info["height"],
+                has_video=info["has_video"] and info["width"] > 0 and info["height"] > 0,
+            )
         except Exception:
             logging.warning("FfmpegVideoPlayer: probe failed for %s", file_path, exc_info=True)
-            info = {"duration_ms": 0, "fps": 25.0, "width": 0, "height": 0, "has_video": False}
+            self._info = _VideoInfo(duration_ms=0, fps=25.0, width=0, height=0, has_video=False)
 
-        self.duration_ms: int = info["duration_ms"]
-        self.fps: float = max(info["fps"], 1.0)
-        self.width: int = info["width"]
-        self.height: int = info["height"]
-        self.has_video: bool = info["has_video"] and info["width"] > 0 and info["height"] > 0
+    @property
+    def duration_ms(self) -> int:
+        return self._info.duration_ms
+
+    @property
+    def fps(self) -> float:
+        return self._info.fps
+
+    @property
+    def width(self) -> int:
+        return self._info.width
+
+    @property
+    def height(self) -> int:
+        return self._info.height
+
+    @property
+    def has_video(self) -> bool:
+        return self._info.has_video
 
     def start(self, position_ms: int = 0):
         if self._reader:
             self._reader.stop()
-        if self.has_video:
+        if self._info.has_video:
             self._reader = FfmpegFrameReader(
-                self._file_path, self.width, self.height, self.fps, position_ms
+                self._file_path, self._info.width, self._info.height, self._info.fps, position_ms
             )
 
     def seek(self, position_ms: int):
