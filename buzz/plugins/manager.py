@@ -85,6 +85,25 @@ class PluginManager:
         return [self.plugins[pid] for pid in self.order if pid in self.plugins]
 
     # --- hook dispatch ---------------------------------------------------
+    def run_check_skip(self, task) -> tuple:
+        """Call check_skip on each enabled plugin; first non-None return wins.
+
+        Returns (should_skip: bool, segments: list).
+        """
+        for plugin in self.enabled_plugins_in_order():
+            try:
+                result = plugin.check_skip(task, self._context(plugin))
+                if result is not None:
+                    return True, result
+            except Exception as exc:
+                logger.error(
+                    "Plugin '%s' check_skip failed: %s",
+                    plugin.metadata.id,
+                    exc,
+                    exc_info=True,
+                )
+        return False, []
+
     def run_before_transcription(self, task) -> None:
         for plugin in self.enabled_plugins_in_order():
             try:

@@ -1,0 +1,8 @@
+{
+  "Skip Already Transcribed": "Izlaist jau transkribētos",
+  "Skip transcription if results already exist on disk or in the database": "Izlaist transkripciju, ja rezultāti jau ir mapē vai datubāzē",
+  "Check for existing result files": "Pārbaudīt esošos rezultātu failus",
+  "Skip if a .txt, .srt, or .vtt file matching the audio filename is found next to it": "Izlaist, ja blakus atrodams .txt, .srt vai .vtt fails ar tādu pašu audio faila nosaukumu",
+  "Check in transcription database": "Pārbaudīt transkripciju datubāzē",
+  "Skip if this file has already been transcribed and the record exists in the database": "Izlaist, ja šis fails jau ir transkribēts un ieraksts pastāv datubāzē"
+}
