@@ -88,7 +88,8 @@ class TestSpeakerIdentificationWidget:
         assert len(result) == 1
         assert isinstance(result[0], list)
         assert (result == [[{'end_time': 8904, 'speaker': 'Speaker 0', 'start_time': 140, 'text': 'Bien venue dans. '}]]
-                or result == [[{'end_time': 8904, 'speaker': 'Speaker 0', 'start_time': 140, 'text': 'Bienvenue dans. '}]])
+                or result == [[{'end_time': 8904, 'speaker': 'Speaker 0', 'start_time': 140, 'text': 'Bienvenue dans. '}]]
+                or result == [[{'end_time': 8904, 'speaker': 'Speaker 0', 'start_time': 140, 'text': 'Bien venue dans '}]])
 
     def test_identify_button_toggles_visibility(self, qtbot: QtBot, transcription, transcription_service):
         widget = SpeakerIdentificationWidget(

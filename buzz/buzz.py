@@ -82,6 +82,8 @@ def main():
     logging.getLogger("nemo_logger").setLevel(logging.ERROR)
     logging.getLogger("nemo_logging").setLevel(logging.ERROR)
     logging.getLogger("numba").setLevel(logging.WARNING)
+    logging.getLogger("ssa").setLevel(logging.WARNING)
+    logging.getLogger("byteflow").setLevel(logging.WARNING)
     logging.getLogger("torio._extension.utils").setLevel(logging.WARNING)
     logging.getLogger("export_config_manager").setLevel(logging.WARNING)
     logging.getLogger("training_telemetry_provider").setLevel(logging.ERROR)

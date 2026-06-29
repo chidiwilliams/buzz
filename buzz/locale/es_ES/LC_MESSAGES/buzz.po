@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 16:54+0300\n"
+"POT-Creation-Date: 2026-06-27 18:53+0300\n"
 "PO-Revision-Date: 2025-09-08 12:43+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: \n"
@@ -224,8 +224,9 @@ msgstr "Usa solo CPU y desactiva la aceleración de GPU"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
 msgstr ""
-"Configure esto si los modelos más grandes no se ajustan a la memoria de su "
-"GPU y Buzz se bloquea"
+"Actívalo si los modelos más grandes no caben en la memoria de tu GPU y Buzz "
+"fallaConfigure esto si los modelos más grandes no se ajustan a la memoria de "
+"su GPU y Buzz se bloquea"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Disable GPU"
@@ -263,8 +264,8 @@ msgstr "Seleccione Exportar carpeta"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key"
-" validation."
+"Transcription and translation may still work if the API does not support key "
+"validation."
 msgstr ""
 "La API de OpenAI devolvió una respuesta no válida. Compruebe la URL de la "
 "API o su clave. Es posible que la transcripción y la traducción sigan "
@@ -418,7 +419,8 @@ msgstr "Modelo:"
 #: buzz/transcriber/recording_transcriber.py
 msgid "First time use of a model may take up to several minutest to load."
 msgstr ""
-"El uso por primera vez de un modelo puede tardar varios minutos en cargarse."
+"El primer uso de un modelo puede tardar varios minutos en cargarse.El uso "
+"por primera vez de un modelo puede tardar varios minutos en cargarse."
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py
 msgid "Api Key:"
@@ -607,6 +609,10 @@ msgstr "Cancelado"
 msgid "Queued"
 msgstr "En cola"
 
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Skipped"
+msgstr "Omitido"
+
 # automatic translation
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "File Name / URL"
@@ -672,8 +678,9 @@ msgid "Cannot Restart"
 msgstr "No se puede reiniciar"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-msgid "Only failed or canceled transcriptions can be restarted."
-msgstr "Solo se pueden reiniciar las transcripciones fallidas o canceladas."
+msgid "Only failed, canceled, or skipped transcriptions can be restarted."
+msgstr ""
+"Solo se pueden reiniciar las transcripciones fallidas, canceladas u omitidas."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Failed to restart transcription: {}"
@@ -690,8 +697,9 @@ msgstr ""
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
 msgstr ""
-"No se pudo reiniciar la transcripción: no se encontró el trabajador del "
-"transcriptor."
+"No se pudo reiniciar la transcripción: trabajador de transcripción no "
+"encontrado.No se pudo reiniciar la transcripción: no se encontró el "
+"trabajador del transcriptor."
 
 # automatic translation
 #: buzz/widgets/recording_transcriber_widget.py
@@ -1018,8 +1026,9 @@ msgstr "Segmento de bucle"
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Enable/disable looping when clicking on transcript segments"
 msgstr ""
-"Activar/desactivar la reproducción en bucle al hacer clic en segmentos de la"
-" transcripción"
+"Activar/desactivar el bucle al hacer clic en los segmentos de "
+"transcripciónActivar/desactivar la reproducción en bucle al hacer clic en "
+"segmentos de la transcripción"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Follow Audio"
@@ -1105,11 +1114,11 @@ msgid "Desired subtitle length"
 msgstr "Longitud deseada de los subtítulos"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid ""
-"Available only if word level timings were disabled during transcription"
+msgid "Available only if word level timings were disabled during transcription"
 msgstr ""
-"Disponible solo si los tiempos a nivel de palabra estaban desactivados "
-"durante la transcripción"
+"Solo disponible si los tiempos por palabra estaban desactivados durante la "
+"transcripciónDisponible solo si los tiempos a nivel de palabra estaban "
+"desactivados durante la transcripción"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge Options"
@@ -1137,15 +1146,16 @@ msgstr "Fusión"
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
 msgstr ""
-"Disponible solo si los tiempos a nivel de palabra estaban activados durante "
-"la transcripción"
+"Solo disponible si los tiempos por palabra estaban activados durante la "
+"transcripciónDisponible solo si los tiempos a nivel de palabra estaban "
+"activados durante la transcripción"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
 "Speaker identification is not available: failed to load required libraries."
 msgstr ""
-"La identificación de hablantes no está disponible: no se pudieron cargar las"
-" bibliotecas requeridas."
+"La identificación de hablantes no está disponible: no se pudieron cargar las "
+"bibliotecas requeridas."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "1/8 Collecting transcripts"
@@ -1296,8 +1306,8 @@ msgid ""
 "Are you sure you want to delete the selected transcription(s)? This action "
 "cannot be undone."
 msgstr ""
-"¿Confirma que quiere eliminar las transcripciones seleccionadas? Esta acción"
-" no se puede deshacer."
+"¿Confirma que quiere eliminar las transcripciones seleccionadas? Esta acción "
+"no se puede deshacer."
 
 # automatic translation
 #: buzz/widgets/main_window.py
@@ -1317,8 +1327,9 @@ msgstr "No se puede guardar la clave de la API de OpenAI en el llavero"
 #: buzz/transcriber/recording_transcriber.py
 msgid "Whisper server failed to start. Check logs for details."
 msgstr ""
-"El servidor Whisper no se pudo iniciar. Consulta los registros para obtener "
-"más detalles."
+"El servidor Whisper no pudo iniciarse. Consulte los registros para obtener "
+"detalles.El servidor Whisper no se pudo iniciar. Consulta los registros para "
+"obtener más detalles."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
@@ -1798,8 +1809,8 @@ msgstr "Detección de idioma mejorada"
 msgid ""
 "Detect the spoken language with whisper.cpp before transcription (using the "
 "largest downloaded model, or the tiny model otherwise) and use it for the "
-"transcription and exported file names. Only runs when the language is set to"
-" auto-detect."
+"transcription and exported file names. Only runs when the language is set to "
+"auto-detect."
 msgstr ""
 "Detecta el idioma hablado con whisper.cpp antes de la transcripción "
 "(utilizando el modelo más grande descargado o, en su defecto, el modelo "
@@ -1845,13 +1856,13 @@ msgstr "Redimensionador automático de transcripciones"
 
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid ""
-"When a transcription has word-level timings, automatically regroup the words"
-" into properly sized subtitles and replace the result. Mirrors the Merge "
+"When a transcription has word-level timings, automatically regroup the words "
+"into properly sized subtitles and replace the result. Mirrors the Merge "
 "options of the transcript resizer."
 msgstr ""
 "Cuando una transcripción tiene marcas de tiempo por palabra, reagrupa "
-"automáticamente las palabras en subtítulos de tamaño adecuado y reemplaza el"
-" resultado. Reproduce las opciones de fusión del redimensionador de "
+"automáticamente las palabras en subtítulos de tamaño adecuado y reemplaza el "
+"resultado. Reproduce las opciones de fusión del redimensionador de "
 "transcripciones."
 
 #: buzz/plugins/transcript_resizer/plugin.py
@@ -1866,6 +1877,50 @@ msgstr "Puntuación"
 msgid "Maximum subtitle length"
 msgstr "Longitud máxima del subtítulo"
 
+#: buzz/plugins/deep_filter_net/plugin.py
+msgid "DeepFilterNet Noise Reduction"
+msgstr "Reducción de ruido DeepFilterNet"
+
+#: buzz/plugins/deep_filter_net/plugin.py
+msgid "Removes background noise using DeepFilterNet3 before transcription."
+msgstr "Elimina el ruido de fondo con DeepFilterNet3 antes de la transcripción."
+
+# automatic translation
+#: buzz/plugins/deep_filter_net/plugin.py
+#, fuzzy
+msgid "Keep denoised file after transcription"
+msgstr "Conservar el archivo sin ruido tras la transcripción"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Skip Already Transcribed"
+msgstr "Omitir ya transcritos"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Skip transcription if results already exist on disk or in the database"
+msgstr ""
+"Omitir la transcripción si los resultados ya existen en el disco o en la "
+"base de datos"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Check for existing result files"
+msgstr "Buscar archivos de resultado existentes"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid ""
+"Skip if a .txt, .srt, or .vtt file matching the audio filename is found next "
+"to it"
+msgstr ""
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Check in transcription database"
+msgstr "Comprobar en la base de datos de transcripciones"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid ""
+"Skip if this file has already been transcribed and the record exists in the "
+"database"
+msgstr ""
+
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"
 msgstr "Resumen con IA"
@@ -1875,8 +1930,8 @@ msgid ""
 "Generate an AI summary of the transcript via an OpenAI-compatible API and "
 "save it to the Notes field and/or a file."
 msgstr ""
-"Genera un resumen con IA de la transcripción mediante una API compatible con"
-" OpenAI y lo guarda en el campo de notas o en un archivo."
+"Genera un resumen con IA de la transcripción mediante una API compatible con "
+"OpenAI y lo guarda en el campo de notas o en un archivo."
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "API base URL"
@@ -1904,8 +1959,8 @@ msgstr "Carpeta de salida (para el archivo)"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
-"Speech extraction failed! Check your internet connection — a model may need "
-"to be downloaded."
+"Speech extraction failed! Check your internet connection \\u2014 a model may "
+"need to be downloaded."
 msgstr ""
 "¡Extracción de voz fallida! Compruebe su conexión a internet — es posible "
 "que sea necesario descargar un modelo."
@@ -1923,7 +1978,8 @@ msgstr ""
 #~ msgstr "Temperatura:"
 
 #~ msgid "Please translate each text sent to you from English to Spanish."
-#~ msgstr "Por favor, traduzca cada texto que se le envíe del inglés al español."
+#~ msgstr ""
+#~ "Por favor, traduzca cada texto que se le envíe del inglés al español."
 
 #~ msgid "Translation error, see logs!"
 #~ msgstr "¡Error de traducción, consulte los registros!"
@@ -1932,8 +1988,8 @@ msgstr ""
 #~ msgstr "Aviso de permiso Snap"
 
 #~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have been "
-#~ "granted"
+#~ "Detected missing permissions, please check that snap permissions have "
+#~ "been granted"
 #~ msgstr ""
 #~ "Se ha detectado que faltan permisos, compruebe que se han concedido los "
 #~ "permisos snap"
@@ -1941,8 +1997,8 @@ msgstr ""
 #~ msgid ""
 #~ "To enable necessary permissions run the following commands in the terminal"
 #~ msgstr ""
-#~ "Para habilitar los permisos necesarios ejecute los siguientes comandos en el"
-#~ " terminal"
+#~ "Para habilitar los permisos necesarios ejecute los siguientes comandos en "
+#~ "el terminal"
 
 #~ msgid "Close"
 #~ msgstr "Cerrar"
