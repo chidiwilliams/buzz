@@ -1,0 +1,8 @@
+{
+  "Skip Already Transcribed": "Omet els ja transcrits",
+  "Skip transcription if results already exist on disk or in the database": "Omet la transcripció si els resultats ja existeixen al disc o a la base de dades",
+  "Check for existing result files": "Comprova si hi ha fitxers de resultats existents",
+  "Skip if a .txt, .srt, or .vtt file matching the audio filename is found next to it": "Omet si es troba un fitxer .txt, .srt o .vtt amb el mateix nom d'àudio al costat",
+  "Check in transcription database": "Comprova a la base de dades de transcripcions",
+  "Skip if this file has already been transcribed and the record exists in the database": "Omet si aquest fitxer ja ha estat transcrit i el registre existeix a la base de dades"
+}

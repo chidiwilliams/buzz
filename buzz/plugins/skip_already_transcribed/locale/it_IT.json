@@ -1,0 +1,8 @@
+{
+  "Skip Already Transcribed": "Salta i già trascritti",
+  "Skip transcription if results already exist on disk or in the database": "Salta la trascrizione se i risultati esistono già sul disco o nel database",
+  "Check for existing result files": "Cerca file di risultato esistenti",
+  "Skip if a .txt, .srt, or .vtt file matching the audio filename is found next to it": "Salta se viene trovato un file .txt, .srt o .vtt con lo stesso nome audio accanto ad esso",
+  "Check in transcription database": "Controlla nel database delle trascrizioni",
+  "Skip if this file has already been transcribed and the record exists in the database": "Salta se questo file è già stato trascritto e il record esiste nel database"
+}

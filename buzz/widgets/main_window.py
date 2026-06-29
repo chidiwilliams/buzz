@@ -358,9 +358,9 @@ class MainWindow(QMainWindow):
 
     @staticmethod
     def can_open_transcript(transcription: Transcription) -> bool:
-        return (
-            FileTranscriptionTask.Status(transcription.status)
-            == FileTranscriptionTask.Status.COMPLETED
+        return FileTranscriptionTask.Status(transcription.status) in (
+            FileTranscriptionTask.Status.COMPLETED,
+            FileTranscriptionTask.Status.SKIPPED,
         )
 
     def should_enable_stop_transcription_action(self):
@@ -377,6 +377,7 @@ class MainWindow(QMainWindow):
                 FileTranscriptionTask.Status.COMPLETED,
                 FileTranscriptionTask.Status.FAILED,
                 FileTranscriptionTask.Status.CANCELED,
+                FileTranscriptionTask.Status.SKIPPED,
             ]
         )
 
@@ -432,6 +433,15 @@ class MainWindow(QMainWindow):
         pass
 
     def on_task_completed(self, task: FileTranscriptionTask, segments: List[Segment]):
+        # Handle skipped tasks (e.g. plugin detected file already transcribed)
+        if task.status == FileTranscriptionTask.Status.SKIPPED:
+            self.transcription_service.update_transcription_as_skipped(task.uid, segments)
+            self.table_widget.refresh_row(task.uid)
+            if self.quit_on_complete:
+                self.close()
+                QApplication.quit()
+            return
+
         # Update file path in database only for URL imports where file is downloaded
         if task.source == FileTranscriptionTask.Source.URL_IMPORT and task.file_path:
             logging.debug(f"Updating transcription file path: {task.file_path}")

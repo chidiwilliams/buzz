@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 16:54+0300\n"
+"POT-Creation-Date: 2026-06-27 18:53+0300\n"
 "PO-Revision-Date: 2025-10-17 07:59+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: Catalan <jmas@softcatala.org>\n"
@@ -193,8 +193,8 @@ msgid ""
 "Note: Live recording export settings will be moved to the Advanced Settings "
 "in the Live Recording screen in a future version."
 msgstr ""
-"Nota: La configuració d'exportació d'enregistrament en directe es mourà a la"
-" Configuració avançada a la pantalla d'enregistrament en directe en una "
+"Nota: La configuració d'exportació d'enregistrament en directe es mourà a la "
+"Configuració avançada a la pantalla d'enregistrament en directe en una "
 "versió futura."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
@@ -206,8 +206,8 @@ msgid ""
 "Applies to Huggingface and Faster Whisper models. Reduces GPU memory usage "
 "but may slightly decrease transcription quality."
 msgstr ""
-"S'aplica als models Huggingface i Faster Whisper. Redueix l'ús de memòria de"
-" la GPU, però pot reduir lleugerament la qualitat de la transcripció."
+"S'aplica als models Huggingface i Faster Whisper. Redueix l'ús de memòria de "
+"la GPU, però pot reduir lleugerament la qualitat de la transcripció."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Reduce GPU RAM"
@@ -220,8 +220,9 @@ msgstr "Utilitza només la CPU i desactiveu l'acceleració de la GPU"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
 msgstr ""
-"Establiu això si els models més grans no s'ajusten a la memòria de la GPU i "
-"Buzz es bloqueja"
+"Establiu-ho si els models més grans no caben a la memòria de la GPU i Buzz "
+"fallaEstabliu això si els models més grans no s'ajusten a la memòria de la "
+"GPU i Buzz es bloqueja"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Disable GPU"
@@ -259,8 +260,8 @@ msgstr "Selecciona la carpeta d'exportació"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid ""
 "OpenAI API returned invalid response. Please check the API url or your key. "
-"Transcription and translation may still work if the API does not support key"
-" validation."
+"Transcription and translation may still work if the API does not support key "
+"validation."
 msgstr ""
 "L'API d'OpenAI ha retornat una resposta no vàlida. Comproveu l'URL de l'API "
 "o la vostra clau. La transcripció i la traducció encara poden funcionar si "
@@ -405,7 +406,8 @@ msgstr "Model:"
 #: buzz/transcriber/recording_transcriber.py
 msgid "First time use of a model may take up to several minutest to load."
 msgstr ""
-"L'ús per primera vegada d'un model pot trigar diversos minuts a carregar-se."
+"El primer ús d'un model pot trigar uns quants minuts en carregar-se.L'ús per "
+"primera vegada d'un model pot trigar diversos minuts a carregar-se."
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py
 msgid "Api Key:"
@@ -458,8 +460,8 @@ msgid ""
 "notes, just the translation."
 msgstr ""
 "Si us plau, traduïu cada text que us enviï de l'anglès al castellà. La "
-"traducció s'utilitzarà en un sistema automatitzat; si us plau, no afegiu cap"
-" comentari ni nota, només la traducció."
+"traducció s'utilitzarà en un sistema automatitzat; si us plau, no afegiu cap "
+"comentari ni nota, només la traducció."
 
 #: buzz/widgets/transcriber/advanced_settings_dialog.py
 msgid "Instructions for AI:"
@@ -583,6 +585,10 @@ msgid "Queued"
 msgstr "A la cua"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Skipped"
+msgstr "Omès"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
 msgid "File Name / URL"
 msgstr "Nom del fitxer / URL"
 
@@ -644,8 +650,9 @@ msgid "Cannot Restart"
 msgstr "No es pot reiniciar"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-msgid "Only failed or canceled transcriptions can be restarted."
-msgstr "Només es poden reiniciar les transcripcions fallides o cancel·lades."
+msgid "Only failed, canceled, or skipped transcriptions can be restarted."
+msgstr ""
+"Només es poden reiniciar les transcripcions fallides, cancel·lades o omeses."
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Failed to restart transcription: {}"
@@ -662,8 +669,9 @@ msgstr ""
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
 msgstr ""
-"No s'ha pogut reiniciar la transcripció: no s'ha trobat el treballador del "
-"transcriptor."
+"No s'ha pogut reiniciar la transcripció: treballador de transcripció no "
+"trobat.No s'ha pogut reiniciar la transcripció: no s'ha trobat el "
+"treballador del transcriptor."
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -754,8 +762,8 @@ msgid ""
 "Please check your audio devices or check the application logs for more "
 "information."
 msgstr ""
-"Comproveu els vostres dispositius d'àudio o els registres de l'aplicació per"
-" a més informació."
+"Comproveu els vostres dispositius d'àudio o els registres de l'aplicació per "
+"a més informació."
 
 #: buzz/widgets/plugins_dialog/plugins_dialog.py
 msgid "Plugins"
@@ -1063,11 +1071,11 @@ msgid "Desired subtitle length"
 msgstr "Longitud desitjada dels subtítols"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
-msgid ""
-"Available only if word level timings were disabled during transcription"
+msgid "Available only if word level timings were disabled during transcription"
 msgstr ""
-"Disponible només si els temps a nivell de paraula estaven desactivats durant"
-" la transcripció"
+"Disponible només si els temps de paraula estaven desactivats durant la "
+"transcripcióDisponible només si els temps a nivell de paraula estaven "
+"desactivats durant la transcripció"
 
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Merge Options"
@@ -1095,15 +1103,16 @@ msgstr "Fusiona"
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Available only if word level timings were enabled during transcription"
 msgstr ""
-"Disponible només si els temps a nivell de paraula estaven activats durant la"
-" transcripció"
+"Disponible només si els temps de paraula estaven activats durant la "
+"transcripcióDisponible només si els temps a nivell de paraula estaven "
+"activats durant la transcripció"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
 "Speaker identification is not available: failed to load required libraries."
 msgstr ""
-"La identificació de parlants no està disponible: no s'han pogut carregar les"
-" biblioteques necessàries."
+"La identificació de parlants no està disponible: no s'han pogut carregar les "
+"biblioteques necessàries."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "1/8 Collecting transcripts"
@@ -1120,8 +1129,8 @@ msgstr "3/8 Carregant el model d'alineació"
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "3/8 Loading alignment model (retrying with cache...)"
 msgstr ""
-"3/8 Carregant el model d'alineació (tornant a intentar amb la memòria "
-"cau...)"
+"3/8 Carregant el model d'alineació (reintentant amb la memòria cau...)3/8 "
+"Carregant el model d'alineació (tornant a intentar amb la memòria cau...)"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
@@ -1267,8 +1276,9 @@ msgstr "No s'ha pogut desar la clau OpenAI API a l'anell de claus"
 #: buzz/transcriber/recording_transcriber.py
 msgid "Whisper server failed to start. Check logs for details."
 msgstr ""
-"El servidor Whisper no s'ha pogut iniciar. Consulteu els registres per "
-"obtenir més informació."
+"El servidor Whisper no ha pogut iniciar-se. Comproveu els registres per "
+"obtenir detalls.El servidor Whisper no s'ha pogut iniciar. Consulteu els "
+"registres per obtenir més informació."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
@@ -1277,8 +1287,8 @@ msgid ""
 "with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
 "variable."
 msgstr ""
-"El servidor Whisper no s'ha pogut iniciar a causa de la memòria insuficient."
-" Si us plau, torneu-ho a provar amb un model més petit. Per forçar el mode "
+"El servidor Whisper no s'ha pogut iniciar a causa de la memòria insuficient. "
+"Si us plau, torneu-ho a provar amb un model més petit. Per forçar el mode "
 "CPU, utilitzeu la variable d'entorn BUZZ_FORCE_CPU=TRUE."
 
 #: buzz/transcriber/transcriber.py
@@ -1741,8 +1751,8 @@ msgstr "Detecció de llengua millorada"
 msgid ""
 "Detect the spoken language with whisper.cpp before transcription (using the "
 "largest downloaded model, or the tiny model otherwise) and use it for the "
-"transcription and exported file names. Only runs when the language is set to"
-" auto-detect."
+"transcription and exported file names. Only runs when the language is set to "
+"auto-detect."
 msgstr ""
 "Detecta la llengua parlada amb whisper.cpp abans de la transcripció "
 "(utilitzant el model més gran baixat o, si no, el model tiny) i l'utilitza "
@@ -1787,8 +1797,8 @@ msgstr "Redimensionador automàtic de transcripcions"
 
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid ""
-"When a transcription has word-level timings, automatically regroup the words"
-" into properly sized subtitles and replace the result. Mirrors the Merge "
+"When a transcription has word-level timings, automatically regroup the words "
+"into properly sized subtitles and replace the result. Mirrors the Merge "
 "options of the transcript resizer."
 msgstr ""
 "Quan una transcripció té marques de temps per paraula, reagrupa "
@@ -1807,6 +1817,49 @@ msgstr "Puntuació"
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid "Maximum subtitle length"
 msgstr "Longitud màxima del subtítol"
+
+#: buzz/plugins/deep_filter_net/plugin.py
+msgid "DeepFilterNet Noise Reduction"
+msgstr "Reducció de soroll DeepFilterNet"
+
+#: buzz/plugins/deep_filter_net/plugin.py
+msgid "Removes background noise using DeepFilterNet3 before transcription."
+msgstr "Elimina el soroll de fons amb DeepFilterNet3 abans de la transcripció."
+
+#: buzz/plugins/deep_filter_net/plugin.py
+#, fuzzy
+msgid "Keep denoised file after transcription"
+msgstr "Conserva el fitxer sense soroll després de la transcripció"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Skip Already Transcribed"
+msgstr "Omet els ja transcrits"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Skip transcription if results already exist on disk or in the database"
+msgstr ""
+"Omet la transcripció si els resultats ja existeixen al disc o a la base de "
+"dades"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Check for existing result files"
+msgstr "Comprova si hi ha fitxers de resultats existents"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid ""
+"Skip if a .txt, .srt, or .vtt file matching the audio filename is found next "
+"to it"
+msgstr ""
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Check in transcription database"
+msgstr "Comprovar a la base de dades de transcripcions"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid ""
+"Skip if this file has already been transcribed and the record exists in the "
+"database"
+msgstr ""
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"
@@ -1846,8 +1899,8 @@ msgstr "Carpeta de sortida (per al fitxer)"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
-"Speech extraction failed! Check your internet connection — a model may need "
-"to be downloaded."
+"Speech extraction failed! Check your internet connection \\u2014 a model may "
+"need to be downloaded."
 msgstr ""
 "Ha fallat l'extracció de veu! Comproveu la vostra connexió a Internet — pot "
 "ser que s'hagi de descarregar un model."
@@ -1871,11 +1924,11 @@ msgstr ""
 #~ msgstr "Avís de permís d'ajust"
 
 #~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have been "
-#~ "granted"
+#~ "Detected missing permissions, please check that snap permissions have "
+#~ "been granted"
 #~ msgstr ""
-#~ "S'han detectat permisos que manquen, comproveu que s'han concedit permisos "
-#~ "de captura"
+#~ "S'han detectat permisos que manquen, comproveu que s'han concedit "
+#~ "permisos de captura"
 
 #~ msgid ""
 #~ "To enable necessary permissions run the following commands in the terminal"
