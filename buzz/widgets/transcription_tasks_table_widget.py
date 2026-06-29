@@ -69,7 +69,24 @@ def format_record_status_text(record: QSqlRecord) -> str:
     match status:
         case FileTranscriptionTask.Status.IN_PROGRESS:
             in_progress_label = _("In Progress")
-            return f'{in_progress_label} ({record.value("progress") :.0%})'
+            progress = record.value("progress")
+            started_at = record.value("time_started")
+            if started_at and progress and progress > 0 and progress < 1:
+                try:
+                    started_dt = datetime.fromisoformat(started_at)
+                    elapsed = datetime.now() - started_dt
+                    elapsed_s = elapsed.total_seconds()
+                    if elapsed_s > 2:
+                        remaining_s = (1 - progress) * elapsed_s / progress
+                        # format seconds into human-readable string
+                        if remaining_s >= 60:
+                            eta_str = f"{int(remaining_s // 60)}m {int(remaining_s % 60)}s"
+                        else:
+                            eta_str = f"{int(remaining_s)}s"
+                        return f"{in_progress_label} ({progress:.0%}) — ETA: {eta_str}"
+                except (ValueError, OSError):
+                    pass
+            return f"{in_progress_label} ({progress:.0%})"
         case FileTranscriptionTask.Status.COMPLETED:
             status = _("Completed")
             started_at = record.value("time_started")
@@ -84,6 +101,8 @@ def format_record_status_text(record: QSqlRecord) -> str:
             return _("Canceled")
         case FileTranscriptionTask.Status.QUEUED:
             return _("Queued")
+        case FileTranscriptionTask.Status.SKIPPED:
+            return _("Skipped")
         case _: # Case to handle UNKNOWN status
             return ""
 
@@ -299,8 +318,8 @@ class TranscriptionTasksTableWidget(QTableView):
         if selected_rows:
             transcription = self.transcription(selected_rows[0])
 
-            # Add restart/continue action for failed/canceled tasks
-            if transcription.status in ["failed", "canceled"]:
+            # Add restart/continue action for failed/canceled/skipped tasks
+            if transcription.status in ["failed", "canceled", "skipped"]:
                 restart_action = menu.addAction(_("Restart Transcription"))
                 restart_action.triggered.connect(self.on_restart_transcription_action)
                 menu.addSeparator()
@@ -684,12 +703,12 @@ class TranscriptionTasksTableWidget(QTableView):
         transcription = self.transcription(selected_rows[0])
         
         # Check if the task can be restarted
-        if transcription.status not in ["failed", "canceled"]:
+        if transcription.status not in ["failed", "canceled", "skipped"]:
             from PyQt6.QtWidgets import QMessageBox
             QMessageBox.information(
-                self, 
-                _("Cannot Restart"), 
-                _("Only failed or canceled transcriptions can be restarted.")
+                self,
+                _("Cannot Restart"),
+                _("Only failed, canceled, or skipped transcriptions can be restarted.")
             )
             return
         

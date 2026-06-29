@@ -54,7 +54,8 @@ class TestLanguagesComboBox:
         languages_combox_box = LanguagesComboBox("en")
         qtbot.add_widget(languages_combox_box)
         assert languages_combox_box.itemText(0) == _("Detect Language")
-        assert languages_combox_box.itemText(1) == _("Afrikaans")
+        items = [languages_combox_box.itemText(i) for i in range(1, languages_combox_box.count())]
+        assert items == sorted(items)
 
     def test_should_select_en_as_default_language(self, qtbot):
         languages_combox_box = LanguagesComboBox("en")

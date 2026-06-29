@@ -1,0 +1,5 @@
+{
+  "DeepFilterNet Noise Reduction": "DeepFilterNet ノイズ除去",
+  "Removes background noise using DeepFilterNet3 before transcription.": "文字起こし前に DeepFilterNet3 で背景雑音を除去します。",
+  "Keep denoised file after transcription": "文字起こし後にノイズ除去ファイルを保持する"
+}

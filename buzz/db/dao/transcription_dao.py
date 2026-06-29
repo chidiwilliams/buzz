@@ -317,6 +317,39 @@ class TranscriptionDAO(DAO[Transcription]):
         if query.numRowsAffected() == 0:
             raise Exception("Transcription not found")
 
+    def update_transcription_as_skipped(self, id: UUID):
+        query = self._create_query()
+        query.prepare(
+            """
+            UPDATE transcription
+            SET status = :status, time_ended = :time_ended
+            WHERE id = :id
+        """
+        )
+
+        query.bindValue(":id", str(id))
+        query.bindValue(":status", FileTranscriptionTask.Status.SKIPPED.value)
+        query.bindValue(":time_ended", datetime.now().isoformat())
+        if not query.exec():
+            raise Exception(query.lastError().text())
+
+    def find_completed_transcription_by_filename(self, filename: str):
+        query = self._create_query()
+        query.prepare(
+            """
+            SELECT id FROM transcription
+            WHERE (file LIKE :pattern OR file = :exact) AND status = 'completed'
+            ORDER BY time_ended DESC LIMIT 1
+        """
+        )
+        query.bindValue(":pattern", f"%/{filename}")
+        query.bindValue(":exact", filename)
+        if not query.exec():
+            raise Exception(query.lastError().text())
+        if query.next():
+            return query.value("id")
+        return None
+
     def reset_transcription_for_restart(self, id: UUID):
         """Reset a transcription to queued status for restart"""
         query = self._create_query()

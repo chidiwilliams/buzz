@@ -105,7 +105,7 @@ class PluginsDialog(QDialog):
         self.setWindowTitle(_("Plugins"))
         self.setMinimumWidth(560)
         self.setMinimumHeight(420)
-        self.resize(840, 480)
+        self.resize(1000, 640)
 
         layout = QVBoxLayout(self)
 

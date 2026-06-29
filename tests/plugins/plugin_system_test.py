@@ -663,3 +663,357 @@ def test_before_and_after_hooks(qtbot, isolated_plugins, transcription_service, 
     assert result[-1].text == "added"
 
     manager.remove("my_plugin")
+
+
+# ---------------------------------------------------------------------------
+# skip_already_transcribed plugin tests
+# ---------------------------------------------------------------------------
+
+def _sat_plugin():
+    from buzz.plugins.skip_already_transcribed import plugin as sat
+    return sat.SkipAlreadyTranscribedPlugin()
+
+
+def _sat_context(config=None, db_records=None):
+    import logging
+    from buzz.plugins.base import PluginContext
+
+    # db_records: {filename: [db_segment, ...]} where db_segment has .start_time/.end_time/.text
+    records = db_records or {}
+
+    class _DBSeg:
+        def __init__(self, text, start, end):
+            self.text = text
+            self.start_time = start
+            self.end_time = end
+
+    class _Service:
+        def find_completed_transcription_by_filename(self, filename):
+            return filename if filename in records else None
+
+        def get_transcription_segments(self, tid):
+            return records.get(tid, [])
+
+    ctx = PluginContext(
+        config=config or {"check_result_files": True, "check_database": False},
+        transcription_service=_Service(),
+        settings=None,
+        logger=logging.getLogger("test"),
+    )
+    return ctx
+
+
+class _SatTask:
+    def __init__(self, file_path="/tmp/audio.mp3", output_directory=None):
+        self.file_path = file_path
+        self.original_file_path = file_path
+        self.output_directory = output_directory
+
+
+def test_skip_already_transcribed_loads():
+    from buzz.plugins.loader import load_plugin_from_dir
+    plugin = load_plugin_from_dir("buzz/plugins/skip_already_transcribed")
+    assert plugin.metadata.id == "skip_already_transcribed"
+    keys = [f.key for f in plugin.metadata.config_fields]
+    assert "check_result_files" in keys
+    assert "check_database" in keys
+
+
+def test_sat_returns_none_when_no_files_and_db_disabled(tmp_path):
+    plugin = _sat_plugin()
+    audio = tmp_path / "audio.mp3"
+    audio.write_bytes(b"")
+    ctx = _sat_context(config={"check_result_files": True, "check_database": False})
+    result = plugin.check_skip(_SatTask(file_path=str(audio)), ctx)
+    assert result is None
+
+
+def test_sat_skips_on_txt_file(tmp_path):
+    plugin = _sat_plugin()
+    audio = tmp_path / "audio.mp3"
+    audio.write_bytes(b"")
+    txt = tmp_path / "audio (transcribed on 01-Jan-2024 12-00-00).txt"
+    txt.write_text("Hello world.", encoding="utf-8")
+
+    ctx = _sat_context(config={"check_result_files": True, "check_database": False})
+    result = plugin.check_skip(_SatTask(file_path=str(audio)), ctx)
+    assert result is not None
+    assert len(result) == 1
+    assert result[0].text == "Hello world."
+    assert result[0].start == 0
+    assert result[0].end == 0
+
+
+def test_sat_skips_on_srt_file(tmp_path):
+    plugin = _sat_plugin()
+    audio = tmp_path / "lecture.mp3"
+    audio.write_bytes(b"")
+    srt = tmp_path / "lecture (transcribed on 01-Jan-2024 12-00-00).srt"
+    srt.write_text(
+        "1\n00:00:01,000 --> 00:00:03,500\nHello there.\n\n"
+        "2\n00:00:04,000 --> 00:00:06,000\nGeneral Kenobi.\n\n",
+        encoding="utf-8",
+    )
+
+    ctx = _sat_context(config={"check_result_files": True, "check_database": False})
+    result = plugin.check_skip(_SatTask(file_path=str(audio)), ctx)
+    assert result is not None
+    assert len(result) == 2
+    assert result[0].text == "Hello there."
+    assert result[0].start == 1000
+    assert result[0].end == 3500
+    assert result[1].text == "General Kenobi."
+    assert result[1].start == 4000
+
+
+def test_sat_skips_on_vtt_file(tmp_path):
+    plugin = _sat_plugin()
+    audio = tmp_path / "talk.mp3"
+    audio.write_bytes(b"")
+    vtt = tmp_path / "talk (transcribed on 01-Jan-2024 12-00-00).vtt"
+    vtt.write_text(
+        "WEBVTT\n\n"
+        "00:00:00.500 --> 00:00:02.000\nFirst line.\n\n"
+        "00:00:03.000 --> 00:00:05.000\nSecond line.\n\n",
+        encoding="utf-8",
+    )
+
+    ctx = _sat_context(config={"check_result_files": True, "check_database": False})
+    result = plugin.check_skip(_SatTask(file_path=str(audio)), ctx)
+    assert result is not None
+    assert len(result) == 2
+    assert result[0].text == "First line."
+    assert result[0].start == 500
+    assert result[1].text == "Second line."
+    assert result[1].start == 3000
+
+
+def test_sat_returns_none_when_result_files_disabled(tmp_path):
+    plugin = _sat_plugin()
+    audio = tmp_path / "audio.mp3"
+    audio.write_bytes(b"")
+    (tmp_path / "audio.txt").write_text("Hello world.", encoding="utf-8")
+
+    ctx = _sat_context(config={"check_result_files": False, "check_database": False})
+    result = plugin.check_skip(_SatTask(file_path=str(audio)), ctx)
+    assert result is None
+
+
+def test_sat_skips_on_db_record(tmp_path):
+    plugin = _sat_plugin()
+    audio = tmp_path / "audio.mp3"
+    audio.write_bytes(b"")
+
+    class _DBSeg:
+        def __init__(self, text, start, end):
+            self.text = text
+            self.start_time = start
+            self.end_time = end
+
+    ctx = _sat_context(
+        config={"check_result_files": False, "check_database": True},
+        db_records={"audio.mp3": [_DBSeg("From DB.", 0, 2000)]},
+    )
+    result = plugin.check_skip(_SatTask(file_path=str(audio)), ctx)
+    assert result is not None
+    assert len(result) == 1
+    assert result[0].text == "From DB."
+    assert result[0].start == 0
+    assert result[0].end == 2000
+
+
+def test_sat_no_skip_when_db_returns_none(tmp_path):
+    plugin = _sat_plugin()
+    audio = tmp_path / "audio.mp3"
+    audio.write_bytes(b"")
+
+    ctx = _sat_context(
+        config={"check_result_files": False, "check_database": True},
+        db_records={},
+    )
+    result = plugin.check_skip(_SatTask(file_path=str(audio)), ctx)
+    assert result is None
+
+
+def test_sat_result_files_checked_before_db(tmp_path):
+    """Result file check wins if both options are enabled."""
+    plugin = _sat_plugin()
+    audio = tmp_path / "audio.mp3"
+    audio.write_bytes(b"")
+    (tmp_path / "audio (transcribed on 01-Jan-2024 12-00-00).txt").write_text(
+        "From file.", encoding="utf-8"
+    )
+
+    class _DBSeg:
+        text = "From DB."
+        start_time = 0
+        end_time = 1000
+
+    ctx = _sat_context(
+        config={"check_result_files": True, "check_database": True},
+        db_records={"audio.mp3": [_DBSeg()]},
+    )
+    result = plugin.check_skip(_SatTask(file_path=str(audio)), ctx)
+    assert result is not None
+    assert result[0].text == "From file."
+
+
+def test_sat_strips_speech_suffix(tmp_path):
+    """Files with _speech suffix (post speech-extraction) match by original stem."""
+    plugin = _sat_plugin()
+    audio = tmp_path / "audio_speech.mp3"
+    audio.write_bytes(b"")
+    (tmp_path / "audio (transcribed on 01-Jan-2024 12-00-00).txt").write_text(
+        "From file.", encoding="utf-8"
+    )
+
+    ctx = _sat_context(config={"check_result_files": True, "check_database": False})
+    result = plugin.check_skip(_SatTask(file_path=str(audio)), ctx)
+    assert result is not None
+    assert result[0].text == "From file."
+
+
+def test_sat_run_check_skip_integration(qtbot, isolated_plugins, transcription_service, plugin_settings, tmp_path):
+    """Manager.run_check_skip calls through to the plugin."""
+    from buzz.plugins.manager import PluginManager
+    from buzz.plugins import loader
+
+    plugins_dir, _deps, _secrets = isolated_plugins
+
+    import shutil
+    sat_src = "buzz/plugins/skip_already_transcribed"
+    shutil.copytree(sat_src, str(plugins_dir / "skip_already_transcribed"))
+
+    audio = tmp_path / "audio.mp3"
+    audio.write_bytes(b"")
+    (tmp_path / "audio (transcribed on 01-Jan-2024 12-00-00).txt").write_text(
+        "Existing transcript.", encoding="utf-8"
+    )
+
+    manager = PluginManager(transcription_service, plugin_settings)
+    manager.initialize()
+    manager.set_enabled("skip_already_transcribed", True)
+    manager.set_config("skip_already_transcribed", {"check_result_files": True, "check_database": False})
+
+    task = _SatTask(file_path=str(audio))
+    should_skip, segments = manager.run_check_skip(task)
+
+    assert should_skip is True
+    assert len(segments) == 1
+    assert segments[0].text == "Existing transcript."
+
+    manager.remove("skip_already_transcribed")
+
+
+# ---------------------------------------------------------------------------
+# DeepFilterNet plugin tests
+# ---------------------------------------------------------------------------
+
+def _dfn_plugin():
+    from buzz.plugins.loader import load_plugin_from_dir
+    return load_plugin_from_dir("buzz/plugins/deep_filter_net")
+
+
+def _dfn_context(config=None):
+    import logging
+    from buzz.plugins.base import PluginContext
+    return PluginContext(
+        config=config or {},
+        transcription_service=None,
+        settings=None,
+        logger=logging.getLogger("test"),
+    )
+
+
+class _DfnTask:
+    def __init__(self, file_path="/tmp/audio.mp3"):
+        self.file_path = file_path
+        self.original_file_path = file_path
+
+
+def test_deep_filter_net_loads():
+    plugin = _dfn_plugin()
+    assert plugin.metadata.id == "deep_filter_net"
+    keys = [f.key for f in plugin.metadata.config_fields]
+    assert "keep_denoised_file" in keys
+
+
+def test_deep_filter_net_before_transcription_creates_denoised_file(tmp_path):
+    plugin = _dfn_plugin()
+    audio = tmp_path / "audio.mp3"
+    audio.write_bytes(b"")
+
+    import sys
+    from unittest.mock import MagicMock, patch
+
+    mock_audio_tensor = MagicMock()
+    mock_sr = MagicMock()
+    mock_model = MagicMock()
+    mock_df_state = MagicMock()
+    mock_df_state.sr.return_value = mock_sr
+    mock_enhanced = MagicMock()
+
+    df_module = MagicMock()
+    df_module.init_df.return_value = (mock_model, mock_df_state, None)
+    df_module.load_audio.return_value = (mock_audio_tensor, mock_sr)
+    df_module.enhance.return_value = mock_enhanced
+
+    with patch.dict(sys.modules, {"df": MagicMock(), "df.enhance": df_module}):
+        task = _DfnTask(file_path=str(audio))
+        result = plugin.before_transcription(task, _dfn_context())
+
+    expected = str(tmp_path / "audio_DeepFilterNet3.wav")
+    assert result == expected
+    df_module.init_df.assert_called_once()
+    df_module.load_audio.assert_called_once_with(str(audio), sr=mock_sr)
+    df_module.enhance.assert_called_once_with(mock_model, mock_df_state, mock_audio_tensor)
+    df_module.save_audio.assert_called_once_with(expected, mock_enhanced, mock_sr)
+
+
+def test_deep_filter_net_returns_none_on_error():
+    plugin = _dfn_plugin()
+
+    import sys
+    from unittest.mock import MagicMock, patch
+
+    df_module = MagicMock()
+    df_module.init_df.side_effect = RuntimeError("model not found")
+
+    with patch.dict(sys.modules, {"df": MagicMock(), "df.enhance": df_module}):
+        task = _DfnTask(file_path="/tmp/audio.mp3")
+        result = plugin.before_transcription(task, _dfn_context())
+
+    assert result is None
+
+
+def test_deep_filter_net_deletes_file_when_keep_false(tmp_path):
+    plugin = _dfn_plugin()
+    denoised = tmp_path / "audio_DeepFilterNet3.wav"
+    denoised.write_bytes(b"")
+
+    task = _DfnTask(file_path=str(denoised))
+    plugin.on_complete(None, task, [], _dfn_context(config={"keep_denoised_file": False}))
+
+    assert not denoised.exists()
+
+
+def test_deep_filter_net_keeps_file_when_keep_true(tmp_path):
+    plugin = _dfn_plugin()
+    denoised = tmp_path / "audio_DeepFilterNet3.wav"
+    denoised.write_bytes(b"")
+
+    task = _DfnTask(file_path=str(denoised))
+    plugin.on_complete(None, task, [], _dfn_context(config={"keep_denoised_file": True}))
+
+    assert denoised.exists()
+
+
+def test_deep_filter_net_does_not_delete_non_dfn_file(tmp_path):
+    plugin = _dfn_plugin()
+    audio = tmp_path / "audio.mp3"
+    audio.write_bytes(b"")
+
+    task = _DfnTask(file_path=str(audio))
+    plugin.on_complete(None, task, [], _dfn_context(config={"keep_denoised_file": False}))
+
+    assert audio.exists()

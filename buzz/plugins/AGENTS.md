@@ -90,6 +90,7 @@ class MyPlugin(BuzzPlugin):
 
 | Hook                   | Thread       | Purpose                                            |
 |------------------------|--------------|----------------------------------------------------|
+| `check_skip`           | worker       | Return `list[Segment]` to skip transcription entirely, or `None` to proceed. Runs after `before_transcription`. DB access via `context.transcription_service` is safe (marshaled to main thread). |
 | `before_transcription` | worker       | Process/replace source audio; return new file path |
 | `after_transcription`  | background   | Modify/replace result `Segment`s before save       |
 | `on_complete`          | background   | Post-save side effects (notes, file export, upload)|
@@ -168,6 +169,12 @@ line breaks. Strings without a translation (or when no file matches the active
 locale) fall through unchanged, so a plugin works with no locale files at all.
 The active locale comes from Buzz's `UI_LOCALE` setting.
 
+> **Critical:** Never use an empty string `""` as a translation value. The
+> translator treats an empty value as "no translation" and falls back to the
+> English source string, but only if the value is falsy. A locale file with
+> `"My Plugin": ""` will cause the plugin name to appear blank in the UI.
+> Either provide a real translation or omit the key entirely.
+
 Bundled plugins ship a translation file for **every locale Buzz supports**. The
 current set (keep it in sync across all bundled plugins) is:
 
@@ -180,6 +187,11 @@ When adding or changing a user-facing string in a bundled plugin, update the key
 in **all** of these files. See `ai_summary/locale/` or
 `enhanced_language_detection/locale/` for a complete worked example, and copy the
 file set from an existing plugin so the locale list stays consistent.
+
+> **Cache note:** Bundled plugins are copied to `~/.cache/Buzz/plugins/` only
+> once (if the folder does not already exist). When updating a bundled plugin's
+> locale files during development, you must also sync them into the cache
+> manually: `cp -r buzz/plugins/<id>/. ~/.cache/Buzz/plugins/<id>/`.
 
 ## Packaging & distribution
 
