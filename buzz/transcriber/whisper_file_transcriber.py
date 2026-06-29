@@ -49,7 +49,7 @@ def check_file_has_audio_stream(file_path: str) -> None:
                 raise ValueError("No audio streams found")
     except av.error.InvalidDataError as e:
         raise ValueError(f"Invalid media file: {e}")
-    except av.error.FileNotFoundError:
+    except (av.error.FileNotFoundError, OSError, UnicodeDecodeError):
         raise ValueError("File not found")
 
 
@@ -266,6 +266,8 @@ class WhisperFileTranscriber(FileTranscriber):
         model_root_dir = os.path.join(model_root_dir, "models")
         model_root_dir = os.getenv("BUZZ_MODEL_ROOT", model_root_dir)
         force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
+        if force_cpu != "false":
+            os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
         device = "auto"
         if torch.cuda.is_available() and torch.version.cuda < "12":
@@ -336,6 +338,9 @@ class WhisperFileTranscriber(FileTranscriber):
     @classmethod
     def transcribe_openai_whisper(cls, task: FileTranscriptionTask) -> List[Segment]:
         force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
+        if force_cpu != "false":
+            os.environ["CUDA_VISIBLE_DEVICES"] = ""
+
         use_cuda = torch.cuda.is_available() and force_cpu == "false"
 
         device = "cuda" if use_cuda else "cpu"

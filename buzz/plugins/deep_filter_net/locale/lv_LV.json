@@ -1,0 +1,5 @@
+{
+  "DeepFilterNet Noise Reduction": "DeepFilterNet trokšņu samazināšana",
+  "Removes background noise using DeepFilterNet3 before transcription.": "Pirms transkribēšanas noņem fona troksni, izmantojot DeepFilterNet3.",
+  "Keep denoised file after transcription": "Saglabāt attīrīto failu pēc transkribēšanas"
+}

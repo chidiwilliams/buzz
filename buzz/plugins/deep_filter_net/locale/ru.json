@@ -1,0 +1,5 @@
+{
+  "DeepFilterNet Noise Reduction": "Шумоподавление DeepFilterNet",
+  "Removes background noise using DeepFilterNet3 before transcription.": "Удаляет фоновый шум с помощью DeepFilterNet3 перед транскрипцией.",
+  "Keep denoised file after transcription": "Сохранить файл без шума после транскрипции"
+}

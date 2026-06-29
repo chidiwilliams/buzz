@@ -57,11 +57,9 @@ class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no co
                 break
 
     # Copy of transformers `AutomaticSpeechRecognitionPipeline.preprocess` method with call to custom `chunk_iter`
-    def preprocess(self, inputs, chunk_length_s=0, stride_length_s=None):
+    def _load_audio_from_source(self, inputs):
         if isinstance(inputs, str):
             if inputs.startswith("http://") or inputs.startswith("https://"):
-                # We need to actually check for a real protocol, otherwise it's impossible to use a local file
-                # like http_huggingface_co.png
                 inputs = requests.get(inputs).content
             else:
                 with open(inputs, "rb") as f:
@@ -70,51 +68,90 @@ class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no co
         if isinstance(inputs, bytes):
             inputs = ffmpeg_read(inputs, self.feature_extractor.sampling_rate)
 
+        return inputs
+
+    def _process_dict_input(self, inputs):
+        stride = inputs.pop("stride", None)
+        if not ("sampling_rate" in inputs and ("raw" in inputs or "array" in inputs)):
+            raise ValueError(
+                "When passing a dictionary to AutomaticSpeechRecognitionPipeline, the dict needs to contain a "
+                '"raw" key containing the numpy array representing the audio and a "sampling_rate" key, '
+                "containing the sampling_rate associated with that array"
+            )
+
+        _inputs = inputs.pop("raw", None)
+        if _inputs is None:
+            inputs.pop("path", None)
+            _inputs = inputs.pop("array", None)
+        in_sampling_rate = inputs.pop("sampling_rate")
+        extra = inputs
+        inputs = _inputs
+        if in_sampling_rate != self.feature_extractor.sampling_rate:
+            if is_torchaudio_available():
+                from torchaudio import functional as F
+            else:
+                raise ImportError(
+                    "torchaudio is required to resample audio samples in AutomaticSpeechRecognitionPipeline. "
+                    "The torchaudio package can be installed through: `pip install torchaudio`."
+                )
+
+            inputs = F.resample(
+                torch.from_numpy(inputs), in_sampling_rate, self.feature_extractor.sampling_rate
+            ).numpy()
+            ratio = self.feature_extractor.sampling_rate / in_sampling_rate
+        else:
+            ratio = 1
+        if stride is not None:
+            if stride[0] + stride[1] > inputs.shape[0]:
+                raise ValueError("Stride is too large for input")
+
+            stride = (inputs.shape[0], int(round(stride[0] * ratio)), int(round(stride[1] * ratio)))
+        return inputs, stride, extra
+
+    def _process_non_chunked(self, inputs, stride, extra):
+        if self.type == "seq2seq_whisper" and inputs.shape[0] > self.feature_extractor.n_samples:
+            processed = self.feature_extractor(
+                inputs,
+                sampling_rate=self.feature_extractor.sampling_rate,
+                truncation=False,
+                padding="longest",
+                return_tensors="pt",
+                return_attention_mask=True,
+            )
+        else:
+            if self.type == "seq2seq_whisper" and stride is None:
+                processed = self.feature_extractor(
+                    inputs,
+                    sampling_rate=self.feature_extractor.sampling_rate,
+                    return_tensors="pt",
+                    return_token_timestamps=True,
+                    return_attention_mask=True,
+                )
+                extra["num_frames"] = processed.pop("num_frames")
+            else:
+                processed = self.feature_extractor(
+                    inputs,
+                    sampling_rate=self.feature_extractor.sampling_rate,
+                    return_tensors="pt",
+                    return_attention_mask=True,
+                )
+        if self.torch_dtype is not None:
+            processed = processed.to(dtype=self.torch_dtype)
+        if stride is not None:
+            if self.type == "seq2seq":
+                raise ValueError("Stride is only usable with CTC models, try removing it !")
+
+            processed["stride"] = stride
+        yield {"is_last": True, **processed, **extra}
+
+    def preprocess(self, inputs, chunk_length_s=0, stride_length_s=None):
+        inputs = self._load_audio_from_source(inputs)
+
         stride = None
         extra = {}
         if isinstance(inputs, dict):
-            stride = inputs.pop("stride", None)
-            # Accepting `"array"` which is the key defined in `datasets` for
-            # better integration
-            if not ("sampling_rate" in inputs and ("raw" in inputs or "array" in inputs)):
-                raise ValueError(
-                    "When passing a dictionary to AutomaticSpeechRecognitionPipeline, the dict needs to contain a "
-                    '"raw" key containing the numpy array representing the audio and a "sampling_rate" key, '
-                    "containing the sampling_rate associated with that array"
-                )
+            inputs, stride, extra = self._process_dict_input(inputs)
 
-            _inputs = inputs.pop("raw", None)
-            if _inputs is None:
-                # Remove path which will not be used from `datasets`.
-                inputs.pop("path", None)
-                _inputs = inputs.pop("array", None)
-            in_sampling_rate = inputs.pop("sampling_rate")
-            extra = inputs
-            inputs = _inputs
-            if in_sampling_rate != self.feature_extractor.sampling_rate:
-                if is_torchaudio_available():
-                    from torchaudio import functional as F
-                else:
-                    raise ImportError(
-                        "torchaudio is required to resample audio samples in AutomaticSpeechRecognitionPipeline. "
-                        "The torchaudio package can be installed through: `pip install torchaudio`."
-                    )
-
-                inputs = F.resample(
-                    torch.from_numpy(inputs), in_sampling_rate, self.feature_extractor.sampling_rate
-                ).numpy()
-                ratio = self.feature_extractor.sampling_rate / in_sampling_rate
-            else:
-                ratio = 1
-            if stride is not None:
-                if stride[0] + stride[1] > inputs.shape[0]:
-                    raise ValueError("Stride is too large for input")
-
-                # Stride needs to get the chunk length here, it's going to get
-                # swallowed by the `feature_extractor` later, and then batching
-                # can add extra data in the inputs, so we need to keep track
-                # of the original length in the stride so we can cut properly.
-                stride = (inputs.shape[0], int(round(stride[0] * ratio)), int(round(stride[1] * ratio)))
         if not isinstance(inputs, np.ndarray):
             raise TypeError(f"We expect a numpy ndarray as input, got `{type(inputs)}`")
         if len(inputs.shape) != 1:
@@ -127,9 +164,6 @@ class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no co
             if isinstance(stride_length_s, (int, float)):
                 stride_length_s = [stride_length_s, stride_length_s]
 
-            # XXX: Carefully, this variable will not exist in `seq2seq` setting.
-            # Currently chunking is not possible at this level for `seq2seq` so
-            # it's ok.
             align_to = getattr(self.model.config, "inputs_to_logits_ratio", 1)
             chunk_len = int(round(chunk_length_s * self.feature_extractor.sampling_rate / align_to) * align_to)
             stride_left = int(round(stride_length_s[0] * self.feature_extractor.sampling_rate / align_to) * align_to)
@@ -138,46 +172,12 @@ class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no co
             if chunk_len < stride_left + stride_right:
                 raise ValueError("Chunk length must be superior to stride length")
 
-            # Buzz use our custom chunk_iter with progress
             for item in self.chunk_iter(
                 inputs, self.feature_extractor, chunk_len, stride_left, stride_right, self.torch_dtype
             ):
                 yield {**item, **extra}
         else:
-            if self.type == "seq2seq_whisper" and inputs.shape[0] > self.feature_extractor.n_samples:
-                processed = self.feature_extractor(
-                    inputs,
-                    sampling_rate=self.feature_extractor.sampling_rate,
-                    truncation=False,
-                    padding="longest",
-                    return_tensors="pt",
-                    return_attention_mask=True,
-                )
-            else:
-                if self.type == "seq2seq_whisper" and stride is None:
-                    processed = self.feature_extractor(
-                        inputs,
-                        sampling_rate=self.feature_extractor.sampling_rate,
-                        return_tensors="pt",
-                        return_token_timestamps=True,
-                        return_attention_mask=True,
-                    )
-                    extra["num_frames"] = processed.pop("num_frames")
-                else:
-                    processed = self.feature_extractor(
-                        inputs,
-                        sampling_rate=self.feature_extractor.sampling_rate,
-                        return_tensors="pt",
-                        return_attention_mask=True,
-                    )
-            if self.torch_dtype is not None:
-                processed = processed.to(dtype=self.torch_dtype)
-            if stride is not None:
-                if self.type == "seq2seq":
-                    raise ValueError("Stride is only usable with CTC models, try removing it !")
-
-                processed["stride"] = stride
-            yield {"is_last": True, **processed, **extra}
+            yield from self._process_non_chunked(inputs, stride, extra)
 
 
 class TransformersTranscriber:

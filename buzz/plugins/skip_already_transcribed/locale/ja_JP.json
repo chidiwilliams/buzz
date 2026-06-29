@@ -1,0 +1,8 @@
+{
+  "Skip Already Transcribed": "転写済みをスキップ",
+  "Skip transcription if results already exist on disk or in the database": "ディスクまたはデータベースに結果が既に存在する場合は転写をスキップ",
+  "Check for existing result files": "既存の結果ファイルを確認",
+  "Skip if a .txt, .srt, or .vtt file matching the audio filename is found next to it": "同じ音声ファイル名の .txt、.srt、または .vtt ファイルが隣にある場合はスキップ",
+  "Check in transcription database": "転写データベースを確認",
+  "Skip if this file has already been transcribed and the record exists in the database": "このファイルが既に転写済みでデータベースにレコードが存在する場合はスキップ"
+}
