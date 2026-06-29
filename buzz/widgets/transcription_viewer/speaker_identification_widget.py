@@ -451,22 +451,26 @@ class SpeakerIdentificationWidget(QWidget):
         self.transcription = transcription
         self.transcription_service = transcription_service
         self.transcriptions_updated_signal = transcriptions_updated_signal
-
         self.identification_result = None
-
         self.thread = None
         self.worker = None
         self.needs_layout_update = False
 
         self.setMinimumWidth(650)
         self.setMinimumHeight(400)
-
         self.setWindowTitle(file_path_as_title(transcription.file))
 
         layout = QFormLayout(self)
         layout.setSizeConstraint(QLayout.SizeConstraint.SetMinAndMaxSize)
 
-        # Step 1: Identify speakers
+        self._create_step_1_group(layout)
+        self._create_step_2_group(layout)
+        self._create_save_section(layout)
+
+        self.setLayout(layout)
+        self._setup_audio_player()
+
+    def _create_step_1_group(self, layout: QFormLayout) -> None:
         step_1_label = QLabel(_("Step 1: Identify speakers"), self)
         font = step_1_label.font()
         font.setWeight(QFont.Weight.Bold)
@@ -488,7 +492,6 @@ class SpeakerIdentificationWidget(QWidget):
         self.cancel_button.setVisible(False)
         self.cancel_button.clicked.connect(self.on_cancel_button_clicked)
 
-        # Progress container with label and bar
         progress_container = QVBoxLayout()
 
         self.progress_label = QLabel(self)
@@ -517,11 +520,10 @@ class SpeakerIdentificationWidget(QWidget):
 
         layout.addRow(step_1_group_box)
 
-        # Spacer
         spacer = QSpacerItem(0, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
         layout.addItem(spacer)
 
-        # Step 2: Name speakers
+    def _create_step_2_group(self, layout: QFormLayout) -> None:
         step_2_label = QLabel(_("Step 2: Name speakers"), self)
         font = step_2_label.font()
         font.setWeight(QFont.Weight.Bold)
@@ -551,7 +553,7 @@ class SpeakerIdentificationWidget(QWidget):
 
         layout.addRow(self.step_2_group_box)
 
-        # Save button
+    def _create_save_section(self, layout: QFormLayout) -> None:
         self.merge_speaker_sentences = QCheckBox(_("Merge speaker sentences"))
         self.merge_speaker_sentences.setChecked(True)
         self.merge_speaker_sentences.setEnabled(False)
@@ -564,9 +566,7 @@ class SpeakerIdentificationWidget(QWidget):
         layout.addRow(self.merge_speaker_sentences)
         layout.addRow(self.save_button)
 
-        self.setLayout(layout)
-
-        # Invisible preview player
+    def _setup_audio_player(self) -> None:
         url = QUrl.fromLocalFile(self.transcription.file)
         self.player = QMediaPlayer()
         self.audio_output = QAudioOutput()
