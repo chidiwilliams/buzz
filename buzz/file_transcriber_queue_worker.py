@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 from typing import Optional, Tuple, List, Set
 from uuid import UUID
+from dataclasses import dataclass
 
 # Fix SSL certificate verification for bundled applications (macOS, Windows)
 # This must be done before importing demucs which uses torch.hub with urllib
@@ -97,11 +98,15 @@ from buzz.transcriber.transcriber import FileTranscriptionTask, Segment
 from buzz.transcriber.whisper_file_transcriber import WhisperFileTranscriber
 
 
+@dataclass
+class _CurrentTranscription:
+    task: Optional[FileTranscriptionTask] = None
+    transcriber: Optional[FileTranscriber] = None
+    transcriber_thread: Optional[QThread] = None
+
+
 class FileTranscriberQueueWorker(QObject):
     tasks_queue: multiprocessing.Queue
-    current_task: Optional[FileTranscriptionTask] = None
-    current_transcriber: Optional[FileTranscriber] = None
-    current_transcriber_thread: Optional[QThread] = None
 
     task_started = pyqtSignal(FileTranscriptionTask)
     task_progress = pyqtSignal(FileTranscriptionTask, float)
@@ -115,8 +120,8 @@ class FileTranscriberQueueWorker(QObject):
     def __init__(self, parent: Optional[QObject] = None):
         super().__init__(parent)
         self.tasks_queue = queue.Queue()
+        self.current = _CurrentTranscription()
         self.canceled_tasks: Set[UUID] = set()
-        self.current_transcriber = None
         self.speech_path = None
         self.speech_extractor_process = None
         self.is_running = False
@@ -143,7 +148,7 @@ class FileTranscriberQueueWorker(QObject):
 
         self.is_running = True
 
-        if self.current_task.transcription_options.extract_speech:
+        if self.current.task.transcription_options.extract_speech:
             status = self._setup_speech_extraction()
             if status == "error":
                 self.is_running = False
@@ -153,22 +158,22 @@ class FileTranscriberQueueWorker(QObject):
             return
 
         logging.debug("Starting next transcription task")
-        self.task_progress.emit(self.current_task, 0)
+        self.task_progress.emit(self.current.task, 0)
 
         self._create_transcriber()
         self._setup_transcriber_thread()
 
     def _cleanup_previous_transcriber(self):
-        if self.current_transcriber is not None:
-            self.current_transcriber.stop()
-            self.current_transcriber = None
+        if self.current.transcriber is not None:
+            self.current.transcriber.stop()
+            self.current.transcriber = None
 
     def _get_next_task(self) -> bool:
         while True:
-            self.current_task = self.tasks_queue.get()
-            if self.current_task is None:
+            self.current.task = self.tasks_queue.get()
+            if self.current.task is None:
                 return False
-            if self.current_task.uid in self.canceled_tasks:
+            if self.current.task.uid in self.canceled_tasks:
                 continue
             return True
 
@@ -182,21 +187,21 @@ class FileTranscriberQueueWorker(QObject):
             import torch
             device = "cuda" if torch.cuda.is_available() else "cpu"
 
-        task_file_path = Path(self.current_task.file_path)
+        task_file_path = Path(self.current.task.file_path)
         speech_path = task_file_path.with_name(f"{task_file_path.stem}_speech.mp3")
 
         status = self._extract_speech(str(task_file_path), str(speech_path), device)
 
         if status == "error":
             self.task_error.emit(
-                self.current_task,
+                self.current.task,
                 _("Speech extraction failed! Check your internet connection \u2014 a model may need to be downloaded."),
             )
         elif status == "ok":
             self.speech_path = speech_path
-            if not self.current_task.original_file_path:
-                self.current_task.original_file_path = str(task_file_path)
-            self.current_task.file_path = str(speech_path)
+            if not self.current.task.original_file_path:
+                self.current.task.original_file_path = str(task_file_path)
+            self.current.task.file_path = str(speech_path)
 
         return status
 
@@ -208,14 +213,14 @@ class FileTranscriberQueueWorker(QObject):
         """
         if self.plugin_manager is not None:
             try:
-                self.plugin_manager.run_before_transcription(self.current_task)
+                self.plugin_manager.run_before_transcription(self.current.task)
             except Exception as e:
                 logging.error(f"Plugin before_transcription failed: {e}", exc_info=True)
 
-            should_skip, skip_segments = self.plugin_manager.run_check_skip(self.current_task)
+            should_skip, skip_segments = self.plugin_manager.run_check_skip(self.current.task)
             if should_skip:
                 logging.debug("Skipping transcription task (plugin signaled skip)")
-                self.current_task.status = FileTranscriptionTask.Status.SKIPPED
+                self.current.task.status = FileTranscriptionTask.Status.SKIPPED
                 self.on_task_completed(skip_segments)
                 self.is_running = False
                 self._on_task_finished()
@@ -224,10 +229,10 @@ class FileTranscriberQueueWorker(QObject):
         return True
 
     def _create_transcriber(self):
-        model_type = self.current_task.transcription_options.model.model_type
+        model_type = self.current.task.transcription_options.model.model_type
         if model_type == ModelType.OPEN_AI_WHISPER_API:
-            self.current_transcriber = OpenAIWhisperAPIFileTranscriber(
-                task=self.current_task
+            self.current.transcriber = OpenAIWhisperAPIFileTranscriber(
+                task=self.current.task
             )
         elif (
             model_type == ModelType.WHISPER_CPP
@@ -235,38 +240,38 @@ class FileTranscriberQueueWorker(QObject):
             or model_type == ModelType.WHISPER
             or model_type == ModelType.FASTER_WHISPER
         ):
-            self.current_transcriber = WhisperFileTranscriber(task=self.current_task)
+            self.current.transcriber = WhisperFileTranscriber(task=self.current.task)
         else:
             raise Exception(f"Unknown model type: {model_type}")
 
     def _setup_transcriber_thread(self):
-        self.current_transcriber_thread = QThread(self)
+        self.current.transcriber_thread = QThread(self)
 
-        self.current_transcriber.moveToThread(self.current_transcriber_thread)
+        self.current.transcriber.moveToThread(self.current.transcriber_thread)
 
-        self.current_transcriber_thread.started.connect(self.current_transcriber.run)
-        self.current_transcriber.completed.connect(self.current_transcriber_thread.quit)
-        self.current_transcriber.error.connect(self.current_transcriber_thread.quit)
+        self.current.transcriber_thread.started.connect(self.current.transcriber.run)
+        self.current.transcriber.completed.connect(self.current.transcriber_thread.quit)
+        self.current.transcriber.error.connect(self.current.transcriber_thread.quit)
 
-        self.current_transcriber.completed.connect(self.current_transcriber.deleteLater)
-        self.current_transcriber.error.connect(self.current_transcriber.deleteLater)
-        self.current_transcriber_thread.finished.connect(
-            self.current_transcriber_thread.deleteLater
+        self.current.transcriber.completed.connect(self.current.transcriber.deleteLater)
+        self.current.transcriber.error.connect(self.current.transcriber.deleteLater)
+        self.current.transcriber_thread.finished.connect(
+            self.current.transcriber_thread.deleteLater
         )
 
-        self.current_transcriber.progress.connect(self.on_task_progress)
-        self.current_transcriber.download_progress.connect(
+        self.current.transcriber.progress.connect(self.on_task_progress)
+        self.current.transcriber.download_progress.connect(
             self.on_task_download_progress
         )
-        self.current_transcriber.error.connect(self.on_task_error)
+        self.current.transcriber.error.connect(self.on_task_error)
 
-        self.current_transcriber.completed.connect(self.on_task_completed)
+        self.current.transcriber.completed.connect(self.on_task_completed)
 
-        self.current_transcriber.error.connect(lambda: self._on_task_finished())
-        self.current_transcriber.completed.connect(lambda: self._on_task_finished())
+        self.current.transcriber.error.connect(lambda: self._on_task_finished())
+        self.current.transcriber.completed.connect(lambda: self._on_task_finished())
 
-        self.task_started.emit(self.current_task)
-        self.current_transcriber_thread.start()
+        self.task_started.emit(self.current.task)
+        self.current.transcriber_thread.start()
 
     def _extract_speech(self, file_path: str, speech_path: str, device: str) -> str:
         """Run demucs speech extraction in a separate process.
@@ -298,7 +303,7 @@ class FileTranscriberQueueWorker(QObject):
                     audio_length = int(message[2] * 100)
                     if audio_length:
                         self.task_progress.emit(
-                            self.current_task,
+                            self.current.task,
                             int(message[1] * 100) / audio_length,
                         )
                 elif kind == "done":
@@ -364,44 +369,44 @@ class FileTranscriberQueueWorker(QObject):
     def cancel_task(self, task_id: UUID):
         self.canceled_tasks.add(task_id)
 
-        if self.current_task is not None and self.current_task.uid == task_id:
+        if self.current.task is not None and self.current.task.uid == task_id:
             self._terminate_speech_extractor_process()
 
-            if self.current_transcriber is not None:
-                self.current_transcriber.stop()
+            if self.current.transcriber is not None:
+                self.current.transcriber.stop()
 
-            if self.current_transcriber_thread is not None:
-                if not self.current_transcriber_thread.wait(5000):
+            if self.current.transcriber_thread is not None:
+                if not self.current.transcriber_thread.wait(5000):
                     logging.warning("Transcriber thread did not terminate gracefully")
-                    self.current_transcriber_thread.terminate()
+                    self.current.transcriber_thread.terminate()
 
     def on_task_error(self, error: str):
         if (
-            self.current_task is not None
-            and self.current_task.uid not in self.canceled_tasks
+            self.current.task is not None
+            and self.current.task.uid not in self.canceled_tasks
         ):
             # Check if the error indicates cancellation
             if "canceled" in error.lower() or "cancelled" in error.lower():
-                self.current_task.status = FileTranscriptionTask.Status.CANCELED
-                self.current_task.error = error
+                self.current.task.status = FileTranscriptionTask.Status.CANCELED
+                self.current.task.error = error
             else:
-                self.current_task.status = FileTranscriptionTask.Status.FAILED
-                self.current_task.error = error
-            self.task_error.emit(self.current_task, error)
+                self.current.task.status = FileTranscriptionTask.Status.FAILED
+                self.current.task.error = error
+            self.task_error.emit(self.current.task, error)
 
     @pyqtSlot(tuple)
     def on_task_progress(self, progress: Tuple[int, int]):
-        if self.current_task is not None:
-            self.task_progress.emit(self.current_task, progress[0] / progress[1])
+        if self.current.task is not None:
+            self.task_progress.emit(self.current.task, progress[0] / progress[1])
 
     def on_task_download_progress(self, fraction_downloaded: float):
-        if self.current_task is not None:
-            self.task_download_progress.emit(self.current_task, fraction_downloaded)
+        if self.current.task is not None:
+            self.task_download_progress.emit(self.current.task, fraction_downloaded)
 
     @pyqtSlot(list)
     def on_task_completed(self, segments: List[Segment]):
-        if self.current_task is not None:
-            self.task_completed.emit(self.current_task, segments)
+        if self.current.task is not None:
+            self.task_completed.emit(self.current.task, segments)
 
         if self.speech_path is not None:
             try:
@@ -412,8 +417,8 @@ class FileTranscriberQueueWorker(QObject):
 
     def stop(self):
         self.tasks_queue.put(None)
-        if self.current_transcriber is not None:
-            self.current_transcriber.stop()
+        if self.current.transcriber is not None:
+            self.current.transcriber.stop()
 
         # Terminate the speech extraction process if one is still running.
         self._terminate_speech_extractor_process()

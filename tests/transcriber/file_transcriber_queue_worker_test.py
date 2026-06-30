@@ -75,7 +75,7 @@ class TestFileTranscriberQueueWorker:
             file_transcription_options=FileTranscriptionOptions(),
             model_path="mock_path"
         )
-        simple_worker.current_task = task
+        simple_worker.current.task = task
 
         error_spy = unittest.mock.Mock()
         simple_worker.task_error.connect(error_spy)
@@ -94,7 +94,7 @@ class TestFileTranscriberQueueWorker:
             file_transcription_options=FileTranscriptionOptions(),
             model_path="mock_path"
         )
-        simple_worker.current_task = task
+        simple_worker.current.task = task
 
         error_spy = unittest.mock.Mock()
         simple_worker.task_error.connect(error_spy)
@@ -113,7 +113,7 @@ class TestFileTranscriberQueueWorker:
             file_transcription_options=FileTranscriptionOptions(),
             model_path="mock_path"
         )
-        simple_worker.current_task = task
+        simple_worker.current.task = task
 
         progress_spy = unittest.mock.Mock()
         simple_worker.task_progress.connect(progress_spy)
@@ -140,7 +140,7 @@ class TestFileTranscriberQueueWorker:
             file_transcription_options=FileTranscriptionOptions(),
             model_path="mock_path"
         )
-        simple_worker.current_task = task
+        simple_worker.current.task = task
 
         # Create a temporary file to simulate speech extraction output
         speech_file = tmp_path / "audio_speech.mp3"
@@ -166,7 +166,7 @@ class TestFileTranscriberQueueWorker:
             file_transcription_options=FileTranscriptionOptions(),
             model_path="mock_path"
         )
-        simple_worker.current_task = task
+        simple_worker.current.task = task
 
         # Set a speech path that doesn't exist
         simple_worker.speech_path = tmp_path / "nonexistent_speech.mp3"
@@ -189,7 +189,7 @@ class TestFileTranscriberQueueWorker:
             file_transcription_options=FileTranscriptionOptions(),
             model_path="mock_path"
         )
-        simple_worker.current_task = task
+        simple_worker.current.task = task
 
         download_spy = unittest.mock.Mock()
         simple_worker.task_download_progress.connect(download_spy)
@@ -210,10 +210,10 @@ class TestFileTranscriberQueueWorker:
             file_transcription_options=FileTranscriptionOptions(),
             model_path="mock_path"
         )
-        simple_worker.current_task = task
+        simple_worker.current.task = task
 
         mock_transcriber = unittest.mock.Mock()
-        simple_worker.current_transcriber = mock_transcriber
+        simple_worker.current.transcriber = mock_transcriber
 
         simple_worker.cancel_task(task.uid)
 
@@ -229,7 +229,7 @@ class TestFileTranscriberQueueWorker:
             file_transcription_options=FileTranscriptionOptions(),
             model_path="mock_path"
         )
-        simple_worker.current_task = task
+        simple_worker.current.task = task
         # Mark task as canceled
         simple_worker.canceled_tasks.add(task.uid)
 
@@ -303,7 +303,7 @@ class TestFileTranscriberQueueWorkerRun:
 
             simple_worker.run()
 
-            assert isinstance(simple_worker.current_transcriber, OpenAIWhisperAPIFileTranscriber)
+            assert isinstance(simple_worker.current.transcriber, OpenAIWhisperAPIFileTranscriber)
 
     def test_run_creates_whisper_transcriber_for_whisper_cpp(self, simple_worker, qapp):
         task = self._make_task(model_type=ModelType.WHISPER_CPP)
@@ -317,7 +317,7 @@ class TestFileTranscriberQueueWorkerRun:
 
             simple_worker.run()
 
-            assert isinstance(simple_worker.current_transcriber, WhisperFileTranscriber)
+            assert isinstance(simple_worker.current.transcriber, WhisperFileTranscriber)
 
     def test_run_speech_extraction_failure_emits_error(self, simple_worker, qapp):
         task = self._make_task(extract_speech=True)
@@ -339,7 +339,7 @@ class TestFileTranscriberQueueWorkerRun:
     def _run_extract_speech(self, simple_worker, messages, exitcode=0):
         """Drive _extract_speech with a scripted sequence of pipe messages."""
         task = self._make_task(extract_speech=True)
-        simple_worker.current_task = task
+        simple_worker.current.task = task
 
         recv_conn = unittest.mock.Mock()
         recv_conn.recv.side_effect = list(messages) + [EOFError()]
@@ -403,7 +403,7 @@ def test_transcription_with_whisper_cpp_tiny_no_speech_extraction(worker):
                                  file_transcription_options=FileTranscriptionOptions(), model_path="mock_path")
 
     with unittest.mock.patch.object(WhisperFileTranscriber, 'run') as mock_run:
-        mock_run.side_effect = lambda: worker.current_transcriber.completed.emit([
+        mock_run.side_effect = lambda: worker.current.transcriber.completed.emit([
             {"start": 0, "end": 1000, "text": "Test transcription."}
         ])
 
@@ -439,7 +439,7 @@ def test_transcription_with_whisper_cpp_tiny_with_speech_extraction(worker):
     with unittest.mock.patch.object(
             FileTranscriberQueueWorker, '_extract_speech', return_value="ok") as mock_extract, \
             unittest.mock.patch.object(WhisperFileTranscriber, 'run') as mock_run:
-        mock_run.side_effect = lambda: worker.current_transcriber.completed.emit([
+        mock_run.side_effect = lambda: worker.current.transcriber.completed.emit([
             {"start": 0, "end": 1000, "text": "Test transcription with speech extraction."}
         ])
 

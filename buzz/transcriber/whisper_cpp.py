@@ -45,96 +45,159 @@ def get_whisper_cli_path() -> str:
     return whisper_cli_path
 
 
+def _make_offset_mapper(segment_data, vad_enabled):
+    """Return a function mapping a token offset to original audio time."""
+    if not vad_enabled:
+        return lambda offset: offset
+
+    token_offsets = [
+        (
+            int(t.get("offsets", {}).get("from", 0)),
+            int(t.get("offsets", {}).get("to", 0)),
+        )
+        for t in segment_data.get("tokens", [])
+        if not t.get("text", "").startswith("[_")
+    ]
+    if not token_offsets:
+        return lambda offset: offset
+
+    vad_min = min(start for start, _ in token_offsets)
+    vad_max = max(end for _, end in token_offsets)
+    orig_from = int(segment_data.get("offsets", {}).get("from", 0))
+    orig_to = int(segment_data.get("offsets", {}).get("to", 0))
+
+    span = vad_max - vad_min
+    if span <= 0:
+        return lambda offset: orig_from
+
+    scale = (orig_to - orig_from) / span
+    return lambda offset: int(orig_from + (offset - vad_min) * scale)
+
+
+def _flush_complete_chars(buffer: bytes, start: int, end: int, segments: list) -> bytes:
+    """Extract and output all complete UTF-8 characters from buffer.
+    Returns any remaining incomplete bytes."""
+    remaining = buffer
+    pos = 0
+
+    while pos < len(remaining):
+        for char_len in range(1, min(5, len(remaining) - pos + 1)):
+            try:
+                char = remaining[pos:pos + char_len].decode("utf-8")
+                if char.strip():
+                    segments.append(
+                        Segment(
+                            start=start,
+                            end=end,
+                            text=char,
+                            translation=""
+                        )
+                    )
+                pos += char_len
+                break
+            except UnicodeDecodeError:
+                if char_len == 4 or pos + char_len >= len(remaining):
+                    return remaining[pos:]
+        else:
+            return remaining[pos:]
+
+    return b""
+
+
+def _append_word(buffer: bytes, start: int, end: int, segments: list) -> bool:
+    """Try to decode and append a word segment, handling multi-byte UTF-8"""
+    if not buffer:
+        return True
+
+    try:
+        text = buffer.decode("utf-8").strip()
+        if text:
+            segments.append(
+                Segment(
+                    start=start,
+                    end=end,
+                    text=text,
+                    translation=""
+                )
+            )
+        return True
+    except UnicodeDecodeError:
+        return False
+
+
 class WhisperCpp:
     @staticmethod
-    def transcribe(task: FileTranscriptionTask) -> List[Segment]:
-        """Transcribe audio using whisper-cli subprocess."""
-        whisper_cli_path = get_whisper_cli_path()
+    def _convert_to_wav(file_path: str) -> str:
+        """Convert audio file to WAV format using ffmpeg."""
+        temp_file = file_path + ".wav"
+        logging.info(f"Converting {file_path} to WAV format")
 
-        language = (
-            task.transcription_options.language
-            if task.transcription_options.language is not None
-            else "auto"
-        )
+        ffmpeg_cmd = [
+            "ffmpeg",
+            "-i", file_path,
+            "-ar", "16000",
+            "-ac", "1",
+            "-y",
+            temp_file
+        ]
 
-        # Check if file format is supported, convert to WAV if not
-        supported_formats = ('.mp3', '.wav', '.flac')
-        file_ext = os.path.splitext(task.file_path)[1].lower()
+        try:
+            if sys.platform == "win32":
+                si = subprocess.STARTUPINFO()
+                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                si.wShowWindow = subprocess.SW_HIDE
+                subprocess.run(
+                    ffmpeg_cmd,
+                    capture_output=True,
+                    startupinfo=si,
+                    env=app_env,
+                    creationflags=subprocess.CREATE_NO_WINDOW,
+                    check=True
+                )
+            else:
+                subprocess.run(ffmpeg_cmd, capture_output=True, check=True)
 
-        temp_file = None
-        file_to_process = task.file_path
+            return temp_file
+        except subprocess.CalledProcessError as e:
+            raise Exception(f"Failed to convert audio file: {e.stderr.decode()}")
+        except FileNotFoundError:
+            raise Exception("ffmpeg not found. Please install ffmpeg to process this audio format.")
 
-        if file_ext not in supported_formats:
-            temp_file = task.file_path + ".wav"
-
-            logging.info(f"Converting {task.file_path} to WAV format")
-
-            # Convert using ffmpeg
-            ffmpeg_cmd = [
-                "ffmpeg",
-                "-i", task.file_path,
-                "-ar", "16000",  # 16kHz sample rate (whisper standard)
-                "-ac", "1",      # mono
-                "-y",            # overwrite output file
-                temp_file
-            ]
-
-            try:
-                if sys.platform == "win32":
-                    si = subprocess.STARTUPINFO()
-                    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                    si.wShowWindow = subprocess.SW_HIDE
-                    result = subprocess.run(
-                        ffmpeg_cmd,
-                        capture_output=True,
-                        startupinfo=si,
-                        env=app_env,
-                        creationflags=subprocess.CREATE_NO_WINDOW,
-                        check = True
-                    )
-                else:
-                    result = subprocess.run(ffmpeg_cmd, capture_output=True, check=True)
-
-                file_to_process = temp_file
-            except subprocess.CalledProcessError as e:
-                raise Exception(f"Failed to convert audio file: {e.stderr.decode()}")
-            except FileNotFoundError:
-                raise Exception("ffmpeg not found. Please install ffmpeg to process this audio format.")
-    
-        # Build the command
+    @staticmethod
+    def _build_command(task, file_to_process, language, vad_enabled) -> list:
+        """Build the whisper-cli command line."""
         cmd = [
-            whisper_cli_path,
+            get_whisper_cli_path(),
             "--model", task.model_path,
             "--language", language,
             "--print-progress",
             "--suppress-nst",
-            # Protections against hallucinated repetition. Seems to be problem on macOS
-            # https://github.com/ggml-org/whisper.cpp/issues/1507
             "--max-context", "0",
             "--entropy-thold", "2.8",
             "--output-json-full",
             "--threads", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8) // 2)),
             "-f", file_to_process,
         ]
-    
-        # Add VAD if the model is available
-        vad_model_path = os.path.join(os.path.dirname(whisper_cli_path), "ggml-silero-v6.2.0.bin")
-        vad_enabled = os.path.exists(vad_model_path)
+
         if vad_enabled:
+            vad_model_path = os.path.join(
+                os.path.dirname(get_whisper_cli_path()), "ggml-silero-v6.2.0.bin"
+            )
             cmd.extend(["--vad", "--vad-model", vad_model_path])
 
-        # Add translate flag if needed
         if task.transcription_options.task == Task.TRANSLATE:
             cmd.extend(["--translate"])
-    
-        # Force CPU if specified
+
         force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
         if force_cpu != "false" or (not IS_VULKAN_SUPPORTED and platform.system() != "Darwin"):
             cmd.extend(["--no-gpu"])
 
         print(f"Running Whisper CLI: {' '.join(cmd)}")
+        return cmd
 
-        # Run the whisper-cli process
+    @staticmethod
+    def _run_whisper(cmd) -> int:
+        """Run whisper-cli subprocess and return the return code."""
         if sys.platform == "win32":
             si = subprocess.STARTUPINFO()
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -159,271 +222,182 @@ class WhisperCpp:
                 encoding="utf-8",
                 errors="replace",
             )
-    
-        # Capture stderr for progress updates
-        stderr_output = []
-        while True:
-            line = process.stderr.readline()
-            if not line:
-                break
-            stderr_output.append(line.strip())
-            # Progress is written to stderr
+
+        for line in iter(process.stderr.readline, ''):
             sys.stderr.write(line)
-    
+
         process.wait()
-    
-        if process.returncode != 0:
-            # Clean up temp file if conversion was done
-            if temp_file and os.path.exists(temp_file):
-                try:
-                    os.remove(temp_file)
-                except Exception as e:
-                    print(f"Failed to remove temporary file {temp_file}: {e}")
-            raise Exception(f"whisper-cli failed with return code {process.returncode}")
+        return process.returncode
 
-        # Find and read the generated JSON file
-        # whisper-cli generates: input_file.ext.json (e.g., file.mp3.json)
+    @staticmethod
+    def _read_json_output(file_to_process: str) -> dict:
+        """Read the JSON output file generated by whisper-cli."""
         json_output_path = f"{file_to_process}.json"
-    
-        try:
-            # Read JSON with latin-1 to preserve raw bytes, then handle encoding per field
-            # This is needed because whisper-cli can write invalid UTF-8 sequences for multi-byte characters
-            with open(json_output_path, 'r', encoding='latin-1') as f:
-                result = json.load(f)
-    
-            segments = []
-    
-            # Handle word-level timings
-            if task.transcription_options.word_level_timings:
-                # Extract word-level timestamps from tokens array
-                # Combine tokens into words using similar logic as whisper_cpp.py
-                transcription = result.get("transcription", [])
+        with open(json_output_path, 'r', encoding='latin-1') as f:
+            return json.load(f)
 
-                # Languages that don't use spaces between words
-                # For these, each token is treated as a separate word
-                non_space_languages = {"zh", "ja", "th", "lo", "km", "my"}
-                is_non_space_language = language in non_space_languages
+    @staticmethod
+    def _parse_word_level_timings(result, language, vad_enabled) -> list:
+        """Parse word-level timings from whisper-cli JSON output."""
+        segments = []
+        transcription = result.get("transcription", [])
+        non_space_languages = {"zh", "ja", "th", "lo", "km", "my"}
+        is_non_space_language = language in non_space_languages
 
-                def make_offset_mapper(segment_data):
-                    """Return a function mapping a token offset to original audio time.
-                    """
-                    if not vad_enabled:
-                        return lambda offset: offset
+        for segment_data in transcription:
+            tokens = segment_data.get("tokens", [])
+            map_offset = _make_offset_mapper(segment_data, vad_enabled)
 
-                    token_offsets = [
-                        (
-                            int(t.get("offsets", {}).get("from", 0)),
-                            int(t.get("offsets", {}).get("to", 0)),
-                        )
-                        for t in segment_data.get("tokens", [])
-                        if not t.get("text", "").startswith("[_")
-                    ]
-                    if not token_offsets:
-                        return lambda offset: offset
+            if is_non_space_language:
+                char_buffer = b""
+                char_start = 0
+                char_end = 0
 
-                    vad_min = min(start for start, _ in token_offsets)
-                    vad_max = max(end for _, end in token_offsets)
-                    orig_from = int(segment_data.get("offsets", {}).get("from", 0))
-                    orig_to = int(segment_data.get("offsets", {}).get("to", 0))
+                for token_data in tokens:
+                    token_text = token_data.get("text", "")
 
-                    span = vad_max - vad_min
-                    if span <= 0:
-                        return lambda offset: orig_from
+                    if token_text.startswith("[_") or not token_text:
+                        continue
 
-                    scale = (orig_to - orig_from) / span
-                    return lambda offset: int(orig_from + (offset - vad_min) * scale)
+                    token_start = map_offset(int(token_data.get("offsets", {}).get("from", 0)))
+                    token_end = map_offset(int(token_data.get("offsets", {}).get("to", 0)))
 
-                for segment_data in transcription:
-                    tokens = segment_data.get("tokens", [])
-                    map_offset = make_offset_mapper(segment_data)
+                    token_bytes = token_text.encode("latin-1")
 
-                    if is_non_space_language:
-                        # For languages without spaces (Chinese, Japanese, etc.),
-                        # each complete UTF-8 character is treated as a separate word.
-                        # Some characters may be split across multiple tokens as raw bytes.
-                        char_buffer = b""
-                        char_start = 0
-                        char_end = 0
+                    if not char_buffer:
+                        char_start = token_start
 
-                        def flush_complete_chars(buffer: bytes, start: int, end: int):
-                            """Extract and output all complete UTF-8 characters from buffer.
-                            Returns any remaining incomplete bytes."""
-                            nonlocal segments
-                            remaining = buffer
-                            pos = 0
+                    char_buffer += token_bytes
+                    char_end = token_end
 
-                            while pos < len(remaining):
-                                # Try to decode one character at a time
-                                for char_len in range(1, min(5, len(remaining) - pos + 1)):
-                                    try:
-                                        char = remaining[pos:pos + char_len].decode("utf-8")
-                                        # Successfully decoded a character
-                                        if char.strip():
-                                            segments.append(
-                                                Segment(
-                                                    start=start,
-                                                    end=end,
-                                                    text=char,
-                                                    translation=""
-                                                )
-                                            )
-                                        pos += char_len
-                                        break
-                                    except UnicodeDecodeError:
-                                        if char_len == 4 or pos + char_len >= len(remaining):
-                                            # Incomplete character at end - return as remaining
-                                            return remaining[pos:]
-                                else:
-                                    # Couldn't decode, might be incomplete at end
-                                    return remaining[pos:]
+                    char_buffer = _flush_complete_chars(char_buffer, char_start, char_end, segments)
 
-                            return b""
+                    if not char_buffer:
+                        char_start = token_end
 
-                        for token_data in tokens:
-                            token_text = token_data.get("text", "")
-
-                            # Skip special tokens like [_TT_], [_BEG_]
-                            if token_text.startswith("[_"):
-                                continue
-
-                            if not token_text:
-                                continue
-
-                            token_start = map_offset(int(token_data.get("offsets", {}).get("from", 0)))
-                            token_end = map_offset(int(token_data.get("offsets", {}).get("to", 0)))
-
-                            # Convert latin-1 string back to original bytes
-                            token_bytes = token_text.encode("latin-1")
-
-                            if not char_buffer:
-                                char_start = token_start
-
-                            char_buffer += token_bytes
-                            char_end = token_end
-
-                            # Try to flush complete characters
-                            char_buffer = flush_complete_chars(char_buffer, char_start, char_end)
-
-                            # If buffer was fully flushed, reset start time for next char
-                            if not char_buffer:
-                                char_start = token_end
-
-                        # Flush any remaining buffer at end of segment
-                        if char_buffer:
-                            flush_complete_chars(char_buffer, char_start, char_end)
-                    else:
-                        # For space-separated languages, accumulate tokens into words
-                        word_buffer = b""
-                        word_start = 0
-                        word_end = 0
-
-                        def append_word(buffer: bytes, start: int, end: int):
-                            """Try to decode and append a word segment, handling multi-byte UTF-8"""
-                            if not buffer:
-                                return True
-
-                            # Try to decode as UTF-8
-                            # https://github.com/ggerganov/whisper.cpp/issues/1798
-                            try:
-                                text = buffer.decode("utf-8").strip()
-                                if text:
-                                    segments.append(
-                                        Segment(
-                                            start=start,
-                                            end=end,
-                                            text=text,
-                                            translation=""
-                                        )
-                                    )
-                                return True
-                            except UnicodeDecodeError:
-                                # Multi-byte character is split, continue accumulating
-                                return False
-
-                        for token_data in tokens:
-                            # Token text is read as latin-1, need to convert to bytes to get original data
-                            token_text = token_data.get("text", "")
-
-                            # Skip special tokens like [_TT_], [_BEG_]
-                            if token_text.startswith("[_"):
-                                continue
-
-                            if not token_text:
-                                continue
-
-                            # Skip low probability tokens
-                            token_p = token_data.get("p", 1.0)
-                            if token_p < 0.01:
-                                continue
-
-                            token_start = map_offset(int(token_data.get("offsets", {}).get("from", 0)))
-                            token_end = map_offset(int(token_data.get("offsets", {}).get("to", 0)))
-
-                            # Convert latin-1 string back to original bytes
-                            # (latin-1 preserves byte values as code points)
-                            token_bytes = token_text.encode("latin-1")
-
-                            # Check if token starts with space - indicates new word
-                            if token_bytes.startswith(b" ") and word_buffer:
-                                # Save previous word
-                                append_word(word_buffer, word_start, word_end)
-                                # Start new word
-                                word_buffer = token_bytes
-                                word_start = token_start
-                                word_end = token_end
-                            elif token_bytes.startswith(b", "):
-                                # Handle comma - save word with comma, then start new word
-                                word_buffer += b","
-                                append_word(word_buffer, word_start, word_end)
-                                word_buffer = token_bytes.lstrip(b",")
-                                word_start = token_start
-                                word_end = token_end
-                            else:
-                                # Accumulate token into current word
-                                if not word_buffer:
-                                    word_start = token_start
-                                word_buffer += token_bytes
-                                word_end = token_end
-
-                        # Add the last word
-                        append_word(word_buffer, word_start, word_end)
+                if char_buffer:
+                    _flush_complete_chars(char_buffer, char_start, char_end, segments)
             else:
-                # Use segment-level timestamps
-                transcription = result.get("transcription", [])
-                for segment_data in transcription:
-                    # Segment text is also read as latin-1, convert back to UTF-8
-                    segment_text_latin1 = segment_data.get("text", "")
-                    try:
-                        # Convert latin-1 string to bytes, then decode as UTF-8
-                        segment_text = segment_text_latin1.encode("latin-1").decode("utf-8").strip()
-                    except (UnicodeDecodeError, UnicodeEncodeError):
-                        # If conversion fails, use the original text
-                        segment_text = segment_text_latin1.strip()
-    
-                    segments.append(
-                        Segment(
-                            start=int(segment_data.get("offsets", {}).get("from", 0)),
-                            end=int(segment_data.get("offsets", {}).get("to", 0)),
-                            text=segment_text,
-                            translation=""
-                        )
-                    )
-    
+                word_buffer = b""
+                word_start = 0
+                word_end = 0
+
+                for token_data in tokens:
+                    token_text = token_data.get("text", "")
+
+                    if token_text.startswith("[_") or not token_text:
+                        continue
+
+                    token_p = token_data.get("p", 1.0)
+                    if token_p < 0.01:
+                        continue
+
+                    token_start = map_offset(int(token_data.get("offsets", {}).get("from", 0)))
+                    token_end = map_offset(int(token_data.get("offsets", {}).get("to", 0)))
+
+                    token_bytes = token_text.encode("latin-1")
+
+                    if token_bytes.startswith(b" ") and word_buffer:
+                        _append_word(word_buffer, word_start, word_end, segments)
+                        word_buffer = token_bytes
+                        word_start = token_start
+                        word_end = token_end
+                    elif token_bytes.startswith(b", "):
+                        word_buffer += b","
+                        _append_word(word_buffer, word_start, word_end, segments)
+                        word_buffer = token_bytes.lstrip(b",")
+                        word_start = token_start
+                        word_end = token_end
+                    else:
+                        if not word_buffer:
+                            word_start = token_start
+                        word_buffer += token_bytes
+                        word_end = token_end
+
+                _append_word(word_buffer, word_start, word_end, segments)
+
+        return segments
+
+    @staticmethod
+    def _parse_segment_timings(result) -> list:
+        """Parse segment-level timings from whisper-cli JSON output."""
+        segments = []
+        transcription = result.get("transcription", [])
+        for segment_data in transcription:
+            segment_text_latin1 = segment_data.get("text", "")
+            try:
+                segment_text = segment_text_latin1.encode("latin-1").decode("utf-8").strip()
+            except (UnicodeDecodeError, UnicodeEncodeError):
+                segment_text = segment_text_latin1.strip()
+
+            segments.append(
+                Segment(
+                    start=int(segment_data.get("offsets", {}).get("from", 0)),
+                    end=int(segment_data.get("offsets", {}).get("to", 0)),
+                    text=segment_text,
+                    translation=""
+                )
+            )
+        return segments
+
+    @staticmethod
+    def _cleanup_files(temp_file, json_output_path):
+        """Clean up temporary files."""
+        if json_output_path and os.path.exists(json_output_path):
+            try:
+                os.remove(json_output_path)
+            except Exception as e:
+                print(f"Failed to remove JSON output file {json_output_path}: {e}")
+
+        if temp_file and os.path.exists(temp_file):
+            try:
+                os.remove(temp_file)
+            except Exception as e:
+                print(f"Failed to remove temporary file {temp_file}: {e}")
+
+    @staticmethod
+    def transcribe(task: FileTranscriptionTask) -> List[Segment]:
+        """Transcribe audio using whisper-cli subprocess."""
+        language = (
+            task.transcription_options.language
+            if task.transcription_options.language is not None
+            else "auto"
+        )
+
+        supported_formats = ('.mp3', '.wav', '.flac')
+        file_ext = os.path.splitext(task.file_path)[1].lower()
+
+        temp_file = None
+        file_to_process = task.file_path
+
+        if file_ext not in supported_formats:
+            temp_file = WhisperCpp._convert_to_wav(task.file_path)
+            file_to_process = temp_file
+
+        vad_model_path = os.path.join(
+            os.path.dirname(get_whisper_cli_path()), "ggml-silero-v6.2.0.bin"
+        )
+        vad_enabled = os.path.exists(vad_model_path)
+
+        cmd = WhisperCpp._build_command(task, file_to_process, language, vad_enabled)
+        return_code = WhisperCpp._run_whisper(cmd)
+
+        if return_code != 0:
+            WhisperCpp._cleanup_files(temp_file, None)
+            raise Exception(f"whisper-cli failed with return code {return_code}")
+
+        try:
+            result = WhisperCpp._read_json_output(file_to_process)
+            if task.transcription_options.word_level_timings:
+                segments = WhisperCpp._parse_word_level_timings(
+                    result, language, vad_enabled
+                )
+            else:
+                segments = WhisperCpp._parse_segment_timings(result)
             return segments
         finally:
-            # Clean up the generated JSON file
-            if os.path.exists(json_output_path):
-                try:
-                    os.remove(json_output_path)
-                except Exception as e:
-                    print(f"Failed to remove JSON output file {json_output_path}: {e}")
-
-            # Clean up temporary audio file if conversion was done
-            if temp_file and os.path.exists(temp_file):
-                try:
-                    os.remove(temp_file)
-                except Exception as e:
-                    print(f"Failed to remove temporary file {temp_file}: {e}")
+            json_output_path = f"{file_to_process}.json"
+            WhisperCpp._cleanup_files(temp_file, json_output_path)
 
     @staticmethod
     def detect_language(file_path: str, model_path: str) -> Optional[str]:
