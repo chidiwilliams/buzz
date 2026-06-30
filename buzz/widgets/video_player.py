@@ -19,19 +19,30 @@ class VideoPlayer(QWidget):
 
     def __init__(self, file_path: str, parent=None):
         super().__init__(parent)
+        self._init_attributes()
+        self._init_video_decoder(file_path)
+        self._init_audio_engine(file_path)
+        self._init_media_player(file_path)
+        self._init_video_display()
+        self._init_timers()
+        self._init_controls()
+        self._init_layout()
+        self._init_signals()
+        self._finalize_scrubber()
 
+    def _init_attributes(self):
         self.range_ms: Optional[Tuple[int, int]] = None
         self.position_ms = 0
         self.duration_ms = 0
         self.is_looping = False
         self.is_slider_dragging = False
 
-        # --- ffmpeg software video decoder (avoids Qt GPU renderer artefacts) ---
+    def _init_video_decoder(self, file_path: str):
         self._ffmpeg_player = FfmpegVideoPlayer(file_path)
         if self._ffmpeg_player.has_video:
             self._ffmpeg_player.start(0)
 
-        # --- sounddevice audio engine ---
+    def _init_audio_engine(self, file_path: str):
         self._sd_player: Optional[AudioFilePlayer] = None
         self._use_sd = False
         try:
@@ -44,23 +55,19 @@ class VideoPlayer(QWidget):
         except Exception:
             logging.warning("VideoPlayer: sounddevice init failed, no audio", exc_info=True)
 
-        # --- Qt multimedia: position/duration clock only (muted, no video output) ---
+    def _init_media_player(self, file_path: str):
         self.audio_output = QAudioOutput(self)
         self.audio_output.setMuted(True)
         self.media_player = QMediaPlayer(self)
         self.media_player.setSource(QUrl.fromLocalFile(file_path))
         self.media_player.setAudioOutput(self.audio_output)
-        # No setVideoOutput — we render frames ourselves via ffmpeg
-
-        # Seed duration from ffprobe immediately so the scrubber is usable
-        # before QMediaPlayer's async durationChanged fires.
         if self._ffmpeg_player.duration_ms > 0:
             self.duration_ms = self._ffmpeg_player.duration_ms
             self.scrubber_initial_max = self._ffmpeg_player.duration_ms
         else:
             self.scrubber_initial_max = 0
 
-        # --- Video display label ---
+    def _init_video_display(self):
         self.video_label = QLabel(self)
         self.video_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.video_label.setMinimumHeight(200)
@@ -70,55 +77,52 @@ class VideoPlayer(QWidget):
         )
         self.video_label.setStyleSheet("background-color: black;")
 
-        # Render timer — fires at video fps, updates the label with the current frame
+    def _init_timers(self):
         render_interval_ms = max(16, int(1000 / self._ffmpeg_player.fps))
         self._render_timer = QTimer(self)
         self._render_timer.setInterval(render_interval_ms)
         self._render_timer.timeout.connect(self._render_frame)
         self._render_timer.start()
-
-        # Audio sync timer — keeps sounddevice within 200 ms of QMediaPlayer position
         self._poll_timer = QTimer(self)
         self._poll_timer.setInterval(100)
         self._poll_timer.timeout.connect(self._sync_audio)
 
-        # --- Controls ---
+    def _init_controls(self):
         self.scrubber = QSlider(Qt.Orientation.Horizontal)
         self.scrubber.setRange(0, 0)
         self.scrubber.sliderMoved.connect(self.on_slider_moved)
         self.scrubber.sliderPressed.connect(self.on_slider_pressed)
         self.scrubber.sliderReleased.connect(self.on_slider_released)
-
         self.play_icon = PlayIcon(self)
         self.pause_icon = PauseIcon(self)
-
         self.play_button = QPushButton("")
         self.play_button.setIcon(self.play_icon)
         self.play_button.clicked.connect(self.toggle_playback)
         self.play_button.setMaximumWidth(40)
         self.play_button.setMinimumHeight(30)
-
         self.time_label = QLabel()
         self.time_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.controls = QHBoxLayout()
+        self.controls.addWidget(self.play_button)
+        self.controls.addWidget(self.scrubber)
+        self.controls.addWidget(self.time_label)
 
-        controls = QHBoxLayout()
-        controls.addWidget(self.play_button)
-        controls.addWidget(self.scrubber)
-        controls.addWidget(self.time_label)
-
+    def _init_layout(self):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(4)
         layout.addWidget(self.video_label, stretch=1)
-        layout.addLayout(controls)
+        layout.addLayout(self.controls)
         self.setLayout(layout)
 
+    def _init_signals(self):
         self.media_player.positionChanged.connect(self.on_position_changed)
         self.media_player.durationChanged.connect(self.on_duration_changed)
         self.media_player.playbackStateChanged.connect(self.on_playback_state_changed)
         self.media_player.mediaStatusChanged.connect(self.on_media_status_changed)
         self.media_player.errorOccurred.connect(self.on_error_occurred)
 
+    def _finalize_scrubber(self):
         if self.scrubber_initial_max > 0:
             self.scrubber.setRange(0, self.scrubber_initial_max)
             self.update_time_label()
