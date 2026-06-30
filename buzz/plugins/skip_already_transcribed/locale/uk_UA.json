@@ -1,0 +1,8 @@
+{
+  "Skip Already Transcribed": "Пропустити вже транскрибовані",
+  "Skip transcription if results already exist on disk or in the database": "Пропустити транскрипцію, якщо результати вже існують на диску або в базі даних",
+  "Check for existing result files": "Перевірити наявність файлів результатів",
+  "Skip if a .txt, .srt, or .vtt file matching the audio filename is found next to it": "Пропустити, якщо поруч знайдено файл .txt, .srt або .vtt з тією ж назвою",
+  "Check in transcription database": "Перевірити в базі даних транскрипцій",
+  "Skip if this file has already been transcribed and the record exists in the database": "Пропустити, якщо файл вже транскрибовано і запис існує в базі даних"
+}

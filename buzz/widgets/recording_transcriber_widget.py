@@ -86,13 +86,19 @@ class RecordingTranscriberWidget(QWidget):
         super().__init__(parent)
         self.sounddevice = custom_sounddevice or sounddevice
 
-        self.upload_url = os.getenv("BUZZ_UPLOAD_URL", "")
+        self._init_environment(flags)
+        self._init_state()
+        model_types, default_language = self._load_settings()
+        self._build_transcription_options(model_types, default_language)
+        self._create_ui_widgets(model_types)
+        self._build_layout()
 
+    def _init_environment(self, flags: Optional[Qt.WindowType]) -> None:
+        self.upload_url = os.getenv("BUZZ_UPLOAD_URL", "")
         if flags is not None:
             self.setWindowFlags(flags)
 
-        layout = QVBoxLayout(self)
-
+    def _init_state(self) -> None:
         self.translation_thread = None
         self.translator = None
         self.transcripts = []
@@ -100,6 +106,7 @@ class RecordingTranscriberWidget(QWidget):
         self.current_status = self.RecordingStatus.STOPPED
         self.setWindowTitle(_("Live Recording"))
 
+    def _load_settings(self) -> tuple[list[ModelType], str]:
         self.settings = Settings()
         self.transcriber_mode = list(RecordingTranscriberMode)[
             self.settings.value(key=Settings.Key.RECORDING_TRANSCRIBER_MODE, default_value=0)]
@@ -113,6 +120,9 @@ class RecordingTranscriberWidget(QWidget):
             for model_type in ModelType
             if model_type.is_available()
         ]
+        return model_types, default_language
+
+    def _get_selected_model(self, model_types: list[ModelType]) -> Optional[TranscriptionModel]:
         default_model: Optional[TranscriptionModel] = None
         if len(model_types) > 0:
             default_model = TranscriptionModel(model_type=model_types[0])
@@ -125,6 +135,10 @@ class RecordingTranscriberWidget(QWidget):
         if selected_model is None or selected_model.model_type not in model_types:
             selected_model = default_model
 
+        return selected_model
+
+    def _build_transcription_options(self, model_types: list[ModelType], default_language: str) -> None:
+        selected_model = self._get_selected_model(model_types)
         openai_access_token = get_password(key=Key.OPENAI_API_KEY)
 
         self.transcription_options = TranscriptionOptions(
@@ -163,6 +177,7 @@ class RecordingTranscriberWidget(QWidget):
             ),
         )
 
+    def _create_ui_widgets(self, model_types: list[ModelType]) -> None:
         self.audio_devices_combo_box = AudioDevicesComboBox(self)
         self.audio_devices_combo_box.device_changed.connect(self.on_device_changed)
         self.selected_device_id = self.audio_devices_combo_box.get_default_device_id()
@@ -193,11 +208,15 @@ class RecordingTranscriberWidget(QWidget):
             self.on_hide_unconfirmed_changed
         )
 
-        recording_options_layout = QFormLayout()
-        self.microphone_label = QLabel(_("Microphone:"))
-        recording_options_layout.addRow(self.microphone_label, self.audio_devices_combo_box)
-
         self.audio_meter_widget = AudioMeterWidget(self)
+
+        self.microphone_label = QLabel(_("Microphone:"))
+
+    def _build_layout(self) -> None:
+        layout = QVBoxLayout(self)
+
+        recording_options_layout = QFormLayout()
+        recording_options_layout.addRow(self.microphone_label, self.audio_devices_combo_box)
 
         record_button_layout = QHBoxLayout()
         record_button_layout.setContentsMargins(0, 4, 0, 8)
@@ -218,6 +237,10 @@ class RecordingTranscriberWidget(QWidget):
 
         self.reset_recording_amplitude_listener()
 
+        self._init_export_settings()
+        self._init_presentation_and_copy_bars(layout)
+
+    def _init_export_settings(self) -> None:
         self._closing = False
         self.transcript_export_file = None
         self.translation_export_file = None
@@ -231,14 +254,14 @@ class RecordingTranscriberWidget(QWidget):
             default_value=False,
         )
 
-        #Presentation window
+    def _init_presentation_and_copy_bars(self, layout: QVBoxLayout) -> None:
         self.presentation_window: Optional[PresentationWindow] = None
 
         self.presentation_options_bar = self.create_presentation_options_bar()
         layout.insertWidget(3, self.presentation_options_bar)
         self.presentation_options_bar.hide()
         self.copy_actions_bar = self.create_copy_actions_bar()
-        layout.addWidget(self.copy_actions_bar)  # Add at the bottom
+        layout.addWidget(self.copy_actions_bar)
         self.copy_actions_bar.hide()
 
     def create_presentation_options_bar(self) -> QWidget:

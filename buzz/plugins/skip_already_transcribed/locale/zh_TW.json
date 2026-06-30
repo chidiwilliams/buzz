@@ -1,0 +1,8 @@
+{
+  "Skip Already Transcribed": "跳過已轉錄檔案",
+  "Skip transcription if results already exist on disk or in the database": "如果磁碟或資料庫中已存在結果，則跳過轉錄",
+  "Check for existing result files": "檢查現有結果檔案",
+  "Skip if a .txt, .srt, or .vtt file matching the audio filename is found next to it": "如果在同目錄下找到與音訊檔名相符的 .txt、.srt 或 .vtt 檔案，則跳過",
+  "Check in transcription database": "在轉錄資料庫中檢查",
+  "Skip if this file has already been transcribed and the record exists in the database": "如果此檔案已被轉錄且記錄存在於資料庫中，則跳過"
+}
