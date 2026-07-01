@@ -18,18 +18,24 @@ class AudioPlayer(QWidget):
 
     def __init__(self, file_path: str):
         super().__init__()
+        self._init_state(file_path)
+        self._init_sounddevice(file_path)
+        self._init_media_player(file_path)
+        self._init_ui_widgets()
+        self._init_layout()
+        self._connect_signals()
 
+    def _init_state(self, file_path: str):
         self.range_ms: Optional[Tuple[int, int]] = None
         self.position_ms = 0
         self.duration_ms = 0
         self.invalid_media = None
         self.is_looping = False
         self.is_slider_dragging = False
-
         self.settings = Settings()
         self.is_video = is_video_file(file_path)
 
-        # --- sounddevice engine ---
+    def _init_sounddevice(self, file_path: str):
         self._sd_player: Optional[AudioFilePlayer] = None
         self._use_sd = False
         self._poll_timer = QTimer(self)
@@ -47,7 +53,7 @@ class AudioPlayer(QWidget):
         except Exception:
             logging.warning("AudioPlayer: sounddevice init failed, using Qt fallback", exc_info=True)
 
-        # --- Qt multimedia (fallback or always for video output) ---
+    def _init_media_player(self, file_path: str):
         self.audio_output = QAudioOutput()
         self.audio_output.setVolume(100)
         self.media_player = QMediaPlayer()
@@ -65,13 +71,13 @@ class AudioPlayer(QWidget):
             self.video_widget = None
 
         if self._use_sd:
-            # Mute Qt audio — sounddevice handles it
             self.audio_output.setMuted(True)
 
         saved_rate = self.settings.value(Settings.Key.AUDIO_PLAYBACK_RATE, 1.0, float)
         saved_rate = max(0.1, min(5.0, saved_rate))
         self.media_player.setPlaybackRate(saved_rate)
 
+    def _init_ui_widgets(self):
         self.scrubber = QSlider(Qt.Orientation.Horizontal)
         self.scrubber.setRange(0, 0)
         self.scrubber.sliderMoved.connect(self.on_slider_moved)
@@ -90,6 +96,7 @@ class AudioPlayer(QWidget):
         self.time_label = QLabel()
         self.time_label.setAlignment(Qt.AlignmentFlag.AlignRight)
 
+    def _init_layout(self):
         if self.is_video:
             main_layout = QVBoxLayout()
             main_layout.addWidget(self.video_widget, stretch=1)
@@ -106,6 +113,7 @@ class AudioPlayer(QWidget):
 
         self.setLayout(main_layout)
 
+    def _connect_signals(self):
         self.media_player.durationChanged.connect(self.on_duration_changed)
         self.media_player.positionChanged.connect(self.on_position_changed)
         self.media_player.playbackStateChanged.connect(self.on_playback_state_changed)
