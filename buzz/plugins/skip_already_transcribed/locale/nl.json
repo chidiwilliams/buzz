@@ -1,0 +1,8 @@
+{
+  "Skip Already Transcribed": "Reeds getranscribeerde overslaan",
+  "Skip transcription if results already exist on disk or in the database": "Transcriptie overslaan als resultaten al bestaan op schijf of in de database",
+  "Check for existing result files": "Controleren op bestaande resultaatbestanden",
+  "Skip if a .txt, .srt, or .vtt file matching the audio filename is found next to it": "Overslaan als een .txt-, .srt- of .vtt-bestand met dezelfde audionaam ernaast wordt gevonden",
+  "Check in transcription database": "Controleren in de transcriptiedatabase",
+  "Skip if this file has already been transcribed and the record exists in the database": "Overslaan als dit bestand al is getranscribeerd en de record in de database bestaat"
+}

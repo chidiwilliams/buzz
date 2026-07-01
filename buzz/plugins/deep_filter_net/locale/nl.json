@@ -1,0 +1,5 @@
+{
+  "DeepFilterNet Noise Reduction": "DeepFilterNet ruisonderdrukking",
+  "Removes background noise using DeepFilterNet3 before transcription.": "Verwijdert achtergrondgeluid met DeepFilterNet3 vóór transcriptie.",
+  "Keep denoised file after transcription": "Geruis­verwijderd bestand bewaren na transcriptie"
+}

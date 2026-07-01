@@ -57,6 +57,7 @@ datas += [("buzz/plugins/ai_summary", "plugins/ai_summary")]
 datas += [("buzz/plugins/transcript_resizer", "plugins/transcript_resizer")]
 datas += [("buzz/plugins/export_docx", "plugins/export_docx")]
 datas += [("buzz/plugins/enhanced_language_detection", "plugins/enhanced_language_detection")]
+datas += [("buzz/plugins/deep_filter_net", "plugins/deep_filter_net")]
 
 block_cipher = None
 
