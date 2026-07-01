@@ -170,7 +170,17 @@ class TranscriptionResizerWidget(QWidget):
 
         layout = QFormLayout(self)
 
-        # Settings
+        self._setup_settings_section(layout)
+
+        self._setup_extend_section(layout)
+
+        self._setup_resize_section(layout)
+
+        self._setup_merge_section(layout)
+
+        self.setLayout(layout)
+
+    def _setup_settings_section(self, layout: QFormLayout):
         settings_label = QLabel(_("Settings"), self)
         font = settings_label.font()
         font.setWeight(QFont.Weight.Bold)
@@ -193,13 +203,12 @@ class TranscriptionResizerWidget(QWidget):
 
         layout.addRow(settings_group_box)
 
-        # Spacer
         settings_spacer = QSpacerItem(
             0, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed
         )
         layout.addItem(settings_spacer)
 
-        # Extend segment endings
+    def _setup_extend_section(self, layout: QFormLayout):
         extend_label = QLabel(_("Extend end time"), self)
         font = extend_label.font()
         font.setWeight(QFont.Weight.Bold)
@@ -227,11 +236,10 @@ class TranscriptionResizerWidget(QWidget):
 
         layout.addRow(extend_group_box)
 
-        # Spacer
         spacer1 = QSpacerItem(0, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
         layout.addItem(spacer1)
 
-        # Resize longer subtitles
+    def _setup_resize_section(self, layout: QFormLayout):
         resize_label = QLabel(_("Resize Options"), self)
         font = resize_label.font()
         font.setWeight(QFont.Weight.Bold)
@@ -265,11 +273,10 @@ class TranscriptionResizerWidget(QWidget):
 
         layout.addRow(resize_group_box)
 
-        # Spacer
         spacer2 = QSpacerItem(0, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
         layout.addItem(spacer2)
 
-        # Merge words into subtitles
+    def _setup_merge_section(self, layout: QFormLayout):
         merge_options_label = QLabel(_("Merge Options"), self)
         font = merge_options_label.font()
         font.setWeight(QFont.Weight.Bold)
@@ -321,8 +328,6 @@ class TranscriptionResizerWidget(QWidget):
             merge_options_group_box.setToolTip(_("Available only if word level timings were enabled during transcription"))
 
         layout.addRow(merge_options_group_box)
-
-        self.setLayout(layout)
 
     def on_create_new_transcript_toggled(self, checked: bool):
         self.settings.set_value(
