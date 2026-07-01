@@ -168,6 +168,22 @@ class IdentificationWorker(QObject):
         from deepmultilingualpunctuation.deepmultilingualpunctuation import PunctuationModel
         from whisper_diarization.diarization import MSDDDiarizer
 
+        # Store on the instance so the other worker methods can access them.
+        # (Local imports here would otherwise be out of scope elsewhere.)
+        self._generate_emissions = generate_emissions
+        self._get_alignments = get_alignments
+        self._get_spans = get_spans
+        self._load_alignment_model = load_alignment_model
+        self._postprocess_results = postprocess_results
+        self._preprocess_text = preprocess_text
+        self._get_realigned_ws_mapping_with_punctuation = get_realigned_ws_mapping_with_punctuation
+        self._get_sentences_speaker_mapping = get_sentences_speaker_mapping
+        self._get_words_speaker_mapping = get_words_speaker_mapping
+        self._langs_to_iso = langs_to_iso
+        self._punct_model_langs = punct_model_langs
+        self._PunctuationModel = PunctuationModel
+        self._MSDDDiarizer = MSDDDiarizer
+
     def _get_transcript_data(self):
         language = self.transcription.language if self.transcription.language else "en"
 
@@ -195,7 +211,7 @@ class IdentificationWorker(QObject):
         alignment_tokenizer = None
         for attempt in range(3):
             try:
-                alignment_model, alignment_tokenizer = load_alignment_model(
+                alignment_model, alignment_tokenizer = self._load_alignment_model(
                     device,
                     dtype=torch_dtype,
                 )
@@ -228,7 +244,7 @@ class IdentificationWorker(QObject):
 
     def _generate_emissions_and_cleanup(self, alignment_model, audio_waveform, device):
         try:
-            emissions, stride = generate_emissions(
+            emissions, stride = self._generate_emissions(
                 alignment_model,
                 torch.from_numpy(audio_waveform)
                 .to(alignment_model.dtype)
@@ -241,21 +257,21 @@ class IdentificationWorker(QObject):
             torch.cuda.empty_cache()
 
     def _get_word_timestamps(self, full_transcript, language, emissions, stride, alignment_tokenizer):
-        tokens_starred, text_starred = preprocess_text(
+        tokens_starred, text_starred = self._preprocess_text(
             full_transcript,
             romanize=True,
-            language=langs_to_iso[language],
+            language=self._langs_to_iso[language],
         )
 
-        segments, scores, blank_token = get_alignments(
+        segments, scores, blank_token = self._get_alignments(
             emissions,
             tokens_starred,
             alignment_tokenizer,
         )
 
-        spans = get_spans(tokens_starred, segments, blank_token)
+        spans = self._get_spans(tokens_starred, segments, blank_token)
 
-        word_timestamps = postprocess_results(text_starred, spans, stride, scores)
+        word_timestamps = self._postprocess_results(text_starred, spans, stride, scores)
         return word_timestamps
 
     def _run_diarization(self, audio_waveform, device):
@@ -270,7 +286,7 @@ class IdentificationWorker(QObject):
         logging.debug("Speaker identification worker: Creating diarizer model")
         diarizer_model = None
         try:
-            diarizer_model = MSDDDiarizer(device)
+            diarizer_model = self._MSDDDiarizer(device)
             logging.debug("Speaker identification worker: Running diarization (this may take a while on CPU)")
             speaker_ts = diarizer_model.diarize(torch.from_numpy(audio_waveform).unsqueeze(0))
             logging.debug("Speaker identification worker: Diarization complete")
@@ -281,11 +297,11 @@ class IdentificationWorker(QObject):
             torch.cuda.empty_cache()
 
     def _map_speakers_with_punctuation(self, word_timestamps, speaker_ts, language):
-        wsm = get_words_speaker_mapping(word_timestamps, speaker_ts, "start")
+        wsm = self._get_words_speaker_mapping(word_timestamps, speaker_ts, "start")
 
-        if language in punct_model_langs:
+        if language in self._punct_model_langs:
             # restoring punctuation in the transcript to help realign the sentences
-            punct_model = PunctuationModel(model="kredor/punctuate-all")
+            punct_model = self._PunctuationModel(model="kredor/punctuate-all")
 
             words_list = list(map(lambda x: x["word"], wsm))
 
@@ -322,8 +338,8 @@ class IdentificationWorker(QObject):
                 " Using the original punctuation."
             )
 
-        wsm = get_realigned_ws_mapping_with_punctuation(wsm)
-        ssm = get_sentences_speaker_mapping(wsm, speaker_ts)
+        wsm = self._get_realigned_ws_mapping_with_punctuation(wsm)
+        ssm = self._get_sentences_speaker_mapping(wsm, speaker_ts)
         return ssm
 
     def _cancel_if_requested(self, step):
