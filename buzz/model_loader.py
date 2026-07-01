@@ -3,6 +3,7 @@ import hashlib
 import logging
 import multiprocessing
 import os
+import queue
 import shutil
 import subprocess
 import sys
@@ -563,18 +564,35 @@ def download_from_huggingface(
     if on_process is not None:
         on_process(proc)
     proc.start()
+
+    # Read the result from the queue BEFORE joining. On Windows the queue's
+    # feeder thread may not have flushed the result to the underlying pipe by
+    # the time join() returns, so a get_nowait() right after join() can raise
+    # queue.Empty even on a successful download. Blocking on get() (while the
+    # process is alive) avoids that race.
+    result = None
+    while True:
+        try:
+            result = result_queue.get(timeout=1)
+            break
+        except queue.Empty:
+            if not proc.is_alive():
+                # Process exited; make one last attempt to drain the queue.
+                try:
+                    result = result_queue.get_nowait()
+                except queue.Empty:
+                    result = None
+                break
+
     proc.join()
 
-    if proc.exitcode != 0:
+    if result is None:
+        logging.error("snapshot_download subprocess produced no result (exitcode=%s)", proc.exitcode)
         return ""
 
-    try:
-        status, model_root = result_queue.get_nowait()
-        if status != 'ok':
-            logging.error("snapshot_download subprocess error: %s", model_root)
-            return ""
-    except Exception as exc:
-        logging.exception(exc)
+    status, model_root = result
+    if status != 'ok':
+        logging.error("snapshot_download subprocess error: %s", model_root)
         return ""
 
     try:
