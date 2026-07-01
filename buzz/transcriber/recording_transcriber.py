@@ -81,79 +81,18 @@ class RecordingTranscriber(QObject):
 
     def start(self):
         self.is_running = True
-        model = None
-        model_path = self.model_path
+        model = self._load_model()
+
+        if model is None and self.openai_client is None:
+            return
+
         keep_samples = int(self.keep_sample_seconds * self.sample_rate)
-
-        force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
-        use_cuda = torch.cuda.is_available() and force_cpu == "false"
-
-        if torch.cuda.is_available():
-            logging.debug(f"CUDA version detected: {torch.version.cuda}")
-
-        if self.transcription_options.model.model_type == ModelType.WHISPER:
-            device = "cuda" if use_cuda else "cpu"
-            model = whisper.load_model(model_path, device=device)
-        elif self.transcription_options.model.model_type == ModelType.WHISPER_CPP:
-            self.start_local_whisper_server()
-            if self.openai_client is None:
-                if not self.is_running:
-                    self.finished.emit()
-                else:
-                    self.error.emit(_("Whisper server failed to start. Check logs for details."))
-                return
-        elif self.transcription_options.model.model_type == ModelType.FASTER_WHISPER:
-            model_root_dir = user_cache_dir("Buzz")
-            model_root_dir = os.path.join(model_root_dir, "models")
-            model_root_dir = os.getenv("BUZZ_MODEL_ROOT", model_root_dir)
-
-            device = "auto"
-            if torch.cuda.is_available() and torch.version.cuda < "12":
-                logging.debug("Unsupported CUDA version (<12), using CPU")
-                device = "cpu"
-
-            if not torch.cuda.is_available():
-                logging.debug("CUDA is not available, using CPU")
-                device = "cpu"
-
-            if force_cpu != "false":
-                device = "cpu"
-
-            # Check if user wants reduced GPU memory usage (int8 quantization)
-            reduce_gpu_memory = os.getenv("BUZZ_REDUCE_GPU_MEMORY", "false") != "false"
-            compute_type = "default"
-            if reduce_gpu_memory:
-                compute_type = "int8" if device == "cpu" else "int8_float16"
-                logging.debug(f"Using {compute_type} compute type for reduced memory usage")
-
-            model = faster_whisper.WhisperModel(
-                model_size_or_path=model_path,
-                download_root=model_root_dir,
-                device=device,
-                compute_type=compute_type,
-                cpu_threads=(os.cpu_count() or 8)//2,
-            )
-
-        elif self.transcription_options.model.model_type == ModelType.OPEN_AI_WHISPER_API:
-            custom_openai_base_url = self.settings.value(
-                key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value=""
-            )
-            self.openai_client = OpenAI(
-                api_key=self.transcription_options.openai_access_token,
-                base_url=custom_openai_base_url if custom_openai_base_url else None,
-                max_retries=0
-            )
-            logging.debug("Will use whisper API on %s, %s",
-                          custom_openai_base_url, self.whisper_api_model)
-        else:  # ModelType.HUGGING_FACE
-            model = TransformersTranscriber(model_path)
-
         initial_prompt = self.transcription_options.initial_prompt
 
         logging.debug(
             "Recording, transcription options = %s, model path = %s, sample rate = %s, device = %s",
             self.transcription_options,
-            model_path,
+            self.model_path,
             self.sample_rate,
             self.input_device_index,
         )
@@ -170,7 +109,7 @@ class RecordingTranscriber(QObject):
                     if self.queue.size >= self.n_batch_samples:
                         self.mutex.acquire()
                         cut = self.find_silence_cut_point(
-                            self.queue[:self.n_batch_samples], self.sample_rate
+                            self.queue[:self.n_batch_samples], self.sample_rate,
                         )
                         samples = self.queue[:cut]
                         if self.transcriber_mode == RecordingTranscriberMode.APPEND_AND_CORRECT:
@@ -195,116 +134,11 @@ class RecordingTranscriber(QObject):
                             continue
 
                         time_started = datetime.datetime.now()
+                        result = self._transcribe(samples, model, initial_prompt)
+                        if result is None:
+                            return
+                        next_text: str = result.get("text", "")
 
-                        if (
-                                self.transcription_options.model.model_type
-                                == ModelType.WHISPER
-                        ):
-                            assert isinstance(model, whisper.Whisper)
-                            result = model.transcribe(
-                                audio=samples,
-                                language=self.transcription_options.language,
-                                task=self.transcription_options.task.value,
-                                initial_prompt=initial_prompt,
-                                temperature=DEFAULT_WHISPER_TEMPERATURE,
-                                no_speech_threshold=0.4,
-                                fp16=False,
-                            )
-                        elif (
-                                self.transcription_options.model.model_type
-                                == ModelType.FASTER_WHISPER
-                        ):
-                            assert isinstance(model, faster_whisper.WhisperModel)
-                            whisper_segments, info = model.transcribe(
-                                audio=samples,
-                                language=self.transcription_options.language
-                                if self.transcription_options.language != ""
-                                else None,
-                                task=self.transcription_options.task.value,
-                                # Prevent crash on Windows https://github.com/SYSTRAN/faster-whisper/issues/71#issuecomment-1526263764
-                                temperature=0 if platform.system() == "Windows" else DEFAULT_WHISPER_TEMPERATURE,
-                                initial_prompt=self.transcription_options.initial_prompt,
-                                word_timestamps=False,
-                                without_timestamps=True,
-                                no_speech_threshold=0.4,
-                            )
-                            result = {"text": " ".join([segment.text for segment in whisper_segments])}
-                        elif (
-                                self.transcription_options.model.model_type
-                                == ModelType.HUGGING_FACE
-                        ):
-                            assert isinstance(model, TransformersTranscriber)
-                            # Handle MMS-specific language and task
-                            if model.is_mms_model:
-                                language = map_language_to_mms(
-                                    self.transcription_options.language or "eng"
-                                )
-                                effective_task = Task.TRANSCRIBE.value
-                            else:
-                                language = (
-                                    self.transcription_options.language
-                                    if self.transcription_options.language is not None
-                                    else "en"
-                                )
-                                effective_task = self.transcription_options.task.value
-
-                            result = model.transcribe(
-                                audio=samples,
-                                language=language,
-                                task=effective_task,
-                            )
-                        else:  # OPEN_AI_WHISPER_API, also used for WHISPER_CPP
-                            if self.openai_client is None:
-                                self.error.emit(_("A connection error occurred"))
-                                return
-
-                            # scale samples to 16-bit PCM
-                            pcm_data = (samples * 32767).astype(np.int16).tobytes()
-
-                            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
-                            temp_filename = temp_file.name
-
-                            with wave.open(temp_filename, 'wb') as wf:
-                                wf.setnchannels(1)
-                                wf.setsampwidth(2)
-                                wf.setframerate(self.sample_rate)
-                                wf.writeframes(pcm_data)
-
-                            with open(temp_filename, 'rb') as temp_file:
-                                options = {
-                                    "model": self.whisper_api_model,
-                                    "file": temp_file,
-                                    "response_format": "json",
-                                    "prompt": self.transcription_options.initial_prompt,
-                                }
-
-                                try:
-                                    transcript = (
-                                        self.openai_client.audio.transcriptions.create(
-                                            **options,
-                                            language=self.transcription_options.language,
-                                        )
-                                        if self.transcription_options.task == Task.TRANSCRIBE
-                                        else self.openai_client.audio.translations.create(**options)
-                                    )
-
-                                    if "segments" in transcript.model_extra:
-                                        result = {"text": " ".join(
-                                            [segment["text"] for segment in transcript.model_extra["segments"]])}
-                                    else:
-                                        result = {"text": transcript.text}
-
-                                except Exception as e:
-                                    if self.is_running:
-                                        result = {"text": f"Error: {str(e)}"}
-                                    else:
-                                        result = {"text": ""}
-
-                            os.unlink(temp_filename)
-
-                        next_text: str = result.get("text")
-
-                        # Update initial prompt between successive recording chunks
                         initial_prompt = next_text
 
                         logging.debug(
@@ -325,8 +159,200 @@ class RecordingTranscriber(QObject):
             self.error.emit(str(exc))
             return
 
-        # Cleanup before emitting finished to avoid destroying QThread
-        # while this function is still on the call stack
+        self._cleanup_model(model)
+
+    def _load_model(self):
+        model_path = self.model_path
+
+        force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
+        use_cuda = torch.cuda.is_available() and force_cpu == "false"
+
+        if torch.cuda.is_available():
+            logging.debug(f"CUDA version detected: {torch.version.cuda}")
+
+        if self.transcription_options.model.model_type == ModelType.WHISPER:
+            device = "cuda" if use_cuda else "cpu"
+            return whisper.load_model(model_path, device=device)
+
+        if self.transcription_options.model.model_type == ModelType.WHISPER_CPP:
+            self.start_local_whisper_server()
+            if self.openai_client is None:
+                if not self.is_running:
+                    self.finished.emit()
+                else:
+                    self.error.emit(
+                        _("Whisper server failed to start. Check logs for details."),
+                    )
+            return None
+
+        if self.transcription_options.model.model_type == ModelType.FASTER_WHISPER:
+            model_root_dir = user_cache_dir("Buzz")
+            model_root_dir = os.path.join(model_root_dir, "models")
+            model_root_dir = os.getenv("BUZZ_MODEL_ROOT", model_root_dir)
+
+            device = "auto"
+            if torch.cuda.is_available() and torch.version.cuda < "12":
+                logging.debug("Unsupported CUDA version (<12), using CPU")
+                device = "cpu"
+
+            if not torch.cuda.is_available():
+                logging.debug("CUDA is not available, using CPU")
+                device = "cpu"
+
+            if force_cpu != "false":
+                device = "cpu"
+
+            # Check if user wants reduced GPU memory usage (int8 quantization)
+            reduce_gpu_memory = os.getenv("BUZZ_REDUCE_GPU_MEMORY", "false") != "false"
+            compute_type = "default"
+            if reduce_gpu_memory:
+                compute_type = "int8" if device == "cpu" else "int8_float16"
+                logging.debug(f"Using {compute_type} compute type for reduced memory usage")
+
+            return faster_whisper.WhisperModel(
+                model_size_or_path=model_path,
+                download_root=model_root_dir,
+                device=device,
+                compute_type=compute_type,
+                cpu_threads=(os.cpu_count() or 8) // 2,
+            )
+
+        if self.transcription_options.model.model_type == ModelType.OPEN_AI_WHISPER_API:
+            custom_openai_base_url = self.settings.value(
+                key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value="",
+            )
+            self.openai_client = OpenAI(
+                api_key=self.transcription_options.openai_access_token,
+                base_url=custom_openai_base_url if custom_openai_base_url else None,
+                max_retries=0,
+            )
+            logging.debug(
+                "Will use whisper API on %s, %s",
+                custom_openai_base_url, self.whisper_api_model,
+            )
+            return None
+
+        return TransformersTranscriber(model_path)
+
+    def _transcribe(self, samples, model, initial_prompt):
+        model_type = self.transcription_options.model.model_type
+
+        if model_type == ModelType.WHISPER:
+            return self._transcribe_whisper(samples, model, initial_prompt)
+
+        if model_type == ModelType.FASTER_WHISPER:
+            return self._transcribe_faster_whisper(samples, model, initial_prompt)
+
+        if model_type == ModelType.HUGGING_FACE:
+            return self._transcribe_hugging_face(samples, model)
+
+        if self.openai_client is None:
+            self.error.emit(_("A connection error occurred"))
+            return None
+
+        return self._transcribe_via_api(samples, initial_prompt)
+
+    def _transcribe_whisper(self, samples, model, initial_prompt):
+        assert isinstance(model, whisper.Whisper)
+        return model.transcribe(
+            audio=samples,
+            language=self.transcription_options.language,
+            task=self.transcription_options.task.value,
+            initial_prompt=initial_prompt,
+            temperature=DEFAULT_WHISPER_TEMPERATURE,
+            no_speech_threshold=0.4,
+            fp16=False,
+        )
+
+    def _transcribe_faster_whisper(self, samples, model, initial_prompt):
+        assert isinstance(model, faster_whisper.WhisperModel)
+        segments, _ = model.transcribe(
+            audio=samples,
+            language=self.transcription_options.language
+            if self.transcription_options.language != ""
+            else None,
+            task=self.transcription_options.task.value,
+            # Prevent crash on Windows
+            # https://github.com/SYSTRAN/faster-whisper/issues/71#issuecomment-1526263764
+            temperature=0 if platform.system() == "Windows" else DEFAULT_WHISPER_TEMPERATURE,
+            initial_prompt=self.transcription_options.initial_prompt,
+            word_timestamps=False,
+            without_timestamps=True,
+            no_speech_threshold=0.4,
+        )
+        return {"text": " ".join(segment.text for segment in segments)}
+
+    def _transcribe_hugging_face(self, samples, model):
+        assert isinstance(model, TransformersTranscriber)
+        if model.is_mms_model:
+            language = map_language_to_mms(
+                self.transcription_options.language or "eng",
+            )
+            effective_task = Task.TRANSCRIBE.value
+        else:
+            language = (
+                self.transcription_options.language
+                if self.transcription_options.language is not None
+                else "en"
+            )
+            effective_task = self.transcription_options.task.value
+
+        return model.transcribe(
+            audio=samples,
+            language=language,
+            task=effective_task,
+        )
+
+    def _transcribe_via_api(self, samples, initial_prompt):
+        pcm_data = (samples * 32767).astype(np.int16).tobytes()
+
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
+        temp_filename = temp_file.name
+
+        with wave.open(temp_filename, "wb") as wf:
+            wf.setnchannels(1)
+            wf.setsampwidth(2)
+            wf.setframerate(self.sample_rate)
+            wf.writeframes(pcm_data)
+
+        with open(temp_filename, "rb") as temp_file:
+            options = {
+                "model": self.whisper_api_model,
+                "file": temp_file,
+                "response_format": "json",
+                "prompt": self.transcription_options.initial_prompt,
+            }
+
+            try:
+                transcript = (
+                    self.openai_client.audio.transcriptions.create(
+                        **options,
+                        language=self.transcription_options.language,
+                    )
+                    if self.transcription_options.task == Task.TRANSCRIBE
+                    else self.openai_client.audio.translations.create(**options)
+                )
+
+                if "segments" in transcript.model_extra:
+                    result = {
+                        "text": " ".join(
+                            segment["text"]
+                            for segment in transcript.model_extra["segments"]
+                        ),
+                    }
+                else:
+                    result = {"text": transcript.text}
+
+            except Exception as e:
+                if self.is_running:
+                    result = {"text": f"Error: {str(e)}"}
+                else:
+                    result = {"text": ""}
+
+        os.unlink(temp_filename)
+        return result
+
+    def _cleanup_model(self, model):
         if model:
             del model
         if torch.cuda.is_available():
