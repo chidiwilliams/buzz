@@ -34,6 +34,22 @@ def test_funasr_defaults_do_not_reuse_openai_key(monkeypatch):
     assert config.supports_prompt is False
 
 
+def test_funasr_empty_settings_use_defaults(monkeypatch):
+    monkeypatch.delenv("BUZZ_FUNASR_BASE_URL", raising=False)
+    monkeypatch.delenv("BUZZ_FUNASR_MODEL", raising=False)
+
+    settings = Mock()
+    settings.value.side_effect = ["", ""]
+    config = load_audio_api_config()(
+        ModelType.FUNASR_API,
+        settings,
+        openai_access_token="sk-openai",
+    )
+
+    assert config.base_url == "http://localhost:8000/v1"
+    assert config.model == "sensevoice"
+
+
 def test_funasr_environment_overrides_settings(monkeypatch):
     monkeypatch.setenv("BUZZ_FUNASR_BASE_URL", "https://asr.example.com/v1")
     monkeypatch.setenv("BUZZ_FUNASR_MODEL", "fun-asr-nano")

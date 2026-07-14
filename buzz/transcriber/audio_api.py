@@ -31,6 +31,7 @@ def load_audio_api_config(
                     Settings.Key.FUNASR_API_BASE_URL,
                     DEFAULT_FUNASR_API_BASE_URL,
                 )
+                or DEFAULT_FUNASR_API_BASE_URL
             ),
             api_key=os.getenv("BUZZ_FUNASR_API_KEY") or "not-needed",
             model=(
@@ -39,6 +40,7 @@ def load_audio_api_config(
                     Settings.Key.FUNASR_API_MODEL,
                     DEFAULT_FUNASR_API_MODEL,
                 )
+                or DEFAULT_FUNASR_API_MODEL
             ),
             supports_translation=False,
             supports_prompt=False,
