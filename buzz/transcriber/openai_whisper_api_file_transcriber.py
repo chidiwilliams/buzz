@@ -61,7 +61,10 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
             max_retries=0,
         )
         self.whisper_api_model = self.api_config.model
-        self.word_level_timings = self.transcription_task.transcription_options.word_level_timings
+        self.word_level_timings = (
+            self.transcription_task.transcription_options.word_level_timings
+            and self.model_type != ModelType.FUNASR_API
+        )
         logging.debug(
             "Will use audio API on %s, %s",
             self.api_config.base_url,

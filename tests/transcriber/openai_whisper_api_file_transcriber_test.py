@@ -159,7 +159,7 @@ class TestOpenAIWhisperAPIFileTranscriber:
         )
         assert transcriber.whisper_api_model == "sensevoice"
 
-    def test_funasr_empty_segments_fall_back_to_text(self, monkeypatch):
+    def test_funasr_disables_word_timings_and_falls_back_to_text(self, monkeypatch):
         monkeypatch.delenv("BUZZ_FUNASR_BASE_URL", raising=False)
         monkeypatch.delenv("BUZZ_FUNASR_MODEL", raising=False)
         monkeypatch.delenv("BUZZ_FUNASR_API_KEY", raising=False)
@@ -171,6 +171,7 @@ class TestOpenAIWhisperAPIFileTranscriber:
             file_path=file_path,
             transcription_options=TranscriptionOptions(
                 model=TranscriptionModel(model_type=ModelType.FUNASR_API),
+                word_level_timings=True,
                 initial_prompt="must not be sent",
                 openai_access_token="sk-must-not-leak",
             ),
@@ -194,9 +195,11 @@ class TestOpenAIWhisperAPIFileTranscriber:
             transcriber = OpenAIWhisperAPIFileTranscriber(task=task)
             segments = transcriber.get_segments_for_file(file_path)
 
+        assert transcriber.word_level_timings is False
         assert segments == [Segment(start=0, end=0, text="欢迎使用 FunASR")]
         call_options = mock_openai.return_value.audio.transcriptions.create.call_args.kwargs
         assert call_options["model"] == "sensevoice"
         assert call_options["response_format"] == "verbose_json"
         assert "prompt" not in call_options
+        assert "timestamp_granularities" not in call_options
         mock_openai.return_value.audio.translations.create.assert_not_called()
