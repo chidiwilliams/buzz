@@ -23,6 +23,10 @@ from openai import AuthenticationError, OpenAI
 
 from buzz.settings.settings import Settings
 from buzz.store.keyring_store import get_password, Key
+from buzz.transcriber.audio_api import (
+    DEFAULT_FUNASR_API_BASE_URL,
+    DEFAULT_FUNASR_API_MODEL,
+)
 from buzz.widgets.line_edit import LineEdit
 from buzz.widgets.openai_api_key_line_edit import OpenAIAPIKeyLineEdit
 from buzz.locale import _
@@ -137,6 +141,43 @@ class GeneralPreferencesWidget(QWidget):
         self.openai_api_model_line_edit.setMinimumWidth(200)
         self.openai_api_model_line_edit.setPlaceholderText("whisper-1")
         layout.addRow(_("OpenAI API model"), self.openai_api_model_line_edit)
+
+        self.funasr_api_base_url = self.settings.value(
+            key=Settings.Key.FUNASR_API_BASE_URL,
+            default_value=DEFAULT_FUNASR_API_BASE_URL,
+        )
+        self.funasr_api_base_url_line_edit = LineEdit(
+            self.funasr_api_base_url,
+            self,
+        )
+        self.funasr_api_base_url_line_edit.textChanged.connect(
+            self.on_funasr_api_base_url_changed
+        )
+        self.funasr_api_base_url_line_edit.setMinimumWidth(200)
+        self.funasr_api_base_url_line_edit.setPlaceholderText(
+            DEFAULT_FUNASR_API_BASE_URL
+        )
+        layout.addRow(
+            _("FunASR API base URL"),
+            self.funasr_api_base_url_line_edit,
+        )
+
+        self.funasr_api_model = self.settings.value(
+            key=Settings.Key.FUNASR_API_MODEL,
+            default_value=DEFAULT_FUNASR_API_MODEL,
+        )
+        self.funasr_api_model_line_edit = LineEdit(
+            self.funasr_api_model,
+            self,
+        )
+        self.funasr_api_model_line_edit.textChanged.connect(
+            self.on_funasr_api_model_changed
+        )
+        self.funasr_api_model_line_edit.setMinimumWidth(200)
+        self.funasr_api_model_line_edit.setPlaceholderText(
+            DEFAULT_FUNASR_API_MODEL
+        )
+        layout.addRow(_("FunASR API model"), self.funasr_api_model_line_edit)
 
         default_export_file_name = self.settings.get_default_export_file_template()
 
@@ -271,6 +312,12 @@ class GeneralPreferencesWidget(QWidget):
 
     def on_openai_api_model_changed(self, text: str):
         self.settings.set_value(Settings.Key.OPENAI_API_MODEL, text)
+
+    def on_funasr_api_base_url_changed(self, text: str):
+        self.settings.set_value(Settings.Key.FUNASR_API_BASE_URL, text)
+
+    def on_funasr_api_model_changed(self, text: str):
+        self.settings.set_value(Settings.Key.FUNASR_API_MODEL, text)
 
     def on_recording_export_enable_changed(self, state: int):
         self.recording_export_enabled = state == 2
