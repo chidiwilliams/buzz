@@ -11,6 +11,20 @@ title: File Import
 - When the transcription status shows 'Completed', double-click on the row (or select the row and click the '⤢' icon) to
   open the transcription.
 
+### FunASR and SenseVoice
+
+To transcribe through a self-hosted FunASR service, start it before opening the
+import dialog:
+
+```bash
+funasr-server --model sensevoice --device cuda
+```
+
+Select **FunASR API** as the model. Buzz connects to
+`http://localhost:8000/v1` with the `sensevoice` model by default; both
+values can be changed in General Preferences. FunASR runs outside Buzz and
+downloads its own models. This backend supports transcription only.
+
 **Available options:**
 
 To reduce misspellings you can pass some commonly misspelled words in an `Initial prompt` that is available under `Advanced...` button. See this [guide on prompting](https://cookbook.openai.com/examples/whisper_prompting_guide#pass-names-in-the-prompt-to-prevent-misspellings).  

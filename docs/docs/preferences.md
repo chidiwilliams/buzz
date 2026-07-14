@@ -13,6 +13,24 @@ Open the Preferences window from the Menu bar, or click `Ctrl/Cmd + ,`.
 
 **Base URL** - By default all requests are sent to API provided by OpenAI company. Their API URL is `https://api.openai.com/v1/`. Compatible APIs are also provided by other companies. List of available API URLs and services to run yourself are available on [discussion page](https://github.com/chidiwilliams/buzz/discussions/827)
 
+### FunASR API preferences
+
+Buzz can use a separately running [FunASR](https://github.com/modelscope/FunASR)
+server for file imports and live recording. Install the server dependencies
+outside Buzz, then start the default SenseVoice backend:
+
+```bash
+pip install torch torchaudio
+pip install funasr vllm fastapi uvicorn python-multipart
+funasr-server --model sensevoice --device cuda
+```
+
+Use `--device cpu` when CUDA is unavailable. The **FunASR API base URL**
+defaults to `http://localhost:8000/v1`, and **FunASR API model** defaults to
+`sensevoice`. FunASR API is transcription-only, so Buzz disables the
+translation task and initial prompt for this model type. The saved OpenAI API
+key is never sent to the FunASR server.
+
 ### Default export file name
 
 Sets the default export file name for file transcriptions. For
@@ -99,6 +117,12 @@ combined to produce the final answer.
 **BUZZ_TRANSLATION_API_BASE_URL** - Base URL of OpenAI compatible API to use for translation.
 
 **BUZZ_TRANSLATION_API_KEY** - Api key of OpenAI compatible API to use for translation.
+
+**BUZZ_FUNASR_BASE_URL** - Override the FunASR OpenAI-compatible base URL. Default is `http://localhost:8000/v1`.
+
+**BUZZ_FUNASR_MODEL** - Override the FunASR server model alias. Default is `sensevoice`.
+
+**BUZZ_FUNASR_API_KEY** - Optional API key for a protected FunASR endpoint. When unset, Buzz uses a non-secret placeholder and never falls back to the saved OpenAI API key.
 
 **BUZZ_MODEL_ROOT** - Root directory to store model files. You may also want to set `HF_HOME` to the same folder as some libraries used in Buzz download their models independently. 
 Defaults to [user_cache_dir](https://pypi.org/project/platformdirs/).

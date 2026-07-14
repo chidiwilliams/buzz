@@ -26,7 +26,10 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
 - Supports [Whisper](https://github.com/openai/whisper#available-models-and-languages),
   [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) (with Vulkan GPU acceleration), [Faster Whisper](https://github.com/guillaumekln/faster-whisper),
   [Whisper-compatible Hugging Face models](https://huggingface.co/models?other=whisper), and
-  the [OpenAI Whisper API](https://platform.openai.com/docs/api-reference/introduction)
+  the [OpenAI Whisper API](https://platform.openai.com/docs/api-reference/introduction).
+  Buzz can also connect to a self-hosted
+  [FunASR](https://github.com/modelscope/FunASR) server for SenseVoice
+  transcription.
 - [Command-Line Interface](#command-line-interface)
 - Speech separation before transcription for better accuracy on noisy audio
 - [Speaker identification](https://chidiwilliams.github.io/buzz/docs/usage/speaker_identification) in transcribed media

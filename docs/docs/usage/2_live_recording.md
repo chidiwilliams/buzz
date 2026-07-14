@@ -7,6 +7,13 @@ To start a live recording:
 - Select a recording task, language, quality, and microphone.
 - Click Record.
 
+To use a self-hosted SenseVoice backend, first run
+`funasr-server --model sensevoice --device cuda`, then select **FunASR API**
+as the model in Buzz. The server defaults to `http://localhost:8000/v1`;
+change the endpoint or model alias in General Preferences. FunASR API supports
+live transcription, but not the **Translate to English** task or initial
+prompts.
+
 > **Note:** Transcribing audio using the default Whisper model is resource-intensive. Consider using the Whisper.cpp.
 > It supports GPU acceleration, if the model fits in GPU memory. Use smaller models for real-time performance.
 
@@ -78,4 +85,4 @@ As described on [Ubuntu Wiki](https://wiki.ubuntu.com/record_system_sound) on an
 Overall steps:
 1. Launch application that will produce the sound you want to transcribe and start the playback. For example start a video in a media player. 
 2. Launch Buzz and open Live recording screen, so you see the settings.
-3. Configure sound routing from the application you want to transcribe sound from to Buzz in `Recording tab` of the PulseAudio Volume Control (`pavucontrol`). 
+3. Configure sound routing from the application you want to transcribe sound from to Buzz in `Recording tab` of the PulseAudio Volume Control (`pavucontrol`).
