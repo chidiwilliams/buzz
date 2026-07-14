@@ -305,6 +305,31 @@ class TestFileTranscriberQueueWorkerRun:
 
             assert isinstance(simple_worker.current.transcriber, OpenAIWhisperAPIFileTranscriber)
 
+    def test_run_creates_openai_compatible_transcriber_for_funasr(
+        self, simple_worker, qapp
+    ):
+        from buzz.transcriber.openai_whisper_api_file_transcriber import (
+            OpenAIWhisperAPIFileTranscriber,
+        )
+
+        task = self._make_task(model_type=ModelType.FUNASR_API)
+        simple_worker.tasks_queue.put(task)
+
+        with unittest.mock.patch.object(
+            OpenAIWhisperAPIFileTranscriber, "run"
+        ), unittest.mock.patch.object(
+            OpenAIWhisperAPIFileTranscriber, "moveToThread"
+        ), unittest.mock.patch(
+            "buzz.file_transcriber_queue_worker.QThread"
+        ) as mock_thread_class:
+            mock_thread_class.return_value = unittest.mock.MagicMock()
+            simple_worker.run()
+
+        assert isinstance(
+            simple_worker.current.transcriber,
+            OpenAIWhisperAPIFileTranscriber,
+        )
+
     def test_run_creates_whisper_transcriber_for_whisper_cpp(self, simple_worker, qapp):
         task = self._make_task(model_type=ModelType.WHISPER_CPP)
         simple_worker.tasks_queue.put(task)
