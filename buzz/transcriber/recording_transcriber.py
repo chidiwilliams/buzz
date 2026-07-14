@@ -26,6 +26,7 @@ from buzz.locale import _
 from buzz.assets import APP_BASE_DIR
 from buzz.model_loader import ModelType, map_language_to_mms
 from buzz.settings.settings import Settings
+from buzz.transcriber.audio_api import load_audio_api_config
 from buzz.transcriber.transcriber import TranscriptionOptions, Task, DEFAULT_WHISPER_TEMPERATURE
 from buzz.transformers_whisper import TransformersTranscriber
 from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
@@ -73,6 +74,7 @@ class RecordingTranscriber(QObject):
         self.mutex = threading.Lock()
         self.sounddevice = sounddevice
         self.openai_client = None
+        self.audio_api_config = None
         self.whisper_api_model = self.settings.value(
             key=Settings.Key.OPENAI_API_MODEL, default_value="whisper-1"
         )
@@ -217,18 +219,25 @@ class RecordingTranscriber(QObject):
                 cpu_threads=(os.cpu_count() or 8) // 2,
             )
 
-        if self.transcription_options.model.model_type == ModelType.OPEN_AI_WHISPER_API:
-            custom_openai_base_url = self.settings.value(
-                key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value="",
+        if self.transcription_options.model.model_type in (
+            ModelType.OPEN_AI_WHISPER_API,
+            ModelType.FUNASR_API,
+        ):
+            self.audio_api_config = load_audio_api_config(
+                model_type=self.transcription_options.model.model_type,
+                settings=self.settings,
+                openai_access_token=self.transcription_options.openai_access_token,
             )
             self.openai_client = OpenAI(
-                api_key=self.transcription_options.openai_access_token,
-                base_url=custom_openai_base_url if custom_openai_base_url else None,
+                api_key=self.audio_api_config.api_key,
+                base_url=self.audio_api_config.base_url,
                 max_retries=0,
             )
+            self.whisper_api_model = self.audio_api_config.model
             logging.debug(
-                "Will use whisper API on %s, %s",
-                custom_openai_base_url, self.whisper_api_model,
+                "Will use audio API on %s, %s",
+                self.audio_api_config.base_url,
+                self.whisper_api_model,
             )
             return None
 
@@ -320,8 +329,10 @@ class RecordingTranscriber(QObject):
                 "model": self.whisper_api_model,
                 "file": temp_file,
                 "response_format": "json",
-                "prompt": self.transcription_options.initial_prompt,
             }
+
+            if self.audio_api_config is None or self.audio_api_config.supports_prompt:
+                options["prompt"] = initial_prompt
 
             try:
                 transcript = (
@@ -329,7 +340,13 @@ class RecordingTranscriber(QObject):
                         **options,
                         language=self.transcription_options.language,
                     )
-                    if self.transcription_options.task == Task.TRANSCRIBE
+                    if (
+                        self.transcription_options.task == Task.TRANSCRIBE
+                        or (
+                            self.audio_api_config is not None
+                            and not self.audio_api_config.supports_translation
+                        )
+                    )
                     else self.openai_client.audio.translations.create(**options)
                 )
 
