@@ -180,6 +180,7 @@ class ModelType(enum.Enum):
     HUGGING_FACE = "Hugging Face"
     FASTER_WHISPER = "Faster Whisper"
     OPEN_AI_WHISPER_API = "OpenAI Whisper API"
+    FUNASR_API = "FunASR API"
 
     @property
     def supports_initial_prompt(self):
@@ -190,6 +191,10 @@ class ModelType(enum.Enum):
             ModelType.FASTER_WHISPER,
             ModelType.HUGGING_FACE,
         )
+
+    @property
+    def supports_translation(self):
+        return self != ModelType.FUNASR_API
 
     def is_available(self):
         if (
@@ -330,6 +335,8 @@ class TranscriptionModel:
                 return f"Faster Whisper ({self.whisper_model_size})"
             case ModelType.OPEN_AI_WHISPER_API:
                 return "OpenAI Whisper API"
+            case ModelType.FUNASR_API:
+                return "FunASR API"
             case _:
                 raise Exception("Unknown model type")
 
@@ -467,7 +474,10 @@ class TranscriptionModel:
                 return None
             return snapshot_path
 
-        if self.model_type == ModelType.OPEN_AI_WHISPER_API:
+        if self.model_type in (
+            ModelType.OPEN_AI_WHISPER_API,
+            ModelType.FUNASR_API,
+        ):
             return ""
 
         if self.model_type == ModelType.HUGGING_FACE:
@@ -792,7 +802,10 @@ class ModelDownloader(QRunnable):
             self._download_faster_whisper()
         elif self.model.model_type == ModelType.HUGGING_FACE:
             self._download_hugging_face()
-        elif self.model.model_type == ModelType.OPEN_AI_WHISPER_API:
+        elif self.model.model_type in (
+            ModelType.OPEN_AI_WHISPER_API,
+            ModelType.FUNASR_API,
+        ):
             self._download_openai_whisper_api()
         else:
             raise Exception("Invalid model type: " + self.model.model_type.value)
