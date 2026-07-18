@@ -335,18 +335,25 @@ class RecordingTranscriber(QObject):
                 options["prompt"] = initial_prompt
 
             try:
+                is_local_whisper_cpp_server = (
+                    self.transcription_options.model.model_type == ModelType.WHISPER_CPP
+                )
+
+                use_transcriptions_endpoint = (
+                    self.transcription_options.task == Task.TRANSCRIBE
+                    or is_local_whisper_cpp_server
+                    or (
+                        self.audio_api_config is not None
+                        and not self.audio_api_config.supports_translation
+                    )
+                )
+
                 transcript = (
                     self.openai_client.audio.transcriptions.create(
                         **options,
                         language=self.transcription_options.language,
                     )
-                    if (
-                        self.transcription_options.task == Task.TRANSCRIBE
-                        or (
-                            self.audio_api_config is not None
-                            and not self.audio_api_config.supports_translation
-                        )
-                    )
+                    if use_transcriptions_endpoint
                     else self.openai_client.audio.translations.create(**options)
                 )
 
@@ -488,6 +495,9 @@ class RecordingTranscriber(QObject):
             "--entropy-thold", "2.8",
             "--suppress-nst"
         ]
+
+        if self.transcription_options.task == Task.TRANSLATE:
+            cmd.append("--translate")
 
         if self.transcription_options.language is not None:
             cmd.extend(["--language", self.transcription_options.language])

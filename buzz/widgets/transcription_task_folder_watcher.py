@@ -31,7 +31,7 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
     ):
         super().__init__(parent)
         self.tasks = tasks
-        self.paths_emitted = set()
+        self.paths_emitted = {}
         self.set_preferences(preferences)
         self.directoryChanged.connect(self.find_tasks)
 
@@ -73,7 +73,10 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
                     or is_temp_conversion_file  # temp conversion files like .ogg.wav
                     or "_speech.mp3" in filename  # extracted speech output files
                     or file_path in tasks  # file already in tasks
-                    or file_path in self.paths_emitted  # file already emitted
+                    or self.paths_emitted.get(file_path) == (
+                        os.path.getsize(file_path),
+                        os.path.getmtime(file_path),
+)  # file already emitted
                 ):
                     continue
 
@@ -114,7 +117,10 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
                     delete_source_file=self.preferences.delete_processed_files,
                 )
                 self.task_found.emit(task)
-                self.paths_emitted.add(file_path)
+                self.paths_emitted[file_path] = (
+                 os.path.getsize(file_path),
+                 os.path.getmtime(file_path),
+)
 
             # Filter out hidden directories and add new subdirectories to the watcher
             dirnames[:] = [d for d in dirnames if not d.startswith(".")]
