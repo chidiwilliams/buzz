@@ -1,4 +1,4 @@
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from PyQt6.QtWidgets import QCheckBox, QLineEdit
 
@@ -60,6 +60,46 @@ class TestFolderWatchPreferencesWidget:
         assert last_config_changed_call[0][0].enabled
         assert last_config_changed_call[0][0].input_directory == "test/input/folder"
         assert last_config_changed_call[0][0].output_directory == "test/output/folder"
+
+    def test_rejects_output_folder_inside_input_folder(self, qtbot, tmp_path):
+        input_dir = tmp_path / "watch"
+        output_dir = input_dir / "output"
+        input_dir.mkdir()
+        output_dir.mkdir()
+
+        widget = FolderWatchPreferencesWidget(
+            config=FolderWatchPreferences(
+                enabled=True,
+                input_directory=str(input_dir),
+                output_directory="",
+                file_transcription_options=FileTranscriptionPreferences(
+                    language=None,
+                    task=Task.TRANSCRIBE,
+                    model=TranscriptionModel.default(),
+                    word_level_timings=False,
+                    extract_speech=False,
+                    initial_prompt="",
+                    enable_llm_translation=False,
+                    llm_model="",
+                    llm_prompt="",
+                    output_formats=set(),
+                ),
+            ),
+        )
+        qtbot.add_widget(widget)
+
+        output_folder_line_edit = widget.findChild(QLineEdit, "OutputFolderLineEdit")
+
+        with patch(
+            "buzz.widgets.preferences_dialog.folder_watch_preferences_widget"
+            ".QMessageBox.warning"
+        ) as mock_warning:
+            output_folder_line_edit.setText(str(output_dir))
+            widget.on_output_folder_editing_finished()
+
+        mock_warning.assert_called_once()
+        assert widget.config.output_directory == ""
+        assert output_folder_line_edit.text() == ""
 
     def test_delete_processed_files_checkbox(self, qtbot):
         widget = FolderWatchPreferencesWidget(

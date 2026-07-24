@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-27 18:53+0300\n"
+"POT-Creation-Date: 2026-07-24 10:40+0300\n"
 "PO-Revision-Date: 2025-03-20 18:30+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: none\n"
@@ -294,6 +294,24 @@ msgstr "Kies een invoermap"
 msgid "Select Output Folder"
 msgstr "Kies een uitvoermap"
 
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/widgets/update_dialog.py buzz/widgets/main_window.py
+#: buzz/model_loader.py
+msgid "Error"
+msgstr "Foutmelding"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid ""
+"The output folder cannot be the input folder or a subfolder of it. This "
+"would cause transcriptions to be processed repeatedly. Please choose a "
+"different output folder."
+msgstr ""
+"De uitvoermap mag niet de invoermap of een submap daarvan zijn. Dit zou ertoe "
+"leiden dat transcripties herhaaldelijk worden verwerkt. Kies een andere "
+"uitvoermap."
+
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 msgid "Preferences"
 msgstr "Instellingen"
@@ -361,13 +379,6 @@ msgstr "Weet u zeker dat u het gekozen model wilt verwijderen?"
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download failed"
 msgstr "Het downloaden is mislukt"
-
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py
-#: buzz/widgets/transcription_tasks_table_widget.py
-#: buzz/widgets/update_dialog.py buzz/widgets/main_window.py
-#: buzz/model_loader.py
-msgid "Error"
-msgstr "Foutmelding"
 
 #: buzz/widgets/record_button.py buzz/widgets/main_window_toolbar.py
 msgid "Record"
@@ -1109,6 +1120,22 @@ msgstr ""
 "tijdens transcriptie"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "3/8 Loading alignment model (retrying with cache...)"
+msgstr "3/8 Uitlijningsmodel laden (opnieuw proberen met cache…)"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid ""
+"Failed to load alignment model. Please check your internet connection and "
+"try again."
+msgstr ""
+"Het laden van het uitlijningsmodel is mislukt. Controleer uw "
+"internetverbinding en probeer het opnieuw."
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "0/0 Error identifying speakers"
+msgstr "0/0 Fout bij het identificeren van sprekers"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
 "Speaker identification is not available: failed to load required libraries."
 msgstr ""
@@ -1126,18 +1153,6 @@ msgstr "2/8 Audio laden"
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "3/8 Loading alignment model"
 msgstr "3/8 Uitlijningsmodel laden"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "3/8 Loading alignment model (retrying with cache...)"
-msgstr "3/8 Uitlijningsmodel laden (opnieuw proberen met cache…)"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid ""
-"Failed to load alignment model. Please check your internet connection and "
-"try again."
-msgstr ""
-"Het laden van het uitlijningsmodel is mislukt. Controleer uw "
-"internetverbinding en probeer het opnieuw."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "4/8 Processing audio"
@@ -1158,10 +1173,6 @@ msgstr "7/8 Sprekers koppelen aan transcripties"
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "8/8 Identification done"
 msgstr "8/8 Identificatie voltooid"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "0/0 Error identifying speakers"
-msgstr "0/0 Fout bij het identificeren van sprekers"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 1: Identify speakers"

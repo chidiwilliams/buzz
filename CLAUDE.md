@@ -1,1 +1,1 @@
-- Use uv to run tests and any scripts
+Please see AGENTS.md

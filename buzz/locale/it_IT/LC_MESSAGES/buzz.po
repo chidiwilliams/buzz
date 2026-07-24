@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-27 18:53+0300\n"
+"POT-Creation-Date: 2026-07-24 10:40+0300\n"
 "PO-Revision-Date: 2026-04-12 21:42+0200\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
@@ -294,6 +294,24 @@ msgstr "Seleziona cartella di input"
 msgid "Select Output Folder"
 msgstr "Seleziona cartella di output"
 
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/widgets/update_dialog.py buzz/widgets/main_window.py
+#: buzz/model_loader.py
+msgid "Error"
+msgstr "Errore"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid ""
+"The output folder cannot be the input folder or a subfolder of it. This "
+"would cause transcriptions to be processed repeatedly. Please choose a "
+"different output folder."
+msgstr ""
+"La cartella di output non può essere la cartella di input né una sua "
+"sottocartella. Ciò causerebbe l'elaborazione ripetuta delle trascrizioni. "
+"Scegli una cartella di output diversa."
+
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 msgid "Preferences"
 msgstr "Preferenze"
@@ -361,13 +379,6 @@ msgstr "Sei sicuro di voler eliminare il modello selezionato?"
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download failed"
 msgstr "Download non riuscito"
-
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py
-#: buzz/widgets/transcription_tasks_table_widget.py
-#: buzz/widgets/update_dialog.py buzz/widgets/main_window.py
-#: buzz/model_loader.py
-msgid "Error"
-msgstr "Errore"
 
 #: buzz/widgets/record_button.py buzz/widgets/main_window_toolbar.py
 msgid "Record"
@@ -1112,6 +1123,25 @@ msgstr ""
 "abilitati durante la trascrizione"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "3/8 Loading alignment model (retrying with cache...)"
+msgstr ""
+"3/8 Caricamento del modello di allineamento (nuovo tentativo con "
+"cache...)3/8 Caricamento del modello di allineamento (nuovo tentativo con la "
+"cache...)"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid ""
+"Failed to load alignment model. Please check your internet connection and "
+"try again."
+msgstr ""
+"Impossibile caricare il modello di allineamento. Controlla la tua "
+"connessione Internet e riprova."
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "0/0 Error identifying speakers"
+msgstr "0/0 Errore nell'identificazione dei parlanti"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
 "Speaker identification is not available: failed to load required libraries."
 msgstr ""
@@ -1129,21 +1159,6 @@ msgstr "2/8 Caricamento audio"
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "3/8 Loading alignment model"
 msgstr "3/8 Modello di allineamento del carico"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "3/8 Loading alignment model (retrying with cache...)"
-msgstr ""
-"3/8 Caricamento del modello di allineamento (nuovo tentativo con "
-"cache...)3/8 Caricamento del modello di allineamento (nuovo tentativo con la "
-"cache...)"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid ""
-"Failed to load alignment model. Please check your internet connection and "
-"try again."
-msgstr ""
-"Impossibile caricare il modello di allineamento. Controlla la tua "
-"connessione Internet e riprova."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "4/8 Processing audio"
@@ -1164,10 +1179,6 @@ msgstr "7/8 Mappatura dei parlanti sulle trascrizioni"
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "8/8 Identification done"
 msgstr "8/8 Identificazione effettuata"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "0/0 Error identifying speakers"
-msgstr "0/0 Errore nell'identificazione dei parlanti"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 1: Identify speakers"
@@ -1828,7 +1839,8 @@ msgstr "Riduzione del rumore DeepFilterNet"
 
 #: buzz/plugins/deep_filter_net/plugin.py
 msgid "Removes background noise using DeepFilterNet3 before transcription."
-msgstr "Rimuove il rumore di fondo con DeepFilterNet3 prima della trascrizione."
+msgstr ""
+"Rimuove il rumore di fondo con DeepFilterNet3 prima della trascrizione."
 
 #: buzz/plugins/deep_filter_net/plugin.py
 #, fuzzy

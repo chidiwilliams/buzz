@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-27 18:53+0300\n"
+"POT-Creation-Date: 2026-07-24 10:40+0300\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: lamb\n"
@@ -282,6 +282,21 @@ msgstr "选择输入文件夹"
 msgid "Select Output Folder"
 msgstr "选择输出文件夹"
 
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/widgets/update_dialog.py buzz/widgets/main_window.py
+#: buzz/model_loader.py
+msgid "Error"
+msgstr "错误"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid ""
+"The output folder cannot be the input folder or a subfolder of it. This "
+"would cause transcriptions to be processed repeatedly. Please choose a "
+"different output folder."
+msgstr "输出文件夹不能是输入文件夹或其子文件夹。这会导致转录被重复处理。请选择其他输出文件夹。"
+
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 msgid "Preferences"
 msgstr "偏好设置"
@@ -349,13 +364,6 @@ msgstr "您确定要删除所选模型吗？"
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download failed"
 msgstr "下载失败"
-
-#: buzz/widgets/preferences_dialog/models_preferences_widget.py
-#: buzz/widgets/transcription_tasks_table_widget.py
-#: buzz/widgets/update_dialog.py buzz/widgets/main_window.py
-#: buzz/model_loader.py
-msgid "Error"
-msgstr "错误"
 
 #: buzz/widgets/record_button.py buzz/widgets/main_window_toolbar.py
 msgid "Record"
@@ -1077,6 +1085,20 @@ msgid "Available only if word level timings were enabled during transcription"
 msgstr "仅在转录时启用逐词时间戳时可用"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "3/8 Loading alignment model (retrying with cache...)"
+msgstr "3/8 加载对齐模型（正在使用缓存重试...）"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid ""
+"Failed to load alignment model. Please check your internet connection and "
+"try again."
+msgstr "加载对齐模型失败。请检查您的网络连接后重试。"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "0/0 Error identifying speakers"
+msgstr "0/0 识别说话人时出错"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid ""
 "Speaker identification is not available: failed to load required libraries."
 msgstr "说话人识别不可用：加载所需库失败。"
@@ -1092,16 +1114,6 @@ msgstr "2/8 加载音频"
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "3/8 Loading alignment model"
 msgstr "3/8 加载对齐模型"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "3/8 Loading alignment model (retrying with cache...)"
-msgstr "3/8 加载对齐模型（正在使用缓存重试...）"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid ""
-"Failed to load alignment model. Please check your internet connection and "
-"try again."
-msgstr "加载对齐模型失败。请检查您的网络连接后重试。"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "4/8 Processing audio"
@@ -1122,10 +1134,6 @@ msgstr "7/8 将说话人映射到识别文本"
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "8/8 Identification done"
 msgstr "8/8 识别完成"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "0/0 Error identifying speakers"
-msgstr "0/0 识别说话人时出错"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 1: Identify speakers"
