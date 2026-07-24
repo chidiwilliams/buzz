@@ -119,24 +119,14 @@ class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no co
                 return_attention_mask=True,
             )
         else:
-            if self.type == "seq2seq_whisper" and stride is None:
-                processed = self.feature_extractor(
-                    inputs,
-                    sampling_rate=self.feature_extractor.sampling_rate,
-                    return_tensors="pt",
-                    return_token_timestamps=True,
-                    return_attention_mask=True,
-                )
-                extra["num_frames"] = processed.pop("num_frames")
-            else:
-                processed = self.feature_extractor(
-                    inputs,
-                    sampling_rate=self.feature_extractor.sampling_rate,
-                    return_tensors="pt",
-                    return_attention_mask=True,
-                )
-        if self.torch_dtype is not None:
-            processed = processed.to(dtype=self.torch_dtype)
+            processed = self.feature_extractor(
+                inputs,
+                sampling_rate=self.feature_extractor.sampling_rate,
+                return_tensors="pt",
+                return_attention_mask=True,
+            )
+        if self.dtype is not None:
+            processed = processed.to(dtype=self.dtype)
         if stride is not None:
             if self.type == "seq2seq":
                 raise ValueError("Stride is only usable with CTC models, try removing it !")
@@ -173,7 +163,7 @@ class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no co
                 raise ValueError("Chunk length must be superior to stride length")
 
             for item in self.chunk_iter(
-                inputs, self.feature_extractor, chunk_len, stride_left, stride_right, self.torch_dtype
+                inputs, self.feature_extractor, chunk_len, stride_left, stride_right, self.dtype
             ):
                 yield {**item, **extra}
         else:
@@ -280,7 +270,7 @@ class TransformersTranscriber:
                 )
             else:
                 model = AutoModelForSpeechSeq2Seq.from_pretrained(
-                    self.model_id, torch_dtype=torch_dtype, low_cpu_mem_usage=True, use_safetensors=use_safetensors
+                    self.model_id, dtype=torch_dtype, low_cpu_mem_usage=True, use_safetensors=use_safetensors
                 )
                 model.to(device)
 
@@ -307,8 +297,8 @@ class TransformersTranscriber:
             # pipeline has built in chunking, works faster, but we loose progress output
             # needed for word level timestamps, otherwise there is huge RAM usage on longer audios
             "chunk_length_s": 30 if word_timestamps else None,
-            "torch_dtype": torch_dtype,
-            "ignore_warning": True,  # Ignore warning about chunk_length_s being experimental for seq2seq models
+            # transformers 5.x renamed the pipeline `torch_dtype` kwarg to `dtype`
+            "dtype": torch_dtype,
         }
         if not use_8bit:
             pipeline_kwargs["device"] = device
@@ -388,7 +378,7 @@ class TransformersTranscriber:
         else:
             model = WhisperForConditionalGeneration.from_pretrained(
                 base_model_path,
-                torch_dtype=torch_dtype,
+                dtype=torch_dtype,
                 low_cpu_mem_usage=True
             )
             model.to(device)
