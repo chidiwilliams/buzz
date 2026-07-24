@@ -212,15 +212,17 @@ class ModelType(enum.Enum):
 HUGGING_FACE_MODEL_ALLOW_PATTERNS = [
     "model.safetensors",  # largest by size first
     "pytorch_model.bin",
-    "model-00001-of-00002.safetensors",
-    "model-00002-of-00002.safetensors",
+    "model-*-of-*.safetensors",  # glob covers any number of shards (e.g. VibeVoice ASR has 8)
     "model.safetensors.index.json",
     "added_tokens.json",
+    "chat_template.jinja",  # VibeVoice ASR ships its transcription prompt as a chat template
+    "chat_template.json",
     "config.json",
     "generation_config.json",
     "merges.txt",
     "normalizer.json",
     "preprocessor_config.json",
+    "processor_config.json",  # Parakeet transducers store the feature extractor config here
     "special_tokens_map.json",
     "tokenizer.json",
     "tokenizer_config.json",
@@ -298,6 +300,111 @@ def is_mms_model(model_id: str) -> bool:
         # MMS models have model_type "wav2vec2" and use adapter architecture
         return (config.get("model_type") == "wav2vec2"
                 and config.get("adapter_attn_dim") is not None)
+    except Exception:
+        return False
+
+
+def is_parakeet_model(model_id: str) -> bool:
+    """Detect if a HuggingFace model is a Parakeet transducer (TDT/RNN-T/CTC) model.
+
+    Parakeet models are transducers, not Whisper-style seq2seq models, so they must
+    be loaded with AutoModelForTDT/RNNT/CTC instead of AutoModelForSpeechSeq2Seq.
+
+    Detection criteria:
+    1. Model ID (or local cache path) contains "parakeet"
+    2. Model config has a "parakeet_*" model_type
+    """
+    if not model_id:
+        return False
+
+    # Fast check: model ID / cache path pattern
+    if "parakeet" in model_id.lower():
+        return True
+
+    # For cached/downloaded models, check config.json
+    try:
+        import json
+        if os.path.isdir(model_id):
+            config_path = os.path.join(model_id, "config.json")
+        else:
+            config_path = huggingface_hub.hf_hub_download(
+                model_id, "config.json", local_files_only=True, cache_dir=model_root_dir
+            )
+        with open(config_path) as f:
+            config = json.load(f)
+        return str(config.get("model_type", "")).startswith("parakeet")
+    except Exception:
+        return False
+
+
+def is_vibevoice_model(model_id: str) -> bool:
+    """Detect if a HuggingFace model is a VibeVoice ASR model.
+
+    VibeVoice ASR models (e.g. microsoft/VibeVoice-ASR-HF) are loaded with
+    VibeVoiceAsrForConditionalGeneration and transcribed through the processor's
+    chat-template based ``apply_transcription_request`` API rather than the
+    standard Whisper seq2seq path.
+
+    Detection criteria:
+    1. Model ID (or local cache path) contains "vibevoice"
+    2. Model config has a "vibevoice_*" model_type
+    """
+    if not model_id:
+        return False
+
+    # Fast check: model ID / cache path pattern
+    if "vibevoice" in model_id.lower():
+        return True
+
+    # For cached/downloaded models, check config.json
+    try:
+        import json
+        if os.path.isdir(model_id):
+            config_path = os.path.join(model_id, "config.json")
+        else:
+            config_path = huggingface_hub.hf_hub_download(
+                model_id, "config.json", local_files_only=True, cache_dir=model_root_dir
+            )
+        with open(config_path) as f:
+            config = json.load(f)
+        return str(config.get("model_type", "")).startswith("vibevoice")
+    except Exception:
+        return False
+
+
+def is_qwen_asr_model(model_id: str) -> bool:
+    """Detect if a HuggingFace model is a Qwen3 ASR model.
+
+    Qwen3 ASR models (e.g. Qwen/Qwen3-ASR-1.7B-hf) are loaded with
+    AutoModelForMultimodalLM and transcribed through the processor's chat-template
+    based ``apply_transcription_request`` API rather than the standard Whisper
+    seq2seq path.
+
+    Detection criteria:
+    1. Model ID (or local cache path) mentions both "qwen" and "asr"
+    2. Model config has a "qwen*asr" model_type (e.g. "qwen3_asr")
+    """
+    if not model_id:
+        return False
+
+    # Fast check: model ID / cache path pattern
+    lowered = model_id.lower()
+    if "qwen" in lowered and "asr" in lowered:
+        return True
+
+    # For cached/downloaded models, check config.json
+    try:
+        import json
+        if os.path.isdir(model_id):
+            config_path = os.path.join(model_id, "config.json")
+        else:
+            config_path = huggingface_hub.hf_hub_download(
+                model_id, "config.json", local_files_only=True, cache_dir=model_root_dir
+            )
+        with open(config_path) as f:
+            config = json.load(f)
+        model_type = str(config.get("model_type", "")).lower()
+        return "qwen" in model_type and "asr" in model_type
     except Exception:
         return False
 

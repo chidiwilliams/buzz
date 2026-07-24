@@ -15,7 +15,13 @@ from transformers.pipelines import AutomaticSpeechRecognitionPipeline
 from transformers.pipelines.audio_utils import ffmpeg_read
 from transformers.pipelines.automatic_speech_recognition import is_torchaudio_available
 
-from buzz.model_loader import is_mms_model, map_language_to_mms
+from buzz.model_loader import (
+    is_mms_model,
+    is_parakeet_model,
+    is_vibevoice_model,
+    is_qwen_asr_model,
+    map_language_to_mms,
+)
 
 
 def is_intel_mac() -> bool:
@@ -42,7 +48,14 @@ class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no co
 
             chunk_end_idx = chunk_start_idx + chunk_len
             chunk = inputs[chunk_start_idx:chunk_end_idx]
-            processed = feature_extractor(chunk, sampling_rate=feature_extractor.sampling_rate, return_tensors="pt")
+            # return_attention_mask is required for precise word-level timestamps
+            # (transformers 5.x warns and degrades timestamps without it)
+            processed = feature_extractor(
+                chunk,
+                sampling_rate=feature_extractor.sampling_rate,
+                return_tensors="pt",
+                return_attention_mask=True,
+            )
             if dtype is not None:
                 processed = processed.to(dtype=dtype)
             _stride_left = 0 if chunk_start_idx == 0 else stride_left
@@ -119,24 +132,14 @@ class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no co
                 return_attention_mask=True,
             )
         else:
-            if self.type == "seq2seq_whisper" and stride is None:
-                processed = self.feature_extractor(
-                    inputs,
-                    sampling_rate=self.feature_extractor.sampling_rate,
-                    return_tensors="pt",
-                    return_token_timestamps=True,
-                    return_attention_mask=True,
-                )
-                extra["num_frames"] = processed.pop("num_frames")
-            else:
-                processed = self.feature_extractor(
-                    inputs,
-                    sampling_rate=self.feature_extractor.sampling_rate,
-                    return_tensors="pt",
-                    return_attention_mask=True,
-                )
-        if self.torch_dtype is not None:
-            processed = processed.to(dtype=self.torch_dtype)
+            processed = self.feature_extractor(
+                inputs,
+                sampling_rate=self.feature_extractor.sampling_rate,
+                return_tensors="pt",
+                return_attention_mask=True,
+            )
+        if self.dtype is not None:
+            processed = processed.to(dtype=self.dtype)
         if stride is not None:
             if self.type == "seq2seq":
                 raise ValueError("Stride is only usable with CTC models, try removing it !")
@@ -173,7 +176,7 @@ class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no co
                 raise ValueError("Chunk length must be superior to stride length")
 
             for item in self.chunk_iter(
-                inputs, self.feature_extractor, chunk_len, stride_left, stride_right, self.torch_dtype
+                inputs, self.feature_extractor, chunk_len, stride_left, stride_right, self.dtype
             ):
                 yield {**item, **extra}
         else:
@@ -186,12 +189,30 @@ class TransformersTranscriber:
     def __init__(self, model_id: str):
         self.model_id = model_id
         self._is_mms = is_mms_model(model_id)
+        self._is_parakeet = is_parakeet_model(model_id)
+        self._is_vibevoice = is_vibevoice_model(model_id)
+        self._is_qwen_asr = is_qwen_asr_model(model_id)
         self._is_peft = is_peft_model(model_id)
 
     @property
     def is_mms_model(self) -> bool:
         """Returns True if this is an MMS model."""
         return self._is_mms
+
+    @property
+    def is_parakeet_model(self) -> bool:
+        """Returns True if this is a Parakeet transducer model."""
+        return self._is_parakeet
+
+    @property
+    def is_vibevoice_model(self) -> bool:
+        """Returns True if this is a VibeVoice ASR model."""
+        return self._is_vibevoice
+
+    @property
+    def is_qwen_asr_model(self) -> bool:
+        """Returns True if this is a Qwen3 ASR model."""
+        return self._is_qwen_asr
 
     @property
     def is_peft_model(self) -> bool:
@@ -206,9 +227,15 @@ class TransformersTranscriber:
         word_timestamps: bool = False,
         initial_prompt: str = "",
     ):
-        """Transcribe audio using either Whisper or MMS model."""
+        """Transcribe audio using a Whisper, MMS, Parakeet, VibeVoice, or Qwen3 ASR model."""
         if self._is_mms:
             return self._transcribe_mms(audio, language)
+        elif self._is_parakeet:
+            return self._transcribe_parakeet(audio)
+        elif self._is_vibevoice:
+            return self._transcribe_vibevoice(audio, initial_prompt)
+        elif self._is_qwen_asr:
+            return self._transcribe_qwen(audio, language)
         else:
             return self._transcribe_whisper(audio, language, task, word_timestamps, initial_prompt)
 
@@ -280,7 +307,7 @@ class TransformersTranscriber:
                 )
             else:
                 model = AutoModelForSpeechSeq2Seq.from_pretrained(
-                    self.model_id, torch_dtype=torch_dtype, low_cpu_mem_usage=True, use_safetensors=use_safetensors
+                    self.model_id, dtype=torch_dtype, low_cpu_mem_usage=True, use_safetensors=use_safetensors
                 )
                 model.to(device)
 
@@ -288,11 +315,14 @@ class TransformersTranscriber:
 
             processor = AutoProcessor.from_pretrained(self.model_id)
 
+        # transformers 5.x deprecates passing generation params alongside a
+        # generation_config in the same call; set them on the config instead.
+        model.generation_config.no_repeat_ngram_size = 3
+        model.generation_config.repetition_penalty = 1.2
+
         generate_kwargs = {
             "language": language,
             "task": task,
-            "no_repeat_ngram_size": 3,
-            "repetition_penalty": 1.2,
         }
         if initial_prompt:
             generate_kwargs["prompt_ids"] = self._get_prompt_ids(processor, initial_prompt)
@@ -307,8 +337,11 @@ class TransformersTranscriber:
             # pipeline has built in chunking, works faster, but we loose progress output
             # needed for word level timestamps, otherwise there is huge RAM usage on longer audios
             "chunk_length_s": 30 if word_timestamps else None,
-            "torch_dtype": torch_dtype,
-            "ignore_warning": True,  # Ignore warning about chunk_length_s being experimental for seq2seq models
+            # chunk_length_s is intentional for seq2seq; suppress the experimental
+            # notice emitted by _sanitize_parameters at construction time
+            "ignore_warning": True,
+            # transformers 5.x renamed the pipeline `torch_dtype` kwarg to `dtype`
+            "dtype": torch_dtype,
         }
         if not use_8bit:
             pipeline_kwargs["device"] = device
@@ -388,7 +421,7 @@ class TransformersTranscriber:
         else:
             model = WhisperForConditionalGeneration.from_pretrained(
                 base_model_path,
-                torch_dtype=torch_dtype,
+                dtype=torch_dtype,
                 low_cpu_mem_usage=True
             )
             model.to(device)
@@ -453,6 +486,304 @@ class TransformersTranscriber:
 
         # Fallback: return as-is
         return model_id
+
+    def _transcribe_parakeet(
+        self,
+        audio: Union[str, np.ndarray],
+    ):
+        """Transcribe using a Parakeet transducer model (TDT / RNN-T / CTC).
+
+        Parakeet models are transducers, not Whisper-style seq2seq models, so they
+        must be loaded with AutoModelForTDT/RNNT/CTC rather than
+        AutoModelForSpeechSeq2Seq. The transformers ASR pipeline supports them via
+        its "tdt" path, but that path returns text only (requesting timestamps
+        raises), so we chunk the audio ourselves to keep per-segment timing for
+        longer files and to report progress.
+        """
+        from transformers import (
+            AutoConfig,
+            AutoModelForCTC,
+            AutoModelForRNNT,
+            AutoModelForTDT,
+        )
+        from transformers.pipelines.audio_utils import ffmpeg_read as pk_ffmpeg_read
+
+        force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
+        use_cuda = torch.cuda.is_available() and force_cpu == "false"
+        device = "cuda" if use_cuda else "cpu"
+        torch_dtype = torch.float16 if use_cuda else torch.float32
+
+        # Pick the right auto class for the transducer variant
+        model_type = AutoConfig.from_pretrained(self.model_id).model_type
+        auto_class = {
+            "parakeet_tdt": AutoModelForTDT,
+            "parakeet_rnnt": AutoModelForRNNT,
+            "parakeet_ctc": AutoModelForCTC,
+        }.get(model_type, AutoModelForTDT)
+
+        model = auto_class.from_pretrained(
+            self.model_id, dtype=torch_dtype, low_cpu_mem_usage=True
+        )
+        model.to(device)
+
+        processor = AutoProcessor.from_pretrained(self.model_id)
+        sampling_rate = processor.feature_extractor.sampling_rate
+
+        # Load audio into a mono float32 array at the model's sampling rate
+        if isinstance(audio, str):
+            with open(audio, "rb") as f:
+                audio_bytes = f.read()
+            audio_array = pk_ffmpeg_read(audio_bytes, sampling_rate)
+        else:
+            audio_array = audio
+
+        pipe = pipeline(
+            task="automatic-speech-recognition",
+            pipeline_class=PipelineWithProgress,
+            model=model,
+            tokenizer=processor.tokenizer,
+            feature_extractor=processor.feature_extractor,
+            device=device,
+            dtype=torch_dtype,
+        )
+
+        # The transducer pipeline returns text only (no timestamps), so split the
+        # audio into fixed windows and emit one segment per non-empty window.
+        chunk_seconds = 30
+        chunk_size = int(chunk_seconds * sampling_rate)
+        total_samples = len(audio_array)
+
+        segments = []
+        texts = []
+        for start_idx in range(0, total_samples, chunk_size):
+            progress = int((start_idx / total_samples) * 100) if total_samples else 0
+            sys.stderr.write(f"{progress}%\n")
+
+            chunk = audio_array[start_idx:start_idx + chunk_size]
+            if len(chunk) == 0:
+                continue
+
+            text = (pipe(chunk).get("text") or "").strip()
+            if not text:
+                continue
+
+            start_s = start_idx / sampling_rate
+            end_s = min(start_idx + chunk_size, total_samples) / sampling_rate
+            segments.append({
+                "start": start_s,
+                "end": end_s,
+                "text": text,
+                "translation": "",
+            })
+            texts.append(text)
+
+        sys.stderr.write("100%\n")
+
+        return {
+            "text": " ".join(texts),
+            "segments": segments,
+        }
+
+    def _transcribe_vibevoice(
+        self,
+        audio: Union[str, np.ndarray],
+        initial_prompt: str = "",
+    ):
+        """Transcribe using a VibeVoice ASR model (microsoft/VibeVoice-ASR-HF).
+
+        VibeVoice ASR is not a Whisper-style seq2seq model; it is loaded with
+        VibeVoiceAsrForConditionalGeneration and driven through the processor's
+        chat-template based ``apply_transcription_request`` helper. The model can
+        transcribe up to an hour of audio in a single pass and emits timestamped,
+        speaker-attributed segments, so we parse those directly instead of chunking
+        the audio ourselves.
+        """
+        from transformers import VibeVoiceAsrForConditionalGeneration
+        from transformers.pipelines.audio_utils import ffmpeg_read as vv_ffmpeg_read
+
+        force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
+        use_cuda = torch.cuda.is_available() and force_cpu == "false"
+        device = "cuda" if use_cuda else "cpu"
+        torch_dtype = torch.float16 if use_cuda else torch.float32
+
+        model = VibeVoiceAsrForConditionalGeneration.from_pretrained(
+            self.model_id, dtype=torch_dtype, low_cpu_mem_usage=True
+        )
+        model.to(device)
+
+        # The model ships a generation_config that sets both max_new_tokens and
+        # max_length to the same value; keeping only max_new_tokens avoids the
+        # "both ... seem to have been set" warning without changing behaviour.
+        if getattr(model.generation_config, "max_new_tokens", None) is not None:
+            model.generation_config.max_length = None
+
+        processor = AutoProcessor.from_pretrained(self.model_id)
+        sampling_rate = processor.feature_extractor.sampling_rate
+
+        sys.stderr.write("0%\n")
+
+        # Load audio into a mono float32 array ourselves with ffmpeg. If we hand the
+        # processor a file path instead, its chat-template loader routes through
+        # transformers' load_audio(), which imports torchcodec and can hard-crash
+        # (std::bad_alloc / SIGABRT) on some systems. Passing a numpy array skips
+        # that path entirely.
+        if isinstance(audio, str):
+            with open(audio, "rb") as f:
+                audio_bytes = f.read()
+            audio_array = vv_ffmpeg_read(audio_bytes, sampling_rate)
+        else:
+            audio_array = audio
+
+        # An optional prompt provides extra context for proper nouns.
+        inputs = processor.apply_transcription_request(
+            audio=audio_array, prompt=initial_prompt or None
+        )
+        inputs = inputs.to(model.device, model.dtype)
+
+        sys.stderr.write("50%\n")
+
+        with torch.no_grad():
+            output_ids = model.generate(**inputs)
+
+        # Strip the prompt tokens, keeping only the generated transcription
+        generated_ids = output_ids[:, inputs["input_ids"].shape[1]:]
+
+        sys.stderr.write("90%\n")
+
+        # "parsed" returns a list of {Start, End, Speaker, Content} dicts, or the
+        # raw string if the model output could not be parsed as JSON.
+        parsed = processor.decode(generated_ids[0], return_format="parsed")
+
+        segments = []
+        texts = []
+        if isinstance(parsed, list):
+            for seg in parsed:
+                if not isinstance(seg, dict):
+                    continue
+                text = str(seg.get("Content", "")).strip()
+                if not text:
+                    continue
+                start = float(seg.get("Start") or 0)
+                end = float(seg.get("End") or start + 0.1)
+                segments.append({
+                    "start": start,
+                    "end": end,
+                    "text": text,
+                    "translation": "",
+                })
+                texts.append(text)
+            full_text = " ".join(texts)
+        else:
+            full_text = str(parsed).strip()
+
+        sys.stderr.write("100%\n")
+
+        return {
+            "text": full_text,
+            "segments": segments,
+        }
+
+    def _transcribe_qwen(
+        self,
+        audio: Union[str, np.ndarray],
+        language: str,
+    ):
+        """Transcribe using a Qwen3 ASR model (e.g. Qwen/Qwen3-ASR-1.7B-hf).
+
+        Qwen3 ASR is a multimodal LLM loaded with AutoModelForMultimodalLM and
+        driven through the processor's ``apply_transcription_request`` helper. It
+        returns transcription text only (no per-segment timestamps), so we chunk
+        the audio into fixed windows ourselves to keep per-segment timing for
+        longer files and to report progress.
+        """
+        from transformers import AutoModelForMultimodalLM
+        from transformers.pipelines.audio_utils import ffmpeg_read as qw_ffmpeg_read
+
+        force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
+        use_cuda = torch.cuda.is_available() and force_cpu == "false"
+        device = "cuda" if use_cuda else "cpu"
+        torch_dtype = torch.float16 if use_cuda else torch.float32
+
+        model = AutoModelForMultimodalLM.from_pretrained(
+            self.model_id, dtype=torch_dtype, low_cpu_mem_usage=True
+        )
+        model.to(device)
+
+        processor = AutoProcessor.from_pretrained(self.model_id)
+        sampling_rate = processor.feature_extractor.sampling_rate
+
+        # Language is a hint in the system prompt; an empty value lets the model
+        # auto-detect the spoken language. Qwen3 ASR only supports a fixed set of
+        # languages and raises on anything else, so fall back to auto-detection
+        # for unsupported codes (e.g. Latvian) instead of crashing.
+        language_hint = language or None
+        if language_hint is not None:
+            try:
+                from transformers.models.qwen3_asr.processing_qwen3_asr import (
+                    resolve_language,
+                )
+                resolve_language(language_hint)
+            except Exception:
+                print(
+                    f"Qwen3 ASR does not support language '{language_hint}', "
+                    "falling back to automatic language detection"
+                )
+                language_hint = None
+
+        # Load audio into a mono float32 array with ffmpeg. The processor accepts
+        # numpy arrays directly, which also avoids the torchcodec-based load_audio()
+        # path that can crash on some systems.
+        if isinstance(audio, str):
+            with open(audio, "rb") as f:
+                audio_bytes = f.read()
+            audio_array = qw_ffmpeg_read(audio_bytes, sampling_rate)
+        else:
+            audio_array = audio
+
+        chunk_seconds = 30
+        chunk_size = int(chunk_seconds * sampling_rate)
+        total_samples = len(audio_array)
+
+        segments = []
+        texts = []
+        for start_idx in range(0, total_samples, chunk_size):
+            progress = int((start_idx / total_samples) * 100) if total_samples else 0
+            sys.stderr.write(f"{progress}%\n")
+
+            chunk = audio_array[start_idx:start_idx + chunk_size]
+            if len(chunk) == 0:
+                continue
+
+            inputs = processor.apply_transcription_request(
+                audio=chunk, language=language_hint
+            ).to(model.device, model.dtype)
+
+            with torch.no_grad():
+                output_ids = model.generate(**inputs, max_new_tokens=256)
+
+            generated_ids = output_ids[:, inputs["input_ids"].shape[1]:]
+            text = (processor.decode(
+                generated_ids[0], return_format="transcription_only"
+            ) or "").strip()
+            if not text:
+                continue
+
+            start_s = start_idx / sampling_rate
+            end_s = min(start_idx + chunk_size, total_samples) / sampling_rate
+            segments.append({
+                "start": start_s,
+                "end": end_s,
+                "text": text,
+                "translation": "",
+            })
+            texts.append(text)
+
+        sys.stderr.write("100%\n")
+
+        return {
+            "text": " ".join(texts),
+            "segments": segments,
+        }
 
     def _transcribe_mms(
         self,

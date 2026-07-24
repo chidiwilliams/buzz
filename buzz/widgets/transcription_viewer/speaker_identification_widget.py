@@ -32,6 +32,8 @@ from PyQt6.QtWidgets import (
     QProgressBar,
     QPushButton,
     QCheckBox,
+    QRadioButton,
+    QButtonGroup,
     QGroupBox,
     QSpacerItem,
     QSizePolicy,
@@ -110,10 +112,11 @@ class IdentificationWorker(QObject):
     progress_update = pyqtSignal(str)
     error = pyqtSignal(str)
 
-    def __init__(self, transcription, transcription_service):
+    def __init__(self, transcription, transcription_service, diarizer="msdd"):
         super().__init__()
         self.transcription = transcription
         self.transcription_service = transcription_service
+        self.diarizer = diarizer
         self._is_cancelled = False
 
     def cancel(self):
@@ -166,7 +169,7 @@ class IdentificationWorker(QObject):
             punct_model_langs,
         )
         from deepmultilingualpunctuation.deepmultilingualpunctuation import PunctuationModel
-        from whisper_diarization.diarization import MSDDDiarizer
+        from whisper_diarization.diarization import MSDDDiarizer, SortformerDiarizer
 
         # Store on the instance so the other worker methods can access them.
         # (Local imports here would otherwise be out of scope elsewhere.)
@@ -183,6 +186,7 @@ class IdentificationWorker(QObject):
         self._punct_model_langs = punct_model_langs
         self._PunctuationModel = PunctuationModel
         self._MSDDDiarizer = MSDDDiarizer
+        self._SortformerDiarizer = SortformerDiarizer
 
     def _get_transcript_data(self):
         language = self.transcription.language if self.transcription.language else "en"
@@ -283,10 +287,15 @@ class IdentificationWorker(QObject):
         except (ImportError, AttributeError):
             pass
 
-        logging.debug("Speaker identification worker: Creating diarizer model")
+        logging.debug(
+            "Speaker identification worker: Creating diarizer model (%s)", self.diarizer
+        )
         diarizer_model = None
         try:
-            diarizer_model = self._MSDDDiarizer(device)
+            if self.diarizer == "sortformer":
+                diarizer_model = self._SortformerDiarizer(device)
+            else:
+                diarizer_model = self._MSDDDiarizer(device)
             logging.debug("Speaker identification worker: Running diarization (this may take a while on CPU)")
             speaker_ts = diarizer_model.diarize(torch.from_numpy(audio_waveform).unsqueeze(0))
             logging.debug("Speaker identification worker: Diarization complete")
@@ -477,7 +486,7 @@ class SpeakerIdentificationWidget(QWidget):
         self.setWindowTitle(file_path_as_title(transcription.file))
 
         layout = QFormLayout(self)
-        layout.setSizeConstraint(QLayout.SizeConstraint.SetMinAndMaxSize)
+        layout.setSizeConstraint(QLayout.SizeConstraint.SetMinimumSize)
 
         self._create_step_1_group(layout)
         self._create_step_2_group(layout)
@@ -495,6 +504,7 @@ class SpeakerIdentificationWidget(QWidget):
 
         step_1_group_box = QGroupBox(self)
         step_1_group_box.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        step_1_group_box.setMinimumWidth(630)
         step_1_layout = QVBoxLayout(step_1_group_box)
 
         self.step_1_row = QHBoxLayout()
@@ -517,12 +527,30 @@ class SpeakerIdentificationWidget(QWidget):
             self.progress_label.setText(_("Audio file not found"))
             self.step_1_button.setEnabled(False)
 
+        # Model selection, shown in place of the progress bar before identification starts
+        self.model_selection_widget = QWidget(self)
+        model_selection_layout = QHBoxLayout(self.model_selection_widget)
+        model_selection_layout.setContentsMargins(0, 0, 0, 0)
+        model_selection_layout.addWidget(QLabel(_("Model:"), self))
+
+        self.diarizer_button_group = QButtonGroup(self)
+        self.msdd_radio = QRadioButton(_("MSDD"), self)
+        self.msdd_radio.setChecked(True)
+        self.sortformer_radio = QRadioButton(_("Sortformer"), self)
+        self.diarizer_button_group.addButton(self.msdd_radio)
+        self.diarizer_button_group.addButton(self.sortformer_radio)
+        model_selection_layout.addWidget(self.msdd_radio)
+        model_selection_layout.addWidget(self.sortformer_radio)
+        model_selection_layout.addStretch()
+
         self.progress_bar = QProgressBar(self)
         self.progress_bar.setMinimumWidth(400)
         self.progress_bar.setRange(0, 8)
         self.progress_bar.setValue(0)
+        self.progress_bar.setVisible(False)
 
         progress_container.addWidget(self.progress_label)
+        progress_container.addWidget(self.model_selection_widget)
         progress_container.addWidget(self.progress_bar)
 
         self.step_1_row.addLayout(progress_container)
@@ -595,15 +623,22 @@ class SpeakerIdentificationWidget(QWidget):
         self.step_1_button.setVisible(False)
         self.cancel_button.setVisible(True)
 
+        # Swap the model selector for the progress bar while identification runs
+        self.model_selection_widget.setVisible(False)
+        self.progress_bar.setVisible(True)
+
+        diarizer = "sortformer" if self.sortformer_radio.isChecked() else "msdd"
+
         # Clean up any existing thread before starting a new one
         self._cleanup_thread()
 
-        logging.debug("Speaker identification: Starting identification thread")
+        logging.debug("Speaker identification: Starting identification thread (%s)", diarizer)
 
         self.thread = QThread()
         self.worker = IdentificationWorker(
             self.transcription,
-            self.transcription_service
+            self.transcription_service,
+            diarizer=diarizer,
         )
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.run)
@@ -622,6 +657,7 @@ class SpeakerIdentificationWidget(QWidget):
         self._reset_buttons()
         self.progress_label.setText(_("Cancelled"))
         self.progress_bar.setValue(0)
+        self._show_model_selector()
 
     def _reset_buttons(self):
         """Reset identify/cancel buttons to initial state."""
@@ -644,6 +680,12 @@ class SpeakerIdentificationWidget(QWidget):
         logging.error(f"Speaker identification error: {error_message}")
         self._reset_buttons()
         self.progress_bar.setValue(0)
+        self._show_model_selector()
+
+    def _show_model_selector(self):
+        """Restore the model selector in place of the progress bar."""
+        self.progress_bar.setVisible(False)
+        self.model_selection_widget.setVisible(True)
 
     def on_progress_update(self, progress):
         self.progress_label.setText(progress)

@@ -40,6 +40,7 @@ In addition to choosing an appropriate model size you also can choose whisper ty
 - **Faster Whisper** is an optimized implementation, it is orders of magnitude faster than regular Whisper and requires less RAM. Use this option if you have an Nvidia GPU with at least 6GB of VRAM.
 - **Whisper.cpp** is optimized C++ implementation, it quite fast and efficient and will use any brand of GPU. Whisper.cpp is capable of running real time transcription even on a modern laptop with integrated GPU. It can also run on CPU only. Use this option if you do not have Nvidia GPU. This is best option to us on Macs.
 - **HuggingFace** option is a `Transformers` implementation and is good in that it supports wide range of custom models that may be optimized for a particular language. This option also supports [MMS](https://ai.meta.com/blog/multilingual-model-speech-recognition/) family of models from Meta AI that support over 1000 of worlds languages as well as [PEFT](https://github.com/huggingface/peft) adjustments to Whisper models.
+  - Since version `1.5.0` [Parakeet](https://huggingface.co/models?sort=trending&search=parakeet), [Qwen3-ASR](https://huggingface.co/models?sort=trending&search=qwen+asr+hf) and [VibeVoice ASR](https://huggingface.co/models?sort=trending&search=vibevoice+hf+) models are also supported.
 
 Models with `.En` in their names are for English and will not work for other languages. 
 
@@ -100,3 +101,13 @@ You may need to copy the system themes to this folder `cp -r /usr/share/themes/ 
 
 On Fedora run the following to install the necessary packages 
 `sudo dnf install gnome-themes-extra qadwaitadecorations-qt{5,6} qt{5,6}-qtwayland`
+
+### 11. What libraries does Buzz use internally?
+
+Buzz uses many great libraries and tools internally. A few that we are really glad to have are:
+- [whisper.cpp](https://github.com/ggml-org/whisper.cpp)
+- [faster-whisper](https://github.com/SYSTRAN/faster-whisper)
+- [transformers](https://github.com/huggingface/transformers)
+- [stable-ts](https://github.com/jianfch/stable-ts)
+- [srt_equalizer](https://github.com/peterk/srt_equalizer)
+- [whisper-diarization](https://github.com/MahmoudAshraf97/whisper-diarization)
