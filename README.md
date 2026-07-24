@@ -25,6 +25,7 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
   - CUDA acceleration support for Nvidia GPUs
   - Apple Silicon support for Macs
   - Vulkan acceleration support for Whisper.cpp on most GPUs, including integrated GPUs
+- Multiple Transformer model family support via Huggingface whisper type 
 - Export transcripts to TXT, SRT, and VTT
 - Advanced Transcription Viewer with search, playback controls, and speed adjustment
 - Keyboard shortcuts for efficient navigation
