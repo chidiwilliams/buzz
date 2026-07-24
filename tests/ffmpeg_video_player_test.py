@@ -93,11 +93,13 @@ class TestFfmpegVideoPlayer:
         player = FfmpegVideoPlayer(test_video_path)
         player.start(0)
         frame = None
-        for _ in range(50):
+        # Generous budget: ffmpeg startup + first-frame delivery can be slow on
+        # loaded Windows CI runners.
+        for _ in range(150):
             frame = player.get_frame_for_position(500)
             if frame is not None:
                 break
-            time.sleep(0.05)
+            time.sleep(0.1)
         assert frame is not None
         assert isinstance(frame, np.ndarray)
         assert frame.shape == (48, 64, 3)
@@ -106,11 +108,11 @@ class TestFfmpegVideoPlayer:
     def test_last_frame_tracks_returned_frame(self, test_video_path):
         player = FfmpegVideoPlayer(test_video_path)
         player.start(0)
-        for _ in range(50):
+        for _ in range(150):
             frame = player.get_frame_for_position(500)
             if frame is not None:
                 break
-            time.sleep(0.05)
+            time.sleep(0.1)
         assert player.last_frame is not None
         player.close()
 
@@ -152,11 +154,11 @@ class TestFfmpegFrameReader:
             test_video_path, info["width"], info["height"], info["fps"], 0
         )
         frame = None
-        for _ in range(50):
+        for _ in range(150):
             frame = reader.get_frame_for_position(500.0)
             if frame is not None:
                 break
-            time.sleep(0.05)
+            time.sleep(0.1)
         assert frame is not None
         assert frame.shape == (info["height"], info["width"], 3)
         reader.stop()

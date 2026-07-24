@@ -87,9 +87,16 @@ class TestSpeakerIdentificationWidget:
         assert worker.transcription == transcription
         assert len(result) == 1
         assert isinstance(result[0], list)
-        assert (result == [[{'end_time': 8904, 'speaker': 'Speaker 0', 'start_time': 140, 'text': 'Bien venue dans. '}]]
-                or result == [[{'end_time': 8904, 'speaker': 'Speaker 0', 'start_time': 140, 'text': 'Bienvenue dans. '}]]
-                or result == [[{'end_time': 8904, 'speaker': 'Speaker 0', 'start_time': 140, 'text': 'Bien venue dans '}]])
+        assert len(result[0]) == 1
+        segment = result[0][0]
+        assert segment["speaker"] == "Speaker 0"
+        assert segment["start_time"] == 140
+        # Text and end_time vary slightly across OSes/architectures (e.g.
+        # "Bien venue dans" vs "Bienvenue dans.", end_time 8500 vs 8904),
+        # so compare on normalized text and an end_time range rather than exact values.
+        normalized_text = segment["text"].replace(" ", "").rstrip(".").lower()
+        assert normalized_text == "bienvenuedans", segment["text"]
+        assert 8000 <= segment["end_time"] <= 9500, segment["end_time"]
 
     def test_identify_button_toggles_visibility(self, qtbot: QtBot, transcription, transcription_service):
         widget = SpeakerIdentificationWidget(
