@@ -100,3 +100,13 @@ You may need to copy the system themes to this folder `cp -r /usr/share/themes/ 
 
 On Fedora run the following to install the necessary packages 
 `sudo dnf install gnome-themes-extra qadwaitadecorations-qt{5,6} qt{5,6}-qtwayland`
+
+### 11. What libraries does Buzz use internally?
+
+Buzz uses many great libraries and tools internally. A few that we are really glad to have are:
+- [whisper.cpp](https://github.com/ggml-org/whisper.cpp)
+- [faster-whisper](https://github.com/SYSTRAN/faster-whisper)
+- [transformers](https://github.com/huggingface/transformers)
+- [stable-ts](https://github.com/jianfch/stable-ts)
+- [srt_equalizer](https://github.com/peterk/srt_equalizer)
+- [whisper-diarization](https://github.com/MahmoudAshraf97/whisper-diarization)
