@@ -372,6 +372,43 @@ def is_vibevoice_model(model_id: str) -> bool:
         return False
 
 
+def is_qwen_asr_model(model_id: str) -> bool:
+    """Detect if a HuggingFace model is a Qwen3 ASR model.
+
+    Qwen3 ASR models (e.g. Qwen/Qwen3-ASR-1.7B-hf) are loaded with
+    AutoModelForMultimodalLM and transcribed through the processor's chat-template
+    based ``apply_transcription_request`` API rather than the standard Whisper
+    seq2seq path.
+
+    Detection criteria:
+    1. Model ID (or local cache path) mentions both "qwen" and "asr"
+    2. Model config has a "qwen*asr" model_type (e.g. "qwen3_asr")
+    """
+    if not model_id:
+        return False
+
+    # Fast check: model ID / cache path pattern
+    lowered = model_id.lower()
+    if "qwen" in lowered and "asr" in lowered:
+        return True
+
+    # For cached/downloaded models, check config.json
+    try:
+        import json
+        if os.path.isdir(model_id):
+            config_path = os.path.join(model_id, "config.json")
+        else:
+            config_path = huggingface_hub.hf_hub_download(
+                model_id, "config.json", local_files_only=True, cache_dir=model_root_dir
+            )
+        with open(config_path) as f:
+            config = json.load(f)
+        model_type = str(config.get("model_type", "")).lower()
+        return "qwen" in model_type and "asr" in model_type
+    except Exception:
+        return False
+
+
 def _snapshot_is_complete(snapshot_path: str) -> bool:
     return os.path.exists(os.path.join(snapshot_path, DOWNLOAD_COMPLETE_MARKER))
 

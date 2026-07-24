@@ -15,7 +15,13 @@ from transformers.pipelines import AutomaticSpeechRecognitionPipeline
 from transformers.pipelines.audio_utils import ffmpeg_read
 from transformers.pipelines.automatic_speech_recognition import is_torchaudio_available
 
-from buzz.model_loader import is_mms_model, is_parakeet_model, is_vibevoice_model, map_language_to_mms
+from buzz.model_loader import (
+    is_mms_model,
+    is_parakeet_model,
+    is_vibevoice_model,
+    is_qwen_asr_model,
+    map_language_to_mms,
+)
 
 
 def is_intel_mac() -> bool:
@@ -185,6 +191,7 @@ class TransformersTranscriber:
         self._is_mms = is_mms_model(model_id)
         self._is_parakeet = is_parakeet_model(model_id)
         self._is_vibevoice = is_vibevoice_model(model_id)
+        self._is_qwen_asr = is_qwen_asr_model(model_id)
         self._is_peft = is_peft_model(model_id)
 
     @property
@@ -203,6 +210,11 @@ class TransformersTranscriber:
         return self._is_vibevoice
 
     @property
+    def is_qwen_asr_model(self) -> bool:
+        """Returns True if this is a Qwen3 ASR model."""
+        return self._is_qwen_asr
+
+    @property
     def is_peft_model(self) -> bool:
         """Returns True if this is a PEFT model."""
         return self._is_peft
@@ -215,13 +227,15 @@ class TransformersTranscriber:
         word_timestamps: bool = False,
         initial_prompt: str = "",
     ):
-        """Transcribe audio using a Whisper, MMS, Parakeet, or VibeVoice ASR model."""
+        """Transcribe audio using a Whisper, MMS, Parakeet, VibeVoice, or Qwen3 ASR model."""
         if self._is_mms:
             return self._transcribe_mms(audio, language)
         elif self._is_parakeet:
             return self._transcribe_parakeet(audio)
         elif self._is_vibevoice:
             return self._transcribe_vibevoice(audio, initial_prompt)
+        elif self._is_qwen_asr:
+            return self._transcribe_qwen(audio, language)
         else:
             return self._transcribe_whisper(audio, language, task, word_timestamps, initial_prompt)
 
@@ -666,6 +680,108 @@ class TransformersTranscriber:
 
         return {
             "text": full_text,
+            "segments": segments,
+        }
+
+    def _transcribe_qwen(
+        self,
+        audio: Union[str, np.ndarray],
+        language: str,
+    ):
+        """Transcribe using a Qwen3 ASR model (e.g. Qwen/Qwen3-ASR-1.7B-hf).
+
+        Qwen3 ASR is a multimodal LLM loaded with AutoModelForMultimodalLM and
+        driven through the processor's ``apply_transcription_request`` helper. It
+        returns transcription text only (no per-segment timestamps), so we chunk
+        the audio into fixed windows ourselves to keep per-segment timing for
+        longer files and to report progress.
+        """
+        from transformers import AutoModelForMultimodalLM
+        from transformers.pipelines.audio_utils import ffmpeg_read as qw_ffmpeg_read
+
+        force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
+        use_cuda = torch.cuda.is_available() and force_cpu == "false"
+        device = "cuda" if use_cuda else "cpu"
+        torch_dtype = torch.float16 if use_cuda else torch.float32
+
+        model = AutoModelForMultimodalLM.from_pretrained(
+            self.model_id, dtype=torch_dtype, low_cpu_mem_usage=True
+        )
+        model.to(device)
+
+        processor = AutoProcessor.from_pretrained(self.model_id)
+        sampling_rate = processor.feature_extractor.sampling_rate
+
+        # Language is a hint in the system prompt; an empty value lets the model
+        # auto-detect the spoken language. Qwen3 ASR only supports a fixed set of
+        # languages and raises on anything else, so fall back to auto-detection
+        # for unsupported codes (e.g. Latvian) instead of crashing.
+        language_hint = language or None
+        if language_hint is not None:
+            try:
+                from transformers.models.qwen3_asr.processing_qwen3_asr import (
+                    resolve_language,
+                )
+                resolve_language(language_hint)
+            except Exception:
+                print(
+                    f"Qwen3 ASR does not support language '{language_hint}', "
+                    "falling back to automatic language detection"
+                )
+                language_hint = None
+
+        # Load audio into a mono float32 array with ffmpeg. The processor accepts
+        # numpy arrays directly, which also avoids the torchcodec-based load_audio()
+        # path that can crash on some systems.
+        if isinstance(audio, str):
+            with open(audio, "rb") as f:
+                audio_bytes = f.read()
+            audio_array = qw_ffmpeg_read(audio_bytes, sampling_rate)
+        else:
+            audio_array = audio
+
+        chunk_seconds = 30
+        chunk_size = int(chunk_seconds * sampling_rate)
+        total_samples = len(audio_array)
+
+        segments = []
+        texts = []
+        for start_idx in range(0, total_samples, chunk_size):
+            progress = int((start_idx / total_samples) * 100) if total_samples else 0
+            sys.stderr.write(f"{progress}%\n")
+
+            chunk = audio_array[start_idx:start_idx + chunk_size]
+            if len(chunk) == 0:
+                continue
+
+            inputs = processor.apply_transcription_request(
+                audio=chunk, language=language_hint
+            ).to(model.device, model.dtype)
+
+            with torch.no_grad():
+                output_ids = model.generate(**inputs, max_new_tokens=256)
+
+            generated_ids = output_ids[:, inputs["input_ids"].shape[1]:]
+            text = (processor.decode(
+                generated_ids[0], return_format="transcription_only"
+            ) or "").strip()
+            if not text:
+                continue
+
+            start_s = start_idx / sampling_rate
+            end_s = min(start_idx + chunk_size, total_samples) / sampling_rate
+            segments.append({
+                "start": start_s,
+                "end": end_s,
+                "text": text,
+                "translation": "",
+            })
+            texts.append(text)
+
+        sys.stderr.write("100%\n")
+
+        return {
+            "text": " ".join(texts),
             "segments": segments,
         }
 
