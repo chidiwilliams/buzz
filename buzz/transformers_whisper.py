@@ -15,7 +15,7 @@ from transformers.pipelines import AutomaticSpeechRecognitionPipeline
 from transformers.pipelines.audio_utils import ffmpeg_read
 from transformers.pipelines.automatic_speech_recognition import is_torchaudio_available
 
-from buzz.model_loader import is_mms_model, is_parakeet_model, map_language_to_mms
+from buzz.model_loader import is_mms_model, is_parakeet_model, is_vibevoice_model, map_language_to_mms
 
 
 def is_intel_mac() -> bool:
@@ -184,6 +184,7 @@ class TransformersTranscriber:
         self.model_id = model_id
         self._is_mms = is_mms_model(model_id)
         self._is_parakeet = is_parakeet_model(model_id)
+        self._is_vibevoice = is_vibevoice_model(model_id)
         self._is_peft = is_peft_model(model_id)
 
     @property
@@ -195,6 +196,11 @@ class TransformersTranscriber:
     def is_parakeet_model(self) -> bool:
         """Returns True if this is a Parakeet transducer model."""
         return self._is_parakeet
+
+    @property
+    def is_vibevoice_model(self) -> bool:
+        """Returns True if this is a VibeVoice ASR model."""
+        return self._is_vibevoice
 
     @property
     def is_peft_model(self) -> bool:
@@ -209,11 +215,13 @@ class TransformersTranscriber:
         word_timestamps: bool = False,
         initial_prompt: str = "",
     ):
-        """Transcribe audio using a Whisper, MMS, or Parakeet model."""
+        """Transcribe audio using a Whisper, MMS, Parakeet, or VibeVoice ASR model."""
         if self._is_mms:
             return self._transcribe_mms(audio, language)
         elif self._is_parakeet:
             return self._transcribe_parakeet(audio)
+        elif self._is_vibevoice:
+            return self._transcribe_vibevoice(audio, initial_prompt)
         else:
             return self._transcribe_whisper(audio, language, task, word_timestamps, initial_prompt)
 
@@ -559,6 +567,99 @@ class TransformersTranscriber:
 
         return {
             "text": " ".join(texts),
+            "segments": segments,
+        }
+
+    def _transcribe_vibevoice(
+        self,
+        audio: Union[str, np.ndarray],
+        initial_prompt: str = "",
+    ):
+        """Transcribe using a VibeVoice ASR model (microsoft/VibeVoice-ASR-HF).
+
+        VibeVoice ASR is not a Whisper-style seq2seq model; it is loaded with
+        VibeVoiceAsrForConditionalGeneration and driven through the processor's
+        chat-template based ``apply_transcription_request`` helper. The model can
+        transcribe up to an hour of audio in a single pass and emits timestamped,
+        speaker-attributed segments, so we parse those directly instead of chunking
+        the audio ourselves.
+        """
+        from transformers import VibeVoiceAsrForConditionalGeneration
+        from transformers.pipelines.audio_utils import ffmpeg_read as vv_ffmpeg_read
+
+        force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
+        use_cuda = torch.cuda.is_available() and force_cpu == "false"
+        device = "cuda" if use_cuda else "cpu"
+        torch_dtype = torch.float16 if use_cuda else torch.float32
+
+        model = VibeVoiceAsrForConditionalGeneration.from_pretrained(
+            self.model_id, dtype=torch_dtype, low_cpu_mem_usage=True
+        )
+        model.to(device)
+
+        processor = AutoProcessor.from_pretrained(self.model_id)
+        sampling_rate = processor.feature_extractor.sampling_rate
+
+        sys.stderr.write("0%\n")
+
+        # Load audio into a mono float32 array ourselves with ffmpeg. If we hand the
+        # processor a file path instead, its chat-template loader routes through
+        # transformers' load_audio(), which imports torchcodec and can hard-crash
+        # (std::bad_alloc / SIGABRT) on some systems. Passing a numpy array skips
+        # that path entirely.
+        if isinstance(audio, str):
+            with open(audio, "rb") as f:
+                audio_bytes = f.read()
+            audio_array = vv_ffmpeg_read(audio_bytes, sampling_rate)
+        else:
+            audio_array = audio
+
+        # An optional prompt provides extra context for proper nouns.
+        inputs = processor.apply_transcription_request(
+            audio=audio_array, prompt=initial_prompt or None
+        )
+        inputs = inputs.to(model.device, model.dtype)
+
+        sys.stderr.write("50%\n")
+
+        with torch.no_grad():
+            output_ids = model.generate(**inputs)
+
+        # Strip the prompt tokens, keeping only the generated transcription
+        generated_ids = output_ids[:, inputs["input_ids"].shape[1]:]
+
+        sys.stderr.write("90%\n")
+
+        # "parsed" returns a list of {Start, End, Speaker, Content} dicts, or the
+        # raw string if the model output could not be parsed as JSON.
+        parsed = processor.decode(generated_ids[0], return_format="parsed")
+
+        segments = []
+        texts = []
+        if isinstance(parsed, list):
+            for seg in parsed:
+                if not isinstance(seg, dict):
+                    continue
+                text = str(seg.get("Content", "")).strip()
+                if not text:
+                    continue
+                start = float(seg.get("Start") or 0)
+                end = float(seg.get("End") or start + 0.1)
+                segments.append({
+                    "start": start,
+                    "end": end,
+                    "text": text,
+                    "translation": "",
+                })
+                texts.append(text)
+            full_text = " ".join(texts)
+        else:
+            full_text = str(parsed).strip()
+
+        sys.stderr.write("100%\n")
+
+        return {
+            "text": full_text,
             "segments": segments,
         }
 

@@ -13,6 +13,7 @@ from buzz.model_loader import (
     map_language_to_mms,
     is_mms_model,
     is_parakeet_model,
+    is_vibevoice_model,
     get_expected_whisper_model_size,
     get_whisper_file_path,
     WHISPER_MODEL_SIZES,
@@ -100,6 +101,20 @@ class TestIsParakeetModel:
 
     def test_non_parakeet_model(self):
         assert is_parakeet_model("openai/whisper-tiny") is False
+
+
+class TestIsVibeVoiceModel:
+    def test_empty_string(self):
+        assert is_vibevoice_model("") is False
+
+    def test_vibevoice_in_model_id(self):
+        assert is_vibevoice_model("microsoft/VibeVoice-ASR-HF") is True
+
+    def test_vibevoice_case_insensitive(self):
+        assert is_vibevoice_model("microsoft/vibevoice-asr-hf") is True
+
+    def test_non_vibevoice_model(self):
+        assert is_vibevoice_model("openai/whisper-tiny") is False
 
 
 class TestWhisperModelSize:

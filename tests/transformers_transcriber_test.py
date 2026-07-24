@@ -40,3 +40,22 @@ class TestTransformersTranscriber:
 
         assert result["text"].strip() != ""
         assert len(result["segments"]) > 0
+
+    @pytest.mark.skipif(
+        platform.system() == "Darwin",
+        reason="Not supported on Darwin",
+    )
+    @pytest.mark.skipif(
+        os.environ.get("CI") is not None,
+        reason="Skip on CI to avoid downloading large VibeVoice ASR model files",
+    )
+    def test_should_transcribe_vibevoice(self):
+        model = TransformersTranscriber("microsoft/VibeVoice-ASR-HF")
+        assert model.is_vibevoice_model is True
+
+        result = model.transcribe(
+            audio=test_multibyte_utf8_audio_path, language="lv", task="transcribe"
+        )
+
+        assert result["text"].strip() != ""
+        assert len(result["segments"]) > 0

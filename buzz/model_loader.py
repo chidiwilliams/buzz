@@ -212,10 +212,11 @@ class ModelType(enum.Enum):
 HUGGING_FACE_MODEL_ALLOW_PATTERNS = [
     "model.safetensors",  # largest by size first
     "pytorch_model.bin",
-    "model-00001-of-00002.safetensors",
-    "model-00002-of-00002.safetensors",
+    "model-*-of-*.safetensors",  # glob covers any number of shards (e.g. VibeVoice ASR has 8)
     "model.safetensors.index.json",
     "added_tokens.json",
+    "chat_template.jinja",  # VibeVoice ASR ships its transcription prompt as a chat template
+    "chat_template.json",
     "config.json",
     "generation_config.json",
     "merges.txt",
@@ -332,6 +333,41 @@ def is_parakeet_model(model_id: str) -> bool:
         with open(config_path) as f:
             config = json.load(f)
         return str(config.get("model_type", "")).startswith("parakeet")
+    except Exception:
+        return False
+
+
+def is_vibevoice_model(model_id: str) -> bool:
+    """Detect if a HuggingFace model is a VibeVoice ASR model.
+
+    VibeVoice ASR models (e.g. microsoft/VibeVoice-ASR-HF) are loaded with
+    VibeVoiceAsrForConditionalGeneration and transcribed through the processor's
+    chat-template based ``apply_transcription_request`` API rather than the
+    standard Whisper seq2seq path.
+
+    Detection criteria:
+    1. Model ID (or local cache path) contains "vibevoice"
+    2. Model config has a "vibevoice_*" model_type
+    """
+    if not model_id:
+        return False
+
+    # Fast check: model ID / cache path pattern
+    if "vibevoice" in model_id.lower():
+        return True
+
+    # For cached/downloaded models, check config.json
+    try:
+        import json
+        if os.path.isdir(model_id):
+            config_path = os.path.join(model_id, "config.json")
+        else:
+            config_path = huggingface_hub.hf_hub_download(
+                model_id, "config.json", local_files_only=True, cache_dir=model_root_dir
+            )
+        with open(config_path) as f:
+            config = json.load(f)
+        return str(config.get("model_type", "")).startswith("vibevoice")
     except Exception:
         return False
 
