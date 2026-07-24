@@ -8,6 +8,7 @@ are loaded by importing their ``plugin.py`` entry module and locating the single
 launch.
 """
 
+import filecmp
 import importlib.util
 import inspect
 import logging
@@ -16,8 +17,7 @@ import shutil
 import sys
 import tempfile
 import zipfile
-from pathlib import Path
-from typing import List
+from typing import List, Set
 from urllib.request import urlopen
 
 from platformdirs import user_cache_dir
@@ -64,20 +64,72 @@ def ensure_deps_on_path() -> None:
         sys.path.insert(0, deps_dir)
 
 
+# Files/folders that are build artifacts and must be ignored when comparing or
+# copying bundled plugins, so they never trigger spurious updates.
+_COPY_IGNORE = shutil.ignore_patterns("__pycache__", "*.pyc")
+_IGNORED_NAMES = {"__pycache__"}
+
+
+def _relative_files(root: str) -> Set[str]:
+    """Return plugin-relevant files under ``root`` as paths relative to it.
+
+    Build artifacts (``__pycache__``, ``*.pyc``) are excluded so they do not
+    affect comparisons.
+    """
+    files: Set[str] = set()
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d not in _IGNORED_NAMES]
+        for name in filenames:
+            if name.endswith(".pyc"):
+                continue
+            full = os.path.join(dirpath, name)
+            files.add(os.path.relpath(full, root))
+    return files
+
+
+def _bundled_plugin_changed(src: str, dest: str) -> bool:
+    """Return True if the bundled plugin at ``src`` differs from the cached ``dest``.
+
+    Detects added/removed files (including locales) and any content change in
+    ``plugin.py``, locale files, or other plugin files.
+    """
+    src_files = _relative_files(src)
+    dest_files = _relative_files(dest)
+    if src_files != dest_files:
+        return True
+    for rel in src_files:
+        if not filecmp.cmp(
+            os.path.join(src, rel), os.path.join(dest, rel), shallow=False
+        ):
+            return True
+    return False
+
+
 def copy_bundled_plugins() -> None:
-    """Copy bundled plugins into the user plugins folder if not already present."""
+    """Install bundled plugins into the user folder, refreshing changed ones.
+
+    Missing plugins are copied in. Plugins already present are overwritten only
+    when the bundled version differs from the cached copy (a fix to ``plugin.py``,
+    a new or updated locale, etc.), so user-installed plugins are left untouched.
+    """
     plugins_dir = get_plugins_dir()
     for plugin_id in BUNDLED_PLUGIN_IDS:
         dest = os.path.join(plugins_dir, plugin_id)
-        if os.path.exists(dest):
-            continue
         src = get_path(os.path.join("plugins", plugin_id))
         if not os.path.isdir(src):
             logger.warning("Bundled plugin source not found: %s", src)
             continue
+
+        exists = os.path.exists(dest)
+        if exists and not _bundled_plugin_changed(src, dest):
+            continue
+
         try:
-            shutil.copytree(src, dest)
-            logger.info("Copied bundled plugin '%s' to %s", plugin_id, dest)
+            if exists:
+                shutil.rmtree(dest)
+            shutil.copytree(src, dest, ignore=_COPY_IGNORE)
+            action = "Updated" if exists else "Copied"
+            logger.info("%s bundled plugin '%s' to %s", action, plugin_id, dest)
         except Exception as exc:
             logger.warning("Failed to copy bundled plugin '%s': %s", plugin_id, exc)
 

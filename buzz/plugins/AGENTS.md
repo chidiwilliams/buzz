@@ -188,10 +188,13 @@ in **all** of these files. See `ai_summary/locale/` or
 `enhanced_language_detection/locale/` for a complete worked example, and copy the
 file set from an existing plugin so the locale list stays consistent.
 
-> **Cache note:** Bundled plugins are copied to `~/.cache/Buzz/plugins/` only
-> once (if the folder does not already exist). When updating a bundled plugin's
-> locale files during development, you must also sync them into the cache
-> manually: `cp -r buzz/plugins/<id>/. ~/.cache/Buzz/plugins/<id>/`.
+> **Cache note:** Bundled plugins are copied to `~/.cache/Buzz/plugins/` on
+> launch. `copy_bundled_plugins()` compares each bundled plugin against its
+> cached copy and refreshes the cache whenever the bundle differs — a fixed
+> `plugin.py`, or an added/updated/removed locale file. So editing a bundled
+> plugin's code or locales and relaunching Buzz is enough; no manual sync is
+> needed. (Build artifacts like `__pycache__`/`*.pyc` are ignored in the
+> comparison.) User-installed plugins are never touched.
 
 ## Packaging & distribution
 
