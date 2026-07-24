@@ -597,6 +597,12 @@ class TransformersTranscriber:
         )
         model.to(device)
 
+        # The model ships a generation_config that sets both max_new_tokens and
+        # max_length to the same value; keeping only max_new_tokens avoids the
+        # "both ... seem to have been set" warning without changing behaviour.
+        if getattr(model.generation_config, "max_new_tokens", None) is not None:
+            model.generation_config.max_length = None
+
         processor = AutoProcessor.from_pretrained(self.model_id)
         sampling_rate = processor.feature_extractor.sampling_rate
 
