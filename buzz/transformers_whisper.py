@@ -42,7 +42,14 @@ class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no co
 
             chunk_end_idx = chunk_start_idx + chunk_len
             chunk = inputs[chunk_start_idx:chunk_end_idx]
-            processed = feature_extractor(chunk, sampling_rate=feature_extractor.sampling_rate, return_tensors="pt")
+            # return_attention_mask is required for precise word-level timestamps
+            # (transformers 5.x warns and degrades timestamps without it)
+            processed = feature_extractor(
+                chunk,
+                sampling_rate=feature_extractor.sampling_rate,
+                return_tensors="pt",
+                return_attention_mask=True,
+            )
             if dtype is not None:
                 processed = processed.to(dtype=dtype)
             _stride_left = 0 if chunk_start_idx == 0 else stride_left
@@ -278,11 +285,14 @@ class TransformersTranscriber:
 
             processor = AutoProcessor.from_pretrained(self.model_id)
 
+        # transformers 5.x deprecates passing generation params alongside a
+        # generation_config in the same call; set them on the config instead.
+        model.generation_config.no_repeat_ngram_size = 3
+        model.generation_config.repetition_penalty = 1.2
+
         generate_kwargs = {
             "language": language,
             "task": task,
-            "no_repeat_ngram_size": 3,
-            "repetition_penalty": 1.2,
         }
         if initial_prompt:
             generate_kwargs["prompt_ids"] = self._get_prompt_ids(processor, initial_prompt)
@@ -297,6 +307,9 @@ class TransformersTranscriber:
             # pipeline has built in chunking, works faster, but we loose progress output
             # needed for word level timestamps, otherwise there is huge RAM usage on longer audios
             "chunk_length_s": 30 if word_timestamps else None,
+            # chunk_length_s is intentional for seq2seq; suppress the experimental
+            # notice emitted by _sanitize_parameters at construction time
+            "ignore_warning": True,
             # transformers 5.x renamed the pipeline `torch_dtype` kwarg to `dtype`
             "dtype": torch_dtype,
         }
