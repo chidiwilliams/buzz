@@ -1,3 +1,4 @@
+import copy
 import datetime
 import enum
 import os
@@ -207,6 +208,10 @@ class FileTranscriptionTask:
     delete_source_file: bool = False
     url: Optional[str] = None
     fraction_downloaded: float = 0.0
+
+    def __post_init__(self):
+        # Ensure shared UI settings do not affect queued task
+        self.transcription_options = copy.deepcopy(self.transcription_options)
 
 
 class OutputFormat(enum.Enum):
