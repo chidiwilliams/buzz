@@ -15,7 +15,7 @@ from transformers.pipelines import AutomaticSpeechRecognitionPipeline
 from transformers.pipelines.audio_utils import ffmpeg_read
 from transformers.pipelines.automatic_speech_recognition import is_torchaudio_available
 
-from buzz.model_loader import is_mms_model, map_language_to_mms
+from buzz.model_loader import is_mms_model, is_parakeet_model, map_language_to_mms
 
 
 def is_intel_mac() -> bool:
@@ -183,12 +183,18 @@ class TransformersTranscriber:
     def __init__(self, model_id: str):
         self.model_id = model_id
         self._is_mms = is_mms_model(model_id)
+        self._is_parakeet = is_parakeet_model(model_id)
         self._is_peft = is_peft_model(model_id)
 
     @property
     def is_mms_model(self) -> bool:
         """Returns True if this is an MMS model."""
         return self._is_mms
+
+    @property
+    def is_parakeet_model(self) -> bool:
+        """Returns True if this is a Parakeet transducer model."""
+        return self._is_parakeet
 
     @property
     def is_peft_model(self) -> bool:
@@ -203,9 +209,11 @@ class TransformersTranscriber:
         word_timestamps: bool = False,
         initial_prompt: str = "",
     ):
-        """Transcribe audio using either Whisper or MMS model."""
+        """Transcribe audio using a Whisper, MMS, or Parakeet model."""
         if self._is_mms:
             return self._transcribe_mms(audio, language)
+        elif self._is_parakeet:
+            return self._transcribe_parakeet(audio)
         else:
             return self._transcribe_whisper(audio, language, task, word_timestamps, initial_prompt)
 
@@ -456,6 +464,103 @@ class TransformersTranscriber:
 
         # Fallback: return as-is
         return model_id
+
+    def _transcribe_parakeet(
+        self,
+        audio: Union[str, np.ndarray],
+    ):
+        """Transcribe using a Parakeet transducer model (TDT / RNN-T / CTC).
+
+        Parakeet models are transducers, not Whisper-style seq2seq models, so they
+        must be loaded with AutoModelForTDT/RNNT/CTC rather than
+        AutoModelForSpeechSeq2Seq. The transformers ASR pipeline supports them via
+        its "tdt" path, but that path returns text only (requesting timestamps
+        raises), so we chunk the audio ourselves to keep per-segment timing for
+        longer files and to report progress.
+        """
+        from transformers import (
+            AutoConfig,
+            AutoModelForCTC,
+            AutoModelForRNNT,
+            AutoModelForTDT,
+        )
+        from transformers.pipelines.audio_utils import ffmpeg_read as pk_ffmpeg_read
+
+        force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
+        use_cuda = torch.cuda.is_available() and force_cpu == "false"
+        device = "cuda" if use_cuda else "cpu"
+        torch_dtype = torch.float16 if use_cuda else torch.float32
+
+        # Pick the right auto class for the transducer variant
+        model_type = AutoConfig.from_pretrained(self.model_id).model_type
+        auto_class = {
+            "parakeet_tdt": AutoModelForTDT,
+            "parakeet_rnnt": AutoModelForRNNT,
+            "parakeet_ctc": AutoModelForCTC,
+        }.get(model_type, AutoModelForTDT)
+
+        model = auto_class.from_pretrained(
+            self.model_id, dtype=torch_dtype, low_cpu_mem_usage=True
+        )
+        model.to(device)
+
+        processor = AutoProcessor.from_pretrained(self.model_id)
+        sampling_rate = processor.feature_extractor.sampling_rate
+
+        # Load audio into a mono float32 array at the model's sampling rate
+        if isinstance(audio, str):
+            with open(audio, "rb") as f:
+                audio_bytes = f.read()
+            audio_array = pk_ffmpeg_read(audio_bytes, sampling_rate)
+        else:
+            audio_array = audio
+
+        pipe = pipeline(
+            task="automatic-speech-recognition",
+            pipeline_class=PipelineWithProgress,
+            model=model,
+            tokenizer=processor.tokenizer,
+            feature_extractor=processor.feature_extractor,
+            device=device,
+            dtype=torch_dtype,
+        )
+
+        # The transducer pipeline returns text only (no timestamps), so split the
+        # audio into fixed windows and emit one segment per non-empty window.
+        chunk_seconds = 30
+        chunk_size = int(chunk_seconds * sampling_rate)
+        total_samples = len(audio_array)
+
+        segments = []
+        texts = []
+        for start_idx in range(0, total_samples, chunk_size):
+            progress = int((start_idx / total_samples) * 100) if total_samples else 0
+            sys.stderr.write(f"{progress}%\n")
+
+            chunk = audio_array[start_idx:start_idx + chunk_size]
+            if len(chunk) == 0:
+                continue
+
+            text = (pipe(chunk).get("text") or "").strip()
+            if not text:
+                continue
+
+            start_s = start_idx / sampling_rate
+            end_s = min(start_idx + chunk_size, total_samples) / sampling_rate
+            segments.append({
+                "start": start_s,
+                "end": end_s,
+                "text": text,
+                "translation": "",
+            })
+            texts.append(text)
+
+        sys.stderr.write("100%\n")
+
+        return {
+            "text": " ".join(texts),
+            "segments": segments,
+        }
 
     def _transcribe_mms(
         self,

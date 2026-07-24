@@ -12,6 +12,7 @@ from buzz.model_loader import (
     WhisperModelSize,
     map_language_to_mms,
     is_mms_model,
+    is_parakeet_model,
     get_expected_whisper_model_size,
     get_whisper_file_path,
     WHISPER_MODEL_SIZES,
@@ -85,6 +86,20 @@ class TestIsMmsModel:
 
     def test_non_mms_model(self):
         assert is_mms_model("openai/whisper-tiny") is False
+
+
+class TestIsParakeetModel:
+    def test_empty_string(self):
+        assert is_parakeet_model("") is False
+
+    def test_parakeet_in_model_id(self):
+        assert is_parakeet_model("nvidia/parakeet-tdt-0.6b-v3") is True
+
+    def test_parakeet_case_insensitive(self):
+        assert is_parakeet_model("nvidia/Parakeet-TDT-0.6b-v3") is True
+
+    def test_non_parakeet_model(self):
+        assert is_parakeet_model("openai/whisper-tiny") is False
 
 
 class TestWhisperModelSize:
