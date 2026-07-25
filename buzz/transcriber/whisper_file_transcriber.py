@@ -18,6 +18,7 @@ from threading import Thread
 from typing import Optional, List
 
 import tqdm
+import psutil
 from PyQt6.QtCore import QObject
 
 from buzz import whisper_audio
@@ -35,6 +36,44 @@ import stable_whisper
 from stable_whisper import WhisperResult
 
 PROGRESS_REGEX = re.compile(r"\d+(\.\d+)?%")
+
+
+def terminate_process_tree(pid: int, timeout: float = 5.0) -> None:
+    """Terminate a process together with all of its descendants.
+
+    ``multiprocessing.Process.terminate()`` only signals the immediate child
+    process. For whisper.cpp the actual work runs in a ``whisper-cli``
+    subprocess spawned by that child, so signalling only the child leaves the
+    CLI orphaned and still consuming CPU/GPU after the user presses Stop or
+    closes the app. Walking the tree with psutil kills the grandchildren too.
+    """
+    try:
+        parent = psutil.Process(pid)
+    except (psutil.NoSuchProcess, ValueError):
+        return
+
+    try:
+        procs = parent.children(recursive=True)
+    except (psutil.NoSuchProcess, psutil.AccessDenied):
+        procs = []
+    procs.append(parent)
+
+    # Ask every process in the tree to exit (SIGTERM / TerminateProcess).
+    for proc in procs:
+        try:
+            proc.terminate()
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            pass
+
+    _, alive = psutil.wait_procs(procs, timeout=timeout)
+
+    # Force-kill whatever ignored the polite request.
+    for proc in alive:
+        try:
+            proc.kill()
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            pass
+    psutil.wait_procs(alive, timeout=timeout)
 
 
 def check_file_has_audio_stream(file_path: str) -> None:
@@ -404,19 +443,16 @@ class WhisperFileTranscriber(FileTranscriber):
         self.stopped = True
 
         if self.started_process:
-            self.current_process.terminate()
+            # Kill the whisper worker process *and* the whisper-cli subprocess
+            # it spawned. terminate() alone only signals the direct child, which
+            # would leave whisper-cli running (orphaned) after Stop/app close.
+            if self.current_process.pid is not None:
+                terminate_process_tree(self.current_process.pid)
+            else:
+                self.current_process.terminate()
 
-            if self.read_line_thread and self.read_line_thread.is_alive():
-                self.read_line_thread.join(timeout=5)
-                if self.read_line_thread.is_alive():
-                    logging.warning("Read line thread still alive after 5s")
-
-            self.current_process.join(timeout=10)
-            if self.current_process.is_alive():
-                logging.warning("Process didn't terminate gracefully, force killing")
-                self.current_process.kill()
-                self.current_process.join(timeout=5)
-
+            # Close the pipes to unblock the read_line thread, which is
+            # otherwise stuck in recv() until it gets EOF / an OSError.
             try:
                 if hasattr(self, 'send_pipe') and self.send_pipe:
                     self.send_pipe.close()
@@ -428,6 +464,17 @@ class WhisperFileTranscriber(FileTranscriber):
                     self.recv_pipe.close()
             except Exception as e:
                 logging.debug(f"Error closing recv_pipe: {e}")
+
+            if self.read_line_thread and self.read_line_thread.is_alive():
+                self.read_line_thread.join(timeout=5)
+                if self.read_line_thread.is_alive():
+                    logging.warning("Read line thread still alive after 5s")
+
+            self.current_process.join(timeout=10)
+            if self.current_process.is_alive():
+                logging.warning("Process didn't terminate gracefully, force killing")
+                self.current_process.kill()
+                self.current_process.join(timeout=5)
 
     def read_line(self, pipe: Connection):
         while True:
