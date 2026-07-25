@@ -1457,3 +1457,194 @@ class TestPresentationTranslationSync:
             widget.translation_text_box.setPlainText("Translated content")
             widget.on_show_presentation_clicked()
             assert "Translated content" in widget.presentation_window._current_translation
+
+
+class TestOnNextTranslationExport:
+    """CSV/TXT export of translations, mirroring the transcript export tests."""
+
+    @pytest.mark.timeout(60)
+    def test_append_below_csv_appends_columns(self, qtbot):
+        import csv
+        with _widget_ctx(qtbot) as widget, tempfile.NamedTemporaryFile(
+            suffix=".csv", delete=False, mode="w"
+        ) as f:
+            export_path = f.name
+
+        try:
+            widget.transcriber_mode = RecordingTranscriberMode.APPEND_BELOW
+            widget.export_enabled = True
+            widget.translation_export_file = export_path
+            widget.export_file_type = "csv"
+            widget.on_next_translation("bonjour")
+            widget.on_next_translation("monde")
+
+            with open(export_path, newline="", encoding="utf-8-sig") as f:
+                rows = [r for r in csv.reader(f) if r]
+            assert rows[0] == ["bonjour", "monde"]
+        finally:
+            os.unlink(export_path)
+
+    @pytest.mark.timeout(60)
+    def test_append_above_csv_prepends_columns(self, qtbot):
+        import csv
+        with _widget_ctx(qtbot) as widget, tempfile.NamedTemporaryFile(
+            suffix=".csv", delete=False, mode="w"
+        ) as f:
+            export_path = f.name
+
+        try:
+            widget.transcriber_mode = RecordingTranscriberMode.APPEND_ABOVE
+            widget.export_enabled = True
+            widget.translation_export_file = export_path
+            widget.export_file_type = "csv"
+            widget.on_next_translation("first")
+            widget.on_next_translation("second")
+
+            with open(export_path, newline="", encoding="utf-8-sig") as f:
+                rows = [r for r in csv.reader(f) if r]
+            assert rows[0] == ["second", "first"]
+        finally:
+            os.unlink(export_path)
+
+    @pytest.mark.timeout(60)
+    def test_append_above_csv_respects_max_entries(self, qtbot):
+        import csv
+        with _widget_ctx(qtbot) as widget, tempfile.NamedTemporaryFile(
+            suffix=".csv", delete=False, mode="w"
+        ) as f:
+            export_path = f.name
+
+        try:
+            widget.transcriber_mode = RecordingTranscriberMode.APPEND_ABOVE
+            widget.export_enabled = True
+            widget.translation_export_file = export_path
+            widget.export_file_type = "csv"
+            widget.export_max_entries = 2
+            widget.on_next_translation("first")
+            widget.on_next_translation("second")
+            widget.on_next_translation("third")
+
+            with open(export_path, newline="", encoding="utf-8-sig") as f:
+                rows = [r for r in csv.reader(f) if r]
+            assert rows[0] == ["third", "second"]
+        finally:
+            os.unlink(export_path)
+
+    @pytest.mark.timeout(60)
+    def test_append_below_txt_writes_translation(self, qtbot):
+        with _widget_ctx(qtbot) as widget, tempfile.NamedTemporaryFile(
+            suffix=".txt", delete=False, mode="w"
+        ) as f:
+            export_path = f.name
+
+        try:
+            widget.transcription_options.line_separator = "\n"
+            widget.transcriber_mode = RecordingTranscriberMode.APPEND_BELOW
+            widget.export_enabled = True
+            widget.translation_export_file = export_path
+            widget.export_file_type = "txt"
+            widget.on_next_translation("bonjour")
+            widget.on_next_translation("monde")
+
+            with open(export_path) as f:
+                content = f.read()
+            assert "bonjour" in content
+            assert "monde" in content
+        finally:
+            os.unlink(export_path)
+
+
+class TestAppendAndCorrectCsvExport:
+    """APPEND_AND_CORRECT rewrites the CSV with the whole merged text as one entry."""
+
+    @pytest.mark.timeout(60)
+    def test_transcript_merge_writes_single_csv_entry(self, qtbot):
+        import csv
+        with _widget_ctx(qtbot) as widget, tempfile.NamedTemporaryFile(
+            suffix=".csv", delete=False, mode="w"
+        ) as f:
+            export_path = f.name
+
+        try:
+            widget.transcriber_mode = RecordingTranscriberMode.APPEND_AND_CORRECT
+            widget.hide_unconfirmed = False
+            widget.export_enabled = True
+            widget.export_file_type = "csv"
+            widget.transcript_export_file = export_path
+            widget.on_next_transcription("Hello world.")
+            widget.on_next_transcription("world. Goodbye.")
+
+            with open(export_path, newline="", encoding="utf-8-sig") as f:
+                rows = [r for r in csv.reader(f) if r]
+            assert len(rows) == 1
+            assert len(rows[0]) == 1
+            assert "Hello" in rows[0][0]
+            assert "Goodbye" in rows[0][0]
+        finally:
+            os.unlink(export_path)
+
+
+class TestRecordingModeAndHideUnconfirmed:
+    @pytest.mark.timeout(60)
+    def test_on_recording_mode_changed_updates_mode(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            widget.on_recording_mode_changed(RecordingTranscriberMode.APPEND_ABOVE)
+            assert widget.transcriber_mode == RecordingTranscriberMode.APPEND_ABOVE
+
+    @pytest.mark.timeout(60)
+    def test_on_hide_unconfirmed_changed_updates_flag(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            widget.on_hide_unconfirmed_changed(False)
+            assert widget.hide_unconfirmed is False
+            widget.on_hide_unconfirmed_changed(True)
+            assert widget.hide_unconfirmed is True
+
+
+class TestOnCopyTranscriptFailurePaths:
+    @pytest.mark.timeout(60)
+    def test_no_qapplication_instance_shows_copy_failed(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            widget.transcription_text_box.setPlainText("some text")
+            with patch("buzz.widgets.recording_transcriber_widget.QApplication.instance",
+                       return_value=None):
+                widget.on_copy_transcript_clicked()
+            assert widget.copy_transcript_button.text() == _("Copy failed")
+
+    @pytest.mark.timeout(60)
+    def test_none_clipboard_shows_copy_failed(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            widget.transcription_text_box.setPlainText("some text")
+            mock_app = MagicMock()
+            mock_app.clipboard.return_value = None
+            with patch("buzz.widgets.recording_transcriber_widget.QApplication.instance",
+                       return_value=mock_app):
+                widget.on_copy_transcript_clicked()
+            assert widget.copy_transcript_button.text() == _("Copy failed")
+
+    @pytest.mark.timeout(60)
+    def test_clipboard_set_text_exception_shows_copy_failed(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            widget.transcription_text_box.setPlainText("some text")
+            mock_clipboard = MagicMock()
+            mock_clipboard.setText.side_effect = Exception("clipboard boom")
+            mock_app = MagicMock()
+            mock_app.clipboard.return_value = mock_clipboard
+            with patch("buzz.widgets.recording_transcriber_widget.QApplication.instance",
+                       return_value=mock_app):
+                widget.on_copy_transcript_clicked()
+            assert widget.copy_transcript_button.text() == _("Copy failed")
+
+
+class TestWriteCsvExportErrorHandling:
+    def test_write_gives_up_after_max_retries(self, tmp_path):
+        path = str(tmp_path / "out.csv")
+        with patch("builtins.open", side_effect=PermissionError("locked")), \
+             patch("time.sleep"):
+            # Should log and return without raising
+            RecordingTranscriberWidget.write_csv_export(path, "data", 0)
+
+    def test_write_handles_oserror(self, tmp_path):
+        path = str(tmp_path / "out.csv")
+        with patch("builtins.open", side_effect=OSError("disk full")):
+            # Should return gracefully without raising
+            RecordingTranscriberWidget.write_csv_export(path, "data", 0)

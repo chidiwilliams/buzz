@@ -1,13 +1,18 @@
 import glob
 import logging
+import multiprocessing
 import os
 import platform
 import shutil
+import subprocess
+import sys
 import tempfile
 import time
+from threading import Thread
 from typing import List
 from unittest.mock import Mock
 
+import psutil
 import pytest
 from pytestqt.qtbot import QtBot
 
@@ -24,10 +29,44 @@ from buzz.transcriber.transcriber import (
 from buzz.transcriber.whisper_file_transcriber import (
     WhisperFileTranscriber,
     check_file_has_audio_stream,
+    terminate_child_processes,
     PROGRESS_REGEX,
 )
 from tests.audio import test_audio_path
 from tests.model_loader import get_model_path
+
+
+def _spawn_grandchild_worker(pipe):
+    """Multiprocessing target that mirrors the whisper.cpp process tree.
+
+    Spawns a long-lived subprocess (the stand-in for ``whisper-cli``), reports
+    its pid back to the parent, then blocks waiting on it. This gives us a
+    three-level tree (test -> worker process -> subprocess) to verify that
+    ``terminate_child_processes`` reaps grandchildren, not just the direct child.
+    """
+    proc = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(120)"])
+    pipe.send(proc.pid)
+    pipe.close()
+    proc.wait()
+
+
+def _is_dead_or_zombie(proc: psutil.Process) -> bool:
+    """True if the process is gone, or a not-yet-reaped zombie."""
+    try:
+        if not proc.is_running():
+            return True
+        return proc.status() == psutil.STATUS_ZOMBIE
+    except psutil.NoSuchProcess:
+        return True
+
+
+def _wait_until(predicate, timeout: float = 15.0, interval: float = 0.1) -> bool:
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if predicate():
+            return True
+        time.sleep(interval)
+    return predicate()
 
 
 class TestCheckFileHasAudioStream:
@@ -72,6 +111,53 @@ class TestProgressRegex:
         assert match is not None
         percentage = int(match.group().strip("%"))
         assert percentage == 85
+
+
+class TestTerminateChildProcesses:
+    def test_kills_grandchild_subprocess(self):
+        """The whisper-cli stand-in (a grandchild) must be killed, not orphaned.
+
+        Reproduces the whisper.cpp shape: a multiprocessing worker that spawns
+        a long-lived subprocess. terminate_child_processes must kill that
+        subprocess while leaving the worker for its owner to reap.
+        """
+        recv_pipe, send_pipe = multiprocessing.Pipe(duplex=False)
+        worker = multiprocessing.Process(
+            target=_spawn_grandchild_worker, args=(send_pipe,)
+        )
+        worker.start()
+        # Parent doesn't send; close its copy so the pipe isn't kept open.
+        send_pipe.close()
+
+        # The worker reports the grandchild pid once the subprocess is up.
+        grandchild_pid = recv_pipe.recv()
+        recv_pipe.close()
+
+        worker_proc = psutil.Process(worker.pid)
+        grandchild_proc = psutil.Process(grandchild_pid)
+        assert worker_proc.is_running()
+        assert grandchild_proc.is_running()
+        # Sanity check the tree is actually nested two levels deep.
+        assert grandchild_pid in {
+            child.pid for child in worker_proc.children(recursive=True)
+        }
+
+        terminate_child_processes(worker.pid)
+
+        # The grandchild must be gone...
+        assert _wait_until(lambda: _is_dead_or_zombie(grandchild_proc)), (
+            "whisper-cli stand-in subprocess was orphaned instead of killed"
+        )
+
+        # ...and the worker must still be reapable via multiprocessing (i.e.
+        # terminate_child_processes must not have stolen its waitpid()).
+        worker.terminate()
+        worker.join(timeout=10)
+        assert not worker.is_alive()
+
+    def test_missing_pid_is_noop(self):
+        # A pid that cannot be a live process must not raise.
+        terminate_child_processes(-1)
 
 
 class TestWhisperFileTranscriber:
@@ -393,7 +479,6 @@ class TestWhisperFileTranscriber:
         transcriber.stop()
         time.sleep(3)
 
-    @pytest.mark.skip()
     def test_transcribe_stop(self):
         output_file_path = os.path.join(tempfile.gettempdir(), "whisper.txt")
         if os.path.exists(output_file_path):
@@ -421,9 +506,45 @@ class TestWhisperFileTranscriber:
                 file_path=test_audio_path,
             )
         )
-        transcriber.run()
-        time.sleep(1)
+
+        # run() blocks until transcription finishes, so drive it from a thread
+        # and stop it mid-flight from the test thread.
+        run_thread = Thread(target=transcriber.run, daemon=True)
+        run_thread.start()
+
+        # Wait until the whisper.cpp worker process AND its whisper-cli
+        # subprocess (grandchild) are actually up.
+        def worker_tree_is_up() -> bool:
+            if not transcriber.started_process:
+                return False
+            pid = transcriber.current_process.pid
+            if pid is None:
+                return False
+            try:
+                return len(psutil.Process(pid).children(recursive=True)) > 0
+            except psutil.NoSuchProcess:
+                return False
+
+        assert _wait_until(worker_tree_is_up, timeout=60), (
+            "whisper.cpp worker/subprocess did not start"
+        )
+
+        worker_pid = transcriber.current_process.pid
+        worker_proc = psutil.Process(worker_pid)
+        descendants = worker_proc.children(recursive=True)
+        assert descendants, "whisper-cli subprocess did not start"
+
         transcriber.stop()
+
+        # run() must return promptly and the whole process tree must be gone.
+        run_thread.join(timeout=30)
+        assert not run_thread.is_alive(), "transcriber.run() did not return after stop()"
+
+        assert _wait_until(lambda: _is_dead_or_zombie(worker_proc))
+        for child in descendants:
+            assert _wait_until(lambda child=child: _is_dead_or_zombie(child)), (
+                f"whisper-cli subprocess {child.pid} still running after stop()"
+            )
 
         # Assert that file was not created
         assert os.path.isfile(output_file_path) is False

@@ -18,6 +18,7 @@ from threading import Thread
 from typing import Optional, List
 
 import tqdm
+import psutil
 from PyQt6.QtCore import QObject
 
 from buzz import whisper_audio
@@ -35,6 +36,49 @@ import stable_whisper
 from stable_whisper import WhisperResult
 
 PROGRESS_REGEX = re.compile(r"\d+(\.\d+)?%")
+
+
+def terminate_child_processes(pid: int, timeout: float = 5.0) -> None:
+    """Terminate every descendant process of ``pid`` (but not ``pid`` itself).
+
+    For whisper.cpp the actual work runs in a ``whisper-cli`` subprocess spawned
+    by our multiprocessing worker. ``multiprocessing.Process.terminate()`` only
+    signals the worker, leaving that CLI orphaned and still consuming CPU/GPU
+    after the user presses Stop or closes the app. This kills those descendants.
+
+    Crucially it does *not* touch ``pid`` itself: the worker is a direct child
+    of the app process and must be reaped via ``multiprocessing`` (join). Calling
+    ``psutil.wait_procs`` on it here would steal the ``waitpid`` reap and leave
+    ``Process.is_alive()`` stuck reporting True. The descendants are grandchildren
+    of the app, so psutil only polls them and no such race occurs.
+    """
+    try:
+        parent = psutil.Process(pid)
+    except (psutil.NoSuchProcess, ValueError):
+        return
+
+    # Snapshot the tree before anything gets reparented by the worker exiting.
+    try:
+        descendants = parent.children(recursive=True)
+    except (psutil.NoSuchProcess, psutil.AccessDenied):
+        return
+
+    # Ask each descendant to exit (SIGTERM / TerminateProcess).
+    for proc in descendants:
+        try:
+            proc.terminate()
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            pass
+
+    _, alive = psutil.wait_procs(descendants, timeout=timeout)
+
+    # Force-kill whatever ignored the polite request.
+    for proc in alive:
+        try:
+            proc.kill()
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            pass
+    psutil.wait_procs(alive, timeout=timeout)
 
 
 def check_file_has_audio_stream(file_path: str) -> None:
@@ -404,19 +448,17 @@ class WhisperFileTranscriber(FileTranscriber):
         self.stopped = True
 
         if self.started_process:
+            # Kill the whisper-cli subprocess the worker spawned first. The
+            # worker's own terminate() below does not reach it, so it would
+            # otherwise keep running (orphaned) after Stop / app close.
+            if self.current_process.pid is not None:
+                terminate_child_processes(self.current_process.pid)
+
+            # Terminate the worker itself; it is reaped via join() below.
             self.current_process.terminate()
 
-            if self.read_line_thread and self.read_line_thread.is_alive():
-                self.read_line_thread.join(timeout=5)
-                if self.read_line_thread.is_alive():
-                    logging.warning("Read line thread still alive after 5s")
-
-            self.current_process.join(timeout=10)
-            if self.current_process.is_alive():
-                logging.warning("Process didn't terminate gracefully, force killing")
-                self.current_process.kill()
-                self.current_process.join(timeout=5)
-
+            # Close the pipes to unblock the read_line thread, which is
+            # otherwise stuck in recv() until it gets EOF / an OSError.
             try:
                 if hasattr(self, 'send_pipe') and self.send_pipe:
                     self.send_pipe.close()
@@ -428,6 +470,17 @@ class WhisperFileTranscriber(FileTranscriber):
                     self.recv_pipe.close()
             except Exception as e:
                 logging.debug(f"Error closing recv_pipe: {e}")
+
+            if self.read_line_thread and self.read_line_thread.is_alive():
+                self.read_line_thread.join(timeout=5)
+                if self.read_line_thread.is_alive():
+                    logging.warning("Read line thread still alive after 5s")
+
+            self.current_process.join(timeout=10)
+            if self.current_process.is_alive():
+                logging.warning("Process didn't terminate gracefully, force killing")
+                self.current_process.kill()
+                self.current_process.join(timeout=5)
 
     def read_line(self, pipe: Connection):
         while True:
