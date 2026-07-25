@@ -38,34 +38,39 @@ from stable_whisper import WhisperResult
 PROGRESS_REGEX = re.compile(r"\d+(\.\d+)?%")
 
 
-def terminate_process_tree(pid: int, timeout: float = 5.0) -> None:
-    """Terminate a process together with all of its descendants.
+def terminate_child_processes(pid: int, timeout: float = 5.0) -> None:
+    """Terminate every descendant process of ``pid`` (but not ``pid`` itself).
 
-    ``multiprocessing.Process.terminate()`` only signals the immediate child
-    process. For whisper.cpp the actual work runs in a ``whisper-cli``
-    subprocess spawned by that child, so signalling only the child leaves the
-    CLI orphaned and still consuming CPU/GPU after the user presses Stop or
-    closes the app. Walking the tree with psutil kills the grandchildren too.
+    For whisper.cpp the actual work runs in a ``whisper-cli`` subprocess spawned
+    by our multiprocessing worker. ``multiprocessing.Process.terminate()`` only
+    signals the worker, leaving that CLI orphaned and still consuming CPU/GPU
+    after the user presses Stop or closes the app. This kills those descendants.
+
+    Crucially it does *not* touch ``pid`` itself: the worker is a direct child
+    of the app process and must be reaped via ``multiprocessing`` (join). Calling
+    ``psutil.wait_procs`` on it here would steal the ``waitpid`` reap and leave
+    ``Process.is_alive()`` stuck reporting True. The descendants are grandchildren
+    of the app, so psutil only polls them and no such race occurs.
     """
     try:
         parent = psutil.Process(pid)
     except (psutil.NoSuchProcess, ValueError):
         return
 
+    # Snapshot the tree before anything gets reparented by the worker exiting.
     try:
-        procs = parent.children(recursive=True)
+        descendants = parent.children(recursive=True)
     except (psutil.NoSuchProcess, psutil.AccessDenied):
-        procs = []
-    procs.append(parent)
+        return
 
-    # Ask every process in the tree to exit (SIGTERM / TerminateProcess).
-    for proc in procs:
+    # Ask each descendant to exit (SIGTERM / TerminateProcess).
+    for proc in descendants:
         try:
             proc.terminate()
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             pass
 
-    _, alive = psutil.wait_procs(procs, timeout=timeout)
+    _, alive = psutil.wait_procs(descendants, timeout=timeout)
 
     # Force-kill whatever ignored the polite request.
     for proc in alive:
@@ -443,13 +448,14 @@ class WhisperFileTranscriber(FileTranscriber):
         self.stopped = True
 
         if self.started_process:
-            # Kill the whisper worker process *and* the whisper-cli subprocess
-            # it spawned. terminate() alone only signals the direct child, which
-            # would leave whisper-cli running (orphaned) after Stop/app close.
+            # Kill the whisper-cli subprocess the worker spawned first. The
+            # worker's own terminate() below does not reach it, so it would
+            # otherwise keep running (orphaned) after Stop / app close.
             if self.current_process.pid is not None:
-                terminate_process_tree(self.current_process.pid)
-            else:
-                self.current_process.terminate()
+                terminate_child_processes(self.current_process.pid)
+
+            # Terminate the worker itself; it is reaped via join() below.
+            self.current_process.terminate()
 
             # Close the pipes to unblock the read_line thread, which is
             # otherwise stuck in recv() until it gets EOF / an OSError.
