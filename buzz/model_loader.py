@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import ssl
+import time
 import warnings
 import platform
 
@@ -634,19 +635,46 @@ def get_whisper_file_path(size: WhisperModelSize) -> str:
     return os.path.join(root_dir, os.path.basename(url))
 
 
+SNAPSHOT_DOWNLOAD_ATTEMPTS = 3
+SNAPSHOT_DOWNLOAD_RETRY_DELAY = 5  # seconds, doubled after each failed attempt
+
+
 def _snapshot_download_worker(result_queue, repo_id, allow_patterns, cache_dir, etag_timeout, max_workers):
-    """Runs snapshot_download in a child process so it can be killed on cancel."""
-    try:
-        result = huggingface_hub.snapshot_download(
-            repo_id,
-            allow_patterns=allow_patterns,
-            cache_dir=cache_dir,
-            etag_timeout=etag_timeout,
-            max_workers=max_workers,
-        )
-        result_queue.put(('ok', result))
-    except Exception as exc:
-        result_queue.put(('error', str(exc)))
+    """Runs snapshot_download in a child process so it can be killed on cancel.
+
+    Transient Hub failures (dropped connections, rate limits) surface as
+    LocalEntryNotFoundError or HfHubHTTPError and are retried; already
+    downloaded files stay in the cache, so a retry only fetches what is missing.
+    """
+    last_error = None
+
+    for attempt in range(SNAPSHOT_DOWNLOAD_ATTEMPTS):
+        try:
+            result = huggingface_hub.snapshot_download(
+                repo_id,
+                allow_patterns=allow_patterns,
+                cache_dir=cache_dir,
+                etag_timeout=etag_timeout,
+                max_workers=max_workers,
+            )
+            result_queue.put(('ok', result))
+            return
+        except (LocalEntryNotFoundError,
+                huggingface_hub.errors.HfHubHTTPError,
+                requests.RequestException) as exc:
+            last_error = exc
+            if attempt < SNAPSHOT_DOWNLOAD_ATTEMPTS - 1:
+                delay = SNAPSHOT_DOWNLOAD_RETRY_DELAY * (2 ** attempt)
+                logging.warning(
+                    "Download of %s failed (attempt %s/%s): %s. Retrying in %ss",
+                    repo_id, attempt + 1, SNAPSHOT_DOWNLOAD_ATTEMPTS, exc, delay,
+                )
+                time.sleep(delay)
+        except Exception as exc:
+            result_queue.put(('error', str(exc)))
+            return
+
+    result_queue.put(('error', str(last_error)))
 
 
 def download_from_huggingface(
@@ -865,6 +893,7 @@ class ModelDownloader(QRunnable):
 
         if model_path == "":
             self.signals.error.emit(_("Error"))
+            return
 
         self.signals.finished.emit(model_path)
 
@@ -881,6 +910,7 @@ class ModelDownloader(QRunnable):
 
         if model_path == "":
             self.signals.error.emit(_("Error"))
+            return
 
         self.signals.finished.emit(model_path)
 
