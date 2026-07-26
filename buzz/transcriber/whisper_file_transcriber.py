@@ -259,6 +259,12 @@ class WhisperFileTranscriber(FileTranscriber):
 
     @classmethod
     def transcribe_hugging_face(cls, task: FileTranscriptionTask) -> List[Segment]:
+        if not task.model_path:
+            raise FileNotFoundError(
+                "Hugging Face model is not available locally. "
+                "The model download did not complete, try downloading it again."
+            )
+
         model = TransformersTranscriber(task.model_path)
 
         # Handle language - MMS uses ISO 639-3 codes, Whisper uses ISO 639-1

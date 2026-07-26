@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import ssl
+import time
 import warnings
 import platform
 
@@ -45,7 +46,7 @@ import whisper
 import huggingface_hub
 import zipfile
 from dataclasses import dataclass
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 from PyQt6.QtCore import QObject, pyqtSignal, QRunnable
 from platformdirs import user_cache_dir
@@ -596,19 +597,66 @@ class TranscriptionModel:
 
 
 WHISPER_CPP_REPO_ID = "ggerganov/whisper.cpp"
-WHISPER_CPP_LUMII_REPO_ID = "RaivisDejus/whisper.cpp-lv"
+WHISPER_CPP_LUMII_REPO_ID = "AiLab-IMCS-UL/whisper-large-v3-lv-late-cv19"
+WHISPER_CPP_LUMII_MAC_REPO_ID = "RaivisDejus/whisper.cpp-lv"
+
+# Not every size has a q8_0 build published, so use the closest available one.
+# None means no quantized build exists and the full model is used instead.
+# https://huggingface.co/ggerganov/whisper.cpp/discussions/32
+WHISPER_CPP_QUANTIZED_SUFFIXES = {
+    WhisperModelSize.LARGE: None,  # large-v1 has no quantized build
+    WhisperModelSize.LARGEV3: "-q5_0",
+}
+DEFAULT_WHISPER_CPP_QUANTIZED_SUFFIX = "-q8_0"
+
+
+def is_coreml_supported() -> bool:
+    return platform.system() == "Darwin" and platform.machine() == "arm64"
+
+
+def get_whisper_cpp_model_names(
+        size: WhisperModelSize,
+        coreml_supported: bool,
+) -> Tuple[str, str, str]:
+    """Resolve where a Whisper.cpp model is hosted and how its files are named.
+
+    Returns the repo id, the name of the model file to download and the base
+    name used for the CoreML encoder. The CoreML encoder is never quantized, so
+    its name can differ from the model file name.
+    """
+    repo_id = WHISPER_CPP_REPO_ID
+    model_name = size.to_whisper_cpp_model_size()
+
+    if size == WhisperModelSize.LUMII:
+        if coreml_supported:
+            # Only this repo has the CoreML encoder for the Latvian model
+            return WHISPER_CPP_LUMII_MAC_REPO_ID, "lumii", "lumii"
+
+        repo_id = WHISPER_CPP_LUMII_REPO_ID
+        model_name = "model"
+
+    coreml_name = model_name
+
+    reduce_gpu_memory = os.getenv("BUZZ_REDUCE_GPU_MEMORY", "false") != "false"
+    if reduce_gpu_memory:
+        suffix = WHISPER_CPP_QUANTIZED_SUFFIXES.get(
+            size, DEFAULT_WHISPER_CPP_QUANTIZED_SUFFIX)
+        if suffix is None:
+            logging.debug("No quantized Whisper.cpp build for %s, using full model", size)
+        else:
+            model_name = model_name + suffix
+
+    return repo_id, model_name, coreml_name
 
 
 def get_whisper_cpp_file_path(size: WhisperModelSize) -> str:
     if size == WhisperModelSize.CUSTOM:
         return os.path.join(model_root_dir, f"ggml-model-whisper-custom.bin")
 
-    repo_id = WHISPER_CPP_REPO_ID
+    repo_id, model_name, _ = get_whisper_cpp_model_names(
+        size, coreml_supported=is_coreml_supported())
 
-    if size == WhisperModelSize.LUMII:
-        repo_id = WHISPER_CPP_LUMII_REPO_ID
-
-    model_filename = f"ggml-{size.to_whisper_cpp_model_size()}.bin"
+    model_filename = f"ggml-{model_name}.bin"
 
     try:
         model_path = huggingface_hub.snapshot_download(
@@ -634,19 +682,46 @@ def get_whisper_file_path(size: WhisperModelSize) -> str:
     return os.path.join(root_dir, os.path.basename(url))
 
 
+SNAPSHOT_DOWNLOAD_ATTEMPTS = 3
+SNAPSHOT_DOWNLOAD_RETRY_DELAY = 5  # seconds, doubled after each failed attempt
+
+
 def _snapshot_download_worker(result_queue, repo_id, allow_patterns, cache_dir, etag_timeout, max_workers):
-    """Runs snapshot_download in a child process so it can be killed on cancel."""
-    try:
-        result = huggingface_hub.snapshot_download(
-            repo_id,
-            allow_patterns=allow_patterns,
-            cache_dir=cache_dir,
-            etag_timeout=etag_timeout,
-            max_workers=max_workers,
-        )
-        result_queue.put(('ok', result))
-    except Exception as exc:
-        result_queue.put(('error', str(exc)))
+    """Runs snapshot_download in a child process so it can be killed on cancel.
+
+    Transient Hub failures (dropped connections, rate limits) surface as
+    LocalEntryNotFoundError or HfHubHTTPError and are retried; already
+    downloaded files stay in the cache, so a retry only fetches what is missing.
+    """
+    last_error = None
+
+    for attempt in range(SNAPSHOT_DOWNLOAD_ATTEMPTS):
+        try:
+            result = huggingface_hub.snapshot_download(
+                repo_id,
+                allow_patterns=allow_patterns,
+                cache_dir=cache_dir,
+                etag_timeout=etag_timeout,
+                max_workers=max_workers,
+            )
+            result_queue.put(('ok', result))
+            return
+        except (LocalEntryNotFoundError,
+                huggingface_hub.errors.HfHubHTTPError,
+                requests.RequestException) as exc:
+            last_error = exc
+            if attempt < SNAPSHOT_DOWNLOAD_ATTEMPTS - 1:
+                delay = SNAPSHOT_DOWNLOAD_RETRY_DELAY * (2 ** attempt)
+                logging.warning(
+                    "Download of %s failed (attempt %s/%s): %s. Retrying in %ss",
+                    repo_id, attempt + 1, SNAPSHOT_DOWNLOAD_ATTEMPTS, exc, delay,
+                )
+                time.sleep(delay)
+        except Exception as exc:
+            result_queue.put(('error', str(exc)))
+            return
+
+    result_queue.put(('error', str(last_error)))
 
 
 def download_from_huggingface(
@@ -763,8 +838,7 @@ class ModelDownloader(QRunnable):
     def __init__(self, model: TranscriptionModel, custom_model_url: Optional[str] = None):
         super().__init__()
 
-        self.is_coreml_supported = platform.system(
-        ) == "Darwin" and platform.machine() == "arm64"
+        self.is_coreml_supported = is_coreml_supported()
         self.signals = self.Signals()
         self.model = model
         self.stopped = False
@@ -782,21 +856,20 @@ class ModelDownloader(QRunnable):
             self.download_model_to_path(url=url, file_path=file_path)
             return
 
-        repo_id = WHISPER_CPP_REPO_ID
-
-        if self.model.whisper_model_size == WhisperModelSize.LUMII:
-            repo_id = WHISPER_CPP_LUMII_REPO_ID
-
-        model_name = self.model.whisper_model_size.to_whisper_cpp_model_size()
+        repo_id, model_name, coreml_name = get_whisper_cpp_model_names(
+            self.model.whisper_model_size,
+            coreml_supported=self.is_coreml_supported,
+        )
 
         whisper_cpp_model_files = [
             f"ggml-{model_name}.bin",
             "README.md"
         ]
+
         if self.is_coreml_supported:
             whisper_cpp_model_files = [
                 f"ggml-{model_name}.bin",
-                f"ggml-{model_name}-encoder.mlmodelc.zip",
+                f"ggml-{coreml_name}-encoder.mlmodelc.zip",
                 "README.md"
             ]
 
@@ -813,8 +886,8 @@ class ModelDownloader(QRunnable):
         if self.is_coreml_supported:
             import tempfile
 
-            target_dir = os.path.join(model_path, f"ggml-{model_name}-encoder.mlmodelc")
-            zip_path = os.path.join(model_path, f"ggml-{model_name}-encoder.mlmodelc.zip")
+            target_dir = os.path.join(model_path, f"ggml-{coreml_name}-encoder.mlmodelc")
+            zip_path = os.path.join(model_path, f"ggml-{coreml_name}-encoder.mlmodelc.zip")
 
             if os.path.exists(target_dir):
                 shutil.rmtree(target_dir)
@@ -865,6 +938,7 @@ class ModelDownloader(QRunnable):
 
         if model_path == "":
             self.signals.error.emit(_("Error"))
+            return
 
         self.signals.finished.emit(model_path)
 
@@ -881,6 +955,7 @@ class ModelDownloader(QRunnable):
 
         if model_path == "":
             self.signals.error.emit(_("Error"))
+            return
 
         self.signals.finished.emit(model_path)
 
