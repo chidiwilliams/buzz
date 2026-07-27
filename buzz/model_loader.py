@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import ssl
+import time
 import warnings
 import platform
 
@@ -45,7 +46,7 @@ import whisper
 import huggingface_hub
 import zipfile
 from dataclasses import dataclass
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 from PyQt6.QtCore import QObject, pyqtSignal, QRunnable
 from platformdirs import user_cache_dir
@@ -217,15 +218,17 @@ class ModelType(enum.Enum):
 HUGGING_FACE_MODEL_ALLOW_PATTERNS = [
     "model.safetensors",  # largest by size first
     "pytorch_model.bin",
-    "model-00001-of-00002.safetensors",
-    "model-00002-of-00002.safetensors",
+    "model-*-of-*.safetensors",  # glob covers any number of shards (e.g. VibeVoice ASR has 8)
     "model.safetensors.index.json",
     "added_tokens.json",
+    "chat_template.jinja",  # VibeVoice ASR ships its transcription prompt as a chat template
+    "chat_template.json",
     "config.json",
     "generation_config.json",
     "merges.txt",
     "normalizer.json",
     "preprocessor_config.json",
+    "processor_config.json",  # Parakeet transducers store the feature extractor config here
     "special_tokens_map.json",
     "tokenizer.json",
     "tokenizer_config.json",
@@ -303,6 +306,111 @@ def is_mms_model(model_id: str) -> bool:
         # MMS models have model_type "wav2vec2" and use adapter architecture
         return (config.get("model_type") == "wav2vec2"
                 and config.get("adapter_attn_dim") is not None)
+    except Exception:
+        return False
+
+
+def is_parakeet_model(model_id: str) -> bool:
+    """Detect if a HuggingFace model is a Parakeet transducer (TDT/RNN-T/CTC) model.
+
+    Parakeet models are transducers, not Whisper-style seq2seq models, so they must
+    be loaded with AutoModelForTDT/RNNT/CTC instead of AutoModelForSpeechSeq2Seq.
+
+    Detection criteria:
+    1. Model ID (or local cache path) contains "parakeet"
+    2. Model config has a "parakeet_*" model_type
+    """
+    if not model_id:
+        return False
+
+    # Fast check: model ID / cache path pattern
+    if "parakeet" in model_id.lower():
+        return True
+
+    # For cached/downloaded models, check config.json
+    try:
+        import json
+        if os.path.isdir(model_id):
+            config_path = os.path.join(model_id, "config.json")
+        else:
+            config_path = huggingface_hub.hf_hub_download(
+                model_id, "config.json", local_files_only=True, cache_dir=model_root_dir
+            )
+        with open(config_path) as f:
+            config = json.load(f)
+        return str(config.get("model_type", "")).startswith("parakeet")
+    except Exception:
+        return False
+
+
+def is_vibevoice_model(model_id: str) -> bool:
+    """Detect if a HuggingFace model is a VibeVoice ASR model.
+
+    VibeVoice ASR models (e.g. microsoft/VibeVoice-ASR-HF) are loaded with
+    VibeVoiceAsrForConditionalGeneration and transcribed through the processor's
+    chat-template based ``apply_transcription_request`` API rather than the
+    standard Whisper seq2seq path.
+
+    Detection criteria:
+    1. Model ID (or local cache path) contains "vibevoice"
+    2. Model config has a "vibevoice_*" model_type
+    """
+    if not model_id:
+        return False
+
+    # Fast check: model ID / cache path pattern
+    if "vibevoice" in model_id.lower():
+        return True
+
+    # For cached/downloaded models, check config.json
+    try:
+        import json
+        if os.path.isdir(model_id):
+            config_path = os.path.join(model_id, "config.json")
+        else:
+            config_path = huggingface_hub.hf_hub_download(
+                model_id, "config.json", local_files_only=True, cache_dir=model_root_dir
+            )
+        with open(config_path) as f:
+            config = json.load(f)
+        return str(config.get("model_type", "")).startswith("vibevoice")
+    except Exception:
+        return False
+
+
+def is_qwen_asr_model(model_id: str) -> bool:
+    """Detect if a HuggingFace model is a Qwen3 ASR model.
+
+    Qwen3 ASR models (e.g. Qwen/Qwen3-ASR-1.7B-hf) are loaded with
+    AutoModelForMultimodalLM and transcribed through the processor's chat-template
+    based ``apply_transcription_request`` API rather than the standard Whisper
+    seq2seq path.
+
+    Detection criteria:
+    1. Model ID (or local cache path) mentions both "qwen" and "asr"
+    2. Model config has a "qwen*asr" model_type (e.g. "qwen3_asr")
+    """
+    if not model_id:
+        return False
+
+    # Fast check: model ID / cache path pattern
+    lowered = model_id.lower()
+    if "qwen" in lowered and "asr" in lowered:
+        return True
+
+    # For cached/downloaded models, check config.json
+    try:
+        import json
+        if os.path.isdir(model_id):
+            config_path = os.path.join(model_id, "config.json")
+        else:
+            config_path = huggingface_hub.hf_hub_download(
+                model_id, "config.json", local_files_only=True, cache_dir=model_root_dir
+            )
+        with open(config_path) as f:
+            config = json.load(f)
+        model_type = str(config.get("model_type", "")).lower()
+        return "qwen" in model_type and "asr" in model_type
     except Exception:
         return False
 
@@ -447,7 +555,7 @@ class TranscriptionModel:
             file_path = get_whisper_file_path(size=self.whisper_model_size)
             if not os.path.exists(file_path) or not os.path.isfile(file_path):
                 return None
-            
+
             file_size = os.path.getsize(file_path)
 
             expected_size = get_expected_whisper_model_size(self.whisper_model_size)
@@ -456,12 +564,12 @@ class TranscriptionModel:
                 if file_size < expected_size * 0.95: # Allow 5% tolerance for file system differences
                     return None
                 return file_path
-            else: 
-                # For unknown model size            
+            else:
+                # For unknown model size
                 if file_size < 50 * 1024 * 1024:
                     return None
-                
-                return file_path                
+
+                return file_path
 
         if self.model_type == ModelType.FASTER_WHISPER:
             try:
@@ -499,19 +607,66 @@ class TranscriptionModel:
 
 
 WHISPER_CPP_REPO_ID = "ggerganov/whisper.cpp"
-WHISPER_CPP_LUMII_REPO_ID = "RaivisDejus/whisper.cpp-lv"
+WHISPER_CPP_LUMII_REPO_ID = "AiLab-IMCS-UL/whisper-large-v3-lv-late-cv19"
+WHISPER_CPP_LUMII_MAC_REPO_ID = "RaivisDejus/whisper.cpp-lv"
+
+# Not every size has a q8_0 build published, so use the closest available one.
+# None means no quantized build exists and the full model is used instead.
+# https://huggingface.co/ggerganov/whisper.cpp/discussions/32
+WHISPER_CPP_QUANTIZED_SUFFIXES = {
+    WhisperModelSize.LARGE: None,  # large-v1 has no quantized build
+    WhisperModelSize.LARGEV3: "-q5_0",
+}
+DEFAULT_WHISPER_CPP_QUANTIZED_SUFFIX = "-q8_0"
+
+
+def is_coreml_supported() -> bool:
+    return platform.system() == "Darwin" and platform.machine() == "arm64"
+
+
+def get_whisper_cpp_model_names(
+        size: WhisperModelSize,
+        coreml_supported: bool,
+) -> Tuple[str, str, str]:
+    """Resolve where a Whisper.cpp model is hosted and how its files are named.
+
+    Returns the repo id, the name of the model file to download and the base
+    name used for the CoreML encoder. The CoreML encoder is never quantized, so
+    its name can differ from the model file name.
+    """
+    repo_id = WHISPER_CPP_REPO_ID
+    model_name = size.to_whisper_cpp_model_size()
+
+    if size == WhisperModelSize.LUMII:
+        if coreml_supported:
+            # Only this repo has the CoreML encoder for the Latvian model
+            return WHISPER_CPP_LUMII_MAC_REPO_ID, "lumii", "lumii"
+
+        repo_id = WHISPER_CPP_LUMII_REPO_ID
+        model_name = "model"
+
+    coreml_name = model_name
+
+    reduce_gpu_memory = os.getenv("BUZZ_REDUCE_GPU_MEMORY", "false") != "false"
+    if reduce_gpu_memory:
+        suffix = WHISPER_CPP_QUANTIZED_SUFFIXES.get(
+            size, DEFAULT_WHISPER_CPP_QUANTIZED_SUFFIX)
+        if suffix is None:
+            logging.debug("No quantized Whisper.cpp build for %s, using full model", size)
+        else:
+            model_name = model_name + suffix
+
+    return repo_id, model_name, coreml_name
 
 
 def get_whisper_cpp_file_path(size: WhisperModelSize) -> str:
     if size == WhisperModelSize.CUSTOM:
         return os.path.join(model_root_dir, f"ggml-model-whisper-custom.bin")
 
-    repo_id = WHISPER_CPP_REPO_ID
+    repo_id, model_name, _ = get_whisper_cpp_model_names(
+        size, coreml_supported=is_coreml_supported())
 
-    if size == WhisperModelSize.LUMII:
-        repo_id = WHISPER_CPP_LUMII_REPO_ID
-
-    model_filename = f"ggml-{size.to_whisper_cpp_model_size()}.bin"
+    model_filename = f"ggml-{model_name}.bin"
 
     try:
         model_path = huggingface_hub.snapshot_download(
@@ -537,19 +692,46 @@ def get_whisper_file_path(size: WhisperModelSize) -> str:
     return os.path.join(root_dir, os.path.basename(url))
 
 
+SNAPSHOT_DOWNLOAD_ATTEMPTS = 3
+SNAPSHOT_DOWNLOAD_RETRY_DELAY = 5  # seconds, doubled after each failed attempt
+
+
 def _snapshot_download_worker(result_queue, repo_id, allow_patterns, cache_dir, etag_timeout, max_workers):
-    """Runs snapshot_download in a child process so it can be killed on cancel."""
-    try:
-        result = huggingface_hub.snapshot_download(
-            repo_id,
-            allow_patterns=allow_patterns,
-            cache_dir=cache_dir,
-            etag_timeout=etag_timeout,
-            max_workers=max_workers,
-        )
-        result_queue.put(('ok', result))
-    except Exception as exc:
-        result_queue.put(('error', str(exc)))
+    """Runs snapshot_download in a child process so it can be killed on cancel.
+
+    Transient Hub failures (dropped connections, rate limits) surface as
+    LocalEntryNotFoundError or HfHubHTTPError and are retried; already
+    downloaded files stay in the cache, so a retry only fetches what is missing.
+    """
+    last_error = None
+
+    for attempt in range(SNAPSHOT_DOWNLOAD_ATTEMPTS):
+        try:
+            result = huggingface_hub.snapshot_download(
+                repo_id,
+                allow_patterns=allow_patterns,
+                cache_dir=cache_dir,
+                etag_timeout=etag_timeout,
+                max_workers=max_workers,
+            )
+            result_queue.put(('ok', result))
+            return
+        except (LocalEntryNotFoundError,
+                huggingface_hub.errors.HfHubHTTPError,
+                requests.RequestException) as exc:
+            last_error = exc
+            if attempt < SNAPSHOT_DOWNLOAD_ATTEMPTS - 1:
+                delay = SNAPSHOT_DOWNLOAD_RETRY_DELAY * (2 ** attempt)
+                logging.warning(
+                    "Download of %s failed (attempt %s/%s): %s. Retrying in %ss",
+                    repo_id, attempt + 1, SNAPSHOT_DOWNLOAD_ATTEMPTS, exc, delay,
+                )
+                time.sleep(delay)
+        except Exception as exc:
+            result_queue.put(('error', str(exc)))
+            return
+
+    result_queue.put(('error', str(last_error)))
 
 
 def download_from_huggingface(
@@ -666,8 +848,7 @@ class ModelDownloader(QRunnable):
     def __init__(self, model: TranscriptionModel, custom_model_url: Optional[str] = None):
         super().__init__()
 
-        self.is_coreml_supported = platform.system(
-        ) == "Darwin" and platform.machine() == "arm64"
+        self.is_coreml_supported = is_coreml_supported()
         self.signals = self.Signals()
         self.model = model
         self.stopped = False
@@ -685,21 +866,20 @@ class ModelDownloader(QRunnable):
             self.download_model_to_path(url=url, file_path=file_path)
             return
 
-        repo_id = WHISPER_CPP_REPO_ID
-
-        if self.model.whisper_model_size == WhisperModelSize.LUMII:
-            repo_id = WHISPER_CPP_LUMII_REPO_ID
-
-        model_name = self.model.whisper_model_size.to_whisper_cpp_model_size()
+        repo_id, model_name, coreml_name = get_whisper_cpp_model_names(
+            self.model.whisper_model_size,
+            coreml_supported=self.is_coreml_supported,
+        )
 
         whisper_cpp_model_files = [
             f"ggml-{model_name}.bin",
             "README.md"
         ]
+
         if self.is_coreml_supported:
             whisper_cpp_model_files = [
                 f"ggml-{model_name}.bin",
-                f"ggml-{model_name}-encoder.mlmodelc.zip",
+                f"ggml-{coreml_name}-encoder.mlmodelc.zip",
                 "README.md"
             ]
 
@@ -716,8 +896,8 @@ class ModelDownloader(QRunnable):
         if self.is_coreml_supported:
             import tempfile
 
-            target_dir = os.path.join(model_path, f"ggml-{model_name}-encoder.mlmodelc")
-            zip_path = os.path.join(model_path, f"ggml-{model_name}-encoder.mlmodelc.zip")
+            target_dir = os.path.join(model_path, f"ggml-{coreml_name}-encoder.mlmodelc")
+            zip_path = os.path.join(model_path, f"ggml-{coreml_name}-encoder.mlmodelc.zip")
 
             if os.path.exists(target_dir):
                 shutil.rmtree(target_dir)
@@ -768,6 +948,7 @@ class ModelDownloader(QRunnable):
 
         if model_path == "":
             self.signals.error.emit(_("Error"))
+            return
 
         self.signals.finished.emit(model_path)
 
@@ -784,6 +965,7 @@ class ModelDownloader(QRunnable):
 
         if model_path == "":
             self.signals.error.emit(_("Error"))
+            return
 
         self.signals.finished.emit(model_path)
 

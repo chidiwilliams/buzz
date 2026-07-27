@@ -89,18 +89,71 @@ class TestCopyBundledPlugins:
 
         assert (plugins_dir / "sample" / "plugin.py").is_file()
 
-    def test_skips_when_destination_exists(self, tmp_path, monkeypatch):
+    def _setup_bundle(self, tmp_path, monkeypatch):
         plugins_dir = tmp_path / "plugins"
-        (plugins_dir / "sample").mkdir(parents=True)
+        plugins_dir.mkdir(exist_ok=True)
+        bundled_root = tmp_path / "bundled"
 
         monkeypatch.setattr(loader, "get_plugins_dir", lambda: str(plugins_dir))
         monkeypatch.setattr(loader, "BUNDLED_PLUGIN_IDS", ["sample"])
+        monkeypatch.setattr(
+            loader, "get_path", lambda rel: str(bundled_root / rel)
+        )
 
-        called = []
-        monkeypatch.setattr(loader, "get_path", lambda rel: called.append(rel) or rel)
+        src = bundled_root / "plugins" / "sample"
+        src.mkdir(parents=True)
+        return plugins_dir, src
+
+    def test_leaves_unchanged_plugin_untouched(self, tmp_path, monkeypatch):
+        plugins_dir, src = self._setup_bundle(tmp_path, monkeypatch)
+        (src / "plugin.py").write_text(VALID_PLUGIN)
+
+        copy_bundled_plugins()  # initial install
+        dest_plugin = plugins_dir / "sample" / "plugin.py"
+        mtime_before = dest_plugin.stat().st_mtime_ns
+
+        copy_bundled_plugins()  # nothing changed -> no rewrite
+        assert dest_plugin.stat().st_mtime_ns == mtime_before
+
+    def test_overwrites_when_plugin_code_changed(self, tmp_path, monkeypatch):
+        plugins_dir, src = self._setup_bundle(tmp_path, monkeypatch)
+        (src / "plugin.py").write_text(VALID_PLUGIN)
+        copy_bundled_plugins()
+
+        updated = VALID_PLUGIN + "\n# bugfix\n"
+        (src / "plugin.py").write_text(updated)
+        copy_bundled_plugins()
+
+        assert (plugins_dir / "sample" / "plugin.py").read_text() == updated
+
+    def test_overwrites_when_locale_added(self, tmp_path, monkeypatch):
+        plugins_dir, src = self._setup_bundle(tmp_path, monkeypatch)
+        (src / "plugin.py").write_text(VALID_PLUGIN)
+        copy_bundled_plugins()
+        assert not (plugins_dir / "sample" / "locale" / "lv_LV.json").exists()
+
+        locale = src / "locale"
+        locale.mkdir()
+        (locale / "lv_LV.json").write_text('{"Sample": "Paraugs"}')
+        copy_bundled_plugins()
+
+        cached_locale = plugins_dir / "sample" / "locale" / "lv_LV.json"
+        assert cached_locale.read_text() == '{"Sample": "Paraugs"}'
+
+    def test_ignores_pycache_differences(self, tmp_path, monkeypatch):
+        plugins_dir, src = self._setup_bundle(tmp_path, monkeypatch)
+        (src / "plugin.py").write_text(VALID_PLUGIN)
+        copy_bundled_plugins()
+
+        # A stray build artifact in the cache must not trigger a rewrite.
+        cache_pycache = plugins_dir / "sample" / "__pycache__"
+        cache_pycache.mkdir()
+        (cache_pycache / "plugin.cpython-312.pyc").write_bytes(b"\x00")
+        dest_plugin = plugins_dir / "sample" / "plugin.py"
+        mtime_before = dest_plugin.stat().st_mtime_ns
 
         copy_bundled_plugins()
-        assert called == []
+        assert dest_plugin.stat().st_mtime_ns == mtime_before
 
     def test_warns_when_source_missing(self, tmp_path, monkeypatch):
         plugins_dir = tmp_path / "plugins"

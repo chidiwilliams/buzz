@@ -87,9 +87,16 @@ class TestSpeakerIdentificationWidget:
         assert worker.transcription == transcription
         assert len(result) == 1
         assert isinstance(result[0], list)
-        assert (result == [[{'end_time': 8904, 'speaker': 'Speaker 0', 'start_time': 140, 'text': 'Bien venue dans. '}]]
-                or result == [[{'end_time': 8904, 'speaker': 'Speaker 0', 'start_time': 140, 'text': 'Bienvenue dans. '}]]
-                or result == [[{'end_time': 8904, 'speaker': 'Speaker 0', 'start_time': 140, 'text': 'Bien venue dans '}]])
+        assert len(result[0]) == 1
+        segment = result[0][0]
+        assert segment["speaker"] == "Speaker 0"
+        assert segment["start_time"] == 140
+        # Text and end_time vary slightly across OSes/architectures (e.g.
+        # "Bien venue dans" vs "Bienvenue dans.", end_time 8500 vs 8904),
+        # so compare on normalized text and an end_time range rather than exact values.
+        normalized_text = segment["text"].replace(" ", "").rstrip(".").lower()
+        assert normalized_text == "bienvenuedans", segment["text"]
+        assert 8000 <= segment["end_time"] <= 9500, segment["end_time"]
 
     def test_identify_button_toggles_visibility(self, qtbot: QtBot, transcription, transcription_service):
         widget = SpeakerIdentificationWidget(
@@ -342,7 +349,7 @@ class TestSpeakerIdentificationWidget:
         # Create mock punctuation model - raise AssertionError on first batch, then succeed
         mock_punct_model = MagicMock()
         call_count = [0]
-        
+
         def predict_side_effect(batch, chunk_size):
             call_count[0] += 1
             # Raise AssertionError on first call (first batch)
@@ -350,26 +357,26 @@ class TestSpeakerIdentificationWidget:
                 raise AssertionError("Chunk size too large")
             # Succeed on subsequent calls (smaller batches)
             return [(word.strip(), ".") for word in batch]
-        
+
         mock_punct_model.predict.side_effect = predict_side_effect
-        
+
         # Create words list with 201 words (enough to trigger batch processing)
         words_list = [f"word{i}" for i in range(201)]
-        
+
         # Wrap predict method to match the expected signature
         def predict_wrapper(batch, chunk_size, **kwargs):
             return mock_punct_model.predict(batch, chunk_size=chunk_size)
-        
+
         # Call the generic batch processing function
         result = process_in_batches(
             items=words_list,
             process_func=predict_wrapper
         )
-        
+
         # Verify that predict was called multiple times
         # First call fails, then smaller batches succeed
         assert mock_punct_model.predict.call_count > 1, "Should retry with smaller batches after AssertionError"
-        
+
         # Verify that smaller batches were used after the error
         call_args_list = mock_punct_model.predict.call_args_list
         # After the first failed call, subsequent calls should have smaller batches
@@ -377,7 +384,286 @@ class TestSpeakerIdentificationWidget:
             args, kwargs = call
             batch = args[0]
             assert len(batch) <= 100, f"After AssertionError, batch size should be <= 100, got {len(batch)}"
-        
+
         # Verify result contains all words
         assert len(result) == 201, "Result should contain all words"
+
+    # ------------------------------------------------------------------
+    # IdentificationWorker unit tests
+    #
+    # These exercise the worker's individual helper methods in isolation with
+    # mocked ML libraries, so they do NOT run any real speaker identification.
+    # ------------------------------------------------------------------
+
+    def test_worker_cancel_sets_flag(self, transcription, transcription_service):
+        """cancel() flips the flag and _cancel_if_requested reports it."""
+        worker = IdentificationWorker(transcription, transcription_service)
+
+        assert worker._cancel_if_requested("step 1") is False
+
+        worker.cancel()
+
+        assert worker._is_cancelled is True
+        assert worker._cancel_if_requested("step 1") is True
+
+    def test_get_transcript_splits_on_sentence_end(self, transcription):
+        """get_transcript groups words into a segment when a sentence ends."""
+        mock_service = MagicMock()
+        mock_service.get_transcription_segments.return_value = [
+            MagicMock(text="Hello", start_time=0, end_time=100),
+            MagicMock(text="world.", start_time=100, end_time=200),
+            MagicMock(text="Unfinished", start_time=200, end_time=300),
+        ]
+        worker = IdentificationWorker(transcription, mock_service)
+
+        result = worker.get_transcript(audio=None)
+
+        assert result["language"] == transcription.language
+        # Only "world." ends a sentence, so exactly one segment is emitted and
+        # the trailing "Unfinished" word (no terminator) is dropped.
+        assert len(result["segments"]) == 1
+        assert result["segments"][0]["text"] == "Hello world. "
+        assert [w["word"] for w in result["segments"][0]["words"]] == ["Hello ", "world. "]
+
+    def test_get_transcript_data_joins_segments(self, transcription, transcription_service):
+        """_get_transcript_data collapses whitespace and decodes the audio."""
+        import numpy as np
+        worker = IdentificationWorker(transcription, transcription_service)
+
+        fake_waveform = np.zeros(10, dtype=np.float32)
+        with patch(
+            "buzz.widgets.transcription_viewer.speaker_identification_widget.faster_whisper.decode_audio",
+            return_value=fake_waveform,
+        ) as mock_decode:
+            language, full_transcript, waveform = worker._get_transcript_data()
+
+        # transcription fixture has no language set, so it falls back to "en"
+        assert language == "en"
+        assert full_transcript == "Bien venue dans"
+        assert waveform is fake_waveform
+        mock_decode.assert_called_once_with(transcription.file)
+
+    def test_setup_device_force_cpu(self, transcription, transcription_service, monkeypatch):
+        """_setup_device honours BUZZ_FORCE_CPU regardless of CUDA availability."""
+        import torch
+        worker = IdentificationWorker(transcription, transcription_service)
+        monkeypatch.setenv("BUZZ_FORCE_CPU", "true")
+
+        device, torch_dtype = worker._setup_device()
+
+        assert device == "cpu"
+        assert torch_dtype == torch.float32
+
+    def test_load_alignment_model_with_retry_success(self, transcription, transcription_service):
+        """Model loads on the first attempt without retrying."""
+        import torch
+        worker = IdentificationWorker(transcription, transcription_service)
+        worker._load_alignment_model = MagicMock(return_value=("model", "tokenizer"))
+
+        model, tokenizer = worker._load_alignment_model_with_retry("cpu", torch.float32)
+
+        assert (model, tokenizer) == ("model", "tokenizer")
+        assert worker._load_alignment_model.call_count == 1
+
+    def test_load_alignment_model_with_retry_recovers(self, transcription, transcription_service):
+        """A first failure is retried and the second attempt succeeds."""
+        import torch
+        worker = IdentificationWorker(transcription, transcription_service)
+        worker._load_alignment_model = MagicMock(
+            side_effect=[Exception("network"), ("model", "tokenizer")]
+        )
+
+        with patch("buzz.widgets.transcription_viewer.speaker_identification_widget.time.sleep"):
+            model, tokenizer = worker._load_alignment_model_with_retry("cpu", torch.float32)
+
+        assert (model, tokenizer) == ("model", "tokenizer")
+        assert worker._load_alignment_model.call_count == 2
+
+    def test_load_alignment_model_with_retry_exhausted_raises(self, transcription, transcription_service):
+        """After all attempts fail a RuntimeError is raised."""
+        import torch
+        worker = IdentificationWorker(transcription, transcription_service)
+        worker._load_alignment_model = MagicMock(side_effect=Exception("network"))
+
+        with patch("buzz.widgets.transcription_viewer.speaker_identification_widget.time.sleep"):
+            with pytest.raises(RuntimeError):
+                worker._load_alignment_model_with_retry("cpu", torch.float32)
+
+        assert worker._load_alignment_model.call_count == 3
+
+    def test_handle_run_error_emits_signals(self, transcription, transcription_service):
+        """_handle_run_error emits error + an empty finished result."""
+        worker = IdentificationWorker(transcription, transcription_service)
+
+        errors = []
+        finished = []
+        progress = []
+        worker.error.connect(errors.append)
+        worker.finished.connect(finished.append)
+        worker.progress_update.connect(progress.append)
+
+        worker._handle_run_error(Exception("boom"))
+
+        assert errors == ["boom"]
+        assert finished == [[]]
+        assert len(progress) == 1
+
+    def test_run_import_error_emits_error(self, transcription, transcription_service):
+        """run() surfaces a friendly error if libraries fail to import."""
+        worker = IdentificationWorker(transcription, transcription_service)
+        worker._import_libraries = MagicMock(side_effect=ImportError("no module"))
+
+        errors = []
+        worker.error.connect(errors.append)
+
+        worker.run()
+
+        # The message is localized, but the underlying import error detail is
+        # always appended verbatim.
+        assert len(errors) == 1
+        assert "no module" in errors[0]
+
+    def test_map_speakers_unsupported_language_skips_punctuation(self, transcription, transcription_service):
+        """For an unsupported language, punctuation restoration is skipped."""
+        worker = IdentificationWorker(transcription, transcription_service)
+
+        # Wire up the helpers normally injected by _import_libraries.
+        worker._get_words_speaker_mapping = MagicMock(return_value=[{"word": "hi"}])
+        worker._punct_model_langs = ["en"]
+        worker._PunctuationModel = MagicMock()
+        worker._get_realigned_ws_mapping_with_punctuation = MagicMock(
+            return_value=[{"word": "hi"}]
+        )
+        worker._get_sentences_speaker_mapping = MagicMock(return_value=["sentence"])
+
+        result = worker._map_speakers_with_punctuation(
+            word_timestamps=[], speaker_ts=[], language="xx",
+        )
+
+        assert result == ["sentence"]
+        # Punctuation model must not be constructed for an unsupported language.
+        worker._PunctuationModel.assert_not_called()
+        worker._get_sentences_speaker_mapping.assert_called_once()
+
+    # ------------------------------------------------------------------
+    # SpeakerIdentificationWidget unit tests
+    # ------------------------------------------------------------------
+
+    def test_on_progress_update_invalid_format(self, qtbot: QtBot, transcription, transcription_service):
+        """A non-numeric progress string updates the label but not the bar."""
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+
+        widget.progress_bar.setValue(3)
+        widget.on_progress_update("Loading something")
+
+        assert widget.progress_label.text() == "Loading something"
+        # Bar value is left untouched when the format is invalid
+        assert widget.progress_bar.value() == 3
+
+        widget.close()
+
+    def test_on_speaker_preview_plays_segment(self, qtbot: QtBot, transcription, transcription_service):
+        """on_speaker_preview seeks and plays for a matching speaker."""
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+
+        widget.identification_result = [
+            {'speaker': 'Speaker 0', 'start_time': 1500, 'end_time': 2000, 'text': 'Hi'},
+        ]
+
+        with patch.object(widget.player, 'setPosition') as mock_set, \
+             patch.object(widget.player, 'play') as mock_play:
+            widget.on_speaker_preview('Speaker 0')
+
+            mock_set.assert_called_once_with(1500)
+            mock_play.assert_called_once()
+
+        assert widget.player_timer is not None
+        widget.player_timer.stop()
+        widget.close()
+
+    def test_on_speaker_preview_no_matching_records(self, qtbot: QtBot, transcription, transcription_service):
+        """on_speaker_preview does nothing when the speaker has no records."""
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+
+        widget.identification_result = [
+            {'speaker': 'Speaker 0', 'start_time': 0, 'end_time': 1000, 'text': 'Hi'},
+        ]
+
+        with patch.object(widget.player, 'play') as mock_play:
+            widget.on_speaker_preview('Speaker 99')
+            mock_play.assert_not_called()
+
+        widget.close()
+
+    def test_show_model_selector(self, qtbot: QtBot, transcription, transcription_service):
+        """_show_model_selector swaps the progress bar back for the model selector."""
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+
+        widget.progress_bar.setVisible(True)
+        widget.model_selection_widget.setVisible(False)
+
+        widget._show_model_selector()
+
+        assert widget.progress_bar.isHidden()
+        assert not widget.model_selection_widget.isHidden()
+
+        widget.close()
+
+    def test_cleanup_thread_when_none(self, qtbot: QtBot, transcription, transcription_service):
+        """_cleanup_thread is safe when there is no active thread/worker."""
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+
+        widget.thread = None
+        widget.worker = None
+
+        # Should not raise
+        widget._cleanup_thread()
+
+        assert widget.thread is None
+        assert widget.worker is None
+
+        widget.close()
+
+    def test_identify_uses_selected_diarizer(self, qtbot: QtBot, transcription, transcription_service):
+        """The Sortformer radio selects the sortformer diarizer for the worker."""
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+
+        widget.sortformer_radio.setChecked(True)
+
+        from PyQt6.QtCore import QThread as RealQThread
+        mock_thread = MagicMock(spec=RealQThread)
+        mock_thread.started = MagicMock()
+
+        with patch.object(widget, '_cleanup_thread'), \
+             patch('buzz.widgets.transcription_viewer.speaker_identification_widget.QThread', return_value=mock_thread), \
+             patch.object(IdentificationWorker, 'moveToThread'):
+            widget.on_identify_button_clicked()
+
+        assert widget.worker.diarizer == "sortformer"
+
+        widget.close()
 

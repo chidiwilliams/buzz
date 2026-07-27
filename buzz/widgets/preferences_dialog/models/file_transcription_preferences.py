@@ -1,3 +1,4 @@
+import copy
 from dataclasses import dataclass
 from typing import Optional, Tuple, Set, List
 
@@ -44,8 +45,8 @@ class FileTranscriptionPreferences:
     def load(cls, settings: QSettings) -> "FileTranscriptionPreferences":
         language = settings.value("language", None)
         task = settings.value("task", Task.TRANSCRIBE)
-        model: TranscriptionModel = settings.value(
-            "model", TranscriptionModel.default()
+        model: TranscriptionModel = copy.deepcopy(
+            settings.value("model", TranscriptionModel.default())
         )
 
         word_level_timings_value = settings.value("word_level_timings", False)

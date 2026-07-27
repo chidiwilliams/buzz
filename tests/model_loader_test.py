@@ -5,6 +5,8 @@ import time
 import pytest
 from unittest.mock import patch, MagicMock, call
 
+from huggingface_hub.errors import LocalEntryNotFoundError
+
 from buzz.model_loader import (
     ModelDownloader,
     TranscriptionModel,
@@ -12,11 +14,18 @@ from buzz.model_loader import (
     WhisperModelSize,
     map_language_to_mms,
     is_mms_model,
+    is_parakeet_model,
+    is_vibevoice_model,
+    is_qwen_asr_model,
     get_expected_whisper_model_size,
     get_whisper_file_path,
     WHISPER_MODEL_SIZES,
     WHISPER_CPP_REPO_ID,
     WHISPER_CPP_LUMII_REPO_ID,
+    WHISPER_CPP_LUMII_MAC_REPO_ID,
+    get_whisper_cpp_model_names,
+    get_whisper_cpp_file_path,
+    is_coreml_supported,
     DOWNLOAD_COMPLETE_MARKER,
     _snapshot_is_complete,
 )
@@ -85,6 +94,51 @@ class TestIsMmsModel:
 
     def test_non_mms_model(self):
         assert is_mms_model("openai/whisper-tiny") is False
+
+
+class TestIsParakeetModel:
+    def test_empty_string(self):
+        assert is_parakeet_model("") is False
+
+    def test_parakeet_in_model_id(self):
+        assert is_parakeet_model("nvidia/parakeet-tdt-0.6b-v3") is True
+
+    def test_parakeet_case_insensitive(self):
+        assert is_parakeet_model("nvidia/Parakeet-TDT-0.6b-v3") is True
+
+    def test_non_parakeet_model(self):
+        assert is_parakeet_model("openai/whisper-tiny") is False
+
+
+class TestIsVibeVoiceModel:
+    def test_empty_string(self):
+        assert is_vibevoice_model("") is False
+
+    def test_vibevoice_in_model_id(self):
+        assert is_vibevoice_model("microsoft/VibeVoice-ASR-HF") is True
+
+    def test_vibevoice_case_insensitive(self):
+        assert is_vibevoice_model("microsoft/vibevoice-asr-hf") is True
+
+    def test_non_vibevoice_model(self):
+        assert is_vibevoice_model("openai/whisper-tiny") is False
+
+
+class TestIsQwenAsrModel:
+    def test_empty_string(self):
+        assert is_qwen_asr_model("") is False
+
+    def test_qwen_asr_in_model_id(self):
+        assert is_qwen_asr_model("Qwen/Qwen3-ASR-1.7B-hf") is True
+
+    def test_qwen_asr_case_insensitive(self):
+        assert is_qwen_asr_model("qwen/qwen3-asr-1.7b-hf") is True
+
+    def test_non_asr_qwen_model(self):
+        assert is_qwen_asr_model("Qwen/Qwen2-7B") is False
+
+    def test_non_qwen_model(self):
+        assert is_qwen_asr_model("openai/whisper-tiny") is False
 
 
 class TestWhisperModelSize:
@@ -247,6 +301,137 @@ class TestGetWhisperFilePath:
         path = get_whisper_file_path(WhisperModelSize.TINY)
         assert "whisper" in path
         assert path.endswith(".pt")
+
+
+class TestGetWhisperCppModelNames:
+    def test_standard_size(self):
+        assert get_whisper_cpp_model_names(
+            WhisperModelSize.TINY, coreml_supported=False
+        ) == (WHISPER_CPP_REPO_ID, "tiny", "tiny")
+
+    def test_large_maps_to_large_v1(self):
+        assert get_whisper_cpp_model_names(
+            WhisperModelSize.LARGE, coreml_supported=False
+        ) == (WHISPER_CPP_REPO_ID, "large-v1", "large-v1")
+
+    def test_lumii_uses_lumii_repo(self):
+        assert get_whisper_cpp_model_names(
+            WhisperModelSize.LUMII, coreml_supported=False
+        ) == (WHISPER_CPP_LUMII_REPO_ID, "model", "model")
+
+    def test_lumii_on_coreml_uses_mac_repo(self):
+        assert get_whisper_cpp_model_names(
+            WhisperModelSize.LUMII, coreml_supported=True
+        ) == (WHISPER_CPP_LUMII_MAC_REPO_ID, "lumii", "lumii")
+
+    def test_standard_size_on_coreml_stays_in_whisper_cpp_repo(self):
+        assert get_whisper_cpp_model_names(
+            WhisperModelSize.SMALL, coreml_supported=True
+        ) == (WHISPER_CPP_REPO_ID, "small", "small")
+
+    @pytest.mark.parametrize(
+        "size,expected_model_name",
+        [
+            (WhisperModelSize.TINY, "tiny-q8_0"),
+            (WhisperModelSize.TINYEN, "tiny.en-q8_0"),
+            (WhisperModelSize.MEDIUM, "medium-q8_0"),
+            (WhisperModelSize.LARGEV2, "large-v2-q8_0"),
+            (WhisperModelSize.LARGEV3TURBO, "large-v3-turbo-q8_0"),
+            # large-v3 has no q8_0 build published, q5_0 is the closest one
+            (WhisperModelSize.LARGEV3, "large-v3-q5_0"),
+            # large-v1 has no quantized build at all
+            (WhisperModelSize.LARGE, "large-v1"),
+        ],
+    )
+    def test_reduce_gpu_memory_uses_quantized_model(
+            self, monkeypatch, size, expected_model_name):
+        monkeypatch.setenv("BUZZ_REDUCE_GPU_MEMORY", "true")
+        repo_id, model_name, coreml_name = get_whisper_cpp_model_names(
+            size, coreml_supported=False)
+
+        assert repo_id == WHISPER_CPP_REPO_ID
+        assert model_name == expected_model_name
+
+    def test_reduce_gpu_memory_lumii(self, monkeypatch):
+        monkeypatch.setenv("BUZZ_REDUCE_GPU_MEMORY", "true")
+        assert get_whisper_cpp_model_names(
+            WhisperModelSize.LUMII, coreml_supported=False
+        ) == (WHISPER_CPP_LUMII_REPO_ID, "model-q8_0", "model")
+
+    def test_reduce_gpu_memory_lumii_on_coreml_has_no_quantized_model(self, monkeypatch):
+        monkeypatch.setenv("BUZZ_REDUCE_GPU_MEMORY", "true")
+        assert get_whisper_cpp_model_names(
+            WhisperModelSize.LUMII, coreml_supported=True
+        ) == (WHISPER_CPP_LUMII_MAC_REPO_ID, "lumii", "lumii")
+
+    def test_reduce_gpu_memory_keeps_coreml_encoder_unquantized(self, monkeypatch):
+        monkeypatch.setenv("BUZZ_REDUCE_GPU_MEMORY", "true")
+        repo_id, model_name, coreml_name = get_whisper_cpp_model_names(
+            WhisperModelSize.TINY, coreml_supported=True)
+
+        assert model_name == "tiny-q8_0"
+        assert coreml_name == "tiny"
+
+    def test_reduce_gpu_memory_disabled(self, monkeypatch):
+        monkeypatch.setenv("BUZZ_REDUCE_GPU_MEMORY", "false")
+        assert get_whisper_cpp_model_names(
+            WhisperModelSize.TINY, coreml_supported=False
+        ) == (WHISPER_CPP_REPO_ID, "tiny", "tiny")
+
+    def test_reduce_gpu_memory_unset(self, monkeypatch):
+        monkeypatch.delenv("BUZZ_REDUCE_GPU_MEMORY", raising=False)
+        assert get_whisper_cpp_model_names(
+            WhisperModelSize.TINY, coreml_supported=False
+        ) == (WHISPER_CPP_REPO_ID, "tiny", "tiny")
+
+
+class TestGetWhisperCppFilePath:
+    def test_custom_size_does_not_use_hugging_face(self):
+        path = get_whisper_cpp_file_path(WhisperModelSize.CUSTOM)
+        assert path.endswith("ggml-model-whisper-custom.bin")
+
+    def test_looks_up_size_named_file(self):
+        with patch("buzz.model_loader.huggingface_hub.snapshot_download",
+                   return_value="/snapshot") as mock_snapshot, \
+             patch("buzz.model_loader.is_coreml_supported", return_value=False):
+            path = get_whisper_cpp_file_path(WhisperModelSize.TINY)
+
+        assert mock_snapshot.call_args.kwargs["repo_id"] == WHISPER_CPP_REPO_ID
+        assert mock_snapshot.call_args.kwargs["allow_patterns"] == ["ggml-tiny.bin"]
+        assert path == os.path.join("/snapshot", "ggml-tiny.bin")
+
+    def test_looks_up_quantized_file_when_reducing_gpu_memory(self, monkeypatch):
+        monkeypatch.setenv("BUZZ_REDUCE_GPU_MEMORY", "true")
+
+        with patch("buzz.model_loader.huggingface_hub.snapshot_download",
+                   return_value="/snapshot") as mock_snapshot, \
+             patch("buzz.model_loader.is_coreml_supported", return_value=False):
+            path = get_whisper_cpp_file_path(WhisperModelSize.TINY)
+
+        assert mock_snapshot.call_args.kwargs["allow_patterns"] == ["ggml-tiny-q8_0.bin"]
+        assert path == os.path.join("/snapshot", "ggml-tiny-q8_0.bin")
+
+    def test_returns_empty_string_when_not_downloaded(self):
+        with patch("buzz.model_loader.huggingface_hub.snapshot_download",
+                   side_effect=LocalEntryNotFoundError("not found")), \
+             patch("buzz.model_loader.is_coreml_supported", return_value=False):
+            assert get_whisper_cpp_file_path(WhisperModelSize.TINY) == ""
+
+
+class TestIsCoreMlSupported:
+    @pytest.mark.parametrize(
+        "system,machine,expected",
+        [
+            ("Darwin", "arm64", True),
+            ("Darwin", "x86_64", False),
+            ("Linux", "arm64", False),
+            ("Windows", "AMD64", False),
+        ],
+    )
+    def test_platforms(self, system, machine, expected):
+        with patch("platform.system", return_value=system), \
+             patch("platform.machine", return_value=machine):
+            assert is_coreml_supported() is expected
 
 
 class TestTranscriptionModelIsDeletable:
@@ -645,7 +830,6 @@ class TestModelDownloaderWhisperCpp:
             whisper_model_size=WhisperModelSize.LUMII,
         )
         downloader = self._make_downloader(model)
-        model_name = WhisperModelSize.LUMII.to_whisper_cpp_model_size()
 
         with patch("buzz.model_loader.download_from_huggingface", return_value="/lumii/path") as mock_dl, \
              patch.object(downloader, "is_coreml_supported", False):
@@ -653,9 +837,120 @@ class TestModelDownloaderWhisperCpp:
 
         mock_dl.assert_called_once()
         assert mock_dl.call_args.kwargs["repo_id"] == WHISPER_CPP_LUMII_REPO_ID
+        assert mock_dl.call_args.kwargs["allow_patterns"] == ["ggml-model.bin", "README.md"]
         downloader.signals.finished.emit.assert_called_once_with(
-            os.path.join("/lumii/path", f"ggml-{model_name}.bin")
+            os.path.join("/lumii/path", "ggml-model.bin")
         )
+
+    def test_lumii_model_on_coreml_uses_mac_repo(self):
+        model = TranscriptionModel(
+            model_type=ModelType.WHISPER_CPP,
+            whisper_model_size=WhisperModelSize.LUMII,
+        )
+        downloader = self._make_downloader(model)
+
+        with patch("buzz.model_loader.download_from_huggingface", return_value="/lumii/path") as mock_dl, \
+             patch.object(downloader, "is_coreml_supported", True), \
+             patch("zipfile.ZipFile"), \
+             patch("shutil.rmtree"), \
+             patch("shutil.move"), \
+             patch("os.path.exists", return_value=False), \
+             patch("os.listdir", return_value=["ggml-lumii-encoder.mlmodelc"]), \
+             patch("os.path.isdir", return_value=True):
+            downloader.run()
+
+        assert mock_dl.call_args.kwargs["repo_id"] == WHISPER_CPP_LUMII_MAC_REPO_ID
+        assert mock_dl.call_args.kwargs["allow_patterns"] == [
+            "ggml-lumii.bin",
+            "ggml-lumii-encoder.mlmodelc.zip",
+            "README.md",
+        ]
+
+    def test_standard_model_on_coreml_keeps_whisper_cpp_repo(self):
+        model = TranscriptionModel(
+            model_type=ModelType.WHISPER_CPP,
+            whisper_model_size=WhisperModelSize.TINY,
+        )
+        downloader = self._make_downloader(model)
+
+        with patch("buzz.model_loader.download_from_huggingface", return_value="/fake/path") as mock_dl, \
+             patch.object(downloader, "is_coreml_supported", True), \
+             patch("zipfile.ZipFile"), \
+             patch("shutil.rmtree"), \
+             patch("shutil.move"), \
+             patch("os.path.exists", return_value=False), \
+             patch("os.listdir", return_value=["ggml-tiny-encoder.mlmodelc"]), \
+             patch("os.path.isdir", return_value=True):
+            downloader.run()
+
+        assert mock_dl.call_args.kwargs["repo_id"] == WHISPER_CPP_REPO_ID
+        assert mock_dl.call_args.kwargs["allow_patterns"] == [
+            "ggml-tiny.bin",
+            "ggml-tiny-encoder.mlmodelc.zip",
+            "README.md",
+        ]
+
+    def test_reduce_gpu_memory_downloads_quantized_model(self, monkeypatch):
+        monkeypatch.setenv("BUZZ_REDUCE_GPU_MEMORY", "true")
+        model = TranscriptionModel(
+            model_type=ModelType.WHISPER_CPP,
+            whisper_model_size=WhisperModelSize.TINY,
+        )
+        downloader = self._make_downloader(model)
+
+        with patch("buzz.model_loader.download_from_huggingface", return_value="/fake/path") as mock_dl, \
+             patch.object(downloader, "is_coreml_supported", False):
+            downloader.run()
+
+        assert mock_dl.call_args.kwargs["allow_patterns"] == [
+            "ggml-tiny-q8_0.bin",
+            "README.md",
+        ]
+        downloader.signals.finished.emit.assert_called_once_with(
+            os.path.join("/fake/path", "ggml-tiny-q8_0.bin")
+        )
+
+    def test_reduce_gpu_memory_lumii_downloads_quantized_model(self, monkeypatch):
+        monkeypatch.setenv("BUZZ_REDUCE_GPU_MEMORY", "true")
+        model = TranscriptionModel(
+            model_type=ModelType.WHISPER_CPP,
+            whisper_model_size=WhisperModelSize.LUMII,
+        )
+        downloader = self._make_downloader(model)
+
+        with patch("buzz.model_loader.download_from_huggingface", return_value="/lumii/path") as mock_dl, \
+             patch.object(downloader, "is_coreml_supported", False):
+            downloader.run()
+
+        assert mock_dl.call_args.kwargs["repo_id"] == WHISPER_CPP_LUMII_REPO_ID
+        assert mock_dl.call_args.kwargs["allow_patterns"] == [
+            "ggml-model-q8_0.bin",
+            "README.md",
+        ]
+
+    def test_reduce_gpu_memory_keeps_unquantized_coreml_encoder(self, monkeypatch):
+        monkeypatch.setenv("BUZZ_REDUCE_GPU_MEMORY", "true")
+        model = TranscriptionModel(
+            model_type=ModelType.WHISPER_CPP,
+            whisper_model_size=WhisperModelSize.TINY,
+        )
+        downloader = self._make_downloader(model)
+
+        with patch("buzz.model_loader.download_from_huggingface", return_value="/fake/path") as mock_dl, \
+             patch.object(downloader, "is_coreml_supported", True), \
+             patch("zipfile.ZipFile"), \
+             patch("shutil.rmtree"), \
+             patch("shutil.move"), \
+             patch("os.path.exists", return_value=False), \
+             patch("os.listdir", return_value=["ggml-tiny-encoder.mlmodelc"]), \
+             patch("os.path.isdir", return_value=True):
+            downloader.run()
+
+        assert mock_dl.call_args.kwargs["allow_patterns"] == [
+            "ggml-tiny-q8_0.bin",
+            "ggml-tiny-encoder.mlmodelc.zip",
+            "README.md",
+        ]
 
     def test_custom_url_calls_download_model_to_path(self):
         model = TranscriptionModel(

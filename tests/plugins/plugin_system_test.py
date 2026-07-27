@@ -335,7 +335,7 @@ def test_transcript_resizer_regroups_with_word_timings(tmp_path, monkeypatch):
     assert len(captured["segs"]) == 1
     assert captured["segs"][0].text == "Hello. World."
     assert captured["segs"][0].start == 0
-    assert captured["segs"][0].end == 200  # 2.0s * 100
+    assert captured["segs"][0].end == 2000  # 2.0s * 100
 
 
 def test_export_docx_loads():

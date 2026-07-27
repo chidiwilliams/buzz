@@ -1,3 +1,4 @@
+import os
 from typing import Tuple, Optional
 
 from PyQt6.QtCore import pyqtSignal
@@ -9,6 +10,7 @@ from PyQt6.QtWidgets import (
     QFileDialog,
     QCheckBox,
     QVBoxLayout,
+    QMessageBox,
 )
 
 from buzz.locale import _
@@ -68,6 +70,9 @@ class FolderWatchPreferencesWidget(QWidget):
         self.output_folder_line_edit = LineEdit(config.output_directory, self)
         self.output_folder_line_edit.setPlaceholderText("/path/to/output/folder")
         self.output_folder_line_edit.textChanged.connect(self.on_output_folder_changed)
+        self.output_folder_line_edit.editingFinished.connect(
+            self.on_output_folder_editing_finished
+        )
         self.output_folder_line_edit.setObjectName("OutputFolderLineEdit")
 
         output_folder_row.addWidget(self.output_folder_line_edit)
@@ -122,12 +127,57 @@ class FolderWatchPreferencesWidget(QWidget):
 
     def on_click_browse_output_folder(self):
         folder = QFileDialog.getExistingDirectory(self, _("Select Output Folder"))
+        if not folder:
+            return
+        if self._is_subfolder_of_input(folder):
+            self._show_output_subfolder_error()
+            self.output_folder_line_edit.setText("")
+            self.on_output_folder_changed("")
+            return
         self.output_folder_line_edit.setText(folder)
         self.on_output_folder_changed(folder)
 
     def on_output_folder_changed(self, folder):
+        # Don't persist an invalid output folder, but stay silent while the
+        # user is still typing. The warning is shown on editingFinished.
+        if self._is_subfolder_of_input(folder):
+            return
         self.config.output_directory = folder
         self.config_changed.emit(self.config)
+
+    def on_output_folder_editing_finished(self):
+        folder = self.output_folder_line_edit.text()
+        if self._is_subfolder_of_input(folder):
+            self._show_output_subfolder_error()
+            self.output_folder_line_edit.setText("")
+            self.on_output_folder_changed("")
+
+    def _is_subfolder_of_input(self, output_folder: str) -> bool:
+        input_folder = self.config.input_directory
+        if not input_folder or not output_folder:
+            return False
+
+        input_path = os.path.realpath(input_folder)
+        output_path = os.path.realpath(output_folder)
+
+        try:
+            common = os.path.commonpath([input_path, output_path])
+        except ValueError:
+            # Paths on different drives cannot be compared
+            return False
+
+        return common == input_path
+
+    def _show_output_subfolder_error(self):
+        QMessageBox.warning(
+            self,
+            _("Error"),
+            _(
+                "The output folder cannot be the input folder or a subfolder of it. "
+                "This would cause transcriptions to be processed repeatedly. "
+                "Please choose a different output folder."
+            ),
+        )
 
     def _set_settings_enabled(self, enabled: bool):
         self.input_folder_line_edit.setEnabled(enabled)

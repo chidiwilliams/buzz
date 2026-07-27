@@ -25,9 +25,9 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
 - **Professional Controls** including loop segments, follow audio, and keyboard shortcuts
 - Supports [Whisper](https://github.com/openai/whisper#available-models-and-languages),
   [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) (with Vulkan GPU acceleration), [Faster Whisper](https://github.com/guillaumekln/faster-whisper),
-  [Whisper-compatible Hugging Face models](https://huggingface.co/models?other=whisper), and
-  the [OpenAI Whisper API](https://platform.openai.com/docs/api-reference/introduction).
-  Buzz can also connect to a self-hosted
+  [Whisper-compatible Hugging Face models](https://huggingface.co/models?other=whisper), [Parakeet models](https://huggingface.co/models?sort=trending&search=parakeet), [Qwen3-ASR models](https://huggingface.co/models?sort=trending&search=qwen+asr+hf), [VibeVoice ASR models](https://huggingface.co/models?sort=trending&search=vibevoice+hf+) and
+  the [OpenAI Whisper API](https://platform.openai.com/docs/api-reference/introduction)
+- Buzz can also connect to a self-hosted
   [FunASR](https://github.com/modelscope/FunASR) server for SenseVoice
   transcription.
 - [Command-Line Interface](#command-line-interface)

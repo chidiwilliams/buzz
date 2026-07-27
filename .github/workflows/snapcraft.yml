@@ -28,7 +28,15 @@ jobs:
           sudo apt-get autoremove -y
           sudo apt-get clean
           python -m pip cache purge
-          rm -rf /opt/hostedtoolcache || true
+          # Large preinstalled toolchains this build never uses
+          sudo rm -rf /opt/hostedtoolcache || true
+          sudo rm -rf /usr/local/lib/android || true
+          sudo rm -rf /usr/share/dotnet || true
+          sudo rm -rf /usr/local/.ghcup || true
+          sudo rm -rf /usr/share/swift || true
+          sudo rm -rf /usr/local/share/boost || true
+          sudo rm -rf /usr/lib/jvm || true
+          sudo docker image prune --all --force || true
       - name: Check available disk space
         run: |
           echo "=== Disk space ==="
@@ -66,6 +74,12 @@ jobs:
         run: |
           sudo -E snapcraft pack --verbose --destructive-mode
           echo "snap=$(ls *.snap)" >> $GITHUB_OUTPUT
+      - name: Reclaim space from build artifacts
+        run: |
+          # In destructive mode snapcraft leaves parts/stage/prime in the tree;
+          # the .snap is already packed, so these are safe to drop before install.
+          sudo rm -rf parts stage prime
+          df -h
       - run: sudo snap install --devmode *.snap
       - run: |
           cd $HOME

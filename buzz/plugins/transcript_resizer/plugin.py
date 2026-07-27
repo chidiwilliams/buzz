@@ -186,8 +186,8 @@ class TranscriptResizerPlugin(BuzzPlugin):
                 words.append(
                     {
                         "word": buzz_segment.text + separator,
-                        "start": buzz_segment.start_time / 100,
-                        "end": buzz_segment.end_time / 100,
+                        "start": buzz_segment.start_time / 1000,
+                        "end": buzz_segment.end_time / 1000,
                     }
                 )
                 text += buzz_segment.text + separator
@@ -215,8 +215,8 @@ class TranscriptResizerPlugin(BuzzPlugin):
 
         return [
             Segment(
-                start=int(segment.start * 100),
-                end=int(segment.end * 100),
+                start=int(segment.start * 1000),
+                end=int(segment.end * 1000),
                 text=segment.text,
             )
             for segment in result.segments
