@@ -1805,7 +1805,7 @@ msgstr "检查现有结果文件"
 msgid ""
 "Skip if a .txt, .srt, or .vtt file matching the audio filename is found next "
 "to it"
-msgstr ""
+msgstr "如果音频文件旁边存在匹配的 .txt、.srt 或 .vtt 文件，则跳过"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Check in transcription database"
@@ -1815,7 +1815,7 @@ msgstr "在转录数据库中检查"
 msgid ""
 "Skip if this file has already been transcribed and the record exists in the "
 "database"
-msgstr ""
+msgstr "如果此文件已转录且数据库中存在记录，则跳过"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"
