@@ -69,3 +69,21 @@ class TestFileTranscriberWidget:
             widget.on_model_loaded("")
             mock_err.assert_not_called()
             mock_triggered.assert_called_once()
+
+    def test_on_model_loaded_empty_path_allowed_for_funasr_api(self, qtbot: QtBot):
+        widget = FileTranscriberWidget(file_paths=[test_audio_path])
+        qtbot.add_widget(widget)
+        widget.transcription_options = TranscriptionOptions(
+            model=TranscriptionModel(model_type=ModelType.FUNASR_API)
+        )
+
+        mock_triggered = Mock()
+        widget.triggered.connect(mock_triggered)
+
+        with patch(
+            "buzz.widgets.transcriber.file_transcriber_widget.show_model_download_error_dialog"
+        ) as mock_err, patch.object(widget, "save_preferences"):
+            widget.on_model_loaded("")
+
+        mock_err.assert_not_called()
+        mock_triggered.assert_called_once()

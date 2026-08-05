@@ -13,6 +13,24 @@ Open the Preferences window from the Menu bar, or click `Ctrl/Cmd + ,`.
 
 **Base URL** - By default all requests are sent to API provided by OpenAI company. Their API URL is `https://api.openai.com/v1/`. Compatible APIs are also provided by other companies. List of available API URLs and services to run yourself are available on [discussion page](https://github.com/chidiwilliams/buzz/discussions/827)
 
+### FunASR API preferences
+
+Buzz can use a separately running [FunASR](https://github.com/modelscope/FunASR)
+server for file imports and live recording. Install the server dependencies
+outside Buzz, then start the default SenseVoice backend:
+
+```bash
+pip install torch torchaudio
+pip install funasr vllm fastapi uvicorn python-multipart
+funasr-server --model sensevoice --device cuda
+```
+
+Use `--device cpu` when CUDA is unavailable. The **FunASR API base URL**
+defaults to `http://localhost:8000/v1`, and **FunASR API model** defaults to
+`sensevoice`. FunASR API is transcription-only, so Buzz disables the
+translation task and initial prompt for this model type. The saved OpenAI API
+key is never sent to the FunASR server.
+
 ### Default export file name
 
 Sets the default export file name for file transcriptions. For
@@ -56,10 +74,10 @@ processing power and more powerful hardware to work.
 
 This section lets you download new models for transcription and delete unused ones.
 
-For Whisper.cpp you can also download custom models. Select `Custom` in the model size list and paste the download url 
-to the model `.bin` file. Use the link from "download" button from the Huggingface. 
+For Whisper.cpp you can also download custom models. Select `Custom` in the model size list and paste the download url
+to the model `.bin` file. Use the link from "download" button from the Huggingface.
 
-To improve transcription speed and memory usage you can select a quantized version of some 
+To improve transcription speed and memory usage you can select a quantized version of some
 larger model. For example `q_5` version. Whisper.cpp base models in different quantizations are [available here](https://huggingface.co/ggerganov/whisper.cpp/tree/main). See also [custom models](https://github.com/chidiwilliams/buzz/discussions/866) discussion page for custom models in different languages.
 
 [![Model preferences](https://raw.githubusercontent.com/chidiwilliams/buzz/main/share/screenshots/buzz-3.2-model-preferences.png)](https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe "Model preferences")
@@ -100,7 +118,13 @@ combined to produce the final answer.
 
 **BUZZ_TRANSLATION_API_KEY** - Api key of OpenAI compatible API to use for translation.
 
-**BUZZ_MODEL_ROOT** - Root directory to store model files. You may also want to set `HF_HOME` to the same folder as some libraries used in Buzz download their models independently. 
+**BUZZ_FUNASR_BASE_URL** - Override the FunASR OpenAI-compatible base URL. Default is `http://localhost:8000/v1`.
+
+**BUZZ_FUNASR_MODEL** - Override the FunASR server model alias. Default is `sensevoice`.
+
+**BUZZ_FUNASR_API_KEY** - Optional API key for a protected FunASR endpoint. When unset, Buzz uses a non-secret placeholder and never falls back to the saved OpenAI API key.
+
+**BUZZ_MODEL_ROOT** - Root directory to store model files. You may also want to set `HF_HOME` to the same folder as some libraries used in Buzz download their models independently.
 Defaults to [user_cache_dir](https://pypi.org/project/platformdirs/).
 
 **BUZZ_FAVORITE_LANGUAGES** - Coma separated list of supported language codes to show on top of language list.
@@ -119,7 +143,7 @@ Defaults to [user_cache_dir](https://pypi.org/project/platformdirs/).
 
 **BUZZ_UPLOAD_URL** - Live recording transcripts and translations can be uploaded to a server for display on the web. Set this variable to the desired upload url. You can use [buzz-transcription-server](https://github.com/raivisdejus/buzz-transcription-server) as a server. Buzz will upload the following `json` via `POST` requests - `{"kind": "transcript", "text": "Sample transcript"}` or `{"kind": "translation", "text": "Sample translation"}`. Example usage `BUZZ_UPLOAD_URL=http://localhost:5000/upload`. Available since `1.3.0`
 
-**HF_ENDPOINT** - To speed up downloads in China set `HF_ENDPOINT=https://hf-mirror.com` 
+**HF_ENDPOINT** - To speed up downloads in China set `HF_ENDPOINT=https://hf-mirror.com`
 
 Example of data collected by telemetry:
 ```
