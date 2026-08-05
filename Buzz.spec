@@ -35,6 +35,10 @@ datas += copy_metadata("treetable")
 datas += copy_metadata("soundfile")
 datas += copy_metadata("dora-search")
 datas += copy_metadata("lhotse")
+# transformers 5.x audio_utils calls importlib.metadata.version("torchcodec")
+# at import time when AutoProcessor loads; without this the frozen Windows
+# build crashes on startup with PackageNotFoundError.
+datas += copy_metadata("torchcodec")
 
 # Allow transformers package to load __init__.py file dynamically:
 # https://github.com/chidiwilliams/buzz/issues/272
