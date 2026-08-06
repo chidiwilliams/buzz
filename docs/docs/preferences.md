@@ -13,6 +13,8 @@ Open the Preferences window from the Menu bar, or click `Ctrl/Cmd + ,`.
 
 **Base URL** - By default all requests are sent to API provided by OpenAI company. Their API URL is `https://api.openai.com/v1/`. Compatible APIs are also provided by other companies. List of available API URLs and services to run yourself are available on [discussion page](https://github.com/chidiwilliams/buzz/discussions/827)
 
+**Reduce GPU RAM** - Will slightly compressed model versions for Huggingface, Faster Whisper and Whisper.cpp transcriptions to reduce required GPU memory. Same as `BUZZ_REDUCE_GPU_MEMORY` advanced preference.
+
 ### Default export file name
 
 Sets the default export file name for file transcriptions. For
