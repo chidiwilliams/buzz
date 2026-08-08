@@ -540,8 +540,9 @@ class TranscriptionModel:
             file_path = get_whisper_cpp_file_path(size=self.whisper_model_size)
             if not file_path or not os.path.exists(file_path) or not os.path.isfile(file_path):
                 return None
-            if not _snapshot_is_complete(os.path.dirname(file_path)):
-                return None
+            if self.whisper_model_size != WhisperModelSize.CUSTOM:
+                if not _snapshot_is_complete(os.path.dirname(file_path)):
+                    return None
             return file_path
 
         if self.model_type == ModelType.WHISPER:
@@ -854,6 +855,10 @@ class ModelDownloader(QRunnable):
             file_path = get_whisper_cpp_file_path(
                 size=self.model.whisper_model_size)
             self.download_model_to_path(url=url, file_path=file_path)
+            return
+
+        if self.model.whisper_model_size == WhisperModelSize.CUSTOM:
+            self.signals.error.emit(_("Custom model URL is not provided"))
             return
 
         repo_id, model_name, coreml_name = get_whisper_cpp_model_names(

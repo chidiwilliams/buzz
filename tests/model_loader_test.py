@@ -608,6 +608,97 @@ class TestTranscriptionModelDeleteLocalFile:
 
 
 
+class TestCustomWhisperCppModelPath:
+    """The file the downloader writes has to be the file whisper-cli is given.
+
+    Preferences -> Models downloads a custom Whisper.cpp model from a URL, while
+    transcription resolves the model through get_local_model_path() and passes
+    the result to whisper-cli as --model. If the two disagree, the download
+    reports success but the model is never found again.
+    """
+
+    @staticmethod
+    def _custom_model():
+        return TranscriptionModel(
+            model_type=ModelType.WHISPER_CPP,
+            whisper_model_size=WhisperModelSize.CUSTOM,
+        )
+
+    @staticmethod
+    def _make_downloader(model, custom_url=None):
+        downloader = ModelDownloader(model=model, custom_model_url=custom_url)
+        downloader.signals = MagicMock()
+        return downloader
+
+    def test_download_target_matches_transcription_lookup(self, tmp_path, monkeypatch):
+        monkeypatch.setattr("buzz.model_loader.model_root_dir", str(tmp_path))
+
+        model = self._custom_model()
+        downloader = self._make_downloader(
+            model, custom_url="https://example.com/ggml-custom.bin")
+
+        downloaded_to = {}
+
+        def fake_download(url, file_path, expected_sha256=None):
+            # Stand in for the real network download: record where the
+            # downloader decided to write and leave a file there.
+            downloaded_to["path"] = file_path
+            with open(file_path, "wb") as file:
+                file.write(b"ggml")
+
+        with patch.object(downloader, "download_model_to_path", side_effect=fake_download):
+            downloader.run()
+
+        assert downloaded_to["path"] == os.path.join(
+            str(tmp_path), "ggml-model-whisper-custom.bin")
+        # The path whisper-cli would be launched with.
+        assert model.get_local_model_path() == downloaded_to["path"]
+
+    def test_found_without_hugging_face_completion_marker(self, tmp_path, monkeypatch):
+        # Custom models are not Hugging Face snapshots, so no marker is ever
+        # written next to them. Requiring one hid a model that was fully
+        # downloaded and sitting in place.
+        monkeypatch.setattr("buzz.model_loader.model_root_dir", str(tmp_path))
+        (tmp_path / "ggml-model-whisper-custom.bin").write_bytes(b"ggml")
+
+        assert not (tmp_path / DOWNLOAD_COMPLETE_MARKER).exists()
+        assert self._custom_model().get_local_model_path() == os.path.join(
+            str(tmp_path), "ggml-model-whisper-custom.bin")
+
+    def test_missing_file_still_reports_not_downloaded(self, tmp_path, monkeypatch):
+        monkeypatch.setattr("buzz.model_loader.model_root_dir", str(tmp_path))
+        assert self._custom_model().get_local_model_path() is None
+
+    def test_download_without_url_errors_instead_of_using_whisper_cpp_repo(self):
+        downloader = self._make_downloader(self._custom_model())
+
+        with patch("buzz.model_loader.download_from_huggingface") as mock_dl:
+            downloader.run()
+
+        # ggerganov/whisper.cpp has no "ggml-custom.bin"; querying it would
+        # hand back a path whisper-cli could never load.
+        mock_dl.assert_not_called()
+        downloader.signals.error.emit.assert_called_once()
+        downloader.signals.finished.emit.assert_not_called()
+
+    def test_standard_size_still_requires_completion_marker(self, tmp_path):
+        # The marker check must stay in place for Hugging Face backed sizes,
+        # where a partial snapshot is a real possibility.
+        model = TranscriptionModel(
+            model_type=ModelType.WHISPER_CPP,
+            whisper_model_size=WhisperModelSize.TINY,
+        )
+        model_file = tmp_path / "ggml-tiny.bin"
+        model_file.write_bytes(b"ggml")
+
+        with patch("buzz.model_loader.get_whisper_cpp_file_path",
+                   return_value=str(model_file)):
+            assert model.get_local_model_path() is None
+
+            (tmp_path / DOWNLOAD_COMPLETE_MARKER).write_text("")
+            assert model.get_local_model_path() == str(model_file)
+
+
 class TestSnapshotIsComplete:
     def test_returns_false_when_no_marker(self, tmp_path):
         assert _snapshot_is_complete(str(tmp_path)) is False
