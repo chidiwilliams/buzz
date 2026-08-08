@@ -57,7 +57,7 @@ jobs:
           Add-Content $env:GITHUB_PATH "C:\VulkanSDK\$ver\bin"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v9
+        uses: astral-sh/setup-uv@v9.0.0
 
       - name: Load cached venv
         id: cached-uv-dependencies
@@ -148,7 +148,7 @@ jobs:
           Add-Content $env:GITHUB_PATH "C:\VulkanSDK\$ver\bin"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v9
+        uses: astral-sh/setup-uv@v9.0.0
 
       - name: Load cached venv
         id: cached-uv-dependencies
@@ -321,7 +321,7 @@ jobs:
           Add-Content $env:GITHUB_PATH "C:\VulkanSDK\$ver\bin"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v9
+        uses: astral-sh/setup-uv@v9.0.0
 
       - name: Build wheels
         run: uv build --wheel
@@ -406,7 +406,7 @@ jobs:
 #          submodules: recursive
 #
 #      - name: Install uv
-#        uses: astral-sh/setup-uv@v9
+#        uses: astral-sh/setup-uv@v9.0.0
 #
 #      - name: Set up Python
 #        uses: actions/setup-python@v7
