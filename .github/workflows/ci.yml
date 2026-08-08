@@ -25,21 +25,22 @@ jobs:
           - os: windows-latest
           - os: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
       - name: Install Vulkan SDK (Linux)
         if: startsWith(matrix.os, 'ubuntu-')
-        uses: humbletim/install-vulkan-sdk@v1.2
+        uses: jakoch/install-vulkan-sdk-action@v1.6.0
         with:
-          version: 1.4.309.0
+          vulkan_version: 1.4.309.0
           cache: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       # whisper.cpp 1.8.6's ggml-vulkan backend requires the SPIRV-Headers CMake
       # config package, which the humbletim prebuilt SDK does not ship on Windows.
@@ -57,11 +58,11 @@ jobs:
           Add-Content $env:GITHUB_PATH "C:\VulkanSDK\$ver\bin"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v9.0.0
 
       - name: Load cached venv
         id: cached-uv-dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/uv.lock') }}
@@ -75,7 +76,7 @@ jobs:
         run: ffmpeg -i ./testdata/audio-long.mp3 ./testdata/audio-long.wav
 
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@v3
         if: runner.os == 'Windows'
 
       - name: Install apt dependencies
@@ -95,7 +96,7 @@ jobs:
           PYTHONFAULTHANDLER: "1"
 
       - name: Upload coverage reports to Codecov with GitHub Action
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
           flags: ${{ runner.os }}
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -116,21 +117,22 @@ jobs:
           - os: windows-latest
           - os: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
       - name: Install Vulkan SDK (Linux)
         if: startsWith(matrix.os, 'ubuntu-')
-        uses: humbletim/install-vulkan-sdk@v1.2
+        uses: jakoch/install-vulkan-sdk-action@v1.6.0
         with:
-          version: 1.4.309.0
+          vulkan_version: 1.4.309.0
           cache: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       # whisper.cpp 1.8.6's ggml-vulkan backend requires the SPIRV-Headers CMake
       # config package, which the humbletim prebuilt SDK does not ship on Windows.
@@ -148,17 +150,17 @@ jobs:
           Add-Content $env:GITHUB_PATH "C:\VulkanSDK\$ver\bin"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v9.0.0
 
       - name: Load cached venv
         id: cached-uv-dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/uv.lock') }}
 
       - name: Install Inno Setup on Windows
-        uses: crazy-max/ghaction-chocolatey@v3
+        uses: crazy-max/ghaction-chocolatey@v4
         with:
           args: install innosetup --yes
         if: runner.os == 'Windows'
@@ -206,7 +208,7 @@ jobs:
         shell: bash
 
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@v3
         if: runner.os == 'Windows'
 
       - uses: ruby/setup-ruby@v1
@@ -232,6 +234,11 @@ jobs:
       - name: Bundle
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
+
+            # The runner image ships aws/tap, which Homebrew now warns about on
+            # every invocation because whole-tap trust is required. Nothing here
+            # uses it, so drop it to keep the build log readable.
+            brew untap aws/tap || true
 
             brew install create-dmg
 
@@ -275,7 +282,7 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         shell: bash
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: Buzz-${{ runner.os }}-${{ runner.arch }}
           path: |
@@ -294,16 +301,17 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-15-intel, macos-latest]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
 
       - name: Install Vulkan SDK (Linux)
         if: startsWith(matrix.os, 'ubuntu-')
-        uses: humbletim/install-vulkan-sdk@v1.2
+        uses: jakoch/install-vulkan-sdk-action@v1.6.0
         with:
-          version: 1.4.309.0
+          vulkan_version: 1.4.309.0
           cache: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       # whisper.cpp 1.8.6's ggml-vulkan backend requires the SPIRV-Headers CMake
       # config package, which the humbletim prebuilt SDK does not ship on Windows.
@@ -321,13 +329,13 @@ jobs:
           Add-Content $env:GITHUB_PATH "C:\VulkanSDK\$ver\bin"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v9.0.0
 
       - name: Build wheels
         run: uv build --wheel
         shell: bash
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: buzz-wheel-${{ runner.os }}-${{ runner.arch }}
           path: ./dist/*.whl
@@ -342,7 +350,7 @@ jobs:
       id-token: write
     if: startsWith(github.ref, 'refs/tags/')
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: buzz-wheel-*
           path: dist
@@ -368,11 +376,11 @@ jobs:
     needs: [build, test]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: Buzz-${{ runner.os }}-${{ runner.arch }}
 
@@ -401,15 +409,15 @@ jobs:
 #    needs: [release]
 #    if: startsWith(github.ref, 'refs/tags/')
 #    steps:
-#      - uses: actions/checkout@v4
+#      - uses: actions/checkout@v7
 #        with:
 #          submodules: recursive
 #
 #      - name: Install uv
-#        uses: astral-sh/setup-uv@v6
+#        uses: astral-sh/setup-uv@v9.0.0
 #
 #      - name: Set up Python
-#        uses: actions/setup-python@v5
+#        uses: actions/setup-python@v7
 #        with:
 #          python-version: "3.12"
 #
