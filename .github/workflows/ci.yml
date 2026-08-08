@@ -36,10 +36,11 @@ jobs:
 
       - name: Install Vulkan SDK (Linux)
         if: startsWith(matrix.os, 'ubuntu-')
-        uses: humbletim/install-vulkan-sdk@v1.2
+        uses: jakoch/install-vulkan-sdk-action@v1.6.0
         with:
-          version: 1.4.309.0
+          vulkan_version: 1.4.309.0
           cache: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       # whisper.cpp 1.8.6's ggml-vulkan backend requires the SPIRV-Headers CMake
       # config package, which the humbletim prebuilt SDK does not ship on Windows.
@@ -127,10 +128,11 @@ jobs:
 
       - name: Install Vulkan SDK (Linux)
         if: startsWith(matrix.os, 'ubuntu-')
-        uses: humbletim/install-vulkan-sdk@v1.2
+        uses: jakoch/install-vulkan-sdk-action@v1.6.0
         with:
-          version: 1.4.309.0
+          vulkan_version: 1.4.309.0
           cache: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       # whisper.cpp 1.8.6's ggml-vulkan backend requires the SPIRV-Headers CMake
       # config package, which the humbletim prebuilt SDK does not ship on Windows.
@@ -233,6 +235,11 @@ jobs:
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
 
+            # The runner image ships aws/tap, which Homebrew now warns about on
+            # every invocation because whole-tap trust is required. Nothing here
+            # uses it, so drop it to keep the build log readable.
+            brew untap aws/tap || true
+
             brew install create-dmg
 
             sudo pkill -9 XProtect >/dev/null || true;
@@ -300,10 +307,11 @@ jobs:
 
       - name: Install Vulkan SDK (Linux)
         if: startsWith(matrix.os, 'ubuntu-')
-        uses: humbletim/install-vulkan-sdk@v1.2
+        uses: jakoch/install-vulkan-sdk-action@v1.6.0
         with:
-          version: 1.4.309.0
+          vulkan_version: 1.4.309.0
           cache: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       # whisper.cpp 1.8.6's ggml-vulkan backend requires the SPIRV-Headers CMake
       # config package, which the humbletim prebuilt SDK does not ship on Windows.
