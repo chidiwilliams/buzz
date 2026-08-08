@@ -43,7 +43,7 @@ jobs:
           df -h
           echo "=== Memory ==="
           free -h
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
       - name: Install Snapcraft and dependencies
@@ -84,7 +84,7 @@ jobs:
       - run: |
           cd $HOME
           xvfb-run buzz --version
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: snap
           path: ${{ steps.snapcraft.outputs.snap }}
@@ -94,7 +94,7 @@ jobs:
     needs: [ build ]
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: snap
       - uses: snapcore/action-publish@v1
@@ -110,7 +110,7 @@ jobs:
     needs: [ build ]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: snap
       - uses: snapcore/action-publish@v1
