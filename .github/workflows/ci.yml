@@ -132,6 +132,7 @@ jobs:
         with:
           vulkan_version: 1.4.309.0
           cache: true
+          cache_save_if: false
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       # whisper.cpp 1.8.6's ggml-vulkan backend requires the SPIRV-Headers CMake
@@ -151,6 +152,8 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v9.0.0
+        with:
+          save-cache: false
 
       - name: Load cached venv
         id: cached-uv-dependencies
@@ -311,6 +314,7 @@ jobs:
         with:
           vulkan_version: 1.4.309.0
           cache: true
+          cache_save_if: false
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       # whisper.cpp 1.8.6's ggml-vulkan backend requires the SPIRV-Headers CMake
@@ -330,6 +334,8 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v9.0.0
+        with:
+          save-cache: false
 
       - name: Build wheels
         run: uv build --wheel
