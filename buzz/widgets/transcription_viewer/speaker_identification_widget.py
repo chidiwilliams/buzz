@@ -4,6 +4,7 @@ import logging
 import ssl
 import time
 import random
+from contextlib import contextmanager
 from typing import Optional
 
 # Fix SSL certificate verification for bundled applications (macOS, Windows)
@@ -105,6 +106,29 @@ def process_in_batches(
 
     return all_results
 
+@contextmanager
+def hide_cuda_from_torch(device):
+    """Make ``torch.cuda.is_available()`` report False while running on CPU.
+
+    The NeMo diarizers take their device from their config, which defaults to
+    ``null`` and so resolves to CUDA whenever it is available - the weights are
+    loaded onto the GPU before the ``device`` we pass is ever applied. On GPUs
+    that are too old for the shipped CUDA kernels that fails with
+    "no kernel image is available for execution on the device", so hide CUDA
+    for the duration of the call instead.
+    """
+    if device != "cpu" or not torch.cuda.is_available():
+        yield
+        return
+
+    original_is_available = torch.cuda.is_available
+    torch.cuda.is_available = lambda: False
+    try:
+        yield
+    finally:
+        torch.cuda.is_available = original_is_available
+
+
 SENTENCE_END = re.compile(r'.*[.!?。！？]')
 
 class IdentificationWorker(QObject):
@@ -202,8 +226,13 @@ class IdentificationWorker(QObject):
         return language, full_transcript, audio_waveform
 
     def _setup_device(self):
-        force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
-        use_cuda = torch.cuda.is_available() and force_cpu == "false"
+        # "Disable GPU" in Preferences exports BUZZ_FORCE_CPU, but read the setting too
+        # so the preference applies even if the environment was not updated.
+        force_cpu = (
+            os.getenv("BUZZ_FORCE_CPU", "false").lower() == "true"
+            or Settings().value(Settings.Key.FORCE_CPU, False)
+        )
+        use_cuda = torch.cuda.is_available() and not force_cpu
         device = "cuda" if use_cuda else "cpu"
         torch_dtype = torch.float16 if use_cuda else torch.float32
 
@@ -292,12 +321,13 @@ class IdentificationWorker(QObject):
         )
         diarizer_model = None
         try:
-            if self.diarizer == "sortformer":
-                diarizer_model = self._SortformerDiarizer(device)
-            else:
-                diarizer_model = self._MSDDDiarizer(device)
-            logging.debug("Speaker identification worker: Running diarization (this may take a while on CPU)")
-            speaker_ts = diarizer_model.diarize(torch.from_numpy(audio_waveform).unsqueeze(0))
+            with hide_cuda_from_torch(device):
+                if self.diarizer == "sortformer":
+                    diarizer_model = self._SortformerDiarizer(device)
+                else:
+                    diarizer_model = self._MSDDDiarizer(device)
+                logging.debug("Speaker identification worker: Running diarization (this may take a while on CPU)")
+                speaker_ts = diarizer_model.diarize(torch.from_numpy(audio_waveform).unsqueeze(0))
             logging.debug("Speaker identification worker: Diarization complete")
             return speaker_ts
         finally:
@@ -305,23 +335,25 @@ class IdentificationWorker(QObject):
                 del diarizer_model
             torch.cuda.empty_cache()
 
-    def _map_speakers_with_punctuation(self, word_timestamps, speaker_ts, language):
+    def _map_speakers_with_punctuation(self, word_timestamps, speaker_ts, language, device=None):
         wsm = self._get_words_speaker_mapping(word_timestamps, speaker_ts, "start")
 
         if language in self._punct_model_langs:
-            # restoring punctuation in the transcript to help realign the sentences
-            punct_model = self._PunctuationModel(model="kredor/punctuate-all")
+            # restoring punctuation in the transcript to help realign the sentences.
+            # The punctuation model also picks its device from torch.cuda.is_available().
+            with hide_cuda_from_torch(device):
+                punct_model = self._PunctuationModel(model="kredor/punctuate-all")
 
-            words_list = list(map(lambda x: x["word"], wsm))
+                words_list = list(map(lambda x: x["word"], wsm))
 
-            # Process in batches to avoid chunk size errors
-            def predict_wrapper(batch, chunk_size, **kwargs):
-                return punct_model.predict(batch, chunk_size=chunk_size)
+                # Process in batches to avoid chunk size errors
+                def predict_wrapper(batch, chunk_size, **kwargs):
+                    return punct_model.predict(batch, chunk_size=chunk_size)
 
-            labled_words = process_in_batches(
-                items=words_list,
-                process_func=predict_wrapper
-            )
+                labled_words = process_in_batches(
+                    items=words_list,
+                    process_func=predict_wrapper
+                )
 
             ending_puncts = ".?!。！？"
             model_puncts = ".,;:!?。！？"
@@ -445,7 +477,7 @@ class IdentificationWorker(QObject):
 
             self.progress_update.emit(_("7/8 Mapping speakers to transcripts"))
             ssm = self._map_speakers_with_punctuation(
-                word_timestamps, speaker_ts, language,
+                word_timestamps, speaker_ts, language, device,
             )
 
             logging.debug("Speaker identification worker: Finished successfully")
