@@ -469,6 +469,7 @@ class RecordingTranscriber(QObject):
 
         cmd = [
             server_path,
+            "--host", "0.0.0.0",
             "--port", "3003",
             "--inference-path", "/audio/transcriptions",
             "--threads", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8) // 2)),
