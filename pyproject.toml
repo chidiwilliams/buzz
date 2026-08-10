@@ -119,6 +119,10 @@ dev = [
 build = [
     "cmake>=4.2.0,<5",
     "polib>=1.2.0,<2",
+    # Needed to compile the ctc_forced_aligner C++ extension in-place,
+    # see scripts/build_ctc_forced_aligner.py
+    "pybind11",
+    "setuptools>=80.9.0",
 ]
 
 [tool.uv]

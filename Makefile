@@ -40,7 +40,10 @@ endif
 
 COVERAGE_THRESHOLD := 70
 
-test: buzz/whisper_cpp
+ctc_forced_aligner_ext:
+	python scripts/build_ctc_forced_aligner.py
+
+test: buzz/whisper_cpp ctc_forced_aligner_ext
 # A check to get updates of yt-dlp and certifi. Should run only on local as part of regular development operations
 # Sort of a local "update checker"
 ifndef CI
@@ -48,7 +51,7 @@ ifndef CI
 endif
 	pytest -s -vv --cov=buzz --cov-report=xml --cov-report=html --benchmark-skip --cov-fail-under=${COVERAGE_THRESHOLD} --cov-config=.coveragerc
 
-benchmarks: buzz/whisper_cpp
+benchmarks: buzz/whisper_cpp ctc_forced_aligner_ext
 	pytest -s -vv --benchmark-only --benchmark-json benchmarks.json
 
 dist/Buzz dist/Buzz.app: buzz/whisper_cpp
