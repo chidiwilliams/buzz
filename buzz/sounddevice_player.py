@@ -62,10 +62,17 @@ class SounddevicePlayer:
         self._frame_pos = 0
         self._stream: Optional[sd.OutputStream] = None
         self._playing = False
+        self._latency_frames = 0
 
     @property
     def position_ms(self) -> int:
-        return int(self._frame_pos / self.samplerate * 1000)
+        # ``_frame_pos`` advances when the callback *fills* the output buffer,
+        # which runs ahead of what is actually audible by the device's output
+        # latency. Report the audible position so callers comparing this against
+        # another clock (e.g. QMediaPlayer in VideoPlayer) don't see a constant
+        # offset and try to "correct" it.
+        audible = max(0, self._frame_pos - self._latency_frames)
+        return int(audible / self.samplerate * 1000)
 
     @property
     def duration_ms(self) -> int:
@@ -97,6 +104,10 @@ class SounddevicePlayer:
             callback=self._callback,
             finished_callback=self._on_finished,
         )
+        try:
+            self._latency_frames = int(self._stream.latency * self.samplerate)
+        except Exception:
+            self._latency_frames = 0
 
     def _on_finished(self):
         self._playing = False
@@ -115,13 +126,21 @@ class SounddevicePlayer:
             self.play()
 
     def seek(self, position_ms: int):
-        was_playing = self._playing
+        target = int(position_ms / 1000 * self.samplerate)
+        target = max(0, min(target, len(self.data)))
+
+        # Move the read cursor under the lock and let the running stream pick it
+        # up on its next callback. Tearing the stream down and reopening the
+        # device would drop audio for the duration of the device open, which is
+        # audible as a stutter when seeks happen repeatedly.
+        if self._playing and self._stream is not None:
+            with self._lock:
+                self._frame_pos = target
+            return
+
         self._stop_stream()
         with self._lock:
-            self._frame_pos = int(position_ms / 1000 * self.samplerate)
-            self._frame_pos = max(0, min(self._frame_pos, len(self.data)))
-        if was_playing:
-            self.play()
+            self._frame_pos = target
 
     def stop(self):
         self._stop_stream()
