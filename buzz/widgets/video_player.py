@@ -36,6 +36,7 @@ class VideoPlayer(QWidget):
         self.duration_ms = 0
         self.is_looping = False
         self.is_slider_dragging = False
+        self._drift_polls = 0
 
     def _init_video_decoder(self, file_path: str):
         self._ffmpeg_player = FfmpegVideoPlayer(file_path)
@@ -153,13 +154,25 @@ class VideoPlayer(QWidget):
     # Audio sync
     # ------------------------------------------------------------------
 
+    # Audio is only re-aligned to the video clock once drift stays past this
+    # threshold for several consecutive polls. Correcting on a single sample
+    # makes the audio chase QMediaPlayer's coarse position reporting, which is
+    # audible as stuttering / repeated syllables.
+    SYNC_THRESHOLD_MS = 400
+    SYNC_CONSECUTIVE_POLLS = 3
+
     def _sync_audio(self):
         if self._sd_player is None:
             return
         video_pos = self.media_player.position()
         audio_pos = self._sd_player.position_ms
-        if abs(video_pos - audio_pos) > 200:
-            self._sd_player.seek(video_pos)
+        if abs(video_pos - audio_pos) > self.SYNC_THRESHOLD_MS:
+            self._drift_polls += 1
+            if self._drift_polls >= self.SYNC_CONSECUTIVE_POLLS:
+                self._drift_polls = 0
+                self._sd_player.seek(video_pos)
+        else:
+            self._drift_polls = 0
 
     # ------------------------------------------------------------------
     # Qt multimedia callbacks
@@ -197,6 +210,7 @@ class VideoPlayer(QWidget):
     def set_position(self, position_ms: int):
         self.media_player.setPosition(position_ms)
         self._ffmpeg_player.seek(position_ms)
+        self._drift_polls = 0
         if self._use_sd and self._sd_player:
             self._sd_player.seek(position_ms)
 

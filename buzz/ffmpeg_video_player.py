@@ -11,6 +11,8 @@ from typing import Optional
 
 import numpy as np
 
+from buzz.pip_utils import subprocess_hide_window_kwargs
+
 
 def _find_ffmpeg() -> str:
     import shutil
@@ -43,6 +45,7 @@ def probe_video(file_path: str) -> dict:
         [ffprobe, "-v", "quiet", "-print_format", "json",
          "-show_streams", "-show_format", file_path],
         capture_output=True, check=True, text=True,
+        **subprocess_hide_window_kwargs(),
     )
     info = json.loads(result.stdout)
 
@@ -133,6 +136,7 @@ class FfmpegFrameReader:
         try:
             self._proc = subprocess.Popen(
                 cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                **subprocess_hide_window_kwargs(),
             )
             frame_ms = 1000.0 / self._params.fps
             pos = self._params.start_ms
