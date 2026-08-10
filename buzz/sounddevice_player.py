@@ -10,6 +10,8 @@ from typing import Optional
 import numpy as np
 import sounddevice as sd
 
+from buzz.pip_utils import subprocess_hide_window_kwargs
+
 
 def _find_ffmpeg() -> str:
     import shutil
@@ -32,6 +34,7 @@ def decode_audio_to_wav(input_path: str, output_wav: str) -> None:
          "-f", "wav", output_wav],
         capture_output=True,
         check=True,
+        **subprocess_hide_window_kwargs(),
     )
 
 
