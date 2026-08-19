@@ -664,6 +664,7 @@ class TestSpeakerIdentificationWidget:
             widget.on_identify_button_clicked()
 
         assert widget.worker.diarizer == "sortformer"
+        assert widget.worker.num_speakers is None
 
         widget.close()
 
