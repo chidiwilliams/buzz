@@ -51,3 +51,17 @@ class TranscriptionSegmentDAO(DAO[TranscriptionSegment]):
         query.bindValue(":translation", translation)
         if not query.exec():
             raise Exception(query.lastError().text())
+
+    def update_segment_speaker(self, segment_id: int, speaker: str):
+        query = self._create_query()
+        query.prepare(
+            """
+            UPDATE transcription_segment
+            SET speaker = :speaker
+            WHERE id = :id
+        """
+        )
+        query.bindValue(":id", segment_id)
+        query.bindValue(":speaker", speaker.strip())
+        if not query.exec():
+            raise Exception(query.lastError().text())

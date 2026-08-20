@@ -334,7 +334,7 @@ class TestTranscriptionSegmentsEditorWidget:
         qtbot.add_widget(widget)
 
         assert hasattr(widget, 'column_definitions')
-        assert len(widget.column_definitions) == 4
+        assert len(widget.column_definitions) == 5
 
         # Check that columns have proper delegates
         for col_def in widget.column_definitions:
@@ -541,7 +541,7 @@ class TestTranscriptionSegmentsEditorWidget:
         assert widget.selectionBehavior() == QAbstractItemView.SelectionBehavior.SelectRows
 
     def test_selection_mode(self, qtbot: QtBot, transcription, translator):
-        """Test that selection mode is set to SingleSelection"""
+        """Test that selection mode supports bulk speaker assignment"""
         widget = TranscriptionSegmentsEditorWidget(
             transcription_id=uuid.UUID(hex=transcription.id),
             translator=translator,
@@ -550,4 +550,4 @@ class TestTranscriptionSegmentsEditorWidget:
         qtbot.add_widget(widget)
 
         from PyQt6.QtWidgets import QTableView
-        assert widget.selectionMode() == QTableView.SelectionMode.SingleSelection
+        assert widget.selectionMode() == QTableView.SelectionMode.ExtendedSelection

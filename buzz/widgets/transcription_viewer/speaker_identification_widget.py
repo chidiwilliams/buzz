@@ -828,7 +828,8 @@ class SpeakerIdentificationWidget(QWidget):
                         segment = Segment(
                             start=previous_segment['start_time'],
                             end=previous_segment['end_time'],
-                            text=f"{previous_segment['speaker']}: {previous_segment['text']}"
+                            text=previous_segment['text'],
+                            speaker=previous_segment['speaker'],
                         )
                         segments.append(segment)
                     previous_segment = {
@@ -842,7 +843,8 @@ class SpeakerIdentificationWidget(QWidget):
                 segment = Segment(
                     start=previous_segment['start_time'],
                     end=previous_segment['end_time'],
-                    text=f"{previous_segment['speaker']}: {previous_segment['text']}"
+                    text=previous_segment['text'],
+                    speaker=previous_segment['speaker'],
                 )
                 segments.append(segment)
         else:
@@ -851,7 +853,8 @@ class SpeakerIdentificationWidget(QWidget):
                 segment = Segment(
                     start=entry['start_time'],
                     end=entry['end_time'],
-                    text=f"{speaker_name}: {entry['text']}"
+                    text=entry['text'],
+                    speaker=speaker_name,
                 )
                 segments.append(segment)
 

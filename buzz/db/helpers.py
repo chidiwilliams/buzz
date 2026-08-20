@@ -53,8 +53,11 @@ def copy_transcriptions_from_json_to_sqlite(conn: Connection):
             for segment in task.segments:
                 cursor.execute(
                     """
-                    INSERT INTO transcription_segment (end_time, start_time, text, translation, transcription_id)
-                    VALUES (?, ?, ?, ?, ?);
+                    INSERT INTO transcription_segment (
+                        end_time, start_time, text, translation,
+                        transcription_id, speaker
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?);
                     """,
                     (
                         segment.end,
@@ -62,6 +65,7 @@ def copy_transcriptions_from_json_to_sqlite(conn: Connection):
                         segment.text,
                         segment.translation,
                         transcription_id,
+                        getattr(segment, "speaker", ""),
                     ),
                 )
         # os.remove(cache.tasks_list_file_path)
