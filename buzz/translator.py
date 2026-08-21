@@ -15,6 +15,8 @@ from buzz.widgets.transcriber.advanced_settings_dialog import AdvancedSettingsDi
 
 
 BATCH_SIZE = 10
+# Local LLMs can be slow, give them plenty of time to respond
+TRANSLATION_TIMEOUT_SECONDS = 600.0
 
 
 class Translator(QObject):
@@ -65,7 +67,7 @@ class Translator(QObject):
                     {"role": "system", "content": self.transcription_options.llm_prompt},
                     {"role": "user", "content": transcript}
                 ],
-                timeout=60.0,
+                timeout=TRANSLATION_TIMEOUT_SECONDS,
             )
         except Exception as e:
             completion = None
@@ -102,7 +104,7 @@ class Translator(QObject):
                     {"role": "system", "content": batch_prompt},
                     {"role": "user", "content": combined}
                 ],
-                timeout=60.0,
+                timeout=TRANSLATION_TIMEOUT_SECONDS,
             )
         except Exception as e:
             completion = None

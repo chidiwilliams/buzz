@@ -99,6 +99,7 @@ class TranscriptionViewerWidget(QWidget):
 
         self.translation_thread = None
         self.translator = None
+        self.translation_requested = False
         self.view_mode = ViewMode.TIMESTAMPS
 
         self._init_search_debounce()
@@ -148,6 +149,12 @@ class TranscriptionViewerWidget(QWidget):
         )
         self.transcription_options_dialog.transcription_options_changed.connect(
             self.on_transcription_options_changed
+        )
+        self.transcription_options_dialog.accepted.connect(
+            self.on_translation_settings_accepted
+        )
+        self.transcription_options_dialog.rejected.connect(
+            self.on_translation_settings_rejected
         )
         self.translator = Translator(
             self.transcription_options,
@@ -1289,6 +1296,15 @@ class TranscriptionViewerWidget(QWidget):
         self.settings.settings.endGroup()
         return preferences
 
+    def save_preferences(self):
+        preferences = FileTranscriptionPreferences.from_transcription_options(
+            transcription_options=self.transcription_options,
+            file_transcription_options=self.file_transcription_options,
+        )
+        self.settings.settings.beginGroup("file_transcriber")
+        preferences.save(settings=self.settings.settings)
+        self.settings.settings.endGroup()
+
     def open_advanced_settings(self):
         self.transcription_options_dialog.show()
 
@@ -1296,6 +1312,12 @@ class TranscriptionViewerWidget(QWidget):
             self, transcription_options: TranscriptionOptions
     ):
         self.transcription_options = transcription_options
+
+    def has_translation_settings(self) -> bool:
+        return bool(
+            self.transcription_options.llm_model
+            and self.transcription_options.llm_prompt
+        )
 
     def on_translate_button_clicked(self):
         if len(self.openai_access_token) == 0:
@@ -1307,19 +1329,35 @@ class TranscriptionViewerWidget(QWidget):
 
             return
 
-        if self.transcription_options.llm_model == "" or self.transcription_options.llm_prompt == "":
-            self.transcription_options_dialog.accepted.connect(
-                self.run_translation)
-            self.transcription_options_dialog.show()
+        # Always let the user review the AI model and instructions before
+        # translating, translation starts when the settings are accepted.
+        self.translation_requested = True
+        self.transcription_options_dialog.show()
+        self.transcription_options_dialog.raise_()
+        self.transcription_options_dialog.activateWindow()
+
+    def on_translation_settings_accepted(self):
+        if not self.translation_requested:
             return
 
+        self.translation_requested = False
         self.run_translation()
 
+    def on_translation_settings_rejected(self):
+        self.translation_requested = False
+
     def run_translation(self):
-        if self.transcription_options.llm_model == "" or self.transcription_options.llm_prompt == "":
+        if not self.has_translation_settings():
+            logging.warning(
+                "Translation not started, AI model or instructions for AI are not set")
             return
 
+        self.save_preferences()
+
         segments = self.table_widget.segments()
+        logging.debug(
+            f"Queueing {len(segments)} segments for translation "
+            f"with model {self.transcription_options.llm_model}")
         for segment in segments:
             self.translator.enqueue(segment.value("text"), segment.value("id"))
 
@@ -1500,9 +1538,10 @@ class TranscriptionViewerWidget(QWidget):
 
         # Only wait if thread is actually running
         if self.translation_thread.isRunning():
-            # Wait up to 35 seconds for graceful shutdown
-            # (30s max API call timeout + 5s buffer)
-            if not self.translation_thread.wait(35_000):
+            # An in-flight translation request can take up to
+            # TRANSLATION_TIMEOUT_SECONDS, too long to keep the window open,
+            # so only give the thread a short grace period to finish
+            if not self.translation_thread.wait(10_000):
                 logging.warning(
                     "Translation thread did not finish gracefully, terminating")
                 # Force terminate the thread if it doesn't stop
