@@ -144,7 +144,7 @@ torchaudio = [
 
 [[tool.uv.index]]
 name = "nvidia"
-url = "https://pypi.ngc.nvidia.com/"
+url = "https://pypi.nvidia.com/"
 
 [[tool.uv.index]]
 name = "pytorch-cu129"
