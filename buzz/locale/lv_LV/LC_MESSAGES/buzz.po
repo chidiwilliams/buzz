@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-24 10:40+0300\n"
+"POT-Creation-Date: 2026-08-22 11:45+0300\n"
 "PO-Revision-Date: 2026-03-06 13:23+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -407,6 +407,7 @@ msgid "Run"
 msgstr "Apstrādāt"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Model:"
 msgstr "Modelis:"
 
@@ -1176,6 +1177,28 @@ msgid "Audio file not found"
 msgstr "Audio datne nav atrasta"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "Runātāji:"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "Auto"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr ""
+"Norādiet zināmo runātāju skaitu vai izmantojiet Auto, lai to noteiktu "
+"automātiski."
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
 msgstr "2. solis: Runātāju identifikācija"
 
@@ -1657,6 +1680,10 @@ msgstr "Palaiž Whisper.cpp..."
 msgid "Starting transcription..."
 msgstr "Sāk atpazīšanu..."
 
+#: buzz/model_loader.py
+msgid "Custom model URL is not provided"
+msgstr "Nav norādīts pielāgotā modeļa URL"
+
 #: buzz/settings/shortcut.py
 msgid "Open Record Window"
 msgstr "Atvērt ieraksta logu"
@@ -1819,7 +1846,6 @@ msgid "Removes background noise using DeepFilterNet3 before transcription."
 msgstr "Pirms transkribēšanas noņem fona troksni, izmantojot DeepFilterNet3."
 
 #: buzz/plugins/deep_filter_net/plugin.py
-#, fuzzy
 msgid "Keep denoised file after transcription"
 msgstr "Saglabāt attīrīto failu pēc transkribēšanas"
 
@@ -1840,6 +1866,8 @@ msgid ""
 "Skip if a .txt, .srt, or .vtt file matching the audio filename is found next "
 "to it"
 msgstr ""
+"Izlaist, ja blakus audio failam atrodas .txt, .srt vai .vtt fails ar tādu "
+"pašu nosaukumu"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Check in transcription database"
@@ -1849,7 +1877,7 @@ msgstr "Pārbaudīt transkripciju datubāzē"
 msgid ""
 "Skip if this file has already been transcribed and the record exists in the "
 "database"
-msgstr ""
+msgstr "Izlaist, ja šis fails jau ir transkribēts un ieraksts pastāv datubāzē"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"

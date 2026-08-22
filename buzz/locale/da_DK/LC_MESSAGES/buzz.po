@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-24 10:40+0300\n"
+"POT-Creation-Date: 2026-08-22 11:45+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Ole Guldberg2 <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -407,6 +407,7 @@ msgid "Run"
 msgstr "Kør"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Model:"
 msgstr "Model:"
 
@@ -1185,6 +1186,26 @@ msgid "Audio file not found"
 msgstr "Lydfil ikke fundet"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "Talere:"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "Auto"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr "Angiv det kendte antal talere, eller brug Auto til at registrere det."
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
 msgstr "Trin 2: Navngiv talere"
 
@@ -1664,6 +1685,10 @@ msgstr "Starter Whisper.cpp..."
 msgid "Starting transcription..."
 msgstr "Starter transkription..."
 
+#: buzz/model_loader.py
+msgid "Custom model URL is not provided"
+msgstr "URL til tilpasset model er ikke angivet"
+
 #: buzz/settings/shortcut.py
 msgid "Open Record Window"
 msgstr "Åben optagevinduet"
@@ -1827,7 +1852,6 @@ msgid "Removes background noise using DeepFilterNet3 before transcription."
 msgstr "Fjerner baggrundsstøj med DeepFilterNet3 før transskription."
 
 #: buzz/plugins/deep_filter_net/plugin.py
-#, fuzzy
 msgid "Keep denoised file after transcription"
 msgstr "Behold den støjreducerede fil efter transskription"
 
@@ -1850,6 +1874,8 @@ msgid ""
 "Skip if a .txt, .srt, or .vtt file matching the audio filename is found next "
 "to it"
 msgstr ""
+"Spring over, hvis der ved siden af lydfilen ligger en .txt-, .srt- eller ."
+"vtt-fil med samme navn"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Check in transcription database"
@@ -1860,6 +1886,8 @@ msgid ""
 "Skip if this file has already been transcribed and the record exists in the "
 "database"
 msgstr ""
+"Spring over, hvis denne fil allerede er transskriberet, og posten findes i "
+"databasen"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"
