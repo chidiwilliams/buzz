@@ -1,0 +1,42 @@
+diff --git a/diarization/msdd/msdd.py b/diarization/msdd/msdd.py
+index ef640bb..6b3c1d8 100644
+--- a/diarization/msdd/msdd.py
++++ b/diarization/msdd/msdd.py
+@@ -3,7 +3,7 @@ import os
+ import tempfile
+ import wave
+ 
+-from typing import Union
++from typing import Optional, Union
+ 
+ import torch
+ 
+@@ -16,7 +16,10 @@ class MSDDDiarizer:
+     def __init__(self, device: Union[str, torch.device]):
+         self.model: NeuralDiarizer = NeuralDiarizer(cfg=create_config()).to(device)
+ 
+-    def diarize(self, audio: torch.Tensor):
++    def diarize(self, audio: torch.Tensor, num_speakers: Optional[int] = None):
++        if num_speakers is not None and not 1 <= num_speakers <= 8:
++            raise ValueError("num_speakers must be between 1 and 8")
++
+         with tempfile.TemporaryDirectory() as temp_path:
+             pcm = (audio.cpu().numpy() * 32768).clip(-32768, 32767).astype("int16")
+             with wave.open(os.path.join(temp_path, "mono_file.wav"), "wb") as wf:
+@@ -32,6 +35,7 @@ class MSDDDiarizer:
+                 "duration": None,
+                 "label": "infer",
+                 "text": "-",
++                "num_speakers": num_speakers,
+                 "rttm_filepath": None,
+                 "uem_filepath": None,
+             }
+@@ -42,7 +46,7 @@ class MSDDDiarizer:
+             self.model._initialize_configs(
+                 manifest_path=manifest_path,
+                 max_speakers=8,
+-                num_speakers=None,
++                num_speakers=num_speakers,
+                 tmpdir=temp_path,
+                 batch_size=24,
+                 num_workers=0,

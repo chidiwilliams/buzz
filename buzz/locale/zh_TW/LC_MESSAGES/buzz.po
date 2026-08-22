@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-24 10:40+0300\n"
+"POT-Creation-Date: 2026-08-22 11:45+0300\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: Lamb\n"
@@ -296,7 +296,9 @@ msgid ""
 "The output folder cannot be the input folder or a subfolder of it. This "
 "would cause transcriptions to be processed repeatedly. Please choose a "
 "different output folder."
-msgstr "輸出資料夾不能是輸入資料夾或其子資料夾。這會導致轉錄被重複處理。請選擇其他輸出資料夾。"
+msgstr ""
+"輸出資料夾不能是輸入資料夾或其子資料夾。這會導致轉錄被重複處理。請選擇其他輸"
+"出資料夾。"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 msgid "Preferences"
@@ -398,6 +400,7 @@ msgid "Run"
 msgstr "開始執行"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Model:"
 msgstr "模型:"
 
@@ -1153,6 +1156,26 @@ msgid "Audio file not found"
 msgstr "找不到音訊檔案"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "說話者數:"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "自動"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr "設定已知的說話者數量，或使用「自動」進行偵測。"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
 msgstr "步驟 2：為說話者命名"
 
@@ -1629,6 +1652,10 @@ msgstr "正在啟動 Whisper.cpp..."
 msgid "Starting transcription..."
 msgstr "正在開始轉錄..."
 
+#: buzz/model_loader.py
+msgid "Custom model URL is not provided"
+msgstr "未提供自訂模型 URL"
+
 #: buzz/settings/shortcut.py
 msgid "Open Record Window"
 msgstr "開啟錄製視窗"
@@ -1786,7 +1813,6 @@ msgid "Removes background noise using DeepFilterNet3 before transcription."
 msgstr "在轉錄前使用 DeepFilterNet3 移除背景雜音。"
 
 #: buzz/plugins/deep_filter_net/plugin.py
-#, fuzzy
 msgid "Keep denoised file after transcription"
 msgstr "轉錄後保留降噪檔案"
 

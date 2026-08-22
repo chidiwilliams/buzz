@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-24 10:40+0300\n"
+"POT-Creation-Date: 2026-08-22 11:45+0300\n"
 "PO-Revision-Date: 2025-03-05 14:41+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -410,6 +410,7 @@ msgid "Run"
 msgstr "Ausführen"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Model:"
 msgstr "Modell:"
 
@@ -1194,6 +1195,28 @@ msgid "Audio file not found"
 msgstr "Audiodatei nicht gefunden"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "Sprecher:"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "Auto"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr ""
+"Legen Sie die bekannte Anzahl der Sprecher fest oder verwenden Sie Auto zur "
+"Erkennung."
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
 msgstr "Schritt 2: Sprecher benennen"
 
@@ -1679,6 +1702,10 @@ msgstr "Whisper.cpp wird gestartet..."
 msgid "Starting transcription..."
 msgstr "Transkription wird gestartet..."
 
+#: buzz/model_loader.py
+msgid "Custom model URL is not provided"
+msgstr "Es wurde keine URL für das benutzerdefinierte Modell angegeben"
+
 #: buzz/settings/shortcut.py
 msgid "Open Record Window"
 msgstr "Aufnahmefenster öffnen"
@@ -1844,7 +1871,6 @@ msgstr ""
 "Entfernt Hintergrundgeräusche mit DeepFilterNet3 vor der Transkription."
 
 #: buzz/plugins/deep_filter_net/plugin.py
-#, fuzzy
 msgid "Keep denoised file after transcription"
 msgstr "Entrauschte Datei nach der Transkription behalten"
 
@@ -1867,6 +1893,8 @@ msgid ""
 "Skip if a .txt, .srt, or .vtt file matching the audio filename is found next "
 "to it"
 msgstr ""
+"Überspringen, wenn neben der Audiodatei eine .txt-, .srt- oder .vtt-Datei "
+"mit demselben Namen gefunden wird"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Check in transcription database"
@@ -1877,6 +1905,8 @@ msgid ""
 "Skip if this file has already been transcribed and the record exists in the "
 "database"
 msgstr ""
+"Überspringen, wenn diese Datei bereits transkribiert wurde und der Eintrag "
+"in der Datenbank vorhanden ist"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"
