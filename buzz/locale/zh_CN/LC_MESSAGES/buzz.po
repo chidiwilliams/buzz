@@ -1950,6 +1950,7 @@ msgstr "输出文件夹（用于文件）"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Prevent system sleep while transcriptions are queued"
 msgstr ""
+"有转录任务排队时阻止系统睡眠"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""

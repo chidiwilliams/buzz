@@ -2072,6 +2072,7 @@ msgstr "Carpeta de salida (para el archivo)"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Prevent system sleep while transcriptions are queued"
 msgstr ""
+"Evitar que el sistema entre en suspensión mientras haya transcripciones en cola"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""

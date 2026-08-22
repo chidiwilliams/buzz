@@ -2012,6 +2012,7 @@ msgstr "Cartella di output (per il file)"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Prevent system sleep while transcriptions are queued"
 msgstr ""
+"Impedisci la sospensione del sistema mentre ci sono trascrizioni in coda"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""

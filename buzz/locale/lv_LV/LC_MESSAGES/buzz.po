@@ -1988,6 +1988,7 @@ msgstr "Izvades mape"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Prevent system sleep while transcriptions are queued"
 msgstr ""
+"Neļaut sistēmai iemigt, kamēr rindā ir atpazīšanas uzdevumi"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""

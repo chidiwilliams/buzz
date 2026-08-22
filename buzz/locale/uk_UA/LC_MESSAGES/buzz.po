@@ -1997,6 +1997,7 @@ msgstr "Папка виводу (для файлу)"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Prevent system sleep while transcriptions are queued"
 msgstr ""
+"Не дозволяти системі переходити в режим сну, поки в черзі є транскрипції"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""

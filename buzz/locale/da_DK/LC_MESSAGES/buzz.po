@@ -1998,6 +1998,7 @@ msgstr "Outputmappe (til fil)"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Prevent system sleep while transcriptions are queued"
 msgstr ""
+"Forhindr systemet i at gå i dvale, når der er transkriptioner i køen"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
