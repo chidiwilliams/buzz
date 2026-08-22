@@ -196,6 +196,11 @@ def write_output(
     )
 
     with open(os.fsencode(path), "w", encoding="utf-8") as file:
+        def segment_content(segment):
+            content = getattr(segment, segment_key).strip()
+            speaker = getattr(segment, "speaker", "").strip()
+            return f"{speaker}: {content}" if speaker else content
+
         if output_format == OutputFormat.TXT:
             combined_text = ""
             previous_end_time = None
@@ -205,7 +210,7 @@ def write_output(
             for segment in segments:
                 if previous_end_time is not None and (segment.start - previous_end_time) >= paragraph_split_time:
                     combined_text += "\n\n"
-                combined_text += getattr(segment, segment_key).strip() + " "
+                combined_text += segment_content(segment) + " "
                 previous_end_time = segment.end
 
             file.write(combined_text)
@@ -216,7 +221,7 @@ def write_output(
                 file.write(
                     f"{to_timestamp(segment.start)} --> {to_timestamp(segment.end)}\n"
                 )
-                file.write(f"{getattr(segment, segment_key)}\n\n")
+                file.write(f"{segment_content(segment)}\n\n")
 
         elif output_format == OutputFormat.SRT:
             for i, segment in enumerate(segments):
@@ -224,7 +229,7 @@ def write_output(
                 file.write(
                     f'{to_timestamp(segment.start, ms_separator=",")} --> {to_timestamp(segment.end, ms_separator=",")}\n'
                 )
-                file.write(f"{getattr(segment, segment_key)}\n\n")
+                file.write(f"{segment_content(segment)}\n\n")
 
     logging.debug("Written transcription output")
 

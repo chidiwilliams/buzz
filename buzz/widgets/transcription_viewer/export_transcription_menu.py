@@ -1,12 +1,14 @@
 import logging
+import os
 from PyQt6.QtGui import QAction
 from PyQt6.QtCore import pyqtSignal
-from PyQt6.QtWidgets import QWidget, QMenu, QFileDialog
+from PyQt6.QtWidgets import QWidget, QMenu, QFileDialog, QMessageBox
 
 from buzz.db.entity.transcription import Transcription
 from buzz.db.service.transcription_service import TranscriptionService
 from buzz.locale import _
 from buzz.transcriber.file_transcriber import write_output
+from buzz.transcriber.docx_writer import write_speaker_docx
 from buzz.transcriber.transcriber import (
     OutputFormat,
     Segment,
@@ -43,6 +45,15 @@ class ExportTranscriptionMenu(QMenu):
             action.setVisible(has_translation)
         actions = self.text_actions + self.translation_actions
         self.addActions(actions)
+
+        self.addSeparator()
+        self.speaker_docx_action = QAction(
+            text=_("DOCX – Speakers"),
+            parent=self,
+        )
+        self.addAction(self.speaker_docx_action)
+        self.aboutToShow.connect(self._refresh_speaker_docx_action)
+        self._refresh_speaker_docx_action()
         self.triggered.connect(self.on_menu_triggered)
 
     @staticmethod
@@ -59,12 +70,17 @@ class ExportTranscriptionMenu(QMenu):
             action.setVisible(True)
 
     def on_menu_triggered(self, action: QAction):
+        if action == self.speaker_docx_action:
+            self.export_speakers_docx()
+            return
+
         segments = [
             Segment(
                 start=segment.start_time,
                 end=segment.end_time,
                 text=segment.text,
-                translation=segment.translation)
+                translation=segment.translation,
+                speaker=segment.speaker)
             for segment in self.transcription_service.get_transcription_segments(
                 transcription_id=self.transcription.id_as_uuid
             )
@@ -93,3 +109,70 @@ class ExportTranscriptionMenu(QMenu):
             output_format=output_format,
             segment_key=segment_key
         )
+
+    def _refresh_speaker_docx_action(self):
+        segments = self.transcription_service.get_transcription_segments(
+            transcription_id=self.transcription.id_as_uuid
+        )
+        self.speaker_docx_action.setEnabled(
+            any((segment.speaker or "").strip() for segment in segments)
+        )
+
+    def export_speakers_docx(self):
+        segments = self.transcription_service.get_transcription_segments(
+            transcription_id=self.transcription.id_as_uuid
+        )
+        if not any((segment.speaker or "").strip() for segment in segments):
+            return
+
+        timestamp_choice = QMessageBox.question(
+            self,
+            _("DOCX – Speakers"),
+            _("Include timestamps for each speaker turn?"),
+            QMessageBox.StandardButton.Yes
+            | QMessageBox.StandardButton.No
+            | QMessageBox.StandardButton.Cancel,
+            QMessageBox.StandardButton.No,
+        )
+        if timestamp_choice == QMessageBox.StandardButton.Cancel:
+            return
+
+        source_path = self.transcription.file or "transcript"
+        source_directory = os.path.dirname(source_path)
+        source_stem = (
+            self.transcription.name
+            or os.path.splitext(os.path.basename(source_path))[0]
+            or "transcript"
+        )
+        default_path = os.path.join(
+            source_directory,
+            f"{source_stem}_speakers.docx",
+        )
+        output_file_path, _selected_filter = QFileDialog.getSaveFileName(
+            self,
+            _("Save File"),
+            default_path,
+            _("Word documents") + " (*.docx)",
+        )
+        if not output_file_path:
+            return
+        if not output_file_path.lower().endswith(".docx"):
+            output_file_path += ".docx"
+
+        try:
+            write_speaker_docx(
+                output_file_path,
+                source_stem,
+                segments,
+                include_timestamps=(
+                    timestamp_choice == QMessageBox.StandardButton.Yes
+                ),
+                unassigned_label=_("Unassigned"),
+            )
+        except Exception as exc:
+            logging.exception("Failed to export speaker DOCX")
+            QMessageBox.critical(
+                self,
+                _("Export Failed"),
+                str(exc),
+            )

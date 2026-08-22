@@ -10,4 +10,5 @@ class TranscriptionSegment(Entity):
     text: str
     translation: str
     transcription_id: str
+    speaker: str = ""
     id: int = -1
