@@ -1,3 +1,4 @@
+import importlib.util
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -9,6 +10,14 @@ from PyQt6.QtWidgets import QApplication
 from buzz.widgets.transcription_viewer.speaker_identification_widget import (
     IdentificationWorker,
     SpeakerIdentificationWidget,
+)
+
+
+# NeMo is not installed on all platforms Buzz supports (Intel macs, for example),
+# so the tests that touch the vendored MSDD wrapper only run where it is available.
+requires_nemo = pytest.mark.skipif(
+    importlib.util.find_spec("nemo") is None,
+    reason="NeMo is not installed on this platform",
 )
 
 
@@ -54,6 +63,7 @@ def test_sortformer_diarization_does_not_receive_speaker_count():
     assert diarizer.diarize.call_args.kwargs == {}
 
 
+@requires_nemo
 def test_msdd_wrapper_configures_nemo_with_known_speaker_count():
     """The vendored wrapper writes the count to the manifest and NeMo config."""
     from whisper_diarization.diarization.msdd import msdd
@@ -72,6 +82,7 @@ def test_msdd_wrapper_configures_nemo_with_known_speaker_count():
     assert result == [(0, 1000, 0)]
 
 
+@requires_nemo
 @pytest.mark.parametrize("speaker_count", [0, 9])
 def test_msdd_wrapper_rejects_unsupported_speaker_count(speaker_count):
     """The wrapper rejects counts outside NeMo's configured 1-8 range."""
