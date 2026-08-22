@@ -337,6 +337,7 @@ class TranscriptionSegmentModel(QSqlTableModel):
 
 class TranscriptionSegmentsEditorWidget(QTableView):
     PARENT_PADDINGS = 40
+    SPEAKER_COLUMN_WIDTH = 160
     segment_selected = pyqtSignal(QSqlRecord)
     timestamp_being_edited = pyqtSignal(int, int, int)  # Signal: (row, column, new_value_ms)
     speakers_changed = pyqtSignal(list)
@@ -363,6 +364,7 @@ class TranscriptionSegmentsEditorWidget(QTableView):
 
         self._last_highlighted_row = -1
         self._bulk_updating_speakers = False
+        self.has_speakers = False
         self.translator = translator
         self.translator.translation.connect(self.update_translation)
 
@@ -437,7 +439,7 @@ class TranscriptionSegmentsEditorWidget(QTableView):
 
         self.setColumnWidth(Column.START.value, 120)
         self.setColumnWidth(Column.END.value, 120)
-        self.setColumnWidth(Column.SPEAKER.value, 160)
+        self.setColumnWidth(Column.SPEAKER.value, self.SPEAKER_COLUMN_WIDTH)
 
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self._show_context_menu)
@@ -473,8 +475,9 @@ class TranscriptionSegmentsEditorWidget(QTableView):
         fixed_column_widths = (
             self.columnWidth(Column.START.value)
             + self.columnWidth(Column.END.value)
-            + self.columnWidth(Column.SPEAKER.value)
         )
+        if self.has_speakers:
+            fixed_column_widths += self.columnWidth(Column.SPEAKER.value)
         text_column_width = (
             int((self.parent().width() - self.PARENT_PADDINGS - fixed_column_widths) / text_column_count))
 
@@ -535,8 +538,26 @@ class TranscriptionSegmentsEditorWidget(QTableView):
         self._invalidate_segments_cache()
         speakers = self.speaker_names()
         self.speaker_delegate.set_speakers(speakers)
+        self.has_speakers = bool(speakers)
+        self._update_speaker_column_visibility()
         self.viewport().update()
         self.speakers_changed.emit(speakers)
+
+    def _update_speaker_column_visibility(self):
+        """Only show the speaker column when there are speakers to show."""
+        if self.has_speakers:
+            if not self.isColumnHidden(Column.SPEAKER.value):
+                return
+            self.showColumn(Column.SPEAKER.value)
+            self.setColumnWidth(Column.SPEAKER.value, self.SPEAKER_COLUMN_WIDTH)
+        elif not self.isColumnHidden(Column.SPEAKER.value):
+            self.hideColumn(Column.SPEAKER.value)
+        else:
+            return
+
+        # Give the text columns back the space the speaker column used
+        if self.parent() is not None:
+            self.resizeEvent(None)
 
     def selected_rows(self) -> list[int]:
         return sorted({index.row() for index in self.selectionModel().selectedRows()})
