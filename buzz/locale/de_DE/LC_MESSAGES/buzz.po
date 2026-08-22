@@ -2016,6 +2016,10 @@ msgstr "Zusammenfassung in einer Datei speichern"
 msgid "Output folder (for file)"
 msgstr "Ausgabeordner (für Datei)"
 
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Prevent system sleep while transcriptions are queued"
+msgstr ""
+
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection \\u2014 a model may "
