@@ -1,0 +1,55 @@
+diff --git a/ctc_forced_aligner/forced_align_impl.cpp b/ctc_forced_aligner/forced_align_impl.cpp
+index 523aaba..416a529 100755
+--- a/ctc_forced_aligner/forced_align_impl.cpp
++++ b/ctc_forced_aligner/forced_align_impl.cpp
+@@ -39,8 +39,48 @@ void forced_align_impl(
+   if (T < L + R) {
+       throw std::runtime_error("targets length is too long for CTC.");
+   }
+-  std::vector<bool> backPtrBit0((S + 1) * (T - L), false);
+-  std::vector<bool> backPtrBit1((S + 1) * (T - L), false);
++  // The back-pointer bit vectors are indexed by a running cursor that advances
++  // by the DP band width at every timestep, so their exact size is the sum of
++  // those widths. The old estimate of (S + 1) * (T - L) only holds once the band
++  // saturates at S; when T is close to L + R the band never gets that wide and
++  // the estimate falls short, causing out-of-bounds writes (heap corruption and
++  // invalid alignment paths). Replay the band bookkeeping once, up front, to get
++  // the exact size. The pre-pass is O(T) and the result stays close to the old
++  // estimate, so this costs no meaningful memory.
++  unsigned long long backPtrSize = 0;
++  {
++    auto s_ = T - (L + R) > 0 ? 0 : 1;
++    auto e_ = (S == 1) ? 1 : 2;
++    for (auto t = 1; t < T; t++) {
++      if (T - t <= L + R) {
++        if ((s_ % 2 == 1) &&
++          targets_data(batchIndex, s_ / 2) != targets_data(batchIndex, s_ / 2 + 1)) {
++          s_ = s_ + 1;
++        }
++        s_ = s_ + 1;
++      }
++      if (t <= L + R) {
++        if (e_ % 2 == 0 && e_ < 2 * L &&
++          targets_data(batchIndex, e_ / 2 - 1) != targets_data(batchIndex, e_ / 2)) {
++          e_ = e_ + 1;
++        }
++        e_ = e_ + 1;
++      }
++      auto sl_ = s_;
++      if (s_ == 0) {
++        backPtrSize += 1;
++        sl_ += 1;
++      }
++      if (e_ > sl_) {
++        backPtrSize += (e_ - sl_);
++      }
++    }
++    // Safety margin of one full band, so a future divergence between this
++    // pre-pass and the main loop below cannot reintroduce an overflow.
++    backPtrSize += S + 1;
++  }
++  std::vector<bool> backPtrBit0(backPtrSize, false);
++  std::vector<bool> backPtrBit1(backPtrSize, false);
+ 
+   auto start = T - (L + R) > 0 ? 0 : 1;
+   auto end = (S == 1) ? 1 : 2;
