@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-24 10:40+0300\n"
+"POT-Creation-Date: 2026-08-22 11:45+0300\n"
 "PO-Revision-Date: 2025-10-17 07:59+0200\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: Catalan <jmas@softcatala.org>\n"
@@ -410,6 +410,7 @@ msgid "Run"
 msgstr "Executa"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Model:"
 msgstr "Model:"
 
@@ -1192,6 +1193,27 @@ msgid "Audio file not found"
 msgstr "Fitxer d'àudio no trobat"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "Parlants:"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "Auto"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr ""
+"Indiqueu el nombre conegut de parlants o utilitzeu Auto per detectar-lo."
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
 msgstr "Pas 2: Anomena els parlants"
 
@@ -1674,6 +1696,10 @@ msgstr "Començant Whisper.cpp..."
 msgid "Starting transcription..."
 msgstr "Iniciant la transcripció..."
 
+#: buzz/model_loader.py
+msgid "Custom model URL is not provided"
+msgstr "No s'ha indicat l'URL del model personalitzat"
+
 #: buzz/settings/shortcut.py
 msgid "Open Record Window"
 msgstr "Obre la finestra de registre"
@@ -1838,7 +1864,6 @@ msgid "Removes background noise using DeepFilterNet3 before transcription."
 msgstr "Elimina el soroll de fons amb DeepFilterNet3 abans de la transcripció."
 
 #: buzz/plugins/deep_filter_net/plugin.py
-#, fuzzy
 msgid "Keep denoised file after transcription"
 msgstr "Conserva el fitxer sense soroll després de la transcripció"
 
@@ -1861,6 +1886,8 @@ msgid ""
 "Skip if a .txt, .srt, or .vtt file matching the audio filename is found next "
 "to it"
 msgstr ""
+"Omet si al costat de l'àudio es troba un fitxer .txt, .srt o .vtt amb el "
+"mateix nom"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Check in transcription database"
@@ -1871,6 +1898,8 @@ msgid ""
 "Skip if this file has already been transcribed and the record exists in the "
 "database"
 msgstr ""
+"Omet si aquest fitxer ja s'ha transcrit i el registre existeix a la base de "
+"dades"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"

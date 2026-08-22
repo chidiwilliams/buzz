@@ -1,11 +1,17 @@
-"""Patch and build the ctc_forced_aligner C++ extension in-place.
+"""Patch the vendored submodules and build the ctc_forced_aligner C++ extension.
 
 Used both by the wheel build (``hatch_build.py``) and by ``make test``, so a
 plain source checkout can import ``ctc_forced_aligner`` without building a wheel
 first.
 
-By default this is a no-op when the compiled extension is already present and
-newer than its source. Pass ``--force`` to rebuild regardless.
+Patches under ``patches/`` are named ``<submodule>_<description>.patch`` and are
+applied inside the matching submodule directory. Keeping local changes as
+patches instead of bumping a submodule to a fork means the submodules stay
+pinned to their upstream commits.
+
+Patching always runs. The C++ compile step is a no-op when the compiled
+extension is already present and newer than its source; pass ``--force`` to
+rebuild regardless.
 """
 import argparse
 import subprocess
@@ -16,7 +22,14 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 ALIGNER_DIR = PROJECT_ROOT / "ctc_forced_aligner"
 ALIGNER_PKG = ALIGNER_DIR / "ctc_forced_aligner"
 SOURCE_FILE = ALIGNER_PKG / "forced_align_impl.cpp"
+DIARIZATION_DIR = PROJECT_ROOT / "whisper_diarization"
 PATCHES_DIR = PROJECT_ROOT / "patches"
+
+# Submodule directory keyed by the patch-filename prefix that targets it.
+PATCH_TARGETS = {
+    "ctc_forced_aligner": ALIGNER_DIR,
+    "whisper_diarization": DIARIZATION_DIR,
+}
 
 
 def _compiled_extensions():
@@ -34,17 +47,17 @@ def is_up_to_date():
     return newest >= SOURCE_FILE.stat().st_mtime
 
 
-def apply_patches():
-    """Apply patches/ctc_forced_aligner_*.patch, skipping already applied ones.
+def apply_patches(prefix, submodule_dir):
+    """Apply patches/<prefix>_*.patch, skipping already applied ones.
 
     Uses --check first to avoid touching the working tree unnecessarily,
     which is safer in a detached-HEAD submodule.
     """
-    for patch_file in sorted(PATCHES_DIR.glob("ctc_forced_aligner_*.patch")):
+    for patch_file in sorted(PATCHES_DIR.glob(f"{prefix}_*.patch")):
         # Dry-run forward: succeeds only if patch is NOT yet applied.
         check_forward = subprocess.run(
             ["git", "apply", "--check", "--ignore-whitespace", str(patch_file)],
-            cwd=ALIGNER_DIR,
+            cwd=submodule_dir,
             capture_output=True,
             text=True,
         )
@@ -52,7 +65,7 @@ def apply_patches():
             # Patch can be applied — do it for real.
             subprocess.run(
                 ["git", "apply", "--ignore-whitespace", str(patch_file)],
-                cwd=ALIGNER_DIR,
+                cwd=submodule_dir,
                 check=True,
                 capture_output=True,
                 text=True,
@@ -62,7 +75,7 @@ def apply_patches():
             # Dry-run failed — either already applied or genuinely broken.
             check_reverse = subprocess.run(
                 ["git", "apply", "--check", "--reverse", "--ignore-whitespace", str(patch_file)],
-                cwd=ALIGNER_DIR,
+                cwd=submodule_dir,
                 capture_output=True,
                 text=True,
             )
@@ -75,15 +88,18 @@ def apply_patches():
                 )
 
 
+def apply_all_patches():
+    """Apply every patch in patches/ to the submodule its prefix names."""
+    for prefix, submodule_dir in PATCH_TARGETS.items():
+        if not submodule_dir.exists():
+            raise FileNotFoundError(
+                f"{submodule_dir} does not exist. Run 'git submodule update --init' first."
+            )
+        apply_patches(prefix, submodule_dir)
+
+
 def build():
-    """Patch the sources and compile the extension in-place."""
-    if not ALIGNER_DIR.exists():
-        raise FileNotFoundError(
-            f"{ALIGNER_DIR} does not exist. Run 'git submodule update --init' first."
-        )
-
-    apply_patches()
-
+    """Compile the ctc_forced_aligner extension in-place."""
     print("Building ctc_forced_aligner C++ extension...")
     result = subprocess.run(
         [sys.executable, "setup.py", "build_ext", "--inplace"],
@@ -107,11 +123,15 @@ def main():
     )
     args = parser.parse_args()
 
-    if not args.force and is_up_to_date():
-        print("ctc_forced_aligner C++ extension is up to date, skipping build")
-        return
-
     try:
+        # Patches are cheap and idempotent, and the Python ones are needed at
+        # runtime whether or not the C++ extension has to be rebuilt.
+        apply_all_patches()
+
+        if not args.force and is_up_to_date():
+            print("ctc_forced_aligner C++ extension is up to date, skipping build")
+            return
+
         build()
     except subprocess.CalledProcessError as e:
         print(f"Error building ctc_forced_aligner: {e}", file=sys.stderr)

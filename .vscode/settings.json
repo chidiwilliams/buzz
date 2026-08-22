@@ -12,6 +12,16 @@
     "**/.DS_Store": true,
     "**/Thumbs.db": true
   },
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+  "python.analysis.extraPaths": ["${workspaceFolder}"],
+  "python.analysis.exclude": [
+    "**/build/**",
+    "**/dist/**",
+    "**/whisper.cpp/**",
+    "**/demucs_repo/**",
+    "**/help/**",
+    "**/.venv/**"
+  ],
   "python.testing.pytestArgs": ["."],
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": true,
