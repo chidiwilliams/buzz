@@ -11,8 +11,8 @@ license = { text = "MIT" }
 dependencies = [
     "sounddevice>=0.5.3,<0.6",
     "humanize>=4.4.0,<5",
-    "PyQt6==6.9.1",
-    "PyQt6-Qt6==6.9.1",
+    "PyQt6==6.10.2",
+    "PyQt6-Qt6==6.10.2",
     "PyQt6-sip==13.10.2",
     "openai>=1.14.2,<2",
     "keyring>=25.0.0,<26",
