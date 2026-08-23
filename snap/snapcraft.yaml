@@ -126,6 +126,11 @@ parts:
     build-environment:
       # Build against the CPython 3.13 provisioned by the python313 part
       - UV_PYTHON: $CRAFT_STAGE/usr/bin/python3.13
+      # The gnome extension puts the SDK's Debian-patched setuptools (built for
+      # the base's 3.12) on PYTHONPATH, and it leaks into uv's isolated sdist
+      # build environments, where it shadows the clean setuptools and fails with
+      # "AttributeError: install_layout" (seen building nemo's wget dependency).
+      - PYTHONPATH: ""
       - UV_PYTHON_PREFERENCE: only-system
       - UV_PYTHON_DOWNLOADS: never
       - VIRTUAL_ENV: $CRAFT_PART_INSTALL
@@ -187,7 +192,29 @@ parts:
       # Create launcher wrapper to ensure the snap's own portaudio and libasound are found
       # before gnome content snap libraries (which desktop-launch prepends to LD_LIBRARY_PATH)
       mkdir -p $CRAFT_PART_INSTALL/bin
-      printf '#!/bin/sh\nexport LD_LIBRARY_PATH="$SNAP/usr/local/lib:$SNAP/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"\nexec "$SNAP/bin/python" -m buzz "$@"\n' > $CRAFT_PART_INSTALL/bin/buzz-launcher
+      cat > $CRAFT_PART_INSTALL/bin/buzz-launcher <<'LAUNCHER'
+      #!/bin/sh
+      export LD_LIBRARY_PATH="$SNAP/usr/local/lib:$SNAP/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"
+
+      # desktop-launch puts the gnome platform snap's Python 3.12 stdlib and
+      # dist-packages on PYTHONPATH. PYTHONPATH is searched before the
+      # interpreter's own stdlib, so our Python 3.13 would import 3.12's re,
+      # importlib, ... and die with "SRE module mismatch". Drop those entries;
+      # nothing in Buzz can use modules built for another ABI anyway.
+      clean_pythonpath=""
+      IFS=":"
+      for entry in $PYTHONPATH; do
+          case "$entry" in
+              ""|*/gnome-platform/usr/lib/python3*) continue ;;
+          esac
+          clean_pythonpath="${clean_pythonpath:+$clean_pythonpath:}$entry"
+      done
+      unset IFS
+      export PYTHONPATH="$clean_pythonpath"
+
+      exec "$SNAP/bin/python" -m buzz "$@"
+      LAUNCHER
+      sed -i 's/^      //' $CRAFT_PART_INSTALL/bin/buzz-launcher
       chmod +x $CRAFT_PART_INSTALL/bin/buzz-launcher
 
       # Copy source files
