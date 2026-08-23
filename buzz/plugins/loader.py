@@ -71,10 +71,18 @@ def get_plugins_deps_dir() -> str:
 
 
 def ensure_deps_on_path() -> None:
-    """Ensure the plugin dependencies folder is importable."""
+    """Ensure the plugin dependencies folder is importable.
+
+    The folder goes *last* on ``sys.path`` so it can only add packages the app
+    does not ship, never replace them. A plugin dependency may pin a package
+    Buzz also uses to an older version (``deepfilternet`` pins ``numpy<2``);
+    letting that copy win would give the app, and every spawned transcription
+    process, a numpy the rest of the wheels were not compiled against, which
+    crashes the process on import with an access violation instead of raising.
+    """
     deps_dir = get_plugins_deps_dir()
     if deps_dir not in sys.path:
-        sys.path.insert(0, deps_dir)
+        sys.path.append(deps_dir)
 
 
 # Files/folders that are build artifacts and must be ignored when comparing or
