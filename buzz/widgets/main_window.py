@@ -9,7 +9,8 @@ from PyQt6.QtCore import (
     QThread,
     QThreadPool,
     QModelIndex,
-    pyqtSignal
+    pyqtSignal,
+    pyqtSlot,
 )
 
 from PyQt6.QtGui import QIcon
@@ -27,6 +28,7 @@ from buzz.locale import _
 from buzz.plugins.manager import PluginManager
 from buzz.plugins.post_processing import FnRunnable
 from buzz.settings.settings import APP_NAME, Settings
+from buzz.sleep_inhibitor import SleepInhibitor
 from buzz.update_checker import UpdateChecker, UpdateInfo
 from buzz.widgets.update_dialog import UpdateDialog
 from buzz.settings.shortcuts import Shortcuts
@@ -69,6 +71,12 @@ class MainWindow(QMainWindow):
         self.setAcceptDrops(True)
 
         self.settings = Settings()
+        self.sleep_inhibitor = SleepInhibitor(
+            enabled=self.settings.value(
+                Settings.Key.PREVENT_SLEEP_WHILE_TRANSCRIBING,
+                True,
+            )
+        )
 
         self.shortcuts = Shortcuts(settings=self.settings)
 
@@ -155,6 +163,10 @@ class MainWindow(QMainWindow):
         )
         self.transcriber_worker.task_error.connect(self.on_task_error)
         self.transcriber_worker.task_completed.connect(self.on_task_completed)
+        self.transcriber_worker.queue_busy_changed.connect(
+            self.on_queue_busy_changed,
+            Qt.ConnectionType.QueuedConnection,
+        )
 
         self.transcriber_worker.completed.connect(self.transcriber_thread.quit)
 
@@ -179,8 +191,18 @@ class MainWindow(QMainWindow):
     def on_preferences_changed(self, preferences: Preferences):
         self.preferences = preferences
         self.save_preferences(preferences)
+        self.sleep_inhibitor.set_enabled(
+            self.settings.value(
+                Settings.Key.PREVENT_SLEEP_WHILE_TRANSCRIBING,
+                True,
+            )
+        )
         self.folder_watcher.set_preferences(preferences.folder_watch)
         self.folder_watcher.find_tasks()
+
+    @pyqtSlot(bool)
+    def on_queue_busy_changed(self, busy: bool):
+        self.sleep_inhibitor.set_busy(busy)
 
     def save_preferences(self, preferences: Preferences):
         self.settings.settings.beginGroup("preferences")
@@ -499,6 +521,7 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         self.save_geometry()
         self.settings.settings.sync()
+        self.sleep_inhibitor.close()
 
         if self.folder_watcher:
             try:

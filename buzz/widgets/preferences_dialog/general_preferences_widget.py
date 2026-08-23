@@ -222,6 +222,21 @@ class GeneralPreferencesWidget(QWidget):
         self.force_cpu_checkbox.stateChanged.connect(self.on_force_cpu_changed)
         layout.addRow(_("Disable GPU"), self.force_cpu_checkbox)
 
+        self.prevent_sleep_checkbox = QCheckBox(
+            _("Prevent system sleep while transcriptions are queued")
+        )
+        self.prevent_sleep_checkbox.setChecked(
+            self.settings.value(
+                key=Settings.Key.PREVENT_SLEEP_WHILE_TRANSCRIBING,
+                default_value=True,
+            )
+        )
+        self.prevent_sleep_checkbox.setObjectName("PreventSleepCheckbox")
+        self.prevent_sleep_checkbox.stateChanged.connect(
+            self.on_prevent_sleep_changed
+        )
+        layout.addRow("", self.prevent_sleep_checkbox)
+
         self.setLayout(layout)
 
     def on_default_export_file_name_changed(self, text: str):
@@ -333,6 +348,12 @@ class GeneralPreferencesWidget(QWidget):
             os.environ["BUZZ_REDUCE_GPU_MEMORY"] = "true"
         else:
             os.environ.pop("BUZZ_REDUCE_GPU_MEMORY", None)
+
+    def on_prevent_sleep_changed(self, state: int):
+        self.settings.set_value(
+            Settings.Key.PREVENT_SLEEP_WHILE_TRANSCRIBING,
+            state == 2,
+        )
 
 
 class ValidateOpenAIApiKeyJob(QRunnable):

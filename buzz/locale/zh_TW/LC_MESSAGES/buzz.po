@@ -1948,6 +1948,11 @@ msgstr "將摘要儲存到檔案"
 msgid "Output folder (for file)"
 msgstr "輸出資料夾（用於檔案）"
 
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Prevent system sleep while transcriptions are queued"
+msgstr ""
+"有轉錄工作排隊時防止系統睡眠"
+
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection \\u2014 a model may "

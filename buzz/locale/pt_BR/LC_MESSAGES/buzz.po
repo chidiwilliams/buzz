@@ -1997,6 +1997,11 @@ msgstr "Salvar resumo em um arquivo"
 msgid "Output folder (for file)"
 msgstr "Pasta de saída (para o arquivo)"
 
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Prevent system sleep while transcriptions are queued"
+msgstr ""
+"Impedir que o sistema entre em suspensão enquanto houver transcrições na fila"
+
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
 "Speech extraction failed! Check your internet connection \\u2014 a model may "
