@@ -20,7 +20,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-15-intel
           - os: macos-latest
           - os: windows-latest
           - os: ubuntu-latest
@@ -70,7 +69,7 @@ jobs:
       - uses: AnimMouse/setup-ffmpeg@v1
         id: setup-ffmpeg
         with:
-          version: ${{ matrix.os == 'macos-15-intel' && '7.1.1' || matrix.os == 'macos-latest' && '711' || '8.1' }}
+          version: ${{ matrix.os == 'macos-latest' && '711' || '8.1' }}
 
       - name: Test ffmpeg
         run: ffmpeg -i ./testdata/audio-long.mp3 ./testdata/audio-long.wav
@@ -112,7 +111,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-15-intel
           - os: macos-latest
           - os: windows-latest
           - os: ubuntu-latest
@@ -196,7 +194,7 @@ jobs:
       - uses: AnimMouse/setup-ffmpeg@v1
         id: setup-ffmpeg
         with:
-          version: ${{ matrix.os == 'macos-15-intel' && '7.1.1' || matrix.os == 'macos-latest' && '711' || '8.1' }}
+          version: ${{ matrix.os == 'macos-latest' && '711' || '8.1' }}
 
       - name: Install MSVC for Windows
         run: |
@@ -301,7 +299,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-15-intel, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v7
@@ -375,10 +373,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-15-intel
           - os: macos-latest
           - os: windows-latest
-          - os: ubuntu-latest
+          # Current AppImage files are too large for the release
+          # This should be re-enabled if we can get AppImage size under ~2GB
+          # - os: ubuntu-latest 
     needs: [build, test]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
@@ -406,31 +405,3 @@ jobs:
             Buzz*.bin
             Buzz*.dmg
             Buzz*.AppImage
-
-#  Brew Cask deployment fails and the app is deprecated on Brew.
-#  deploy_brew_cask:
-#    runs-on: macos-latest
-#    env:
-#      BUZZ_DISABLE_TELEMETRY: true
-#    needs: [release]
-#    if: startsWith(github.ref, 'refs/tags/')
-#    steps:
-#      - uses: actions/checkout@v7
-#        with:
-#          submodules: recursive
-#
-#      - name: Install uv
-#        uses: astral-sh/setup-uv@v9.0.0
-#
-#      - name: Set up Python
-#        uses: actions/setup-python@v7
-#        with:
-#          python-version: "3.12"
-#
-#      - name: Install dependencies
-#        run: uv sync
-#
-#      - name: Upload to Brew
-#        run: uv run make upload_brew
-#        env:
-#          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}

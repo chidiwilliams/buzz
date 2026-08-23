@@ -4,11 +4,14 @@ sidebar_position: 2
 ---
 
 To install Buzz, download the latest version for your operating
-system. Buzz is available on **Mac** (Intel and Apple silicon), **Windows**, and **Linux**.
+system. Buzz is available on **Mac**, **Windows**, and **Linux**.
 
 ### macOS
 
 Download the `.dmg` from the [SourceForge](https://sourceforge.net/projects/buzz-captions/files/).
+
+> **Intel Macs:** Buzz now requires Apple silicon. The last version to support
+> Intel Macs is **1.4.5**.
 
 ### Windows
 
