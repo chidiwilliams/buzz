@@ -42,9 +42,10 @@ class TestGeneralPreferencesWidget:
             assert checkbox is not None
             assert not checkbox.isChecked()
 
-            qtbot.mouseClick(checkbox, Qt.MouseButton.LeftButton)
+            checkbox.click()
 
-            assert settings.value(
+            assert checkbox.isChecked()
+            assert widget.settings.value(
                 key=Settings.Key.PREVENT_SLEEP_WHILE_TRANSCRIBING,
                 default_value=False,
             )
