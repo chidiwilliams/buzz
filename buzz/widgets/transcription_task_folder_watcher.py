@@ -5,17 +5,14 @@ from typing import Dict
 from PyQt6.QtCore import QFileSystemWatcher, pyqtSignal, QObject
 
 from buzz.store.keyring_store import Key, get_password
-from buzz.transcriber.transcriber import FileTranscriptionTask
+from buzz.transcriber.transcriber import (
+    FileTranscriptionTask,
+    SUPPORTED_EXTENSIONS,
+)
 from buzz.model_loader import ModelDownloader
 from buzz.widgets.preferences_dialog.models.folder_watch_preferences import (
     FolderWatchPreferences,
 )
-
-# Supported media file extensions (audio and video)
-SUPPORTED_EXTENSIONS = {
-    ".mp3", ".wav", ".m4a", ".ogg", ".opus", ".flac",  # audio
-    ".mp4", ".webm", ".ogm", ".mov", ".mkv", ".avi", ".wmv",  # video
-}
 
 
 class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
