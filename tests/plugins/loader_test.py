@@ -48,7 +48,8 @@ class TestDirectoryHelpers:
     def test_get_plugins_deps_dir_creates_dir(self, tmp_path, monkeypatch):
         monkeypatch.setattr(loader, "user_cache_dir", lambda _app: str(tmp_path))
         path = get_plugins_deps_dir()
-        assert path == str(tmp_path / "plugins_deps")
+        version_dir = f"py{sys.version_info.major}.{sys.version_info.minor}"
+        assert path == str(tmp_path / "plugins_deps" / version_dir)
         assert os.path.isdir(path)
 
     def test_ensure_deps_on_path_inserts_once(self, tmp_path, monkeypatch):

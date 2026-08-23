@@ -52,7 +52,20 @@ def get_plugins_dir() -> str:
 
 
 def get_plugins_deps_dir() -> str:
-    path = os.path.join(user_cache_dir("Buzz"), "plugins_deps")
+    """Return the folder holding pip-installed plugin dependencies.
+
+    The folder is scoped by interpreter version because pip installs native
+    extension modules for the running Python ABI only. A Buzz upgrade that
+    bumps the bundled interpreter would otherwise keep importing the previous
+    version's ``.so``/``.pyd`` files, and a shadowing package (numpy, pinned
+    below the app's own version by a plugin) then fails to import in the app
+    and in every spawned transcription process.
+    """
+    path = os.path.join(
+        user_cache_dir("Buzz"),
+        "plugins_deps",
+        f"py{sys.version_info.major}.{sys.version_info.minor}",
+    )
     os.makedirs(path, exist_ok=True)
     return path
 
