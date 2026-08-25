@@ -87,6 +87,7 @@ class Settings:
 
         FORCE_CPU = "force-cpu"
         REDUCE_GPU_MEMORY = "reduce-gpu-memory"
+        PREVENT_SLEEP_WHILE_TRANSCRIBING = "prevent-sleep-while-transcribing"
 
         LAST_UPDATE_CHECK = "update/last-check"
         UPDATE_AVAILABLE_VERSION = "update/available-version"

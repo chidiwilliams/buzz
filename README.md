@@ -39,6 +39,9 @@ OpenAI's [Whisper](https://github.com/openai/whisper).
 
 Download the `.dmg` from the [SourceForge](https://sourceforge.net/projects/buzz-captions/files/).
 
+> **Intel Macs:** Buzz now requires Apple silicon. The last version to support
+> Intel Macs is **1.4.5**.
+
 ### Windows
 
 Get the installation files from the [SourceForge](https://sourceforge.net/projects/buzz-captions/files/).
@@ -47,7 +50,7 @@ App is not signed, you will get a warning when you install it. Select `More info
 
 ### Linux
 
-Buzz is available as a [Flatpak](https://flathub.org/apps/io.github.chidiwilliams.Buzz) or a [Snap](https://snapcraft.io/buzz). 
+Buzz is available as a [Flatpak](https://flathub.org/apps/io.github.chidiwilliams.Buzz), [Snap](https://snapcraft.io/buzz) or [Appimage](https://sourceforge.net/projects/buzz-captions/files/). 
 
 To install flatpak, run:
 ```shell
@@ -83,7 +86,7 @@ To have GPU support for Nvidia GPUS on Windows, for PyPI installed version ensur
 
 ```
 pip3 install -U torch==2.8.0+cu129 torchaudio==2.8.0+cu129 --index-url https://download.pytorch.org/whl/cu129
-pip3 install nvidia-cublas-cu12==12.9.1.4 nvidia-cuda-cupti-cu12==12.9.79 nvidia-cuda-runtime-cu12==12.9.79 --extra-index-url https://pypi.ngc.nvidia.com
+pip3 install nvidia-cublas-cu12==12.9.1.4 nvidia-cuda-cupti-cu12==12.9.79 nvidia-cuda-runtime-cu12==12.9.79 --extra-index-url https://pypi.nvidia.com
 ```
 
 ### Latest development version

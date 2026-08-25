@@ -26,6 +26,35 @@ def reset_custom_openai_base_url():
 
 
 class TestGeneralPreferencesWidget:
+    def test_prevent_sleep_while_transcribing_preference(self, qtbot):
+        settings = Settings()
+        previous = settings.value(
+            key=Settings.Key.PREVENT_SLEEP_WHILE_TRANSCRIBING,
+            default_value=True,
+        )
+        settings.set_value(Settings.Key.PREVENT_SLEEP_WHILE_TRANSCRIBING, False)
+
+        try:
+            widget = GeneralPreferencesWidget()
+            qtbot.add_widget(widget)
+
+            checkbox = widget.findChild(QCheckBox, "PreventSleepCheckbox")
+            assert checkbox is not None
+            assert not checkbox.isChecked()
+
+            checkbox.click()
+
+            assert checkbox.isChecked()
+            assert widget.settings.value(
+                key=Settings.Key.PREVENT_SLEEP_WHILE_TRANSCRIBING,
+                default_value=False,
+            )
+        finally:
+            settings.set_value(
+                Settings.Key.PREVENT_SLEEP_WHILE_TRANSCRIBING,
+                previous,
+            )
+
     def test_should_disable_test_button_if_no_api_key(self, qtbot, mocker):
         mocker.patch(
             "buzz.widgets.preferences_dialog.general_preferences_widget.get_password",

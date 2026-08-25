@@ -44,6 +44,7 @@ class TranscriptionService:
                     text=segment.text,
                     translation='',
                     transcription_id=str(id),
+                    speaker=segment.speaker,
                 )
             )
 
@@ -69,6 +70,7 @@ class TranscriptionService:
                     text=segment.text,
                     translation='',
                     transcription_id=str(id),
+                    speaker=segment.speaker,
                 )
             )
 
@@ -88,6 +90,7 @@ class TranscriptionService:
                     text=segment.text,
                     translation='',
                     transcription_id=str(id),
+                    speaker=segment.speaker,
                 )
             )
 
@@ -96,3 +99,8 @@ class TranscriptionService:
 
     def update_segment_translation(self, segment_id: int, translation: str):
         return self.transcription_segment_dao.update_segment_translation(segment_id, translation)
+
+    def update_segment_speaker(self, segment_id: int, speaker: str):
+        return self.transcription_segment_dao.update_segment_speaker(
+            segment_id, speaker
+        )

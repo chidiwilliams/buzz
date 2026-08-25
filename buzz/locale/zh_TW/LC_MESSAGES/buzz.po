@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-24 10:40+0300\n"
+"POT-Creation-Date: 2026-08-22 14:09+0300\n"
 "PO-Revision-Date: 2023-05-01 15:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: Lamb\n"
@@ -296,7 +296,9 @@ msgid ""
 "The output folder cannot be the input folder or a subfolder of it. This "
 "would cause transcriptions to be processed repeatedly. Please choose a "
 "different output folder."
-msgstr "輸出資料夾不能是輸入資料夾或其子資料夾。這會導致轉錄被重複處理。請選擇其他輸出資料夾。"
+msgstr ""
+"輸出資料夾不能是輸入資料夾或其子資料夾。這會導致轉錄被重複處理。請選擇其他輸"
+"出資料夾。"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 msgid "Preferences"
@@ -398,6 +400,7 @@ msgid "Run"
 msgstr "開始執行"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Model:"
 msgstr "模型:"
 
@@ -892,12 +895,26 @@ msgid "Queue"
 msgstr "佇列"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "Unassigned"
+msgstr "未指派"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "Choose an identified speaker or type a new speaker name."
+msgstr "選擇已識別的說話者或輸入新的說話者名稱。"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "Start"
 msgstr "開始"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "End"
 msgstr "結束"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "Speaker"
+msgstr "說話者"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 #: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py
@@ -911,6 +928,28 @@ msgstr "文字"
 msgid "Translation"
 msgstr "翻譯"
 
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid ""
+"Double-click to edit. Select multiple rows and right-click to assign "
+"speakers."
+msgstr "雙擊以編輯。選取多列並按右鍵即可指派說話者。"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "Assign Speaker"
+msgstr "指派說話者"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "New Speaker…"
+msgstr "新增說話者…"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "New Speaker"
+msgstr "新增說話者"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "Speaker name:"
+msgstr "說話者名稱:"
+
 #: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py
 msgid "View"
 msgstr "檢視"
@@ -918,6 +957,14 @@ msgstr "檢視"
 #: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py
 msgid "Timestamps"
 msgstr "時間戳記"
+
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py
+msgid "Speakers"
+msgstr "說話者"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Speaker:"
+msgstr "說話者:"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Export"
@@ -1017,6 +1064,14 @@ msgstr "，共 100 個以上符合項目"
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid " of "
 msgstr "，共 "
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "All speakers"
+msgstr "所有說話者"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "No segments for this speaker."
+msgstr "此說話者沒有片段。"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "API Key Required"
@@ -1153,6 +1208,26 @@ msgid "Audio file not found"
 msgstr "找不到音訊檔案"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "說話者數:"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "自動"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr "設定已知的說話者數量，或使用「自動」進行偵測。"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
 msgstr "步驟 2：為說話者命名"
 
@@ -1177,12 +1252,28 @@ msgid "Cancelled"
 msgstr "已取消"
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "DOCX – Speakers"
+msgstr "DOCX – 說話者"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
 msgid "Save File"
 msgstr "儲存檔案"
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py
 msgid "Text files"
 msgstr "文字檔案"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "Include timestamps for each speaker turn?"
+msgstr "是否為每次發言加入時間戳記?"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "Word documents"
+msgstr "Word 文件"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "Export Failed"
+msgstr "匯出失敗"
 
 #: buzz/widgets/model_download_progress_dialog.py
 msgid "Downloading model"
@@ -1629,6 +1720,10 @@ msgstr "正在啟動 Whisper.cpp..."
 msgid "Starting transcription..."
 msgstr "正在開始轉錄..."
 
+#: buzz/model_loader.py
+msgid "Custom model URL is not provided"
+msgstr "未提供自訂模型 URL"
+
 #: buzz/settings/shortcut.py
 msgid "Open Record Window"
 msgstr "開啟錄製視窗"
@@ -1786,7 +1881,6 @@ msgid "Removes background noise using DeepFilterNet3 before transcription."
 msgstr "在轉錄前使用 DeepFilterNet3 移除背景雜音。"
 
 #: buzz/plugins/deep_filter_net/plugin.py
-#, fuzzy
 msgid "Keep denoised file after transcription"
 msgstr "轉錄後保留降噪檔案"
 
@@ -1853,6 +1947,11 @@ msgstr "將摘要儲存到檔案"
 #: buzz/plugins/ai_summary/plugin.py
 msgid "Output folder (for file)"
 msgstr "輸出資料夾（用於檔案）"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Prevent system sleep while transcriptions are queued"
+msgstr ""
+"有轉錄工作排隊時防止系統睡眠"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""

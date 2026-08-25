@@ -69,13 +69,13 @@ def get_pip_cmd() -> List[str]:
         bundled_python = internal_dir / "python" / python_name
         if bundled_python.is_file():
             return [str(bundled_python), "-m", "pip"]
-        for candidate in ("python3.12", "python3", "python"):
+        for candidate in ("python3.13", "python3", "python"):
             python = shutil.which(candidate)
             if python:
                 return [python, "-m", "pip"]
         raise RuntimeError(
             "Could not find a Python interpreter. "
-            "Please install Python 3.12 and try again."
+            "Please install Python 3.13 and try again."
         )
 
     pip_cmd = [sys.executable, "-m", "pip"]

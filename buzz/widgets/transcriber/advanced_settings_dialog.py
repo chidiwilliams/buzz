@@ -82,8 +82,8 @@ class AdvancedSettingsDialog(QDialog):
         self.enable_llm_translation_checkbox.stateChanged.connect(self.on_enable_llm_translation_changed)
         layout.addRow("", self.enable_llm_translation_checkbox)
 
-        llm_model = self.transcription_options.llm_model or "add-model-id-here"
-        self.llm_model_line_edit = LineEdit(llm_model, self)
+        self.llm_model_line_edit = LineEdit(self.transcription_options.llm_model, self)
+        self.llm_model_line_edit.setPlaceholderText("add-model-id-here")
         self.llm_model_line_edit.textChanged.connect(self.on_llm_model_changed)
         self.llm_model_line_edit.setMinimumWidth(170)
         self.llm_model_line_edit.setEnabled(self.transcription_options.enable_llm_translation)
@@ -108,10 +108,13 @@ class AdvancedSettingsDialog(QDialog):
         llm_model_row.addWidget(self.llm_model_info_button)
         layout.addRow(self.llm_model_label, llm_model_row)
 
-        default_llm_prompt = self.transcription_options.llm_prompt or _(
-            "Please translate each text sent to you from English to Spanish. Translation will be used in an automated system, please do not add any comments or notes, just the translation."
-        )
-        self.llm_prompt_text_edit = QPlainTextEdit(default_llm_prompt)
+        if not self.transcription_options.llm_prompt:
+            # The default prompt is shown pre-filled, so make it the actual value too.
+            # Otherwise it is never applied unless the user edits the field.
+            self.transcription_options.llm_prompt = _(
+                "Please translate each text sent to you from English to Spanish. Translation will be used in an automated system, please do not add any comments or notes, just the translation."
+            )
+        self.llm_prompt_text_edit = QPlainTextEdit(self.transcription_options.llm_prompt)
         self.llm_prompt_text_edit.setEnabled(self.transcription_options.enable_llm_translation)
         self.llm_prompt_text_edit.setMinimumWidth(170)
         self.llm_prompt_text_edit.setFixedHeight(80)

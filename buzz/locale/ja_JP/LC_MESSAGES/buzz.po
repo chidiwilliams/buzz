@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-24 10:40+0300\n"
+"POT-Creation-Date: 2026-08-22 14:09+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: nunawa <71294849+nunawa@users.noreply.github.com>\n"
 "Language-Team: \n"
@@ -300,9 +300,9 @@ msgid ""
 "would cause transcriptions to be processed repeatedly. Please choose a "
 "different output folder."
 msgstr ""
-"出力フォルダーを入力フォルダーまたはそのサブフォルダーにすることはできません。"
-"文字起こしが繰り返し処理される原因になります。別の出力フォルダーを選択してくだ"
-"さい。"
+"出力フォルダーを入力フォルダーまたはそのサブフォルダーにすることはできませ"
+"ん。文字起こしが繰り返し処理される原因になります。別の出力フォルダーを選択し"
+"てください。"
 
 #: buzz/widgets/preferences_dialog/preferences_dialog.py
 msgid "Preferences"
@@ -404,6 +404,7 @@ msgid "Run"
 msgstr "実行"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Model:"
 msgstr "モデル:"
 
@@ -906,12 +907,26 @@ msgid "Queue"
 msgstr "キュー"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "Unassigned"
+msgstr "未割り当て"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "Choose an identified speaker or type a new speaker name."
+msgstr "認識された話者を選択するか、新しい話者名を入力してください。"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "Start"
 msgstr "開始"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "End"
 msgstr "終了"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "Speaker"
+msgstr "話者"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 #: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py
@@ -925,6 +940,30 @@ msgstr "テキスト"
 msgid "Translation"
 msgstr "翻訳"
 
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid ""
+"Double-click to edit. Select multiple rows and right-click to assign "
+"speakers."
+msgstr ""
+"ダブルクリックで編集します。複数の行を選択して右クリックすると話者を割り当て"
+"られます。"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "Assign Speaker"
+msgstr "話者を割り当てる"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "New Speaker…"
+msgstr "新しい話者…"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "New Speaker"
+msgstr "新しい話者"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "Speaker name:"
+msgstr "話者名:"
+
 #: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py
 msgid "View"
 msgstr "表示"
@@ -932,6 +971,14 @@ msgstr "表示"
 #: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py
 msgid "Timestamps"
 msgstr "タイムスタンプ"
+
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py
+msgid "Speakers"
+msgstr "話者"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Speaker:"
+msgstr "話者:"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Export"
@@ -1033,6 +1080,14 @@ msgstr " / 100件以上一致"
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid " of "
 msgstr " / "
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "All speakers"
+msgstr "すべての話者"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "No segments for this speaker."
+msgstr "この話者のセグメントはありません。"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "API Key Required"
@@ -1171,6 +1226,26 @@ msgid "Audio file not found"
 msgstr "音声ファイルが見つかりません"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "話者数:"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "自動"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr "既知の話者数を設定するか、「自動」で検出します。"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
 msgstr "ステップ2: 話者に名前を付ける"
 
@@ -1195,12 +1270,28 @@ msgid "Cancelled"
 msgstr "キャンセル済み"
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "DOCX – Speakers"
+msgstr "DOCX – 話者"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
 msgid "Save File"
 msgstr "ファイルを保存"
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py
 msgid "Text files"
 msgstr "テキストファイル"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "Include timestamps for each speaker turn?"
+msgstr "話者の発話ごとにタイムスタンプを含めますか?"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "Word documents"
+msgstr "Word 文書"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "Export Failed"
+msgstr "出力に失敗しました"
 
 #: buzz/widgets/model_download_progress_dialog.py
 msgid "Downloading model"
@@ -1648,6 +1739,10 @@ msgstr "Whisper.cppを起動中..."
 msgid "Starting transcription..."
 msgstr "文字起こしを開始中..."
 
+#: buzz/model_loader.py
+msgid "Custom model URL is not provided"
+msgstr "カスタムモデルのURLが指定されていません"
+
 #: buzz/settings/shortcut.py
 msgid "Open Record Window"
 msgstr "録音画面を開く"
@@ -1810,7 +1905,6 @@ msgid "Removes background noise using DeepFilterNet3 before transcription."
 msgstr "文字起こし前に DeepFilterNet3 で背景雑音を除去します。"
 
 #: buzz/plugins/deep_filter_net/plugin.py
-#, fuzzy
 msgid "Keep denoised file after transcription"
 msgstr "文字起こし後にノイズ除去ファイルを保持する"
 
@@ -1831,6 +1925,8 @@ msgid ""
 "Skip if a .txt, .srt, or .vtt file matching the audio filename is found next "
 "to it"
 msgstr ""
+"音声ファイルと同じ名前の .txt、.srt、または .vtt ファイルが隣にある場合はス"
+"キップ"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Check in transcription database"
@@ -1841,6 +1937,7 @@ msgid ""
 "Skip if this file has already been transcribed and the record exists in the "
 "database"
 msgstr ""
+"このファイルが既に転写済みで、データベースに記録が存在する場合はスキップ"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"
@@ -1877,6 +1974,11 @@ msgstr "要約をファイルに保存"
 #: buzz/plugins/ai_summary/plugin.py
 msgid "Output folder (for file)"
 msgstr "出力フォルダ（ファイル用）"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Prevent system sleep while transcriptions are queued"
+msgstr ""
+"文字起こしがキューにある間はシステムのスリープを防止する"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""

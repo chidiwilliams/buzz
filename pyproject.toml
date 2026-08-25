@@ -4,47 +4,38 @@ name = "buzz-captions"
 version = "1.4.5"
 description = ""
 authors = [{ name = "Chidi Williams", email = "williamschidi1@gmail.com" }]
-requires-python = ">=3.12,<3.13"
+requires-python = ">=3.13,<3.14"
 readme = "README.md"
 # License format change to remove warning in PyPI will cause snap not to build
 license = { text = "MIT" }
 dependencies = [
-    "sounddevice>=0.5.3,<0.6",
-    "humanize>=4.4.0,<5",
-    "PyQt6==6.9.1",
-    "PyQt6-Qt6==6.9.1",
-    "PyQt6-sip==13.10.2",
+    "sounddevice>=0.5.6,<0.6",
+    "humanize>=4.16.0,<5",
+    "PyQt6==6.11.0",
+    "PyQt6-Qt6==6.11.1",
+    "PyQt6-sip==13.12.0",
     "openai>=1.14.2,<2",
-    "keyring>=25.0.0,<26",
-    "platformdirs>=4.2.1,<5",
+    "keyring>=25.7.0,<26",
+    "platformdirs>=4.11.3,<5",
     "dataclasses-json>=0.6.4,<0.7",
-    "numpy>=1.21.2,<2",
-    "requests>=2.31.0,<3",
-    "yt-dlp>=2026.2.21",
+    "numpy>=2.5.2,<3",
+    "requests>=2.34.2,<3",
+    "yt-dlp>=2026.8.19",
     "stable-ts>=2.19.1,<3",
     "faster-whisper>=1.2.1,<2",
     "openai-whisper==20250625",
-    # Intel Macs (x86_64) are capped at torch 2.2.2 (last version with Intel-macOS
-    # wheels), but transformers 5.x requires torch>=2.4 and treats older torch as
-    # "not installed". Keep transformers on the 4.x line there; use 5.x elsewhere.
-    "transformers>=5.14.1,<6; sys_platform != 'darwin' or platform_machine != 'x86_64'",
-    "transformers>=4.53,<5; sys_platform == 'darwin' and platform_machine == 'x86_64'",
-    "accelerate>=1.12.0,<2",
-    "peft>=0.14.0,<1",
-    # Overriden in uv.tool section below to ensure CUDA 12.9 compatibility
-    # Skip on Intel Macs (x86_64), use 0.49.0 on ARM Macs, 0.45.0+ elsewhere
-    "bitsandbytes>=0.45.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
+    "transformers>=5.15.1,<6",
+    "accelerate>=1.14.0,<2",
+    "peft>=0.20.0,<1",
+    "bitsandbytes>=0.45.0",
     "polib>=1.2.0,<2",
     "srt-equalizer>=0.1.10,<0.2",
-    # For Intel macOS (x86_64) - use older versions that support Intel
-    "torch==2.2.2; sys_platform == 'darwin' and platform_machine == 'x86_64'",
-    "torchaudio==2.2.2; sys_platform == 'darwin' and platform_machine == 'x86_64'",
-    "ctranslate2==4.3.1; sys_platform == 'darwin' and platform_machine == 'x86_64'",
     # For ARM macOS (arm64) - use latest CPU-only versions from PyPI
-    "torch==2.8.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
-    "torchaudio==2.8.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
-    "ctranslate2>=4.6.2,<5; sys_platform == 'darwin' and platform_machine == 'arm64'",
-    # For Linux/Windows - use CUDA versions from pytorch index
+    "torch==2.8.0; sys_platform == 'darwin'",
+    "torchaudio==2.8.0; sys_platform == 'darwin'",
+    "ctranslate2>=4.6.2,<5; sys_platform == 'darwin'",
+    # For Linux/Windows - use CUDA versions from the pytorch index
+    # (routed via tool.uv.sources below to ensure CUDA 12.9 compatibility)
     "torch==2.8.0; sys_platform != 'darwin'",
     "torchaudio==2.8.0; sys_platform != 'darwin'",
     "ctranslate2>=4.6.2,<5; sys_platform != 'darwin'",
@@ -63,35 +54,34 @@ dependencies = [
     "museval>=0.4.1,<0.5",
     "mypy>=1.15.0,<2",
     "openunmix>=1.3.0,<2",
-    "psutil>=5.9.0,<8",
-    "pyyaml>=6.0.2,<7",
-    "submitit>=1.5.2,<2",
-    "tqdm>=4.67.1,<5",
-    "treetable>=0.2.5,<0.3",
+    "psutil>=7.2.2,<8",
+    "pyyaml>=6.0.3,<7",
+    "submitit>=1.5.4,<2",
+    "tqdm>=4.70.0,<5",
+    "treetable>=0.2.6,<0.3",
     "soundfile>=0.13.1,<0.14",
-    "urllib3>=2.6.0,<3",
-    "posthog>=3.23.0,<4",
-    # This version works, newer have issues on Windows
-    "onnxruntime==1.18.1",
+    "urllib3>=2.7.0,<3",
+    "posthog>=7.42.1",
+    "onnxruntime==1.20.0",
     "onnx>=1.20.0",  # Required for nemo-toolkit, ensures ml-dtypes is installed
     "vulkan>=1.3.275.1,<2",
-    "hf-xet>=1.1.5,<2",
-    "hatchling>=1.28.0",
-    "cmake>=4.2.0,<5",
+    "hf-xet>=1.6.0,<2",
+    "hatchling>=1.32.0",
+    "cmake>=4.4.2,<5",
     # nemo-toolkit-asr is NVIDIA's ASR-only split package; 2.8.0rc2 is the first
     # release to unpin transformers (allows 5.x). Regular nemo-toolkit caps at
     # transformers <4.58. cuda-bindings pinned <13 below to stay on CUDA 12.
-    "nemo-toolkit-asr[asr]==2.8.0rc2; sys_platform != 'darwin' or platform_machine != 'x86_64'",
+    "nemo-toolkit-asr[asr]==2.8.0rc2",
     # nemo-toolkit-asr leaves cuda-bindings unpinned; keep it on CUDA 12 to match torch cu129
     "cuda-bindings>=12.6,<13; sys_platform != 'darwin'",
-    "nltk>=3.9.2",
+    "nltk>=3.10.3",
     "uroman>=1.3.1.1",
-    "lhotse>=1.32.2",
-    "coverage==7.12.0",
-    "certifi>=2025.11.12",
-    "truststore>=0.10.0",
-    "torchcodec>=0.9.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
-    "datasets>=4.4.1",
+    "lhotse>=1.33.0",
+    "coverage==7.15.4",
+    "certifi>=2026.7.22",
+    "truststore>=0.10.4",
+    "torchcodec>=0.16.0",
+    "datasets>=5.0.1",
 ]
 repository = "https://github.com/chidiwilliams/buzz"
 documentation = "https://chidiwilliams.github.io/buzz/docs"
@@ -127,6 +117,13 @@ build = [
 
 [tool.uv]
 index-strategy = "unsafe-best-match"
+# Intel macOS (darwin/x86_64) is no longer supported: torch shipped no
+# Intel-macOS wheels after 2.2.2, which in turn has no cp313 wheels.
+environments = [
+    "sys_platform == 'linux'",
+    "sys_platform == 'win32'",
+    "sys_platform == 'darwin' and platform_machine == 'arm64'",
+]
 default-groups = [
     "dev",
     "build",
@@ -144,7 +141,7 @@ torchaudio = [
 
 [[tool.uv.index]]
 name = "nvidia"
-url = "https://pypi.ngc.nvidia.com/"
+url = "https://pypi.nvidia.com/"
 
 [[tool.uv.index]]
 name = "pytorch-cu129"

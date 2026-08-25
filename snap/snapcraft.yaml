@@ -72,9 +72,43 @@ parts:
     prime:
       - usr/local/lib/libportaudio*
 
+  python313:
+    plugin: nil
+    build-snaps:
+      - astral-uv
+    build-environment:
+      - UV_NO_CACHE: "true"
+      - UV_HTTP_TIMEOUT: "120"
+    override-build: |
+      # core24 (Ubuntu 24.04) only ships Python 3.12, but Buzz requires 3.13,
+      # so provision a standalone CPython 3.13 into the snap payload.
+      uv python install --no-bin --install-dir "$CRAFT_PART_BUILD/python" 3.13
+      src="$(ls -d "$CRAFT_PART_BUILD"/python/cpython-3.13.*-linux-* | head -n1)"
+      mkdir -p "$CRAFT_PART_INSTALL/usr"
+      cp -a "$src/bin" "$src/lib" "$src/include" "$CRAFT_PART_INSTALL/usr/"
+      # The venv gets its own site-packages, the bundled pip is not needed
+      rm -f "$CRAFT_PART_INSTALL"/usr/bin/pip*
+    stage:
+      - usr/bin/python*
+      - usr/include/python3.13
+      - usr/lib/libpython*
+      - usr/lib/python3.13
+    prime:
+      - usr/bin/python*
+      - usr/lib/libpython*
+      - usr/lib/python3.13
+      - -usr/lib/python3.13/test
+      - -usr/lib/python3.13/idlelib
+      - -usr/lib/python3.13/tkinter
+      - -usr/lib/python3.13/turtledemo
+      - -usr/lib/python3.13/ensurepip
+      - -usr/lib/python3.13/pydoc_data
+      - -usr/lib/python3.13/site-packages
+      - -usr/lib/python3.13/config-*
+
   buzz:
-    after: [ alsa-pulseaudio, portaudio ]
-    plugin: uv
+    after: [ alsa-pulseaudio, portaudio, python313 ]
+    plugin: nil
     source: .
     build-snaps:
       - astral-uv
@@ -90,11 +124,22 @@ parts:
       - cmake
       - python3
     build-environment:
-      - UV_PYTHON: python3
+      # Build against the CPython 3.13 provisioned by the python313 part
+      - UV_PYTHON: $CRAFT_STAGE/usr/bin/python3.13
+      # The gnome extension puts the SDK's Debian-patched setuptools (built for
+      # the base's 3.12) on PYTHONPATH, and it leaks into uv's isolated sdist
+      # build environments, where it shadows the clean setuptools and fails with
+      # "AttributeError: install_layout" (seen building nemo's wget dependency).
+      - PYTHONPATH: ""
+      - UV_PYTHON_PREFERENCE: only-system
+      - UV_PYTHON_DOWNLOADS: never
+      - VIRTUAL_ENV: $CRAFT_PART_INSTALL
+      - UV_PROJECT_ENVIRONMENT: $CRAFT_PART_INSTALL
+      - UV_COMPILE_BYTECODE: "1"
+      - UV_FROZEN: "true"
       - UV_NO_CACHE: "true"
       - UV_HTTP_TIMEOUT: "120"
     stage-packages:
-      - python3
       - libgcc-s1
       - libc6
       - libproxy1v5
@@ -130,8 +175,16 @@ parts:
       # Clear cache to save space on CI
       apt clean
 
-      # Run default build steps
-      craftctl default
+      # Build the virtual environment in place (the uv plugin cannot be used
+      # because it hardcodes the base's Python 3.12 for core24)
+      uv venv --relocatable --allow-existing --python "$UV_PYTHON" "$CRAFT_PART_INSTALL"
+      uv sync --no-dev --no-editable --reinstall
+
+      # Point the venv interpreter at the one shipped in the snap
+      ln -sf ../usr/bin/python3.13 "$CRAFT_PART_INSTALL/bin/python"
+      ln -sf python "$CRAFT_PART_INSTALL/bin/python3"
+      ln -sf python "$CRAFT_PART_INSTALL/bin/python3.13"
+      sed -i "s|^home = .*|home = /snap/buzz/current/usr/bin|" "$CRAFT_PART_INSTALL/pyvenv.cfg"
 
       # Clean caches
       uv cache clean
@@ -139,7 +192,29 @@ parts:
       # Create launcher wrapper to ensure the snap's own portaudio and libasound are found
       # before gnome content snap libraries (which desktop-launch prepends to LD_LIBRARY_PATH)
       mkdir -p $CRAFT_PART_INSTALL/bin
-      printf '#!/bin/sh\nexport LD_LIBRARY_PATH="$SNAP/usr/local/lib:$SNAP/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"\nexec "$SNAP/bin/python" -m buzz "$@"\n' > $CRAFT_PART_INSTALL/bin/buzz-launcher
+      cat > $CRAFT_PART_INSTALL/bin/buzz-launcher <<'LAUNCHER'
+      #!/bin/sh
+      export LD_LIBRARY_PATH="$SNAP/usr/local/lib:$SNAP/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"
+
+      # desktop-launch puts the gnome platform snap's Python 3.12 stdlib and
+      # dist-packages on PYTHONPATH. PYTHONPATH is searched before the
+      # interpreter's own stdlib, so our Python 3.13 would import 3.12's re,
+      # importlib, ... and die with "SRE module mismatch". Drop those entries;
+      # nothing in Buzz can use modules built for another ABI anyway.
+      clean_pythonpath=""
+      IFS=":"
+      for entry in $PYTHONPATH; do
+          case "$entry" in
+              ""|*/gnome-platform/usr/lib/python3*) continue ;;
+          esac
+          clean_pythonpath="${clean_pythonpath:+$clean_pythonpath:}$entry"
+      done
+      unset IFS
+      export PYTHONPATH="$clean_pythonpath"
+
+      exec "$SNAP/bin/python" -m buzz "$@"
+      LAUNCHER
+      sed -i 's/^      //' $CRAFT_PART_INSTALL/bin/buzz-launcher
       chmod +x $CRAFT_PART_INSTALL/bin/buzz-launcher
 
       # Copy source files
@@ -179,8 +254,8 @@ apps:
     desktop: usr/share/applications/Buzz.desktop
     environment:
       PATH: $SNAP/usr/bin:$SNAP/bin:$PATH
-      LD_LIBRARY_PATH: $SNAP/usr/local/lib:$SNAP/lib/python3.12/site-packages/nvidia/cudnn/lib:$SNAP/lib/python3.12/site-packages/PyQt6:$SNAP/lib/python3.12/site-packages/PyQt6/Qt6/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/lapack:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/blas:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/oss4-libsalsa:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libproxy:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/alsa-lib:$SNAP:$LD_LIBRARY_PATH
-      PYTHONPATH: $SNAP:$SNAP/lib/python3.12/site-packages/PyQt6:$SNAP/lib/python3.12/site-packages/PyQt6/Qt6/lib:$SNAP/usr/lib/python3/dist-packages:$SNAP/usr/lib/python3.12/site-packages:$SNAP/usr/local/lib/python3.12/dist-packages:$SNAP/usr/lib/python3.12/dist-packages:$PYTHONPATH
+      LD_LIBRARY_PATH: $SNAP/usr/local/lib:$SNAP/lib/python3.13/site-packages/nvidia/cudnn/lib:$SNAP/lib/python3.13/site-packages/PyQt6:$SNAP/lib/python3.13/site-packages/PyQt6/Qt6/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/lapack:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/blas:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/oss4-libsalsa:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libproxy:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/alsa-lib:$SNAP:$LD_LIBRARY_PATH
+      PYTHONPATH: $SNAP:$SNAP/lib/python3.13/site-packages/PyQt6:$SNAP/lib/python3.13/site-packages/PyQt6/Qt6/lib:$SNAP/usr/lib/python3.13/site-packages:$SNAP/usr/local/lib/python3.13/dist-packages:$SNAP/usr/lib/python3.13/dist-packages:$PYTHONPATH
       QT_MEDIA_BACKEND: ffmpeg
       PULSE_LATENCY_MSEC: "30"
       ALSA_CONFIG_PATH: $SNAP/etc/asound.conf

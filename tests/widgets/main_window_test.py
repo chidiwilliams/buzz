@@ -1,8 +1,9 @@
 import logging
 import os
 import tempfile
+import threading
 from typing import List
-from unittest.mock import patch, Mock
+from unittest.mock import call, patch, Mock
 
 import pytest
 from PyQt6.QtCore import QSize, Qt
@@ -42,6 +43,30 @@ class TestMainWindow:
         qtbot.add_widget(window)
         assert window.windowTitle() == "Buzz"
         assert window.windowIcon().pixmap(QSize(64, 64)).isNull() is False
+        window.close()
+
+    def test_queue_busy_changes_are_serialized_on_gui_thread(
+        self, qtbot, transcription_service
+    ):
+        window = MainWindow(transcription_service)
+        qtbot.add_widget(window)
+        window.sleep_inhibitor = Mock()
+
+        background_emit = threading.Thread(
+            target=lambda: window.transcriber_worker.queue_busy_changed.emit(False)
+        )
+        background_emit.start()
+        background_emit.join()
+        window.transcriber_worker.queue_busy_changed.emit(True)
+
+        qtbot.wait_until(
+            lambda: window.sleep_inhibitor.set_busy.call_count == 2,
+            timeout=1000,
+        )
+        assert window.sleep_inhibitor.set_busy.call_args_list == [
+            call(False),
+            call(True),
+        ]
         window.close()
 
     def test_should_run_file_transcription_task(

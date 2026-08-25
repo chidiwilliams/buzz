@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-24 10:40+0300\n"
+"POT-Creation-Date: 2026-08-22 14:09+0300\n"
 "PO-Revision-Date: 2025-11-01 17:43-0300\n"
 "Last-Translator: Paulo Schopf <pschopf@gmail.com>\n"
 "Language-Team: none\n"
@@ -409,6 +409,7 @@ msgid "Run"
 msgstr "Executar"
 
 #: buzz/widgets/transcriber/transcription_options_group_box.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Model:"
 msgstr "Modelo:"
 
@@ -915,12 +916,26 @@ msgid "Queue"
 msgstr "Fila"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "Unassigned"
+msgstr "Não atribuído"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "Choose an identified speaker or type a new speaker name."
+msgstr "Escolha um falante identificado ou digite o nome de um novo falante."
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "Start"
 msgstr "Início"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 msgid "End"
 msgstr "Fim"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "Speaker"
+msgstr "Falante"
 
 #: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
 #: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py
@@ -934,6 +949,30 @@ msgstr "Texto"
 msgid "Translation"
 msgstr "Tradução"
 
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid ""
+"Double-click to edit. Select multiple rows and right-click to assign "
+"speakers."
+msgstr ""
+"Clique duas vezes para editar. Selecione várias linhas e clique com o botão "
+"direito para atribuir falantes."
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "Assign Speaker"
+msgstr "Atribuir Falante"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "New Speaker…"
+msgstr "Novo Falante…"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "New Speaker"
+msgstr "Novo Falante"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "Speaker name:"
+msgstr "Nome do falante:"
+
 #: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py
 msgid "View"
 msgstr "Visualizar"
@@ -941,6 +980,14 @@ msgstr "Visualizar"
 #: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py
 msgid "Timestamps"
 msgstr "Marcações de tempo"
+
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py
+msgid "Speakers"
+msgstr "Falantes"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Speaker:"
+msgstr "Falante:"
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "Export"
@@ -1042,6 +1089,14 @@ msgstr " de 100+ encontros"
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid " of "
 msgstr " de "
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "All speakers"
+msgstr "Todos os falantes"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "No segments for this speaker."
+msgstr "Nenhum segmento para este falante."
 
 #: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
 msgid "API Key Required"
@@ -1188,6 +1243,26 @@ msgid "Audio file not found"
 msgstr "Arquivo de áudio não encontrado"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "Falantes:"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "Auto"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr "Defina o número conhecido de falantes ou use Auto para detectá-lo."
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
 msgstr "Passo 2: Nomear falantes"
 
@@ -1212,12 +1287,28 @@ msgid "Cancelled"
 msgstr "Cancelado"
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "DOCX – Speakers"
+msgstr "DOCX – Falantes"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
 msgid "Save File"
 msgstr "Salvar Arquivo"
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py
 msgid "Text files"
 msgstr "Arquivos de texto"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "Include timestamps for each speaker turn?"
+msgstr "Incluir marcações de tempo para cada fala?"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "Word documents"
+msgstr "Documentos do Word"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "Export Failed"
+msgstr "Falha na Exportação"
 
 #: buzz/widgets/model_download_progress_dialog.py
 msgid "Downloading model"
@@ -1667,6 +1758,10 @@ msgstr "Iniciando Whisper.cpp..."
 msgid "Starting transcription..."
 msgstr "Iniciando transcrição..."
 
+#: buzz/model_loader.py
+msgid "Custom model URL is not provided"
+msgstr "A URL do modelo personalizado não foi informada"
+
 #: buzz/settings/shortcut.py
 msgid "Open Record Window"
 msgstr "Abrir Janela de Gravação"
@@ -1830,7 +1925,6 @@ msgid "Removes background noise using DeepFilterNet3 before transcription."
 msgstr "Remove ruído de fundo com DeepFilterNet3 antes da transcrição."
 
 #: buzz/plugins/deep_filter_net/plugin.py
-#, fuzzy
 msgid "Keep denoised file after transcription"
 msgstr "Manter arquivo sem ruído após a transcrição"
 
@@ -1853,6 +1947,8 @@ msgid ""
 "Skip if a .txt, .srt, or .vtt file matching the audio filename is found next "
 "to it"
 msgstr ""
+"Pular se houver um arquivo .txt, .srt ou .vtt com o mesmo nome do áudio ao "
+"lado dele"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Check in transcription database"
@@ -1863,6 +1959,7 @@ msgid ""
 "Skip if this file has already been transcribed and the record exists in the "
 "database"
 msgstr ""
+"Pular se este arquivo já foi transcrito e o registro existe no banco de dados"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"
@@ -1899,6 +1996,11 @@ msgstr "Salvar resumo em um arquivo"
 #: buzz/plugins/ai_summary/plugin.py
 msgid "Output folder (for file)"
 msgstr "Pasta de saída (para o arquivo)"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Prevent system sleep while transcriptions are queued"
+msgstr ""
+"Impedir que o sistema entre em suspensão enquanto houver transcrições na fila"
 
 #: buzz/file_transcriber_queue_worker.py
 msgid ""

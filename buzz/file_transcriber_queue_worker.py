@@ -6,8 +6,10 @@ import ssl
 import sys
 from pathlib import Path
 from typing import Optional, Tuple, List, Set
-from uuid import UUID
+from uuid import UUID, uuid4
 from dataclasses import dataclass
+
+from buzz.sleep_inhibitor import TaskActivity
 
 # Fix SSL certificate verification for bundled applications (macOS, Windows)
 # This must be done before importing demucs which uses torch.hub with urllib
@@ -101,8 +103,15 @@ from buzz.transcriber.whisper_file_transcriber import WhisperFileTranscriber
 @dataclass
 class _CurrentTranscription:
     task: Optional[FileTranscriptionTask] = None
+    activity_token: Optional[UUID] = None
     transcriber: Optional[FileTranscriber] = None
     transcriber_thread: Optional[QThread] = None
+
+
+@dataclass(frozen=True)
+class _QueuedTranscription:
+    task: FileTranscriptionTask
+    activity_token: UUID
 
 
 class FileTranscriberQueueWorker(QObject):
@@ -113,6 +122,7 @@ class FileTranscriberQueueWorker(QObject):
     task_download_progress = pyqtSignal(FileTranscriptionTask, float)
     task_completed = pyqtSignal(FileTranscriptionTask, list)
     task_error = pyqtSignal(FileTranscriptionTask, str)
+    queue_busy_changed = pyqtSignal(bool)
 
     completed = pyqtSignal()
     trigger_run = pyqtSignal()
@@ -125,6 +135,7 @@ class FileTranscriberQueueWorker(QObject):
         self.speech_path = None
         self.speech_extractor_process = None
         self.is_running = False
+        self.task_activity = TaskActivity(self.queue_busy_changed.emit)
         # Assigned by MainWindow after construction. Duck-typed to avoid an
         # import cycle with the plugins package.
         self.plugin_manager = None
@@ -152,6 +163,7 @@ class FileTranscriberQueueWorker(QObject):
             status = self._setup_speech_extraction()
             if status == "error":
                 self.is_running = False
+                self._on_task_finished()
                 return
 
         if not self._run_plugins():
@@ -170,10 +182,18 @@ class FileTranscriberQueueWorker(QObject):
 
     def _get_next_task(self) -> bool:
         while True:
-            self.current.task = self.tasks_queue.get()
-            if self.current.task is None:
+            queued = self.tasks_queue.get()
+            if queued is None:
                 return False
+            if isinstance(queued, _QueuedTranscription):
+                self.current.task = queued.task
+                self.current.activity_token = queued.activity_token
+            else:
+                self.current.task = queued
+                self.current.activity_token = None
             if self.current.task.uid in self.canceled_tasks:
+                if self.current.activity_token is not None:
+                    self.task_activity.finish(self.current.activity_token)
                 continue
             return True
 
@@ -267,8 +287,14 @@ class FileTranscriberQueueWorker(QObject):
 
         self.current.transcriber.completed.connect(self.on_task_completed)
 
-        self.current.transcriber.error.connect(lambda: self._on_task_finished())
-        self.current.transcriber.completed.connect(lambda: self._on_task_finished())
+        task = self.current.task
+        activity_token = self.current.activity_token
+        self.current.transcriber.error.connect(
+            lambda: self._on_task_finished(task, activity_token)
+        )
+        self.current.transcriber.completed.connect(
+            lambda: self._on_task_finished(task, activity_token)
+        )
 
         self.task_started.emit(self.current.task)
         self.current.transcriber_thread.start()
@@ -349,8 +375,20 @@ class FileTranscriberQueueWorker(QObject):
                 process.kill()
                 process.join(timeout=5)
 
-    def _on_task_finished(self):
+    def _on_task_finished(
+        self,
+        task: Optional[FileTranscriptionTask] = None,
+        activity_token: Optional[UUID] = None,
+    ):
         """Called when a task completes or errors, resets state and triggers next run"""
+        if task is None:
+            task = self.current.task
+            activity_token = self.current.activity_token
+        if activity_token is not None:
+            self.task_activity.finish(activity_token)
+        if task is not self.current.task or activity_token != self.current.activity_token:
+            return
+        self.current.activity_token = None
         self.is_running = False
         # Use signal to avoid blocking in signal handler context
         self.trigger_run.emit()
@@ -360,7 +398,9 @@ class FileTranscriberQueueWorker(QObject):
         if task.uid in self.canceled_tasks:
             self.canceled_tasks.remove(task.uid)
 
-        self.tasks_queue.put(task)
+        activity_token = uuid4()
+        self.task_activity.add(activity_token)
+        self.tasks_queue.put(_QueuedTranscription(task, activity_token))
         # If the worker is not currently running, trigger it to start processing
         # Use signal to avoid blocking the main thread
         if not self.is_running:
@@ -370,15 +410,21 @@ class FileTranscriberQueueWorker(QObject):
         self.canceled_tasks.add(task_id)
 
         if self.current.task is not None and self.current.task.uid == task_id:
+            task = self.current.task
+            activity_token = self.current.activity_token
+            transcriber = self.current.transcriber
+            transcriber_thread = self.current.transcriber_thread
             self._terminate_speech_extractor_process()
 
-            if self.current.transcriber is not None:
-                self.current.transcriber.stop()
+            if transcriber is not None:
+                transcriber.stop()
 
-            if self.current.transcriber_thread is not None:
-                if not self.current.transcriber_thread.wait(5000):
+            if transcriber_thread is not None:
+                if not transcriber_thread.wait(5000):
                     logging.warning("Transcriber thread did not terminate gracefully")
-                    self.current.transcriber_thread.terminate()
+                    transcriber_thread.terminate()
+                    transcriber_thread.wait()
+                    self._on_task_finished(task, activity_token)
 
     def on_task_error(self, error: str):
         if (
@@ -416,6 +462,7 @@ class FileTranscriberQueueWorker(QObject):
             self.speech_path = None
 
     def stop(self):
+        self.task_activity.clear()
         self.tasks_queue.put(None)
         if self.current.transcriber is not None:
             self.current.transcriber.stop()

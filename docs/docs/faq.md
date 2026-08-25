@@ -79,14 +79,14 @@ Also note that Buzz needs AVX2 support in your CPU, very old computers are not s
 
 Latest development version will have latest bug fixes and most recent features. If you feel a bit adventurous it is recommended to try the latest development version as they needs some testing before they get released to everybody.
 
-- **Linux** users can get the latest version with this command `sudo snap install buzz --edge`
-
-- **For other** platforms do the following:
+- Do the following:
   1. Go to the [build section](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml?query=branch%3Amain)
   2. Click on the link to the latest build, the most recent successful build entry in the list
   3. Scroll down to the artifacts section in the build page
   4. Download the installation file. Please note that you need to be logged in the Github to see the download links.
   ![Latest build example](https://chidiwilliams.github.io/buzz/img/latest-development-build.jpeg "Latest build example")
+
+- **Linux** users can get the latest Appimage version following notes above or with this command `sudo snap install buzz --edge`
 
 ### 10. Why is my system theme not applied to Buzz installed from Flatpak?
  

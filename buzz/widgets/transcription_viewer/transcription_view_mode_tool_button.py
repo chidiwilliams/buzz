@@ -16,6 +16,7 @@ class ViewMode(Enum):
     TEXT = "Text"
     TRANSLATION = "Translation"
     TIMESTAMPS = "Timestamps"
+    SPEAKERS = "Speakers"
 
 
 class TranscriptionViewModeToolButton(QToolButton):
@@ -26,6 +27,7 @@ class TranscriptionViewModeToolButton(QToolButton):
             shortcuts: Shortcuts,
             has_translation: bool,
             translation: pyqtSignal,
+            has_speakers: bool = False,
             parent: Optional[QWidget] = None
     ):
         super().__init__(parent)
@@ -59,8 +61,17 @@ class TranscriptionViewModeToolButton(QToolButton):
             lambda: self.view_mode_changed.emit(ViewMode.TIMESTAMPS),
         )
 
+        self.speakers_action = menu.addAction(
+            _("Speakers"),
+            lambda: self.view_mode_changed.emit(ViewMode.SPEAKERS),
+        )
+        self.speakers_action.setEnabled(has_speakers)
+
         self.setMenu(menu)
         self.clicked.connect(self.showMenu)
 
     def on_translation_available(self):
         self.translation_action.setVisible(True)
+
+    def on_speakers_changed(self, speakers: list[str]):
+        self.speakers_action.setEnabled(bool(speakers))

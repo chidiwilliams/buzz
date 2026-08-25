@@ -35,6 +35,7 @@ from PyQt6.QtWidgets import (
     QCheckBox,
     QRadioButton,
     QButtonGroup,
+    QComboBox,
     QGroupBox,
     QSpacerItem,
     QSizePolicy,
@@ -136,11 +137,18 @@ class IdentificationWorker(QObject):
     progress_update = pyqtSignal(str)
     error = pyqtSignal(str)
 
-    def __init__(self, transcription, transcription_service, diarizer="msdd"):
+    def __init__(
+        self,
+        transcription,
+        transcription_service,
+        diarizer="msdd",
+        num_speakers: Optional[int] = None,
+    ):
         super().__init__()
         self.transcription = transcription
         self.transcription_service = transcription_service
         self.diarizer = diarizer
+        self.num_speakers = num_speakers
         self._is_cancelled = False
 
     def cancel(self):
@@ -322,12 +330,21 @@ class IdentificationWorker(QObject):
         diarizer_model = None
         try:
             with hide_cuda_from_torch(device):
+                logging.debug(
+                    "Speaker identification worker: Running diarization "
+                    "(this may take a while on CPU)"
+                )
                 if self.diarizer == "sortformer":
                     diarizer_model = self._SortformerDiarizer(device)
+                    speaker_ts = diarizer_model.diarize(
+                        torch.from_numpy(audio_waveform).unsqueeze(0)
+                    )
                 else:
                     diarizer_model = self._MSDDDiarizer(device)
-                logging.debug("Speaker identification worker: Running diarization (this may take a while on CPU)")
-                speaker_ts = diarizer_model.diarize(torch.from_numpy(audio_waveform).unsqueeze(0))
+                    speaker_ts = diarizer_model.diarize(
+                        torch.from_numpy(audio_waveform).unsqueeze(0),
+                        num_speakers=self.num_speakers,
+                    )
             logging.debug("Speaker identification worker: Diarization complete")
             return speaker_ts
         finally:
@@ -573,6 +590,18 @@ class SpeakerIdentificationWidget(QWidget):
         self.diarizer_button_group.addButton(self.sortformer_radio)
         model_selection_layout.addWidget(self.msdd_radio)
         model_selection_layout.addWidget(self.sortformer_radio)
+        model_selection_layout.addSpacing(12)
+        model_selection_layout.addWidget(QLabel(_("Speakers:"), self))
+
+        self.speaker_count_combo = QComboBox(self)
+        self.speaker_count_combo.addItem(_("Auto"), None)
+        for speaker_count in range(2, 9):
+            self.speaker_count_combo.addItem(str(speaker_count), speaker_count)
+        self.speaker_count_combo.setToolTip(
+            _("Set the known number of speakers, or use Auto to detect it.")
+        )
+        model_selection_layout.addWidget(self.speaker_count_combo)
+        self.sortformer_radio.toggled.connect(self._on_diarizer_changed)
         model_selection_layout.addStretch()
 
         self.progress_bar = QProgressBar(self)
@@ -660,6 +689,9 @@ class SpeakerIdentificationWidget(QWidget):
         self.progress_bar.setVisible(True)
 
         diarizer = "sortformer" if self.sortformer_radio.isChecked() else "msdd"
+        num_speakers = (
+            self.speaker_count_combo.currentData() if diarizer == "msdd" else None
+        )
 
         # Clean up any existing thread before starting a new one
         self._cleanup_thread()
@@ -671,6 +703,7 @@ class SpeakerIdentificationWidget(QWidget):
             self.transcription,
             self.transcription_service,
             diarizer=diarizer,
+            num_speakers=num_speakers,
         )
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.run)
@@ -679,6 +712,12 @@ class SpeakerIdentificationWidget(QWidget):
         self.worker.error.connect(self.on_identification_error)
 
         self.thread.start()
+
+    def _on_diarizer_changed(self, sortformer_selected: bool) -> None:
+        """Enable the exact speaker count only for models that support it."""
+        self.speaker_count_combo.setEnabled(not sortformer_selected)
+        if sortformer_selected:
+            self.speaker_count_combo.setCurrentIndex(0)
 
     def on_cancel_button_clicked(self):
         """Handle cancel button click."""
@@ -828,7 +867,8 @@ class SpeakerIdentificationWidget(QWidget):
                         segment = Segment(
                             start=previous_segment['start_time'],
                             end=previous_segment['end_time'],
-                            text=f"{previous_segment['speaker']}: {previous_segment['text']}"
+                            text=previous_segment['text'],
+                            speaker=previous_segment['speaker'],
                         )
                         segments.append(segment)
                     previous_segment = {
@@ -842,7 +882,8 @@ class SpeakerIdentificationWidget(QWidget):
                 segment = Segment(
                     start=previous_segment['start_time'],
                     end=previous_segment['end_time'],
-                    text=f"{previous_segment['speaker']}: {previous_segment['text']}"
+                    text=previous_segment['text'],
+                    speaker=previous_segment['speaker'],
                 )
                 segments.append(segment)
         else:
@@ -851,7 +892,8 @@ class SpeakerIdentificationWidget(QWidget):
                 segment = Segment(
                     start=entry['start_time'],
                     end=entry['end_time'],
-                    text=f"{speaker_name}: {entry['text']}"
+                    text=entry['text'],
+                    speaker=speaker_name,
                 )
                 segments.append(segment)
 

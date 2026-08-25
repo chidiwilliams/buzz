@@ -257,6 +257,12 @@ class TestSpeakerIdentificationWidget:
         segments = mock_update.call_args[0][1]
         # No merge: 3 entries → 3 segments
         assert len(segments) == 3
+        assert [segment.speaker for segment in segments] == [
+            "Speaker 0",
+            "Speaker 0",
+            "Speaker 1",
+        ]
+        assert segments[0].text == "Hello."
 
         widget.close()
 
@@ -282,7 +288,8 @@ class TestSpeakerIdentificationWidget:
         segments = mock_update.call_args[0][1]
         # Merge: two consecutive Speaker 0 entries → merged into 1; Speaker 1 → 1 = 2 total
         assert len(segments) == 2
-        assert "Speaker 0" in segments[0].text
+        assert segments[0].speaker == "Speaker 0"
+        assert "Speaker 0" not in segments[0].text
         assert "Hello." in segments[0].text
         assert "World." in segments[0].text
 
@@ -664,6 +671,7 @@ class TestSpeakerIdentificationWidget:
             widget.on_identify_button_clicked()
 
         assert widget.worker.diarizer == "sortformer"
+        assert widget.worker.num_speakers is None
 
         widget.close()
 

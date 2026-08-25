@@ -52,16 +52,37 @@ def get_plugins_dir() -> str:
 
 
 def get_plugins_deps_dir() -> str:
-    path = os.path.join(user_cache_dir("Buzz"), "plugins_deps")
+    """Return the folder holding pip-installed plugin dependencies.
+
+    The folder is scoped by interpreter version because pip installs native
+    extension modules for the running Python ABI only. A Buzz upgrade that
+    bumps the bundled interpreter would otherwise keep importing the previous
+    version's ``.so``/``.pyd`` files, and a shadowing package (numpy, pinned
+    below the app's own version by a plugin) then fails to import in the app
+    and in every spawned transcription process.
+    """
+    path = os.path.join(
+        user_cache_dir("Buzz"),
+        "plugins_deps",
+        f"py{sys.version_info.major}.{sys.version_info.minor}",
+    )
     os.makedirs(path, exist_ok=True)
     return path
 
 
 def ensure_deps_on_path() -> None:
-    """Ensure the plugin dependencies folder is importable."""
+    """Ensure the plugin dependencies folder is importable.
+
+    The folder goes *last* on ``sys.path`` so it can only add packages the app
+    does not ship, never replace them. A plugin dependency may pin a package
+    Buzz also uses to an older version (``deepfilternet`` pins ``numpy<2``);
+    letting that copy win would give the app, and every spawned transcription
+    process, a numpy the rest of the wheels were not compiled against, which
+    crashes the process on import with an access violation instead of raising.
+    """
     deps_dir = get_plugins_deps_dir()
     if deps_dir not in sys.path:
-        sys.path.insert(0, deps_dir)
+        sys.path.append(deps_dir)
 
 
 # Files/folders that are build artifacts and must be ignored when comparing or

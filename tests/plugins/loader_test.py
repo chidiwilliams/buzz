@@ -48,10 +48,11 @@ class TestDirectoryHelpers:
     def test_get_plugins_deps_dir_creates_dir(self, tmp_path, monkeypatch):
         monkeypatch.setattr(loader, "user_cache_dir", lambda _app: str(tmp_path))
         path = get_plugins_deps_dir()
-        assert path == str(tmp_path / "plugins_deps")
+        version_dir = f"py{sys.version_info.major}.{sys.version_info.minor}"
+        assert path == str(tmp_path / "plugins_deps" / version_dir)
         assert os.path.isdir(path)
 
-    def test_ensure_deps_on_path_inserts_once(self, tmp_path, monkeypatch):
+    def test_ensure_deps_on_path_appends_once(self, tmp_path, monkeypatch):
         deps = str(tmp_path / "deps")
         os.makedirs(deps)
         monkeypatch.setattr(loader, "get_plugins_deps_dir", lambda: deps)
@@ -59,7 +60,8 @@ class TestDirectoryHelpers:
         original = list(sys.path)
         try:
             ensure_deps_on_path()
-            assert sys.path[0] == deps
+            # Last, so plugin deps can never shadow the app's own packages
+            assert sys.path[-1] == deps
             ensure_deps_on_path()
             assert sys.path.count(deps) == 1
         finally:

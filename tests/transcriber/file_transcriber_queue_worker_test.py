@@ -45,6 +45,81 @@ class TestFileTranscriberQueueWorker:
         simple_worker.cancel_task(task_id)
         assert task_id in simple_worker.canceled_tasks
 
+    def test_cancel_force_terminated_current_task_releases_activity(
+        self, simple_worker
+    ):
+        task = FileTranscriptionTask(
+            file_path=str(test_multibyte_utf8_audio_path),
+            transcription_options=TranscriptionOptions(),
+            file_transcription_options=FileTranscriptionOptions(),
+            model_path="mock_path",
+        )
+        busy_spy = unittest.mock.Mock()
+        simple_worker.queue_busy_changed.connect(busy_spy)
+        simple_worker.trigger_run.disconnect(simple_worker.run)
+        simple_worker.is_running = True
+        simple_worker.add_task(task)
+        assert simple_worker._get_next_task()
+        simple_worker.current.transcriber = unittest.mock.Mock()
+        simple_worker.current.transcriber_thread = unittest.mock.Mock()
+        simple_worker.current.transcriber_thread.wait.return_value = False
+
+        simple_worker.cancel_task(task.uid)
+
+        simple_worker.current.transcriber_thread.terminate.assert_called_once_with()
+        assert simple_worker.is_running is False
+        assert busy_spy.call_args_list == [
+            unittest.mock.call(True),
+            unittest.mock.call(False),
+        ]
+
+    def test_cancel_does_not_terminate_task_that_replaces_current_during_wait(
+        self, simple_worker
+    ):
+        first_task = FileTranscriptionTask(
+            file_path=str(test_multibyte_utf8_audio_path),
+            transcription_options=TranscriptionOptions(),
+            file_transcription_options=FileTranscriptionOptions(),
+            model_path="mock_path",
+        )
+        second_task = FileTranscriptionTask(
+            file_path=str(test_multibyte_utf8_audio_path),
+            transcription_options=TranscriptionOptions(),
+            file_transcription_options=FileTranscriptionOptions(),
+            model_path="mock_path",
+        )
+        busy_spy = unittest.mock.Mock()
+        simple_worker.queue_busy_changed.connect(busy_spy)
+        simple_worker.trigger_run.disconnect(simple_worker.run)
+        simple_worker.is_running = True
+        simple_worker.add_task(first_task)
+        simple_worker.add_task(second_task)
+        assert simple_worker._get_next_task()
+
+        first_transcriber = unittest.mock.Mock()
+        first_thread = unittest.mock.Mock()
+        second_thread = unittest.mock.Mock()
+        simple_worker.current.transcriber = first_transcriber
+        simple_worker.current.transcriber_thread = first_thread
+
+        def wait_for_first_thread(timeout=None):
+            if timeout == 5000:
+                assert simple_worker._get_next_task()
+                simple_worker.current.transcriber = unittest.mock.Mock()
+                simple_worker.current.transcriber_thread = second_thread
+                return False
+            return True
+
+        first_thread.wait.side_effect = wait_for_first_thread
+
+        simple_worker.cancel_task(first_task.uid)
+
+        first_thread.terminate.assert_called_once_with()
+        second_thread.terminate.assert_not_called()
+        assert simple_worker.current.task is second_task
+        assert simple_worker.is_running is True
+        assert busy_spy.call_args_list == [unittest.mock.call(True)]
+
     def test_add_task_removes_from_canceled(self, simple_worker):
         options = TranscriptionOptions(
             model=TranscriptionModel(model_type=ModelType.WHISPER_CPP, whisper_model_size=WhisperModelSize.TINY),
@@ -262,6 +337,26 @@ class TestFileTranscriberQueueWorkerRun:
         # is_running stays True, nothing changed
         assert simple_worker.is_running is True
 
+    def test_busy_signal_spans_all_pending_tasks(self, simple_worker):
+        first_task = self._make_task()
+        second_task = self._make_task()
+        busy_spy = unittest.mock.Mock()
+        simple_worker.queue_busy_changed.connect(busy_spy)
+        simple_worker.trigger_run.disconnect(simple_worker.run)
+        simple_worker.is_running = True
+
+        simple_worker.add_task(first_task)
+        simple_worker.add_task(second_task)
+        assert simple_worker._get_next_task()
+        simple_worker._on_task_finished()
+        assert simple_worker._get_next_task()
+        simple_worker._on_task_finished()
+
+        assert busy_spy.call_args_list == [
+            unittest.mock.call(True),
+            unittest.mock.call(False),
+        ]
+
     def test_run_stops_on_sentinel(self, simple_worker, qapp):
         completed_spy = unittest.mock.Mock()
         simple_worker.completed.connect(completed_spy)
@@ -321,10 +416,15 @@ class TestFileTranscriberQueueWorkerRun:
 
     def test_run_speech_extraction_failure_emits_error(self, simple_worker, qapp):
         task = self._make_task(extract_speech=True)
-        simple_worker.tasks_queue.put(task)
+        simple_worker.trigger_run.disconnect(simple_worker.run)
+        simple_worker.is_running = True
+        simple_worker.add_task(task)
+        simple_worker.is_running = False
 
         error_spy = unittest.mock.Mock()
+        busy_spy = unittest.mock.Mock()
         simple_worker.task_error.connect(error_spy)
+        simple_worker.queue_busy_changed.connect(busy_spy)
 
         with unittest.mock.patch.object(
             FileTranscriberQueueWorker, '_extract_speech', return_value="error"
@@ -335,6 +435,7 @@ class TestFileTranscriberQueueWorkerRun:
         args = error_spy.call_args[0]
         assert args[0] == task
         assert simple_worker.is_running is False
+        assert busy_spy.call_args_list == [unittest.mock.call(False)]
 
     def _run_extract_speech(self, simple_worker, messages, exitcode=0):
         """Drive _extract_speech with a scripted sequence of pipe messages."""

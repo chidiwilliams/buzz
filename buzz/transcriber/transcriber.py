@@ -33,6 +33,7 @@ class Segment:
     end: int  # end time in ms
     text: str
     translation: str = ""
+    speaker: str = ""
 
 
 LANGUAGES = {

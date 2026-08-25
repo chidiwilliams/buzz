@@ -29,6 +29,7 @@ CREATE TABLE transcription_segment (
     text TEXT NOT NULL,
     translation TEXT DEFAULT '',
     transcription_id TEXT,
+    speaker TEXT DEFAULT '',
     FOREIGN KEY (transcription_id) REFERENCES transcription(id) ON DELETE CASCADE
 );
 CREATE INDEX idx_transcription_id ON transcription_segment(transcription_id);
