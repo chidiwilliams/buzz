@@ -38,6 +38,7 @@ from buzz.transcriber.transcriber import (
     TranscriptionOptions,
     FileTranscriptionOptions,
     SUPPORTED_AUDIO_FORMATS,
+    SUPPORTED_EXTENSIONS,
     Segment,
 )
 from buzz.widgets.icon import BUZZ_ICON_PATH
@@ -48,7 +49,6 @@ from buzz.widgets.preferences_dialog.models.preferences import Preferences
 from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
 from buzz.widgets.transcription_task_folder_watcher import (
     TranscriptionTaskFolderWatcher,
-    SUPPORTED_EXTENSIONS,
 )
 from buzz.widgets.transcription_tasks_table_widget import (
     TranscriptionTasksTableWidget,
@@ -56,6 +56,15 @@ from buzz.widgets.transcription_tasks_table_widget import (
 from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
     TranscriptionViewerWidget,
 )
+
+
+def find_media_files_in_folder(folder: str) -> List[str]:
+    file_paths = []
+    for dirpath, _dirs, filenames in os.walk(folder):
+        for filename in sorted(filenames):
+            if os.path.splitext(filename)[1].lower() in SUPPORTED_EXTENSIONS:
+                file_paths.append(os.path.join(dirpath, filename))
+    return file_paths
 
 
 class MainWindow(QMainWindow):
@@ -218,12 +227,33 @@ class MainWindow(QMainWindow):
     def dragEnterEvent(self, event):
         # Accept file drag events
         if event.mimeData().hasUrls():
+            event.setDropAction(Qt.DropAction.CopyAction)
+            event.accept()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.setDropAction(Qt.DropAction.CopyAction)
             event.accept()
         else:
             event.ignore()
 
     def dropEvent(self, event):
-        file_paths = [url.toLocalFile() for url in event.mimeData().urls()]
+        file_paths = []
+        for url in event.mimeData().urls():
+            path = url.toLocalFile()
+            if os.path.isdir(path):
+                file_paths.extend(find_media_files_in_folder(path))
+            elif path:
+                file_paths.append(path)
+
+        if len(file_paths) == 0:
+            event.ignore()
+            return
+
+        event.setDropAction(Qt.DropAction.CopyAction)
+        event.accept()
         self.open_file_transcriber_widget(file_paths=file_paths)
 
     def on_file_transcriber_triggered(
@@ -315,12 +345,7 @@ class MainWindow(QMainWindow):
         if not folder:
             return
         self.settings.set_value(Settings.Key.LAST_IMPORT_FOLDER, folder)
-        file_paths = []
-        for dirpath, _dirs, filenames in os.walk(folder):
-            for filename in filenames:
-                ext = os.path.splitext(filename)[1].lower()
-                if ext in SUPPORTED_EXTENSIONS:
-                    file_paths.append(os.path.join(dirpath, filename))
+        file_paths = find_media_files_in_folder(folder)
         if not file_paths:
             return
         self.open_file_transcriber_widget(file_paths)

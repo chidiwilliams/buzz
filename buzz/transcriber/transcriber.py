@@ -225,10 +225,29 @@ class Stopped(Exception):
     pass
 
 
-SUPPORTED_AUDIO_FORMATS = "Media files (*.mp3 *.wav *.m4a *.ogg *.opus *.flac *.mp4 *.webm *.ogm *.mov *.mkv *.avi *.wmv);;\
-Audio files (*.mp3 *.wav *.m4a *.ogg *.opus *.flac);;\
-Video files (*.mp4 *.webm *.ogm *.mov *.mkv *.avi *.wmv);;\
-All files (*.*)"
+SUPPORTED_AUDIO_EXTENSIONS = (
+    ".mp3", ".wav", ".m4a", ".m4b", ".aac", ".ogg", ".opus", ".flac",
+)
+SUPPORTED_VIDEO_EXTENSIONS = (
+    ".mp4", ".m4v", ".webm", ".ogm", ".mov", ".mkv", ".avi", ".wmv",
+)
+SUPPORTED_EXTENSIONS = frozenset(
+    SUPPORTED_AUDIO_EXTENSIONS + SUPPORTED_VIDEO_EXTENSIONS
+)
+
+
+def _file_dialog_patterns(extensions) -> str:
+    return " ".join(f"*{extension}" for extension in extensions)
+
+
+SUPPORTED_AUDIO_FORMATS = ";;".join(
+    [
+        f"Media files ({_file_dialog_patterns(SUPPORTED_AUDIO_EXTENSIONS + SUPPORTED_VIDEO_EXTENSIONS)})",
+        f"Audio files ({_file_dialog_patterns(SUPPORTED_AUDIO_EXTENSIONS)})",
+        f"Video files ({_file_dialog_patterns(SUPPORTED_VIDEO_EXTENSIONS)})",
+        "All files (*.*)",
+    ]
+)
 
 
 def get_output_file_path(
