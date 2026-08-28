@@ -179,7 +179,7 @@ Bundled plugins ship a translation file for **every locale Buzz supports**. The
 current set (keep it in sync across all bundled plugins) is:
 
 ```
-ca_ES, da_DK, de_DE, es_ES, it_IT, ja_JP, lv_LV, nl,
+ca_ES, da_DK, de_DE, es_ES, fr, it_IT, ja_JP, lv_LV, nl,
 pl_PL, pt_BR, ru, uk_UA, zh_CN, zh_TW
 ```
 

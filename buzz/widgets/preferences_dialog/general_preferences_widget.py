@@ -36,6 +36,7 @@ ui_locales = {
     "ca_ES": _("Catalan"),
     "da_DK": _("Danish"),
     "nl": _("Dutch"),
+    "fr": _("French"),
     "de_DE": _("German"),
     "es_ES": _("Spanish"),
     "it_IT": _("Italian"),
