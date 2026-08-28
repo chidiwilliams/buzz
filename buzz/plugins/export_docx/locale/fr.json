@@ -1,0 +1,7 @@
+{
+  "Export to DOCX": "Exporter en DOCX",
+  "Export the transcript to a Microsoft Word (.docx) file after transcription, optionally including timestamps.": "Exporte la transcription dans un fichier Microsoft Word (.docx) après la transcription, avec les horodatages en option.",
+  "Output folder": "Dossier de sortie",
+  "Leave empty to save next to the source file.": "Laisser vide pour enregistrer à côté du fichier source.",
+  "Include timestamps": "Inclure les horodatages"
+}
