@@ -3,6 +3,7 @@ from unittest.mock import patch, Mock
 
 import pytest
 
+from buzz.model_loader import ModelType, TranscriptionModel
 from buzz.transcriber.openai_whisper_api_file_transcriber import (
     OpenAIWhisperAPIFileTranscriber,
     append_segment,
@@ -126,3 +127,79 @@ class TestOpenAIWhisperAPIFileTranscriber:
         assert called_segments[0].start == 0
         assert called_segments[0].end == 6560
         assert called_segments[0].text == "Hello"
+
+    def test_funasr_client_uses_dedicated_defaults(self, monkeypatch):
+        monkeypatch.delenv("BUZZ_FUNASR_BASE_URL", raising=False)
+        monkeypatch.delenv("BUZZ_FUNASR_MODEL", raising=False)
+        monkeypatch.delenv("BUZZ_FUNASR_API_KEY", raising=False)
+
+        task = FileTranscriptionTask(
+            transcription_options=TranscriptionOptions(
+                model=TranscriptionModel(model_type=ModelType.FUNASR_API),
+                openai_access_token="sk-must-not-leak",
+            ),
+            file_transcription_options=FileTranscriptionOptions(),
+            model_path="",
+        )
+
+        with patch(
+            "buzz.transcriber.openai_whisper_api_file_transcriber.Settings"
+        ) as mock_settings, patch(
+            "buzz.transcriber.openai_whisper_api_file_transcriber.OpenAI"
+        ) as mock_openai:
+            mock_settings.return_value.value.side_effect = (
+                lambda key, default_value: default_value
+            )
+            transcriber = OpenAIWhisperAPIFileTranscriber(task=task)
+
+        mock_openai.assert_called_once_with(
+            api_key="not-needed",
+            base_url="http://localhost:8000/v1",
+            max_retries=0,
+        )
+        assert transcriber.whisper_api_model == "sensevoice"
+
+    def test_funasr_disables_word_timings_and_falls_back_to_text(self, monkeypatch):
+        monkeypatch.delenv("BUZZ_FUNASR_BASE_URL", raising=False)
+        monkeypatch.delenv("BUZZ_FUNASR_MODEL", raising=False)
+        monkeypatch.delenv("BUZZ_FUNASR_API_KEY", raising=False)
+        file_path = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "../../testdata/whisper-french.mp3",
+        )
+        task = FileTranscriptionTask(
+            file_path=file_path,
+            transcription_options=TranscriptionOptions(
+                model=TranscriptionModel(model_type=ModelType.FUNASR_API),
+                word_level_timings=True,
+                initial_prompt="must not be sent",
+                openai_access_token="sk-must-not-leak",
+            ),
+            file_transcription_options=FileTranscriptionOptions(
+                file_paths=[file_path]
+            ),
+            model_path="",
+        )
+
+        with patch(
+            "buzz.transcriber.openai_whisper_api_file_transcriber.Settings"
+        ) as mock_settings, patch(
+            "buzz.transcriber.openai_whisper_api_file_transcriber.OpenAI"
+        ) as mock_openai:
+            mock_settings.return_value.value.side_effect = (
+                lambda key, default_value: default_value
+            )
+            mock_openai.return_value.audio.transcriptions.create.return_value = (
+                Transcription(text="欢迎使用 FunASR", segments=[])
+            )
+            transcriber = OpenAIWhisperAPIFileTranscriber(task=task)
+            segments = transcriber.get_segments_for_file(file_path)
+
+        assert transcriber.word_level_timings is False
+        assert segments == [Segment(start=0, end=0, text="欢迎使用 FunASR")]
+        call_options = mock_openai.return_value.audio.transcriptions.create.call_args.kwargs
+        assert call_options["model"] == "sensevoice"
+        assert call_options["response_format"] == "verbose_json"
+        assert "prompt" not in call_options
+        assert "timestamp_granularities" not in call_options
+        mock_openai.return_value.audio.translations.create.assert_not_called()

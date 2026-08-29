@@ -172,6 +172,31 @@ class TestGeneralPreferencesWidget:
 
         assert updated_openai_base_url == "http://localhost:11434/v1"
 
+    def test_funasr_api_preferences(self, qtbot):
+        settings = Settings()
+        settings.set_value(
+            Settings.Key.FUNASR_API_BASE_URL,
+            "http://localhost:8000/v1",
+        )
+        settings.set_value(Settings.Key.FUNASR_API_MODEL, "sensevoice")
+
+        widget = GeneralPreferencesWidget()
+        qtbot.add_widget(widget)
+
+        assert widget.funasr_api_base_url_line_edit.text() == (
+            "http://localhost:8000/v1"
+        )
+        assert widget.funasr_api_model_line_edit.text() == "sensevoice"
+
+        widget.funasr_api_base_url_line_edit.setText("http://127.0.0.1:8123/v1")
+        widget.funasr_api_model_line_edit.setText("fun-asr-nano")
+
+        assert settings.value(
+            Settings.Key.FUNASR_API_BASE_URL,
+            "",
+        ) == "http://127.0.0.1:8123/v1"
+        assert settings.value(Settings.Key.FUNASR_API_MODEL, "") == "fun-asr-nano"
+
 
 class TestTestOpenAIApiKeyJob:
     # No error = success

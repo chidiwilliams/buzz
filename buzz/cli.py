@@ -34,6 +34,7 @@ class CommandLineModelType(enum.Enum):
     HUGGING_FACE = "huggingface"
     FASTER_WHISPER = "fasterwhisper"
     OPEN_AI_WHISPER_API = "openaiapi"
+    FUNASR_API = "funasrapi"
 
 
 def parse_command_line(app: Application):
@@ -48,6 +49,26 @@ def parse_command_line(app: Application):
 def is_url(path: str) -> bool:
     parsed = urllib.parse.urlparse(path)
     return all([parsed.scheme, parsed.netloc])
+
+
+def _normalize_transcription_request(
+    model_type: ModelType,
+    task: Task,
+    initial_prompt: str,
+    openai_access_token: str,
+):
+    if not model_type.supports_translation:
+        task = Task.TRANSCRIBE
+    if not model_type.supports_initial_prompt:
+        initial_prompt = ""
+
+    if model_type == ModelType.OPEN_AI_WHISPER_API and openai_access_token == "":
+        openai_access_token = get_password(key=Key.OPENAI_API_KEY)
+        if openai_access_token == "":
+            raise CommandLineError("No OpenAI access token found")
+
+    return task, initial_prompt, openai_access_token
+
 
 def _add_command_options(parser: QCommandLineParser):
     task_option = QCommandLineOption(
@@ -228,17 +249,18 @@ def _handle_add_command(app: Application, parser: QCommandLineParser):
 
     output_formats = _process_add_output_formats(parser, opts)
 
-    openai_access_token = parser.value(opts["openai_token"])
-    if model.model_type == ModelType.OPEN_AI_WHISPER_API and openai_access_token == "":
-        openai_access_token = get_password(key=Key.OPENAI_API_KEY)
-        if openai_access_token == "":
-            raise CommandLineError("No OpenAI access token found")
+    task, initial_prompt, openai_access_token = _normalize_transcription_request(
+        model_type=model.model_type,
+        task=task,
+        initial_prompt=parser.value(opts["initial_prompt"]),
+        openai_access_token=parser.value(opts["openai_token"]),
+    )
 
     transcription_options = TranscriptionOptions(
         model=model,
         task=task,
         language=language,
-        initial_prompt=parser.value(opts["initial_prompt"]),
+        initial_prompt=initial_prompt,
         word_level_timings=parser.isSet(opts["word_timestamps"]),
         extract_speech=parser.isSet(opts["extract_speech"]),
         openai_access_token=openai_access_token,
