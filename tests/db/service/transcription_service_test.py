@@ -1,9 +1,12 @@
-import pytest
+import json
 from unittest.mock import Mock, patch
 from uuid import UUID, uuid4
 
+import pytest
+
 from buzz.db.service.transcription_service import TranscriptionService
 from buzz.db.entity.transcription import Transcription
+from buzz.transcriber.transcriber import Segment
 
 
 @pytest.fixture
@@ -40,6 +43,32 @@ def sample_transcription():
 
 
 class TestTranscriptionService:
+    @pytest.mark.parametrize(
+        "method_name",
+        [
+            "update_transcription_as_completed",
+            "update_transcription_as_skipped",
+            "replace_transcription_segments",
+        ],
+    )
+    def test_segment_review_reasons_are_persisted(
+        self,
+        transcription_service,
+        mock_transcription_segment_dao,
+        method_name,
+    ):
+        segment = Segment(
+            start=100,
+            end=500,
+            text="Repeated phrase",
+            review_reasons=["Possible repetition loop", "Low confidence"],
+        )
+
+        getattr(transcription_service, method_name)(uuid4(), [segment])
+
+        saved_segment = mock_transcription_segment_dao.insert.call_args.args[0]
+        assert json.loads(saved_segment.review_reasons) == segment.review_reasons
+
     def test_update_transcription_name(self, transcription_service, mock_transcription_dao):
         """Test updating transcription name through service"""
         transcription_id = uuid4()

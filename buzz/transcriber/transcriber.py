@@ -34,6 +34,7 @@ class Segment:
     text: str
     translation: str = ""
     speaker: str = ""
+    review_reasons: List[str] = field(default_factory=list)
 
 
 LANGUAGES = {
