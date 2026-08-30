@@ -1,3 +1,4 @@
+import json
 import os
 from datetime import datetime
 from sqlite3 import Connection
@@ -55,9 +56,9 @@ def copy_transcriptions_from_json_to_sqlite(conn: Connection):
                     """
                     INSERT INTO transcription_segment (
                         end_time, start_time, text, translation,
-                        transcription_id, speaker
+                        transcription_id, speaker, review_reasons
                     )
-                    VALUES (?, ?, ?, ?, ?, ?);
+                    VALUES (?, ?, ?, ?, ?, ?, ?);
                     """,
                     (
                         segment.end,
@@ -66,6 +67,10 @@ def copy_transcriptions_from_json_to_sqlite(conn: Connection):
                         segment.translation,
                         transcription_id,
                         getattr(segment, "speaker", ""),
+                        json.dumps(
+                            getattr(segment, "review_reasons", []),
+                            ensure_ascii=False,
+                        ),
                     ),
                 )
         # os.remove(cache.tasks_list_file_path)

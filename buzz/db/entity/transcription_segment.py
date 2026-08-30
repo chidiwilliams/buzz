@@ -12,3 +12,4 @@ class TranscriptionSegment(Entity):
     transcription_id: str
     speaker: str = ""
     id: int = -1
+    review_reasons: str = "[]"

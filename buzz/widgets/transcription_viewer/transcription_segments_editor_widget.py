@@ -1,4 +1,5 @@
 import enum
+import json
 import logging
 from dataclasses import dataclass
 from typing import Optional
@@ -51,6 +52,7 @@ class Column(enum.Enum):
     TRANSLATION = enum.auto()
     TRANSCRIPTION_ID = enum.auto()
     SPEAKER = enum.auto()
+    REVIEW_REASONS = enum.auto()
 
 
 @dataclass
@@ -333,6 +335,39 @@ class TranscriptionSegmentModel(QSqlTableModel):
         self.setTable("transcription_segment")
         self.setEditStrategy(QSqlTableModel.EditStrategy.OnFieldChange)
         self.setFilter(f"transcription_id = '{transcription_id}'")
+
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        if index.isValid() and role in (
+            Qt.ItemDataRole.BackgroundRole,
+            Qt.ItemDataRole.ToolTipRole,
+        ):
+            reasons = self._review_reasons(index.row())
+            if reasons:
+                if role == Qt.ItemDataRole.BackgroundRole:
+                    return QColor(255, 193, 7, 64)
+                return _("Needs review:") + "\n" + "\n".join(
+                    f"• {reason}" for reason in reasons
+                )
+
+        return super().data(index, role)
+
+    def _review_reasons(self, row: int) -> list[str]:
+        raw_reasons = self.record(row).value("review_reasons")
+        if not raw_reasons:
+            return []
+
+        try:
+            reasons = json.loads(raw_reasons)
+        except (TypeError, json.JSONDecodeError):
+            return []
+
+        if not isinstance(reasons, list):
+            return []
+        return [
+            reason.strip()
+            for reason in reasons
+            if isinstance(reason, str) and reason.strip()
+        ]
 
 
 class TranscriptionSegmentsEditorWidget(QTableView):

@@ -60,3 +60,44 @@ def test_speaker_column_migration_preserves_existing_transcript_text(tmp_path):
     ).fetchone()
     connection.close()
     assert row == ("Nyomi: keep this exact text", "")
+
+
+def test_review_reasons_migration_preserves_existing_transcript_text(tmp_path):
+    database_path = tmp_path / "old-buzz.sqlite"
+    connection = sqlite3.connect(database_path)
+    connection.executescript(
+        """
+        CREATE TABLE transcription (
+            id TEXT PRIMARY KEY,
+            time_queued TIMESTAMP NOT NULL
+        );
+        CREATE TABLE transcription_segment (
+            id INTEGER PRIMARY KEY,
+            end_time INT DEFAULT 0,
+            start_time INT DEFAULT 0,
+            text TEXT NOT NULL,
+            translation TEXT DEFAULT '',
+            transcription_id TEXT,
+            speaker TEXT DEFAULT '',
+            FOREIGN KEY (transcription_id) REFERENCES transcription(id)
+                ON DELETE CASCADE
+        );
+        CREATE INDEX idx_transcription_id
+            ON transcription_segment(transcription_id);
+        INSERT INTO transcription (id, time_queued)
+            VALUES ('transcript-1', '2026-08-30');
+        INSERT INTO transcription_segment (
+            id, start_time, end_time, text, transcription_id
+        ) VALUES (
+            1, 0, 1000, 'Keep this exact text', 'transcript-1'
+        );
+        """
+    )
+
+    run_sqlite_migrations(connection)
+
+    row = connection.execute(
+        "SELECT text, review_reasons FROM transcription_segment WHERE id = 1"
+    ).fetchone()
+    connection.close()
+    assert row == ("Keep this exact text", "[]")
