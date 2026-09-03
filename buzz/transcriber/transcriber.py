@@ -208,6 +208,7 @@ class FileTranscriptionTask:
     original_file_path: Optional[str] = None  # Original path before speech extraction
     delete_source_file: bool = False
     url: Optional[str] = None
+    display_name: Optional[str] = None
     fraction_downloaded: float = 0.0
 
     def __post_init__(self):

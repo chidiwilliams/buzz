@@ -492,9 +492,9 @@ class MainWindow(QMainWindow):
         # Update file path in database only for URL imports where file is downloaded
         if task.source == FileTranscriptionTask.Source.URL_IMPORT and task.file_path:
             logging.debug(f"Updating transcription file path: {task.file_path}")
-            # Use the file basename (video title) as the display name
+            # URL titles are UI metadata and must not be used as working paths.
             basename = os.path.basename(task.file_path)
-            name = os.path.splitext(basename)[0]  # Remove .wav extension
+            name = task.display_name or os.path.splitext(basename)[0]
             self.transcription_service.update_transcription_file_and_name(task.uid, task.file_path, name)
 
         # When plugins are enabled, run the after_transcription / save / on_complete
