@@ -86,6 +86,7 @@ class FileTranscriber(QObject):
                 output_directory=self.transcription_task.output_directory,
                 model=self.transcription_task.transcription_options.model,
                 task=self.transcription_task.transcription_options.task,
+                display_name=self.transcription_task.display_name,
             )
 
             write_output(
