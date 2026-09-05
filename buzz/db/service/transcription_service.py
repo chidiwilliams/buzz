@@ -1,3 +1,4 @@
+import json
 from typing import List
 from uuid import UUID
 
@@ -36,6 +37,9 @@ class TranscriptionService:
 
     def update_transcription_as_completed(self, id: UUID, segments: List[Segment]):
         self.transcription_dao.update_transcription_as_completed(id)
+        self._insert_segments(id, segments)
+
+    def _insert_segments(self, id: UUID, segments: List[Segment]):
         for segment in segments:
             self.transcription_segment_dao.insert(
                 TranscriptionSegment(
@@ -45,6 +49,9 @@ class TranscriptionService:
                     translation='',
                     transcription_id=str(id),
                     speaker=segment.speaker,
+                    review_reasons=json.dumps(
+                        segment.review_reasons, ensure_ascii=False
+                    ),
                 )
             )
 
@@ -62,17 +69,7 @@ class TranscriptionService:
 
     def update_transcription_as_skipped(self, id: UUID, segments: List[Segment]):
         self.transcription_dao.update_transcription_as_skipped(id)
-        for segment in segments:
-            self.transcription_segment_dao.insert(
-                TranscriptionSegment(
-                    start_time=segment.start,
-                    end_time=segment.end,
-                    text=segment.text,
-                    translation='',
-                    transcription_id=str(id),
-                    speaker=segment.speaker,
-                )
-            )
+        self._insert_segments(id, segments)
 
     def find_completed_transcription_by_filename(self, filename: str):
         return self.transcription_dao.find_completed_transcription_by_filename(filename)
@@ -82,17 +79,7 @@ class TranscriptionService:
 
     def replace_transcription_segments(self, id: UUID, segments: List[Segment]):
         self.transcription_segment_dao.delete_segments(id)
-        for segment in segments:
-            self.transcription_segment_dao.insert(
-                TranscriptionSegment(
-                    start_time=segment.start,
-                    end_time=segment.end,
-                    text=segment.text,
-                    translation='',
-                    transcription_id=str(id),
-                    speaker=segment.speaker,
-                )
-            )
+        self._insert_segments(id, segments)
 
     def get_transcription_segments(self, transcription_id: UUID):
         return self.transcription_segment_dao.get_segments(transcription_id)

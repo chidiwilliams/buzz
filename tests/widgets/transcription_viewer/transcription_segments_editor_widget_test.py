@@ -272,6 +272,41 @@ class TestTranscriptionSegmentModel:
         assert model.tableName() == "transcription_segment"
         assert model.editStrategy() == model.EditStrategy.OnFieldChange
 
+    def test_review_reasons_highlight_row_and_provide_tooltip(
+        self,
+        transcription_dao,
+        transcription_segment_dao,
+    ):
+        transcription_id = uuid.uuid4()
+        transcription_dao.insert(
+            Transcription(
+                id=str(transcription_id),
+                status="completed",
+                file=test_audio_path,
+                task=Task.TRANSCRIBE.value,
+                model_type=ModelType.WHISPER.value,
+                whisper_model_size=WhisperModelSize.TINY.value,
+            )
+        )
+        transcription_segment_dao.insert(
+            TranscriptionSegment(
+                40,
+                299,
+                "Repeated phrase",
+                "",
+                str(transcription_id),
+                review_reasons='["Possible repetition loop"]',
+            )
+        )
+        model = TranscriptionSegmentModel(transcription_id)
+        model.select()
+        index = model.index(0, Column.TEXT.value)
+
+        assert model.data(index, Qt.ItemDataRole.BackgroundRole) is not None
+        assert "Possible repetition loop" in model.data(
+            index, Qt.ItemDataRole.ToolTipRole
+        )
+
 
 class TestTranscriptionSegmentsEditorWidget:
     """Test the TranscriptionSegmentsEditorWidget"""
