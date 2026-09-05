@@ -1,11 +1,18 @@
 import os
 import sys
 import platform
+import subprocess
 from unittest.mock import patch
 
+import numpy as np
 import pytest
 
-from buzz.transformers_whisper import TransformersTranscriber, is_intel_mac, is_peft_model
+from buzz.transformers_whisper import (
+    TransformersTranscriber,
+    is_intel_mac,
+    is_peft_model,
+    load_audio_input,
+)
 
 
 class TestIsIntelMac:
@@ -104,3 +111,34 @@ class TestGetMmsRepoId:
         with patch("os.path.exists", return_value=True), \
              patch("buzz.transformers_whisper.os.sep", "/"):
             assert transcriber._get_mms_repo_id() == "openai/whisper-large-v3"
+
+
+class TestLoadAudioInput:
+    def test_passes_through_arrays(self):
+        array = np.zeros(10, dtype=np.float32)
+        assert load_audio_input(array, 16000) is array
+
+    def test_loads_mp4_with_moov_atom_at_end(self, tmp_path):
+        """Non-faststart MP4s must load (transformers' ffmpeg_read rejects them).
+
+        Regression test for https://github.com/chidiwilliams/buzz/issues/1603
+        """
+        path = str(tmp_path / "moov-last.mp4")
+        subprocess.run(
+            [
+                "ffmpeg", "-y", "-v", "error",
+                "-f", "lavfi", "-i", "sine=frequency=440:duration=60",
+                "-f", "lavfi", "-i", "testsrc=s=640x480:d=60:r=25",
+                "-c:a", "aac", "-c:v", "libx264", "-preset", "ultrafast", "-qp", "0",
+                "-shortest", path,
+            ],
+            check=True,
+        )
+
+        # Guard the premise: moov must sit after mdat for this to be a real test
+        data = open(path, "rb").read()
+        assert data.find(b"moov") > data.find(b"mdat")
+
+        audio = load_audio_input(path, 16000)
+        assert audio.dtype == np.float32
+        assert len(audio) == pytest.approx(60 * 16000, rel=0.01)
