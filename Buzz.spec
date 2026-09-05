@@ -105,16 +105,18 @@ else:
 
 binaries.append(("buzz/whisper_cpp/*", "buzz/whisper_cpp"))
 
-# Bundle a standalone Python 3.12 interpreter for runtime pip installs (e.g. CUDA).
+# Bundle a standalone Python interpreter for runtime pip installs (e.g. CUDA).
 # We copy python.exe, DLLs, and the stdlib from the uv-managed base interpreter.
+# The version is derived from the build interpreter so it tracks requires-python.
 if platform.system() == "Windows":
     import sys as _sys
-    _base = _sys.base_prefix  # e.g. .../uv/python/cpython-3.12.12-windows-x86_64-none
+    _base = _sys.base_prefix  # e.g. .../uv/python/cpython-3.13.12-windows-x86_64-none
+    _py_dll = f"python{_sys.version_info.major}{_sys.version_info.minor}.dll"
     _py_dest = "python"
     if os.path.isfile(os.path.join(_base, "python.exe")):
         binaries.append((os.path.join(_base, "python.exe"), _py_dest))
         binaries.append((os.path.join(_base, "python3.dll"), _py_dest))
-        binaries.append((os.path.join(_base, "python312.dll"), _py_dest))
+        binaries.append((os.path.join(_base, _py_dll), _py_dest))
         for _vcrt in ("vcruntime140.dll", "vcruntime140_1.dll"):
             _vcrt_path = os.path.join(_base, _vcrt)
             if os.path.isfile(_vcrt_path):

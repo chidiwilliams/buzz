@@ -211,7 +211,10 @@ def _get_pip_cmd() -> list[str]:
     import shutil
 
     # Frozen PyInstaller bundle — sys.executable can't run -m pip.
-    # Use the bundled Python 3.12 interpreter shipped alongside the app.
+    # Use the bundled interpreter shipped alongside the app. Its version always
+    # matches the one Buzz was frozen with, so derive it rather than hardcoding:
+    # the CUDA wheels are ABI-specific and a mismatch installs unusable packages.
+    version = f"{sys.version_info.major}.{sys.version_info.minor}"
     if getattr(sys, "frozen", False):
         # PyInstaller extracts bundled data to sys._MEIPASS (_internal dir)
         internal_dir = Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent))
@@ -220,13 +223,13 @@ def _get_pip_cmd() -> list[str]:
         if bundled_python.is_file():
             return _ensure_pip(str(bundled_python))
         # Fallback: look in PATH
-        for candidate in ("python3.12", "python3", "python"):
+        for candidate in (f"python{version}", "python3", "python"):
             python = shutil.which(candidate)
             if python:
                 return _ensure_pip(python)
         raise RuntimeError(
             "Could not find a Python interpreter. "
-            "Please install Python 3.12 and try again."
+            f"Please install Python {version} and try again."
         )
 
     return _ensure_pip(sys.executable)

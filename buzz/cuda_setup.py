@@ -34,6 +34,43 @@ def _get_cuda_target_dir() -> Path | None:
     return None
 
 
+def _is_abi_compatible(cuda_target: Path) -> bool:
+    """Check that a torch in cuda_target was built for the running Python.
+
+    The CUDA packages are installed with a --target directory that survives app
+    upgrades. If Buzz later runs on a different Python version, the torch there
+    is built against the wrong C ABI and would shadow the bundled one, failing
+    the import with an undefined symbol error. Detect that and skip the dir.
+    """
+    torch_dir = cuda_target / "torch"
+    if not torch_dir.exists():
+        # Nothing that could shadow the bundled torch.
+        return True
+
+    ext_modules = list(torch_dir.glob("_C.cpython-*.so")) + list(
+        torch_dir.glob("_C.cp*-win*.pyd")
+    )
+    if not ext_modules:
+        # Can't tell (unexpected layout); leave the dir alone.
+        return True
+
+    expected = f"cpython-{sys.version_info.major}{sys.version_info.minor}"
+    expected_win = f"cp{sys.version_info.major}{sys.version_info.minor}"
+    for module in ext_modules:
+        if expected in module.name or expected_win in module.name:
+            return True
+
+    logger.warning(
+        "Ignoring CUDA packages in %s: torch there was built for a different "
+        "Python version (found %s, running %s). Reinstall CUDA support from "
+        "Help - About Buzz to use GPU acceleration.",
+        cuda_target,
+        ", ".join(sorted(m.name for m in ext_modules)),
+        expected,
+    )
+    return False
+
+
 def _get_site_packages_dirs() -> list[Path]:
     """Return all site-packages directories, including user site-packages."""
     site_packages_dirs = []
@@ -41,7 +78,7 @@ def _get_site_packages_dirs() -> list[Path]:
 
     # For snap/flatpak, packages are installed to an explicit --target directory
     cuda_target = _get_cuda_target_dir()
-    if cuda_target and cuda_target.exists():
+    if cuda_target and cuda_target.exists() and _is_abi_compatible(cuda_target):
         if str(cuda_target) not in sys.path:
             sys.path.insert(0, str(cuda_target))
         site_packages_dirs.append(cuda_target)
@@ -187,7 +224,11 @@ def _setup_linux_cuda():
 
     # Collect lib dirs from snap/flatpak cuda_packages OR regular site-packages
     cuda_target = _get_cuda_target_dir()
-    if cuda_target is not None and cuda_target.exists():
+    if (
+        cuda_target is not None
+        and cuda_target.exists()
+        and _is_abi_compatible(cuda_target)
+    ):
         extra_dirs = _collect_cuda_lib_dirs(cuda_target)
     else:
         extra_dirs = _collect_site_packages_cuda_lib_dirs()
