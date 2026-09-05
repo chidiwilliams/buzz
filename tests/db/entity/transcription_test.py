@@ -1,10 +1,30 @@
-import pytest
 from uuid import uuid4
 
 from buzz.db.entity.transcription import Transcription
+from buzz.transcriber.transcriber import FileTranscriptionTask, OutputFormat
 
 
 class TestTranscription:
+    def test_url_export_uses_safe_name_instead_of_internal_audio_name(
+        self, monkeypatch, tmp_path
+    ):
+        title = "中文 | test?."
+        transcription = Transcription(
+            file=str(tmp_path / "audio.wav"),
+            name=title,
+            source=FileTranscriptionTask.Source.URL_IMPORT.value,
+        )
+        monkeypatch.setattr(
+            "buzz.db.entity.transcription.Settings.get_default_export_file_template",
+            lambda _settings: "{{ input_file_name }}",
+        )
+
+        output_path = transcription.get_output_file_path(OutputFormat.SRT)
+
+        assert transcription.name == title
+        assert output_path != str(tmp_path / "audio.srt")
+        assert output_path == str(tmp_path / "中文 _ test_#.srt")
+
     def test_transcription_creation_with_name_and_notes(self):
         """Test creating a transcription with name and notes fields"""
         transcription = Transcription(
