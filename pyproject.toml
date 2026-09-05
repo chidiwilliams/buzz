@@ -30,15 +30,14 @@ dependencies = [
     "bitsandbytes>=0.45.0",
     "polib>=1.2.0,<2",
     "srt-equalizer>=0.1.10,<0.2",
-    # For ARM macOS (arm64) - use latest CPU-only versions from PyPI
-    "torch==2.8.0; sys_platform == 'darwin'",
-    "torchaudio==2.8.0; sys_platform == 'darwin'",
     "ctranslate2>=4.6.2,<5; sys_platform == 'darwin'",
-    # For Linux/Windows - use CUDA versions from the pytorch index
-    # (routed via tool.uv.sources below to ensure CUDA 12.9 compatibility)
-    "torch==2.8.0; sys_platform != 'darwin'",
-    "torchaudio==2.8.0; sys_platform != 'darwin'",
+    # For Linux/Windows - use CPU versions from pytorch index
     "ctranslate2>=4.6.2,<5; sys_platform != 'darwin'",
+    "torch==2.8.0+cpu; sys_platform != 'darwin'",
+    "torchaudio==2.8.0+cpu; sys_platform != 'darwin'",
+    # For ARM Mac - use regular PyPI torch
+    "torch==2.8.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "torchaudio==2.8.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
     # faster whisper need cudnn 9
     "nvidia-cudnn-cu12>=9,<10; sys_platform != 'darwin'",
     # CUDA runtime libraries are provided by torch dependencies, no need to specify explicitly
@@ -131,26 +130,15 @@ default-groups = [
 
 [tool.uv.sources]
 torch = [
-    { index = "PyPI", marker = "sys_platform == 'darwin'" },
-    { index = "pytorch-cu129", marker = "sys_platform != 'darwin'" },
+  { index = "pytorch-cpu", marker = "sys_platform != 'darwin'" },
 ]
 torchaudio = [
-    { index = "PyPI", marker = "sys_platform == 'darwin'" },
-    { index = "pytorch-cu129", marker = "sys_platform != 'darwin'" },
+  { index = "pytorch-cpu", marker = "sys_platform != 'darwin'" },
 ]
-
 [[tool.uv.index]]
-name = "nvidia"
-url = "https://pypi.nvidia.com/"
-
-[[tool.uv.index]]
-name = "pytorch-cu129"
-url = "https://download.pytorch.org/whl/cu129"
-
-[[tool.uv.index]]
-name = "PyPI"
-url = "https://pypi.org/simple/"
-default = true
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
 
 [tool.hatch.metadata]
 allow-direct-references = true

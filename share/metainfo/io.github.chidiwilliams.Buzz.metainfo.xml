@@ -73,6 +73,7 @@
           <li>Plugin system with plugins like AI summary generation and automated transcript resizing or noise filter</li>
           <li>Speaker identification improvements</li>
           <li>Appimage support for Linux</li>
+          <li>Minor fixes to model loading and initial prompt processing</li>
         </ul>
       </description>
     </release>

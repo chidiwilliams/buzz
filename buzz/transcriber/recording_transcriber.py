@@ -3,6 +3,7 @@ import logging
 import platform
 import os
 import sys
+import socket
 import wave
 import time
 import tempfile
@@ -16,6 +17,7 @@ from buzz import cuda_setup  # noqa: F401
 
 import torch
 import numpy as np
+from buzz.transcriber.cuda_device import cuda_works
 import sounddevice
 from sounddevice import PortAudioError
 from openai import OpenAI
@@ -78,6 +80,8 @@ class RecordingTranscriber(QObject):
         )
         self.process = None
         self._stderr_lines: list[bytes] = []
+        self.use_cuda = False
+        self._whisper_server_port: int = 3003
 
     def start(self):
         self.is_running = True
@@ -165,7 +169,8 @@ class RecordingTranscriber(QObject):
         model_path = self.model_path
 
         force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
-        use_cuda = torch.cuda.is_available() and force_cpu == "false"
+        use_cuda = cuda_works() and force_cpu == "false"
+        self.use_cuda = use_cuda
 
         if torch.cuda.is_available():
             logging.debug(f"CUDA version detected: {torch.version.cuda}")
@@ -191,12 +196,11 @@ class RecordingTranscriber(QObject):
             model_root_dir = os.getenv("BUZZ_MODEL_ROOT", model_root_dir)
 
             device = "auto"
-            if torch.cuda.is_available() and torch.version.cuda < "12":
-                logging.debug("Unsupported CUDA version (<12), using CPU")
+            if not cuda_works():
+                logging.debug("CUDA not available or not functional, using CPU")
                 device = "cpu"
-
-            if not torch.cuda.is_available():
-                logging.debug("CUDA is not available, using CPU")
+            elif torch.version.cuda < "12":
+                logging.debug("Unsupported CUDA version (<12), using CPU")
                 device = "cpu"
 
             if force_cpu != "false":
@@ -261,7 +265,7 @@ class RecordingTranscriber(QObject):
             initial_prompt=initial_prompt,
             temperature=DEFAULT_WHISPER_TEMPERATURE,
             no_speech_threshold=0.4,
-            fp16=False,
+            fp16=self.use_cuda,
         )
 
     def _transcribe_faster_whisper(self, samples, model, initial_prompt):
@@ -467,10 +471,15 @@ class RecordingTranscriber(QObject):
         if not os.path.exists(server_path):
             server_path = os.path.join(APP_BASE_DIR, "buzz", "whisper_cpp", server_executable)
 
+        # Pick a free port to avoid conflicts when multiple tests or instances run concurrently
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as _s:
+            _s.bind(('127.0.0.1', 0))
+            self._whisper_server_port = _s.getsockname()[1]
+
         cmd = [
             server_path,
             "--host", "0.0.0.0",
-            "--port", "3003",
+            "--port", str(self._whisper_server_port),
             "--inference-path", "/audio/transcriptions",
             "--threads", str(os.getenv("BUZZ_WHISPERCPP_N_THREADS", (os.cpu_count() or 8) // 2)),
             "--model", self.model_path,
@@ -549,7 +558,7 @@ class RecordingTranscriber(QObject):
 
         self.openai_client = OpenAI(
             api_key="not-used",
-            base_url="http://127.0.0.1:3003",
+            base_url=f"http://127.0.0.1:{self._whisper_server_port}",
             timeout=30.0,
             max_retries=0
         )
