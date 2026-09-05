@@ -24,8 +24,10 @@ logger = logging.getLogger(__name__)
 
 def _get_cuda_target_dir() -> Path | None:
     """Return the --target directory used during CUDA install for snap/flatpak, or None."""
+    # Must match is_snap() in buzz/cuda_manager.py: only Buzz's own snap, not
+    # any snap-packaged tool that happens to have launched us.
     snap_user_data = os.environ.get("SNAP_USER_DATA")
-    if snap_user_data:
+    if snap_user_data and os.environ.get("SNAP_NAME") == "buzz":
         return Path(snap_user_data) / "cuda_packages"
     flatpak_id = os.environ.get("FLATPAK_ID")
     if flatpak_id:
