@@ -46,9 +46,19 @@ CUDA_NVIDIA_PACKAGES_LINUX = [
 ]
 
 
+# The name of Buzz's own snap, as declared in snap/snapcraft.yaml.
+SNAP_NAME = "buzz"
+
+
 def is_snap() -> bool:
-    """Returns True if running inside a Snap package."""
-    return "SNAP" in os.environ
+    """Returns True if running inside Buzz's own Snap package.
+
+    Testing for SNAP alone is not enough: any snap-packaged tool that launches
+    Buzz (e.g. a snap-installed uv used during development) exports SNAP* into
+    the environment, which would send this multi-gigabyte CUDA install into an
+    unrelated snap's user data.
+    """
+    return os.environ.get("SNAP_NAME") == SNAP_NAME
 
 
 def is_flatpak() -> bool:
@@ -118,6 +128,23 @@ def _in_virtualenv() -> bool:
     return sys.prefix != sys.base_prefix or "VIRTUAL_ENV" in os.environ
 
 
+def _get_target_dir() -> Path | None:
+    """Return the explicit --target directory for CUDA packages, or None.
+
+    Snap and Flatpak get a dedicated writable directory; everything else
+    installs into the venv or user site-packages and has no target dir.
+    """
+    if is_snap():
+        snap_user_data = os.environ.get("SNAP_USER_DATA")
+        if snap_user_data:
+            return Path(snap_user_data) / "cuda_packages"
+        return Path.home() / ".local" / "share" / "buzz" / "cuda_packages"
+    if is_flatpak():
+        xdg_data = os.environ.get("XDG_DATA_HOME", str(Path.home() / ".local" / "share"))
+        return Path(xdg_data) / "buzz" / "cuda_packages"
+    return None
+
+
 def _get_install_target() -> list[str]:
     """Return pip target flags for the current environment.
 
@@ -126,22 +153,70 @@ def _get_install_target() -> list[str]:
     In a virtualenv --user is forbidden; packages go into the venv directly.
     Otherwise we use --user so packages land in ~/.local.
     """
-    if is_snap():
-        snap_user_data = os.environ.get("SNAP_USER_DATA")
-        if snap_user_data:
-            target = str(Path(snap_user_data) / "cuda_packages")
-        else:
-            target = str(Path.home() / ".local" / "share" / "buzz" / "cuda_packages")
-        Path(target).mkdir(parents=True, exist_ok=True)
-        return ["--target", target]
-    if is_flatpak():
-        xdg_data = os.environ.get("XDG_DATA_HOME", str(Path.home() / ".local" / "share"))
-        target = str(Path(xdg_data) / "buzz" / "cuda_packages")
-        Path(target).mkdir(parents=True, exist_ok=True)
-        return ["--target", target]
+    target = _get_target_dir()
+    if target is not None:
+        target.mkdir(parents=True, exist_ok=True)
+        return ["--target", str(target)]
     if _in_virtualenv():
         return []
     return ["--user"]
+
+
+def _find_stale_cuda_dirs(target: Path) -> list[Path]:
+    """Return existing cuda_packages dirs that a fresh install should replace.
+
+    Includes the current target (a previous or half-finished install) and, under
+    Snap, the same directory in other revisions: snapd copies $SNAP_USER_DATA
+    forward on every refresh, so each revision keeps its own multi-gigabyte
+    copy, and one built for an older Python is unusable after an upgrade.
+    """
+    stale: list[Path] = []
+    if target.is_dir():
+        stale.append(target)
+
+    if is_snap():
+        snap_user_data = os.environ.get("SNAP_USER_DATA")
+        if snap_user_data:
+            revisions_root = Path(snap_user_data).parent
+            try:
+                revisions = sorted(revisions_root.iterdir())
+            except OSError as exc:
+                logger.warning("Could not list snap revisions in %s: %s", revisions_root, exc)
+                revisions = []
+            for revision in revisions:
+                # 'current' is a symlink to the active revision — skip it so we
+                # never delete the same directory twice via two names.
+                if revision.is_symlink() or not revision.is_dir():
+                    continue
+                candidate = revision / "cuda_packages"
+                if candidate != target and candidate.is_dir():
+                    stale.append(candidate)
+
+    return stale
+
+
+def _cleanup_old_cuda_packages(target: Path, report=None) -> None:
+    """Delete previously installed CUDA packages before a fresh install.
+
+    Installing over an existing directory leaves files from the old install
+    behind, which is how an ABI-incompatible torch survives a Python upgrade
+    and shadows the bundled one (see buzz/cuda_setup.py).
+    """
+    import shutil
+
+    for stale in _find_stale_cuda_dirs(target):
+        message = f"Removing previous CUDA packages in {stale}..."
+        logger.info(message)
+        if report:
+            report(message)
+        try:
+            shutil.rmtree(stale)
+        except OSError as exc:
+            # Not fatal: pip will overwrite what it can, and cuda_setup skips
+            # the directory if what remains is incompatible.
+            logger.warning("Could not remove %s: %s", stale, exc)
+            if report:
+                report(f"Warning: could not remove {stale}: {exc}")
 
 
 def install_cuda(progress_callback=None):
@@ -155,6 +230,12 @@ def install_cuda(progress_callback=None):
         logger.info(msg)
         if progress_callback:
             progress_callback(msg)
+
+    target_dir = _get_target_dir()
+    if target_dir is not None:
+        # Only safe where we own the whole directory. A --user or venv install
+        # shares its site-packages with the rest of Buzz's dependencies.
+        _cleanup_old_cuda_packages(target_dir, report)
 
     target_flags = _get_install_target()
 

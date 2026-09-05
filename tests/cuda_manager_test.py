@@ -13,8 +13,11 @@ from buzz.cuda_manager import (
     is_nvidia_gpu_present,
     is_snap,
     should_offer_cuda_prompt,
+    _cleanup_old_cuda_packages,
+    _find_stale_cuda_dirs,
     _get_install_target,
     _get_pip_cmd,
+    _get_target_dir,
     _in_virtualenv,
     _pip_install,
     _subprocess_hide_window_kwargs,
@@ -25,11 +28,109 @@ from buzz.cuda_manager import (
 class TestIsSnap:
     def test_returns_true_when_snap_env_set(self, monkeypatch):
         monkeypatch.setenv("SNAP", "/snap/buzz/current")
+        monkeypatch.setenv("SNAP_NAME", "buzz")
         assert is_snap() is True
 
     def test_returns_false_when_snap_env_not_set(self, monkeypatch):
         monkeypatch.delenv("SNAP", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
         assert is_snap() is False
+
+
+    def test_returns_false_for_an_unrelated_snap(self, monkeypatch):
+        # A snap-packaged tool (e.g. snap-installed uv) launching Buzz exports
+        # SNAP*, but its user data is not ours to install into.
+        monkeypatch.setenv("SNAP", "/snap/astral-uv/1682")
+        monkeypatch.setenv("SNAP_NAME", "astral-uv")
+        assert is_snap() is False
+
+
+class TestFindStaleCudaDirs:
+    def test_includes_the_target_when_it_exists(self, tmp_path, monkeypatch):
+        monkeypatch.delenv("SNAP", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
+        target = tmp_path / "cuda_packages"
+        target.mkdir()
+        assert _find_stale_cuda_dirs(target) == [target]
+
+    def test_empty_when_nothing_installed(self, tmp_path, monkeypatch):
+        monkeypatch.delenv("SNAP", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
+        assert _find_stale_cuda_dirs(tmp_path / "cuda_packages") == []
+
+    def test_includes_other_snap_revisions(self, tmp_path, monkeypatch):
+        monkeypatch.setenv("SNAP", "/snap/buzz/current")
+        monkeypatch.setenv("SNAP_NAME", "buzz")
+        current = tmp_path / "1682"
+        old = tmp_path / "1662"
+        for revision in (current, old):
+            (revision / "cuda_packages").mkdir(parents=True)
+        monkeypatch.setenv("SNAP_USER_DATA", str(current))
+
+        stale = _find_stale_cuda_dirs(current / "cuda_packages")
+
+        assert set(stale) == {current / "cuda_packages", old / "cuda_packages"}
+
+    def test_skips_the_current_symlink(self, tmp_path, monkeypatch):
+        # ~/snap/<name>/current symlinks to the active revision; following it
+        # would list the same directory twice under two names.
+        monkeypatch.setenv("SNAP", "/snap/buzz/current")
+        monkeypatch.setenv("SNAP_NAME", "buzz")
+        revision = tmp_path / "1682"
+        (revision / "cuda_packages").mkdir(parents=True)
+        (tmp_path / "current").symlink_to(revision)
+        monkeypatch.setenv("SNAP_USER_DATA", str(revision))
+
+        assert _find_stale_cuda_dirs(revision / "cuda_packages") == [
+            revision / "cuda_packages"
+        ]
+
+
+class TestCleanupOldCudaPackages:
+    def test_removes_stale_directory(self, tmp_path, monkeypatch):
+        monkeypatch.delenv("SNAP", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
+        target = tmp_path / "cuda_packages"
+        (target / "torch").mkdir(parents=True)
+
+        _cleanup_old_cuda_packages(target)
+
+        assert not target.exists()
+
+    def test_reports_progress(self, tmp_path, monkeypatch):
+        monkeypatch.delenv("SNAP", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
+        target = tmp_path / "cuda_packages"
+        target.mkdir()
+        messages = []
+
+        _cleanup_old_cuda_packages(target, messages.append)
+
+        assert any("Removing previous CUDA packages" in m for m in messages)
+
+    def test_survives_removal_failure(self, tmp_path, monkeypatch):
+        monkeypatch.delenv("SNAP", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
+        target = tmp_path / "cuda_packages"
+        target.mkdir()
+
+        with patch("shutil.rmtree", side_effect=OSError("permission denied")):
+            _cleanup_old_cuda_packages(target)  # must not raise
+
+    def test_install_cleans_before_installing(self, tmp_path, monkeypatch):
+        monkeypatch.delenv("SNAP", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
+        monkeypatch.setenv("FLATPAK_ID", "io.github.chidiwilliams.buzz")
+        monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path))
+        stale_marker = tmp_path / "buzz" / "cuda_packages" / "torch" / "stale.txt"
+        stale_marker.parent.mkdir(parents=True)
+        stale_marker.write_text("old install")
+
+        with patch("buzz.cuda_manager._pip_install") as pip_install:
+            install_cuda()
+
+        assert not stale_marker.exists()
+        assert pip_install.called
 
 
 class TestIsFlatpak:
@@ -50,18 +151,21 @@ class TestShouldOfferCudaPrompt:
     def test_returns_true_on_linux_snap(self, monkeypatch):
         monkeypatch.setattr(sys, "platform", "linux")
         monkeypatch.setenv("SNAP", "/snap/buzz/current")
+        monkeypatch.setenv("SNAP_NAME", "buzz")
         monkeypatch.delenv("FLATPAK_ID", raising=False)
         assert should_offer_cuda_prompt() is True
 
     def test_returns_true_on_linux_flatpak(self, monkeypatch):
         monkeypatch.setattr(sys, "platform", "linux")
         monkeypatch.delenv("SNAP", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
         monkeypatch.setenv("FLATPAK_ID", "io.github.chidiwilliams.buzz")
         assert should_offer_cuda_prompt() is True
 
     def test_returns_false_on_linux_bare(self, monkeypatch):
         monkeypatch.setattr(sys, "platform", "linux")
         monkeypatch.delenv("SNAP", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
         monkeypatch.delenv("FLATPAK_ID", raising=False)
         assert should_offer_cuda_prompt() is False
 
@@ -148,6 +252,7 @@ class TestGetInstallTarget:
     def test_snap_uses_snap_user_data(self, monkeypatch, tmp_path):
         snap_dir = tmp_path / "snap_data"
         monkeypatch.setenv("SNAP", "/snap/buzz/current")
+        monkeypatch.setenv("SNAP_NAME", "buzz")
         monkeypatch.setenv("SNAP_USER_DATA", str(snap_dir))
         monkeypatch.delenv("FLATPAK_ID", raising=False)
         flags = _get_install_target()
@@ -157,6 +262,7 @@ class TestGetInstallTarget:
 
     def test_snap_falls_back_to_home_when_no_snap_user_data(self, monkeypatch):
         monkeypatch.setenv("SNAP", "/snap/buzz/current")
+        monkeypatch.setenv("SNAP_NAME", "buzz")
         monkeypatch.delenv("SNAP_USER_DATA", raising=False)
         monkeypatch.delenv("FLATPAK_ID", raising=False)
         with patch("pathlib.Path.mkdir"):
@@ -166,6 +272,7 @@ class TestGetInstallTarget:
 
     def test_flatpak_uses_xdg_data_home(self, monkeypatch, tmp_path):
         monkeypatch.delenv("SNAP", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
         monkeypatch.setenv("FLATPAK_ID", "io.github.chidiwilliams.buzz")
         monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path))
         with patch("pathlib.Path.mkdir"):
@@ -176,12 +283,14 @@ class TestGetInstallTarget:
 
     def test_virtualenv_returns_empty(self, monkeypatch):
         monkeypatch.delenv("SNAP", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
         monkeypatch.delenv("FLATPAK_ID", raising=False)
         monkeypatch.setenv("VIRTUAL_ENV", "/some/venv")
         assert _get_install_target() == []
 
     def test_bare_returns_user_flag(self, monkeypatch):
         monkeypatch.delenv("SNAP", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
         monkeypatch.delenv("FLATPAK_ID", raising=False)
         monkeypatch.delenv("VIRTUAL_ENV", raising=False)
         with patch.object(sys, "prefix", sys.base_prefix):
@@ -277,6 +386,7 @@ class TestPipInstall:
 class TestInstallCuda:
     def test_calls_pip_install_twice(self, monkeypatch):
         monkeypatch.delenv("SNAP", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
         monkeypatch.delenv("FLATPAK_ID", raising=False)
         monkeypatch.setenv("VIRTUAL_ENV", "/some/venv")
 
@@ -287,6 +397,7 @@ class TestInstallCuda:
 
     def test_passes_progress_callback(self, monkeypatch):
         monkeypatch.delenv("SNAP", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
         monkeypatch.delenv("FLATPAK_ID", raising=False)
         monkeypatch.setenv("VIRTUAL_ENV", "/some/venv")
 
@@ -300,6 +411,7 @@ class TestInstallCuda:
     def test_linux_excludes_linux_only_packages_on_windows(self, monkeypatch):
         monkeypatch.setattr(sys, "platform", "win32")
         monkeypatch.delenv("SNAP", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
         monkeypatch.delenv("FLATPAK_ID", raising=False)
 
         captured = []

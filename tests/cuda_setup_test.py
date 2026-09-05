@@ -5,13 +5,24 @@ from unittest.mock import patch
 class TestGetCudaTargetDir:
     def test_returns_snap_path(self, monkeypatch, tmp_path):
         monkeypatch.setenv("SNAP_USER_DATA", str(tmp_path))
+        monkeypatch.setenv("SNAP_NAME", "buzz")
         monkeypatch.delenv("FLATPAK_ID", raising=False)
         from buzz.cuda_setup import _get_cuda_target_dir
         result = _get_cuda_target_dir()
         assert result == tmp_path / "cuda_packages"
 
+    def test_ignores_an_unrelated_snap(self, monkeypatch, tmp_path):
+        # A snap-packaged tool launching Buzz exports SNAP_USER_DATA pointing at
+        # its own directory; must agree with is_snap() in buzz/cuda_manager.py.
+        monkeypatch.setenv("SNAP_USER_DATA", str(tmp_path))
+        monkeypatch.setenv("SNAP_NAME", "astral-uv")
+        monkeypatch.delenv("FLATPAK_ID", raising=False)
+        from buzz.cuda_setup import _get_cuda_target_dir
+        assert _get_cuda_target_dir() is None
+
     def test_returns_flatpak_path(self, monkeypatch, tmp_path):
         monkeypatch.delenv("SNAP_USER_DATA", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
         monkeypatch.setenv("FLATPAK_ID", "io.github.chidiwilliams.buzz")
         monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path))
         from buzz.cuda_setup import _get_cuda_target_dir
@@ -20,6 +31,7 @@ class TestGetCudaTargetDir:
 
     def test_returns_none_when_no_env(self, monkeypatch):
         monkeypatch.delenv("SNAP_USER_DATA", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
         monkeypatch.delenv("FLATPAK_ID", raising=False)
         from buzz.cuda_setup import _get_cuda_target_dir
         result = _get_cuda_target_dir()
@@ -27,6 +39,7 @@ class TestGetCudaTargetDir:
 
     def test_flatpak_falls_back_to_home(self, monkeypatch):
         monkeypatch.delenv("SNAP_USER_DATA", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
         monkeypatch.setenv("FLATPAK_ID", "io.github.chidiwilliams.buzz")
         monkeypatch.delenv("XDG_DATA_HOME", raising=False)
         from buzz.cuda_setup import _get_cuda_target_dir
@@ -40,6 +53,7 @@ class TestGetSitePackagesDirs:
         cuda_target = tmp_path / "cuda_packages"
         cuda_target.mkdir()
         monkeypatch.setenv("SNAP_USER_DATA", str(tmp_path))
+        monkeypatch.setenv("SNAP_NAME", "buzz")
         monkeypatch.delenv("FLATPAK_ID", raising=False)
 
         from buzz.cuda_setup import _get_site_packages_dirs
@@ -50,6 +64,7 @@ class TestGetSitePackagesDirs:
 
     def test_returns_list_including_existing_site_packages(self, monkeypatch):
         monkeypatch.delenv("SNAP_USER_DATA", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
         monkeypatch.delenv("FLATPAK_ID", raising=False)
 
         from buzz.cuda_setup import _get_site_packages_dirs
@@ -87,6 +102,7 @@ class TestGetNvidiaPackageLibDirs:
         nvidia_lib.mkdir(parents=True)
 
         monkeypatch.delenv("SNAP_USER_DATA", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
         monkeypatch.delenv("FLATPAK_ID", raising=False)
 
         with patch("buzz.cuda_setup._get_site_packages_dirs", return_value=[sp]):
@@ -101,6 +117,7 @@ class TestGetNvidiaPackageLibDirs:
         torch_lib.mkdir(parents=True)
 
         monkeypatch.delenv("SNAP_USER_DATA", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
         monkeypatch.delenv("FLATPAK_ID", raising=False)
 
         with patch("buzz.cuda_setup._get_site_packages_dirs", return_value=[sp]):
@@ -113,6 +130,7 @@ class TestGetNvidiaPackageLibDirs:
 class TestSetupLinuxCuda:
     def test_skips_when_no_cuda_target(self, monkeypatch):
         monkeypatch.delenv("SNAP_USER_DATA", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
         monkeypatch.delenv("FLATPAK_ID", raising=False)
         monkeypatch.delenv("BUZZ_CUDA_SETUP_DONE", raising=False)
 
