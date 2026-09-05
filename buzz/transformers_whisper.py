@@ -15,6 +15,7 @@ from transformers.pipelines import AutomaticSpeechRecognitionPipeline
 from transformers.pipelines.audio_utils import ffmpeg_read
 from transformers.pipelines.automatic_speech_recognition import is_torchaudio_available
 
+from buzz import whisper_audio
 from buzz.model_loader import (
     is_mms_model,
     is_parakeet_model,
@@ -22,6 +23,21 @@ from buzz.model_loader import (
     is_qwen_asr_model,
     map_language_to_mms,
 )
+
+
+def load_audio_input(audio: Union[str, np.ndarray], sampling_rate: int) -> np.ndarray:
+    """Decode an audio/video file into a mono float32 array at `sampling_rate`.
+
+    transformers' `ffmpeg_read` pipes the whole file to ffmpeg over stdin, which
+    ffmpeg cannot seek. MP4/M4A files that keep their `moov` atom at the end of
+    the file (anything not written with `-movflags +faststart`) are therefore
+    rejected as "not in the correct format or is malformed", even though they are
+    valid. Decoding from the file path instead lets ffmpeg seek and handles them.
+    """
+    if not isinstance(audio, str):
+        return audio
+
+    return whisper_audio.load_audio(audio, sampling_rate)
 
 
 def is_intel_mac() -> bool:
@@ -75,8 +91,9 @@ class PipelineWithProgress(AutomaticSpeechRecognitionPipeline):  # pragma: no co
             if inputs.startswith("http://") or inputs.startswith("https://"):
                 inputs = requests.get(inputs).content
             else:
-                with open(inputs, "rb") as f:
-                    inputs = f.read()
+                # Decode from the path, not from bytes over stdin, so that
+                # non-faststart MP4/M4A files load. See `load_audio_input`.
+                return load_audio_input(inputs, self.feature_extractor.sampling_rate)
 
         if isinstance(inputs, bytes):
             inputs = ffmpeg_read(inputs, self.feature_extractor.sampling_rate)
@@ -506,7 +523,6 @@ class TransformersTranscriber:
             AutoModelForRNNT,
             AutoModelForTDT,
         )
-        from transformers.pipelines.audio_utils import ffmpeg_read as pk_ffmpeg_read
 
         force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
         use_cuda = torch.cuda.is_available() and force_cpu == "false"
@@ -530,12 +546,7 @@ class TransformersTranscriber:
         sampling_rate = processor.feature_extractor.sampling_rate
 
         # Load audio into a mono float32 array at the model's sampling rate
-        if isinstance(audio, str):
-            with open(audio, "rb") as f:
-                audio_bytes = f.read()
-            audio_array = pk_ffmpeg_read(audio_bytes, sampling_rate)
-        else:
-            audio_array = audio
+        audio_array = load_audio_input(audio, sampling_rate)
 
         pipe = pipeline(
             task="automatic-speech-recognition",
@@ -599,7 +610,6 @@ class TransformersTranscriber:
         the audio ourselves.
         """
         from transformers import VibeVoiceAsrForConditionalGeneration
-        from transformers.pipelines.audio_utils import ffmpeg_read as vv_ffmpeg_read
 
         force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
         use_cuda = torch.cuda.is_available() and force_cpu == "false"
@@ -627,12 +637,7 @@ class TransformersTranscriber:
         # transformers' load_audio(), which imports torchcodec and can hard-crash
         # (std::bad_alloc / SIGABRT) on some systems. Passing a numpy array skips
         # that path entirely.
-        if isinstance(audio, str):
-            with open(audio, "rb") as f:
-                audio_bytes = f.read()
-            audio_array = vv_ffmpeg_read(audio_bytes, sampling_rate)
-        else:
-            audio_array = audio
+        audio_array = load_audio_input(audio, sampling_rate)
 
         # An optional prompt provides extra context for proper nouns.
         inputs = processor.apply_transcription_request(
@@ -697,7 +702,6 @@ class TransformersTranscriber:
         longer files and to report progress.
         """
         from transformers import AutoModelForMultimodalLM
-        from transformers.pipelines.audio_utils import ffmpeg_read as qw_ffmpeg_read
 
         force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
         use_cuda = torch.cuda.is_available() and force_cpu == "false"
@@ -733,12 +737,7 @@ class TransformersTranscriber:
         # Load audio into a mono float32 array with ffmpeg. The processor accepts
         # numpy arrays directly, which also avoids the torchcodec-based load_audio()
         # path that can crash on some systems.
-        if isinstance(audio, str):
-            with open(audio, "rb") as f:
-                audio_bytes = f.read()
-            audio_array = qw_ffmpeg_read(audio_bytes, sampling_rate)
-        else:
-            audio_array = audio
+        audio_array = load_audio_input(audio, sampling_rate)
 
         chunk_seconds = 30
         chunk_size = int(chunk_seconds * sampling_rate)
@@ -792,7 +791,6 @@ class TransformersTranscriber:
     ):
         """Transcribe using MMS (Massively Multilingual Speech) model."""
         from transformers import Wav2Vec2ForCTC, AutoProcessor as MMSAutoProcessor
-        from transformers.pipelines.audio_utils import ffmpeg_read as mms_ffmpeg_read
 
         force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
         use_cuda = torch.cuda.is_available() and force_cpu == "false"
@@ -826,12 +824,9 @@ class TransformersTranscriber:
         sys.stderr.write("25%\n")
 
         # Load and process audio
-        if isinstance(audio, str):
-            with open(audio, "rb") as f:
-                audio_data = f.read()
-            audio_array = mms_ffmpeg_read(audio_data, processor.feature_extractor.sampling_rate)
-        else:
-            audio_array = audio
+        audio_array = load_audio_input(
+            audio, processor.feature_extractor.sampling_rate
+        )
 
         # Ensure audio is the right sample rate
         sampling_rate = processor.feature_extractor.sampling_rate
