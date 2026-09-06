@@ -250,7 +250,10 @@ class FileTranscriberQueueWorker(QObject):
 
     def _create_transcriber(self):
         model_type = self.current.task.transcription_options.model.model_type
-        if model_type == ModelType.OPEN_AI_WHISPER_API:
+        if model_type in (
+            ModelType.OPEN_AI_WHISPER_API,
+            ModelType.FUNASR_API,
+        ):
             self.current.transcriber = OpenAIWhisperAPIFileTranscriber(
                 task=self.current.task
             )

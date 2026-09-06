@@ -16,8 +16,8 @@ Options:
   -t, --task <task>              The task to perform. Allowed: translate,
                                  transcribe. Default: transcribe.
   -m, --model-type <model-type>  Model type. Allowed: whisper, whispercpp,
-                                 huggingface, fasterwhisper, openaiapi. Default:
-                                 whisper.
+                                 huggingface, fasterwhisper, openaiapi,
+                                 funasrapi. Default: whisper.
   -s, --model-size <model-size>  Model size. Use only when --model-type is
                                  whisper, whispercpp, or fasterwhisper. Allowed:
                                  tiny, base, small, medium, large. Default:
@@ -85,4 +85,13 @@ buzz add --task translate --language fr --model-type openaiapi /Users/user/Downl
 
 # Transcribe an MP4 using Whisper.cpp "small" model and immediately export to SRT and VTT files
 buzz add --task transcribe --model-type whispercpp --model-size small --prompt "My initial prompt" --srt --vtt /Users/user/Downloads/buzz/1b3b03e4-8db5-ea2c-ace5-b71ff32e3304.mp4
+
+# Transcribe with a separately running FunASR/SenseVoice server
+funasr-server --model sensevoice --device cuda
+buzz add --model-type funasrapi --txt /Users/user/Downloads/meeting.wav
 ```
+
+`funasrapi` uses `http://localhost:8000/v1` and `sensevoice` by default.
+Configure another endpoint with `BUZZ_FUNASR_BASE_URL`,
+`BUZZ_FUNASR_MODEL`, and optionally `BUZZ_FUNASR_API_KEY`. This model type
+is transcription-only and does not require `--openai-token`.
