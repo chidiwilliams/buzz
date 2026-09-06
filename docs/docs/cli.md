@@ -60,8 +60,8 @@ Options:
                                  (Yiddish), yo (Yoruba), zh (Chinese). Leave
                                  empty to detect language.
   -p, --prompt <prompt>          Initial prompt.
-  -w, --word-timestamps          Generate word-level timestamps. (available since 1.2.0)
-  -e, --extract-speech           Extract speech from audio before transcribing. (available since 1.3.0)
+  -w, --word-timestamps          Generate word-level timestamps.
+  -e, --extract-speech           Extract speech from audio before transcribing.
   --openai-token <token>         OpenAI access token. Use only when
                                  --model-type is openaiapi. Defaults to your
                                  previously saved access token, if one exists.
@@ -71,13 +71,13 @@ Options:
   --srt                          Output result in an SRT file.
   --vtt                          Output result in a VTT file.
   --txt                          Output result in a TXT file.
-  --hide-gui                     Hide the main application window. (available since 1.2.0)
+  --hide-gui                     Hide the main application window.
   -h, --help                     Displays help on commandline options.
   --help-all                     Displays help including Qt specific options.
   -v, --version                  Displays version information.
 
 Arguments:
-  files or urls                  Input file paths or urls. Url import availalbe since 1.2.0.
+  files or urls                  Input file paths or urls.
 ```
 
 **Examples**:

@@ -41,7 +41,7 @@ In addition to choosing an appropriate model size you also can choose whisper ty
 - **Whisper.cpp** is optimized C++ implementation, it quite fast and efficient and will use any brand of GPU. Whisper.cpp is capable of running real time transcription even on a modern laptop with integrated GPU. It can also run on CPU only. Use this option if you do not have Nvidia GPU. This is best option to us on Macs.
 - **HuggingFace** option is a `Transformers` implementation and is good in that it supports wide range of custom models that may be optimized for a particular language. 
   - Since version `1.4.0` This option also supports [MMS](https://ai.meta.com/blog/multilingual-model-speech-recognition/) family of models from Meta AI that support over 1000 of worlds languages as well as [PEFT](https://github.com/huggingface/peft) adjustments to Whisper models.
-  - Since version `1.5.0` [Parakeet](https://huggingface.co/models?sort=trending&search=parakeet), [Qwen3-ASR](https://huggingface.co/models?sort=trending&search=qwen+asr+hf) and [VibeVoice ASR](https://huggingface.co/models?sort=trending&search=vibevoice+hf+) models are also supported.
+  - Since version `1.4.5` [Parakeet](https://huggingface.co/models?sort=trending&search=parakeet), [Qwen3-ASR](https://huggingface.co/models?sort=trending&search=qwen+asr+hf) and [VibeVoice ASR](https://huggingface.co/models?sort=trending&search=vibevoice+hf+) models are also supported.
 
 Models with `.En` in their names are for English and will not work for other languages. 
 
