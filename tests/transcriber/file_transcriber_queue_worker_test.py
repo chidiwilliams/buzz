@@ -1,12 +1,17 @@
 import pytest
+import subprocess
 import unittest.mock
 import uuid
 from PyQt6.QtCore import QCoreApplication, QThread
-from buzz.file_transcriber_queue_worker import FileTranscriberQueueWorker
+from buzz.file_transcriber_queue_worker import (
+    FileTranscriberQueueWorker,
+    _probe_audio,
+    _speech_extraction_worker,
+)
 from buzz.model_loader import ModelType, TranscriptionModel, WhisperModelSize
 from buzz.transcriber.transcriber import FileTranscriptionTask, TranscriptionOptions, FileTranscriptionOptions, Segment
 from buzz.transcriber.whisper_file_transcriber import WhisperFileTranscriber
-from tests.audio import test_multibyte_utf8_audio_path
+from tests.audio import test_audio_path, test_multibyte_utf8_audio_path
 import time
 
 
@@ -561,3 +566,134 @@ def test_transcription_with_whisper_cpp_tiny_with_speech_extraction(worker):
         assert args[0] == task
         assert len(args[1]) > 0
         assert args[1][0]["text"] == "Test transcription with speech extraction."
+
+
+class _FakeSeparator:
+    """Stand-in for demucs that echoes its input back as the vocals stem."""
+
+    samplerate = 44100
+    audio_channels = 2
+
+    def __init__(self, device=None, progress=False, callback=None):
+        self.callback = callback
+        self.window_lengths = []
+
+    def separate_tensor(self, wav, sr):
+        self.window_lengths.append(wav.shape[1])
+        if self.callback is not None:
+            self.callback({"segment_offset": 0, "audio_length": wav.shape[1]})
+        return wav, {"vocals": wav}
+
+
+class TestSpeechExtractionWorker:
+    @pytest.fixture
+    def fake_separator(self):
+        separators = []
+
+        def make(**kwargs):
+            separator = _FakeSeparator(**kwargs)
+            separators.append(separator)
+            return separator
+
+        with unittest.mock.patch(
+            "buzz.file_transcriber_queue_worker.demucsApi.Separator", side_effect=make
+        ):
+            yield separators
+
+    @staticmethod
+    def _run(file_path, speech_path):
+        conn = unittest.mock.Mock()
+        messages = []
+        conn.send.side_effect = messages.append
+        _speech_extraction_worker(conn, str(file_path), str(speech_path), "cpu")
+        return messages
+
+    @staticmethod
+    def _duration(file_path):
+        return _probe_audio(str(file_path))[1]
+
+    def test_extracts_whole_file_in_bounded_windows(
+        self, fake_separator, tmp_path, monkeypatch
+    ):
+        # A window shorter than the test audio, so several windows are needed.
+        monkeypatch.setattr(
+            "buzz.file_transcriber_queue_worker._EXTRACTION_WINDOW_SECONDS", 2
+        )
+        monkeypatch.setattr(
+            "buzz.file_transcriber_queue_worker._EXTRACTION_CONTEXT_SECONDS", 1
+        )
+        speech_path = tmp_path / "speech.mp3"
+
+        messages = self._run(test_audio_path, speech_path)
+
+        assert ("done", None) in messages
+        assert speech_path.exists()
+        # Separation never sees more than one window plus its context, however
+        # long the file is.
+        separator = fake_separator[0]
+        assert len(separator.window_lengths) > 1
+        assert max(separator.window_lengths) <= 4 * separator.samplerate
+        # The whole file still made it into the output.
+        assert self._duration(speech_path) == pytest.approx(
+            self._duration(test_audio_path), abs=0.5
+        )
+
+    def test_single_window_covers_short_file(self, fake_separator, tmp_path):
+        speech_path = tmp_path / "speech.mp3"
+
+        messages = self._run(test_audio_path, speech_path)
+
+        assert ("done", None) in messages
+        assert len(fake_separator[0].window_lengths) == 1
+        assert self._duration(speech_path) == pytest.approx(
+            self._duration(test_audio_path), abs=0.5
+        )
+
+    def test_progress_is_reported_against_the_whole_file(
+        self, fake_separator, tmp_path, monkeypatch
+    ):
+        monkeypatch.setattr(
+            "buzz.file_transcriber_queue_worker._EXTRACTION_WINDOW_SECONDS", 2
+        )
+        monkeypatch.setattr(
+            "buzz.file_transcriber_queue_worker._EXTRACTION_CONTEXT_SECONDS", 1
+        )
+
+        messages = self._run(test_audio_path, tmp_path / "speech.mp3")
+
+        progress = [message for message in messages if message[0] == "progress"]
+        assert len(progress) > 1
+        offsets = [message[1] for message in progress]
+        # Offsets advance through the file rather than restarting per window.
+        assert offsets == sorted(offsets)
+        assert offsets[-1] > offsets[0]
+        total_frames = progress[0][2]
+        assert total_frames == pytest.approx(
+            self._duration(test_audio_path) * 44100, rel=0.01
+        )
+        assert offsets[-1] <= total_frames
+
+    def test_video_without_audio_reports_no_audio(self, fake_separator, tmp_path):
+        video_path = tmp_path / "silent.mp4"
+        subprocess.run(
+            ["ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi",
+             "-i", "color=c=black:s=64x64:d=1", str(video_path)],
+            check=True,
+        )
+        speech_path = tmp_path / "speech.mp3"
+
+        messages = self._run(video_path, speech_path)
+
+        assert messages[0][0] == "no_audio"
+        assert not speech_path.exists()
+
+    def test_unreadable_file_reports_error(self, fake_separator, tmp_path):
+        broken_path = tmp_path / "broken.mp3"
+        broken_path.write_bytes(b"not audio")
+        speech_path = tmp_path / "speech.mp3"
+
+        messages = self._run(broken_path, speech_path)
+
+        assert messages[0][0] == "error"
+        # No half-written file is left behind for the transcriber to pick up.
+        assert not speech_path.exists()

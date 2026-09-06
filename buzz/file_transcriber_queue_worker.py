@@ -1,14 +1,19 @@
+import json
 import logging
 import multiprocessing
 import os
 import queue
 import ssl
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import Optional, Tuple, List, Set
 from uuid import UUID, uuid4
 from dataclasses import dataclass
 
+from buzz.ffmpeg_utils import find_ffmpeg, find_ffprobe
+from buzz.pip_utils import subprocess_hide_window_kwargs
 from buzz.sleep_inhibitor import TaskActivity
 
 # Fix SSL certificate verification for bundled applications (macOS, Windows)
@@ -27,7 +32,6 @@ from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot, Qt
 
 # Patch subprocess for demucs to prevent console windows on Windows
 if sys.platform == "win32":
-    import subprocess
     _original_run = subprocess.run
     _original_check_output = subprocess.check_output
 
@@ -59,38 +63,256 @@ from demucs import api as demucsApi
 from buzz.locale import _
 
 
+# Speech extraction runs over the whole file in fixed-length windows. Demucs
+# keeps the input and all four separated stems in memory, so separating a whole
+# file at once costs about 20x the decoded audio size (~9 GB per hour of audio)
+# and grows without bound with file length. Windowing keeps it flat.
+_EXTRACTION_WINDOW_SECONDS = 300
+# Each window is separated with this much of the neighbouring audio on either
+# side, and that context is trimmed off before writing, so window boundaries
+# don't show up as seams in the extracted speech.
+_EXTRACTION_CONTEXT_SECONDS = 10
+
+
+def _probe_audio(file_path: str) -> Tuple[bool, float]:
+    """Return whether the file has an audio stream and its duration in seconds."""
+    result = subprocess.run(
+        [
+            find_ffprobe(),
+            "-v", "quiet",
+            "-print_format", "json",
+            "-show_streams",
+            "-show_format",
+            file_path,
+        ],
+        capture_output=True,
+        **subprocess_hide_window_kwargs(),
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"ffprobe failed: {result.stderr.decode('utf-8', errors='replace').strip()}"
+        )
+
+    probe = json.loads(result.stdout or b"{}")
+    audio_streams = [
+        stream
+        for stream in probe.get("streams", [])
+        if stream.get("codec_type") == "audio"
+    ]
+    if not audio_streams:
+        return False, 0.0
+
+    for source in (audio_streams[0], probe.get("format", {})):
+        try:
+            duration = float(source.get("duration"))
+        except (TypeError, ValueError):
+            continue
+        if duration > 0:
+            return True, duration
+
+    return True, 0.0
+
+
+def _start_audio_decoder(file_path: str, samplerate: int, channels: int, stderr):
+    """Decode the file to raw float32 samples streamed on stdout."""
+    return subprocess.Popen(
+        [
+            find_ffmpeg(),
+            "-nostdin",
+            "-i", file_path,
+            "-vn",
+            "-f", "f32le",
+            "-acodec", "pcm_f32le",
+            "-ac", str(channels),
+            "-ar", str(samplerate),
+            "-loglevel", "error",
+            "-",
+        ],
+        stdout=subprocess.PIPE,
+        stderr=stderr,
+        **subprocess_hide_window_kwargs(),
+    )
+
+
+def _start_audio_encoder(speech_path: str, samplerate: int, channels: int, stderr):
+    """Encode raw float32 samples read from stdin into ``speech_path``."""
+    return subprocess.Popen(
+        [
+            find_ffmpeg(),
+            "-nostdin",
+            "-y",
+            "-f", "f32le",
+            "-ar", str(samplerate),
+            "-ac", str(channels),
+            "-i", "-",
+            "-b:a", "320k",
+            "-loglevel", "error",
+            speech_path,
+        ],
+        stdin=subprocess.PIPE,
+        stderr=stderr,
+        **subprocess_hide_window_kwargs(),
+    )
+
+
+def _read_log(log_file) -> str:
+    """Read back what ffmpeg wrote to its stderr file."""
+    try:
+        log_file.seek(0)
+        return log_file.read().decode("utf-8", errors="replace").strip()
+    except OSError:
+        return ""
+
+
+def _read_frames(stream, frames: int, channels: int):
+    """Read up to ``frames`` frames of float32 audio as a ``(channels, n)`` array."""
+    import numpy as np
+
+    data = stream.read(frames * channels * 4)
+    if not data:
+        return np.zeros((channels, 0), dtype=np.float32)
+    # A truncated final read would misalign the channel interleaving.
+    usable = len(data) - (len(data) % (channels * 4))
+    samples = np.frombuffer(data[:usable], dtype=np.float32)
+    return samples.reshape(-1, channels).T.copy()
+
+
+def _remove_partial_speech_file(speech_path: str) -> None:
+    """Drop a half-written speech file so nothing downstream picks it up."""
+    try:
+        os.remove(speech_path)
+    except OSError:
+        pass
+
+
+def _extract_speech_streaming(conn, file_path: str, speech_path: str, device: str) -> None:
+    """Separate vocals window by window, writing them out as we go."""
+    import numpy as np
+    import torch
+
+    has_audio, duration = _probe_audio(file_path)
+    if not has_audio:
+        conn.send(("no_audio", file_path))
+        return
+
+    # Window start offset of the separation currently running, so the demucs
+    # per-segment callback can be reported as a position in the whole file.
+    window_offset = 0
+
+    def callback(progress):
+        try:
+            conn.send(
+                (
+                    "progress",
+                    window_offset + progress["segment_offset"],
+                    total_frames,
+                )
+            )
+        except Exception:
+            pass
+
+    separator = demucsApi.Separator(
+        device=device,
+        progress=False,
+        callback=callback,
+    )
+    samplerate = separator.samplerate
+    channels = separator.audio_channels
+    total_frames = int(duration * samplerate)
+
+    window_frames = _EXTRACTION_WINDOW_SECONDS * samplerate
+    context_frames = _EXTRACTION_CONTEXT_SECONDS * samplerate
+
+    # ffmpeg's stderr goes to temporary files rather than pipes; nothing reads
+    # the pipes while separation runs, and a chatty decode could fill them and
+    # deadlock ffmpeg.
+    decoder_log = tempfile.TemporaryFile()
+    encoder_log = tempfile.TemporaryFile()
+    decoder = _start_audio_decoder(file_path, samplerate, channels, decoder_log)
+    encoder = _start_audio_encoder(speech_path, samplerate, channels, encoder_log)
+    wrote_any = False
+
+    try:
+        buffer = np.zeros((channels, 0), dtype=np.float32)
+        buffer_start = 0  # frame offset of buffer[0] in the whole file
+        written = 0  # frames already handed to the encoder
+        at_end = False
+
+        while not at_end:
+            chunk = _read_frames(decoder.stdout, window_frames, channels)
+            at_end = chunk.shape[1] == 0
+            buffer = np.concatenate((buffer, chunk), axis=1)
+            buffer_end = buffer_start + buffer.shape[1]
+
+            # Everything but the last window keeps its trailing context back so
+            # the next window can separate it with audio on both sides.
+            write_end = buffer_end if at_end else buffer_end - context_frames
+            if write_end <= written:
+                continue
+
+            window_offset = buffer_start
+            _origin, separated = separator.separate_tensor(
+                torch.from_numpy(buffer.copy()), samplerate
+            )
+            vocals = separated["vocals"]
+            del separated, _origin
+
+            segment = vocals[:, written - buffer_start: write_end - buffer_start]
+            segment = segment.clamp(-1.0, 1.0).t().contiguous().numpy()
+            encoder.stdin.write(segment.astype(np.float32).tobytes())
+            wrote_any = wrote_any or segment.shape[0] > 0
+            written = write_end
+            del vocals, segment
+
+            keep_from = max(buffer_start, written - context_frames)
+            buffer = buffer[:, keep_from - buffer_start:].copy()
+            buffer_start = keep_from
+
+        decoder.stdout.close()
+        decoder_error = _read_log(decoder_log)
+        if decoder.wait() != 0:
+            raise RuntimeError(f"ffmpeg failed to decode audio: {decoder_error}")
+    finally:
+        if decoder.poll() is None:
+            decoder.kill()
+        try:
+            encoder.stdin.close()
+        except OSError:
+            pass
+        encoder_error = _read_log(encoder_log)
+        encoder_returncode = encoder.wait()
+        decoder_log.close()
+        encoder_log.close()
+
+    if not wrote_any:
+        # The container advertised an audio stream but decoded to nothing.
+        _remove_partial_speech_file(speech_path)
+        conn.send(("no_audio", file_path))
+        return
+
+    if encoder_returncode != 0:
+        _remove_partial_speech_file(speech_path)
+        raise RuntimeError(f"ffmpeg failed to write extracted speech: {encoder_error}")
+
+    conn.send(("done", None))
+
+
 def _speech_extraction_worker(conn, file_path: str, speech_path: str, device: str) -> None:
     """Extract speech with demucs in a dedicated process.
     """
     try:
-        def callback(progress):
-            try:
-                conn.send(
-                    ("progress", progress["segment_offset"], progress["audio_length"])
-                )
-            except Exception:
-                pass
-
-        separator = demucsApi.Separator(
-            device=device,
-            progress=True,
-            callback=callback,
-        )
-        _origin, separated = separator.separate_audio_file(Path(file_path))
-        demucsApi.save_audio(separated["vocals"], speech_path, separator.samplerate)
-        conn.send(("done", None))
-    except IndexError as e:
-        # File has no audio stream (e.g. a silent video). Signal the parent to
-        # skip speech extraction and transcribe the original file as-is.
-        conn.send(("no_audio", str(e)))
+        _extract_speech_streaming(conn, file_path, speech_path, device)
     except Exception as e:
         logging.error(f"Error during speech extraction: {e}", exc_info=True)
+        _remove_partial_speech_file(speech_path)
         conn.send(("error", str(e)))
     finally:
         try:
             conn.close()
         except Exception:
             pass
+
+
 from buzz.model_loader import ModelType
 from buzz.transcriber.file_transcriber import FileTranscriber
 from buzz.transcriber.openai_whisper_api_file_transcriber import (

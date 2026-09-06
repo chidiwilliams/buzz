@@ -1,7 +1,6 @@
 import logging
 import os
 import subprocess
-import sys
 import tempfile
 import threading
 import wave
@@ -10,21 +9,11 @@ from typing import Optional
 import numpy as np
 import sounddevice as sd
 
+from buzz.ffmpeg_utils import find_ffmpeg
 from buzz.pip_utils import subprocess_hide_window_kwargs
 
 
-def _find_ffmpeg() -> str:
-    import shutil
-    path = shutil.which("ffmpeg")
-    if path:
-        return path
-    frozen = os.path.join(getattr(sys, "_MEIPASS", ""), "ffmpeg")
-    if os.path.exists(frozen):
-        return frozen
-    frozen_exe = frozen + ".exe"
-    if os.path.exists(frozen_exe):
-        return frozen_exe
-    return "ffmpeg"
+_find_ffmpeg = find_ffmpeg
 
 
 def decode_audio_to_wav(input_path: str, output_wav: str) -> None:
