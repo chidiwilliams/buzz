@@ -60,29 +60,45 @@ Options:
                                  (Yiddish), yo (Yoruba), zh (Chinese). Leave
                                  empty to detect language.
   -p, --prompt <prompt>          Initial prompt.
-  -w, --word-timestamps          Generate word-level timestamps. (available since 1.2.0)
-  -e, --extract-speech           Extract speech from audio before transcribing. (available since 1.3.0)
+  -w, --word-timestamps          Generate word-level timestamps.
+  -e, --extract-speech           Extract speech from audio before transcribing.
   --openai-token <token>         OpenAI access token. Use only when
                                  --model-type is openaiapi. Defaults to your
                                  previously saved access token, if one exists.
+  -d, --output-directory <directory>
+                                 Output directory. Defaults to the directory of
+                                 the input file.
   --srt                          Output result in an SRT file.
   --vtt                          Output result in a VTT file.
   --txt                          Output result in a TXT file.
-  --hide-gui                     Hide the main application window. (available since 1.2.0)
+  --hide-gui                     Hide the main application window.
   -h, --help                     Displays help on commandline options.
   --help-all                     Displays help including Qt specific options.
   -v, --version                  Displays version information.
 
 Arguments:
-  files or urls                  Input file paths or urls. Url import availalbe since 1.2.0.
+  files or urls                  Input file paths or urls.
 ```
 
 **Examples**:
 
 ```shell
-# Translate two MP3 files from French to English using OpenAI Whisper API
-buzz add --task translate --language fr --model-type openaiapi /Users/user/Downloads/1b3b03e4-8db5-ea2c-ace5-b71ff32e3304.mp3 /Users/user/Downloads/koaf9083k1lkpsfdi0.mp3
+# Transcribe a single file and save the transcript as a TXT file next to it
+buzz add --txt interview.mp3
 
-# Transcribe an MP4 using Whisper.cpp "small" model and immediately export to SRT and VTT files
-buzz add --task transcribe --model-type whispercpp --model-size small --prompt "My initial prompt" --srt --vtt /Users/user/Downloads/buzz/1b3b03e4-8db5-ea2c-ace5-b71ff32e3304.mp4
+# Transcribe several files at once, they will be processed one after another. 
+# Support for multiple input files available since version 1.4.6
+buzz add --txt lecture-1.mp3 lecture-2.mp3 lecture-3.mp3
+
+# Transcribe a whole folder of recordings into a separate output folder
+buzz add --srt --output-directory ./subtitles recordings/*.mp4
+
+# Translate French audio to English with the OpenAI Whisper API
+buzz add --task translate --language fr --model-type openaiapi meeting-fr.mp3
+
+# Transcribe a video with the Whisper.cpp "small" model, exporting SRT and VTT subtitles
+buzz add --model-type whispercpp --model-size small --srt --vtt presentation.mp4
+
+# Transcribe a YouTube video without opening the app window
+buzz add --txt --hide-gui https://www.youtube.com/watch?v=dQw4w9WgXcQ
 ```
