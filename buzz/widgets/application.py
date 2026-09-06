@@ -105,6 +105,10 @@ class Application(QApplication):
 
     def add_task(self, task: FileTranscriptionTask, quit_on_complete: bool = False):
         self.window.quit_on_complete = quit_on_complete
+        if quit_on_complete:
+            # Track every queued task so the app only quits once the whole 
+            # batch is done.
+            self.window.pending_quit_task_uids.add(task.uid)
         self.window.add_task(task)
 
     def close_database(self):

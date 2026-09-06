@@ -1,6 +1,6 @@
 import os
 import logging
-from typing import Tuple, List, Optional
+from typing import Tuple, List, Optional, Set
 from uuid import UUID
 
 from PyQt6 import QtGui
@@ -90,6 +90,7 @@ class MainWindow(QMainWindow):
         self.shortcuts = Shortcuts(settings=self.settings)
 
         self.quit_on_complete = False
+        self.pending_quit_task_uids: Set[UUID] = set()
         self.transcription_service = transcription_service
 
         self.plugin_manager = PluginManager(self.transcription_service, self.settings)
@@ -484,9 +485,7 @@ class MainWindow(QMainWindow):
         if task.status == FileTranscriptionTask.Status.SKIPPED:
             self.transcription_service.update_transcription_as_skipped(task.uid, segments)
             self.table_widget.refresh_row(task.uid)
-            if self.quit_on_complete:
-                self.close()
-                QApplication.quit()
+            self.quit_if_all_tasks_done(task)
             return
 
         # Update file path in database only for URL imports where file is downloaded
@@ -523,18 +522,24 @@ class MainWindow(QMainWindow):
             self.transcription_service.update_transcription_as_completed(task.uid, segments)
             self.table_widget.refresh_row(task.uid)
 
-        if self.quit_on_complete:
-            self.close()
-            QApplication.quit()
+        self.quit_if_all_tasks_done(task)
 
+    def quit_if_all_tasks_done(self, task: FileTranscriptionTask):
+        if not self.quit_on_complete:
+            return
+
+        self.pending_quit_task_uids.discard(task.uid)
+        if len(self.pending_quit_task_uids) > 0:
+            return
+
+        self.close()
+        QApplication.quit()
 
     def on_task_error(self, task: FileTranscriptionTask, error: str):
         self.transcription_service.update_transcription_as_failed(task.uid, error)
         self.table_widget.refresh_row(task.uid)
 
-        if self.quit_on_complete:
-            self.close()
-            QApplication.quit()
+        self.quit_if_all_tasks_done(task)
 
     def on_shortcuts_changed(self):
         self.menu_bar.reset_shortcuts()
