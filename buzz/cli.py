@@ -73,6 +73,12 @@ def _add_command_options(parser: QCommandLineParser):
         'Hugging Face model ID. Use only when --model-type is huggingface. Example: "openai/whisper-tiny"',
         "id",
     )
+    custom_model_id_option = QCommandLineOption(
+        ["custom-model-id"],
+        "Id of a registered Whisper.cpp custom model. Use only when --model-type is "
+        "whispercpp and --model-size is custom.",
+        "id",
+    )
     language_option = QCommandLineOption(
         ["l", "language"],
         f'Language code. Allowed: {", ".join(sorted([k + " (" + LANGUAGES[k].title() + ")" for k in LANGUAGES]))}. Leave empty to detect language.',
@@ -107,6 +113,7 @@ def _add_command_options(parser: QCommandLineParser):
             model_type_option,
             model_size_option,
             hugging_face_model_id_option,
+            custom_model_id_option,
             language_option,
             initial_prompt_option,
             word_timestamp_option,
@@ -125,6 +132,7 @@ def _add_command_options(parser: QCommandLineParser):
         "model_type": model_type_option,
         "model_size": model_size_option,
         "hugging_face_model_id": hugging_face_model_id_option,
+        "custom_model_id": custom_model_id_option,
         "language": language_option,
         "initial_prompt": initial_prompt_option,
         "word_timestamps": word_timestamp_option,
@@ -142,6 +150,7 @@ def _resolve_model(
     model_type: CommandLineModelType,
     model_size: WhisperModelSize,
     hugging_face_model_id: str,
+    custom_model_id: str = "",
 ):
     if hugging_face_model_id == "" and model_type == CommandLineModelType.HUGGING_FACE:
         raise CommandLineError("--hfid is required when --model-type is huggingface")
@@ -149,6 +158,7 @@ def _resolve_model(
         model_type=ModelType[model_type.name],
         whisper_model_size=model_size,
         hugging_face_model_id=hugging_face_model_id,
+        custom_model_id=custom_model_id or None,
     )
     model_path = model.get_local_model_path()
     if model_path is None:
@@ -217,7 +227,10 @@ def _handle_add_command(app: Application, parser: QCommandLineParser):
     model_size = parse_enum_option(opts["model_size"], parser, WhisperModelSize)
 
     model_path, model = _resolve_model(
-        model_type, model_size, parser.value(opts["hugging_face_model_id"])
+        model_type,
+        model_size,
+        parser.value(opts["hugging_face_model_id"]),
+        parser.value(opts["custom_model_id"]),
     )
 
     language = parser.value(opts["language"])
