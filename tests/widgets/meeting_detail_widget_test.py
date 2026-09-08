@@ -291,6 +291,28 @@ def make_widget(qtbot, detail, speaker_service=None, factory=None):
     return widget
 
 
+@pytest.mark.parametrize("status", list(FinalTranscriptionStatus))
+def test_final_retry_button_uses_existing_generation(qtbot, status):
+    final = Mock(pending=0)
+    value = snapshot(generation_value=generation(status))
+    widget = MeetingDetailWidget(
+        DetailService(value), Mock(), Mock(), final_transcription=final
+    )
+    qtbot.addWidget(widget)
+    widget.open_meeting(MEETING_ID)
+    retryable = status in (
+        FinalTranscriptionStatus.FAILED,
+        FinalTranscriptionStatus.PARTIAL,
+    )
+    assert widget.retry_transcription_button.isEnabled() == retryable
+    if retryable:
+        widget.retry_transcription_button.click()
+        final.retry.assert_called_once_with(value.final_generation.generation_id)
+        assert not widget.retry_transcription_button.isEnabled()
+    else:
+        final.retry.assert_not_called()
+
+
 def open_widget(qtbot, value, speaker_service=None, factory=None):
     detail = DetailService(value)
     widget = make_widget(qtbot, detail, speaker_service, factory)

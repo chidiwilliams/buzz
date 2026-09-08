@@ -22,6 +22,7 @@ class MenuBar(QMenuBar):
     import_url_action_triggered = pyqtSignal()
     import_folder_action_triggered = pyqtSignal()
     meetings_action_triggered = pyqtSignal()
+    new_meeting_action_triggered = pyqtSignal()
     shortcuts_changed = pyqtSignal()
     openai_api_key_changed = pyqtSignal(str)
     preferences_changed = pyqtSignal(Preferences)
@@ -51,6 +52,8 @@ class MenuBar(QMenuBar):
 
         self.meetings_action = QAction(_("Meetings"), self)
         self.meetings_action.triggered.connect(self.meetings_action_triggered)
+        self.new_meeting_action = QAction(_("New Meeting"), self)
+        self.new_meeting_action.triggered.connect(self.new_meeting_action_triggered)
 
         about_label = _("About")
         about_action = QAction(f"{about_label} {APP_NAME}", self)
@@ -71,6 +74,7 @@ class MenuBar(QMenuBar):
         self.reset_shortcuts()
 
         file_menu = self.addMenu(_("File"))
+        file_menu.addAction(self.new_meeting_action)
         file_menu.addAction(self.import_action)
         file_menu.addAction(self.import_url_action)
         file_menu.addAction(self.import_folder_action)

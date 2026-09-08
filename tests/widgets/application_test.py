@@ -70,6 +70,10 @@ def test_build_main_window_composes_both_services_with_same_database() -> None:
             return_value=detail_service,
         ) as detail_service_type,
         patch("buzz.widgets.application.AudioPlayer", new=preview_factory),
+        patch("buzz.widgets.application.MeetingWorkflow") as workflow_type,
+        patch("buzz.widgets.application.MeetingModeController") as controller_type,
+        patch("buzz.widgets.application.MeetingTrackTranscriber") as adapter_type,
+        patch("buzz.widgets.application.MeetingFinalTranscription") as final_type,
         patch(
             "buzz.widgets.application.MainWindow", return_value=main_window
         ) as main_window_type,
@@ -98,5 +102,13 @@ def test_build_main_window_composes_both_services_with_same_database() -> None:
         detail_service,
         speaker_service,
         preview_factory,
+        controller_type.return_value,
+        final_type.return_value,
     )
+    workflow_type.assert_called_once_with(meeting_storage)
+    controller_type.assert_called_once_with(workflow_type.return_value)
+    final_type.assert_called_once_with(
+        meeting_storage, transcription_repository, adapter_type.return_value
+    )
+    final_type.return_value.recover.assert_called_once_with()
     assert result is main_window
