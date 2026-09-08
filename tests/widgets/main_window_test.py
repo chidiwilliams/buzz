@@ -10,13 +10,12 @@ from uuid import UUID
 import pytest
 from PyQt6 import sip
 from PyQt6.QtCore import QEvent, QSize, Qt
-from PyQt6.QtGui import QKeyEvent, QAction
+from PyQt6.QtGui import QKeyEvent
 from PyQt6.QtWidgets import (
     QApplication,
     QMessageBox,
     QPushButton,
     QToolBar,
-    QMenuBar,
     QTableView,
 )
 from pytestqt.qtbot import QtBot
@@ -223,6 +222,7 @@ class TestMainWindow:
         detail_widget_type.assert_called_once_with(
             detail_service=fake_meeting_detail_service,
             speaker_review_service=fake_speaker_review_service,
+            final_transcription=None,
             preview_player_factory=fake_preview_player_factory,
             parent=window,
             flags=Qt.WindowType.Window,
@@ -366,15 +366,18 @@ class TestMainWindow:
 
         window = MainWindow(transcription_service, fake_meeting_library_service)
         qtbot.add_widget(window)
-        menu: QMenuBar = window.menuBar()
-        file_action = menu.actions()[0]
-        import_url_action: QAction = file_action.menu().actions()[1]
 
-        with patch(
-            "buzz.widgets.import_url_dialog.ImportURLDialog.prompt"
-        ) as prompt_mock:
+        with (
+            patch(
+                "buzz.widgets.import_url_dialog.ImportURLDialog.prompt"
+            ) as prompt_mock,
+            patch(
+                "buzz.widgets.main_window.QFileDialog.getOpenFileNames",
+                side_effect=AssertionError("file import dialog must not open"),
+            ),
+        ):
             prompt_mock.return_value = source_url
-            import_url_action.trigger()
+            window.menu_bar.import_url_action.trigger()
 
         file_transcriber_widget: FileTranscriberWidget = window.findChild(
             FileTranscriberWidget

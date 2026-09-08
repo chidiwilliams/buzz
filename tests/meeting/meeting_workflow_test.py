@@ -54,6 +54,39 @@ from buzz.meeting.meeting_workflow import (
 # ---------------------------------------------------------------------------
 
 
+@pytest.fixture(autouse=True)
+def cleanup_test_workflows(monkeypatch):
+    """Ownership assertions may leave capture active; release it after the test.
+
+    Real recorders use non-daemon writers, so omitting this cleanup prevents
+    pytest from exiting even when all assertions pass.
+    """
+    workflows = []
+    initialize = MeetingWorkflow.__init__
+
+    def track(workflow, *args, **kwargs):
+        initialize(workflow, *args, **kwargs)
+        workflows.append(workflow)
+
+    monkeypatch.setattr(MeetingWorkflow, "__init__", track)
+    yield
+    for workflow in workflows:
+        for _ in range(3):
+            try:
+                if workflow.state is MeetingWorkflowState.ACTIVE:
+                    workflow.stop_capture()
+                elif workflow.state is MeetingWorkflowState.CLEANUP_REQUIRED:
+                    workflow.retry_cleanup()
+                else:
+                    break
+            except MeetingWorkflowStopError:
+                continue
+        assert workflow.state not in (
+            MeetingWorkflowState.ACTIVE,
+            MeetingWorkflowState.CLEANUP_REQUIRED,
+        )
+
+
 def test_no_pyqt_import_in_workflow_module() -> None:
     """``meeting_workflow.py`` must not import PyQt6."""
     source_path = (

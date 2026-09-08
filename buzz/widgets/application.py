@@ -8,7 +8,7 @@ import darkdetect
 
 from posthog import Posthog
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QEvent
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QApplication, QStyleFactory
 
@@ -31,6 +31,10 @@ from buzz.settings.settings import APP_NAME, Settings
 from buzz.transcriber.transcriber import FileTranscriptionTask
 from buzz.widgets.audio_player import AudioPlayer
 from buzz.widgets.main_window import MainWindow
+from buzz.meeting.meeting_workflow import MeetingWorkflow
+from buzz.meeting.meeting_transcriber_adapter import MeetingTrackTranscriber
+from buzz.widgets.meeting_mode import MeetingModeController
+from buzz.widgets.meeting_final_transcription import MeetingFinalTranscription
 
 
 def _build_main_window(database) -> MainWindow:
@@ -40,9 +44,8 @@ def _build_main_window(database) -> MainWindow:
     meeting_library_repository = QSqlMeetingLibraryRepository(database)
     meeting_library_service = MeetingLibraryService(meeting_library_repository)
     meeting_storage = MeetingStorage(QSqlMeetingRepository(database))
-    final_transcription_reader = FinalTranscriptionReadService(
-        QSqlMeetingTranscriptionRepository(database)
-    )
+    transcription_repository = QSqlMeetingTranscriptionRepository(database)
+    final_transcription_reader = FinalTranscriptionReadService(transcription_repository)
     speaker_review_service = MeetingSpeakerReviewService(
         QSqlMeetingSpeakerRepository(database), final_transcription_reader
     )
@@ -51,13 +54,20 @@ def _build_main_window(database) -> MainWindow:
         final_transcription_reader,
         speaker_review_service,
     )
-    return MainWindow(
+    meeting_final = MeetingFinalTranscription(
+        meeting_storage, transcription_repository, MeetingTrackTranscriber()
+    )
+    window = MainWindow(
         transcription_service,
         meeting_library_service,
         meeting_detail_service,
         speaker_review_service,
         AudioPlayer,
+        MeetingModeController(MeetingWorkflow(meeting_storage)),
+        meeting_final,
     )
+    meeting_final.recover()
+    return window
 
 
 class Application(QApplication):
@@ -143,6 +153,12 @@ class Application(QApplication):
     def show_main_window(self):
         if not self.hide_main_window:
             self.window.show()
+
+    def event(self, event):
+        if event.type() == QEvent.Type.Quit and hasattr(self, "window"):
+            if not self.window.close():
+                return True
+        return super().event(event)
 
     def add_task(self, task: FileTranscriptionTask, quit_on_complete: bool = False):
         self.window.quit_on_complete = quit_on_complete

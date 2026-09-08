@@ -4,7 +4,7 @@ from typing import Tuple, List, Optional
 from uuid import UUID
 
 from PyQt6 import QtGui
-from PyQt6.QtCore import Qt, QThread, QThreadPool, QModelIndex, pyqtSignal
+from PyQt6.QtCore import Qt, QThread, QThreadPool, QTimer, QModelIndex, pyqtSignal
 
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
@@ -41,6 +41,7 @@ from buzz.widgets.main_window_toolbar import MainWindowToolbar
 from buzz.widgets.menu_bar import MenuBar
 from buzz.widgets.meeting_detail_widget import MeetingDetailWidget
 from buzz.widgets.meetings_library_widget import MeetingsLibraryWidget
+from buzz.widgets.meeting_capture_widget import MeetingCaptureWidget
 from buzz.widgets.preferences_dialog.models.preferences import Preferences
 from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
 from buzz.widgets.transcription_task_folder_watcher import (
@@ -66,6 +67,8 @@ class MainWindow(QMainWindow):
         meeting_detail_service: MeetingDetailService,
         meeting_speaker_review_service: MeetingSpeakerReviewService,
         preview_player_factory,
+        meeting_controller=None,
+        meeting_final=None,
     ):
         super().__init__(flags=Qt.WindowType.Window)
 
@@ -86,6 +89,19 @@ class MainWindow(QMainWindow):
         self.preview_player_factory = preview_player_factory
         self.meetings_library_widget = None
         self.meeting_detail_widget = None
+        self.meeting_controller = meeting_controller
+        self.meeting_final = meeting_final
+        self.meeting_capture_widget = None
+        self._meeting_close_pending = False
+        if meeting_controller is not None:
+            meeting_controller.setParent(self)
+            meeting_controller.saved.connect(self._meeting_saved)
+            meeting_controller.released.connect(self._resume_meeting_close)
+        if meeting_final is not None:
+            meeting_final.setParent(self)
+            meeting_final.changed.connect(self._refresh_meeting_detail)
+            meeting_final.idle.connect(self._resume_meeting_close)
+            meeting_final.failed.connect(self._meeting_transcription_failed)
 
         self.plugin_manager = PluginManager(self.transcription_service, self.settings)
         try:
@@ -113,6 +129,8 @@ class MainWindow(QMainWindow):
             self.on_stop_transcription_action_triggered
         )
         self.addToolBar(self.toolbar)
+        self.new_meeting_action = self.toolbar.addAction("New Meeting")
+        self.new_meeting_action.triggered.connect(self.on_new_meeting)
         self.toolbar.update_action_triggered.connect(self.on_update_action_triggered)
         self.setUnifiedTitleAndToolBarOnMac(True)
 
@@ -135,6 +153,7 @@ class MainWindow(QMainWindow):
         self.menu_bar.meetings_action_triggered.connect(
             self.on_meetings_action_triggered
         )
+        self.menu_bar.new_meeting_action_triggered.connect(self.on_new_meeting)
         self.menu_bar.shortcuts_changed.connect(self.on_shortcuts_changed)
         self.menu_bar.openai_api_key_changed.connect(
             self.on_openai_access_token_changed
@@ -316,6 +335,45 @@ class MainWindow(QMainWindow):
             return
         self.open_file_transcriber_widget(file_paths)
 
+    def on_new_meeting(self):
+        if self.meeting_controller is None:
+            return
+        if self.meeting_capture_widget is None:
+            self.meeting_capture_widget = MeetingCaptureWidget(
+                self.meeting_controller, self
+            )
+            self.meeting_capture_widget.open_requested.connect(
+                self.on_meeting_open_requested
+            )
+        self.meeting_capture_widget.show()
+        self.meeting_capture_widget.raise_()
+        self.meeting_capture_widget.activateWindow()
+
+    def _meeting_saved(self, result):
+        if self.meetings_library_widget is not None:
+            self.meetings_library_widget.refresh()
+        self.on_meeting_open_requested(result.session_id)
+        if self._meeting_close_pending or self.meeting_controller.active:
+            return  # Cleanup still owns the audio; do not transcribe it yet.
+        if (
+            self.meeting_final is not None
+            and result.stored_meeting.state.name == "COMPLETED"
+        ):
+            self.meeting_final.request(
+                result.session_id, self.meeting_capture_widget.config
+            )
+
+    def _refresh_meeting_detail(self):
+        if self.meeting_detail_widget is not None:
+            self.meeting_detail_widget.refresh()
+
+    def _meeting_transcription_failed(self, message):
+        self.statusBar().showMessage(f"Final transcription: {message}")
+
+    def _resume_meeting_close(self):
+        if self._meeting_close_pending:
+            QTimer.singleShot(0, self.close)
+
     def on_meetings_action_triggered(self):
         if self.meetings_library_widget is None:
             self.meetings_library_widget = MeetingsLibraryWidget(
@@ -336,6 +394,7 @@ class MainWindow(QMainWindow):
             self.meeting_detail_widget = MeetingDetailWidget(
                 detail_service=self.meeting_detail_service,
                 speaker_review_service=self.meeting_speaker_review_service,
+                final_transcription=self.meeting_final,
                 preview_player_factory=self.preview_player_factory,
                 parent=self,
                 flags=Qt.WindowType.Window,
@@ -482,8 +541,8 @@ class MainWindow(QMainWindow):
             )
             self.table_widget.refresh_row(task.uid)
             if self.quit_on_complete:
-                self.close()
-                QApplication.quit()
+                if self.close():
+                    QApplication.quit()
             return
 
         # Update file path in database only for URL imports where file is downloaded
@@ -525,16 +584,16 @@ class MainWindow(QMainWindow):
             self.table_widget.refresh_row(task.uid)
 
         if self.quit_on_complete:
-            self.close()
-            QApplication.quit()
+            if self.close():
+                QApplication.quit()
 
     def on_task_error(self, task: FileTranscriptionTask, error: str):
         self.transcription_service.update_transcription_as_failed(task.uid, error)
         self.table_widget.refresh_row(task.uid)
 
         if self.quit_on_complete:
-            self.close()
-            QApplication.quit()
+            if self.close():
+                QApplication.quit()
 
     def on_shortcuts_changed(self):
         self.menu_bar.reset_shortcuts()
@@ -544,6 +603,27 @@ class MainWindow(QMainWindow):
         self.save_geometry()
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        if self.meeting_controller is not None and self.meeting_controller.active:
+            event.ignore()
+            if self._meeting_close_pending:
+                return
+            self.on_new_meeting()
+            if self.meeting_capture_widget.confirm_end():
+                self._meeting_close_pending = True
+                if self.meeting_final is not None:
+                    self.meeting_final.close()
+                self.meeting_controller.end()
+            else:
+                self._meeting_close_pending = False
+            return
+        if self.meeting_final is not None and not self.meeting_final.close():
+            event.ignore()
+            self._meeting_close_pending = True
+            self.statusBar().showMessage(
+                "Finishing final transcription before closing…"
+            )
+            QTimer.singleShot(50, self.close)
+            return
         self.save_geometry()
         self.settings.settings.sync()
 

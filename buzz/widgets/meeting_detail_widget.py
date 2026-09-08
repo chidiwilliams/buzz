@@ -154,6 +154,7 @@ class MeetingDetailWidget(QWidget):
         preview_player_factory: Callable[[Path], Any],
         parent: QWidget | None = None,
         flags: Qt.WindowType = Qt.WindowType.Widget,
+        final_transcription=None,
     ) -> None:
         super().__init__(parent, flags)
         self._detail_service = detail_service
@@ -162,6 +163,7 @@ class MeetingDetailWidget(QWidget):
         self._current_meeting_id: uuid.UUID | None = None
         self._snapshot: MeetingDetailSnapshot | None = None
         self._preview_player: Any | None = None
+        self._final_transcription = final_transcription
         self.setWindowTitle(_("Meeting Details"))
         self.resize(1000, 760)
         self._build_ui()
@@ -205,6 +207,14 @@ class MeetingDetailWidget(QWidget):
         self.transcript_edit = QPlainTextEdit(transcript_group)
         self.transcript_edit.setReadOnly(True)
         transcript_layout.addWidget(self.transcript_state_label)
+        self.retry_transcription_button = QPushButton(
+            _("Retry final transcription"), transcript_group
+        )
+        self.retry_transcription_button.setVisible(
+            self._final_transcription is not None
+        )
+        self.retry_transcription_button.clicked.connect(self._retry_transcription)
+        transcript_layout.addWidget(self.retry_transcription_button)
         transcript_layout.addWidget(self.transcript_edit)
 
         review_group = QGroupBox(_("Speaker Review"), self)
@@ -315,6 +325,7 @@ class MeetingDetailWidget(QWidget):
         self._render(snapshot)
 
     def _clear_presentation(self) -> None:
+        self.retry_transcription_button.setEnabled(False)
         self.state_label.clear()
         for label in (
             self.date_value,
@@ -378,6 +389,14 @@ class MeetingDetailWidget(QWidget):
                 self.audio_table.setItem(row, column, QTableWidgetItem(value))
 
     def _render_transcript(self, snapshot: MeetingDetailSnapshot) -> None:
+        generation = snapshot.final_generation
+        self.retry_transcription_button.setEnabled(
+            self._final_transcription is not None
+            and not self._final_transcription.pending
+            and generation is not None
+            and generation.status
+            in (FinalTranscriptionStatus.FAILED, FinalTranscriptionStatus.PARTIAL)
+        )
         state = snapshot.transcript_state
         if state is MeetingDetailTranscriptState.NOT_AVAILABLE:
             self.transcript_state_label.setText(_("Not available"))
@@ -402,6 +421,12 @@ class MeetingDetailWidget(QWidget):
             self.transcript_edit.setPlainText(
                 "\n\n".join(segment.text for segment in snapshot.transcript.segments)
             )
+
+    def _retry_transcription(self):
+        if self._snapshot is None or self._snapshot.final_generation is None:
+            return
+        self._final_transcription.retry(self._snapshot.final_generation.generation_id)
+        self.retry_transcription_button.setEnabled(False)
 
     def _render_review(self, snapshot: MeetingDetailSnapshot) -> None:
         labels = {
