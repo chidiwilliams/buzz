@@ -18,7 +18,7 @@ from threading import Condition, Event, RLock, Thread
 from typing import Optional, List
 
 import psutil
-from PyQt6.QtCore import QObject
+from PyQt6.QtCore import QObject, QThread, pyqtSlot
 
 from buzz import whisper_audio
 from buzz.conn import pipe_stderr
@@ -82,7 +82,7 @@ def terminate_child_processes(pid: int, timeout: float = 5.0) -> None:
     # Snapshot the tree before anything gets reparented by the worker exiting.
     try:
         descendants = parent.children(recursive=True)
-    except (psutil.NoSuchProcess, psutil.AccessDenied):
+    except psutil.NoSuchProcess:
         return
 
     # Ask each descendant to exit (SIGTERM / TerminateProcess).
@@ -100,7 +100,9 @@ def terminate_child_processes(pid: int, timeout: float = 5.0) -> None:
             proc.kill()
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             pass
-    psutil.wait_procs(alive, timeout=timeout)
+    _, alive = psutil.wait_procs(alive, timeout=timeout)
+    if alive:
+        raise RuntimeError("Transcription child processes did not terminate")
 
 
 def check_file_has_audio_stream(file_path: str) -> None:
@@ -141,6 +143,7 @@ class WhisperFileTranscriber(FileTranscriber):
         # Success only; the condition also wakes finalization after a failure.
         self._cleanup_done = Event()
         self._cleanup_error = None
+        self._transcription_entered = False
         self.recv_pipe = None
         self.send_pipe = None
         self.error_message = None
@@ -158,6 +161,7 @@ class WhisperFileTranscriber(FileTranscriber):
         with self._lifecycle_lock:
             if self.stopped:
                 raise Exception("Transcription was canceled")
+            self._transcription_entered = True
             self._cleanup_claimed = False
             self._cleanup_done.clear()
             self._cleanup_error = None
@@ -732,6 +736,34 @@ class WhisperFileTranscriber(FileTranscriber):
         finally:
             torch.load = original_torch_load
         return model
+
+    @property
+    def cleanup_complete(self) -> bool:
+        """True only when resources are closed, or cancellation prevented startup."""
+        with self._lifecycle_lock:
+            return self._cleanup_done.is_set() or (
+                self.stopped and not self._transcription_entered
+            )
+
+    def request_cancel(self) -> None:
+        """Record cancellation without waiting for process/resource cleanup."""
+        with self._lifecycle_lock:
+            self.stopped = True
+
+    def wait_for_cleanup(self, timeout: float) -> bool:
+        """Wait boundedly for startup replay or another cleanup owner."""
+        if self.cleanup_complete:
+            return True
+        self._cleanup_done.wait(max(0, timeout))
+        return self.cleanup_complete
+
+    @pyqtSlot()
+    def dispose_in_owner_thread(self) -> None:
+        """Schedule QObject destruction only while executing on its Qt thread."""
+        if QThread.currentThread() is not self.thread():
+            raise RuntimeError("Worker disposal must run on its owning Qt thread")
+        if self.cleanup_complete:
+            self.deleteLater()
 
     def stop(self):
         with self._lifecycle_lock:

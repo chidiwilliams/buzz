@@ -136,7 +136,82 @@ class TestAdapterSignals:
     def test_shutdown_stops_transcriber(self, qt_application) -> None:
         """Shutdown completes without error when nothing is active."""
         adapter = MeetingTrackTranscriber()
-        adapter.shutdown()  # Should not raise
+        assert adapter.shutdown()
+        assert adapter.shutdown(0)
+
+    def test_shutdown_requires_observed_worker_destruction(
+        self, qt_application, monkeypatch
+    ) -> None:
+        from unittest.mock import Mock
+        from buzz.meeting import meeting_transcriber_adapter as module
+
+        adapter = MeetingTrackTranscriber()
+        transcriber = Mock()
+        transcriber.cleanup_complete = True
+        thread = Mock()
+        adapter._transcriber, adapter._thread = transcriber, thread
+        monkeypatch.setattr(
+            module,
+            "QMetaObject",
+            SimpleNamespace(invokeMethod=Mock(return_value=None)),
+        )
+
+        assert adapter.shutdown(0) is False
+        assert adapter._transcriber is transcriber and adapter._thread is thread
+        thread.wait.assert_not_called()
+
+        adapter._worker_destroyed.set()
+        thread.wait.return_value = True
+        assert adapter.shutdown(1000) is True
+        assert adapter.shutdown(0) is True
+
+    def test_shutdown_requires_observed_thread_exit(self, qt_application) -> None:
+        from unittest.mock import Mock
+
+        adapter = MeetingTrackTranscriber()
+        transcriber = SimpleNamespace(request_cancel=Mock())
+        thread = Mock()
+        thread.wait.return_value = False
+        adapter._transcriber, adapter._thread = transcriber, thread
+        adapter._worker_destroyed.set()
+
+        assert adapter.shutdown(1000) is False
+        assert adapter._transcriber is transcriber and adapter._thread is thread
+
+    def test_no_unsafe_qobject_or_qthread_destruction(self) -> None:
+        import inspect
+
+        source = inspect.getsource(MeetingTrackTranscriber)
+        assert "sip.delete" not in source
+        assert ".terminate(" not in source
+
+    def test_waits_share_one_deadline(self, qt_application, monkeypatch):
+        from unittest.mock import Mock
+        from buzz.meeting import meeting_transcriber_adapter as module
+
+        clock = iter([100.0, 100.7, 100.8, 100.9])
+        monkeypatch.setattr(module, "monotonic", lambda: next(clock))
+        helper = Mock()
+        helper.is_alive.return_value = False
+        monkeypatch.setattr(module, "Thread", Mock(return_value=helper))
+        adapter = MeetingTrackTranscriber()
+        adapter._transcriber = SimpleNamespace(
+            request_cancel=Mock(), cleanup_complete=True
+        )
+        adapter._thread = Mock()
+        adapter._thread.wait.return_value = False
+
+        def dispose(*args):
+            adapter._worker_destroyed.set()
+
+        monkeypatch.setattr(
+            module,
+            "QMetaObject",
+            SimpleNamespace(invokeMethod=Mock(side_effect=dispose)),
+        )
+        assert adapter.shutdown(1000) is False
+        assert helper.join.call_args.args[0] == pytest.approx(0.3)
+        assert 99 <= adapter._thread.wait.call_args.args[0] <= 100
 
 
 class TestTaskConstruction:

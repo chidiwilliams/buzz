@@ -16,7 +16,7 @@ from unittest.mock import Mock
 
 import psutil
 import pytest
-from PyQt6.QtCore import QObject, QThread
+from PyQt6.QtCore import QObject, QThread, Qt, pyqtSlot
 from PyQt6.QtWidgets import QApplication
 from pytestqt.qtbot import QtBot
 
@@ -70,6 +70,11 @@ def _spawn_grandchild_worker(pipe):
     proc.wait()
 
 
+def _spawn_grandchild_transcriber(pipe, _task):
+    """Deterministic stand-in for an ASR worker with a native child process."""
+    _spawn_grandchild_worker(pipe)
+
+
 def _is_dead_or_zombie(proc: psutil.Process) -> bool:
     """True if the process is gone, or a not-yet-reaped zombie."""
     try:
@@ -109,7 +114,11 @@ class _LifecycleProcess:
     """Only the Process API used by the transcriber's lifecycle, with gates."""
 
     def __init__(
-        self, *, child_before_gate=False, complete=False, fail_start=False,
+        self,
+        *,
+        child_before_gate=False,
+        complete=False,
+        fail_start=False,
         terminate_completes=True,
     ):
         self.child_before_gate = child_before_gate
@@ -189,7 +198,8 @@ def _lifecycle_case(monkeypatch, **process_options):
     monkeypatch.setattr(module, "wait", wait_for_exit)
     monkeypatch.setattr(module.torch.cuda, "is_available", lambda: False)
     monkeypatch.setattr(
-        module, "terminate_child_processes",
+        module,
+        "terminate_child_processes",
         lambda pid: process.timeline.append("terminate-descendants"),
     )
     transcriber = WhisperFileTranscriber(
@@ -263,8 +273,13 @@ class TestStartupCancellation:
             assert str(outcome.get("error")) == "Transcription was canceled"
             assert process.reaped and not process.is_alive()
             assert process.timeline == [
-                "start-entered", "stop-requested", "start-returning",
-                "terminate-descendants", "terminate", "join", "reaped",
+                "start-entered",
+                "stop-requested",
+                "start-returning",
+                "terminate-descendants",
+                "terminate",
+                "join",
+                "reaped",
             ]
             assert transcriber.read_line_thread is None
             assert all(pipe.closed and pipe.close_calls == 1 for pipe in pipes)
@@ -281,7 +296,12 @@ class TestStartupCancellation:
         assert transcriber.transcribe() == []
         assert not transcriber.stopped
         assert not transcriber.started_process
-        assert process.timeline == ["start-entered", "start-returning", "join", "reaped"]
+        assert process.timeline == [
+            "start-entered",
+            "start-returning",
+            "join",
+            "reaped",
+        ]
         assert process.reaped
         assert not transcriber.read_line_thread.is_alive()
         assert all(pipe.closed and pipe.close_calls == 1 for pipe in pipes)
@@ -401,7 +421,9 @@ class TestStartupCancellation:
                 caller.join(timeout=5)
                 assert not caller.is_alive()
 
-    def test_blocking_operations_are_unlocked_including_kill_fallback(self, monkeypatch):
+    def test_blocking_operations_are_unlocked_including_kill_fallback(
+        self, monkeypatch
+    ):
         from buzz.transcriber import whisper_file_transcriber as module
 
         transcriber, process, pipes, _ = _lifecycle_case(
@@ -414,6 +436,7 @@ class TestStartupCancellation:
                 assert not transcriber._lifecycle_lock._is_owned(), name
                 observed.append(name)
                 return operation(*args, **kwargs)
+
             return checked
 
         for name in ("start", "terminate", "join", "kill"):
@@ -421,7 +444,8 @@ class TestStartupCancellation:
         for index, pipe in enumerate(pipes):
             monkeypatch.setattr(pipe, "close", observe(f"pipe-{index}", pipe.close))
         monkeypatch.setattr(
-            module, "terminate_child_processes",
+            module,
+            "terminate_child_processes",
             observe("descendants", module.terminate_child_processes),
         )
         reader_release = Event()
@@ -452,8 +476,14 @@ class TestStartupCancellation:
             assert process.timeline.count("kill") == 1
             assert process.timeline.count("join") == 2
             assert set(observed) == {
-                "start", "terminate", "join", "kill", "descendants",
-                "pipe-0", "pipe-1", "reader-join",
+                "start",
+                "terminate",
+                "join",
+                "kill",
+                "descendants",
+                "pipe-0",
+                "pipe-1",
+                "reader-join",
             }
             assert reader_release.is_set() and not reader.is_alive()
             assert all(pipe.closed and pipe.close_calls == 1 for pipe in pipes)
@@ -475,7 +505,9 @@ class TestStartupCancellation:
             finalization_waiting.set()
             return original_wait(*args, **kwargs)
 
-        monkeypatch.setattr(transcriber._cleanup_condition, "wait", observe_finalization_wait)
+        monkeypatch.setattr(
+            transcriber._cleanup_condition, "wait", observe_finalization_wait
+        )
 
         def slow_close():
             close_entered.set()
@@ -611,8 +643,12 @@ class TestStartupCancellation:
                 transcriber.stop()
             assert caught.value is failure
             assert process.timeline[:6] == [
-                "start-entered", "start-returning", "terminate-descendants",
-                "terminate", "join", "reaped",
+                "start-entered",
+                "start-returning",
+                "terminate-descendants",
+                "terminate",
+                "join",
+                "reaped",
             ]
             assert process.timeline[6] == "send_pipe"
             assert process.reaped and not transcriber.started_process
@@ -627,9 +663,9 @@ class TestStartupCancellation:
                 assert all(not pipe.closed for pipe in pipes)
 
             transcriber.stop()
-            assert all(pipe.closed and pipe.close_calls == 1 for pipe in pipes), (
-                "second stop did not retry post-reap resource cleanup"
-            )
+            assert all(
+                pipe.closed and pipe.close_calls == 1 for pipe in pipes
+            ), "second stop did not retry post-reap resource cleanup"
             assert not reader.is_alive(), "second stop did not finish reader cleanup"
             assert not completed_after_failure, "failed cleanup was marked complete"
             assert attempts.count(failed_resource) == 2
@@ -740,7 +776,11 @@ class TestStartupCancellation:
 
     def test_finalization_observes_post_reap_cleanup_failure(self, monkeypatch):
         transcriber, process, pipes, _ = _lifecycle_case(monkeypatch)
-        cleanup_entered, release_cleanup, finalization_waiting = Event(), Event(), Event()
+        cleanup_entered, release_cleanup, finalization_waiting = (
+            Event(),
+            Event(),
+            Event(),
+        )
         original_close = pipes[1].close
         original_wait = transcriber._cleanup_condition.wait
         failure = RuntimeError("controlled post-reap resource failure")
@@ -777,7 +817,9 @@ class TestStartupCancellation:
             owner.join(timeout=5)
             worker.join(timeout=5)
             assert not owner.is_alive()
-            assert not worker.is_alive(), "finalization waited forever for successful cleanup"
+            assert (
+                not worker.is_alive()
+            ), "finalization waited forever for successful cleanup"
             assert owner_errors == [failure]
             assert outcome.get("error") is failure
             assert not transcriber._cleanup_done.is_set()
@@ -826,7 +868,12 @@ class TestStartupCancellation:
             assert not transcriber.read_line_thread.is_alive()
             assert transcriber._cleanup_done.is_set()
             assert transcriber._cleanup_error is None
-            assert process.timeline == ["start-entered", "start-returning", "join", "reaped"]
+            assert process.timeline == [
+                "start-entered",
+                "start-returning",
+                "join",
+                "reaped",
+            ]
         finally:
             original_close()
             pipes[0].close()
@@ -854,6 +901,7 @@ class TestStartupCancellation:
         reader.join = join_reader
         monkeypatch.setattr(module, "Thread", lambda **kwargs: reader)
         if pending_resource == "send_pipe":
+
             def fail_close():
                 monkeypatch.setattr(pipes[1], "close", original_close)
                 raise OSError("controlled pipe close failure")
@@ -871,7 +919,12 @@ class TestStartupCancellation:
         assert reader.join_calls == (2 if pending_resource == "reader" else 0)
         assert transcriber._cleanup_done.is_set()
         assert transcriber._cleanup_error is None
-        assert process.timeline == ["start-entered", "start-returning", "join", "reaped"]
+        assert process.timeline == [
+            "start-entered",
+            "start-returning",
+            "join",
+            "reaped",
+        ]
 
     def test_qthread_startup_cancellation(self, qtbot, monkeypatch):
         transcriber, process, pipes, _ = _lifecycle_case(
@@ -904,7 +957,9 @@ class TestStartupCancellation:
                 if not pipe.closed:
                     pipe.close()
             thread.quit()
-            assert thread.wait(10000), "QThread did not finish; no forced termination allowed"
+            assert thread.wait(
+                10000
+            ), "QThread did not finish; no forced termination allowed"
 
     def test_process_level_natural_exit(self):
         root = Path(__file__).resolve().parents[2]
@@ -920,8 +975,13 @@ class TestStartupCancellation:
         env["BUZZ_DISABLE_TELEMETRY"] = "1"
         with subprocess.Popen(
             [sys.executable, "-m", "pytest", "-q", node],
-            cwd=root, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-            text=True, encoding="utf-8", errors="replace",
+            cwd=root,
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
         ) as child:
             try:
                 output, _ = child.communicate(timeout=60)
@@ -935,9 +995,191 @@ class TestStartupCancellation:
                         pass
                 child.kill()
                 output, _ = child.communicate(timeout=10)
-                pytest.fail(f"Child pytest did not exit naturally within 60s:\n{output}")
+                pytest.fail(
+                    f"Child pytest did not exit naturally within 60s:\n{output}"
+                )
             assert child.returncode == 0, output
             assert "1 passed" in output, output
+
+
+class TestMeetingShutdown:
+    @staticmethod
+    def start_adapter(monkeypatch, transcriber):
+        from buzz.meeting import meeting_transcriber_adapter as module
+        from buzz.meeting.final_transcription import FinalTranscriptionConfig
+
+        monkeypatch.setattr(module, "WhisperFileTranscriber", lambda **kw: transcriber)
+        monkeypatch.setattr(
+            TranscriptionModel, "get_local_model_path", lambda self: "model"
+        )
+        adapter = module.MeetingTrackTranscriber()
+        adapter.start("meeting.wav", 16000, FinalTranscriptionConfig())
+        return adapter
+
+    def test_normal_completion_destroys_worker_on_owner_thread(
+        self, qtbot, monkeypatch
+    ):
+        transcriber, process, _, _ = _lifecycle_case(monkeypatch, complete=True)
+        destroyed_on = []
+        transcriber.destroyed.connect(
+            lambda: destroyed_on.append(QThread.currentThread()),
+            Qt.ConnectionType.DirectConnection,
+        )
+        adapter = self.start_adapter(monkeypatch, transcriber)
+        owner_thread = adapter._thread
+        thread_finished = Event()
+        owner_thread.finished.connect(
+            thread_finished.set, Qt.ConnectionType.DirectConnection
+        )
+        completed = []
+        adapter.track_completed.connect(completed.append)
+
+        process.allow_start.set()
+        qtbot.waitUntil(lambda: completed == [[]], timeout=5000)
+
+        assert destroyed_on == [owner_thread]
+        assert thread_finished.is_set()
+        assert adapter._thread is adapter._transcriber is None
+
+    def test_destruction_timeout_retains_then_retry_succeeds(self, qtbot, monkeypatch):
+        entered, release = Event(), Event()
+
+        class GatedDisposalTranscriber(WhisperFileTranscriber):
+            @pyqtSlot()
+            def dispose_in_owner_thread(self):
+                entered.set()
+                assert release.wait(10)
+                super().dispose_in_owner_thread()
+
+        base, process, pipes, _ = _lifecycle_case(monkeypatch, complete=True)
+        transcriber = GatedDisposalTranscriber(base.transcription_task)
+        adapter = self.start_adapter(monkeypatch, transcriber)
+        owner_thread = adapter._thread
+        try:
+            process.allow_start.set()
+            assert entered.wait(5)
+            assert adapter.shutdown(0) is False
+            assert adapter._thread is owner_thread
+            assert adapter._transcriber is transcriber
+            assert not adapter._worker_destroyed.is_set()
+            release.set()
+            assert adapter.shutdown(5000) is True
+            assert adapter._thread is adapter._transcriber is None
+            assert adapter.shutdown(0) is True
+            assert all(pipe.closed for pipe in pipes)
+        finally:
+            release.set()
+            assert adapter.shutdown(5000)
+
+    @pytest.mark.parametrize("child_before_gate", [False, True])
+    def test_startup_timeout_retains_then_replays(
+        self, qtbot, monkeypatch, child_before_gate
+    ):
+        transcriber, process, pipes, _ = _lifecycle_case(
+            monkeypatch, child_before_gate=child_before_gate
+        )
+        adapter = self.start_adapter(monkeypatch, transcriber)
+        owner_thread = adapter._thread
+        completed, errors = [], []
+        adapter.track_completed.connect(completed.append)
+        adapter.track_error.connect(errors.append)
+        try:
+            assert process.start_entered.wait(5)
+            assert adapter.shutdown(0) is False
+            assert adapter._thread is owner_thread
+            assert adapter._transcriber is transcriber
+            assert owner_thread.isRunning()
+            adapter._on_completed([])
+            adapter._on_error("late error")
+            assert completed == errors == []
+            adapter.start("again.wav", 16000, None)
+            assert errors == ["Shutdown requested"]
+            process.allow_start.set()
+            result = adapter.shutdown(5000)
+            assert result is True, (
+                adapter._worker_destroyed.is_set(),
+                owner_thread.isRunning(),
+                transcriber.cleanup_complete,
+                adapter._dispose_requested,
+                adapter._stop_thread.is_alive(),
+            )
+            assert process.reaped and all(pipe.closed for pipe in pipes)
+            assert process.timeline.count("terminate") == 1
+            assert adapter.shutdown(0) is True
+        finally:
+            process.allow_start.set()
+            assert adapter.shutdown(5000)
+
+    def test_cleanup_failure_retains_worker_for_retry(self, qtbot, monkeypatch):
+        transcriber, process, _, _ = _lifecycle_case(monkeypatch)
+        original_close = transcriber._close_transcription_resources
+
+        def fail(*args, **kwargs):
+            raise RuntimeError("controlled cleanup failure")
+
+        monkeypatch.setattr(transcriber, "_close_transcription_resources", fail)
+        process.allow_start.set()
+        adapter = self.start_adapter(monkeypatch, transcriber)
+        owner_thread = adapter._thread
+        try:
+            assert process.wait_entered.wait(5)
+            assert adapter.shutdown(5000) is False
+            assert adapter._thread is owner_thread
+            assert adapter._transcriber is transcriber
+            assert not adapter._worker_destroyed.is_set()
+            monkeypatch.setattr(
+                transcriber, "_close_transcription_resources", original_close
+            )
+            assert adapter.shutdown(5000) is True
+            assert process.timeline.count("join") == 1
+        finally:
+            monkeypatch.setattr(
+                transcriber, "_close_transcription_resources", original_close
+            )
+            assert adapter.shutdown(5000)
+
+    def test_parent_disposal_keeps_worker_owned(self, qtbot, monkeypatch):
+        from buzz.meeting.meeting_transcriber_adapter import _owned_workers
+
+        transcriber, process, _, _ = _lifecycle_case(monkeypatch)
+        adapter = self.start_adapter(monkeypatch, transcriber)
+        parent = QObject()
+        parent_destroyed = Event()
+        parent.destroyed.connect(parent_destroyed.set)
+        adapter.setParent(parent)
+        owner_thread = adapter._thread
+        try:
+            assert process.start_entered.wait(5)
+            assert adapter.shutdown(0) is False
+            assert owner_thread.parent() is None
+            parent.deleteLater()
+            qtbot.waitUntil(parent_destroyed.is_set, timeout=5000)
+            assert (owner_thread, transcriber) in _owned_workers
+            assert owner_thread.isRunning()
+        finally:
+            process.allow_start.set()
+            qtbot.waitUntil(adapter._worker_destroyed.is_set, timeout=5000)
+            assert owner_thread.wait(5000)
+            adapter._release_worker()
+            assert (owner_thread, transcriber) not in _owned_workers
+
+    def test_descendant_cleanup_must_be_observed(self, monkeypatch):
+        child = Mock()
+        parent = Mock()
+        parent.children.return_value = [child]
+        monkeypatch.setattr(psutil, "Process", lambda pid: parent)
+        monkeypatch.setattr(psutil, "wait_procs", lambda procs, timeout: ([], procs))
+        with pytest.raises(RuntimeError, match="child processes did not terminate"):
+            terminate_child_processes(123)
+        child.terminate.assert_called_once()
+        child.kill.assert_called_once()
+
+    def test_cross_thread_disposal_is_rejected(self, monkeypatch):
+        transcriber, _, _, _ = _lifecycle_case(monkeypatch)
+        owner = QThread()
+        transcriber.moveToThread(owner)
+        with pytest.raises(RuntimeError, match="owning Qt thread"):
+            transcriber.dispose_in_owner_thread()
 
 
 class TestCheckFileHasAudioStream:
@@ -1399,7 +1641,7 @@ class TestWhisperFileTranscriber:
         transcriber.stop()
         time.sleep(3)
 
-    def test_transcribe_stop(self):
+    def test_transcribe_stop(self, monkeypatch):
         output_file_path = os.path.join(tempfile.gettempdir(), "whisper.txt")
         if os.path.exists(output_file_path):
             os.remove(output_file_path)
@@ -1407,20 +1649,16 @@ class TestWhisperFileTranscriber:
         file_transcription_options = FileTranscriptionOptions(
             file_paths=[test_audio_path]
         )
-        transcription_options = TranscriptionOptions(
-            language="fr",
-            task=Task.TRANSCRIBE,
-            word_level_timings=False,
-            model=TranscriptionModel(
-                model_type=ModelType.WHISPER_CPP,
-                whisper_model_size=WhisperModelSize.TINY,
-            ),
+        transcription_options = TranscriptionOptions()
+        monkeypatch.setattr(
+            WhisperFileTranscriber,
+            "transcribe_whisper",
+            staticmethod(_spawn_grandchild_transcriber),
         )
-        model_path = get_model_path(transcription_options.model)
 
         transcriber = WhisperFileTranscriber(
             task=FileTranscriptionTask(
-                model_path=model_path,
+                model_path="unused-test-model",
                 transcription_options=transcription_options,
                 file_transcription_options=file_transcription_options,
                 file_path=test_audio_path,
@@ -1432,8 +1670,7 @@ class TestWhisperFileTranscriber:
         run_thread = Thread(target=transcriber.run, daemon=True)
         run_thread.start()
 
-        # Wait until the whisper.cpp worker process AND its whisper-cli
-        # subprocess (grandchild) are actually up.
+        # Wait until the worker process and its stand-in native subprocess are up.
         def worker_tree_is_up() -> bool:
             if not transcriber.started_process:
                 return False
@@ -1447,12 +1684,12 @@ class TestWhisperFileTranscriber:
 
         assert _wait_until(
             worker_tree_is_up, timeout=60
-        ), "whisper.cpp worker/subprocess did not start"
+        ), "worker/subprocess did not start"
 
         worker_pid = transcriber.current_process.pid
         worker_proc = psutil.Process(worker_pid)
         descendants = worker_proc.children(recursive=True)
-        assert descendants, "whisper-cli subprocess did not start"
+        assert descendants, "stand-in subprocess did not start"
 
         transcriber.stop()
 
@@ -1466,7 +1703,7 @@ class TestWhisperFileTranscriber:
         for child in descendants:
             assert _wait_until(
                 lambda child=child: _is_dead_or_zombie(child)
-            ), f"whisper-cli subprocess {child.pid} still running after stop()"
+            ), f"stand-in subprocess {child.pid} still running after stop()"
 
         # Assert that file was not created
         assert os.path.isfile(output_file_path) is False

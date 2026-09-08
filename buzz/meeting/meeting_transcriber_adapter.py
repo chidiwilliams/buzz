@@ -7,9 +7,19 @@ Returns pure segment DTOs to the caller thread via Qt signals.
 from __future__ import annotations
 
 import logging
+from threading import Event, Thread
+from time import monotonic
 from typing import Optional
 
-from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import (
+    QMetaObject,
+    QObject,
+    QThread,
+    QTimer,
+    Qt,
+    pyqtSignal,
+    pyqtSlot,
+)
 
 from buzz.meeting.final_transcription import (
     FinalTranscriptionConfig,
@@ -32,6 +42,10 @@ from buzz.transcriber.whisper_file_transcriber import (
 )
 
 logger = logging.getLogger(__name__)
+
+# Parent destruction must not delete a running QThread after a failed shutdown.
+# Entries are removed only after verified worker destruction and a joined thread.
+_owned_workers: set[tuple[QThread, WhisperFileTranscriber]] = set()
 
 
 class MeetingTrackTranscriber(QObject):
@@ -60,6 +74,10 @@ class MeetingTrackTranscriber(QObject):
         self._thread: Optional[QThread] = None
         self._shutdown_requested = False
         self._active_profile_version: Optional[int] = None
+        self._stop_thread: Optional[Thread] = None
+        self._worker_destroyed = Event()
+        self._dispose_requested = False
+        self._pending_result = None
 
     def start(
         self,
@@ -104,58 +122,162 @@ class MeetingTrackTranscriber(QObject):
         )
         self._transcriber = transcriber_class(task=task)
         self._active_profile_version = config.profile_version
-        self._thread = QThread(self)
+        self._thread = QThread()
+        self._worker_destroyed.clear()
+        self._dispose_requested = False
+        _owned_workers.add((self._thread, self._transcriber))
         self._transcriber.moveToThread(self._thread)
 
         # Wire signals
         self._thread.started.connect(self._transcriber.run)
         self._transcriber.completed.connect(self._on_completed)
         self._transcriber.error.connect(self._on_error)
-        self._transcriber.completed.connect(self._thread.quit)
-        self._transcriber.error.connect(self._thread.quit)
-        self._transcriber.completed.connect(self._transcriber.deleteLater)
-        self._transcriber.error.connect(self._transcriber.deleteLater)
-        self._thread.finished.connect(self._thread.deleteLater)
+        self._transcriber.completed.connect(
+            self._transcriber.dispose_in_owner_thread,
+            Qt.ConnectionType.DirectConnection,
+        )
+        self._transcriber.error.connect(
+            self._transcriber.dispose_in_owner_thread,
+            Qt.ConnectionType.DirectConnection,
+        )
+        self._transcriber.destroyed.connect(
+            self._worker_destroyed.set, Qt.ConnectionType.DirectConnection
+        )
+        self._transcriber.destroyed.connect(
+            self._thread.quit, Qt.ConnectionType.DirectConnection
+        )
+        self._thread.finished.connect(self._on_thread_finished)
 
         self._thread.start()
 
-    def shutdown(self) -> None:
-        """Request graceful shutdown.
+    def shutdown(self, timeout_ms: int = 10000) -> bool:
+        """Cancel permanently and wait at most timeout_ms for owned workers.
 
-        If a transcription is in progress, stops it. Leaves durable
-        state as IN_PROGRESS for recovery.
+        True verifies backend cleanup, worker destruction on its owning Qt
+        thread, and a joined QThread. False retains ownership for a later retry.
+        Durable meeting state is left untouched. Call on the adapter's Qt thread.
         """
+        if timeout_ms < 0:
+            raise ValueError("timeout_ms must be non-negative")
+        deadline = monotonic() + timeout_ms / 1000
         self._shutdown_requested = True
-        if self._transcriber is not None:
-            try:
-                self._transcriber.stop()
-            except Exception:
-                logger.exception("Error stopping transcriber")
-        if self._thread is not None and self._thread.isRunning():
-            if not self._thread.wait(10000):
-                logger.warning("Transcriber thread did not finish in 10s, terminating")
-                self._thread.terminate()
-                self._thread.wait(2000)
+
+        transcriber = self._transcriber
+        thread = self._thread
+        if transcriber is None:
+            return thread is None
+
+        if not self._worker_destroyed.is_set():
+            transcriber.request_cancel()
+
+            def stop():
+                try:
+                    transcriber.stop()
+                except Exception:
+                    logger.exception("Error stopping transcriber")
+
+            if self._stop_thread is None or not self._stop_thread.is_alive():
+                self._stop_thread = Thread(
+                    target=stop, name="meeting-transcription-stop"
+                )
+                try:
+                    self._stop_thread.start()
+                except Exception:
+                    logger.exception("Could not start transcriber cleanup")
+                    return False
+
+            self._stop_thread.join(max(0, deadline - monotonic()))
+            if self._stop_thread.is_alive():
+                return False
+            if not transcriber.cleanup_complete and not transcriber.wait_for_cleanup(
+                max(0, deadline - monotonic())
+            ):
+                return False
+
+            if not self._worker_destroyed.is_set() and not self._dispose_requested:
+                self._dispose_requested = True
+                try:
+                    QMetaObject.invokeMethod(
+                        transcriber,
+                        "dispose_in_owner_thread",
+                        Qt.ConnectionType.QueuedConnection,
+                    )
+                except RuntimeError:
+                    self._dispose_requested = False
+                    if not self._worker_destroyed.is_set():
+                        return False
+
+            if not self._worker_destroyed.wait(max(0, deadline - monotonic())):
+                return False
+
+        if thread is None or not thread.wait(
+            max(0, int((deadline - monotonic()) * 1000))
+        ):
+            return False
+
+        self._release_worker()
+        return True
+
+    def _release_worker(self) -> None:
+        """Release Python ownership only after destruction and QThread join."""
+        if self._thread is not None:
+            if not self._worker_destroyed.is_set() or not self._thread.wait(0):
+                raise RuntimeError("Worker ownership released before verified shutdown")
+            _owned_workers.discard((self._thread, self._transcriber))
+            self._thread.deleteLater()
         self._transcriber = None
         self._thread = None
+        self._stop_thread = None
         self._active_profile_version = None
+        self._pending_result = None
+
+    @pyqtSlot()
+    def _on_thread_finished(self) -> None:
+        if self._shutdown_requested or self._thread is None:
+            return
+        if not self._worker_destroyed.is_set() or not self._thread.wait(0):
+            QTimer.singleShot(1, self._on_thread_finished)
+            return
+        pending = self._pending_result
+        if pending is None:
+            QTimer.singleShot(1, self._on_thread_finished)
+            return
+        kind, value, profile_version, detailed_words = pending
+        self._release_worker()
+        if kind == "completed":
+            self._emit_completed(value, profile_version, detailed_words)
+        else:
+            self.track_error.emit(value)
 
     @pyqtSlot(list)
     def _on_completed(self, segments: list[Segment]) -> None:
-        """Convert backend output to the pure meeting result boundary."""
+        if self._shutdown_requested:
+            return  # Suppress callback during intentional shutdown
         profile_version = self._active_profile_version
         detailed_words = (
             tuple(self._transcriber.detailed_words)
             if profile_version == 2 and self._transcriber is not None
             else ()
         )
-        self._transcriber = None
-        self._thread = None
-        self._active_profile_version = None
+        if self._thread is None:
+            self._transcriber = None
+            self._active_profile_version = None
+            self._emit_completed(segments, profile_version, detailed_words)
+            return
+        self._pending_result = (
+            "completed",
+            segments,
+            profile_version,
+            detailed_words,
+        )
 
-        if self._shutdown_requested:
-            return  # Suppress callback during intentional shutdown
-
+    def _emit_completed(
+        self,
+        segments: list[Segment],
+        profile_version: Optional[int],
+        detailed_words: tuple,
+    ) -> None:
+        """Convert backend output after verified worker destruction and join."""
         if profile_version == 2:
             result = TrackTranscriptionResult(
                 segments=tuple(
@@ -191,15 +313,15 @@ class MeetingTrackTranscriber(QObject):
 
     @pyqtSlot(str)
     def _on_error(self, error: str) -> None:
-        """Forward error message."""
-        self._transcriber = None
-        self._thread = None
-        self._active_profile_version = None
-
+        """Queue an error until worker destruction and thread exit are verified."""
         if self._shutdown_requested:
             return  # Suppress callback during intentional shutdown
-
-        self.track_error.emit(error)
+        if self._thread is None:
+            self._transcriber = None
+            self._active_profile_version = None
+            self.track_error.emit(error)
+            return
+        self._pending_result = ("error", error, None, ())
 
     @staticmethod
     def _resolve_model_type(model_type_str: str) -> ModelType:
