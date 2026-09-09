@@ -7,8 +7,13 @@ import math
 from dataclasses import dataclass, field
 from urllib.parse import urlsplit
 
-import requests
-
+from buzz.meeting._bounded_http_transport import (
+    BoundedHttpCleanupRequiredError,
+    BoundedHttpResponseTooLargeError,
+    BoundedHttpTimeoutError,
+    BoundedHttpTransport,
+    BoundedHttpTransportError,
+)
 from buzz.meeting.meeting_summary_prompt import (
     MEETING_SUMMARY_PROMPT_INSTRUCTIONS,
     MEETING_SUMMARY_PROMPT_VERSION,
@@ -34,11 +39,18 @@ from buzz.meeting.summary_provider import (
 )
 
 OPENAI_COMPATIBLE_SUMMARY_PROMPT_VERSION = MEETING_SUMMARY_PROMPT_VERSION
+_INVALID_RESPONSE_JSON = object()
+_INVALID_SUMMARY_CONTENT = object()
 
 
 @dataclass(frozen=True, slots=True)
 class OpenAICompatibleProviderConfig:
-    """Immutable connection configuration for an OpenAI-compatible API."""
+    """Immutable connection configuration for an OpenAI-compatible API.
+
+    ``timeout_seconds`` is the total network-operation budget after the
+    transport child has successfully started. Forced process cleanup may follow
+    deadline expiry.
+    """
 
     base_url: str
     model: str
@@ -77,6 +89,16 @@ class OpenAICompatibleProvider:
                 "config must be OpenAICompatibleProviderConfig"
             )
         self._config = config
+        self._transport = BoundedHttpTransport()
+
+    @property
+    def cleanup_required(self) -> bool:
+        """Whether a prior transport child still requires bounded cleanup."""
+        return self._transport.cleanup_required
+
+    def shutdown(self) -> bool:
+        """Retry bounded transport cleanup and report whether it completed."""
+        return self._transport.shutdown()
 
     def summarize(self, request: MeetingSummaryRequest) -> MeetingSummary:
         try:
@@ -103,21 +125,29 @@ class OpenAICompatibleProvider:
         endpoint = f"{self._config.base_url}/chat/completions"
 
         try:
-            response = requests.post(
+            response = self._transport.post_json_with_deadline(
                 endpoint,
                 headers=headers,
-                json=body,
-                timeout=self._config.timeout_seconds,
+                json_body=body,
+                timeout_seconds=self._config.timeout_seconds,
                 allow_redirects=False,
             )
-        except requests.Timeout as exc:
+        except BoundedHttpCleanupRequiredError as exc:
+            raise SummaryProviderTransportError(
+                "OpenAI-compatible summary transport cleanup is incomplete"
+            ) from exc
+        except BoundedHttpTimeoutError as exc:
             raise SummaryProviderTransportError(
                 "OpenAI-compatible summary request timed out"
             ) from exc
-        except requests.RequestException as exc:
+        except BoundedHttpTransportError as exc:
             raise SummaryProviderTransportError(
                 "OpenAI-compatible summary request failed before receiving "
                 "an HTTP response"
+            ) from exc
+        except BoundedHttpResponseTooLargeError as exc:
+            raise SummaryProviderResponseError(
+                "OpenAI-compatible summary response exceeded the size limit"
             ) from exc
 
         if not 200 <= response.status_code < 300:
@@ -127,13 +157,12 @@ class OpenAICompatibleProvider:
             )
 
         content = _extract_content(response.text)
-        try:
-            result = meeting_summary_from_json(content)
-        except MeetingSummaryError as exc:
+        result = _parse_summary_content(content)
+        if result is _INVALID_SUMMARY_CONTENT:
             raise SummaryProviderResponseError(
                 "OpenAI-compatible summary response contained an invalid "
                 "MeetingSummary"
-            ) from exc
+            )
 
         result = validate_summary_provider_result(request, result)
         try:
@@ -190,12 +219,11 @@ def _validate_base_url(value: object) -> str:
 
 
 def _extract_content(response_text: str) -> str:
-    try:
-        envelope = json.loads(response_text)
-    except (json.JSONDecodeError, TypeError) as exc:
+    envelope = _decode_response_json(response_text)
+    if envelope is _INVALID_RESPONSE_JSON:
         raise SummaryProviderResponseError(
             "OpenAI-compatible summary response was not valid JSON"
-        ) from exc
+        )
     if not isinstance(envelope, dict):
         raise SummaryProviderResponseError(
             "OpenAI-compatible summary response envelope was invalid"
@@ -221,6 +249,20 @@ def _extract_content(response_text: str) -> str:
             "OpenAI-compatible summary response envelope was invalid"
         )
     return content
+
+
+def _decode_response_json(response_text: str) -> object:
+    try:
+        return json.loads(response_text)
+    except (json.JSONDecodeError, TypeError):
+        return _INVALID_RESPONSE_JSON
+
+
+def _parse_summary_content(content: str) -> MeetingSummary | object:
+    try:
+        return meeting_summary_from_json(content)
+    except MeetingSummaryError:
+        return _INVALID_SUMMARY_CONTENT
 
 
 __all__ = [

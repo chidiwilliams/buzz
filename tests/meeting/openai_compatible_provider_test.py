@@ -8,14 +8,27 @@ import datetime
 import inspect
 import json
 import math
+import multiprocessing
+import socket
+import threading
+import time
+import traceback
 import uuid
-from collections.abc import Callable
-from types import SimpleNamespace
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
 
 import pytest
-import requests
-
+import buzz.meeting._bounded_http_transport as transport_module
+from buzz.meeting._bounded_http_transport import (
+    BoundedHttpCleanupRequiredError,
+    BoundedHttpResponse,
+    BoundedHttpTimeoutError,
+    BoundedHttpTransport,
+    BoundedHttpTransportError,
+    MAX_RESPONSE_BYTES,
+)
 from buzz.meeting.meeting_summary_prompt import (
     MEETING_SUMMARY_PROMPT_INSTRUCTIONS,
     MEETING_SUMMARY_PROMPT_VERSION,
@@ -50,6 +63,7 @@ from buzz.meeting.summary_provider import (
 )
 
 _SECRET = "SUPER_SECRET_TEST_KEY"
+_REAL_POST_JSON_WITH_DEADLINE = BoundedHttpTransport.post_json_with_deadline
 _EXPECTED_SYSTEM_PROMPT_V1 = """You generate one structured MeetingSummary from the supplied transcript data.
 Return exactly one JSON object. Return no Markdown, no code fences, no commentary, and no prose prefix or suffix.
 
@@ -76,7 +90,7 @@ def _forbid_real_network(monkeypatch: pytest.MonkeyPatch) -> None:
     def fail(*args: object, **kwargs: object) -> None:
         raise AssertionError("Unexpected real network request")
 
-    monkeypatch.setattr("buzz.meeting.openai_compatible_provider.requests.post", fail)
+    monkeypatch.setattr(BoundedHttpTransport, "post_json_with_deadline", fail)
 
 
 def _request(
@@ -223,12 +237,448 @@ def _install_response(
         text if text is not None else _envelope(meeting_summary_to_json(_summary()))
     )
 
-    def post(*args: object, **kwargs: object) -> SimpleNamespace:
+    def post(self: object, *args: object, **kwargs: object) -> BoundedHttpResponse:
+        del self
         calls.append((args, kwargs))
-        return SimpleNamespace(status_code=status_code, text=response_text)
+        return BoundedHttpResponse(status_code=status_code, text=response_text)
 
-    monkeypatch.setattr("buzz.meeting.openai_compatible_provider.requests.post", post)
+    monkeypatch.setattr(BoundedHttpTransport, "post_json_with_deadline", post)
     return calls
+
+
+def _use_real_transport(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        BoundedHttpTransport,
+        "post_json_with_deadline",
+        _REAL_POST_JSON_WITH_DEADLINE,
+    )
+
+
+def _write_response(
+    handler: BaseHTTPRequestHandler,
+    body: bytes,
+    *,
+    status: int = 200,
+    headers: dict[str, str] | None = None,
+) -> None:
+    handler.send_response(status)
+    handler.send_header("Content-Length", str(len(body)))
+    for name, value in (headers or {}).items():
+        handler.send_header(name, value)
+    handler.end_headers()
+    if body:
+        handler.wfile.write(body)
+    handler.wfile.flush()
+
+
+@contextmanager
+def _local_http_server(
+    callback: Callable[[BaseHTTPRequestHandler], None],
+) -> Iterator[str]:
+    class Handler(BaseHTTPRequestHandler):
+        protocol_version = "HTTP/1.1"
+
+        def do_POST(self) -> None:
+            content_length = int(self.headers.get("Content-Length", "0"))
+            self.rfile.read(content_length)
+            callback(self)
+
+        def log_message(self, format: str, *args: object) -> None:
+            pass
+
+    class Server(ThreadingHTTPServer):
+        def handle_error(self, request: object, client_address: object) -> None:
+            pass
+
+    server = Server(("127.0.0.1", 0), Handler)
+    server.daemon_threads = True
+    server_thread = threading.Thread(target=server.serve_forever)
+    server_thread.start()
+    try:
+        yield f"http://127.0.0.1:{server.server_port}/v1"
+    finally:
+        server.shutdown()
+        server.server_close()
+        server_thread.join(2.0)
+        assert not server_thread.is_alive()
+
+
+def _transport_children() -> tuple[multiprocessing.Process, ...]:
+    return tuple(
+        child
+        for child in multiprocessing.active_children()
+        if child.name == "buzz-meeting-summary-http"
+    )
+
+
+class _FakeProcess:
+    def __init__(
+        self,
+        *,
+        result_path: str,
+        exit_on_join: bool,
+        exit_on_terminate: bool = False,
+        exit_on_kill: bool = False,
+    ) -> None:
+        self.pid: int | None = None
+        self.result_path = result_path
+        self.alive = False
+        self.exit_on_join = exit_on_join
+        self.exit_on_terminate = exit_on_terminate
+        self.exit_on_kill = exit_on_kill
+        self.join_timeouts: list[float | None] = []
+        self.started = False
+        self.terminated = False
+        self.killed = False
+        self.closed = False
+
+    def start(self) -> None:
+        self.started = True
+        self.pid = 123
+        self.alive = True
+
+    def join(self, timeout: float | None = None) -> None:
+        self.join_timeouts.append(timeout)
+        if self.exit_on_join and len(self.join_timeouts) == 1:
+            transport_module._write_child_result(
+                self.result_path, ("response", 200, "result")
+            )
+            self.alive = False
+
+    def is_alive(self) -> bool:
+        return self.alive
+
+    def terminate(self) -> None:
+        self.terminated = True
+        if self.exit_on_terminate:
+            self.alive = False
+
+    def kill(self) -> None:
+        self.killed = True
+        if self.exit_on_kill:
+            self.alive = False
+
+    def close(self) -> None:
+        assert not self.alive
+        self.closed = True
+
+
+class _FakeContext:
+    def __init__(self, process_factory: Callable[[str], _FakeProcess]) -> None:
+        self.process_factory = process_factory
+        self.processes: list[_FakeProcess] = []
+        self.process_kwargs: list[dict[str, object]] = []
+
+    class Event:
+        def set(self) -> None:
+            pass
+
+    def Process(self, **kwargs: object) -> _FakeProcess:
+        args = kwargs["args"]
+        assert isinstance(args, tuple)
+        process = self.process_factory(args[2])
+        self.processes.append(process)
+        self.process_kwargs.append(kwargs)
+        return process
+
+
+def _invoke_transport(
+    transport: BoundedHttpTransport,
+    *,
+    json_body: dict[str, object] | None = None,
+    timeout_seconds: float = 1.0,
+) -> BoundedHttpResponse:
+    return _REAL_POST_JSON_WITH_DEADLINE(
+        transport,
+        "https://api.example/v1/chat/completions",
+        headers={"Authorization": "Bearer key"},
+        json_body=json_body or {"body": "request"},
+        timeout_seconds=timeout_seconds,
+        allow_redirects=False,
+    )
+
+
+class TestTransportLifetimeUnitOracles:
+    def test_deadline_starts_after_spawn_and_is_not_reset_before_exit_wait(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        context = _FakeContext(
+            lambda result_path: _FakeProcess(
+                result_path=result_path,
+                exit_on_join=True,
+            )
+        )
+        events: list[str] = []
+        clock_values = iter((10.0, 10.25, 10.3, 10.35))
+
+        def monotonic() -> float:
+            events.append("clock")
+            return next(clock_values)
+
+        original_start = _FakeProcess.start
+
+        def start(process: _FakeProcess) -> None:
+            events.append("start")
+            original_start(process)
+
+        monkeypatch.setattr(
+            transport_module.multiprocessing, "get_context", lambda _: context
+        )
+        monkeypatch.setattr(transport_module.time, "monotonic", monotonic)
+        monkeypatch.setattr(_FakeProcess, "start", start)
+
+        assert _invoke_transport(BoundedHttpTransport()).text == "result"
+        assert events[0] == "start"
+        assert context.processes[0].join_timeouts == [pytest.approx(0.75)]
+
+    def test_spawn_arguments_are_small_and_request_size_independent(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        context = _FakeContext(
+            lambda result_path: _FakeProcess(
+                result_path=result_path,
+                exit_on_join=True,
+            )
+        )
+        monkeypatch.setattr(
+            transport_module.multiprocessing, "get_context", lambda _: context
+        )
+
+        _invoke_transport(BoundedHttpTransport(), json_body={"body": "small"})
+        _invoke_transport(
+            BoundedHttpTransport(),
+            json_body={"body": "large-request-sentinel-" + ("x" * 1_000_000)},
+        )
+
+        assert len(context.process_kwargs) == 2
+        for kwargs in context.process_kwargs:
+            args = kwargs["args"]
+            assert isinstance(args, tuple)
+            assert len(args) == 3
+            assert all(isinstance(arg, str) for arg in args[1:])
+            assert "large-request-sentinel" not in repr(args)
+        first_paths = context.process_kwargs[0]["args"][1:]  # type: ignore[index]
+        second_paths = context.process_kwargs[1]["args"][1:]  # type: ignore[index]
+        assert len(repr(first_paths)) == len(repr(second_paths))
+
+    def test_result_handoff_has_no_pipe_poll_or_recv(self) -> None:
+        source = inspect.getsource(transport_module)
+        assert ".poll(" not in source
+        assert ".recv(" not in source
+        assert "multiprocessing.connection" not in source
+
+        tree = ast.parse(source)
+        joins = [
+            node
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "join"
+        ]
+        assert joins
+        assert all(call.args or call.keywords for call in joins)
+
+    def test_incomplete_cleanup_retains_ownership_and_blocks_new_call(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        context = _FakeContext(
+            lambda result_path: _FakeProcess(
+                result_path=result_path,
+                exit_on_join=False,
+            )
+        )
+        monkeypatch.setattr(
+            transport_module.multiprocessing, "get_context", lambda _: context
+        )
+        transport = BoundedHttpTransport()
+
+        with pytest.raises(BoundedHttpCleanupRequiredError):
+            _invoke_transport(transport, timeout_seconds=0.01)
+
+        process = context.processes[0]
+        assert process.terminated
+        assert process.killed
+        assert process.alive
+        assert not process.closed
+        assert transport.cleanup_required
+        assert all(timeout is not None for timeout in process.join_timeouts)
+
+        with pytest.raises(BoundedHttpCleanupRequiredError):
+            _invoke_transport(transport)
+        assert len(context.processes) == 1
+
+        process.alive = False
+        assert transport.shutdown()
+        assert process.closed
+        assert not transport.cleanup_required
+
+    def test_kill_escalation_completes_cleanup_after_terminate_fails(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        context = _FakeContext(
+            lambda result_path: _FakeProcess(
+                result_path=result_path,
+                exit_on_join=False,
+                exit_on_kill=True,
+            )
+        )
+        monkeypatch.setattr(
+            transport_module.multiprocessing, "get_context", lambda _: context
+        )
+
+        with pytest.raises(BoundedHttpTimeoutError):
+            _invoke_transport(BoundedHttpTransport(), timeout_seconds=0.01)
+
+        process = context.processes[0]
+        assert process.terminated
+        assert process.killed
+        assert process.closed
+        assert process.join_timeouts == [
+            pytest.approx(0.01, abs=0.01),
+            transport_module._TERMINATE_GRACE_SECONDS,
+            transport_module._KILL_GRACE_SECONDS,
+        ]
+
+    def test_unexpected_result_exception_still_cleans_up(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        context = _FakeContext(
+            lambda result_path: _FakeProcess(
+                result_path=result_path,
+                exit_on_join=True,
+            )
+        )
+        monkeypatch.setattr(
+            transport_module.multiprocessing, "get_context", lambda _: context
+        )
+        monkeypatch.setattr(
+            transport_module,
+            "_read_completed_result",
+            lambda _: (_ for _ in ()).throw(ValueError(_SECRET)),
+        )
+        transport = BoundedHttpTransport()
+
+        with pytest.raises(BoundedHttpTransportError) as caught:
+            _invoke_transport(transport)
+
+        assert str(caught.value) == ""
+        assert context.processes[0].closed
+        assert not transport.cleanup_required
+
+    def test_child_exception_result_is_sanitized(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        class Gate:
+            def wait(self) -> None:
+                pass
+
+        request_path, result_path = transport_module._create_transport_files(
+            {
+                "endpoint": "https://api.example",
+                "headers": {},
+                "json_body": {},
+                "timeout_seconds": 1.0,
+                "allow_redirects": False,
+            }
+        )
+        monkeypatch.setattr(
+            transport_module.requests,
+            "post",
+            lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError(_SECRET)),
+        )
+        try:
+            transport_module._post_json_child(
+                Gate(), str(request_path), str(result_path)
+            )
+            serialized = result_path.read_bytes()
+            assert _SECRET.encode() not in serialized
+            assert json.loads(serialized) == {"kind": "transport"}
+        finally:
+            request_path.unlink(missing_ok=True)
+            result_path.unlink(missing_ok=True)
+
+    def test_child_stops_consuming_at_streaming_size_limit(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        consumed: list[int] = []
+
+        class Gate:
+            def wait(self) -> None:
+                pass
+
+        class Response:
+            status_code = 200
+
+            def iter_content(self, *, chunk_size: int) -> Iterator[bytes]:
+                assert chunk_size == transport_module._READ_CHUNK_BYTES
+                for chunk in (b"x" * MAX_RESPONSE_BYTES, b"y"):
+                    consumed.append(len(chunk))
+                    yield chunk
+                pytest.fail("response consumption continued after limit")
+
+            def close(self) -> None:
+                pass
+
+        request_path, result_path = transport_module._create_transport_files(
+            {
+                "endpoint": "https://api.example",
+                "headers": {},
+                "json_body": {},
+                "timeout_seconds": 1.0,
+                "allow_redirects": False,
+            }
+        )
+        monkeypatch.setattr(
+            transport_module.requests, "post", lambda *args, **kwargs: Response()
+        )
+        try:
+            transport_module._post_json_child(
+                Gate(), str(request_path), str(result_path)
+            )
+            assert transport_module._read_completed_result(result_path) == (
+                "too_large",
+            )
+            assert consumed == [MAX_RESPONSE_BYTES, 1]
+        finally:
+            request_path.unlink(missing_ok=True)
+            result_path.unlink(missing_ok=True)
+
+    @pytest.mark.parametrize(
+        ("chunks", "accepted"),
+        [
+            pytest.param((b"x" * MAX_RESPONSE_BYTES,), True, id="exactly-limit"),
+            pytest.param((b"x" * (MAX_RESPONSE_BYTES - 1),), True, id="limit-minus-1"),
+            pytest.param(
+                (b"x" * (MAX_RESPONSE_BYTES - 1), b"yz"),
+                False,
+                id="limit-plus-1",
+            ),
+            pytest.param(
+                (b"x" * 16, b"y" * (MAX_RESPONSE_BYTES + 1)),
+                False,
+                id="large-excess-chunk",
+            ),
+        ],
+    )
+    def test_response_buffer_never_exceeds_streaming_limit(
+        self, chunks: tuple[bytes, ...], accepted: bool
+    ) -> None:
+        class TrackingBuffer(bytearray):
+            peak_size = 0
+
+            def extend(self, chunk: bytes) -> None:
+                super().extend(chunk)
+                self.peak_size = max(self.peak_size, len(self))
+
+        retained = TrackingBuffer()
+        all_chunks_accepted = True
+        for chunk in chunks:
+            if not transport_module._retain_response_chunk(retained, chunk):
+                all_chunks_accepted = False
+                break
+
+        assert all_chunks_accepted is accepted
+        assert retained.peak_size <= MAX_RESPONSE_BYTES
 
 
 class TestConfigBaseUrl:
@@ -409,8 +859,8 @@ class TestRequestAndPrompt:
         provider = _provider()
         provider.summarize(request)
         provider.summarize(request)
-        first_body = calls[0][1]["json"]
-        second_body = calls[1][1]["json"]
+        first_body = calls[0][1]["json_body"]
+        second_body = calls[1][1]["json_body"]
         assert first_body == second_body
         assert isinstance(first_body, dict)
         assert first_body["messages"][0] == {  # type: ignore[index]
@@ -435,7 +885,7 @@ class TestRequestAndPrompt:
 
         _provider().summarize(_request())
 
-        body = calls[0][1]["json"]
+        body = calls[0][1]["json_body"]
         assert body["messages"][0]["content"] == sentinel  # type: ignore[index]
 
     def test_user_message_consumes_shared_renderer_symbol(
@@ -459,7 +909,7 @@ class TestRequestAndPrompt:
 
         assert len(rendered_requests) == 1
         assert rendered_requests[0] is request
-        body = calls[0][1]["json"]
+        body = calls[0][1]["json_body"]
         assert body["messages"][1]["content"] == (  # type: ignore[index]
             "SHARED_RENDERER_SENTINEL"
         )
@@ -506,7 +956,7 @@ class TestRequestAndPrompt:
             ),
         )
         _provider().summarize(request)
-        body = calls[0][1]["json"]
+        body = calls[0][1]["json_body"]
         user_content = body["messages"][1]["content"]  # type: ignore[index]
         expected = json.dumps(
             {
@@ -598,9 +1048,9 @@ class TestHttpCall:
             "Accept": "application/json",
             "Authorization": "Bearer key",
         }
-        assert kwargs["timeout"] == 120.0
+        assert kwargs["timeout_seconds"] == 120.0
         assert kwargs["allow_redirects"] is False
-        body = kwargs["json"]
+        body = kwargs["json_body"]
         assert set(body) == {"model", "messages"}  # type: ignore[arg-type]
         assert body["model"] == "summary-model"  # type: ignore[index]
         assert len(body["messages"]) == 2  # type: ignore[index]
@@ -850,16 +1300,16 @@ class TestHttpAndTransportErrors:
         ("error", "message"),
         [
             (
-                requests.Timeout("sensitive timeout detail"),
+                BoundedHttpTimeoutError("sensitive timeout detail"),
                 "OpenAI-compatible summary request timed out",
             ),
             (
-                requests.ConnectionError("sensitive connection detail"),
+                BoundedHttpTransportError("sensitive connection detail"),
                 "OpenAI-compatible summary request failed before receiving "
                 "an HTTP response",
             ),
             (
-                requests.RequestException("sensitive transport detail"),
+                BoundedHttpTransportError("sensitive transport detail"),
                 "OpenAI-compatible summary request failed before receiving "
                 "an HTTP response",
             ),
@@ -868,24 +1318,54 @@ class TestHttpAndTransportErrors:
     def test_transport_error_mapped_once(
         self,
         monkeypatch: pytest.MonkeyPatch,
-        error: requests.RequestException,
+        error: Exception,
         message: str,
     ) -> None:
         calls = 0
 
-        def post(*args: object, **kwargs: object) -> None:
+        def post(self: object, *args: object, **kwargs: object) -> None:
             nonlocal calls
+            del self
             calls += 1
             assert kwargs["allow_redirects"] is False
             raise error
 
-        monkeypatch.setattr(
-            "buzz.meeting.openai_compatible_provider.requests.post", post
-        )
+        monkeypatch.setattr(BoundedHttpTransport, "post_json_with_deadline", post)
         with pytest.raises(SummaryProviderTransportError) as caught:
             _provider().summarize(_request())
         assert str(caught.value) == message
         assert calls == 1
+
+    def test_incomplete_cleanup_has_distinct_sanitized_error(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        def post(self: object, *args: object, **kwargs: object) -> None:
+            del self, args, kwargs
+            raise BoundedHttpCleanupRequiredError(_SECRET)
+
+        monkeypatch.setattr(BoundedHttpTransport, "post_json_with_deadline", post)
+
+        with pytest.raises(
+            SummaryProviderTransportError,
+            match="^OpenAI-compatible summary transport cleanup is incomplete$",
+        ) as caught:
+            _provider(api_key=_SECRET).summarize(_request())
+
+        assert _SECRET not in str(caught.value)
+        assert _SECRET not in repr(caught.value)
+
+    def test_provider_exposes_cleanup_state_and_bounded_shutdown(self) -> None:
+        class Transport:
+            cleanup_required = True
+
+            def shutdown(self) -> bool:
+                return False
+
+        provider = _provider()
+        provider._transport = Transport()  # type: ignore[assignment]
+
+        assert provider.cleanup_required
+        assert provider.shutdown() is False
 
 
 class TestSecretProtection:
@@ -901,19 +1381,18 @@ class TestSecretProtection:
 
     @pytest.mark.parametrize(
         "error",
-        [requests.Timeout(_SECRET), requests.RequestException(_SECRET)],
+        [BoundedHttpTimeoutError(_SECRET), BoundedHttpTransportError(_SECRET)],
     )
     def test_secret_absent_from_transport_error(
         self,
         monkeypatch: pytest.MonkeyPatch,
-        error: requests.RequestException,
+        error: Exception,
     ) -> None:
-        def post(*args: object, **kwargs: object) -> None:
+        def post(self: object, *args: object, **kwargs: object) -> None:
+            del self, args, kwargs
             raise error
 
-        monkeypatch.setattr(
-            "buzz.meeting.openai_compatible_provider.requests.post", post
-        )
+        monkeypatch.setattr(BoundedHttpTransport, "post_json_with_deadline", post)
         with pytest.raises(SummaryProviderTransportError) as caught:
             _provider(api_key=_SECRET).summarize(_request())
         assert _SECRET not in str(caught.value)
@@ -931,6 +1410,272 @@ class TestSecretProtection:
             _provider(api_key=_SECRET).summarize(_request())
         assert _SECRET not in str(caught.value)
         assert _SECRET not in repr(caught.value)
+
+    @pytest.mark.parametrize(
+        "response_text",
+        [
+            "RAW_PROVIDER_RESPONSE_SENTINEL-outside-envelope",
+            _envelope("RAW_PROVIDER_RESPONSE_SENTINEL-inside-content"),
+        ],
+    )
+    def test_raw_response_absent_from_entire_exception_boundary(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        caplog: pytest.LogCaptureFixture,
+        response_text: str,
+    ) -> None:
+        sentinel = "RAW_PROVIDER_RESPONSE_SENTINEL"
+        _install_response(monkeypatch, text=response_text)
+
+        with pytest.raises(SummaryProviderResponseError) as caught:
+            _provider(api_key=_SECRET).summarize(_request())
+
+        pending: list[BaseException] = [caught.value]
+        visited: set[int] = set()
+        retained_exception_data: list[str] = []
+        while pending:
+            exception = pending.pop()
+            if id(exception) in visited:
+                continue
+            visited.add(id(exception))
+            retained_exception_data.extend(str(value) for value in exception.args)
+            retained_exception_data.extend(
+                str(value) for value in vars(exception).values()
+            )
+            for nested in (exception.__cause__, exception.__context__):
+                if nested is not None:
+                    pending.append(nested)
+
+        formatted = "".join(
+            traceback.format_exception(
+                type(caught.value), caught.value, caught.value.__traceback__
+            )
+        )
+        assert all(sentinel not in value for value in retained_exception_data)
+        assert sentinel not in formatted
+        assert sentinel not in caplog.text
+
+
+class TestBoundedLifetimeTransport:
+    def test_normal_local_response_succeeds_and_is_reaped(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        _use_real_transport(monkeypatch)
+        response_body = _envelope(meeting_summary_to_json(_summary())).encode()
+
+        with _local_http_server(
+            lambda handler: _write_response(handler, response_body)
+        ) as base_url:
+            result = _provider(base_url=base_url).summarize(_request())
+
+        assert result == _summary()
+        assert _transport_children() == ()
+
+    def test_connection_failure_keeps_transport_error_taxonomy(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        _use_real_transport(monkeypatch)
+        attempts = 0
+
+        def disconnect(handler: BaseHTTPRequestHandler) -> None:
+            nonlocal attempts
+            attempts += 1
+            handler.connection.shutdown(socket.SHUT_RDWR)
+            handler.connection.close()
+
+        with _local_http_server(disconnect) as base_url:
+            with pytest.raises(
+                SummaryProviderTransportError,
+                match=(
+                    "^OpenAI-compatible summary request failed before receiving "
+                    "an HTTP response$"
+                ),
+            ):
+                _provider(base_url=base_url).summarize(_request())
+
+        assert attempts == 1
+        assert _transport_children() == ()
+
+    def test_peer_that_never_completes_hits_total_deadline_and_is_reaped(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        _use_real_transport(monkeypatch)
+        request_started = threading.Event()
+        release_server = threading.Event()
+        attempts = 0
+
+        def stall(handler: BaseHTTPRequestHandler) -> None:
+            nonlocal attempts
+            attempts += 1
+            handler.send_response(200)
+            handler.send_header("Content-Length", "1")
+            handler.end_headers()
+            handler.wfile.flush()
+            request_started.set()
+            release_server.wait(5.0)
+
+        try:
+            with _local_http_server(stall) as base_url:
+                provider = OpenAICompatibleProvider(
+                    OpenAICompatibleProviderConfig(
+                        base_url, "summary-model", timeout_seconds=1.5
+                    )
+                )
+                started_at = time.monotonic()
+                with pytest.raises(
+                    SummaryProviderTransportError,
+                    match="^OpenAI-compatible summary request timed out$",
+                ):
+                    provider.summarize(_request())
+                elapsed = time.monotonic() - started_at
+                assert request_started.is_set()
+                assert elapsed < 3.5
+                assert attempts == 1
+                assert _transport_children() == ()
+        finally:
+            release_server.set()
+
+    def test_continuous_drip_cannot_extend_total_deadline(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        _use_real_transport(monkeypatch)
+        request_started = threading.Event()
+        send_next = threading.Event()
+        byte_sent = threading.Event()
+        socket_released = threading.Event()
+        attempts = 0
+
+        def drip(handler: BaseHTTPRequestHandler) -> None:
+            nonlocal attempts
+            attempts += 1
+            handler.send_response(200)
+            handler.send_header("Content-Length", str(MAX_RESPONSE_BYTES))
+            handler.end_headers()
+            request_started.set()
+            try:
+                while send_next.wait(5.0):
+                    send_next.clear()
+                    handler.wfile.write(b"x")
+                    handler.wfile.flush()
+                    byte_sent.set()
+            except (BrokenPipeError, ConnectionResetError):
+                socket_released.set()
+
+        outcome: list[BaseException] = []
+        elapsed: list[float] = []
+        with _local_http_server(drip) as base_url:
+            provider = OpenAICompatibleProvider(
+                OpenAICompatibleProviderConfig(
+                    base_url, "summary-model", timeout_seconds=1.5
+                )
+            )
+
+            def invoke() -> None:
+                started_at = time.monotonic()
+                try:
+                    provider.summarize(_request())
+                except BaseException as exc:
+                    outcome.append(exc)
+                finally:
+                    elapsed.append(time.monotonic() - started_at)
+
+            caller = threading.Thread(target=invoke)
+            caller.start()
+            assert request_started.wait(3.0)
+            safety_deadline = time.monotonic() + 4.0
+            while caller.is_alive() and time.monotonic() < safety_deadline:
+                byte_sent.clear()
+                send_next.set()
+                byte_sent.wait(0.25)
+            caller.join(max(0.0, safety_deadline - time.monotonic()))
+            assert not caller.is_alive()
+            assert len(outcome) == 1
+            assert isinstance(outcome[0], SummaryProviderTransportError)
+            assert str(outcome[0]) == "OpenAI-compatible summary request timed out"
+            assert elapsed[0] < 3.5
+            assert attempts == 1
+            assert _transport_children() == ()
+            send_next.set()
+            assert socket_released.wait(2.0)
+
+    def test_same_provider_is_usable_after_timeout_without_retry(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        _use_real_transport(monkeypatch)
+        release_server = threading.Event()
+        attempts = 0
+        response_body = _envelope(meeting_summary_to_json(_summary())).encode()
+
+        def first_stalls_second_succeeds(handler: BaseHTTPRequestHandler) -> None:
+            nonlocal attempts
+            attempts += 1
+            if attempts == 1:
+                handler.send_response(200)
+                handler.send_header("Content-Length", "1")
+                handler.end_headers()
+                handler.wfile.flush()
+                release_server.wait(5.0)
+                return
+            _write_response(handler, response_body)
+
+        try:
+            with _local_http_server(first_stalls_second_succeeds) as base_url:
+                provider = OpenAICompatibleProvider(
+                    OpenAICompatibleProviderConfig(
+                        base_url, "summary-model", timeout_seconds=1.5
+                    )
+                )
+                with pytest.raises(SummaryProviderTransportError):
+                    provider.summarize(_request())
+                release_server.set()
+                assert provider.summarize(_request()) == _summary()
+                assert attempts == 2
+                assert _transport_children() == ()
+        finally:
+            release_server.set()
+
+    def test_redirect_is_not_followed_by_real_transport(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        _use_real_transport(monkeypatch)
+        attempts = 0
+
+        def redirect(handler: BaseHTTPRequestHandler) -> None:
+            nonlocal attempts
+            attempts += 1
+            _write_response(
+                handler,
+                b"",
+                status=302,
+                headers={"Location": "/v1/chat/completions"},
+            )
+
+        with _local_http_server(redirect) as base_url:
+            with pytest.raises(SummaryProviderRequestError, match="HTTP status 302$"):
+                _provider(base_url=base_url).summarize(_request())
+
+        assert attempts == 1
+
+    def test_oversized_response_is_rejected_before_summary_parsing(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        _use_real_transport(monkeypatch)
+        body = b"x" * (MAX_RESPONSE_BYTES + 1)
+        monkeypatch.setattr(
+            "buzz.meeting.openai_compatible_provider.meeting_summary_from_json",
+            lambda _: pytest.fail("oversized body must not reach summary parsing"),
+        )
+
+        with _local_http_server(
+            lambda handler: _write_response(handler, body)
+        ) as base_url:
+            with pytest.raises(
+                SummaryProviderResponseError,
+                match="^OpenAI-compatible summary response exceeded the size limit$",
+            ):
+                _provider(base_url=base_url).summarize(_request())
+
+        assert _transport_children() == ()
 
 
 def test_public_api() -> None:
@@ -968,7 +1713,7 @@ def test_no_local_timestamp_provenance_implementation() -> None:
 def test_no_forbidden_generation_options(monkeypatch: pytest.MonkeyPatch) -> None:
     calls = _install_response(monkeypatch)
     _provider().summarize(_request())
-    body: dict[str, Any] = calls[0][1]["json"]  # type: ignore[assignment]
+    body: dict[str, Any] = calls[0][1]["json_body"]  # type: ignore[assignment]
     assert set(body) == {"model", "messages"}
     forbidden = {
         "temperature",
