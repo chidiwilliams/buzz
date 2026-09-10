@@ -223,6 +223,7 @@ class TestMainWindow:
             detail_service=fake_meeting_detail_service,
             speaker_review_service=fake_speaker_review_service,
             final_transcription=None,
+            meeting_notes=None,
             preview_player_factory=fake_preview_player_factory,
             parent=window,
             flags=Qt.WindowType.Window,

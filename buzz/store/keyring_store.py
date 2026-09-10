@@ -92,7 +92,7 @@ def _get_portal_secret() -> bytes | None:
                 sock_write.close()
 
     except Exception as exc:
-        logging.debug("XDG Portal secret not available: %s", exc)
+        logging.debug("XDG Portal secret not available (%s)", type(exc).__name__)
         return None
 
 
@@ -134,7 +134,7 @@ def _load_local_secrets() -> dict:
             with open(secrets_file, "r") as f:
                 return json.load(f)
         except (json.JSONDecodeError, IOError) as exc:
-            logging.debug("Failed to load secrets file: %s", exc)
+            logging.debug("Failed to load secrets file (%s)", type(exc).__name__)
     return {}
 
 
@@ -147,7 +147,7 @@ def _save_local_secrets(secrets: dict) -> None:
         # Set restrictive permissions
         os.chmod(secrets_file, 0o600)
     except IOError as exc:
-        logging.warning("Failed to save secrets file: %s", exc)
+        logging.warning("Failed to save secrets file (%s)", type(exc).__name__)
 
 
 def _get_portal_password(key: Key) -> str | None:
@@ -262,7 +262,7 @@ def _get_portal_secret_by_name(name: str) -> str | None:
         derived_key = _derive_key(portal_secret, name)
         return _decrypt_value(encrypted_value, derived_key)
     except Exception as exc:
-        logging.debug("Failed to decrypt portal secret: %s", exc)
+        logging.debug("Failed to decrypt portal secret (%s)", type(exc).__name__)
         return None
 
 
@@ -277,7 +277,7 @@ def _set_portal_secret_by_name(name: str, password: str) -> bool:
         _save_local_secrets(secrets)
         return True
     except Exception as exc:
-        logging.debug("Failed to set portal secret: %s", exc)
+        logging.debug("Failed to set portal secret (%s)", type(exc).__name__)
         return False
 
 
@@ -291,7 +291,7 @@ def get_secret(name: str) -> str:
         password = keyring.get_password(APP_NAME, username=name)
         return password if password is not None else ""
     except Exception as exc:
-        logging.warning("Unable to read from keyring: %s", exc)
+        logging.warning("Unable to read from keyring (%s)", type(exc).__name__)
         return ""
 
 
@@ -315,4 +315,4 @@ def delete_secret(name: str) -> None:
     except keyring.errors.PasswordDeleteError:
         pass
     except Exception as exc:
-        logging.warning("Unable to delete from keyring: %s", exc)
+        logging.warning("Unable to delete from keyring (%s)", type(exc).__name__)

@@ -57,6 +57,10 @@ class Settings:
         CUSTOM_FASTER_WHISPER_ID = "transcriber/custom-faster-whisper-id"
         HUGGINGFACE_MODEL_ID = "transcriber/huggingface-model-id"
 
+        MEETING_SUMMARY_BASE_URL = "meeting-summary/base-url"
+        MEETING_SUMMARY_MODEL = "meeting-summary/model"
+        MEETING_SUMMARY_TIMEOUT_SECONDS = "meeting-summary/timeout-seconds"
+
         SHORTCUTS = "shortcuts"
 
         FONT_SIZE = "font-size"

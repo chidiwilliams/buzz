@@ -74,6 +74,9 @@ def test_build_main_window_composes_both_services_with_same_database() -> None:
         patch("buzz.widgets.application.MeetingModeController") as controller_type,
         patch("buzz.widgets.application.MeetingTrackTranscriber") as adapter_type,
         patch("buzz.widgets.application.MeetingFinalTranscription") as final_type,
+        patch("buzz.widgets.application.QSqlMeetingSummaryRepository") as notes_repo,
+        patch("buzz.widgets.application.MeetingNotesService") as notes_service,
+        patch("buzz.widgets.application.MeetingNotesController") as notes_controller,
         patch(
             "buzz.widgets.application.MainWindow", return_value=main_window
         ) as main_window_type,
@@ -104,7 +107,11 @@ def test_build_main_window_composes_both_services_with_same_database() -> None:
         preview_factory,
         controller_type.return_value,
         final_type.return_value,
+        notes_controller.return_value,
     )
+    notes_repo.assert_called_once_with(database)
+    notes_service.assert_called_once_with(detail_service, notes_repo.return_value)
+    notes_controller.assert_called_once_with(notes_service.return_value)
     workflow_type.assert_called_once_with(meeting_storage)
     controller_type.assert_called_once_with(workflow_type.return_value)
     final_type.assert_called_once_with(

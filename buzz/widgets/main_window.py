@@ -69,6 +69,7 @@ class MainWindow(QMainWindow):
         preview_player_factory,
         meeting_controller=None,
         meeting_final=None,
+        meeting_notes=None,
     ):
         super().__init__(flags=Qt.WindowType.Window)
 
@@ -91,6 +92,10 @@ class MainWindow(QMainWindow):
         self.meeting_detail_widget = None
         self.meeting_controller = meeting_controller
         self.meeting_final = meeting_final
+        self.meeting_notes = meeting_notes
+        if meeting_notes is not None:
+            meeting_notes.setParent(self)
+            meeting_notes.idle.connect(self._resume_meeting_close)
         self.meeting_capture_widget = None
         self._meeting_close_pending = False
         if meeting_controller is not None:
@@ -395,6 +400,7 @@ class MainWindow(QMainWindow):
                 detail_service=self.meeting_detail_service,
                 speaker_review_service=self.meeting_speaker_review_service,
                 final_transcription=self.meeting_final,
+                meeting_notes=self.meeting_notes,
                 preview_player_factory=self.preview_player_factory,
                 parent=self,
                 flags=Qt.WindowType.Window,
@@ -610,11 +616,23 @@ class MainWindow(QMainWindow):
             self.on_new_meeting()
             if self.meeting_capture_widget.confirm_end():
                 self._meeting_close_pending = True
+                if self.meeting_notes is not None:
+                    self.meeting_notes.close()
                 if self.meeting_final is not None:
                     self.meeting_final.close()
                 self.meeting_controller.end()
             else:
                 self._meeting_close_pending = False
+            return
+        if self.meeting_notes is not None and not self.meeting_notes.close():
+            event.ignore()
+            self._meeting_close_pending = True
+            self.statusBar().showMessage(
+                "AI Notes have an unsaved result. Open its meeting and use Retry Save "
+                "or Discard Pending Save before closing."
+                if self.meeting_notes.candidates and not self.meeting_notes.busy
+                else "Finishing AI Notes and provider cleanup before closing…"
+            )
             return
         if self.meeting_final is not None and not self.meeting_final.close():
             event.ignore()

@@ -26,6 +26,7 @@ from PyQt6.QtWidgets import (
     QTableView,
     QTableWidget,
     QTableWidgetItem,
+    QTabWidget,
     QVBoxLayout,
     QWidget,
 )
@@ -155,6 +156,7 @@ class MeetingDetailWidget(QWidget):
         parent: QWidget | None = None,
         flags: Qt.WindowType = Qt.WindowType.Widget,
         final_transcription=None,
+        meeting_notes=None,
     ) -> None:
         super().__init__(parent, flags)
         self._detail_service = detail_service
@@ -164,6 +166,8 @@ class MeetingDetailWidget(QWidget):
         self._snapshot: MeetingDetailSnapshot | None = None
         self._preview_player: Any | None = None
         self._final_transcription = final_transcription
+        self._meeting_notes = meeting_notes
+        self.notes_panel = None
         self.setWindowTitle(_("Meeting Details"))
         self.resize(1000, 760)
         self._build_ui()
@@ -286,6 +290,19 @@ class MeetingDetailWidget(QWidget):
         self.complete_button.clicked.connect(self._mark_completed)
 
         layout = QVBoxLayout(self)
+        if self._meeting_notes is not None:
+            from buzz.widgets.meeting_notes_panel import MeetingNotesPanel
+            from buzz.widgets.meeting_notes_configuration import NotesConfiguration
+
+            tabs = QTabWidget(self)
+            layout.addWidget(tabs)
+            details = QWidget(tabs)
+            layout = QVBoxLayout(details)
+            tabs.addTab(details, _("Meeting"))
+            self.notes_panel = MeetingNotesPanel(
+                self._meeting_notes, NotesConfiguration(), tabs
+            )
+            tabs.addTab(self.notes_panel, _("AI Notes"))
         layout.addWidget(self.state_label)
         layout.addWidget(metadata_group)
         layout.addWidget(audio_group)
@@ -301,6 +318,8 @@ class MeetingDetailWidget(QWidget):
     def refresh(self) -> None:
         if self._current_meeting_id is None:
             return
+        if self.notes_panel is not None:
+            self.notes_panel.open_meeting(self._current_meeting_id)
         meeting_id = self._current_meeting_id
         self._snapshot = None
         self._clear_presentation()
@@ -660,6 +679,8 @@ class MeetingDetailWidget(QWidget):
             player.deleteLater()
 
     def closeEvent(self, event) -> None:
+        if self.notes_panel is not None:
+            self.notes_panel.closed = True
         self._stop_preview()
         super().closeEvent(event)
 

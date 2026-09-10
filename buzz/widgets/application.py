@@ -35,6 +35,9 @@ from buzz.meeting.meeting_workflow import MeetingWorkflow
 from buzz.meeting.meeting_transcriber_adapter import MeetingTrackTranscriber
 from buzz.widgets.meeting_mode import MeetingModeController
 from buzz.widgets.meeting_final_transcription import MeetingFinalTranscription
+from buzz.db.meeting_summary_repository import QSqlMeetingSummaryRepository
+from buzz.meeting.meeting_notes import MeetingNotesService
+from buzz.widgets.meeting_notes_controller import MeetingNotesController
 
 
 def _build_main_window(database) -> MainWindow:
@@ -65,6 +68,11 @@ def _build_main_window(database) -> MainWindow:
         AudioPlayer,
         MeetingModeController(MeetingWorkflow(meeting_storage)),
         meeting_final,
+        MeetingNotesController(
+            MeetingNotesService(
+                meeting_detail_service, QSqlMeetingSummaryRepository(database)
+            )
+        ),
     )
     meeting_final.recover()
     return window
