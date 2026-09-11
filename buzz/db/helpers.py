@@ -56,7 +56,7 @@ def copy_transcriptions_from_json_to_sqlite(conn: Connection):
                     """
                     INSERT INTO transcription_segment (
                         end_time, start_time, text, translation,
-                        transcription_id, speaker, review_reasons
+                        transcription_id, speaker, metadata
                     )
                     VALUES (?, ?, ?, ?, ?, ?, ?);
                     """,
@@ -68,7 +68,7 @@ def copy_transcriptions_from_json_to_sqlite(conn: Connection):
                         transcription_id,
                         getattr(segment, "speaker", ""),
                         json.dumps(
-                            getattr(segment, "review_reasons", []),
+                            getattr(segment, "metadata", []),
                             ensure_ascii=False,
                         ),
                     ),

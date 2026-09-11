@@ -62,7 +62,7 @@ For Whisper.cpp you can also add any number of custom models. Enter a name and t
 add a model file that is already on your computer or download one from a URL to its `.bin`
 file (use the link from the "download" button on Huggingface). Each custom model appears by
 name in the model list so you can switch between them. See
-[Custom Whisper.cpp models](./custom_whisper_cpp_models.md) for details.
+[Custom Whisper.cpp models](./custom_whisper_cpp_models.md) for details. This feature is available since 1.4.6.
 
 To improve transcription speed and memory usage you can select a quantized version of some 
 larger model. For example `q_5` version. Whisper.cpp base models in different quantizations are [available here](https://huggingface.co/ggerganov/whisper.cpp/tree/main). See also [custom models](https://github.com/chidiwilliams/buzz/discussions/866) discussion page for custom models in different languages.

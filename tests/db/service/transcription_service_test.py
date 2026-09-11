@@ -51,7 +51,7 @@ class TestTranscriptionService:
             "replace_transcription_segments",
         ],
     )
-    def test_segment_review_reasons_are_persisted(
+    def test_segment_metadata_is_persisted(
         self,
         transcription_service,
         mock_transcription_segment_dao,
@@ -61,13 +61,16 @@ class TestTranscriptionService:
             start=100,
             end=500,
             text="Repeated phrase",
-            review_reasons=["Possible repetition loop", "Low confidence"],
+            metadata=[
+                {"review_reason": "Possible repetition loop"},
+                {"confidence": "0.21"},
+            ],
         )
 
         getattr(transcription_service, method_name)(uuid4(), [segment])
 
         saved_segment = mock_transcription_segment_dao.insert.call_args.args[0]
-        assert json.loads(saved_segment.review_reasons) == segment.review_reasons
+        assert json.loads(saved_segment.metadata) == segment.metadata
 
     def test_update_transcription_name(self, transcription_service, mock_transcription_dao):
         """Test updating transcription name through service"""

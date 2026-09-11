@@ -158,9 +158,9 @@ class BuzzPlugin:
     ) -> List["Segment"]:
         """Modify or replace the result segments before they are saved.
 
-        Append short, human-readable messages to a segment's ``review_reasons``
-        list to highlight that row in the transcription viewer without changing
-        or deleting its text.
+        Append ``{"key": "value"}`` dicts to a segment's ``metadata`` list to
+        attach extra information to that row without changing or deleting its
+        text. The transcription viewer shows it as a ``key: value`` tooltip.
 
         Must return a list of segments (return the input unchanged to do nothing).
         Runs on a background thread.

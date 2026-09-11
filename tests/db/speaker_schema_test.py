@@ -62,7 +62,7 @@ def test_speaker_column_migration_preserves_existing_transcript_text(tmp_path):
     assert row == ("Nyomi: keep this exact text", "")
 
 
-def test_review_reasons_migration_preserves_existing_transcript_text(tmp_path):
+def test_metadata_migration_preserves_existing_transcript_text(tmp_path):
     database_path = tmp_path / "old-buzz.sqlite"
     connection = sqlite3.connect(database_path)
     connection.executescript(
@@ -96,8 +96,12 @@ def test_review_reasons_migration_preserves_existing_transcript_text(tmp_path):
 
     run_sqlite_migrations(connection)
 
-    row = connection.execute(
-        "SELECT text, review_reasons FROM transcription_segment WHERE id = 1"
+    segment_row = connection.execute(
+        "SELECT text, metadata FROM transcription_segment WHERE id = 1"
+    ).fetchone()
+    transcription_row = connection.execute(
+        "SELECT metadata FROM transcription WHERE id = 'transcript-1'"
     ).fetchone()
     connection.close()
-    assert row == ("Keep this exact text", "[]")
+    assert segment_row == ("Keep this exact text", "[]")
+    assert transcription_row == ("[]",)

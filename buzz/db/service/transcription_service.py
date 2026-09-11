@@ -49,9 +49,7 @@ class TranscriptionService:
                     translation='',
                     transcription_id=str(id),
                     speaker=segment.speaker,
-                    review_reasons=json.dumps(
-                        segment.review_reasons, ensure_ascii=False
-                    ),
+                    metadata=json.dumps(segment.metadata, ensure_ascii=False),
                 )
             )
 

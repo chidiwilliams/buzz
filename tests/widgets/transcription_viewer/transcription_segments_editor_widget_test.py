@@ -272,7 +272,7 @@ class TestTranscriptionSegmentModel:
         assert model.tableName() == "transcription_segment"
         assert model.editStrategy() == model.EditStrategy.OnFieldChange
 
-    def test_review_reasons_highlight_row_and_provide_tooltip(
+    def test_metadata_is_shown_as_key_value_tooltip(
         self,
         transcription_dao,
         transcription_segment_dao,
@@ -295,16 +295,17 @@ class TestTranscriptionSegmentModel:
                 "Repeated phrase",
                 "",
                 str(transcription_id),
-                review_reasons='["Possible repetition loop"]',
+                metadata='[{"review_reason": "Possible repetition loop"}, '
+                         '{"confidence": "0.21"}]',
             )
         )
         model = TranscriptionSegmentModel(transcription_id)
         model.select()
         index = model.index(0, Column.TEXT.value)
 
-        assert model.data(index, Qt.ItemDataRole.BackgroundRole) is not None
-        assert "Possible repetition loop" in model.data(
-            index, Qt.ItemDataRole.ToolTipRole
+        tooltip = model.data(index, Qt.ItemDataRole.ToolTipRole)
+        assert tooltip == (
+            "review_reason: Possible repetition loop\nconfidence: 0.21"
         )
 
 
