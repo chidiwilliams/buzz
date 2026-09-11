@@ -8,7 +8,7 @@ Buzz can use any number of custom [Whisper.cpp](https://github.com/ggerganov/whi
 models in addition to the built-in ones. This is useful when you have several
 fine-tuned models — for example a fast model you use by default and a more accurate
 model you fall back to for difficult recordings — and want to switch between them
-without re-downloading anything.
+without re-downloading anything. This feature is available since 1.4.6.
 
 ## Adding a custom model
 

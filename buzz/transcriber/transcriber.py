@@ -5,7 +5,7 @@ import os
 import uuid
 from dataclasses import dataclass, field
 from random import randint
-from typing import List, Optional, Tuple, Set
+from typing import Dict, List, Optional, Tuple, Set
 
 from dataclasses_json import dataclass_json, config, Exclude
 
@@ -35,6 +35,7 @@ class Segment:
     text: str
     translation: str = ""
     speaker: str = ""
+    metadata: List[Dict[str, str]] = field(default_factory=list)
 
 
 LANGUAGES = {

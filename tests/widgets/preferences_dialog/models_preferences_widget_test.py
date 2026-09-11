@@ -25,6 +25,18 @@ class TestModelsPreferencesWidget:
                 if path and os.path.isfile(path):
                     os.remove(path)
 
+    @staticmethod
+    def get_child_names(group_item) -> list[str]:
+        return [group_item.child(i).text(0) for i in range(group_item.childCount())]
+
+    @classmethod
+    def get_child_named(cls, group_item, name: str):
+        for i in range(group_item.childCount()):
+            child = group_item.child(i)
+            if child.text(0) == name:
+                return child
+        return None
+
     def test_should_show_model_list(self, qtbot):
         widget = ModelsPreferencesWidget()
         qtbot.add_widget(widget)
@@ -61,8 +73,10 @@ class TestModelsPreferencesWidget:
         available_item = widget.model_list_widget.topLevelItem(1)
         assert available_item.text(0) == _("Available for Download")
 
-        tiny_item = available_item.child(0)
-        assert tiny_item.text(0) == "Tiny"
+        # Other model sizes may already be cached on the machine running the
+        # tests, so look Tiny up by name instead of assuming a list position.
+        tiny_item = self.get_child_named(available_item, "Tiny")
+        assert tiny_item is not None
         tiny_item.setSelected(True)
 
         download_button = widget.findChild(QPushButton, "DownloadButton")
@@ -75,14 +89,10 @@ class TestModelsPreferencesWidget:
             assert not download_button.isVisible()
 
             _downloaded_item = widget.model_list_widget.topLevelItem(0)
-            assert _downloaded_item.childCount() > 0
-            assert _downloaded_item.child(0).text(0) == "Tiny"
+            assert "Tiny" in self.get_child_names(_downloaded_item)
 
             _available_item = widget.model_list_widget.topLevelItem(1)
-            assert (
-                _available_item.childCount() == 0
-                or _available_item.child(0).text(0) != "Tiny"
-            )
+            assert "Tiny" not in self.get_child_names(_available_item)
 
             assert os.path.isfile(widget.model.get_local_model_path())
 
@@ -97,11 +107,11 @@ class TestModelsPreferencesWidget:
         widget.show()
         qtbot.add_widget(widget)
 
-        available_item = widget.model_list_widget.topLevelItem(0)
-        assert available_item.text(0) == _("Downloaded")
+        downloaded_item = widget.model_list_widget.topLevelItem(0)
+        assert downloaded_item.text(0) == _("Downloaded")
 
-        tiny_item = available_item.child(0)
-        assert tiny_item.text(0) == "Tiny"
+        tiny_item = self.get_child_named(downloaded_item, "Tiny")
+        assert tiny_item is not None
         tiny_item.setSelected(True)
 
         delete_button = widget.findChild(QPushButton, "DeleteButton")

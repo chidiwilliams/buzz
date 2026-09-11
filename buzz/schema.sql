@@ -19,7 +19,8 @@ CREATE TABLE transcription (
     word_level_timings BOOLEAN DEFAULT FALSE,
     extract_speech BOOLEAN DEFAULT FALSE,
     name TEXT,
-    notes TEXT
+    notes TEXT,
+    metadata TEXT DEFAULT '[]'
 );
 
 CREATE TABLE transcription_segment (
@@ -30,6 +31,7 @@ CREATE TABLE transcription_segment (
     translation TEXT DEFAULT '',
     transcription_id TEXT,
     speaker TEXT DEFAULT '',
+    metadata TEXT DEFAULT '[]',
     FOREIGN KEY (transcription_id) REFERENCES transcription(id) ON DELETE CASCADE
 );
 CREATE INDEX idx_transcription_id ON transcription_segment(transcription_id);
