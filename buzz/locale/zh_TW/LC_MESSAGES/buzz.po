@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-22 14:09+0300\n"
-"PO-Revision-Date: 2023-05-01 15:45+0800\n"
+"POT-Creation-Date: 2026-09-11 18:56+0300\n"
+"PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: \n"
 "Language-Team: Lamb\n"
 "Language: zh_TW\n"
@@ -84,6 +84,11 @@ msgstr "丹麥語"
 #: buzz/transcriber/transcriber.py
 msgid "Dutch"
 msgstr "荷蘭語"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "French"
+msgstr "法語"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
@@ -223,6 +228,10 @@ msgid "Disable GPU"
 msgstr "停用 GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Prevent system sleep while transcriptions are queued"
+msgstr "有轉錄工作排隊時防止系統睡眠"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "OpenAI API Key Test"
 msgstr "OpenAI API 金鑰測試"
 
@@ -333,6 +342,18 @@ msgid "Huggingface ID of a Faster whisper model"
 msgstr "Faster Whisper 模型的 Huggingface ID"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Name for the custom model"
+msgstr "自訂模型的名稱"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add local model file"
+msgstr "新增本機模型檔案"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add model from URL"
+msgstr "從 URL 新增模型"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download"
 msgstr "下載"
 
@@ -355,6 +376,24 @@ msgstr "可供下載"
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download link to Whisper.cpp ggml model file"
 msgstr "Whisper.cpp ggml 模型檔案的下載連結"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/transcriber/transcription_options_group_box.py
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Custom"
+msgstr "自訂"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Select Whisper.cpp model file"
+msgstr "選擇 Whisper.cpp 模型檔案"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Whisper.cpp model"
+msgstr "Whisper.cpp 模型"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "All files"
+msgstr "所有檔案"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Delete Model"
@@ -703,10 +742,6 @@ msgid "Dark"
 msgstr "深色"
 
 #: buzz/widgets/recording_transcriber_widget.py
-msgid "Custom"
-msgstr "自訂"
-
-#: buzz/widgets/recording_transcriber_widget.py
 msgid "Text Color"
 msgstr "文字顏色"
 
@@ -873,6 +908,14 @@ msgstr "下載完成！"
 #: buzz/widgets/update_dialog.py
 msgid "Failed to run the installer: {}"
 msgstr "無法執行安裝程式：{}"
+
+#: buzz/widgets/about_dialog.py buzz/widgets/menu_bar.py
+msgid "About"
+msgstr "關於"
+
+#: buzz/widgets/about_dialog.py
+msgid "Version"
+msgstr "版本"
 
 #: buzz/widgets/about_dialog.py
 msgid "Check for updates"
@@ -1296,10 +1339,6 @@ msgid "Import Folder..."
 msgstr "導入資料夾..."
 
 #: buzz/widgets/menu_bar.py
-msgid "About"
-msgstr "關於"
-
-#: buzz/widgets/menu_bar.py
 msgid "Preferences..."
 msgstr "偏好設定..."
 
@@ -1363,10 +1402,6 @@ msgstr "中文"
 #: buzz/transcriber/transcriber.py
 msgid "Korean"
 msgstr "韓語"
-
-#: buzz/transcriber/transcriber.py
-msgid "French"
-msgstr "法語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Portuguese"
@@ -1948,15 +1983,10 @@ msgstr "將摘要儲存到檔案"
 msgid "Output folder (for file)"
 msgstr "輸出資料夾（用於檔案）"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-msgid "Prevent system sleep while transcriptions are queued"
-msgstr ""
-"有轉錄工作排隊時防止系統睡眠"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
-"Speech extraction failed! Check your internet connection \\u2014 a model may "
-"need to be downloaded."
+"Speech extraction failed! Check your internet connection — a model may need "
+"to be downloaded."
 msgstr "語音提取失敗！請檢查您的網路連線——可能需要下載模型。"
 
 #~ msgid "Live recording mode:"

@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-22 14:09+0300\n"
-"PO-Revision-Date: \n"
+"POT-Creation-Date: 2026-09-11 18:56+0300\n"
+"PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: Ole Guldberg2 <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
 "Language: da_DK\n"
@@ -82,6 +82,11 @@ msgstr "Dansk"
 #: buzz/transcriber/transcriber.py
 msgid "Dutch"
 msgstr "Nederlandsk"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "French"
+msgstr "Fransk"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
@@ -226,6 +231,10 @@ msgid "Disable GPU"
 msgstr "Deaktiver GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Prevent system sleep while transcriptions are queued"
+msgstr "Forhindr systemet i at gå i dvale, når der er transkriptioner i køen"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "OpenAI API Key Test"
 msgstr "OpenAI API Nøgle test"
 
@@ -340,6 +349,18 @@ msgid "Huggingface ID of a Faster whisper model"
 msgstr "Huggingface ID af Faster Whisper model"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Name for the custom model"
+msgstr "Navn til den brugerdefinerede model"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add local model file"
+msgstr "Tilføj lokal modelfil"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add model from URL"
+msgstr "Tilføj model fra URL"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download"
 msgstr "Download"
 
@@ -362,6 +383,24 @@ msgstr "Tilgængelige til download"
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download link to Whisper.cpp ggml model file"
 msgstr "Download link til Whisper.cpp ggml model-fil"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/transcriber/transcription_options_group_box.py
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Custom"
+msgstr "Brugerdefineret"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Select Whisper.cpp model file"
+msgstr "Vælg Whisper.cpp-modelfil"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Whisper.cpp model"
+msgstr "Whisper.cpp-model"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "All files"
+msgstr "Alle filer"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Delete Model"
@@ -677,8 +716,9 @@ msgstr ""
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
 msgstr ""
-"Kunne ikke genstarte transskription: transskriptionsarbejder ikke fundet."
-"Kunne ikke genstarte transkription: transkriptionsprocessen blev ikke fundet."
+"Kunne ikke genstarte transskription: transskriptionsarbejder ikke "
+"fundet.Kunne ikke genstarte transkription: transkriptionsprocessen blev ikke "
+"fundet."
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -715,10 +755,6 @@ msgstr "Lys"
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Dark"
 msgstr "Mørk"
-
-#: buzz/widgets/recording_transcriber_widget.py
-msgid "Custom"
-msgstr "Brugerdefineret"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Text Color"
@@ -891,6 +927,14 @@ msgstr "Download fuldført!"
 #: buzz/widgets/update_dialog.py
 msgid "Failed to run the installer: {}"
 msgstr "Kunne ikke køre installationsprogrammet: {}"
+
+#: buzz/widgets/about_dialog.py buzz/widgets/menu_bar.py
+msgid "About"
+msgstr "Om"
+
+#: buzz/widgets/about_dialog.py
+msgid "Version"
+msgstr "Version"
 
 #: buzz/widgets/about_dialog.py
 msgid "Check for updates"
@@ -1328,10 +1372,6 @@ msgid "Import Folder..."
 msgstr "Importer Mappe..."
 
 #: buzz/widgets/menu_bar.py
-msgid "About"
-msgstr "Om"
-
-#: buzz/widgets/menu_bar.py
 msgid "Preferences..."
 msgstr "Indstillinger..."
 
@@ -1398,10 +1438,6 @@ msgstr "Kinesisk"
 #: buzz/transcriber/transcriber.py
 msgid "Korean"
 msgstr "Koreansk"
-
-#: buzz/transcriber/transcriber.py
-msgid "French"
-msgstr "Fransk"
 
 #: buzz/transcriber/transcriber.py
 msgid "Portuguese"
@@ -1944,8 +1980,8 @@ msgid ""
 "Skip if a .txt, .srt, or .vtt file matching the audio filename is found next "
 "to it"
 msgstr ""
-"Spring over, hvis der ved siden af lydfilen ligger en .txt-, .srt- eller ."
-"vtt-fil med samme navn"
+"Spring over, hvis der ved siden af lydfilen ligger en .txt-, .srt- "
+"eller .vtt-fil med samme navn"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Check in transcription database"
@@ -1995,15 +2031,10 @@ msgstr "Gem resumé i en fil"
 msgid "Output folder (for file)"
 msgstr "Outputmappe (til fil)"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-msgid "Prevent system sleep while transcriptions are queued"
-msgstr ""
-"Forhindr systemet i at gå i dvale, når der er transkriptioner i køen"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
-"Speech extraction failed! Check your internet connection \\u2014 a model may "
-"need to be downloaded."
+"Speech extraction failed! Check your internet connection — a model may need "
+"to be downloaded."
 msgstr ""
 "Taleoprydning mislykkedes! Kontroller din internetforbindelse — en model "
 "skal muligvis hentes ned."

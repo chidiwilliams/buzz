@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-22 14:09+0300\n"
-"PO-Revision-Date: 2025-03-20 18:30+0100\n"
+"POT-Creation-Date: 2026-09-11 18:56+0300\n"
+"PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: none\n"
 "Language: nl\n"
@@ -86,6 +86,11 @@ msgstr "Deens"
 #: buzz/transcriber/transcriber.py
 msgid "Dutch"
 msgstr "Nederlands"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "French"
+msgstr "Frans"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
@@ -231,6 +236,12 @@ msgid "Disable GPU"
 msgstr "GPU uitschakelen"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Prevent system sleep while transcriptions are queued"
+msgstr ""
+"Voorkom dat het systeem in slaapstand gaat terwijl er transcripties in de "
+"wachtrij staan"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "OpenAI API Key Test"
 msgstr "OpenAI-api-sleuteltest"
 
@@ -345,6 +356,18 @@ msgid "Huggingface ID of a Faster whisper model"
 msgstr "Huggingface-id of een sneller Whisper-model"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Name for the custom model"
+msgstr "Naam voor het aangepaste model"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add local model file"
+msgstr "Lokaal modelbestand toevoegen"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add model from URL"
+msgstr "Model via URL toevoegen"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download"
 msgstr "Downloaden"
 
@@ -367,6 +390,24 @@ msgstr "Beschikbaar"
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download link to Whisper.cpp ggml model file"
 msgstr "Downloadlink van Whisper.cpp ggml-modelbestand"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/transcriber/transcription_options_group_box.py
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Custom"
+msgstr "Aangepast"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Select Whisper.cpp model file"
+msgstr "Whisper.cpp-modelbestand selecteren"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Whisper.cpp model"
+msgstr "Whisper.cpp-model"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "All files"
+msgstr "Alle bestanden"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Delete Model"
@@ -684,9 +725,9 @@ msgstr ""
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Could not restart transcription: transcriber worker not found."
 msgstr ""
-"Kon transcriptie niet opnieuw starten: transcribeerder niet gevonden."
-"Transcriptie kon niet opnieuw worden gestart: transcriptieproces niet "
-"gevonden."
+"Kon transcriptie niet opnieuw starten: transcribeerder niet "
+"gevonden.Transcriptie kon niet opnieuw worden gestart: transcriptieproces "
+"niet gevonden."
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
@@ -723,10 +764,6 @@ msgstr "Licht"
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Dark"
 msgstr "Donker"
-
-#: buzz/widgets/recording_transcriber_widget.py
-msgid "Custom"
-msgstr "Aangepast"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Text Color"
@@ -897,6 +934,14 @@ msgstr "Download voltooid!"
 #: buzz/widgets/update_dialog.py
 msgid "Failed to run the installer: {}"
 msgstr "Kan het installatieprogramma niet uitvoeren: {}"
+
+#: buzz/widgets/about_dialog.py buzz/widgets/menu_bar.py
+msgid "About"
+msgstr "Over"
+
+#: buzz/widgets/about_dialog.py
+msgid "Version"
+msgstr "Versie"
 
 #: buzz/widgets/about_dialog.py
 msgid "Check for updates"
@@ -1335,10 +1380,6 @@ msgid "Import Folder..."
 msgstr "Map importeren…"
 
 #: buzz/widgets/menu_bar.py
-msgid "About"
-msgstr "Over"
-
-#: buzz/widgets/menu_bar.py
 msgid "Preferences..."
 msgstr "Instellingen…"
 
@@ -1408,10 +1449,6 @@ msgstr "Chinees"
 #: buzz/transcriber/transcriber.py
 msgid "Korean"
 msgstr "Koreaans"
-
-#: buzz/transcriber/transcriber.py
-msgid "French"
-msgstr "Frans"
 
 #: buzz/transcriber/transcriber.py
 msgid "Portuguese"
@@ -2005,15 +2042,10 @@ msgstr "Samenvatting in een bestand opslaan"
 msgid "Output folder (for file)"
 msgstr "Uitvoermap (voor bestand)"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-msgid "Prevent system sleep while transcriptions are queued"
-msgstr ""
-"Voorkom dat het systeem in slaapstand gaat terwijl er transcripties in de wachtrij staan"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
-"Speech extraction failed! Check your internet connection \\u2014 a model may "
-"need to be downloaded."
+"Speech extraction failed! Check your internet connection — a model may need "
+"to be downloaded."
 msgstr ""
 "Spraakextractie mislukt! Controleer uw internetverbinding — mogelijk moet er "
 "een model worden gedownload."

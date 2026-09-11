@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-22 14:09+0300\n"
-"PO-Revision-Date: \n"
+"POT-Creation-Date: 2026-09-11 18:56+0300\n"
+"PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ru_RU\n"
@@ -82,6 +82,11 @@ msgstr "Датский"
 #: buzz/transcriber/transcriber.py
 msgid "Dutch"
 msgstr "Нидерландский"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "French"
+msgstr "Французский"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
@@ -226,6 +231,11 @@ msgid "Disable GPU"
 msgstr "Отключить GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Prevent system sleep while transcriptions are queued"
+msgstr ""
+"Не давать системе переходить в спящий режим, пока в очереди есть транскрипции"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "OpenAI API Key Test"
 msgstr "Проверка API-ключа OpenAI"
 
@@ -340,6 +350,18 @@ msgid "Huggingface ID of a Faster whisper model"
 msgstr "Huggingface ID для модели Faster Whisper"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Name for the custom model"
+msgstr "Имя пользовательской модели"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add local model file"
+msgstr "Добавить локальный файл модели"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add model from URL"
+msgstr "Добавить модель по URL"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download"
 msgstr "Скачать"
 
@@ -362,6 +384,24 @@ msgstr "Доступно для скачивания"
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download link to Whisper.cpp ggml model file"
 msgstr "Ссылка для скачивания файла модели ggml Whisper.cpp"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/transcriber/transcription_options_group_box.py
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Custom"
+msgstr "Пользовательская"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Select Whisper.cpp model file"
+msgstr "Выберите файл модели Whisper.cpp"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Whisper.cpp model"
+msgstr "Модель Whisper.cpp"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "All files"
+msgstr "Все файлы"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Delete Model"
@@ -718,10 +758,6 @@ msgid "Dark"
 msgstr "Тёмная"
 
 #: buzz/widgets/recording_transcriber_widget.py
-msgid "Custom"
-msgstr "Пользовательская"
-
-#: buzz/widgets/recording_transcriber_widget.py
 msgid "Text Color"
 msgstr "Цвет текста"
 
@@ -892,6 +928,14 @@ msgstr "Скачивание завершено!"
 #: buzz/widgets/update_dialog.py
 msgid "Failed to run the installer: {}"
 msgstr "Не удалось запустить установщик: {}"
+
+#: buzz/widgets/about_dialog.py buzz/widgets/menu_bar.py
+msgid "About"
+msgstr "О приложении"
+
+#: buzz/widgets/about_dialog.py
+msgid "Version"
+msgstr "Версия"
 
 #: buzz/widgets/about_dialog.py
 msgid "Check for updates"
@@ -1331,10 +1375,6 @@ msgid "Import Folder..."
 msgstr "Импортировать папку..."
 
 #: buzz/widgets/menu_bar.py
-msgid "About"
-msgstr "О приложении"
-
-#: buzz/widgets/menu_bar.py
 msgid "Preferences..."
 msgstr "Настройки..."
 
@@ -1404,10 +1444,6 @@ msgstr "Китайский"
 #: buzz/transcriber/transcriber.py
 msgid "Korean"
 msgstr "Корейский"
-
-#: buzz/transcriber/transcriber.py
-msgid "French"
-msgstr "Французский"
 
 #: buzz/transcriber/transcriber.py
 msgid "Portuguese"
@@ -2000,15 +2036,10 @@ msgstr "Сохранить резюме в файл"
 msgid "Output folder (for file)"
 msgstr "Папка вывода (для файла)"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-msgid "Prevent system sleep while transcriptions are queued"
-msgstr ""
-"Не давать системе переходить в спящий режим, пока в очереди есть транскрипции"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
-"Speech extraction failed! Check your internet connection \\u2014 a model may "
-"need to be downloaded."
+"Speech extraction failed! Check your internet connection — a model may need "
+"to be downloaded."
 msgstr ""
 "Не удалось извлечь речь! Проверьте подключение к интернету — возможно, нужно "
 "скачать модель."
