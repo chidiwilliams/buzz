@@ -675,29 +675,6 @@ def get_whisper_cpp_model_names(
 
 WHISPER_CPP_CUSTOM_MODELS_DIR = "custom"
 
-# Magic headers of model files that Whisper.cpp can load: legacy GGML ("ggml") and
-# the newer GGUF container ("GGUF"). Used for a cheap, offline validity check.
-WHISPER_CPP_MODEL_MAGIC_BYTES = (b"ggml", b"GGUF")
-
-
-def is_valid_whisper_cpp_model_file(path: str) -> bool:
-    """Whether ``path`` looks like a model file Whisper.cpp can load.
-
-    This is a technical check only: it verifies the file exists, is not empty and
-    starts with a known GGML/GGUF magic header. It deliberately does not judge the
-    model's language or quality, which cannot be determined from the file alone.
-    """
-    try:
-        if not path or not os.path.isfile(path):
-            return False
-        if os.path.getsize(path) < len(b"ggml"):
-            return False
-        with open(path, "rb") as model_file:
-            header = model_file.read(4)
-        return header in WHISPER_CPP_MODEL_MAGIC_BYTES
-    except OSError:
-        return False
-
 
 def get_whisper_cpp_custom_model_path(custom_model_id: str) -> str:
     """Default download destination for a custom Whisper.cpp model file."""

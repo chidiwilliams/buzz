@@ -8,7 +8,6 @@ from buzz.model_loader import (
     TranscriptionModel,
     WhisperModelSize,
     get_whisper_cpp_file_path,
-    is_valid_whisper_cpp_model_file,
 )
 from buzz.settings import whisper_cpp_custom_models as registry
 from buzz.settings.whisper_cpp_custom_models import (
@@ -39,20 +38,6 @@ def isolated_registry(tmp_path, monkeypatch):
 
     monkeypatch.setattr(registry, "_settings", _settings)
     return tmp_path
-
-
-class TestValidation:
-    def test_accepts_ggml_and_gguf_headers(self, tmp_path):
-        ggml = _write_model_file(str(tmp_path / "ggml.bin"), b"ggml")
-        gguf = _write_model_file(str(tmp_path / "gguf.bin"), b"GGUF")
-        assert is_valid_whisper_cpp_model_file(ggml)
-        assert is_valid_whisper_cpp_model_file(gguf)
-
-    def test_rejects_wrong_magic_and_missing_file(self, tmp_path):
-        bad = _write_model_file(str(tmp_path / "bad.bin"), b"nope")
-        assert not is_valid_whisper_cpp_model_file(bad)
-        assert not is_valid_whisper_cpp_model_file(str(tmp_path / "missing.bin"))
-        assert not is_valid_whisper_cpp_model_file("")
 
 
 class TestRegistry:

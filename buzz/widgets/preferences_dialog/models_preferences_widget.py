@@ -26,7 +26,6 @@ from buzz.model_loader import (
     ModelDownloader,
     model_root_dir,
     get_whisper_cpp_custom_model_path,
-    is_valid_whisper_cpp_model_file,
 )
 from buzz.settings.settings import Settings
 from buzz.settings.whisper_cpp_custom_models import (
@@ -350,10 +349,6 @@ class ModelsPreferencesWidget(QWidget):
         if not file_path:
             return
 
-        if not is_valid_whisper_cpp_model_file(file_path):
-            self._show_invalid_model_message()
-            return
-
         add_custom_model(name=name, path=file_path)
         self.custom_model_name_input.clear()
         self.custom_model_link_input.clear()
@@ -433,23 +428,7 @@ class ModelsPreferencesWidget(QWidget):
         self.model.open_file_location()
 
     def on_download_completed(self, _: str):
-        # Validate a freshly downloaded custom model; reject it if it is not a
-        # loadable Whisper.cpp model file rather than leaving a broken entry.
         if self.pending_custom_model_id is not None:
-            model = TranscriptionModel(
-                model_type=ModelType.WHISPER_CPP,
-                whisper_model_size=WhisperModelSize.CUSTOM,
-                custom_model_id=self.pending_custom_model_id,
-            )
-            path = model.get_local_model_path()
-            if path is None or not is_valid_whisper_cpp_model_file(path):
-                model.delete_local_file()
-                self.pending_custom_model_id = None
-                self._close_progress_dialog()
-                self.add_custom_model_button.setEnabled(True)
-                self.reset()
-                self._show_invalid_model_message()
-                return
             self.custom_model_name_input.clear()
             self.custom_model_link_input.clear()
             self.pending_custom_model_id = None
@@ -494,13 +473,3 @@ class ModelsPreferencesWidget(QWidget):
         if self.progress_dialog is not None:
             self.progress_dialog.close()
             self.progress_dialog = None
-
-    def _show_invalid_model_message(self):
-        QMessageBox.warning(
-            self,
-            _("Error"),
-            _(
-                "The selected file is not a compatible Whisper.cpp model "
-                "and was not added."
-            ),
-        )

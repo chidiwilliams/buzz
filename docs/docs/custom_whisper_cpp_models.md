@@ -22,10 +22,6 @@ without re-downloading anything.
      example the download link from a Hugging Face model page). Buzz downloads it and
      adds it.
 
-The model is checked to make sure it is a Whisper.cpp model file that this version of
-Buzz can load. This is a technical check only — it does not judge the model's language
-or quality. A file that is not a compatible Whisper.cpp model is rejected and not added.
-
 ## Selecting a model
 
 Each custom model appears by its name in the model list in **Preferences → Models** and
