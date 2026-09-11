@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-22 14:09+0300\n"
-"PO-Revision-Date: 2025-09-08 12:43+0200\n"
+"POT-Creation-Date: 2026-09-11 18:56+0300\n"
+"PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: \n"
 "Language: es\n"
@@ -85,6 +85,11 @@ msgstr "Danés"
 #: buzz/transcriber/transcriber.py
 msgid "Dutch"
 msgstr "Holandés"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "French"
+msgstr "Francés"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
@@ -233,6 +238,12 @@ msgid "Disable GPU"
 msgstr "Desactivar GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Prevent system sleep while transcriptions are queued"
+msgstr ""
+"Evitar que el sistema entre en suspensión mientras haya transcripciones en "
+"cola"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "OpenAI API Key Test"
 msgstr "Prueba de la clave API de OpenAI"
 
@@ -350,6 +361,18 @@ msgid "Huggingface ID of a Faster whisper model"
 msgstr "Identificación de un modelo Más rápido whisper"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Name for the custom model"
+msgstr "Nombre del modelo personalizado"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add local model file"
+msgstr "Añadir archivo de modelo local"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add model from URL"
+msgstr "Añadir modelo desde URL"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download"
 msgstr "Descargar"
 
@@ -372,6 +395,24 @@ msgstr "Disponible para descarga"
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download link to Whisper.cpp ggml model file"
 msgstr "Enlace de descarga a Whisper.cpp archivo de modelo ggml"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/transcriber/transcription_options_group_box.py
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Custom"
+msgstr "Personalizado"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Select Whisper.cpp model file"
+msgstr "Seleccione el archivo de modelo de Whisper.cpp"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Whisper.cpp model"
+msgstr "Modelo de Whisper.cpp"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "All files"
+msgstr "Todos los archivos"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Delete Model"
@@ -753,10 +794,6 @@ msgid "Dark"
 msgstr "Oscuro"
 
 #: buzz/widgets/recording_transcriber_widget.py
-msgid "Custom"
-msgstr "Personalizado"
-
-#: buzz/widgets/recording_transcriber_widget.py
 msgid "Text Color"
 msgstr "Color del texto"
 
@@ -930,6 +967,14 @@ msgstr "¡Descarga completa!"
 #: buzz/widgets/update_dialog.py
 msgid "Failed to run the installer: {}"
 msgstr "No se pudo ejecutar el instalador: {}"
+
+#: buzz/widgets/about_dialog.py buzz/widgets/menu_bar.py
+msgid "About"
+msgstr "Acerca de"
+
+#: buzz/widgets/about_dialog.py
+msgid "Version"
+msgstr "Versión"
 
 # automatic translation
 #: buzz/widgets/about_dialog.py
@@ -1381,10 +1426,6 @@ msgstr "Importar URL..."
 msgid "Import Folder..."
 msgstr "Importar carpeta..."
 
-#: buzz/widgets/menu_bar.py
-msgid "About"
-msgstr "Acerca de"
-
 # automatic translation
 #: buzz/widgets/menu_bar.py
 msgid "Preferences..."
@@ -1462,10 +1503,6 @@ msgstr "China"
 #: buzz/transcriber/transcriber.py
 msgid "Korean"
 msgstr "Coreano"
-
-#: buzz/transcriber/transcriber.py
-msgid "French"
-msgstr "Francés"
 
 #: buzz/transcriber/transcriber.py
 msgid "Portuguese"
@@ -2069,15 +2106,10 @@ msgstr "Guardar resumen en un archivo"
 msgid "Output folder (for file)"
 msgstr "Carpeta de salida (para el archivo)"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-msgid "Prevent system sleep while transcriptions are queued"
-msgstr ""
-"Evitar que el sistema entre en suspensión mientras haya transcripciones en cola"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
-"Speech extraction failed! Check your internet connection \\u2014 a model may "
-"need to be downloaded."
+"Speech extraction failed! Check your internet connection — a model may need "
+"to be downloaded."
 msgstr ""
 "¡Extracción de voz fallida! Compruebe su conexión a internet — es posible "
 "que sea necesario descargar un modelo."

@@ -58,8 +58,11 @@ processing power and more powerful hardware to work.
 
 This section lets you download new models for transcription and delete unused ones.
 
-For Whisper.cpp you can also download custom models. Select `Custom` in the model size list and paste the download url 
-to the model `.bin` file. Use the link from "download" button from the Huggingface. 
+For Whisper.cpp you can also add any number of custom models. Enter a name and then either
+add a model file that is already on your computer or download one from a URL to its `.bin`
+file (use the link from the "download" button on Huggingface). Each custom model appears by
+name in the model list so you can switch between them. See
+[Custom Whisper.cpp models](./custom_whisper_cpp_models.md) for details.
 
 To improve transcription speed and memory usage you can select a quantized version of some 
 larger model. For example `q_5` version. Whisper.cpp base models in different quantizations are [available here](https://huggingface.co/ggerganov/whisper.cpp/tree/main). See also [custom models](https://github.com/chidiwilliams/buzz/discussions/866) discussion page for custom models in different languages.

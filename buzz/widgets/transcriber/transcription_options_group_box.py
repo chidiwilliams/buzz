@@ -1,4 +1,3 @@
-import os
 import logging
 import platform
 from typing import Optional, List
@@ -10,7 +9,8 @@ from PyQt6.QtWidgets import QGroupBox, QWidget, QFormLayout, QComboBox, QLabel, 
 from buzz.locale import _
 from buzz.settings.settings import Settings
 from buzz.widgets.icon import INFO_ICON_PATH
-from buzz.model_loader import ModelType, WhisperModelSize, get_whisper_cpp_file_path, is_mms_model
+from buzz.model_loader import ModelType, WhisperModelSize, model_root_dir, is_mms_model
+from buzz.settings.whisper_cpp_custom_models import get_custom_models
 from buzz.transcriber.transcriber import TranscriptionOptions, Task
 from buzz.widgets.model_type_combo_box import ModelTypeComboBox
 from buzz.widgets.openai_api_key_line_edit import OpenAIAPIKeyLineEdit
@@ -59,10 +59,10 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         )
 
         self.whisper_model_size_combo_box = QComboBox(self)
-        self.whisper_model_size_combo_box.addItems(
-            [size.value.title() for size in WhisperModelSize if size not in {WhisperModelSize.CUSTOM, WhisperModelSize.LUMII}]
-        )
-        self.whisper_model_size_combo_box.currentTextChanged.connect(
+        # Items are populated in reset_visible_rows so that Whisper.cpp custom
+        # models can be listed by name. Each item stores a
+        # (WhisperModelSize, custom_model_id) tuple as its data.
+        self.whisper_model_size_combo_box.currentIndexChanged.connect(
             self.on_whisper_model_size_changed
         )
 
@@ -185,45 +185,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
                 and whisper_model_size == WhisperModelSize.CUSTOM),
             )
 
-        # Remove custom model size for whisper
-        custom_model_index = (self.whisper_model_size_combo_box
-                              .findText(WhisperModelSize.CUSTOM.value.title()))
-        if model_type == ModelType.WHISPER and custom_model_index != -1:
-            self.whisper_model_size_combo_box.removeItem(custom_model_index)
-
-        # Add custom model size for whisper_cpp
-        custom_model_index = (self.whisper_model_size_combo_box
-                              .findText(WhisperModelSize.CUSTOM.value.title()))
-        if (model_type == ModelType.WHISPER_CPP
-                and os.path.isfile(get_whisper_cpp_file_path(size=WhisperModelSize.CUSTOM))
-                and custom_model_index == -1):
-            self.whisper_model_size_combo_box.addItem(
-                WhisperModelSize.CUSTOM.value.title()
-            )
-
-        # Add custom model size for faster_whisper
-        custom_model_index = (self.whisper_model_size_combo_box
-                              .findText(WhisperModelSize.CUSTOM.value.title()))
-        if model_type == ModelType.FASTER_WHISPER and custom_model_index == -1:
-            self.whisper_model_size_combo_box.addItem(
-                WhisperModelSize.CUSTOM.value.title()
-            )
-
-        # Leave LUMII model only for Latvian whisper_cpp
-        lumii_model_index = (self.whisper_model_size_combo_box
-                              .findText(WhisperModelSize.LUMII.value.title()))
-
-        if lumii_model_index != -1 and (model_type != ModelType.WHISPER_CPP or self.ui_locale != "lv_LV"):
-            self.whisper_model_size_combo_box.removeItem(lumii_model_index)
-
-        if lumii_model_index == -1 and model_type == ModelType.WHISPER_CPP and self.ui_locale == "lv_LV":
-            self.whisper_model_size_combo_box.addItem(
-                WhisperModelSize.LUMII.value.title()
-            )
-
-        self.whisper_model_size_combo_box.setCurrentText(
-            self.transcription_options.model.whisper_model_size.value.title()
-        )
+        self._populate_whisper_model_size_combo_box()
 
         self.form_layout.setRowVisible(
             self.whisper_model_size_combo_box,
@@ -264,9 +226,67 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         self.reset_visible_rows()
         self.transcription_options_changed.emit(self.transcription_options)
 
-    def on_whisper_model_size_changed(self, text: str):
-        model_size = WhisperModelSize(text.lower())
+    def _populate_whisper_model_size_combo_box(self):
+        """Rebuild the model-size items, listing Whisper.cpp custom models by name.
+
+        Each item stores a (WhisperModelSize, custom_model_id) tuple. Regular
+        sizes use a None id; Whisper.cpp custom models carry their registry id so
+        several of them can coexist and be selected independently.
+        """
+        model_type = self.transcription_options.model.model_type
+        combo = self.whisper_model_size_combo_box
+
+        combo.blockSignals(True)
+        combo.clear()
+
+        for size in WhisperModelSize:
+            if size in {WhisperModelSize.CUSTOM, WhisperModelSize.LUMII}:
+                continue
+            combo.addItem(size.value.title(), (size, None))
+
+        # LUMII (Latvian) is only offered for Whisper.cpp in the Latvian locale.
+        if model_type == ModelType.WHISPER_CPP and self.ui_locale == "lv_LV":
+            combo.addItem(
+                WhisperModelSize.LUMII.value.title(), (WhisperModelSize.LUMII, None)
+            )
+
+        if model_type == ModelType.FASTER_WHISPER:
+            combo.addItem(
+                WhisperModelSize.CUSTOM.value.title(), (WhisperModelSize.CUSTOM, None)
+            )
+        elif model_type == ModelType.WHISPER_CPP:
+            for model in get_custom_models(model_root_dir):
+                combo.addItem(
+                    model.name or _("Custom"), (WhisperModelSize.CUSTOM, model.id)
+                )
+
+        self._select_current_whisper_model_size()
+        combo.blockSignals(False)
+
+    def _select_current_whisper_model_size(self):
+        combo = self.whisper_model_size_combo_box
+        model = self.transcription_options.model
+        target = (model.whisper_model_size, getattr(model, "custom_model_id", None))
+
+        for index in range(combo.count()):
+            if combo.itemData(index) == target:
+                combo.setCurrentIndex(index)
+                return
+        # Fall back to matching by size alone (e.g. a custom id that no longer
+        # exists), so the selection stays valid.
+        for index in range(combo.count()):
+            data = combo.itemData(index)
+            if data is not None and data[0] == model.whisper_model_size:
+                combo.setCurrentIndex(index)
+                return
+
+    def on_whisper_model_size_changed(self, _index: int):
+        data = self.whisper_model_size_combo_box.currentData()
+        if data is None:
+            return
+        model_size, custom_model_id = data
         self.transcription_options.model.whisper_model_size = model_size
+        self.transcription_options.model.custom_model_id = custom_model_id
 
         self.reset_visible_rows()
 

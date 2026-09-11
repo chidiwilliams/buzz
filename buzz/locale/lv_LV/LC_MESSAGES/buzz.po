@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-22 14:09+0300\n"
-"PO-Revision-Date: 2026-03-06 13:23+0200\n"
+"POT-Creation-Date: 2026-09-11 18:56+0300\n"
+"PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -84,6 +84,11 @@ msgstr "Dāņu"
 #: buzz/transcriber/transcriber.py
 msgid "Dutch"
 msgstr "Holandiešu"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "French"
+msgstr "Franču"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
@@ -227,6 +232,10 @@ msgid "Disable GPU"
 msgstr "Deaktivēt GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Prevent system sleep while transcriptions are queued"
+msgstr "Neļaut sistēmai iemigt, kamēr rindā ir atpazīšanas uzdevumi"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "OpenAI API Key Test"
 msgstr "OpenAI API atslēgas pārbaude"
 
@@ -340,6 +349,18 @@ msgid "Huggingface ID of a Faster whisper model"
 msgstr "Faster whisper modeļa Huggingface ID"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Name for the custom model"
+msgstr "Pielāgotā modeļa nosaukums"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add local model file"
+msgstr "Pievienot lokālu modeļa failu"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add model from URL"
+msgstr "Pievienot modeli no URL"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download"
 msgstr "Lejupielādēt"
 
@@ -362,6 +383,24 @@ msgstr "Pieejams lejupielādei"
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download link to Whisper.cpp ggml model file"
 msgstr "Whisper.cpp ggml modeļa datnes lejupielādes saite"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/transcriber/transcription_options_group_box.py
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Custom"
+msgstr "Pielāgots"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Select Whisper.cpp model file"
+msgstr "Izvēlieties Whisper.cpp modeļa failu"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Whisper.cpp model"
+msgstr "Whisper.cpp modelis"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "All files"
+msgstr "Visi faili"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Delete Model"
@@ -714,10 +753,6 @@ msgid "Dark"
 msgstr "Tumšais"
 
 #: buzz/widgets/recording_transcriber_widget.py
-msgid "Custom"
-msgstr "Pielāgots"
-
-#: buzz/widgets/recording_transcriber_widget.py
 msgid "Text Color"
 msgstr "Teksta krāsa"
 
@@ -888,6 +923,14 @@ msgstr "Lejupielāde pabeigta!"
 #: buzz/widgets/update_dialog.py
 msgid "Failed to run the installer: {}"
 msgstr "Neizdevās sākt atjauninājumu: {}"
+
+#: buzz/widgets/about_dialog.py buzz/widgets/menu_bar.py
+msgid "About"
+msgstr "Par"
+
+#: buzz/widgets/about_dialog.py
+msgid "Version"
+msgstr "Versija"
 
 #: buzz/widgets/about_dialog.py
 msgid "Check for updates"
@@ -1321,10 +1364,6 @@ msgid "Import Folder..."
 msgstr "Importēt mapi..."
 
 #: buzz/widgets/menu_bar.py
-msgid "About"
-msgstr "Par"
-
-#: buzz/widgets/menu_bar.py
 msgid "Preferences..."
 msgstr "Iestatījumi..."
 
@@ -1393,10 +1432,6 @@ msgstr "Ķīniešu"
 #: buzz/transcriber/transcriber.py
 msgid "Korean"
 msgstr "Korejiešu"
-
-#: buzz/transcriber/transcriber.py
-msgid "French"
-msgstr "Franču"
 
 #: buzz/transcriber/transcriber.py
 msgid "Portuguese"
@@ -1985,17 +2020,12 @@ msgstr "Saglabāt failā"
 msgid "Output folder (for file)"
 msgstr "Izvades mape"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-msgid "Prevent system sleep while transcriptions are queued"
-msgstr ""
-"Neļaut sistēmai iemigt, kamēr rindā ir atpazīšanas uzdevumi"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
-"Speech extraction failed! Check your internet connection \\u2014 a model may "
-"need to be downloaded."
+"Speech extraction failed! Check your internet connection — a model may need "
+"to be downloaded."
 msgstr ""
-"Runas atdalīšana neizdevās! Pārbaudiet interneta savienojumu, iespējams "
+"Runas atdalīšana neizdevās! Pārbaudiet interneta savienojumu — iespējams, "
 "jālejupielādē modelis."
 
 #~ msgid "Live recording mode:"

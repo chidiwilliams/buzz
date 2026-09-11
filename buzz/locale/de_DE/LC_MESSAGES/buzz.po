@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-22 14:09+0300\n"
-"PO-Revision-Date: 2025-03-05 14:41+0100\n"
+"POT-Creation-Date: 2026-09-11 18:56+0300\n"
+"PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de_DE@formal\n"
@@ -83,6 +83,11 @@ msgstr "Dänisch"
 #: buzz/transcriber/transcriber.py
 msgid "Dutch"
 msgstr "Niederländisch"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "French"
+msgstr "Französisch"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
@@ -228,6 +233,12 @@ msgid "Disable GPU"
 msgstr "GPU deaktivieren"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Prevent system sleep while transcriptions are queued"
+msgstr ""
+"Ruhezustand des Systems verhindern, solange Transkriptionen in der "
+"Warteschlange sind"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "OpenAI API Key Test"
 msgstr "OpenAI-API-Schlüssel Test"
 
@@ -343,6 +354,18 @@ msgid "Huggingface ID of a Faster whisper model"
 msgstr "Huggingface-ID eines Faster Whisper-Modells"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Name for the custom model"
+msgstr "Name für das benutzerdefinierte Modell"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add local model file"
+msgstr "Lokale Modelldatei hinzufügen"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add model from URL"
+msgstr "Modell von URL hinzufügen"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download"
 msgstr "Herunterladen"
 
@@ -365,6 +388,24 @@ msgstr "Zum Herunterladen verfügbar"
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download link to Whisper.cpp ggml model file"
 msgstr "Laden Sie den Link zur ggml-Modelldatei Whisper.cpp herunter"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/transcriber/transcription_options_group_box.py
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Custom"
+msgstr "Benutzerdefiniert"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Select Whisper.cpp model file"
+msgstr "Whisper.cpp-Modelldatei auswählen"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Whisper.cpp model"
+msgstr "Whisper.cpp-Modell"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "All files"
+msgstr "Alle Dateien"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Delete Model"
@@ -723,10 +764,6 @@ msgid "Dark"
 msgstr "Dunkel"
 
 #: buzz/widgets/recording_transcriber_widget.py
-msgid "Custom"
-msgstr "Benutzerdefiniert"
-
-#: buzz/widgets/recording_transcriber_widget.py
 msgid "Text Color"
 msgstr "Textfarbe"
 
@@ -897,6 +934,14 @@ msgstr "Download abgeschlossen!"
 #: buzz/widgets/update_dialog.py
 msgid "Failed to run the installer: {}"
 msgstr "Installer konnte nicht ausgeführt werden: {}"
+
+#: buzz/widgets/about_dialog.py buzz/widgets/menu_bar.py
+msgid "About"
+msgstr "Über"
+
+#: buzz/widgets/about_dialog.py
+msgid "Version"
+msgstr "Version"
 
 #: buzz/widgets/about_dialog.py
 msgid "Check for updates"
@@ -1341,10 +1386,6 @@ msgid "Import Folder..."
 msgstr "Ordner importieren..."
 
 #: buzz/widgets/menu_bar.py
-msgid "About"
-msgstr "Über"
-
-#: buzz/widgets/menu_bar.py
 msgid "Preferences..."
 msgstr "Einstellungen..."
 
@@ -1386,9 +1427,9 @@ msgstr ""
 #: buzz/transcriber/recording_transcriber.py
 msgid "Whisper server failed to start. Check logs for details."
 msgstr ""
-"Whisper-Server konnte nicht gestartet werden. Protokolle für Details prüfen."
-"Whisper-Server konnte nicht gestartet werden. Details in den Protokollen "
-"prüfen."
+"Whisper-Server konnte nicht gestartet werden. Protokolle für Details "
+"prüfen.Whisper-Server konnte nicht gestartet werden. Details in den "
+"Protokollen prüfen."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
@@ -1417,10 +1458,6 @@ msgstr "Chinesisch"
 #: buzz/transcriber/transcriber.py
 msgid "Korean"
 msgstr "Koreanisch"
-
-#: buzz/transcriber/transcriber.py
-msgid "French"
-msgstr "Französisch"
 
 #: buzz/transcriber/transcriber.py
 msgid "Portuguese"
@@ -2016,15 +2053,10 @@ msgstr "Zusammenfassung in einer Datei speichern"
 msgid "Output folder (for file)"
 msgstr "Ausgabeordner (für Datei)"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-msgid "Prevent system sleep while transcriptions are queued"
-msgstr ""
-"Ruhezustand des Systems verhindern, solange Transkriptionen in der Warteschlange sind"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
-"Speech extraction failed! Check your internet connection \\u2014 a model may "
-"need to be downloaded."
+"Speech extraction failed! Check your internet connection — a model may need "
+"to be downloaded."
 msgstr ""
 "Sprachextraktion fehlgeschlagen! Bitte Internetverbindung prüfen — ein "
 "Modell muss möglicherweise heruntergeladen werden."
