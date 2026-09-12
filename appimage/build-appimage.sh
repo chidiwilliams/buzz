@@ -103,6 +103,11 @@ cat > "$APPDIR/AppRun" << 'APPRUN'
 SELF="$(readlink -f "$0")"
 APPDIR="$(dirname "$SELF")"
 
+# The type-2 runtime already exports this; re-exporting keeps it correct for
+# an extracted AppDir too, so buzz/cuda_manager.py's is_appimage() can tell
+# that Buzz itself is the running bundle.
+export APPDIR
+
 export PATH="$APPDIR/usr/bin:$PATH"
 export LD_LIBRARY_PATH="$APPDIR/usr/bin:${LD_LIBRARY_PATH:-}"
 export QT_MEDIA_BACKEND=ffmpeg

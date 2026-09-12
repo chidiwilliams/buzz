@@ -74,12 +74,30 @@ def is_flatpak() -> bool:
     return "FLATPAK_ID" in os.environ
 
 
+def is_appimage() -> bool:
+    """Returns True if this Buzz is running from its own AppImage.
+
+    The type-2 runtime exports APPIMAGE (the .AppImage path) and APPDIR (the
+    mounted bundle). Testing APPIMAGE alone is not enough, for the same reason
+    as in is_snap(): any AppImage-packaged tool that launches Buzz leaks those
+    into the environment. Requiring the running executable to live inside
+    APPDIR ties the answer to *this* bundle.
+    """
+    appdir = os.environ.get("APPDIR")
+    if not appdir or "APPIMAGE" not in os.environ:
+        return False
+    try:
+        return Path(sys.executable).resolve().is_relative_to(Path(appdir).resolve())
+    except OSError:
+        return False
+
+
 def should_offer_cuda_prompt() -> bool:
     """Returns True on platforms where in-app CUDA installation is supported."""
     if sys.platform == "win32":
         return True
     if sys.platform == "linux":
-        return is_snap() or is_flatpak()
+        return is_snap() or is_flatpak() or is_appimage()
     return False
 
 

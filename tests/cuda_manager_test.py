@@ -12,6 +12,7 @@ from buzz.cuda_manager import (
     get_cuda_env_site_packages,
     get_cuda_root_dir,
     is_cuda_torch_installed,
+    is_appimage,
     is_flatpak,
     is_nvidia_gpu_present,
     is_snap,
@@ -156,6 +157,35 @@ class TestIsFlatpak:
         assert is_flatpak() is False
 
 
+def _fake_appimage(monkeypatch, tmp_path):
+    """Put a fake Buzz executable inside a fake mounted AppDir."""
+    appdir = tmp_path / "appdir"
+    executable = appdir / "usr" / "bin" / "Buzz"
+    executable.parent.mkdir(parents=True)
+    executable.touch()
+    monkeypatch.setenv("APPDIR", str(appdir))
+    monkeypatch.setenv("APPIMAGE", str(tmp_path / "Buzz.AppImage"))
+    monkeypatch.setattr(sys, "executable", str(executable))
+    return appdir
+
+
+class TestIsAppImage:
+    def test_returns_true_inside_own_appimage(self, monkeypatch, tmp_path):
+        _fake_appimage(monkeypatch, tmp_path)
+        assert is_appimage() is True
+
+    def test_returns_false_when_env_not_set(self, monkeypatch):
+        monkeypatch.delenv("APPDIR", raising=False)
+        monkeypatch.delenv("APPIMAGE", raising=False)
+        assert is_appimage() is False
+
+    def test_returns_false_for_another_appimage(self, monkeypatch, tmp_path):
+        """Another AppImage launching Buzz leaks APPIMAGE/APPDIR into the env."""
+        _fake_appimage(monkeypatch, tmp_path)
+        monkeypatch.setattr(sys, "executable", "/usr/bin/python3")
+        assert is_appimage() is False
+
+
 class TestShouldOfferCudaPrompt:
     def test_returns_true_on_windows(self, monkeypatch):
         monkeypatch.setattr(sys, "platform", "win32")
@@ -175,11 +205,21 @@ class TestShouldOfferCudaPrompt:
         monkeypatch.setenv("FLATPAK_ID", "io.github.chidiwilliams.buzz")
         assert should_offer_cuda_prompt() is True
 
+    def test_returns_true_on_linux_appimage(self, monkeypatch, tmp_path):
+        monkeypatch.setattr(sys, "platform", "linux")
+        monkeypatch.delenv("SNAP", raising=False)
+        monkeypatch.delenv("SNAP_NAME", raising=False)
+        monkeypatch.delenv("FLATPAK_ID", raising=False)
+        _fake_appimage(monkeypatch, tmp_path)
+        assert should_offer_cuda_prompt() is True
+
     def test_returns_false_on_linux_bare(self, monkeypatch):
         monkeypatch.setattr(sys, "platform", "linux")
         monkeypatch.delenv("SNAP", raising=False)
         monkeypatch.delenv("SNAP_NAME", raising=False)
         monkeypatch.delenv("FLATPAK_ID", raising=False)
+        monkeypatch.delenv("APPDIR", raising=False)
+        monkeypatch.delenv("APPIMAGE", raising=False)
         assert should_offer_cuda_prompt() is False
 
     def test_returns_false_on_macos(self, monkeypatch):
