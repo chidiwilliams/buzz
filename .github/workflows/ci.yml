@@ -68,13 +68,25 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/uv.lock') }}
 
-      - uses: AnimMouse/setup-ffmpeg@v1
-        id: setup-ffmpeg
-        with:
-          version: ${{ matrix.os == 'macos-15-intel' && '7.1.1' || matrix.os == 'macos-latest' && '711' || '7.1' }}
+      - name: Install FFmpeg
+        shell: pwsh
+        run: |
+          if ($env:RUNNER_OS -eq 'Linux') {
+            sudo apt-get update
+            sudo apt-get install --yes ffmpeg
+          } elseif ($env:RUNNER_OS -eq 'Windows') {
+            choco install ffmpeg --yes --no-progress
+          } elseif ($env:RUNNER_OS -eq 'macOS') {
+            brew install ffmpeg
+          } else {
+            throw "Unsupported runner OS: $env:RUNNER_OS"
+          }
 
       - name: Test ffmpeg
-        run: ffmpeg -i ./testdata/audio-long.mp3 ./testdata/audio-long.wav
+        run: |
+          ffmpeg -version
+          ffprobe -version
+          ffmpeg -hide_banner -loglevel error -y -i ./testdata/audio-long.mp3 ./testdata/audio-long.wav
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v3
@@ -169,6 +181,25 @@ jobs:
           args: install innosetup --yes
         if: runner.os == 'Windows'
 
+      - name: Install FFmpeg
+        shell: pwsh
+        run: |
+          if ($env:RUNNER_OS -eq 'Linux') {
+            sudo apt-get update
+            sudo apt-get install --yes ffmpeg
+          } elseif ($env:RUNNER_OS -eq 'Windows') {
+            choco install ffmpeg --yes --no-progress
+          } elseif ($env:RUNNER_OS -eq 'macOS') {
+            brew install ffmpeg
+          } else {
+            throw "Unsupported runner OS: $env:RUNNER_OS"
+          }
+
+      - name: Verify FFmpeg
+        run: |
+          ffmpeg -version
+          ffprobe -version
+
       - name: Install apt dependencies
         run: |
           sudo apt-get update
@@ -193,11 +224,6 @@ jobs:
           # Check available disk space
           echo "=== Disk space ==="
           df -h
-
-      - uses: AnimMouse/setup-ffmpeg@v1
-        id: setup-ffmpeg
-        with:
-          version: ${{ matrix.os == 'macos-15-intel' && '7.1.1' || matrix.os == 'macos-latest' && '711' || '7.1' }}
 
       - name: Install MSVC for Windows
         run: |
