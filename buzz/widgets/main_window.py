@@ -496,6 +496,12 @@ class MainWindow(QMainWindow):
             name = task.display_name or os.path.splitext(basename)[0]
             self.transcription_service.update_transcription_file_and_name(task.uid, task.file_path, name)
 
+        # Folder watch moves the source file into the output directory, so the
+        # stored path has to follow it for the audio to stay playable.
+        if task.source == FileTranscriptionTask.Source.FOLDER_WATCH and task.file_path:
+            logging.debug(f"Updating transcription file path: {task.file_path}")
+            self.transcription_service.update_transcription_file_and_name(task.uid, task.file_path)
+
         # When plugins are enabled, run the after_transcription / save / on_complete
         # pipeline on a background thread so slow plugin work (e.g. network calls)
         # doesn't freeze the UI. DB writes are marshaled back to the main thread by

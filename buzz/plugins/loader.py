@@ -35,7 +35,6 @@ BUNDLED_PLUGIN_IDS = [
     "export_docx",
     "enhanced_language_detection",
     "skip_already_transcribed",
-    "deep_filter_net",
 ]
 
 ENTRY_MODULE = "plugin.py"

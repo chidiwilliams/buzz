@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-11 18:56+0300\n"
+"POT-Creation-Date: 2026-09-12 08:14+0300\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -282,6 +282,10 @@ msgstr "Włącz obserwację folderu"
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Delete processed files"
 msgstr "Usuń przetworzonych pliki"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Note: Audio playback will not be available"
+msgstr "Uwaga: odtwarzanie dźwięku nie będzie dostępne"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
@@ -1953,18 +1957,6 @@ msgstr "Interpunkcja"
 msgid "Maximum subtitle length"
 msgstr "Maksymalna długość napisu"
 
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "DeepFilterNet Noise Reduction"
-msgstr "Redukcja szumów DeepFilterNet"
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Removes background noise using DeepFilterNet3 before transcription."
-msgstr "Usuwa szumy tła za pomocą DeepFilterNet3 przed transkrypcją."
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Keep denoised file after transcription"
-msgstr "Zachowaj plik po usunięciu szumów po transkrypcji"
-
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip Already Transcribed"
 msgstr "Pomijaj już transkrybowane"
@@ -2041,6 +2033,15 @@ msgid ""
 msgstr ""
 "Wyodrębnianie mowy nie powiodło się! Sprawdź połączenie internetowe — może "
 "być konieczne pobranie modelu."
+
+#~ msgid "DeepFilterNet Noise Reduction"
+#~ msgstr "Redukcja szumów DeepFilterNet"
+
+#~ msgid "Removes background noise using DeepFilterNet3 before transcription."
+#~ msgstr "Usuwa szumy tła za pomocą DeepFilterNet3 przed transkrypcją."
+
+#~ msgid "Keep denoised file after transcription"
+#~ msgstr "Zachowaj plik po usunięciu szumów po transkrypcji"
 
 #~ msgid "Live recording mode:"
 #~ msgstr "Tryb nagrywania na żywo:"

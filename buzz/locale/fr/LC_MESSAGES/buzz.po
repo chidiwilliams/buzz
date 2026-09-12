@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-11 18:56+0300\n"
+"POT-Creation-Date: 2026-09-12 08:14+0300\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: cherkaba\n"
 "Language-Team: French <kde-francophone@kde.org>\n"
@@ -289,6 +289,10 @@ msgstr "Activer la surveillance de dossier"
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Delete processed files"
 msgstr "Supprimer les fichiers traités"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Note: Audio playback will not be available"
+msgstr "Remarque : la lecture audio ne sera pas disponible"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
@@ -1964,19 +1968,6 @@ msgstr "Ponctuation"
 msgid "Maximum subtitle length"
 msgstr "Longueur max des sous-titres"
 
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "DeepFilterNet Noise Reduction"
-msgstr "Réduction du bruit DeepFilterNet"
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Removes background noise using DeepFilterNet3 before transcription."
-msgstr ""
-"Supprime le bruit de fond en utilisant DeepFilterNet3 avant la transcription."
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Keep denoised file after transcription"
-msgstr "Conserver le fichier débruité après la transcription"
-
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip Already Transcribed"
 msgstr "Ignorer les déjà transcrits"
@@ -2054,3 +2045,14 @@ msgid ""
 msgstr ""
 "L'extraction de la parole a échoué ! Vérifiez votre connexion internet — un "
 "modèle doit peut-être être téléchargé."
+
+#~ msgid "DeepFilterNet Noise Reduction"
+#~ msgstr "Réduction du bruit DeepFilterNet"
+
+#~ msgid "Removes background noise using DeepFilterNet3 before transcription."
+#~ msgstr ""
+#~ "Supprime le bruit de fond en utilisant DeepFilterNet3 avant la "
+#~ "transcription."
+
+#~ msgid "Keep denoised file after transcription"
+#~ msgstr "Conserver le fichier débruité après la transcription"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-11 18:56+0300\n"
+"POT-Creation-Date: 2026-09-12 08:14+0300\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -281,6 +281,10 @@ msgstr "Ieslēgt mapes vērošanu"
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Delete processed files"
 msgstr "Dzēst apstrādātos failus"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Note: Audio playback will not be available"
+msgstr "Piezīme: audio atskaņošana nebūs pieejama"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
@@ -1942,18 +1946,6 @@ msgstr "Pieturzīmes"
 msgid "Maximum subtitle length"
 msgstr "Maksimālais subtitru garums"
 
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "DeepFilterNet Noise Reduction"
-msgstr "DeepFilterNet trokšņu samazināšana"
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Removes background noise using DeepFilterNet3 before transcription."
-msgstr "Pirms transkribēšanas noņem fona troksni, izmantojot DeepFilterNet3."
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Keep denoised file after transcription"
-msgstr "Saglabāt attīrīto failu pēc transkribēšanas"
-
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip Already Transcribed"
 msgstr "Izlaist jau transkribētos"
@@ -2027,6 +2019,16 @@ msgid ""
 msgstr ""
 "Runas atdalīšana neizdevās! Pārbaudiet interneta savienojumu — iespējams, "
 "jālejupielādē modelis."
+
+#~ msgid "DeepFilterNet Noise Reduction"
+#~ msgstr "DeepFilterNet trokšņu samazināšana"
+
+#~ msgid "Removes background noise using DeepFilterNet3 before transcription."
+#~ msgstr ""
+#~ "Pirms transkribēšanas noņem fona troksni, izmantojot DeepFilterNet3."
+
+#~ msgid "Keep denoised file after transcription"
+#~ msgstr "Saglabāt attīrīto failu pēc transkribēšanas"
 
 #~ msgid "Live recording mode:"
 #~ msgstr "Dzīvā ieraksta režīms:"

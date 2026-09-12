@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-11 18:56+0300\n"
+"POT-Creation-Date: 2026-09-12 08:14+0300\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: \n"
@@ -289,6 +289,10 @@ msgstr "Habilitar la inspección de carpetas"
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Delete processed files"
 msgstr "Eliminar archivos procesados"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Note: Audio playback will not be available"
+msgstr "Nota: la reproducción de audio no estará disponible"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
@@ -2022,20 +2026,6 @@ msgstr "Puntuación"
 msgid "Maximum subtitle length"
 msgstr "Longitud máxima del subtítulo"
 
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "DeepFilterNet Noise Reduction"
-msgstr "Reducción de ruido DeepFilterNet"
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Removes background noise using DeepFilterNet3 before transcription."
-msgstr ""
-"Elimina el ruido de fondo con DeepFilterNet3 antes de la transcripción."
-
-# automatic translation
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Keep denoised file after transcription"
-msgstr "Conservar el archivo sin ruido tras la transcripción"
-
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip Already Transcribed"
 msgstr "Omitir ya transcritos"
@@ -2113,6 +2103,17 @@ msgid ""
 msgstr ""
 "¡Extracción de voz fallida! Compruebe su conexión a internet — es posible "
 "que sea necesario descargar un modelo."
+
+#~ msgid "DeepFilterNet Noise Reduction"
+#~ msgstr "Reducción de ruido DeepFilterNet"
+
+#~ msgid "Removes background noise using DeepFilterNet3 before transcription."
+#~ msgstr ""
+#~ "Elimina el ruido de fondo con DeepFilterNet3 antes de la transcripción."
+
+# automatic translation
+#~ msgid "Keep denoised file after transcription"
+#~ msgstr "Conservar el archivo sin ruido tras la transcripción"
 
 # automatic translation
 #~ msgid "Live recording mode:"

@@ -74,6 +74,14 @@ class FileTranscriber(QObject):
         for segment in segments:
             segment.text = segment.text.strip()
 
+        # Move/delete the watched source file before announcing completion so
+        # the task carries the final file path when the transcription is saved.
+        if self.transcription_task.source == FileTranscriptionTask.Source.FOLDER_WATCH:
+            try:
+                self._handle_folder_watch()
+            except OSError:
+                logging.exception("Failed to move or delete folder watch source file")
+
         self.completed.emit(segments)
 
         for (
@@ -92,9 +100,6 @@ class FileTranscriber(QObject):
             write_output(
                 path=default_path, segments=segments, output_format=output_format
             )
-
-        if self.transcription_task.source == FileTranscriptionTask.Source.FOLDER_WATCH:
-            self._handle_folder_watch()
 
     def _download_from_url(self) -> bool:
         cookiefile = os.getenv("BUZZ_DOWNLOAD_COOKIEFILE")
@@ -179,17 +184,29 @@ class FileTranscriber(QObject):
             self.transcription_task.original_file_path
             or self.transcription_task.file_path
         )
-        if source_path and os.path.exists(source_path):
-            if self.transcription_task.delete_source_file:
-                os.remove(source_path)
-            else:
-                shutil.move(
-                    source_path,
-                    os.path.join(
-                        self.transcription_task.output_directory,
-                        os.path.basename(source_path),
-                    ),
-                )
+        if not source_path or not os.path.exists(source_path):
+            return
+
+        if self.transcription_task.delete_source_file:
+            os.remove(source_path)
+            return
+
+        destination = os.path.join(
+            self.transcription_task.output_directory,
+            os.path.basename(source_path),
+        )
+
+        # The output directory may be the input directory, in which case there
+        # is nothing to move.
+        if not os.path.exists(destination) or not os.path.samefile(
+            source_path, destination
+        ):
+            shutil.move(source_path, destination)
+
+        # Point the task at the new location so the transcription keeps a
+        # working path and the audio stays playable.
+        self.transcription_task.file_path = destination
+        self.transcription_task.original_file_path = destination
 
     def on_download_progress(self, data: dict):
         if data["status"] == "downloading":

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-11 18:56+0300\n"
+"POT-Creation-Date: 2026-09-12 08:14+0300\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
@@ -286,6 +286,10 @@ msgstr "Abilita controllo cartelle"
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Delete processed files"
 msgstr "Elimina file elaborati"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Note: Audio playback will not be available"
+msgstr "Nota: la riproduzione audio non sarà disponibile"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
@@ -1965,19 +1969,6 @@ msgstr "Punteggiatura"
 msgid "Maximum subtitle length"
 msgstr "Lunghezza massima del sottotitolo"
 
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "DeepFilterNet Noise Reduction"
-msgstr "Riduzione del rumore DeepFilterNet"
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Removes background noise using DeepFilterNet3 before transcription."
-msgstr ""
-"Rimuove il rumore di fondo con DeepFilterNet3 prima della trascrizione."
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Keep denoised file after transcription"
-msgstr "Mantieni il file denoisato dopo la trascrizione"
-
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip Already Transcribed"
 msgstr "Salta i già trascritti"
@@ -2053,6 +2044,16 @@ msgid ""
 msgstr ""
 "Estrazione del parlato non riuscita! Controlla la tua connessione Internet — "
 "potrebbe essere necessario scaricare un modello."
+
+#~ msgid "DeepFilterNet Noise Reduction"
+#~ msgstr "Riduzione del rumore DeepFilterNet"
+
+#~ msgid "Removes background noise using DeepFilterNet3 before transcription."
+#~ msgstr ""
+#~ "Rimuove il rumore di fondo con DeepFilterNet3 prima della trascrizione."
+
+#~ msgid "Keep denoised file after transcription"
+#~ msgstr "Mantieni il file denoisato dopo la trascrizione"
 
 #~ msgid "Live recording mode:"
 #~ msgstr "Modalità di registrazione in diretta:"

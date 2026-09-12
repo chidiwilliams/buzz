@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-11 18:56+0300\n"
+"POT-Creation-Date: 2026-09-12 08:14+0300\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: Ole Guldberg2 <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -280,6 +280,10 @@ msgstr "Aktiver mappeovervågning"
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Delete processed files"
 msgstr "Slet behandlede filer"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Note: Audio playback will not be available"
+msgstr "Bemærk: Lydafspilning vil ikke være tilgængelig"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
@@ -1949,18 +1953,6 @@ msgstr "Tegnsætning"
 msgid "Maximum subtitle length"
 msgstr "Maksimal undertekstlængde"
 
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "DeepFilterNet Noise Reduction"
-msgstr "DeepFilterNet støjreduktion"
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Removes background noise using DeepFilterNet3 before transcription."
-msgstr "Fjerner baggrundsstøj med DeepFilterNet3 før transskription."
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Keep denoised file after transcription"
-msgstr "Behold den støjreducerede fil efter transskription"
-
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip Already Transcribed"
 msgstr "Spring allerede transkriberede over"
@@ -2038,6 +2030,15 @@ msgid ""
 msgstr ""
 "Taleoprydning mislykkedes! Kontroller din internetforbindelse — en model "
 "skal muligvis hentes ned."
+
+#~ msgid "DeepFilterNet Noise Reduction"
+#~ msgstr "DeepFilterNet støjreduktion"
+
+#~ msgid "Removes background noise using DeepFilterNet3 before transcription."
+#~ msgstr "Fjerner baggrundsstøj med DeepFilterNet3 før transskription."
+
+#~ msgid "Keep denoised file after transcription"
+#~ msgstr "Behold den støjreducerede fil efter transskription"
 
 #~ msgid "Live recording mode:"
 #~ msgstr "Live optagelsestilstand:"

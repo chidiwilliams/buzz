@@ -49,6 +49,9 @@ class FolderWatchPreferencesWidget(QWidget):
         delete_checkbox = QCheckBox(_("Delete processed files"))
         delete_checkbox.setChecked(config.delete_processed_files)
         delete_checkbox.setObjectName("DeleteProcessedFilesCheckbox")
+        delete_checkbox.setToolTip(
+            _("Note: Audio playback will not be available")
+        )
         delete_checkbox.stateChanged.connect(self.on_delete_processed_files_changed)
 
         self.input_folder_browse_button = QPushButton(_("Browse"))
