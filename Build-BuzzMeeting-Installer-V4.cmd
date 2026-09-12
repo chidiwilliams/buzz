@@ -1,9 +1,15 @@
 @echo off
-setlocal EnableExtensions EnableDelayedExpansion
+setlocal EnableExtensions DisableDelayedExpansion
 title Buzz Meeting - Build and Install Validated Windows Version V4
 
-set "REPO=C:\Projects\buzz-meeting"
-set "EXPECTED_SHA=953eb9fe5c3c39178300f7b39db2557676f31a34"
+set "REPO=%~dp0."
+set "CURRENT_BRANCH="
+set "CURRENT_SHA="
+set "REMOTE_SHA="
+powershell.exe -NoProfile -NonInteractive -Command "$value = [Environment]::GetEnvironmentVariable('BUZZ_VALIDATED_SHA', 'Process'); if ($null -eq $value -or $value -cnotmatch '\A[0-9A-Fa-f]{40}\z') { exit 1 }"
+if errorlevel 1 goto :usage
+set "EXPECTED_SHA=%BUZZ_VALIDATED_SHA%"
+for %%I in ("%REPO%") do set "REPO=%%~fI"
 set "EXPECTED_INSTALLER=dist\Buzz-1.4.5-windows.exe"
 set "GIT_BASH=C:\Program Files\Git\bin\bash.exe"
 set "CTC_RUFF_CACHE=ctc_forced_aligner\.ruff_cache"
@@ -35,14 +41,14 @@ if /I not "%CURRENT_BRANCH%"=="main" (
   goto :fail
 )
 
-git diff --quiet --ignore-submodules=all
+git diff --quiet --ignore-submodules=dirty
 if errorlevel 1 (
   echo [ERROR] Tracked root-repository files have local modifications.
   git status --short
   goto :fail
 )
 
-git diff --cached --quiet --ignore-submodules=all
+git diff --cached --quiet --ignore-submodules=dirty
 if errorlevel 1 (
   echo [ERROR] Staged root-repository changes exist.
   git status --short
@@ -50,7 +56,7 @@ if errorlevel 1 (
 )
 
 echo [1/8] Checking authoritative remote main...
-git fetch origin main
+git fetch origin refs/heads/main:refs/remotes/origin/main
 if errorlevel 1 goto :buildfail
 
 for /f "delims=" %%I in ('git rev-parse origin/main 2^>nul') do set "REMOTE_SHA=%%I"
@@ -163,7 +169,8 @@ if exist "dll_backup" (
 
 echo.
 echo [6/8] Verifying Git Bash build tools...
-"%GIT_BASH%" -c "cd /c/Projects/buzz-meeting && command -v uname && command -v mktemp && command -v uv && command -v make && command -v cmake"
+rem Git Bash inherits the validated repository working directory above.
+"%GIT_BASH%" -c "command -v uname && command -v mktemp && command -v uv && command -v make && command -v cmake"
 if errorlevel 1 (
   echo [ERROR] Git Bash cannot see one or more required tools.
   goto :fail
@@ -171,7 +178,7 @@ if errorlevel 1 (
 
 echo.
 echo [7/8] Building Windows application and installer inside Git Bash...
-"%GIT_BASH%" -c "cd /c/Projects/buzz-meeting && uv run make bundle_windows"
+"%GIT_BASH%" -c "uv run make bundle_windows"
 if errorlevel 1 goto :buildfail
 
 echo.
@@ -208,6 +215,9 @@ goto :fail
 
 :fail
 echo.
-echo Press any key to close this window.
-pause >nul
+exit /b 1
+
+:usage
+echo Set BUZZ_VALIDATED_SHA to the full 40-character validated origin/main commit SHA.
+echo Example: set "BUZZ_VALIDATED_SHA=0123456789abcdef0123456789abcdef01234567" ^&^& %~nx0
 exit /b 1

@@ -6,6 +6,7 @@ on:
     tags:
       - "*"
   pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -354,7 +355,7 @@ jobs:
     environment: pypi
     permissions:
       id-token: write
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/') && !startsWith(github.ref, 'refs/tags/meeting-v')
     steps:
       - uses: actions/download-artifact@v8
         with:

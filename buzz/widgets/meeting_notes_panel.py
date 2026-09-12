@@ -249,7 +249,17 @@ class MeetingNotesPanel(QWidget):
                 f"{artifact.created_at.astimezone():%Y-%m-%d %H:%M:%S} — {artifact.summary.title or 'AI Notes'}",
                 artifact.summary_id,
             )
-        self.history.setCurrentIndex(self.history.findData(self.selected_id))
+        # QSql reloads UUIDs as new Python objects. QVariant's comparison for
+        # arbitrary Python objects cannot reliably match these by UUID value.
+        selected_index = next(
+            (
+                index
+                for index in range(self.history.count())
+                if self.history.itemData(index) == self.selected_id
+            ),
+            -1,
+        )
+        self.history.setCurrentIndex(selected_index)
         self.history.blockSignals(False)
         self.render_selected()
 
