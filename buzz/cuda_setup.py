@@ -6,7 +6,7 @@ It handles locating and loading CUDA libraries (cuDNN, cuBLAS, etc.) from the nv
 pip packages.
 
 On Windows: Uses os.add_dll_directory() to add library paths
-On Linux: Re-execs the process with LD_LIBRARY_PATH set when cuda_packages are present,
+On Linux: Re-execs the process with LD_LIBRARY_PATH set when a CUDA venv is present,
           then preloads libraries with RTLD_GLOBAL for any remaining gaps.
 On macOS: No action needed (CUDA not supported)
 """
@@ -23,23 +23,25 @@ logger = logging.getLogger(__name__)
 
 
 def _get_cuda_target_dir() -> Path | None:
-    """Return the --target directory used during CUDA install for snap/flatpak, or None."""
-    # Must match is_snap() in buzz/cuda_manager.py: only Buzz's own snap, not
-    # any snap-packaged tool that happens to have launched us.
-    snap_user_data = os.environ.get("SNAP_USER_DATA")
-    if snap_user_data and os.environ.get("SNAP_NAME") == "buzz":
-        return Path(snap_user_data) / "cuda_packages"
-    flatpak_id = os.environ.get("FLATPAK_ID")
-    if flatpak_id:
-        xdg_data = os.environ.get("XDG_DATA_HOME", str(Path.home() / ".local" / "share"))
-        return Path(xdg_data) / "buzz" / "cuda_packages"
-    return None
+    """Return the site-packages of the CUDA venv installed by cuda_manager.
+
+    Returns None when GPU support has never been installed. The lookup lives in
+    buzz/cuda_manager.py so the installer and the loader can never disagree on
+    where the packages went; it imports nothing that pulls in torch.
+    """
+    from buzz.cuda_manager import get_cuda_env_site_packages
+
+    try:
+        return get_cuda_env_site_packages()
+    except OSError as exc:
+        logger.warning("Could not look up the CUDA environment: %s", exc)
+        return None
 
 
 def _is_abi_compatible(cuda_target: Path) -> bool:
     """Check that a torch in cuda_target was built for the running Python.
 
-    The CUDA packages are installed with a --target directory that survives app
+    The CUDA packages live in a venv outside the app that survives app
     upgrades. If Buzz later runs on a different Python version, the torch there
     is built against the wrong C ABI and would shadow the bundled one, failing
     the import with an undefined symbol error. Detect that and skip the dir.
@@ -78,13 +80,13 @@ def _get_site_packages_dirs() -> list[Path]:
     site_packages_dirs = []
     import site
 
-    # For snap/flatpak, packages are installed to an explicit --target directory
+    # GPU support installed from within Buzz lives in its own venv
     cuda_target = _get_cuda_target_dir()
     if cuda_target and cuda_target.exists() and _is_abi_compatible(cuda_target):
         if str(cuda_target) not in sys.path:
             sys.path.insert(0, str(cuda_target))
         site_packages_dirs.append(cuda_target)
-        logger.info("CUDA target dir (snap/flatpak): %s", cuda_target)
+        logger.info("CUDA environment site-packages: %s", cuda_target)
 
     user_site = site.getusersitepackages()
     if user_site:
@@ -159,7 +161,7 @@ def _setup_windows_dll_directories():
 
 
 def _collect_cuda_lib_dirs(cuda_target: Path) -> list[str]:
-    """Return all library directories under cuda_packages as strings."""
+    """Return all library directories under the CUDA venv as strings."""
     lib_dirs: list[str] = []
 
     torch_lib = cuda_target / "torch" / "lib"

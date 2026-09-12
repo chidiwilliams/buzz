@@ -2,56 +2,78 @@ import sys
 from unittest.mock import patch
 
 
+def _make_env(root, version="3.13", platform_name="linux"):
+    """Create a venv-shaped site-packages tree under root and return it."""
+    if platform_name == "win32":
+        site_packages = root / "cuda_env" / "Lib" / "site-packages"
+    else:
+        site_packages = root / "cuda_env" / "lib" / f"python{version}" / "site-packages"
+    site_packages.mkdir(parents=True)
+    return site_packages
+
+
 class TestGetCudaTargetDir:
-    def test_returns_snap_path(self, monkeypatch, tmp_path):
+    def test_returns_snap_env_site_packages(self, monkeypatch, tmp_path):
+        monkeypatch.setattr(sys, "platform", "linux")
         monkeypatch.setenv("SNAP_USER_DATA", str(tmp_path))
         monkeypatch.setenv("SNAP_NAME", "buzz")
         monkeypatch.delenv("FLATPAK_ID", raising=False)
+        site_packages = _make_env(tmp_path)
+
         from buzz.cuda_setup import _get_cuda_target_dir
-        result = _get_cuda_target_dir()
-        assert result == tmp_path / "cuda_packages"
+        assert _get_cuda_target_dir() == site_packages
 
     def test_ignores_an_unrelated_snap(self, monkeypatch, tmp_path):
         # A snap-packaged tool launching Buzz exports SNAP_USER_DATA pointing at
         # its own directory; must agree with is_snap() in buzz/cuda_manager.py.
+        monkeypatch.setattr(sys, "platform", "linux")
         monkeypatch.setenv("SNAP_USER_DATA", str(tmp_path))
         monkeypatch.setenv("SNAP_NAME", "astral-uv")
         monkeypatch.delenv("FLATPAK_ID", raising=False)
-        from buzz.cuda_setup import _get_cuda_target_dir
-        assert _get_cuda_target_dir() is None
+        _make_env(tmp_path)
 
-    def test_returns_flatpak_path(self, monkeypatch, tmp_path):
+        from buzz.cuda_setup import _get_cuda_target_dir
+        assert _get_cuda_target_dir() != tmp_path / "cuda_env"
+
+    def test_returns_flatpak_env_site_packages(self, monkeypatch, tmp_path):
+        monkeypatch.setattr(sys, "platform", "linux")
         monkeypatch.delenv("SNAP_USER_DATA", raising=False)
         monkeypatch.delenv("SNAP_NAME", raising=False)
         monkeypatch.setenv("FLATPAK_ID", "io.github.chidiwilliams.buzz")
         monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path))
-        from buzz.cuda_setup import _get_cuda_target_dir
-        result = _get_cuda_target_dir()
-        assert result == tmp_path / "buzz" / "cuda_packages"
+        site_packages = _make_env(tmp_path / "buzz")
 
-    def test_returns_none_when_no_env(self, monkeypatch):
+        from buzz.cuda_setup import _get_cuda_target_dir
+        assert _get_cuda_target_dir() == site_packages
+
+    def test_returns_windows_env_site_packages(self, monkeypatch, tmp_path):
+        # The Windows build installs into the same private venv, so nothing
+        # lands in a site-packages shared with other Python installs.
+        monkeypatch.setattr(sys, "platform", "win32")
         monkeypatch.delenv("SNAP_USER_DATA", raising=False)
         monkeypatch.delenv("SNAP_NAME", raising=False)
         monkeypatch.delenv("FLATPAK_ID", raising=False)
-        from buzz.cuda_setup import _get_cuda_target_dir
-        result = _get_cuda_target_dir()
-        assert result is None
+        site_packages = _make_env(tmp_path, platform_name="win32")
+        monkeypatch.setattr("buzz.cuda_manager.get_cuda_root_dir", lambda: tmp_path)
 
-    def test_flatpak_falls_back_to_home(self, monkeypatch):
+        from buzz.cuda_setup import _get_cuda_target_dir
+        assert _get_cuda_target_dir() == site_packages
+
+    def test_returns_none_when_not_installed(self, monkeypatch, tmp_path):
+        monkeypatch.setattr(sys, "platform", "linux")
         monkeypatch.delenv("SNAP_USER_DATA", raising=False)
         monkeypatch.delenv("SNAP_NAME", raising=False)
-        monkeypatch.setenv("FLATPAK_ID", "io.github.chidiwilliams.buzz")
-        monkeypatch.delenv("XDG_DATA_HOME", raising=False)
+        monkeypatch.delenv("FLATPAK_ID", raising=False)
+        monkeypatch.setattr("buzz.cuda_manager.get_cuda_root_dir", lambda: tmp_path)
+
         from buzz.cuda_setup import _get_cuda_target_dir
-        result = _get_cuda_target_dir()
-        assert result is not None
-        assert "cuda_packages" in str(result)
+        assert _get_cuda_target_dir() is None
 
 
 class TestGetSitePackagesDirs:
     def test_adds_cuda_target_to_sys_path(self, monkeypatch, tmp_path):
-        cuda_target = tmp_path / "cuda_packages"
-        cuda_target.mkdir()
+        monkeypatch.setattr(sys, "platform", "linux")
+        cuda_target = _make_env(tmp_path)
         monkeypatch.setenv("SNAP_USER_DATA", str(tmp_path))
         monkeypatch.setenv("SNAP_NAME", "buzz")
         monkeypatch.delenv("FLATPAK_ID", raising=False)

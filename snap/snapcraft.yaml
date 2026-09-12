@@ -13,7 +13,7 @@ base: core24
 version: git
 title: Buzz
 summary: Buzz, offline audio transcription and translation
-website: https://buzzcaptions.com
+website: https://github.com/chidiwilliams/buzz
 source-code: https://github.com/chidiwilliams/buzz
 issues: https://github.com/chidiwilliams/buzz/issues
 contact: https://github.com/chidiwilliams

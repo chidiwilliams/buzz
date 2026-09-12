@@ -4,6 +4,7 @@ Utilities for checking and installing CUDA support at runtime.
 
 import logging
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -48,6 +49,13 @@ CUDA_NVIDIA_PACKAGES_LINUX = [
 
 # The name of Buzz's own snap, as declared in snap/snapcraft.yaml.
 SNAP_NAME = "buzz"
+
+# Name of the private virtual environment holding the CUDA packages.
+CUDA_ENV_DIR_NAME = "cuda_env"
+
+# Name used before the switch to a private venv. Still cleaned up so an
+# upgrade does not leave several gigabytes of orphaned wheels behind.
+LEGACY_CUDA_DIR_NAME = "cuda_packages"
 
 
 def is_snap() -> bool:
@@ -123,56 +131,62 @@ def is_nvidia_gpu_present() -> bool:
     return Path("/proc/driver/nvidia/version").exists()
 
 
-def _in_virtualenv() -> bool:
-    """Returns True if running inside a virtualenv or uv venv."""
-    return sys.prefix != sys.base_prefix or "VIRTUAL_ENV" in os.environ
+def get_cuda_root_dir() -> Path:
+    """Return the writable Buzz-owned directory that holds the CUDA install.
 
-
-def _get_target_dir() -> Path | None:
-    """Return the explicit --target directory for CUDA packages, or None.
-
-    Snap and Flatpak get a dedicated writable directory; everything else
-    installs into the venv or user site-packages and has no target dir.
+    Snap and Flatpak have their own per-sandbox data directories. Everywhere
+    else this is Buzz's platform data directory (on Windows a subdirectory of
+    %LOCALAPPDATA%\\Buzz, which the uninstaller offers to delete), so the
+    multi-gigabyte CUDA install never lands in a shared site-packages and goes
+    away with the app.
     """
     if is_snap():
         snap_user_data = os.environ.get("SNAP_USER_DATA")
         if snap_user_data:
-            return Path(snap_user_data) / "cuda_packages"
-        return Path.home() / ".local" / "share" / "buzz" / "cuda_packages"
+            return Path(snap_user_data)
+        return Path.home() / ".local" / "share" / "buzz"
     if is_flatpak():
         xdg_data = os.environ.get("XDG_DATA_HOME", str(Path.home() / ".local" / "share"))
-        return Path(xdg_data) / "buzz" / "cuda_packages"
-    return None
+        return Path(xdg_data) / "buzz"
+
+    from platformdirs import user_data_dir
+
+    return Path(user_data_dir("Buzz"))
 
 
-def _get_install_target() -> list[str]:
-    """Return pip target flags for the current environment.
+def get_cuda_env_dir() -> Path:
+    """Return the path of the private virtualenv holding the CUDA packages."""
+    return get_cuda_root_dir() / CUDA_ENV_DIR_NAME
 
-    In Snap/Flatpak the Python interpreter's user-site is disabled or points to
-    the read-only bundle, so we use --target with an explicit writable path.
-    In a virtualenv --user is forbidden; packages go into the venv directly.
-    Otherwise we use --user so packages land in ~/.local.
+
+def get_cuda_env_site_packages(env_dir: Path | None = None) -> Path | None:
+    """Return the site-packages directory inside the CUDA venv, if it exists.
+
+    The Linux layout embeds the Python version (lib/python3.13/site-packages),
+    so it is globbed rather than derived: after a Buzz upgrade to a different
+    Python the directory is still found, and the ABI check in buzz/cuda_setup.py
+    is what decides whether it may be used.
     """
-    target = _get_target_dir()
-    if target is not None:
-        target.mkdir(parents=True, exist_ok=True)
-        return ["--target", str(target)]
-    if _in_virtualenv():
-        return []
-    return ["--user"]
+    env_dir = env_dir if env_dir is not None else get_cuda_env_dir()
+
+    if sys.platform == "win32":
+        site_packages = env_dir / "Lib" / "site-packages"
+        return site_packages if site_packages.is_dir() else None
+
+    candidates = sorted(env_dir.glob("lib/python3.*/site-packages"))
+    return candidates[-1] if candidates else None
 
 
-def _find_stale_cuda_dirs(target: Path) -> list[Path]:
-    """Return existing cuda_packages dirs that a fresh install should replace.
+def _find_stale_cuda_dirs(env_dir: Path) -> list[Path]:
+    """Return existing CUDA install dirs that a fresh install should replace.
 
-    Includes the current target (a previous or half-finished install) and, under
-    Snap, the same directory in other revisions: snapd copies $SNAP_USER_DATA
-    forward on every refresh, so each revision keeps its own multi-gigabyte
-    copy, and one built for an older Python is unusable after an upgrade.
+    Includes the current env (a previous or half-finished install), the legacy
+    --target directory it replaced, and, under Snap, the same directories in
+    other revisions: snapd copies $SNAP_USER_DATA forward on every refresh, so
+    each revision keeps its own multi-gigabyte copy, and one built for an older
+    Python is unusable after an upgrade.
     """
-    stale: list[Path] = []
-    if target.is_dir():
-        stale.append(target)
+    roots = [env_dir.parent]
 
     if is_snap():
         snap_user_data = os.environ.get("SNAP_USER_DATA")
@@ -188,23 +202,26 @@ def _find_stale_cuda_dirs(target: Path) -> list[Path]:
                 # never delete the same directory twice via two names.
                 if revision.is_symlink() or not revision.is_dir():
                     continue
-                candidate = revision / "cuda_packages"
-                if candidate != target and candidate.is_dir():
-                    stale.append(candidate)
+                if revision not in roots:
+                    roots.append(revision)
 
+    stale: list[Path] = []
+    for root in roots:
+        for name in (CUDA_ENV_DIR_NAME, LEGACY_CUDA_DIR_NAME):
+            candidate = root / name
+            if candidate.is_dir() and candidate not in stale:
+                stale.append(candidate)
     return stale
 
 
-def _cleanup_old_cuda_packages(target: Path, report=None) -> None:
+def _cleanup_old_cuda_packages(env_dir: Path, report=None) -> None:
     """Delete previously installed CUDA packages before a fresh install.
 
-    Installing over an existing directory leaves files from the old install
+    Installing over an existing environment leaves files from the old install
     behind, which is how an ABI-incompatible torch survives a Python upgrade
     and shadows the bundled one (see buzz/cuda_setup.py).
     """
-    import shutil
-
-    for stale in _find_stale_cuda_dirs(target):
+    for stale in _find_stale_cuda_dirs(env_dir):
         message = f"Removing previous CUDA packages in {stale}..."
         logger.info(message)
         if report:
@@ -212,8 +229,8 @@ def _cleanup_old_cuda_packages(target: Path, report=None) -> None:
         try:
             shutil.rmtree(stale)
         except OSError as exc:
-            # Not fatal: pip will overwrite what it can, and cuda_setup skips
-            # the directory if what remains is incompatible.
+            # Not fatal: the install below recreates what it can, and cuda_setup
+            # skips the directory if what remains is incompatible.
             logger.warning("Could not remove %s: %s", stale, exc)
             if report:
                 report(f"Warning: could not remove {stale}: {exc}")
@@ -221,7 +238,11 @@ def _cleanup_old_cuda_packages(target: Path, report=None) -> None:
 
 def install_cuda(progress_callback=None):
     """
-    Install CUDA-enabled torch and nvidia libraries.
+    Install CUDA-enabled torch and nvidia libraries into a private venv.
+
+    Nothing is written to the user's global or user site-packages: everything
+    lands in get_cuda_env_dir(), which Buzz puts on sys.path at startup and
+    removes when GPU support is reinstalled.
 
     Args:
         progress_callback: Optional callable(str) called with status messages.
@@ -231,89 +252,144 @@ def install_cuda(progress_callback=None):
         if progress_callback:
             progress_callback(msg)
 
-    target_dir = _get_target_dir()
-    if target_dir is not None:
-        # Only safe where we own the whole directory. A --user or venv install
-        # shares its site-packages with the rest of Buzz's dependencies.
-        _cleanup_old_cuda_packages(target_dir, report)
+    env_dir = get_cuda_env_dir()
+    _cleanup_old_cuda_packages(env_dir, report)
 
-    target_flags = _get_install_target()
+    report(f"Creating environment for CUDA packages in {env_dir}...")
+    install_cmd = _create_cuda_env(env_dir, progress_callback=report)
 
     nvidia_packages = CUDA_NVIDIA_PACKAGES_COMMON + (
         CUDA_NVIDIA_PACKAGES_LINUX if sys.platform != "win32" else []
     )
     report("Installing NVIDIA CUDA libraries...")
-    _pip_install(
+    _run_install(
+        install_cmd,
         nvidia_packages,
-        extra_args=["--index-url", CUDA_INDEX_URL] + target_flags,
+        extra_args=["--index-url", CUDA_INDEX_URL],
         progress_callback=report,
     )
 
     report("Installing CUDA-enabled PyTorch...")
-    _pip_install(
+    _run_install(
+        install_cmd,
         CUDA_TORCH_PACKAGES,
-        extra_args=["--index-url", CUDA_INDEX_URL, "--no-deps"] + target_flags,
+        extra_args=["--index-url", CUDA_INDEX_URL, "--no-deps"],
         progress_callback=report,
     )
 
     report("CUDA installation complete. Please restart Buzz to enable GPU acceleration.")
 
 
-def _ensure_pip(python: str) -> list[str]:
-    """Return [python, '-m', 'pip'], bootstrapping pip via ensurepip if needed."""
-    hide_kwargs = _subprocess_hide_window_kwargs()
-    pip_cmd = [python, "-m", "pip"]
-    probe = subprocess.run(pip_cmd + ["--version"], capture_output=True, timeout=15, **hide_kwargs)
-    if probe.returncode == 0:
-        return pip_cmd
-    logger.info("pip not found for %s, bootstrapping via ensurepip...", python)
-    bootstrap = subprocess.run(
-        [python, "-m", "ensurepip", "--upgrade"],
-        capture_output=True, timeout=60, **hide_kwargs,
-    )
-    if bootstrap.returncode != 0:
-        raise RuntimeError(
-            f"pip is not available for {python} and ensurepip failed. "
-            "Please install pip manually and try again."
-        )
-    return pip_cmd
+def _get_base_python() -> str:
+    """Return a real Python interpreter that can create the CUDA venv.
 
-
-def _get_pip_cmd() -> list[str]:
-    """Return a [python, '-m', 'pip'] command that is guaranteed to work.
-
-    Handles three environments:
-    - PyInstaller frozen bundle: sys.executable is the app binary; find a real
-      Python interpreter in PATH instead.
-    - Normal Python without pip (uv venv, minimal snap/flatpak image): bootstrap
-      pip via ensurepip, then retry.
-    - Normal Python with pip: use sys.executable directly.
+    In a frozen PyInstaller bundle sys.executable is the app binary and cannot
+    run -m venv, so the interpreter shipped alongside the app is used instead.
+    Its version always matches the one Buzz was frozen with, which matters
+    because the CUDA wheels are ABI-specific.
     """
-    import shutil
-
-    # Frozen PyInstaller bundle — sys.executable can't run -m pip.
-    # Use the bundled interpreter shipped alongside the app. Its version always
-    # matches the one Buzz was frozen with, so derive it rather than hardcoding:
-    # the CUDA wheels are ABI-specific and a mismatch installs unusable packages.
-    version = f"{sys.version_info.major}.{sys.version_info.minor}"
     if getattr(sys, "frozen", False):
         # PyInstaller extracts bundled data to sys._MEIPASS (_internal dir)
         internal_dir = Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent))
         python_name = "python.exe" if sys.platform == "win32" else "python3"
         bundled_python = internal_dir / "python" / python_name
         if bundled_python.is_file():
-            return _ensure_pip(str(bundled_python))
+            return str(bundled_python)
         # Fallback: look in PATH
+        version = f"{sys.version_info.major}.{sys.version_info.minor}"
         for candidate in (f"python{version}", "python3", "python"):
             python = shutil.which(candidate)
             if python:
-                return _ensure_pip(python)
+                return python
         raise RuntimeError(
             "Could not find a Python interpreter. "
             f"Please install Python {version} and try again."
         )
 
-    return _ensure_pip(sys.executable)
+    # Inside a venv, base_executable is the interpreter the venv was built from;
+    # deriving the new venv from it avoids chaining venvs.
+    return getattr(sys, "_base_executable", None) or sys.executable
+
+
+def _find_uv() -> str | None:
+    """Return the path of a usable uv binary, or None.
+
+    The snap ships uv (stage-snaps in snap/snapcraft.yaml) and its Python has
+    neither pip nor ensurepip, so uv is the only way to create the venv there.
+    """
+    candidates = []
+    snap_dir = os.environ.get("SNAP")
+    if snap_dir:
+        candidates.append(str(Path(snap_dir) / "bin" / "uv"))
+    found = shutil.which("uv")
+    if found:
+        candidates.append(found)
+
+    for candidate in candidates:
+        try:
+            probe = subprocess.run(
+                [candidate, "--version"],
+                capture_output=True,
+                timeout=15,
+                **_subprocess_hide_window_kwargs(),
+            )
+        except (OSError, subprocess.SubprocessError):
+            continue
+        if probe.returncode == 0:
+            return candidate
+    return None
+
+
+def _venv_python(env_dir: Path) -> Path:
+    """Return the interpreter path inside a venv."""
+    if sys.platform == "win32":
+        return env_dir / "Scripts" / "python.exe"
+    return env_dir / "bin" / "python"
+
+
+def _create_cuda_env(env_dir: Path, progress_callback=None) -> list[str]:
+    """Create the private CUDA venv and return the install command prefix.
+
+    Two ways in, because no single one works everywhere:
+    - uv, when available (the snap's Python has no pip and ensurepip is pruned
+      from the snap payload, so `-m venv` cannot bootstrap one there).
+    - the stdlib venv module, which bootstraps pip into the new environment.
+      The bundled Windows interpreter ships the full stdlib, so this works even
+      though the app directory under Program Files is not writable.
+    """
+    env_dir.parent.mkdir(parents=True, exist_ok=True)
+    python = _get_base_python()
+    hide_kwargs = _subprocess_hide_window_kwargs()
+
+    uv = _find_uv()
+    if uv:
+        logger.info("Creating CUDA venv with uv (%s) from %s", uv, python)
+        _run_command(
+            [uv, "venv", "--python", python, str(env_dir)],
+            progress_callback=progress_callback,
+            error_message="Could not create the environment for CUDA packages",
+        )
+        # --no-cache: the wheels are several gigabytes and are never reused,
+        # so a second copy in the uv cache is pure waste.
+        return [
+            uv, "pip", "install", "--no-cache",
+            "--python", str(_venv_python(env_dir)),
+        ]
+
+    logger.info("Creating CUDA venv with %s -m venv", python)
+    result = subprocess.run(
+        [python, "-m", "venv", str(env_dir)],
+        capture_output=True,
+        text=True,
+        timeout=300,
+        **hide_kwargs,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            "Could not create the environment for CUDA packages in "
+            f"{env_dir}: {(result.stderr or result.stdout or '').strip()}"
+        )
+    return [str(_venv_python(env_dir)), "-m", "pip", "install", "--no-cache-dir"]
 
 
 def _subprocess_hide_window_kwargs() -> dict[str, Any]:
@@ -326,11 +402,8 @@ def _subprocess_hide_window_kwargs() -> dict[str, Any]:
     return {}
 
 
-def _pip_install(packages, extra_args=None, progress_callback=None):
-    cmd = _get_pip_cmd() + ["install", "--break-system-packages"] + packages
-    if extra_args:
-        cmd += extra_args
-
+def _run_command(cmd, progress_callback=None, error_message="Command failed"):
+    """Run a command, streaming its output to progress_callback."""
     process = subprocess.Popen(
         cmd,
         stdout=subprocess.PIPE,
@@ -345,4 +418,12 @@ def _pip_install(packages, extra_args=None, progress_callback=None):
 
     process.wait()
     if process.returncode != 0:
-        raise RuntimeError(f"pip install failed with exit code {process.returncode}")
+        raise RuntimeError(f"{error_message} (exit code {process.returncode})")
+
+
+def _run_install(install_cmd, packages, extra_args=None, progress_callback=None):
+    cmd = list(install_cmd) + list(packages)
+    if extra_args:
+        cmd += extra_args
+
+    _run_command(cmd, progress_callback=progress_callback, error_message="pip install failed")
