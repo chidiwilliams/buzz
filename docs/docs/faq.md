@@ -19,6 +19,8 @@ Speech recognition requires large amount of computation, so one option is to try
 
 Buzz also supports using OpenAI API to do speech recognition on a remote server. To use this feature you need to set OpenAI API key in Preferences. See [Preferences](https://chidiwilliams.github.io/buzz/docs/preferences) section for more details.
 
+If you are on Buzz version `1.4.6` or later and have a Nvidia GPU, go to `Help -> About Buzz` and install CUDA Acceleration.
+
 ### 3. How to record system audio?
 
 To transcribe system audio you need to configure virtual audio device and connect output from the applications you want to transcribe to this virtual speaker. After that you can select it as source in the Buzz. See [Usage](https://chidiwilliams.github.io/buzz/docs/usage/live_recording) section for more details.
