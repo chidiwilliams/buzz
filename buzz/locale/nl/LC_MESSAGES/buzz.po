@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-12 09:03+0300\n"
+"POT-Creation-Date: 2026-09-12 17:09+0300\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: none\n"
@@ -786,22 +786,25 @@ msgid "Nvidia GPU Acceleration"
 msgstr "Nvidia GPU-versnelling"
 
 #: buzz/widgets/cuda_installer_widget.py
-#, fuzzy
 msgid "Install Nvidia GPU Acceleration?"
-msgstr "Alleen CPU gebruiken en GPU-versnelling uitschakelen"
+msgstr "Nvidia GPU-versnelling installeren?"
 
 #: buzz/widgets/cuda_installer_widget.py
 msgid ""
 "Installing GPU acceleration for Nvidia GPUS allows Buzz to transcribe audio "
 "significantly faster using CUDA. For other GPU brands this acceleration will "
-"have no effect\n"
+"have no effect. CUDA is not needed to run whisper.cpp.\n"
 "\n"
 "This will download and install PyTorch with CUDA support (~8 GB). Buzz must "
 "be restarted after installation."
 msgstr ""
-"Het installeren van GPU-versnelling voor Nvidia GPU's stelt Buzz in staat om audio aanzienlijk sneller te transcriberen met CUDA. Voor andere GPU-merken heeft deze versnelling geen effect.\n"
+"Het installeren van GPU-versnelling voor Nvidia GPU's stelt Buzz in staat om "
+"audio aanzienlijk sneller te transcriberen met CUDA. Voor andere GPU-merken "
+"heeft deze versnelling geen effect. CUDA is niet nodig om whisper.cpp uit te "
+"voeren.\n"
 "\n"
-"Dit downloadt en installeert PyTorch met CUDA-ondersteuning (~8 GB). Buzz moet na de installatie opnieuw worden gestart."
+"Dit downloadt en installeert PyTorch met CUDA-ondersteuning (~8 GB). Buzz "
+"moet na de installatie opnieuw worden gestart."
 
 #: buzz/widgets/cuda_installer_widget.py
 msgid "Install GPU Support"
@@ -813,9 +816,10 @@ msgstr "Niet nu"
 
 #: buzz/widgets/cuda_installer_widget.py
 msgid "Installation complete! Restart Buzz to enable GPU acceleration."
-msgstr "Installatie voltooid! Herstart Buzz om GPU-versnelling in te schakelen."
+msgstr ""
+"Installatie voltooid! Herstart Buzz om GPU-versnelling in te schakelen."
 
-#: buzz/widgets/cuda_installer_widget.py
+#: buzz/widgets/cuda_installer_widget.py buzz/widgets/about_dialog.py
 msgid "Close"
 msgstr "Sluiten"
 

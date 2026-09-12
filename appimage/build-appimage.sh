@@ -50,6 +50,14 @@ mkdir -p "$APPDIR/usr/bin" \
 # Copy entire PyInstaller output into usr/bin/
 cp -a "$PROJECT_DIR/dist/Buzz/." "$APPDIR/usr/bin/"
 
+# Strip the executable-stack flag from bundled shared objects. uv's
+# python-build-standalone marks libpython PT_GNU_STACK=RWE, and kernels from
+# Linux 7.0 (Ubuntu 26.04) on refuse that at dlopen time, so the app dies with
+# "cannot enable executable stack as shared object requires: Invalid argument".
+# Patch the AppDir copy, never the shared uv Python cache.
+echo "==> Clearing executable-stack flags..."
+uv run --no-project "$SCRIPT_DIR/clear-execstack.py" "$APPDIR/usr/bin"
+
 # ── Step 3: Desktop integration ─────────────────────────────────────────────
 # Desktop file — Exec must be just the binary name for AppImage spec
 cat > "$APPDIR/Buzz.desktop" << 'EOF'
@@ -111,10 +119,26 @@ if [ ! -f "$RUNTIME" ]; then
         "https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-${ARCH}"
 fi
 
-# Use APPIMAGETOOL_EXTRACT_AND_RUN when FUSE is unavailable (CI, containers)
+# Fall back to extract-and-run when FUSE is unavailable (CI, containers) or
+# unusable. Presence of `fusermount` is not enough: distros that ship only FUSE 3
+# (Ubuntu 25.10+, where /usr/bin/fusermount is a symlink to fusermount3) still
+# fail to mount appimagetool's FUSE 2 runtime. Probe it instead of guessing.
+#
+# The variable is APPIMAGE_EXTRACT_AND_RUN: it is read by the AppImage type-2
+# runtime, which is what appimagetool (itself an AppImage) boots through. There
+# is no APPIMAGETOOL_-prefixed variant -- setting one is silently ignored and
+# the build dies with "Cannot mount AppImage, please check your FUSE setup."
 EXTRA_ARGS=(--runtime-file "$RUNTIME" --no-appstream)
-if [ "${CI:-}" = "true" ] || ! command -v fusermount &>/dev/null; then
-    export APPIMAGETOOL_EXTRACT_AND_RUN=1
+if [ "${CI:-}" = "true" ] || ! "$APPIMAGETOOL" --version >/dev/null 2>&1; then
+    echo "==> FUSE unusable for appimagetool; falling back to extract-and-run"
+    export APPIMAGE_EXTRACT_AND_RUN=1
+fi
+
+# If it still cannot start, neither mounting nor extraction works -- fail here
+# with a clear message instead of midway through packaging.
+if ! "$APPIMAGETOOL" --version >/dev/null 2>&1; then
+    echo "ERROR: cannot run $APPIMAGETOOL (neither FUSE mount nor extract-and-run works)." >&2
+    exit 1
 fi
 
 # Validate AppStream metadata ourselves in offline mode. appimagetool's internal

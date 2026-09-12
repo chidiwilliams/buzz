@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-12 09:03+0300\n"
+"POT-Creation-Date: 2026-09-12 17:09+0300\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -778,22 +778,25 @@ msgid "Nvidia GPU Acceleration"
 msgstr "Akceleracja GPU Nvidia"
 
 #: buzz/widgets/cuda_installer_widget.py
-#, fuzzy
 msgid "Install Nvidia GPU Acceleration?"
-msgstr "Używaj tylko CPU i wyłącz akcelerację GPU"
+msgstr "Zainstalować akcelerację GPU Nvidia?"
 
 #: buzz/widgets/cuda_installer_widget.py
 msgid ""
 "Installing GPU acceleration for Nvidia GPUS allows Buzz to transcribe audio "
 "significantly faster using CUDA. For other GPU brands this acceleration will "
-"have no effect\n"
+"have no effect. CUDA is not needed to run whisper.cpp.\n"
 "\n"
 "This will download and install PyTorch with CUDA support (~8 GB). Buzz must "
 "be restarted after installation."
 msgstr ""
-"Instalacja akceleracji GPU dla kart Nvidia pozwala Buzz znacznie szybciej transkrybować dźwięk przy użyciu CUDA. Dla innych marek GPU ta akceleracja nie będzie miała żadnego efektu.\n"
+"Instalacja akceleracji GPU dla kart Nvidia pozwala Buzz znacznie szybciej "
+"transkrybować dźwięk przy użyciu CUDA. Dla innych marek GPU ta akceleracja "
+"nie będzie miała żadnego efektu. CUDA nie jest potrzebna do uruchomienia "
+"whisper.cpp.\n"
 "\n"
-"Spowoduje to pobranie i zainstalowanie PyTorch z obsługą CUDA (~8 GB). Po instalacji Buzz musi zostać ponownie uruchomiony."
+"Spowoduje to pobranie i zainstalowanie PyTorch z obsługą CUDA (~8 GB). Po "
+"instalacji Buzz musi zostać ponownie uruchomiony."
 
 #: buzz/widgets/cuda_installer_widget.py
 msgid "Install GPU Support"
@@ -805,11 +808,12 @@ msgstr "Nie teraz"
 
 #: buzz/widgets/cuda_installer_widget.py
 msgid "Installation complete! Restart Buzz to enable GPU acceleration."
-msgstr "Instalacja zakończona! Uruchom ponownie Buzz, aby włączyć akcelerację GPU."
-
-#: buzz/widgets/cuda_installer_widget.py
-msgid "Close"
 msgstr ""
+"Instalacja zakończona! Uruchom ponownie Buzz, aby włączyć akcelerację GPU."
+
+#: buzz/widgets/cuda_installer_widget.py buzz/widgets/about_dialog.py
+msgid "Close"
+msgstr "Zamknij"
 
 #: buzz/widgets/cuda_installer_widget.py
 msgid "Installation failed: {}"

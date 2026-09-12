@@ -67,7 +67,8 @@ class CudaInstallerDialog(QDialog):
             _(
                 "Installing GPU acceleration for Nvidia GPUS allows Buzz "
                 "to transcribe audio significantly faster using CUDA. "
-                "For other GPU brands this acceleration will have no effect\n\n"
+                "For other GPU brands this acceleration will have no effect. "
+                "CUDA is not needed to run whisper.cpp.\n\n"
                 "This will download and install PyTorch with CUDA support (~8 GB). "
                 "Buzz must be restarted after installation."
             )

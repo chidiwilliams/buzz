@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-12 09:03+0300\n"
+"POT-Creation-Date: 2026-09-12 17:09+0300\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: Yevhen Popok <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -776,22 +776,25 @@ msgid "Nvidia GPU Acceleration"
 msgstr "Апаратне прискорення Nvidia GPU"
 
 #: buzz/widgets/cuda_installer_widget.py
-#, fuzzy
 msgid "Install Nvidia GPU Acceleration?"
-msgstr "Використовувати лише CPU та вимкнути прискорення GPU"
+msgstr "Встановити прискорення Nvidia GPU?"
 
 #: buzz/widgets/cuda_installer_widget.py
 msgid ""
 "Installing GPU acceleration for Nvidia GPUS allows Buzz to transcribe audio "
 "significantly faster using CUDA. For other GPU brands this acceleration will "
-"have no effect\n"
+"have no effect. CUDA is not needed to run whisper.cpp.\n"
 "\n"
 "This will download and install PyTorch with CUDA support (~8 GB). Buzz must "
 "be restarted after installation."
 msgstr ""
-"Встановлення апаратного прискорення GPU для відеокарт Nvidia дозволяє Buzz значно швидше транскрибувати аудіо за допомогою CUDA. Для відеокарт інших виробників це прискорення не матиме жодного ефекту.\n"
+"Встановлення апаратного прискорення GPU для відеокарт Nvidia дозволяє Buzz "
+"значно швидше транскрибувати аудіо за допомогою CUDA. Для відеокарт інших "
+"виробників це прискорення не матиме жодного ефекту. CUDA не потрібна для "
+"роботи whisper.cpp.\n"
 "\n"
-"Це завантажить і встановить PyTorch з підтримкою CUDA (~2 ГБ). Після встановлення необхідно перезапустити Buzz."
+"Це завантажить і встановить PyTorch з підтримкою CUDA (~8 ГБ). Після "
+"встановлення необхідно перезапустити Buzz."
 
 #: buzz/widgets/cuda_installer_widget.py
 msgid "Install GPU Support"
@@ -803,9 +806,11 @@ msgstr "Не зараз"
 
 #: buzz/widgets/cuda_installer_widget.py
 msgid "Installation complete! Restart Buzz to enable GPU acceleration."
-msgstr "Встановлення завершено! Перезапустіть Buzz, щоб увімкнути апаратне прискорення GPU."
+msgstr ""
+"Встановлення завершено! Перезапустіть Buzz, щоб увімкнути апаратне "
+"прискорення GPU."
 
-#: buzz/widgets/cuda_installer_widget.py
+#: buzz/widgets/cuda_installer_widget.py buzz/widgets/about_dialog.py
 msgid "Close"
 msgstr "Закрити"
 

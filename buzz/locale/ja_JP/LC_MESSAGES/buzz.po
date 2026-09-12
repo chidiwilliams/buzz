@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-12 09:03+0300\n"
+"POT-Creation-Date: 2026-09-12 17:09+0300\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: nunawa <71294849+nunawa@users.noreply.github.com>\n"
 "Language-Team: \n"
@@ -769,22 +769,25 @@ msgid "Nvidia GPU Acceleration"
 msgstr "Nvidia GPU アクセラレーション"
 
 #: buzz/widgets/cuda_installer_widget.py
-#, fuzzy
 msgid "Install Nvidia GPU Acceleration?"
-msgstr "CPUのみを使用してGPUアクセラレーションを無効にする"
+msgstr "Nvidia GPU アクセラレーションをインストールしますか？"
 
 #: buzz/widgets/cuda_installer_widget.py
 msgid ""
 "Installing GPU acceleration for Nvidia GPUS allows Buzz to transcribe audio "
 "significantly faster using CUDA. For other GPU brands this acceleration will "
-"have no effect\n"
+"have no effect. CUDA is not needed to run whisper.cpp.\n"
 "\n"
 "This will download and install PyTorch with CUDA support (~8 GB). Buzz must "
 "be restarted after installation."
 msgstr ""
-"Nvidia GPU 向けの GPU アクセラレーションをインストールすると、CUDA を使用して Buzz が音声をはるかに高速に文字起こしできるようになります。他の GPU ブランドではこのアクセラレーションは効果がありません。\n"
+"Nvidia GPU 向けの GPU アクセラレーションをインストールすると、CUDA を使用し"
+"て Buzz が音声をはるかに高速に文字起こしできるようになります。他の GPU ブラン"
+"ドではこのアクセラレーションは効果がありません。CUDA は whisper.cpp の実行に"
+"は必要ありません。\n"
 "\n"
-"CUDA サポート付きの PyTorch がダウンロード・インストールされます（約 2 GB）。インストール後、Buzz を再起動する必要があります。"
+"CUDA サポート付きの PyTorch がダウンロード・インストールされます（約 8 GB）。"
+"インストール後、Buzz を再起動する必要があります。"
 
 #: buzz/widgets/cuda_installer_widget.py
 msgid "Install GPU Support"
@@ -796,9 +799,11 @@ msgstr "後で"
 
 #: buzz/widgets/cuda_installer_widget.py
 msgid "Installation complete! Restart Buzz to enable GPU acceleration."
-msgstr "インストール完了！GPU アクセラレーションを有効にするには Buzz を再起動してください。"
+msgstr ""
+"インストール完了！GPU アクセラレーションを有効にするには Buzz を再起動してく"
+"ださい。"
 
-#: buzz/widgets/cuda_installer_widget.py
+#: buzz/widgets/cuda_installer_widget.py buzz/widgets/about_dialog.py
 msgid "Close"
 msgstr "閉じる"
 

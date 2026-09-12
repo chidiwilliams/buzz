@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-12 09:03+0300\n"
+"POT-Creation-Date: 2026-09-12 17:09+0300\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -781,15 +781,17 @@ msgstr "Instalēt Nvidia GPU paātrināšanu"
 msgid ""
 "Installing GPU acceleration for Nvidia GPUS allows Buzz to transcribe audio "
 "significantly faster using CUDA. For other GPU brands this acceleration will "
-"have no effect\n"
+"have no effect. CUDA is not needed to run whisper.cpp.\n"
 "\n"
 "This will download and install PyTorch with CUDA support (~8 GB). Buzz must "
 "be restarted after installation."
 msgstr ""
-"GPU paātrinājuma instalēšana Nvidia GPU kartēm ļauj Buzz ievērojami ātrāk atpazīt audio, izmantojot CUDA. "
-"Citu GPU ražotāju kartēm šim paātrinājumam nebūs nekādas ietekmes.\n"
+"GPU paātrinājuma instalēšana Nvidia GPU kartēm ļauj Buzz ievērojami ātrāk "
+"atpazīt audio, izmantojot CUDA. Citu GPU ražotāju kartēm šim paātrinājumam "
+"nebūs nekādas ietekmes. CUDA nav nepieciešams, lai darbinātu whisper.cpp.\n"
 "\n"
-"Tiks lejupielādēts un instalēts PyTorch ar CUDA atbalstu (~8 GB). Pēc instalēšanas Buzz ir jārestartē."
+"Tiks lejupielādēts un instalēts PyTorch ar CUDA atbalstu (~8 GB). Pēc "
+"instalēšanas Buzz ir jārestartē."
 
 #: buzz/widgets/cuda_installer_widget.py
 msgid "Install GPU Support"
@@ -801,9 +803,10 @@ msgstr "Ne tagad"
 
 #: buzz/widgets/cuda_installer_widget.py
 msgid "Installation complete! Restart Buzz to enable GPU acceleration."
-msgstr "Instalēšana pabeigta! Restartējiet Buzz, lai aktivizētu GPU paātrinājumu."
+msgstr ""
+"Instalēšana pabeigta! Restartējiet Buzz, lai aktivizētu GPU paātrinājumu."
 
-#: buzz/widgets/cuda_installer_widget.py
+#: buzz/widgets/cuda_installer_widget.py buzz/widgets/about_dialog.py
 msgid "Close"
 msgstr "Aizvērt"
 

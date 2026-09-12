@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-12 09:03+0300\n"
+"POT-Creation-Date: 2026-09-12 17:09+0300\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: cherkaba\n"
 "Language-Team: French <kde-francophone@kde.org>\n"
@@ -785,6 +785,52 @@ msgstr ""
 "Impossible de redémarrer la transcription : worker du transcripteur "
 "introuvable."
 
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Nvidia GPU Acceleration"
+msgstr "Accélération GPU Nvidia"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install Nvidia GPU Acceleration?"
+msgstr "Installer l'accélération GPU Nvidia ?"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid ""
+"Installing GPU acceleration for Nvidia GPUS allows Buzz to transcribe audio "
+"significantly faster using CUDA. For other GPU brands this acceleration will "
+"have no effect. CUDA is not needed to run whisper.cpp.\n"
+"\n"
+"This will download and install PyTorch with CUDA support (~8 GB). Buzz must "
+"be restarted after installation."
+msgstr ""
+"L'installation de l'accélération GPU pour les GPU Nvidia permet à Buzz de "
+"transcrire l'audio beaucoup plus rapidement grâce à CUDA. Pour les GPU "
+"d'autres marques, cette accélération n'aura aucun effet. CUDA n'est pas "
+"nécessaire pour utiliser whisper.cpp.\n"
+"\n"
+"Cela téléchargera et installera PyTorch avec la prise en charge de CUDA (~8 "
+"Go). Buzz doit être redémarré après l'installation."
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install GPU Support"
+msgstr "Installer la prise en charge GPU"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Not Now"
+msgstr "Pas maintenant"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation complete! Restart Buzz to enable GPU acceleration."
+msgstr ""
+"Installation terminée ! Redémarrez Buzz pour activer l'accélération GPU."
+
+#: buzz/widgets/cuda_installer_widget.py buzz/widgets/about_dialog.py
+msgid "Close"
+msgstr "Fermer"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation failed: {}"
+msgstr "Échec de l'installation : {}"
+
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
 msgstr "Enregistrement en direct"
@@ -1008,6 +1054,10 @@ msgstr "Vérifier les mises à jour"
 #: buzz/widgets/about_dialog.py
 msgid "Show logs"
 msgstr "Afficher les journaux"
+
+#: buzz/widgets/about_dialog.py
+msgid "Install CUDA Acceleration"
+msgstr "Installer l'accélération CUDA"
 
 #: buzz/widgets/about_dialog.py
 msgid "You're up to date!"
