@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-11 18:56+0300\n"
+"POT-Creation-Date: 2026-09-12 09:03+0300\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: nunawa <71294849+nunawa@users.noreply.github.com>\n"
 "Language-Team: \n"
@@ -279,6 +279,10 @@ msgid "Delete processed files"
 msgstr "処理済みファイルを削除"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Note: Audio playback will not be available"
+msgstr "注意: 音声の再生はできなくなります"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
 msgstr "入力フォルダ"
 
@@ -286,6 +290,58 @@ msgstr "入力フォルダ"
 #: buzz/plugins/export_docx/plugin.py
 msgid "Output folder"
 msgstr "出力フォルダ"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Speaker identification"
+msgstr "話者識別"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Identify speakers"
+msgstr "話者を識別する"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid ""
+"Identify speakers after transcription and add speaker labels to the exported "
+"transcripts. Transcription will take longer."
+msgstr ""
+"文字起こしの後に話者を識別し、出力される文字起こしに話者ラベルを追加します。"
+"文字起こしに時間がかかります。"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "自動"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr "既知の話者数を設定するか、「自動」で検出します。"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Merge speaker sentences"
+msgstr "話者の文を結合"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "話者数:"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Model"
+msgstr "モデル"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Select Input Folder"
@@ -634,11 +690,6 @@ msgstr "スキップ済み"
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "File Name / URL"
 msgstr "ファイル名 / URL"
-
-#: buzz/widgets/transcription_tasks_table_widget.py
-#: buzz/plugins/ai_summary/plugin.py
-msgid "Model"
-msgstr "モデル"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Task"
@@ -1269,36 +1320,12 @@ msgid "Audio file not found"
 msgstr "音声ファイルが見つかりません"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "MSDD"
-msgstr "MSDD"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Sortformer"
-msgstr "Sortformer"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Speakers:"
-msgstr "話者数:"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Auto"
-msgstr "自動"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Set the known number of speakers, or use Auto to detect it."
-msgstr "既知の話者数を設定するか、「自動」で検出します。"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
 msgstr "ステップ2: 話者に名前を付ける"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Play sample"
 msgstr "サンプルを再生"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Merge speaker sentences"
-msgstr "話者の文を結合"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Save"
@@ -1931,18 +1958,6 @@ msgstr "句読点"
 msgid "Maximum subtitle length"
 msgstr "字幕の最大長"
 
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "DeepFilterNet Noise Reduction"
-msgstr "DeepFilterNet ノイズ除去"
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Removes background noise using DeepFilterNet3 before transcription."
-msgstr "文字起こし前に DeepFilterNet3 で背景雑音を除去します。"
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Keep denoised file after transcription"
-msgstr "文字起こし後にノイズ除去ファイルを保持する"
-
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip Already Transcribed"
 msgstr "転写済みをスキップ"
@@ -2017,43 +2032,3 @@ msgid ""
 msgstr ""
 "音声抽出に失敗しました！インターネット接続を確認してください。モデルのダウン"
 "ロードが必要な場合があります。"
-
-#~ msgid "Live recording mode:"
-#~ msgstr "ライブ録音モード:"
-
-#~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-#~ msgstr "コンマ区切り、例: \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-
-#~ msgid "Temperature:"
-#~ msgstr "サンプリング温度:"
-
-#~ msgid "Please translate each text sent to you from English to Spanish."
-#~ msgstr "送られてくる各テキストを英語からスペイン語に翻訳してください。"
-
-#~ msgid "Translation error, see logs!"
-#~ msgstr "翻訳エラーが発生しました。ログを確認してください！"
-
-#~ msgid "Snap permission notice"
-#~ msgstr "Snap権限通知"
-
-#~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
-#~ msgstr ""
-#~ "不足している権限が検出されました。Snapパッケージに権限が付与されていること"
-#~ "を確認してください"
-
-#~ msgid ""
-#~ "To enable necessary permissions run the following commands in the terminal"
-#~ msgstr ""
-#~ "必要なパーミッションを有効にするには、ターミナルで以下のコマンドを実行して"
-#~ "ください"
-
-#~ msgid "Close"
-#~ msgstr "閉じる"
-
-#~ msgid "Enter instructions for AI on how to translate..."
-#~ msgstr "AIのための翻訳方法の指示を入力..."
-
-#~ msgid "Enter target characters per subtitle:"
-#~ msgstr "字幕の目標文字数を入力してください:"

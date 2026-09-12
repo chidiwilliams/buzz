@@ -209,6 +209,10 @@ class FileTranscriptionTask:
     file_path: Optional[str] = None
     original_file_path: Optional[str] = None  # Original path before speech extraction
     delete_source_file: bool = False
+    identify_speakers: bool = False
+    speaker_diarizer: str = "msdd"
+    speaker_count: Optional[int] = None
+    merge_speaker_sentences: bool = True
     url: Optional[str] = None
     display_name: Optional[str] = None
     fraction_downloaded: float = 0.0

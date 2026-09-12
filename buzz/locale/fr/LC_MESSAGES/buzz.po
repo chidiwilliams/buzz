@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-11 18:56+0300\n"
+"POT-Creation-Date: 2026-09-12 09:03+0300\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: cherkaba\n"
 "Language-Team: French <kde-francophone@kde.org>\n"
@@ -291,6 +291,10 @@ msgid "Delete processed files"
 msgstr "Supprimer les fichiers traités"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Note: Audio playback will not be available"
+msgstr "Remarque : la lecture audio ne sera pas disponible"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
 msgstr "Dossier d'entrée"
 
@@ -298,6 +302,61 @@ msgstr "Dossier d'entrée"
 #: buzz/plugins/export_docx/plugin.py
 msgid "Output folder"
 msgstr "Dossier de sortie"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Speaker identification"
+msgstr "Identification des intervenants"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Identify speakers"
+msgstr "Identifier les intervenants"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid ""
+"Identify speakers after transcription and add speaker labels to the exported "
+"transcripts. Transcription will take longer."
+msgstr ""
+"Identifie les intervenants après la transcription et ajoute des étiquettes "
+"d'intervenant aux transcriptions exportées. La transcription sera plus "
+"longue."
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "Automatique"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr ""
+"Définissez le nombre connu d'intervenants ou utilisez 'Auto' pour le "
+"détecter."
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Merge speaker sentences"
+msgstr "Fusionner les phrases du même intervenant"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "Intervenants :"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Model"
+msgstr "Modèle"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Select Input Folder"
@@ -649,11 +708,6 @@ msgstr "Ignoré"
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "File Name / URL"
 msgstr "Nom du fichier / URL"
-
-#: buzz/widgets/transcription_tasks_table_widget.py
-#: buzz/plugins/ai_summary/plugin.py
-msgid "Model"
-msgstr "Modèle"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Task"
@@ -1295,38 +1349,12 @@ msgid "Audio file not found"
 msgstr "Fichier audio introuvable"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "MSDD"
-msgstr "MSDD"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Sortformer"
-msgstr "Sortformer"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Speakers:"
-msgstr "Intervenants :"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Auto"
-msgstr "Automatique"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Set the known number of speakers, or use Auto to detect it."
-msgstr ""
-"Définissez le nombre connu d'intervenants ou utilisez 'Auto' pour le "
-"détecter."
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
 msgstr "Étape 2 : Nommer les intervenants"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Play sample"
 msgstr "Lire un échantillon"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Merge speaker sentences"
-msgstr "Fusionner les phrases du même intervenant"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Save"
@@ -1963,19 +1991,6 @@ msgstr "Ponctuation"
 #: buzz/plugins/transcript_resizer/plugin.py
 msgid "Maximum subtitle length"
 msgstr "Longueur max des sous-titres"
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "DeepFilterNet Noise Reduction"
-msgstr "Réduction du bruit DeepFilterNet"
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Removes background noise using DeepFilterNet3 before transcription."
-msgstr ""
-"Supprime le bruit de fond en utilisant DeepFilterNet3 avant la transcription."
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Keep denoised file after transcription"
-msgstr "Conserver le fichier débruité après la transcription"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip Already Transcribed"

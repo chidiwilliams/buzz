@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-11 18:56+0300\n"
+"POT-Creation-Date: 2026-09-12 09:03+0300\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: Catalan <jmas@softcatala.org>\n"
@@ -286,6 +286,10 @@ msgid "Delete processed files"
 msgstr "Eliminar fitxers processats"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Note: Audio playback will not be available"
+msgstr "Nota: la reproducció d'àudio no estarà disponible"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
 msgstr "Carpeta d'entrada"
 
@@ -293,6 +297,59 @@ msgstr "Carpeta d'entrada"
 #: buzz/plugins/export_docx/plugin.py
 msgid "Output folder"
 msgstr "Carpeta de sortida"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Speaker identification"
+msgstr "Identificació de parlants"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Identify speakers"
+msgstr "Identifica els parlants"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid ""
+"Identify speakers after transcription and add speaker labels to the exported "
+"transcripts. Transcription will take longer."
+msgstr ""
+"Identifica els parlants després de la transcripció i afegeix etiquetes de "
+"parlant a les transcripcions exportades. La transcripció trigarà més."
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "Auto"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr ""
+"Indiqueu el nombre conegut de parlants o utilitzeu Auto per detectar-lo."
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Merge speaker sentences"
+msgstr "Fusiona les frases del parlant"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "Parlants:"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Model"
+msgstr "Model"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Select Input Folder"
@@ -643,11 +700,6 @@ msgstr "Omès"
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "File Name / URL"
 msgstr "Nom del fitxer / URL"
-
-#: buzz/widgets/transcription_tasks_table_widget.py
-#: buzz/plugins/ai_summary/plugin.py
-msgid "Model"
-msgstr "Model"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Task"
@@ -1291,37 +1343,12 @@ msgid "Audio file not found"
 msgstr "Fitxer d'àudio no trobat"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "MSDD"
-msgstr "MSDD"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Sortformer"
-msgstr "Sortformer"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Speakers:"
-msgstr "Parlants:"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Auto"
-msgstr "Auto"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Set the known number of speakers, or use Auto to detect it."
-msgstr ""
-"Indiqueu el nombre conegut de parlants o utilitzeu Auto per detectar-lo."
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
 msgstr "Pas 2: Anomena els parlants"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Play sample"
 msgstr "Reprodueix la mostra"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Merge speaker sentences"
-msgstr "Fusiona les frases del parlant"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Save"
@@ -1961,18 +1988,6 @@ msgstr "Puntuació"
 msgid "Maximum subtitle length"
 msgstr "Longitud màxima del subtítol"
 
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "DeepFilterNet Noise Reduction"
-msgstr "Reducció de soroll DeepFilterNet"
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Removes background noise using DeepFilterNet3 before transcription."
-msgstr "Elimina el soroll de fons amb DeepFilterNet3 abans de la transcripció."
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Keep denoised file after transcription"
-msgstr "Conserva el fitxer sense soroll després de la transcripció"
-
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip Already Transcribed"
 msgstr "Omet els ja transcrits"
@@ -2050,49 +2065,3 @@ msgid ""
 msgstr ""
 "Ha fallat l'extracció de veu! Comproveu la vostra connexió a Internet — pot "
 "ser que s'hagi de descarregar un model."
-
-#~ msgid "Live recording mode:"
-#~ msgstr "Mode d'enregistrament en directe:"
-
-#~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-#~ msgstr "Separat per comes, p. ex. «0.0, 0.2, 0.4, 0.6, 0.8, 1.0»"
-
-#~ msgid "Temperature:"
-#~ msgstr "Temperatura:"
-
-#~ msgid "Please translate each text sent to you from English to Spanish."
-#~ msgstr "Si us plau, tradueix cada text que t'enviï de l'anglès al castellà."
-
-#~ msgid "Translation error, see logs!"
-#~ msgstr "Error de traducció, vegeu els registres!"
-
-#~ msgid "Snap permission notice"
-#~ msgstr "Avís de permís d'ajust"
-
-#~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
-#~ msgstr ""
-#~ "S'han detectat permisos que manquen, comproveu que s'han concedit "
-#~ "permisos de captura"
-
-#~ msgid ""
-#~ "To enable necessary permissions run the following commands in the terminal"
-#~ msgstr ""
-#~ "Per habilitar els permisos necessaris, executeu les ordres següents al "
-#~ "terminal"
-
-#~ msgid "Close"
-#~ msgstr "Tanca"
-
-#~ msgid "Enter instructions for AI on how to translate..."
-#~ msgstr "Introduïu les instruccions per a la IA sobre com traduir..."
-
-#~ msgid "ID"
-#~ msgstr "ID"
-
-#~ msgid "Undo"
-#~ msgstr "Desfés"
-
-#~ msgid "Redo"
-#~ msgstr "Refés"

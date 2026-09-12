@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-11 18:56+0300\n"
+"POT-Creation-Date: 2026-09-12 09:03+0300\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: Paulo Schopf <pschopf@gmail.com>\n"
 "Language-Team: none\n"
@@ -285,6 +285,10 @@ msgid "Delete processed files"
 msgstr "Excluir arquivos processados"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Note: Audio playback will not be available"
+msgstr "Nota: a reprodução de áudio não estará disponível"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
 msgstr "Pasta de entrada"
 
@@ -292,6 +296,58 @@ msgstr "Pasta de entrada"
 #: buzz/plugins/export_docx/plugin.py
 msgid "Output folder"
 msgstr "Pasta de saída"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Speaker identification"
+msgstr "Identificação de falantes"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Identify speakers"
+msgstr "Identificar falantes"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid ""
+"Identify speakers after transcription and add speaker labels to the exported "
+"transcripts. Transcription will take longer."
+msgstr ""
+"Identifica os falantes após a transcrição e adiciona rótulos de falante às "
+"transcrições exportadas. A transcrição levará mais tempo."
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "Auto"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr "Defina o número conhecido de falantes ou use Auto para detectá-lo."
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Merge speaker sentences"
+msgstr "Mesclar frases do falante"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "Falantes:"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Model"
+msgstr "Modelo"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Select Input Folder"
@@ -640,11 +696,6 @@ msgstr "Ignorado"
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "File Name / URL"
 msgstr "Nome do Arquivo / URL"
-
-#: buzz/widgets/transcription_tasks_table_widget.py
-#: buzz/plugins/ai_summary/plugin.py
-msgid "Model"
-msgstr "Modelo"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Task"
@@ -1287,36 +1338,12 @@ msgid "Audio file not found"
 msgstr "Arquivo de áudio não encontrado"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "MSDD"
-msgstr "MSDD"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Sortformer"
-msgstr "Sortformer"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Speakers:"
-msgstr "Falantes:"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Auto"
-msgstr "Auto"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Set the known number of speakers, or use Auto to detect it."
-msgstr "Defina o número conhecido de falantes ou use Auto para detectá-lo."
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
 msgstr "Passo 2: Nomear falantes"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Play sample"
 msgstr "Reproduzir amostra"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Merge speaker sentences"
-msgstr "Mesclar frases do falante"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Save"
@@ -1952,18 +1979,6 @@ msgstr "Pontuação"
 msgid "Maximum subtitle length"
 msgstr "Comprimento máximo da legenda"
 
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "DeepFilterNet Noise Reduction"
-msgstr "Redução de ruído DeepFilterNet"
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Removes background noise using DeepFilterNet3 before transcription."
-msgstr "Remove ruído de fundo com DeepFilterNet3 antes da transcrição."
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Keep denoised file after transcription"
-msgstr "Manter arquivo sem ruído após a transcrição"
-
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip Already Transcribed"
 msgstr "Pular já transcritos"
@@ -2040,47 +2055,3 @@ msgid ""
 msgstr ""
 "Falha na extração de fala! Verifique sua conexão com a internet — pode ser "
 "necessário baixar um modelo."
-
-#~ msgid "Live recording mode:"
-#~ msgstr "Modo de gravação ao vivo:"
-
-#~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-#~ msgstr "Separado por vírgulas, ex: \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-
-#~ msgid "Temperature:"
-#~ msgstr "Temperatura:"
-
-#~ msgid "Please translate each text sent to you from English to Spanish."
-#~ msgstr ""
-#~ "Por favor, traduza cada texto enviado a você do Inglês para o Espanhol."
-
-#~ msgid "Translation error, see logs!"
-#~ msgstr "Erro de tradução, verifique os logs!"
-
-#~ msgid "Snap permission notice"
-#~ msgstr "Aviso de permissão do Snap"
-
-#~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
-#~ msgstr ""
-#~ "Permissões ausentes detectadas, verifique se as permissões do Snap foram "
-#~ "concedidas"
-
-#~ msgid ""
-#~ "To enable necessary permissions run the following commands in the terminal"
-#~ msgstr ""
-#~ "Para habilitar as permissões necessárias, execute os seguintes comandos "
-#~ "no terminal"
-
-#~ msgid "Close"
-#~ msgstr "Fechar"
-
-#~ msgid "Enter instructions for AI on how to translate..."
-#~ msgstr "Instrua a IA sobre como traduzir..."
-
-#~ msgid "ID"
-#~ msgstr "Id."
-
-#~ msgid "Undo"
-#~ msgstr "Desfazer"

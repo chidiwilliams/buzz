@@ -567,3 +567,48 @@ class TestTranscribeFasterWhisper:
             WhisperFileTranscriber.transcribe_faster_whisper(task)
 
         time.sleep(3)
+
+class _FakeTerminatedProcess:
+    """Stands in for the whisper worker killed by a signal."""
+
+    def __init__(self, exitcode: int):
+        self.exitcode = exitcode
+        self.pid = os.getpid()
+
+    def start(self):
+        pass
+
+    def join(self, timeout=None):
+        pass
+
+    def terminate(self):
+        pass
+
+
+@pytest.mark.parametrize(
+    "exitcode",
+    [
+        -15,  # SIGTERM, what multiprocessing reports when the app closes
+        -9,  # SIGKILL
+        -2,  # SIGINT
+        143,  # 128 + SIGTERM, shell-style
+    ],
+)
+def test_transcribe_reports_terminated_process_as_canceled(monkeypatch, exitcode):
+    task = FileTranscriptionTask(
+        model_path="",
+        transcription_options=TranscriptionOptions(),
+        file_transcription_options=FileTranscriptionOptions(
+            file_paths=[test_audio_path]
+        ),
+        file_path=test_audio_path,
+    )
+    transcriber = WhisperFileTranscriber(task=task)
+
+    monkeypatch.setattr(
+        "buzz.transcriber.whisper_file_transcriber.multiprocessing.Process",
+        lambda target, args: _FakeTerminatedProcess(exitcode),
+    )
+
+    with pytest.raises(Exception, match="Transcription was canceled"):
+        transcriber.transcribe()

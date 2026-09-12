@@ -1,14 +1,18 @@
+import os
+import shutil
 from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
 
+from buzz.sounddevice_player import AudioFilePlayer
 from buzz.transcriber.file_transcriber import FileTranscriber, _downloaded_file_path
 from buzz.transcriber.transcriber import (
     FileTranscriptionOptions,
     FileTranscriptionTask,
     TranscriptionOptions,
 )
+from tests.audio import test_audio_path
 
 
 class ConcreteFileTranscriber(FileTranscriber):
@@ -165,3 +169,115 @@ def test_url_download_rejects_missing_ffmpeg_output(monkeypatch, tmp_path):
     assert transcriber.transcription_task.file_path is None
     error.assert_called_once()
     assert error.call_args.args[0].startswith("FFmpeg output does not exist:")
+
+
+def make_folder_watch_transcriber(
+    input_directory: Path, output_directory: Path, delete_source_file: bool = False
+):
+    audio_path = input_directory / "audio.mp3"
+    shutil.copy(test_audio_path, audio_path)
+
+    return ConcreteFileTranscriber(
+        FileTranscriptionTask(
+            transcription_options=TranscriptionOptions(),
+            file_transcription_options=FileTranscriptionOptions(
+                file_paths=[str(audio_path)]
+            ),
+            model_path="",
+            file_path=str(audio_path),
+            original_file_path=str(audio_path),
+            output_directory=str(output_directory),
+            source=FileTranscriptionTask.Source.FOLDER_WATCH,
+            delete_source_file=delete_source_file,
+        )
+    )
+
+
+def test_folder_watch_move_keeps_audio_playable(tmp_path):
+    """The task must follow the moved file so the audio stays playable."""
+    input_directory = tmp_path / "input"
+    output_directory = tmp_path / "output"
+    input_directory.mkdir()
+    output_directory.mkdir()
+
+    transcriber = make_folder_watch_transcriber(input_directory, output_directory)
+    source_path = transcriber.transcription_task.file_path
+
+    transcriber.run()
+
+    moved_path = output_directory / "audio.mp3"
+    assert not os.path.exists(source_path)
+    assert moved_path.is_file()
+    assert transcriber.transcription_task.file_path == str(moved_path)
+    assert transcriber.transcription_task.original_file_path == str(moved_path)
+
+    player = AudioFilePlayer(transcriber.transcription_task.file_path)
+    try:
+        assert player.ready
+        assert player.duration_ms > 0
+    finally:
+        player.close()
+
+
+def test_folder_watch_move_happens_before_completed(tmp_path):
+    """``completed`` carries the moved path, so the DB record can follow it."""
+    input_directory = tmp_path / "input"
+    output_directory = tmp_path / "output"
+    input_directory.mkdir()
+    output_directory.mkdir()
+
+    transcriber = make_folder_watch_transcriber(input_directory, output_directory)
+    paths_on_completed = []
+    transcriber.completed.connect(
+        lambda _segments: paths_on_completed.append(
+            transcriber.transcription_task.file_path
+        )
+    )
+
+    transcriber.run()
+
+    assert paths_on_completed == [str(output_directory / "audio.mp3")]
+
+
+def test_folder_watch_keeps_file_when_output_is_input_directory(tmp_path):
+    """Moving a file onto itself must not lose it (input == output directory)."""
+    directory = tmp_path / "watched"
+    directory.mkdir()
+
+    transcriber = make_folder_watch_transcriber(directory, directory)
+    source_path = transcriber.transcription_task.file_path
+
+    transcriber.run()
+
+    assert os.path.isfile(source_path)
+    assert transcriber.transcription_task.file_path == source_path
+
+    player = AudioFilePlayer(source_path)
+    try:
+        assert player.ready
+    finally:
+        player.close()
+
+
+def test_folder_watch_delete_removes_source_file(tmp_path):
+    """With deletion enabled the audio is gone, and so is playback."""
+    input_directory = tmp_path / "input"
+    output_directory = tmp_path / "output"
+    input_directory.mkdir()
+    output_directory.mkdir()
+
+    transcriber = make_folder_watch_transcriber(
+        input_directory, output_directory, delete_source_file=True
+    )
+    source_path = transcriber.transcription_task.file_path
+
+    transcriber.run()
+
+    assert not os.path.exists(source_path)
+    assert not (output_directory / "audio.mp3").exists()
+
+    player = AudioFilePlayer(source_path)
+    try:
+        assert not player.ready
+    finally:
+        player.close()

@@ -174,9 +174,15 @@ class WhisperFileTranscriber(FileTranscriber):
         )
 
         if self.current_process.exitcode != 0:
-            # Check if the process was terminated (likely due to cancellation)
-            # Exit codes 124-128 are often used for termination signals
-            if self.current_process.exitcode in [124, 125, 126, 127, 128, 130, 137, 143]:
+            # Check if the process was terminated (likely due to cancellation).
+            # ``multiprocessing`` reports a process killed by a signal as the
+            # negated signal number (-15 for SIGTERM, sent when the user stops
+            # the transcription or closes the app), while shell-style exit codes
+            # 124-143 report the same thing as 128 + signal number.
+            if (
+                self.current_process.exitcode < 0
+                or self.current_process.exitcode in [124, 125, 126, 127, 128, 130, 137, 143]
+            ):
                 # Process was likely terminated, treat as cancellation
                 logging.debug("Whisper process was terminated (exit code: %s), treating as cancellation", self.current_process.exitcode)
                 raise Exception("Transcription was canceled")

@@ -450,6 +450,33 @@ class TestSpeakerIdentificationWidget:
         assert waveform is fake_waveform
         mock_decode.assert_called_once_with(transcription.file)
 
+    def test_get_transcript_data_without_a_stored_transcription(self):
+        """The worker runs on passed-in segments, e.g. for folder watch tasks."""
+        import numpy as np
+        from buzz.transcriber.transcriber import Segment
+
+        segments = [Segment(0, 100, "Bien"), Segment(100, 200, "venue")]
+        # Language is None when the transcription options auto-detect it
+        worker = IdentificationWorker(
+            transcription=None,
+            transcription_service=None,
+            segments=segments,
+            file_path="audio.mp3",
+            language=None,
+        )
+
+        fake_waveform = np.zeros(10, dtype=np.float32)
+        with patch(
+            "buzz.widgets.transcription_viewer.speaker_identification_widget.faster_whisper.decode_audio",
+            return_value=fake_waveform,
+        ) as mock_decode:
+            language, full_transcript, waveform = worker._get_transcript_data()
+
+        assert language == "en"
+        assert full_transcript == "Bien venue"
+        assert waveform is fake_waveform
+        mock_decode.assert_called_once_with("audio.mp3")
+
     def test_setup_device_force_cpu(self, transcription, transcription_service, monkeypatch):
         """_setup_device honours BUZZ_FORCE_CPU regardless of CUDA availability."""
         import torch
