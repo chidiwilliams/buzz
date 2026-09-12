@@ -16,7 +16,7 @@ from buzz.transcriber.cuda_device import cuda_works
 import subprocess
 from platformdirs import user_cache_dir
 from multiprocessing.connection import Connection
-from threading import Thread
+from threading import Lock, Thread
 from typing import Optional, List
 
 import tqdm
@@ -118,6 +118,12 @@ class WhisperFileTranscriber(FileTranscriber):
         self.recv_pipe = None
         self.send_pipe = None
         self.error_message = None
+        # Guards the ``stopped`` / ``started_process`` pair. Without it, a
+        # stop() landing while ``current_process.start()`` is still running
+        # (slow on Windows, which spawns a fresh interpreter) sees
+        # ``started_process`` still False, terminates nothing, and the
+        # transcription runs to completion despite being canceled.
+        self.process_lock = Lock()
 
     def transcribe(self) -> List[Segment]:
         time_started = datetime.datetime.now()
@@ -133,9 +139,19 @@ class WhisperFileTranscriber(FileTranscriber):
         self.current_process = multiprocessing.Process(
             target=self.transcribe_whisper, args=(self.send_pipe, self.transcription_task)
         )
-        if not self.stopped:
-            self.current_process.start()
-            self.started_process = True
+        with self.process_lock:
+            canceled_before_start = self.stopped
+            if not canceled_before_start:
+                self.current_process.start()
+                self.started_process = True
+
+        if canceled_before_start:
+            for pipe in (self.send_pipe, self.recv_pipe):
+                try:
+                    pipe.close()
+                except OSError:
+                    pass
+            raise Exception("Transcription was canceled")
 
         self.read_line_thread = Thread(target=self.read_line, args=(self.recv_pipe,))
         self.read_line_thread.start()
@@ -458,9 +474,13 @@ class WhisperFileTranscriber(FileTranscriber):
         ]
 
     def stop(self):
-        self.stopped = True
+        with self.process_lock:
+            self.stopped = True
+            # Read under the lock so a start() in progress has finished (and
+            # published the pid) before we decide there is nothing to kill.
+            started_process = self.started_process
 
-        if self.started_process:
+        if started_process:
             # Kill the whisper-cli subprocess the worker spawned first. The
             # worker's own terminate() below does not reach it, so it would
             # otherwise keep running (orphaned) after Stop / app close.
