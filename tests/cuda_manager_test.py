@@ -20,7 +20,9 @@ from buzz.cuda_manager import (
     _create_cuda_env,
     _find_stale_cuda_dirs,
     _find_uv,
+    get_python_version,
     _get_base_python,
+    _interpreter_version_matches,
     _run_install,
     _subprocess_hide_window_kwargs,
     _venv_python,
@@ -343,14 +345,41 @@ class TestGetBasePython:
         monkeypatch.setattr(sys, "frozen", True, raising=False)
         monkeypatch.setattr(sys, "_MEIPASS", str(tmp_path), raising=False)
         with patch("shutil.which", return_value="/usr/bin/python3"):
-            assert _get_base_python() == "/usr/bin/python3"
+            with patch(
+                "buzz.cuda_manager._interpreter_version_matches", return_value=True
+            ):
+                assert _get_base_python() == "/usr/bin/python3"
 
-    def test_raises_when_frozen_and_no_interpreter(self, monkeypatch, tmp_path):
+    def test_skips_a_path_interpreter_of_another_version(self, monkeypatch, tmp_path):
+        # The AppImage bundles no separate interpreter, so PATH is all there is,
+        # and the distro's python3 may be a version torch has no wheels for.
+        monkeypatch.setattr(sys, "frozen", True, raising=False)
+        monkeypatch.setattr(sys, "_MEIPASS", str(tmp_path), raising=False)
+        with patch("shutil.which", return_value="/usr/bin/python3"):
+            with patch(
+                "buzz.cuda_manager._interpreter_version_matches", return_value=False
+            ):
+                assert _get_base_python() is None
+
+    def test_returns_none_when_frozen_and_no_interpreter(self, monkeypatch, tmp_path):
         monkeypatch.setattr(sys, "frozen", True, raising=False)
         monkeypatch.setattr(sys, "_MEIPASS", str(tmp_path), raising=False)
         with patch("shutil.which", return_value=None):
-            with pytest.raises(RuntimeError, match="Could not find a Python interpreter"):
-                _get_base_python()
+            assert _get_base_python() is None
+
+
+class TestInterpreterVersionMatches:
+    def test_true_for_the_running_version(self):
+        assert _interpreter_version_matches(sys.executable) is True
+
+    def test_false_for_another_version(self):
+        probe = MagicMock(returncode=0, stdout="3.14\n")
+        with patch("subprocess.run", return_value=probe):
+            assert _interpreter_version_matches("/usr/bin/python3") is False
+
+    def test_false_when_the_probe_cannot_run(self):
+        with patch("subprocess.run", side_effect=OSError):
+            assert _interpreter_version_matches("/usr/bin/python3") is False
 
 
 class TestFindUv:
@@ -382,6 +411,29 @@ class TestCreateCudaEnv:
 
         assert run_command.call_args[0][0][:2] == ["/usr/bin/uv", "venv"]
         assert cmd[:3] == ["/usr/bin/uv", "pip", "install"]
+
+    def test_asks_uv_for_a_matching_python_when_none_is_installed(self, tmp_path):
+        # AppImage on a host whose only python3 is too new for the torch wheels:
+        # uv downloads a managed CPython of the version Buzz itself runs.
+        env_dir = tmp_path / "cuda_env"
+        with patch("buzz.cuda_manager._find_uv", return_value="/usr/bin/uv"):
+            with patch("buzz.cuda_manager._get_base_python", return_value=None):
+                with patch("buzz.cuda_manager._run_command") as run_command:
+                    _create_cuda_env(env_dir)
+
+        assert run_command.call_args[0][0][:4] == [
+            "/usr/bin/uv",
+            "venv",
+            "--python",
+            get_python_version(),
+        ]
+
+    def test_raises_without_uv_or_a_matching_python(self, tmp_path):
+        env_dir = tmp_path / "cuda_env"
+        with patch("buzz.cuda_manager._find_uv", return_value=None):
+            with patch("buzz.cuda_manager._get_base_python", return_value=None):
+                with pytest.raises(RuntimeError, match="Could not find a Python"):
+                    _create_cuda_env(env_dir)
 
     def test_falls_back_to_the_venv_module(self, tmp_path):
         # The snap's Python has neither pip nor ensurepip, the Windows bundle

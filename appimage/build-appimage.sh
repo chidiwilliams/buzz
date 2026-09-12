@@ -58,6 +58,19 @@ cp -a "$PROJECT_DIR/dist/Buzz/." "$APPDIR/usr/bin/"
 echo "==> Clearing executable-stack flags..."
 uv run --no-project "$SCRIPT_DIR/clear-execstack.py" "$APPDIR/usr/bin"
 
+# Bundle uv: the in-app CUDA installer needs it to build the private CUDA venv.
+# The AppImage ships no standalone interpreter, and the host's python3 is
+# whatever the distro installed — on Ubuntu 26.04 that is 3.14, which has no
+# torch wheels. uv downloads a CPython matching the one Buzz is frozen with.
+echo "==> Bundling uv..."
+UV_BIN="$(command -v uv)"
+if [ -z "$UV_BIN" ]; then
+    echo "ERROR: uv not found in PATH; it is required for in-app CUDA installation." >&2
+    exit 1
+fi
+cp "$(readlink -f "$UV_BIN")" "$APPDIR/usr/bin/uv"
+chmod +x "$APPDIR/usr/bin/uv"
+
 # ── Step 3: Desktop integration ─────────────────────────────────────────────
 # Desktop file — Exec must be just the binary name for AppImage spec
 cat > "$APPDIR/Buzz.desktop" << 'EOF'

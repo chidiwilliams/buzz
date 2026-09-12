@@ -280,13 +280,49 @@ def install_cuda(progress_callback=None):
     report("CUDA installation complete. Please restart Buzz to enable GPU acceleration.")
 
 
-def _get_base_python() -> str:
+def get_python_version() -> str:
+    """Return the major.minor version the CUDA wheels must be built for."""
+    return f"{sys.version_info.major}.{sys.version_info.minor}"
+
+
+def _interpreter_version_matches(python: str) -> bool:
+    """Return True if `python` reports the same major.minor as the running one.
+
+    The CUDA wheels are ABI-specific and Buzz imports them into its own
+    process, so an interpreter of any other version is useless here — torch
+    publishes no wheel for it (a newer Python), or the extension modules it
+    does install cannot be loaded by the app.
+    """
+    try:
+        probe = subprocess.run(
+            [python, "-c", "import sys; print('%d.%d' % sys.version_info[:2])"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            **_subprocess_hide_window_kwargs(),
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        logger.warning("Could not probe the version of %s: %s", python, exc)
+        return False
+
+    if probe.returncode != 0:
+        return False
+    return probe.stdout.strip() == get_python_version()
+
+
+def _get_base_python() -> str | None:
     """Return a real Python interpreter that can create the CUDA venv.
 
     In a frozen PyInstaller bundle sys.executable is the app binary and cannot
     run -m venv, so the interpreter shipped alongside the app is used instead.
     Its version always matches the one Buzz was frozen with, which matters
     because the CUDA wheels are ABI-specific.
+
+    Returns None when no interpreter of the right version is available — the
+    AppImage bundle ships no separate interpreter, and the host's `python3` is
+    whatever the distro installed (Ubuntu 26.04 ships 3.14, which has no torch
+    wheels at all). uv can download a matching one in that case; see
+    _create_cuda_env.
     """
     if getattr(sys, "frozen", False):
         # PyInstaller extracts bundled data to sys._MEIPASS (_internal dir)
@@ -295,16 +331,16 @@ def _get_base_python() -> str:
         bundled_python = internal_dir / "python" / python_name
         if bundled_python.is_file():
             return str(bundled_python)
-        # Fallback: look in PATH
-        version = f"{sys.version_info.major}.{sys.version_info.minor}"
+        # Fallback: look in PATH, but only for an interpreter of our version.
+        version = get_python_version()
         for candidate in (f"python{version}", "python3", "python"):
             python = shutil.which(candidate)
-            if python:
+            if python and _interpreter_version_matches(python):
                 return python
-        raise RuntimeError(
-            "Could not find a Python interpreter. "
-            f"Please install Python {version} and try again."
+        logger.info(
+            "No Python %s interpreter found in PATH for the CUDA environment", version
         )
+        return None
 
     # Inside a venv, base_executable is the interpreter the venv was built from;
     # deriving the new venv from it avoids chaining venvs.
@@ -363,9 +399,13 @@ def _create_cuda_env(env_dir: Path, progress_callback=None) -> list[str]:
 
     uv = _find_uv()
     if uv:
-        logger.info("Creating CUDA venv with uv (%s) from %s", uv, python)
+        # With no matching interpreter on the machine, ask uv for the version
+        # instead of a path: it downloads a managed CPython of exactly that
+        # version, which is what the cu129 wheels are built for.
+        python_arg = python or get_python_version()
+        logger.info("Creating CUDA venv with uv (%s) from %s", uv, python_arg)
         _run_command(
-            [uv, "venv", "--python", python, str(env_dir)],
+            [uv, "venv", "--python", python_arg, str(env_dir)],
             progress_callback=progress_callback,
             error_message="Could not create the environment for CUDA packages",
         )
@@ -375,6 +415,13 @@ def _create_cuda_env(env_dir: Path, progress_callback=None) -> list[str]:
             uv, "pip", "install", "--no-cache",
             "--python", str(_venv_python(env_dir)),
         ]
+
+    if python is None:
+        raise RuntimeError(
+            f"Could not find a Python {get_python_version()} interpreter to create "
+            "the environment for CUDA packages. Install Python "
+            f"{get_python_version()} (or uv) and try again."
+        )
 
     logger.info("Creating CUDA venv with %s -m venv", python)
     result = subprocess.run(
