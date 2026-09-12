@@ -74,6 +74,9 @@ class FileTranscriber(QObject):
         for segment in segments:
             segment.text = segment.text.strip()
 
+        if self.transcription_task.identify_speakers:
+            segments = self._identify_speakers(segments)
+
         # Move/delete the watched source file before announcing completion so
         # the task carries the final file path when the transcription is saved.
         if self.transcription_task.source == FileTranscriptionTask.Source.FOLDER_WATCH:
@@ -100,6 +103,23 @@ class FileTranscriber(QObject):
             write_output(
                 path=default_path, segments=segments, output_format=output_format
             )
+
+    def _identify_speakers(self, segments: List[Segment]) -> List[Segment]:
+        """Add automatic speaker labels before the transcription is exported."""
+        from buzz.transcriber.speaker_identifier import identify_speakers
+
+        logging.debug(
+            "Identifying speakers for %s", self.transcription_task.file_path
+        )
+
+        return identify_speakers(
+            file_path=self.transcription_task.file_path,
+            segments=segments,
+            language=self.transcription_task.transcription_options.language,
+            diarizer=self.transcription_task.speaker_diarizer,
+            num_speakers=self.transcription_task.speaker_count,
+            merge_speaker_sentences=self.transcription_task.merge_speaker_sentences,
+        )
 
     def _download_from_url(self) -> bool:
         cookiefile = os.getenv("BUZZ_DOWNLOAD_COOKIEFILE")

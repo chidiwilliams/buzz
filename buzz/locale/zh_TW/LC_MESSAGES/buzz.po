@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-12 08:14+0300\n"
+"POT-Creation-Date: 2026-09-12 09:03+0300\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: \n"
 "Language-Team: Lamb\n"
@@ -287,6 +287,58 @@ msgstr "輸入資料夾"
 #: buzz/plugins/export_docx/plugin.py
 msgid "Output folder"
 msgstr "輸出資料夾"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Speaker identification"
+msgstr "說話者識別"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Identify speakers"
+msgstr "識別說話者"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid ""
+"Identify speakers after transcription and add speaker labels to the exported "
+"transcripts. Transcription will take longer."
+msgstr ""
+"在轉錄完成後識別說話者，並在匯出的轉錄文字中加入說話者標籤。轉錄將花費更長時"
+"間。"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "自動"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr "設定已知的說話者數量，或使用「自動」進行偵測。"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Merge speaker sentences"
+msgstr "合併說話者句子"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "說話者數:"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Model"
+msgstr "模型"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Select Input Folder"
@@ -633,11 +685,6 @@ msgstr "已跳過"
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "File Name / URL"
 msgstr "檔案名稱 / 網址"
-
-#: buzz/widgets/transcription_tasks_table_widget.py
-#: buzz/plugins/ai_summary/plugin.py
-msgid "Model"
-msgstr "模型"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Task"
@@ -1255,36 +1302,12 @@ msgid "Audio file not found"
 msgstr "找不到音訊檔案"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "MSDD"
-msgstr "MSDD"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Sortformer"
-msgstr "Sortformer"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Speakers:"
-msgstr "說話者數:"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Auto"
-msgstr "自動"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Set the known number of speakers, or use Auto to detect it."
-msgstr "設定已知的說話者數量，或使用「自動」進行偵測。"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
 msgstr "步驟 2：為說話者命名"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Play sample"
 msgstr "播放範例"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Merge speaker sentences"
-msgstr "合併說話者句子"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Save"
@@ -1980,30 +2003,3 @@ msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
 msgstr "語音提取失敗！請檢查您的網路連線——可能需要下載模型。"
-
-#~ msgid "DeepFilterNet Noise Reduction"
-#~ msgstr "DeepFilterNet 降噪"
-
-#~ msgid "Removes background noise using DeepFilterNet3 before transcription."
-#~ msgstr "在轉錄前使用 DeepFilterNet3 移除背景雜音。"
-
-#~ msgid "Keep denoised file after transcription"
-#~ msgstr "轉錄後保留降噪檔案"
-
-#~ msgid "Live recording mode:"
-#~ msgstr "即時錄製模式："
-
-#~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-#~ msgstr "逗號分隔，例如\"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-
-#~ msgid "Temperature:"
-#~ msgstr "溫度:"
-
-#~ msgid "Please translate each text sent to you from English to Spanish."
-#~ msgstr "請將傳送給您的每段文字從英語翻譯為西班牙語。"
-
-#~ msgid "Translation error, see logs!"
-#~ msgstr "翻譯錯誤，請查看日誌！"
-
-#~ msgid "ID"
-#~ msgstr "ID"

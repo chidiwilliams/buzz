@@ -416,3 +416,43 @@ class TestTranscriptionTaskFolderWatcher:
         expected_path = os.path.join(input_directory, "whisper-french.mp3")
         assert task.file_path == expected_path
         assert task.original_file_path == expected_path
+
+    def test_should_set_speaker_identification_options(self, qtbot: QtBot):
+        input_directory = mkdtemp()
+        output_directory = mkdtemp()
+
+        watcher = TranscriptionTaskFolderWatcher(
+            tasks={},
+            preferences=FolderWatchPreferences(
+                enabled=True,
+                input_directory=input_directory,
+                output_directory=output_directory,
+                file_transcription_options=FileTranscriptionPreferences(
+                    language=None,
+                    task=Task.TRANSCRIBE,
+                    model=self.default_model(),
+                    word_level_timings=False,
+                    extract_speech=False,
+                    initial_prompt="",
+                    enable_llm_translation=False,
+                    llm_model="",
+                    llm_prompt="",
+                    output_formats=set(),
+                ),
+                identify_speakers=True,
+                speaker_diarizer="sortformer",
+                speaker_count=3,
+                merge_speaker_sentences=False,
+            ),
+        )
+
+        shutil.copy(test_audio_path, input_directory)
+
+        with qtbot.wait_signal(watcher.task_found, timeout=10_000) as blocker:
+            pass
+
+        task: FileTranscriptionTask = blocker.args[0]
+        assert task.identify_speakers is True
+        assert task.speaker_diarizer == "sortformer"
+        assert task.speaker_count == 3
+        assert task.merge_speaker_sentences is False

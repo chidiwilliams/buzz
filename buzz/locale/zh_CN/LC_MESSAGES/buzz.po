@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-12 08:14+0300\n"
+"POT-Creation-Date: 2026-09-12 09:03+0300\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: \n"
 "Language-Team: lamb\n"
@@ -286,6 +286,58 @@ msgstr "输入文件夹"
 #: buzz/plugins/export_docx/plugin.py
 msgid "Output folder"
 msgstr "输出文件夹"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Speaker identification"
+msgstr "说话人识别"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Identify speakers"
+msgstr "识别说话人"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid ""
+"Identify speakers after transcription and add speaker labels to the exported "
+"transcripts. Transcription will take longer."
+msgstr ""
+"在转录完成后识别说话人，并在导出的转录文本中添加说话人标签。转录将花费更长时"
+"间。"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "自动"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr "设置已知的说话人数量，或使用“自动”进行检测。"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Merge speaker sentences"
+msgstr "合并说话人句子"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "说话人数:"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Model"
+msgstr "模型"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Select Input Folder"
@@ -632,11 +684,6 @@ msgstr "已跳过"
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "File Name / URL"
 msgstr "文件名称/URL"
-
-#: buzz/widgets/transcription_tasks_table_widget.py
-#: buzz/plugins/ai_summary/plugin.py
-msgid "Model"
-msgstr "模型"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Task"
@@ -1254,36 +1301,12 @@ msgid "Audio file not found"
 msgstr "未找到音频文件"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "MSDD"
-msgstr "MSDD"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Sortformer"
-msgstr "Sortformer"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Speakers:"
-msgstr "说话人数:"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Auto"
-msgstr "自动"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Set the known number of speakers, or use Auto to detect it."
-msgstr "设置已知的说话人数量，或使用“自动”进行检测。"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
 msgstr "第2步：命名说话人"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Play sample"
 msgstr "播放样本"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Merge speaker sentences"
-msgstr "合并说话人句子"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Save"
@@ -1979,51 +2002,3 @@ msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
 msgstr "语音提取失败！请检查您的网络连接——可能需要下载模型。"
-
-#~ msgid "DeepFilterNet Noise Reduction"
-#~ msgstr "DeepFilterNet 降噪"
-
-#~ msgid "Removes background noise using DeepFilterNet3 before transcription."
-#~ msgstr "在转录前使用 DeepFilterNet3 去除背景噪音。"
-
-#~ msgid "Keep denoised file after transcription"
-#~ msgstr "转录后保留降噪文件"
-
-#~ msgid "Live recording mode:"
-#~ msgstr "实时录制模式："
-
-#~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-#~ msgstr "逗号分隔，例如\"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-
-#~ msgid "Temperature:"
-#~ msgstr "温度："
-
-#~ msgid "Please translate each text sent to you from English to Spanish."
-#~ msgstr "请将发送给您的每段文本从英语翻译成西班牙语。"
-
-#~ msgid "Translation error, see logs!"
-#~ msgstr "翻译出错，请查看日志！"
-
-#~ msgid "Snap permission notice"
-#~ msgstr "快照权限通知"
-
-#~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
-#~ msgstr "检测到缺少权限，请检查是否已获得快照权限"
-
-#~ msgid ""
-#~ "To enable necessary permissions run the following commands in the terminal"
-#~ msgstr "要启用必要的权限，请在终端中运行以下命令"
-
-#~ msgid "Close"
-#~ msgstr "关闭"
-
-#~ msgid "Enter instructions for AI on how to translate..."
-#~ msgstr "输入AI如何翻译的说明..."
-
-#~ msgid "Enter target characters per subtitle:"
-#~ msgstr "为每个字幕输入目标字符："
-
-#~ msgid "ID"
-#~ msgstr "ID"

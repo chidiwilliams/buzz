@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-12 08:14+0300\n"
+"POT-Creation-Date: 2026-09-12 09:03+0300\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -294,6 +294,60 @@ msgstr "Vērojamā mape"
 #: buzz/plugins/export_docx/plugin.py
 msgid "Output folder"
 msgstr "Rezultātu mape"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Speaker identification"
+msgstr "Runātāju noteikšana"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Identify speakers"
+msgstr "Noteikt runātājus"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid ""
+"Identify speakers after transcription and add speaker labels to the exported "
+"transcripts. Transcription will take longer."
+msgstr ""
+"Pēc transkripcijas noteikt runātājus un pievienot runātāju apzīmējumus "
+"eksportētajām transkripcijām. Transkripcija aizņems ilgāku laiku."
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "Auto"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr ""
+"Norādiet zināmo runātāju skaitu vai izmantojiet Auto, lai to noteiktu "
+"automātiski."
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Merge speaker sentences"
+msgstr "Apvienot secīgus runātāja teikumus"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "Runātāji:"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Model"
+msgstr "Modelis"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Select Input Folder"
@@ -643,11 +697,6 @@ msgstr "Izlaists"
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "File Name / URL"
 msgstr "Fails / URL"
-
-#: buzz/widgets/transcription_tasks_table_widget.py
-#: buzz/plugins/ai_summary/plugin.py
-msgid "Model"
-msgstr "Modelis"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Task"
@@ -1278,38 +1327,12 @@ msgid "Audio file not found"
 msgstr "Audio datne nav atrasta"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "MSDD"
-msgstr "MSDD"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Sortformer"
-msgstr "Sortformer"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Speakers:"
-msgstr "Runātāji:"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Auto"
-msgstr "Auto"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Set the known number of speakers, or use Auto to detect it."
-msgstr ""
-"Norādiet zināmo runātāju skaitu vai izmantojiet Auto, lai to noteiktu "
-"automātiski."
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
 msgstr "2. solis: Runātāju identifikācija"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Play sample"
 msgstr "Atskaņot paraugu"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Merge speaker sentences"
-msgstr "Apvienot secīgus runātāja teikumus"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Save"
@@ -2019,51 +2042,3 @@ msgid ""
 msgstr ""
 "Runas atdalīšana neizdevās! Pārbaudiet interneta savienojumu — iespējams, "
 "jālejupielādē modelis."
-
-#~ msgid "DeepFilterNet Noise Reduction"
-#~ msgstr "DeepFilterNet trokšņu samazināšana"
-
-#~ msgid "Removes background noise using DeepFilterNet3 before transcription."
-#~ msgstr ""
-#~ "Pirms transkribēšanas noņem fona troksni, izmantojot DeepFilterNet3."
-
-#~ msgid "Keep denoised file after transcription"
-#~ msgstr "Saglabāt attīrīto failu pēc transkribēšanas"
-
-#~ msgid "Live recording mode:"
-#~ msgstr "Dzīvā ieraksta režīms:"
-
-#~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-#~ msgstr "Atdalīti ar komatu, piemēram, \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-
-#~ msgid "Temperature:"
-#~ msgstr "Temperatūra:"
-
-#~ msgid "Please translate each text sent to you from English to Spanish."
-#~ msgstr "Lūdzu, iztulko katru tev atsūtīto tekstu no angļu valodas latviski."
-
-#~ msgid "Translation error, see logs!"
-#~ msgstr "Kļūda tulkojot, skatiet sistēmas žurnālu!"
-
-#~ msgid "Snap permission notice"
-#~ msgstr "Snap atļauju piezīme"
-
-#~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
-#~ msgstr ""
-#~ "Ne visi nepieciešamie moduļi darbojas korekti, iespējams nav piešķirtas "
-#~ "snap atļaujas"
-
-#~ msgid ""
-#~ "To enable necessary permissions run the following commands in the terminal"
-#~ msgstr "Lai piešķirtu nepieciešamās atļaujas izpildiet šīs komandas"
-
-#~ msgid "Close"
-#~ msgstr "Aizvērt"
-
-#~ msgid "Enter instructions for AI on how to translate..."
-#~ msgstr "Ievadiet tulkošanas norādes mākslīgajam intelektam..."
-
-#~ msgid "Enter target characters per subtitle:"
-#~ msgstr "Ievadiet vēlamo simbolu skaitu tekstā:"

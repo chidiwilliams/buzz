@@ -48,6 +48,7 @@ from buzz.paths import file_path_as_title
 from buzz.settings.settings import Settings
 from buzz.widgets.line_edit import LineEdit
 from buzz.transcriber.transcriber import Segment
+from buzz.transcriber.speaker_identifier import build_speaker_segments
 
 
 
@@ -143,22 +144,46 @@ class IdentificationWorker(QObject):
         transcription_service,
         diarizer="msdd",
         num_speakers: Optional[int] = None,
+        segments: Optional[list] = None,
+        file_path: Optional[str] = None,
+        language: Optional[str] = None,
     ):
         super().__init__()
         self.transcription = transcription
         self.transcription_service = transcription_service
         self.diarizer = diarizer
         self.num_speakers = num_speakers
+        # Optional overrides so the worker can run on transcripts that are not
+        # (yet) stored in the database, such as folder watch transcriptions.
+        self.segments = segments
+        self.file_path = file_path
+        self.language = language
         self._is_cancelled = False
 
     def cancel(self):
         """Request cancellation of the worker."""
         self._is_cancelled = True
 
-    def get_transcript(self, audio, **kwargs) -> dict:
-        buzz_segments = self.transcription_service.get_transcription_segments(
+    def _get_segments(self):
+        if self.transcription is None:
+            return self.segments or []
+        return self.transcription_service.get_transcription_segments(
             transcription_id=self.transcription.id_as_uuid
         )
+
+    def _get_audio_file(self) -> str:
+        if self.transcription is None:
+            return self.file_path
+        return self.transcription.file
+
+    def _get_language(self) -> Optional[str]:
+        # Empty when the language was auto-detected; callers fall back to "en"
+        if self.transcription is None:
+            return self.language
+        return self.transcription.language
+
+    def get_transcript(self, audio, **kwargs) -> dict:
+        buzz_segments = self._get_segments()
 
         segments = []
         words = []
@@ -180,7 +205,7 @@ class IdentificationWorker(QObject):
                 text = ""
 
         return {
-            'language': self.transcription.language,
+            'language': self._get_language(),
             'segments': segments
         }
 
@@ -221,16 +246,14 @@ class IdentificationWorker(QObject):
         self._SortformerDiarizer = SortformerDiarizer
 
     def _get_transcript_data(self):
-        language = self.transcription.language if self.transcription.language else "en"
+        language = self._get_language() or "en"
 
-        segments = self.transcription_service.get_transcription_segments(
-            transcription_id=self.transcription.id_as_uuid
-        )
+        segments = self._get_segments()
 
         full_transcript = " ".join(segment.text for segment in segments)
         full_transcript = re.sub(r' {2,}', ' ', full_transcript)
 
-        audio_waveform = faster_whisper.decode_audio(self.transcription.file)
+        audio_waveform = faster_whisper.decode_audio(self._get_audio_file())
         return language, full_transcript, audio_waveform
 
     def _setup_device(self):
@@ -852,50 +875,11 @@ class SpeakerIdentificationWidget(QWidget):
         original_speakers = sorted(unique_speakers)
         speaker_mapping = dict(zip(original_speakers, speaker_names))
 
-        segments = []
-        if self.merge_speaker_sentences.isChecked():
-            previous_segment = None
-
-            for entry in self.identification_result:
-                speaker_name = speaker_mapping.get(entry['speaker'], entry['speaker'])
-
-                if previous_segment and previous_segment['speaker'] == speaker_name:
-                    previous_segment['end_time'] = entry['end_time']
-                    previous_segment['text'] += " " + entry['text']
-                else:
-                    if previous_segment:
-                        segment = Segment(
-                            start=previous_segment['start_time'],
-                            end=previous_segment['end_time'],
-                            text=previous_segment['text'],
-                            speaker=previous_segment['speaker'],
-                        )
-                        segments.append(segment)
-                    previous_segment = {
-                        'start_time': entry['start_time'],
-                        'end_time': entry['end_time'],
-                        'speaker': speaker_name,
-                        'text': entry['text']
-                    }
-
-            if previous_segment:
-                segment = Segment(
-                    start=previous_segment['start_time'],
-                    end=previous_segment['end_time'],
-                    text=previous_segment['text'],
-                    speaker=previous_segment['speaker'],
-                )
-                segments.append(segment)
-        else:
-            for entry in self.identification_result:
-                speaker_name = speaker_mapping.get(entry['speaker'], entry['speaker'])
-                segment = Segment(
-                    start=entry['start_time'],
-                    end=entry['end_time'],
-                    text=entry['text'],
-                    speaker=speaker_name,
-                )
-                segments.append(segment)
+        segments = build_speaker_segments(
+            self.identification_result,
+            speaker_mapping=speaker_mapping,
+            merge_speaker_sentences=self.merge_speaker_sentences.isChecked(),
+        )
 
         new_transcript_id = self.transcription_service.copy_transcription(
             self.transcription.id_as_uuid
