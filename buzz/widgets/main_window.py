@@ -641,7 +641,7 @@ class MainWindow(QMainWindow):
         self.toolbar.set_update_available(True)
 
     def _maybe_show_cuda_prompt(self):
-        """On first launch (Windows/Snap/Flatpak/AppImage), offer CUDA installation if an NVIDIA GPU is present."""
+        """On first launch (Windows/Linux), offer CUDA installation if an NVIDIA GPU is present."""
         from buzz import cuda_manager
         is_nvidia_gpu_present = cuda_manager.is_nvidia_gpu_present()
 
@@ -650,6 +650,12 @@ class MainWindow(QMainWindow):
         if not is_nvidia_gpu_present:
             return
         if not cuda_manager.should_offer_cuda_prompt():
+            return
+        # The packaged builds all ship CPU-only torch, so this only ever fires
+        # for a pip or source install where the user set up CUDA themselves.
+        # Offering them a second, shadowing torch would be worse than useless.
+        if cuda_manager.is_cuda_torch_installed():
+            logging.debug("CUDA torch already available; not offering the install")
             return
         if self.settings.value(Settings.Key.CUDA_PROMPT_SHOWN, False):
             return

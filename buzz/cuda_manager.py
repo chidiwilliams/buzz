@@ -94,11 +94,8 @@ def is_appimage() -> bool:
 
 def should_offer_cuda_prompt() -> bool:
     """Returns True on platforms where in-app CUDA installation is supported."""
-    if sys.platform == "win32":
-        return True
-    if sys.platform == "linux":
-        return is_snap() or is_flatpak() or is_appimage()
-    return False
+    
+    return sys.platform in ("win32", "linux")
 
 
 def is_cuda_torch_installed() -> bool:
