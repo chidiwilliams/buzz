@@ -15,6 +15,7 @@ from PyQt6.QtWidgets import (
     QProgressBar,
     QTextEdit,
     QWidget,
+    QStyle,
 )
 
 from buzz.locale import _
@@ -92,10 +93,15 @@ class CudaInstallerDialog(QDialog):
 
         button_layout = QHBoxLayout()
         self.install_button = QPushButton(_("Install GPU Support"))
+        self.install_button.setIcon(
+            self.style().standardIcon(QStyle.StandardPixmap.SP_DialogApplyButton)
+        )
         self.install_button.setDefault(True)
+        self.install_button.setAutoDefault(True)
         self.install_button.clicked.connect(self._on_install_clicked)
 
         self.decline_button = QPushButton(_("Not Now"))
+        self.decline_button.setAutoDefault(False)
         self.decline_button.clicked.connect(self.reject)
 
         button_layout.addStretch()
@@ -130,6 +136,7 @@ class CudaInstallerDialog(QDialog):
             _("Installation complete! Restart Buzz to enable GPU acceleration.")
         )
         self.install_button.setText(_("Close"))
+        self.install_button.setIcon(QIcon())
         self.install_button.setEnabled(True)
         self.install_button.clicked.disconnect()
         self.install_button.clicked.connect(self.accept)
