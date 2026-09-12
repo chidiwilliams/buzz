@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-12 09:03+0300\n"
+"POT-Creation-Date: 2026-09-12 17:09+0300\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -774,6 +774,51 @@ msgstr ""
 "найден.Не удалось перезапустить транскрипцию: обработчик транскрипции не "
 "найден."
 
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Nvidia GPU Acceleration"
+msgstr "Ускорение Nvidia GPU"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install Nvidia GPU Acceleration?"
+msgstr "Установить ускорение Nvidia GPU?"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid ""
+"Installing GPU acceleration for Nvidia GPUS allows Buzz to transcribe audio "
+"significantly faster using CUDA. For other GPU brands this acceleration will "
+"have no effect. CUDA is not needed to run whisper.cpp.\n"
+"\n"
+"This will download and install PyTorch with CUDA support (~8 GB). Buzz must "
+"be restarted after installation."
+msgstr ""
+"Установка ускорения GPU для видеокарт Nvidia позволяет Buzz значительно "
+"быстрее транскрибировать аудио с помощью CUDA. Для видеокарт других "
+"производителей это ускорение не даст эффекта. CUDA не требуется для работы "
+"whisper.cpp.\n"
+"\n"
+"Будет загружен и установлен PyTorch с поддержкой CUDA (~8 ГБ). После "
+"установки Buzz необходимо перезапустить."
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install GPU Support"
+msgstr "Установить поддержку GPU"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Not Now"
+msgstr "Не сейчас"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation complete! Restart Buzz to enable GPU acceleration."
+msgstr "Установка завершена! Перезапустите Buzz, чтобы включить ускорение GPU."
+
+#: buzz/widgets/cuda_installer_widget.py buzz/widgets/about_dialog.py
+msgid "Close"
+msgstr "Закрыть"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation failed: {}"
+msgstr "Ошибка установки: {}"
+
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
 msgstr "Живая запись"
@@ -997,6 +1042,10 @@ msgstr "Проверить обновления"
 #: buzz/widgets/about_dialog.py
 msgid "Show logs"
 msgstr "Показать журналы"
+
+#: buzz/widgets/about_dialog.py
+msgid "Install CUDA Acceleration"
+msgstr "Установить ускорение CUDA"
 
 #: buzz/widgets/about_dialog.py
 msgid "You're up to date!"

@@ -11,16 +11,16 @@ class TestModelTypeComboBox:
         [
             pytest.param(
                 [
-                    "Whisper",
                     "Whisper.cpp",
                     "Hugging Face",
                     "Faster Whisper",
+                    "OpenAI Whisper",
                     "OpenAI Whisper API",
                     # Faster Whisper is not available on macOS x86_64
                 ] if not (platform.system() == "Darwin" and platform.machine() == "x86_64") else [
-                    "Whisper",
                     "Whisper.cpp",
                     "Hugging Face",
+                    "OpenAI Whisper",
                     "OpenAI Whisper API",
                 ],
             ),
