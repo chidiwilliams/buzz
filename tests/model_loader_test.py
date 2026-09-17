@@ -109,6 +109,13 @@ class TestIsParakeetModel:
     def test_non_parakeet_model(self):
         assert is_parakeet_model("openai/whisper-tiny") is False
 
+    def test_orukeet_detected_from_downloaded_config(self, tmp_path):
+        model_path = tmp_path / "models--oruk--orukeet" / "snapshots" / "revision"
+        model_path.mkdir(parents=True)
+        (model_path / "config.json").write_text('{"model_type": "parakeet_tdt"}')
+
+        assert is_parakeet_model(str(model_path)) is True
+
 
 class TestIsVibeVoiceModel:
     def test_empty_string(self):
