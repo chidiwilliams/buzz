@@ -44,6 +44,9 @@ In addition to choosing an appropriate model size you also can choose whisper ty
 - **HuggingFace** option is a `Transformers` implementation and is good in that it supports wide range of custom models that may be optimized for a particular language. 
   - Since version `1.4.0` This option also supports [MMS](https://ai.meta.com/blog/multilingual-model-speech-recognition/) family of models from Meta AI that support over 1000 of worlds languages as well as [PEFT](https://github.com/huggingface/peft) adjustments to Whisper models.
   - Since version `1.4.5` [Parakeet](https://huggingface.co/models?sort=trending&search=parakeet), [Qwen3-ASR](https://huggingface.co/models?sort=trending&search=qwen+asr+hf) and [VibeVoice ASR](https://huggingface.co/models?sort=trending&search=vibevoice+hf+) models are also supported.
+  - [Orukeet](https://huggingface.co/oruk/orukeet) is a Parakeet TDT fine-tune for 25 languages (CC BY-SA 4.0).
+    Choose **Hugging Face**, enter `oruk/orukeet` and select **Transcribe**. The first run downloads the model from Hugging Face; later runs reuse the cache and transcription stays local.
+    Language detection is automatic; the language selector does not force the decoder. Translation, initial prompts and word-level timings are unsupported. Subtitles use 30-second chunk boundaries.
 
 Models with `.En` in their names are for English and will not work for other languages. 
 

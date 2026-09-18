@@ -27,22 +27,3 @@ To reduce misspellings you can pass some commonly misspelled words in an `Initia
 [![Media File Import on Buzz](https://cdn.loom.com/sessions/thumbnails/cf263b099ac3481082bb56d19b7c87fe-with-play.gif)](https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe "Media File Import on Buzz")
 
 **💡 Tip:** It is recommended to always select language to transcribe to as automatic language detection may result in unexpected results.
-
-### Orukeet
-
-For local multilingual transcription, choose **Hugging Face**, enter
-[`oruk/orukeet`](https://huggingface.co/oruk/orukeet), and select **Transcribe**.
-Buzz uses the model's Transformers export through its existing Parakeet TDT
-backend. The first run downloads the weights and configuration from Hugging Face;
-the required `config.json` participates in its normal model download statistics.
-Subsequent runs reuse Buzz's model cache, and transcription stays on your machine.
-
-Orukeet detects its language automatically across 25 supported languages; the
-language selector does not force its decoder. Translation, initial prompts and
-word-level timings are not supported. Subtitle segments use Buzz's 30-second
-chunk boundaries rather than word-aligned timestamps. CUDA is used when available;
-otherwise this backend runs on CPU, including on macOS.
-
-The weights are licensed under CC BY-SA 4.0 with NVIDIA attribution. See the
-[model card](https://huggingface.co/oruk/orukeet) for supported languages, evaluation
-results and license details.
