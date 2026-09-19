@@ -8,8 +8,8 @@ import darkdetect
 
 from posthog import Posthog
 
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont
+from PyQt6.QtCore import Qt, QEvent, QObject
+from PyQt6.QtGui import QFont, QKeySequence
 from PyQt6.QtWidgets import QApplication, QStyleFactory
 
 from buzz.__version__ import VERSION
@@ -23,11 +23,33 @@ from buzz.transcriber.transcriber import FileTranscriptionTask
 from buzz.widgets.main_window import MainWindow
 
 
+class CloseWindowShortcutFilter(QObject):
+    """Closes the active window on the platform's standard close shortcut.
+
+    Qt does not wire up Cmd+W (Ctrl+W on other platforms) by default, so
+    windows without a menu bar would otherwise ignore it.
+    """
+
+    def eventFilter(self, obj: QObject, event: QEvent) -> bool:
+        if event.type() == QEvent.Type.KeyPress and event.matches(
+            QKeySequence.StandardKey.Close
+        ):
+            window = QApplication.activeWindow()
+            if window is not None:
+                window.close()
+                return True
+
+        return super().eventFilter(obj, event)
+
+
 class Application(QApplication):
     window: MainWindow
 
     def __init__(self, argv: list) -> None:
         super().__init__(argv)
+
+        self.close_window_shortcut_filter = CloseWindowShortcutFilter(self)
+        self.installEventFilter(self.close_window_shortcut_filter)
 
         self.setApplicationName(APP_NAME)
         self.setApplicationVersion(VERSION)
