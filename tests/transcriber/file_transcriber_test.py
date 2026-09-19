@@ -91,6 +91,51 @@ def test_url_download_uses_reported_path_instead_of_title(
     assert title not in " ".join(calls["ffmpeg"])
 
 
+@pytest.mark.parametrize(
+    "data,expected",
+    [
+        # DASH and HLS fragments report no size at all on the first fragments,
+        # then only an estimate.
+        ({"status": "downloading", "downloaded_bytes": 1024}, None),
+        (
+            {
+                "status": "downloading",
+                "downloaded_bytes": 512,
+                "total_bytes_estimate": 2048,
+            },
+            0.25,
+        ),
+        (
+            {"status": "downloading", "downloaded_bytes": 512, "total_bytes": 1024},
+            0.5,
+        ),
+        # An estimate can undershoot the real size.
+        (
+            {
+                "status": "downloading",
+                "downloaded_bytes": 4096,
+                "total_bytes_estimate": 2048,
+            },
+            1.0,
+        ),
+        ({"status": "downloading", "downloaded_bytes": 1, "total_bytes": 0}, None),
+        ({"status": "finished", "downloaded_bytes": 1024}, None),
+    ],
+)
+def test_download_progress_survives_missing_total_bytes(data, expected):
+    """Segmented downloads must not fail with Failed ('total_bytes')."""
+    transcriber = make_transcriber()
+    progress = Mock()
+    transcriber.download_progress.connect(progress)
+
+    transcriber.on_download_progress(data)
+
+    if expected is None:
+        progress.assert_not_called()
+    else:
+        progress.assert_called_once_with(expected)
+
+
 def test_downloaded_file_path_rejects_missing_reported_file(tmp_path):
     missing = tmp_path / "missing.webm"
 
