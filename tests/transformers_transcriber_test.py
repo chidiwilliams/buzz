@@ -67,6 +67,21 @@ class TestTransformersTranscriber:
         assert result["text"].strip() != ""
         assert len(result["segments"]) > 0
 
+    def test_should_transcribe_orukeet(self, monkeypatch):
+        # Exercise config-based detection: this repo ID contains no "parakeet".
+        # CPU works on macOS as well as Linux/Windows and needs no CUDA setup.
+        monkeypatch.setenv("BUZZ_FORCE_CPU", "true")
+        model = TransformersTranscriber(cached_model_path("oruk/orukeet"))
+        assert model.is_parakeet_model is True
+
+        result = model.transcribe(
+            audio=test_audio_path, language="fr", task="transcribe"
+        )
+
+        assert result["text"].strip()
+        assert result["segments"]
+        assert all(segment["end"] > segment["start"] for segment in result["segments"])
+
     @pytest.mark.skipif(
         platform.system() == "Darwin",
         reason="Not supported on Darwin",
