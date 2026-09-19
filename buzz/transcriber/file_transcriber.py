@@ -229,8 +229,17 @@ class FileTranscriber(QObject):
         self.transcription_task.original_file_path = destination
 
     def on_download_progress(self, data: dict):
-        if data["status"] == "downloading":
-            self.download_progress.emit(data["downloaded_bytes"] / data["total_bytes"])
+        if data.get("status") != "downloading":
+            return
+
+        # Segmented downloads (DASH, HLS) often report no exact size, only an
+        # estimate, and sometimes neither on the first fragments.
+        total = data.get("total_bytes") or data.get("total_bytes_estimate")
+        downloaded = data.get("downloaded_bytes")
+        if not total or downloaded is None:
+            return
+
+        self.download_progress.emit(min(downloaded / total, 1.0))
 
     @abstractmethod
     def transcribe(self) -> List[Segment]:
