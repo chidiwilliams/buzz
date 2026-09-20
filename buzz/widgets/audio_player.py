@@ -290,7 +290,12 @@ class AudioPlayer(QWidget):
 
     def on_audio_outputs_changed(self):
         if self._use_sd:
-            # sounddevice always uses system default; nothing to reconnect
+            # sounddevice holds on to the device for the life of the stream, so
+            # a stream that is already running keeps feeding the old output.
+            # Reopen it to move playback to whatever the default output is now.
+            if self._sd_player is not None and self._sd_player.is_playing:
+                self._sd_player.pause()
+                self._sd_player.play()
             return
         was_playing = self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState
         position = self.media_player.position()
