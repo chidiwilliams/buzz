@@ -158,6 +158,10 @@ class BuzzPlugin:
     ) -> List["Segment"]:
         """Modify or replace the result segments before they are saved.
 
+        Append ``{"key": "value"}`` dicts to a segment's ``metadata`` list to
+        attach extra information to that row without changing or deleting its
+        text. The transcription viewer shows it as a ``key: value`` tooltip.
+
         Must return a list of segments (return the input unchanged to do nothing).
         Runs on a background thread.
         """

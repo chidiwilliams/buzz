@@ -1,4 +1,5 @@
 import enum
+import json
 import logging
 from dataclasses import dataclass
 from typing import Optional
@@ -51,6 +52,7 @@ class Column(enum.Enum):
     TRANSLATION = enum.auto()
     TRANSCRIPTION_ID = enum.auto()
     SPEAKER = enum.auto()
+    METADATA = enum.auto()
 
 
 @dataclass
@@ -333,6 +335,39 @@ class TranscriptionSegmentModel(QSqlTableModel):
         self.setTable("transcription_segment")
         self.setEditStrategy(QSqlTableModel.EditStrategy.OnFieldChange)
         self.setFilter(f"transcription_id = '{transcription_id}'")
+
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        if index.isValid() and role == Qt.ItemDataRole.ToolTipRole:
+            metadata = self._metadata(index.row())
+            if metadata:
+                return "\n".join(f"{key}: {value}" for key, value in metadata)
+
+        return super().data(index, role)
+
+    def _metadata(self, row: int) -> list[tuple[str, str]]:
+        """Return the segment metadata as a flat list of key-value pairs."""
+        raw_metadata = self.record(row).value("metadata")
+        if not raw_metadata:
+            return []
+
+        try:
+            metadata = json.loads(raw_metadata)
+        except (TypeError, json.JSONDecodeError):
+            return []
+
+        if not isinstance(metadata, list):
+            return []
+
+        pairs = []
+        for entry in metadata:
+            if not isinstance(entry, dict):
+                continue
+            for key, value in entry.items():
+                key = str(key).strip()
+                value = str(value).strip()
+                if key:
+                    pairs.append((key, value))
+        return pairs
 
 
 class TranscriptionSegmentsEditorWidget(QTableView):

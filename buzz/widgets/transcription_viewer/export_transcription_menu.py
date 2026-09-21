@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import QWidget, QMenu, QFileDialog, QMessageBox
 from buzz.db.entity.transcription import Transcription
 from buzz.db.service.transcription_service import TranscriptionService
 from buzz.locale import _
+from buzz.paths import safe_filename_component
 from buzz.transcriber.file_transcriber import write_output
 from buzz.transcriber.docx_writer import write_speaker_docx
 from buzz.transcriber.transcriber import (
@@ -139,11 +140,12 @@ class ExportTranscriptionMenu(QMenu):
 
         source_path = self.transcription.file or "transcript"
         source_directory = os.path.dirname(source_path)
-        source_stem = (
+        source_title = (
             self.transcription.name
             or os.path.splitext(os.path.basename(source_path))[0]
             or "transcript"
         )
+        source_stem = safe_filename_component(source_title)
         default_path = os.path.join(
             source_directory,
             f"{source_stem}_speakers.docx",
@@ -162,7 +164,7 @@ class ExportTranscriptionMenu(QMenu):
         try:
             write_speaker_docx(
                 output_file_path,
-                source_stem,
+                source_title,
                 segments,
                 include_timestamps=(
                     timestamp_choice == QMessageBox.StandardButton.Yes

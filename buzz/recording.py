@@ -5,6 +5,8 @@ import numpy as np
 import sounddevice
 from PyQt6.QtCore import QObject, pyqtSignal
 
+from buzz.audio_devices import register_stream, unregister_stream
+
 
 class RecordingAmplitudeListener(QObject):
     stream: Optional[sounddevice.InputStream] = None
@@ -32,6 +34,7 @@ class RecordingAmplitudeListener(QObject):
                 channels=1,
                 callback=self.stream_callback,
             )
+            register_stream(self.stream)
             self.stream.start()
             self.accumulation_size = int(self.stream.samplerate * self.ACCUMULATION_SECONDS)
         except Exception as e:
@@ -43,6 +46,7 @@ class RecordingAmplitudeListener(QObject):
         if self.stream is not None:
             self.stream.stop()
             self.stream.close()
+            unregister_stream(self.stream)
 
     def stream_callback(self, in_data: np.ndarray, frame_count, time_info, status):
         if not self._active:

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-22 14:09+0300\n"
-"PO-Revision-Date: 2026-03-06 13:23+0200\n"
+"POT-Creation-Date: 2026-09-12 17:09+0300\n"
+"PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: lv_LV\n"
@@ -84,6 +84,11 @@ msgstr "Dāņu"
 #: buzz/transcriber/transcriber.py
 msgid "Dutch"
 msgstr "Holandiešu"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "French"
+msgstr "Franču"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
@@ -227,6 +232,10 @@ msgid "Disable GPU"
 msgstr "Deaktivēt GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Prevent system sleep while transcriptions are queued"
+msgstr "Neļaut sistēmai iemigt, kamēr rindā ir atpazīšanas uzdevumi"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "OpenAI API Key Test"
 msgstr "OpenAI API atslēgas pārbaude"
 
@@ -274,6 +283,10 @@ msgid "Delete processed files"
 msgstr "Dzēst apstrādātos failus"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Note: Audio playback will not be available"
+msgstr "Piezīme: audio atskaņošana nebūs pieejama"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
 msgstr "Vērojamā mape"
 
@@ -281,6 +294,60 @@ msgstr "Vērojamā mape"
 #: buzz/plugins/export_docx/plugin.py
 msgid "Output folder"
 msgstr "Rezultātu mape"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Speaker identification"
+msgstr "Runātāju noteikšana"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Identify speakers"
+msgstr "Noteikt runātājus"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid ""
+"Identify speakers after transcription and add speaker labels to the exported "
+"transcripts. Transcription will take longer."
+msgstr ""
+"Pēc transkripcijas noteikt runātājus un pievienot runātāju apzīmējumus "
+"eksportētajām transkripcijām. Transkripcija aizņems ilgāku laiku."
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "Auto"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr ""
+"Norādiet zināmo runātāju skaitu vai izmantojiet Auto, lai to noteiktu "
+"automātiski."
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Merge speaker sentences"
+msgstr "Apvienot secīgus runātāja teikumus"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "Runātāji:"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Model"
+msgstr "Modelis"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Select Input Folder"
@@ -340,6 +407,18 @@ msgid "Huggingface ID of a Faster whisper model"
 msgstr "Faster whisper modeļa Huggingface ID"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Name for the custom model"
+msgstr "Pielāgotā modeļa nosaukums"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add local model file"
+msgstr "Pievienot lokālu modeļa failu"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add model from URL"
+msgstr "Pievienot modeli no URL"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download"
 msgstr "Lejupielādēt"
 
@@ -362,6 +441,24 @@ msgstr "Pieejams lejupielādei"
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download link to Whisper.cpp ggml model file"
 msgstr "Whisper.cpp ggml modeļa datnes lejupielādes saite"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/transcriber/transcription_options_group_box.py
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Custom"
+msgstr "Pielāgots"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Select Whisper.cpp model file"
+msgstr "Izvēlieties Whisper.cpp modeļa failu"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Whisper.cpp model"
+msgstr "Whisper.cpp modelis"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "All files"
+msgstr "Visi faili"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Delete Model"
@@ -602,11 +699,6 @@ msgid "File Name / URL"
 msgstr "Fails / URL"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-#: buzz/plugins/ai_summary/plugin.py
-msgid "Model"
-msgstr "Modelis"
-
-#: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Task"
 msgstr "Uzdevums"
 
@@ -677,6 +769,51 @@ msgstr ""
 msgid "Could not restart transcription: transcriber worker not found."
 msgstr "Neizdevās sākt atpazīšanu: Kļūda lietotnē, pārstartējiet."
 
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Nvidia GPU Acceleration"
+msgstr "Nvidia GPU paātrinājums"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install Nvidia GPU Acceleration?"
+msgstr "Instalēt Nvidia GPU paātrināšanu"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid ""
+"Installing GPU acceleration for Nvidia GPUS allows Buzz to transcribe audio "
+"significantly faster using CUDA. For other GPU brands this acceleration will "
+"have no effect. CUDA is not needed to run whisper.cpp.\n"
+"\n"
+"This will download and install PyTorch with CUDA support (~8 GB). Buzz must "
+"be restarted after installation."
+msgstr ""
+"GPU paātrinājuma instalēšana Nvidia GPU kartēm ļauj Buzz ievērojami ātrāk "
+"atpazīt audio, izmantojot CUDA. Citu GPU ražotāju kartēm šim paātrinājumam "
+"nebūs nekādas ietekmes. CUDA nav nepieciešams, lai darbinātu whisper.cpp.\n"
+"\n"
+"Tiks lejupielādēts un instalēts PyTorch ar CUDA atbalstu (~8 GB). Pēc "
+"instalēšanas Buzz ir jārestartē."
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install GPU Support"
+msgstr "Instalēt GPU atbalstu"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Not Now"
+msgstr "Ne tagad"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation complete! Restart Buzz to enable GPU acceleration."
+msgstr ""
+"Instalēšana pabeigta! Restartējiet Buzz, lai aktivizētu GPU paātrinājumu."
+
+#: buzz/widgets/cuda_installer_widget.py buzz/widgets/about_dialog.py
+msgid "Close"
+msgstr "Aizvērt"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation failed: {}"
+msgstr "Instalēšana neizdevās: {}"
+
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
 msgstr "Dzīvā ierakstīšana"
@@ -712,10 +849,6 @@ msgstr "Gaišais"
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Dark"
 msgstr "Tumšais"
-
-#: buzz/widgets/recording_transcriber_widget.py
-msgid "Custom"
-msgstr "Pielāgots"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Text Color"
@@ -889,6 +1022,14 @@ msgstr "Lejupielāde pabeigta!"
 msgid "Failed to run the installer: {}"
 msgstr "Neizdevās sākt atjauninājumu: {}"
 
+#: buzz/widgets/about_dialog.py buzz/widgets/menu_bar.py
+msgid "About"
+msgstr "Par"
+
+#: buzz/widgets/about_dialog.py
+msgid "Version"
+msgstr "Versija"
+
 #: buzz/widgets/about_dialog.py
 msgid "Check for updates"
 msgstr "Pārbaudīt atjauninājumus"
@@ -896,6 +1037,10 @@ msgstr "Pārbaudīt atjauninājumus"
 #: buzz/widgets/about_dialog.py
 msgid "Show logs"
 msgstr "Parādīt sistēmas žurnālu"
+
+#: buzz/widgets/about_dialog.py
+msgid "Install CUDA Acceleration"
+msgstr "Instalēt CUDA paātrinājumu"
 
 #: buzz/widgets/about_dialog.py
 msgid "You're up to date!"
@@ -1231,38 +1376,12 @@ msgid "Audio file not found"
 msgstr "Audio datne nav atrasta"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "MSDD"
-msgstr "MSDD"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Sortformer"
-msgstr "Sortformer"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Speakers:"
-msgstr "Runātāji:"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Auto"
-msgstr "Auto"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Set the known number of speakers, or use Auto to detect it."
-msgstr ""
-"Norādiet zināmo runātāju skaitu vai izmantojiet Auto, lai to noteiktu "
-"automātiski."
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
 msgstr "2. solis: Runātāju identifikācija"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Play sample"
 msgstr "Atskaņot paraugu"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Merge speaker sentences"
-msgstr "Apvienot secīgus runātāja teikumus"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Save"
@@ -1319,10 +1438,6 @@ msgstr "Importēt URL..."
 #: buzz/widgets/menu_bar.py
 msgid "Import Folder..."
 msgstr "Importēt mapi..."
-
-#: buzz/widgets/menu_bar.py
-msgid "About"
-msgstr "Par"
 
 #: buzz/widgets/menu_bar.py
 msgid "Preferences..."
@@ -1393,10 +1508,6 @@ msgstr "Ķīniešu"
 #: buzz/transcriber/transcriber.py
 msgid "Korean"
 msgstr "Korejiešu"
-
-#: buzz/transcriber/transcriber.py
-msgid "French"
-msgstr "Franču"
 
 #: buzz/transcriber/transcriber.py
 msgid "Portuguese"
@@ -1907,18 +2018,6 @@ msgstr "Pieturzīmes"
 msgid "Maximum subtitle length"
 msgstr "Maksimālais subtitru garums"
 
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "DeepFilterNet Noise Reduction"
-msgstr "DeepFilterNet trokšņu samazināšana"
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Removes background noise using DeepFilterNet3 before transcription."
-msgstr "Pirms transkribēšanas noņem fona troksni, izmantojot DeepFilterNet3."
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Keep denoised file after transcription"
-msgstr "Saglabāt attīrīto failu pēc transkribēšanas"
-
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip Already Transcribed"
 msgstr "Izlaist jau transkribētos"
@@ -1985,53 +2084,10 @@ msgstr "Saglabāt failā"
 msgid "Output folder (for file)"
 msgstr "Izvades mape"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-msgid "Prevent system sleep while transcriptions are queued"
-msgstr ""
-"Neļaut sistēmai iemigt, kamēr rindā ir atpazīšanas uzdevumi"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
-"Speech extraction failed! Check your internet connection \\u2014 a model may "
-"need to be downloaded."
+"Speech extraction failed! Check your internet connection — a model may need "
+"to be downloaded."
 msgstr ""
-"Runas atdalīšana neizdevās! Pārbaudiet interneta savienojumu, iespējams "
+"Runas atdalīšana neizdevās! Pārbaudiet interneta savienojumu — iespējams, "
 "jālejupielādē modelis."
-
-#~ msgid "Live recording mode:"
-#~ msgstr "Dzīvā ieraksta režīms:"
-
-#~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-#~ msgstr "Atdalīti ar komatu, piemēram, \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-
-#~ msgid "Temperature:"
-#~ msgstr "Temperatūra:"
-
-#~ msgid "Please translate each text sent to you from English to Spanish."
-#~ msgstr "Lūdzu, iztulko katru tev atsūtīto tekstu no angļu valodas latviski."
-
-#~ msgid "Translation error, see logs!"
-#~ msgstr "Kļūda tulkojot, skatiet sistēmas žurnālu!"
-
-#~ msgid "Snap permission notice"
-#~ msgstr "Snap atļauju piezīme"
-
-#~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
-#~ msgstr ""
-#~ "Ne visi nepieciešamie moduļi darbojas korekti, iespējams nav piešķirtas "
-#~ "snap atļaujas"
-
-#~ msgid ""
-#~ "To enable necessary permissions run the following commands in the terminal"
-#~ msgstr "Lai piešķirtu nepieciešamās atļaujas izpildiet šīs komandas"
-
-#~ msgid "Close"
-#~ msgstr "Aizvērt"
-
-#~ msgid "Enter instructions for AI on how to translate..."
-#~ msgstr "Ievadiet tulkošanas norādes mākslīgajam intelektam..."
-
-#~ msgid "Enter target characters per subtitle:"
-#~ msgstr "Ievadiet vēlamo simbolu skaitu tekstā:"

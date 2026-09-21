@@ -196,8 +196,8 @@ class WhisperCpp:
         return cmd
 
     @staticmethod
-    def _run_whisper(cmd) -> int:
-        """Run whisper-cli subprocess and return the return code."""
+    def _run_whisper(cmd) -> tuple:
+        """Run whisper-cli subprocess, returning (return code, tail of stderr)."""
         if sys.platform == "win32":
             si = subprocess.STARTUPINFO()
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -223,11 +223,14 @@ class WhisperCpp:
                 errors="replace",
             )
 
+        stderr_tail = []
         for line in iter(process.stderr.readline, ''):
             sys.stderr.write(line)
+            stderr_tail.append(line)
+            del stderr_tail[:-20]
 
         process.wait()
-        return process.returncode
+        return process.returncode, "".join(stderr_tail)
 
     @staticmethod
     def _read_json_output(file_to_process: str) -> dict:
@@ -380,11 +383,14 @@ class WhisperCpp:
         vad_enabled = os.path.exists(vad_model_path)
 
         cmd = WhisperCpp._build_command(task, file_to_process, language, vad_enabled)
-        return_code = WhisperCpp._run_whisper(cmd)
+        return_code, stderr_tail = WhisperCpp._run_whisper(cmd)
 
         if return_code != 0:
             WhisperCpp._cleanup_files(temp_file, None)
-            raise Exception(f"whisper-cli failed with return code {return_code}")
+            message = f"whisper-cli failed with return code {return_code}"
+            if stderr_tail.strip():
+                message = f"{message}\n{stderr_tail.strip()}"
+            raise Exception(message)
 
         try:
             result = WhisperCpp._read_json_output(file_to_process)

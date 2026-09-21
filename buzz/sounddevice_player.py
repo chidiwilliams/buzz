@@ -1,7 +1,6 @@
 import logging
 import os
 import subprocess
-import sys
 import tempfile
 import threading
 import wave
@@ -10,21 +9,16 @@ from typing import Optional
 import numpy as np
 import sounddevice as sd
 
+from buzz.audio_devices import (
+    refresh_audio_devices,
+    register_stream,
+    unregister_stream,
+)
+from buzz.ffmpeg_utils import find_ffmpeg
 from buzz.pip_utils import subprocess_hide_window_kwargs
 
 
-def _find_ffmpeg() -> str:
-    import shutil
-    path = shutil.which("ffmpeg")
-    if path:
-        return path
-    frozen = os.path.join(getattr(sys, "_MEIPASS", ""), "ffmpeg")
-    if os.path.exists(frozen):
-        return frozen
-    frozen_exe = frozen + ".exe"
-    if os.path.exists(frozen_exe):
-        return frozen_exe
-    return "ffmpeg"
+_find_ffmpeg = find_ffmpeg
 
 
 def decode_audio_to_wav(input_path: str, output_wav: str) -> None:
@@ -104,6 +98,7 @@ class SounddevicePlayer:
             callback=self._callback,
             finished_callback=self._on_finished,
         )
+        register_stream(self._stream)
         try:
             self._latency_frames = int(self._stream.latency * self.samplerate)
         except Exception:
@@ -114,6 +109,24 @@ class SounddevicePlayer:
 
     def play(self):
         self._stop_stream()
+
+        # Pick up devices that were connected, removed, or made default since
+        # the last time we played, so we open the output the user is actually
+        # listening to instead of a stale one.
+        refresh_audio_devices()
+
+        try:
+            self._start_stream()
+        except Exception:
+            # The device can disappear between opening and starting it, e.g.
+            # headphones dropping off. Re-read the devices and try once more
+            # against whatever is the default output now.
+            logging.warning("Could not start audio stream, retrying", exc_info=True)
+            self._stop_stream()
+            refresh_audio_devices()
+            self._start_stream()
+
+    def _start_stream(self):
         self._open_stream()
         self._playing = True
         self._stream.start()
@@ -155,6 +168,7 @@ class SounddevicePlayer:
                 self._stream.close()
             except Exception:
                 logging.debug("Error stopping sounddevice stream", exc_info=True)
+            unregister_stream(self._stream)
             self._stream = None
 
     def close(self):

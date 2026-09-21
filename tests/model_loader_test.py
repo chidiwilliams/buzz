@@ -109,6 +109,13 @@ class TestIsParakeetModel:
     def test_non_parakeet_model(self):
         assert is_parakeet_model("openai/whisper-tiny") is False
 
+    def test_orukeet_detected_from_downloaded_config(self, tmp_path):
+        model_path = tmp_path / "models--oruk--orukeet" / "snapshots" / "revision"
+        model_path.mkdir(parents=True)
+        (model_path / "config.json").write_text('{"model_type": "parakeet_tdt"}')
+
+        assert is_parakeet_model(str(model_path)) is True
+
 
 class TestIsVibeVoiceModel:
     def test_empty_string(self):
@@ -213,7 +220,7 @@ class TestTranscriptionModel:
         model = TranscriptionModel(
             model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY
         )
-        assert str(model) == "Whisper (Tiny)"
+        assert str(model) == "OpenAI Whisper (Tiny)"
 
     def test_str_whisper_cpp(self):
         model = TranscriptionModel(
@@ -558,13 +565,34 @@ class TestTranscriptionModelDeleteLocalFile:
             model.delete_local_file()
         assert not model_file.exists()
 
-    def test_whisper_cpp_custom_removes_file(self, tmp_path):
+    def test_whisper_cpp_custom_removes_file_owned_by_buzz(self, tmp_path):
         model_file = tmp_path / "ggml-model-whisper-custom.bin"
         model_file.write_bytes(b"fake model data")
         model = TranscriptionModel(model_type=ModelType.WHISPER_CPP, whisper_model_size=WhisperModelSize.CUSTOM)
-        with patch.object(model, 'get_local_model_path', return_value=str(model_file)):
+        with patch("buzz.model_loader.model_root_dir", str(tmp_path)), \
+             patch.object(model, 'get_local_model_path', return_value=str(model_file)):
             model.delete_local_file()
         assert not model_file.exists()
+
+    def test_whisper_cpp_custom_keeps_file_outside_model_root(self, tmp_path):
+        model_root = tmp_path / "models"
+        model_root.mkdir()
+        user_dir = tmp_path / "elsewhere"
+        user_dir.mkdir()
+        model_file = user_dir / "my-own-model.bin"
+        model_file.write_bytes(b"fake model data")
+        model = TranscriptionModel(
+            model_type=ModelType.WHISPER_CPP,
+            whisper_model_size=WhisperModelSize.CUSTOM,
+            custom_model_id="my-own-model",
+        )
+        with patch("buzz.model_loader.model_root_dir", str(model_root)), \
+             patch("buzz.settings.whisper_cpp_custom_models.remove_custom_model") as mock_remove, \
+             patch.object(model, 'get_local_model_path', return_value=str(model_file)):
+            model.delete_local_file()
+        # The user's own file is left in place, only the registry entry is removed
+        assert model_file.exists()
+        mock_remove.assert_called_once_with("my-own-model")
 
     def test_whisper_cpp_non_custom_removes_bin_file(self, tmp_path):
         model_file = tmp_path / "ggml-tiny.bin"

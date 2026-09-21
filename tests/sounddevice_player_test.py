@@ -1,8 +1,18 @@
 from unittest.mock import patch
 
 import numpy as np
+import pytest
 
+from buzz import audio_devices
 from buzz.sounddevice_player import SounddevicePlayer
+
+
+@pytest.fixture(autouse=True)
+def clean_stream_registry():
+    """Streams left registered by another test would block device refreshes here."""
+    audio_devices._active_streams.clear()
+    yield
+    audio_devices._active_streams.clear()
 
 
 class FakeOutputStream:
@@ -114,3 +124,77 @@ class TestSeek:
 
             player.seek(999_000)
             assert player._frame_pos == len(player.data)
+
+
+class TestDeviceRefresh:
+    def test_play_refreshes_the_device_list(self):
+        """Playback picks up devices connected since the last time we played."""
+        FakeOutputStream.instances = []
+        with patch("buzz.sounddevice_player.sd.OutputStream", FakeOutputStream), \
+             patch("buzz.sounddevice_player.refresh_audio_devices") as mock_refresh:
+            player = make_player()
+            player.play()
+
+            mock_refresh.assert_called_once()
+
+    def test_play_retries_once_when_the_device_fails_to_start(self):
+        """A device that vanishes between open and start is retried on the new default."""
+        FakeOutputStream.instances = []
+
+        class FailingOnceStream(FakeOutputStream):
+            fail_next = True
+
+            def start(self):
+                if FailingOnceStream.fail_next:
+                    FailingOnceStream.fail_next = False
+                    raise RuntimeError("device unavailable")
+                super().start()
+
+        with patch("buzz.sounddevice_player.sd.OutputStream", FailingOnceStream), \
+             patch("buzz.sounddevice_player.refresh_audio_devices") as mock_refresh:
+            player = make_player()
+            player.play()
+
+            assert player.is_playing
+            assert len(FakeOutputStream.instances) == 2
+            assert FakeOutputStream.instances[1].started
+            assert mock_refresh.call_count == 2
+
+    def test_streams_are_registered_while_open(self):
+        """PortAudio must not be restarted while a stream of ours is alive."""
+        FakeOutputStream.instances = []
+        with patch("buzz.sounddevice_player.sd.OutputStream", FakeOutputStream):
+            player = make_player()
+            player.play()
+            stream = FakeOutputStream.instances[-1]
+
+            assert stream in audio_devices._active_streams
+
+            player.stop()
+
+            assert stream not in audio_devices._active_streams
+
+
+class TestRefreshAudioDevices:
+    def test_refresh_restarts_portaudio(self):
+        with patch("buzz.audio_devices.sd._terminate") as mock_terminate, \
+             patch("buzz.audio_devices.sd._initialize") as mock_initialize:
+            assert audio_devices.refresh_audio_devices() is True
+
+            mock_terminate.assert_called_once()
+            mock_initialize.assert_called_once()
+
+    def test_refresh_is_skipped_while_a_stream_is_open(self):
+        stream = FakeOutputStream(44100, 2, "float32", None, None)
+        audio_devices.register_stream(stream)
+        try:
+            with patch("buzz.audio_devices.sd._terminate") as mock_terminate:
+                assert audio_devices.refresh_audio_devices() is False
+
+                mock_terminate.assert_not_called()
+        finally:
+            audio_devices.unregister_stream(stream)
+
+    def test_refresh_survives_a_portaudio_error(self):
+        with patch("buzz.audio_devices.sd._terminate", side_effect=OSError("boom")):
+            assert audio_devices.refresh_audio_devices() is False

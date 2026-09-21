@@ -1,11 +1,12 @@
 import pathlib
 import uuid
 import zipfile
+from unittest.mock import Mock
 from xml.etree import ElementTree
 
 import pytest
 from PyQt6.QtCore import QObject, pyqtSignal
-from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtWidgets import QFileDialog, QMessageBox
 from pytestqt.qtbot import QtBot
 
 from buzz.db.entity.transcription import Transcription
@@ -170,3 +171,40 @@ class TestExportTranscriptionMenu:
         qtbot.add_widget(widget)
 
         assert not widget.speaker_docx_action.isEnabled()
+
+    def test_speaker_docx_default_path_sanitizes_name(
+        self,
+        tmp_path: pathlib.Path,
+        qtbot: QtBot,
+        monkeypatch,
+    ):
+        title = "中文 | test?."
+        transcription = Transcription(
+            file=str(tmp_path / "audio.wav"),
+            name=title,
+        )
+        transcription_service = Mock()
+        transcription_service.get_transcription_segments.return_value = [
+            Mock(speaker="Speaker")
+        ]
+        get_save_file_name = Mock(return_value=("", ""))
+        monkeypatch.setattr(QFileDialog, "getSaveFileName", get_save_file_name)
+        monkeypatch.setattr(
+            QMessageBox,
+            "question",
+            Mock(return_value=QMessageBox.StandardButton.No),
+        )
+        translation_signal = TranslationSignal()
+        widget = ExportTranscriptionMenu(
+            transcription,
+            transcription_service,
+            False,
+            translation_signal.translation,
+        )
+        qtbot.add_widget(widget)
+
+        widget.export_speakers_docx()
+
+        default_path = get_save_file_name.call_args.args[2]
+        assert transcription.name == title
+        assert pathlib.Path(default_path).name == "中文 _ test_#_speakers.docx"

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-22 14:09+0300\n"
-"PO-Revision-Date: 2023-05-01 15:45+0800\n"
+"POT-Creation-Date: 2026-09-12 17:09+0300\n"
+"PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: \n"
 "Language-Team: lamb\n"
 "Language: zh_CN\n"
@@ -84,6 +84,11 @@ msgstr "丹麦语"
 #: buzz/transcriber/transcriber.py
 msgid "Dutch"
 msgstr "荷兰语"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "French"
+msgstr "法语"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
@@ -223,6 +228,10 @@ msgid "Disable GPU"
 msgstr "禁用 GPU"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Prevent system sleep while transcriptions are queued"
+msgstr "有转录任务排队时阻止系统睡眠"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "OpenAI API Key Test"
 msgstr "测试OpenAI API Key"
 
@@ -266,6 +275,10 @@ msgid "Delete processed files"
 msgstr "删除已处理的文件"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Note: Audio playback will not be available"
+msgstr "注意：将无法播放音频"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
 msgstr "输入文件夹"
 
@@ -273,6 +286,58 @@ msgstr "输入文件夹"
 #: buzz/plugins/export_docx/plugin.py
 msgid "Output folder"
 msgstr "输出文件夹"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Speaker identification"
+msgstr "说话人识别"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Identify speakers"
+msgstr "识别说话人"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid ""
+"Identify speakers after transcription and add speaker labels to the exported "
+"transcripts. Transcription will take longer."
+msgstr ""
+"在转录完成后识别说话人，并在导出的转录文本中添加说话人标签。转录将花费更长时"
+"间。"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "自动"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr "设置已知的说话人数量，或使用“自动”进行检测。"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Merge speaker sentences"
+msgstr "合并说话人句子"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "说话人数:"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Model"
+msgstr "模型"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Select Input Folder"
@@ -332,6 +397,18 @@ msgid "Huggingface ID of a Faster whisper model"
 msgstr "较快的Whisper模型的Huggingface ID"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Name for the custom model"
+msgstr "自定义模型的名称"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add local model file"
+msgstr "添加本地模型文件"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add model from URL"
+msgstr "从 URL 添加模型"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download"
 msgstr "下载"
 
@@ -354,6 +431,24 @@ msgstr "可用的下载"
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download link to Whisper.cpp ggml model file"
 msgstr "Whisper.cpp ggml 模型文件的下载链接"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/transcriber/transcription_options_group_box.py
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Custom"
+msgstr "自定义"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Select Whisper.cpp model file"
+msgstr "选择 Whisper.cpp 模型文件"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Whisper.cpp model"
+msgstr "Whisper.cpp 模型"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "All files"
+msgstr "所有文件"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Delete Model"
@@ -591,11 +686,6 @@ msgid "File Name / URL"
 msgstr "文件名称/URL"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-#: buzz/plugins/ai_summary/plugin.py
-msgid "Model"
-msgstr "模型"
-
-#: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Task"
 msgstr "任务"
 
@@ -665,6 +755,48 @@ msgstr "无法重新开始识别：模型不可用且无法下载。"
 msgid "Could not restart transcription: transcriber worker not found."
 msgstr "无法重新开始识别：未找到识别工作进程。"
 
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Nvidia GPU Acceleration"
+msgstr "Nvidia GPU 加速"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install Nvidia GPU Acceleration?"
+msgstr "是否安装 Nvidia GPU 加速？"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid ""
+"Installing GPU acceleration for Nvidia GPUS allows Buzz to transcribe audio "
+"significantly faster using CUDA. For other GPU brands this acceleration will "
+"have no effect. CUDA is not needed to run whisper.cpp.\n"
+"\n"
+"This will download and install PyTorch with CUDA support (~8 GB). Buzz must "
+"be restarted after installation."
+msgstr ""
+"为 Nvidia GPU 安装 GPU 加速后，Buzz 可以使用 CUDA 显著加快音频转录速度。对于"
+"其他品牌的 GPU，此加速将不起作用。运行 whisper.cpp 不需要 CUDA。\n"
+"\n"
+"这将下载并安装支持 CUDA 的 PyTorch（约 8 GB）。安装完成后必须重启 Buzz。"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install GPU Support"
+msgstr "安装 GPU 支持"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Not Now"
+msgstr "暂不安装"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation complete! Restart Buzz to enable GPU acceleration."
+msgstr "安装完成！请重启 Buzz 以启用 GPU 加速。"
+
+#: buzz/widgets/cuda_installer_widget.py buzz/widgets/about_dialog.py
+msgid "Close"
+msgstr "关闭"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation failed: {}"
+msgstr "安装失败：{}"
+
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
 msgstr "实时录制"
@@ -700,10 +832,6 @@ msgstr "浅色"
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Dark"
 msgstr "深色"
-
-#: buzz/widgets/recording_transcriber_widget.py
-msgid "Custom"
-msgstr "自定义"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Text Color"
@@ -873,6 +1001,14 @@ msgstr "下载完成！"
 msgid "Failed to run the installer: {}"
 msgstr "无法运行安装程序：{}"
 
+#: buzz/widgets/about_dialog.py buzz/widgets/menu_bar.py
+msgid "About"
+msgstr "关于"
+
+#: buzz/widgets/about_dialog.py
+msgid "Version"
+msgstr "版本"
+
 #: buzz/widgets/about_dialog.py
 msgid "Check for updates"
 msgstr "检查更新"
@@ -880,6 +1016,10 @@ msgstr "检查更新"
 #: buzz/widgets/about_dialog.py
 msgid "Show logs"
 msgstr "显示日志"
+
+#: buzz/widgets/about_dialog.py
+msgid "Install CUDA Acceleration"
+msgstr "安装 CUDA 加速"
 
 #: buzz/widgets/about_dialog.py
 msgid "You're up to date!"
@@ -1207,36 +1347,12 @@ msgid "Audio file not found"
 msgstr "未找到音频文件"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "MSDD"
-msgstr "MSDD"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Sortformer"
-msgstr "Sortformer"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Speakers:"
-msgstr "说话人数:"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Auto"
-msgstr "自动"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Set the known number of speakers, or use Auto to detect it."
-msgstr "设置已知的说话人数量，或使用“自动”进行检测。"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
 msgstr "第2步：命名说话人"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Play sample"
 msgstr "播放样本"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Merge speaker sentences"
-msgstr "合并说话人句子"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Save"
@@ -1293,10 +1409,6 @@ msgstr "导入URL..."
 #: buzz/widgets/menu_bar.py
 msgid "Import Folder..."
 msgstr "导入文件夹..."
-
-#: buzz/widgets/menu_bar.py
-msgid "About"
-msgstr "关于"
 
 #: buzz/widgets/menu_bar.py
 msgid "Preferences..."
@@ -1362,10 +1474,6 @@ msgstr "中文"
 #: buzz/transcriber/transcriber.py
 msgid "Korean"
 msgstr "韩语"
-
-#: buzz/transcriber/transcriber.py
-msgid "French"
-msgstr "法语"
 
 #: buzz/transcriber/transcriber.py
 msgid "Portuguese"
@@ -1871,18 +1979,6 @@ msgstr "标点符号"
 msgid "Maximum subtitle length"
 msgstr "字幕最大长度"
 
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "DeepFilterNet Noise Reduction"
-msgstr "DeepFilterNet 降噪"
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Removes background noise using DeepFilterNet3 before transcription."
-msgstr "在转录前使用 DeepFilterNet3 去除背景噪音。"
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Keep denoised file after transcription"
-msgstr "转录后保留降噪文件"
-
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip Already Transcribed"
 msgstr "跳过已转录文件"
@@ -1947,52 +2043,8 @@ msgstr "将摘要保存到文件"
 msgid "Output folder (for file)"
 msgstr "输出文件夹（用于文件）"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-msgid "Prevent system sleep while transcriptions are queued"
-msgstr ""
-"有转录任务排队时阻止系统睡眠"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
-"Speech extraction failed! Check your internet connection \\u2014 a model may "
-"need to be downloaded."
+"Speech extraction failed! Check your internet connection — a model may need "
+"to be downloaded."
 msgstr "语音提取失败！请检查您的网络连接——可能需要下载模型。"
-
-#~ msgid "Live recording mode:"
-#~ msgstr "实时录制模式："
-
-#~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-#~ msgstr "逗号分隔，例如\"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-
-#~ msgid "Temperature:"
-#~ msgstr "温度："
-
-#~ msgid "Please translate each text sent to you from English to Spanish."
-#~ msgstr "请将发送给您的每段文本从英语翻译成西班牙语。"
-
-#~ msgid "Translation error, see logs!"
-#~ msgstr "翻译出错，请查看日志！"
-
-#~ msgid "Snap permission notice"
-#~ msgstr "快照权限通知"
-
-#~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
-#~ msgstr "检测到缺少权限，请检查是否已获得快照权限"
-
-#~ msgid ""
-#~ "To enable necessary permissions run the following commands in the terminal"
-#~ msgstr "要启用必要的权限，请在终端中运行以下命令"
-
-#~ msgid "Close"
-#~ msgstr "关闭"
-
-#~ msgid "Enter instructions for AI on how to translate..."
-#~ msgstr "输入AI如何翻译的说明..."
-
-#~ msgid "Enter target characters per subtitle:"
-#~ msgstr "为每个字幕输入目标字符："
-
-#~ msgid "ID"
-#~ msgstr "ID"

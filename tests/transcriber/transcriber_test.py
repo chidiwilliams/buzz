@@ -2,10 +2,13 @@ import pathlib
 
 import pytest
 
+from buzz.model_loader import TranscriptionModel
 from buzz.transcriber.file_transcriber import write_output, to_timestamp
 from buzz.transcriber.transcriber import (
+    get_output_file_path,
     OutputFormat,
     Segment,
+    Task,
 )
 
 
@@ -13,6 +16,23 @@ class TestToTimestamp:
     def test_to_timestamp(self):
         assert to_timestamp(0) == "00:00:00.000"
         assert to_timestamp(123456789) == "34:17:36.789"
+
+
+def test_url_output_path_uses_safe_display_name(tmp_path):
+    title = "中文 | test?."
+
+    output_path = get_output_file_path(
+        file_path=str(tmp_path / "audio.wav"),
+        task=Task.TRANSCRIBE,
+        language=None,
+        model=TranscriptionModel(),
+        output_format=OutputFormat.SRT,
+        export_file_name_template="{{ input_file_name }}",
+        display_name=title,
+    )
+
+    assert title == "中文 | test?."
+    assert pathlib.Path(output_path).name == "中文 _ test_#.srt"
 
 
 @pytest.mark.parametrize(

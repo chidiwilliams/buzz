@@ -60,10 +60,10 @@ datas += [("buzz/assets/*", "assets")]
 datas += [("buzz/locale", "locale")]
 datas += [("buzz/schema.sql", ".")]
 datas += [("buzz/plugins/ai_summary", "plugins/ai_summary")]
-datas += [("buzz/plugins/transcript_resizer", "plugins/transcript_resizer")]
-datas += [("buzz/plugins/export_docx", "plugins/export_docx")]
 datas += [("buzz/plugins/enhanced_language_detection", "plugins/enhanced_language_detection")]
-datas += [("buzz/plugins/deep_filter_net", "plugins/deep_filter_net")]
+datas += [("buzz/plugins/export_docx", "plugins/export_docx")]
+datas += [("buzz/plugins/skip_already_transcribed", "plugins/skip_already_transcribed")]
+datas += [("buzz/plugins/transcript_resizer", "plugins/transcript_resizer")]
 
 block_cipher = None
 
@@ -104,6 +104,32 @@ else:
     ]
 
 binaries.append(("buzz/whisper_cpp/*", "buzz/whisper_cpp"))
+
+# Bundle a standalone Python interpreter for runtime pip installs (e.g. CUDA).
+# We copy python.exe, DLLs, and the stdlib from the uv-managed base interpreter.
+# The version is derived from the build interpreter so it tracks requires-python.
+if platform.system() == "Windows":
+    import sys as _sys
+    _base = _sys.base_prefix  # e.g. .../uv/python/cpython-3.13.12-windows-x86_64-none
+    _py_dll = f"python{_sys.version_info.major}{_sys.version_info.minor}.dll"
+    _py_dest = "python"
+    if os.path.isfile(os.path.join(_base, "python.exe")):
+        binaries.append((os.path.join(_base, "python.exe"), _py_dest))
+        binaries.append((os.path.join(_base, "python3.dll"), _py_dest))
+        binaries.append((os.path.join(_base, _py_dll), _py_dest))
+        for _vcrt in ("vcruntime140.dll", "vcruntime140_1.dll"):
+            _vcrt_path = os.path.join(_base, _vcrt)
+            if os.path.isfile(_vcrt_path):
+                binaries.append((_vcrt_path, _py_dest))
+        # Bundle DLLs directory (C extensions like _ssl, _socket, etc.)
+        _dlls_dir = os.path.join(_base, "DLLs")
+        if os.path.isdir(_dlls_dir):
+            for _f in os.listdir(_dlls_dir):
+                binaries.append((os.path.join(_dlls_dir, _f), os.path.join(_py_dest, "DLLs")))
+        # Bundle standard library
+        datas.append((os.path.join(_base, "Lib"), os.path.join(_py_dest, "Lib")))
+    else:
+        print(f"WARNING: Could not find bundleable Python at {_base}")
 
 if platform.system() == "Windows":
     datas += [("dll_backup", "dll_backup")]

@@ -1,9 +1,7 @@
 import json
 import logging
 from dataclasses import dataclass
-import os
 import subprocess
-import sys
 import threading
 import time
 from collections import deque
@@ -11,31 +9,12 @@ from typing import Optional
 
 import numpy as np
 
+from buzz.ffmpeg_utils import find_ffmpeg, find_ffprobe
 from buzz.pip_utils import subprocess_hide_window_kwargs
 
 
-def _find_ffmpeg() -> str:
-    import shutil
-    path = shutil.which("ffmpeg")
-    if path:
-        return path
-    for name in ("ffmpeg", "ffmpeg.exe"):
-        p = os.path.join(getattr(sys, "_MEIPASS", ""), name)
-        if os.path.exists(p):
-            return p
-    return "ffmpeg"
-
-
-def _find_ffprobe() -> str:
-    import shutil
-    path = shutil.which("ffprobe")
-    if path:
-        return path
-    for name in ("ffprobe", "ffprobe.exe"):
-        p = os.path.join(getattr(sys, "_MEIPASS", ""), name)
-        if os.path.exists(p):
-            return p
-    return "ffprobe"
+_find_ffmpeg = find_ffmpeg
+_find_ffprobe = find_ffprobe
 
 
 def probe_video(file_path: str) -> dict:

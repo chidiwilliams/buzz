@@ -200,11 +200,6 @@ jobs:
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then
             uv pip install msvc-runtime
-            uv pip install -U torch==2.8.0+cu129 torchaudio==2.8.0+cu129 --index-url https://download.pytorch.org/whl/cu129
-            uv pip install nvidia-cublas-cu12==12.9.1.4 nvidia-cuda-cupti-cu12==12.9.79 nvidia-cuda-runtime-cu12==12.9.79 --extra-index-url https://pypi.nvidia.com
-
-            uv cache clean
-            uv run pip cache purge
           fi
         shell: bash
 
@@ -288,7 +283,6 @@ jobs:
           name: Buzz-${{ runner.os }}-${{ runner.arch }}
           path: |
             dist/Buzz*-windows.exe
-            dist/Buzz*-windows-*.bin
             dist/Buzz*-mac.dmg
             dist/Buzz*.AppImage
 
@@ -402,6 +396,5 @@ jobs:
           files: |
             Buzz*-unix.tar.gz
             Buzz*.exe
-            Buzz*.bin
             Buzz*.dmg
             Buzz*.AppImage

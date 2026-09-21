@@ -272,6 +272,42 @@ class TestTranscriptionSegmentModel:
         assert model.tableName() == "transcription_segment"
         assert model.editStrategy() == model.EditStrategy.OnFieldChange
 
+    def test_metadata_is_shown_as_key_value_tooltip(
+        self,
+        transcription_dao,
+        transcription_segment_dao,
+    ):
+        transcription_id = uuid.uuid4()
+        transcription_dao.insert(
+            Transcription(
+                id=str(transcription_id),
+                status="completed",
+                file=test_audio_path,
+                task=Task.TRANSCRIBE.value,
+                model_type=ModelType.WHISPER.value,
+                whisper_model_size=WhisperModelSize.TINY.value,
+            )
+        )
+        transcription_segment_dao.insert(
+            TranscriptionSegment(
+                40,
+                299,
+                "Repeated phrase",
+                "",
+                str(transcription_id),
+                metadata='[{"review_reason": "Possible repetition loop"}, '
+                         '{"confidence": "0.21"}]',
+            )
+        )
+        model = TranscriptionSegmentModel(transcription_id)
+        model.select()
+        index = model.index(0, Column.TEXT.value)
+
+        tooltip = model.data(index, Qt.ItemDataRole.ToolTipRole)
+        assert tooltip == (
+            "review_reason: Possible repetition loop\nconfidence: 0.21"
+        )
+
 
 class TestTranscriptionSegmentsEditorWidget:
     """Test the TranscriptionSegmentsEditorWidget"""

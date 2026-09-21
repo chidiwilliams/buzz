@@ -34,7 +34,10 @@ from buzz.widgets.application import Application
 
 
 @pytest.fixture()
-def db() -> QSqlDatabase:
+def db(qapp) -> QSqlDatabase:
+    # Qt's SQL module needs a QCoreApplication to be alive; opening a
+    # QSqlDatabase without one segfaults, so depend on the app fixture even
+    # though these tests never touch a widget.
     db = setup_test_db()
     yield db
     db.close()

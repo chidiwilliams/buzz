@@ -1,6 +1,6 @@
 import os
 import logging
-from typing import Tuple, List, Optional
+from typing import Tuple, List, Optional, Set
 from uuid import UUID
 
 from PyQt6 import QtGui
@@ -90,6 +90,7 @@ class MainWindow(QMainWindow):
         self.shortcuts = Shortcuts(settings=self.settings)
 
         self.quit_on_complete = False
+        self.pending_quit_task_uids: Set[UUID] = set()
         self.transcription_service = transcription_service
 
         self.plugin_manager = PluginManager(self.transcription_service, self.settings)
@@ -196,6 +197,9 @@ class MainWindow(QMainWindow):
 
         #Initialize and run update checker
         self._init_update_checker()
+
+        #Offer CUDA installation on Windows if not done before
+        self._maybe_show_cuda_prompt()
 
     def on_preferences_changed(self, preferences: Preferences):
         self.preferences = preferences
@@ -484,18 +488,22 @@ class MainWindow(QMainWindow):
         if task.status == FileTranscriptionTask.Status.SKIPPED:
             self.transcription_service.update_transcription_as_skipped(task.uid, segments)
             self.table_widget.refresh_row(task.uid)
-            if self.quit_on_complete:
-                self.close()
-                QApplication.quit()
+            self.quit_if_all_tasks_done(task)
             return
 
         # Update file path in database only for URL imports where file is downloaded
         if task.source == FileTranscriptionTask.Source.URL_IMPORT and task.file_path:
             logging.debug(f"Updating transcription file path: {task.file_path}")
-            # Use the file basename (video title) as the display name
+            # URL titles are UI metadata and must not be used as working paths.
             basename = os.path.basename(task.file_path)
-            name = os.path.splitext(basename)[0]  # Remove .wav extension
+            name = task.display_name or os.path.splitext(basename)[0]
             self.transcription_service.update_transcription_file_and_name(task.uid, task.file_path, name)
+
+        # Folder watch moves the source file into the output directory, so the
+        # stored path has to follow it for the audio to stay playable.
+        if task.source == FileTranscriptionTask.Source.FOLDER_WATCH and task.file_path:
+            logging.debug(f"Updating transcription file path: {task.file_path}")
+            self.transcription_service.update_transcription_file_and_name(task.uid, task.file_path)
 
         # When plugins are enabled, run the after_transcription / save / on_complete
         # pipeline on a background thread so slow plugin work (e.g. network calls)
@@ -523,18 +531,24 @@ class MainWindow(QMainWindow):
             self.transcription_service.update_transcription_as_completed(task.uid, segments)
             self.table_widget.refresh_row(task.uid)
 
-        if self.quit_on_complete:
-            self.close()
-            QApplication.quit()
+        self.quit_if_all_tasks_done(task)
 
+    def quit_if_all_tasks_done(self, task: FileTranscriptionTask):
+        if not self.quit_on_complete:
+            return
+
+        self.pending_quit_task_uids.discard(task.uid)
+        if len(self.pending_quit_task_uids) > 0:
+            return
+
+        self.close()
+        QApplication.quit()
 
     def on_task_error(self, task: FileTranscriptionTask, error: str):
         self.transcription_service.update_transcription_as_failed(task.uid, error)
         self.table_widget.refresh_row(task.uid)
 
-        if self.quit_on_complete:
-            self.close()
-            QApplication.quit()
+        self.quit_if_all_tasks_done(task)
 
     def on_shortcuts_changed(self):
         self.menu_bar.reset_shortcuts()
@@ -625,6 +639,38 @@ class MainWindow(QMainWindow):
         """Called when an update is available."""
         self._update_info = update_info
         self.toolbar.set_update_available(True)
+
+    def _maybe_show_cuda_prompt(self):
+        """On first launch (Windows/Linux), offer CUDA installation if an NVIDIA GPU is present."""
+        from buzz import cuda_manager
+        is_nvidia_gpu_present = cuda_manager.is_nvidia_gpu_present()
+
+        logging.debug(f"Nvidia GPU detected: {is_nvidia_gpu_present}")
+
+        if not is_nvidia_gpu_present:
+            return
+        if not cuda_manager.should_offer_cuda_prompt():
+            return
+        # The packaged builds all ship CPU-only torch, so this only ever fires
+        # for a pip or source install where the user set up CUDA themselves.
+        # Offering them a second, shadowing torch would be worse than useless.
+        if cuda_manager.is_cuda_torch_installed():
+            logging.debug("CUDA torch already available; not offering the install")
+            return
+        if self.settings.value(Settings.Key.CUDA_PROMPT_SHOWN, False):
+            return
+        self.settings.set_value(Settings.Key.CUDA_PROMPT_SHOWN, True)
+
+        from PyQt6.QtCore import QTimer
+        from buzz.widgets.cuda_installer_widget import CudaInstallerDialog
+
+        def _show():
+            dialog = CudaInstallerDialog(self)
+            dialog.show()
+            dialog.raise_()
+            dialog.activateWindow()
+
+        QTimer.singleShot(500, _show)
 
     def on_update_action_triggered(self):
         """Called when user clicks the update action in toolbar."""

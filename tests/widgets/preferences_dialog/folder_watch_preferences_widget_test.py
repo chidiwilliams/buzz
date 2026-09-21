@@ -1,6 +1,7 @@
 from unittest.mock import Mock, patch
 
-from PyQt6.QtWidgets import QCheckBox, QLineEdit
+from PyQt6.QtGui import QFont
+from PyQt6.QtWidgets import QCheckBox, QComboBox, QLabel, QLineEdit
 
 from buzz.model_loader import TranscriptionModel
 from buzz.transcriber.transcriber import Task
@@ -138,3 +139,107 @@ class TestFolderWatchPreferencesWidget:
 
         last_config = mock_config_changed.call_args_list[-1][0][0]
         assert last_config.delete_processed_files is False
+
+    def test_speaker_identification_options(self, qtbot):
+        widget = FolderWatchPreferencesWidget(
+            config=FolderWatchPreferences(
+                enabled=True,
+                input_directory="",
+                output_directory="",
+                file_transcription_options=FileTranscriptionPreferences(
+                    language=None,
+                    task=Task.TRANSCRIBE,
+                    model=TranscriptionModel.default(),
+                    word_level_timings=False,
+                    extract_speech=False,
+                    initial_prompt="",
+                    enable_llm_translation=False,
+                    llm_model="",
+                    llm_prompt="",
+                    output_formats=set(),
+                ),
+            ),
+        )
+        mock_config_changed = Mock()
+        widget.config_changed.connect(mock_config_changed)
+        qtbot.add_widget(widget)
+
+        title_label = widget.findChild(QLabel, "SpeakerIdentificationLabel")
+        identify_checkbox = widget.findChild(QCheckBox, "IdentifySpeakersCheckbox")
+        diarizer_combo_box = widget.findChild(QComboBox, "SpeakerDiarizerComboBox")
+        speaker_count_combo_box = widget.findChild(QComboBox, "SpeakerCountComboBox")
+        merge_checkbox = widget.findChild(QCheckBox, "MergeSpeakerSentencesCheckbox")
+
+        # The title is translated, so only its styling is asserted here
+        assert title_label.font().weight() == QFont.Weight.Bold
+
+        assert not identify_checkbox.isChecked()
+        assert not diarizer_combo_box.isEnabled()
+        assert not speaker_count_combo_box.isEnabled()
+        assert not merge_checkbox.isEnabled()
+
+        identify_checkbox.setChecked(True)
+
+        assert diarizer_combo_box.isEnabled()
+        assert speaker_count_combo_box.isEnabled()
+        assert merge_checkbox.isEnabled()
+
+        last_config = mock_config_changed.call_args_list[-1][0][0]
+        assert last_config.identify_speakers is True
+        assert last_config.speaker_diarizer == "msdd"
+        assert last_config.speaker_count is None
+        assert last_config.merge_speaker_sentences is True
+
+        speaker_count_combo_box.setCurrentIndex(
+            speaker_count_combo_box.findData(3)
+        )
+        assert mock_config_changed.call_args_list[-1][0][0].speaker_count == 3
+
+        merge_checkbox.setChecked(False)
+        assert (
+            mock_config_changed.call_args_list[-1][0][0].merge_speaker_sentences
+            is False
+        )
+
+        # The speaker count is an MSDD-only option
+        diarizer_combo_box.setCurrentIndex(
+            diarizer_combo_box.findData("sortformer")
+        )
+        last_config = mock_config_changed.call_args_list[-1][0][0]
+        assert last_config.speaker_diarizer == "sortformer"
+        assert not speaker_count_combo_box.isEnabled()
+
+    def test_speaker_options_disabled_when_folder_watch_disabled(self, qtbot):
+        widget = FolderWatchPreferencesWidget(
+            config=FolderWatchPreferences(
+                enabled=False,
+                input_directory="",
+                output_directory="",
+                file_transcription_options=FileTranscriptionPreferences(
+                    language=None,
+                    task=Task.TRANSCRIBE,
+                    model=TranscriptionModel.default(),
+                    word_level_timings=False,
+                    extract_speech=False,
+                    initial_prompt="",
+                    enable_llm_translation=False,
+                    llm_model="",
+                    llm_prompt="",
+                    output_formats=set(),
+                ),
+                identify_speakers=True,
+            ),
+        )
+        qtbot.add_widget(widget)
+
+        identify_checkbox = widget.findChild(QCheckBox, "IdentifySpeakersCheckbox")
+        diarizer_combo_box = widget.findChild(QComboBox, "SpeakerDiarizerComboBox")
+
+        assert identify_checkbox.isChecked()
+        assert not identify_checkbox.isEnabled()
+        assert not diarizer_combo_box.isEnabled()
+
+        widget.findChild(QCheckBox, "EnableFolderWatchCheckbox").setChecked(True)
+
+        assert identify_checkbox.isEnabled()
+        assert diarizer_combo_box.isEnabled()

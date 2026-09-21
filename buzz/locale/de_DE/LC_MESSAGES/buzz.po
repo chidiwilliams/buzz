@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-22 14:09+0300\n"
-"PO-Revision-Date: 2025-03-05 14:41+0100\n"
+"POT-Creation-Date: 2026-09-12 17:09+0300\n"
+"PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de_DE@formal\n"
@@ -83,6 +83,11 @@ msgstr "Dänisch"
 #: buzz/transcriber/transcriber.py
 msgid "Dutch"
 msgstr "Niederländisch"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "French"
+msgstr "Französisch"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
@@ -228,6 +233,12 @@ msgid "Disable GPU"
 msgstr "GPU deaktivieren"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Prevent system sleep while transcriptions are queued"
+msgstr ""
+"Ruhezustand des Systems verhindern, solange Transkriptionen in der "
+"Warteschlange sind"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "OpenAI API Key Test"
 msgstr "OpenAI-API-Schlüssel Test"
 
@@ -276,6 +287,10 @@ msgid "Delete processed files"
 msgstr "Verarbeitete Dateien löschen"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Note: Audio playback will not be available"
+msgstr "Hinweis: Die Audiowiedergabe ist dann nicht verfügbar"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Input folder"
 msgstr "Eingabeordner"
 
@@ -283,6 +298,61 @@ msgstr "Eingabeordner"
 #: buzz/plugins/export_docx/plugin.py
 msgid "Output folder"
 msgstr "Ausgabeordner"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Speaker identification"
+msgstr "Sprecheridentifikation"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Identify speakers"
+msgstr "Sprecher identifizieren"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid ""
+"Identify speakers after transcription and add speaker labels to the exported "
+"transcripts. Transcription will take longer."
+msgstr ""
+"Sprecher nach der Transkription identifizieren und den exportierten "
+"Transkripten Sprecherbezeichnungen hinzufügen. Die Transkription dauert "
+"dadurch länger."
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "Auto"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr ""
+"Legen Sie die bekannte Anzahl der Sprecher fest oder verwenden Sie Auto zur "
+"Erkennung."
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Merge speaker sentences"
+msgstr "Sprechersätze zusammenführen"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "Sprecher:"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Model"
+msgstr "Modell"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Select Input Folder"
@@ -343,6 +413,18 @@ msgid "Huggingface ID of a Faster whisper model"
 msgstr "Huggingface-ID eines Faster Whisper-Modells"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Name for the custom model"
+msgstr "Name für das benutzerdefinierte Modell"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add local model file"
+msgstr "Lokale Modelldatei hinzufügen"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add model from URL"
+msgstr "Modell von URL hinzufügen"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download"
 msgstr "Herunterladen"
 
@@ -365,6 +447,24 @@ msgstr "Zum Herunterladen verfügbar"
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Download link to Whisper.cpp ggml model file"
 msgstr "Laden Sie den Link zur ggml-Modelldatei Whisper.cpp herunter"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/transcriber/transcription_options_group_box.py
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Custom"
+msgstr "Benutzerdefiniert"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Select Whisper.cpp model file"
+msgstr "Whisper.cpp-Modelldatei auswählen"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Whisper.cpp model"
+msgstr "Whisper.cpp-Modell"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "All files"
+msgstr "Alle Dateien"
 
 #: buzz/widgets/preferences_dialog/models_preferences_widget.py
 msgid "Delete Model"
@@ -605,11 +705,6 @@ msgid "File Name / URL"
 msgstr "Dateiname/URL"
 
 #: buzz/widgets/transcription_tasks_table_widget.py
-#: buzz/plugins/ai_summary/plugin.py
-msgid "Model"
-msgstr "Modell"
-
-#: buzz/widgets/transcription_tasks_table_widget.py
 msgid "Task"
 msgstr "Aufgabe"
 
@@ -686,6 +781,53 @@ msgstr ""
 "gefunden.Transkription konnte nicht neu gestartet werden: Transkriptions-"
 "Worker nicht gefunden."
 
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Nvidia GPU Acceleration"
+msgstr "Nvidia GPU-Beschleunigung"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install Nvidia GPU Acceleration?"
+msgstr "Nvidia-GPU-Beschleunigung installieren?"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid ""
+"Installing GPU acceleration for Nvidia GPUS allows Buzz to transcribe audio "
+"significantly faster using CUDA. For other GPU brands this acceleration will "
+"have no effect. CUDA is not needed to run whisper.cpp.\n"
+"\n"
+"This will download and install PyTorch with CUDA support (~8 GB). Buzz must "
+"be restarted after installation."
+msgstr ""
+"Die Installation der GPU-Beschleunigung für Nvidia GPUs ermöglicht es Buzz, "
+"Audio mithilfe von CUDA deutlich schneller zu transkribieren. Für andere GPU-"
+"Marken hat diese Beschleunigung keine Auswirkung. CUDA wird für whisper.cpp "
+"nicht benötigt.\n"
+"\n"
+"Dies lädt PyTorch mit CUDA-Unterstützung herunter und installiert es (~8 "
+"GB). Buzz muss nach der Installation neu gestartet werden."
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install GPU Support"
+msgstr "GPU-Unterstützung installieren"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Not Now"
+msgstr "Nicht jetzt"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation complete! Restart Buzz to enable GPU acceleration."
+msgstr ""
+"Installation abgeschlossen! Starte Buzz neu, um die GPU-Beschleunigung zu "
+"aktivieren."
+
+#: buzz/widgets/cuda_installer_widget.py buzz/widgets/about_dialog.py
+msgid "Close"
+msgstr "Schließen"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation failed: {}"
+msgstr "Installation fehlgeschlagen: {}"
+
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Live Recording"
 msgstr "Live-Aufnahme"
@@ -721,10 +863,6 @@ msgstr "Hell"
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Dark"
 msgstr "Dunkel"
-
-#: buzz/widgets/recording_transcriber_widget.py
-msgid "Custom"
-msgstr "Benutzerdefiniert"
 
 #: buzz/widgets/recording_transcriber_widget.py
 msgid "Text Color"
@@ -898,6 +1036,14 @@ msgstr "Download abgeschlossen!"
 msgid "Failed to run the installer: {}"
 msgstr "Installer konnte nicht ausgeführt werden: {}"
 
+#: buzz/widgets/about_dialog.py buzz/widgets/menu_bar.py
+msgid "About"
+msgstr "Über"
+
+#: buzz/widgets/about_dialog.py
+msgid "Version"
+msgstr "Version"
+
 #: buzz/widgets/about_dialog.py
 msgid "Check for updates"
 msgstr "Nach Updates suchen"
@@ -905,6 +1051,10 @@ msgstr "Nach Updates suchen"
 #: buzz/widgets/about_dialog.py
 msgid "Show logs"
 msgstr "Protokolle anzeigen"
+
+#: buzz/widgets/about_dialog.py
+msgid "Install CUDA Acceleration"
+msgstr "CUDA-Beschleunigung installieren"
 
 #: buzz/widgets/about_dialog.py
 msgid "You're up to date!"
@@ -1251,38 +1401,12 @@ msgid "Audio file not found"
 msgstr "Audiodatei nicht gefunden"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "MSDD"
-msgstr "MSDD"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Sortformer"
-msgstr "Sortformer"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Speakers:"
-msgstr "Sprecher:"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Auto"
-msgstr "Auto"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Set the known number of speakers, or use Auto to detect it."
-msgstr ""
-"Legen Sie die bekannte Anzahl der Sprecher fest oder verwenden Sie Auto zur "
-"Erkennung."
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Step 2: Name speakers"
 msgstr "Schritt 2: Sprecher benennen"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Play sample"
 msgstr "Beispiel abspielen"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Merge speaker sentences"
-msgstr "Sprechersätze zusammenführen"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Save"
@@ -1341,10 +1465,6 @@ msgid "Import Folder..."
 msgstr "Ordner importieren..."
 
 #: buzz/widgets/menu_bar.py
-msgid "About"
-msgstr "Über"
-
-#: buzz/widgets/menu_bar.py
 msgid "Preferences..."
 msgstr "Einstellungen..."
 
@@ -1386,9 +1506,9 @@ msgstr ""
 #: buzz/transcriber/recording_transcriber.py
 msgid "Whisper server failed to start. Check logs for details."
 msgstr ""
-"Whisper-Server konnte nicht gestartet werden. Protokolle für Details prüfen."
-"Whisper-Server konnte nicht gestartet werden. Details in den Protokollen "
-"prüfen."
+"Whisper-Server konnte nicht gestartet werden. Protokolle für Details "
+"prüfen.Whisper-Server konnte nicht gestartet werden. Details in den "
+"Protokollen prüfen."
 
 #: buzz/transcriber/local_whisper_cpp_server_transcriber.py
 #: buzz/transcriber/recording_transcriber.py
@@ -1417,10 +1537,6 @@ msgstr "Chinesisch"
 #: buzz/transcriber/transcriber.py
 msgid "Korean"
 msgstr "Koreanisch"
-
-#: buzz/transcriber/transcriber.py
-msgid "French"
-msgstr "Französisch"
 
 #: buzz/transcriber/transcriber.py
 msgid "Portuguese"
@@ -1933,19 +2049,6 @@ msgstr "Satzzeichen"
 msgid "Maximum subtitle length"
 msgstr "Maximale Untertitellänge"
 
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "DeepFilterNet Noise Reduction"
-msgstr "DeepFilterNet-Rauschunterdrückung"
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Removes background noise using DeepFilterNet3 before transcription."
-msgstr ""
-"Entfernt Hintergrundgeräusche mit DeepFilterNet3 vor der Transkription."
-
-#: buzz/plugins/deep_filter_net/plugin.py
-msgid "Keep denoised file after transcription"
-msgstr "Entrauschte Datei nach der Transkription behalten"
-
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Skip Already Transcribed"
 msgstr "Bereits Transkribierte überspringen"
@@ -2016,54 +2119,10 @@ msgstr "Zusammenfassung in einer Datei speichern"
 msgid "Output folder (for file)"
 msgstr "Ausgabeordner (für Datei)"
 
-#: buzz/widgets/preferences_dialog/general_preferences_widget.py
-msgid "Prevent system sleep while transcriptions are queued"
-msgstr ""
-"Ruhezustand des Systems verhindern, solange Transkriptionen in der Warteschlange sind"
-
 #: buzz/file_transcriber_queue_worker.py
 msgid ""
-"Speech extraction failed! Check your internet connection \\u2014 a model may "
-"need to be downloaded."
+"Speech extraction failed! Check your internet connection — a model may need "
+"to be downloaded."
 msgstr ""
 "Sprachextraktion fehlgeschlagen! Bitte Internetverbindung prüfen — ein "
 "Modell muss möglicherweise heruntergeladen werden."
-
-#~ msgid "Live recording mode:"
-#~ msgstr "Live-Aufnahmemodus:"
-
-#~ msgid "Comma-separated, e.g. \"0.0, 0.2, 0.4, 0.6, 0.8, 1.0\""
-#~ msgstr "Durch Kommas getrennt, z.B. \"0,0, 0,2, 0,4, 0,6, 0,8, 1,0\""
-
-#~ msgid "Temperature:"
-#~ msgstr "Temperatur:"
-
-#~ msgid "Please translate each text sent to you from English to Spanish."
-#~ msgstr ""
-#~ "Bitte übersetzen Sie jeden an Sie gesendeten Text von Englisch nach "
-#~ "Spanisch."
-
-#~ msgid "Translation error, see logs!"
-#~ msgstr "Übersetzungsfehler, Protokolle prüfen!"
-
-#~ msgid "Snap permission notice"
-#~ msgstr "Snap-Berechtigungsmitteilung"
-
-#~ msgid ""
-#~ "Detected missing permissions, please check that snap permissions have "
-#~ "been granted"
-#~ msgstr ""
-#~ "Es wurden fehlende Berechtigungen festgestellt. Bitte überprüfen Sie, ob "
-#~ "Snap-Berechtigungen erteilt wurden"
-
-#~ msgid ""
-#~ "To enable necessary permissions run the following commands in the terminal"
-#~ msgstr ""
-#~ "Um die erforderlichen Berechtigungen zu aktivieren, führen Sie die "
-#~ "folgenden Befehle im Terminal aus"
-
-#~ msgid "Close"
-#~ msgstr "Schließen"
-
-#~ msgid "Enter instructions for AI on how to translate..."
-#~ msgstr "Geben Sie Anweisungen für die KI zum Übersetzen ein..."

@@ -5,7 +5,7 @@ import subprocess
 import shutil
 import tempfile
 from abc import abstractmethod
-from typing import Optional, List
+from typing import Any, Optional, List
 from pathlib import Path
 
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
@@ -22,6 +22,29 @@ from buzz.transcriber.transcriber import (
 
 app_env = os.environ.copy()
 app_env['PATH'] = os.pathsep.join([os.path.join(APP_BASE_DIR, "_internal")] + [app_env['PATH']])
+
+
+def _downloaded_file_path(info: Any) -> Path:
+    """Return the actual file path reported by yt-dlp after downloading."""
+    candidates = []
+
+    if info is not None:
+        filepath = info.get("filepath")
+        if filepath:
+            candidates.append(filepath)
+
+        for download in info.get("requested_downloads") or []:
+            filepath = download.get("filepath")
+            if filepath:
+                candidates.append(filepath)
+
+    for candidate in candidates:
+        path = Path(candidate).resolve()
+        if path.is_file():
+            return path
+
+    reported_path = candidates[0] if candidates else "<no filepath reported>"
+    raise FileNotFoundError(f"yt-dlp output does not exist: {reported_path}")
 
 
 class FileTranscriber(QObject):
@@ -51,6 +74,17 @@ class FileTranscriber(QObject):
         for segment in segments:
             segment.text = segment.text.strip()
 
+        if self.transcription_task.identify_speakers:
+            segments = self._identify_speakers(segments)
+
+        # Move/delete the watched source file before announcing completion so
+        # the task carries the final file path when the transcription is saved.
+        if self.transcription_task.source == FileTranscriptionTask.Source.FOLDER_WATCH:
+            try:
+                self._handle_folder_watch()
+            except OSError:
+                logging.exception("Failed to move or delete folder watch source file")
+
         self.completed.emit(segments)
 
         for (
@@ -63,71 +97,73 @@ class FileTranscriber(QObject):
                 output_directory=self.transcription_task.output_directory,
                 model=self.transcription_task.transcription_options.model,
                 task=self.transcription_task.transcription_options.task,
+                display_name=self.transcription_task.display_name,
             )
 
             write_output(
                 path=default_path, segments=segments, output_format=output_format
             )
 
-        if self.transcription_task.source == FileTranscriptionTask.Source.FOLDER_WATCH:
-            self._handle_folder_watch()
+    def _identify_speakers(self, segments: List[Segment]) -> List[Segment]:
+        """Add automatic speaker labels before the transcription is exported."""
+        from buzz.transcriber.speaker_identifier import identify_speakers
+
+        logging.debug(
+            "Identifying speakers for %s", self.transcription_task.file_path
+        )
+
+        return identify_speakers(
+            file_path=self.transcription_task.file_path,
+            segments=segments,
+            language=self.transcription_task.transcription_options.language,
+            diarizer=self.transcription_task.speaker_diarizer,
+            num_speakers=self.transcription_task.speaker_count,
+            merge_speaker_sentences=self.transcription_task.merge_speaker_sentences,
+        )
 
     def _download_from_url(self) -> bool:
         cookiefile = os.getenv("BUZZ_DOWNLOAD_COOKIEFILE")
 
-        extract_options = {
-            "logger": logging.getLogger(),
-        }
-        if cookiefile:
-            extract_options["cookiefile"] = cookiefile
-
-        try:
-            with YoutubeDL(extract_options) as ydl_info:
-                info = ydl_info.extract_info(self.transcription_task.url, download=False)
-                video_title = info.get("title", "audio")
-        except Exception as exc:
-            logging.debug(f"Error extracting video info: {exc}")
-            video_title = "audio"
-
-        video_title = YoutubeDL.sanitize_info({"title": video_title})["title"]
-        for char in ['/', '\\', ':', '*', '?', '"', '<', '>', '|']:
-            video_title = video_title.replace(char, '_')
-
-        temp_dir = tempfile.mkdtemp()
-        temp_output_path = os.path.join(temp_dir, video_title)
-        wav_file = temp_output_path + ".wav"
-        wav_file = str(Path(wav_file).resolve())
+        temp_dir = Path(tempfile.mkdtemp()).resolve()
+        # Never derive a working path from the media title. In particular,
+        # yt-dlp normalizes trailing dots and spaces differently on Windows.
+        download_template = str(temp_dir / "source.%(ext)s")
+        wav_file = temp_dir / "audio.wav"
 
         options = {
             "format": "bestaudio/best",
             "progress_hooks": [self.on_download_progress],
-            "outtmpl": temp_output_path,
+            "outtmpl": download_template,
             "logger": logging.getLogger(),
         }
 
         if cookiefile:
             options["cookiefile"] = cookiefile
 
-        ydl = YoutubeDL(options)
-
         try:
             logging.debug(f"Downloading audio file from URL: {self.transcription_task.url}")
-            ydl.download([self.transcription_task.url])
+            with YoutubeDL(options) as ydl:
+                info = ydl.extract_info(self.transcription_task.url, download=True)
+            downloaded_file = _downloaded_file_path(info)
+            title = info.get("title")
+            if title:
+                self.transcription_task.display_name = title
         except Exception as exc:
-            logging.debug(f"Error downloading audio: {exc.msg}")
-            self.error.emit(exc.msg)
+            message = getattr(exc, "msg", str(exc))
+            logging.debug(f"Error downloading audio: {message}")
+            self.error.emit(message)
             return False
 
         cmd = [
             "ffmpeg",
             "-nostdin",
             "-threads", "0",
-            "-i", temp_output_path,
+            "-i", str(downloaded_file),
             "-ac", "1",
             "-ar", str(whisper_audio.SAMPLE_RATE),
             "-acodec", "pcm_s16le",
             "-loglevel", "panic",
-            wav_file
+            str(wav_file)
         ]
 
         if sys.platform == "win32":
@@ -144,11 +180,22 @@ class FileTranscriber(QObject):
         else:
             result = subprocess.run(cmd, capture_output=True)
 
-        if len(result.stderr):
-            logging.warning(f"Error processing downloaded audio. Error: {result.stderr.decode()}")
-            raise Exception(f"Error processing downloaded audio: {result.stderr.decode()}")
+        if result.returncode != 0:
+            error = result.stderr.decode("utf-8", errors="replace")
+            if not error:
+                error = f"ffmpeg exited with code {result.returncode}"
+            message = f"Error processing downloaded audio: {error}"
+            logging.warning(message)
+            self.error.emit(message)
+            return False
 
-        self.transcription_task.file_path = wav_file
+        if not wav_file.is_file():
+            message = f"FFmpeg output does not exist: {wav_file}"
+            logging.warning(message)
+            self.error.emit(message)
+            return False
+
+        self.transcription_task.file_path = str(wav_file)
         logging.debug(f"Downloaded audio to file: {self.transcription_task.file_path}")
         return True
 
@@ -157,21 +204,42 @@ class FileTranscriber(QObject):
             self.transcription_task.original_file_path
             or self.transcription_task.file_path
         )
-        if source_path and os.path.exists(source_path):
-            if self.transcription_task.delete_source_file:
-                os.remove(source_path)
-            else:
-                shutil.move(
-                    source_path,
-                    os.path.join(
-                        self.transcription_task.output_directory,
-                        os.path.basename(source_path),
-                    ),
-                )
+        if not source_path or not os.path.exists(source_path):
+            return
+
+        if self.transcription_task.delete_source_file:
+            os.remove(source_path)
+            return
+
+        destination = os.path.join(
+            self.transcription_task.output_directory,
+            os.path.basename(source_path),
+        )
+
+        # The output directory may be the input directory, in which case there
+        # is nothing to move.
+        if not os.path.exists(destination) or not os.path.samefile(
+            source_path, destination
+        ):
+            shutil.move(source_path, destination)
+
+        # Point the task at the new location so the transcription keeps a
+        # working path and the audio stays playable.
+        self.transcription_task.file_path = destination
+        self.transcription_task.original_file_path = destination
 
     def on_download_progress(self, data: dict):
-        if data["status"] == "downloading":
-            self.download_progress.emit(data["downloaded_bytes"] / data["total_bytes"])
+        if data.get("status") != "downloading":
+            return
+
+        # Segmented downloads (DASH, HLS) often report no exact size, only an
+        # estimate, and sometimes neither on the first fragments.
+        total = data.get("total_bytes") or data.get("total_bytes_estimate")
+        downloaded = data.get("downloaded_bytes")
+        if not total or downloaded is None:
+            return
+
+        self.download_progress.emit(min(downloaded / total, 1.0))
 
     @abstractmethod
     def transcribe(self) -> List[Segment]:

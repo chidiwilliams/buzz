@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 
 from buzz.db.entity.entity import Entity
 from buzz.model_loader import ModelType
+from buzz.paths import safe_filename_component
 from buzz.settings.settings import Settings
 from buzz.transcriber.transcriber import OutputFormat, Task, FileTranscriptionTask
 
@@ -32,6 +33,7 @@ class Transcription(Entity):
     url: str | None = None
     name: str | None = None
     notes: str | None = None
+    metadata: str = "[]"
 
     @property
     def id_as_uuid(self):
@@ -46,7 +48,9 @@ class Transcription(Entity):
         output_format: OutputFormat,
         output_directory: str | None = None,
     ):
-        input_file_name = os.path.splitext(os.path.basename(self.file))[0]
+        input_file_name = safe_filename_component(
+            self.name or os.path.splitext(os.path.basename(self.file))[0]
+        )
 
         date_time_now = datetime.datetime.now().strftime("%d-%b-%Y %H-%M-%S")
 

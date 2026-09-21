@@ -176,12 +176,20 @@ def get_expected_whisper_model_size(size: WhisperModelSize) -> Optional[int]:
     return WHISPER_MODEL_SIZES.get(size, None)
 
 class ModelType(enum.Enum):
-    WHISPER = "Whisper"
     WHISPER_CPP = "Whisper.cpp"
     HUGGING_FACE = "Hugging Face"
     FASTER_WHISPER = "Faster Whisper"
+    WHISPER = "OpenAI Whisper"
     OPEN_AI_WHISPER_API = "OpenAI Whisper API"
     FUNASR_API = "FunASR API"
+
+    @classmethod
+    def _missing_(cls, value):
+        # Migrate old stored values to new display names
+        legacy_map = {
+            "Whisper": cls.WHISPER,
+        }
+        return legacy_map.get(value)
 
     @property
     def supports_initial_prompt(self):
@@ -425,16 +433,21 @@ class TranscriptionModel:
         self,
         model_type: ModelType = ModelType.WHISPER,
         whisper_model_size: Optional[WhisperModelSize] = WhisperModelSize.TINY,
-        hugging_face_model_id: Optional[str] = ""
+        hugging_face_model_id: Optional[str] = "",
+        custom_model_id: Optional[str] = None,
     ):
         self.model_type = model_type
         self.whisper_model_size = whisper_model_size
         self.hugging_face_model_id = hugging_face_model_id
+        # Identifies which registered Whisper.cpp custom model this refers to when
+        # whisper_model_size is CUSTOM. None means the legacy single custom model,
+        # so objects persisted by older versions keep working unchanged.
+        self.custom_model_id = custom_model_id
 
     def __str__(self):
         match self.model_type:
             case ModelType.WHISPER:
-                return f"Whisper ({self.whisper_model_size})"
+                return f"OpenAI Whisper ({self.whisper_model_size})"
             case ModelType.WHISPER_CPP:
                 return f"Whisper.cpp ({self.whisper_model_size})"
             case ModelType.HUGGING_FACE:
@@ -515,9 +528,24 @@ class TranscriptionModel:
 
         if self.model_type == ModelType.WHISPER_CPP:
             if self.whisper_model_size == WhisperModelSize.CUSTOM:
-                # Custom models are stored as a single .bin file directly in model_root_dir
-                logging.debug("Deleting model file: %s", model_path)
-                os.remove(model_path)
+                from buzz.settings.whisper_cpp_custom_models import remove_custom_model
+
+                custom_model_id = getattr(self, "custom_model_id", None)
+                # Only delete the file if Buzz owns it (i.e. it lives inside the
+                # model root, either the legacy file or one downloaded by Buzz).
+                # A model the user registered from their own location is left in
+                # place; we just remove it from the registry.
+                buzz_owns_file = (
+                    model_path is not None
+                    and os.path.normcase(os.path.abspath(model_path)).startswith(
+                        os.path.normcase(os.path.abspath(model_root_dir))
+                    )
+                )
+                if buzz_owns_file and os.path.isfile(model_path):
+                    logging.debug("Deleting model file: %s", model_path)
+                    os.remove(model_path)
+                if custom_model_id:
+                    remove_custom_model(custom_model_id)
             else:
                 # Non-custom models are downloaded via huggingface_hub.
                 # Multiple models share the same repo directory, so we only delete
@@ -544,7 +572,10 @@ class TranscriptionModel:
 
     def get_local_model_path(self) -> Optional[str]:
         if self.model_type == ModelType.WHISPER_CPP:
-            file_path = get_whisper_cpp_file_path(size=self.whisper_model_size)
+            file_path = get_whisper_cpp_file_path(
+                size=self.whisper_model_size,
+                custom_model_id=getattr(self, "custom_model_id", None),
+            )
             if not file_path or not os.path.exists(file_path) or not os.path.isfile(file_path):
                 return None
             if self.whisper_model_size != WhisperModelSize.CUSTOM:
@@ -660,8 +691,26 @@ def get_whisper_cpp_model_names(
     return repo_id, model_name, coreml_name
 
 
-def get_whisper_cpp_file_path(size: WhisperModelSize) -> str:
+WHISPER_CPP_CUSTOM_MODELS_DIR = "custom"
+
+
+def get_whisper_cpp_custom_model_path(custom_model_id: str) -> str:
+    """Default download destination for a custom Whisper.cpp model file."""
+    return os.path.join(
+        model_root_dir, WHISPER_CPP_CUSTOM_MODELS_DIR, f"{custom_model_id}.bin"
+    )
+
+
+def get_whisper_cpp_file_path(
+    size: WhisperModelSize, custom_model_id: Optional[str] = None
+) -> str:
     if size == WhisperModelSize.CUSTOM:
+        if custom_model_id:
+            from buzz.settings.whisper_cpp_custom_models import get_custom_model
+
+            model = get_custom_model(model_root_dir, custom_model_id)
+            return model.path if model is not None else ""
+        # No id: the legacy single custom model at its historical fixed path.
         return os.path.join(model_root_dir, f"ggml-model-whisper-custom.bin")
 
     repo_id, model_name, _ = get_whisper_cpp_model_names(
@@ -863,7 +912,9 @@ class ModelDownloader(QRunnable):
         if self.custom_model_url:
             url = self.custom_model_url
             file_path = get_whisper_cpp_file_path(
-                size=self.model.whisper_model_size)
+                size=self.model.whisper_model_size,
+                custom_model_id=getattr(self.model, "custom_model_id", None),
+            )
             self.download_model_to_path(url=url, file_path=file_path)
             return
 

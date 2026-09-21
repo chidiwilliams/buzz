@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 import tempfile
 import threading
 from typing import List
@@ -21,7 +22,13 @@ from buzz.locale import _
 from buzz.db.entity.transcription import Transcription
 from buzz.db.service.transcription_service import TranscriptionService
 from buzz.model_loader import TranscriptionModel, ModelType, WhisperModelSize
-from buzz.transcriber.transcriber import Task, OutputFormat
+from buzz.transcriber.transcriber import (
+    FileTranscriptionOptions,
+    FileTranscriptionTask,
+    OutputFormat,
+    Task,
+    TranscriptionOptions,
+)
 from buzz.widgets.main_window import MainWindow
 from buzz.widgets.preferences_dialog.models.file_transcription_preferences import FileTranscriptionPreferences
 from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
@@ -517,3 +524,47 @@ class TestMainWindow:
     def _get_toolbar_action(window: MainWindow, text: str):
         toolbar: QToolBar = window.findChild(QToolBar)
         return [action for action in toolbar.actions() if action.text() == text][0]
+
+
+class TestMainWindowFolderWatch:
+    def test_should_store_new_file_path_after_folder_watch_move(
+        self, qtbot: QtBot, db, transcription_service, tmp_path
+    ):
+        """The transcription must point at the moved file, so audio still plays."""
+        window = MainWindow(transcription_service)
+        qtbot.add_widget(window)
+
+        input_directory = tmp_path / "input"
+        output_directory = tmp_path / "output"
+        input_directory.mkdir()
+        output_directory.mkdir()
+
+        input_path = input_directory / "whisper-french.mp3"
+        shutil.copy(get_test_asset("whisper-french.mp3"), input_path)
+
+        task = FileTranscriptionTask(
+            transcription_options=TranscriptionOptions(),
+            file_transcription_options=FileTranscriptionOptions(
+                file_paths=[str(input_path)]
+            ),
+            model_path="",
+            file_path=str(input_path),
+            original_file_path=str(input_path),
+            output_directory=str(output_directory),
+            source=FileTranscriptionTask.Source.FOLDER_WATCH,
+        )
+        transcription_service.create_transcription(task)
+
+        # The transcriber moves the file and updates the task before completing.
+        moved_path = output_directory / "whisper-french.mp3"
+        shutil.move(input_path, moved_path)
+        task.file_path = str(moved_path)
+
+        window.on_task_completed(task, [])
+
+        transcription = transcription_service.transcription_dao.find_by_id(
+            str(task.uid)
+        )
+        assert transcription.file == str(moved_path)
+
+        window.close()

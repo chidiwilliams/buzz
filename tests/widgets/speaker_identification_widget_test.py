@@ -15,6 +15,7 @@ if not (platform.system() == "Darwin" and platform.machine() == "x86_64") and pl
         SpeakerIdentificationWidget,
         IdentificationWorker,
         process_in_batches,
+        MAX_PREVIEW_DURATION_MS,
     )
 from tests.audio import test_audio_path
 
@@ -450,6 +451,33 @@ class TestSpeakerIdentificationWidget:
         assert waveform is fake_waveform
         mock_decode.assert_called_once_with(transcription.file)
 
+    def test_get_transcript_data_without_a_stored_transcription(self):
+        """The worker runs on passed-in segments, e.g. for folder watch tasks."""
+        import numpy as np
+        from buzz.transcriber.transcriber import Segment
+
+        segments = [Segment(0, 100, "Bien"), Segment(100, 200, "venue")]
+        # Language is None when the transcription options auto-detect it
+        worker = IdentificationWorker(
+            transcription=None,
+            transcription_service=None,
+            segments=segments,
+            file_path="audio.mp3",
+            language=None,
+        )
+
+        fake_waveform = np.zeros(10, dtype=np.float32)
+        with patch(
+            "buzz.widgets.transcription_viewer.speaker_identification_widget.faster_whisper.decode_audio",
+            return_value=fake_waveform,
+        ) as mock_decode:
+            language, full_transcript, waveform = worker._get_transcript_data()
+
+        assert language == "en"
+        assert full_transcript == "Bien venue"
+        assert waveform is fake_waveform
+        mock_decode.assert_called_once_with("audio.mp3")
+
     def test_setup_device_force_cpu(self, transcription, transcription_service, monkeypatch):
         """_setup_device honours BUZZ_FORCE_CPU regardless of CUDA availability."""
         import torch
@@ -573,6 +601,18 @@ class TestSpeakerIdentificationWidget:
 
         widget.close()
 
+    def test_player_is_created_only_when_a_sample_is_played(self, qtbot: QtBot, transcription, transcription_service):
+        """Decoding the file is deferred until the first Play sample click."""
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+
+        assert widget.player is None
+
+        widget.close()
+
     def test_on_speaker_preview_plays_segment(self, qtbot: QtBot, transcription, transcription_service):
         """on_speaker_preview seeks and plays for a matching speaker."""
         widget = SpeakerIdentificationWidget(
@@ -585,15 +625,97 @@ class TestSpeakerIdentificationWidget:
             {'speaker': 'Speaker 0', 'start_time': 1500, 'end_time': 2000, 'text': 'Hi'},
         ]
 
-        with patch.object(widget.player, 'setPosition') as mock_set, \
-             patch.object(widget.player, 'play') as mock_play:
+        player = MagicMock()
+        widget.player = player
+        widget.on_speaker_preview('Speaker 0')
+
+        player.seek.assert_called_once_with(1500)
+        player.play.assert_called_once()
+
+        # The sample stops at the end of the segment, not after its end timestamp
+        assert widget.player_timer is not None
+        assert widget.player_timer.interval() == 500
+
+        widget.player_timer.stop()
+        widget.close()
+
+    def test_on_speaker_preview_caps_long_samples(self, qtbot: QtBot, transcription, transcription_service):
+        """A long segment is only previewed for the maximum sample length."""
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+
+        widget.identification_result = [
+            {'speaker': 'Speaker 0', 'start_time': 1000, 'end_time': 120000, 'text': 'Hi'},
+        ]
+
+        widget.player = MagicMock()
+        widget.on_speaker_preview('Speaker 0')
+
+        assert widget.player_timer.interval() == MAX_PREVIEW_DURATION_MS
+
+        widget.player_timer.stop()
+        widget.close()
+
+    def test_on_speaker_preview_stops_previous_sample(self, qtbot: QtBot, transcription, transcription_service):
+        """Starting a new sample stops the one that is still playing."""
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+
+        widget.identification_result = [
+            {'speaker': 'Speaker 0', 'start_time': 0, 'end_time': 5000, 'text': 'Hi'},
+            {'speaker': 'Speaker 1', 'start_time': 5000, 'end_time': 9000, 'text': 'Hello'},
+        ]
+
+        player = MagicMock()
+        widget.player = player
+        widget.on_speaker_preview('Speaker 0')
+        widget.on_speaker_preview('Speaker 1')
+
+        # The first sample is stopped before the second one starts
+        assert player.stop.call_count == 2
+        assert player.play.call_count == 2
+
+        widget.player_timer.stop()
+        widget.close()
+
+    def test_on_speaker_preview_without_a_usable_player(self, qtbot: QtBot, transcription, transcription_service):
+        """Nothing is scheduled when the file cannot be opened for playback."""
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+
+        widget.identification_result = [
+            {'speaker': 'Speaker 0', 'start_time': 0, 'end_time': 1000, 'text': 'Hi'},
+        ]
+
+        with patch.object(widget, '_get_audio_player', return_value=None):
             widget.on_speaker_preview('Speaker 0')
 
-            mock_set.assert_called_once_with(1500)
-            mock_play.assert_called_once()
+        assert widget.player_timer is None
 
-        assert widget.player_timer is not None
-        widget.player_timer.stop()
+        widget.close()
+
+    def test_get_audio_player_returns_none_for_a_missing_file(self, qtbot: QtBot, transcription, transcription_service):
+        """A transcription whose audio file is gone cannot be previewed."""
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+
+        widget.transcription.file = "does-not-exist.mp3"
+
+        assert widget._get_audio_player() is None
+        assert widget.player is None
+
         widget.close()
 
     def test_on_speaker_preview_no_matching_records(self, qtbot: QtBot, transcription, transcription_service):
@@ -608,9 +730,9 @@ class TestSpeakerIdentificationWidget:
             {'speaker': 'Speaker 0', 'start_time': 0, 'end_time': 1000, 'text': 'Hi'},
         ]
 
-        with patch.object(widget.player, 'play') as mock_play:
+        with patch.object(widget, '_get_audio_player') as mock_get_player:
             widget.on_speaker_preview('Speaker 99')
-            mock_play.assert_not_called()
+            mock_get_player.assert_not_called()
 
         widget.close()
 

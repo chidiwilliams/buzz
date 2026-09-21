@@ -4,10 +4,13 @@ Shared helpers for installing Python packages at runtime via pip.
 This module centralises the logic needed to run ``pip`` reliably across the
 environments Buzz ships in: PyInstaller frozen bundles, Snap/Flatpak sandboxes,
 uv/virtualenv installs and plain system Python. It is used by the plugin system
-to install plugin-declared dependencies, and is intended to be the single source
-of truth for runtime pip handling (the CUDA installer on the ``unbundle-cuda``
-branch contains the original copy of this logic and should be unified with this
-module when that branch merges).
+to install plugin-declared dependencies.
+
+Note: the CUDA installer (``buzz/cuda_manager.py``) no longer shares this code.
+It installs into a private venv it creates itself, because neither pip nor
+ensurepip exists in the snap's Python, which ``get_pip_cmd`` below cannot
+recover from — plugin dependency installs hit the same wall there and would
+benefit from the same treatment.
 """
 
 import logging
