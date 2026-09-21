@@ -21,8 +21,7 @@ except ImportError:
 
 import faster_whisper
 import torch
-from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
-from PyQt6.QtCore import Qt, QThread, QObject, pyqtSignal, QUrl, QTimer
+from PyQt6.QtCore import Qt, QThread, QObject, pyqtSignal, QTimer
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import (
     QWidget,
@@ -46,10 +45,15 @@ from buzz.db.entity.transcription import Transcription
 from buzz.db.service.transcription_service import TranscriptionService
 from buzz.paths import file_path_as_title
 from buzz.settings.settings import Settings
+from buzz.sounddevice_player import AudioFilePlayer
 from buzz.widgets.line_edit import LineEdit
 from buzz.transcriber.transcriber import Segment
 from buzz.transcriber.speaker_identifier import build_speaker_segments
 
+
+
+# Longest speaker sample played by the "Play sample" button
+MAX_PREVIEW_DURATION_MS = 10 * 1000
 
 
 def process_in_batches(
@@ -695,12 +699,34 @@ class SpeakerIdentificationWidget(QWidget):
         layout.addRow(self.save_button)
 
     def _setup_audio_player(self) -> None:
-        url = QUrl.fromLocalFile(self.transcription.file)
-        self.player = QMediaPlayer()
-        self.audio_output = QAudioOutput()
-        self.player.setAudioOutput(self.audio_output)
-        self.player.setSource(url)
+        # Created on first playback: decoding the file takes a moment and the
+        # dialog is often closed without any sample being played.
+        self.player: Optional[AudioFilePlayer] = None
         self.player_timer = None
+
+    def _get_audio_player(self) -> Optional["AudioFilePlayer"]:
+        """Returns the sample player, creating it on first use, or None if the file cannot be played."""
+        if self.player is not None:
+            return self.player
+
+        if not os.path.isfile(self.transcription.file):
+            logging.warning(
+                "Speaker identification: cannot play sample, file not found %s",
+                self.transcription.file,
+            )
+            return None
+
+        player = AudioFilePlayer(self.transcription.file)
+        if not player.ready:
+            player.close()
+            logging.error(
+                "Speaker identification: could not open %s for playback",
+                self.transcription.file,
+            )
+            return None
+
+        self.player = player
+        return self.player
 
     def on_identify_button_clicked(self):
         self.step_1_button.setEnabled(False)
@@ -841,24 +867,40 @@ class SpeakerIdentificationWidget(QWidget):
         self.needs_layout_update = True
 
     def on_speaker_preview(self, speaker_id):
-        if self.player_timer:
-            self.player_timer.stop()
+        self._stop_playback()
 
         speaker_records = [record for record in self.identification_result if record['speaker'] == speaker_id]
 
-        if speaker_records:
-            random_record = random.choice(speaker_records)
+        if not speaker_records:
+            return
 
-            start_time = random_record['start_time']
-            end_time = random_record['end_time']
+        player = self._get_audio_player()
+        if player is None:
+            return
 
-            self.player.setPosition(int(start_time))
-            self.player.play()
+        random_record = random.choice(speaker_records)
 
-            self.player_timer = QTimer(self)
-            self.player_timer.setSingleShot(True)
-            self.player_timer.timeout.connect(self.player.stop)
-            self.player_timer.start(min(end_time, 10 * 1000))  # 10 seconds
+        start_time = int(random_record['start_time'])
+        end_time = int(random_record['end_time'])
+        # Stop at the end of the sampled segment, capped so a long monologue
+        # does not keep playing after the button was clicked.
+        duration = min(max(end_time - start_time, 0), MAX_PREVIEW_DURATION_MS)
+        if duration <= 0:
+            return
+
+        player.seek(start_time)
+        player.play()
+
+        self.player_timer = QTimer(self)
+        self.player_timer.setSingleShot(True)
+        self.player_timer.timeout.connect(self._stop_playback)
+        self.player_timer.start(duration)
+
+    def _stop_playback(self) -> None:
+        if self.player_timer:
+            self.player_timer.stop()
+        if self.player is not None:
+            self.player.stop()
 
     def on_save_button_clicked(self):
         speaker_names = []
@@ -892,10 +934,7 @@ class SpeakerIdentificationWidget(QWidget):
         if self.transcriptions_updated_signal:
             self.transcriptions_updated_signal.emit(new_transcript_id)
 
-        self.player.stop()
-
-        if self.player_timer:
-            self.player_timer.stop()
+        self._stop_playback()
 
         self.close()
 
@@ -911,10 +950,11 @@ class SpeakerIdentificationWidget(QWidget):
     def closeEvent(self, event):
         self.hide()
 
-        # Stop media player
-        self.player.stop()
-        if self.player_timer:
-            self.player_timer.stop()
+        # Stop playback and release the decoded audio
+        self._stop_playback()
+        if self.player is not None:
+            self.player.close()
+            self.player = None
 
         # Clean up thread if running
         self._cleanup_thread()

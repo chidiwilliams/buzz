@@ -20,6 +20,8 @@ import numpy as np
 from buzz.transcriber.cuda_device import cuda_works
 import sounddevice
 from sounddevice import PortAudioError
+
+from buzz.audio_devices import registered_stream
 from openai import OpenAI
 from PyQt6.QtCore import QObject, pyqtSignal
 
@@ -102,13 +104,14 @@ class RecordingTranscriber(QObject):
         )
 
         try:
-            with self.sounddevice.InputStream(
+            stream = self.sounddevice.InputStream(
                 samplerate=self.sample_rate,
                 device=self.input_device_index,
                 dtype="float32",
                 channels=1,
                 callback=self.stream_callback,
-            ):
+            )
+            with stream, registered_stream(stream):
                 while self.is_running:
                     if self.queue.size >= self.n_batch_samples:
                         self.mutex.acquire()
