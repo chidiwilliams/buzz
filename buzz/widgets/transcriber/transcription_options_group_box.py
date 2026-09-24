@@ -170,6 +170,21 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         model_type = self.transcription_options.model.model_type
         whisper_model_size = self.transcription_options.model.whisper_model_size
 
+        if not model_type.supports_translation:
+            self.transcription_options.task = Task.TRANSCRIBE
+            self.tasks_combo_box.setCurrentIndex(
+                self.tasks_combo_box.tasks.index(Task.TRANSCRIBE)
+            )
+        self.tasks_combo_box.setEnabled(model_type.supports_translation)
+
+        initial_prompt_text_edit = (
+            self.advanced_settings_dialog.initial_prompt_text_edit
+        )
+        if not model_type.supports_initial_prompt:
+            self.transcription_options.initial_prompt = ""
+            initial_prompt_text_edit.clear()
+        initial_prompt_text_edit.setEnabled(model_type.supports_initial_prompt)
+
         if (model_type == ModelType.HUGGING_FACE
             or (whisper_model_size == WhisperModelSize.CUSTOM
                 and model_type == ModelType.FASTER_WHISPER)):

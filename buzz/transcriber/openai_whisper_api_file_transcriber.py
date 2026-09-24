@@ -11,7 +11,9 @@ from typing import Optional, List
 from PyQt6.QtCore import QObject
 from openai import OpenAI
 
+from buzz.model_loader import ModelType
 from buzz.settings.settings import Settings
+from buzz.transcriber.audio_api import load_audio_api_config
 from buzz.transcriber.file_transcriber import FileTranscriber, app_env
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment, Task
 
@@ -39,21 +41,35 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
     def __init__(self, task: FileTranscriptionTask, parent: Optional["QObject"] = None):
         super().__init__(task=task, parent=parent)
         settings = Settings()
-        custom_openai_base_url = settings.value(
-            key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value=""
+        self.model_type = task.transcription_options.model.model_type
+        api_model_type = (
+            ModelType.FUNASR_API
+            if self.model_type == ModelType.FUNASR_API
+            else ModelType.OPEN_AI_WHISPER_API
+        )
+        self.api_config = load_audio_api_config(
+            model_type=api_model_type,
+            settings=settings,
+            openai_access_token=(
+                self.transcription_task.transcription_options.openai_access_token
+            ),
         )
         self.task = task.transcription_options.task
         self.openai_client = OpenAI(
-            api_key=self.transcription_task.transcription_options.openai_access_token,
-            base_url=custom_openai_base_url if custom_openai_base_url else None,
-            max_retries=0
+            api_key=self.api_config.api_key,
+            base_url=self.api_config.base_url,
+            max_retries=0,
         )
-        self.whisper_api_model = settings.value(
-            key=Settings.Key.OPENAI_API_MODEL, default_value="whisper-1"
+        self.whisper_api_model = self.api_config.model
+        self.word_level_timings = (
+            self.transcription_task.transcription_options.word_level_timings
+            and self.model_type != ModelType.FUNASR_API
         )
-        self.word_level_timings = self.transcription_task.transcription_options.word_level_timings
-        logging.debug("Will use whisper API on %s, %s",
-                      custom_openai_base_url, self.whisper_api_model)
+        logging.debug(
+            "Will use audio API on %s, %s",
+            self.api_config.base_url,
+            self.whisper_api_model,
+        )
 
     def transcribe(self) -> List[Segment]:
         logging.debug(
@@ -199,10 +215,14 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
                 "model": self.whisper_api_model,
                 "file": file,
                 "response_format": response_format,
-                "prompt": self.transcription_task.transcription_options.initial_prompt,
             }
 
-            if self.word_level_timings:
+            if self.api_config.supports_prompt:
+                options["prompt"] = (
+                    self.transcription_task.transcription_options.initial_prompt
+                )
+
+            if self.word_level_timings and self.model_type != ModelType.FUNASR_API:
                 options["timestamp_granularities"] = ["word"]
 
             transcript = (
@@ -210,7 +230,10 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
                     **options,
                     language=self.transcription_task.transcription_options.language,
                 )
-                if self.transcription_task.transcription_options.task == Task.TRANSCRIBE
+                if (
+                    self.transcription_task.transcription_options.task == Task.TRANSCRIBE
+                    or not self.api_config.supports_translation
+                )
                 else self.openai_client.audio.translations.create(**options)
             )
 
@@ -220,11 +243,11 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
             if words is None and "words" in transcript.model_extra:
                 words = transcript.model_extra["words"]
 
-            if segments is None:
+            if not segments:
                 if "segments" in transcript.model_extra:
                     segments = transcript.model_extra["segments"]
-                else:
-                    # gpt-4o models return only text without segments/timestamps
+                if not segments:
+                    # Some APIs return only text or an empty segment list.
                     segments = [{"text": transcript.text, "start": 0, "end": 0, "words": words}]
 
             result_segments = []

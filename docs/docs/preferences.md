@@ -15,6 +15,24 @@ Open the Preferences window from the Menu bar, or click `Ctrl/Cmd + ,`.
 
 **Reduce GPU RAM** - Will slightly compressed model versions for Huggingface, Faster Whisper and Whisper.cpp transcriptions to reduce required GPU memory. Same as `BUZZ_REDUCE_GPU_MEMORY` advanced preference.
 
+### FunASR API preferences
+
+Buzz can use a separately running [FunASR](https://github.com/modelscope/FunASR)
+server for file imports and live recording. Install the server dependencies
+outside Buzz, then start the default SenseVoice backend:
+
+```bash
+pip install torch torchaudio
+pip install funasr vllm fastapi uvicorn python-multipart
+funasr-server --model sensevoice --device cuda
+```
+
+Use `--device cpu` when CUDA is unavailable. The **FunASR API base URL**
+defaults to `http://localhost:8000/v1`, and **FunASR API model** defaults to
+`sensevoice`. FunASR API is transcription-only, so Buzz disables the
+translation task and initial prompt for this model type. The saved OpenAI API
+key is never sent to the FunASR server.
+
 ### Default export file name
 
 Sets the default export file name for file transcriptions. For
@@ -64,7 +82,7 @@ file (use the link from the "download" button on Huggingface). Each custom model
 name in the model list so you can switch between them. See
 [Custom Whisper.cpp models](./custom_whisper_cpp_models.md) for details. This feature is available since 1.4.6.
 
-To improve transcription speed and memory usage you can select a quantized version of some 
+To improve transcription speed and memory usage you can select a quantized version of some
 larger model. For example `q_5` version. Whisper.cpp base models in different quantizations are [available here](https://huggingface.co/ggerganov/whisper.cpp/tree/main). See also [custom models](https://github.com/chidiwilliams/buzz/discussions/866) discussion page for custom models in different languages.
 
 [![Model preferences](https://raw.githubusercontent.com/chidiwilliams/buzz/main/share/screenshots/buzz-3.2-model-preferences.png)](https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe "Model preferences")
@@ -105,7 +123,13 @@ combined to produce the final answer.
 
 **BUZZ_TRANSLATION_API_KEY** - Api key of OpenAI compatible API to use for translation.
 
-**BUZZ_MODEL_ROOT** - Root directory to store model files. You may also want to set `HF_HOME` to the same folder as some libraries used in Buzz download their models independently. 
+**BUZZ_FUNASR_BASE_URL** - Override the FunASR OpenAI-compatible base URL. Default is `http://localhost:8000/v1`.
+
+**BUZZ_FUNASR_MODEL** - Override the FunASR server model alias. Default is `sensevoice`.
+
+**BUZZ_FUNASR_API_KEY** - Optional API key for a protected FunASR endpoint. When unset, Buzz uses a non-secret placeholder and never falls back to the saved OpenAI API key.
+
+**BUZZ_MODEL_ROOT** - Root directory to store model files. You may also want to set `HF_HOME` to the same folder as some libraries used in Buzz download their models independently.
 Defaults to [user_cache_dir](https://pypi.org/project/platformdirs/).
 
 **BUZZ_FAVORITE_LANGUAGES** - Coma separated list of supported language codes to show on top of language list.
@@ -124,7 +148,7 @@ Defaults to [user_cache_dir](https://pypi.org/project/platformdirs/).
 
 **BUZZ_UPLOAD_URL** - Live recording transcripts and translations can be uploaded to a server for display on the web. Set this variable to the desired upload url. You can use [buzz-transcription-server](https://github.com/raivisdejus/buzz-transcription-server) as a server. Buzz will upload the following `json` via `POST` requests - `{"kind": "transcript", "text": "Sample transcript"}` or `{"kind": "translation", "text": "Sample translation"}`. Example usage `BUZZ_UPLOAD_URL=http://localhost:5000/upload`. 
 
-**HF_ENDPOINT** - To speed up downloads in China set `HF_ENDPOINT=https://hf-mirror.com` 
+**HF_ENDPOINT** - To speed up downloads in China set `HF_ENDPOINT=https://hf-mirror.com`
 
 Example of data collected by telemetry:
 ```

@@ -1000,6 +1000,29 @@ class TestOnModelLoaded:
                 widget.on_model_loaded("")
                 mock_err.assert_called_once_with("")
 
+    @pytest.mark.timeout(60)
+    def test_funasr_empty_model_path_starts_transcriber(self, qtbot):
+        from buzz.model_loader import TranscriptionModel, ModelType
+        from buzz.transcriber.transcriber import TranscriptionOptions
+
+        with _widget_ctx(qtbot) as widget:
+            widget.transcription_options = TranscriptionOptions(
+                model=TranscriptionModel(model_type=ModelType.FUNASR_API)
+            )
+            with patch.object(widget, "on_transcriber_error"), patch(
+                "buzz.widgets.recording_transcriber_widget.RecordingTranscriber"
+            ) as mock_transcriber, patch(
+                "buzz.widgets.recording_transcriber_widget.QThread"
+            ):
+                widget.on_model_loaded("")
+
+            mock_transcriber.assert_called_once_with(
+                input_device_index=widget.selected_device_id,
+                sample_rate=widget.device_sample_rate,
+                transcription_options=widget.transcription_options,
+                model_path="",
+                sounddevice=widget.sounddevice,
+            )
 
 
 class TestOnTranscriberError:

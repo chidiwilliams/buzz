@@ -384,6 +384,43 @@ class TestModelBackends:
 
         assert received == ["api text"]
 
+    def test_funasr_api_uses_dedicated_config_and_transcription(self, monkeypatch):
+        monkeypatch.setenv("BUZZ_FUNASR_BASE_URL", "http://127.0.0.1:8123/v1")
+        monkeypatch.setenv("BUZZ_FUNASR_MODEL", "sensevoice-test")
+        monkeypatch.delenv("BUZZ_FUNASR_API_KEY", raising=False)
+
+        t = make_transcriber(model_type=ModelType.FUNASR_API)
+        t.transcription_options.openai_access_token = "sk-must-not-leak"
+        t.transcription_options.initial_prompt = "must not be sent"
+        t.transcription_options.task = Task.TRANSLATE
+        samples = np.ones(t.n_batch_samples, dtype=np.float32)
+
+        transcript = MagicMock()
+        transcript.model_extra = {}
+        transcript.text = "funasr live text"
+
+        with patch("buzz.transcriber.recording_transcriber.torch") as mock_torch, patch(
+            "buzz.transcriber.recording_transcriber.OpenAI"
+        ) as mock_openai, patch(
+            "buzz.transcriber.recording_transcriber.TransformersTranscriber"
+        ):
+            mock_torch.cuda.is_available.return_value = False
+            client = mock_openai.return_value
+            client.audio.transcriptions.create.return_value = transcript
+
+            received = _drive_one_cycle(t, samples)
+
+        assert received == ["funasr live text"]
+        mock_openai.assert_called_once_with(
+            api_key="not-needed",
+            base_url="http://127.0.0.1:8123/v1",
+            max_retries=0,
+        )
+        options = client.audio.transcriptions.create.call_args.kwargs
+        assert options["model"] == "sensevoice-test"
+        assert "prompt" not in options
+        client.audio.translations.create.assert_not_called()
+
     def test_hugging_face_returns_text(self):
         t = make_transcriber(model_type=ModelType.HUGGING_FACE)
         samples = np.ones(t.n_batch_samples, dtype=np.float32)
