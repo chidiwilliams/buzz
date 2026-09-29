@@ -82,7 +82,7 @@ python -m buzz
 
 **GPU support for PyPI**
 
-To have GPU support for Nvidia GPUS on Windows, for PyPI installed version ensure, CUDA support for [torch](https://pytorch.org/get-started/locally/) 
+To have GPU support for Nvidia GPUs on Windows, for PyPI installed version ensure, CUDA support for [torch](https://pytorch.org/get-started/locally/) 
 
 ```
 pip3 install -U torch==2.8.0+cu129 torchaudio==2.8.0+cu129 --index-url https://download.pytorch.org/whl/cu129
@@ -95,7 +95,7 @@ For info on how to get latest development version with latest features and bug f
 
 ### Nvidia CUDA GPU acceleration
 
-If you are on Buzz version `1.4.6` or later and have a Nvidia GPU, go to `Help -> About Buzz` and install CUDA Acceleration.
+If you are on Buzz version `1.4.6` (once it is released) or later and have a Nvidia GPU, go to `Help -> About Buzz` and install CUDA Acceleration.
 
 ### Support Buzz
 
