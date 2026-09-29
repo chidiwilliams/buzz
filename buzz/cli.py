@@ -106,11 +106,13 @@ def _add_command_options(parser: QCommandLineParser):
         ["identify-speakers"], "Identify speakers in the audio."
     )
     speaker_count_option = QCommandLineOption(
-        ["speaker-count"], "Number of speakers in the audio.", "count"
+        ["speaker-count"],
+        "Number of speakers in the audio. Use only with --identify-speakers.",
+        "count",
     )
     speaker_diarizer_option = QCommandLineOption(
         ["speaker-diarizer"],
-        f"Speaker diarizer algorithm. Allowed: {join_values(CommandLineDiarizer)}. Default: {DEFAULT_DIARIZER}.",
+        f"Speaker diarizer algorithm. Allowed: {join_values(CommandLineDiarizer)}. Default: {DEFAULT_DIARIZER}. Use only with --identify-speakers.",
         "diarizer",
         DEFAULT_DIARIZER,
     )
@@ -292,6 +294,10 @@ def _handle_add_command(app: Application, parser: QCommandLineParser):
     speaker_count_str = parser.value(opts["speaker_count"])
     speaker_count = None
     if speaker_count_str:
+        if not parser.isSet(opts["identify_speakers"]):
+            raise CommandLineError(
+                "--speaker-count can only be used when --identify-speakers is set"
+            )
         try:
             speaker_count = int(speaker_count_str)
         except ValueError:
