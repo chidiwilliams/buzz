@@ -36,6 +36,14 @@ class CommandLineModelType(enum.Enum):
     OPEN_AI_WHISPER_API = "openaiapi"
 
 
+class CommandLineDiarizer(enum.Enum):
+    MSDD = "msdd"
+    SORTFORMER = "sortformer"
+
+
+DEFAULT_DIARIZER = CommandLineDiarizer.MSDD.value
+
+
 def parse_command_line(app: Application):
     parser = QCommandLineParser()
     try:
@@ -94,6 +102,18 @@ def _add_command_options(parser: QCommandLineParser):
     extract_speech_option = QCommandLineOption(
         ["e", "extract-speech"], "Extract speech from audio before transcribing."
     )
+    identify_speakers_option = QCommandLineOption(
+        ["identify-speakers"], "Identify speakers in the audio."
+    )
+    speaker_count_option = QCommandLineOption(
+        ["speaker-count"], "Number of speakers in the audio.", "count"
+    )
+    speaker_diarizer_option = QCommandLineOption(
+        ["speaker-diarizer"],
+        f"Speaker diarizer algorithm. Allowed: {join_values(CommandLineDiarizer)}. Default: {DEFAULT_DIARIZER}.",
+        "diarizer",
+        DEFAULT_DIARIZER,
+    )
     open_ai_access_token_option = QCommandLineOption(
         "openai-token",
         f"OpenAI access token. Use only when --model-type is {CommandLineModelType.OPEN_AI_WHISPER_API.value}. Defaults to your previously saved access token, if one exists.",
@@ -118,6 +138,9 @@ def _add_command_options(parser: QCommandLineParser):
             initial_prompt_option,
             word_timestamp_option,
             extract_speech_option,
+            identify_speakers_option,
+            speaker_count_option,
+            speaker_diarizer_option,
             open_ai_access_token_option,
             output_directory_option,
             srt_option,
@@ -137,6 +160,9 @@ def _add_command_options(parser: QCommandLineParser):
         "initial_prompt": initial_prompt_option,
         "word_timestamps": word_timestamp_option,
         "extract_speech": extract_speech_option,
+        "identify_speakers": identify_speakers_option,
+        "speaker_count": speaker_count_option,
+        "speaker_diarizer": speaker_diarizer_option,
         "openai_token": open_ai_access_token_option,
         "output_directory": output_directory_option,
         "srt": srt_option,
@@ -176,6 +202,9 @@ def _add_transcription_tasks(
     transcription_options: TranscriptionOptions,
     output_formats: typing.Set[OutputFormat],
     output_directory: str = "",
+    identify_speakers: bool = False,
+    speaker_count: typing.Optional[int] = None,
+    speaker_diarizer: str = DEFAULT_DIARIZER,
 ):
     for file_path in file_paths:
         path_is_url = is_url(file_path)
@@ -194,6 +223,9 @@ def _add_transcription_tasks(
             transcription_options=transcription_options,
             file_transcription_options=file_transcription_options,
             output_directory=output_directory if output_directory != "" else None,
+            identify_speakers=identify_speakers,
+            speaker_count=speaker_count,
+            speaker_diarizer=speaker_diarizer,
         )
         app.add_task(transcription_task, quit_on_complete=True)
 
@@ -257,6 +289,16 @@ def _handle_add_command(app: Application, parser: QCommandLineParser):
         openai_access_token=openai_access_token,
     )
 
+    speaker_count_str = parser.value(opts["speaker_count"])
+    speaker_count = None
+    if speaker_count_str:
+        try:
+            speaker_count = int(speaker_count_str)
+        except ValueError:
+            raise CommandLineError("--speaker-count must be an integer")
+
+    diarizer = parse_enum_option(opts["speaker_diarizer"], parser, CommandLineDiarizer).value
+
     _add_transcription_tasks(
         app,
         file_paths,
@@ -264,6 +306,9 @@ def _handle_add_command(app: Application, parser: QCommandLineParser):
         transcription_options,
         output_formats,
         parser.value(opts["output_directory"]),
+        identify_speakers=parser.isSet(opts["identify_speakers"]),
+        speaker_count=speaker_count,
+        speaker_diarizer=diarizer,
     )
 
     if parser.isSet(opts["hide_gui"]):
