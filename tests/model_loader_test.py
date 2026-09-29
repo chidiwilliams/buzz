@@ -178,6 +178,11 @@ class TestModelType:
         assert ModelType.OPEN_AI_WHISPER_API.supports_initial_prompt is True
         assert ModelType.FASTER_WHISPER.supports_initial_prompt is True
         assert ModelType.HUGGING_FACE.supports_initial_prompt is True
+        assert ModelType.FUNASR_API.supports_initial_prompt is False
+
+    def test_supports_translation(self):
+        assert ModelType.OPEN_AI_WHISPER_API.supports_translation is True
+        assert ModelType.FUNASR_API.supports_translation is False
 
     @pytest.mark.parametrize(
         "platform_system,platform_machine,expected_faster_whisper",
@@ -195,6 +200,7 @@ class TestModelType:
             assert ModelType.WHISPER.is_available() is True
             assert ModelType.HUGGING_FACE.is_available() is True
             assert ModelType.OPEN_AI_WHISPER_API.is_available() is True
+            assert ModelType.FUNASR_API.is_available() is True
             assert ModelType.WHISPER_CPP.is_available() is True
 
             # Faster Whisper depends on platform
@@ -206,6 +212,7 @@ class TestModelType:
         assert ModelType.FASTER_WHISPER.is_manually_downloadable() is True
         assert ModelType.HUGGING_FACE.is_manually_downloadable() is False
         assert ModelType.OPEN_AI_WHISPER_API.is_manually_downloadable() is False
+        assert ModelType.FUNASR_API.is_manually_downloadable() is False
 
 
 class TestTranscriptionModel:
@@ -239,6 +246,10 @@ class TestTranscriptionModel:
         model = TranscriptionModel(model_type=ModelType.OPEN_AI_WHISPER_API)
         assert str(model) == "OpenAI Whisper API"
 
+    def test_str_funasr_api(self):
+        model = TranscriptionModel(model_type=ModelType.FUNASR_API)
+        assert str(model) == "FunASR API"
+
     def test_default(self):
         model = TranscriptionModel.default()
         assert model.model_type in list(ModelType)
@@ -266,6 +277,10 @@ class TestTranscriptionModel:
 
     def test_get_local_model_path_openai_api(self):
         model = TranscriptionModel(model_type=ModelType.OPEN_AI_WHISPER_API)
+        assert model.get_local_model_path() == ""
+
+    def test_get_local_model_path_funasr_api(self):
+        model = TranscriptionModel(model_type=ModelType.FUNASR_API)
         assert model.get_local_model_path() == ""
 
 
