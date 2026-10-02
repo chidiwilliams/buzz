@@ -62,6 +62,12 @@ Options:
   -p, --prompt <prompt>          Initial prompt.
   -w, --word-timestamps          Generate word-level timestamps.
   -e, --extract-speech           Extract speech from audio before transcribing.
+  --identify-speakers            Identify speakers in the audio. Cli option available since version 1.4.6.
+  --speaker-count <count>        Number of speakers in the audio. Implies
+                                 --identify-speakers. Cli option available since version 1.4.6.
+  --speaker-diarizer <diarizer>  Speaker diarizer algorithm. Allowed: msdd,
+                                 sortformer. Default: msdd. Implies
+                                 --identify-speakers. Cli option available since version 1.4.6.
   --openai-token <token>         OpenAI access token. Use only when
                                  --model-type is openaiapi. Defaults to your
                                  previously saved access token, if one exists.
@@ -98,6 +104,16 @@ buzz add --task translate --language fr --model-type openaiapi meeting-fr.mp3
 
 # Transcribe a video with the Whisper.cpp "small" model, exporting SRT and VTT subtitles
 buzz add --model-type whispercpp --model-size small --srt --vtt presentation.mp4
+
+# Transcribe an interview and label each speaker in the transcript.
+# Speaker identification options available since version 1.4.6
+buzz add --txt --identify-speakers interview.mp3
+
+# Identify speakers when the number of speakers is known (implies --identify-speakers)
+buzz add --srt --speaker-count 3 panel-discussion.mp4
+
+# Identify speakers using the Sortformer diarizer (implies --identify-speakers)
+buzz add --txt --speaker-diarizer sortformer podcast.mp3
 
 # Transcribe a YouTube video without opening the app window
 buzz add --txt --hide-gui https://www.youtube.com/watch?v=dQw4w9WgXcQ
