@@ -7,6 +7,8 @@ import random
 from contextlib import contextmanager
 from typing import Optional
 
+from PyQt6 import sip
+
 # Fix SSL certificate verification for bundled applications (macOS, Windows)
 # This must be done before importing libraries that download from Hugging Face
 try:
@@ -537,8 +539,25 @@ class IdentificationWorker(QObject):
 
 class SpeakerIdentificationWidget(QWidget):
     resize_button_clicked = pyqtSignal()
+    identification_started = pyqtSignal()
+    identification_finished_signal = pyqtSignal()
+    active_running_instance: Optional["SpeakerIdentificationWidget"] = None
     transcription: Transcription
     settings = Settings()
+
+    @classmethod
+    def get_active_running_instance(cls) -> Optional["SpeakerIdentificationWidget"]:
+        """Return the actively running speaker identification dialog if still valid."""
+        instance = cls.active_running_instance
+        if instance is not None:
+            try:
+                if sip.isdeleted(instance):
+                    cls.active_running_instance = None
+                    return None
+            except Exception:
+                cls.active_running_instance = None
+                return None
+        return instance
 
     def __init__(
         self,
@@ -570,6 +589,7 @@ class SpeakerIdentificationWidget(QWidget):
 
         self.setLayout(layout)
         self._setup_audio_player()
+        self.destroyed.connect(self._on_destroyed)
 
     def _create_step_1_group(self, layout: QFormLayout) -> None:
         step_1_label = QLabel(_("Step 1: Identify speakers"), self)
@@ -744,6 +764,9 @@ class SpeakerIdentificationWidget(QWidget):
 
         # Clean up any existing thread before starting a new one
         self._cleanup_thread()
+
+        SpeakerIdentificationWidget.active_running_instance = self
+        self.identification_started.emit()
 
         logging.debug("Speaker identification: Starting identification thread (%s)", diarizer)
 
@@ -947,6 +970,15 @@ class SpeakerIdentificationWidget(QWidget):
             self.adjustSize()
             self.needs_layout_update = False
 
+    def _on_destroyed(self):
+        """Ensure active_running_instance is cleared if widget is destroyed."""
+        if SpeakerIdentificationWidget.active_running_instance is self:
+            SpeakerIdentificationWidget.active_running_instance = None
+            try:
+                self.identification_finished_signal.emit()
+            except Exception:
+                pass
+
     def closeEvent(self, event):
         self.hide()
 
@@ -963,6 +995,10 @@ class SpeakerIdentificationWidget(QWidget):
 
     def _cleanup_thread(self):
         """Properly clean up the worker thread."""
+        if SpeakerIdentificationWidget.active_running_instance is self:
+            SpeakerIdentificationWidget.active_running_instance = None
+            self.identification_finished_signal.emit()
+
         if self.worker is not None:
             # Request cancellation first
             self.worker.cancel()

@@ -4,6 +4,7 @@ import platform
 from typing import Optional
 from uuid import UUID
 
+from PyQt6 import sip
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QColor, QFont, QPalette, QTextCharFormat, QTextCursor
 from PyQt6.QtMultimedia import QMediaPlayer
@@ -23,7 +24,8 @@ from PyQt6.QtWidgets import (
     QScrollArea,
     QSizePolicy,
     QStackedWidget,
-    QSplitter
+    QSplitter,
+    QApplication,
 )
 
 from buzz.locale import _
@@ -100,6 +102,7 @@ class TranscriptionViewerWidget(QWidget):
 
         self.transcription_resizer_dialog = None
         self.speaker_identification_dialog = None
+        self.speaker_identification_button = None
         self.transcriptions_updated_signal = transcriptions_updated_signal
 
         self.translation_thread = None
@@ -125,6 +128,7 @@ class TranscriptionViewerWidget(QWidget):
         self._setup_media_players()
         self._setup_current_segment_frame()
         self._setup_toolbar()
+        self._setup_speaker_identification_monitoring()
         self._finalize_ui()
 
     def _init_search_debounce(self):
@@ -328,16 +332,16 @@ class TranscriptionViewerWidget(QWidget):
         toolbar.addWidget(resize_button)
 
         if not (platform.system() == "Darwin" and platform.machine() == "x86_64"):
-            speaker_identification_button = QToolButton()
-            speaker_identification_button.setText(_("Identify Speakers"))
-            speaker_identification_button.setObjectName("speaker_identification_button")
-            speaker_identification_button.setIcon(SpeakerIdentificationIcon(self))
-            speaker_identification_button.setToolButtonStyle(
+            self.speaker_identification_button = QToolButton()
+            self.speaker_identification_button.setText(_("Identify Speakers"))
+            self.speaker_identification_button.setObjectName("speaker_identification_button")
+            self.speaker_identification_button.setIcon(SpeakerIdentificationIcon(self))
+            self.speaker_identification_button.setToolButtonStyle(
                 Qt.ToolButtonStyle.ToolButtonTextBesideIcon
             )
-            speaker_identification_button.clicked.connect(
+            self.speaker_identification_button.clicked.connect(
                 self.on_speaker_identification_button_clicked)
-            toolbar.addWidget(speaker_identification_button)
+            toolbar.addWidget(self.speaker_identification_button)
 
         self.find_button = QToolButton()
         self.find_button.setText(_("Find"))
@@ -1571,20 +1575,72 @@ class TranscriptionViewerWidget(QWidget):
 
         self.transcription_resizer_dialog.show()
 
+    def _activate_existing_dialog(self, dialog: QWidget):
+        """Restore minimized window, bring to foreground, activate, and beep."""
+        QApplication.beep()
+        if dialog.isMinimized():
+            dialog.setWindowState(dialog.windowState() & ~Qt.WindowState.WindowMinimized | Qt.WindowState.WindowActive)
+        dialog.show()
+        dialog.raise_()
+        dialog.activateWindow()
+
     def on_speaker_identification_button_clicked(self):
         # Underlying libs do not support intel Macs
         if not (platform.system() == "Darwin" and platform.machine() == "x86_64"):
+            running_instance = SpeakerIdentificationWidget.get_active_running_instance()
+            if (
+                running_instance is not None
+                and running_instance is not self.speaker_identification_dialog
+            ):
+                self._activate_existing_dialog(running_instance)
+                return
+
+            if (
+                self.speaker_identification_dialog is not None
+                and not sip.isdeleted(self.speaker_identification_dialog)
+                and self.speaker_identification_dialog.isVisible()
+            ):
+                self._activate_existing_dialog(self.speaker_identification_dialog)
+                return
+
             self.speaker_identification_dialog = SpeakerIdentificationWidget(
                 transcription=self.transcription,
                 transcription_service=self.transcription_service,
                 transcriptions_updated_signal=self.transcriptions_updated_signal,
             )
 
+            self.speaker_identification_dialog.identification_started.connect(
+                self._update_speaker_identification_button_state
+            )
+            self.speaker_identification_dialog.identification_finished_signal.connect(
+                self._update_speaker_identification_button_state
+            )
+
             self.transcriptions_updated_signal.connect(self.close)
 
             self.speaker_identification_dialog.show()
+            self._update_speaker_identification_button_state()
 
         pass
+
+    def _setup_speaker_identification_monitoring(self):
+        self._update_speaker_identification_button_state()
+
+    def _update_speaker_identification_button_state(self):
+        if self.speaker_identification_button is None:
+            return
+        running_instance = SpeakerIdentificationWidget.get_active_running_instance()
+        is_another_running = (
+            running_instance is not None
+            and running_instance is not self.speaker_identification_dialog
+        )
+        self.speaker_identification_button.setEnabled(not is_another_running)
+        if is_another_running:
+            self.speaker_identification_button.setToolTip(
+                _("Speaker identification is already in progress in another window")
+            )
+        else:
+            self.speaker_identification_button.setToolTip("")
 
     def on_loop_toggle_changed(self, enabled: bool):
         """Handle loop toggle state change"""
