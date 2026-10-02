@@ -1268,10 +1268,42 @@ class TestTranscriptionViewerWidgetAdditional:
         with patch(
             'buzz.widgets.transcription_viewer.transcription_viewer_widget.SpeakerIdentificationWidget'
         ) as mock_dialog:
+            mock_dialog.get_active_running_instance.return_value = None
             widget.on_speaker_identification_button_clicked()
 
             mock_dialog.assert_called_once()
             widget.speaker_identification_dialog.show.assert_called_once()
+
+        widget.close()
+
+    def test_on_speaker_identification_button_clicked_activates_running_dialog(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """When identification runs in another window, that window is activated instead."""
+        import platform as _platform
+        if _platform.system() == "Darwin" and _platform.machine() == "x86_64":
+            pytest.skip("Speaker identification unavailable on Intel Mac")
+
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts,
+            transcriptions_updated_signal=MagicMock(),
+        )
+        qtbot.add_widget(widget)
+
+        running_dialog = MagicMock()
+        running_dialog.isMinimized.return_value = False
+        with patch(
+            'buzz.widgets.transcription_viewer.transcription_viewer_widget.SpeakerIdentificationWidget'
+        ) as mock_dialog, patch(
+            'buzz.widgets.transcription_viewer.transcription_viewer_widget.QApplication.beep'
+        ):
+            mock_dialog.get_active_running_instance.return_value = running_dialog
+            widget.on_speaker_identification_button_clicked()
+
+            mock_dialog.assert_not_called()
+            running_dialog.show.assert_called_once()
+            running_dialog.raise_.assert_called_once()
+            running_dialog.activateWindow.assert_called_once()
 
         widget.close()
 

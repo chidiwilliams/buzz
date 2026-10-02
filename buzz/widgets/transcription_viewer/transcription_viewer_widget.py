@@ -4,6 +4,7 @@ import platform
 from typing import Optional
 from uuid import UUID
 
+from PyQt6 import sip
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QColor, QFont, QPalette, QTextCharFormat, QTextCursor
 from PyQt6.QtMultimedia import QMediaPlayer
@@ -23,7 +24,8 @@ from PyQt6.QtWidgets import (
     QScrollArea,
     QSizePolicy,
     QStackedWidget,
-    QSplitter
+    QSplitter,
+    QApplication,
 )
 
 from buzz.locale import _
