@@ -131,7 +131,11 @@ class TestMainWindow:
 
         with patch(
             "buzz.widgets.import_url_dialog.ImportURLDialog.prompt"
-        ) as prompt_mock:
+        ) as prompt_mock, patch.object(
+            FileTranscriberWidget,
+            "load_preferences",
+            return_value=self._default_file_transcription_preferences(),
+        ):
             prompt_mock.return_value = "https://github.com/chidiwilliams/buzz/raw/main/testdata/whisper-french.mp3"
             import_url_action.trigger()
 
@@ -480,10 +484,8 @@ class TestMainWindow:
         window.close()
 
     @staticmethod
-    def _import_file_and_start_transcription(
-        window: MainWindow, long_audio: bool = False
-    ):
-        default_prefs = FileTranscriptionPreferences(
+    def _default_file_transcription_preferences() -> FileTranscriptionPreferences:
+        return FileTranscriptionPreferences(
             language=None,
             task=Task.TRANSCRIBE,
             model=TranscriptionModel(
@@ -498,6 +500,12 @@ class TestMainWindow:
             llm_model="",
             output_formats={OutputFormat.TXT},
         )
+
+    @staticmethod
+    def _import_file_and_start_transcription(
+        window: MainWindow, long_audio: bool = False
+    ):
+        default_prefs = TestMainWindow._default_file_transcription_preferences()
 
         with patch(
             "PyQt6.QtWidgets.QFileDialog.getOpenFileNames"
