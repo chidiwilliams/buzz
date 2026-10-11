@@ -17,6 +17,7 @@ from buzz.model_loader import (
     is_parakeet_model,
     is_vibevoice_model,
     is_qwen_asr_model,
+    is_fun_asr_model,
     get_expected_whisper_model_size,
     get_whisper_file_path,
     WHISPER_MODEL_SIZES,
@@ -146,6 +147,26 @@ class TestIsQwenAsrModel:
 
     def test_non_qwen_model(self):
         assert is_qwen_asr_model("openai/whisper-tiny") is False
+
+
+class TestIsFunAsrModel:
+    def test_empty_string(self):
+        assert is_fun_asr_model("") is False
+
+    def test_fun_asr_in_model_id(self):
+        assert is_fun_asr_model("FunAudioLLM/Fun-ASR-Nano-2512-hf") is True
+
+    def test_fun_asr_in_cache_path(self):
+        assert is_fun_asr_model(
+            "/cache/models--FunAudioLLM--Fun-ASR-Nano-2512-hf/snapshots/abc"
+        ) is True
+
+    def test_fun_asr_model_type_in_config(self, tmp_path):
+        (tmp_path / "config.json").write_text('{"model_type": "fun_asr_nano"}')
+        assert is_fun_asr_model(str(tmp_path)) is True
+
+    def test_non_fun_asr_model(self):
+        assert is_fun_asr_model("openai/whisper-tiny") is False
 
 
 class TestWhisperModelSize:
