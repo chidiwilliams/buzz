@@ -418,6 +418,42 @@ def is_qwen_asr_model(model_id: str) -> bool:
         return False
 
 
+def is_fun_asr_model(model_id: str) -> bool:
+    """Detect if a HuggingFace model is a FunASR model.
+
+    FunASR models (e.g. FunAudioLLM/Fun-ASR-Nano-2512-hf) are loaded with
+    AutoModelForSpeechSeq2Seq but, like Qwen3 ASR, are transcribed through the
+    processor's chat-template based ``apply_transcription_request`` API rather
+    than the standard Whisper pipeline.
+
+    Detection criteria:
+    1. Model ID (or local cache path) contains "fun-asr", "fun_asr" or "funasr"
+    2. Model config has a "fun_asr*" model_type (e.g. "fun_asr_nano")
+    """
+    if not model_id:
+        return False
+
+    # Fast check: model ID / cache path pattern
+    lowered = model_id.lower()
+    if any(name in lowered for name in ("fun-asr", "fun_asr", "funasr")):
+        return True
+
+    # For cached/downloaded models, check config.json
+    try:
+        import json
+        if os.path.isdir(model_id):
+            config_path = os.path.join(model_id, "config.json")
+        else:
+            config_path = huggingface_hub.hf_hub_download(
+                model_id, "config.json", local_files_only=True, cache_dir=model_root_dir
+            )
+        with open(config_path) as f:
+            config = json.load(f)
+        return str(config.get("model_type", "")).lower().startswith("fun_asr")
+    except Exception:
+        return False
+
+
 def _snapshot_is_complete(snapshot_path: str) -> bool:
     return os.path.exists(os.path.join(snapshot_path, DOWNLOAD_COMPLETE_MARKER))
 

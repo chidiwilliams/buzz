@@ -113,3 +113,21 @@ class TestTransformersTranscriber:
 
         assert result["text"].strip() != ""
         assert len(result["segments"]) > 0
+
+    @pytest.mark.skipif(
+        platform.system() == "Darwin",
+        reason="Not supported on Darwin",
+    )
+    def test_should_transcribe_fun_asr(self, monkeypatch):
+        monkeypatch.setenv("BUZZ_FORCE_CPU", "true")
+        model = TransformersTranscriber(cached_model_path("FunAudioLLM/Fun-ASR-Nano-2512-hf"))
+        assert model.is_fun_asr_model is True
+
+        # FunASR Nano only supports Chinese, English and Japanese, so French
+        # also exercises the fallback to automatic language detection.
+        result = model.transcribe(
+            audio=test_audio_path, language="fr", task="transcribe"
+        )
+
+        assert result["text"].strip() != ""
+        assert len(result["segments"]) > 0

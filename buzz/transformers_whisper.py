@@ -22,6 +22,7 @@ from buzz.model_loader import (
     is_parakeet_model,
     is_vibevoice_model,
     is_qwen_asr_model,
+    is_fun_asr_model,
     map_language_to_mms,
 )
 
@@ -210,6 +211,7 @@ class TransformersTranscriber:
         self._is_parakeet = is_parakeet_model(model_id)
         self._is_vibevoice = is_vibevoice_model(model_id)
         self._is_qwen_asr = is_qwen_asr_model(model_id)
+        self._is_fun_asr = is_fun_asr_model(model_id)
         self._is_peft = is_peft_model(model_id)
 
     @property
@@ -233,6 +235,11 @@ class TransformersTranscriber:
         return self._is_qwen_asr
 
     @property
+    def is_fun_asr_model(self) -> bool:
+        """Returns True if this is a FunASR model."""
+        return self._is_fun_asr
+
+    @property
     def is_peft_model(self) -> bool:
         """Returns True if this is a PEFT model."""
         return self._is_peft
@@ -245,7 +252,7 @@ class TransformersTranscriber:
         word_timestamps: bool = False,
         initial_prompt: str = "",
     ):
-        """Transcribe audio using a Whisper, MMS, Parakeet, VibeVoice, or Qwen3 ASR model."""
+        """Transcribe audio using a Whisper, MMS, Parakeet, VibeVoice, Qwen3 ASR or FunASR model."""
         if self._is_mms:
             return self._transcribe_mms(audio, language)
         elif self._is_parakeet:
@@ -254,6 +261,8 @@ class TransformersTranscriber:
             return self._transcribe_vibevoice(audio, initial_prompt)
         elif self._is_qwen_asr:
             return self._transcribe_qwen(audio, language)
+        elif self._is_fun_asr:
+            return self._transcribe_fun_asr(audio, language, initial_prompt)
         else:
             return self._transcribe_whisper(audio, language, task, word_timestamps, initial_prompt)
 
@@ -765,6 +774,109 @@ class TransformersTranscriber:
             text = (processor.decode(
                 generated_ids[0], return_format="transcription_only"
             ) or "").strip()
+            if not text:
+                continue
+
+            start_s = start_idx / sampling_rate
+            end_s = min(start_idx + chunk_size, total_samples) / sampling_rate
+            segments.append({
+                "start": start_s,
+                "end": end_s,
+                "text": text,
+                "translation": "",
+            })
+            texts.append(text)
+
+        sys.stderr.write("100%\n")
+
+        return {
+            "text": " ".join(texts),
+            "segments": segments,
+        }
+
+    def _transcribe_fun_asr(
+        self,
+        audio: Union[str, np.ndarray],
+        language: str,
+        initial_prompt: str = "",
+    ):
+        """Transcribe using a FunASR model (e.g. FunAudioLLM/Fun-ASR-Nano-2512-hf).
+
+        FunASR Nano is an audio LLM driven through the processor's
+        ``apply_transcription_request`` helper. The standard ASR pipeline does not
+        work with it, and the transformers export returns text only (no
+        timestamps), so we chunk the audio into fixed windows ourselves to keep
+        per-segment timing for longer files and to report progress.
+        """
+        from transformers.models.fun_asr_nano.processing_fun_asr_nano import (
+            LANGUAGE_CODE_TO_NAME,
+        )
+
+        force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
+        use_cuda = torch.cuda.is_available() and force_cpu == "false"
+        device = "cuda" if use_cuda else "cpu"
+        # bfloat16 is the GPU precision validated for this model; float16 is not
+        if use_cuda and torch.cuda.is_bf16_supported():
+            torch_dtype = torch.bfloat16
+        else:
+            torch_dtype = torch.float32
+
+        model = AutoModelForSpeechSeq2Seq.from_pretrained(
+            self.model_id, dtype=torch_dtype, low_cpu_mem_usage=True
+        )
+        model.to(device)
+        model.eval()
+
+        processor = AutoProcessor.from_pretrained(self.model_id)
+        sampling_rate = processor.feature_extractor.sampling_rate
+
+        # Language is a hint in the prompt; an empty value lets the model
+        # auto-detect the spoken language. FunASR Nano only supports Chinese,
+        # English and Japanese and raises on anything else, so fall back to
+        # auto-detection for unsupported codes instead of crashing.
+        language_hint = language or None
+        if (
+            language_hint is not None
+            and language_hint.lower() not in LANGUAGE_CODE_TO_NAME
+            and language_hint not in LANGUAGE_CODE_TO_NAME.values()
+        ):
+            print(
+                f"FunASR does not support language '{language_hint}', "
+                "falling back to automatic language detection"
+            )
+            language_hint = None
+
+        # Load audio into a mono float32 array with ffmpeg, which also avoids the
+        # torchcodec-based load_audio() path that can crash on some systems.
+        audio_array = load_audio_input(audio, sampling_rate)
+
+        chunk_seconds = 30
+        chunk_size = int(chunk_seconds * sampling_rate)
+        total_samples = len(audio_array)
+
+        segments = []
+        texts = []
+        for start_idx in range(0, total_samples, chunk_size):
+            progress = int((start_idx / total_samples) * 100) if total_samples else 0
+            sys.stderr.write(f"{progress}%\n")
+
+            chunk = audio_array[start_idx:start_idx + chunk_size]
+            if len(chunk) == 0:
+                continue
+
+            # An optional prompt provides extra context for domain terms.
+            inputs = processor.apply_transcription_request(
+                audio=chunk,
+                language=language_hint,
+                prompt=initial_prompt or None,
+                processor_kwargs={"audio_kwargs": {"sampling_rate": sampling_rate}},
+            ).to(model.device, model.dtype)
+
+            with torch.inference_mode():
+                output_ids = model.generate(**inputs, max_new_tokens=256, do_sample=False)
+
+            generated_ids = output_ids[:, inputs["input_ids"].shape[1]:]
+            text = (processor.decode(generated_ids[0], skip_special_tokens=True) or "").strip()
             if not text:
                 continue
 
