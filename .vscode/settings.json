@@ -18,7 +18,6 @@
     "**/build/**",
     "**/dist/**",
     "**/whisper.cpp/**",
-    "**/demucs_repo/**",
     "**/help/**",
     "**/.venv/**"
   ],

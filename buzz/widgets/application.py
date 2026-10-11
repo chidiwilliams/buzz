@@ -5,6 +5,8 @@ import locale
 import platform
 import threading
 import darkdetect
+import humanize
+import psutil
 
 from posthog import Posthog
 
@@ -120,6 +122,12 @@ class Application(QApplication):
                       f"release: {platform.release()}, "
                       f"machine: {platform.machine()}, "
                       f"version: {platform.version()}, ")
+
+        memory = psutil.virtual_memory()
+        logging.debug(f"CPU cores: {psutil.cpu_count(logical=False)} physical, "
+                      f"{psutil.cpu_count(logical=True)} logical, "
+                      f"RAM: {humanize.naturalsize(memory.available, binary=True)} available "
+                      f"of {humanize.naturalsize(memory.total, binary=True)}")
 
     def show_main_window(self):
         if not self.hide_main_window:

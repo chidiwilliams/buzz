@@ -42,22 +42,12 @@ dependencies = [
     "nvidia-cudnn-cu12>=9,<10; sys_platform != 'darwin'",
     # CUDA runtime libraries are provided by torch dependencies, no need to specify explicitly
     "darkdetect>=0.8.0,<0.9",
-    "dora-search>=0.1.12,<0.2",
-    "diffq>=0.2.4,<0.3",
-    "einops>=0.8.1,<0.9",
+    "demucs>=4.1.0,<5",
     "flake8>=7.1.2,<8",
-    "hydra-colorlog>=1.2.0,<2",
-    "hydra-core>=1.3.2,<2",
-    "julius>=0.2.7,<0.3",
-    "lameenc>=1.8.1,<2",
-    "museval>=0.4.1,<0.5",
     "mypy>=1.15.0,<2",
-    "openunmix>=1.3.0,<2",
     "psutil>=7.2.2,<8",
     "pyyaml>=6.0.3,<7",
-    "submitit>=1.5.4,<2",
     "tqdm>=4.70.0,<5",
-    "treetable>=0.2.6,<0.3",
     "soundfile>=0.13.1,<0.14",
     "urllib3>=2.7.0,<3",
     "posthog>=7.42.1",
@@ -148,7 +138,6 @@ include = [
     "buzz",
     "buzz/whisper_cpp/*",
     "buzz/locale/*/LC_MESSAGES/buzz.mo",
-    "demucs_repo",
     "whisper_diarization",
     "deepmultilingualpunctuation",
     "ctc_forced_aligner",
@@ -163,8 +152,6 @@ include = [
     "deepmultilingualpunctuation",
     "ctc_forced_aligner",
 ]
-# Map demucs_repo/demucs to top-level demucs/ so 'import demucs' works
-sources = {"demucs_repo/demucs" = "demucs"}
 
 [tool.hatch.build.hooks.custom]
 
