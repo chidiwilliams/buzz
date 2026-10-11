@@ -22,6 +22,7 @@ from buzz.locale import _
 from buzz.db.entity.transcription import Transcription
 from buzz.db.service.transcription_service import TranscriptionService
 from buzz.model_loader import TranscriptionModel, ModelType, WhisperModelSize
+from buzz.settings.settings import Settings
 from buzz.transcriber.transcriber import (
     FileTranscriptionOptions,
     FileTranscriptionTask,
@@ -42,6 +43,26 @@ mock_transcriptions: List[Transcription] = [
 
 def get_test_asset(filename: str):
     return os.path.join(os.path.dirname(__file__), "../../testdata/", filename)
+
+
+@pytest.fixture(autouse=True)
+def restore_file_transcriber_preferences():
+    """MainWindow uses the real app settings, and FileTranscriberWidget saves its
+    preferences (e.g. the TXT export format used in these tests) on close.
+    Snapshot the group and restore it so tests don't leak into user settings."""
+    settings = Settings().settings
+    settings.beginGroup("file_transcriber")
+    snapshot = {key: settings.value(key) for key in settings.allKeys()}
+    settings.endGroup()
+
+    yield
+
+    settings.beginGroup("file_transcriber")
+    settings.remove("")
+    for key, value in snapshot.items():
+        settings.setValue(key, value)
+    settings.endGroup()
+    settings.sync()
 
 
 class TestMainWindow:
