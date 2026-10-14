@@ -85,7 +85,8 @@ def parse_timestamp(timestamp_str: str) -> Optional[int]:
             return None
 
         seconds = int(seconds_parts[0])
-        milliseconds = int(seconds_parts[1]) if len(seconds_parts) > 1 else 0
+        fraction = seconds_parts[1] if len(seconds_parts) > 1 else "0"
+        milliseconds = int(fraction[:3].ljust(3, "0"))
 
         total_ms = hours * 3600 * 1000 + minutes * 60 * 1000 + seconds * 1000 + milliseconds
         return total_ms
