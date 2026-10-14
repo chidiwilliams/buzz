@@ -1,3 +1,4 @@
+import glob
 import logging
 import os
 import re
@@ -89,7 +90,7 @@ class SkipAlreadyTranscribedPlugin(BuzzPlugin):
             if not search_dir.is_dir():
                 continue
             for fmt in OutputFormat:
-                for candidate in search_dir.glob(f"{stem}*.{fmt.value}"):
+                for candidate in search_dir.glob(f"{glob.escape(stem)}*.{fmt.value}"):
                     segments = self._parse_result_file(candidate, fmt, context)
                     if segments is not None:
                         return segments
