@@ -5,7 +5,9 @@ import tempfile
 from unittest.mock import Mock, patch, MagicMock
 
 import pytest
+from jeepney import HeaderFields
 
+from buzz.store import keyring_store
 from buzz.store.keyring_store import (
     Key,
     _is_linux,
@@ -172,6 +174,71 @@ class TestLocalSecrets:
             ):
                 result = _load_local_secrets()
                 assert result == {}
+
+
+class TestPortalSecret:
+    REQUEST_HANDLE = "/org/freedesktop/portal/desktop/request/1_1/t"
+
+    @pytest.fixture(autouse=True)
+    def clear_cache(self, monkeypatch):
+        monkeypatch.setattr(
+            keyring_store,
+            "_portal_secret_cache",
+            keyring_store._PORTAL_SECRET_NOT_FETCHED,
+        )
+
+    def mock_connection(self, response_code, secret=b""):
+        conn = MagicMock()
+
+        def send_and_get_reply(msg, timeout):
+            # The portal writes the secret to the socket passed in the call
+            if secret:
+                msg.body[0].sendall(secret)
+            return Mock(body=(self.REQUEST_HANDLE,))
+
+        conn.send_and_get_reply.side_effect = send_and_get_reply
+        conn.recv_until_filtered.return_value = Mock(
+            header=Mock(fields={HeaderFields.path: self.REQUEST_HANDLE}),
+            body=(response_code, {}),
+        )
+        return conn
+
+    @patch("buzz.store.keyring_store._is_linux", return_value=True)
+    @patch("jeepney.io.blocking.Proxy")
+    @patch("jeepney.io.blocking.open_dbus_connection")
+    def test_returns_secret_on_success(self, mock_open, _proxy, _is_linux):
+        conn = self.mock_connection(response_code=0, secret=b"portal-secret")
+        mock_open.return_value = conn
+
+        assert keyring_store._get_portal_secret() == b"portal-secret"
+        conn.close.assert_called_once()
+
+    @patch("buzz.store.keyring_store._is_linux", return_value=True)
+    @patch("jeepney.io.blocking.Proxy")
+    @patch("jeepney.io.blocking.open_dbus_connection")
+    def test_failed_response_returns_none_without_waiting(
+        self, mock_open, _proxy, _is_linux
+    ):
+        """A portal refusing the request, e.g. for an unsandboxed app, never
+        writes the secret, so its socket must not be waited on"""
+        mock_open.return_value = self.mock_connection(response_code=2)
+
+        with patch("socket.socket.recv") as recv:
+            assert keyring_store._get_portal_secret() is None
+            recv.assert_not_called()
+
+    @patch("buzz.store.keyring_store._is_linux", return_value=True)
+    @patch("buzz.store.keyring_store._retrieve_portal_secret", return_value=None)
+    def test_secret_is_fetched_once(self, mock_retrieve, _is_linux):
+        assert keyring_store._get_portal_secret() is None
+        assert keyring_store._get_portal_secret() is None
+        mock_retrieve.assert_called_once()
+
+    @patch("buzz.store.keyring_store._is_linux", return_value=False)
+    @patch("buzz.store.keyring_store._retrieve_portal_secret")
+    def test_not_used_on_non_linux(self, mock_retrieve, _is_linux):
+        assert keyring_store._get_portal_secret() is None
+        mock_retrieve.assert_not_called()
 
 
 class TestPortalPassword:
