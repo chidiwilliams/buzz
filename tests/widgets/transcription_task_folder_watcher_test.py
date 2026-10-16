@@ -2,6 +2,7 @@ import os
 import shutil
 from tempfile import mkdtemp
 
+import pytest
 from pytestqt.qtbot import QtBot
 
 from buzz.model_loader import TranscriptionModel, ModelType
@@ -456,3 +457,38 @@ class TestTranscriptionTaskFolderWatcher:
         assert task.speaker_diarizer == "sortformer"
         assert task.speaker_count == 3
         assert task.merge_speaker_sentences is False
+
+    def test_should_ignore_media_path_that_cannot_be_read(self, qtbot: QtBot):
+        input_directory = mkdtemp()
+        output_directory = mkdtemp()
+        try:
+            os.symlink(
+                os.path.join(input_directory, "gone.mp3"),
+                os.path.join(input_directory, "dangling.mp3"),
+            )
+        except (OSError, NotImplementedError):
+            pytest.skip("this platform cannot create symlinks")
+
+        watcher = TranscriptionTaskFolderWatcher(
+            tasks={},
+            preferences=FolderWatchPreferences(
+                enabled=True,
+                input_directory=input_directory,
+                output_directory=output_directory,
+                file_transcription_options=FileTranscriptionPreferences(
+                    language=None,
+                    task=Task.TRANSCRIBE,
+                    model=self.default_model(),
+                    word_level_timings=False,
+                    extract_speech=False,
+                    initial_prompt="",
+                    enable_llm_translation=False,
+                    llm_model="",
+                    llm_prompt="",
+                    output_formats=set(),
+                ),
+            ),
+        )
+
+        with qtbot.assert_not_emitted(watcher.task_found):
+            watcher.find_tasks()

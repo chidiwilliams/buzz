@@ -70,11 +70,20 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
                     or is_temp_conversion_file  # temp conversion files like .ogg.wav
                     or "_speech.mp3" in filename  # extracted speech output files
                     or file_path in tasks  # file already in tasks
-                    or self.paths_emitted.get(file_path) == (
+                ):
+                    continue
+
+                try:
+                    file_stamp = (
                         os.path.getsize(file_path),
                         os.path.getmtime(file_path),
-)  # file already emitted
-                ):
+                    )
+                except OSError:
+                    # A dangling symlink, or a file removed since os.walk listed
+                    # it. There is nothing to transcribe and nothing to stamp.
+                    continue
+
+                if self.paths_emitted.get(file_path) == file_stamp:
                     continue
 
                 openai_access_token = get_password(Key.OPENAI_API_KEY)
@@ -118,10 +127,7 @@ class TranscriptionTaskFolderWatcher(QFileSystemWatcher):
                     merge_speaker_sentences=self.preferences.merge_speaker_sentences,
                 )
                 self.task_found.emit(task)
-                self.paths_emitted[file_path] = (
-                 os.path.getsize(file_path),
-                 os.path.getmtime(file_path),
-)
+                self.paths_emitted[file_path] = file_stamp
 
             # Filter out hidden directories and add new subdirectories to the watcher
             dirnames[:] = [d for d in dirnames if not d.startswith(".")]
