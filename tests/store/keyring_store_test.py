@@ -1,3 +1,4 @@
+import importlib.util
 import json
 import os
 import sys
@@ -5,7 +6,6 @@ import tempfile
 from unittest.mock import Mock, patch, MagicMock
 
 import pytest
-from jeepney import HeaderFields
 
 from buzz.store import keyring_store
 from buzz.store.keyring_store import (
@@ -176,6 +176,13 @@ class TestLocalSecrets:
                 assert result == {}
 
 
+# jeepney is a keyring dependency on Linux only
+requires_jeepney = pytest.mark.skipif(
+    importlib.util.find_spec("jeepney") is None,
+    reason="jeepney is only installed on Linux",
+)
+
+
 class TestPortalSecret:
     REQUEST_HANDLE = "/org/freedesktop/portal/desktop/request/1_1/t"
 
@@ -188,6 +195,8 @@ class TestPortalSecret:
         )
 
     def mock_connection(self, response_code, secret=b""):
+        from jeepney import HeaderFields
+
         conn = MagicMock()
 
         def send_and_get_reply(msg, timeout):
@@ -203,6 +212,7 @@ class TestPortalSecret:
         )
         return conn
 
+    @requires_jeepney
     @patch("buzz.store.keyring_store._is_linux", return_value=True)
     @patch("jeepney.io.blocking.Proxy")
     @patch("jeepney.io.blocking.open_dbus_connection")
@@ -213,6 +223,7 @@ class TestPortalSecret:
         assert keyring_store._get_portal_secret() == b"portal-secret"
         conn.close.assert_called_once()
 
+    @requires_jeepney
     @patch("buzz.store.keyring_store._is_linux", return_value=True)
     @patch("jeepney.io.blocking.Proxy")
     @patch("jeepney.io.blocking.open_dbus_connection")
