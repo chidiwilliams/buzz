@@ -137,8 +137,6 @@ def hide_cuda_from_torch(device):
         torch.cuda.is_available = original_is_available
 
 
-SENTENCE_END = re.compile(r'.*[.!?。！？]')
-
 class IdentificationWorker(QObject):
     finished = pyqtSignal(list)
     progress_update = pyqtSignal(str)
@@ -187,33 +185,6 @@ class IdentificationWorker(QObject):
         if self.transcription is None:
             return self.language
         return self.transcription.language
-
-    def get_transcript(self, audio, **kwargs) -> dict:
-        buzz_segments = self._get_segments()
-
-        segments = []
-        words = []
-        text = ""
-        for buzz_segment in buzz_segments:
-            words.append({
-                'word': buzz_segment.text + " ",
-                'start': buzz_segment.start_time / 100,
-                'end': buzz_segment.end_time / 100,
-            })
-            text += buzz_segment.text + " "
-
-            if SENTENCE_END.match(buzz_segment.text):
-                segments.append({
-                    'text': text,
-                    'words': words
-                })
-                words = []
-                text = ""
-
-        return {
-            'language': self._get_language(),
-            'segments': segments
-        }
 
     def _import_libraries(self):
         from ctc_forced_aligner.ctc_forced_aligner import (

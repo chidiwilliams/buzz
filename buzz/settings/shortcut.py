@@ -1,5 +1,4 @@
 import enum
-import typing
 from buzz.locale import _
 
 
@@ -37,7 +36,3 @@ class Shortcut(str, enum.Enum):
 
     CLEAR_HISTORY = ("Ctrl+S", _("Clear History"))
     STOP_TRANSCRIPTION = ("Ctrl+X", _("Cancel Transcription"))
-
-    @staticmethod
-    def get_default_shortcuts() -> typing.Dict[str, str]:
-        return {shortcut.name: shortcut.sequence for shortcut in Shortcut}

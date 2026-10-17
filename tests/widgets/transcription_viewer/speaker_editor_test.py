@@ -9,6 +9,7 @@ from pytestqt.qtbot import QtBot
 from buzz.db.entity.transcription import Transcription
 from buzz.db.entity.transcription_segment import TranscriptionSegment
 from buzz.model_loader import ModelType, WhisperModelSize
+from buzz.settings.settings import Settings
 from buzz.transcriber.transcriber import Task
 from buzz.widgets.transcription_viewer.transcription_segments_editor_widget import (
     Column,
@@ -165,18 +166,33 @@ def test_audio_viewer_keeps_transcript_table_expanded(
     transcription_service,
     shortcuts,
 ):
-    widget = TranscriptionViewerWidget(
-        speaker_transcription, transcription_service, shortcuts
-    )
-    qtbot.add_widget(widget)
-    widget.resize(1200, 900)
-    widget.show()
-    qtbot.waitUntil(lambda: sum(widget.media_splitter.sizes()) > 0)
+    # Simulate splitter sizes saved before the audio player height was capped
+    settings = Settings()
+    settings.begin_group(Settings.Key.TRANSCRIPTION_VIEWER)
+    original_sizes = settings.settings.value("audio_splitter_sizes")
+    settings.settings.setValue("audio_splitter_sizes", [475, 300])
+    settings.end_group()
 
-    table_height, audio_height = widget.media_splitter.sizes()
-    assert audio_height <= widget.AUDIO_PLAYER_MAX_HEIGHT
-    assert table_height > audio_height * 4
-    widget.close()
+    try:
+        widget = TranscriptionViewerWidget(
+            speaker_transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        widget.resize(1200, 900)
+        widget.show()
+        qtbot.waitUntil(lambda: sum(widget.media_splitter.sizes()) > 0)
+
+        table_height, audio_height = widget.media_splitter.sizes()
+        assert audio_height <= widget.AUDIO_PLAYER_MAX_HEIGHT
+        assert table_height > audio_height * 4
+        widget.close()
+    finally:
+        settings.begin_group(Settings.Key.TRANSCRIPTION_VIEWER)
+        if original_sizes is None:
+            settings.settings.remove("audio_splitter_sizes")
+        else:
+            settings.settings.setValue("audio_splitter_sizes", original_sizes)
+        settings.end_group()
 
 
 def test_colon_prefix_is_not_automatically_converted_to_a_speaker(

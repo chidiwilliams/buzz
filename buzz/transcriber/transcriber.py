@@ -162,12 +162,6 @@ class TranscriptionOptions:
     transcription_step: float = 3.5
 
 
-def humanize_language(language: str) -> str:
-    if language == "":
-        return _("Detect Language")
-    return LANGUAGES[language].title()
-
-
 @dataclass()
 class FileTranscriptionOptions:
     file_paths: Optional[List[str]] = None
@@ -226,10 +220,6 @@ class OutputFormat(enum.Enum):
     TXT = "txt"
     SRT = "srt"
     VTT = "vtt"
-
-
-class Stopped(Exception):
-    pass
 
 
 SUPPORTED_AUDIO_EXTENSIONS = (

@@ -126,6 +126,9 @@ class TestGeneralPreferencesWidget:
             "PyQt6.QtWidgets.QFileDialog.getExistingDirectory",
             return_value="/path/to/export/folder",
         )
+        # Other tests can leave export enabled, which would leave the browse
+        # button disabled after toggling the checkbox below
+        Settings().set_value(Settings.Key.RECORDING_TRANSCRIBER_EXPORT_ENABLED, False)
 
         widget = GeneralPreferencesWidget()
         qtbot.add_widget(widget)

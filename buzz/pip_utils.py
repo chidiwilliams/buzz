@@ -33,11 +33,6 @@ def is_flatpak() -> bool:
     return "FLATPAK_ID" in os.environ
 
 
-def _in_virtualenv() -> bool:
-    """Returns True if running inside a virtualenv or uv venv."""
-    return sys.prefix != sys.base_prefix or "VIRTUAL_ENV" in os.environ
-
-
 def subprocess_hide_window_kwargs() -> dict[str, Any]:
     """Return kwargs to hide the console window on Windows."""
     if sys.platform == "win32":

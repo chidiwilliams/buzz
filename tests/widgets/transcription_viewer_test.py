@@ -286,9 +286,45 @@ class TestTranscriptionViewerWidget:
             finished_spy.assert_called_once()
             emitted_segments = finished_spy.call_args[0][0]
             assert len(emitted_segments) == 1
-            assert emitted_segments[0].start == 100
-            assert emitted_segments[0].end == 200
+            assert emitted_segments[0].start == 1000
+            assert emitted_segments[0].end == 2000
             assert emitted_segments[0].text == "Hello"
+
+    def test_transcription_worker_merges_segments_closer_than_gap(
+            self, qtbot: QtBot, transcription_dao, transcription_segment_dao, transcription_service
+    ):
+        id = uuid.uuid4()
+        transcription_dao.insert(
+            Transcription(
+                id=str(id),
+                status="completed",
+                file=test_audio_path,
+                task=Task.TRANSCRIBE.value,
+                model_type=ModelType.WHISPER.value,
+                whisper_model_size=WhisperModelSize.TINY.value,
+            )
+        )
+        # 150 ms apart, below the 0.2 s merge gap
+        transcription_segment_dao.insert(TranscriptionSegment(40, 1000, "Bien.", "", str(id)))
+        transcription_segment_dao.insert(TranscriptionSegment(1150, 2000, "Venue.", "", str(id)))
+
+        mock_transcription_options = MagicMock()
+        mock_transcription_options.extract_speech = False
+        worker = TranscriptionWorker(
+            transcription=transcription_dao.find_by_id(str(id)),
+            transcription_options=mock_transcription_options,
+            transcription_service=transcription_service,
+            regroup_string="mg=0.2",
+        )
+        finished_spy = MagicMock()
+        worker.finished.connect(finished_spy)
+
+        worker.run()
+
+        emitted_segments = finished_spy.call_args[0][0]
+        assert len(emitted_segments) == 1
+        assert emitted_segments[0].start == 40
+        assert emitted_segments[0].end == 2000
 
     # TODO - Fix this test on Windows, should work.
     #  Possibly the `on_loop_toggle_changed` gets triggered on setChecked

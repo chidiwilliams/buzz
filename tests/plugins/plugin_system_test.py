@@ -788,6 +788,68 @@ def test_sat_skips_on_vtt_file(tmp_path):
     assert result[1].start == 3000
 
 
+def test_sat_skips_on_srt_file_with_brackets_in_name(tmp_path):
+    plugin = _sat_plugin()
+    audio = tmp_path / "Interview [Part 1].mp3"
+    audio.write_bytes(b"")
+    srt = tmp_path / "Interview [Part 1] (transcribed on 01-Jan-2024 12-00-00).srt"
+    srt.write_text(
+        "1\n00:00:01,000 --> 00:00:03,500\nHello there.\n\n",
+        encoding="utf-8",
+    )
+
+    ctx = _sat_context(config={"check_result_files": True, "check_database": False})
+    result = plugin.check_skip(_SatTask(file_path=str(audio)), ctx)
+    assert result is not None
+    assert result[0].text == "Hello there."
+
+
+@pytest.mark.parametrize(
+    "stem",
+    [
+        "plain",
+        "Interview [Part 1]",
+        "[2024] Talk",
+        "Interview (Part 1)",
+        "(2024) Talk",
+        "what?",
+        "a*b",
+        "Episode 3: Pilot",
+        'say "hi"',
+        "ends.",
+        "ends ",
+        "con",
+        "talk_speech",
+    ],
+)
+def test_sat_finds_result_file_written_by_get_output_file_path(tmp_path, stem):
+    from buzz.model_loader import TranscriptionModel
+    from buzz.transcriber.transcriber import (
+        OutputFormat,
+        Task,
+        get_output_file_path,
+    )
+
+    # The media file itself is not needed, so names invalid on Windows still work
+    audio = tmp_path / f"{stem}.mp3"
+    srt = get_output_file_path(
+        str(audio),
+        Task.TRANSCRIBE,
+        None,
+        TranscriptionModel(),
+        OutputFormat.SRT,
+        export_file_name_template="{{ input_file_name }} ({{ task }}d on {{ date_time }})",
+    )
+    with open(srt, "w", encoding="utf-8") as f:
+        f.write("1\n00:00:01,000 --> 00:00:03,500\nHello there.\n\n")
+
+    plugin = _sat_plugin()
+    ctx = _sat_context(config={"check_result_files": True, "check_database": False})
+    result = plugin.check_skip(_SatTask(file_path=str(audio)), ctx)
+    assert result is not None
+    assert result[0].text == "Hello there."
+
+
 def test_sat_returns_none_when_result_files_disabled(tmp_path):
     plugin = _sat_plugin()
     audio = tmp_path / "audio.mp3"
