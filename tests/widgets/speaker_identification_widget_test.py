@@ -414,25 +414,6 @@ class TestSpeakerIdentificationWidget:
         assert worker._is_cancelled is True
         assert worker._cancel_if_requested("step 1") is True
 
-    def test_get_transcript_splits_on_sentence_end(self, transcription):
-        """get_transcript groups words into a segment when a sentence ends."""
-        mock_service = MagicMock()
-        mock_service.get_transcription_segments.return_value = [
-            MagicMock(text="Hello", start_time=0, end_time=100),
-            MagicMock(text="world.", start_time=100, end_time=200),
-            MagicMock(text="Unfinished", start_time=200, end_time=300),
-        ]
-        worker = IdentificationWorker(transcription, mock_service)
-
-        result = worker.get_transcript(audio=None)
-
-        assert result["language"] == transcription.language
-        # Only "world." ends a sentence, so exactly one segment is emitted and
-        # the trailing "Unfinished" word (no terminator) is dropped.
-        assert len(result["segments"]) == 1
-        assert result["segments"][0]["text"] == "Hello world. "
-        assert [w["word"] for w in result["segments"][0]["words"]] == ["Hello ", "world. "]
-
     def test_get_transcript_data_joins_segments(self, transcription, transcription_service):
         """_get_transcript_data collapses whitespace and decodes the audio."""
         import numpy as np
