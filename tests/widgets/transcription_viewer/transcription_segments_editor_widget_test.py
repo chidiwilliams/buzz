@@ -2,7 +2,8 @@ import uuid
 from uuid import UUID
 import pytest
 from pytestqt.qtbot import QtBot
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QEvent
+from PyQt6.QtGui import QFocusEvent
 from PyQt6.QtSql import QSqlRecord
 
 from buzz.db.entity.transcription import Transcription
@@ -49,6 +50,15 @@ class TestParseTimestamp:
         result = parse_timestamp("01:23:45")
         expected = 1 * 3600 * 1000 + 23 * 60 * 1000 + 45 * 1000
         assert result == expected
+
+    def test_parse_timestamp_short_fraction(self):
+        """Test fractions with fewer than three digits are read as decimals"""
+        assert parse_timestamp("00:00:05.5") == 5500
+        assert parse_timestamp("1:23.45") == 83450
+
+    def test_parse_timestamp_long_fraction(self):
+        """Test fractions with more than three digits are truncated to ms"""
+        assert parse_timestamp("00:00:05.1234") == 5123
 
     def test_parse_timestamp_with_whitespace(self):
         """Test parsing with leading/trailing whitespace"""
@@ -139,6 +149,18 @@ class TestTimeStampLineEdit:
 
         # Text should still be valid
         assert len(widget.text()) > 0
+
+    def test_focus_out_reads_short_fraction_as_decimal(self, qtbot: QtBot):
+        widget = TimeStampLineEdit()
+        qtbot.add_widget(widget)
+
+        widget.set_milliseconds(5000)
+        widget.clear()
+        qtbot.keyClicks(widget, "00:00:05.5")
+        widget.focusOutEvent(QFocusEvent(QEvent.Type.FocusOut))
+
+        assert widget.get_milliseconds() == 5500
+        assert widget.text() == "00:00:05.500"
 
     def test_validator_rejects_invalid_characters(self, qtbot: QtBot):
         """Test that validator rejects invalid characters"""
