@@ -76,11 +76,14 @@ class SkipAlreadyTranscribedPlugin(BuzzPlugin):
         return None
 
     def _find_result_file_segments(self, file_path: str, task, context: PluginContext):
+        from buzz.paths import safe_filename_component
         from buzz.transcriber.transcriber import OutputFormat
 
         stem = Path(file_path).stem
         if stem.endswith("_speech"):
             stem = stem[:-7]
+        # Match the name get_output_file_path writes, e.g. "what?" -> "what_"
+        stem = safe_filename_component(stem)
 
         search_dirs = [Path(file_path).parent]
         if task.output_directory:
