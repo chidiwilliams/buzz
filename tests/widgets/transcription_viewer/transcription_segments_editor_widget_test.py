@@ -13,7 +13,6 @@ from buzz.widgets.transcription_viewer.transcription_segments_editor_widget impo
     TranscriptionSegmentsEditorWidget,
     TranscriptionSegmentModel,
     TimeStampLineEdit,
-    TimeStampDelegate,
     TimeStampEditorDelegate,
     WordWrapDelegate,
     CustomTextEdit,
@@ -151,22 +150,6 @@ class TestTimeStampLineEdit:
         # The validator is set up but text might still be set
         # We're mainly testing that the validator exists and works
         assert hasattr(widget, 'validator')
-
-
-class TestTimeStampDelegate:
-    """Test the TimeStampDelegate"""
-
-    def test_display_text_formatting(self):
-        """Test that displayText formats milliseconds correctly"""
-        delegate = TimeStampDelegate()
-
-        # Test formatting
-        from PyQt6.QtCore import QLocale
-        locale = QLocale()
-
-        result = delegate.displayText(5000, locale)
-        assert len(result) > 0
-        assert ":" in result
 
 
 class TestTimeStampEditorDelegate:

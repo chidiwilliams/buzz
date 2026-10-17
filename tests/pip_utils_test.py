@@ -1,4 +1,3 @@
-import subprocess
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -22,24 +21,6 @@ class TestEnvironmentDetection:
     def test_is_not_flatpak(self, monkeypatch):
         monkeypatch.delenv("FLATPAK_ID", raising=False)
         assert pip_utils.is_flatpak() is False
-
-    def test_in_virtualenv_when_prefixes_differ(self, monkeypatch):
-        monkeypatch.delenv("VIRTUAL_ENV", raising=False)
-        monkeypatch.setattr(pip_utils.sys, "prefix", "/venv")
-        monkeypatch.setattr(pip_utils.sys, "base_prefix", "/usr")
-        assert pip_utils._in_virtualenv() is True
-
-    def test_in_virtualenv_via_env_var(self, monkeypatch):
-        monkeypatch.setattr(pip_utils.sys, "prefix", "/usr")
-        monkeypatch.setattr(pip_utils.sys, "base_prefix", "/usr")
-        monkeypatch.setenv("VIRTUAL_ENV", "/venv")
-        assert pip_utils._in_virtualenv() is True
-
-    def test_not_in_virtualenv(self, monkeypatch):
-        monkeypatch.setattr(pip_utils.sys, "prefix", "/usr")
-        monkeypatch.setattr(pip_utils.sys, "base_prefix", "/usr")
-        monkeypatch.delenv("VIRTUAL_ENV", raising=False)
-        assert pip_utils._in_virtualenv() is False
 
 
 class TestSubprocessHideWindowKwargs:

@@ -4,10 +4,9 @@ import logging
 import queue
 
 from typing import Optional, List, Tuple
-from openai import OpenAI, max_retries
+from openai import OpenAI
 from PyQt6.QtCore import QObject, pyqtSignal
 
-from buzz.locale import _
 from buzz.settings.settings import Settings
 from buzz.store.keyring_store import get_password, Key
 from buzz.transcriber.transcriber import TranscriptionOptions

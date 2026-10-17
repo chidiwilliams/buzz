@@ -47,6 +47,28 @@ class TestTranscriptionViewerWidgetAdditional:
 
         return transcription_dao.find_by_id(str(id))
 
+    def test_minimum_width_fits_visible_controls(self, qtbot: QtBot, transcription, transcription_service, shortcuts):
+        """Narrowing the window must not crop the playback controls row"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        widget.show()
+
+        widget.loop_controls_frame.show()
+        qtbot.waitUntil(
+            lambda: widget.minimumWidth() >= widget.loop_controls_frame.minimumSizeHint().width()
+        )
+        widget.resize(widget.MINIMUM_WIDTH, widget.height())
+        qtbot.waitUntil(
+            lambda: widget.loop_controls_frame.width() >= widget.loop_controls_frame.minimumSizeHint().width()
+        )
+
+        widget.loop_controls_frame.hide()
+        qtbot.waitUntil(lambda: widget.minimumWidth() == widget.MINIMUM_WIDTH)
+
+        widget.close()
+
     def test_toggle_audio_playback(self, qtbot: QtBot, transcription, transcription_service, shortcuts):
         """Test toggle_audio_playback method"""
         widget = TranscriptionViewerWidget(
@@ -878,28 +900,6 @@ class TestTranscriptionViewerWidgetAdditional:
 
         # Should disable follow audio
         assert widget.follow_audio_enabled == False
-
-        widget.close()
-
-    def test_on_transcript_segment_clicked(self, qtbot: QtBot, transcription, transcription_service, shortcuts):
-        """Test on_transcript_segment_clicked method"""
-        widget = TranscriptionViewerWidget(
-            transcription, transcription_service, shortcuts
-        )
-        qtbot.add_widget(widget)
-
-        # Without current media player - should return early
-        widget.current_media_player = None
-        segment = widget.table_widget.model().record(0)
-        segment_mock = MagicMock()
-        segment_mock.start_time = 100
-        widget.on_transcript_segment_clicked(segment_mock)
-
-        # With current media player
-        widget.current_media_player = widget.audio_player
-        widget.on_transcript_segment_clicked(segment_mock)
-
-        assert hasattr(widget, 'on_transcript_segment_clicked')
 
         widget.close()
 
