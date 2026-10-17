@@ -28,6 +28,16 @@ def _get_secrets_file_path() -> str:
     return os.path.join(data_dir, ".secrets.json")
 
 
+# The portal secret is fixed for the lifetime of the application, so it is
+# fetched once per process. Each lookup is a D-Bus round trip that can block
+# the UI thread, and get_password() is called from many widgets.
+_PORTAL_SECRET_NOT_FETCHED = object()
+_portal_secret_cache = _PORTAL_SECRET_NOT_FETCHED
+
+# How long to wait for the portal to answer the RetrieveSecret request
+PORTAL_RESPONSE_TIMEOUT_SECONDS = 5.0
+
+
 def _get_portal_secret() -> bytes | None:
     """Get the application secret from XDG Desktop Portal.
 
@@ -35,13 +45,25 @@ def _get_portal_secret() -> bytes | None:
     for encrypting application-specific data. This works in sandboxed
     environments (Snap/Flatpak) via the desktop plug.
     """
+    global _portal_secret_cache
+
     if not _is_linux():
         return None
 
+    if _portal_secret_cache is _PORTAL_SECRET_NOT_FETCHED:
+        _portal_secret_cache = _retrieve_portal_secret()
+
+    return _portal_secret_cache
+
+
+def _retrieve_portal_secret() -> bytes | None:
     try:
-        from jeepney import DBusAddress, new_method_call
-        from jeepney.io.blocking import open_dbus_connection
+        from jeepney import (
+            DBusAddress, HeaderFields, MatchRule, message_bus, new_method_call
+        )
+        from jeepney.io.blocking import Proxy, open_dbus_connection
         import socket
+        import time
 
         # Open connection with file descriptor support enabled
         conn = open_dbus_connection(bus="SESSION", enable_fds=True)
@@ -52,25 +74,57 @@ def _get_portal_secret() -> bytes | None:
             interface="org.freedesktop.portal.Secret",
         )
 
+        # The portal reports the outcome with a Response signal on the
+        # returned request object. Subscribe before sending the request so
+        # the signal can not be missed.
+        response_rule = MatchRule(
+            type="signal",
+            interface="org.freedesktop.portal.Request",
+            member="Response",
+        )
+
         # Create a socket pair for receiving the secret
         sock_read, sock_write = socket.socketpair(socket.AF_UNIX, socket.SOCK_STREAM)
 
         try:
-            # Build the method call with file descriptor
-            # RetrieveSecret(fd: h, options: a{sv}) -> (handle: o)
-            # Pass the socket object directly - jeepney handles fd passing
-            msg = new_method_call(portal, "RetrieveSecret", "ha{sv}", (sock_write, {}))
+            Proxy(message_bus, conn).AddMatch(response_rule)
 
-            # Send message and get reply
-            conn.send_and_get_reply(msg, timeout=10)
+            with conn.filter(response_rule) as responses:
+                # Build the method call with file descriptor
+                # RetrieveSecret(fd: h, options: a{sv}) -> (handle: o)
+                # Pass the socket object directly - jeepney handles fd passing
+                msg = new_method_call(portal, "RetrieveSecret", "ha{sv}", (sock_write, {}))
 
-            # Close the write end - portal has it now
-            sock_write.close()
-            sock_write = None
+                # Send message and get reply
+                reply = conn.send_and_get_reply(msg, timeout=10)
+                request_handle = reply.body[0]
+
+                # Close the write end - portal has it now
+                sock_write.close()
+                sock_write = None
+
+                # Wait for the Response of our request. A non zero code means
+                # the portal will not send a secret, e.g. when the app is not
+                # sandboxed, so there is no point waiting on the socket.
+                deadline = time.monotonic() + PORTAL_RESPONSE_TIMEOUT_SECONDS
+                while True:
+                    signal = conn.recv_until_filtered(
+                        responses, timeout=max(deadline - time.monotonic(), 0)
+                    )
+                    if signal.header.fields.get(HeaderFields.path) == request_handle:
+                        response_code = signal.body[0]
+                        break
+
+            if response_code != 0:
+                logging.debug(
+                    "XDG Portal secret not available, response code %s",
+                    response_code,
+                )
+                return None
 
             # Read the secret from the read end
             # The portal writes the secret and closes its end
-            sock_read.settimeout(5.0)
+            sock_read.settimeout(PORTAL_RESPONSE_TIMEOUT_SECONDS)
             secret_data = b""
             while True:
                 try:
@@ -90,6 +144,7 @@ def _get_portal_secret() -> bytes | None:
             sock_read.close()
             if sock_write is not None:
                 sock_write.close()
+            conn.close()
 
     except Exception as exc:
         logging.debug("XDG Portal secret not available: %s", exc)

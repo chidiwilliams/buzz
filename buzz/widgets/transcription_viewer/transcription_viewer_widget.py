@@ -5,7 +5,7 @@ from typing import Optional
 from uuid import UUID
 
 from PyQt6 import sip
-from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer, QEvent
 from PyQt6.QtGui import QColor, QFont, QPalette, QTextCharFormat, QTextCursor
 from PyQt6.QtMultimedia import QMediaPlayer
 from PyQt6.QtSql import QSqlRecord
@@ -54,7 +54,7 @@ from buzz.widgets.icon import (
 from buzz.translator import Translator
 from buzz.widgets.text_display_box import TextDisplayBox
 from buzz.widgets.toolbar import ToolBar
-from buzz.transcriber.transcriber import TranscriptionOptions, Segment
+from buzz.transcriber.transcriber import TranscriptionOptions
 from buzz.widgets.transcriber.advanced_settings_dialog import AdvancedSettingsDialog
 from buzz.widgets.transcription_viewer.export_transcription_menu import (
     ExportTranscriptionMenu,
@@ -78,6 +78,7 @@ if not (platform.system() == "Darwin" and platform.machine() == "x86_64"):
 
 class TranscriptionViewerWidget(QWidget):
     AUDIO_PLAYER_MAX_HEIGHT = 80
+    MINIMUM_WIDTH = 800
     resize_button_clicked = pyqtSignal()
     transcription: Transcription
     settings = Settings()
@@ -96,7 +97,7 @@ class TranscriptionViewerWidget(QWidget):
         self.transcription_service = transcription_service
         self.shortcuts = shortcuts
 
-        self.setMinimumWidth(800)
+        self.setMinimumWidth(self.MINIMUM_WIDTH)
         self.setMinimumHeight(500)
         self.setWindowTitle(file_path_as_title(transcription.file))
 
@@ -400,15 +401,6 @@ class TranscriptionViewerWidget(QWidget):
         if hasattr(self, 'media_splitter'):
             self.load_splitter_sizes()
 
-    def on_transcript_segment_clicked(self, segment):
-        if not self.current_media_player:
-            return
-
-        start_time_ms = int(segment.start_time)
-        self.current_media_player.set_position(start_time_ms)
-        if self.current_media_player.media_player.playbackState() != QMediaPlayer.PlaybackState.PlayingState:
-            self.current_media_player.media_player.play()
-
     def restore_ui_state(self):
         """Restore UI state from settings"""
         # Restore playback controls visibility
@@ -441,7 +433,6 @@ class TranscriptionViewerWidget(QWidget):
         self.search_input.setMinimumWidth(300)  # Increased from 200 to 300
 
         # Add keyboard shortcuts for search navigation
-        from PyQt6.QtGui import QKeySequence
         self.search_input.installEventFilter(self)
 
         search_layout.addWidget(self.search_input)
@@ -1763,6 +1754,18 @@ class TranscriptionViewerWidget(QWidget):
         except Exception as e:
             pass  # Silently handle any errors
 
+    def event(self, event):
+        result = super().event(event)
+        # An explicit minimum width overrides the layout's own minimum, so keep
+        # it in sync to avoid cropping controls (e.g. the playback controls
+        # row, whose width depends on the UI language) when the window is
+        # narrowed. Layout requests follow rows being shown or hidden.
+        if event.type() == QEvent.Type.LayoutRequest and self.layout() is not None:
+            minimum_width = max(self.MINIMUM_WIDTH, self.layout().minimumSize().width())
+            if minimum_width != self.minimumWidth():
+                self.setMinimumWidth(minimum_width)
+        return result
+
     def resizeEvent(self, event):
         """Save geometry when widget is resized"""
         self.save_geometry()
@@ -1861,7 +1864,15 @@ class TranscriptionViewerWidget(QWidget):
 
         # Apply sizes
         if sizes:
-            self.media_splitter.setSizes([int(s) for s in sizes])
+            sizes = [int(s) for s in sizes]
+            # setSizes() does not respect the player's maximum height, so a
+            # stale saved size would leave empty space below the audio player
+            # and squeeze the transcript table. Give the excess to the table.
+            if not self.is_video and len(sizes) == 2:
+                table_size, player_size = sizes
+                capped_player_size = min(player_size, self.AUDIO_PLAYER_MAX_HEIGHT)
+                sizes = [table_size + player_size - capped_player_size, capped_player_size]
+            self.media_splitter.setSizes(sizes)
 
     def on_splitter_moved(self, pos: int, index: int):
         """Called when user moves the splitter"""

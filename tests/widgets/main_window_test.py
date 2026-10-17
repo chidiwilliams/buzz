@@ -7,6 +7,7 @@ from typing import List
 from unittest.mock import call, patch, Mock
 
 import pytest
+from PyQt6 import sip
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QKeyEvent, QAction
 from PyQt6.QtWidgets import (
@@ -341,6 +342,51 @@ class TestMainWindow:
         assert window.transcription_viewer_widget is not None
 
         window.close()
+
+    def _open_completed_transcription_viewer(self, window: MainWindow):
+        table_widget = self._get_tasks_table(window)
+        for i in range(table_widget.model().rowCount()):
+            if self._get_status(table_widget, i) == "completed":
+                table_widget.selectRow(i)
+                break
+        window.toolbar.open_transcript_action.trigger()
+        return window.transcription_viewer_widget
+
+    @pytest.mark.parametrize("transcription_dao", [mock_transcriptions], indirect=True)
+    def test_should_delete_transcription_viewer_when_closed(
+        self, qtbot, transcription_dao, transcription_segment_dao
+    ):
+        window = MainWindow(
+            TranscriptionService(transcription_dao, transcription_segment_dao)
+        )
+        qtbot.add_widget(window)
+
+        viewer = self._open_completed_transcription_viewer(window)
+        viewer.close()
+
+        # A closed viewer left alive keeps its media player around until
+        # exit, where PyQt's cleanup segfaults on it
+        qtbot.waitUntil(lambda: sip.isdeleted(viewer))
+
+        window.close()
+
+    @pytest.mark.parametrize("transcription_dao", [mock_transcriptions], indirect=True)
+    def test_should_delete_open_transcription_viewers_when_closed(
+        self, qtbot, transcription_dao, transcription_segment_dao
+    ):
+        window = MainWindow(
+            TranscriptionService(transcription_dao, transcription_segment_dao)
+        )
+        qtbot.add_widget(window)
+
+        first_viewer = self._open_completed_transcription_viewer(window)
+        second_viewer = self._open_completed_transcription_viewer(window)
+
+        window.close()
+
+        assert sip.isdeleted(first_viewer)
+        assert sip.isdeleted(second_viewer)
+        assert window.transcription_viewer_widget is None
 
     @pytest.mark.parametrize("transcription_dao", [mock_transcriptions], indirect=True)
     def test_should_have_open_transcript_action_disabled_with_no_rows_selected(

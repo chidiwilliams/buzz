@@ -74,7 +74,7 @@ begin
   if CurUninstallStep = usPostUninstall then
   begin
     if RegKeyExists(HKEY_CURRENT_USER, '{#AppRegKey}') then
-      if MsgBox('Do you want to delete Buzz settings and saved files?', mbConfirmation, MB_YESNO) = IDYES
+      if SuppressibleMsgBox('Do you want to delete Buzz settings and saved files?', mbConfirmation, MB_YESNO, IDNO) = IDYES
       then
       begin
         RegDeleteKeyIncludingSubkeys(HKEY_CURRENT_USER, '{#AppRegKey}');

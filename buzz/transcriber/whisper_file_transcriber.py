@@ -13,13 +13,11 @@ import torch
 import platform
 
 from buzz.transcriber.cuda_device import cuda_works
-import subprocess
 from platformdirs import user_cache_dir
 from multiprocessing.connection import Connection
 from threading import Lock, Thread
 from typing import Optional, List
 
-import tqdm
 import psutil
 from PyQt6.QtCore import QObject
 
@@ -334,7 +332,6 @@ class WhisperFileTranscriber(FileTranscriber):
                 "Faster Whisper model is not available locally. "
                 "Check BUZZ_MODEL_ROOT and download the model into that cache first."
             )
-            return []
 
         model_root_dir = user_cache_dir("Buzz")
         model_root_dir = os.path.join(model_root_dir, "models")
