@@ -881,28 +881,6 @@ class TestTranscriptionViewerWidgetAdditional:
 
         widget.close()
 
-    def test_on_transcript_segment_clicked(self, qtbot: QtBot, transcription, transcription_service, shortcuts):
-        """Test on_transcript_segment_clicked method"""
-        widget = TranscriptionViewerWidget(
-            transcription, transcription_service, shortcuts
-        )
-        qtbot.add_widget(widget)
-
-        # Without current media player - should return early
-        widget.current_media_player = None
-        segment = widget.table_widget.model().record(0)
-        segment_mock = MagicMock()
-        segment_mock.start_time = 100
-        widget.on_transcript_segment_clicked(segment_mock)
-
-        # With current media player
-        widget.current_media_player = widget.audio_player
-        widget.on_transcript_segment_clicked(segment_mock)
-
-        assert hasattr(widget, 'on_transcript_segment_clicked')
-
-        widget.close()
-
     def test_hide_loop_controls(self, qtbot: QtBot, transcription, transcription_service, shortcuts):
         """Test hide_loop_controls method"""
         widget = TranscriptionViewerWidget(

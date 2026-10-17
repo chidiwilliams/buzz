@@ -42,7 +42,3 @@ class MMSLanguageLineEdit(LineEdit):
     def language(self) -> str:
         """Get the current language code."""
         return self.text().strip().lower()
-
-    def setLanguage(self, language: str):
-        """Set the language code."""
-        self.setText(language.strip().lower() if language else "eng")

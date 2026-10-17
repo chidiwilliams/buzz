@@ -59,16 +59,6 @@ class PauseIcon(Icon):
         super().__init__(get_path("assets/pause_black_24dp.svg"), parent)
 
 
-class UndoIcon(Icon):
-    def __init__(self, parent: QWidget):
-        super().__init__(get_path("assets/undo_FILL0_wght700_GRAD0_opsz48.svg"), parent)
-
-
-class RedoIcon(Icon):
-    def __init__(self, parent: QWidget):
-        super().__init__(get_path("assets/redo_FILL0_wght700_GRAD0_opsz48.svg"), parent)
-
-
 class FileDownloadIcon(Icon):
     def __init__(self, parent: QWidget):
         super().__init__(get_path("assets/file_download_black_24dp.svg"), parent)

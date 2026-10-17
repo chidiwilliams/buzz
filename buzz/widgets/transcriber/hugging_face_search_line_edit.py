@@ -94,9 +94,6 @@ class HuggingFaceSearchLineEdit(LineEdit):
 
         return self.network_manager.get(QNetworkRequest(url))
 
-    def on_popup_selected(self):
-        self.timer.stop()
-
     def on_request_response(self, network_reply: QNetworkReply):
         if network_reply.error() != QNetworkReply.NetworkError.NoError:
             logging.debug(

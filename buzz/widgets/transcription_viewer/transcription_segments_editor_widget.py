@@ -139,11 +139,6 @@ class TimeStampLineEdit(QLineEdit):
         super().focusOutEvent(event)
 
 
-class TimeStampDelegate(QStyledItemDelegate):
-    def displayText(self, value, locale):
-        return to_timestamp(value)
-
-
 class TimeStampEditorDelegate(QStyledItemDelegate):
     """Delegate for editing timestamps with overlap prevention"""
 

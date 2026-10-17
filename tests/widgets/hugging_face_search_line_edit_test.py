@@ -2,7 +2,7 @@ import json
 from unittest.mock import MagicMock, patch
 
 import pytest
-from PyQt6.QtCore import Qt, QEvent, QPoint
+from PyQt6.QtCore import Qt, QEvent
 from PyQt6.QtGui import QKeyEvent
 from PyQt6.QtNetwork import QNetworkReply, QNetworkAccessManager
 from PyQt6.QtWidgets import QListWidgetItem
@@ -118,12 +118,6 @@ class TestHuggingFaceSearchLineEdit:
         with patch.object(widget.popup, 'hide') as mock_hide:
             widget.on_select_item()
         mock_hide.assert_called_once()
-
-    def test_on_popup_selected_stops_timer(self, widget):
-        widget.timer.start()
-        assert widget.timer.isActive()
-        widget.on_popup_selected()
-        assert not widget.timer.isActive()
 
     def test_event_filter_ignores_non_popup_target(self, widget):
         other = MagicMock()

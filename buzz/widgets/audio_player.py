@@ -258,9 +258,6 @@ class AudioPlayer(QWidget):
     def clear_range(self):
         self.range_ms = None
 
-    def _reset_looping_flag(self):
-        self.is_looping = False
-
     def on_slider_moved(self, position_ms: int):
         self.set_position(position_ms)
         if self.range_ms is not None:
