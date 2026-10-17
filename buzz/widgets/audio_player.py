@@ -54,13 +54,16 @@ class AudioPlayer(QWidget):
             logging.warning("AudioPlayer: sounddevice init failed, using Qt fallback", exc_info=True)
 
     def _init_media_player(self, file_path: str):
-        self.audio_output = QAudioOutput()
+        # Parent the multimedia objects to this widget so Qt destroys them along
+        # with it. Left parentless, they can outlive the widget until interpreter
+        # exit, where PyQt's cleanup segfaults on them.
+        self.audio_output = QAudioOutput(self)
         self.audio_output.setVolume(100)
-        self.media_player = QMediaPlayer()
+        self.media_player = QMediaPlayer(self)
         self.media_player.setSource(QUrl.fromLocalFile(file_path))
         self.media_player.setAudioOutput(self.audio_output)
 
-        self.media_devices = QMediaDevices()
+        self.media_devices = QMediaDevices(self)
         self.media_devices.audioOutputsChanged.connect(self.on_audio_outputs_changed)
 
         if self.is_video:
@@ -296,9 +299,11 @@ class AudioPlayer(QWidget):
             return
         was_playing = self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState
         position = self.media_player.position()
-        self.audio_output = QAudioOutput()
+        old_audio_output = self.audio_output
+        self.audio_output = QAudioOutput(self)
         self.audio_output.setVolume(100)
         self.media_player.setAudioOutput(self.audio_output)
+        old_audio_output.deleteLater()
         self.media_player.setPosition(position)
         if was_playing:
             self.media_player.play()

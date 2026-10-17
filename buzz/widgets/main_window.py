@@ -3,7 +3,7 @@ import logging
 from typing import Tuple, List, Optional, Set
 from uuid import UUID
 
-from PyQt6 import QtGui
+from PyQt6 import QtGui, sip
 from PyQt6.QtCore import (
     Qt,
     QThread,
@@ -459,6 +459,12 @@ class MainWindow(QMainWindow):
             flags=Qt.WindowType.Window,
             transcriptions_updated_signal=self.transcriptions_updated,
         )
+        # Free the viewer and its media player once closed. Otherwise every
+        # closed viewer lingers until exit, holding its decoded audio, and
+        # PyQt's cleanup at interpreter exit segfaults on its media player.
+        self.transcription_viewer_widget.setAttribute(
+            Qt.WidgetAttribute.WA_DeleteOnClose
+        )
         self.transcription_viewer_widget.show()
 
     def add_task(self, task: FileTranscriptionTask):
@@ -589,8 +595,13 @@ class MainWindow(QMainWindow):
                 if not self.transcriber_thread.wait(2000):
                     logging.error("Transcriber thread could not be terminated")
 
-        if self.transcription_viewer_widget is not None:
-            self.transcription_viewer_widget.close()
+        # Several viewers can be open at once, close them all. Delete them right
+        # away as the app may exit before their deferred deletion runs, and
+        # PyQt's cleanup at interpreter exit segfaults on their media players.
+        for viewer in self.findChildren(TranscriptionViewerWidget):
+            viewer.close()
+            sip.delete(viewer)
+        self.transcription_viewer_widget = None
 
         try:
             from buzz.widgets.application import Application
