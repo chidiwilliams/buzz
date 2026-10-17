@@ -47,6 +47,28 @@ class TestTranscriptionViewerWidgetAdditional:
 
         return transcription_dao.find_by_id(str(id))
 
+    def test_minimum_width_fits_visible_controls(self, qtbot: QtBot, transcription, transcription_service, shortcuts):
+        """Narrowing the window must not crop the playback controls row"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        widget.show()
+
+        widget.loop_controls_frame.show()
+        qtbot.waitUntil(
+            lambda: widget.minimumWidth() >= widget.loop_controls_frame.minimumSizeHint().width()
+        )
+        widget.resize(widget.MINIMUM_WIDTH, widget.height())
+        qtbot.waitUntil(
+            lambda: widget.loop_controls_frame.width() >= widget.loop_controls_frame.minimumSizeHint().width()
+        )
+
+        widget.loop_controls_frame.hide()
+        qtbot.waitUntil(lambda: widget.minimumWidth() == widget.MINIMUM_WIDTH)
+
+        widget.close()
+
     def test_toggle_audio_playback(self, qtbot: QtBot, transcription, transcription_service, shortcuts):
         """Test toggle_audio_playback method"""
         widget = TranscriptionViewerWidget(

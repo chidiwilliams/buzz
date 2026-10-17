@@ -5,7 +5,7 @@ from typing import Optional
 from uuid import UUID
 
 from PyQt6 import sip
-from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer, QEvent
 from PyQt6.QtGui import QColor, QFont, QPalette, QTextCharFormat, QTextCursor
 from PyQt6.QtMultimedia import QMediaPlayer
 from PyQt6.QtSql import QSqlRecord
@@ -78,6 +78,7 @@ if not (platform.system() == "Darwin" and platform.machine() == "x86_64"):
 
 class TranscriptionViewerWidget(QWidget):
     AUDIO_PLAYER_MAX_HEIGHT = 80
+    MINIMUM_WIDTH = 800
     resize_button_clicked = pyqtSignal()
     transcription: Transcription
     settings = Settings()
@@ -96,7 +97,7 @@ class TranscriptionViewerWidget(QWidget):
         self.transcription_service = transcription_service
         self.shortcuts = shortcuts
 
-        self.setMinimumWidth(800)
+        self.setMinimumWidth(self.MINIMUM_WIDTH)
         self.setMinimumHeight(500)
         self.setWindowTitle(file_path_as_title(transcription.file))
 
@@ -1752,6 +1753,18 @@ class TranscriptionViewerWidget(QWidget):
 
         except Exception as e:
             pass  # Silently handle any errors
+
+    def event(self, event):
+        result = super().event(event)
+        # An explicit minimum width overrides the layout's own minimum, so keep
+        # it in sync to avoid cropping controls (e.g. the playback controls
+        # row, whose width depends on the UI language) when the window is
+        # narrowed. Layout requests follow rows being shown or hidden.
+        if event.type() == QEvent.Type.LayoutRequest and self.layout() is not None:
+            minimum_width = max(self.MINIMUM_WIDTH, self.layout().minimumSize().width())
+            if minimum_width != self.minimumWidth():
+                self.setMinimumWidth(minimum_width)
+        return result
 
     def resizeEvent(self, event):
         """Save geometry when widget is resized"""
