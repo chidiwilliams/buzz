@@ -17,18 +17,46 @@ def assert_approximately_equal(actual, expected, tolerance=0.001):
     assert abs(actual - expected) < tolerance, f"Value {actual} is not approximately equal to {expected}"
 
 
+def make_audio_player(qtbot: QtBot) -> AudioPlayer:
+    """Creates an AudioPlayer and waits for its audio to be decoded."""
+    widget = AudioPlayer(test_audio_path)
+    qtbot.add_widget(widget)
+    qtbot.wait_until(lambda: not widget._loading_audio)
+    return widget
+
+
 class TestAudioPlayer:
-    def test_should_load_audio(self, qtbot: QtBot):
+    def test_play_button_waits_for_decoded_audio(self, qtbot: QtBot):
         widget = AudioPlayer(test_audio_path)
         qtbot.add_widget(widget)
+
+        assert not widget.play_button.isEnabled()
+        # Qt reporting the media as loaded must not enable it early either
+        widget.set_invalid_media(False)
+        assert not widget.play_button.isEnabled()
+
+        qtbot.wait_until(lambda: not widget._loading_audio)
+        assert widget.play_button.isEnabled()
+        assert widget._use_sd is True
+
+    def test_audio_loaded_after_seek_starts_at_seek_position(self, qtbot: QtBot):
+        widget = AudioPlayer(test_audio_path)
+        qtbot.add_widget(widget)
+
+        widget.position_ms = 1500
+        qtbot.wait_until(lambda: not widget._loading_audio)
+
+        assert abs(widget._sd_player.position_ms - 1500) < 50
+
+    def test_should_load_audio(self, qtbot: QtBot):
+        widget = make_audio_player(qtbot)
 
         actual = os.path.normpath(widget.media_player.source().toLocalFile())
         expected = os.path.normpath(test_audio_path)
         assert actual == expected
 
     def test_should_update_time_label(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         widget.position_ms = 1000
         widget.duration_ms = 2000
@@ -40,8 +68,7 @@ class TestAudioPlayer:
         assert widget.time_label.text() == f"{position_time} / {duration_time}"
 
     def test_should_toggle_play_button_icon(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         # Force Qt path for icon state testing
         widget._use_sd = False
@@ -55,8 +82,7 @@ class TestAudioPlayer:
         assert widget.play_button.icon().themeName() == widget.play_icon.themeName()
 
     def test_should_have_basic_audio_controls(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         # Speed controls were moved to transcription viewer - just verify basic audio player functionality
         assert widget.play_button is not None
@@ -68,8 +94,7 @@ class TestAudioPlayer:
         assert os.path.normpath(widget.media_player.source().toLocalFile()) == os.path.normpath(test_audio_path)
 
     def test_should_change_playback_rate_directly(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         # Speed controls moved to transcription viewer - test basic playback rate functionality
         initial_rate = widget.media_player.playbackRate()
@@ -77,16 +102,14 @@ class TestAudioPlayer:
         assert_approximately_equal(widget.media_player.playbackRate(), 1.5)
 
     def test_should_handle_custom_playback_rates(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         # Speed controls moved to transcription viewer - test basic playback rate functionality
         widget.media_player.setPlaybackRate(1.7)
         assert_approximately_equal(widget.media_player.playbackRate(), 1.7)
 
     def test_should_handle_various_playback_rates(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         # Speed controls moved to transcription viewer - test basic playback rate functionality
         # Test that the media player can handle various playback rates
@@ -97,8 +120,7 @@ class TestAudioPlayer:
         assert_approximately_equal(widget.media_player.playbackRate(), 2.0)
 
     def test_should_use_single_row_layout(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         # Verify the layout structure
         layout = widget.layout()
@@ -107,8 +129,7 @@ class TestAudioPlayer:
         assert layout.count() == 3  # play_button, scrubber, time_label
 
     def test_should_persist_playback_rate_setting(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         # Speed controls moved to transcription viewer - test that settings are loaded
         # The widget should load the saved playback rate from settings
@@ -118,8 +139,7 @@ class TestAudioPlayer:
         assert 0.1 <= saved_rate <= 5.0
 
     def test_should_handle_range_looping(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         # Test range setting and looping functionality
         widget.set_range((1000, 3000))  # 1-3 seconds
@@ -130,8 +150,7 @@ class TestAudioPlayer:
         assert widget.range_ms is None
 
     def test_should_handle_invalid_media(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         widget.set_invalid_media(True)
         
@@ -142,16 +161,14 @@ class TestAudioPlayer:
         assert widget.time_label.isEnabled() is False
 
     def test_should_stop_playback(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         # Test stop functionality
         widget.stop()
         assert widget.media_player.playbackState() == QMediaPlayer.PlaybackState.StoppedState
 
     def test_should_handle_media_status_changes(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         # Test media status handling
         widget.on_media_status_changed(QMediaPlayer.MediaStatus.LoadedMedia)
@@ -161,8 +178,7 @@ class TestAudioPlayer:
         assert widget.invalid_media is True
 
     def test_should_re_enable_controls_on_valid_media(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         widget.set_invalid_media(True)
         widget.set_invalid_media(False)
@@ -172,30 +188,26 @@ class TestAudioPlayer:
         assert widget.time_label.isEnabled()
 
     def test_sounddevice_player_initialised(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         # sounddevice path should be active for a valid audio file
         assert widget._sd_player is not None
         assert widget._use_sd is True
 
     def test_sounddevice_duration_reported(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         if widget._use_sd:
             assert widget.duration_ms > 0
 
     def test_qt_audio_muted_when_sounddevice_active(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         if widget._use_sd:
             assert widget.audio_output.isMuted()
 
     def test_poll_position_updates_scrubber(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         if not widget._use_sd:
             pytest.skip("sounddevice not active")
@@ -208,8 +220,7 @@ class TestAudioPlayer:
         assert widget.scrubber.value() > 0
 
     def test_poll_position_skips_scrubber_while_dragging(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         if not widget._use_sd:
             pytest.skip("sounddevice not active")
@@ -223,8 +234,7 @@ class TestAudioPlayer:
         assert widget.scrubber.value() == 1000
 
     def test_set_position_uses_sounddevice(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         if not widget._use_sd:
             pytest.skip("sounddevice not active")
@@ -234,8 +244,7 @@ class TestAudioPlayer:
 
     def test_toggle_play_sounddevice_path(self, qtbot: QtBot):
         with patch("sounddevice.OutputStream", return_value=MagicMock()):
-            widget = AudioPlayer(test_audio_path)
-            qtbot.add_widget(widget)
+            widget = make_audio_player(qtbot)
 
             if not widget._use_sd:
                 pytest.skip("sounddevice not active")
@@ -252,8 +261,7 @@ class TestAudioPlayer:
 
     def test_stop_stops_sounddevice(self, qtbot: QtBot):
         with patch("sounddevice.OutputStream", return_value=MagicMock()):
-            widget = AudioPlayer(test_audio_path)
-            qtbot.add_widget(widget)
+            widget = make_audio_player(qtbot)
 
             if not widget._use_sd:
                 pytest.skip("sounddevice not active")
@@ -265,8 +273,7 @@ class TestAudioPlayer:
             assert not widget._poll_timer.isActive()
 
     def test_range_looping_with_sounddevice(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         widget.set_range((1000, 3000))
         assert widget.range_ms == (1000, 3000)
@@ -275,8 +282,7 @@ class TestAudioPlayer:
         assert widget.range_ms is None
 
     def test_on_slider_moved_clears_range_if_far_outside(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         widget.set_range((1000, 3000))
         # Move slider far outside range (> 2000 ms away)
@@ -284,8 +290,7 @@ class TestAudioPlayer:
         assert widget.range_ms is None
 
     def test_on_slider_moved_keeps_range_if_close(self, qtbot: QtBot):
-        widget = AudioPlayer(test_audio_path)
-        qtbot.add_widget(widget)
+        widget = make_audio_player(qtbot)
 
         widget.set_range((1000, 3000))
         # Move within 2000 ms of range boundary

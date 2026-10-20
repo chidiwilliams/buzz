@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
 )
 from buzz.widgets.icon import PlayIcon, PauseIcon
 from buzz.sounddevice_player import AudioFilePlayer
+from buzz.widgets.audio_file_player_loader import AudioFilePlayerLoader
 from buzz.ffmpeg_video_player import FfmpegVideoPlayer
 
 
@@ -21,7 +22,6 @@ class VideoPlayer(QWidget):
         super().__init__(parent)
         self._init_attributes()
         self._init_video_decoder(file_path)
-        self._init_audio_engine(file_path)
         self._init_media_player(file_path)
         self._init_video_display()
         self._init_timers()
@@ -29,6 +29,7 @@ class VideoPlayer(QWidget):
         self._init_layout()
         self._init_signals()
         self._finalize_scrubber()
+        self._init_audio_engine(file_path)
 
     def _init_attributes(self):
         self.range_ms: Optional[Tuple[int, int]] = None
@@ -46,15 +47,25 @@ class VideoPlayer(QWidget):
     def _init_audio_engine(self, file_path: str):
         self._sd_player: Optional[AudioFilePlayer] = None
         self._use_sd = False
-        try:
-            sd_player = AudioFilePlayer(file_path)
-            if sd_player.ready:
-                self._sd_player = sd_player
-                self._use_sd = True
-            else:
-                sd_player.close()
-        except Exception:
-            logging.warning("VideoPlayer: sounddevice init failed, no audio", exc_info=True)
+        self._loading_audio = True
+        # Playback waits for the decoded audio, so the video does not start
+        # without sound
+        self.play_button.setDisabled(True)
+        self._audio_loader = AudioFilePlayerLoader(file_path)
+        self._audio_loader.loaded.connect(self._on_audio_loaded)
+        self.destroyed.connect(self._audio_loader.cancel)
+        self._audio_loader.start()
+
+    def _on_audio_loaded(self, sd_player: Optional[AudioFilePlayer]):
+        self._loading_audio = False
+        self._audio_loader = None
+        if sd_player is not None:
+            self._sd_player = sd_player
+            self._use_sd = True
+            sd_player.seek(self.media_player.position())
+        else:
+            logging.warning("VideoPlayer: sounddevice init failed, no audio")
+        self.play_button.setEnabled(True)
 
     def _init_media_player(self, file_path: str):
         self.audio_output = QAudioOutput(self)
@@ -264,6 +275,8 @@ class VideoPlayer(QWidget):
             self._sd_player.stop()
 
     def closeEvent(self, event):
+        if self._audio_loader is not None:
+            self._audio_loader.cancel()
         self.stop()
         self._ffmpeg_player.close()
         if self._sd_player:

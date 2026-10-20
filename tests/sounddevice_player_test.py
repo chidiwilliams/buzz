@@ -4,7 +4,8 @@ import numpy as np
 import pytest
 
 from buzz import audio_devices
-from buzz.sounddevice_player import SounddevicePlayer
+from buzz.sounddevice_player import AudioDecoder, AudioFilePlayer, SounddevicePlayer
+from tests.audio import test_audio_path
 
 
 @pytest.fixture(autouse=True)
@@ -23,6 +24,7 @@ class FakeOutputStream:
     def __init__(self, samplerate, channels, dtype, callback, finished_callback):
         self.samplerate = samplerate
         self.channels = channels
+        self.dtype = dtype
         self.callback = callback
         self.finished_callback = finished_callback
         self.latency = 0.25  # 250 ms output latency, typical of Windows defaults
@@ -173,6 +175,43 @@ class TestDeviceRefresh:
             player.stop()
 
             assert stream not in audio_devices._active_streams
+
+
+class TestAudioDecoder:
+    def test_decodes_to_16_bit_stereo(self):
+        data = AudioDecoder(test_audio_path).decode()
+
+        assert data.dtype == np.int16
+        assert data.shape[1] == 2
+        assert len(data) > 44100  # more than a second of audio
+
+    def test_cancelled_decoder_returns_nothing(self):
+        decoder = AudioDecoder(test_audio_path)
+        decoder.cancel()
+
+        assert decoder.decode() is None
+
+    def test_file_player_is_not_ready_when_cancelled(self):
+        decoder = AudioDecoder(test_audio_path)
+        decoder.cancel()
+
+        assert not AudioFilePlayer(test_audio_path, decoder=decoder).ready
+
+    def test_stream_plays_samples_in_their_own_format(self):
+        """int16 samples are played as they are, without a float32 copy."""
+        FakeOutputStream.instances = []
+        with patch("buzz.sounddevice_player.sd.OutputStream", FakeOutputStream):
+            data = np.zeros((44100, 2), dtype=np.int16)
+            player = SounddevicePlayer(data, 44100)
+            player.play()
+
+            assert FakeOutputStream.instances[-1].dtype == "int16"
+
+            outdata = np.ones((512, 2), dtype=np.int16)
+            player._callback(outdata, 512, None, None)
+            assert not outdata.any()
+
+            player.stop()
 
 
 class TestRefreshAudioDevices:

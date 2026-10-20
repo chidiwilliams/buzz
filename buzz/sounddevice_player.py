@@ -1,9 +1,6 @@
 import logging
-import os
 import subprocess
-import tempfile
 import threading
-import wave
 from typing import Optional
 
 import numpy as np
@@ -20,30 +17,53 @@ from buzz.pip_utils import subprocess_hide_window_kwargs
 
 _find_ffmpeg = find_ffmpeg
 
-
-def decode_audio_to_wav(input_path: str, output_wav: str) -> None:
-    ffmpeg = _find_ffmpeg()
-    subprocess.run(
-        [ffmpeg, "-y", "-i", input_path, "-vn", "-ar", "44100", "-ac", "2",
-         "-f", "wav", output_wav],
-        capture_output=True,
-        check=True,
-        **subprocess_hide_window_kwargs(),
-    )
+SAMPLE_RATE = 44100
+CHANNELS = 2
 
 
-def load_wav(wav_path: str):
-    with wave.open(wav_path, "rb") as wf:
-        n_channels = wf.getnchannels()
-        sampwidth = wf.getsampwidth()
-        framerate = wf.getframerate()
-        n_frames = wf.getnframes()
-        raw = wf.readframes(n_frames)
-    dtype = {1: np.int8, 2: np.int16, 4: np.int32}.get(sampwidth, np.int16)
-    data = np.frombuffer(raw, dtype=dtype).astype(np.float32) / np.iinfo(dtype).max
-    if n_channels > 1:
-        data = data.reshape(-1, n_channels)
-    return data, framerate
+class AudioDecoder:
+    """
+    Decodes an audio/video file to 16-bit stereo samples with ffmpeg.
+    Decoding a long file takes seconds, so another thread may cancel it.
+    """
+
+    def __init__(self, file_path: str):
+        self.file_path = file_path
+        self._lock = threading.Lock()
+        self._process: Optional[subprocess.Popen] = None
+        self._cancelled = False
+
+    def decode(self) -> Optional[np.ndarray]:
+        """Returns the samples, or None if cancelled. Raises if ffmpeg fails."""
+        # Raw samples through a pipe, as a WAV file in between costs a disk
+        # write and read. int16 takes half the memory of float32, which for
+        # a 30 minute file is 300 MB instead of 600 MB.
+        args = [_find_ffmpeg(), "-nostdin", "-v", "error", "-i", self.file_path,
+                "-vn", "-ar", str(SAMPLE_RATE), "-ac", str(CHANNELS),
+                "-f", "s16le", "pipe:1"]
+        with self._lock:
+            if self._cancelled:
+                return None
+            self._process = subprocess.Popen(
+                args,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                **subprocess_hide_window_kwargs(),
+            )
+        stdout, stderr = self._process.communicate()
+
+        if self._cancelled:
+            return None
+        if self._process.returncode != 0:
+            raise subprocess.CalledProcessError(
+                self._process.returncode, args, stderr=stderr)
+        return np.frombuffer(stdout, dtype=np.int16).reshape(-1, CHANNELS)
+
+    def cancel(self):
+        with self._lock:
+            self._cancelled = True
+            if self._process is not None and self._process.poll() is None:
+                self._process.kill()
 
 
 class SounddevicePlayer:
@@ -94,7 +114,7 @@ class SounddevicePlayer:
         self._stream = sd.OutputStream(
             samplerate=self.samplerate,
             channels=channels,
-            dtype="float32",
+            dtype=self.data.dtype.name,
             callback=self._callback,
             finished_callback=self._on_finished,
         )
@@ -181,17 +201,15 @@ class AudioFilePlayer:
     Provides the same interface used by AudioPlayer and VideoPlayer.
     """
 
-    def __init__(self, file_path: str):
-        self._tmp_dir = tempfile.TemporaryDirectory()
-        self._wav_path = os.path.join(self._tmp_dir.name, "audio.wav")
+    def __init__(self, file_path: str, decoder: Optional[AudioDecoder] = None):
         self._player: Optional[SounddevicePlayer] = None
         self._ready = False
 
         try:
-            decode_audio_to_wav(file_path, self._wav_path)
-            data, samplerate = load_wav(self._wav_path)
-            self._player = SounddevicePlayer(data, samplerate)
-            self._ready = True
+            data = (decoder or AudioDecoder(file_path)).decode()
+            if data is not None:
+                self._player = SounddevicePlayer(data, SAMPLE_RATE)
+                self._ready = True
         except Exception:
             logging.error("AudioFilePlayer: failed to decode %s", file_path, exc_info=True)
 
@@ -234,7 +252,3 @@ class AudioFilePlayer:
     def close(self):
         if self._player:
             self._player.close()
-        try:
-            self._tmp_dir.cleanup()
-        except Exception:
-            pass
