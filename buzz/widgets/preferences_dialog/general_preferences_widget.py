@@ -45,6 +45,7 @@ ui_locales = {
     "pl_PL": _("Polish"),
     "pt_BR": _("Portuguese (Brazil)"),
     "ru": _("Russian"),
+    "tr_TR": _("Turkish"),
     "uk_UA": _("Ukrainian"),
     "zh_CN": _("Chinese (Simplified)"),
     "zh_TW": _("Chinese (Traditional)")
