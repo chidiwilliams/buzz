@@ -381,6 +381,24 @@ class FileTranscriberQueueWorker(QObject):
 
         self.is_running = True
 
+        # URL tasks have no local path until the download completes. Prepare
+        # audio before speech extraction and plugins attempt to open the file.
+        if self.current.task.source == FileTranscriptionTask.Source.URL_IMPORT:
+            self.current.transcriber = FileTranscriber(self.current.task)
+            self._setup_transcriber_thread(download_only=True)
+            return
+
+        self._start_transcription()
+
+    @pyqtSlot(list)
+    def _on_url_download_completed(self, _segments):
+        if self.current.task.uid in self.canceled_tasks:
+            self._on_task_finished()
+            return
+        self._cleanup_previous_transcriber()
+        self._start_transcription()
+
+    def _start_transcription(self):
         if self.current.task.transcription_options.extract_speech:
             status = self._setup_speech_extraction()
             if status == "error":
@@ -401,6 +419,7 @@ class FileTranscriberQueueWorker(QObject):
         if self.current.transcriber is not None:
             self.current.transcriber.stop()
             self.current.transcriber = None
+        self.current.transcriber_thread = None
 
     def _get_next_task(self) -> bool:
         while True:
@@ -486,12 +505,14 @@ class FileTranscriberQueueWorker(QObject):
         else:
             raise Exception(f"Unknown model type: {model_type}")
 
-    def _setup_transcriber_thread(self):
+    def _setup_transcriber_thread(self, download_only=False):
         self.current.transcriber_thread = QThread(self)
 
         self.current.transcriber.moveToThread(self.current.transcriber_thread)
 
-        self.current.transcriber_thread.started.connect(self.current.transcriber.run)
+        self.current.transcriber_thread.started.connect(
+            self.current.transcriber.download if download_only else self.current.transcriber.run
+        )
         self.current.transcriber.completed.connect(self.current.transcriber_thread.quit)
         self.current.transcriber.error.connect(self.current.transcriber_thread.quit)
 
@@ -507,16 +528,19 @@ class FileTranscriberQueueWorker(QObject):
         )
         self.current.transcriber.error.connect(self.on_task_error)
 
-        self.current.transcriber.completed.connect(self.on_task_completed)
+        self.current.transcriber.completed.connect(
+            self._on_url_download_completed if download_only else self.on_task_completed
+        )
 
         task = self.current.task
         activity_token = self.current.activity_token
         self.current.transcriber.error.connect(
             lambda: self._on_task_finished(task, activity_token)
         )
-        self.current.transcriber.completed.connect(
-            lambda: self._on_task_finished(task, activity_token)
-        )
+        if not download_only:
+            self.current.transcriber.completed.connect(
+                lambda: self._on_task_finished(task, activity_token)
+            )
 
         self.task_started.emit(self.current.task)
         self.current.transcriber_thread.start()

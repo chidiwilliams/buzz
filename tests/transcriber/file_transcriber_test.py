@@ -35,6 +35,26 @@ def make_transcriber() -> ConcreteFileTranscriber:
     )
 
 
+def test_url_preparation_exception_is_reported(monkeypatch):
+    transcriber = make_transcriber()
+    error = Mock()
+    completed = Mock()
+    transcribe = Mock()
+    transcriber.error.connect(error)
+    transcriber.completed.connect(completed)
+    monkeypatch.setattr(transcriber, "transcribe", transcribe)
+    monkeypatch.setattr(
+        "buzz.transcriber.file_transcriber.tempfile.mkdtemp",
+        Mock(side_effect=OSError("temporary directory unavailable")),
+    )
+
+    transcriber.run()
+
+    error.assert_called_once_with("temporary directory unavailable")
+    completed.assert_not_called()
+    transcribe.assert_not_called()
+
+
 @pytest.mark.parametrize(
     "title",
     [

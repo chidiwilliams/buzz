@@ -1,4 +1,5 @@
 from unittest.mock import patch
+import pytest
 
 from buzz.locale import _
 from buzz.widgets.import_url_dialog import ImportURLDialog
@@ -15,9 +16,13 @@ class TestImportURLDialog:
                 dialog, _("Invalid URL"), _("The URL you entered is invalid.")
             )
 
-    def test_should_return_url_with_valid_url(self, qtbot):
+    @pytest.mark.parametrize("url", [
+        "https://example.com",
+        "https://www.youtube.com/watch?v=AuZoDsNmG_s&t=3s",
+    ])
+    def test_should_return_url_with_valid_url(self, qtbot, url):
         dialog = ImportURLDialog()
-        dialog.line_edit.setText("https://example.com")
+        dialog.line_edit.setText(url)
 
         dialog.button_box.button(dialog.button_box.StandardButton.Ok).click()
-        assert dialog.url == "https://example.com"
+        assert dialog.url == url

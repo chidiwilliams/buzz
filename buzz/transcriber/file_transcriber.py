@@ -59,12 +59,27 @@ class FileTranscriber(QObject):
         self.transcription_task = task
 
     @pyqtSlot()
-    def run(self):
-        if self.transcription_task.source == FileTranscriptionTask.Source.URL_IMPORT:
+    def download(self):
+        """Prepare URL audio in a cancellable thread before preprocessing."""
+        try:
             if not self._download_from_url():
                 return
+        except Exception as exc:
+            logging.exception("Failed to prepare URL audio")
+            self.error.emit(str(exc))
+            return
+        self.completed.emit([])
 
+    @pyqtSlot()
+    def run(self):
         try:
+            if (
+                self.transcription_task.source == FileTranscriptionTask.Source.URL_IMPORT
+                and not self.transcription_task.file_path
+            ):
+                if not self._download_from_url():
+                    return
+
             segments = self.transcribe()
         except Exception as exc:
             logging.exception("")
