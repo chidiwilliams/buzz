@@ -407,7 +407,6 @@ class TestFileTranscriberQueueWorkerRun:
 
         mocker.patch.object(FileTranscriber, "moveToThread")
         thread = mocker.patch("buzz.file_transcriber_queue_worker.QThread").return_value
-        thread.wait.return_value = False
         extract = mocker.patch.object(simple_worker, "_setup_speech_extraction")
         simple_worker.trigger_run.disconnect(simple_worker.run)
         simple_worker.add_task(task)
@@ -415,12 +414,24 @@ class TestFileTranscriberQueueWorkerRun:
         simple_worker.run()
         download = simple_worker.current.transcriber
         thread.started.connect.assert_called_once_with(download.download)
+        stop = mocker.spy(download, "stop")
         simple_worker.cancel_task(task.uid)
+
+        # The queue is released without blocking on the download thread.
+        stop.assert_called_once()
+        thread.wait.assert_not_called()
+        thread.terminate.assert_not_called()
+        assert not simple_worker.is_running
+        assert simple_worker.current.activity_token is None
+
+        # The download thread winds down later; its signals must be ignored.
+        error = unittest.mock.Mock()
+        simple_worker.task_error.connect(error)
+        download.error.emit("Download canceled")
         download.completed.emit([])
 
-        assert not simple_worker.is_running
         stale_thread.wait.assert_not_called()
-        thread.terminate.assert_called_once()
+        error.assert_not_called()
         extract.assert_not_called()
 
     def test_late_url_download_completion_does_not_start_next_task(self, simple_worker, mocker):

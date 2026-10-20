@@ -290,4 +290,4 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
             return result_segments
 
     def stop(self):
-        pass
+        super().stop()

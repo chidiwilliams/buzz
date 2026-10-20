@@ -6,7 +6,13 @@ from unittest.mock import Mock
 import pytest
 
 from buzz.sounddevice_player import AudioFilePlayer
-from buzz.transcriber.file_transcriber import FileTranscriber, _downloaded_file_path
+from yt_dlp.utils import DownloadCancelled
+
+from buzz.transcriber.file_transcriber import (
+    DOWNLOAD_CANCELED_MESSAGE,
+    FileTranscriber,
+    _downloaded_file_path,
+)
 from buzz.transcriber.transcriber import (
     FileTranscriptionOptions,
     FileTranscriptionTask,
@@ -19,8 +25,54 @@ class ConcreteFileTranscriber(FileTranscriber):
     def transcribe(self):
         return []
 
-    def stop(self):
+
+def fake_popen(returncode=0, stderr=b"", on_communicate=None):
+    """Return a subprocess.Popen stand-in for the ffmpeg conversion."""
+
+    class FakePopen:
+        instances = []
+
+        def __init__(self, command, **_kwargs):
+            self.command = command
+            self.returncode = None
+            self.killed = False
+            FakePopen.instances.append(self)
+
+        def poll(self):
+            return self.returncode
+
+        def kill(self):
+            self.killed = True
+
+        def communicate(self):
+            if on_communicate is not None:
+                on_communicate(self)
+            self.returncode = -9 if self.killed else returncode
+            return b"", b"" if self.killed else stderr
+
+    return FakePopen
+
+
+class FakeYoutubeDL:
+    """yt-dlp stand-in that "downloads" ``downloaded_file``."""
+
+    downloaded_file: Path = None
+    on_extract = None
+
+    def __init__(self, options):
+        self.options = options
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_args):
         pass
+
+    def extract_info(self, _url, download):
+        assert download
+        if self.on_extract is not None:
+            type(self).on_extract(self)
+        return {"filepath": str(self.downloaded_file)}
 
 
 def make_transcriber() -> ConcreteFileTranscriber:
@@ -90,13 +142,15 @@ def test_url_download_uses_reported_path_instead_of_title(
                 "requested_downloads": [{"filepath": str(downloaded_file)}],
             }
 
-    def fake_run(command, **_kwargs):
-        calls["ffmpeg"] = command
-        Path(command[-1]).write_bytes(b"wav audio")
-        return Mock(returncode=0, stderr=b"")
+    def write_wav(process):
+        calls["ffmpeg"] = process.command
+        Path(process.command[-1]).write_bytes(b"wav audio")
 
     monkeypatch.setattr("buzz.transcriber.file_transcriber.YoutubeDL", FakeYoutubeDL)
-    monkeypatch.setattr("buzz.transcriber.file_transcriber.subprocess.run", fake_run)
+    monkeypatch.setattr(
+        "buzz.transcriber.file_transcriber.subprocess.Popen",
+        fake_popen(on_communicate=write_wav),
+    )
 
     assert transcriber._download_from_url()
 
@@ -190,8 +244,7 @@ def test_url_download_rejects_ffmpeg_failure_with_empty_stderr(
 
     monkeypatch.setattr("buzz.transcriber.file_transcriber.YoutubeDL", FakeYoutubeDL)
     monkeypatch.setattr(
-        "buzz.transcriber.file_transcriber.subprocess.run",
-        Mock(return_value=Mock(returncode=1, stderr=b"")),
+        "buzz.transcriber.file_transcriber.subprocess.Popen", fake_popen(returncode=1)
     )
 
     assert not transcriber._download_from_url()
@@ -225,8 +278,7 @@ def test_url_download_rejects_missing_ffmpeg_output(monkeypatch, tmp_path):
 
     monkeypatch.setattr("buzz.transcriber.file_transcriber.YoutubeDL", FakeYoutubeDL)
     monkeypatch.setattr(
-        "buzz.transcriber.file_transcriber.subprocess.run",
-        Mock(return_value=Mock(returncode=0, stderr=b"")),
+        "buzz.transcriber.file_transcriber.subprocess.Popen", fake_popen()
     )
 
     assert not transcriber._download_from_url()
@@ -234,6 +286,63 @@ def test_url_download_rejects_missing_ffmpeg_output(monkeypatch, tmp_path):
     assert transcriber.transcription_task.file_path is None
     error.assert_called_once()
     assert error.call_args.args[0].startswith("FFmpeg output does not exist:")
+
+
+def test_stop_aborts_yt_dlp_at_next_progress_update():
+    transcriber = make_transcriber()
+    transcriber.stop()
+
+    with pytest.raises(DownloadCancelled):
+        transcriber.on_download_progress({"status": "downloading"})
+
+
+def test_stop_during_yt_dlp_reports_cancel_and_skips_ffmpeg(monkeypatch, tmp_path):
+    transcriber = make_transcriber()
+    error = Mock()
+    transcriber.error.connect(error)
+
+    class CanceledYoutubeDL(FakeYoutubeDL):
+        def extract_info(self, _url, download):
+            transcriber.stop()
+            # yt-dlp re-raises what the progress hook raises.
+            self.options["progress_hooks"][0]({"status": "downloading"})
+
+    popen = fake_popen()
+    monkeypatch.setattr("buzz.transcriber.file_transcriber.YoutubeDL", CanceledYoutubeDL)
+    monkeypatch.setattr("buzz.transcriber.file_transcriber.subprocess.Popen", popen)
+
+    assert not transcriber._download_from_url()
+
+    error.assert_called_once_with(DOWNLOAD_CANCELED_MESSAGE)
+    assert popen.instances == []
+    assert transcriber.transcription_task.file_path is None
+
+
+@pytest.mark.parametrize("stop_before_publish", [False, True])
+def test_stop_kills_ffmpeg_conversion(monkeypatch, tmp_path, stop_before_publish):
+    transcriber = make_transcriber()
+    error = Mock()
+    transcriber.error.connect(error)
+    downloaded_file = tmp_path / "source.m4a"
+    downloaded_file.write_bytes(b"downloaded audio")
+    monkeypatch.setattr(FakeYoutubeDL, "downloaded_file", downloaded_file)
+    monkeypatch.setattr("buzz.transcriber.file_transcriber.YoutubeDL", FakeYoutubeDL)
+
+    if stop_before_publish:
+        # stop() lands after yt-dlp finished but before Popen is published.
+        monkeypatch.setattr(
+            FakeYoutubeDL, "on_extract", lambda _ydl: transcriber.stop()
+        )
+        popen = fake_popen()
+    else:
+        popen = fake_popen(on_communicate=lambda _process: transcriber.stop())
+    monkeypatch.setattr("buzz.transcriber.file_transcriber.subprocess.Popen", popen)
+
+    assert not transcriber._download_from_url()
+
+    assert popen.instances[0].killed
+    error.assert_called_once_with(DOWNLOAD_CANCELED_MESSAGE)
+    assert transcriber.transcription_task.file_path is None
 
 
 def make_folder_watch_transcriber(

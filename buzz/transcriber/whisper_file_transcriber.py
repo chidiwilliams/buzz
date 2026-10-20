@@ -471,6 +471,7 @@ class WhisperFileTranscriber(FileTranscriber):
         ]
 
     def stop(self):
+        super().stop()
         with self.process_lock:
             self.stopped = True
             # Read under the lock so a start() in progress has finished (and

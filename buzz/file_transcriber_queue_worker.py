@@ -328,6 +328,7 @@ class _CurrentTranscription:
     activity_token: Optional[UUID] = None
     transcriber: Optional[FileTranscriber] = None
     transcriber_thread: Optional[QThread] = None
+    downloading: bool = False
 
 
 @dataclass(frozen=True)
@@ -447,6 +448,7 @@ class FileTranscriberQueueWorker(QObject):
             self.current.transcriber.stop()
             self.current.transcriber = None
         self.current.transcriber_thread = None
+        self.current.downloading = False
 
     def _get_next_task(self) -> bool:
         while True:
@@ -534,6 +536,7 @@ class FileTranscriberQueueWorker(QObject):
 
     def _setup_transcriber_thread(self, download_only=False):
         self.current.transcriber_thread = QThread(self)
+        self.current.downloading = download_only
 
         self.current.transcriber.moveToThread(self.current.transcriber_thread)
 
@@ -550,13 +553,26 @@ class FileTranscriberQueueWorker(QObject):
         )
 
         self.current.transcriber.progress.connect(self.on_task_progress)
-        self.current.transcriber.download_progress.connect(
-            self.on_task_download_progress
-        )
-        self.current.transcriber.error.connect(self.on_task_error)
 
         task = self.current.task
         activity_token = self.current.activity_token
+        if download_only:
+            # cancel_task does not wait for a download, so the queue may have
+            # moved on by the time it reports. Drop signals for an old task.
+            self.current.transcriber.download_progress.connect(
+                lambda fraction: self._is_current(task, activity_token)
+                and self.on_task_download_progress(fraction)
+            )
+            self.current.transcriber.error.connect(
+                lambda error: self._is_current(task, activity_token)
+                and self.on_task_error(error)
+            )
+        else:
+            self.current.transcriber.download_progress.connect(
+                self.on_task_download_progress
+            )
+            self.current.transcriber.error.connect(self.on_task_error)
+
         self.current.transcriber.error.connect(
             lambda: self._on_task_finished(task, activity_token)
         )
@@ -692,6 +708,16 @@ class FileTranscriberQueueWorker(QObject):
 
             if transcriber is not None:
                 transcriber.stop()
+
+            if self.current.downloading:
+                # The download stops at its next yt-dlp progress update, or at
+                # once if ffmpeg is converting. yt-dlp can't be interrupted
+                # while it resolves the URL, so don't block the GUI thread
+                # waiting: release the queue now and let the thread wind down.
+                # Its late signals are ignored because the task is no longer
+                # current.
+                self._on_task_finished(task, activity_token)
+                return
 
             if transcriber_thread is not None:
                 if not transcriber_thread.wait(5000):
