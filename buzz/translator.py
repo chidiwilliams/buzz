@@ -46,17 +46,26 @@ class Translator(QObject):
                 key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value=""
             )
         )
-        openai_api_key = os.getenv(
+        self.openai_api_key = os.getenv(
             "BUZZ_TRANSLATION_API_KEY",
             get_password(Key.OPENAI_API_KEY)
         )
-        from openai import OpenAI  # slow to import, so keep it out of app startup
+        self.openai_base_url = custom_openai_base_url if custom_openai_base_url else None
+        self._openai_client = None
 
-        self.openai_client = OpenAI(
-            api_key=openai_api_key,
-            base_url=custom_openai_base_url if custom_openai_base_url else None,
-            max_retries=0
-        )
+    @property
+    def openai_client(self):
+        # Created on the first translation, as importing openai takes about
+        # half a second and every transcription viewer creates a Translator
+        if self._openai_client is None:
+            from openai import OpenAI
+
+            self._openai_client = OpenAI(
+                api_key=self.openai_api_key,
+                base_url=self.openai_base_url,
+                max_retries=0
+            )
+        return self._openai_client
 
     def _translate_single(self, transcript: str, transcript_id: int) -> Tuple[str, int]:
         """Translate a single transcript via the API. Returns (translation, transcript_id)."""
