@@ -98,6 +98,43 @@ class TestMainWindow:
         ]
         window.close()
 
+    @staticmethod
+    def _schedule_cuda_prompt(window: MainWindow):
+        """Run _maybe_show_cuda_prompt as on a machine with an NVIDIA GPU and
+        CPU-only torch, without touching the real CUDA_PROMPT_SHOWN setting."""
+        window.settings = Mock()
+        window.settings.value.return_value = False
+        with patch("buzz.cuda_manager.is_nvidia_gpu_present", return_value=True), \
+                patch("buzz.cuda_manager.should_offer_cuda_prompt", return_value=True), \
+                patch("buzz.cuda_manager.is_cuda_torch_installed", return_value=False):
+            window._maybe_show_cuda_prompt()
+
+    def test_cuda_prompt_shows_after_delay(self, qtbot: QtBot, transcription_service):
+        with patch("buzz.cuda_manager.is_nvidia_gpu_present", return_value=False):
+            window = MainWindow(transcription_service)
+        qtbot.add_widget(window)
+
+        with patch("buzz.widgets.cuda_installer_widget.CudaInstallerDialog") as dialog:
+            self._schedule_cuda_prompt(window)
+            qtbot.waitUntil(lambda: dialog.called, timeout=2000)
+
+        dialog.assert_called_once_with(window)
+
+    def test_cuda_prompt_does_not_fire_after_window_is_deleted(
+        self, qtbot: QtBot, transcription_service
+    ):
+        with patch("buzz.cuda_manager.is_nvidia_gpu_present", return_value=False):
+            window = MainWindow(transcription_service)
+
+        with patch("buzz.widgets.cuda_installer_widget.CudaInstallerDialog") as dialog:
+            self._schedule_cuda_prompt(window)
+            # The window goes away before the 500 ms prompt delay is up.
+            window.close()
+            sip.delete(window)
+            qtbot.wait(800)
+
+        dialog.assert_not_called()
+
     def test_should_run_file_transcription_task(
         self, qtbot: QtBot, transcription_service
     ):
