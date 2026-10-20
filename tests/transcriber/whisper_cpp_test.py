@@ -617,3 +617,18 @@ class TestWhisperCpp:
         segments = WhisperCpp._parse_word_level_timings(mock_result, language="en", vad_enabled=False)
         words = [s.text for s in segments]
         assert words == ["Hello", "world", "Goodbye", "all"]
+
+    def test_whisper_env_selects_discrete_gpu(self, monkeypatch):
+        monkeypatch.delenv("GGML_VK_VISIBLE_DEVICES", raising=False)
+        with patch("buzz.transcriber.whisper_cpp.DISCRETE_GPU_INDEX", 1):
+            assert WhisperCpp._whisper_env()["GGML_VK_VISIBLE_DEVICES"] == "1"
+
+    def test_whisper_env_keeps_user_device_choice(self, monkeypatch):
+        monkeypatch.setenv("GGML_VK_VISIBLE_DEVICES", "0")
+        with patch("buzz.transcriber.whisper_cpp.DISCRETE_GPU_INDEX", 1):
+            assert WhisperCpp._whisper_env()["GGML_VK_VISIBLE_DEVICES"] == "0"
+
+    def test_whisper_env_without_discrete_gpu(self, monkeypatch):
+        monkeypatch.delenv("GGML_VK_VISIBLE_DEVICES", raising=False)
+        with patch("buzz.transcriber.whisper_cpp.DISCRETE_GPU_INDEX", None):
+            assert "GGML_VK_VISIBLE_DEVICES" not in WhisperCpp._whisper_env()

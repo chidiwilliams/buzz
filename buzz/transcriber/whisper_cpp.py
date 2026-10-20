@@ -14,10 +14,23 @@ from buzz.transcriber.file_transcriber import app_env
 
 
 IS_VULKAN_SUPPORTED = False
+# Index of the first discrete GPU in Vulkan's physical device list, if any.
+# whisper-cli defaults to device 0, which on hybrid laptops is usually the
+# integrated GPU, so the discrete one is selected via GGML_VK_VISIBLE_DEVICES.
+DISCRETE_GPU_INDEX: Optional[int] = None
 try:
     import vulkan
 
     instance = vulkan.vkCreateInstance(vulkan.VkInstanceCreateInfo(), None)
+    try:
+        for index, device in enumerate(vulkan.vkEnumeratePhysicalDevices(instance)):
+            properties = vulkan.vkGetPhysicalDeviceProperties(device)
+            if properties.deviceType == vulkan.VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
+                DISCRETE_GPU_INDEX = index
+                logging.debug("Discrete Vulkan GPU %s: %s", index, properties.deviceName)
+                break
+    except Exception as e:
+        logging.debug(f"Vulkan device enumeration error: {e}")
     vulkan.vkDestroyInstance(instance, None)
     vulkan_version = vulkan.vkEnumerateInstanceVersion()
     major = (vulkan_version >> 22) & 0x3FF
@@ -253,8 +266,17 @@ class WhisperCpp:
         return cmd
 
     @staticmethod
+    def _whisper_env() -> dict:
+        """Environment for whisper-cli, steering ggml-vulkan to the discrete GPU."""
+        env = (app_env if sys.platform == "win32" else os.environ).copy()
+        if DISCRETE_GPU_INDEX is not None and "GGML_VK_VISIBLE_DEVICES" not in env:
+            env["GGML_VK_VISIBLE_DEVICES"] = str(DISCRETE_GPU_INDEX)
+        return env
+
+    @staticmethod
     def _run_whisper(cmd) -> tuple:
         """Run whisper-cli subprocess, returning (return code, tail of stderr)."""
+        env = WhisperCpp._whisper_env()
         if sys.platform == "win32":
             si = subprocess.STARTUPINFO()
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -267,7 +289,7 @@ class WhisperCpp:
                 encoding="utf-8",
                 errors="replace",
                 startupinfo=si,
-                env=app_env,
+                env=env,
                 creationflags=subprocess.CREATE_NO_WINDOW
             )
         else:
@@ -278,6 +300,7 @@ class WhisperCpp:
                 text=True,
                 encoding="utf-8",
                 errors="replace",
+                env=env,
             )
 
         stderr_tail = []
