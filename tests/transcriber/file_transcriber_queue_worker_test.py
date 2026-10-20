@@ -413,14 +413,59 @@ class TestFileTranscriberQueueWorkerRun:
         simple_worker.add_task(task)
 
         simple_worker.run()
-        thread.started.connect.assert_called_once_with(simple_worker.current.transcriber.download)
+        download = simple_worker.current.transcriber
+        thread.started.connect.assert_called_once_with(download.download)
         simple_worker.cancel_task(task.uid)
-        simple_worker._on_url_download_completed([])
+        download.completed.emit([])
 
         assert not simple_worker.is_running
         stale_thread.wait.assert_not_called()
         thread.terminate.assert_called_once()
         extract.assert_not_called()
+
+    def test_late_url_download_completion_does_not_start_next_task(self, simple_worker, mocker):
+        old_task = self._make_task()
+        old_task.source = FileTranscriptionTask.Source.URL_IMPORT
+        next_task = self._make_task()
+        start = mocker.patch.object(simple_worker, "_start_transcription")
+        finished = mocker.patch.object(simple_worker, "_on_task_finished")
+        simple_worker.current.task = next_task
+        simple_worker.current.activity_token = uuid.uuid4()
+
+        simple_worker._on_url_download_completed(old_task, uuid.uuid4())
+
+        start.assert_not_called()
+        finished.assert_not_called()
+
+    @pytest.mark.parametrize("cancel_during", ["speech_extraction", "plugins"])
+    def test_cancel_before_transcriber_starts_does_not_transcribe(
+        self, simple_worker, mocker, cancel_during
+    ):
+        task = self._make_task(extract_speech=True)
+        simple_worker.current.task = task
+        simple_worker.current.activity_token = uuid.uuid4()
+        simple_worker.is_running = True
+
+        def cancel(*_args, **_kwargs):
+            simple_worker.cancel_task(task.uid)
+            return "ok" if cancel_during == "speech_extraction" else True
+
+        extract = mocker.patch.object(simple_worker, "_setup_speech_extraction", return_value="ok")
+        plugins = mocker.patch.object(simple_worker, "_run_plugins", return_value=True)
+        (extract if cancel_during == "speech_extraction" else plugins).side_effect = cancel
+        create = mocker.patch.object(simple_worker, "_create_transcriber")
+        started = unittest.mock.Mock()
+        simple_worker.task_started.connect(started)
+        simple_worker.trigger_run.disconnect(simple_worker.run)
+
+        simple_worker._start_transcription()
+
+        create.assert_not_called()
+        started.assert_not_called()
+        assert not simple_worker.is_running
+        assert simple_worker.current.activity_token is None
+        if cancel_during == "speech_extraction":
+            plugins.assert_not_called()
 
     def _make_task(self, model_type=ModelType.WHISPER_CPP, extract_speech=False):
         options = TranscriptionOptions(

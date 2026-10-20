@@ -390,23 +390,50 @@ class FileTranscriberQueueWorker(QObject):
 
         self._start_transcription()
 
-    @pyqtSlot(list)
-    def _on_url_download_completed(self, _segments):
-        if self.current.task.uid in self.canceled_tasks:
-            self._on_task_finished()
+    def _on_url_download_completed(
+        self, task: FileTranscriptionTask, activity_token: Optional[UUID]
+    ):
+        # A download given up on by cancel_task can still deliver ``completed``
+        # after the queue has finished it or moved on to another task.
+        if not self._is_current(task, activity_token):
+            return
+        if task.uid in self.canceled_tasks:
+            self._on_task_finished(task, activity_token)
             return
         self._cleanup_previous_transcriber()
         self._start_transcription()
 
+    def _is_current(
+        self, task: FileTranscriptionTask, activity_token: Optional[UUID]
+    ) -> bool:
+        return task is self.current.task and activity_token == self.current.activity_token
+
+    def _finish_if_canceled(self) -> bool:
+        """Finish the current task if it was canceled while no transcriber
+        thread was running, so cancel_task had nothing to stop."""
+        if self.current.task.uid not in self.canceled_tasks:
+            return False
+        self.is_running = False
+        self._on_task_finished()
+        return True
+
     def _start_transcription(self):
+        if self._finish_if_canceled():
+            return
+
         if self.current.task.transcription_options.extract_speech:
             status = self._setup_speech_extraction()
             if status == "error":
                 self.is_running = False
                 self._on_task_finished()
                 return
+            if self._finish_if_canceled():
+                return
 
         if not self._run_plugins():
+            return
+
+        if self._finish_if_canceled():
             return
 
         logging.debug("Starting next transcription task")
@@ -528,16 +555,17 @@ class FileTranscriberQueueWorker(QObject):
         )
         self.current.transcriber.error.connect(self.on_task_error)
 
-        self.current.transcriber.completed.connect(
-            self._on_url_download_completed if download_only else self.on_task_completed
-        )
-
         task = self.current.task
         activity_token = self.current.activity_token
         self.current.transcriber.error.connect(
             lambda: self._on_task_finished(task, activity_token)
         )
-        if not download_only:
+        if download_only:
+            self.current.transcriber.completed.connect(
+                lambda: self._on_url_download_completed(task, activity_token)
+            )
+        else:
+            self.current.transcriber.completed.connect(self.on_task_completed)
             self.current.transcriber.completed.connect(
                 lambda: self._on_task_finished(task, activity_token)
             )
