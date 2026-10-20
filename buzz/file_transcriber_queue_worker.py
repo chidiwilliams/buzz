@@ -407,7 +407,9 @@ class FileTranscriberQueueWorker(QObject):
     def _is_current(
         self, task: FileTranscriptionTask, activity_token: Optional[UUID]
     ) -> bool:
-        return task is self.current.task and activity_token == self.current.activity_token
+        return (
+            task is self.current.task and activity_token == self.current.activity_token
+        )
 
     def _finish_if_canceled(self) -> bool:
         """Finish the current task if it was canceled while no transcriber
@@ -571,9 +573,7 @@ class FileTranscriberQueueWorker(QObject):
             lambda error: self._is_current(task, activity_token)
             and self.on_task_error(error)
         )
-        transcriber.error.connect(
-            lambda: self._on_task_finished(task, activity_token)
-        )
+        transcriber.error.connect(lambda: self._on_task_finished(task, activity_token))
         transcriber.completed.connect(
             lambda: self._on_url_download_completed(task, activity_token)
         )
@@ -592,9 +592,7 @@ class FileTranscriberQueueWorker(QObject):
 
         task = self.current.task
         activity_token = self.current.activity_token
-        transcriber.error.connect(
-            lambda: self._on_task_finished(task, activity_token)
-        )
+        transcriber.error.connect(lambda: self._on_task_finished(task, activity_token))
         transcriber.completed.connect(
             lambda: self._on_task_finished(task, activity_token)
         )

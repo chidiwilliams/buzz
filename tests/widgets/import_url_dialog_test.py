@@ -16,10 +16,13 @@ class TestImportURLDialog:
                 dialog, _("Invalid URL"), _("The URL you entered is invalid.")
             )
 
-    @pytest.mark.parametrize("url", [
-        "https://example.com",
-        "https://www.youtube.com/watch?v=AuZoDsNmG_s&t=3s",
-    ])
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "https://example.com",
+            "https://www.youtube.com/watch?v=AuZoDsNmG_s&t=3s",
+        ],
+    )
     def test_should_return_url_with_valid_url(self, qtbot, url):
         dialog = ImportURLDialog()
         dialog.line_edit.setText(url)

@@ -401,7 +401,9 @@ class TestFileTranscriberQueueWorkerRun:
         started.assert_called_once_with(task)
 
     @pytest.mark.parametrize("raises", [False, True])
-    def test_url_download_failure_releases_queue(self, simple_worker, mocker, qtbot, raises):
+    def test_url_download_failure_releases_queue(
+        self, simple_worker, mocker, qtbot, raises
+    ):
         task = self._make_task(extract_speech=True)
         task.source = FileTranscriptionTask.Source.URL_IMPORT
         task.file_path = None
@@ -430,11 +432,16 @@ class TestFileTranscriberQueueWorkerRun:
         error.assert_called_once_with(task, "cannot prepare audio")
         assert task.status == FileTranscriptionTask.Status.FAILED
         assert not simple_worker.is_running
-        assert busy.call_args_list == [unittest.mock.call(True), unittest.mock.call(False)]
+        assert busy.call_args_list == [
+            unittest.mock.call(True),
+            unittest.mock.call(False),
+        ]
         extract.assert_not_called()
         start.assert_not_called()
 
-    def test_url_canceled_during_download_does_not_start_transcription(self, simple_worker, mocker):
+    def test_url_canceled_during_download_does_not_start_transcription(
+        self, simple_worker, mocker
+    ):
         task = self._make_task(extract_speech=True)
         task.source = FileTranscriptionTask.Source.URL_IMPORT
         task.file_path = None
@@ -470,7 +477,9 @@ class TestFileTranscriberQueueWorkerRun:
         error.assert_not_called()
         extract.assert_not_called()
 
-    def test_late_url_download_completion_does_not_start_next_task(self, simple_worker, mocker):
+    def test_late_url_download_completion_does_not_start_next_task(
+        self, simple_worker, mocker
+    ):
         old_task = self._make_task()
         old_task.source = FileTranscriptionTask.Source.URL_IMPORT
         next_task = self._make_task()
@@ -497,9 +506,13 @@ class TestFileTranscriberQueueWorkerRun:
             simple_worker.cancel_task(task.uid)
             return "ok" if cancel_during == "speech_extraction" else True
 
-        extract = mocker.patch.object(simple_worker, "_setup_speech_extraction", return_value="ok")
+        extract = mocker.patch.object(
+            simple_worker, "_setup_speech_extraction", return_value="ok"
+        )
         plugins = mocker.patch.object(simple_worker, "_run_plugins", return_value=True)
-        (extract if cancel_during == "speech_extraction" else plugins).side_effect = cancel
+        (
+            extract if cancel_during == "speech_extraction" else plugins
+        ).side_effect = cancel
         create = mocker.patch.object(simple_worker, "_create_transcriber")
         started = unittest.mock.Mock()
         simple_worker.task_started.connect(started)

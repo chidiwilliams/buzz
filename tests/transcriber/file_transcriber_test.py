@@ -328,7 +328,9 @@ def test_stop_during_yt_dlp_reports_cancel_and_skips_ffmpeg(monkeypatch, tmp_pat
             self.options["progress_hooks"][0]({"status": "downloading"})
 
     popen = fake_popen()
-    monkeypatch.setattr("buzz.transcriber.file_transcriber.YoutubeDL", CanceledYoutubeDL)
+    monkeypatch.setattr(
+        "buzz.transcriber.file_transcriber.YoutubeDL", CanceledYoutubeDL
+    )
     monkeypatch.setattr("buzz.transcriber.file_transcriber.subprocess.Popen", popen)
 
     assert not transcriber._download_from_url()
