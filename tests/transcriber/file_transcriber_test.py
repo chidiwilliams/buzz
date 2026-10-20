@@ -100,11 +100,27 @@ def test_url_preparation_exception_is_reported(monkeypatch):
         Mock(side_effect=OSError("temporary directory unavailable")),
     )
 
-    transcriber.run()
+    transcriber.download()
 
     error.assert_called_once_with("temporary directory unavailable")
     completed.assert_not_called()
     transcribe.assert_not_called()
+
+
+def test_run_never_downloads_url_task(monkeypatch):
+    """A stale file_path from an earlier run must not skip a fresh download,
+    so downloading lives only in download()."""
+    transcriber = make_transcriber()
+    transcriber.transcription_task.file_path = "/missing/previous-download.wav"
+    download = Mock()
+    monkeypatch.setattr(transcriber, "_download_from_url", download)
+    completed = Mock()
+    transcriber.completed.connect(completed)
+
+    transcriber.run()
+
+    download.assert_not_called()
+    completed.assert_called_once_with([])
 
 
 @pytest.mark.parametrize(
@@ -152,8 +168,12 @@ def test_url_download_uses_reported_path_instead_of_title(
         fake_popen(on_communicate=write_wav),
     )
 
+    # Left over from an earlier run whose speech extraction used another download.
+    transcriber.transcription_task.original_file_path = "/tmp/previous/audio.wav"
+
     assert transcriber._download_from_url()
 
+    assert transcriber.transcription_task.original_file_path is None
     assert calls["extract_info"] == (transcriber.transcription_task.url, True)
     assert Path(calls["options"]["outtmpl"]).name == "source.%(ext)s"
     assert calls["ffmpeg"][calls["ffmpeg"].index("-i") + 1] == str(

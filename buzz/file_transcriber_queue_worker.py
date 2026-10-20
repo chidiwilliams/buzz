@@ -386,7 +386,7 @@ class FileTranscriberQueueWorker(QObject):
         # audio before speech extraction and plugins attempt to open the file.
         if self.current.task.source == FileTranscriptionTask.Source.URL_IMPORT:
             self.current.transcriber = FileTranscriber(self.current.task)
-            self._setup_transcriber_thread(download_only=True)
+            self._setup_download_thread()
             return
 
         self._start_transcription()
@@ -534,60 +534,77 @@ class FileTranscriberQueueWorker(QObject):
         else:
             raise Exception(f"Unknown model type: {model_type}")
 
-    def _setup_transcriber_thread(self, download_only=False):
-        self.current.transcriber_thread = QThread(self)
-        self.current.downloading = download_only
+    def _create_transcriber_thread(self, started_slot):
+        """Move the current transcriber to a new thread that runs
+        ``started_slot`` and cleans both up once the transcriber reports."""
+        transcriber = self.current.transcriber
+        thread = QThread(self)
+        self.current.transcriber_thread = thread
 
-        self.current.transcriber.moveToThread(self.current.transcriber_thread)
+        transcriber.moveToThread(thread)
 
-        self.current.transcriber_thread.started.connect(
-            self.current.transcriber.download if download_only else self.current.transcriber.run
-        )
-        self.current.transcriber.completed.connect(self.current.transcriber_thread.quit)
-        self.current.transcriber.error.connect(self.current.transcriber_thread.quit)
+        thread.started.connect(started_slot)
+        transcriber.completed.connect(thread.quit)
+        transcriber.error.connect(thread.quit)
 
-        self.current.transcriber.completed.connect(self.current.transcriber.deleteLater)
-        self.current.transcriber.error.connect(self.current.transcriber.deleteLater)
-        self.current.transcriber_thread.finished.connect(
-            self.current.transcriber_thread.deleteLater
-        )
+        transcriber.completed.connect(transcriber.deleteLater)
+        transcriber.error.connect(transcriber.deleteLater)
+        thread.finished.connect(thread.deleteLater)
+        return thread
 
-        self.current.transcriber.progress.connect(self.on_task_progress)
+    def _setup_download_thread(self):
+        """Download URL audio on its own thread. Transcription starts from
+        _on_url_download_completed once the audio is on disk."""
+        transcriber = self.current.transcriber
+        thread = self._create_transcriber_thread(transcriber.download)
+        self.current.downloading = True
 
         task = self.current.task
         activity_token = self.current.activity_token
-        if download_only:
-            # cancel_task does not wait for a download, so the queue may have
-            # moved on by the time it reports. Drop signals for an old task.
-            self.current.transcriber.download_progress.connect(
-                lambda fraction: self._is_current(task, activity_token)
-                and self.on_task_download_progress(fraction)
-            )
-            self.current.transcriber.error.connect(
-                lambda error: self._is_current(task, activity_token)
-                and self.on_task_error(error)
-            )
-        else:
-            self.current.transcriber.download_progress.connect(
-                self.on_task_download_progress
-            )
-            self.current.transcriber.error.connect(self.on_task_error)
-
-        self.current.transcriber.error.connect(
+        # cancel_task does not wait for a download, so the queue may have
+        # moved on by the time it reports. Drop signals for an old task.
+        transcriber.download_progress.connect(
+            lambda fraction: self._is_current(task, activity_token)
+            and self.on_task_download_progress(fraction)
+        )
+        transcriber.error.connect(
+            lambda error: self._is_current(task, activity_token)
+            and self.on_task_error(error)
+        )
+        transcriber.error.connect(
             lambda: self._on_task_finished(task, activity_token)
         )
-        if download_only:
-            self.current.transcriber.completed.connect(
-                lambda: self._on_url_download_completed(task, activity_token)
-            )
-        else:
-            self.current.transcriber.completed.connect(self.on_task_completed)
-            self.current.transcriber.completed.connect(
-                lambda: self._on_task_finished(task, activity_token)
-            )
+        transcriber.completed.connect(
+            lambda: self._on_url_download_completed(task, activity_token)
+        )
 
-        self.task_started.emit(self.current.task)
-        self.current.transcriber_thread.start()
+        self.task_started.emit(task)
+        thread.start()
+
+    def _setup_transcriber_thread(self):
+        transcriber = self.current.transcriber
+        thread = self._create_transcriber_thread(transcriber.run)
+
+        transcriber.progress.connect(self.on_task_progress)
+        transcriber.download_progress.connect(self.on_task_download_progress)
+        transcriber.error.connect(self.on_task_error)
+        transcriber.completed.connect(self.on_task_completed)
+
+        task = self.current.task
+        activity_token = self.current.activity_token
+        transcriber.error.connect(
+            lambda: self._on_task_finished(task, activity_token)
+        )
+        transcriber.completed.connect(
+            lambda: self._on_task_finished(task, activity_token)
+        )
+
+        # A URL task already announced its start with the download phase.
+        # Announcing again would reset time_started and could overwrite a
+        # status written between the two phases.
+        if task.source != FileTranscriptionTask.Source.URL_IMPORT:
+            self.task_started.emit(task)
+        thread.start()
 
     def _extract_speech(self, file_path: str, speech_path: str, device: str) -> str:
         """Run demucs speech extraction in a separate process.

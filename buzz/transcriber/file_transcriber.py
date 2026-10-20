@@ -79,14 +79,8 @@ class FileTranscriber(QObject):
 
     @pyqtSlot()
     def run(self):
+        """Transcribe ``task.file_path``. URL tasks must run download() first."""
         try:
-            if (
-                self.transcription_task.source == FileTranscriptionTask.Source.URL_IMPORT
-                and not self.transcription_task.file_path
-            ):
-                if not self._download_from_url():
-                    return
-
             segments = self.transcribe()
         except Exception as exc:
             logging.exception("")
@@ -233,6 +227,9 @@ class FileTranscriber(QObject):
             return False
 
         self.transcription_task.file_path = str(wav_file)
+        # A path kept from an earlier run's speech extraction points at the
+        # previous download, not this one.
+        self.transcription_task.original_file_path = None
         logging.debug(f"Downloaded audio to file: {self.transcription_task.file_path}")
         return True
 

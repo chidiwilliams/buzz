@@ -335,18 +335,42 @@ class TestFileTranscriberQueueWorkerRun:
         task.file_path = previous_path
         downloaded = tmp_path / "audio.wav"
         downloaded.touch()
+        speech = tmp_path / "audio_speech.mp3"
+        # Each step records the file it was handed, in the order it ran.
+        steps = []
 
         def download(transcriber):
+            steps.append(("download", transcriber.transcription_task.file_path))
             transcriber.transcription_task.file_path = str(downloaded)
             return True
+
+        def fake_extract_speech(file_path, _speech_path, _device):
+            steps.append(("extract_speech", file_path))
+            return "ok"
+
+        def transcribe(transcriber):
+            steps.append(("transcribe", transcriber.transcription_task.file_path))
+            return []
 
         download_mock = mocker.patch.object(
             FileTranscriber, "_download_from_url", autospec=True, side_effect=download
         )
-        extract = mocker.patch.object(simple_worker, "_extract_speech", return_value="ok")
-        mocker.patch.object(WhisperFileTranscriber, "transcribe", return_value=[])
+        extract = mocker.patch.object(
+            simple_worker, "_extract_speech", side_effect=fake_extract_speech
+        )
+        mocker.patch.object(
+            WhisperFileTranscriber, "transcribe", autospec=True, side_effect=transcribe
+        )
+        plugin_manager = unittest.mock.Mock()
+        plugin_manager.run_before_transcription.side_effect = (
+            lambda plugin_task: steps.append(("plugins", plugin_task.file_path))
+        )
+        plugin_manager.run_check_skip.return_value = (False, None)
+        simple_worker.plugin_manager = plugin_manager
         completed = unittest.mock.Mock()
+        started = unittest.mock.Mock()
         simple_worker.task_completed.connect(completed)
+        simple_worker.task_started.connect(started)
         simple_worker.trigger_run.disconnect(simple_worker.run)
         simple_worker.tasks_queue.put(task)
 
@@ -355,14 +379,26 @@ class TestFileTranscriberQueueWorkerRun:
 
         if extract_speech:
             extract.assert_called_once()
-            assert extract.call_args.args[0] == str(downloaded)
-            expected_path = str(tmp_path / "audio_speech.mp3")
+            expected_path = str(speech)
+            expected_steps = [
+                ("download", previous_path),
+                ("extract_speech", str(downloaded)),
+                ("plugins", expected_path),
+                ("transcribe", expected_path),
+            ]
         else:
             extract.assert_not_called()
             expected_path = str(downloaded)
+            expected_steps = [
+                ("download", previous_path),
+                ("plugins", expected_path),
+                ("transcribe", expected_path),
+            ]
+        assert steps == expected_steps
         assert task.file_path == expected_path
         download_mock.assert_called_once()
-        assert task.file_path == expected_path
+        # Download and transcription are one task to the UI and the database.
+        started.assert_called_once_with(task)
 
     @pytest.mark.parametrize("raises", [False, True])
     def test_url_download_failure_releases_queue(self, simple_worker, mocker, qtbot, raises):
