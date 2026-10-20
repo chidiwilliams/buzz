@@ -416,6 +416,9 @@ class FileTranscriberQueueWorker(QObject):
         thread was running, so cancel_task had nothing to stop."""
         if self.current.task.uid not in self.canceled_tasks:
             return False
+        # No transcriber will report completion, so on_task_completed won't
+        # get to remove the extracted speech file.
+        self._remove_speech_file()
         self.is_running = False
         self._on_task_finished()
         return True
@@ -485,10 +488,15 @@ class FileTranscriberQueueWorker(QObject):
         status = self._extract_speech(str(task_file_path), str(speech_path), device)
 
         if status == "error":
-            self.task_error.emit(
-                self.current.task,
-                _("Speech extraction failed! Check your internet connection \u2014 a model may need to be downloaded."),
-            )
+            # A terminated child can't remove its half-written output.
+            _remove_partial_speech_file(str(speech_path))
+            # Canceling kills the extraction process, which also reads as an
+            # error here. Reporting it would overwrite the canceled status.
+            if self.current.task.uid not in self.canceled_tasks:
+                self.task_error.emit(
+                    self.current.task,
+                    _("Speech extraction failed! Check your internet connection \u2014 a model may need to be downloaded."),
+                )
         elif status == "ok":
             self.speech_path = speech_path
             if not self.current.task.original_file_path:
@@ -779,6 +787,9 @@ class FileTranscriberQueueWorker(QObject):
         elif self.current.task is not None:
             self.task_completed.emit(self.current.task, segments)
 
+        self._remove_speech_file()
+
+    def _remove_speech_file(self):
         if self.speech_path is not None:
             try:
                 Path(self.speech_path).unlink()

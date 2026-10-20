@@ -2,6 +2,7 @@ import pytest
 import subprocess
 import unittest.mock
 import uuid
+from pathlib import Path
 from PyQt6.QtCore import QCoreApplication, QThread
 from buzz.file_transcriber_queue_worker import (
     FileTranscriberQueueWorker,
@@ -526,6 +527,67 @@ class TestFileTranscriberQueueWorkerRun:
         assert simple_worker.current.activity_token is None
         if cancel_during == "speech_extraction":
             plugins.assert_not_called()
+
+    def test_cancel_before_transcriber_starts_removes_speech_file(
+        self, simple_worker, mocker, tmp_path
+    ):
+        task = self._make_task(extract_speech=True)
+        simple_worker.current.task = task
+        simple_worker.current.activity_token = uuid.uuid4()
+        simple_worker.is_running = True
+        speech_file = tmp_path / "audio_speech.mp3"
+
+        def extract(file_path, speech_path, _device):
+            Path(speech_path).write_bytes(b"speech")
+            return "ok"
+
+        def cancel():
+            simple_worker.cancel_task(task.uid)
+            return True
+
+        task.file_path = str(tmp_path / "audio.mp3")
+        mocker.patch.object(simple_worker, "_extract_speech", side_effect=extract)
+        mocker.patch.object(simple_worker, "_run_plugins", side_effect=cancel)
+        create = mocker.patch.object(simple_worker, "_create_transcriber")
+        simple_worker.trigger_run.disconnect(simple_worker.run)
+
+        simple_worker._start_transcription()
+
+        create.assert_not_called()
+        assert not speech_file.exists()
+        assert simple_worker.speech_path is None
+
+    def test_cancel_during_speech_extraction_does_not_report_error(
+        self, simple_worker, mocker, tmp_path
+    ):
+        task = self._make_task(extract_speech=True)
+        task.file_path = str(tmp_path / "audio.mp3")
+        simple_worker.current.task = task
+        simple_worker.current.activity_token = uuid.uuid4()
+        simple_worker.is_running = True
+        partial = tmp_path / "audio_speech.mp3"
+
+        def killed_by_cancel(_file_path, speech_path, _device):
+            # The child is terminated mid-write and never reports a result.
+            Path(speech_path).write_bytes(b"partial")
+            simple_worker.cancel_task(task.uid)
+            return "error"
+
+        mocker.patch.object(
+            simple_worker, "_extract_speech", side_effect=killed_by_cancel
+        )
+        create = mocker.patch.object(simple_worker, "_create_transcriber")
+        error = unittest.mock.Mock()
+        simple_worker.task_error.connect(error)
+        simple_worker.trigger_run.disconnect(simple_worker.run)
+
+        simple_worker._start_transcription()
+
+        error.assert_not_called()
+        create.assert_not_called()
+        assert not partial.exists()
+        assert not simple_worker.is_running
+        assert simple_worker.current.activity_token is None
 
     def _make_task(self, model_type=ModelType.WHISPER_CPP, extract_speech=False):
         options = TranscriptionOptions(
