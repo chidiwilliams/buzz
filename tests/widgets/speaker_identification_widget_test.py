@@ -421,7 +421,7 @@ class TestSpeakerIdentificationWidget:
 
         fake_waveform = np.zeros(10, dtype=np.float32)
         with patch(
-            "buzz.widgets.transcription_viewer.speaker_identification_widget.faster_whisper.decode_audio",
+            "faster_whisper.decode_audio",
             return_value=fake_waveform,
         ) as mock_decode:
             language, full_transcript, waveform = worker._get_transcript_data()
@@ -449,7 +449,7 @@ class TestSpeakerIdentificationWidget:
 
         fake_waveform = np.zeros(10, dtype=np.float32)
         with patch(
-            "buzz.widgets.transcription_viewer.speaker_identification_widget.faster_whisper.decode_audio",
+            "faster_whisper.decode_audio",
             return_value=fake_waveform,
         ) as mock_decode:
             language, full_transcript, waveform = worker._get_transcript_data()

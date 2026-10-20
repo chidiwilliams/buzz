@@ -4,7 +4,6 @@ import logging
 import queue
 
 from typing import Optional, List, Tuple
-from openai import OpenAI
 from PyQt6.QtCore import QObject, pyqtSignal
 
 from buzz.settings.settings import Settings
@@ -51,6 +50,8 @@ class Translator(QObject):
             "BUZZ_TRANSLATION_API_KEY",
             get_password(Key.OPENAI_API_KEY)
         )
+        from openai import OpenAI  # slow to import, so keep it out of app startup
+
         self.openai_client = OpenAI(
             api_key=openai_api_key,
             base_url=custom_openai_base_url if custom_openai_base_url else None,

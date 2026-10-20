@@ -21,8 +21,6 @@ try:
 except ImportError:
     pass
 
-import faster_whisper
-import torch
 from PyQt6.QtCore import Qt, QThread, QObject, pyqtSignal, QTimer
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import (
@@ -125,6 +123,8 @@ def hide_cuda_from_torch(device):
     "no kernel image is available for execution on the device", so hide CUDA
     for the duration of the call instead.
     """
+    import torch
+
     if device != "cpu" or not torch.cuda.is_available():
         yield
         return
@@ -223,6 +223,8 @@ class IdentificationWorker(QObject):
         self._SortformerDiarizer = SortformerDiarizer
 
     def _get_transcript_data(self):
+        import faster_whisper
+
         language = self._get_language() or "en"
 
         segments = self._get_segments()
@@ -234,6 +236,8 @@ class IdentificationWorker(QObject):
         return language, full_transcript, audio_waveform
 
     def _setup_device(self):
+        import torch
+
         # "Disable GPU" in Preferences exports BUZZ_FORCE_CPU, but read the setting too
         # so the preference applies even if the environment was not updated.
         force_cpu = (
@@ -284,6 +288,8 @@ class IdentificationWorker(QObject):
         return alignment_model, alignment_tokenizer
 
     def _generate_emissions_and_cleanup(self, alignment_model, audio_waveform, device):
+        import torch
+
         try:
             emissions, stride = self._generate_emissions(
                 alignment_model,
@@ -316,6 +322,8 @@ class IdentificationWorker(QObject):
         return word_timestamps
 
     def _run_diarization(self, audio_waveform, device):
+        import torch
+
         # Silence NeMo's verbose logging
         logging.getLogger("nemo_logging").setLevel(logging.ERROR)
         try:
@@ -413,6 +421,8 @@ class IdentificationWorker(QObject):
         self.finished.emit([])
 
     def _cleanup(self, alignment_model):
+        import torch
+
         logging.debug("Speaker identification worker: Cleaning up resources")
         if alignment_model is not None:
             try:

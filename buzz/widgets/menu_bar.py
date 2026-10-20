@@ -1,6 +1,6 @@
 import platform
 import webbrowser
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QAction, QKeySequence
@@ -12,9 +12,9 @@ from buzz.settings.shortcut import Shortcut
 from buzz.settings.shortcuts import Shortcuts
 from buzz.widgets.about_dialog import AboutDialog
 from buzz.widgets.preferences_dialog.models.preferences import Preferences
-from buzz.widgets.preferences_dialog.preferences_dialog import (
-    PreferencesDialog,
-)
+
+if TYPE_CHECKING:
+    from buzz.widgets.preferences_dialog.preferences_dialog import PreferencesDialog
 
 
 class MenuBar(QMenuBar):
@@ -24,7 +24,7 @@ class MenuBar(QMenuBar):
     shortcuts_changed = pyqtSignal()
     openai_api_key_changed = pyqtSignal(str)
     preferences_changed = pyqtSignal(Preferences)
-    preferences_dialog: Optional[PreferencesDialog] = None
+    preferences_dialog: Optional["PreferencesDialog"] = None
 
     def __init__(
         self,
@@ -83,6 +83,9 @@ class MenuBar(QMenuBar):
         about_dialog.open()
 
     def on_preferences_action_triggered(self):
+        # Imported on demand: the dialog pulls in openai, which slows app startup.
+        from buzz.widgets.preferences_dialog.preferences_dialog import PreferencesDialog
+
         preferences_dialog = PreferencesDialog(
             shortcuts=self.shortcuts,
             preferences=self.preferences,

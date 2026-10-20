@@ -58,8 +58,6 @@ if sys.platform == "win32":
     subprocess.run = _patched_run
     subprocess.check_output = _patched_check_output
 
-from demucs import api as demucsApi
-
 from buzz.locale import _
 
 
@@ -189,6 +187,7 @@ def _extract_speech_streaming(conn, file_path: str, speech_path: str, device: st
     """Separate vocals window by window, writing them out as we go."""
     import numpy as np
     import torch
+    from demucs import api as demucsApi
 
     has_audio, duration = _probe_audio(file_path)
     if not has_audio:
@@ -315,11 +314,7 @@ def _speech_extraction_worker(conn, file_path: str, speech_path: str, device: st
 
 from buzz.model_loader import ModelType
 from buzz.transcriber.file_transcriber import FileTranscriber
-from buzz.transcriber.openai_whisper_api_file_transcriber import (
-    OpenAIWhisperAPIFileTranscriber,
-)
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment
-from buzz.transcriber.whisper_file_transcriber import WhisperFileTranscriber
 
 
 @dataclass
@@ -471,6 +466,13 @@ class FileTranscriberQueueWorker(QObject):
         return True
 
     def _create_transcriber(self):
+        # Imported here rather than at module level: they pull in openai, torch and
+        # transformers, which would otherwise add seconds to app startup.
+        from buzz.transcriber.openai_whisper_api_file_transcriber import (
+            OpenAIWhisperAPIFileTranscriber,
+        )
+        from buzz.transcriber.whisper_file_transcriber import WhisperFileTranscriber
+
         model_type = self.current.task.transcription_options.model.model_type
         if model_type == ModelType.OPEN_AI_WHISPER_API:
             self.current.transcriber = OpenAIWhisperAPIFileTranscriber(

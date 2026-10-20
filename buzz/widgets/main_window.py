@@ -662,13 +662,15 @@ class MainWindow(QMainWindow):
             return
         if not cuda_manager.should_offer_cuda_prompt():
             return
+        # Checked before is_cuda_torch_installed(), which imports torch and would
+        # otherwise add about a second to every launch after the first.
+        if self.settings.value(Settings.Key.CUDA_PROMPT_SHOWN, False):
+            return
         # The packaged builds all ship CPU-only torch, so this only ever fires
         # for a pip or source install where the user set up CUDA themselves.
         # Offering them a second, shadowing torch would be worse than useless.
         if cuda_manager.is_cuda_torch_installed():
             logging.debug("CUDA torch already available; not offering the install")
-            return
-        if self.settings.value(Settings.Key.CUDA_PROMPT_SHOWN, False):
             return
         self.settings.set_value(Settings.Key.CUDA_PROMPT_SHOWN, True)
 
