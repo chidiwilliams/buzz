@@ -54,9 +54,18 @@ class SkipAlreadyTranscribedPlugin(BuzzPlugin):
         from buzz.transcriber.transcriber import FileTranscriptionTask
 
         # URL downloads are saved under a fixed temp name ("audio.wav"), which
-        # says nothing about the source and would match unrelated results.
+        # says nothing about the source and would match unrelated results, so
+        # only the source URL stored in the database can identify them.
         if getattr(task, "source", None) == FileTranscriptionTask.Source.URL_IMPORT:
-            return None
+            url = getattr(task, "url", None)
+            if not url or not context.config.get("check_database"):
+                return None
+            segments = self._find_db_segments_by_url(url, context)
+            if segments is not None:
+                context.log.info(
+                    "Skipping transcription: found prior DB record for %s", url
+                )
+            return segments
 
         file_path = task.original_file_path or task.file_path
         if not file_path:
@@ -169,13 +178,24 @@ class SkipAlreadyTranscribedPlugin(BuzzPlugin):
         return int((h * 3600 + m * 60 + s) * 1000)
 
     def _find_db_segments(self, file_path: str, context: PluginContext):
+        service = context.transcription_service
+        filename = os.path.basename(file_path)
+        return self._load_db_segments(
+            lambda: service.find_completed_transcription_by_filename(filename),
+            context,
+        )
+
+    def _find_db_segments_by_url(self, url: str, context: PluginContext):
+        service = context.transcription_service
+        return self._load_db_segments(
+            lambda: service.find_completed_transcription_by_url(url), context
+        )
+
+    def _load_db_segments(self, find_id, context: PluginContext):
         from buzz.transcriber.transcriber import Segment
 
-        filename = os.path.basename(file_path)
         try:
-            tid = context.transcription_service.find_completed_transcription_by_filename(
-                filename
-            )
+            tid = find_id()
             if tid is None:
                 return None
             raw = context.transcription_service.get_transcription_segments(tid)

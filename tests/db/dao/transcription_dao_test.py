@@ -212,3 +212,21 @@ class TestTranscriptionDAO:
             # This should raise an exception with the database error message
             with pytest.raises(Exception, match="Database error"):
                 transcription_dao.update_transcription_name(uuid4(), "Test Name")
+
+    def test_find_completed_transcription_by_url(self, transcription_dao):
+        url = "https://www.youtube.com/watch?v=abc123"
+        queued = Transcription(id=str(uuid4()), url=url, status="queued")
+        completed = Transcription(id=str(uuid4()), url=url, status="completed")
+        other = Transcription(
+            id=str(uuid4()), url="https://example.com/other", status="completed"
+        )
+        for transcription in (queued, completed, other):
+            transcription_dao.insert(transcription)
+
+        assert transcription_dao.find_completed_transcription_by_url(url) == completed.id
+        assert (
+            transcription_dao.find_completed_transcription_by_url(
+                "https://example.com/missing"
+            )
+            is None
+        )

@@ -350,6 +350,22 @@ class TranscriptionDAO(DAO[Transcription]):
             return query.value("id")
         return None
 
+    def find_completed_transcription_by_url(self, url: str):
+        query = self._create_query()
+        query.prepare(
+            """
+            SELECT id FROM transcription
+            WHERE url = :url AND status = 'completed'
+            ORDER BY time_ended DESC LIMIT 1
+        """
+        )
+        query.bindValue(":url", url)
+        if not query.exec():
+            raise Exception(query.lastError().text())
+        if query.next():
+            return query.value("id")
+        return None
+
     def reset_transcription_for_restart(self, id: UUID):
         """Reset a transcription to queued status for restart"""
         query = self._create_query()

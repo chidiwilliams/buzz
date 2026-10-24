@@ -72,6 +72,9 @@ class TranscriptionService:
     def find_completed_transcription_by_filename(self, filename: str):
         return self.transcription_dao.find_completed_transcription_by_filename(filename)
 
+    def find_completed_transcription_by_url(self, url: str):
+        return self.transcription_dao.find_completed_transcription_by_url(url)
+
     def reset_transcription_for_restart(self, id: UUID):
         self.transcription_dao.reset_transcription_for_restart(id)
 
