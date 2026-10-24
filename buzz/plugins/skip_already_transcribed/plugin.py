@@ -51,6 +51,13 @@ class SkipAlreadyTranscribedPlugin(BuzzPlugin):
     def check_skip(
         self, task, context: PluginContext
     ) -> Optional[List]:
+        from buzz.transcriber.transcriber import FileTranscriptionTask
+
+        # URL downloads are saved under a fixed temp name ("audio.wav"), which
+        # says nothing about the source and would match unrelated results.
+        if getattr(task, "source", None) == FileTranscriptionTask.Source.URL_IMPORT:
+            return None
+
         file_path = task.original_file_path or task.file_path
         if not file_path:
             return None
