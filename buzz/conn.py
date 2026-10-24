@@ -13,9 +13,13 @@ class ConnWriter:
 
 @contextmanager
 def pipe_stderr(conn: Connection):
+    # Restore the previous stream, not sys.__stderr__: in a windowed Windows
+    # build sys.__stderr__ is None, and multiprocessing then crashes writing
+    # the child's traceback.
+    previous_stderr = sys.stderr
     sys.stderr = ConnWriter(conn)
 
     try:
         yield
     finally:
-        sys.stderr = sys.__stderr__
+        sys.stderr = previous_stderr

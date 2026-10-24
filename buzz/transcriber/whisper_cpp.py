@@ -3,7 +3,9 @@ import os
 import re
 import sys
 import logging
+import shutil
 import subprocess
+import tempfile
 import json
 from typing import List, Optional
 from buzz.assets import APP_BASE_DIR
@@ -43,6 +45,32 @@ def get_whisper_cli_path() -> str:
         whisper_cli_path = os.path.join(APP_BASE_DIR, "buzz", "whisper_cpp", cli_executable)
 
     return whisper_cli_path
+
+
+def _is_cli_safe_path(path: str, encoding: Optional[str] = None) -> bool:
+    """Whether whisper-cli can open ``path`` when given it on the command line.
+
+    whisper-cli reads its arguments through a narrow ``main(argc, argv)``, so on
+    Windows they reach it in the system ANSI code page (e.g. cp932 on Japanese
+    Windows). Characters that code page can't represent are mangled and
+    whisper-cli exits with "input file not found" (return code 2).
+    """
+    if encoding is None:
+        if sys.platform != "win32":
+            return True
+        encoding = "mbcs"
+    try:
+        path.encode(encoding)
+    except UnicodeEncodeError:
+        return False
+    return True
+
+
+def _make_temp_path(suffix: str) -> str:
+    """Create an empty temp file with an ASCII name and return its path."""
+    fd, path = tempfile.mkstemp(prefix="buzz-", suffix=suffix)
+    os.close(fd)
+    return path
 
 
 def _make_offset_mapper(segment_data, vad_enabled):
@@ -129,7 +157,9 @@ class WhisperCpp:
     @staticmethod
     def _convert_to_wav(file_path: str) -> str:
         """Convert audio file to WAV format using ffmpeg."""
-        temp_file = file_path + ".wav"
+        # Use an ASCII temp name rather than one derived from file_path,
+        # so whisper-cli can open it on Windows (see _is_cli_safe_path).
+        temp_file = _make_temp_path(".wav")
         logging.info(f"Converting {file_path} to WAV format")
 
         ffmpeg_cmd = [
@@ -159,9 +189,36 @@ class WhisperCpp:
 
             return temp_file
         except subprocess.CalledProcessError as e:
+            WhisperCpp._cleanup_files(temp_file, None)
             raise Exception(f"Failed to convert audio file: {e.stderr.decode()}")
         except FileNotFoundError:
+            WhisperCpp._cleanup_files(temp_file, None)
             raise Exception("ffmpeg not found. Please install ffmpeg to process this audio format.")
+
+    @staticmethod
+    def _prepare_input(file_path: str, supported_formats: tuple) -> tuple:
+        """Return (path to give whisper-cli, temp file to clean up or None).
+
+        Formats whisper-cli can't read are converted to WAV. Readable files
+        whose path whisper-cli can't open are copied to an ASCII temp name.
+        """
+        file_ext = os.path.splitext(file_path)[1].lower()
+
+        if file_ext not in supported_formats:
+            temp_file = WhisperCpp._convert_to_wav(file_path)
+            return temp_file, temp_file
+
+        if not _is_cli_safe_path(file_path):
+            temp_file = _make_temp_path(file_ext)
+            logging.info(f"Copying {file_path} to {temp_file} for whisper-cli")
+            try:
+                shutil.copyfile(file_path, temp_file)
+            except Exception:
+                WhisperCpp._cleanup_files(temp_file, None)
+                raise
+            return temp_file, temp_file
+
+        return file_path, None
 
     @staticmethod
     def _build_command(task, file_to_process, language, vad_enabled) -> list:
@@ -367,15 +424,9 @@ class WhisperCpp:
             else "auto"
         )
 
-        supported_formats = ('.mp3', '.wav', '.flac')
-        file_ext = os.path.splitext(task.file_path)[1].lower()
-
-        temp_file = None
-        file_to_process = task.file_path
-
-        if file_ext not in supported_formats:
-            temp_file = WhisperCpp._convert_to_wav(task.file_path)
-            file_to_process = temp_file
+        file_to_process, temp_file = WhisperCpp._prepare_input(
+            task.file_path, ('.mp3', '.wav', '.flac')
+        )
 
         vad_model_path = os.path.join(
             os.path.dirname(get_whisper_cli_path()), "ggml-silero-v6.2.0.bin"
@@ -418,46 +469,9 @@ class WhisperCpp:
 
         # whisper-cli reads flac, mp3, ogg and wav directly. Convert anything
         # else to WAV first, mirroring transcribe().
-        supported_formats = ('.mp3', '.wav', '.flac', '.ogg')
-        file_ext = os.path.splitext(file_path)[1].lower()
-
-        temp_file = None
-        file_to_process = file_path
-
-        if file_ext not in supported_formats:
-            temp_file = file_path + ".wav"
-            logging.info(f"Converting {file_path} to WAV format for language detection")
-
-            ffmpeg_cmd = [
-                "ffmpeg",
-                "-i", file_path,
-                "-ar", "16000",
-                "-ac", "1",
-                "-y",
-                temp_file,
-            ]
-
-            try:
-                if sys.platform == "win32":
-                    si = subprocess.STARTUPINFO()
-                    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                    si.wShowWindow = subprocess.SW_HIDE
-                    subprocess.run(
-                        ffmpeg_cmd,
-                        capture_output=True,
-                        startupinfo=si,
-                        env=app_env,
-                        creationflags=subprocess.CREATE_NO_WINDOW,
-                        check=True,
-                    )
-                else:
-                    subprocess.run(ffmpeg_cmd, capture_output=True, check=True)
-
-                file_to_process = temp_file
-            except subprocess.CalledProcessError as e:
-                raise Exception(f"Failed to convert audio file: {e.stderr.decode()}")
-            except FileNotFoundError:
-                raise Exception("ffmpeg not found. Please install ffmpeg to process this audio format.")
+        file_to_process, temp_file = WhisperCpp._prepare_input(
+            file_path, ('.mp3', '.wav', '.flac', '.ogg')
+        )
 
         cmd = [
             whisper_cli_path,
