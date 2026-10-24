@@ -120,6 +120,9 @@ class MainWindowToolbar(ToolBar):
         recording_transcriber_window = RecordingTranscriberWidget(
             self, flags=Qt.WindowType.Window
         )
+        # Otherwise every closed window stays alive until the app exits, and
+        # tearing it down then crashes in PyQt's exit cleanup
+        recording_transcriber_window.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         recording_transcriber_window.show()
 
     def set_stop_transcription_action_enabled(self, enabled: bool):

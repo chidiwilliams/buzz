@@ -242,6 +242,7 @@ class RecordingTranscriberWidget(QWidget):
 
     def _init_export_settings(self) -> None:
         self._closing = False
+        self._close_waiting_threads = []
         self.transcript_export_file = None
         self.translation_export_file = None
         self.export_file_type = "txt"
@@ -1167,9 +1168,15 @@ class RecordingTranscriberWidget(QWidget):
             super().closeEvent(event)
             return
 
-        if self.current_status == self.RecordingStatus.RECORDING or self.transcription_thread is not None:
-            # Defer the close until the transcription thread finishes to avoid
-            # blocking the GUI thread with a synchronous wait.
+        if (
+            self.current_status == self.RecordingStatus.RECORDING
+            or self.transcription_thread is not None
+            or self.translation_thread is not None
+        ):
+            # Defer the close until the transcription and translation threads
+            # finish to avoid blocking the GUI thread with a synchronous wait.
+            # The window is deleted on close, so it must not go away while
+            # either thread is still running.
             event.ignore()
             self._closing = True
 
@@ -1180,16 +1187,16 @@ class RecordingTranscriberWidget(QWidget):
 
             # Connect to QThread.finished — the transcriber C++ object may already
             # be scheduled for deletion via deleteLater() by this point.
-            thread = self.transcription_thread
-            if thread is not None:
+            self._close_waiting_threads = []
+            for thread in (self.transcription_thread, self.translation_thread):
                 try:
-                    if thread.isRunning():
-                        thread.finished.connect(self._on_close_transcriber_finished)
-                    else:
-                        self._on_close_transcriber_finished()
+                    if thread is not None and thread.isRunning():
+                        self._close_waiting_threads.append(thread)
+                        thread.finished.connect(self._on_close_thread_finished)
                 except RuntimeError:
-                    self._on_close_transcriber_finished()
-            else:
+                    pass
+
+            if not self._close_waiting_threads:
                 self._on_close_transcriber_finished()
             return
 
@@ -1215,6 +1222,23 @@ class RecordingTranscriberWidget(QWidget):
 
     def _on_transcription_thread_finished(self):
         self._cleanup_transcription_thread()
+
+    def _on_close_thread_finished(self):
+        # A bound method rather than a lambda, so the connection goes away with
+        # the window if it is deleted before the thread finishes
+        thread = self.sender()
+        # finished is emitted before the OS thread exits, see _cleanup_transcription_thread
+        try:
+            thread.wait()
+        except RuntimeError:
+            pass
+
+        if thread in self._close_waiting_threads:
+            self._close_waiting_threads.remove(thread)
+        if self._close_waiting_threads:
+            return
+
+        self._on_close_transcriber_finished()
 
     def _on_close_transcriber_finished(self):
         self._cleanup_transcription_thread()
