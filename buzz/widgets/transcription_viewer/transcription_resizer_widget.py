@@ -1,7 +1,6 @@
 import re
 import os
 import logging
-import stable_whisper
 import srt
 from pathlib import Path
 from srt_equalizer import srt_equalizer
@@ -102,6 +101,8 @@ class TranscriptionWorker(QObject):
             transcription_file = str(speech_path)
             transcription_file_exists = True
         # TODO - Fix VAD and Silence suppression that fails to work/download Vad model in compilded form on Mac and Windows
+
+        import stable_whisper  # imports torch, so keep it out of app startup
 
         try:
             result = stable_whisper.transcribe_any(

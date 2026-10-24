@@ -42,7 +42,6 @@ except ImportError:
     _certifi_ca_bundle = None
 
 import requests
-import whisper
 import huggingface_hub
 import zipfile
 from dataclasses import dataclass
@@ -764,6 +763,8 @@ def get_whisper_file_path(size: WhisperModelSize) -> str:
     if size == WhisperModelSize.CUSTOM:
         return os.path.join(root_dir, "custom")
 
+    import whisper  # imports torch, so keep it out of app startup
+
     url = whisper._MODELS[size.value]
     return os.path.join(root_dir, os.path.basename(url))
 
@@ -1010,6 +1011,8 @@ class ModelDownloader(QRunnable):
             model_path, f"ggml-{model_name}.bin"))
 
     def _download_whisper(self) -> None:
+        import whisper
+
         url = whisper._MODELS[self.model.whisper_model_size.value]
         file_path = get_whisper_file_path(
             size=self.model.whisper_model_size)

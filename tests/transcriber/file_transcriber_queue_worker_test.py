@@ -2,6 +2,7 @@ import pytest
 import subprocess
 import unittest.mock
 import uuid
+from pathlib import Path
 from PyQt6.QtCore import QCoreApplication, QThread
 from buzz.file_transcriber_queue_worker import (
     FileTranscriberQueueWorker,
@@ -11,6 +12,7 @@ from buzz.file_transcriber_queue_worker import (
 from buzz.model_loader import ModelType, TranscriptionModel, WhisperModelSize
 from buzz.transcriber.transcriber import FileTranscriptionTask, TranscriptionOptions, FileTranscriptionOptions, Segment
 from buzz.transcriber.whisper_file_transcriber import WhisperFileTranscriber
+from buzz.transcriber.file_transcriber import FileTranscriber
 from tests.audio import test_audio_path, test_multibyte_utf8_audio_path
 import time
 
@@ -323,6 +325,270 @@ class TestFileTranscriberQueueWorker:
 
 
 class TestFileTranscriberQueueWorkerRun:
+    @pytest.mark.parametrize("extract_speech", [False, True])
+    @pytest.mark.parametrize("previous_path", [None, "/missing/previous-download.wav"])
+    def test_url_download_precedes_speech_extraction(
+        self, simple_worker, tmp_path, mocker, qtbot, extract_speech, previous_path
+    ):
+        task = self._make_task(extract_speech=extract_speech)
+        task.source = FileTranscriptionTask.Source.URL_IMPORT
+        task.url = "https://www.youtube.com/watch?v=AuZoDsNmG_s&t=3s"
+        task.file_path = previous_path
+        downloaded = tmp_path / "audio.wav"
+        downloaded.touch()
+        speech = tmp_path / "audio_speech.mp3"
+        # Each step records the file it was handed, in the order it ran.
+        steps = []
+
+        def download(transcriber):
+            steps.append(("download", transcriber.transcription_task.file_path))
+            transcriber.transcription_task.file_path = str(downloaded)
+            return True
+
+        def fake_extract_speech(file_path, _speech_path, _device):
+            steps.append(("extract_speech", file_path))
+            return "ok"
+
+        def transcribe(transcriber):
+            steps.append(("transcribe", transcriber.transcription_task.file_path))
+            return []
+
+        download_mock = mocker.patch.object(
+            FileTranscriber, "_download_from_url", autospec=True, side_effect=download
+        )
+        extract = mocker.patch.object(
+            simple_worker, "_extract_speech", side_effect=fake_extract_speech
+        )
+        mocker.patch.object(
+            WhisperFileTranscriber, "transcribe", autospec=True, side_effect=transcribe
+        )
+        plugin_manager = unittest.mock.Mock()
+        plugin_manager.run_before_transcription.side_effect = (
+            lambda plugin_task: steps.append(("plugins", plugin_task.file_path))
+        )
+        plugin_manager.run_check_skip.return_value = (False, None)
+        simple_worker.plugin_manager = plugin_manager
+        completed = unittest.mock.Mock()
+        started = unittest.mock.Mock()
+        simple_worker.task_completed.connect(completed)
+        simple_worker.task_started.connect(started)
+        simple_worker.trigger_run.disconnect(simple_worker.run)
+        simple_worker.tasks_queue.put(task)
+
+        simple_worker.run()
+        qtbot.waitUntil(lambda: completed.called and not simple_worker.is_running)
+
+        if extract_speech:
+            extract.assert_called_once()
+            expected_path = str(speech)
+            expected_steps = [
+                ("download", previous_path),
+                ("extract_speech", str(downloaded)),
+                ("plugins", expected_path),
+                ("transcribe", expected_path),
+            ]
+        else:
+            extract.assert_not_called()
+            expected_path = str(downloaded)
+            expected_steps = [
+                ("download", previous_path),
+                ("plugins", expected_path),
+                ("transcribe", expected_path),
+            ]
+        assert steps == expected_steps
+        assert task.file_path == expected_path
+        download_mock.assert_called_once()
+        # Download and transcription are one task to the UI and the database.
+        started.assert_called_once_with(task)
+
+    @pytest.mark.parametrize("raises", [False, True])
+    def test_url_download_failure_releases_queue(
+        self, simple_worker, mocker, qtbot, raises
+    ):
+        task = self._make_task(extract_speech=True)
+        task.source = FileTranscriptionTask.Source.URL_IMPORT
+        task.file_path = None
+
+        def download(transcriber):
+            if raises:
+                raise OSError("cannot prepare audio")
+            transcriber.error.emit("cannot prepare audio")
+            return False
+
+        mocker.patch.object(
+            FileTranscriber, "_download_from_url", autospec=True, side_effect=download
+        )
+        extract = mocker.patch.object(simple_worker, "_setup_speech_extraction")
+        start = mocker.patch.object(simple_worker, "_start_transcription")
+        error = unittest.mock.Mock()
+        busy = unittest.mock.Mock()
+        simple_worker.task_error.connect(error)
+        simple_worker.queue_busy_changed.connect(busy)
+        simple_worker.trigger_run.disconnect(simple_worker.run)
+        simple_worker.add_task(task)
+
+        simple_worker.run()
+        qtbot.waitUntil(lambda: error.called and not simple_worker.is_running)
+
+        error.assert_called_once_with(task, "cannot prepare audio")
+        assert task.status == FileTranscriptionTask.Status.FAILED
+        assert not simple_worker.is_running
+        assert busy.call_args_list == [
+            unittest.mock.call(True),
+            unittest.mock.call(False),
+        ]
+        extract.assert_not_called()
+        start.assert_not_called()
+
+    def test_url_canceled_during_download_does_not_start_transcription(
+        self, simple_worker, mocker
+    ):
+        task = self._make_task(extract_speech=True)
+        task.source = FileTranscriptionTask.Source.URL_IMPORT
+        task.file_path = None
+        stale_thread = unittest.mock.Mock()
+        simple_worker.current.transcriber_thread = stale_thread
+
+        mocker.patch.object(FileTranscriber, "moveToThread")
+        thread = mocker.patch("buzz.file_transcriber_queue_worker.QThread").return_value
+        extract = mocker.patch.object(simple_worker, "_setup_speech_extraction")
+        simple_worker.trigger_run.disconnect(simple_worker.run)
+        simple_worker.add_task(task)
+
+        simple_worker.run()
+        download = simple_worker.current.transcriber
+        thread.started.connect.assert_called_once_with(download.download)
+        stop = mocker.spy(download, "stop")
+        simple_worker.cancel_task(task.uid)
+
+        # The queue is released without blocking on the download thread.
+        stop.assert_called_once()
+        thread.wait.assert_not_called()
+        thread.terminate.assert_not_called()
+        assert not simple_worker.is_running
+        assert simple_worker.current.activity_token is None
+
+        # The download thread winds down later; its signals must be ignored.
+        error = unittest.mock.Mock()
+        simple_worker.task_error.connect(error)
+        download.error.emit("Download canceled")
+        download.completed.emit([])
+
+        stale_thread.wait.assert_not_called()
+        error.assert_not_called()
+        extract.assert_not_called()
+
+    def test_late_url_download_completion_does_not_start_next_task(
+        self, simple_worker, mocker
+    ):
+        old_task = self._make_task()
+        old_task.source = FileTranscriptionTask.Source.URL_IMPORT
+        next_task = self._make_task()
+        start = mocker.patch.object(simple_worker, "_start_transcription")
+        finished = mocker.patch.object(simple_worker, "_on_task_finished")
+        simple_worker.current.task = next_task
+        simple_worker.current.activity_token = uuid.uuid4()
+
+        simple_worker._on_url_download_completed(old_task, uuid.uuid4())
+
+        start.assert_not_called()
+        finished.assert_not_called()
+
+    @pytest.mark.parametrize("cancel_during", ["speech_extraction", "plugins"])
+    def test_cancel_before_transcriber_starts_does_not_transcribe(
+        self, simple_worker, mocker, cancel_during
+    ):
+        task = self._make_task(extract_speech=True)
+        simple_worker.current.task = task
+        simple_worker.current.activity_token = uuid.uuid4()
+        simple_worker.is_running = True
+
+        def cancel(*_args, **_kwargs):
+            simple_worker.cancel_task(task.uid)
+            return "ok" if cancel_during == "speech_extraction" else True
+
+        extract = mocker.patch.object(
+            simple_worker, "_setup_speech_extraction", return_value="ok"
+        )
+        plugins = mocker.patch.object(simple_worker, "_run_plugins", return_value=True)
+        (
+            extract if cancel_during == "speech_extraction" else plugins
+        ).side_effect = cancel
+        create = mocker.patch.object(simple_worker, "_create_transcriber")
+        started = unittest.mock.Mock()
+        simple_worker.task_started.connect(started)
+        simple_worker.trigger_run.disconnect(simple_worker.run)
+
+        simple_worker._start_transcription()
+
+        create.assert_not_called()
+        started.assert_not_called()
+        assert not simple_worker.is_running
+        assert simple_worker.current.activity_token is None
+        if cancel_during == "speech_extraction":
+            plugins.assert_not_called()
+
+    def test_cancel_before_transcriber_starts_removes_speech_file(
+        self, simple_worker, mocker, tmp_path
+    ):
+        task = self._make_task(extract_speech=True)
+        simple_worker.current.task = task
+        simple_worker.current.activity_token = uuid.uuid4()
+        simple_worker.is_running = True
+        speech_file = tmp_path / "audio_speech.mp3"
+
+        def extract(file_path, speech_path, _device):
+            Path(speech_path).write_bytes(b"speech")
+            return "ok"
+
+        def cancel():
+            simple_worker.cancel_task(task.uid)
+            return True
+
+        task.file_path = str(tmp_path / "audio.mp3")
+        mocker.patch.object(simple_worker, "_extract_speech", side_effect=extract)
+        mocker.patch.object(simple_worker, "_run_plugins", side_effect=cancel)
+        create = mocker.patch.object(simple_worker, "_create_transcriber")
+        simple_worker.trigger_run.disconnect(simple_worker.run)
+
+        simple_worker._start_transcription()
+
+        create.assert_not_called()
+        assert not speech_file.exists()
+        assert simple_worker.speech_path is None
+
+    def test_cancel_during_speech_extraction_does_not_report_error(
+        self, simple_worker, mocker, tmp_path
+    ):
+        task = self._make_task(extract_speech=True)
+        task.file_path = str(tmp_path / "audio.mp3")
+        simple_worker.current.task = task
+        simple_worker.current.activity_token = uuid.uuid4()
+        simple_worker.is_running = True
+        partial = tmp_path / "audio_speech.mp3"
+
+        def killed_by_cancel(_file_path, speech_path, _device):
+            # The child is terminated mid-write and never reports a result.
+            Path(speech_path).write_bytes(b"partial")
+            simple_worker.cancel_task(task.uid)
+            return "error"
+
+        mocker.patch.object(
+            simple_worker, "_extract_speech", side_effect=killed_by_cancel
+        )
+        create = mocker.patch.object(simple_worker, "_create_transcriber")
+        error = unittest.mock.Mock()
+        simple_worker.task_error.connect(error)
+        simple_worker.trigger_run.disconnect(simple_worker.run)
+
+        simple_worker._start_transcription()
+
+        error.assert_not_called()
+        create.assert_not_called()
+        assert not partial.exists()
+        assert not simple_worker.is_running
+        assert simple_worker.current.activity_token is None
+
     def _make_task(self, model_type=ModelType.WHISPER_CPP, extract_speech=False):
         options = TranscriptionOptions(
             model=TranscriptionModel(model_type=model_type, whisper_model_size=WhisperModelSize.TINY),
@@ -596,7 +862,7 @@ class TestSpeechExtractionWorker:
             return separator
 
         with unittest.mock.patch(
-            "buzz.file_transcriber_queue_worker.demucsApi.Separator", side_effect=make
+            "demucs.api.Separator", side_effect=make
         ):
             yield separators
 

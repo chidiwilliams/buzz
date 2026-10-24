@@ -1648,3 +1648,78 @@ class TestWriteCsvExportErrorHandling:
         with patch("builtins.open", side_effect=OSError("disk full")):
             # Should return gracefully without raising
             RecordingTranscriberWidget.write_csv_export(path, "data", 0)
+
+
+class TestCloseWaitsForWorkerThreads:
+    @staticmethod
+    def _start_thread(qtbot):
+        from PyQt6.QtCore import QThread
+
+        thread = QThread()
+        thread.start()
+        qtbot.waitUntil(thread.isRunning, timeout=5000)
+        return thread
+
+    @pytest.mark.timeout(60)
+    def test_close_deferred_until_translation_thread_finishes(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            thread = self._start_thread(qtbot)
+            widget.translation_thread = thread
+
+            with patch.object(widget, "_do_close", wraps=widget._do_close) as mock_do_close:
+                assert widget.close() is False
+                mock_do_close.assert_not_called()
+
+                thread.quit()
+                qtbot.waitUntil(lambda: mock_do_close.called, timeout=5000)
+
+            assert widget._close_waiting_threads == []
+
+    @pytest.mark.timeout(60)
+    def test_close_waits_for_both_threads(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            transcription_thread = self._start_thread(qtbot)
+            translation_thread = self._start_thread(qtbot)
+            widget.transcription_thread = transcription_thread
+            widget.translation_thread = translation_thread
+
+            with patch.object(widget, "_do_close", wraps=widget._do_close) as mock_do_close:
+                assert widget.close() is False
+
+                transcription_thread.quit()
+                qtbot.waitUntil(lambda: widget._close_waiting_threads == [translation_thread], timeout=5000)
+                mock_do_close.assert_not_called()
+
+                translation_thread.quit()
+                qtbot.waitUntil(lambda: mock_do_close.called, timeout=5000)
+                mock_do_close.assert_called_once()
+
+            assert widget.transcription_thread is None
+            translation_thread.wait()
+
+
+class TestCopyButtonReset:
+    @pytest.mark.timeout(60)
+    def test_copy_button_text_is_reset(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            widget.on_copy_transcript_clicked()
+            assert widget.copy_transcript_button.text() == _("Nothing to copy!")
+
+            qtbot.waitUntil(
+                lambda: widget.copy_transcript_button.text() == _("Copy"), timeout=5000
+            )
+
+    @pytest.mark.timeout(60)
+    def test_reset_does_not_fire_after_window_is_deleted(self, qtbot):
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(custom_sounddevice=MockSoundDevice())
+            widget.on_copy_transcript_clicked()
+            time.sleep(0.3)
+            widget.close()
+            widget.deleteLater()
+
+            # qtbot fails the test if the timer fires on the deleted button
+            qtbot.wait(2500)
