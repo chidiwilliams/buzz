@@ -643,3 +643,38 @@ class TestMainWindowFolderWatch:
         assert transcription.file == str(moved_path)
 
         window.close()
+
+
+class TestMainWindowUrlImport:
+    def test_should_store_downloaded_audio_not_extracted_speech(
+        self, qtbot: QtBot, db, transcription_service, tmp_path
+    ):
+        """The speech file is deleted after completion, so the transcription
+        has to keep pointing at the downloaded audio."""
+        window = MainWindow(transcription_service)
+        qtbot.add_widget(window)
+
+        downloaded_path = tmp_path / "audio.wav"
+        speech_path = tmp_path / "audio_speech.mp3"
+        task = FileTranscriptionTask(
+            transcription_options=TranscriptionOptions(extract_speech=True),
+            file_transcription_options=FileTranscriptionOptions(),
+            model_path="",
+            url="https://example.com/audio.mp3",
+            source=FileTranscriptionTask.Source.URL_IMPORT,
+        )
+        transcription_service.create_transcription(task)
+
+        # Download, then speech extraction, update the task before completing.
+        task.original_file_path = str(downloaded_path)
+        task.file_path = str(speech_path)
+
+        window.on_task_completed(task, [])
+
+        transcription = transcription_service.transcription_dao.find_by_id(
+            str(task.uid)
+        )
+        assert transcription.file == str(downloaded_path)
+        assert transcription.name == "audio"
+
+        window.close()

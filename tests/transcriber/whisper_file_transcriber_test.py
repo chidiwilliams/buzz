@@ -386,6 +386,10 @@ class TestWhisperFileTranscriber:
                 source=FileTranscriptionTask.Source.URL_IMPORT,
             )
         )
+        # The queue worker downloads URL audio before transcribing it.
+        transcriber.download()
+        assert os.path.isfile(transcriber.transcription_task.file_path)
+
         transcriber.progress.connect(mock_progress)
         transcriber.completed.connect(mock_completed)
         with qtbot.wait_signal(
