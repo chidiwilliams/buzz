@@ -156,6 +156,69 @@ class TestMainWindow:
         window.close()
 
     @staticmethod
+    def _folder_watch_task() -> FileTranscriptionTask:
+        file_path = get_test_asset("whisper-french.mp3")
+        return FileTranscriptionTask(
+            file_path=file_path,
+            original_file_path=file_path,
+            transcription_options=TranscriptionOptions(),
+            file_transcription_options=FileTranscriptionOptions(
+                file_paths=[file_path]
+            ),
+            model_path="",
+            source=FileTranscriptionTask.Source.FOLDER_WATCH,
+        )
+
+    def test_folder_watch_task_is_listed_at_once_and_transcribed_once_settled(
+        self, qtbot: QtBot, transcription_service
+    ):
+        window = MainWindow(transcription_service)
+        qtbot.add_widget(window)
+        task = self._folder_watch_task()
+
+        with patch.object(window.transcriber_worker, "add_task") as add_task:
+            window.on_folder_watch_task_found(task)
+            assert transcription_service.is_transcription_queued(task.uid)
+            add_task.assert_not_called()
+
+            window.on_folder_watch_task_settled(task)
+            add_task.assert_called_once_with(task)
+
+        window.close()
+
+    def test_folder_watch_task_stopped_before_it_settles_is_not_transcribed(
+        self, qtbot: QtBot, transcription_service
+    ):
+        window = MainWindow(transcription_service)
+        qtbot.add_widget(window)
+        task = self._folder_watch_task()
+
+        with patch.object(window.transcriber_worker, "add_task") as add_task:
+            window.on_folder_watch_task_found(task)
+            transcription_service.update_transcription_as_canceled(task.uid)
+
+            window.on_folder_watch_task_settled(task)
+            add_task.assert_not_called()
+
+        window.close()
+
+    def test_folder_watch_task_discarded_before_it_settles_is_canceled(
+        self, qtbot: QtBot, transcription_service
+    ):
+        window = MainWindow(transcription_service)
+        qtbot.add_widget(window)
+        task = self._folder_watch_task()
+
+        window.on_folder_watch_task_found(task)
+        window.on_folder_watch_task_discarded(task)
+
+        transcription = transcription_service.transcription_dao.find_by_id(
+            str(task.uid)
+        )
+        assert transcription.status == FileTranscriptionTask.Status.CANCELED.value
+        window.close()
+
+    @staticmethod
     def _get_tasks_table(window: MainWindow) -> QTableView:
         return window.findChild(QTableView)
 

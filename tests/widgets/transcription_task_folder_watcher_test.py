@@ -24,6 +24,14 @@ from buzz.widgets.transcription_task_folder_watcher import (
 from tests.audio import test_audio_path
 
 
+@pytest.fixture(autouse=True)
+def short_settle_time(monkeypatch):
+    monkeypatch.setattr(TranscriptionTaskFolderWatcher, "settle_seconds", 0.3)
+    monkeypatch.setattr(
+        TranscriptionTaskFolderWatcher, "settle_poll_interval_ms", 50
+    )
+
+
 class TestTranscriptionTaskFolderWatcher:
     def default_model(self):
         model_type = next(
@@ -492,3 +500,131 @@ class TestTranscriptionTaskFolderWatcher:
 
         with qtbot.assert_not_emitted(watcher.task_found):
             watcher.find_tasks()
+
+    def watcher_for(self, input_directory, output_directory):
+        return TranscriptionTaskFolderWatcher(
+            tasks={},
+            preferences=FolderWatchPreferences(
+                enabled=True,
+                input_directory=input_directory,
+                output_directory=output_directory,
+                file_transcription_options=FileTranscriptionPreferences(
+                    language=None,
+                    task=Task.TRANSCRIBE,
+                    model=self.default_model(),
+                    word_level_timings=False,
+                    extract_speech=False,
+                    initial_prompt="",
+                    enable_llm_translation=False,
+                    llm_model="",
+                    llm_prompt="",
+                    output_formats=set(),
+                ),
+            ),
+        )
+
+    def test_should_settle_copied_file_once_when_copy_sets_mtime_on_close(
+        self, qtbot: QtBot
+    ):
+        # Windows copies (Explorer, SMB) write the data first and set the
+        # source's modification time when closing the file, so one copy is
+        # seen with two different stamps.
+        input_directory = mkdtemp()
+        output_directory = mkdtemp()
+        watcher = self.watcher_for(input_directory, output_directory)
+        found = []
+        settled = []
+        watcher.task_found.connect(found.append)
+        watcher.task_settled.connect(settled.append)
+
+        file_path = os.path.join(input_directory, "copied.mp3")
+        shutil.copyfile(test_audio_path, file_path)
+        watcher.find_tasks()
+        qtbot.wait(100)
+
+        os.utime(file_path, (1_600_000_000, 1_600_000_000))
+        watcher.find_tasks()
+
+        qtbot.wait_until(lambda: len(settled) > 0, timeout=5_000)
+        qtbot.wait(500)
+        watcher.find_tasks()
+        qtbot.wait(500)
+
+        assert [task.file_path for task in found] == [file_path]
+        assert settled == found
+
+    def test_should_find_file_at_once_but_settle_after_it_stops_growing(
+        self, qtbot: QtBot
+    ):
+        input_directory = mkdtemp()
+        output_directory = mkdtemp()
+        watcher = self.watcher_for(input_directory, output_directory)
+        found = []
+        settled = []
+        watcher.task_found.connect(found.append)
+        watcher.task_settled.connect(settled.append)
+
+        file_path = os.path.join(input_directory, "growing.mp3")
+        with open(test_audio_path, "rb") as source:
+            data = source.read()
+
+        chunk_size = len(data) // 10 + 1
+        with open(file_path, "wb") as target:
+            for start in range(0, len(data), chunk_size):
+                target.write(data[start : start + chunk_size])
+                target.flush()
+                watcher.find_tasks()
+                qtbot.wait(100)
+                assert len(found) == 1
+                assert settled == []
+
+        qtbot.wait_until(lambda: len(settled) > 0, timeout=5_000)
+        qtbot.wait(500)
+
+        assert settled == found
+        assert os.path.getsize(settled[0].file_path) == len(data)
+
+    def test_should_discard_file_removed_before_it_settles(self, qtbot: QtBot):
+        input_directory = mkdtemp()
+        output_directory = mkdtemp()
+        watcher = self.watcher_for(input_directory, output_directory)
+        found = []
+        discarded = []
+        watcher.task_found.connect(found.append)
+        watcher.task_discarded.connect(discarded.append)
+
+        file_path = os.path.join(input_directory, "removed.mp3")
+        shutil.copyfile(test_audio_path, file_path)
+        watcher.find_tasks()
+        os.remove(file_path)
+
+        with qtbot.assert_not_emitted(watcher.task_settled, wait=1_000):
+            pass
+
+        assert len(found) == 1
+        assert discarded == found
+        assert watcher.pending_files == {}
+        assert not watcher.settle_timer.isActive()
+
+    def test_should_keep_pending_files_when_preferences_are_unchanged(
+        self, qtbot: QtBot
+    ):
+        input_directory = mkdtemp()
+        output_directory = mkdtemp()
+        watcher = self.watcher_for(input_directory, output_directory)
+        found = []
+        settled = []
+        watcher.task_found.connect(found.append)
+        watcher.task_settled.connect(settled.append)
+
+        shutil.copy(test_audio_path, input_directory)
+        watcher.find_tasks()
+
+        with qtbot.assert_not_emitted(watcher.task_discarded):
+            watcher.set_preferences(
+                self.watcher_for(input_directory, output_directory).preferences
+            )
+            watcher.find_tasks()
+
+        qtbot.wait_until(lambda: len(settled) > 0, timeout=5_000)
+        assert settled == found
