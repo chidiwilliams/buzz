@@ -180,7 +180,7 @@ current set (keep it in sync across all bundled plugins) is:
 
 ```
 ca_ES, da_DK, de_DE, es_ES, fr, it_IT, ja_JP, lv_LV, nl,
-pl_PL, pt_BR, ru, uk_UA, zh_CN, zh_TW
+pl_PL, pt_BR, ru, tr_TR, uk_UA, zh_CN, zh_TW
 ```
 
 When adding or changing a user-facing string in a bundled plugin, update the key

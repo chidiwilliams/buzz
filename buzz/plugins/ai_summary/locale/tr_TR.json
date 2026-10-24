@@ -1,0 +1,12 @@
+{
+  "AI Summary": "Yapay Zekâ Özeti",
+  "Generate an AI summary of the transcript via an OpenAI-compatible API and save it to the Notes field and/or a file.": "OpenAI uyumlu bir API aracılığıyla deşifrenin yapay zekâ özetini oluşturur ve Notlar alanına ve/veya bir dosyaya kaydeder.",
+  "API base URL": "API temel URL'si",
+  "API key": "API anahtarı",
+  "Model": "Model",
+  "Summarization prompt": "Özetleme istemi",
+  "Save summary to Notes": "Özeti Notlar'a kaydet",
+  "Save summary to a file": "Özeti bir dosyaya kaydet",
+  "Output folder (for file)": "Çıktı klasörü (dosya için)",
+  "Leave empty to save next to the source file.": "Kaynak dosyanın yanına kaydetmek için boş bırakın."
+}

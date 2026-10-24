@@ -1,0 +1,2096 @@
+# Turkish translation for Buzz.
+# This file is distributed under the same license as the Buzz package.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-24 19:52+0300\n"
+"PO-Revision-Date: 2026-10-20 22:49+0300\n"
+"Last-Translator: Muhammet\n"
+"Language-Team: Turkish\n"
+"Language: tr_TR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: buzz/widgets/import_url_dialog.py buzz/settings/shortcut.py
+msgid "Import URL"
+msgstr "URL İçe Aktar"
+
+#: buzz/widgets/import_url_dialog.py
+msgid "https://example.com/audio.mp3"
+msgstr "https://example.com/audio.mp3"
+
+#: buzz/widgets/import_url_dialog.py
+#: buzz/widgets/preferences_dialog/preferences_dialog.py
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
+#: buzz/widgets/main_window.py
+msgid "Ok"
+msgstr "Tamam"
+
+#: buzz/widgets/import_url_dialog.py
+#: buzz/widgets/preferences_dialog/preferences_dialog.py
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+#: buzz/widgets/model_download_progress_dialog.py buzz/widgets/main_window.py
+msgid "Cancel"
+msgstr "İptal"
+
+#: buzz/widgets/import_url_dialog.py
+msgid "URL:"
+msgstr "URL:"
+
+#: buzz/widgets/import_url_dialog.py
+msgid "Invalid URL"
+msgstr "Geçersiz URL"
+
+#: buzz/widgets/import_url_dialog.py
+msgid "The URL you entered is invalid."
+msgstr "Girdiğiniz URL geçersiz."
+
+#: buzz/widgets/presentation_window.py
+msgid "Live Transcript Presentation"
+msgstr "Canlı Deşifre Sunumu"
+
+#: buzz/widgets/preferences_dialog/shortcuts_editor_preferences_widget.py
+msgid "Reset to Defaults"
+msgstr "Varsayılanlara Sıfırla"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "English"
+msgstr "İngilizce"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "Catalan"
+msgstr "Katalanca"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "Danish"
+msgstr "Danca"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "Dutch"
+msgstr "Felemenkçe"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "French"
+msgstr "Fransızca"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "German"
+msgstr "Almanca"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "Spanish"
+msgstr "İspanyolca"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "Italian"
+msgstr "İtalyanca"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "Japanese"
+msgstr "Japonca"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "Latvian"
+msgstr "Letonca"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "Polish"
+msgstr "Lehçe"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Portuguese (Brazil)"
+msgstr "Portekizce (Brezilya)"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "Russian"
+msgstr "Rusça"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "Turkish"
+msgstr "Türkçe"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
+msgid "Ukrainian"
+msgstr "Ukraynaca"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Chinese (Simplified)"
+msgstr "Çince (Basitleştirilmiş)"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Chinese (Traditional)"
+msgstr "Çince (Geleneksel)"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Restart required!"
+msgstr "Yeniden başlatma gerekli!"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Ui Language"
+msgstr "Arayüz Dili"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Font Size"
+msgstr "Yazı Tipi Boyutu"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Test"
+msgstr "Test Et"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "OpenAI API key"
+msgstr "OpenAI API anahtarı"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "OpenAI base url"
+msgstr "OpenAI temel URL'si"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "OpenAI API model"
+msgstr "OpenAI API modeli"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Default export file name"
+msgstr "Varsayılan dışa aktarma dosya adı"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Enable live recording transcription export"
+msgstr "Canlı kayıt deşifresinin dışa aktarılmasını etkinleştir"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Browse"
+msgstr "Gözat"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Export folder"
+msgstr "Dışa aktarma klasörü"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Live recording mode"
+msgstr "Canlı kayıt modu"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid ""
+"Note: Live recording export settings will be moved to the Advanced Settings "
+"in the Live Recording screen in a future version."
+msgstr ""
+"Not: Canlı kayıt dışa aktarma ayarları gelecek bir sürümde Canlı Kayıt "
+"ekranındaki Gelişmiş Ayarlar'a taşınacaktır."
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Use 8-bit quantization to reduce memory usage"
+msgstr "Bellek kullanımını azaltmak için 8 bit nicemleme kullan"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid ""
+"Applies to Huggingface and Faster Whisper models. Reduces GPU memory usage "
+"but may slightly decrease transcription quality."
+msgstr ""
+"Huggingface ve Faster Whisper modellerine uygulanır. GPU bellek kullanımını "
+"azaltır ancak deşifre kalitesini biraz düşürebilir."
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Reduce GPU RAM"
+msgstr "GPU Belleğini Azalt"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Use only CPU and disable GPU acceleration"
+msgstr "Yalnızca CPU kullan ve GPU hızlandırmasını devre dışı bırak"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Set this if larger models do not fit your GPU memory and Buzz crashes"
+msgstr ""
+"Büyük modeller GPU belleğinize sığmıyorsa ve Buzz çöküyorsa bunu "
+"etkinleştirin"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Disable GPU"
+msgstr "GPU'yu Devre Dışı Bırak"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Prevent system sleep while transcriptions are queued"
+msgstr "Deşifreler sıradayken sistemin uyku moduna geçmesini engelle"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "OpenAI API Key Test"
+msgstr "OpenAI API Anahtarı Testi"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid ""
+"Your API key is valid. Buzz will use this key to perform Whisper API "
+"transcriptions and AI translations."
+msgstr ""
+"API anahtarınız geçerli. Buzz bu anahtarı Whisper API deşifreleri ve yapay "
+"zekâ çevirileri için kullanacak."
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Invalid API key"
+msgstr "Geçersiz API anahtarı"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid ""
+"API supports only base64 characters (A-Za-z0-9+/=_-). Other characters in "
+"API key may cause errors."
+msgstr ""
+"API yalnızca base64 karakterlerini (A-Za-z0-9+/=_-) destekler. API "
+"anahtarındaki diğer karakterler hatalara yol açabilir."
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Select Export Folder"
+msgstr "Dışa Aktarma Klasörünü Seç"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid ""
+"OpenAI API returned invalid response. Please check the API url or your key. "
+"Transcription and translation may still work if the API does not support key "
+"validation."
+msgstr ""
+"OpenAI API geçersiz bir yanıt döndürdü. Lütfen API URL'sini veya "
+"anahtarınızı kontrol edin. API anahtar doğrulamasını desteklemiyorsa deşifre "
+"ve çeviri yine de çalışabilir."
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Enable folder watch"
+msgstr "Klasör izlemeyi etkinleştir"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Delete processed files"
+msgstr "İşlenen dosyaları sil"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Note: Audio playback will not be available"
+msgstr "Not: Ses oynatma kullanılamayacak"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Input folder"
+msgstr "Giriş klasörü"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/plugins/export_docx/plugin.py
+msgid "Output folder"
+msgstr "Çıktı klasörü"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Speaker identification"
+msgstr "Konuşmacı belirleme"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Identify speakers"
+msgstr "Konuşmacıları belirle"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid ""
+"Identify speakers after transcription and add speaker labels to the exported "
+"transcripts. Transcription will take longer."
+msgstr ""
+"Deşifreden sonra konuşmacıları belirler ve dışa aktarılan deşifrelere "
+"konuşmacı etiketleri ekler. Deşifre daha uzun sürer."
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "Otomatik"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr ""
+"Bilinen konuşmacı sayısını girin veya otomatik algılama için Otomatik'i "
+"kullanın."
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Merge speaker sentences"
+msgstr "Konuşmacı cümlelerini birleştir"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "Konuşmacılar:"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Model"
+msgstr "Model"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Select Input Folder"
+msgstr "Giriş Klasörünü Seç"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid "Select Output Folder"
+msgstr "Çıktı Klasörünü Seç"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/widgets/update_dialog.py buzz/widgets/main_window.py
+#: buzz/model_loader.py
+msgid "Error"
+msgstr "Hata"
+
+#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+msgid ""
+"The output folder cannot be the input folder or a subfolder of it. This "
+"would cause transcriptions to be processed repeatedly. Please choose a "
+"different output folder."
+msgstr ""
+"Çıktı klasörü, giriş klasörü veya onun bir alt klasörü olamaz. Bu, "
+"deşifrelerin tekrar tekrar işlenmesine neden olur. Lütfen farklı bir çıktı "
+"klasörü seçin."
+
+#: buzz/widgets/preferences_dialog/preferences_dialog.py
+msgid "Preferences"
+msgstr "Tercihler"
+
+#: buzz/widgets/preferences_dialog/preferences_dialog.py
+msgid "General"
+msgstr "Genel"
+
+#: buzz/widgets/preferences_dialog/preferences_dialog.py
+msgid "Models"
+msgstr "Modeller"
+
+#: buzz/widgets/preferences_dialog/preferences_dialog.py
+msgid "Shortcuts"
+msgstr "Kısayollar"
+
+#: buzz/widgets/preferences_dialog/preferences_dialog.py
+msgid "Folder Watch"
+msgstr "Klasör İzleme"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "What model should I use?"
+msgstr "Hangi modeli kullanmalıyım?"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Group"
+msgstr "Grup"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Huggingface ID of a Faster whisper model"
+msgstr "Bir Faster Whisper modelinin Huggingface kimliği"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Name for the custom model"
+msgstr "Özel model için ad"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add local model file"
+msgstr "Yerel model dosyası ekle"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Add model from URL"
+msgstr "URL'den model ekle"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Download"
+msgstr "İndir"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Show file location"
+msgstr "Dosya konumunu göster"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Delete"
+msgstr "Sil"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Downloaded"
+msgstr "İndirilenler"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Available for Download"
+msgstr "İndirilebilir"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Download link to Whisper.cpp ggml model file"
+msgstr "Whisper.cpp ggml model dosyasının indirme bağlantısı"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+#: buzz/widgets/transcriber/transcription_options_group_box.py
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Custom"
+msgstr "Özel"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Select Whisper.cpp model file"
+msgstr "Whisper.cpp model dosyasını seç"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Whisper.cpp model"
+msgstr "Whisper.cpp modeli"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "All files"
+msgstr "Tüm dosyalar"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Delete Model"
+msgstr "Modeli Sil"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Are you sure you want to delete the selected model?"
+msgstr "Seçili modeli silmek istediğinizden emin misiniz?"
+
+#: buzz/widgets/preferences_dialog/models_preferences_widget.py
+msgid "Download failed"
+msgstr "İndirme başarısız oldu"
+
+#: buzz/widgets/record_button.py buzz/widgets/main_window_toolbar.py
+msgid "Record"
+msgstr "Kayıt"
+
+#: buzz/widgets/record_button.py
+msgid "Stop"
+msgstr "Durdur"
+
+#: buzz/widgets/transcriber/languages_combo_box.py
+msgid "Detect Language"
+msgstr "Dili Algıla"
+
+#: buzz/widgets/transcriber/mms_language_line_edit.py
+msgid "e.g., eng, fra, deu"
+msgstr "ör. eng, fra, deu"
+
+#: buzz/widgets/transcriber/mms_language_line_edit.py
+msgid ""
+"Enter an ISO 639-3 language code (3 letters).\n"
+"Examples: eng (English), fra (French), deu (German),\n"
+"spa (Spanish), lav (Latvian)"
+msgstr ""
+"ISO 639-3 dil kodu girin (3 harf).\n"
+"Örnekler: eng (İngilizce), fra (Fransızca), deu (Almanca),\n"
+"spa (İspanyolca), tur (Türkçe)"
+
+#: buzz/widgets/transcriber/file_transcriber_widget.py
+msgid "Run"
+msgstr "Çalıştır"
+
+#: buzz/widgets/transcriber/transcription_options_group_box.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Model:"
+msgstr "Model:"
+
+#: buzz/widgets/transcriber/transcription_options_group_box.py
+#: buzz/transcriber/recording_transcriber.py
+msgid "First time use of a model may take up to several minutest to load."
+msgstr "Bir modelin ilk kullanımda yüklenmesi birkaç dakika sürebilir."
+
+#: buzz/widgets/transcriber/transcription_options_group_box.py
+msgid "Api Key:"
+msgstr "API Anahtarı:"
+
+#: buzz/widgets/transcriber/transcription_options_group_box.py
+msgid "Task:"
+msgstr "Görev:"
+
+#: buzz/widgets/transcriber/transcription_options_group_box.py
+msgid "Language:"
+msgstr "Dil:"
+
+#: buzz/widgets/transcriber/initial_prompt_text_edit.py
+msgid "Enter prompt..."
+msgstr "İstem girin..."
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Advanced Settings"
+msgstr "Gelişmiş Ayarlar"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Speech recognition settings"
+msgstr "Konuşma tanıma ayarları"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Initial Prompt:"
+msgstr "Başlangıç İstemi:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Translation settings"
+msgstr "Çeviri ayarları"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Enable AI translation"
+msgstr "Yapay zekâ çevirisini etkinleştir"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "AI model:"
+msgstr "Yapay zekâ modeli:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Open documentation for AI translation models"
+msgstr "Yapay zekâ çeviri modelleri belgelerini aç"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid ""
+"Please translate each text sent to you from English to Spanish. Translation "
+"will be used in an automated system, please do not add any comments or "
+"notes, just the translation."
+msgstr ""
+"Lütfen sana gönderilen her metni İngilizceden Türkçeye çevir. Çeviri "
+"otomatik bir sistemde kullanılacak; lütfen yorum veya not ekleme, yalnızca "
+"çeviriyi yaz."
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Instructions for AI:"
+msgstr "Yapay zekâ için talimatlar:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Recording settings"
+msgstr "Kayıt ayarları"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Silence threshold:"
+msgstr "Sessizlik eşiği:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Line separator:"
+msgstr "Satır ayırıcı:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Transcription step:"
+msgstr "Deşifre adımı:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Hide unconfirmed"
+msgstr "Onaylanmamışları gizle"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Enable live recording export"
+msgstr "Canlı kaydın dışa aktarılmasını etkinleştir"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Export folder:"
+msgstr "Dışa aktarma klasörü:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Export file name:"
+msgstr "Dışa aktarma dosya adı:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Text file (.txt)"
+msgstr "Metin dosyası (.txt)"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "CSV (.csv)"
+msgstr "CSV (.csv)"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid "Export file type:"
+msgstr "Dışa aktarma dosya türü:"
+
+#: buzz/widgets/transcriber/advanced_settings_dialog.py
+msgid ""
+"Limit export entries\n"
+"(0 = export all):"
+msgstr ""
+"Dışa aktarılacak kayıt sınırı\n"
+"(0 = tümünü aktar):"
+
+#: buzz/widgets/transcriber/file_transcription_form_widget.py
+msgid "Word-level timings"
+msgstr "Kelime düzeyinde zamanlamalar"
+
+#: buzz/widgets/transcriber/file_transcription_form_widget.py
+msgid "Extract speech"
+msgstr "Konuşmayı ayıkla"
+
+#: buzz/widgets/transcriber/file_transcription_form_widget.py
+msgid "Export:"
+msgstr "Dışa aktar:"
+
+#: buzz/widgets/transcriber/hugging_face_search_line_edit.py
+msgid "Huggingface ID of a model"
+msgstr "Bir modelin Huggingface kimliği"
+
+#: buzz/widgets/transcriber/advanced_settings_button.py
+msgid "Advanced..."
+msgstr "Gelişmiş..."
+
+#: buzz/widgets/main_window_toolbar.py
+msgid "New File Transcription"
+msgstr "Yeni Dosya Deşifresi"
+
+#: buzz/widgets/main_window_toolbar.py
+msgid "New URL Transcription"
+msgstr "Yeni URL Deşifresi"
+
+#: buzz/widgets/main_window_toolbar.py
+msgid "Open Transcript"
+msgstr "Deşifreyi Aç"
+
+#: buzz/widgets/main_window_toolbar.py buzz/settings/shortcut.py
+msgid "Cancel Transcription"
+msgstr "Deşifreyi İptal Et"
+
+#: buzz/widgets/main_window_toolbar.py buzz/widgets/main_window.py
+#: buzz/settings/shortcut.py
+msgid "Clear History"
+msgstr "Geçmişi Temizle"
+
+#: buzz/widgets/main_window_toolbar.py buzz/widgets/update_dialog.py
+msgid "Update Available"
+msgstr "Güncelleme Mevcut"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "In Progress"
+msgstr "Devam Ediyor"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Completed"
+msgstr "Tamamlandı"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Failed"
+msgstr "Başarısız"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Canceled"
+msgstr "İptal Edildi"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Queued"
+msgstr "Sırada"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Skipped"
+msgstr "Atlandı"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "File Name / URL"
+msgstr "Dosya Adı / URL"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Task"
+msgstr "Görev"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Status"
+msgstr "Durum"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Date Completed"
+msgstr "Tamamlanma Tarihi"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Date Added"
+msgstr "Eklenme Tarihi"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Notes"
+msgstr "Notlar"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Reset Column Order"
+msgstr "Sütun Sırasını Sıfırla"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Restart Transcription"
+msgstr "Deşifreyi Yeniden Başlat"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Rename"
+msgstr "Yeniden Adlandır"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Add/Edit Notes"
+msgstr "Not Ekle/Düzenle"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Rename Transcription"
+msgstr "Deşifreyi Yeniden Adlandır"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Enter new name:"
+msgstr "Yeni adı girin:"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Enter some relevant notes for this transcription:"
+msgstr "Bu deşifre için ilgili notları girin:"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Cannot Restart"
+msgstr "Yeniden Başlatılamıyor"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Only failed, canceled, or skipped transcriptions can be restarted."
+msgstr ""
+"Yalnızca başarısız, iptal edilmiş veya atlanmış deşifreler yeniden "
+"başlatılabilir."
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Failed to restart transcription: {}"
+msgstr "Deşifre yeniden başlatılamadı: {}"
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid ""
+"Could not restart transcription: model not available and could not be "
+"downloaded."
+msgstr "Deşifre yeniden başlatılamadı: model mevcut değil ve indirilemedi."
+
+#: buzz/widgets/transcription_tasks_table_widget.py
+msgid "Could not restart transcription: transcriber worker not found."
+msgstr "Deşifre yeniden başlatılamadı: deşifre işleyicisi bulunamadı."
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Nvidia GPU Acceleration"
+msgstr "Nvidia GPU Hızlandırması"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install Nvidia GPU Acceleration?"
+msgstr "Nvidia GPU Hızlandırması yüklensin mi?"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid ""
+"Installing GPU acceleration for Nvidia GPUS allows Buzz to transcribe audio "
+"significantly faster using CUDA. For other GPU brands this acceleration will "
+"have no effect. CUDA is not needed to run whisper.cpp.\n"
+"\n"
+"This will download and install PyTorch with CUDA support (~8 GB). Buzz must "
+"be restarted after installation."
+msgstr ""
+"Nvidia GPU'lar için GPU hızlandırmasını yüklemek, Buzz'ın CUDA kullanarak "
+"sesi çok daha hızlı deşifre etmesini sağlar. Diğer GPU markalarında bu "
+"hızlandırmanın etkisi olmaz. whisper.cpp'yi çalıştırmak için CUDA gerekmez.\n"
+"\n"
+"Bu işlem CUDA destekli PyTorch'u indirip yükler (~8 GB). Yüklemeden sonra "
+"Buzz yeniden başlatılmalıdır."
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Install GPU Support"
+msgstr "GPU Desteğini Yükle"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Not Now"
+msgstr "Şimdi Değil"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation complete! Restart Buzz to enable GPU acceleration."
+msgstr ""
+"Yükleme tamamlandı! GPU hızlandırmasını etkinleştirmek için Buzz'ı yeniden "
+"başlatın."
+
+#: buzz/widgets/cuda_installer_widget.py buzz/widgets/about_dialog.py
+msgid "Close"
+msgstr "Kapat"
+
+#: buzz/widgets/cuda_installer_widget.py
+msgid "Installation failed: {}"
+msgstr "Yükleme başarısız oldu: {}"
+
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Live Recording"
+msgstr "Canlı Kayıt"
+
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Click Record to begin..."
+msgstr "Başlamak için Kayıt düğmesine tıklayın..."
+
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Waiting for AI translation..."
+msgstr "Yapay zekâ çevirisi bekleniyor..."
+
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Microphone:"
+msgstr "Mikrofon:"
+
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Show in new window"
+msgstr "Yeni pencerede göster"
+
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Text Size:"
+msgstr "Yazı Boyutu:"
+
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Theme"
+msgstr "Tema"
+
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Light"
+msgstr "Açık"
+
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Dark"
+msgstr "Koyu"
+
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Text Color"
+msgstr "Yazı Rengi"
+
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Background Color"
+msgstr "Arka Plan Rengi"
+
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Fullscreen"
+msgstr "Tam Ekran"
+
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Copy"
+msgstr "Kopyala"
+
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Copy transcription to clipboard"
+msgstr "Deşifreyi panoya kopyala"
+
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Nothing to copy!"
+msgstr "Kopyalanacak bir şey yok!"
+
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Copy failed"
+msgstr "Kopyalama başarısız oldu"
+
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Copied!"
+msgstr "Kopyalandı!"
+
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Select Text Color"
+msgstr "Yazı Rengini Seç"
+
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "Select Background Color"
+msgstr "Arka Plan Rengini Seç"
+
+#: buzz/widgets/recording_transcriber_widget.py
+msgid "An error occurred while starting a new recording:"
+msgstr "Yeni bir kayıt başlatılırken hata oluştu:"
+
+#: buzz/widgets/recording_transcriber_widget.py
+msgid ""
+"Please check your audio devices or check the application logs for more "
+"information."
+msgstr ""
+"Lütfen ses aygıtlarınızı kontrol edin veya daha fazla bilgi için uygulama "
+"günlüklerine bakın."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Plugins"
+msgstr "Eklentiler"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid ""
+"Plugins run with full access to your system. Only install plugins from "
+"sources you trust."
+msgstr ""
+"Eklentiler sisteminize tam erişimle çalışır. Yalnızca güvendiğiniz "
+"kaynaklardan eklenti yükleyin."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add by URL..."
+msgstr "URL ile Ekle..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Settings..."
+msgstr "Ayarlar..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Move Up"
+msgstr "Yukarı Taşı"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Move Down"
+msgstr "Aşağı Taşı"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove"
+msgstr "Kaldır"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove plugin"
+msgstr "Eklentiyi kaldır"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Remove plugin '{}'?"
+msgstr "'{}' eklentisi kaldırılsın mı?"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add plugin"
+msgstr "Eklenti ekle"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Plugin URL (.zip):"
+msgstr "Eklenti URL'si (.zip):"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Installing plugin..."
+msgstr "Eklenti yükleniyor..."
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid "Add plugin failed"
+msgstr "Eklenti eklenemedi"
+
+#: buzz/widgets/plugins_dialog/plugins_dialog.py
+msgid ""
+"Could not install the plugin:\n"
+"{}"
+msgstr ""
+"Eklenti yüklenemedi:\n"
+"{}"
+
+#: buzz/widgets/plugins_dialog/plugin_settings_dialog.py
+msgid "Plugin not available."
+msgstr "Eklenti kullanılamıyor."
+
+#: buzz/widgets/update_dialog.py
+msgid "A new version of Buzz is available!"
+msgstr "Buzz'ın yeni bir sürümü mevcut!"
+
+#: buzz/widgets/update_dialog.py
+msgid "Current version:"
+msgstr "Geçerli sürüm:"
+
+#: buzz/widgets/update_dialog.py
+msgid "New version:"
+msgstr "Yeni sürüm:"
+
+#: buzz/widgets/update_dialog.py
+msgid "Release Notes:"
+msgstr "Sürüm Notları:"
+
+#: buzz/widgets/update_dialog.py
+msgid "Download and Install"
+msgstr "İndir ve Yükle"
+
+#: buzz/widgets/update_dialog.py
+msgid "No download URL available for your platform."
+msgstr "Platformunuz için indirme URL'si yok."
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {}..."
+msgstr "Dosya {} / {} indiriliyor..."
+
+#: buzz/widgets/update_dialog.py
+msgid "Downloading file {} of {} ({:.1f} MB / {:.1f} MB)..."
+msgstr "Dosya {} / {} indiriliyor ({:.1f} MB / {:.1f} MB)..."
+
+#: buzz/widgets/update_dialog.py
+msgid "Download Failed"
+msgstr "İndirme Başarısız"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to download the update: {}"
+msgstr "Güncelleme indirilemedi: {}"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to save the installer: {}"
+msgstr "Yükleyici kaydedilemedi: {}"
+
+#: buzz/widgets/update_dialog.py
+msgid "Download complete!"
+msgstr "İndirme tamamlandı!"
+
+#: buzz/widgets/update_dialog.py
+msgid "Failed to run the installer: {}"
+msgstr "Yükleyici çalıştırılamadı: {}"
+
+#: buzz/widgets/about_dialog.py buzz/widgets/menu_bar.py
+msgid "About"
+msgstr "Hakkında"
+
+#: buzz/widgets/about_dialog.py
+msgid "Version"
+msgstr "Sürüm"
+
+#: buzz/widgets/about_dialog.py
+msgid "Check for updates"
+msgstr "Güncellemeleri denetle"
+
+#: buzz/widgets/about_dialog.py
+msgid "Show logs"
+msgstr "Günlükleri göster"
+
+#: buzz/widgets/about_dialog.py
+msgid "Install CUDA Acceleration"
+msgstr "CUDA Hızlandırmasını Yükle"
+
+#: buzz/widgets/about_dialog.py
+msgid "You're up to date!"
+msgstr "Güncel sürümü kullanıyorsunuz!"
+
+#: buzz/widgets/audio_meter_widget.py
+msgid "Average volume"
+msgstr "Ortalama ses düzeyi"
+
+#: buzz/widgets/audio_meter_widget.py
+msgid "Queue"
+msgstr "Sıra"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "Unassigned"
+msgstr "Atanmamış"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "Choose an identified speaker or type a new speaker name."
+msgstr "Belirlenen bir konuşmacıyı seçin veya yeni bir konuşmacı adı yazın."
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "Start"
+msgstr "Başlangıç"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "End"
+msgstr "Bitiş"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "Speaker"
+msgstr "Konuşmacı"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "Text"
+msgstr "Metin"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "Translation"
+msgstr "Çeviri"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid ""
+"Double-click to edit. Select multiple rows and right-click to assign "
+"speakers."
+msgstr ""
+"Düzenlemek için çift tıklayın. Konuşmacı atamak için birden fazla satır "
+"seçip sağ tıklayın."
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "Assign Speaker"
+msgstr "Konuşmacı Ata"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "New Speaker…"
+msgstr "Yeni Konuşmacı…"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "New Speaker"
+msgstr "Yeni Konuşmacı"
+
+#: buzz/widgets/transcription_viewer/transcription_segments_editor_widget.py
+msgid "Speaker name:"
+msgstr "Konuşmacı adı:"
+
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py
+msgid "View"
+msgstr "Görünüm"
+
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py
+msgid "Timestamps"
+msgstr "Zaman Damgaları"
+
+#: buzz/widgets/transcription_viewer/transcription_view_mode_tool_button.py
+msgid "Speakers"
+msgstr "Konuşmacılar"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Speaker:"
+msgstr "Konuşmacı:"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Export"
+msgstr "Dışa Aktar"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Translate"
+msgstr "Çevir"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+msgid "Resize"
+msgstr "Yeniden Boyutlandır"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Identify Speakers"
+msgstr "Konuşmacıları Belirle"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Find"
+msgstr "Bul"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Show/Hide Search Bar (Ctrl+F)"
+msgstr "Arama Çubuğunu Göster/Gizle (Ctrl+F)"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Find:"
+msgstr "Bul:"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Enter text to find..."
+msgstr "Aranacak metni girin..."
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Previous match (Shift+Enter)"
+msgstr "Önceki eşleşme (Shift+Enter)"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Next match (Ctrl+Enter)"
+msgstr "Sonraki eşleşme (Ctrl+Enter)"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Clear"
+msgstr "Temizle"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Playback Controls:"
+msgstr "Oynatma Denetimleri:"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Loop Segment"
+msgstr "Bölümü Döngüye Al"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Enable/disable looping when clicking on transcript segments"
+msgstr "Deşifre bölümlerine tıklandığında döngüyü etkinleştir/devre dışı bırak"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Follow Audio"
+msgstr "Sesi Takip Et"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid ""
+"Enable/disable following the current audio position in the transcript. When "
+"enabled, automatically scrolls to current text."
+msgstr ""
+"Deşifrede geçerli ses konumunun takibini etkinleştir/devre dışı bırak. "
+"Etkinleştirildiğinde geçerli metne otomatik olarak kaydırır."
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Scroll to Current"
+msgstr "Geçerli Konuma Kaydır"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Scroll to the currently spoken text"
+msgstr "O an konuşulan metne kaydır"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "1 of 100+ matches"
+msgstr "1 / 100+ eşleşme"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "1 of "
+msgstr "1 / "
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid " matches"
+msgstr " eşleşme"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "No matches found"
+msgstr "Eşleşme bulunamadı"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid " of 100+ matches"
+msgstr " / 100+ eşleşme"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid " of "
+msgstr " / "
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "All speakers"
+msgstr "Tüm konuşmacılar"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "No segments for this speaker."
+msgstr "Bu konuşmacıya ait bölüm yok."
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "API Key Required"
+msgstr "API Anahtarı Gerekli"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Please enter OpenAI API Key in preferences"
+msgstr "Lütfen tercihlerden OpenAI API anahtarını girin"
+
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Speaker identification is already in progress in another window"
+msgstr "Konuşmacı belirleme başka bir pencerede zaten devam ediyor"
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+msgid "Settings"
+msgstr "Ayarlar"
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+msgid "Create new transcript"
+msgstr "Yeni deşifre oluştur"
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+msgid "Extend end time"
+msgstr "Bitiş süresini uzat"
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+msgid "Extend endings by up to (seconds)"
+msgstr "Bitişleri en fazla şu kadar uzat (saniye)"
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+msgid "Extend endings"
+msgstr "Bitişleri uzat"
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+msgid "Resize Options"
+msgstr "Yeniden Boyutlandırma Seçenekleri"
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+msgid "Desired subtitle length"
+msgstr "İstenen altyazı uzunluğu"
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+msgid "Available only if word level timings were disabled during transcription"
+msgstr ""
+"Yalnızca deşifre sırasında kelime düzeyinde zamanlamalar kapalıysa "
+"kullanılabilir"
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+msgid "Merge Options"
+msgstr "Birleştirme Seçenekleri"
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Merge by gap"
+msgstr "Boşluğa göre birleştir"
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Split by punctuation"
+msgstr "Noktalamaya göre böl"
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Split by max length"
+msgstr "Azami uzunluğa göre böl"
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+msgid "Merge"
+msgstr "Birleştir"
+
+#: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
+msgid "Available only if word level timings were enabled during transcription"
+msgstr ""
+"Yalnızca deşifre sırasında kelime düzeyinde zamanlamalar açıksa "
+"kullanılabilir"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "3/8 Loading alignment model (retrying with cache...)"
+msgstr "3/8 Hizalama modeli yükleniyor (önbellekle yeniden deneniyor...)"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid ""
+"Failed to load alignment model. Please check your internet connection and "
+"try again."
+msgstr ""
+"Hizalama modeli yüklenemedi. Lütfen internet bağlantınızı kontrol edip "
+"tekrar deneyin."
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "0/0 Error identifying speakers"
+msgstr "0/0 Konuşmacılar belirlenirken hata oluştu"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid ""
+"Speaker identification is not available: failed to load required libraries."
+msgstr "Konuşmacı belirleme kullanılamıyor: gerekli kitaplıklar yüklenemedi."
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "1/8 Collecting transcripts"
+msgstr "1/8 Deşifreler toplanıyor"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "2/8 Loading audio"
+msgstr "2/8 Ses yükleniyor"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "3/8 Loading alignment model"
+msgstr "3/8 Hizalama modeli yükleniyor"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "4/8 Processing audio"
+msgstr "4/8 Ses işleniyor"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "5/8 Preparing transcripts"
+msgstr "5/8 Deşifreler hazırlanıyor"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "6/8 Identifying speakers"
+msgstr "6/8 Konuşmacılar belirleniyor"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "7/8 Mapping speakers to transcripts"
+msgstr "7/8 Konuşmacılar deşifreyle eşleştiriliyor"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "8/8 Identification done"
+msgstr "8/8 Belirleme tamamlandı"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Step 1: Identify speakers"
+msgstr "Adım 1: Konuşmacıları belirle"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Identify"
+msgstr "Belirle"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Ready to identify speakers"
+msgstr "Konuşmacıları belirlemeye hazır"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Audio file not found"
+msgstr "Ses dosyası bulunamadı"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Step 2: Name speakers"
+msgstr "Adım 2: Konuşmacılara ad ver"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Play sample"
+msgstr "Örneği oynat"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Save"
+msgstr "Kaydet"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Cancelling..."
+msgstr "İptal ediliyor..."
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Cancelled"
+msgstr "İptal edildi"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "DOCX – Speakers"
+msgstr "DOCX – Konuşmacılar"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "Save File"
+msgstr "Dosyayı Kaydet"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "Text files"
+msgstr "Metin dosyaları"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "Include timestamps for each speaker turn?"
+msgstr "Her konuşmacı geçişi için zaman damgası eklensin mi?"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "Word documents"
+msgstr "Word belgeleri"
+
+#: buzz/widgets/transcription_viewer/export_transcription_menu.py
+msgid "Export Failed"
+msgstr "Dışa Aktarma Başarısız"
+
+#: buzz/widgets/model_download_progress_dialog.py
+msgid "Downloading model"
+msgstr "Model indiriliyor"
+
+#: buzz/widgets/model_download_progress_dialog.py
+msgid "remaining"
+msgstr "kaldı"
+
+#: buzz/widgets/menu_bar.py
+msgid "Import File..."
+msgstr "Dosya İçe Aktar..."
+
+#: buzz/widgets/menu_bar.py
+msgid "Import URL..."
+msgstr "URL İçe Aktar..."
+
+#: buzz/widgets/menu_bar.py
+msgid "Import Folder..."
+msgstr "Klasör İçe Aktar..."
+
+#: buzz/widgets/menu_bar.py
+msgid "Preferences..."
+msgstr "Tercihler..."
+
+#: buzz/widgets/menu_bar.py
+msgid "Help"
+msgstr "Yardım"
+
+#: buzz/widgets/menu_bar.py
+msgid "Plugins..."
+msgstr "Eklentiler..."
+
+#: buzz/widgets/menu_bar.py
+msgid "File"
+msgstr "Dosya"
+
+#: buzz/widgets/main_window.py
+msgid ""
+"Are you sure you want to delete the selected transcription(s)? This action "
+"cannot be undone."
+msgstr ""
+"Seçili deşifre(ler)i silmek istediğinizden emin misiniz? Bu işlem geri "
+"alınamaz."
+
+#: buzz/widgets/main_window.py
+msgid "Select audio file"
+msgstr "Ses dosyası seç"
+
+#: buzz/widgets/main_window.py
+msgid "Select folder"
+msgstr "Klasör seç"
+
+#: buzz/widgets/main_window.py
+msgid "Unable to save OpenAI API key to keyring"
+msgstr "OpenAI API anahtarı anahtar zincirine kaydedilemedi"
+
+#: buzz/transcriber/local_whisper_cpp_server_transcriber.py
+#: buzz/transcriber/recording_transcriber.py
+msgid "Whisper server failed to start. Check logs for details."
+msgstr "Whisper sunucusu başlatılamadı. Ayrıntılar için günlüklere bakın."
+
+#: buzz/transcriber/local_whisper_cpp_server_transcriber.py
+#: buzz/transcriber/recording_transcriber.py
+msgid ""
+"Whisper server failed to start due to insufficient memory. Please try again "
+"with a smaller model. To force CPU mode use BUZZ_FORCE_CPU=TRUE environment "
+"variable."
+msgstr ""
+"Whisper sunucusu yetersiz bellek nedeniyle başlatılamadı. Lütfen daha küçük "
+"bir modelle tekrar deneyin. CPU modunu zorlamak için BUZZ_FORCE_CPU=TRUE "
+"ortam değişkenini kullanın."
+
+#: buzz/transcriber/transcriber.py
+msgid "Translate to English"
+msgstr "İngilizceye Çevir"
+
+#: buzz/transcriber/transcriber.py
+msgid "Transcribe"
+msgstr "Yazıya Dök"
+
+#: buzz/transcriber/transcriber.py
+msgid "Chinese"
+msgstr "Çince"
+
+#: buzz/transcriber/transcriber.py
+msgid "Korean"
+msgstr "Korece"
+
+#: buzz/transcriber/transcriber.py
+msgid "Portuguese"
+msgstr "Portekizce"
+
+#: buzz/transcriber/transcriber.py
+msgid "Arabic"
+msgstr "Arapça"
+
+#: buzz/transcriber/transcriber.py
+msgid "Swedish"
+msgstr "İsveççe"
+
+#: buzz/transcriber/transcriber.py
+msgid "Indonesian"
+msgstr "Endonezce"
+
+#: buzz/transcriber/transcriber.py
+msgid "Hindi"
+msgstr "Hintçe"
+
+#: buzz/transcriber/transcriber.py
+msgid "Finnish"
+msgstr "Fince"
+
+#: buzz/transcriber/transcriber.py
+msgid "Vietnamese"
+msgstr "Vietnamca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Hebrew"
+msgstr "İbranice"
+
+#: buzz/transcriber/transcriber.py
+msgid "Greek"
+msgstr "Yunanca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Malay"
+msgstr "Malayca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Czech"
+msgstr "Çekçe"
+
+#: buzz/transcriber/transcriber.py
+msgid "Romanian"
+msgstr "Rumence"
+
+#: buzz/transcriber/transcriber.py
+msgid "Hungarian"
+msgstr "Macarca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Tamil"
+msgstr "Tamilce"
+
+#: buzz/transcriber/transcriber.py
+msgid "Norwegian"
+msgstr "Norveççe"
+
+#: buzz/transcriber/transcriber.py
+msgid "Thai"
+msgstr "Tayca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Urdu"
+msgstr "Urduca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Croatian"
+msgstr "Hırvatça"
+
+#: buzz/transcriber/transcriber.py
+msgid "Bulgarian"
+msgstr "Bulgarca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Lithuanian"
+msgstr "Litvanca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Latin"
+msgstr "Latince"
+
+#: buzz/transcriber/transcriber.py
+msgid "Maori"
+msgstr "Maorice"
+
+#: buzz/transcriber/transcriber.py
+msgid "Malayalam"
+msgstr "Malayalamca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Welsh"
+msgstr "Galce"
+
+#: buzz/transcriber/transcriber.py
+msgid "Slovak"
+msgstr "Slovakça"
+
+#: buzz/transcriber/transcriber.py
+msgid "Telugu"
+msgstr "Teluguca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Persian"
+msgstr "Farsça"
+
+#: buzz/transcriber/transcriber.py
+msgid "Bengali"
+msgstr "Bengalce"
+
+#: buzz/transcriber/transcriber.py
+msgid "Serbian"
+msgstr "Sırpça"
+
+#: buzz/transcriber/transcriber.py
+msgid "Azerbaijani"
+msgstr "Azerbaycan Türkçesi"
+
+#: buzz/transcriber/transcriber.py
+msgid "Slovenian"
+msgstr "Slovence"
+
+#: buzz/transcriber/transcriber.py
+msgid "Kannada"
+msgstr "Kannada dili"
+
+#: buzz/transcriber/transcriber.py
+msgid "Estonian"
+msgstr "Estonca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Macedonian"
+msgstr "Makedonca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Breton"
+msgstr "Bretonca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Basque"
+msgstr "Baskça"
+
+#: buzz/transcriber/transcriber.py
+msgid "Icelandic"
+msgstr "İzlandaca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Armenian"
+msgstr "Ermenice"
+
+#: buzz/transcriber/transcriber.py
+msgid "Nepali"
+msgstr "Nepalce"
+
+#: buzz/transcriber/transcriber.py
+msgid "Mongolian"
+msgstr "Moğolca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Bosnian"
+msgstr "Boşnakça"
+
+#: buzz/transcriber/transcriber.py
+msgid "Kazakh"
+msgstr "Kazakça"
+
+#: buzz/transcriber/transcriber.py
+msgid "Albanian"
+msgstr "Arnavutça"
+
+#: buzz/transcriber/transcriber.py
+msgid "Swahili"
+msgstr "Svahili dili"
+
+#: buzz/transcriber/transcriber.py
+msgid "Galician"
+msgstr "Galiçyaca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Marathi"
+msgstr "Marathi dili"
+
+#: buzz/transcriber/transcriber.py
+msgid "Punjabi"
+msgstr "Pencapça"
+
+#: buzz/transcriber/transcriber.py
+msgid "Sinhala"
+msgstr "Seylanca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Khmer"
+msgstr "Kmerce"
+
+#: buzz/transcriber/transcriber.py
+msgid "Shona"
+msgstr "Şona dili"
+
+#: buzz/transcriber/transcriber.py
+msgid "Yoruba"
+msgstr "Yorubaca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Somali"
+msgstr "Somalice"
+
+#: buzz/transcriber/transcriber.py
+msgid "Afrikaans"
+msgstr "Afrikaanca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Occitan"
+msgstr "Oksitanca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Georgian"
+msgstr "Gürcüce"
+
+#: buzz/transcriber/transcriber.py
+msgid "Belarusian"
+msgstr "Belarusça"
+
+#: buzz/transcriber/transcriber.py
+msgid "Tajik"
+msgstr "Tacikçe"
+
+#: buzz/transcriber/transcriber.py
+msgid "Sindhi"
+msgstr "Sintçe"
+
+#: buzz/transcriber/transcriber.py
+msgid "Gujarati"
+msgstr "Guceratça"
+
+#: buzz/transcriber/transcriber.py
+msgid "Amharic"
+msgstr "Amharca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Yiddish"
+msgstr "Yidiş"
+
+#: buzz/transcriber/transcriber.py
+msgid "Lao"
+msgstr "Laoca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Uzbek"
+msgstr "Özbekçe"
+
+#: buzz/transcriber/transcriber.py
+msgid "Faroese"
+msgstr "Faroece"
+
+#: buzz/transcriber/transcriber.py
+msgid "Haitian Creole"
+msgstr "Haiti Kreolcesi"
+
+#: buzz/transcriber/transcriber.py
+msgid "Pashto"
+msgstr "Peştuca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Turkmen"
+msgstr "Türkmence"
+
+#: buzz/transcriber/transcriber.py
+msgid "Nynorsk"
+msgstr "Nynorsk (Yeni Norveççe)"
+
+#: buzz/transcriber/transcriber.py
+msgid "Maltese"
+msgstr "Maltaca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Sanskrit"
+msgstr "Sanskritçe"
+
+#: buzz/transcriber/transcriber.py
+msgid "Luxembourgish"
+msgstr "Lüksemburgca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Myanmar"
+msgstr "Birmanca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Tibetan"
+msgstr "Tibetçe"
+
+#: buzz/transcriber/transcriber.py
+msgid "Tagalog"
+msgstr "Tagalogca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Malagasy"
+msgstr "Malgaşça"
+
+#: buzz/transcriber/transcriber.py
+msgid "Assamese"
+msgstr "Assamca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Tatar"
+msgstr "Tatarca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Hawaiian"
+msgstr "Hawaii dili"
+
+#: buzz/transcriber/transcriber.py
+msgid "Lingala"
+msgstr "Lingala dili"
+
+#: buzz/transcriber/transcriber.py
+msgid "Hausa"
+msgstr "Hausaca"
+
+#: buzz/transcriber/transcriber.py
+msgid "Bashkir"
+msgstr "Başkurtça"
+
+#: buzz/transcriber/transcriber.py
+msgid "Javanese"
+msgstr "Cava dili"
+
+#: buzz/transcriber/transcriber.py
+msgid "Sundanese"
+msgstr "Sunda dili"
+
+#: buzz/transcriber/transcriber.py
+msgid "Cantonese"
+msgstr "Kantonca"
+
+#: buzz/transcriber/recording_transcriber.py buzz/model_loader.py
+msgid "A connection error occurred"
+msgstr "Bir bağlantı hatası oluştu"
+
+#: buzz/transcriber/recording_transcriber.py
+msgid "Starting Whisper.cpp..."
+msgstr "Whisper.cpp başlatılıyor..."
+
+#: buzz/transcriber/recording_transcriber.py
+msgid "Starting transcription..."
+msgstr "Deşifre başlatılıyor..."
+
+#: buzz/model_loader.py
+msgid "Custom model URL is not provided"
+msgstr "Özel model URL'si belirtilmedi"
+
+#: buzz/settings/shortcut.py
+msgid "Open Record Window"
+msgstr "Kayıt Penceresini Aç"
+
+#: buzz/settings/shortcut.py
+msgid "Import File"
+msgstr "Dosya İçe Aktar"
+
+#: buzz/settings/shortcut.py
+msgid "Open Preferences Window"
+msgstr "Tercihler Penceresini Aç"
+
+#: buzz/settings/shortcut.py
+msgid "View Transcript Text"
+msgstr "Deşifre Metnini Görüntüle"
+
+#: buzz/settings/shortcut.py
+msgid "View Transcript Translation"
+msgstr "Deşifre Çevirisini Görüntüle"
+
+#: buzz/settings/shortcut.py
+msgid "View Transcript Timestamps"
+msgstr "Deşifre Zaman Damgalarını Görüntüle"
+
+#: buzz/settings/shortcut.py
+msgid "Search Transcript"
+msgstr "Deşifrede Ara"
+
+#: buzz/settings/shortcut.py
+msgid "Go to Next Transcript Search Result"
+msgstr "Sonraki Arama Sonucuna Git"
+
+#: buzz/settings/shortcut.py
+msgid "Go to Previous Transcript Search Result"
+msgstr "Önceki Arama Sonucuna Git"
+
+#: buzz/settings/shortcut.py
+msgid "Scroll to Current Text"
+msgstr "Geçerli Metne Kaydır"
+
+#: buzz/settings/shortcut.py
+msgid "Play/Pause Audio"
+msgstr "Sesi Oynat/Duraklat"
+
+#: buzz/settings/shortcut.py
+msgid "Replay Current Segment"
+msgstr "Geçerli Bölümü Tekrar Oynat"
+
+#: buzz/settings/shortcut.py
+msgid "Toggle Playback Controls"
+msgstr "Oynatma Denetimlerini Aç/Kapat"
+
+#: buzz/settings/shortcut.py
+msgid "Decrease Segment Start Time"
+msgstr "Bölüm Başlangıç Süresini Azalt"
+
+#: buzz/settings/shortcut.py
+msgid "Increase Segment Start Time"
+msgstr "Bölüm Başlangıç Süresini Artır"
+
+#: buzz/settings/shortcut.py
+msgid "Decrease Segment End Time"
+msgstr "Bölüm Bitiş Süresini Azalt"
+
+#: buzz/settings/shortcut.py
+msgid "Increase Segment End Time"
+msgstr "Bölüm Bitiş Süresini Artır"
+
+#: buzz/settings/recording_transcriber_mode.py
+msgid "Append below"
+msgstr "Alta ekle"
+
+#: buzz/settings/recording_transcriber_mode.py
+msgid "Append above"
+msgstr "Üste ekle"
+
+#: buzz/settings/recording_transcriber_mode.py
+msgid "Append and correct"
+msgstr "Ekle ve düzelt"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Enhanced language detection"
+msgstr "Gelişmiş dil algılama"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"Detect the spoken language with whisper.cpp before transcription (using the "
+"largest downloaded model, or the tiny model otherwise) and use it for the "
+"transcription and exported file names. Only runs when the language is set to "
+"auto-detect."
+msgstr ""
+"Deşifreden önce konuşulan dili whisper.cpp ile algılar (indirilmiş en büyük "
+"modeli, yoksa tiny modelini kullanarak) ve bu dili deşifre ile dışa "
+"aktarılan dosya adlarında kullanır. Yalnızca dil otomatik algılamaya "
+"ayarlıysa çalışır."
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid "Download tiny model if none available"
+msgstr "Hiç model yoksa tiny modelini indir"
+
+#: buzz/plugins/enhanced_language_detection/plugin.py
+msgid ""
+"If no whisper.cpp model is downloaded, download the tiny model to use for "
+"language detection."
+msgstr ""
+"Hiç whisper.cpp modeli indirilmemişse, dil algılamada kullanmak için tiny "
+"modelini indirir."
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Export to DOCX"
+msgstr "DOCX Olarak Dışa Aktar"
+
+#: buzz/plugins/export_docx/plugin.py
+msgid ""
+"Export the transcript to a Microsoft Word (.docx) file after transcription, "
+"optionally including timestamps."
+msgstr ""
+"Deşifre bittikten sonra metni, isteğe bağlı olarak zaman damgalarıyla "
+"birlikte bir Microsoft Word (.docx) dosyasına aktarır."
+
+#: buzz/plugins/export_docx/plugin.py buzz/plugins/ai_summary/plugin.py
+msgid "Leave empty to save next to the source file."
+msgstr "Kaynak dosyanın yanına kaydetmek için boş bırakın."
+
+#: buzz/plugins/export_docx/plugin.py
+msgid "Include timestamps"
+msgstr "Zaman damgalarını ekle"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Automatic Transcript Resizer"
+msgstr "Otomatik Deşifre Yeniden Boyutlandırıcı"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid ""
+"When a transcription has word-level timings, automatically regroup the words "
+"into properly sized subtitles and replace the result. Mirrors the Merge "
+"options of the transcript resizer."
+msgstr ""
+"Deşifrede kelime düzeyinde zamanlamalar varsa kelimeleri otomatik olarak "
+"uygun uzunlukta altyazılara yeniden gruplar ve sonucu değiştirir. Deşifre "
+"yeniden boyutlandırıcısındaki Birleştirme seçeneklerini aynen uygular."
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Merge gap (seconds)"
+msgstr "Birleştirme boşluğu (saniye)"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Punctuation"
+msgstr "Noktalama"
+
+#: buzz/plugins/transcript_resizer/plugin.py
+msgid "Maximum subtitle length"
+msgstr "Azami altyazı uzunluğu"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Skip Already Transcribed"
+msgstr "Önceden Deşifre Edilenleri Atla"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Skip transcription if results already exist on disk or in the database"
+msgstr "Sonuçlar diskte veya veritabanında zaten varsa deşifreyi atla"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Check for existing result files"
+msgstr "Mevcut sonuç dosyalarını kontrol et"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid ""
+"Skip if a .txt, .srt, or .vtt file matching the audio filename is found next "
+"to it"
+msgstr ""
+"Ses dosyasının yanında aynı adlı bir .txt, .srt veya .vtt dosyası bulunursa "
+"atla"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid "Check in transcription database"
+msgstr "Deşifre veritabanında kontrol et"
+
+#: buzz/plugins/skip_already_transcribed/plugin.py
+msgid ""
+"Skip if this file has already been transcribed and the record exists in the "
+"database"
+msgstr "Bu dosya daha önce deşifre edilmiş ve kaydı veritabanında varsa atla"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "AI Summary"
+msgstr "Yapay Zekâ Özeti"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid ""
+"Generate an AI summary of the transcript via an OpenAI-compatible API and "
+"save it to the Notes field and/or a file."
+msgstr ""
+"OpenAI uyumlu bir API aracılığıyla deşifrenin yapay zekâ özetini oluşturur "
+"ve Notlar alanına ve/veya bir dosyaya kaydeder."
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "API base URL"
+msgstr "API temel URL'si"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "API key"
+msgstr "API anahtarı"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Summarization prompt"
+msgstr "Özetleme istemi"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to Notes"
+msgstr "Özeti Notlar'a kaydet"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Save summary to a file"
+msgstr "Özeti bir dosyaya kaydet"
+
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Output folder (for file)"
+msgstr "Çıktı klasörü (dosya için)"
+
+#: buzz/file_transcriber_queue_worker.py
+msgid ""
+"Speech extraction failed! Check your internet connection — a model may need "
+"to be downloaded."
+msgstr ""
+"Konuşma ayıklama başarısız oldu! İnternet bağlantınızı kontrol edin — bir "
+"modelin indirilmesi gerekebilir."
