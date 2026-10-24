@@ -10,8 +10,6 @@ from typing import Any, Optional, List
 from pathlib import Path
 
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
-from yt_dlp import YoutubeDL
-from yt_dlp.utils import DownloadCancelled
 
 from buzz import whisper_audio
 from buzz.assets import APP_BASE_DIR
@@ -138,6 +136,9 @@ class FileTranscriber(QObject):
         )
 
     def _download_from_url(self) -> bool:
+        # Imported here as it is only needed for URL imports and slows app startup
+        from yt_dlp import YoutubeDL
+
         cookiefile = os.getenv("BUZZ_DOWNLOAD_COOKIEFILE")
 
         temp_dir = Path(tempfile.mkdtemp()).resolve()
@@ -266,6 +267,9 @@ class FileTranscriber(QObject):
         # yt-dlp calls this hook throughout the download and re-raises
         # DownloadCancelled out of extract_info, which aborts it cleanly.
         if self._download_canceled.is_set():
+            # yt-dlp is already loaded here, as it is the one calling this hook
+            from yt_dlp.utils import DownloadCancelled
+
             raise DownloadCancelled()
 
         if data.get("status") != "downloading":

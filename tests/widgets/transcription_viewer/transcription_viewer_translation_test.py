@@ -66,7 +66,7 @@ class TestTranscriptionViewerTranslation:
     @pytest.fixture()
     def openai_client(self):
         """Mocked OpenAI client, no LLM is ever called"""
-        with patch("buzz.translator.OpenAI") as mock_openai, patch(
+        with patch("openai.OpenAI") as mock_openai, patch(
             "buzz.translator.get_password", return_value="test-api-key"
         ), patch(
             "buzz.widgets.transcription_viewer.transcription_viewer_widget.get_password",

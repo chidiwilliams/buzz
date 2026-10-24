@@ -862,7 +862,7 @@ class TestSpeechExtractionWorker:
             return separator
 
         with unittest.mock.patch(
-            "buzz.file_transcriber_queue_worker.demucsApi.Separator", side_effect=make
+            "demucs.api.Separator", side_effect=make
         ):
             yield separators
 

@@ -162,7 +162,7 @@ def test_url_download_uses_reported_path_instead_of_title(
         calls["ffmpeg"] = process.command
         Path(process.command[-1]).write_bytes(b"wav audio")
 
-    monkeypatch.setattr("buzz.transcriber.file_transcriber.YoutubeDL", FakeYoutubeDL)
+    monkeypatch.setattr("yt_dlp.YoutubeDL", FakeYoutubeDL)
     monkeypatch.setattr(
         "buzz.transcriber.file_transcriber.subprocess.Popen",
         fake_popen(on_communicate=write_wav),
@@ -262,7 +262,7 @@ def test_url_download_rejects_ffmpeg_failure_with_empty_stderr(
             assert download
             return {"filepath": str(downloaded_file)}
 
-    monkeypatch.setattr("buzz.transcriber.file_transcriber.YoutubeDL", FakeYoutubeDL)
+    monkeypatch.setattr("yt_dlp.YoutubeDL", FakeYoutubeDL)
     monkeypatch.setattr(
         "buzz.transcriber.file_transcriber.subprocess.Popen", fake_popen(returncode=1)
     )
@@ -296,7 +296,7 @@ def test_url_download_rejects_missing_ffmpeg_output(monkeypatch, tmp_path):
             assert download
             return {"filepath": str(downloaded_file)}
 
-    monkeypatch.setattr("buzz.transcriber.file_transcriber.YoutubeDL", FakeYoutubeDL)
+    monkeypatch.setattr("yt_dlp.YoutubeDL", FakeYoutubeDL)
     monkeypatch.setattr(
         "buzz.transcriber.file_transcriber.subprocess.Popen", fake_popen()
     )
@@ -329,7 +329,7 @@ def test_stop_during_yt_dlp_reports_cancel_and_skips_ffmpeg(monkeypatch, tmp_pat
 
     popen = fake_popen()
     monkeypatch.setattr(
-        "buzz.transcriber.file_transcriber.YoutubeDL", CanceledYoutubeDL
+        "yt_dlp.YoutubeDL", CanceledYoutubeDL
     )
     monkeypatch.setattr("buzz.transcriber.file_transcriber.subprocess.Popen", popen)
 
@@ -348,7 +348,7 @@ def test_stop_kills_ffmpeg_conversion(monkeypatch, tmp_path, stop_before_publish
     downloaded_file = tmp_path / "source.m4a"
     downloaded_file.write_bytes(b"downloaded audio")
     monkeypatch.setattr(FakeYoutubeDL, "downloaded_file", downloaded_file)
-    monkeypatch.setattr("buzz.transcriber.file_transcriber.YoutubeDL", FakeYoutubeDL)
+    monkeypatch.setattr("yt_dlp.YoutubeDL", FakeYoutubeDL)
 
     if stop_before_publish:
         # stop() lands after yt-dlp finished but before Popen is published.

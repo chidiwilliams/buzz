@@ -18,7 +18,6 @@ from buzz.widgets.icon import (
     TRASH_ICON_PATH,
     UPDATE_ICON_PATH,
 )
-from buzz.widgets.recording_transcriber_widget import RecordingTranscriberWidget
 from buzz.widgets.toolbar import ToolBar
 
 
@@ -114,9 +113,16 @@ class MainWindowToolbar(ToolBar):
         )
 
     def on_record_action_triggered(self):
+        # Imported on demand: the recording transcriber loads torch, whisper and
+        # transformers, which would otherwise add seconds to app startup.
+        from buzz.widgets.recording_transcriber_widget import RecordingTranscriberWidget
+
         recording_transcriber_window = RecordingTranscriberWidget(
             self, flags=Qt.WindowType.Window
         )
+        # Otherwise every closed window stays alive until the app exits, and
+        # tearing it down then crashes in PyQt's exit cleanup
+        recording_transcriber_window.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         recording_transcriber_window.show()
 
     def set_stop_transcription_action_enabled(self, enabled: bool):

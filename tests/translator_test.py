@@ -61,7 +61,7 @@ class TestParseBatchResponse:
 
 
 class TestTranslator:
-    @patch('buzz.translator.OpenAI', autospec=True)
+    @patch('openai.OpenAI', autospec=True)
     @patch('buzz.translator.queue.Queue', autospec=True)
     def test_start(self, mock_queue, mock_openai, qtbot):
         def side_effect(*args, **kwargs):
@@ -102,7 +102,7 @@ class TestTranslator:
 
         translator.stop()
 
-    @patch('buzz.translator.OpenAI', autospec=True)
+    @patch('openai.OpenAI', autospec=True)
     def test_translator(self, mock_openai, qtbot):
 
         self.on_next_translation_called = False
