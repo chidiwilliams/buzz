@@ -1,5 +1,9 @@
 from unittest.mock import patch, MagicMock, mock_open
 import json
+import os
+import subprocess
+
+import pytest
 
 from buzz.model_loader import TranscriptionModel, ModelType, WhisperModelSize
 from buzz.transcriber.transcriber import (
@@ -8,7 +12,7 @@ from buzz.transcriber.transcriber import (
     FileTranscriptionTask,
     FileTranscriptionOptions,
 )
-from buzz.transcriber.whisper_cpp import WhisperCpp
+from buzz.transcriber.whisper_cpp import WhisperCpp, _is_cli_safe_path
 from tests.audio import test_audio_path, test_multibyte_utf8_audio_path
 from tests.model_loader import get_model_path
 
@@ -108,8 +112,115 @@ class TestWhisperCpp:
 
         assert result == "en"
         assert calls[0][0] == "ffmpeg"
+        converted = calls[0][-1]
+        assert os.path.basename(converted).isascii()
+        assert converted.endswith(".wav")
         detect_cmd = calls[-1]
-        assert detect_cmd[detect_cmd.index("-f") + 1] == "/fake/audio.m4a.wav"
+        assert detect_cmd[detect_cmd.index("-f") + 1] == converted
+        # The temp WAV is removed once detection is done.
+        assert not os.path.exists(converted)
+
+    @pytest.mark.parametrize(
+        "path,expected",
+        [
+            ("C:\\録音\\会議の録音.mp4", True),
+            ("C:\\録音\\鷗外の講演.mp4", False),
+            ("C:\\録音\\𠮟る.mp3", False),
+            ("C:\\録音\\한국어.mp3", False),
+            ("C:\\録音\\Café.mp3", False),
+        ],
+    )
+    def test_is_cli_safe_path_checks_ansi_code_page(self, path, expected):
+        assert _is_cli_safe_path(path, encoding="cp932") is expected
+
+    def test_is_cli_safe_path_always_true_off_windows(self):
+        with patch("buzz.transcriber.whisper_cpp.sys.platform", "linux"):
+            assert _is_cli_safe_path("/tmp/한국어 🎤.mp3") is True
+
+    def test_prepare_input_copies_unsafe_path_to_ascii_temp(self, tmp_path):
+        source = tmp_path / "鷗外の講演.mp3"
+        source.write_bytes(b"audio bytes")
+
+        with patch(
+            "buzz.transcriber.whisper_cpp._is_cli_safe_path", return_value=False
+        ):
+            file_to_process, temp_file = WhisperCpp._prepare_input(
+                str(source), (".mp3", ".wav", ".flac")
+            )
+
+        try:
+            assert file_to_process == temp_file
+            assert os.path.basename(temp_file).isascii()
+            assert temp_file.endswith(".mp3")
+            with open(temp_file, "rb") as f:
+                assert f.read() == b"audio bytes"
+        finally:
+            os.remove(temp_file)
+
+    def test_prepare_input_passes_safe_path_through(self):
+        with patch(
+            "buzz.transcriber.whisper_cpp._is_cli_safe_path", return_value=True
+        ):
+            assert WhisperCpp._prepare_input(
+                "/fake/会議の録音.mp3", (".mp3", ".wav", ".flac")
+            ) == ("/fake/会議の録音.mp3", None)
+
+    def test_convert_to_wav_removes_temp_file_on_failure(self):
+        created = []
+
+        def fake_run(cmd, *args, **kwargs):
+            created.append(cmd[-1])
+            raise subprocess.CalledProcessError(1, cmd, stderr=b"bad input")
+
+        with patch("buzz.transcriber.whisper_cpp.subprocess.run", side_effect=fake_run):
+            with pytest.raises(Exception, match="bad input"):
+                WhisperCpp._convert_to_wav("/fake/鷗外の講演.mp4")
+
+        assert created and not os.path.exists(created[0])
+
+    def test_transcribe_unsafe_path_runs_whisper_on_temp_copy(self, tmp_path):
+        source = tmp_path / "鷗外の講演.mp3"
+        source.write_bytes(b"audio bytes")
+
+        task = FileTranscriptionTask(
+            transcription_options=TranscriptionOptions(
+                language="ja",
+                task=Task.TRANSCRIBE,
+                word_level_timings=False,
+                model=TranscriptionModel(
+                    model_type=ModelType.WHISPER_CPP,
+                    whisper_model_size=WhisperModelSize.TINY,
+                ),
+            ),
+            file_transcription_options=FileTranscriptionOptions(),
+            model_path="/fake/model.bin",
+            file_path=str(source),
+        )
+
+        cmds = []
+
+        def fake_run_whisper(cmd):
+            cmds.append(cmd)
+            file_to_process = cmd[cmd.index("-f") + 1]
+            with open(f"{file_to_process}.json", "w") as f:
+                json.dump({"transcription": [
+                    {"offsets": {"from": 0, "to": 1000}, "text": "こんにちは"}
+                ]}, f)
+            return 0, ""
+
+        with patch(
+            "buzz.transcriber.whisper_cpp._is_cli_safe_path", return_value=False
+        ), patch.object(WhisperCpp, "_run_whisper", side_effect=fake_run_whisper):
+            segments = WhisperCpp.transcribe(task)
+
+        assert len(segments) == 1
+        file_to_process = cmds[0][cmds[0].index("-f") + 1]
+        assert file_to_process != str(source)
+        assert os.path.basename(file_to_process).isascii()
+        # Temp copy and its JSON output are cleaned up; the source is untouched.
+        assert not os.path.exists(file_to_process)
+        assert not os.path.exists(f"{file_to_process}.json")
+        assert source.exists()
 
     def test_transcribe_word_level_timestamps(self):
         transcription_options = TranscriptionOptions(

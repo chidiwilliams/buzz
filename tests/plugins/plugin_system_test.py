@@ -678,7 +678,7 @@ def _sat_context(config=None, db_records=None):
     import logging
     from buzz.plugins.base import PluginContext
 
-    # db_records: {filename: [db_segment, ...]} where db_segment has .start_time/.end_time/.text
+    # db_records: {filename or url: [db_segment, ...]} where db_segment has .start_time/.end_time/.text
     records = db_records or {}
 
     class _DBSeg:
@@ -690,6 +690,9 @@ def _sat_context(config=None, db_records=None):
     class _Service:
         def find_completed_transcription_by_filename(self, filename):
             return filename if filename in records else None
+
+        def find_completed_transcription_by_url(self, url):
+            return url if url in records else None
 
         def get_transcription_segments(self, tid):
             return records.get(tid, [])
@@ -728,19 +731,80 @@ def test_sat_returns_none_when_no_files_and_db_disabled(tmp_path):
     assert result is None
 
 
-def test_sat_ignores_url_imports(tmp_path):
+def _sat_url_task(tmp_path, url="https://www.youtube.com/watch?v=abc123"):
     from buzz.transcriber.transcriber import FileTranscriptionTask
 
-    plugin = _sat_plugin()
     audio = tmp_path / "audio.wav"
     audio.write_bytes(b"")
+    task = _SatTask(file_path=str(audio))
+    task.source = FileTranscriptionTask.Source.URL_IMPORT
+    task.url = url
+    return task
+
+
+def test_sat_ignores_result_files_for_url_imports(tmp_path):
+    plugin = _sat_plugin()
+    task = _sat_url_task(tmp_path)
     (tmp_path / "audio (transcribed on 01-Jan-2024 12-00-00).txt").write_text(
         "Unrelated.", encoding="utf-8"
     )
-    task = _SatTask(file_path=str(audio))
-    task.source = FileTranscriptionTask.Source.URL_IMPORT
 
     ctx = _sat_context(config={"check_result_files": True, "check_database": True})
+    assert plugin.check_skip(task, ctx) is None
+
+
+def test_sat_skips_url_import_on_db_record_with_same_url(tmp_path):
+    plugin = _sat_plugin()
+    task = _sat_url_task(tmp_path)
+
+    class _DBSeg:
+        text = "From URL."
+        start_time = 0
+        end_time = 1500
+
+    ctx = _sat_context(
+        config={"check_result_files": False, "check_database": True},
+        db_records={
+            "audio.wav": [_DBSeg()],
+            "https://www.youtube.com/watch?v=abc123": [_DBSeg()],
+        },
+    )
+    result = plugin.check_skip(task, ctx)
+    assert result is not None
+    assert len(result) == 1
+    assert result[0].text == "From URL."
+    assert result[0].end == 1500
+
+
+def test_sat_url_import_ignores_db_record_matching_only_filename(tmp_path):
+    plugin = _sat_plugin()
+    task = _sat_url_task(tmp_path)
+
+    class _DBSeg:
+        text = "Unrelated."
+        start_time = 0
+        end_time = 1000
+
+    ctx = _sat_context(
+        config={"check_result_files": False, "check_database": True},
+        db_records={"audio.wav": [_DBSeg()]},
+    )
+    assert plugin.check_skip(task, ctx) is None
+
+
+def test_sat_url_import_skips_db_check_when_disabled(tmp_path):
+    plugin = _sat_plugin()
+    task = _sat_url_task(tmp_path)
+
+    class _DBSeg:
+        text = "From URL."
+        start_time = 0
+        end_time = 1000
+
+    ctx = _sat_context(
+        config={"check_result_files": True, "check_database": False},
+        db_records={"https://www.youtube.com/watch?v=abc123": [_DBSeg()]},
+    )
     assert plugin.check_skip(task, ctx) is None
 
 
