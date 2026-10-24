@@ -4,6 +4,7 @@ import sys
 import subprocess
 import shutil
 import tempfile
+import threading
 from abc import abstractmethod
 from typing import Any, Optional, List
 from pathlib import Path
@@ -46,6 +47,9 @@ def _downloaded_file_path(info: Any) -> Path:
     raise FileNotFoundError(f"yt-dlp output does not exist: {reported_path}")
 
 
+DOWNLOAD_CANCELED_MESSAGE = "Download canceled"
+
+
 class FileTranscriber(QObject):
     transcription_task: FileTranscriptionTask
     progress = pyqtSignal(tuple)  # (current, total)
@@ -56,13 +60,24 @@ class FileTranscriber(QObject):
     def __init__(self, task: FileTranscriptionTask, parent: Optional["QObject"] = None):
         super().__init__(parent)
         self.transcription_task = task
+        self._download_canceled = threading.Event()
+        self._download_process: Optional[subprocess.Popen] = None
+
+    @pyqtSlot()
+    def download(self):
+        """Prepare URL audio in a thread that stop() can cancel."""
+        try:
+            if not self._download_from_url():
+                return
+        except Exception as exc:
+            logging.exception("Failed to prepare URL audio")
+            self.error.emit(str(exc))
+            return
+        self.completed.emit([])
 
     @pyqtSlot()
     def run(self):
-        if self.transcription_task.source == FileTranscriptionTask.Source.URL_IMPORT:
-            if not self._download_from_url():
-                return
-
+        """Transcribe ``task.file_path``. URL tasks must run download() first."""
         try:
             segments = self.transcribe()
         except Exception as exc:
@@ -151,6 +166,9 @@ class FileTranscriber(QObject):
             if title:
                 self.transcription_task.display_name = title
         except Exception as exc:
+            if self._download_canceled.is_set():
+                self.error.emit(DOWNLOAD_CANCELED_MESSAGE)
+                return False
             message = getattr(exc, "msg", str(exc))
             logging.debug(f"Error downloading audio: {message}")
             self.error.emit(message)
@@ -168,24 +186,36 @@ class FileTranscriber(QObject):
             str(wav_file)
         ]
 
+        popen_kwargs = {}
         if sys.platform == "win32":
             si = subprocess.STARTUPINFO()
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             si.wShowWindow = subprocess.SW_HIDE
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                startupinfo=si,
-                env=app_env,
-                creationflags=subprocess.CREATE_NO_WINDOW
-            )
-        else:
-            result = subprocess.run(cmd, capture_output=True)
+            popen_kwargs = {
+                "startupinfo": si,
+                "env": app_env,
+                "creationflags": subprocess.CREATE_NO_WINDOW,
+            }
 
-        if result.returncode != 0:
-            error = result.stderr.decode("utf-8", errors="replace")
+        # Popen rather than run() so stop() can kill ffmpeg mid-conversion.
+        process = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **popen_kwargs
+        )
+        self._download_process = process
+        # stop() may have run before the process was published above.
+        if self._download_canceled.is_set():
+            process.kill()
+        _, stderr = process.communicate()
+        self._download_process = None
+
+        if self._download_canceled.is_set():
+            self.error.emit(DOWNLOAD_CANCELED_MESSAGE)
+            return False
+
+        if process.returncode != 0:
+            error = stderr.decode("utf-8", errors="replace")
             if not error:
-                error = f"ffmpeg exited with code {result.returncode}"
+                error = f"ffmpeg exited with code {process.returncode}"
             message = f"Error processing downloaded audio: {error}"
             logging.warning(message)
             self.error.emit(message)
@@ -198,6 +228,9 @@ class FileTranscriber(QObject):
             return False
 
         self.transcription_task.file_path = str(wav_file)
+        # A path kept from an earlier run's speech extraction points at the
+        # previous download, not this one.
+        self.transcription_task.original_file_path = None
         logging.debug(f"Downloaded audio to file: {self.transcription_task.file_path}")
         return True
 
@@ -231,6 +264,14 @@ class FileTranscriber(QObject):
         self.transcription_task.original_file_path = destination
 
     def on_download_progress(self, data: dict):
+        # yt-dlp calls this hook throughout the download and re-raises
+        # DownloadCancelled out of extract_info, which aborts it cleanly.
+        if self._download_canceled.is_set():
+            # yt-dlp is already loaded here, as it is the one calling this hook
+            from yt_dlp.utils import DownloadCancelled
+
+            raise DownloadCancelled()
+
         if data.get("status") != "downloading":
             return
 
@@ -247,9 +288,13 @@ class FileTranscriber(QObject):
     def transcribe(self) -> List[Segment]:
         ...
 
-    @abstractmethod
     def stop(self):
-        ...
+        """Cancel a URL download in progress. Subclasses that override this
+        must call super().stop()."""
+        self._download_canceled.set()
+        process = self._download_process
+        if process is not None and process.poll() is None:
+            process.kill()
 
 
 def write_output(

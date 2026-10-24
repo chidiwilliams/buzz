@@ -728,6 +728,22 @@ def test_sat_returns_none_when_no_files_and_db_disabled(tmp_path):
     assert result is None
 
 
+def test_sat_ignores_url_imports(tmp_path):
+    from buzz.transcriber.transcriber import FileTranscriptionTask
+
+    plugin = _sat_plugin()
+    audio = tmp_path / "audio.wav"
+    audio.write_bytes(b"")
+    (tmp_path / "audio (transcribed on 01-Jan-2024 12-00-00).txt").write_text(
+        "Unrelated.", encoding="utf-8"
+    )
+    task = _SatTask(file_path=str(audio))
+    task.source = FileTranscriptionTask.Source.URL_IMPORT
+
+    ctx = _sat_context(config={"check_result_files": True, "check_database": True})
+    assert plugin.check_skip(task, ctx) is None
+
+
 def test_sat_skips_on_txt_file(tmp_path):
     plugin = _sat_plugin()
     audio = tmp_path / "audio.mp3"

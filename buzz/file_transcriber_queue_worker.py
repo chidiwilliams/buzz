@@ -323,6 +323,7 @@ class _CurrentTranscription:
     activity_token: Optional[UUID] = None
     transcriber: Optional[FileTranscriber] = None
     transcriber_thread: Optional[QThread] = None
+    downloading: bool = False
 
 
 @dataclass(frozen=True)
@@ -376,14 +377,64 @@ class FileTranscriberQueueWorker(QObject):
 
         self.is_running = True
 
+        # URL tasks have no local path until the download completes. Prepare
+        # audio before speech extraction and plugins attempt to open the file.
+        if self.current.task.source == FileTranscriptionTask.Source.URL_IMPORT:
+            self.current.transcriber = FileTranscriber(self.current.task)
+            self._setup_download_thread()
+            return
+
+        self._start_transcription()
+
+    def _on_url_download_completed(
+        self, task: FileTranscriptionTask, activity_token: Optional[UUID]
+    ):
+        # A download given up on by cancel_task can still deliver ``completed``
+        # after the queue has finished it or moved on to another task.
+        if not self._is_current(task, activity_token):
+            return
+        if task.uid in self.canceled_tasks:
+            self._on_task_finished(task, activity_token)
+            return
+        self._cleanup_previous_transcriber()
+        self._start_transcription()
+
+    def _is_current(
+        self, task: FileTranscriptionTask, activity_token: Optional[UUID]
+    ) -> bool:
+        return (
+            task is self.current.task and activity_token == self.current.activity_token
+        )
+
+    def _finish_if_canceled(self) -> bool:
+        """Finish the current task if it was canceled while no transcriber
+        thread was running, so cancel_task had nothing to stop."""
+        if self.current.task.uid not in self.canceled_tasks:
+            return False
+        # No transcriber will report completion, so on_task_completed won't
+        # get to remove the extracted speech file.
+        self._remove_speech_file()
+        self.is_running = False
+        self._on_task_finished()
+        return True
+
+    def _start_transcription(self):
+        if self._finish_if_canceled():
+            return
+
         if self.current.task.transcription_options.extract_speech:
             status = self._setup_speech_extraction()
             if status == "error":
                 self.is_running = False
                 self._on_task_finished()
                 return
+            if self._finish_if_canceled():
+                return
 
         if not self._run_plugins():
+            return
+
+        if self._finish_if_canceled():
             return
 
         logging.debug("Starting next transcription task")
@@ -396,6 +447,8 @@ class FileTranscriberQueueWorker(QObject):
         if self.current.transcriber is not None:
             self.current.transcriber.stop()
             self.current.transcriber = None
+        self.current.transcriber_thread = None
+        self.current.downloading = False
 
     def _get_next_task(self) -> bool:
         while True:
@@ -430,10 +483,15 @@ class FileTranscriberQueueWorker(QObject):
         status = self._extract_speech(str(task_file_path), str(speech_path), device)
 
         if status == "error":
-            self.task_error.emit(
-                self.current.task,
-                _("Speech extraction failed! Check your internet connection \u2014 a model may need to be downloaded."),
-            )
+            # A terminated child can't remove its half-written output.
+            _remove_partial_speech_file(str(speech_path))
+            # Canceling kills the extraction process, which also reads as an
+            # error here. Reporting it would overwrite the canceled status.
+            if self.current.task.uid not in self.canceled_tasks:
+                self.task_error.emit(
+                    self.current.task,
+                    _("Speech extraction failed! Check your internet connection \u2014 a model may need to be downloaded."),
+                )
         elif status == "ok":
             self.speech_path = speech_path
             if not self.current.task.original_file_path:
@@ -488,40 +546,73 @@ class FileTranscriberQueueWorker(QObject):
         else:
             raise Exception(f"Unknown model type: {model_type}")
 
-    def _setup_transcriber_thread(self):
-        self.current.transcriber_thread = QThread(self)
+    def _create_transcriber_thread(self, started_slot):
+        """Move the current transcriber to a new thread that runs
+        ``started_slot`` and cleans both up once the transcriber reports."""
+        transcriber = self.current.transcriber
+        thread = QThread(self)
+        self.current.transcriber_thread = thread
 
-        self.current.transcriber.moveToThread(self.current.transcriber_thread)
+        transcriber.moveToThread(thread)
 
-        self.current.transcriber_thread.started.connect(self.current.transcriber.run)
-        self.current.transcriber.completed.connect(self.current.transcriber_thread.quit)
-        self.current.transcriber.error.connect(self.current.transcriber_thread.quit)
+        thread.started.connect(started_slot)
+        transcriber.completed.connect(thread.quit)
+        transcriber.error.connect(thread.quit)
 
-        self.current.transcriber.completed.connect(self.current.transcriber.deleteLater)
-        self.current.transcriber.error.connect(self.current.transcriber.deleteLater)
-        self.current.transcriber_thread.finished.connect(
-            self.current.transcriber_thread.deleteLater
-        )
+        transcriber.completed.connect(transcriber.deleteLater)
+        transcriber.error.connect(transcriber.deleteLater)
+        thread.finished.connect(thread.deleteLater)
+        return thread
 
-        self.current.transcriber.progress.connect(self.on_task_progress)
-        self.current.transcriber.download_progress.connect(
-            self.on_task_download_progress
-        )
-        self.current.transcriber.error.connect(self.on_task_error)
-
-        self.current.transcriber.completed.connect(self.on_task_completed)
+    def _setup_download_thread(self):
+        """Download URL audio on its own thread. Transcription starts from
+        _on_url_download_completed once the audio is on disk."""
+        transcriber = self.current.transcriber
+        thread = self._create_transcriber_thread(transcriber.download)
+        self.current.downloading = True
 
         task = self.current.task
         activity_token = self.current.activity_token
-        self.current.transcriber.error.connect(
-            lambda: self._on_task_finished(task, activity_token)
+        # cancel_task does not wait for a download, so the queue may have
+        # moved on by the time it reports. Drop signals for an old task.
+        transcriber.download_progress.connect(
+            lambda fraction: self._is_current(task, activity_token)
+            and self.on_task_download_progress(fraction)
         )
-        self.current.transcriber.completed.connect(
+        transcriber.error.connect(
+            lambda error: self._is_current(task, activity_token)
+            and self.on_task_error(error)
+        )
+        transcriber.error.connect(lambda: self._on_task_finished(task, activity_token))
+        transcriber.completed.connect(
+            lambda: self._on_url_download_completed(task, activity_token)
+        )
+
+        self.task_started.emit(task)
+        thread.start()
+
+    def _setup_transcriber_thread(self):
+        transcriber = self.current.transcriber
+        thread = self._create_transcriber_thread(transcriber.run)
+
+        transcriber.progress.connect(self.on_task_progress)
+        transcriber.download_progress.connect(self.on_task_download_progress)
+        transcriber.error.connect(self.on_task_error)
+        transcriber.completed.connect(self.on_task_completed)
+
+        task = self.current.task
+        activity_token = self.current.activity_token
+        transcriber.error.connect(lambda: self._on_task_finished(task, activity_token))
+        transcriber.completed.connect(
             lambda: self._on_task_finished(task, activity_token)
         )
 
-        self.task_started.emit(self.current.task)
-        self.current.transcriber_thread.start()
+        # A URL task already announced its start with the download phase.
+        # Announcing again would reset time_started and could overwrite a
+        # status written between the two phases.
+        if task.source != FileTranscriptionTask.Source.URL_IMPORT:
+            self.task_started.emit(task)
+        thread.start()
 
     def _extract_speech(self, file_path: str, speech_path: str, device: str) -> str:
         """Run demucs speech extraction in a separate process.
@@ -643,6 +734,16 @@ class FileTranscriberQueueWorker(QObject):
             if transcriber is not None:
                 transcriber.stop()
 
+            if self.current.downloading:
+                # The download stops at its next yt-dlp progress update, or at
+                # once if ffmpeg is converting. yt-dlp can't be interrupted
+                # while it resolves the URL, so don't block the GUI thread
+                # waiting: release the queue now and let the thread wind down.
+                # Its late signals are ignored because the task is no longer
+                # current.
+                self._on_task_finished(task, activity_token)
+                return
+
             if transcriber_thread is not None:
                 if not transcriber_thread.wait(5000):
                     logging.warning("Transcriber thread did not terminate gracefully")
@@ -688,6 +789,9 @@ class FileTranscriberQueueWorker(QObject):
         elif self.current.task is not None:
             self.task_completed.emit(self.current.task, segments)
 
+        self._remove_speech_file()
+
+    def _remove_speech_file(self):
         if self.speech_path is not None:
             try:
                 Path(self.speech_path).unlink()

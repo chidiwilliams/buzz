@@ -499,11 +499,14 @@ class MainWindow(QMainWindow):
 
         # Update file path in database only for URL imports where file is downloaded
         if task.source == FileTranscriptionTask.Source.URL_IMPORT and task.file_path:
-            logging.debug(f"Updating transcription file path: {task.file_path}")
+            # With speech extraction, file_path is the temporary speech file,
+            # which is deleted once the task completes. Keep the downloaded audio.
+            audio_path = task.original_file_path or task.file_path
+            logging.debug(f"Updating transcription file path: {audio_path}")
             # URL titles are UI metadata and must not be used as working paths.
-            basename = os.path.basename(task.file_path)
+            basename = os.path.basename(audio_path)
             name = task.display_name or os.path.splitext(basename)[0]
-            self.transcription_service.update_transcription_file_and_name(task.uid, task.file_path, name)
+            self.transcription_service.update_transcription_file_and_name(task.uid, audio_path, name)
 
         # Folder watch moves the source file into the output directory, so the
         # stored path has to follow it for the audio to stay playable.
@@ -683,7 +686,13 @@ class MainWindow(QMainWindow):
             dialog.raise_()
             dialog.activateWindow()
 
-        QTimer.singleShot(500, _show)
+        # Owned by the window, so the timer is destroyed with it. A bare
+        # QTimer.singleShot would still fire after the window was deleted,
+        # e.g. when it closes within 500 ms.
+        timer = QTimer(self)
+        timer.setSingleShot(True)
+        timer.timeout.connect(_show)
+        timer.start(500)
 
     def on_update_action_triggered(self):
         """Called when user clicks the update action in toolbar."""

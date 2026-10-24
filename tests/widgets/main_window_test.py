@@ -98,6 +98,43 @@ class TestMainWindow:
         ]
         window.close()
 
+    @staticmethod
+    def _schedule_cuda_prompt(window: MainWindow):
+        """Run _maybe_show_cuda_prompt as on a machine with an NVIDIA GPU and
+        CPU-only torch, without touching the real CUDA_PROMPT_SHOWN setting."""
+        window.settings = Mock()
+        window.settings.value.return_value = False
+        with patch("buzz.cuda_manager.is_nvidia_gpu_present", return_value=True), \
+                patch("buzz.cuda_manager.should_offer_cuda_prompt", return_value=True), \
+                patch("buzz.cuda_manager.is_cuda_torch_installed", return_value=False):
+            window._maybe_show_cuda_prompt()
+
+    def test_cuda_prompt_shows_after_delay(self, qtbot: QtBot, transcription_service):
+        with patch("buzz.cuda_manager.is_nvidia_gpu_present", return_value=False):
+            window = MainWindow(transcription_service)
+        qtbot.add_widget(window)
+
+        with patch("buzz.widgets.cuda_installer_widget.CudaInstallerDialog") as dialog:
+            self._schedule_cuda_prompt(window)
+            qtbot.waitUntil(lambda: dialog.called, timeout=2000)
+
+        dialog.assert_called_once_with(window)
+
+    def test_cuda_prompt_does_not_fire_after_window_is_deleted(
+        self, qtbot: QtBot, transcription_service
+    ):
+        with patch("buzz.cuda_manager.is_nvidia_gpu_present", return_value=False):
+            window = MainWindow(transcription_service)
+
+        with patch("buzz.widgets.cuda_installer_widget.CudaInstallerDialog") as dialog:
+            self._schedule_cuda_prompt(window)
+            # The window goes away before the 500 ms prompt delay is up.
+            window.close()
+            sip.delete(window)
+            qtbot.wait(800)
+
+        dialog.assert_not_called()
+
     def test_should_run_file_transcription_task(
         self, qtbot: QtBot, transcription_service
     ):
@@ -641,5 +678,40 @@ class TestMainWindowFolderWatch:
             str(task.uid)
         )
         assert transcription.file == str(moved_path)
+
+        window.close()
+
+
+class TestMainWindowUrlImport:
+    def test_should_store_downloaded_audio_not_extracted_speech(
+        self, qtbot: QtBot, db, transcription_service, tmp_path
+    ):
+        """The speech file is deleted after completion, so the transcription
+        has to keep pointing at the downloaded audio."""
+        window = MainWindow(transcription_service)
+        qtbot.add_widget(window)
+
+        downloaded_path = tmp_path / "audio.wav"
+        speech_path = tmp_path / "audio_speech.mp3"
+        task = FileTranscriptionTask(
+            transcription_options=TranscriptionOptions(extract_speech=True),
+            file_transcription_options=FileTranscriptionOptions(),
+            model_path="",
+            url="https://example.com/audio.mp3",
+            source=FileTranscriptionTask.Source.URL_IMPORT,
+        )
+        transcription_service.create_transcription(task)
+
+        # Download, then speech extraction, update the task before completing.
+        task.original_file_path = str(downloaded_path)
+        task.file_path = str(speech_path)
+
+        window.on_task_completed(task, [])
+
+        transcription = transcription_service.transcription_dao.find_by_id(
+            str(task.uid)
+        )
+        assert transcription.file == str(downloaded_path)
+        assert transcription.name == "audio"
 
         window.close()
