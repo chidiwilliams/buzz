@@ -190,7 +190,11 @@ class MainWindow(QMainWindow):
             tasks={},
             preferences=self.preferences.folder_watch,
         )
-        self.folder_watcher.task_found.connect(self.add_task)
+        self.folder_watcher.task_found.connect(self.on_folder_watch_task_found)
+        self.folder_watcher.task_settled.connect(self.on_folder_watch_task_settled)
+        self.folder_watcher.task_discarded.connect(
+            self.on_folder_watch_task_discarded
+        )
         self.folder_watcher.find_tasks()
 
         self.transcription_viewer_widget = None
@@ -472,6 +476,21 @@ class MainWindow(QMainWindow):
         self.table_widget.refresh_all()
         self.transcriber_worker.add_task(task)
 
+    def on_folder_watch_task_found(self, task: FileTranscriptionTask):
+        # Listed as queued right away; the watcher hands the task to the
+        # transcriber only once the file has finished copying.
+        self.transcription_service.create_transcription(task)
+        self.table_widget.refresh_all()
+
+    def on_folder_watch_task_settled(self, task: FileTranscriptionTask):
+        # Skip it if it was stopped or deleted while its file was copying
+        if self.transcription_service.is_transcription_queued(task.uid):
+            self.transcriber_worker.add_task(task)
+
+    def on_folder_watch_task_discarded(self, task: FileTranscriptionTask):
+        self.transcription_service.update_transcription_as_canceled(task.uid)
+        self.table_widget.refresh_row(task.uid)
+
     def on_transcriptions_updated(self):
         self.table_widget.refresh_all()
 
@@ -574,6 +593,8 @@ class MainWindow(QMainWindow):
         if self.folder_watcher:
             try:
                 self.folder_watcher.task_found.disconnect()
+                self.folder_watcher.task_settled.disconnect()
+                self.folder_watcher.task_discarded.disconnect()
                 if len(self.folder_watcher.directories()) > 0:
                     self.folder_watcher.removePaths(self.folder_watcher.directories())
             except Exception as e:

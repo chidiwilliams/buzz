@@ -5,7 +5,7 @@ from uuid import UUID
 from buzz.db.dao.transcription_dao import TranscriptionDAO
 from buzz.db.dao.transcription_segment_dao import TranscriptionSegmentDAO
 from buzz.db.entity.transcription_segment import TranscriptionSegment
-from buzz.transcriber.transcriber import Segment
+from buzz.transcriber.transcriber import FileTranscriptionTask, Segment
 
 
 class TranscriptionService:
@@ -22,6 +22,13 @@ class TranscriptionService:
 
     def copy_transcription(self, id: UUID) -> UUID:
         return self.transcription_dao.copy_transcription(id)
+
+    def is_transcription_queued(self, id: UUID) -> bool:
+        transcription = self.transcription_dao.find_by_id(str(id))
+        return (
+            transcription is not None
+            and transcription.status == FileTranscriptionTask.Status.QUEUED.value
+        )
 
     def update_transcription_as_started(self, id: UUID):
         self.transcription_dao.update_transcription_as_started(id)
