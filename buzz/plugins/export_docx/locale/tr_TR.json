@@ -1,0 +1,7 @@
+{
+  "Export to DOCX": "DOCX Olarak Dışa Aktar",
+  "Export the transcript to a Microsoft Word (.docx) file after transcription, optionally including timestamps.": "Deşifre bittikten sonra metni, isteğe bağlı olarak zaman damgalarıyla birlikte bir Microsoft Word (.docx) dosyasına aktarır.",
+  "Output folder": "Çıktı klasörü",
+  "Leave empty to save next to the source file.": "Kaynak dosyanın yanına kaydetmek için boş bırakın.",
+  "Include timestamps": "Zaman damgalarını ekle"
+}

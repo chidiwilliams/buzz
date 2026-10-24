@@ -1,0 +1,10 @@
+{
+  "Automatic Transcript Resizer": "Otomatik Deşifre Yeniden Boyutlandırıcı",
+  "When a transcription has word-level timings, automatically regroup the words into properly sized subtitles and replace the result. Mirrors the Merge options of the transcript resizer.": "Deşifrede kelime düzeyinde zamanlamalar varsa kelimeleri otomatik olarak uygun uzunlukta altyazılara yeniden gruplar ve sonucu değiştirir. Deşifre yeniden boyutlandırıcısındaki Birleştirme seçeneklerini aynen uygular.",
+  "Merge by gap": "Boşluğa göre birleştir",
+  "Merge gap (seconds)": "Birleştirme boşluğu (saniye)",
+  "Split by punctuation": "Noktalamaya göre böl",
+  "Punctuation": "Noktalama",
+  "Split by max length": "Azami uzunluğa göre böl",
+  "Maximum subtitle length": "Azami altyazı uzunluğu"
+}

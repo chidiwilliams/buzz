@@ -1,0 +1,8 @@
+{
+  "Skip Already Transcribed": "Önceden Deşifre Edilenleri Atla",
+  "Skip transcription if results already exist on disk or in the database": "Sonuçlar diskte veya veritabanında zaten varsa deşifreyi atla",
+  "Check for existing result files": "Mevcut sonuç dosyalarını kontrol et",
+  "Skip if a .txt, .srt, or .vtt file matching the audio filename is found next to it": "Ses dosyasının yanında aynı adlı bir .txt, .srt veya .vtt dosyası bulunursa atla",
+  "Check in transcription database": "Deşifre veritabanında kontrol et",
+  "Skip if this file has already been transcribed and the record exists in the database": "Bu dosya daha önce deşifre edilmiş ve kaydı veritabanında varsa atla"
+}
