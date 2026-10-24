@@ -1696,3 +1696,30 @@ class TestCloseWaitsForWorkerThreads:
 
             assert widget.transcription_thread is None
             translation_thread.wait()
+
+
+class TestCopyButtonReset:
+    @pytest.mark.timeout(60)
+    def test_copy_button_text_is_reset(self, qtbot):
+        with _widget_ctx(qtbot) as widget:
+            widget.on_copy_transcript_clicked()
+            assert widget.copy_transcript_button.text() == _("Nothing to copy!")
+
+            qtbot.waitUntil(
+                lambda: widget.copy_transcript_button.text() == _("Copy"), timeout=5000
+            )
+
+    @pytest.mark.timeout(60)
+    def test_reset_does_not_fire_after_window_is_deleted(self, qtbot):
+        with (patch("sounddevice.InputStream", side_effect=MockInputStream),
+              patch("buzz.transcriber.recording_transcriber.RecordingTranscriber.get_device_sample_rate",
+                    return_value=16_000),
+              patch("sounddevice.check_input_settings")):
+            widget = RecordingTranscriberWidget(custom_sounddevice=MockSoundDevice())
+            widget.on_copy_transcript_clicked()
+            time.sleep(0.3)
+            widget.close()
+            widget.deleteLater()
+
+            # qtbot fails the test if the timer fires on the deleted button
+            qtbot.wait(2500)

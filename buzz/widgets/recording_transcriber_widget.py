@@ -357,27 +357,35 @@ class RecordingTranscriberWidget(QWidget):
 
         return bar
 
+    def _reset_copy_button_later(self, msec: int):
+        # A bound method rather than a lambda, so PyQt drops the timer when the
+        # window is deleted instead of calling it on a deleted button
+        QTimer.singleShot(msec, self._reset_copy_button_text)
+
+    def _reset_copy_button_text(self):
+        self.copy_transcript_button.setText(_("Copy"))
+
     def on_copy_transcript_clicked(self):
         """Handle copy transcript button click"""
         transcript_text = self.transcription_text_box.toPlainText().strip()
 
         if not transcript_text:
             self.copy_transcript_button.setText(_("Nothing to copy!"))
-            QTimer.singleShot(1500, lambda: self.copy_transcript_button.setText(_("Copy")))
+            self._reset_copy_button_later(1500)
             return
 
         app = QApplication.instance()
         if app is None:
             logging.warning("QApplication instance not available; clipboard disabled")
             self.copy_transcript_button.setText(_("Copy failed"))
-            QTimer.singleShot(1500, lambda: self.copy_transcript_button.setText(_("Copy")))
+            self._reset_copy_button_later(1500)
             return
 
         clipboard = app.clipboard()
         if clipboard is None:
             logging.warning("Clipboard not available")
             self.copy_transcript_button.setText(_("Copy failed"))
-            QTimer.singleShot(1500, lambda: self.copy_transcript_button.setText(_("Copy")))
+            self._reset_copy_button_later(1500)
             return
 
         try:
@@ -385,11 +393,11 @@ class RecordingTranscriberWidget(QWidget):
         except Exception as e:
             logging.warning("Clipboard error: %s", e)
             self.copy_transcript_button.setText(_("Copy failed"))
-            QTimer.singleShot(1500, lambda: self.copy_transcript_button.setText(_("Copy")))
+            self._reset_copy_button_later(1500)
             return
 
         self.copy_transcript_button.setText(_("Copied!"))
-        QTimer.singleShot(2000, lambda: self.copy_transcript_button.setText(_("Copy")))
+        self._reset_copy_button_later(2000)
 
     def on_show_presentation_clicked(self):
         """Handle click on 'Show in new window' button"""
