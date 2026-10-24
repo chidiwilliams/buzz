@@ -684,7 +684,13 @@ class MainWindow(QMainWindow):
             dialog.raise_()
             dialog.activateWindow()
 
-        QTimer.singleShot(500, _show)
+        # Owned by the window, so the timer is destroyed with it. A bare
+        # QTimer.singleShot would still fire after the window was deleted,
+        # e.g. when it closes within 500 ms.
+        timer = QTimer(self)
+        timer.setSingleShot(True)
+        timer.timeout.connect(_show)
+        timer.start(500)
 
     def on_update_action_triggered(self):
         """Called when user clicks the update action in toolbar."""
