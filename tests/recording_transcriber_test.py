@@ -225,14 +225,12 @@ class TestStartWithSilence:
 
         transcriber.transcription.emit = stop_after_first
 
-        with patch("buzz.transcriber.recording_transcriber.whisper") as mock_whisper, \
-             patch("buzz.transcriber.recording_transcriber.torch") as mock_torch:
-            mock_torch.cuda.is_available.return_value = False
-            mock_whisper.load_model.return_value = mock_model
-            mock_whisper.Whisper = type("Whisper", (), {})
-            # make isinstance(model, whisper.Whisper) pass
-            mock_model.__class__ = mock_whisper.Whisper
-
+        FakeWhisper = type("Whisper", (), {})
+        # make isinstance(model, whisper.Whisper) pass
+        mock_model.__class__ = FakeWhisper
+        with patch("whisper.load_model", return_value=mock_model), \
+             patch("whisper.Whisper", FakeWhisper), \
+             patch("torch.cuda.is_available", return_value=False):
             with patch.object(transcriber, "sounddevice") as mock_sd:
                 mock_stream_ctx = MagicMock()
                 mock_stream_ctx.__enter__ = MagicMock(return_value=mock_stream_ctx)
@@ -261,11 +259,8 @@ class TestStartWithSilence:
 
         stopper = threading.Thread(target=stop_after_delay, daemon=True)
 
-        with patch("buzz.transcriber.recording_transcriber.whisper") as mock_whisper, \
-             patch("buzz.transcriber.recording_transcriber.torch") as mock_torch:
-            mock_torch.cuda.is_available.return_value = False
-            mock_whisper.load_model.return_value = MagicMock()
-
+        with patch("whisper.load_model", return_value=MagicMock()), \
+             patch("torch.cuda.is_available", return_value=False):
             with patch.object(t, "sounddevice") as mock_sd:
                 mock_stream_ctx = MagicMock()
                 mock_stream_ctx.__enter__ = MagicMock(return_value=mock_stream_ctx)
@@ -286,11 +281,8 @@ class TestStartPortAudioError:
         errors = []
         t.error.connect(lambda e: errors.append(e))
 
-        with patch("buzz.transcriber.recording_transcriber.whisper") as mock_whisper, \
-             patch("buzz.transcriber.recording_transcriber.torch") as mock_torch:
-            mock_torch.cuda.is_available.return_value = False
-            mock_whisper.load_model.return_value = MagicMock()
-
+        with patch("whisper.load_model", return_value=MagicMock()), \
+             patch("torch.cuda.is_available", return_value=False):
             with patch.object(t, "sounddevice") as mock_sd:
                 mock_sd.InputStream.side_effect = PortAudioError()
                 t.start()
@@ -357,10 +349,8 @@ class TestModelBackends:
                 seg2.text = "world"
                 return [seg1, seg2], MagicMock()
 
-        with patch("buzz.transcriber.recording_transcriber.torch") as mock_torch, \
-             patch("buzz.transcriber.recording_transcriber.faster_whisper") as mock_fw:
-            mock_torch.cuda.is_available.return_value = False
-            mock_fw.WhisperModel = FakeWhisperModel
+        with patch("torch.cuda.is_available", return_value=False), \
+             patch("faster_whisper.WhisperModel", FakeWhisperModel):
 
             received = _drive_one_cycle(t, samples)
 
@@ -374,9 +364,7 @@ class TestModelBackends:
         transcript.model_extra = {}
         transcript.text = "api text"
 
-        with patch("buzz.transcriber.recording_transcriber.torch") as mock_torch, \
-             patch("buzz.transcriber.recording_transcriber.OpenAI") as MockOpenAI:
-            mock_torch.cuda.is_available.return_value = False
+        with patch("openai.OpenAI") as MockOpenAI:
             client = MockOpenAI.return_value
             client.audio.transcriptions.create.return_value = transcript
 
@@ -397,12 +385,11 @@ class TestModelBackends:
             def transcribe(self, audio, language, task):
                 return {"text": "hf text"}
 
-        with patch("buzz.transcriber.recording_transcriber.torch") as mock_torch, \
+        with patch("torch.cuda.is_available", return_value=False), \
              patch(
-                 "buzz.transcriber.recording_transcriber.TransformersTranscriber",
+                 "buzz.transformers_whisper.TransformersTranscriber",
                  FakeTransformers,
              ):
-            mock_torch.cuda.is_available.return_value = False
             received = _drive_one_cycle(t, samples)
 
         assert received == ["hf text"]
@@ -421,7 +408,7 @@ class TestStartLocalWhisperServer:
         with patch("buzz.transcriber.recording_transcriber.subprocess.Popen", return_value=process) as popen, \
              patch("buzz.transcriber.recording_transcriber.time.sleep"), \
              patch("buzz.transcriber.recording_transcriber._", lambda s: s), \
-             patch("buzz.transcriber.recording_transcriber.OpenAI") as MockOpenAI:
+             patch("openai.OpenAI") as MockOpenAI:
             t.is_running = True
             t.start_local_whisper_server()
 

@@ -9,7 +9,6 @@ from typing import Any, Optional, List
 from pathlib import Path
 
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
-from yt_dlp import YoutubeDL
 
 from buzz import whisper_audio
 from buzz.assets import APP_BASE_DIR
@@ -122,6 +121,9 @@ class FileTranscriber(QObject):
         )
 
     def _download_from_url(self) -> bool:
+        # Imported here as it is only needed for URL imports and slows app startup
+        from yt_dlp import YoutubeDL
+
         cookiefile = os.getenv("BUZZ_DOWNLOAD_COOKIEFILE")
 
         temp_dir = Path(tempfile.mkdtemp()).resolve()

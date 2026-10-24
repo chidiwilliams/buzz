@@ -15,14 +15,15 @@ from platformdirs import user_cache_dir
 # Preload CUDA libraries before importing torch
 from buzz import cuda_setup  # noqa: F401
 
-import torch
+# torch, whisper, faster_whisper, transformers and openai are imported where they
+# are used: importing them all takes seconds, and opening the live recording window
+# would otherwise freeze the UI while only the selected backend needs its library.
 import numpy as np
 from buzz.transcriber.cuda_device import cuda_works
 import sounddevice
 from sounddevice import PortAudioError
 
 from buzz.audio_devices import registered_stream
-from openai import OpenAI
 from PyQt6.QtCore import QObject, pyqtSignal
 
 from buzz import whisper_audio
@@ -31,11 +32,7 @@ from buzz.assets import APP_BASE_DIR
 from buzz.model_loader import ModelType, map_language_to_mms
 from buzz.settings.settings import Settings
 from buzz.transcriber.transcriber import TranscriptionOptions, Task, DEFAULT_WHISPER_TEMPERATURE
-from buzz.transformers_whisper import TransformersTranscriber
 from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
-
-import whisper
-import faster_whisper
 
 
 class RecordingTranscriber(QObject):
@@ -171,17 +168,6 @@ class RecordingTranscriber(QObject):
     def _load_model(self):
         model_path = self.model_path
 
-        force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
-        use_cuda = cuda_works() and force_cpu == "false"
-        self.use_cuda = use_cuda
-
-        if torch.cuda.is_available():
-            logging.debug(f"CUDA version detected: {torch.version.cuda}")
-
-        if self.transcription_options.model.model_type == ModelType.WHISPER:
-            device = "cuda" if use_cuda else "cpu"
-            return whisper.load_model(model_path, device=device)
-
         if self.transcription_options.model.model_type == ModelType.WHISPER_CPP:
             self.start_local_whisper_server()
             if self.openai_client is None:
@@ -193,7 +179,42 @@ class RecordingTranscriber(QObject):
                     )
             return None
 
+        if self.transcription_options.model.model_type == ModelType.OPEN_AI_WHISPER_API:
+            from openai import OpenAI
+
+            custom_openai_base_url = self.settings.value(
+                key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value="",
+            )
+            self.openai_client = OpenAI(
+                api_key=self.transcription_options.openai_access_token,
+                base_url=custom_openai_base_url if custom_openai_base_url else None,
+                max_retries=0,
+            )
+            logging.debug(
+                "Will use whisper API on %s, %s",
+                custom_openai_base_url, self.whisper_api_model,
+            )
+            return None
+
+        # Only the backends that run in this process need torch
+        import torch
+
+        force_cpu = os.getenv("BUZZ_FORCE_CPU", "false")
+        use_cuda = cuda_works() and force_cpu == "false"
+        self.use_cuda = use_cuda
+
+        if torch.cuda.is_available():
+            logging.debug(f"CUDA version detected: {torch.version.cuda}")
+
+        if self.transcription_options.model.model_type == ModelType.WHISPER:
+            import whisper
+
+            device = "cuda" if use_cuda else "cpu"
+            return whisper.load_model(model_path, device=device)
+
         if self.transcription_options.model.model_type == ModelType.FASTER_WHISPER:
+            import faster_whisper
+
             model_root_dir = user_cache_dir("Buzz")
             model_root_dir = os.path.join(model_root_dir, "models")
             model_root_dir = os.getenv("BUZZ_MODEL_ROOT", model_root_dir)
@@ -224,20 +245,7 @@ class RecordingTranscriber(QObject):
                 cpu_threads=(os.cpu_count() or 8) // 2,
             )
 
-        if self.transcription_options.model.model_type == ModelType.OPEN_AI_WHISPER_API:
-            custom_openai_base_url = self.settings.value(
-                key=Settings.Key.CUSTOM_OPENAI_BASE_URL, default_value="",
-            )
-            self.openai_client = OpenAI(
-                api_key=self.transcription_options.openai_access_token,
-                base_url=custom_openai_base_url if custom_openai_base_url else None,
-                max_retries=0,
-            )
-            logging.debug(
-                "Will use whisper API on %s, %s",
-                custom_openai_base_url, self.whisper_api_model,
-            )
-            return None
+        from buzz.transformers_whisper import TransformersTranscriber
 
         return TransformersTranscriber(model_path)
 
@@ -260,6 +268,8 @@ class RecordingTranscriber(QObject):
         return self._transcribe_via_api(samples, initial_prompt)
 
     def _transcribe_whisper(self, samples, model, initial_prompt):
+        import whisper
+
         assert isinstance(model, whisper.Whisper)
         return model.transcribe(
             audio=samples,
@@ -272,6 +282,8 @@ class RecordingTranscriber(QObject):
         )
 
     def _transcribe_faster_whisper(self, samples, model, initial_prompt):
+        import faster_whisper
+
         assert isinstance(model, faster_whisper.WhisperModel)
         segments, _ = model.transcribe(
             audio=samples,
@@ -290,6 +302,8 @@ class RecordingTranscriber(QObject):
         return {"text": " ".join(segment.text for segment in segments)}
 
     def _transcribe_hugging_face(self, samples, model):
+        from buzz.transformers_whisper import TransformersTranscriber
+
         assert isinstance(model, TransformersTranscriber)
         if model.is_mms_model:
             language = map_language_to_mms(
@@ -371,7 +385,9 @@ class RecordingTranscriber(QObject):
     def _cleanup_model(self, model):
         if model:
             del model
-        if torch.cuda.is_available():
+        # Nothing to free if no backend imported torch (whisper.cpp and the API)
+        torch = sys.modules.get("torch")
+        if torch is not None and torch.cuda.is_available():
             torch.cuda.empty_cache()
 
         self.finished.emit()
@@ -557,6 +573,8 @@ class RecordingTranscriber(QObject):
                 self.transcription.emit(message)
 
             return
+
+        from openai import OpenAI
 
         self.openai_client = OpenAI(
             api_key="not-used",

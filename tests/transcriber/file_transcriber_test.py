@@ -75,7 +75,7 @@ def test_url_download_uses_reported_path_instead_of_title(
         Path(command[-1]).write_bytes(b"wav audio")
         return Mock(returncode=0, stderr=b"")
 
-    monkeypatch.setattr("buzz.transcriber.file_transcriber.YoutubeDL", FakeYoutubeDL)
+    monkeypatch.setattr("yt_dlp.YoutubeDL", FakeYoutubeDL)
     monkeypatch.setattr("buzz.transcriber.file_transcriber.subprocess.run", fake_run)
 
     assert transcriber._download_from_url()
@@ -168,7 +168,7 @@ def test_url_download_rejects_ffmpeg_failure_with_empty_stderr(
             assert download
             return {"filepath": str(downloaded_file)}
 
-    monkeypatch.setattr("buzz.transcriber.file_transcriber.YoutubeDL", FakeYoutubeDL)
+    monkeypatch.setattr("yt_dlp.YoutubeDL", FakeYoutubeDL)
     monkeypatch.setattr(
         "buzz.transcriber.file_transcriber.subprocess.run",
         Mock(return_value=Mock(returncode=1, stderr=b"")),
@@ -203,7 +203,7 @@ def test_url_download_rejects_missing_ffmpeg_output(monkeypatch, tmp_path):
             assert download
             return {"filepath": str(downloaded_file)}
 
-    monkeypatch.setattr("buzz.transcriber.file_transcriber.YoutubeDL", FakeYoutubeDL)
+    monkeypatch.setattr("yt_dlp.YoutubeDL", FakeYoutubeDL)
     monkeypatch.setattr(
         "buzz.transcriber.file_transcriber.subprocess.run",
         Mock(return_value=Mock(returncode=0, stderr=b"")),
