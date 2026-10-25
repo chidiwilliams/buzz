@@ -304,7 +304,20 @@ class WhisperCpp:
         non_space_languages = {"zh", "ja", "th", "lo", "km", "my"}
         is_non_space_language = language in non_space_languages
 
-        for segment_data in transcription:
+        # Filter out bogus / uncommitted chunk fragments superseded by a subsequent chunk
+        valid_transcription = []
+        for i, segment_data in enumerate(transcription):
+            start = int(segment_data.get("offsets", {}).get("from", 0))
+            end = int(segment_data.get("offsets", {}).get("to", 0))
+            if end <= start:
+                continue
+            if i + 1 < len(transcription):
+                next_start = int(transcription[i + 1].get("offsets", {}).get("from", 0))
+                if next_start <= start or (end - start <= 150 and start == next_start):
+                    continue
+            valid_transcription.append(segment_data)
+
+        for segment_data in valid_transcription:
             tokens = segment_data.get("tokens", [])
             map_offset = _make_offset_mapper(segment_data, vad_enabled)
 
@@ -374,7 +387,10 @@ class WhisperCpp:
                         word_buffer += token_bytes
                         word_end = token_end
 
-                _append_word(word_buffer, word_start, word_end, segments)
+                if not _append_word(word_buffer, word_start, word_end, segments):
+                    text = word_buffer.decode("utf-8", errors="replace").rstrip("\ufffd").strip()
+                    if text:
+                        segments.append(Segment(start=word_start, end=word_end, text=text, translation=""))
 
         return segments
 
@@ -388,17 +404,36 @@ class WhisperCpp:
             try:
                 segment_text = segment_text_latin1.encode("latin-1").decode("utf-8").strip()
             except (UnicodeDecodeError, UnicodeEncodeError):
-                segment_text = segment_text_latin1.strip()
+                try:
+                    raw_bytes = segment_text_latin1.encode("latin-1", errors="replace")
+                    segment_text = raw_bytes.decode("utf-8", errors="replace").rstrip("\ufffd").strip()
+                except Exception:
+                    segment_text = segment_text_latin1.strip()
+
+            start = int(segment_data.get("offsets", {}).get("from", 0))
+            end = int(segment_data.get("offsets", {}).get("to", 0))
+
+            if not segment_text or end <= start:
+                continue
 
             segments.append(
                 Segment(
-                    start=int(segment_data.get("offsets", {}).get("from", 0)),
-                    end=int(segment_data.get("offsets", {}).get("to", 0)),
+                    start=start,
+                    end=end,
                     text=segment_text,
                     translation=""
                 )
             )
-        return segments
+
+        # Filter out superseded / aborted chunk fragments
+        filtered_segments: List[Segment] = []
+        for i, seg in enumerate(segments):
+            if i + 1 < len(segments):
+                next_seg = segments[i + 1]
+                if next_seg.start <= seg.start or (seg.end - seg.start <= 150 and seg.start == next_seg.start):
+                    continue
+            filtered_segments.append(seg)
+        return filtered_segments
 
     @staticmethod
     def _cleanup_files(temp_file, json_output_path):

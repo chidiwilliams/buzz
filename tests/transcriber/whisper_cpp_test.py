@@ -524,3 +524,96 @@ class TestWhisperCpp:
         assert segments[1].text == "world"
         assert segments[1].start == 1500
         assert segments[1].end == 3000
+
+    def test_parse_segment_timings_handles_truncated_utf8_without_mojibake(self):
+        """When whisper-cli produces text ending in an incomplete UTF-8 byte sequence,
+        it should not fall back to Latin-1 mojibake."""
+        # 'Bieži vien' encoded as UTF-8 bytes then read as latin-1, plus a lone \xc4 byte at the end
+        utf8_bytes = "Bieži vien".encode("utf-8") + b"\xc4"
+        latin1_text = utf8_bytes.decode("latin-1")
+
+        mock_result = {
+            "transcription": [
+                {
+                    "offsets": {"from": 0, "to": 5000},
+                    "text": latin1_text,
+                }
+            ]
+        }
+        segments = WhisperCpp._parse_segment_timings(mock_result)
+        assert len(segments) == 1
+        assert segments[0].text == "Bieži vien"
+
+    def test_parse_segment_timings_filters_aborted_superseded_fragments(self):
+        """When whisper chunk boundary emits an aborted stub (e.g. 100ms) with start time
+        matching the next segment, the aborted fragment must be filtered out."""
+        mock_result = {
+            "transcription": [
+                {
+                    "offsets": {"from": 2180, "to": 16180},
+                    "text": "First complete sentence.".encode("utf-8").decode("latin-1"),
+                },
+                {
+                    # Aborted 100ms fragment superseded by the next chunk starting at 16180
+                    "offsets": {"from": 16180, "to": 16280},
+                    "text": "Second sentence partial".encode("utf-8").decode("latin-1"),
+                },
+                {
+                    # Full re-transcription of the second sentence
+                    "offsets": {"from": 16180, "to": 34960},
+                    "text": "Second sentence complete and long.".encode("utf-8").decode("latin-1"),
+                },
+                {
+                    "offsets": {"from": 34960, "to": 36700},
+                    "text": "Third sentence.".encode("utf-8").decode("latin-1"),
+                },
+            ]
+        }
+        segments = WhisperCpp._parse_segment_timings(mock_result)
+        assert len(segments) == 3
+        assert segments[0].start == 2180
+        assert segments[0].end == 16180
+        assert segments[0].text == "First complete sentence."
+
+        assert segments[1].start == 16180
+        assert segments[1].end == 34960
+        assert segments[1].text == "Second sentence complete and long."
+
+        assert segments[2].start == 34960
+        assert segments[2].end == 36700
+        assert segments[2].text == "Third sentence."
+
+    def test_parse_word_level_timings_filters_aborted_superseded_fragments(self):
+        """Word-level timings should also filter out aborted segment blocks."""
+        mock_result = {
+            "transcription": [
+                {
+                    "offsets": {"from": 0, "to": 2000},
+                    "text": "",
+                    "tokens": [
+                        {"text": " Hello", "offsets": {"from": 0, "to": 1000}},
+                        {"text": " world", "offsets": {"from": 1000, "to": 2000}},
+                    ],
+                },
+                {
+                    # Aborted fragment starting at 2000
+                    "offsets": {"from": 2000, "to": 2100},
+                    "text": "",
+                    "tokens": [
+                        {"text": " Good", "offsets": {"from": 2000, "to": 2050}},
+                    ],
+                },
+                {
+                    # Re-transcribed block starting at 2000
+                    "offsets": {"from": 2000, "to": 4000},
+                    "text": "",
+                    "tokens": [
+                        {"text": " Goodbye", "offsets": {"from": 2000, "to": 3000}},
+                        {"text": " all", "offsets": {"from": 3000, "to": 4000}},
+                    ],
+                },
+            ]
+        }
+        segments = WhisperCpp._parse_word_level_timings(mock_result, language="en", vad_enabled=False)
+        words = [s.text for s in segments]
+        assert words == ["Hello", "world", "Goodbye", "all"]
