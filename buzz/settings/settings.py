@@ -1,6 +1,5 @@
 import enum
 import typing
-import logging
 import uuid
 
 from PyQt6.QtCore import QSettings
@@ -60,6 +59,9 @@ class Settings:
         SHORTCUTS = "shortcuts"
 
         FONT_SIZE = "font-size"
+
+        MINIMIZE_TO_TRAY = "window/minimize-to-tray"
+        CLOSE_TO_TRAY = "window/close-to-tray"
 
         UI_LOCALE = "ui-locale"
 

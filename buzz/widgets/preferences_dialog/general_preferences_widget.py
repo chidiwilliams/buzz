@@ -1,5 +1,4 @@
 import re
-import logging
 import requests
 from typing import Optional
 from platformdirs import user_documents_dir
@@ -17,6 +16,7 @@ from PyQt6.QtWidgets import (
     QComboBox,
     QLabel,
     QSizePolicy,
+    QSystemTrayIcon,
 )
 from PyQt6.QtGui import QIcon
 from openai import AuthenticationError, OpenAI
@@ -99,6 +99,32 @@ class GeneralPreferencesWidget(QWidget):
         self.font_size_spin_box.valueChanged.connect(self.on_font_size_changed)
 
         layout.addRow(_("Font Size"), self.font_size_spin_box)
+
+        tray_available = QSystemTrayIcon.isSystemTrayAvailable()
+        self.minimize_to_tray_checkbox = QCheckBox(_("Minimize to system tray"))
+        self.minimize_to_tray_checkbox.setObjectName("MinimizeToTrayCheckbox")
+        self.minimize_to_tray_checkbox.setChecked(
+            self.settings.value(Settings.Key.MINIMIZE_TO_TRAY, False)
+        )
+        self.minimize_to_tray_checkbox.setEnabled(tray_available)
+        self.minimize_to_tray_checkbox.toggled.connect(
+            lambda enabled: self.settings.set_value(Settings.Key.MINIMIZE_TO_TRAY, enabled)
+        )
+        layout.addRow("", self.minimize_to_tray_checkbox)
+
+        self.close_to_tray_checkbox = QCheckBox(_("Close to system tray"))
+        self.close_to_tray_checkbox.setObjectName("CloseToTrayCheckbox")
+        self.close_to_tray_checkbox.setChecked(
+            self.settings.value(Settings.Key.CLOSE_TO_TRAY, False)
+        )
+        self.close_to_tray_checkbox.setEnabled(tray_available)
+        self.close_to_tray_checkbox.setToolTip(
+            _("Keep Buzz running when the main window is closed. Use Quit in the tray menu to exit.")
+        )
+        self.close_to_tray_checkbox.toggled.connect(
+            lambda enabled: self.settings.set_value(Settings.Key.CLOSE_TO_TRAY, enabled)
+        )
+        layout.addRow("", self.close_to_tray_checkbox)
 
         self.openai_api_key_line_edit = OpenAIAPIKeyLineEdit(self.openai_api_key, self)
         self.openai_api_key_line_edit.key_changed.connect(
