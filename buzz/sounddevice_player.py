@@ -92,13 +92,16 @@ class AudioDecoder:
 
     def _expected_bytes(self) -> int:
         """Size of the decoded audio from the duration ffprobe reports, or 0 if unknown."""
-        # The duration of the audio stream rather than of the container, which
-        # for a video with a short audio track, or none, is far longer. Not all
-        # containers give the stream a duration, Matroska for one.
-        process = self._start(
-            [_find_ffprobe(), "-v", "error", "-select_streams", "a:0",
-             "-show_entries", "stream=duration:format=duration", "-of", "json",
-             self.file_path])
+        try:
+            process = self._start(
+                [_find_ffprobe(), "-v", "error",
+                 "-show_entries", "stream=codec_type,duration:stream_tags=DURATION:format=duration",
+                 "-of", "json", self.file_path])
+        except OSError:
+            # Decoding needs only ffmpeg, so do without the size when ffprobe
+            # is missing or cannot run
+            logging.debug("Could not start ffprobe", exc_info=True)
+            return 0
         if process is None:
             return 0
         try:
@@ -107,12 +110,7 @@ class AudioDecoder:
             stdout, _ = process.communicate(timeout=30)
             if process.returncode != 0:
                 return 0
-            info = json.loads(stdout)
-            streams = info.get("streams") or []
-            if not streams:
-                return 0
-            duration_s = float(streams[0].get("duration")
-                               or info.get("format", {}).get("duration"))
+            duration_s = _audio_duration(json.loads(stdout))
         except Exception:
             if process.poll() is None:
                 process.kill()
@@ -126,6 +124,29 @@ class AudioDecoder:
             self._cancelled = True
             if self._process is not None and self._process.poll() is None:
                 self._process.kill()
+
+
+def _audio_duration(info: dict) -> float:
+    """
+    Duration in seconds of the first audio stream in ffprobe's output, or 0 if
+    unknown. The buffer for the samples is sized by it before decoding, so it
+    must be the audio's: a video's can be far longer than its audio track.
+    """
+    streams = info.get("streams") or []
+    audio = next((s for s in streams if s.get("codec_type") == "audio"), None)
+    if audio is None:
+        return 0
+    if audio.get("duration"):
+        return float(audio["duration"])
+    # Matroska gives a stream no duration, but its muxers write it as a tag
+    tag = (audio.get("tags") or {}).get("DURATION")
+    if tag:
+        hours, minutes, seconds = tag.split(":")
+        return int(hours) * 3600 + int(minutes) * 60 + float(seconds)
+    # The container's duration is the audio's only when it holds nothing else
+    if all(s.get("codec_type") == "audio" for s in streams):
+        return float(info.get("format", {}).get("duration") or 0)
+    return 0
 
 
 def _read_samples(stdout, expected_bytes: int,

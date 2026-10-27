@@ -10,7 +10,7 @@ import pytest
 
 from buzz import audio_devices
 from buzz.sounddevice_player import (
-    AudioDecoder, AudioFilePlayer, SounddevicePlayer, MIN_BUFFER_BYTES, _read_samples,
+    AudioDecoder, AudioFilePlayer, SounddevicePlayer, MIN_BUFFER_BYTES, _audio_duration, _read_samples,
     FRAME_BYTES, SAMPLE_RATE,
 )
 from buzz.ffmpeg_utils import find_ffmpeg
@@ -236,6 +236,36 @@ class TestAudioDecoder:
         expected_s = AudioDecoder(video)._expected_bytes() / FRAME_BYTES / SAMPLE_RATE
 
         assert 1.9 < expected_s < 2.2
+
+    def test_expects_the_duration_of_the_audio_stream_in_matroska(self, tmp_path):
+        """Matroska gives the audio stream no duration, only a tag with it."""
+        video = str(tmp_path / "video.mkv")
+        subprocess.run(
+            [find_ffmpeg(), "-v", "error", "-f", "lavfi", "-i", "color=size=16x16:rate=1:duration=60",
+             "-f", "lavfi", "-i", "sine=duration=2", "-c:v", "libx264", "-c:a", "libopus", video],
+            check=True)
+
+        expected_s = AudioDecoder(video)._expected_bytes() / FRAME_BYTES / SAMPLE_RATE
+
+        assert 1.9 < expected_s < 2.2
+
+    def test_container_duration_is_not_trusted_beside_a_video(self):
+        info = {"streams": [{"codec_type": "video"}, {"codec_type": "audio"}],
+                "format": {"duration": "3600.0"}}
+
+        assert _audio_duration(info) == 0
+
+    def test_container_duration_is_the_duration_of_audio_alone(self):
+        info = {"streams": [{"codec_type": "audio"}], "format": {"duration": "3.5"}}
+
+        assert _audio_duration(info) == 3.5
+
+    def test_decodes_without_ffprobe(self, tmp_path):
+        with patch("buzz.sounddevice_player._find_ffprobe",
+                   return_value=str(tmp_path / "missing-ffprobe")):
+            data = AudioDecoder(test_audio_path).decode()
+
+        assert len(data) > 44100
 
     @pytest.mark.skipif(sys.platform == "win32", reason="uses a named pipe")
     def test_cancel_stops_a_stalled_probe(self, tmp_path):
