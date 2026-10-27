@@ -64,11 +64,18 @@ class AudioDecoder:
         stderr_reader = threading.Thread(
             target=lambda: stderr.append(self._process.stderr.read()), daemon=True)
         stderr_reader.start()
-        with self._process.stdout:
-            samples = _read_samples(self._process.stdout, expected_bytes, self._on_progress)
-        self._process.wait()
-        stderr_reader.join()
-        self._process.stderr.close()
+        try:
+            with self._process.stdout:
+                samples = _read_samples(self._process.stdout, expected_bytes, self._on_progress)
+        except BaseException:
+            # E.g. no memory for the samples. Stop ffmpeg rather than leave it
+            # running, or blocked on a pipe nobody reads any more.
+            self._process.kill()
+            raise
+        finally:
+            self._process.wait()
+            stderr_reader.join()
+            self._process.stderr.close()
 
         if self._cancelled:
             return None
