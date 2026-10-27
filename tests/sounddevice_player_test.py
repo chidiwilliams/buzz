@@ -1,5 +1,8 @@
 import io
+import os
 import subprocess
+import sys
+import threading
 from unittest.mock import patch
 
 import numpy as np
@@ -208,6 +211,24 @@ class TestAudioDecoder:
         with pytest.raises(subprocess.CalledProcessError) as error:
             AudioDecoder(str(not_audio)).decode()
         assert error.value.stderr
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="uses a named pipe")
+    def test_cancel_stops_a_stalled_probe(self, tmp_path):
+        # Opening a named pipe blocks until something writes to it
+        stalled = str(tmp_path / "stalled.mp3")
+        os.mkfifo(stalled)
+        decoder = AudioDecoder(stalled)
+        decoding = threading.Thread(target=decoder.decode)
+        decoding.start()
+
+        for _ in range(100):
+            if decoder._process is not None:
+                break
+            threading.Event().wait(0.05)
+        decoder.cancel()
+        decoding.join(5)
+
+        assert not decoding.is_alive()
 
     def test_reads_more_samples_than_expected(self):
         raw = (np.arange(MIN_BUFFER_BYTES * 3 // 2) % 30_000).astype(np.int16).tobytes()

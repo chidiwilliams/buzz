@@ -55,15 +55,8 @@ class AudioDecoder:
                 "-vn", "-ar", str(SAMPLE_RATE), "-ac", str(CHANNELS),
                 "-f", "s16le", "pipe:1"]
         expected_bytes = self._expected_bytes()
-        with self._lock:
-            if self._cancelled:
-                return None
-            self._process = subprocess.Popen(
-                args,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                **subprocess_hide_window_kwargs(),
-            )
+        if self._start(args) is None:
+            return None
 
         # Drain stderr alongside stdout, or ffmpeg blocks once that pipe fills
         stderr = []
@@ -83,17 +76,37 @@ class AudioDecoder:
                 self._process.returncode, args, stderr=b"".join(stderr))
         return samples
 
-    def _expected_bytes(self) -> int:
-        """Size of the decoded audio from the duration ffprobe reports, or 0 if unknown."""
-        try:
-            result = subprocess.run(
-                [_find_ffprobe(), "-v", "error", "-show_entries", "format=duration",
-                 "-of", "default=noprint_wrappers=1:nokey=1", self.file_path],
-                capture_output=True, text=True, check=True, timeout=30,
+    def _start(self, args) -> Optional[subprocess.Popen]:
+        """Starts a process that cancel() kills, or returns None if cancelled already."""
+        with self._lock:
+            if self._cancelled:
+                return None
+            self._process = subprocess.Popen(
+                args,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 **subprocess_hide_window_kwargs(),
             )
-            duration_s = float(result.stdout.strip())
+            return self._process
+
+    def _expected_bytes(self) -> int:
+        """Size of the decoded audio from the duration ffprobe reports, or 0 if unknown."""
+        process = self._start(
+            [_find_ffprobe(), "-v", "error", "-show_entries", "format=duration",
+             "-of", "default=noprint_wrappers=1:nokey=1", self.file_path])
+        if process is None:
+            return 0
+        try:
+            # A file on a network share that stopped responding can stall
+            # ffprobe, in which case cancel() kills it
+            stdout, _ = process.communicate(timeout=30)
+            if process.returncode != 0:
+                return 0
+            duration_s = float(stdout.decode().strip())
         except Exception:
+            if process.poll() is None:
+                process.kill()
+                process.communicate()
             logging.debug("Could not probe duration of %s", self.file_path, exc_info=True)
             return 0
         return int(duration_s * SAMPLE_RATE) * FRAME_BYTES
