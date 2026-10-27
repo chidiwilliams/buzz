@@ -2,6 +2,7 @@ from unittest.mock import patch, MagicMock, mock_open
 import json
 import os
 import subprocess
+import sys
 
 import pytest
 
@@ -12,9 +13,15 @@ from buzz.transcriber.transcriber import (
     FileTranscriptionTask,
     FileTranscriptionOptions,
 )
+from buzz.transcriber import whisper_cpp
 from buzz.transcriber.whisper_cpp import WhisperCpp, _is_cli_safe_path
 from tests.audio import test_audio_path, test_multibyte_utf8_audio_path
 from tests.model_loader import get_model_path
+
+
+def _whisper_env_source() -> dict:
+    # On Windows _whisper_env() copies the app_env snapshot, not os.environ
+    return whisper_cpp.app_env if sys.platform == "win32" else os.environ
 
 
 class TestWhisperCpp:
@@ -619,17 +626,17 @@ class TestWhisperCpp:
         assert words == ["Hello", "world", "Goodbye", "all"]
 
     def test_whisper_env_selects_discrete_gpu(self, monkeypatch):
-        monkeypatch.delenv("GGML_VK_VISIBLE_DEVICES", raising=False)
+        monkeypatch.delitem(_whisper_env_source(), "GGML_VK_VISIBLE_DEVICES", raising=False)
         with patch("buzz.transcriber.whisper_cpp.DISCRETE_GPU_INDEX", 1):
             assert WhisperCpp._whisper_env()["GGML_VK_VISIBLE_DEVICES"] == "1"
 
     def test_whisper_env_keeps_user_device_choice(self, monkeypatch):
-        monkeypatch.setenv("GGML_VK_VISIBLE_DEVICES", "0")
+        monkeypatch.setitem(_whisper_env_source(), "GGML_VK_VISIBLE_DEVICES", "0")
         with patch("buzz.transcriber.whisper_cpp.DISCRETE_GPU_INDEX", 1):
             assert WhisperCpp._whisper_env()["GGML_VK_VISIBLE_DEVICES"] == "0"
 
     def test_detect_language_uses_discrete_gpu(self, monkeypatch):
-        monkeypatch.delenv("GGML_VK_VISIBLE_DEVICES", raising=False)
+        monkeypatch.delitem(_whisper_env_source(), "GGML_VK_VISIBLE_DEVICES", raising=False)
         completed = MagicMock(stderr="auto-detected language: en (p = 0.9)\n", stdout="")
         with patch(
             "buzz.transcriber.whisper_cpp.subprocess.run", return_value=completed
@@ -642,6 +649,6 @@ class TestWhisperCpp:
         assert run_mock.call_args.kwargs["env"]["GGML_VK_VISIBLE_DEVICES"] == "1"
 
     def test_whisper_env_without_discrete_gpu(self, monkeypatch):
-        monkeypatch.delenv("GGML_VK_VISIBLE_DEVICES", raising=False)
+        monkeypatch.delitem(_whisper_env_source(), "GGML_VK_VISIBLE_DEVICES", raising=False)
         with patch("buzz.transcriber.whisper_cpp.DISCRETE_GPU_INDEX", None):
             assert "GGML_VK_VISIBLE_DEVICES" not in WhisperCpp._whisper_env()
