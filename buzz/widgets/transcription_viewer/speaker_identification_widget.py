@@ -5,8 +5,9 @@ import ssl
 import time
 import random
 from contextlib import contextmanager
-from typing import Optional
+from typing import Callable, Optional
 
+import numpy as np
 from PyQt6 import sip
 
 # Fix SSL certificate verification for bundled applications (macOS, Windows)
@@ -46,6 +47,7 @@ from buzz.db.service.transcription_service import TranscriptionService
 from buzz.paths import file_path_as_title
 from buzz.settings.settings import Settings
 from buzz.sounddevice_player import AudioFilePlayer
+from buzz.widgets.audio_file_player_loader import AudioFilePlayerLoader
 from buzz.widgets.line_edit import LineEdit
 from buzz.transcriber.transcriber import Segment
 from buzz.transcriber.speaker_identifier import build_speaker_segments
@@ -547,9 +549,12 @@ class SpeakerIdentificationWidget(QWidget):
         parent: Optional["QWidget"] = None,
         flags: Qt.WindowType = Qt.WindowType.Widget,
         transcriptions_updated_signal: Optional[pyqtSignal] = None,
+        decoded_samples: Optional[Callable[[], Optional[np.ndarray]]] = None,
     ) -> None:
+        """`decoded_samples` returns the file's audio if it was decoded already, e.g. by the viewer's player."""
         super().__init__(parent, flags)
         self.transcription = transcription
+        self.decoded_samples = decoded_samples
         self.transcription_service = transcription_service
         self.transcriptions_updated_signal = transcriptions_updated_signal
         self.identification_result = None
@@ -704,10 +709,21 @@ class SpeakerIdentificationWidget(QWidget):
         # dialog is often closed without any sample being played.
         self.player: Optional[AudioFilePlayer] = None
         self.player_timer = None
+        self._audio_loader: Optional[AudioFilePlayerLoader] = None
+        # Speaker whose sample plays once the audio is decoded
+        self._pending_preview_speaker = None
 
     def _get_audio_player(self) -> Optional["AudioFilePlayer"]:
-        """Returns the sample player, creating it on first use, or None if the file cannot be played."""
+        """
+        Returns the sample player, or None while its audio is decoded in the
+        background or if the file cannot be played.
+        """
         if self.player is not None:
+            return self.player
+
+        samples = self.decoded_samples() if self.decoded_samples else None
+        if samples is not None:
+            self.player = AudioFilePlayer(self.transcription.file, samples=samples)
             return self.player
 
         if not os.path.isfile(self.transcription.file):
@@ -717,17 +733,26 @@ class SpeakerIdentificationWidget(QWidget):
             )
             return None
 
-        player = AudioFilePlayer(self.transcription.file)
-        if not player.ready:
-            player.close()
+        if self._audio_loader is None:
+            self._audio_loader = AudioFilePlayerLoader(self.transcription.file)
+            self._audio_loader.loaded.connect(self._on_audio_loaded)
+            self.destroyed.connect(self._audio_loader.cancel)
+            self._audio_loader.start()
+        return None
+
+    def _on_audio_loaded(self, player: Optional[AudioFilePlayer]):
+        self._audio_loader = None
+        speaker_id, self._pending_preview_speaker = self._pending_preview_speaker, None
+        if player is None:
             logging.error(
                 "Speaker identification: could not open %s for playback",
                 self.transcription.file,
             )
-            return None
+            return
 
         self.player = player
-        return self.player
+        if speaker_id is not None:
+            self.on_speaker_preview(speaker_id)
 
     def on_identify_button_clicked(self):
         self.step_1_button.setEnabled(False)
@@ -880,6 +905,8 @@ class SpeakerIdentificationWidget(QWidget):
 
         player = self._get_audio_player()
         if player is None:
+            if self._audio_loader is not None:
+                self._pending_preview_speaker = speaker_id
             return
 
         random_record = random.choice(speaker_records)
@@ -901,6 +928,7 @@ class SpeakerIdentificationWidget(QWidget):
         self.player_timer.start(duration)
 
     def _stop_playback(self) -> None:
+        self._pending_preview_speaker = None
         if self.player_timer:
             self.player_timer.stop()
         if self.player is not None:
@@ -965,6 +993,9 @@ class SpeakerIdentificationWidget(QWidget):
 
         # Stop playback and release the decoded audio
         self._stop_playback()
+        if self._audio_loader is not None:
+            self._audio_loader.cancel()
+            self._audio_loader = None
         if self.player is not None:
             self.player.close()
             self.player = None

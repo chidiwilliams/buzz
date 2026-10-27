@@ -1,4 +1,5 @@
 import os
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
@@ -23,6 +24,29 @@ class TestVideoPlayer:
         actual = os.path.normpath(widget.media_player.source().toLocalFile())
         expected = os.path.normpath(test_audio_path)
         assert actual == expected
+
+    def test_audio_loaded_while_playing_joins_in(self, qtbot: QtBot):
+        """A video started before its audio was decoded does not stay silent."""
+        widget = VideoPlayer(test_audio_path)
+        qtbot.add_widget(widget)
+        qtbot.wait_until(lambda: not widget._loading_audio)
+
+        sd_player = MagicMock()
+        with patch.object(widget.media_player, "playbackState",
+                          return_value=QMediaPlayer.PlaybackState.PlayingState):
+            widget._on_audio_loaded(sd_player)
+
+        sd_player.resume.assert_called_once()
+        assert widget._poll_timer.isActive()
+        widget._poll_timer.stop()
+
+    def test_shares_decoded_samples(self, qtbot: QtBot):
+        widget = VideoPlayer(test_audio_path)
+        qtbot.add_widget(widget)
+        qtbot.wait_until(lambda: not widget._loading_audio)
+
+        assert widget.decoded_samples() is widget._sd_player.samples
+        assert widget.decoded_samples() is not None
 
     def test_should_update_time_label(self, qtbot: QtBot):
         widget = VideoPlayer(test_audio_path)

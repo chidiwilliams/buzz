@@ -1,10 +1,14 @@
+import io
+import subprocess
 from unittest.mock import patch
 
 import numpy as np
 import pytest
 
 from buzz import audio_devices
-from buzz.sounddevice_player import AudioDecoder, AudioFilePlayer, SounddevicePlayer
+from buzz.sounddevice_player import (
+    AudioDecoder, AudioFilePlayer, SounddevicePlayer, MIN_BUFFER_BYTES, _read_samples,
+)
 from tests.audio import test_audio_path
 
 
@@ -196,6 +200,31 @@ class TestAudioDecoder:
         decoder.cancel()
 
         assert not AudioFilePlayer(test_audio_path, decoder=decoder).ready
+
+    def test_reports_ffmpeg_errors(self, tmp_path):
+        not_audio = tmp_path / "notes.mp3"
+        not_audio.write_text("not audio")
+
+        with pytest.raises(subprocess.CalledProcessError) as error:
+            AudioDecoder(str(not_audio)).decode()
+        assert error.value.stderr
+
+    def test_reads_more_samples_than_expected(self):
+        raw = (np.arange(MIN_BUFFER_BYTES * 3 // 2) % 30_000).astype(np.int16).tobytes()
+
+        samples = _read_samples(io.BytesIO(raw + b"\x01"), expected_bytes=0)
+
+        # The trailing partial frame is dropped
+        assert samples.tobytes() == raw
+        assert samples.shape[1] == 2
+
+    def test_file_player_shares_samples(self):
+        data = np.zeros((44100, 2), dtype=np.int16)
+
+        player = AudioFilePlayer("unused.mp3", samples=data)
+
+        assert player.ready
+        assert player.samples is data
 
     def test_stream_plays_samples_in_their_own_format(self):
         """int16 samples are played as they are, without a float32 copy."""

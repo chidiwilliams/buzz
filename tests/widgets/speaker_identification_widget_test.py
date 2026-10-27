@@ -2,6 +2,7 @@ import logging
 import platform
 import time
 import uuid
+import numpy as np
 import pytest
 from pytestqt.qtbot import QtBot
 from unittest.mock import MagicMock, patch
@@ -697,6 +698,52 @@ class TestSpeakerIdentificationWidget:
         assert widget._get_audio_player() is None
         assert widget.player is None
 
+        widget.close()
+
+    def test_player_shares_the_viewers_decoded_audio(self, qtbot: QtBot, transcription, transcription_service):
+        """Audio the viewer decoded already is played without decoding it again."""
+        samples = np.zeros((44100, 2), dtype=np.int16)
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+            decoded_samples=lambda: samples,
+        )
+        qtbot.addWidget(widget)
+
+        player = widget._get_audio_player()
+
+        assert player.samples is samples
+        assert widget._audio_loader is None
+
+        widget.close()
+
+    def test_preview_plays_once_audio_is_decoded(self, qtbot: QtBot, transcription, transcription_service):
+        """Without decoded audio to share, it is decoded in the background."""
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+            decoded_samples=lambda: None,
+        )
+        qtbot.addWidget(widget)
+        widget.identification_result = [
+            {'speaker': 'Speaker 0', 'start_time': 1500, 'end_time': 2000, 'text': 'Hi'},
+        ]
+
+        widget.on_speaker_preview('Speaker 0')
+
+        assert widget.player is None
+        assert widget._audio_loader is not None
+        assert widget._pending_preview_speaker == 'Speaker 0'
+
+        # Stand in for the decoded player
+        widget._audio_loader.cancel()
+        player = MagicMock()
+        widget._on_audio_loaded(player)
+
+        player.seek.assert_called_once_with(1500)
+        player.play.assert_called_once()
+
+        widget.player_timer.stop()
         widget.close()
 
     def test_on_speaker_preview_no_matching_records(self, qtbot: QtBot, transcription, transcription_service):

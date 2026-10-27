@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock
+
 from pytestqt.qtbot import QtBot
 
 from buzz.widgets.audio_file_player_loader import AudioFilePlayerLoader
@@ -47,3 +49,16 @@ class TestAudioFilePlayerLoader:
         AudioFilePlayerLoader.cancel_all()
 
         assert loader.isFinished()
+
+    def test_player_decoded_before_cancel_is_dropped(self, qtbot: QtBot):
+        """A player decoded just before cancelling is closed rather than delivered."""
+        loader = AudioFilePlayerLoader(test_audio_path)
+        loaded = []
+        loader.loaded.connect(loaded.append)
+        player = MagicMock()
+
+        loader.cancel()
+        loader._on_decoded(player)
+
+        assert loaded == []
+        player.close.assert_called_once()

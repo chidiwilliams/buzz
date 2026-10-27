@@ -17,6 +17,10 @@ def assert_approximately_equal(actual, expected, tolerance=0.001):
     assert abs(actual - expected) < tolerance, f"Value {actual} is not approximately equal to {expected}"
 
 
+def fake_sd_player(is_playing=False) -> MagicMock:
+    return MagicMock(duration_ms=5000, is_playing=is_playing)
+
+
 def make_audio_player(qtbot: QtBot) -> AudioPlayer:
     """Creates an AudioPlayer and waits for its audio to be decoded."""
     widget = AudioPlayer(test_audio_path)
@@ -150,7 +154,8 @@ class TestAudioPlayer:
         assert widget.range_ms is None
 
     def test_should_handle_invalid_media(self, qtbot: QtBot):
-        widget = make_audio_player(qtbot)
+        widget = AudioPlayer(test_audio_path, decode_audio=False)
+        qtbot.add_widget(widget)
 
         widget.set_invalid_media(True)
         
@@ -178,7 +183,8 @@ class TestAudioPlayer:
         assert widget.invalid_media is True
 
     def test_should_re_enable_controls_on_valid_media(self, qtbot: QtBot):
-        widget = make_audio_player(qtbot)
+        widget = AudioPlayer(test_audio_path, decode_audio=False)
+        qtbot.add_widget(widget)
 
         widget.set_invalid_media(True)
         widget.set_invalid_media(False)
@@ -186,6 +192,62 @@ class TestAudioPlayer:
         assert widget.play_button.isEnabled()
         assert widget.scrubber.isEnabled()
         assert widget.time_label.isEnabled()
+
+    def test_media_qt_cannot_open_plays_through_sounddevice(self, qtbot: QtBot):
+        widget = AudioPlayer(test_audio_path, decode_audio=False)
+        qtbot.add_widget(widget)
+
+        widget.set_invalid_media(True)
+        widget._on_audio_loaded(fake_sd_player())
+        assert widget.play_button.isEnabled()
+        assert widget.scrubber.isEnabled()
+        assert widget.scrubber.maximum() == 5000
+
+        # Nor does Qt failing after the audio was decoded disable it
+        widget.set_invalid_media(True)
+        assert widget.play_button.isEnabled()
+
+    def test_without_decode_audio_plays_through_qt(self, qtbot: QtBot):
+        widget = AudioPlayer(test_audio_path, decode_audio=False)
+        qtbot.add_widget(widget)
+
+        assert widget._audio_loader is None
+        assert widget.play_button.isEnabled()
+        assert widget._use_sd is False
+
+    def test_pause_after_handover_pauses_sounddevice(self, qtbot: QtBot):
+        """While sounddevice plays, the paused QMediaPlayer does not make pause() a play."""
+        widget = AudioPlayer(test_audio_path, decode_audio=False)
+        qtbot.add_widget(widget)
+        sd_player = fake_sd_player(is_playing=True)
+        widget._on_audio_loaded(sd_player)
+
+        with patch.object(widget.media_player, "play") as qt_play:
+            assert widget.is_playing()
+            widget.pause()
+
+        sd_player.pause.assert_called_once()
+        qt_play.assert_not_called()
+
+    def test_handover_reports_no_pause(self, qtbot: QtBot):
+        widget = AudioPlayer(test_audio_path, decode_audio=False)
+        qtbot.add_widget(widget)
+        states = []
+        widget.playback_state_changed.connect(states.append)
+
+        # A backend that reports pausing right away
+        def pause_now():
+            widget.on_playback_state_changed(QMediaPlayer.PlaybackState.PausedState)
+
+        with patch.object(widget.media_player, "playbackState",
+                          return_value=QMediaPlayer.PlaybackState.PlayingState), \
+                patch.object(widget.media_player, "pause", side_effect=pause_now):
+            sd_player = fake_sd_player()
+            widget._on_audio_loaded(sd_player)
+            widget._poll_timer.stop()
+
+        sd_player.resume.assert_called_once()
+        assert states == [QMediaPlayer.PlaybackState.PlayingState]
 
     def test_sounddevice_player_initialised(self, qtbot: QtBot):
         widget = make_audio_player(qtbot)

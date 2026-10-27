@@ -10,22 +10,27 @@ from buzz.widgets.icon import PlayIcon, PauseIcon
 from buzz.settings.settings import Settings
 from buzz.transcriber.file_transcriber import is_video_file
 from buzz.sounddevice_player import AudioFilePlayer
-from buzz.widgets.audio_file_player_loader import AudioFilePlayerLoader
+from buzz.widgets.audio_file_player_loader import DecodedAudioMixin
 
 
-class AudioPlayer(QWidget):
+class AudioPlayer(QWidget, DecodedAudioMixin):
     position_ms_changed = pyqtSignal(int)
     playback_state_changed = pyqtSignal(QMediaPlayer.PlaybackState)
 
-    def __init__(self, file_path: str):
+    def __init__(self, file_path: str, decode_audio: bool = True):
+        """
+        Without `decode_audio` the file plays through Qt multimedia only, for
+        a player that is kept around but not used.
+        """
         super().__init__()
         self._init_state(file_path)
-        self._init_sounddevice(file_path)
+        self._init_sounddevice()
         self._init_media_player(file_path)
         self._init_ui_widgets()
         self._init_layout()
         self._connect_signals()
-        self._start_audio_loader(file_path)
+        if decode_audio:
+            self._start_audio_loader(file_path)
 
     def _init_state(self, file_path: str):
         self.range_ms: Optional[Tuple[int, int]] = None
@@ -37,37 +42,25 @@ class AudioPlayer(QWidget):
         self.settings = Settings()
         self.is_video = is_video_file(file_path)
 
-    def _init_sounddevice(self, file_path: str):
-        self._sd_player: Optional[AudioFilePlayer] = None
-        self._use_sd = False
-        self._loading_audio = True
+    def _init_sounddevice(self):
+        self._init_decoded_audio()
         self._poll_timer = QTimer(self)
         self._poll_timer.setInterval(16)
         self._poll_timer.timeout.connect(self._poll_position)
 
-    def _start_audio_loader(self, file_path: str):
-        # Playback waits for the decoded audio, falling back to Qt multimedia
-        # if it cannot be decoded
-        self.play_button.setDisabled(True)
-        self._audio_loader = AudioFilePlayerLoader(file_path)
-        self._audio_loader.loaded.connect(self._on_audio_loaded)
-        self.destroyed.connect(self._audio_loader.cancel)
-        self._audio_loader.start()
-
     def _on_audio_loaded(self, sd_player: Optional[AudioFilePlayer]):
-        self._loading_audio = False
-        self._audio_loader = None
-
         if sd_player is not None:
             # Qt multimedia may have started playing meanwhile, e.g. from a
-            # segment being selected in the transcript, so hand it over
+            # segment being selected in the transcript, so hand it over.
+            # Switch to sounddevice first, so pausing Qt is not reported as
+            # the player pausing.
             was_playing = self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState
-            if was_playing and not self.is_video:
-                self.media_player.pause()
-
             self._sd_player = sd_player
             self._use_sd = True
             self.audio_output.setMuted(True)
+            if was_playing and not self.is_video:
+                self.media_player.pause()
+
             self.duration_ms = sd_player.duration_ms
             self.scrubber.setRange(0, self.duration_ms)
             sd_player.seek(self.position_ms)
@@ -78,11 +71,11 @@ class AudioPlayer(QWidget):
                 self._poll_timer.start()
                 self.play_button.setIcon(self.pause_icon)
                 self.playback_state_changed.emit(QMediaPlayer.PlaybackState.PlayingState)
+            # sounddevice plays files Qt multimedia could not open too
+            self._set_controls_enabled(True)
         else:
             logging.warning("AudioPlayer: sounddevice init failed, using Qt fallback")
-
-        if not self.invalid_media:
-            self.play_button.setEnabled(True)
+            self.play_button.setEnabled(not self.invalid_media)
 
     def _init_media_player(self, file_path: str):
         # Parent the multimedia objects to this widget so Qt destroys them along
@@ -239,19 +232,34 @@ class AudioPlayer(QWidget):
 
     def set_invalid_media(self, invalid_media: bool):
         self.invalid_media = invalid_media
+        # Playback through sounddevice does not depend on Qt opening the file
+        if self._use_sd:
+            return
         if self.invalid_media:
-            self.play_button.setDisabled(True)
             self.scrubber.setRange(0, 1)
-            self.scrubber.setDisabled(True)
-            self.time_label.setDisabled(True)
-        else:
-            self.play_button.setEnabled(not self._loading_audio)
-            self.scrubber.setEnabled(True)
-            self.time_label.setEnabled(True)
+        self._set_controls_enabled(not self.invalid_media)
+
+    def _set_controls_enabled(self, enabled: bool):
+        self.play_button.setEnabled(enabled and not self._loading_audio)
+        self.scrubber.setEnabled(enabled)
+        self.time_label.setEnabled(enabled)
 
     # ------------------------------------------------------------------
     # Playback controls
     # ------------------------------------------------------------------
+
+    def is_playing(self) -> bool:
+        if self._use_sd and self._sd_player:
+            return self._sd_player.is_playing
+        return self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState
+
+    def play(self):
+        if not self.is_playing():
+            self.toggle_play()
+
+    def pause(self):
+        if self.is_playing():
+            self.toggle_play()
 
     def toggle_play(self):
         if self._use_sd and self._sd_player:
@@ -344,8 +352,7 @@ class AudioPlayer(QWidget):
             self.media_player.stop()
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
-        if self._audio_loader is not None:
-            self._audio_loader.cancel()
+        self._cancel_audio_loader()
         self.stop()
         if self._sd_player:
             self._sd_player.close()
