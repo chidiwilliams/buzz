@@ -5,7 +5,7 @@ import ssl
 import time
 import random
 from contextlib import contextmanager
-from typing import Callable, Optional
+from typing import Callable, List, Optional
 
 import numpy as np
 from PyQt6 import sip
@@ -575,12 +575,13 @@ class SpeakerIdentificationWidget(QWidget):
         layout = QFormLayout(self)
         layout.setSizeConstraint(QLayout.SizeConstraint.SetMinimumSize)
 
+        # Before the preview buttons, which show whether the audio plays
+        self._setup_audio_player()
         self._create_step_1_group(layout)
         self._create_step_2_group(layout)
         self._create_save_section(layout)
 
         self.setLayout(layout)
-        self._setup_audio_player()
         self.destroyed.connect(self._on_destroyed)
 
     def _create_step_1_group(self, layout: QFormLayout) -> None:
@@ -683,9 +684,7 @@ class SpeakerIdentificationWidget(QWidget):
 
         self.speaker_0_input = LineEdit("Speaker 0", self)
 
-        self.speaker_0_preview_button = QPushButton(_("Play sample"))
-        self.speaker_0_preview_button.setMinimumWidth(200)
-        self.speaker_0_preview_button.clicked.connect(lambda: self.on_speaker_preview("Speaker 0"))
+        self.speaker_0_preview_button = self._create_preview_button("Speaker 0")
 
         speaker_0_layout = QHBoxLayout()
         speaker_0_layout.addWidget(self.speaker_0_input)
@@ -696,6 +695,15 @@ class SpeakerIdentificationWidget(QWidget):
         step_2_layout.addLayout(self.speaker_preview_row)
 
         layout.addRow(self.step_2_group_box)
+
+    def _create_preview_button(self, speaker_id: str) -> QPushButton:
+        button = QPushButton(_("Play sample"))
+        button.setMinimumWidth(200)
+        button.clicked.connect(lambda: self.on_speaker_preview(speaker_id))
+        if self._audio_failed:
+            self._disable_preview_button(button)
+        self._preview_buttons.append(button)
+        return button
 
     def _create_save_section(self, layout: QFormLayout) -> None:
         self.merge_speaker_sentences = QCheckBox(_("Merge speaker sentences"))
@@ -721,6 +729,9 @@ class SpeakerIdentificationWidget(QWidget):
         self._shared_audio_loader: Optional[AudioFilePlayerLoader] = None
         # Speaker whose sample plays once the audio is decoded
         self._pending_preview_speaker = None
+        # Set when the file is there but cannot be decoded
+        self._audio_failed = False
+        self._preview_buttons: List[QPushButton] = []
 
     def _get_audio_player(self) -> Optional["AudioFilePlayer"]:
         """
@@ -749,7 +760,7 @@ class SpeakerIdentificationWidget(QWidget):
             )
             return None
 
-        if self._waiting_for_audio:
+        if self._waiting_for_audio or self._audio_failed:
             return None
         shared_loader = self.decoding_audio() if self.decoding_audio else None
         if shared_loader is not None:
@@ -770,12 +781,32 @@ class SpeakerIdentificationWidget(QWidget):
 
     def _on_shared_audio_done(self):
         # The viewer has its samples by now, as `loaded` comes before `done`.
-        # If it was cancelled or failed instead, the preview decodes the file
-        # itself.
-        self._shared_audio_loader = None
+        # If it was cancelled instead, the preview decodes the file itself.
+        loader, self._shared_audio_loader = self._shared_audio_loader, None
         speaker_id, self._pending_preview_speaker = self._pending_preview_speaker, None
+        decoded = self.decoded_samples() if self.decoded_samples else None
+        if decoded is None and not loader.cancelled:
+            # Decoding it here would fail the same way
+            self._on_audio_failed()
+            return
         if speaker_id is not None:
             self.on_speaker_preview(speaker_id)
+
+    def _on_audio_failed(self):
+        # The file is there but cannot be decoded, so decoding it again on
+        # every click would only fail again. Say so instead of doing nothing.
+        logging.error(
+            "Speaker identification: could not open %s for playback",
+            self.transcription.file,
+        )
+        self._audio_failed = True
+        for button in self._preview_buttons:
+            self._disable_preview_button(button)
+
+    @staticmethod
+    def _disable_preview_button(button: QPushButton):
+        button.setEnabled(False)
+        button.setToolTip(_("Could not load audio"))
 
     def _stop_waiting_for_shared_audio(self):
         if self._shared_audio_loader is not None:
@@ -786,10 +817,7 @@ class SpeakerIdentificationWidget(QWidget):
         self._audio_loader = None
         speaker_id, self._pending_preview_speaker = self._pending_preview_speaker, None
         if player is None:
-            logging.error(
-                "Speaker identification: could not open %s for playback",
-                self.transcription.file,
-            )
+            self._on_audio_failed()
             return
 
         # The viewer may have finished decoding the same file meanwhile. Play
@@ -910,6 +938,7 @@ class SpeakerIdentificationWidget(QWidget):
 
         unique_speakers = {entry['speaker'] for entry in result}
 
+        self._preview_buttons = []
         while self.speaker_preview_row.count():
             item = self.speaker_preview_row.takeAt(0)
             widget = item.widget()
@@ -928,9 +957,7 @@ class SpeakerIdentificationWidget(QWidget):
             speaker_input = LineEdit(speaker, self)
             speaker_input.setMinimumWidth(200)
 
-            speaker_preview_button = QPushButton(_("Play sample"))
-            speaker_preview_button.setMinimumWidth(200)
-            speaker_preview_button.clicked.connect(lambda checked, s=speaker: self.on_speaker_preview(s))
+            speaker_preview_button = self._create_preview_button(speaker)
 
             speaker_layout = QHBoxLayout()
             speaker_layout.addWidget(speaker_input)

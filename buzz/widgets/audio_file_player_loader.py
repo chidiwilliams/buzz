@@ -83,6 +83,10 @@ class AudioFilePlayerLoader(QThread):
         """Stops decoding. `loaded` is not emitted after this."""
         self._decoder.cancel()
 
+    @property
+    def cancelled(self) -> bool:
+        return self._decoder.cancelled
+
     def _on_finished(self):
         AudioFilePlayerLoader._running.discard(self)
 
