@@ -1,9 +1,11 @@
 import logging
+import os
 from typing import Optional, Set
 
 import numpy as np
 from PyQt6.QtCore import QThread, pyqtSignal, QCoreApplication
 
+from buzz.locale import _
 from buzz.sounddevice_player import AudioDecoder, AudioFilePlayer
 
 
@@ -16,8 +18,11 @@ class AudioFilePlayerLoader(QThread):
 
     # The AudioFilePlayer, or None when the file could not be decoded
     loaded = pyqtSignal(object)
+    # Percentage decoded, when the duration of the file is known
+    progress = pyqtSignal(int)
     # Emitted from run(), and handled on the thread that owns the loader
     _decoded = pyqtSignal(object)
+    _progressed = pyqtSignal(int)
 
     # Loaders are not parented to the widget that starts them, because Qt
     # aborts when a running thread is destroyed along with its parent. Keep
@@ -28,8 +33,10 @@ class AudioFilePlayerLoader(QThread):
     def __init__(self, file_path: str):
         super().__init__()
         self.file_path = file_path
-        self._decoder = AudioDecoder(file_path)
+        self._percent = -1
+        self._decoder = AudioDecoder(file_path, on_progress=self._report_progress)
         self._decoded.connect(self._on_decoded)
+        self._progressed.connect(self._on_progressed)
         self.finished.connect(self._on_finished)
 
     def start(self, priority=QThread.Priority.InheritPriority):
@@ -53,6 +60,17 @@ class AudioFilePlayerLoader(QThread):
                 player.close()
             return
         self.loaded.emit(player)
+
+    def _report_progress(self, fraction: float):
+        # Called for every read from ffmpeg, so only pass on whole percents
+        percent = int(fraction * 100)
+        if percent != self._percent:
+            self._percent = percent
+            self._progressed.emit(percent)
+
+    def _on_progressed(self, percent: int):
+        if not self._decoder.cancelled:
+            self.progress.emit(percent)
 
     def cancel(self):
         """Stops decoding. `loaded` is not emitted after this."""
@@ -82,7 +100,7 @@ class AudioFilePlayerLoader(QThread):
 class DecodedAudioMixin:
     """
     Decodes a player widget's audio in the background for sounddevice
-    playback. The widget has a `play_button` and implements
+    playback. The widget has a `play_button`, a PlayButton, and implements
     `_on_audio_loaded(sd_player)`, called with the AudioFilePlayer, or None
     when the file could not be decoded.
     """
@@ -94,24 +112,44 @@ class DecodedAudioMixin:
         self._audio_loader: Optional[AudioFilePlayerLoader] = None
 
     def _start_audio_loader(self, file_path: str):
-        # Playback waits for the decoded audio
+        # Playback waits for the decoded audio, which for a long file takes a
+        # while. Spins until the duration of the file is known.
         self._loading_audio = True
         self.play_button.setDisabled(True)
+        self.play_button.setToolTip(_("Loading audio"))
+        self.play_button.start_progress()
         self._audio_loader = AudioFilePlayerLoader(file_path)
+        self._audio_loader.progress.connect(self._show_audio_loading_progress)
         self._audio_loader.loaded.connect(self._receive_decoded_audio)
         self.destroyed.connect(self._audio_loader.cancel)
         self._audio_loader.start()
 
+    def _show_audio_loading_progress(self, percent: int):
+        self.play_button.set_progress(percent)
+
     def _receive_decoded_audio(self, sd_player: Optional[AudioFilePlayer]):
-        self._loading_audio = False
-        self._audio_loader = None
+        file_path = self._audio_loader.file_path
+        self._audio_loading_finished()
+        if sd_player is None:
+            # Otherwise the player is just disabled, without saying why. The
+            # file of a URL import, for one, is in a temporary folder that the
+            # system may clear.
+            if os.path.isfile(file_path):
+                self.play_button.setToolTip(_("Could not load audio"))
+            else:
+                self.play_button.setToolTip(_("Audio file not found: {}").format(file_path))
         self._on_audio_loaded(sd_player)
 
     def _cancel_audio_loader(self):
         if self._audio_loader is not None:
             self._audio_loader.cancel()
-            self._audio_loader = None
+        self._audio_loading_finished()
+
+    def _audio_loading_finished(self):
         self._loading_audio = False
+        self._audio_loader = None
+        self.play_button.stop_progress()
+        self.play_button.setToolTip("")
 
     def decoded_samples(self) -> Optional[np.ndarray]:
         """The decoded audio, for sharing with other players of the same file."""

@@ -218,6 +218,23 @@ class TestAudioDecoder:
         assert samples.tobytes() == raw
         assert samples.shape[1] == 2
 
+    def test_reports_decoding_progress(self):
+        progress = []
+
+        AudioDecoder(test_audio_path, on_progress=progress.append).decode()
+
+        assert progress
+        assert progress == sorted(progress)
+        assert progress[-1] > 0.9
+
+    def test_reading_reports_fraction_of_expected_bytes(self):
+        raw = bytes(MIN_BUFFER_BYTES)
+        progress = []
+
+        _read_samples(io.BytesIO(raw), expected_bytes=2 * len(raw), on_progress=progress.append)
+
+        assert progress == [0.5]
+
     def test_file_player_shares_samples(self):
         data = np.zeros((44100, 2), dtype=np.int16)
 

@@ -6,10 +6,11 @@ from PyQt6.QtCore import Qt, QUrl, pyqtSignal, QTime, QTimer
 from PyQt6.QtGui import QImage, QPixmap
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QSlider, QPushButton,
+    QWidget, QVBoxLayout, QSlider,
     QHBoxLayout, QLabel, QSizePolicy,
 )
 from buzz.widgets.icon import PlayIcon, PauseIcon
+from buzz.widgets.play_button import PlayButton
 from buzz.sounddevice_player import AudioFilePlayer
 from buzz.widgets.audio_file_player_loader import DecodedAudioMixin
 from buzz.ffmpeg_video_player import FfmpegVideoPlayer
@@ -102,7 +103,7 @@ class VideoPlayer(QWidget, DecodedAudioMixin):
         self.scrubber.sliderReleased.connect(self.on_slider_released)
         self.play_icon = PlayIcon(self)
         self.pause_icon = PauseIcon(self)
-        self.play_button = QPushButton("")
+        self.play_button = PlayButton()
         self.play_button.setIcon(self.play_icon)
         self.play_button.clicked.connect(self.toggle_playback)
         self.play_button.setMaximumWidth(40)

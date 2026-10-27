@@ -2017,3 +2017,15 @@ msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
 msgstr ""
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Loading audio"
+msgstr ""
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Could not load audio"
+msgstr ""
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Audio file not found: {}"
+msgstr ""

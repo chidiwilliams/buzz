@@ -21,6 +21,29 @@ class TestAudioFilePlayerLoader:
             player.close()
         qtbot.wait_until(lambda: loader not in AudioFilePlayerLoader._running)
 
+    def test_reports_progress_in_whole_percents(self, qtbot: QtBot):
+        loader = AudioFilePlayerLoader(test_audio_path)
+        progress = []
+        loader.progress.connect(progress.append)
+
+        with qtbot.wait_signal(loader.loaded, timeout=30_000) as blocker:
+            loader.start()
+        blocker.args[0].close()
+
+        assert progress
+        assert progress == sorted(set(progress))
+        assert progress[-1] >= 90
+
+    def test_cancelled_loader_does_not_report_progress(self):
+        loader = AudioFilePlayerLoader(test_audio_path)
+        progress = []
+        loader.progress.connect(progress.append)
+
+        loader.cancel()
+        loader._on_progressed(50)
+
+        assert progress == []
+
     def test_reports_undecodable_file(self, qtbot: QtBot, tmp_path):
         not_audio = tmp_path / "notes.mp3"
         not_audio.write_text("not audio")

@@ -4,9 +4,10 @@ from typing import Tuple, Optional
 from PyQt6 import QtGui
 from PyQt6.QtCore import QTime, QUrl, Qt, pyqtSignal, QTimer
 from PyQt6.QtMultimedia import QAudioOutput, QMediaPlayer, QMediaDevices
-from PyQt6.QtWidgets import QWidget, QSlider, QPushButton, QLabel, QHBoxLayout, QVBoxLayout
+from PyQt6.QtWidgets import QWidget, QSlider, QLabel, QHBoxLayout, QVBoxLayout
 
 from buzz.widgets.icon import PlayIcon, PauseIcon
+from buzz.widgets.play_button import PlayButton
 from buzz.settings.settings import Settings
 from buzz.transcriber.file_transcriber import is_video_file
 from buzz.sounddevice_player import AudioFilePlayer
@@ -111,7 +112,7 @@ class AudioPlayer(QWidget, DecodedAudioMixin):
         self.play_icon = PlayIcon(self)
         self.pause_icon = PauseIcon(self)
 
-        self.play_button = QPushButton("")
+        self.play_button = PlayButton()
         self.play_button.setIcon(self.play_icon)
         self.play_button.clicked.connect(self.toggle_play)
         self.play_button.setMaximumWidth(40)

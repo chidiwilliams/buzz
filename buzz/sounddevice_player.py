@@ -1,7 +1,7 @@
 import logging
 import subprocess
 import threading
-from typing import Optional
+from typing import Callable, Optional
 
 import numpy as np
 import sounddevice as sd
@@ -30,8 +30,14 @@ class AudioDecoder:
     Decoding a long file takes seconds, so another thread may cancel it.
     """
 
-    def __init__(self, file_path: str):
+    def __init__(self, file_path: str,
+                 on_progress: Optional[Callable[[float], None]] = None):
+        """
+        `on_progress` is called on the decoding thread with the fraction
+        decoded so far, when the duration of the file is known.
+        """
         self.file_path = file_path
+        self._on_progress = on_progress
         self._lock = threading.Lock()
         self._process: Optional[subprocess.Popen] = None
         self._cancelled = False
@@ -65,7 +71,7 @@ class AudioDecoder:
             target=lambda: stderr.append(self._process.stderr.read()), daemon=True)
         stderr_reader.start()
         with self._process.stdout:
-            samples = _read_samples(self._process.stdout, expected_bytes)
+            samples = _read_samples(self._process.stdout, expected_bytes, self._on_progress)
         self._process.wait()
         stderr_reader.join()
         self._process.stderr.close()
@@ -99,7 +105,8 @@ class AudioDecoder:
                 self._process.kill()
 
 
-def _read_samples(stdout, expected_bytes: int) -> np.ndarray:
+def _read_samples(stdout, expected_bytes: int,
+                  on_progress: Optional[Callable[[float], None]] = None) -> np.ndarray:
     """
     Reads raw samples into one buffer sized up front, so the decoded audio is
     held in memory once. Collecting chunks and joining them, as
@@ -116,6 +123,8 @@ def _read_samples(stdout, expected_bytes: int) -> np.ndarray:
         if not read:
             break
         size += read
+        if on_progress is not None and expected_bytes > 0:
+            on_progress(min(size / expected_bytes, 1.0))
     frames = size // FRAME_BYTES
     return np.frombuffer(buffer, dtype=np.int16, count=frames * CHANNELS).reshape(-1, CHANNELS)
 

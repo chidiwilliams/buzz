@@ -43,6 +43,58 @@ class TestAudioPlayer:
         assert widget.play_button.isEnabled()
         assert widget._use_sd is True
 
+    def test_play_button_shows_audio_loading_progress(self, qtbot: QtBot):
+        widget = AudioPlayer(test_audio_path)
+        qtbot.add_widget(widget)
+
+        assert widget.play_button.showing_progress
+        widget._show_audio_loading_progress(42)
+        assert widget.play_button.progress == 42
+
+        qtbot.wait_until(lambda: not widget._loading_audio)
+        assert not widget.play_button.showing_progress
+
+    def test_closing_while_loading_stops_progress(self, qtbot: QtBot):
+        widget = AudioPlayer(test_audio_path)
+        qtbot.add_widget(widget)
+        widget.show()
+
+        widget.close()
+
+        assert not widget._loading_audio
+        assert not widget.play_button.showing_progress
+
+    def test_tells_when_audio_file_is_missing(self, qtbot: QtBot, tmp_path):
+        missing = str(tmp_path / "audio.wav")
+        widget = AudioPlayer(missing)
+        qtbot.add_widget(widget)
+
+        qtbot.wait_until(lambda: not widget._loading_audio, timeout=30_000)
+
+        assert not widget.play_button.showing_progress
+        assert widget.play_button.toolTip() == f"Audio file not found: {missing}"
+
+    def test_tells_when_audio_cannot_be_loaded(self, qtbot: QtBot, tmp_path):
+        not_audio = tmp_path / "notes.mp3"
+        not_audio.write_text("not audio")
+        widget = AudioPlayer(str(not_audio))
+        qtbot.add_widget(widget)
+
+        qtbot.wait_until(lambda: not widget._loading_audio, timeout=30_000)
+
+        assert widget.play_button.toolTip() == "Could not load audio"
+
+    def test_loaded_audio_has_no_tooltip(self, qtbot: QtBot):
+        widget = make_audio_player(qtbot)
+
+        assert widget.play_button.toolTip() == ""
+
+    def test_without_decoding_shows_no_progress(self, qtbot: QtBot):
+        widget = AudioPlayer(test_audio_path, decode_audio=False)
+        qtbot.add_widget(widget)
+
+        assert not widget.play_button.showing_progress
+
     def test_audio_loaded_after_seek_starts_at_seek_position(self, qtbot: QtBot):
         widget = AudioPlayer(test_audio_path)
         qtbot.add_widget(widget)

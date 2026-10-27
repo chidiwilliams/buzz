@@ -2083,3 +2083,15 @@ msgid ""
 msgstr ""
 "音声抽出に失敗しました！インターネット接続を確認してください。モデルのダウン"
 "ロードが必要な場合があります。"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Loading audio"
+msgstr "音声を読み込み中"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Could not load audio"
+msgstr "音声を読み込めませんでした"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Audio file not found: {}"
+msgstr "音声ファイルが見つかりません: {}"
