@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from pytestqt.qtbot import QtBot
 
@@ -72,6 +72,24 @@ class TestAudioFilePlayerLoader:
         AudioFilePlayerLoader.cancel_all()
 
         assert loader.isFinished()
+
+    def test_cancel_all_cancels_every_loader_before_waiting(self):
+        """Loaders that do not stop share one deadline instead of each delaying quitting."""
+        loaders = [AudioFilePlayerLoader(test_audio_path) for _ in range(2)]
+        calls = []
+
+        def wait(loader, deadline):
+            calls.append(("wait", loader, deadline))
+            return False
+
+        with patch.object(AudioFilePlayerLoader, "cancel",
+                          lambda loader: calls.append(("cancel", loader, None))), \
+                patch.object(AudioFilePlayerLoader, "wait", wait), \
+                patch.object(AudioFilePlayerLoader, "_running", set(loaders)):
+            AudioFilePlayerLoader.cancel_all()
+
+        assert [call[0] for call in calls] == ["cancel", "cancel", "wait", "wait"]
+        assert calls[2][2] is calls[3][2]
 
     def test_player_decoded_before_cancel_is_dropped(self, qtbot: QtBot):
         """A player decoded just before cancelling is closed rather than delivered."""

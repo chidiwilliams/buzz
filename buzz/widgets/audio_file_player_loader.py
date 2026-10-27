@@ -3,7 +3,7 @@ import os
 from typing import Optional, Set
 
 import numpy as np
-from PyQt6.QtCore import QThread, pyqtSignal, QCoreApplication
+from PyQt6.QtCore import QThread, pyqtSignal, QCoreApplication, QDeadlineTimer
 
 from buzz.locale import _
 from buzz.sounddevice_player import AudioDecoder, AudioFilePlayer
@@ -92,9 +92,16 @@ class AudioFilePlayerLoader(QThread):
     @classmethod
     def cancel_all(cls):
         """Cancels and waits for every running loader, so none outlives the app."""
-        for loader in list(cls._running):
+        loaders = list(cls._running)
+        # All at once, so the others do not decode on while one is waited for
+        for loader in loaders:
             loader.cancel()
-            if not loader.wait(5_000):
+        # One deadline for all, as each stuck one would delay quitting again.
+        # A loader still running when the app exits does no harm: its run()
+        # holds it, so it is not destroyed while running, which Qt aborts on.
+        deadline = QDeadlineTimer(5_000)
+        for loader in loaders:
+            if not loader.wait(deadline):
                 logging.warning(
                     "Audio loader for %s did not stop", loader.file_path)
 
