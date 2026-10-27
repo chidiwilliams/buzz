@@ -756,6 +756,13 @@ class SpeakerIdentificationWidget(QWidget):
             )
             return
 
+        # The viewer may have finished decoding the same file meanwhile. Play
+        # its audio instead, so the file's samples are not held twice.
+        samples = self.decoded_samples() if self.decoded_samples else None
+        if samples is not None:
+            player.close()
+            player = AudioFilePlayer(self.transcription.file, samples=samples)
+
         self.player = player
         if speaker_id is not None:
             self.on_speaker_preview(speaker_id)
