@@ -717,6 +717,36 @@ class TestSpeakerIdentificationWidget:
 
         widget.close()
 
+    def test_shared_audio_replaces_pending_decode(self, qtbot: QtBot, transcription, transcription_service):
+        """The viewer finishing its decode first stops this dialog's own one."""
+        shared = {'samples': None}
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+            decoded_samples=lambda: shared['samples'],
+        )
+        qtbot.addWidget(widget)
+        widget.identification_result = [
+            {'speaker': 'Speaker 0', 'start_time': 1500, 'end_time': 2000, 'text': 'Hi'},
+        ]
+        widget.on_speaker_preview('Speaker 0')
+        loader = widget._audio_loader
+        loaded = []
+        loader.loaded.connect(loaded.append)
+
+        shared['samples'] = np.zeros((44100 * 3, 2), dtype=np.int16)
+        with patch('buzz.sounddevice_player.SounddevicePlayer.play'):
+            widget.on_speaker_preview('Speaker 0')
+        player = widget.player
+
+        qtbot.wait_until(lambda: loader.isFinished(), timeout=30_000)
+        assert widget._audio_loader is None
+        assert loaded == []
+        assert widget.player is player
+        assert player.samples is shared['samples']
+
+        widget.close()
+
     def test_preview_plays_once_audio_is_decoded(self, qtbot: QtBot, transcription, transcription_service):
         """Without decoded audio to share, it is decoded in the background."""
         widget = SpeakerIdentificationWidget(

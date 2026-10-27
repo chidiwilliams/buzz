@@ -723,6 +723,12 @@ class SpeakerIdentificationWidget(QWidget):
 
         samples = self.decoded_samples() if self.decoded_samples else None
         if samples is not None:
+            # The viewer may have finished decoding while this dialog was
+            # decoding too. Stop that, or its player would later replace this
+            # one while it plays.
+            if self._audio_loader is not None:
+                self._audio_loader.cancel()
+                self._audio_loader = None
             self.player = AudioFilePlayer(self.transcription.file, samples=samples)
             return self.player
 
