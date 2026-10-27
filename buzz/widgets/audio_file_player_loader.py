@@ -30,11 +30,13 @@ class AudioFilePlayerLoader(QThread):
     _running: Set["AudioFilePlayerLoader"] = set()
     _quit_hooked = False
 
-    def __init__(self, file_path: str):
+    def __init__(self, file_path: str, duration_s: Optional[float] = None):
+        """`duration_s` is the audio's, if the file was probed already."""
         super().__init__()
         self.file_path = file_path
         self._percent = -1
-        self._decoder = AudioDecoder(file_path, on_progress=self._report_progress)
+        self._decoder = AudioDecoder(
+            file_path, on_progress=self._report_progress, duration_s=duration_s)
         self._decoded.connect(self._on_decoded)
         self._progressed.connect(self._on_progressed)
         self.finished.connect(self._on_finished)
@@ -114,13 +116,14 @@ class DecodedAudioMixin:
     def _loading_audio(self) -> bool:
         return self._audio_loader is not None
 
-    def _start_audio_loader(self, file_path: str):
+    def _start_audio_loader(self, file_path: str, duration_s: Optional[float] = None):
+        """`duration_s` is the audio's, if the widget probed the file already."""
         # Playback waits for the decoded audio, which for a long file takes a
         # while. Spins until the duration of the file is known.
         self.play_button.setDisabled(True)
         self.play_button.setToolTip(_("Loading audio"))
         self.play_button.start_progress()
-        self._audio_loader = AudioFilePlayerLoader(file_path)
+        self._audio_loader = AudioFilePlayerLoader(file_path, duration_s)
         self._audio_loader.progress.connect(self._show_audio_loading_progress)
         self._audio_loader.loaded.connect(self._receive_decoded_audio)
         self.destroyed.connect(self._audio_loader.cancel)

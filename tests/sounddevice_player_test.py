@@ -10,10 +10,10 @@ import pytest
 
 from buzz import audio_devices
 from buzz.sounddevice_player import (
-    AudioDecoder, AudioFilePlayer, SounddevicePlayer, MIN_BUFFER_BYTES, _audio_duration, _read_samples,
+    AudioDecoder, AudioFilePlayer, SounddevicePlayer, MIN_BUFFER_BYTES, _read_samples,
     FRAME_BYTES, SAMPLE_RATE,
 )
-from buzz.ffmpeg_utils import find_ffmpeg
+from buzz.ffmpeg_utils import audio_stream_duration, find_ffmpeg
 from tests.audio import test_audio_path
 
 
@@ -253,12 +253,19 @@ class TestAudioDecoder:
         info = {"streams": [{"codec_type": "video"}, {"codec_type": "audio"}],
                 "format": {"duration": "3600.0"}}
 
-        assert _audio_duration(info) == 0
+        assert audio_stream_duration(info) == 0
 
     def test_container_duration_is_the_duration_of_audio_alone(self):
         info = {"streams": [{"codec_type": "audio"}], "format": {"duration": "3.5"}}
 
-        assert _audio_duration(info) == 3.5
+        assert audio_stream_duration(info) == 3.5
+
+    def test_known_duration_is_not_probed_again(self):
+        with patch("buzz.sounddevice_player._find_ffprobe",
+                   side_effect=AssertionError("probed again")):
+            expected_bytes = AudioDecoder(test_audio_path, duration_s=2.5)._expected_bytes()
+
+        assert expected_bytes == int(2.5 * SAMPLE_RATE) * FRAME_BYTES
 
     def test_decodes_without_ffprobe(self, tmp_path):
         with patch("buzz.sounddevice_player._find_ffprobe",

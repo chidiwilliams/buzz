@@ -55,12 +55,21 @@ class TestProbeVideo:
         assert info["fps"] == pytest.approx(10.0, abs=0.1)
         assert info["duration_ms"] > 0
 
+    def test_audio_duration(self):
+        info = probe_video(test_audio_path)
+        assert info["audio_duration_s"] == pytest.approx(info["duration_ms"] / 1000, abs=0.01)
+
 
 class TestFfmpegVideoPlayer:
     def test_audio_only_has_no_video(self):
         player = FfmpegVideoPlayer(test_audio_path)
         assert player.has_video is False
         assert player.duration_ms > 0
+        player.close()
+
+    def test_unprobed_file_has_no_audio_duration(self, tmp_path):
+        player = FfmpegVideoPlayer(str(tmp_path / "missing.mp4"))
+        assert player.audio_duration_s is None
         player.close()
 
     def test_video_file_properties(self, test_video_path):

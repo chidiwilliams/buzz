@@ -9,7 +9,7 @@ from typing import Optional
 
 import numpy as np
 
-from buzz.ffmpeg_utils import find_ffmpeg, find_ffprobe
+from buzz.ffmpeg_utils import audio_stream_duration, find_ffmpeg, find_ffprobe
 from buzz.pip_utils import subprocess_hide_window_kwargs
 
 
@@ -18,7 +18,7 @@ _find_ffprobe = find_ffprobe
 
 
 def probe_video(file_path: str) -> dict:
-    """Returns dict with duration_ms, fps, width, height, has_video."""
+    """Returns dict with duration_ms, fps, width, height, has_video, audio_duration_s."""
     ffprobe = _find_ffprobe()
     result = subprocess.run(
         [ffprobe, "-v", "quiet", "-print_format", "json",
@@ -54,6 +54,8 @@ def probe_video(file_path: str) -> dict:
         "width": width,
         "height": height,
         "has_video": has_video,
+        # For sizing the decoded audio, so its decoder need not probe again
+        "audio_duration_s": audio_stream_duration(info),
     }
 
 
@@ -198,6 +200,8 @@ class _VideoInfo:
     width: int
     height: int
     has_video: bool
+    # None if the file could not be probed
+    audio_duration_s: Optional[float] = None
 
 
 class FfmpegVideoPlayer:
@@ -220,6 +224,7 @@ class FfmpegVideoPlayer:
                 width=info["width"],
                 height=info["height"],
                 has_video=info["has_video"] and info["width"] > 0 and info["height"] > 0,
+                audio_duration_s=info["audio_duration_s"],
             )
         except Exception:
             logging.warning("FfmpegVideoPlayer: probe failed for %s", file_path, exc_info=True)
@@ -244,6 +249,11 @@ class FfmpegVideoPlayer:
     @property
     def has_video(self) -> bool:
         return self._info.has_video
+
+    @property
+    def audio_duration_s(self) -> Optional[float]:
+        """Duration of the audio stream, 0 if unknown, or None if the probe failed."""
+        return self._info.audio_duration_s
 
     def start(self, position_ms: int = 0):
         if self._reader:

@@ -12,7 +12,7 @@ from buzz.audio_devices import (
     register_stream,
     unregister_stream,
 )
-from buzz.ffmpeg_utils import find_ffmpeg, find_ffprobe
+from buzz.ffmpeg_utils import audio_stream_duration, find_ffmpeg, find_ffprobe
 from buzz.pip_utils import subprocess_hide_window_kwargs
 
 
@@ -32,13 +32,17 @@ class AudioDecoder:
     """
 
     def __init__(self, file_path: str,
-                 on_progress: Optional[Callable[[float], None]] = None):
+                 on_progress: Optional[Callable[[float], None]] = None,
+                 duration_s: Optional[float] = None):
         """
         `on_progress` is called on the decoding thread with the fraction
         decoded so far, when the duration of the file is known.
+        `duration_s` is the audio stream's, from audio_stream_duration(), if
+        the file was probed already. Otherwise the decoder probes it.
         """
         self.file_path = file_path
         self._on_progress = on_progress
+        self._duration_s = duration_s
         self._lock = threading.Lock()
         self._process: Optional[subprocess.Popen] = None
         self._cancelled = False
@@ -99,6 +103,8 @@ class AudioDecoder:
 
     def _expected_bytes(self) -> int:
         """Size of the decoded audio from the duration ffprobe reports, or 0 if unknown."""
+        if self._duration_s is not None:
+            return int(self._duration_s * SAMPLE_RATE) * FRAME_BYTES
         try:
             process = self._start(
                 [_find_ffprobe(), "-v", "error",
@@ -117,7 +123,7 @@ class AudioDecoder:
             stdout, _ = process.communicate(timeout=30)
             if process.returncode != 0:
                 return 0
-            duration_s = _audio_duration(json.loads(stdout))
+            duration_s = audio_stream_duration(json.loads(stdout))
         except Exception:
             if process.poll() is None:
                 process.kill()
@@ -131,29 +137,6 @@ class AudioDecoder:
             self._cancelled = True
             if self._process is not None and self._process.poll() is None:
                 self._process.kill()
-
-
-def _audio_duration(info: dict) -> float:
-    """
-    Duration in seconds of the first audio stream in ffprobe's output, or 0 if
-    unknown. The buffer for the samples is sized by it before decoding, so it
-    must be the audio's: a video's can be far longer than its audio track.
-    """
-    streams = info.get("streams") or []
-    audio = next((s for s in streams if s.get("codec_type") == "audio"), None)
-    if audio is None:
-        return 0
-    if audio.get("duration"):
-        return float(audio["duration"])
-    # Matroska gives a stream no duration, but its muxers write it as a tag
-    tag = (audio.get("tags") or {}).get("DURATION")
-    if tag:
-        hours, minutes, seconds = tag.split(":")
-        return int(hours) * 3600 + int(minutes) * 60 + float(seconds)
-    # The container's duration is the audio's only when it holds nothing else
-    if all(s.get("codec_type") == "audio" for s in streams):
-        return float(info.get("format", {}).get("duration") or 0)
-    return 0
 
 
 def _read_samples(stdout, expected_bytes: int,

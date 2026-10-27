@@ -30,8 +30,9 @@ class VideoPlayer(QWidget, DecodedAudioMixin):
         self._init_layout()
         self._init_signals()
         self._finalize_scrubber()
-        # Started last, as it shows its progress in the play button
-        self._start_audio_loader(file_path)
+        # Started last, as it shows its progress in the play button. Sized by
+        # the video decoder's probe, so the file is not probed twice.
+        self._start_audio_loader(file_path, self._ffmpeg_player.audio_duration_s)
 
     def _init_attributes(self):
         self.range_ms: Optional[Tuple[int, int]] = None

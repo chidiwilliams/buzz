@@ -33,3 +33,27 @@ def find_ffmpeg() -> str:
 
 def find_ffprobe() -> str:
     return _find_binary("ffprobe")
+
+
+def audio_stream_duration(info: dict) -> float:
+    """
+    Duration in seconds of the first audio stream in ffprobe's JSON output
+    of streams and format, or 0 if unknown. The buffer for decoded samples is
+    sized by it, so it must be the audio's: a video's can be far longer than
+    its audio track.
+    """
+    streams = info.get("streams") or []
+    audio = next((s for s in streams if s.get("codec_type") == "audio"), None)
+    if audio is None:
+        return 0
+    if audio.get("duration"):
+        return float(audio["duration"])
+    # Matroska gives a stream no duration, but its muxers write it as a tag
+    tag = (audio.get("tags") or {}).get("DURATION")
+    if tag:
+        hours, minutes, seconds = tag.split(":")
+        return int(hours) * 3600 + int(minutes) * 60 + float(seconds)
+    # The container's duration is the audio's only when it holds nothing else
+    if all(s.get("codec_type") == "audio" for s in streams):
+        return float(info.get("format", {}).get("duration") or 0)
+    return 0

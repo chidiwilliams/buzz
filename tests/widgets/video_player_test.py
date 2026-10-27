@@ -48,6 +48,16 @@ class TestVideoPlayer:
         assert widget.decoded_samples() is widget._sd_player.samples
         assert widget.decoded_samples() is not None
 
+    def test_decodes_audio_without_probing_again(self, qtbot: QtBot):
+        """The audio is sized by the video decoder's probe of the file."""
+        with patch("buzz.sounddevice_player._find_ffprobe",
+                   side_effect=AssertionError("probed again")):
+            widget = VideoPlayer(test_audio_path)
+            qtbot.add_widget(widget)
+            qtbot.wait_until(lambda: not widget._loading_audio, timeout=30_000)
+
+        assert widget._use_sd
+
     def test_should_update_time_label(self, qtbot: QtBot):
         widget = VideoPlayer(test_audio_path)
         qtbot.add_widget(widget)
