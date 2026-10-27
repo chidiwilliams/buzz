@@ -628,6 +628,19 @@ class TestWhisperCpp:
         with patch("buzz.transcriber.whisper_cpp.DISCRETE_GPU_INDEX", 1):
             assert WhisperCpp._whisper_env()["GGML_VK_VISIBLE_DEVICES"] == "0"
 
+    def test_detect_language_uses_discrete_gpu(self, monkeypatch):
+        monkeypatch.delenv("GGML_VK_VISIBLE_DEVICES", raising=False)
+        completed = MagicMock(stderr="auto-detected language: en (p = 0.9)\n", stdout="")
+        with patch(
+            "buzz.transcriber.whisper_cpp.subprocess.run", return_value=completed
+        ) as run_mock, patch(
+            "buzz.transcriber.whisper_cpp.get_whisper_cli_path",
+            return_value="/fake/whisper-cli",
+        ), patch("buzz.transcriber.whisper_cpp.DISCRETE_GPU_INDEX", 1):
+            WhisperCpp.detect_language("/fake/audio.wav", "/fake/model.bin")
+
+        assert run_mock.call_args.kwargs["env"]["GGML_VK_VISIBLE_DEVICES"] == "1"
+
     def test_whisper_env_without_discrete_gpu(self, monkeypatch):
         monkeypatch.delenv("GGML_VK_VISIBLE_DEVICES", raising=False)
         with patch("buzz.transcriber.whisper_cpp.DISCRETE_GPU_INDEX", None):

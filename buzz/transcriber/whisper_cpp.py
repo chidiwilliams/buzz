@@ -545,6 +545,7 @@ class WhisperCpp:
 
         print(f"Running Whisper CLI language detection: {' '.join(cmd)}")
 
+        env = WhisperCpp._whisper_env()
         try:
             if sys.platform == "win32":
                 si = subprocess.STARTUPINFO()
@@ -557,7 +558,7 @@ class WhisperCpp:
                     encoding="utf-8",
                     errors="replace",
                     startupinfo=si,
-                    env=app_env,
+                    env=env,
                     creationflags=subprocess.CREATE_NO_WINDOW,
                 )
             else:
@@ -567,6 +568,7 @@ class WhisperCpp:
                     text=True,
                     encoding="utf-8",
                     errors="replace",
+                    env=env,
                 )
 
             # whisper-cli writes the detection line to stderr, e.g.:
