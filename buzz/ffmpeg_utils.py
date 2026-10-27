@@ -46,13 +46,15 @@ def audio_stream_duration(info: dict) -> float:
     audio = next((s for s in streams if s.get("codec_type") == "audio"), None)
     if audio is None:
         return 0
-    if audio.get("duration"):
-        return float(audio["duration"])
-    # Matroska gives a stream no duration, but its muxers write it as a tag
+    # Matroska stores no duration for a stream, but its muxers write the
+    # measured one as a tag. Read that first, as an ffprobe may fill in the
+    # stream's duration with the container's, i.e. the video's.
     tag = (audio.get("tags") or {}).get("DURATION")
     if tag:
         hours, minutes, seconds = tag.split(":")
         return int(hours) * 3600 + int(minutes) * 60 + float(seconds)
+    if audio.get("duration"):
+        return float(audio["duration"])
     # The container's duration is the audio's only when it holds nothing else
     if all(s.get("codec_type") == "audio" for s in streams):
         return float(info.get("format", {}).get("duration") or 0)

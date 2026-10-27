@@ -14,7 +14,7 @@ from buzz.sounddevice_player import (
     _max_initial_bytes, _read_samples,
     FRAME_BYTES, SAMPLE_RATE,
 )
-from buzz.ffmpeg_utils import audio_stream_duration, find_ffmpeg
+from buzz.ffmpeg_utils import audio_stream_duration, find_ffmpeg, find_ffprobe
 from tests.audio import test_audio_path
 
 
@@ -260,7 +260,23 @@ class TestAudioDecoder:
              "-f", "lavfi", "-i", "sine=duration=2", "-c:v", "libx264", "-c:a", audio_codec, video],
             check=True)
 
-        assert 1.9 < AudioDecoder(video)._probe_duration_s() < 2.2
+        duration_s = AudioDecoder(video)._probe_duration_s()
+
+        # What ffprobe reported, as builds differ in the durations they give
+        probe = subprocess.run(
+            [find_ffprobe(), "-v", "error",
+             "-show_entries", "stream=codec_type,duration:stream_tags=DURATION:format=duration",
+             "-of", "json", video],
+            capture_output=True, text=True).stdout
+        assert 1.9 < duration_s < 2.2, probe
+
+    def test_duration_tag_is_preferred_to_the_stream_duration(self):
+        info = {"streams": [{"codec_type": "video"},
+                            {"codec_type": "audio", "duration": "60.000000",
+                             "tags": {"DURATION": "00:00:02.008000000"}}],
+                "format": {"duration": "60.000000"}}
+
+        assert audio_stream_duration(info) == pytest.approx(2.008)
 
     def test_container_duration_is_not_trusted_beside_a_video(self):
         info = {"streams": [{"codec_type": "video"}, {"codec_type": "audio"}],
