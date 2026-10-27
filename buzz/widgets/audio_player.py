@@ -119,7 +119,7 @@ class AudioPlayer(QWidget, DecodedAudioMixin):
         self.play_button.setMinimumHeight(30)
 
         self.time_label = QLabel()
-        self.time_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.time_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
     def _init_layout(self):
         if self.is_video:

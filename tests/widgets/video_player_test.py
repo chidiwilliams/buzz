@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
-from PyQt6.QtCore import QTime
+from PyQt6.QtCore import QTime, Qt
 from PyQt6.QtMultimedia import QMediaPlayer
 from PyQt6.QtWidgets import QVBoxLayout, QLabel
 from pytestqt.qtbot import QtBot
@@ -311,3 +311,10 @@ class TestVideoPlayer:
 
         assert widget.play_button.maximumWidth() == 40
         assert widget.play_button.minimumHeight() == 30
+
+    def test_time_label_is_centered_on_controls_row(self, qtbot: QtBot):
+        """The label is as tall as the play button, so its text must not sit at the top."""
+        widget = VideoPlayer(test_audio_path)
+        qtbot.add_widget(widget)
+
+        assert widget.time_label.alignment() & Qt.AlignmentFlag.AlignVCenter

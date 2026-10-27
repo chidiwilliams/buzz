@@ -109,7 +109,7 @@ class VideoPlayer(QWidget, DecodedAudioMixin):
         self.play_button.setMaximumWidth(40)
         self.play_button.setMinimumHeight(30)
         self.time_label = QLabel()
-        self.time_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.time_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.controls = QHBoxLayout()
         self.controls.addWidget(self.play_button)
         self.controls.addWidget(self.scrubber)
