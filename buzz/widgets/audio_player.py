@@ -77,6 +77,9 @@ class AudioPlayer(QWidget, DecodedAudioMixin):
         else:
             logging.warning("AudioPlayer: sounddevice init failed, using Qt fallback")
             self.play_button.setEnabled(not self.invalid_media)
+            if self.invalid_media is False:
+                # Qt multimedia plays the file, so there is nothing to explain
+                self.play_button.setToolTip("")
 
     def _init_media_player(self, file_path: str):
         # Parent the multimedia objects to this widget so Qt destroys them along
@@ -239,6 +242,9 @@ class AudioPlayer(QWidget, DecodedAudioMixin):
         if self.invalid_media:
             self.scrubber.setRange(0, 1)
         self._set_controls_enabled(not self.invalid_media)
+        if not self.invalid_media and not self._loading_audio:
+            # Qt multimedia plays the file that sounddevice could not decode
+            self.play_button.setToolTip("")
 
     def _set_controls_enabled(self, enabled: bool):
         self.play_button.setEnabled(enabled and not self._loading_audio)
