@@ -163,7 +163,10 @@ def _read_samples(stdout, expected_bytes: int,
         if size == len(buffer):
             # Longer than expected. Growing may copy the samples read so far.
             buffer.extend(bytes(len(buffer) // 2))
-        read = stdout.readinto(memoryview(buffer)[size:])
+        # readinto() on a buffered pipe blocks until the whole buffer is full,
+        # i.e. until ffmpeg is done, so progress would only be reported at the
+        # end. readinto1() returns whatever the pipe has.
+        read = stdout.readinto1(memoryview(buffer)[size:])
         if not read:
             break
         size += read
