@@ -1,3 +1,4 @@
+import gc
 import glob
 import multiprocessing
 import os
@@ -21,7 +22,10 @@ if platform.system() != "Windows":
         multiprocessing.set_start_method("spawn", force=True)
     except RuntimeError:
         pass  # Already set
+from PyQt6 import sip
+from PyQt6.QtCore import QCoreApplication, QEvent, QObject, QThread
 from PyQt6.QtSql import QSqlDatabase
+from PyQt6.QtWidgets import QApplication
 from _pytest.fixtures import SubRequest
 
 from buzz.db.dao.transcription_dao import TranscriptionDAO
@@ -31,6 +35,60 @@ from buzz.db.service.transcription_service import TranscriptionService
 from buzz.settings.settings import Settings
 from buzz.settings.shortcuts import Shortcuts
 from buzz.widgets.application import Application
+
+
+def pytest_sessionfinish(session, exitstatus):
+    """Destroy Qt objects left over by the tests while the QApplication is alive.
+
+    At interpreter exit PyQt deletes every parentless QObject still owned by
+    Python while walking sip's wrapper map. Deleting one of them can run Python
+    code that creates or frees wrappers, which changes the map mid-walk and
+    segfaults the run after all tests have passed. Deleting the leftovers here,
+    from a snapshot, leaves nothing for that exit walk to do.
+    """
+    app = QApplication.instance()
+    if app is None:
+        return
+
+    for widget in app.topLevelWidgets():
+        widget.close()
+        widget.deleteLater()
+    QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+    gc.collect()
+
+    leftovers = []
+    for obj in gc.get_objects():
+        try:
+            if (
+                isinstance(obj, QObject)
+                and obj is not app
+                and not sip.isdeleted(obj)
+                and sip.ispyowned(obj)
+                and obj.parent() is None
+            ):
+                leftovers.append(obj)
+        except RuntimeError:
+            pass
+
+    # Threads must be stopped before deletion, Qt aborts on deleting a running one
+    for obj in leftovers:
+        if isinstance(obj, QThread) and not sip.isdeleted(obj):
+            obj.quit()
+            obj.wait(5_000)
+
+    main_thread = sip.unwrapinstance(QThread.currentThread())
+    for obj in leftovers:
+        if sip.isdeleted(obj):
+            continue
+        # Objects living in a still running worker thread can't be safely deleted from here
+        thread = obj.thread()
+        if thread is not None and sip.unwrapinstance(thread) != main_thread and thread.isRunning():
+            continue
+        if isinstance(obj, QThread) and obj.isRunning():
+            continue
+        sip.delete(obj)
+    leftovers.clear()
+    gc.collect()
 
 
 @pytest.fixture()
