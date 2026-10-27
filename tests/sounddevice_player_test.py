@@ -11,7 +11,9 @@ import pytest
 from buzz import audio_devices
 from buzz.sounddevice_player import (
     AudioDecoder, AudioFilePlayer, SounddevicePlayer, MIN_BUFFER_BYTES, _read_samples,
+    FRAME_BYTES, SAMPLE_RATE,
 )
+from buzz.ffmpeg_utils import find_ffmpeg
 from tests.audio import test_audio_path
 
 
@@ -211,6 +213,29 @@ class TestAudioDecoder:
         with pytest.raises(subprocess.CalledProcessError) as error:
             AudioDecoder(str(not_audio)).decode()
         assert error.value.stderr
+
+    def test_buffer_is_trimmed_to_the_samples(self):
+        """A buffer sized for far more audio than there is is not kept alive by the samples."""
+        raw = bytes(MIN_BUFFER_BYTES)
+
+        samples = _read_samples(io.BytesIO(raw), expected_bytes=20 * len(raw))
+
+        base = samples
+        while isinstance(base, np.ndarray) and base.base is not None:
+            base = base.base
+        assert memoryview(base).nbytes == len(raw)
+
+    def test_expects_the_duration_of_the_audio_stream(self, tmp_path):
+        """A long video with a short audio track is not sized by the video."""
+        video = str(tmp_path / "video.mp4")
+        subprocess.run(
+            [find_ffmpeg(), "-v", "error", "-f", "lavfi", "-i", "color=size=16x16:rate=1:duration=60",
+             "-f", "lavfi", "-i", "sine=duration=2", "-c:v", "libx264", "-c:a", "aac", video],
+            check=True)
+
+        expected_s = AudioDecoder(video)._expected_bytes() / FRAME_BYTES / SAMPLE_RATE
+
+        assert 1.9 < expected_s < 2.2
 
     @pytest.mark.skipif(sys.platform == "win32", reason="uses a named pipe")
     def test_cancel_stops_a_stalled_probe(self, tmp_path):

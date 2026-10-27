@@ -1,3 +1,4 @@
+import json
 import logging
 import subprocess
 import threading
@@ -91,9 +92,13 @@ class AudioDecoder:
 
     def _expected_bytes(self) -> int:
         """Size of the decoded audio from the duration ffprobe reports, or 0 if unknown."""
+        # The duration of the audio stream rather than of the container, which
+        # for a video with a short audio track, or none, is far longer. Not all
+        # containers give the stream a duration, Matroska for one.
         process = self._start(
-            [_find_ffprobe(), "-v", "error", "-show_entries", "format=duration",
-             "-of", "default=noprint_wrappers=1:nokey=1", self.file_path])
+            [_find_ffprobe(), "-v", "error", "-select_streams", "a:0",
+             "-show_entries", "stream=duration:format=duration", "-of", "json",
+             self.file_path])
         if process is None:
             return 0
         try:
@@ -102,7 +107,12 @@ class AudioDecoder:
             stdout, _ = process.communicate(timeout=30)
             if process.returncode != 0:
                 return 0
-            duration_s = float(stdout.decode().strip())
+            info = json.loads(stdout)
+            streams = info.get("streams") or []
+            if not streams:
+                return 0
+            duration_s = float(streams[0].get("duration")
+                               or info.get("format", {}).get("duration"))
         except Exception:
             if process.poll() is None:
                 process.kill()
@@ -138,8 +148,11 @@ def _read_samples(stdout, expected_bytes: int,
         size += read
         if on_progress is not None and expected_bytes > 0:
             on_progress(min(size / expected_bytes, 1.0))
-    frames = size // FRAME_BYTES
-    return np.frombuffer(buffer, dtype=np.int16, count=frames * CHANNELS).reshape(-1, CHANNELS)
+    # Give back what the samples do not fill, which the array would keep
+    # otherwise. Shrinking to under half the buffer returns the memory to
+    # the system without copying the samples.
+    del buffer[size // FRAME_BYTES * FRAME_BYTES:]
+    return np.frombuffer(buffer, dtype=np.int16).reshape(-1, CHANNELS)
 
 
 class SounddevicePlayer:
