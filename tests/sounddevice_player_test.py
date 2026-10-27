@@ -217,8 +217,7 @@ class TestAudioDecoder:
 
     def test_corrupt_duration_is_not_allocated_up_front(self):
         """A duration claiming far more audio than the file holds does not size the buffer."""
-        with patch.object(AudioDecoder, "_expected_bytes", return_value=10 ** 13):
-            data = AudioDecoder(test_audio_path).decode()
+        data = AudioDecoder(test_audio_path, duration_s=10 ** 8).decode()
 
         assert 44100 < len(data) < 44100 * 60
 
@@ -251,29 +250,17 @@ class TestAudioDecoder:
             base = base.base
         assert memoryview(base).nbytes == len(raw)
 
-    def test_expects_the_duration_of_the_audio_stream(self, tmp_path):
+    # Matroska gives the audio stream no duration, only a tag with it
+    @pytest.mark.parametrize("extension, audio_codec", [("mp4", "aac"), ("mkv", "libopus")])
+    def test_probes_the_duration_of_the_audio_stream(self, tmp_path, extension, audio_codec):
         """A long video with a short audio track is not sized by the video."""
-        video = str(tmp_path / "video.mp4")
+        video = str(tmp_path / f"video.{extension}")
         subprocess.run(
             [find_ffmpeg(), "-v", "error", "-f", "lavfi", "-i", "color=size=16x16:rate=1:duration=60",
-             "-f", "lavfi", "-i", "sine=duration=2", "-c:v", "libx264", "-c:a", "aac", video],
+             "-f", "lavfi", "-i", "sine=duration=2", "-c:v", "libx264", "-c:a", audio_codec, video],
             check=True)
 
-        expected_s = AudioDecoder(video)._expected_bytes() / FRAME_BYTES / SAMPLE_RATE
-
-        assert 1.9 < expected_s < 2.2
-
-    def test_expects_the_duration_of_the_audio_stream_in_matroska(self, tmp_path):
-        """Matroska gives the audio stream no duration, only a tag with it."""
-        video = str(tmp_path / "video.mkv")
-        subprocess.run(
-            [find_ffmpeg(), "-v", "error", "-f", "lavfi", "-i", "color=size=16x16:rate=1:duration=60",
-             "-f", "lavfi", "-i", "sine=duration=2", "-c:v", "libx264", "-c:a", "libopus", video],
-            check=True)
-
-        expected_s = AudioDecoder(video)._expected_bytes() / FRAME_BYTES / SAMPLE_RATE
-
-        assert 1.9 < expected_s < 2.2
+        assert 1.9 < AudioDecoder(video)._probe_duration_s() < 2.2
 
     def test_container_duration_is_not_trusted_beside_a_video(self):
         info = {"streams": [{"codec_type": "video"}, {"codec_type": "audio"}],
@@ -289,9 +276,9 @@ class TestAudioDecoder:
     def test_known_duration_is_not_probed_again(self):
         with patch("buzz.sounddevice_player._find_ffprobe",
                    side_effect=AssertionError("probed again")):
-            expected_bytes = AudioDecoder(test_audio_path, duration_s=2.5)._expected_bytes()
+            data = AudioDecoder(test_audio_path, duration_s=2.5).decode()
 
-        assert expected_bytes == int(2.5 * SAMPLE_RATE) * FRAME_BYTES
+        assert len(data) > 44100
 
     def test_decodes_without_ffprobe(self, tmp_path):
         with patch("buzz.sounddevice_player._find_ffprobe",

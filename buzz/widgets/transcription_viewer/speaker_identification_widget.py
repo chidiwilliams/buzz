@@ -559,8 +559,8 @@ class SpeakerIdentificationWidget(QWidget):
         """
         super().__init__(parent, flags)
         self.transcription = transcription
-        self.decoded_samples = decoded_samples
-        self.decoding_audio = decoding_audio
+        self.decoded_samples = decoded_samples or (lambda: None)
+        self.decoding_audio = decoding_audio or (lambda: None)
         self.transcription_service = transcription_service
         self.transcriptions_updated_signal = transcriptions_updated_signal
         self.identification_result = None
@@ -741,15 +741,12 @@ class SpeakerIdentificationWidget(QWidget):
         if self.player is not None:
             return self.player
 
-        samples = self.decoded_samples() if self.decoded_samples else None
+        samples = self.decoded_samples()
         if samples is not None:
             # The viewer may have finished decoding while this dialog was
             # decoding too. Stop that, or its player would later replace this
             # one while it plays.
-            if self._audio_loader is not None:
-                self._audio_loader.cancel()
-                self._audio_loader = None
-            self._stop_waiting_for_shared_audio()
+            self._stop_waiting_for_audio()
             self.player = AudioFilePlayer(self.transcription.file, samples=samples)
             return self.player
 
@@ -762,7 +759,7 @@ class SpeakerIdentificationWidget(QWidget):
 
         if self._waiting_for_audio or self._audio_failed:
             return None
-        shared_loader = self.decoding_audio() if self.decoding_audio else None
+        shared_loader = self.decoding_audio()
         if shared_loader is not None:
             # The viewer is decoding the same file. Wait for it, rather than
             # hold its samples twice while both decode.
@@ -784,8 +781,7 @@ class SpeakerIdentificationWidget(QWidget):
         # If it was cancelled instead, the preview decodes the file itself.
         loader, self._shared_audio_loader = self._shared_audio_loader, None
         speaker_id, self._pending_preview_speaker = self._pending_preview_speaker, None
-        decoded = self.decoded_samples() if self.decoded_samples else None
-        if decoded is None and not loader.cancelled:
+        if self.decoded_samples() is None and not loader.cancelled:
             # Decoding it here would fail the same way
             self._on_audio_failed()
             return
@@ -808,7 +804,10 @@ class SpeakerIdentificationWidget(QWidget):
         button.setEnabled(False)
         button.setToolTip(_("Could not load audio"))
 
-    def _stop_waiting_for_shared_audio(self):
+    def _stop_waiting_for_audio(self):
+        if self._audio_loader is not None:
+            self._audio_loader.cancel()
+            self._audio_loader = None
         if self._shared_audio_loader is not None:
             self._shared_audio_loader.done.disconnect(self._on_shared_audio_done)
             self._shared_audio_loader = None
@@ -822,7 +821,7 @@ class SpeakerIdentificationWidget(QWidget):
 
         # The viewer may have finished decoding the same file meanwhile. Play
         # its audio instead, so the file's samples are not held twice.
-        samples = self.decoded_samples() if self.decoded_samples else None
+        samples = self.decoded_samples()
         if samples is not None:
             player.close()
             player = AudioFilePlayer(self.transcription.file, samples=samples)
@@ -1069,10 +1068,7 @@ class SpeakerIdentificationWidget(QWidget):
 
         # Stop playback and release the decoded audio
         self._stop_playback()
-        if self._audio_loader is not None:
-            self._audio_loader.cancel()
-            self._audio_loader = None
-        self._stop_waiting_for_shared_audio()
+        self._stop_waiting_for_audio()
         if self.player is not None:
             self.player.close()
             self.player = None

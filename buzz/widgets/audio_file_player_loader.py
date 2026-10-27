@@ -140,13 +140,10 @@ class DecodedAudioMixin:
         self.play_button.setToolTip(_("Loading audio"))
         self.play_button.start_progress()
         self._audio_loader = AudioFilePlayerLoader(file_path, duration_s)
-        self._audio_loader.progress.connect(self._show_audio_loading_progress)
+        self._audio_loader.progress.connect(self.play_button.set_progress)
         self._audio_loader.loaded.connect(self._receive_decoded_audio)
         self.destroyed.connect(self._audio_loader.cancel)
         self._audio_loader.start()
-
-    def _show_audio_loading_progress(self, percent: int):
-        self.play_button.set_progress(percent)
 
     def _receive_decoded_audio(self, sd_player: Optional[AudioFilePlayer]):
         file_path = self._audio_loader.file_path

@@ -65,34 +65,36 @@ class AudioDecoder:
         args = [_find_ffmpeg(), "-nostdin", "-v", "error", "-i", self.file_path,
                 "-vn", "-ar", str(SAMPLE_RATE), "-ac", str(CHANNELS),
                 "-f", "s16le", "pipe:1"]
-        expected_bytes = self._expected_bytes()
-        if self._start(args) is None:
+        duration_s = self._duration_s if self._duration_s is not None else self._probe_duration_s()
+        expected_bytes = int(duration_s * SAMPLE_RATE) * FRAME_BYTES
+        process = self._start(args)
+        if process is None:
             return None
 
         # Drain stderr alongside stdout, or ffmpeg blocks once that pipe fills
         stderr = []
         stderr_reader = threading.Thread(
-            target=lambda: stderr.append(self._process.stderr.read()), daemon=True)
+            target=lambda: stderr.append(process.stderr.read()), daemon=True)
         stderr_reader.start()
         try:
-            with self._process.stdout:
-                samples = _read_samples(self._process.stdout, expected_bytes, self._on_progress,
+            with process.stdout:
+                samples = _read_samples(process.stdout, expected_bytes, self._on_progress,
                                         _max_initial_bytes(self.file_path))
         except BaseException:
             # E.g. no memory for the samples. Stop ffmpeg rather than leave it
             # running, or blocked on a pipe nobody reads any more.
-            self._process.kill()
+            process.kill()
             raise
         finally:
-            self._process.wait()
+            process.wait()
             stderr_reader.join()
-            self._process.stderr.close()
+            process.stderr.close()
 
         if self._cancelled:
             return None
-        if self._process.returncode != 0:
+        if process.returncode != 0:
             raise subprocess.CalledProcessError(
-                self._process.returncode, args, stderr=b"".join(stderr))
+                process.returncode, args, stderr=b"".join(stderr))
         return samples
 
     def _start(self, args) -> Optional[subprocess.Popen]:
@@ -108,10 +110,8 @@ class AudioDecoder:
             )
             return self._process
 
-    def _expected_bytes(self) -> int:
-        """Size of the decoded audio from the duration ffprobe reports, or 0 if unknown."""
-        if self._duration_s is not None:
-            return int(self._duration_s * SAMPLE_RATE) * FRAME_BYTES
+    def _probe_duration_s(self) -> float:
+        """Duration of the audio stream that ffprobe reports, or 0 if unknown."""
         try:
             process = self._start(
                 [_find_ffprobe(), "-v", "error",
@@ -130,14 +130,13 @@ class AudioDecoder:
             stdout, _ = process.communicate(timeout=30)
             if process.returncode != 0:
                 return 0
-            duration_s = audio_stream_duration(json.loads(stdout))
+            return audio_stream_duration(json.loads(stdout))
         except Exception:
             if process.poll() is None:
                 process.kill()
                 process.communicate()
             logging.debug("Could not probe duration of %s", self.file_path, exc_info=True)
             return 0
-        return int(duration_s * SAMPLE_RATE) * FRAME_BYTES
 
     def cancel(self):
         with self._lock:

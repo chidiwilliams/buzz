@@ -48,7 +48,7 @@ class TestAudioPlayer:
         qtbot.add_widget(widget)
 
         assert widget.play_button.showing_progress
-        widget._show_audio_loading_progress(42)
+        widget.audio_loader().progress.emit(42)
         assert widget.play_button.progress == 42
 
         qtbot.wait_until(lambda: not widget._loading_audio)
