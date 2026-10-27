@@ -91,6 +91,27 @@ class TestAudioFilePlayerLoader:
         assert [call[0] for call in calls] == ["cancel", "cancel", "wait", "wait"]
         assert calls[2][2] is calls[3][2]
 
+    def test_done_follows_loaded(self, qtbot: QtBot):
+        loader = AudioFilePlayerLoader(test_audio_path)
+        signals = []
+        loader.loaded.connect(lambda player: signals.append("loaded"))
+        loader.done.connect(lambda: signals.append("done"))
+        player = MagicMock()
+
+        loader._on_decoded(player)
+
+        assert signals == ["loaded", "done"]
+
+    def test_cancelled_loader_is_done(self, qtbot: QtBot):
+        loader = AudioFilePlayerLoader(test_audio_path)
+        done = []
+        loader.done.connect(lambda: done.append(True))
+
+        loader.cancel()
+        loader._on_decoded(MagicMock())
+
+        assert done == [True]
+
     def test_player_decoded_before_cancel_is_dropped(self, qtbot: QtBot):
         """A player decoded just before cancelling is closed rather than delivered."""
         loader = AudioFilePlayerLoader(test_audio_path)

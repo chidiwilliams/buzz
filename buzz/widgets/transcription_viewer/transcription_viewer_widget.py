@@ -601,6 +601,12 @@ class TranscriptionViewerWidget(QWidget):
             return None
         return self.current_media_player.decoded_samples()
 
+    def _decoding_audio(self):
+        """The media player's loader while it decodes the audio, or None."""
+        if self.current_media_player is None or sip.isdeleted(self.current_media_player):
+            return None
+        return self.current_media_player.audio_loader()
+
     def toggle_audio_playback(self):
         """Toggle audio playback (play/pause)"""
         # Asks the player rather than its QMediaPlayer, which is paused while
@@ -1611,6 +1617,7 @@ class TranscriptionViewerWidget(QWidget):
                 transcription_service=self.transcription_service,
                 transcriptions_updated_signal=self.transcriptions_updated_signal,
                 decoded_samples=self._decoded_samples,
+                decoding_audio=self._decoding_audio,
             )
 
             self.speaker_identification_dialog.identification_started.connect(

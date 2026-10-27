@@ -18,6 +18,7 @@ if not (platform.system() == "Darwin" and platform.machine() == "x86_64") and pl
         process_in_batches,
         MAX_PREVIEW_DURATION_MS,
     )
+from buzz.widgets.audio_file_player_loader import AudioFilePlayerLoader
 from tests.audio import test_audio_path
 
 @pytest.mark.skipif(
@@ -746,6 +747,89 @@ class TestSpeakerIdentificationWidget:
         assert player.samples is shared['samples']
 
         widget.close()
+
+    def test_preview_waits_for_the_viewers_decode(self, qtbot: QtBot, transcription, transcription_service):
+        """A preview clicked while the viewer decodes the file plays the viewer's audio, not a decode of its own."""
+        viewer = {'loader': AudioFilePlayerLoader(test_audio_path), 'player': None}
+
+        def on_viewer_loaded(player):
+            viewer['loader'] = None
+            viewer['player'] = player
+        viewer['loader'].loaded.connect(on_viewer_loaded)
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+            decoded_samples=lambda: viewer['player'].samples if viewer['player'] else None,
+            decoding_audio=lambda: viewer['loader'],
+        )
+        qtbot.addWidget(widget)
+        widget.identification_result = [
+            {'speaker': 'Speaker 0', 'start_time': 1500, 'end_time': 2000, 'text': 'Hi'},
+        ]
+        viewer['loader'].start()
+
+        widget.on_speaker_preview('Speaker 0')
+
+        assert widget._audio_loader is None
+        assert widget._pending_preview_speaker == 'Speaker 0'
+
+        with patch('buzz.sounddevice_player.SounddevicePlayer.play'):
+            qtbot.wait_until(lambda: widget.player is not None, timeout=30_000)
+        assert widget.player.samples is viewer['player'].samples
+        assert widget._audio_loader is None
+        assert widget._shared_audio_loader is None
+
+        widget.player_timer.stop()
+        widget.close()
+        viewer['player'].close()
+
+    def test_preview_decodes_itself_when_the_viewers_decode_is_cancelled(
+            self, qtbot: QtBot, transcription, transcription_service):
+        viewer_loader = AudioFilePlayerLoader(test_audio_path)
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+            decoded_samples=lambda: None,
+            decoding_audio=lambda: viewer_loader,
+        )
+        qtbot.addWidget(widget)
+        widget.identification_result = [
+            {'speaker': 'Speaker 0', 'start_time': 1500, 'end_time': 2000, 'text': 'Hi'},
+        ]
+        widget.on_speaker_preview('Speaker 0')
+
+        viewer_loader.cancel()
+        widget.decoding_audio = lambda: None
+        viewer_loader._on_decoded(None)
+
+        assert widget._shared_audio_loader is None
+        assert widget._audio_loader is not None
+        assert widget._pending_preview_speaker == 'Speaker 0'
+
+        widget._audio_loader.cancel()
+        widget.close()
+
+    def test_closed_dialog_stops_waiting_for_the_viewers_decode(
+            self, qtbot: QtBot, transcription, transcription_service):
+        viewer_loader = AudioFilePlayerLoader(test_audio_path)
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+            decoded_samples=lambda: None,
+            decoding_audio=lambda: viewer_loader,
+        )
+        qtbot.addWidget(widget)
+        widget.identification_result = [
+            {'speaker': 'Speaker 0', 'start_time': 1500, 'end_time': 2000, 'text': 'Hi'},
+        ]
+        widget.on_speaker_preview('Speaker 0')
+
+        widget.close()
+        with patch.object(widget, 'on_speaker_preview') as preview:
+            viewer_loader._on_decoded(None)
+
+        preview.assert_not_called()
+        assert widget._shared_audio_loader is None
 
     def test_preview_plays_once_audio_is_decoded(self, qtbot: QtBot, transcription, transcription_service):
         """Without decoded audio to share, it is decoded in the background."""

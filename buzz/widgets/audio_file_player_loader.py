@@ -20,6 +20,10 @@ class AudioFilePlayerLoader(QThread):
     loaded = pyqtSignal(object)
     # Percentage decoded, when the duration of the file is known
     progress = pyqtSignal(int)
+    # After `loaded`, or instead of it when cancelled. Unlike QThread's
+    # `finished`, it is emitted on the thread that owns the loader, so it
+    # still reaches a slot connected once the thread has ended.
+    done = pyqtSignal()
     # Emitted from run(), and handled on the thread that owns the loader
     _decoded = pyqtSignal(object)
     _progressed = pyqtSignal(int)
@@ -60,8 +64,9 @@ class AudioFilePlayerLoader(QThread):
         if self._decoder.cancelled:
             if player is not None:
                 player.close()
-            return
-        self.loaded.emit(player)
+        else:
+            self.loaded.emit(player)
+        self.done.emit()
 
     def _report_progress(self, fraction: float):
         # Called for every read from ffmpeg, so only pass on whole percents
@@ -165,3 +170,11 @@ class DecodedAudioMixin:
     def decoded_samples(self) -> Optional[np.ndarray]:
         """The decoded audio, for sharing with other players of the same file."""
         return self._sd_player.samples if self._sd_player is not None else None
+
+    def audio_loader(self) -> Optional[AudioFilePlayerLoader]:
+        """
+        The loader decoding the audio, or None if it is not decoding. Others
+        that need the same audio can wait for its `done` and then call
+        decoded_samples(), rather than decoding the file again.
+        """
+        return self._audio_loader
