@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import subprocess
 import threading
 from typing import Callable, Optional
@@ -23,6 +24,11 @@ SAMPLE_RATE = 44100
 CHANNELS = 2
 FRAME_BYTES = CHANNELS * 2  # 16-bit samples
 MIN_BUFFER_BYTES = 1 << 20
+# The most audio allocated for before decoding, as the duration it is sized
+# by may come from corrupt metadata. Longer audio grows the buffer instead.
+MAX_INITIAL_BUFFER_BYTES = 4 * 3600 * SAMPLE_RATE * FRAME_BYTES
+# Bits per second of the most compressed audio in common use, Opus speech
+MIN_COMPRESSED_BITRATE = 6_000
 
 
 class AudioDecoder:
@@ -70,7 +76,8 @@ class AudioDecoder:
         stderr_reader.start()
         try:
             with self._process.stdout:
-                samples = _read_samples(self._process.stdout, expected_bytes, self._on_progress)
+                samples = _read_samples(self._process.stdout, expected_bytes, self._on_progress,
+                                        _max_initial_bytes(self.file_path))
         except BaseException:
             # E.g. no memory for the samples. Stop ffmpeg rather than leave it
             # running, or blocked on a pipe nobody reads any more.
@@ -139,15 +146,33 @@ class AudioDecoder:
                 self._process.kill()
 
 
+def _max_initial_bytes(file_path: str) -> int:
+    """
+    The most decoded audio the file could plausibly hold, at the lowest
+    bitrate audio is compressed to, and at most MAX_INITIAL_BUFFER_BYTES.
+    A duration in its metadata that claims more is not believed up front.
+    """
+    try:
+        file_bytes = os.path.getsize(file_path)
+    except OSError:
+        return MAX_INITIAL_BUFFER_BYTES
+    plausible = file_bytes * 8 * SAMPLE_RATE * FRAME_BYTES // MIN_COMPRESSED_BITRATE
+    return min(plausible, MAX_INITIAL_BUFFER_BYTES)
+
+
 def _read_samples(stdout, expected_bytes: int,
-                  on_progress: Optional[Callable[[float], None]] = None) -> np.ndarray:
+                  on_progress: Optional[Callable[[float], None]] = None,
+                  max_initial_bytes: int = MAX_INITIAL_BUFFER_BYTES) -> np.ndarray:
     """
     Reads raw samples into one buffer sized up front, so the decoded audio is
     held in memory once. Collecting chunks and joining them, as
     Popen.communicate() does, needs twice that at the end.
     """
-    # Some headroom, as the duration in the container is not always exact
-    buffer = bytearray(max(expected_bytes + expected_bytes // 100, MIN_BUFFER_BYTES))
+    # Some headroom, as the duration in the container is not always exact.
+    # Capped, as the buffer is zero-filled, which for a duration from corrupt
+    # metadata would take memory before reading a single sample.
+    initial_bytes = min(expected_bytes + expected_bytes // 100, max_initial_bytes)
+    buffer = bytearray(max(initial_bytes, MIN_BUFFER_BYTES))
     size = 0
     while True:
         if size == len(buffer):

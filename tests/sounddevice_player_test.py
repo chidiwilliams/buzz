@@ -10,7 +10,8 @@ import pytest
 
 from buzz import audio_devices
 from buzz.sounddevice_player import (
-    AudioDecoder, AudioFilePlayer, SounddevicePlayer, MIN_BUFFER_BYTES, _read_samples,
+    AudioDecoder, AudioFilePlayer, SounddevicePlayer, MIN_BUFFER_BYTES, MAX_INITIAL_BUFFER_BYTES,
+    _max_initial_bytes, _read_samples,
     FRAME_BYTES, SAMPLE_RATE,
 )
 from buzz.ffmpeg_utils import audio_stream_duration, find_ffmpeg
@@ -213,6 +214,31 @@ class TestAudioDecoder:
         with pytest.raises(subprocess.CalledProcessError) as error:
             AudioDecoder(str(not_audio)).decode()
         assert error.value.stderr
+
+    def test_corrupt_duration_is_not_allocated_up_front(self):
+        """A duration claiming far more audio than the file holds does not size the buffer."""
+        with patch.object(AudioDecoder, "_expected_bytes", return_value=10 ** 13):
+            data = AudioDecoder(test_audio_path).decode()
+
+        assert 44100 < len(data) < 44100 * 60
+
+    def test_initial_buffer_is_bounded_by_the_file_size(self, tmp_path):
+        audio = tmp_path / "audio.opus"
+        audio.write_bytes(bytes(6_000))
+
+        # 6000 bytes hold at most 8 s of audio at 6 kbit/s
+        assert _max_initial_bytes(str(audio)) == 8 * SAMPLE_RATE * FRAME_BYTES
+
+    def test_initial_buffer_of_unknown_file_size(self, tmp_path):
+        assert _max_initial_bytes(str(tmp_path / "missing.mp3")) == MAX_INITIAL_BUFFER_BYTES
+
+    def test_buffer_grows_past_the_initial_limit(self):
+        raw = (np.arange(MIN_BUFFER_BYTES * 3) % 30_000).astype(np.int16).tobytes()
+
+        samples = _read_samples(io.BytesIO(raw), expected_bytes=len(raw),
+                                max_initial_bytes=MIN_BUFFER_BYTES)
+
+        assert samples.tobytes() == raw
 
     def test_buffer_is_trimmed_to_the_samples(self):
         """A buffer sized for far more audio than there is is not kept alive by the samples."""
