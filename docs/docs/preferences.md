@@ -69,6 +69,30 @@ larger model. For example `q_5` version. Whisper.cpp base models in different qu
 
 [![Model preferences](https://raw.githubusercontent.com/chidiwilliams/buzz/main/share/screenshots/buzz-3.2-model-preferences.png)](https://www.loom.com/share/cf263b099ac3481082bb56d19b7c87fe "Model preferences")
 
+## Folder Watch Preferences
+
+Folder watch lets Buzz transcribe audio and video files automatically. Buzz watches a folder and
+transcribes every new media file that appears in it, while Buzz is running.
+
+**Enable folder watch** - Turns folder watch on or off. The other options are available only when it is enabled.
+
+**Input folder** - Folder to watch for new files. Subfolders are watched too. Hidden files and folders are ignored.
+Buzz waits until a file has stopped changing for about 30 seconds before transcribing it, so files
+that are still being copied are not transcribed too early.
+
+**Output folder** - Folder where transcripts are saved. After transcription the original file is
+moved here as well, so it is not transcribed again. The subfolder structure of the input folder is
+kept. The output folder cannot be the input folder or a subfolder of it.
+
+**Delete processed files** - Deletes the original file after transcription instead of moving it to
+the output folder. Audio playback will not be available for these transcriptions.
+
+**Transcription options** - Model, task, language and export formats to use for the files found in
+the watched folder. They work the same way as for a regular file transcription.
+
+**Speaker identification** - When enabled, speakers are identified after transcription and speaker
+labels are added to the exported transcripts. Transcription will take longer.
+
 ## Advanced Preferences
 
 To keep preferences section simple for new users, some more advanced preferences are settable via OS environment variables. Set the necessary environment variables in your OS before starting Buzz or create a script to set them.
