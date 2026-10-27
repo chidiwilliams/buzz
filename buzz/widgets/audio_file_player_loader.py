@@ -108,13 +108,15 @@ class DecodedAudioMixin:
     def _init_decoded_audio(self):
         self._sd_player: Optional[AudioFilePlayer] = None
         self._use_sd = False
-        self._loading_audio = False
         self._audio_loader: Optional[AudioFilePlayerLoader] = None
+
+    @property
+    def _loading_audio(self) -> bool:
+        return self._audio_loader is not None
 
     def _start_audio_loader(self, file_path: str):
         # Playback waits for the decoded audio, which for a long file takes a
         # while. Spins until the duration of the file is known.
-        self._loading_audio = True
         self.play_button.setDisabled(True)
         self.play_button.setToolTip(_("Loading audio"))
         self.play_button.start_progress()
@@ -146,7 +148,6 @@ class DecodedAudioMixin:
         self._audio_loading_finished()
 
     def _audio_loading_finished(self):
-        self._loading_audio = False
         self._audio_loader = None
         self.play_button.stop_progress()
         self.play_button.setToolTip("")
