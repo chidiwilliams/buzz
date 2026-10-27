@@ -30,7 +30,8 @@ class VideoPlayer(QWidget, DecodedAudioMixin):
         self._init_layout()
         self._init_signals()
         self._finalize_scrubber()
-        self._init_audio_engine(file_path)
+        # Started last, as it shows its progress in the play button
+        self._start_audio_loader(file_path)
 
     def _init_attributes(self):
         self.range_ms: Optional[Tuple[int, int]] = None
@@ -39,15 +40,12 @@ class VideoPlayer(QWidget, DecodedAudioMixin):
         self.is_looping = False
         self.is_slider_dragging = False
         self._drift_polls = 0
+        self._init_decoded_audio()
 
     def _init_video_decoder(self, file_path: str):
         self._ffmpeg_player = FfmpegVideoPlayer(file_path)
         if self._ffmpeg_player.has_video:
             self._ffmpeg_player.start(0)
-
-    def _init_audio_engine(self, file_path: str):
-        self._init_decoded_audio()
-        self._start_audio_loader(file_path)
 
     def _on_audio_loaded(self, sd_player: Optional[AudioFilePlayer]):
         if sd_player is not None:
