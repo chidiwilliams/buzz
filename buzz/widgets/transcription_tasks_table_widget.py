@@ -316,10 +316,11 @@ class TranscriptionTasksTableWidget(QTableView):
         # Add transcription actions if a row is selected
         selected_rows = self.selectionModel().selectedRows()
         if selected_rows:
-            transcription = self.transcription(selected_rows[0])
-
-            # Add restart/continue action for failed/canceled/skipped tasks
-            if transcription.status in ["failed", "canceled", "skipped"]:
+            # Add restart/continue action if any selected task failed, was canceled or skipped
+            if any(
+                self.transcription(row).status in ["failed", "canceled", "skipped"]
+                for row in selected_rows
+            ):
                 restart_action = menu.addAction(_("Restart Transcription"))
                 restart_action.triggered.connect(self.on_restart_transcription_action)
                 menu.addSeparator()
@@ -694,16 +695,18 @@ class TranscriptionTasksTableWidget(QTableView):
             self.refresh_all()
 
     def on_restart_transcription_action(self):
-        """Restart transcription for failed or canceled tasks"""
-        selected_rows = self.selectionModel().selectedRows()
-        if not selected_rows:
+        """Restart the selected failed, canceled or skipped transcriptions"""
+        selected = self.selected_transcriptions()
+        if not selected:
             return
-        
-        # Get the first selected transcription
-        transcription = self.transcription(selected_rows[0])
-        
-        # Check if the task can be restarted
-        if transcription.status not in ["failed", "canceled", "skipped"]:
+
+        # Rows that can't be restarted are left as they are
+        restartable = [
+            transcription
+            for transcription in selected
+            if transcription.status in ["failed", "canceled", "skipped"]
+        ]
+        if not restartable:
             from PyQt6.QtWidgets import QMessageBox
             QMessageBox.information(
                 self,
@@ -711,18 +714,19 @@ class TranscriptionTasksTableWidget(QTableView):
                 _("Only failed, canceled, or skipped transcriptions can be restarted.")
             )
             return
-        
-        try:
-            self.transcription_service.reset_transcription_for_restart(UUID(transcription.id))
-            self._restart_transcription_task(transcription)
-            self.refresh_all()
-        except Exception as e:
-            from PyQt6.QtWidgets import QMessageBox
-            QMessageBox.warning(
-                self,
-                _("Error"),
-                _("Failed to restart transcription: {}").format(str(e))
-            )
+
+        for transcription in restartable:
+            try:
+                self.transcription_service.reset_transcription_for_restart(UUID(transcription.id))
+                self._restart_transcription_task(transcription)
+            except Exception as e:
+                from PyQt6.QtWidgets import QMessageBox
+                QMessageBox.warning(
+                    self,
+                    _("Error"),
+                    _("Failed to restart transcription: {}").format(str(e))
+                )
+        self.refresh_all()
     
     def _restart_transcription_task(self, transcription):
         """Create a new FileTranscriptionTask and add it to the queue worker"""

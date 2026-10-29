@@ -496,6 +496,77 @@ class TestTranscriptionTasksTableWidget:
 
         mock_messagebox.warning.assert_called_once()
 
+    # --- restarting several selected rows ---
+
+    FILE_ROW_ID = "11111111-1111-1111-1111-111111111111"
+    URL_ROW_ID = "22222222-2222-2222-2222-222222222222"
+
+    def _select_both_rows(self, widget, db, file_row_status, url_row_status):
+        """Give both rows a UUID id and a status, then select them"""
+        query = QSqlQuery(db)
+        query.exec(
+            f"UPDATE transcription SET id = '{self.FILE_ROW_ID}', status = '{file_row_status}' WHERE id = '1'"
+        )
+        query.exec(
+            f"UPDATE transcription SET id = '{self.URL_ROW_ID}', status = '{url_row_status}' WHERE id = '2'"
+        )
+        widget.refresh_all()
+        widget.selectAll()
+        assert len(widget.selectionModel().selectedRows()) == 2
+
+    def test_restart_action_restarts_every_selected_row(self, widget, db, monkeypatch):
+        self._select_both_rows(widget, db, "failed", "canceled")
+        mock_service = Mock()
+        widget.transcription_service = mock_service
+        mock_restart = Mock()
+        monkeypatch.setattr(widget, "_restart_transcription_task", mock_restart)
+
+        widget.on_restart_transcription_action()
+
+        reset_ids = [c.args[0] for c in mock_service.reset_transcription_for_restart.call_args_list]
+        assert sorted(reset_ids) == [UUID(self.FILE_ROW_ID), UUID(self.URL_ROW_ID)]
+        restarted_ids = [c.args[0].id for c in mock_restart.call_args_list]
+        assert sorted(restarted_ids) == [self.FILE_ROW_ID, self.URL_ROW_ID]
+
+    def test_restart_action_skips_selected_rows_that_cannot_restart(self, widget, db, monkeypatch):
+        self._select_both_rows(widget, db, "failed", "completed")
+        mock_service = Mock()
+        widget.transcription_service = mock_service
+        mock_restart = Mock()
+        monkeypatch.setattr(widget, "_restart_transcription_task", mock_restart)
+        mock_messagebox = Mock()
+        monkeypatch.setattr("PyQt6.QtWidgets.QMessageBox", mock_messagebox)
+
+        widget.on_restart_transcription_action()
+
+        mock_service.reset_transcription_for_restart.assert_called_once_with(UUID(self.FILE_ROW_ID))
+        assert [c.args[0].id for c in mock_restart.call_args_list] == [self.FILE_ROW_ID]
+        mock_messagebox.information.assert_not_called()
+
+    def test_restart_action_shows_message_once_if_no_selected_row_can_restart(self, widget, db, monkeypatch):
+        self._select_both_rows(widget, db, "completed", "in_progress")
+        mock_service = Mock()
+        widget.transcription_service = mock_service
+        mock_messagebox = Mock()
+        monkeypatch.setattr("PyQt6.QtWidgets.QMessageBox", mock_messagebox)
+
+        widget.on_restart_transcription_action()
+
+        mock_service.reset_transcription_for_restart.assert_not_called()
+        mock_messagebox.information.assert_called_once()
+
+    def test_context_menu_offers_restart_if_any_selected_row_can_restart(self, widget, db, monkeypatch):
+        self._select_both_rows(widget, db, "failed", "completed")
+        first_selected_row = widget.selectionModel().selectedRows()[0]
+        assert widget.transcription(first_selected_row).status == "completed"
+        mock_menu = Mock(spec=QMenu)
+        monkeypatch.setattr("buzz.widgets.transcription_tasks_table_widget.QMenu", Mock(return_value=mock_menu))
+
+        widget.contextMenuEvent(Mock())
+
+        labels = [c.args[0] for c in mock_menu.addAction.call_args_list]
+        assert "Restart Transcription" in labels
+
     # --- _restart_transcription_task ---
 
     def _make_transcription(self, **kwargs):
