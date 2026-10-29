@@ -800,6 +800,62 @@ class TestTranscriptionTasksTableWidget:
         # Only the valid format should be present, invalid one skipped silently
         assert len(captured["output_formats"]) == 1
 
+    @pytest.mark.parametrize("stored, expected", [(1, True), (0, False), (None, False)])
+    def test_restart_task_keeps_word_level_timings_and_extract_speech(self, widget, monkeypatch, stored, expected):
+        # SQLite returns the BOOLEAN columns as 1 or 0
+        transcription = self._make_transcription(word_level_timings=stored, extract_speech=stored)
+
+        mock_model = Mock()
+        mock_model.get_local_model_path.return_value = "/fake/path"
+        monkeypatch.setattr("buzz.model_loader.TranscriptionModel", Mock(return_value=mock_model))
+        mock_task_cls = Mock(return_value=Mock())
+        monkeypatch.setattr("buzz.transcriber.transcriber.FileTranscriptionTask", mock_task_cls)
+        mock_main_window = Mock()
+        mock_main_window.parent.return_value = None
+        monkeypatch.setattr(widget, "parent", Mock(return_value=mock_main_window))
+
+        widget._restart_transcription_task(transcription)
+
+        options = mock_task_cls.call_args.kwargs["transcription_options"]
+        assert options.word_level_timings is expected
+        assert options.extract_speech is expected
+
+    def test_restart_keeps_word_level_timings_and_extract_speech_from_database(self, widget, db, monkeypatch):
+        from buzz.db.dao.transcription_dao import TranscriptionDAO
+        from buzz.model_loader import TranscriptionModel
+        from buzz.transcriber.transcriber import (
+            FileTranscriptionOptions,
+            FileTranscriptionTask,
+            TranscriptionOptions,
+        )
+
+        task = FileTranscriptionTask(
+            transcription_options=TranscriptionOptions(word_level_timings=True, extract_speech=True),
+            file_transcription_options=FileTranscriptionOptions(),
+            model_path="",
+            file_path="/a/b/word-level.mp3",
+        )
+        dao = TranscriptionDAO(db)
+        dao.create_transcription(task)
+        dao.update_transcription_as_failed(task.uid, "Error")
+        widget.refresh_all()
+        row = next(
+            row for row in range(widget.model().rowCount())
+            if widget.model().record(row).value("id") == str(task.uid)
+        )
+        widget.selectRow(row)
+
+        widget.transcription_service = Mock()
+        monkeypatch.setattr(TranscriptionModel, "get_local_model_path", lambda self: "/fake/model")
+        mock_worker = Mock()
+        monkeypatch.setattr(widget, "parent", Mock(return_value=Mock(transcriber_worker=mock_worker)))
+
+        widget.on_restart_transcription_action()
+
+        options = mock_worker.add_task.call_args.args[0].transcription_options
+        assert options.word_level_timings is True
+        assert options.extract_speech is True
+
     def test_column_resize_event(self, widget):
         """Test column resize event handling"""
         # Mock the save_column_widths method

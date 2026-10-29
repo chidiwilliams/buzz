@@ -759,8 +759,9 @@ class TranscriptionTasksTableWidget(QTableView):
                 whisper_model_size=whisper_model_size,
                 hugging_face_model_id=transcription.hugging_face_model_id
             ),
-            word_level_timings=transcription.word_level_timings == "1" if transcription.word_level_timings else False,
-            extract_speech=transcription.extract_speech == "1" if transcription.extract_speech else False,
+            # SQLite returns these BOOLEAN columns as 1 or 0
+            word_level_timings=transcription.word_level_timings == 1,
+            extract_speech=transcription.extract_speech == 1,
             initial_prompt="",  # Not stored in database, use default
             openai_access_token="",  # Not stored in database, use default
             enable_llm_translation=False,  # Not stored in database, use default
