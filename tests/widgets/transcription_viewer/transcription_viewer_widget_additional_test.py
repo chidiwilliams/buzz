@@ -236,6 +236,21 @@ class TestTranscriptionViewerWidgetAdditional:
 
         widget.close()
 
+    def test_close_closes_media_players(self, qtbot: QtBot, transcription, transcription_service, shortcuts):
+        """Closing the viewer releases its players, which get no close event of their own"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        sd_player = MagicMock()
+        widget.audio_player._sd_player = sd_player
+        widget.video_player = MagicMock()
+
+        widget.close()
+
+        sd_player.close.assert_called_once()
+        widget.video_player.close.assert_called_once()
+
     def test_on_audio_playback_state_changed(self, qtbot: QtBot, transcription, transcription_service, shortcuts):
         """Test on_audio_playback_state_changed method"""
         widget = TranscriptionViewerWidget(

@@ -1800,9 +1800,12 @@ class TranscriptionViewerWidget(QWidget):
 
         self.hide()
 
-        # Stop media playback when closing
-        if self.current_media_player:
-            self.current_media_player.stop()
+        # Closed rather than only stopped, as Qt sends no close event to child
+        # widgets: their closeEvent() releases the decoders and audio streams,
+        # which would otherwise outlive the window
+        self.audio_player.close()
+        if self.video_player:
+            self.video_player.close()
 
         if self.transcription_resizer_dialog:
             self.transcription_resizer_dialog.close()
