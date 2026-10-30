@@ -2175,3 +2175,15 @@ msgid ""
 msgstr ""
 "¡Extracción de voz fallida! Compruebe su conexión a internet — es posible "
 "que sea necesario descargar un modelo."
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Loading audio"
+msgstr "Cargando audio"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Could not load audio"
+msgstr "No se pudo cargar el audio"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Audio file not found: {}"
+msgstr "No se encontró el archivo de audio: {}"

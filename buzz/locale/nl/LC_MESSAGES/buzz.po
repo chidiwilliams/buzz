@@ -2114,3 +2114,15 @@ msgid ""
 msgstr ""
 "Spraakextractie mislukt! Controleer uw internetverbinding — mogelijk moet er "
 "een model worden gedownload."
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Loading audio"
+msgstr "Audio laden"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Could not load audio"
+msgstr "Kan audio niet laden"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Audio file not found: {}"
+msgstr "Audiobestand niet gevonden: {}"

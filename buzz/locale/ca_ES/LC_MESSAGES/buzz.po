@@ -2114,3 +2114,15 @@ msgid ""
 msgstr ""
 "Ha fallat l'extracció de veu! Comproveu la vostra connexió a Internet — pot "
 "ser que s'hagi de descarregar un model."
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Loading audio"
+msgstr "S'està carregant l'àudio"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Could not load audio"
+msgstr "No s'ha pogut carregar l'àudio"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Audio file not found: {}"
+msgstr "No s'ha trobat el fitxer d'àudio: {}"

@@ -2107,3 +2107,15 @@ msgid ""
 msgstr ""
 "Не удалось извлечь речь! Проверьте подключение к интернету — возможно, нужно "
 "скачать модель."
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Loading audio"
+msgstr "Загрузка аудио"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Could not load audio"
+msgstr "Не удалось загрузить аудио"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Audio file not found: {}"
+msgstr "Аудиофайл не найден: {}"

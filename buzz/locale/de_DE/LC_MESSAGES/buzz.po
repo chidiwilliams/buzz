@@ -2126,3 +2126,15 @@ msgid ""
 msgstr ""
 "Sprachextraktion fehlgeschlagen! Bitte Internetverbindung prüfen — ein "
 "Modell muss möglicherweise heruntergeladen werden."
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Loading audio"
+msgstr "Audio wird geladen"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Could not load audio"
+msgstr "Audio konnte nicht geladen werden"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Audio file not found: {}"
+msgstr "Audiodatei nicht gefunden: {}"

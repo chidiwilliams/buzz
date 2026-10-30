@@ -2094,3 +2094,15 @@ msgid ""
 msgstr ""
 "Konuşma ayıklama başarısız oldu! İnternet bağlantınızı kontrol edin — bir "
 "modelin indirilmesi gerekebilir."
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Loading audio"
+msgstr "Ses yükleniyor"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Could not load audio"
+msgstr "Ses yüklenemedi"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Audio file not found: {}"
+msgstr "Ses dosyası bulunamadı: {}"

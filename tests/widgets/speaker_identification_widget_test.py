@@ -2,6 +2,7 @@ import logging
 import platform
 import time
 import uuid
+import numpy as np
 import pytest
 from pytestqt.qtbot import QtBot
 from unittest.mock import MagicMock, patch
@@ -17,6 +18,8 @@ if not (platform.system() == "Darwin" and platform.machine() == "x86_64") and pl
         process_in_batches,
         MAX_PREVIEW_DURATION_MS,
     )
+from buzz.locale import _
+from buzz.widgets.audio_file_player_loader import AudioFilePlayerLoader
 from tests.audio import test_audio_path
 
 @pytest.mark.skipif(
@@ -697,6 +700,217 @@ class TestSpeakerIdentificationWidget:
         assert widget._get_audio_player() is None
         assert widget.player is None
 
+        widget.close()
+
+    def test_player_shares_the_viewers_decoded_audio(self, qtbot: QtBot, transcription, transcription_service):
+        """Audio the viewer decoded already is played without decoding it again."""
+        samples = np.zeros((44100, 2), dtype=np.int16)
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+            decoded_samples=lambda: samples,
+        )
+        qtbot.addWidget(widget)
+
+        player = widget._get_audio_player()
+
+        assert player.samples is samples
+        assert widget._audio_loader is None
+
+        widget.close()
+
+    def test_shared_audio_replaces_pending_decode(self, qtbot: QtBot, transcription, transcription_service):
+        """The viewer finishing its decode first stops this dialog's own one."""
+        shared = {'samples': None}
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+            decoded_samples=lambda: shared['samples'],
+        )
+        qtbot.addWidget(widget)
+        widget.identification_result = [
+            {'speaker': 'Speaker 0', 'start_time': 1500, 'end_time': 2000, 'text': 'Hi'},
+        ]
+        widget.on_speaker_preview('Speaker 0')
+        loader = widget._audio_loader
+        loaded = []
+        loader.loaded.connect(loaded.append)
+
+        shared['samples'] = np.zeros((44100 * 3, 2), dtype=np.int16)
+        with patch('buzz.sounddevice_player.SounddevicePlayer.play'):
+            widget.on_speaker_preview('Speaker 0')
+        player = widget.player
+
+        qtbot.wait_until(lambda: loader.isFinished(), timeout=30_000)
+        assert widget._audio_loader is None
+        assert loaded == []
+        assert widget.player is player
+        assert player.samples is shared['samples']
+
+        widget.close()
+
+    def test_preview_waits_for_the_viewers_decode(self, qtbot: QtBot, transcription, transcription_service):
+        """A preview clicked while the viewer decodes the file plays the viewer's audio, not a decode of its own."""
+        viewer = {'loader': AudioFilePlayerLoader(test_audio_path), 'player': None}
+
+        def on_viewer_loaded(player):
+            viewer['loader'] = None
+            viewer['player'] = player
+        viewer['loader'].loaded.connect(on_viewer_loaded)
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+            decoded_samples=lambda: viewer['player'].samples if viewer['player'] else None,
+            decoding_audio=lambda: viewer['loader'],
+        )
+        qtbot.addWidget(widget)
+        widget.identification_result = [
+            {'speaker': 'Speaker 0', 'start_time': 1500, 'end_time': 2000, 'text': 'Hi'},
+        ]
+        viewer['loader'].start()
+
+        widget.on_speaker_preview('Speaker 0')
+
+        assert widget._audio_loader is None
+        assert widget._pending_preview_speaker == 'Speaker 0'
+
+        with patch('buzz.sounddevice_player.SounddevicePlayer.play'):
+            qtbot.wait_until(lambda: widget.player is not None, timeout=30_000)
+        assert widget.player.samples is viewer['player'].samples
+        assert widget._audio_loader is None
+        assert widget._shared_audio_loader is None
+
+        widget.player_timer.stop()
+        widget.close()
+        viewer['player'].close()
+
+    def test_preview_decodes_itself_when_the_viewers_decode_is_cancelled(
+            self, qtbot: QtBot, transcription, transcription_service):
+        viewer_loader = AudioFilePlayerLoader(test_audio_path)
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+            decoded_samples=lambda: None,
+            decoding_audio=lambda: viewer_loader,
+        )
+        qtbot.addWidget(widget)
+        widget.identification_result = [
+            {'speaker': 'Speaker 0', 'start_time': 1500, 'end_time': 2000, 'text': 'Hi'},
+        ]
+        widget.on_speaker_preview('Speaker 0')
+
+        viewer_loader.cancel()
+        widget.decoding_audio = lambda: None
+        viewer_loader._on_decoded(None)
+
+        assert widget._shared_audio_loader is None
+        assert widget._audio_loader is not None
+        assert widget._pending_preview_speaker == 'Speaker 0'
+
+        widget._audio_loader.cancel()
+        widget.close()
+
+    def test_failed_decode_is_not_retried(self, qtbot: QtBot, transcription, transcription_service):
+        """A file that cannot be decoded is not decoded again on every click, and the buttons say so."""
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+            decoded_samples=lambda: None,
+        )
+        qtbot.addWidget(widget)
+        widget.identification_result = [
+            {'speaker': 'Speaker 0', 'start_time': 1500, 'end_time': 2000, 'text': 'Hi'},
+        ]
+        widget.on_speaker_preview('Speaker 0')
+        widget._audio_loader.cancel()
+        widget._on_audio_loaded(None)
+
+        widget.on_speaker_preview('Speaker 0')
+
+        assert widget._audio_loader is None
+        assert not widget.speaker_0_preview_button.isEnabled()
+        assert widget.speaker_0_preview_button.toolTip() == _("Could not load audio")
+
+        widget.on_identification_finished([
+            {'speaker': 'Speaker 1', 'start_time': 0, 'end_time': 500, 'text': 'Hello'},
+        ])
+        assert widget._preview_buttons
+        assert not any(button.isEnabled() for button in widget._preview_buttons)
+
+        widget.close()
+
+    def test_viewers_failed_decode_is_not_repeated(self, qtbot: QtBot, transcription, transcription_service):
+        viewer_loader = AudioFilePlayerLoader(test_audio_path)
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+            decoded_samples=lambda: None,
+            decoding_audio=lambda: viewer_loader,
+        )
+        qtbot.addWidget(widget)
+        widget.identification_result = [
+            {'speaker': 'Speaker 0', 'start_time': 1500, 'end_time': 2000, 'text': 'Hi'},
+        ]
+        widget.on_speaker_preview('Speaker 0')
+
+        widget.decoding_audio = lambda: None
+        viewer_loader._on_decoded(None)
+
+        assert widget._audio_loader is None
+        assert widget._shared_audio_loader is None
+        assert not widget.speaker_0_preview_button.isEnabled()
+
+        widget.close()
+
+    def test_closed_dialog_stops_waiting_for_the_viewers_decode(
+            self, qtbot: QtBot, transcription, transcription_service):
+        viewer_loader = AudioFilePlayerLoader(test_audio_path)
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+            decoded_samples=lambda: None,
+            decoding_audio=lambda: viewer_loader,
+        )
+        qtbot.addWidget(widget)
+        widget.identification_result = [
+            {'speaker': 'Speaker 0', 'start_time': 1500, 'end_time': 2000, 'text': 'Hi'},
+        ]
+        widget.on_speaker_preview('Speaker 0')
+
+        widget.close()
+        with patch.object(widget, 'on_speaker_preview') as preview:
+            viewer_loader._on_decoded(None)
+
+        preview.assert_not_called()
+        assert widget._shared_audio_loader is None
+
+    def test_preview_plays_once_audio_is_decoded(self, qtbot: QtBot, transcription, transcription_service):
+        """Without decoded audio to share, it is decoded in the background."""
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+            decoded_samples=lambda: None,
+        )
+        qtbot.addWidget(widget)
+        widget.identification_result = [
+            {'speaker': 'Speaker 0', 'start_time': 1500, 'end_time': 2000, 'text': 'Hi'},
+        ]
+
+        widget.on_speaker_preview('Speaker 0')
+
+        assert widget.player is None
+        assert widget._audio_loader is not None
+        assert widget._pending_preview_speaker == 'Speaker 0'
+
+        # Stand in for the decoded player
+        widget._audio_loader.cancel()
+        player = MagicMock()
+        widget._on_audio_loaded(player)
+
+        player.seek.assert_called_once_with(1500)
+        player.play.assert_called_once()
+
+        widget.player_timer.stop()
         widget.close()
 
     def test_on_speaker_preview_no_matching_records(self, qtbot: QtBot, transcription, transcription_service):
