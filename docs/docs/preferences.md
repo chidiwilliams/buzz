@@ -81,8 +81,9 @@ Buzz waits until a file has stopped changing for about 30 seconds before transcr
 that are still being copied are not transcribed too early.
 
 **Output folder** - Folder where transcripts are saved. After transcription the original file is
-moved here as well, so it is not transcribed again. The subfolder structure of the input folder is
-kept. The output folder cannot be the input folder or a subfolder of it.
+moved here as well, so it is not transcribed again. If a file with the same name is already there,
+the moved file gets a number, for example `Recording (1).m4a`. The subfolder structure of the input
+folder is kept. The output folder cannot be the input folder or a subfolder of it.
 
 **Delete processed files** - Deletes the original file after transcription instead of moving it to
 the output folder. Audio playback will not be available for these transcriptions.
