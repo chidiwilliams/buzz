@@ -1,5 +1,7 @@
+import json
 import subprocess
 import time
+from unittest.mock import patch
 
 import numpy as np
 import pytest
@@ -55,12 +57,39 @@ class TestProbeVideo:
         assert info["fps"] == pytest.approx(10.0, abs=0.1)
         assert info["duration_ms"] > 0
 
+    def test_audio_duration(self):
+        info = probe_video(test_audio_path)
+        assert info["audio_duration_s"] == pytest.approx(info["duration_ms"] / 1000, abs=0.01)
+
+    def test_malformed_audio_duration_tag_keeps_the_video(self):
+        """A DURATION tag ffmpeg's muxers would not write does not fail the probe."""
+        streams = {
+            "streams": [
+                {"codec_type": "video", "width": 64, "height": 48, "r_frame_rate": "10/1"},
+                {"codec_type": "audio", "tags": {"DURATION": "N/A"}},
+            ],
+            "format": {"duration": "5.0"},
+        }
+        probed = subprocess.CompletedProcess([], 0, stdout=json.dumps(streams))
+
+        with patch("buzz.ffmpeg_video_player.subprocess.run", return_value=probed):
+            info = probe_video("video.ogm")
+
+        assert info["has_video"] is True
+        assert info["duration_ms"] == 5000
+        assert info["audio_duration_s"] == 0
+
 
 class TestFfmpegVideoPlayer:
     def test_audio_only_has_no_video(self):
         player = FfmpegVideoPlayer(test_audio_path)
         assert player.has_video is False
         assert player.duration_ms > 0
+        player.close()
+
+    def test_unprobed_file_has_no_audio_duration(self, tmp_path):
+        player = FfmpegVideoPlayer(str(tmp_path / "missing.mp4"))
+        assert player.audio_duration_s is None
         player.close()
 
     def test_video_file_properties(self, test_video_path):

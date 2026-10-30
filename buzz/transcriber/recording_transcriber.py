@@ -519,6 +519,10 @@ class RecordingTranscriber(QObject):
 
         logging.debug(f"Starting Whisper server with command: {' '.join(cmd)}")
 
+        # Imported here, as whisper_cpp probes Vulkan devices on import
+        from buzz.transcriber.whisper_cpp import WhisperCpp
+
+        env = WhisperCpp._whisper_env()
         try:
             if sys.platform == "win32":
                 self.process = subprocess.Popen(
@@ -526,6 +530,7 @@ class RecordingTranscriber(QObject):
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.PIPE,
                     shell=False,
+                    env=env,
                     creationflags=subprocess.CREATE_NO_WINDOW
                 )
             else:
@@ -534,6 +539,7 @@ class RecordingTranscriber(QObject):
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.PIPE,
                     shell=False,
+                    env=env,
                 )
         except Exception as e:
             error_msg = f"Failed to start whisper-server subprocess: {str(e)}"

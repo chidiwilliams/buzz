@@ -30,6 +30,13 @@ class TranscriptionService:
             and transcription.status == FileTranscriptionTask.Status.QUEUED.value
         )
 
+    def is_transcription_deleted_or_canceled(self, id: UUID) -> bool:
+        transcription = self.transcription_dao.find_by_id(str(id))
+        return (
+            transcription is None
+            or transcription.status == FileTranscriptionTask.Status.CANCELED.value
+        )
+
     def update_transcription_as_started(self, id: UUID):
         self.transcription_dao.update_transcription_as_started(id)
 
