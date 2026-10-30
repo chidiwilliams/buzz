@@ -18,17 +18,34 @@ IS_VULKAN_SUPPORTED = False
 # whisper-cli defaults to device 0, which on hybrid laptops is usually the
 # integrated GPU, so the discrete one is selected via GGML_VK_VISIBLE_DEVICES.
 DISCRETE_GPU_INDEX: Optional[int] = None
+
+
+def _create_vulkan_instance(vk):
+    """Create a Vulkan instance that lists physical devices in ggml-vulkan's order."""
+    # The loader can order physical devices differently for 1.0 and 1.1+ instances
+    # (e.g. discrete GPU first for 1.0, integrated first for 1.1+). ggml-vulkan creates
+    # its instance at the loader's highest version, so the same version is used here,
+    # otherwise the index would point at a different GPU in GGML_VK_VISIBLE_DEVICES.
+    app_info = vk.VkApplicationInfo(apiVersion=vk.vkEnumerateInstanceVersion())
+    return vk.vkCreateInstance(vk.VkInstanceCreateInfo(pApplicationInfo=app_info), None)
+
+
+def _find_discrete_gpu_index(vk, instance) -> Optional[int]:
+    """Index of the first discrete GPU in the instance's physical device list."""
+    for index, device in enumerate(vk.vkEnumeratePhysicalDevices(instance)):
+        properties = vk.vkGetPhysicalDeviceProperties(device)
+        if properties.deviceType == vk.VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
+            logging.debug("Discrete Vulkan GPU %s: %s", index, properties.deviceName)
+            return index
+    return None
+
+
 try:
     import vulkan
 
-    instance = vulkan.vkCreateInstance(vulkan.VkInstanceCreateInfo(), None)
+    instance = _create_vulkan_instance(vulkan)
     try:
-        for index, device in enumerate(vulkan.vkEnumeratePhysicalDevices(instance)):
-            properties = vulkan.vkGetPhysicalDeviceProperties(device)
-            if properties.deviceType == vulkan.VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
-                DISCRETE_GPU_INDEX = index
-                logging.debug("Discrete Vulkan GPU %s: %s", index, properties.deviceName)
-                break
+        DISCRETE_GPU_INDEX = _find_discrete_gpu_index(vulkan, instance)
     except Exception as e:
         logging.debug(f"Vulkan device enumeration error: {e}")
     vulkan.vkDestroyInstance(instance, None)
