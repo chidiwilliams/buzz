@@ -15,7 +15,6 @@ from PyQt6.QtCore import (
 
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
-    QApplication,
     QMainWindow,
     QMessageBox,
     QFileDialog,
@@ -45,6 +44,7 @@ from buzz.widgets.icon import BUZZ_ICON_PATH
 from buzz.widgets.import_url_dialog import ImportURLDialog
 from buzz.widgets.main_window_toolbar import MainWindowToolbar
 from buzz.widgets.menu_bar import MenuBar
+from buzz.widgets.system_tray import SystemTray
 from buzz.widgets.preferences_dialog.models.preferences import Preferences
 from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
 from buzz.widgets.transcription_task_folder_watcher import (
@@ -205,9 +205,12 @@ class MainWindow(QMainWindow):
         #Offer CUDA installation on Windows if not done before
         self._maybe_show_cuda_prompt()
 
+        self.system_tray = SystemTray(self, self.settings)
+
     def on_preferences_changed(self, preferences: Preferences):
         self.preferences = preferences
         self.save_preferences(preferences)
+        self.system_tray.update_preferences()
         self.sleep_inhibitor.set_enabled(
             self.settings.value(
                 Settings.Key.PREVENT_SLEEP_WHILE_TRANSCRIBING,
@@ -569,8 +572,7 @@ class MainWindow(QMainWindow):
         if len(self.pending_quit_task_uids) > 0:
             return
 
-        self.close()
-        QApplication.quit()
+        self.system_tray.quit()
 
     def on_task_error(self, task: FileTranscriptionTask, error: str):
         self.transcription_service.update_transcription_as_failed(task.uid, error)
@@ -586,6 +588,7 @@ class MainWindow(QMainWindow):
         self.save_geometry()
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        self.system_tray.shutdown()
         self.save_geometry()
         self.settings.settings.sync()
         self.sleep_inhibitor.close()
