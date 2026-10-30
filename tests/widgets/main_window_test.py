@@ -35,6 +35,7 @@ from buzz.transcriber.transcriber import (
 from buzz.widgets.main_window import MainWindow
 from buzz.widgets.preferences_dialog.models.file_transcription_preferences import FileTranscriptionPreferences
 from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
+from buzz.widgets.transcription_tasks_table_widget import Column
 
 mock_transcriptions: List[Transcription] = [
     Transcription(status="completed"),
@@ -561,6 +562,180 @@ class TestMainWindow:
 
         assert exceptions == []
         assert transcription_dao.find_by_id(transcription.id) is None
+        window.close()
+
+    @staticmethod
+    def _task_for(transcription: Transcription) -> FileTranscriptionTask:
+        return FileTranscriptionTask(
+            transcription_options=TranscriptionOptions(),
+            file_transcription_options=FileTranscriptionOptions(),
+            model_path="",
+            uid=transcription.id_as_uuid,
+        )
+
+    @pytest.mark.parametrize(
+        "transcription_dao", [[Transcription(status="in_progress")]], indirect=True
+    )
+    def test_should_ignore_result_that_arrives_after_delete(
+        self, qtbot, transcription_dao, transcription_segment_dao
+    ):
+        window = MainWindow(
+            TranscriptionService(transcription_dao, transcription_segment_dao)
+        )
+        qtbot.add_widget(window)
+
+        table_widget = self._get_tasks_table(window)
+        table_widget.selectRow(0)
+        transcription = table_widget.selected_transcriptions()[0]
+
+        with patch.object(window.transcriber_worker, "cancel_task"):
+            self._press_delete(table_widget)
+
+        # The worker had already sent the result when the row was deleted
+        with patch.object(
+            window.plugin_manager, "has_enabled_post_hooks", return_value=False
+        ), qtbot.capture_exceptions() as exceptions:
+            window.on_task_completed(
+                self._task_for(transcription),
+                [Segment(start=0, end=1000, text="Bonjour")],
+            )
+            window.on_task_error(self._task_for(transcription), "Error")
+
+        assert exceptions == []
+        assert transcription_dao.find_by_id(transcription.id) is None
+        window.close()
+
+    @pytest.mark.parametrize(
+        "transcription_dao", [[Transcription(status="canceled")]], indirect=True
+    )
+    def test_should_keep_canceled_transcription_canceled_on_late_result(
+        self, qtbot, transcription_dao, transcription_segment_dao
+    ):
+        service = TranscriptionService(transcription_dao, transcription_segment_dao)
+        window = MainWindow(service)
+        qtbot.add_widget(window)
+
+        transcription = self._get_tasks_table(window).transcription(
+            self._get_tasks_table(window).model().index(0, 0)
+        )
+
+        with patch.object(
+            window.plugin_manager, "has_enabled_post_hooks", return_value=False
+        ):
+            window.on_task_completed(
+                self._task_for(transcription),
+                [Segment(start=0, end=1000, text="Bonjour")],
+            )
+            window.on_task_error(self._task_for(transcription), "Error")
+
+        canceled = transcription_dao.find_by_id(transcription.id)
+        assert canceled.status == "canceled"
+        assert not canceled.error_message
+        assert service.get_transcription_segments(transcription.id_as_uuid) == []
+        window.close()
+
+    @pytest.mark.parametrize(
+        "transcription_dao", [[Transcription(status="canceled")]], indirect=True
+    )
+    def test_should_quit_on_complete_when_last_result_is_ignored(
+        self, qtbot, transcription_dao, transcription_segment_dao
+    ):
+        window = MainWindow(
+            TranscriptionService(transcription_dao, transcription_segment_dao)
+        )
+        qtbot.add_widget(window)
+
+        transcription = self._get_tasks_table(window).transcription(
+            self._get_tasks_table(window).model().index(0, 0)
+        )
+        window.quit_on_complete = True
+        window.pending_quit_task_uids.add(transcription.id_as_uuid)
+
+        with patch("buzz.widgets.main_window.QApplication.quit") as quit_mock:
+            window.on_task_completed(self._task_for(transcription), [])
+
+        quit_mock.assert_called_once()
+
+    @pytest.mark.parametrize(
+        "transcription_dao",
+        [
+            [
+                Transcription(status="completed", time_queued="2024-01-01T00:00:00"),
+                Transcription(status="completed", time_queued="2024-01-02T00:00:00"),
+            ]
+        ],
+        indirect=True,
+    )
+    def test_should_delete_selected_transcription_when_table_refreshes_during_confirmation(
+        self, qtbot, transcription_dao, transcription_segment_dao
+    ):
+        window = MainWindow(
+            TranscriptionService(transcription_dao, transcription_segment_dao)
+        )
+        qtbot.add_widget(window)
+
+        # Newest first (the default; the saved sort state may differ), so the
+        # older transcription is on the second row
+        table_widget = self._get_tasks_table(window)
+        table_widget.sortByColumn(
+            Column.TIME_QUEUED.value, Qt.SortOrder.DescendingOrder
+        )
+        table_widget.selectRow(1)
+        selected = table_widget.selected_transcriptions()[0]
+        assert selected.time_queued == "2024-01-01T00:00:00"
+        other = table_widget.transcription(table_widget.model().index(0, 0))
+
+        # A folder-watch file is found while the dialog is open, so every row
+        # moves down by one
+        found = Transcription(status="queued", time_queued="2024-01-03T00:00:00")
+
+        def add_transcription_and_confirm():
+            transcription_dao.insert(found)
+            table_widget.refresh_all()
+            return QMessageBox.StandardButton.Yes
+
+        with patch(
+            "PyQt6.QtWidgets.QMessageBox.exec",
+            side_effect=add_transcription_and_confirm,
+        ):
+            window.toolbar.clear_history_action.trigger()
+
+        assert transcription_dao.find_by_id(selected.id) is None
+        assert transcription_dao.find_by_id(other.id) is not None
+        assert transcription_dao.find_by_id(found.id) is not None
+        assert table_widget.model().rowCount() == 2
+        window.close()
+
+    @pytest.mark.parametrize(
+        "transcription_dao",
+        [[Transcription(status="queued")], [Transcription(status="in_progress")]],
+        ids=["queued", "in_progress"],
+        indirect=True,
+    )
+    def test_should_cancel_and_delete_active_task_with_clear_history_action(
+        self, qtbot, transcription_dao, transcription_segment_dao
+    ):
+        window = MainWindow(
+            TranscriptionService(transcription_dao, transcription_segment_dao)
+        )
+        qtbot.add_widget(window)
+
+        table_widget = self._get_tasks_table(window)
+        table_widget.selectRow(0)
+        transcription = table_widget.selected_transcriptions()[0]
+
+        assert window.toolbar.clear_history_action.isEnabled()
+
+        with patch.object(
+            window.transcriber_worker, "cancel_task"
+        ) as cancel_task, patch(
+            "PyQt6.QtWidgets.QMessageBox.exec",
+            return_value=QMessageBox.StandardButton.Yes,
+        ):
+            window.toolbar.clear_history_action.trigger()
+
+        cancel_task.assert_called_once_with(transcription.id_as_uuid)
+        assert table_widget.model().rowCount() == 0
         window.close()
 
     @pytest.mark.parametrize("transcription_dao", [mock_transcriptions], indirect=True)

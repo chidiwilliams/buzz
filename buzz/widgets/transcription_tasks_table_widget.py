@@ -604,10 +604,24 @@ class TranscriptionTasksTableWidget(QTableView):
         selected = self.selectionModel().selectedRows()
         return [self.transcription(row) for row in selected]
 
-    def delete_transcriptions(self, rows: List[QModelIndex]):
-        for row in rows:
-            self.model().removeRow(row.row())
-        self.model().submitAll()
+    def delete_transcriptions(self, ids: List[UUID]):
+        remaining_ids = {str(id) for id in ids}
+        model = self.model()
+        row = 0
+        while remaining_ids:
+            if row == model.rowCount():
+                # The model loads rows lazily, so a row may not be fetched yet
+                if not model.canFetchMore():
+                    break
+                model.fetchMore()
+                continue
+            row_id = model.record(row).value("id")
+            if row_id in remaining_ids:
+                remaining_ids.discard(row_id)
+                # Removed rows stay in the model until submitAll()
+                model.removeRow(row)
+            row += 1
+        model.submitAll()
 
     def transcription(self, index: QModelIndex) -> Transcription:
         return Transcription.from_record(self.model().record(index.row()))
