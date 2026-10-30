@@ -14,10 +14,40 @@ from buzz.transcriber.file_transcriber import app_env
 
 
 IS_VULKAN_SUPPORTED = False
+# Index of the first discrete GPU in Vulkan's physical device list, if any.
+# whisper-cli defaults to device 0, which on hybrid laptops is usually the
+# integrated GPU, so the discrete one is selected via GGML_VK_VISIBLE_DEVICES.
+DISCRETE_GPU_INDEX: Optional[int] = None
+
+
+def _create_vulkan_instance(vk):
+    """Create a Vulkan instance that lists physical devices in ggml-vulkan's order."""
+    # The loader can order physical devices differently for 1.0 and 1.1+ instances
+    # (e.g. discrete GPU first for 1.0, integrated first for 1.1+). ggml-vulkan creates
+    # its instance at the loader's highest version, so the same version is used here,
+    # otherwise the index would point at a different GPU in GGML_VK_VISIBLE_DEVICES.
+    app_info = vk.VkApplicationInfo(apiVersion=vk.vkEnumerateInstanceVersion())
+    return vk.vkCreateInstance(vk.VkInstanceCreateInfo(pApplicationInfo=app_info), None)
+
+
+def _find_discrete_gpu_index(vk, instance) -> Optional[int]:
+    """Index of the first discrete GPU in the instance's physical device list."""
+    for index, device in enumerate(vk.vkEnumeratePhysicalDevices(instance)):
+        properties = vk.vkGetPhysicalDeviceProperties(device)
+        if properties.deviceType == vk.VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
+            logging.debug("Discrete Vulkan GPU %s: %s", index, properties.deviceName)
+            return index
+    return None
+
+
 try:
     import vulkan
 
-    instance = vulkan.vkCreateInstance(vulkan.VkInstanceCreateInfo(), None)
+    instance = _create_vulkan_instance(vulkan)
+    try:
+        DISCRETE_GPU_INDEX = _find_discrete_gpu_index(vulkan, instance)
+    except Exception as e:
+        logging.debug(f"Vulkan device enumeration error: {e}")
     vulkan.vkDestroyInstance(instance, None)
     vulkan_version = vulkan.vkEnumerateInstanceVersion()
     major = (vulkan_version >> 22) & 0x3FF
@@ -253,8 +283,17 @@ class WhisperCpp:
         return cmd
 
     @staticmethod
+    def _whisper_env() -> dict:
+        """Environment for whisper-cli, steering ggml-vulkan to the discrete GPU."""
+        env = (app_env if sys.platform == "win32" else os.environ).copy()
+        if DISCRETE_GPU_INDEX is not None and "GGML_VK_VISIBLE_DEVICES" not in env:
+            env["GGML_VK_VISIBLE_DEVICES"] = str(DISCRETE_GPU_INDEX)
+        return env
+
+    @staticmethod
     def _run_whisper(cmd) -> tuple:
         """Run whisper-cli subprocess, returning (return code, tail of stderr)."""
+        env = WhisperCpp._whisper_env()
         if sys.platform == "win32":
             si = subprocess.STARTUPINFO()
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -267,7 +306,7 @@ class WhisperCpp:
                 encoding="utf-8",
                 errors="replace",
                 startupinfo=si,
-                env=app_env,
+                env=env,
                 creationflags=subprocess.CREATE_NO_WINDOW
             )
         else:
@@ -278,6 +317,7 @@ class WhisperCpp:
                 text=True,
                 encoding="utf-8",
                 errors="replace",
+                env=env,
             )
 
         stderr_tail = []
@@ -522,6 +562,7 @@ class WhisperCpp:
 
         print(f"Running Whisper CLI language detection: {' '.join(cmd)}")
 
+        env = WhisperCpp._whisper_env()
         try:
             if sys.platform == "win32":
                 si = subprocess.STARTUPINFO()
@@ -534,7 +575,7 @@ class WhisperCpp:
                     encoding="utf-8",
                     errors="replace",
                     startupinfo=si,
-                    env=app_env,
+                    env=env,
                     creationflags=subprocess.CREATE_NO_WINDOW,
                 )
             else:
@@ -544,6 +585,7 @@ class WhisperCpp:
                     text=True,
                     encoding="utf-8",
                     errors="replace",
+                    env=env,
                 )
 
             # whisper-cli writes the detection line to stderr, e.g.:

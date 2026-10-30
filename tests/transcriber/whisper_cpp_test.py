@@ -2,6 +2,7 @@ from unittest.mock import patch, MagicMock, mock_open
 import json
 import os
 import subprocess
+import sys
 
 import pytest
 
@@ -12,9 +13,15 @@ from buzz.transcriber.transcriber import (
     FileTranscriptionTask,
     FileTranscriptionOptions,
 )
+from buzz.transcriber import whisper_cpp
 from buzz.transcriber.whisper_cpp import WhisperCpp, _is_cli_safe_path
 from tests.audio import test_audio_path, test_multibyte_utf8_audio_path
 from tests.model_loader import get_model_path
+
+
+def _whisper_env_source() -> dict:
+    # On Windows _whisper_env() copies the app_env snapshot, not os.environ
+    return whisper_cpp.app_env if sys.platform == "win32" else os.environ
 
 
 class TestWhisperCpp:
@@ -617,3 +624,69 @@ class TestWhisperCpp:
         segments = WhisperCpp._parse_word_level_timings(mock_result, language="en", vad_enabled=False)
         words = [s.text for s in segments]
         assert words == ["Hello", "world", "Goodbye", "all"]
+
+    def test_whisper_env_selects_discrete_gpu(self, monkeypatch):
+        monkeypatch.delitem(_whisper_env_source(), "GGML_VK_VISIBLE_DEVICES", raising=False)
+        with patch("buzz.transcriber.whisper_cpp.DISCRETE_GPU_INDEX", 1):
+            assert WhisperCpp._whisper_env()["GGML_VK_VISIBLE_DEVICES"] == "1"
+
+    def test_whisper_env_keeps_user_device_choice(self, monkeypatch):
+        monkeypatch.setitem(_whisper_env_source(), "GGML_VK_VISIBLE_DEVICES", "0")
+        with patch("buzz.transcriber.whisper_cpp.DISCRETE_GPU_INDEX", 1):
+            assert WhisperCpp._whisper_env()["GGML_VK_VISIBLE_DEVICES"] == "0"
+
+    def test_detect_language_uses_discrete_gpu(self, monkeypatch):
+        monkeypatch.delitem(_whisper_env_source(), "GGML_VK_VISIBLE_DEVICES", raising=False)
+        completed = MagicMock(stderr="auto-detected language: en (p = 0.9)\n", stdout="")
+        with patch(
+            "buzz.transcriber.whisper_cpp.subprocess.run", return_value=completed
+        ) as run_mock, patch(
+            "buzz.transcriber.whisper_cpp.get_whisper_cli_path",
+            return_value="/fake/whisper-cli",
+        ), patch("buzz.transcriber.whisper_cpp.DISCRETE_GPU_INDEX", 1):
+            WhisperCpp.detect_language("/fake/audio.wav", "/fake/model.bin")
+
+        assert run_mock.call_args.kwargs["env"]["GGML_VK_VISIBLE_DEVICES"] == "1"
+
+    def test_whisper_env_without_discrete_gpu(self, monkeypatch):
+        monkeypatch.delitem(_whisper_env_source(), "GGML_VK_VISIBLE_DEVICES", raising=False)
+        with patch("buzz.transcriber.whisper_cpp.DISCRETE_GPU_INDEX", None):
+            assert "GGML_VK_VISIBLE_DEVICES" not in WhisperCpp._whisper_env()
+
+    def test_vulkan_instance_uses_loader_api_version(self):
+        # ggml-vulkan creates its instance at the loader's highest API version, and the
+        # device order can differ between versions, so the probe must use the same one
+        vk = MagicMock()
+        vk.vkEnumerateInstanceVersion.return_value = 4206592  # 1.3.0
+
+        instance = whisper_cpp._create_vulkan_instance(vk)
+
+        vk.VkApplicationInfo.assert_called_once_with(apiVersion=4206592)
+        vk.VkInstanceCreateInfo.assert_called_once_with(
+            pApplicationInfo=vk.VkApplicationInfo.return_value
+        )
+        vk.vkCreateInstance.assert_called_once_with(vk.VkInstanceCreateInfo.return_value, None)
+        assert instance is vk.vkCreateInstance.return_value
+
+    @staticmethod
+    def _fake_vulkan(device_types):
+        vk = MagicMock()
+        vk.VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU = 1
+        vk.VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU = 2
+        vk.VK_PHYSICAL_DEVICE_TYPE_CPU = 4
+        devices = [MagicMock(deviceType=t, deviceName=f"gpu{i}") for i, t in enumerate(device_types)]
+        vk.vkEnumeratePhysicalDevices.return_value = list(range(len(devices)))
+        vk.vkGetPhysicalDeviceProperties.side_effect = lambda index: devices[index]
+        return vk
+
+    def test_find_discrete_gpu_index_after_integrated(self):
+        vk = self._fake_vulkan([1, 2, 4])
+        assert whisper_cpp._find_discrete_gpu_index(vk, MagicMock()) == 1
+
+    def test_find_discrete_gpu_index_returns_first_discrete(self):
+        vk = self._fake_vulkan([2, 1, 2])
+        assert whisper_cpp._find_discrete_gpu_index(vk, MagicMock()) == 0
+
+    def test_find_discrete_gpu_index_without_discrete(self):
+        vk = self._fake_vulkan([1, 4])
+        assert whisper_cpp._find_discrete_gpu_index(vk, MagicMock()) is None

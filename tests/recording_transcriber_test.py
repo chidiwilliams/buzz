@@ -1,3 +1,4 @@
+import os
 import threading
 from unittest.mock import MagicMock, patch, PropertyMock
 
@@ -7,6 +8,7 @@ from sounddevice import PortAudioError
 
 from buzz.model_loader import TranscriptionModel, ModelType, WhisperModelSize
 from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
+from buzz.transcriber import whisper_cpp
 from buzz.transcriber.recording_transcriber import RecordingTranscriber
 from buzz.transcriber.transcriber import TranscriptionOptions, Task
 
@@ -416,6 +418,25 @@ class TestStartLocalWhisperServer:
         cmd = popen.call_args[0][0]
         assert "--language" in cmd and "auto" in cmd
         assert any("transcription" in m.lower() for m in emitted)
+
+    def test_server_runs_on_discrete_gpu(self, monkeypatch):
+        monkeypatch.delitem(os.environ, "GGML_VK_VISIBLE_DEVICES", raising=False)
+        monkeypatch.delitem(whisper_cpp.app_env, "GGML_VK_VISIBLE_DEVICES", raising=False)
+        t = make_transcriber()
+
+        process = MagicMock()
+        process.poll.return_value = None
+        process.stderr = []
+
+        with patch("buzz.transcriber.recording_transcriber.subprocess.Popen", return_value=process) as popen, \
+             patch("buzz.transcriber.recording_transcriber.time.sleep"), \
+             patch("buzz.transcriber.recording_transcriber._", lambda s: s), \
+             patch("buzz.transcriber.whisper_cpp.DISCRETE_GPU_INDEX", 1), \
+             patch("openai.OpenAI"):
+            t.is_running = True
+            t.start_local_whisper_server()
+
+        assert popen.call_args.kwargs["env"]["GGML_VK_VISIBLE_DEVICES"] == "1"
 
     def test_failure_emits_error_message(self):
         t = make_transcriber()
