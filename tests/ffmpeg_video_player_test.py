@@ -1,5 +1,7 @@
+import json
 import subprocess
 import time
+from unittest.mock import patch
 
 import numpy as np
 import pytest
@@ -58,6 +60,24 @@ class TestProbeVideo:
     def test_audio_duration(self):
         info = probe_video(test_audio_path)
         assert info["audio_duration_s"] == pytest.approx(info["duration_ms"] / 1000, abs=0.01)
+
+    def test_malformed_audio_duration_tag_keeps_the_video(self):
+        """A DURATION tag ffmpeg's muxers would not write does not fail the probe."""
+        streams = {
+            "streams": [
+                {"codec_type": "video", "width": 64, "height": 48, "r_frame_rate": "10/1"},
+                {"codec_type": "audio", "tags": {"DURATION": "N/A"}},
+            ],
+            "format": {"duration": "5.0"},
+        }
+        probed = subprocess.CompletedProcess([], 0, stdout=json.dumps(streams))
+
+        with patch("buzz.ffmpeg_video_player.subprocess.run", return_value=probed):
+            info = probe_video("video.ogm")
+
+        assert info["has_video"] is True
+        assert info["duration_ms"] == 5000
+        assert info["audio_duration_s"] == 0
 
 
 class TestFfmpegVideoPlayer:

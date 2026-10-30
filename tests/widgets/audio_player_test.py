@@ -7,6 +7,7 @@ from PyQt6.QtMultimedia import QMediaPlayer
 from PyQt6.QtWidgets import QHBoxLayout
 from pytestqt.qtbot import QtBot
 
+from buzz.locale import _
 from buzz.widgets.audio_player import AudioPlayer
 from tests.audio import test_audio_path
 from buzz.settings.settings import Settings
@@ -72,7 +73,7 @@ class TestAudioPlayer:
         qtbot.wait_until(lambda: not widget._loading_audio, timeout=30_000)
 
         assert not widget.play_button.showing_progress
-        assert widget.play_button.toolTip() == f"Audio file not found: {missing}"
+        assert widget.play_button.toolTip() == _("Audio file not found: {}").format(missing)
 
     def test_tells_when_audio_cannot_be_loaded(self, qtbot: QtBot, tmp_path):
         not_audio = tmp_path / "notes.mp3"
@@ -82,7 +83,7 @@ class TestAudioPlayer:
 
         qtbot.wait_until(lambda: not widget._loading_audio, timeout=30_000)
 
-        assert widget.play_button.toolTip() == "Could not load audio"
+        assert widget.play_button.toolTip() == _("Could not load audio")
 
     def test_loaded_audio_has_no_tooltip(self, qtbot: QtBot):
         widget = make_audio_player(qtbot)

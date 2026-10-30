@@ -18,6 +18,7 @@ if not (platform.system() == "Darwin" and platform.machine() == "x86_64") and pl
         process_in_batches,
         MAX_PREVIEW_DURATION_MS,
     )
+from buzz.locale import _
 from buzz.widgets.audio_file_player_loader import AudioFilePlayerLoader
 from tests.audio import test_audio_path
 
@@ -828,7 +829,7 @@ class TestSpeakerIdentificationWidget:
 
         assert widget._audio_loader is None
         assert not widget.speaker_0_preview_button.isEnabled()
-        assert widget.speaker_0_preview_button.toolTip() == "Could not load audio"
+        assert widget.speaker_0_preview_button.toolTip() == _("Could not load audio")
 
         widget.on_identification_finished([
             {'speaker': 'Speaker 1', 'start_time': 0, 'end_time': 500, 'text': 'Hello'},

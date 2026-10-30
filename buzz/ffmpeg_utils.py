@@ -51,8 +51,13 @@ def audio_stream_duration(info: dict) -> float:
     # stream's duration with the container's, i.e. the video's.
     tag = (audio.get("tags") or {}).get("DURATION")
     if tag:
-        hours, minutes, seconds = tag.split(":")
-        return int(hours) * 3600 + int(minutes) * 60 + float(seconds)
+        # Other muxers and tag editors may write it in another format, e.g.
+        # "N/A", in which case the stream's or container's duration is used
+        try:
+            hours, minutes, seconds = tag.split(":")
+            return int(hours) * 3600 + int(minutes) * 60 + float(seconds)
+        except ValueError:
+            pass
     if audio.get("duration"):
         return float(audio["duration"])
     # The container's duration is the audio's only when it holds nothing else

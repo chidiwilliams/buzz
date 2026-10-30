@@ -278,6 +278,15 @@ class TestAudioDecoder:
 
         assert audio_stream_duration(info) == pytest.approx(2.008)
 
+    @pytest.mark.parametrize("tag", ["N/A", "2.008", "00:02.008"])
+    def test_malformed_duration_tag_falls_back_to_the_stream_duration(self, tag):
+        info = {"streams": [{"codec_type": "video"},
+                            {"codec_type": "audio", "duration": "2.5",
+                             "tags": {"DURATION": tag}}],
+                "format": {"duration": "60.000000"}}
+
+        assert audio_stream_duration(info) == 2.5
+
     def test_container_duration_is_not_trusted_beside_a_video(self):
         info = {"streams": [{"codec_type": "video"}, {"codec_type": "audio"}],
                 "format": {"duration": "3600.0"}}
