@@ -1580,7 +1580,9 @@ class TranscriptionViewerWidget(QWidget):
             transcriptions_updated_signal=self.transcriptions_updated_signal,
         )
 
-        self.transcriptions_updated_signal.connect(self.close)
+        # Not transcriptions_updated_signal, which all open viewers share, or
+        # saving in another viewer would close this one too
+        self.transcription_resizer_dialog.transcriptions_updated.connect(self.close)
 
         self.transcription_resizer_dialog.show()
 
@@ -1627,7 +1629,9 @@ class TranscriptionViewerWidget(QWidget):
                 self._update_speaker_identification_button_state
             )
 
-            self.transcriptions_updated_signal.connect(self.close)
+            self.speaker_identification_dialog.transcriptions_updated.connect(
+                self.close
+            )
 
             self.speaker_identification_dialog.show()
             self._update_speaker_identification_button_state()

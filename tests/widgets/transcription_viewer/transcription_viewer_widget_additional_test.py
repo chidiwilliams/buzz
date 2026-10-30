@@ -1,8 +1,9 @@
+import platform
 import uuid
 import sys
 import pytest
 from pytestqt.qtbot import QtBot
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import QObject, Qt, QThread, pyqtSignal
 from PyQt6.QtMultimedia import QMediaPlayer
 from unittest.mock import MagicMock, patch
 
@@ -16,6 +17,12 @@ from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
 )
 from buzz.widgets.transcription_viewer.transcription_view_mode_tool_button import ViewMode
 from tests.audio import test_audio_path
+
+# Underlying libs of speaker identification do not support intel Macs
+requires_speaker_identification = pytest.mark.skipif(
+    platform.system() == "Darwin" and platform.machine() == "x86_64",
+    reason="Speaker identification unavailable on Intel Mac",
+)
 
 
 class TestTranscriptionViewerWidgetAdditional:
@@ -1351,3 +1358,132 @@ class TestTranscriptionViewerWidgetAdditional:
 
         widget.transcription_resizer_dialog.close.assert_called_once()
         widget.speaker_identification_dialog.close.assert_called_once()
+
+
+class MainWindowSignals(QObject):
+    # MainWindow passes its transcriptions_updated signal to every viewer it opens
+    transcriptions_updated = pyqtSignal(uuid.UUID)
+
+
+class TestTranscriptionViewersSharingUpdatedSignal:
+    """Saving in a viewer's dialog closes that viewer, but not the others"""
+
+    IDENTIFICATION_RESULT = [
+        {"speaker": "Speaker 0", "start_time": 40, "end_time": 500, "text": "First"},
+        {"speaker": "Speaker 1", "start_time": 500, "end_time": 1000, "text": "Second"},
+    ]
+
+    @pytest.fixture()
+    def open_viewer(
+        self,
+        qtbot: QtBot,
+        transcription_dao,
+        transcription_segment_dao,
+        transcription_service,
+        shortcuts,
+    ):
+        """Opens viewers sharing one transcriptions_updated signal, as in MainWindow"""
+        main_window = MainWindowSignals()
+        viewers = []
+
+        def open_viewer() -> TranscriptionViewerWidget:
+            id = uuid.uuid4()
+            transcription_dao.insert(
+                Transcription(
+                    id=str(id),
+                    status="completed",
+                    file=test_audio_path,
+                    task=Task.TRANSCRIBE.value,
+                    model_type=ModelType.WHISPER.value,
+                    whisper_model_size=WhisperModelSize.TINY.value,
+                )
+            )
+            transcription_segment_dao.insert(
+                TranscriptionSegment(40, 500, "First", "", str(id))
+            )
+            transcription_segment_dao.insert(
+                TranscriptionSegment(500, 1000, "Second", "", str(id))
+            )
+            viewer = TranscriptionViewerWidget(
+                transcription_dao.find_by_id(str(id)),
+                transcription_service,
+                shortcuts,
+                transcriptions_updated_signal=main_window.transcriptions_updated,
+            )
+            qtbot.add_widget(viewer)
+            viewer.show()
+            viewers.append(viewer)
+            return viewer
+
+        yield open_viewer
+
+        for viewer in viewers:
+            if viewer.speaker_identification_dialog is not None:
+                viewer.speaker_identification_dialog.close()
+            if viewer.transcription_resizer_dialog is not None:
+                viewer.transcription_resizer_dialog.close()
+            viewer.close()
+
+    def identify_speakers(self, viewer: TranscriptionViewerWidget):
+        """Opens Identify Speakers and finishes Step 1"""
+        viewer.on_speaker_identification_button_clicked()
+        dialog = viewer.speaker_identification_dialog
+        dialog.on_identification_finished(list(self.IDENTIFICATION_RESULT))
+        return dialog
+
+    @staticmethod
+    def extend_endings(viewer: TranscriptionViewerWidget):
+        viewer.on_resize_button_clicked()
+        viewer.transcription_resizer_dialog.on_extend_button_clicked()
+
+    @requires_speaker_identification
+    def test_saving_speakers_keeps_other_identifications_open(self, open_viewer):
+        viewer_a, viewer_b, viewer_c = open_viewer(), open_viewer(), open_viewer()
+        speakers_a, speakers_b, speakers_c = [
+            self.identify_speakers(viewer) for viewer in (viewer_a, viewer_b, viewer_c)
+        ]
+
+        speakers_a.on_save_button_clicked()
+
+        assert not speakers_a.isVisible()
+        assert not viewer_a.isVisible()
+        for viewer, speakers in ((viewer_b, speakers_b), (viewer_c, speakers_c)):
+            assert speakers.isVisible()
+            assert speakers.identification_result == self.IDENTIFICATION_RESULT
+            assert viewer.isVisible()
+
+    @requires_speaker_identification
+    def test_running_identification_survives_resize_in_other_viewer(self, open_viewer):
+        viewer_a, viewer_b = open_viewer(), open_viewer()
+        viewer_a.on_speaker_identification_button_clicked()
+        speakers_a = viewer_a.speaker_identification_dialog
+
+        # Start Step 1 on a mock thread, so that no model runs
+        thread_a = MagicMock(spec=QThread)
+        with patch(
+            "buzz.widgets.transcription_viewer.speaker_identification_widget.QThread",
+            return_value=thread_a,
+        ), patch(
+            "buzz.widgets.transcription_viewer.speaker_identification_widget.IdentificationWorker.moveToThread"
+        ):
+            speakers_a.on_identify_button_clicked()
+        worker_a = speakers_a.worker
+        thread_a.start.assert_called_once()
+
+        self.extend_endings(viewer_b)
+
+        assert not worker_a._is_cancelled
+        thread_a.quit.assert_not_called()
+        assert speakers_a.isVisible()
+        assert viewer_a.isVisible()
+        assert not viewer_b.isVisible()
+
+    def test_viewer_that_closed_resizer_stays_open_on_other_saves(self, open_viewer):
+        viewer_a, viewer_b = open_viewer(), open_viewer()
+        viewer_a.on_resize_button_clicked()
+        viewer_a.transcription_resizer_dialog.close()
+
+        self.extend_endings(viewer_b)
+
+        assert viewer_a.isVisible()
+        assert not viewer_b.isVisible()
