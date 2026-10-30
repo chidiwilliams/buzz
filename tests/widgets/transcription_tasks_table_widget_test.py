@@ -1,8 +1,9 @@
 import enum
 import os
 from datetime import timedelta
+from typing import List
 from unittest.mock import Mock, patch, MagicMock
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import pytest
 from PyQt6.QtCore import Qt, QEvent
@@ -227,10 +228,52 @@ class TestTranscriptionTasksTableWidget:
             QApplication.sendEvent(widget, event)
             mock_copy.assert_called_once()
 
-    def test_delete_transcriptions(self, widget):
+    @staticmethod
+    def _insert_transcriptions(db, count: int) -> List[UUID]:
+        ids = [uuid4() for _ in range(count)]
+        query = QSqlQuery(db)
+        for i, id in enumerate(ids):
+            query.prepare(
+                "INSERT INTO transcription (id, status, time_queued) "
+                "VALUES (:id, 'completed', :time_queued)"
+            )
+            query.bindValue(":id", str(id))
+            query.bindValue(
+                ":time_queued", f"2024-01-01T{i // 3600:02d}:{i // 60 % 60:02d}:{i % 60:02d}"
+            )
+            assert query.exec()
+        return ids
+
+    @staticmethod
+    def _stored_ids(db) -> set:
+        query = QSqlQuery("SELECT id FROM transcription", db)
+        ids = set()
+        while query.next():
+            ids.add(query.value(0))
+        return ids
+
+    def test_delete_transcriptions(self, widget, db):
+        ids = self._insert_transcriptions(db, 2)
+        widget.model().select()
         initial_row_count = widget.model().rowCount()
-        widget.delete_transcriptions([widget.model().index(0, 0)])
+
+        widget.delete_transcriptions([ids[0]])
+
         assert widget.model().rowCount() == initial_row_count - 1
+        assert self._stored_ids(db) == {"1", "2", str(ids[1])}
+
+    def test_delete_transcriptions_not_fetched_yet(self, widget, db):
+        ids = self._insert_transcriptions(db, 300)
+        widget.model().select()
+        # Newest first, and the model fetches only the first batch of rows
+        assert widget.model().rowCount() < 302
+        assert widget.model().canFetchMore()
+
+        widget.delete_transcriptions([ids[0]])
+
+        stored_ids = self._stored_ids(db)
+        assert str(ids[0]) not in stored_ids
+        assert len(stored_ids) == 301
 
     def test_selected_transcriptions(self, widget):
         # Due to sorting, the second row (index 1) is now the first visible row (index 0)

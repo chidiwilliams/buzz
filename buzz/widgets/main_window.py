@@ -294,6 +294,25 @@ class MainWindow(QMainWindow):
         if len(selected_rows) == 0:
             return
 
+        # Queued and running transcriptions can be deleted too. Cancel them
+        # along with deleting their rows, or the queue worker still transcribes
+        # them and can't save the result.
+        selected_transcriptions = [
+            self.table_widget.transcription(row) for row in selected_rows
+        ]
+        selected_transcription_ids = [
+            transcription.id_as_uuid for transcription in selected_transcriptions
+        ]
+        active_transcription_ids = [
+            transcription.id_as_uuid
+            for transcription in selected_transcriptions
+            if transcription.status_as_status
+            in (
+                FileTranscriptionTask.Status.QUEUED,
+                FileTranscriptionTask.Status.IN_PROGRESS,
+            )
+        ]
+
         question_box = QMessageBox()
         question_box.setWindowTitle(_("Clear History"))
         question_box.setIcon(QMessageBox.Icon.Question)
@@ -312,7 +331,11 @@ class MainWindow(QMainWindow):
         reply = question_box.exec()
 
         if reply == QMessageBox.StandardButton.Yes:
-            self.table_widget.delete_transcriptions(selected_rows)
+            for transcription_id in active_transcription_ids:
+                self.transcriber_worker.cancel_task(transcription_id)
+            # By id, as the table can refresh while the dialog is open and
+            # then the selected row numbers point at other transcriptions
+            self.table_widget.delete_transcriptions(selected_transcription_ids)
 
     def on_stop_transcription_action_triggered(self):
         selected_transcriptions = self.table_widget.selected_transcriptions()
@@ -427,14 +450,8 @@ class MainWindow(QMainWindow):
         )
 
     def should_enable_clear_history_action(self):
-        return self.selected_tasks_have_status(
-            [
-                FileTranscriptionTask.Status.COMPLETED,
-                FileTranscriptionTask.Status.FAILED,
-                FileTranscriptionTask.Status.CANCELED,
-                FileTranscriptionTask.Status.SKIPPED,
-            ]
-        )
+        # Queued and running transcriptions are canceled when deleted
+        return len(self.table_widget.selected_transcriptions()) > 0
 
     def selected_tasks_have_status(self, statuses: List[FileTranscriptionTask.Status]):
         transcriptions = self.table_widget.selected_transcriptions()
@@ -509,6 +526,14 @@ class MainWindow(QMainWindow):
         pass
 
     def on_task_completed(self, task: FileTranscriptionTask, segments: List[Segment]):
+        # A result already on its way when the transcription was deleted or
+        # canceled. Saving it would fail the segments' foreign key of a deleted
+        # row, or turn a canceled one into completed.
+        if self.transcription_service.is_transcription_deleted_or_canceled(task.uid):
+            logging.debug(f"Ignoring result of deleted or canceled task {task.uid}")
+            self.quit_if_all_tasks_done(task)
+            return
+
         # Handle skipped tasks (e.g. plugin detected file already transcribed)
         if task.status == FileTranscriptionTask.Status.SKIPPED:
             self.transcription_service.update_transcription_as_skipped(task.uid, segments)
@@ -573,8 +598,9 @@ class MainWindow(QMainWindow):
         QApplication.quit()
 
     def on_task_error(self, task: FileTranscriptionTask, error: str):
-        self.transcription_service.update_transcription_as_failed(task.uid, error)
-        self.table_widget.refresh_row(task.uid)
+        if not self.transcription_service.is_transcription_deleted_or_canceled(task.uid):
+            self.transcription_service.update_transcription_as_failed(task.uid, error)
+            self.table_widget.refresh_row(task.uid)
 
         self.quit_if_all_tasks_done(task)
 
