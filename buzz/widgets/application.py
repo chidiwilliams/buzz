@@ -41,7 +41,10 @@ class CloseWindowShortcutFilter(QObject):
                 window.close()
                 return True
 
-        return super().eventFilter(obj, event)
+        # As QObject.eventFilter() does. Not passing `obj` back to Qt, as the
+        # filter sees the events of objects being destroyed too, which PyQt
+        # raises on as deleted.
+        return False
 
 
 class Application(QApplication):

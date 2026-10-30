@@ -1,10 +1,9 @@
+import json
 import logging
 import os
 import subprocess
-import tempfile
 import threading
-import wave
-from typing import Optional
+from typing import Callable, Optional
 
 import numpy as np
 import sounddevice as sd
@@ -14,36 +13,184 @@ from buzz.audio_devices import (
     register_stream,
     unregister_stream,
 )
-from buzz.ffmpeg_utils import find_ffmpeg
+from buzz.ffmpeg_utils import audio_stream_duration, find_ffmpeg, find_ffprobe
 from buzz.pip_utils import subprocess_hide_window_kwargs
 
 
 _find_ffmpeg = find_ffmpeg
+_find_ffprobe = find_ffprobe
+
+SAMPLE_RATE = 44100
+CHANNELS = 2
+FRAME_BYTES = CHANNELS * 2  # 16-bit samples
+MIN_BUFFER_BYTES = 1 << 20
+# The most audio allocated for before decoding, as the duration it is sized
+# by may come from corrupt metadata. Longer audio grows the buffer instead.
+MAX_INITIAL_BUFFER_BYTES = 4 * 3600 * SAMPLE_RATE * FRAME_BYTES
+# Bits per second of the most compressed audio in common use, Opus speech
+MIN_COMPRESSED_BITRATE = 6_000
 
 
-def decode_audio_to_wav(input_path: str, output_wav: str) -> None:
-    ffmpeg = _find_ffmpeg()
-    subprocess.run(
-        [ffmpeg, "-y", "-i", input_path, "-vn", "-ar", "44100", "-ac", "2",
-         "-f", "wav", output_wav],
-        capture_output=True,
-        check=True,
-        **subprocess_hide_window_kwargs(),
-    )
+class AudioDecoder:
+    """
+    Decodes an audio/video file to 16-bit stereo samples with ffmpeg.
+    Decoding a long file takes seconds, so another thread may cancel it.
+    """
+
+    def __init__(self, file_path: str,
+                 on_progress: Optional[Callable[[float], None]] = None,
+                 duration_s: Optional[float] = None):
+        """
+        `on_progress` is called on the decoding thread with the fraction
+        decoded so far, when the duration of the file is known.
+        `duration_s` is the audio stream's, from audio_stream_duration(), if
+        the file was probed already. Otherwise the decoder probes it.
+        """
+        self.file_path = file_path
+        self._on_progress = on_progress
+        self._duration_s = duration_s
+        self._lock = threading.Lock()
+        self._process: Optional[subprocess.Popen] = None
+        self._cancelled = False
+
+    @property
+    def cancelled(self) -> bool:
+        return self._cancelled
+
+    def decode(self) -> Optional[np.ndarray]:
+        """Returns the samples, or None if cancelled. Raises if ffmpeg fails."""
+        # Raw samples through a pipe, as a WAV file in between costs a disk
+        # write and read. int16 takes half the memory of float32, which for
+        # a 30 minute file is 300 MB instead of 600 MB.
+        args = [_find_ffmpeg(), "-nostdin", "-v", "error", "-i", self.file_path,
+                "-vn", "-ar", str(SAMPLE_RATE), "-ac", str(CHANNELS),
+                "-f", "s16le", "pipe:1"]
+        duration_s = self._duration_s if self._duration_s is not None else self._probe_duration_s()
+        expected_bytes = int(duration_s * SAMPLE_RATE) * FRAME_BYTES
+        process = self._start(args)
+        if process is None:
+            return None
+
+        # Drain stderr alongside stdout, or ffmpeg blocks once that pipe fills
+        stderr = []
+        stderr_reader = threading.Thread(
+            target=lambda: stderr.append(process.stderr.read()), daemon=True)
+        stderr_reader.start()
+        try:
+            with process.stdout:
+                samples = _read_samples(process.stdout, expected_bytes, self._on_progress,
+                                        _max_initial_bytes(self.file_path))
+        except BaseException:
+            # E.g. no memory for the samples. Stop ffmpeg rather than leave it
+            # running, or blocked on a pipe nobody reads any more.
+            process.kill()
+            raise
+        finally:
+            process.wait()
+            stderr_reader.join()
+            process.stderr.close()
+
+        if self._cancelled:
+            return None
+        if process.returncode != 0:
+            raise subprocess.CalledProcessError(
+                process.returncode, args, stderr=b"".join(stderr))
+        return samples
+
+    def _start(self, args) -> Optional[subprocess.Popen]:
+        """Starts a process that cancel() kills, or returns None if cancelled already."""
+        with self._lock:
+            if self._cancelled:
+                return None
+            self._process = subprocess.Popen(
+                args,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                **subprocess_hide_window_kwargs(),
+            )
+            return self._process
+
+    def _probe_duration_s(self) -> float:
+        """Duration of the audio stream that ffprobe reports, or 0 if unknown."""
+        try:
+            process = self._start(
+                [_find_ffprobe(), "-v", "error",
+                 "-show_entries", "stream=codec_type,duration:stream_tags=DURATION:format=duration",
+                 "-of", "json", self.file_path])
+        except OSError:
+            # Decoding needs only ffmpeg, so do without the size when ffprobe
+            # is missing or cannot run
+            logging.debug("Could not start ffprobe", exc_info=True)
+            return 0
+        if process is None:
+            return 0
+        try:
+            # A file on a network share that stopped responding can stall
+            # ffprobe, in which case cancel() kills it
+            stdout, _ = process.communicate(timeout=30)
+            if process.returncode != 0:
+                return 0
+            return audio_stream_duration(json.loads(stdout))
+        except Exception:
+            if process.poll() is None:
+                process.kill()
+                process.communicate()
+            logging.debug("Could not probe duration of %s", self.file_path, exc_info=True)
+            return 0
+
+    def cancel(self):
+        with self._lock:
+            self._cancelled = True
+            if self._process is not None and self._process.poll() is None:
+                self._process.kill()
 
 
-def load_wav(wav_path: str):
-    with wave.open(wav_path, "rb") as wf:
-        n_channels = wf.getnchannels()
-        sampwidth = wf.getsampwidth()
-        framerate = wf.getframerate()
-        n_frames = wf.getnframes()
-        raw = wf.readframes(n_frames)
-    dtype = {1: np.int8, 2: np.int16, 4: np.int32}.get(sampwidth, np.int16)
-    data = np.frombuffer(raw, dtype=dtype).astype(np.float32) / np.iinfo(dtype).max
-    if n_channels > 1:
-        data = data.reshape(-1, n_channels)
-    return data, framerate
+def _max_initial_bytes(file_path: str) -> int:
+    """
+    The most decoded audio the file could plausibly hold, at the lowest
+    bitrate audio is compressed to, and at most MAX_INITIAL_BUFFER_BYTES.
+    A duration in its metadata that claims more is not believed up front.
+    """
+    try:
+        file_bytes = os.path.getsize(file_path)
+    except OSError:
+        return MAX_INITIAL_BUFFER_BYTES
+    plausible = file_bytes * 8 * SAMPLE_RATE * FRAME_BYTES // MIN_COMPRESSED_BITRATE
+    return min(plausible, MAX_INITIAL_BUFFER_BYTES)
+
+
+def _read_samples(stdout, expected_bytes: int,
+                  on_progress: Optional[Callable[[float], None]] = None,
+                  max_initial_bytes: int = MAX_INITIAL_BUFFER_BYTES) -> np.ndarray:
+    """
+    Reads raw samples into one buffer sized up front, so the decoded audio is
+    held in memory once. Collecting chunks and joining them, as
+    Popen.communicate() does, needs twice that at the end.
+    """
+    # Some headroom, as the duration in the container is not always exact.
+    # Capped, as the buffer is zero-filled, which for a duration from corrupt
+    # metadata would take memory before reading a single sample.
+    initial_bytes = min(expected_bytes + expected_bytes // 100, max_initial_bytes)
+    buffer = bytearray(max(initial_bytes, MIN_BUFFER_BYTES))
+    size = 0
+    while True:
+        if size == len(buffer):
+            # Longer than expected. Growing may copy the samples read so far.
+            buffer.extend(bytes(len(buffer) // 2))
+        # readinto() on a buffered pipe blocks until the whole buffer is full,
+        # i.e. until ffmpeg is done, so progress would only be reported at the
+        # end. readinto1() returns whatever the pipe has.
+        read = stdout.readinto1(memoryview(buffer)[size:])
+        if not read:
+            break
+        size += read
+        if on_progress is not None and expected_bytes > 0:
+            on_progress(min(size / expected_bytes, 1.0))
+    # Give back what the samples do not fill, which the array would keep
+    # otherwise. Shrinking to under half the buffer returns the memory to
+    # the system without copying the samples.
+    del buffer[size // FRAME_BYTES * FRAME_BYTES:]
+    return np.frombuffer(buffer, dtype=np.int16).reshape(-1, CHANNELS)
 
 
 class SounddevicePlayer:
@@ -94,7 +241,7 @@ class SounddevicePlayer:
         self._stream = sd.OutputStream(
             samplerate=self.samplerate,
             channels=channels,
-            dtype="float32",
+            dtype=self.data.dtype.name,
             callback=self._callback,
             finished_callback=self._on_finished,
         )
@@ -181,23 +328,28 @@ class AudioFilePlayer:
     Provides the same interface used by AudioPlayer and VideoPlayer.
     """
 
-    def __init__(self, file_path: str):
-        self._tmp_dir = tempfile.TemporaryDirectory()
-        self._wav_path = os.path.join(self._tmp_dir.name, "audio.wav")
+    def __init__(self, file_path: str, decoder: Optional[AudioDecoder] = None,
+                 samples: Optional[np.ndarray] = None):
+        """`samples` are already decoded ones, e.g. another player's, played without decoding again."""
         self._player: Optional[SounddevicePlayer] = None
         self._ready = False
 
         try:
-            decode_audio_to_wav(file_path, self._wav_path)
-            data, samplerate = load_wav(self._wav_path)
-            self._player = SounddevicePlayer(data, samplerate)
-            self._ready = True
+            data = samples if samples is not None else (decoder or AudioDecoder(file_path)).decode()
+            if data is not None:
+                self._player = SounddevicePlayer(data, SAMPLE_RATE)
+                self._ready = True
         except Exception:
             logging.error("AudioFilePlayer: failed to decode %s", file_path, exc_info=True)
 
     @property
     def ready(self) -> bool:
         return self._ready
+
+    @property
+    def samples(self) -> Optional[np.ndarray]:
+        """The decoded samples, which other players of the same file can share."""
+        return self._player.data if self._player else None
 
     @property
     def duration_ms(self) -> int:
@@ -234,7 +386,3 @@ class AudioFilePlayer:
     def close(self):
         if self._player:
             self._player.close()
-        try:
-            self._tmp_dir.cleanup()
-        except Exception:
-            pass

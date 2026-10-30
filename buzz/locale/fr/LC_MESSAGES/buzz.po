@@ -2119,3 +2119,15 @@ msgid ""
 msgstr ""
 "L'extraction de la parole a échoué ! Vérifiez votre connexion internet — un "
 "modèle doit peut-être être téléchargé."
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Loading audio"
+msgstr "Chargement de l'audio"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Could not load audio"
+msgstr "Impossible de charger l'audio"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Audio file not found: {}"
+msgstr "Fichier audio introuvable : {}"

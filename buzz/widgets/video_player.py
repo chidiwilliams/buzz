@@ -6,22 +6,23 @@ from PyQt6.QtCore import Qt, QUrl, pyqtSignal, QTime, QTimer
 from PyQt6.QtGui import QImage, QPixmap
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QSlider, QPushButton,
+    QWidget, QVBoxLayout, QSlider,
     QHBoxLayout, QLabel, QSizePolicy,
 )
 from buzz.widgets.icon import PlayIcon, PauseIcon
+from buzz.widgets.play_button import PlayButton
 from buzz.sounddevice_player import AudioFilePlayer
+from buzz.widgets.audio_file_player_loader import DecodedAudioMixin
 from buzz.ffmpeg_video_player import FfmpegVideoPlayer
 
 
-class VideoPlayer(QWidget):
+class VideoPlayer(QWidget, DecodedAudioMixin):
     position_ms_changed = pyqtSignal(int)
 
     def __init__(self, file_path: str, parent=None):
         super().__init__(parent)
         self._init_attributes()
         self._init_video_decoder(file_path)
-        self._init_audio_engine(file_path)
         self._init_media_player(file_path)
         self._init_video_display()
         self._init_timers()
@@ -29,6 +30,9 @@ class VideoPlayer(QWidget):
         self._init_layout()
         self._init_signals()
         self._finalize_scrubber()
+        # Started last, as it shows its progress in the play button. Sized by
+        # the video decoder's probe, so the file is not probed twice.
+        self._start_audio_loader(file_path, self._ffmpeg_player.audio_duration_s)
 
     def _init_attributes(self):
         self.range_ms: Optional[Tuple[int, int]] = None
@@ -37,24 +41,26 @@ class VideoPlayer(QWidget):
         self.is_looping = False
         self.is_slider_dragging = False
         self._drift_polls = 0
+        self._init_decoded_audio()
 
     def _init_video_decoder(self, file_path: str):
         self._ffmpeg_player = FfmpegVideoPlayer(file_path)
         if self._ffmpeg_player.has_video:
             self._ffmpeg_player.start(0)
 
-    def _init_audio_engine(self, file_path: str):
-        self._sd_player: Optional[AudioFilePlayer] = None
-        self._use_sd = False
-        try:
-            sd_player = AudioFilePlayer(file_path)
-            if sd_player.ready:
-                self._sd_player = sd_player
-                self._use_sd = True
-            else:
-                sd_player.close()
-        except Exception:
-            logging.warning("VideoPlayer: sounddevice init failed, no audio", exc_info=True)
+    def _on_audio_loaded(self, sd_player: Optional[AudioFilePlayer]):
+        if sd_player is not None:
+            self._sd_player = sd_player
+            self._use_sd = True
+            sd_player.seek(self.media_player.position())
+            # The video may have been started meanwhile, e.g. from a keyboard
+            # shortcut, so join in with its audio
+            if self.is_playing():
+                sd_player.resume()
+                self._poll_timer.start()
+        else:
+            logging.warning("VideoPlayer: sounddevice init failed, no audio")
+        self.play_button.setEnabled(True)
 
     def _init_media_player(self, file_path: str):
         self.audio_output = QAudioOutput(self)
@@ -96,13 +102,13 @@ class VideoPlayer(QWidget):
         self.scrubber.sliderReleased.connect(self.on_slider_released)
         self.play_icon = PlayIcon(self)
         self.pause_icon = PauseIcon(self)
-        self.play_button = QPushButton("")
+        self.play_button = PlayButton()
         self.play_button.setIcon(self.play_icon)
         self.play_button.clicked.connect(self.toggle_playback)
         self.play_button.setMaximumWidth(40)
         self.play_button.setMinimumHeight(30)
         self.time_label = QLabel()
-        self.time_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.time_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.controls = QHBoxLayout()
         self.controls.addWidget(self.play_button)
         self.controls.addWidget(self.scrubber)
@@ -184,8 +190,19 @@ class VideoPlayer(QWidget):
     def on_media_status_changed(self, status: QMediaPlayer.MediaStatus):
         pass  # duration comes from ffprobe (immediate) or durationChanged (async)
 
+    def is_playing(self) -> bool:
+        return self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState
+
+    def play(self):
+        if not self.is_playing():
+            self.toggle_playback()
+
+    def pause(self):
+        if self.is_playing():
+            self.toggle_playback()
+
     def toggle_playback(self):
-        if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
+        if self.is_playing():
             self.media_player.pause()
             if self._use_sd and self._sd_player:
                 self._sd_player.pause()
@@ -264,6 +281,7 @@ class VideoPlayer(QWidget):
             self._sd_player.stop()
 
     def closeEvent(self, event):
+        self._cancel_audio_loader()
         self.stop()
         self._ffmpeg_player.close()
         if self._sd_player:
