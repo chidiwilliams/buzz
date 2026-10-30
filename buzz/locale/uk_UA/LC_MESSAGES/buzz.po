@@ -2104,3 +2104,15 @@ msgid ""
 msgstr ""
 "Не вдалося витягти мовлення! Перевірте підключення до інтернету — можливо, "
 "потрібно завантажити модель."
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Loading audio"
+msgstr "Завантаження аудіо"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Could not load audio"
+msgstr "Не вдалося завантажити аудіо"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Audio file not found: {}"
+msgstr "Аудіофайл не знайдено: {}"

@@ -2106,3 +2106,15 @@ msgid ""
 msgstr ""
 "Wyodrębnianie mowy nie powiodło się! Sprawdź połączenie internetowe — może "
 "być konieczne pobranie modelu."
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Loading audio"
+msgstr "Wczytywanie dźwięku"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Could not load audio"
+msgstr "Nie można wczytać dźwięku"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Audio file not found: {}"
+msgstr "Nie znaleziono pliku dźwiękowego: {}"

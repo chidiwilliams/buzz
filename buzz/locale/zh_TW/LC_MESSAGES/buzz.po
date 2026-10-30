@@ -2049,3 +2049,15 @@ msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
 msgstr "語音提取失敗！請檢查您的網路連線——可能需要下載模型。"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Loading audio"
+msgstr "正在載入音訊"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Could not load audio"
+msgstr "無法載入音訊"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Audio file not found: {}"
+msgstr "找不到音訊檔案：{}"

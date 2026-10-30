@@ -1,10 +1,21 @@
+import io
+import os
+import subprocess
+import sys
+import threading
 from unittest.mock import patch
 
 import numpy as np
 import pytest
 
 from buzz import audio_devices
-from buzz.sounddevice_player import SounddevicePlayer
+from buzz.sounddevice_player import (
+    AudioDecoder, AudioFilePlayer, SounddevicePlayer, MIN_BUFFER_BYTES, MAX_INITIAL_BUFFER_BYTES,
+    _max_initial_bytes, _read_samples,
+    FRAME_BYTES, SAMPLE_RATE,
+)
+from buzz.ffmpeg_utils import audio_stream_duration, find_ffmpeg, find_ffprobe
+from tests.audio import test_audio_path
 
 
 @pytest.fixture(autouse=True)
@@ -23,6 +34,7 @@ class FakeOutputStream:
     def __init__(self, samplerate, channels, dtype, callback, finished_callback):
         self.samplerate = samplerate
         self.channels = channels
+        self.dtype = dtype
         self.callback = callback
         self.finished_callback = finished_callback
         self.latency = 0.25  # 250 ms output latency, typical of Windows defaults
@@ -173,6 +185,200 @@ class TestDeviceRefresh:
             player.stop()
 
             assert stream not in audio_devices._active_streams
+
+
+class TestAudioDecoder:
+    def test_decodes_to_16_bit_stereo(self):
+        data = AudioDecoder(test_audio_path).decode()
+
+        assert data.dtype == np.int16
+        assert data.shape[1] == 2
+        assert len(data) > 44100  # more than a second of audio
+
+    def test_cancelled_decoder_returns_nothing(self):
+        decoder = AudioDecoder(test_audio_path)
+        decoder.cancel()
+
+        assert decoder.decode() is None
+
+    def test_file_player_is_not_ready_when_cancelled(self):
+        decoder = AudioDecoder(test_audio_path)
+        decoder.cancel()
+
+        assert not AudioFilePlayer(test_audio_path, decoder=decoder).ready
+
+    def test_reports_ffmpeg_errors(self, tmp_path):
+        not_audio = tmp_path / "notes.mp3"
+        not_audio.write_text("not audio")
+
+        with pytest.raises(subprocess.CalledProcessError) as error:
+            AudioDecoder(str(not_audio)).decode()
+        assert error.value.stderr
+
+    def test_corrupt_duration_is_not_allocated_up_front(self):
+        """A duration claiming far more audio than the file holds does not size the buffer."""
+        data = AudioDecoder(test_audio_path, duration_s=10 ** 8).decode()
+
+        assert 44100 < len(data) < 44100 * 60
+
+    def test_initial_buffer_is_bounded_by_the_file_size(self, tmp_path):
+        audio = tmp_path / "audio.opus"
+        audio.write_bytes(bytes(6_000))
+
+        # 6000 bytes hold at most 8 s of audio at 6 kbit/s
+        assert _max_initial_bytes(str(audio)) == 8 * SAMPLE_RATE * FRAME_BYTES
+
+    def test_initial_buffer_of_unknown_file_size(self, tmp_path):
+        assert _max_initial_bytes(str(tmp_path / "missing.mp3")) == MAX_INITIAL_BUFFER_BYTES
+
+    def test_buffer_grows_past_the_initial_limit(self):
+        raw = (np.arange(MIN_BUFFER_BYTES * 3) % 30_000).astype(np.int16).tobytes()
+
+        samples = _read_samples(io.BytesIO(raw), expected_bytes=len(raw),
+                                max_initial_bytes=MIN_BUFFER_BYTES)
+
+        assert samples.tobytes() == raw
+
+    def test_buffer_is_trimmed_to_the_samples(self):
+        """A buffer sized for far more audio than there is is not kept alive by the samples."""
+        raw = bytes(MIN_BUFFER_BYTES)
+
+        samples = _read_samples(io.BytesIO(raw), expected_bytes=20 * len(raw))
+
+        base = samples
+        while isinstance(base, np.ndarray) and base.base is not None:
+            base = base.base
+        assert memoryview(base).nbytes == len(raw)
+
+    # Matroska gives the audio stream no duration, only a tag with it
+    @pytest.mark.parametrize("extension, audio_codec", [("mp4", "aac"), ("mkv", "libopus")])
+    def test_probes_the_duration_of_the_audio_stream(self, tmp_path, extension, audio_codec):
+        """A long video with a short audio track is not sized by the video."""
+        video = str(tmp_path / f"video.{extension}")
+        subprocess.run(
+            [find_ffmpeg(), "-v", "error", "-f", "lavfi", "-i", "color=size=16x16:rate=1:duration=60",
+             "-f", "lavfi", "-i", "sine=duration=2", "-c:v", "libx264", "-c:a", audio_codec, video],
+            check=True)
+
+        duration_s = AudioDecoder(video)._probe_duration_s()
+
+        # What ffprobe reported, as builds differ in the durations they give
+        probe = subprocess.run(
+            [find_ffprobe(), "-v", "error",
+             "-show_entries", "stream=codec_type,duration:stream_tags=DURATION:format=duration",
+             "-of", "json", video],
+            capture_output=True, text=True).stdout
+        assert 1.9 < duration_s < 2.2, probe
+
+    def test_duration_tag_is_preferred_to_the_stream_duration(self):
+        info = {"streams": [{"codec_type": "video"},
+                            {"codec_type": "audio", "duration": "60.000000",
+                             "tags": {"DURATION": "00:00:02.008000000"}}],
+                "format": {"duration": "60.000000"}}
+
+        assert audio_stream_duration(info) == pytest.approx(2.008)
+
+    @pytest.mark.parametrize("tag", ["N/A", "2.008", "00:02.008"])
+    def test_malformed_duration_tag_falls_back_to_the_stream_duration(self, tag):
+        info = {"streams": [{"codec_type": "video"},
+                            {"codec_type": "audio", "duration": "2.5",
+                             "tags": {"DURATION": tag}}],
+                "format": {"duration": "60.000000"}}
+
+        assert audio_stream_duration(info) == 2.5
+
+    def test_container_duration_is_not_trusted_beside_a_video(self):
+        info = {"streams": [{"codec_type": "video"}, {"codec_type": "audio"}],
+                "format": {"duration": "3600.0"}}
+
+        assert audio_stream_duration(info) == 0
+
+    def test_container_duration_is_the_duration_of_audio_alone(self):
+        info = {"streams": [{"codec_type": "audio"}], "format": {"duration": "3.5"}}
+
+        assert audio_stream_duration(info) == 3.5
+
+    def test_known_duration_is_not_probed_again(self):
+        with patch("buzz.sounddevice_player._find_ffprobe",
+                   side_effect=AssertionError("probed again")):
+            data = AudioDecoder(test_audio_path, duration_s=2.5).decode()
+
+        assert len(data) > 44100
+
+    def test_decodes_without_ffprobe(self, tmp_path):
+        with patch("buzz.sounddevice_player._find_ffprobe",
+                   return_value=str(tmp_path / "missing-ffprobe")):
+            data = AudioDecoder(test_audio_path).decode()
+
+        assert len(data) > 44100
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="uses a named pipe")
+    def test_cancel_stops_a_stalled_probe(self, tmp_path):
+        # Opening a named pipe blocks until something writes to it
+        stalled = str(tmp_path / "stalled.mp3")
+        os.mkfifo(stalled)
+        decoder = AudioDecoder(stalled)
+        decoding = threading.Thread(target=decoder.decode)
+        decoding.start()
+
+        for _ in range(100):
+            if decoder._process is not None:
+                break
+            threading.Event().wait(0.05)
+        decoder.cancel()
+        decoding.join(5)
+
+        assert not decoding.is_alive()
+
+    def test_reads_more_samples_than_expected(self):
+        raw = (np.arange(MIN_BUFFER_BYTES * 3 // 2) % 30_000).astype(np.int16).tobytes()
+
+        samples = _read_samples(io.BytesIO(raw + b"\x01"), expected_bytes=0)
+
+        # The trailing partial frame is dropped
+        assert samples.tobytes() == raw
+        assert samples.shape[1] == 2
+
+    def test_reports_decoding_progress(self):
+        progress = []
+
+        AudioDecoder(test_audio_path, on_progress=progress.append).decode()
+
+        assert progress
+        assert progress == sorted(progress)
+        assert progress[-1] > 0.9
+
+    def test_reading_reports_fraction_of_expected_bytes(self):
+        raw = bytes(MIN_BUFFER_BYTES)
+        progress = []
+
+        _read_samples(io.BytesIO(raw), expected_bytes=2 * len(raw), on_progress=progress.append)
+
+        assert progress == [0.5]
+
+    def test_file_player_shares_samples(self):
+        data = np.zeros((44100, 2), dtype=np.int16)
+
+        player = AudioFilePlayer("unused.mp3", samples=data)
+
+        assert player.ready
+        assert player.samples is data
+
+    def test_stream_plays_samples_in_their_own_format(self):
+        """int16 samples are played as they are, without a float32 copy."""
+        FakeOutputStream.instances = []
+        with patch("buzz.sounddevice_player.sd.OutputStream", FakeOutputStream):
+            data = np.zeros((44100, 2), dtype=np.int16)
+            player = SounddevicePlayer(data, 44100)
+            player.play()
+
+            assert FakeOutputStream.instances[-1].dtype == "int16"
+
+            outdata = np.ones((512, 2), dtype=np.int16)
+            player._callback(outdata, 512, None, None)
+            assert not outdata.any()
+
+            player.stop()
 
 
 class TestRefreshAudioDevices:

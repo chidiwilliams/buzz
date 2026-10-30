@@ -943,16 +943,14 @@ class TestTranscriptionViewerWidgetAdditional:
         )
         qtbot.add_widget(widget)
 
-        # Mock media player in playing state
-        with patch.object(
-            widget.current_media_player.media_player,
-            'playbackState',
-            return_value=QMediaPlayer.PlaybackState.PlayingState
-        ):
-            # Should call pause
-            with patch.object(widget.current_media_player.media_player, 'pause') as mock_pause:
-                widget.toggle_audio_playback()
-                mock_pause.assert_called_once()
+        # The player's own state counts, not its QMediaPlayer's, which is
+        # paused while the audio plays through sounddevice
+        with patch.object(widget.current_media_player, 'is_playing', return_value=True), \
+                patch.object(widget.current_media_player.media_player, 'playbackState',
+                             return_value=QMediaPlayer.PlaybackState.PausedState), \
+                patch.object(widget.current_media_player, 'pause') as mock_pause:
+            widget.toggle_audio_playback()
+            mock_pause.assert_called_once()
 
         widget.close()
 
@@ -992,6 +990,8 @@ class TestTranscriptionViewerWidgetAdditional:
             assert widget.is_video is True
             assert widget.video_player is not None
             assert widget.current_media_player == widget.video_player
+            # Only the video player decodes the audio
+            assert widget.audio_player._audio_loader is None
 
             widget.close()
 

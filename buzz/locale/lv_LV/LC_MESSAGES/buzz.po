@@ -2091,3 +2091,15 @@ msgid ""
 msgstr ""
 "Runas atdalīšana neizdevās! Pārbaudiet interneta savienojumu — iespējams, "
 "jālejupielādē modelis."
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Loading audio"
+msgstr "Ielādē audio"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Could not load audio"
+msgstr "Neizdevās ielādēt audio"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Audio file not found: {}"
+msgstr "Audio fails nav atrasts: {}"

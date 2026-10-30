@@ -7,7 +7,6 @@ from uuid import UUID
 from PyQt6 import sip
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer, QEvent
 from PyQt6.QtGui import QColor, QFont, QPalette, QTextCharFormat, QTextCursor
-from PyQt6.QtMultimedia import QMediaPlayer
 from PyQt6.QtSql import QSqlRecord
 from PyQt6.QtWidgets import (
     QWidget,
@@ -210,7 +209,10 @@ class TranscriptionViewerWidget(QWidget):
     def _setup_media_players(self):
         self.text_display_box = TextDisplayBox(self)
         self.is_video = is_video_file(self.transcription.file) if self.transcription.file else False
-        self.audio_player = AudioPlayer(file_path=self.transcription.file)
+        # A video plays in the video player, so this one need not decode the
+        # audio a second time
+        self.audio_player = AudioPlayer(
+            file_path=self.transcription.file, decode_audio=not self.is_video)
         self.video_player = None
 
         self.media_player_stack = QStackedWidget()
@@ -593,12 +595,28 @@ class TranscriptionViewerWidget(QWidget):
         else:
             self.show_loop_controls()
 
+    def _decoded_samples(self):
+        """The audio the media player decoded, or None if it has not (yet)."""
+        if self.current_media_player is None or sip.isdeleted(self.current_media_player):
+            return None
+        return self.current_media_player.decoded_samples()
+
+    def _decoding_audio(self):
+        """The media player's loader while it decodes the audio, or None."""
+        if self.current_media_player is None or sip.isdeleted(self.current_media_player):
+            return None
+        return self.current_media_player.audio_loader()
+
     def toggle_audio_playback(self):
         """Toggle audio playback (play/pause)"""
-        if self.current_media_player and self.current_media_player.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
-            self.current_media_player.media_player.pause()
+        # Asks the player rather than its QMediaPlayer, which is paused while
+        # the audio plays through sounddevice
+        if self.current_media_player is None:
+            return
+        if self.current_media_player.is_playing():
+            self.current_media_player.pause()
         else:
-            self.current_media_player.media_player.play()
+            self.current_media_player.play()
 
     def replay_current_segment(self):
         """Rewind current segment to its start and play if not already playing"""
@@ -613,8 +631,8 @@ class TranscriptionViewerWidget(QWidget):
             self.current_media_player.set_position(start_time)
 
         # If audio is not playing, start playing
-        if self.audio_player.media_player.playbackState() != QMediaPlayer.PlaybackState.PlayingState:
-            self.audio_player.media_player.play()
+        if self.current_media_player and not self.current_media_player.is_playing():
+            self.current_media_player.play()
 
     def decrease_segment_start(self):
         """Decrease the start time of the current segment by 0.5 seconds"""
@@ -1598,6 +1616,8 @@ class TranscriptionViewerWidget(QWidget):
                 transcription=self.transcription,
                 transcription_service=self.transcription_service,
                 transcriptions_updated_signal=self.transcriptions_updated_signal,
+                decoded_samples=self._decoded_samples,
+                decoding_audio=self._decoding_audio,
             )
 
             self.speaker_identification_dialog.identification_started.connect(
@@ -1660,8 +1680,7 @@ class TranscriptionViewerWidget(QWidget):
 
                             # If audio is currently playing and outside the range, jump to the start
                             current_pos = self.current_media_player.position_ms
-                            playback_state = self.current_media_player.media_player.playbackState()
-                            if (playback_state == QMediaPlayer.PlaybackState.PlayingState and
+                            if (self.current_media_player.is_playing() and
                                     (current_pos < start_time_ms or current_pos > end_time_ms)):
                                 self.current_media_player.set_position(
                                     start_time_ms)

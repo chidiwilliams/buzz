@@ -5,6 +5,7 @@ import os
 import platform
 import random
 import string
+import weakref
 
 # Disable the GUI startup update check during tests. The check fires an async
 # QNetworkAccessManager HTTPS request which, while in flight, interferes with
@@ -58,6 +59,10 @@ def pytest_sessionfinish(session, exitstatus):
 
     leftovers = []
     for obj in gc.get_objects():
+        # A weak proxy passes isinstance checks for its referent, or raises
+        # ReferenceError once that is gone; the referent is checked on its own
+        if isinstance(obj, weakref.ProxyTypes):
+            continue
         try:
             if (
                 isinstance(obj, QObject)
