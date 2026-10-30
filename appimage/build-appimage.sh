@@ -45,6 +45,7 @@ rm -rf "$APPDIR"
 mkdir -p "$APPDIR/usr/bin" \
          "$APPDIR/usr/share/applications" \
          "$APPDIR/usr/share/icons/hicolor/scalable/apps" \
+         "$APPDIR/usr/share/icons/hicolor/256x256/apps" \
          "$APPDIR/usr/share/metainfo"
 
 # Copy entire PyInstaller output into usr/bin/
@@ -87,7 +88,11 @@ MimeType=audio/mpeg;audio/wav;audio/ogg;audio/flac;video/mp4;video/webm;
 EOF
 cp "$APPDIR/Buzz.desktop" "$APPDIR/usr/share/applications/"
 
-# Icon (SVG at AppDir root + XDG hicolor location)
+# Icon (PNG + SVG at AppDir root + XDG hicolor locations). appimagetool builds
+# .DirIcon only from a PNG (or XPM) and refuses to package without a valid one.
+cp "$PROJECT_DIR/share/icons/io.github.chidiwilliams.Buzz.png" "$APPDIR/Buzz.png"
+cp "$PROJECT_DIR/share/icons/io.github.chidiwilliams.Buzz.png" \
+   "$APPDIR/usr/share/icons/hicolor/256x256/apps/Buzz.png"
 cp "$PROJECT_DIR/share/icons/io.github.chidiwilliams.Buzz.svg" "$APPDIR/Buzz.svg"
 cp "$PROJECT_DIR/share/icons/io.github.chidiwilliams.Buzz.svg" \
    "$APPDIR/usr/share/icons/hicolor/scalable/apps/Buzz.svg"
