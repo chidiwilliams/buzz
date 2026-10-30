@@ -294,6 +294,22 @@ class MainWindow(QMainWindow):
         if len(selected_rows) == 0:
             return
 
+        # The table's Delete key also gets here for queued and running
+        # transcriptions. Cancel them along with deleting their rows, or the
+        # queue worker still transcribes them and can't save the result.
+        selected_transcriptions = [
+            self.table_widget.transcription(row) for row in selected_rows
+        ]
+        active_transcription_ids = [
+            transcription.id_as_uuid
+            for transcription in selected_transcriptions
+            if transcription.status_as_status
+            in (
+                FileTranscriptionTask.Status.QUEUED,
+                FileTranscriptionTask.Status.IN_PROGRESS,
+            )
+        ]
+
         question_box = QMessageBox()
         question_box.setWindowTitle(_("Clear History"))
         question_box.setIcon(QMessageBox.Icon.Question)
@@ -312,6 +328,8 @@ class MainWindow(QMainWindow):
         reply = question_box.exec()
 
         if reply == QMessageBox.StandardButton.Yes:
+            for transcription_id in active_transcription_ids:
+                self.transcriber_worker.cancel_task(transcription_id)
             self.table_widget.delete_transcriptions(selected_rows)
 
     def on_stop_transcription_action_triggered(self):

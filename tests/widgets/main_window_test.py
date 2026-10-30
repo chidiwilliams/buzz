@@ -28,6 +28,7 @@ from buzz.transcriber.transcriber import (
     FileTranscriptionOptions,
     FileTranscriptionTask,
     OutputFormat,
+    Segment,
     Task,
     TranscriptionOptions,
 )
@@ -196,6 +197,26 @@ class TestMainWindow:
         with patch.object(window.transcriber_worker, "add_task") as add_task:
             window.on_folder_watch_task_found(task)
             transcription_service.update_transcription_as_canceled(task.uid)
+
+            window.on_folder_watch_task_settled(task)
+            add_task.assert_not_called()
+
+        window.close()
+
+    def test_folder_watch_task_deleted_before_it_settles_is_not_transcribed(
+        self, qtbot: QtBot, transcription_service
+    ):
+        window = MainWindow(transcription_service)
+        qtbot.add_widget(window)
+        task = self._folder_watch_task()
+
+        with patch.object(window.transcriber_worker, "add_task") as add_task:
+            window.on_folder_watch_task_found(task)
+
+            table_widget = self._get_tasks_table(window)
+            table_widget.selectRow(0)
+            self._press_delete(table_widget)
+            assert table_widget.model().rowCount() == 0
 
             window.on_folder_watch_task_settled(task)
             add_task.assert_not_called()
@@ -380,6 +401,166 @@ class TestMainWindow:
         qtbot.add_widget(window)
 
         assert window.toolbar.clear_history_action.isEnabled() is False
+        window.close()
+
+    @staticmethod
+    def _press_delete(
+        table_widget: QTableView, reply=QMessageBox.StandardButton.Yes
+    ) -> Mock:
+        with patch("PyQt6.QtWidgets.QMessageBox.exec") as question_message_box_mock:
+            question_message_box_mock.return_value = reply
+            table_widget.keyPressEvent(
+                QKeyEvent(
+                    QKeyEvent.Type.KeyPress,
+                    Qt.Key.Key_Delete,
+                    Qt.KeyboardModifier.NoModifier,
+                )
+            )
+        return question_message_box_mock
+
+    @pytest.mark.parametrize("transcription_dao", [mock_transcriptions], indirect=True)
+    def test_should_clear_history_when_delete_pressed(
+        self, qtbot, transcription_dao, transcription_segment_dao
+    ):
+        window = MainWindow(
+            TranscriptionService(transcription_dao, transcription_segment_dao)
+        )
+        qtbot.add_widget(window)
+
+        table_widget = self._get_tasks_table(window)
+        table_widget.selectAll()
+
+        with patch.object(window.transcriber_worker, "cancel_task") as cancel_task:
+            question_message_box_mock = self._press_delete(table_widget)
+
+        question_message_box_mock.assert_called_once()
+        cancel_task.assert_not_called()
+        assert table_widget.model().rowCount() == 0
+        window.close()
+
+    @pytest.mark.parametrize(
+        "transcription_dao",
+        [[Transcription(status="queued")], [Transcription(status="in_progress")]],
+        ids=["queued", "in_progress"],
+        indirect=True,
+    )
+    def test_should_cancel_and_delete_active_task_when_delete_pressed(
+        self, qtbot, transcription_dao, transcription_segment_dao
+    ):
+        window = MainWindow(
+            TranscriptionService(transcription_dao, transcription_segment_dao)
+        )
+        qtbot.add_widget(window)
+
+        table_widget = self._get_tasks_table(window)
+        table_widget.selectRow(0)
+        transcription = table_widget.selected_transcriptions()[0]
+
+        with patch.object(window.transcriber_worker, "cancel_task") as cancel_task:
+            question_message_box_mock = self._press_delete(table_widget)
+
+        question_message_box_mock.assert_called_once()
+        cancel_task.assert_called_once_with(transcription.id_as_uuid)
+        assert table_widget.model().rowCount() == 0
+        window.close()
+
+    @pytest.mark.parametrize(
+        "transcription_dao", [[Transcription(status="in_progress")]], indirect=True
+    )
+    def test_should_keep_active_task_when_delete_is_not_confirmed(
+        self, qtbot, transcription_dao, transcription_segment_dao
+    ):
+        window = MainWindow(
+            TranscriptionService(transcription_dao, transcription_segment_dao)
+        )
+        qtbot.add_widget(window)
+
+        table_widget = self._get_tasks_table(window)
+        table_widget.selectRow(0)
+
+        with patch.object(window.transcriber_worker, "cancel_task") as cancel_task:
+            self._press_delete(table_widget, reply=QMessageBox.StandardButton.No)
+
+        cancel_task.assert_not_called()
+        assert table_widget.model().rowCount() == 1
+        window.close()
+
+    @pytest.mark.parametrize(
+        "transcription_dao",
+        [
+            [
+                Transcription(status="completed"),
+                Transcription(status="queued"),
+                Transcription(status="in_progress"),
+                Transcription(status="failed", error_message=_("Error")),
+            ]
+        ],
+        indirect=True,
+    )
+    def test_should_cancel_only_active_tasks_when_delete_pressed(
+        self, qtbot, transcription_dao, transcription_segment_dao
+    ):
+        window = MainWindow(
+            TranscriptionService(transcription_dao, transcription_segment_dao)
+        )
+        qtbot.add_widget(window)
+
+        table_widget = self._get_tasks_table(window)
+        table_widget.selectAll()
+        active_ids = {
+            transcription.id_as_uuid
+            for transcription in table_widget.selected_transcriptions()
+            if transcription.status in ("queued", "in_progress")
+        }
+
+        with patch.object(window.transcriber_worker, "cancel_task") as cancel_task:
+            self._press_delete(table_widget)
+
+        assert cancel_task.call_count == 2
+        assert {
+            canceled.args[0] for canceled in cancel_task.call_args_list
+        } == active_ids
+        assert table_widget.model().rowCount() == 0
+        window.close()
+
+    @pytest.mark.parametrize(
+        "transcription_dao", [[Transcription(status="in_progress")]], indirect=True
+    )
+    def test_should_drop_completion_of_running_task_deleted_with_delete_key(
+        self, qtbot, transcription_dao, transcription_segment_dao
+    ):
+        window = MainWindow(
+            TranscriptionService(transcription_dao, transcription_segment_dao)
+        )
+        qtbot.add_widget(window)
+
+        table_widget = self._get_tasks_table(window)
+        table_widget.selectRow(0)
+        transcription = table_widget.selected_transcriptions()[0]
+
+        # The queue worker is transcribing this task
+        window.transcriber_worker.current.task = FileTranscriptionTask(
+            transcription_options=TranscriptionOptions(),
+            file_transcription_options=FileTranscriptionOptions(),
+            model_path="",
+            uid=transcription.id_as_uuid,
+        )
+
+        self._press_delete(table_widget)
+
+        # Then the transcriber finishes it. Saving its segments would fail the
+        # foreign key of the deleted row, and PyQt aborts on an exception
+        # raised in a slot. Without a post-processing plugin the segments are
+        # saved in the slot itself, whatever the local settings enable.
+        with patch.object(
+            window.plugin_manager, "has_enabled_post_hooks", return_value=False
+        ), qtbot.capture_exceptions() as exceptions:
+            window.transcriber_worker.on_task_completed(
+                [Segment(start=0, end=1000, text="Bonjour")]
+            )
+
+        assert exceptions == []
+        assert transcription_dao.find_by_id(transcription.id) is None
         window.close()
 
     @pytest.mark.parametrize("transcription_dao", [mock_transcriptions], indirect=True)
