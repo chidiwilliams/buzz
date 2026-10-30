@@ -334,15 +334,26 @@ class TranscriptionDAO(DAO[Transcription]):
             raise Exception(query.lastError().text())
 
     def find_completed_transcription_by_filename(self, filename: str):
+        # Match the name literally, "%" and "_" are LIKE wildcards. Paths joined
+        # with os.path.join on Windows have a backslash before the name.
+        # Leave out URL imports, they are looked up by URL. Their file is the
+        # download, always saved as "audio.wav", so it would match unrelated
+        # files. copy_transcription stores "" rather than NULL in url.
+        escaped = filename.replace("!", "!!").replace("%", "!%").replace("_", "!_")
         query = self._create_query()
         query.prepare(
             """
             SELECT id FROM transcription
-            WHERE (file LIKE :pattern OR file = :exact) AND status = 'completed'
+            WHERE (
+                file LIKE :slash_pattern ESCAPE '!'
+                OR file LIKE :backslash_pattern ESCAPE '!'
+                OR file = :exact
+            ) AND status = 'completed' AND COALESCE(url, '') = ''
             ORDER BY time_ended DESC LIMIT 1
         """
         )
-        query.bindValue(":pattern", f"%/{filename}")
+        query.bindValue(":slash_pattern", f"%/{escaped}")
+        query.bindValue(":backslash_pattern", f"%\\{escaped}")
         query.bindValue(":exact", filename)
         if not query.exec():
             raise Exception(query.lastError().text())

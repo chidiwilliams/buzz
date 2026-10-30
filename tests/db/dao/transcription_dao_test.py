@@ -230,3 +230,102 @@ class TestTranscriptionDAO:
             )
             is None
         )
+
+    @pytest.mark.parametrize(
+        "name", ["audio.mp3", "report_1.mp3", "100%.mp3", "wow!.mp3"]
+    )
+    def test_find_completed_transcription_by_filename(self, transcription_dao, name):
+        queued = Transcription(
+            id=str(uuid4()), file=f"/music/in/{name}", status="queued"
+        )
+        completed = Transcription(
+            id=str(uuid4()), file=f"/music/out/{name}", status="completed"
+        )
+        other = Transcription(
+            id=str(uuid4()), file="/music/out/other.mp3", status="completed"
+        )
+        for transcription in (queued, completed, other):
+            transcription_dao.insert(transcription)
+
+        assert (
+            transcription_dao.find_completed_transcription_by_filename(name)
+            == completed.id
+        )
+        assert (
+            transcription_dao.find_completed_transcription_by_filename("missing.mp3")
+            is None
+        )
+
+    # Folder watch and Import Folder join paths with os.path.join, which puts a
+    # backslash before the file name on Windows. CLI paths are stored as typed.
+    @pytest.mark.parametrize(
+        "file", [r"C:\Users\me\Music\audio.mp3", r"C:/Users/me/Music\audio.mp3"]
+    )
+    def test_find_completed_transcription_by_filename_in_windows_path(
+        self, transcription_dao, file
+    ):
+        completed = Transcription(id=str(uuid4()), file=file, status="completed")
+        transcription_dao.insert(completed)
+
+        assert (
+            transcription_dao.find_completed_transcription_by_filename("audio.mp3")
+            == completed.id
+        )
+
+    # "_" and "%" are wildcards in LIKE patterns
+    @pytest.mark.parametrize(
+        "file, name",
+        [
+            ("/music/report 1.mp3", "report_1.mp3"),
+            ("/music/Interview 100 - final cut.mp3", "Interview 100%.mp3"),
+        ],
+    )
+    def test_find_completed_transcription_by_filename_matches_name_literally(
+        self, transcription_dao, file, name
+    ):
+        transcription_dao.insert(
+            Transcription(id=str(uuid4()), file=file, status="completed")
+        )
+
+        assert transcription_dao.find_completed_transcription_by_filename(name) is None
+
+    # A URL import stores its download, a temp file always named audio.wav,
+    # and is looked up by URL
+    @pytest.mark.parametrize(
+        "file",
+        [
+            r"C:\Users\me\AppData\Local\Temp\tmpab12cd\audio.wav",
+            "/tmp/tmpab12cd/audio.wav",
+        ],
+    )
+    def test_find_completed_transcription_by_filename_ignores_url_imports(
+        self, transcription_dao, file
+    ):
+        transcription_dao.insert(
+            Transcription(
+                id=str(uuid4()),
+                file=file,
+                url="https://www.youtube.com/watch?v=abc123",
+                status="completed",
+            )
+        )
+
+        assert (
+            transcription_dao.find_completed_transcription_by_filename("audio.wav")
+            is None
+        )
+
+    # copy_transcription stores "" rather than NULL in url
+    def test_find_completed_transcription_by_filename_finds_copies(
+        self, transcription_dao
+    ):
+        original = Transcription(
+            id=str(uuid4()), file="/music/audio.wav", status="completed"
+        )
+        transcription_dao.insert(original)
+        copy_id = transcription_dao.copy_transcription(original.id_as_uuid)
+        transcription_dao.update_transcription_as_completed(copy_id)
+
+        assert transcription_dao.find_completed_transcription_by_filename(
+            "audio.wav"
+        ) == str(copy_id)
