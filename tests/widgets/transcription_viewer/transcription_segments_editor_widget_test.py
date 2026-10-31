@@ -517,6 +517,89 @@ class TestTranscriptionSegmentsEditorWidget:
 
         assert hasattr(widget, 'timestamp_being_edited')
 
+    @staticmethod
+    def enter_timestamp(widget, row: int, column: Column, text: str):
+        """Types a time into the cell's editor and commits it"""
+        from PyQt6.QtWidgets import QStyleOptionViewItem
+
+        index = widget.model().index(row, column.value)
+        delegate = widget.itemDelegateForColumn(column.value)
+        editor = delegate.createEditor(widget.viewport(), QStyleOptionViewItem(), index)
+        delegate.setEditorData(editor, index)
+        editor.setText(text)
+        delegate.setModelData(editor, widget.model(), index)
+
+    @staticmethod
+    def saved_times(transcription, transcription_segment_dao):
+        return [
+            (segment.start_time, segment.end_time)
+            for segment in transcription_segment_dao.get_segments(
+                transcription.id_as_uuid
+            )
+        ]
+
+    def test_timestamp_edit_moves_overlapped_neighbours(
+        self, qtbot: QtBot, transcription, translator, transcription_segment_dao
+    ):
+        """A start or end inside a neighbouring segment moves its end or start"""
+        widget = TranscriptionSegmentsEditorWidget(
+            transcription_id=uuid.UUID(hex=transcription.id),
+            translator=translator,
+            parent=None,
+        )
+        qtbot.add_widget(widget)
+
+        self.enter_timestamp(widget, 1, Column.START, "00:00:00.100")
+        self.enter_timestamp(widget, 1, Column.END, "00:00:00.800")
+
+        assert self.saved_times(transcription, transcription_segment_dao) == [
+            (40, 100),
+            (100, 800),
+            (800, 1000),
+        ]
+
+    def test_timestamp_edit_keeps_previous_segment_valid(
+        self, qtbot: QtBot, transcription, translator, transcription_segment_dao
+    ):
+        """A start at or before the previous segment's start is ignored"""
+        widget = TranscriptionSegmentsEditorWidget(
+            transcription_id=uuid.UUID(hex=transcription.id),
+            translator=translator,
+            parent=None,
+        )
+        qtbot.add_widget(widget)
+
+        # The previous segment, 40 to 299, would end before or as it starts
+        self.enter_timestamp(widget, 1, Column.START, "00:00:00.020")
+        self.enter_timestamp(widget, 1, Column.START, "00:00:00.040")
+
+        assert self.saved_times(transcription, transcription_segment_dao) == [
+            (40, 299),
+            (299, 600),
+            (600, 1000),
+        ]
+
+    def test_timestamp_edit_keeps_next_segment_valid(
+        self, qtbot: QtBot, transcription, translator, transcription_segment_dao
+    ):
+        """An end at or after the next segment's end is ignored"""
+        widget = TranscriptionSegmentsEditorWidget(
+            transcription_id=uuid.UUID(hex=transcription.id),
+            translator=translator,
+            parent=None,
+        )
+        qtbot.add_widget(widget)
+
+        # The next segment, 600 to 1000, would start after or as it ends
+        self.enter_timestamp(widget, 1, Column.END, "00:00:01.200")
+        self.enter_timestamp(widget, 1, Column.END, "00:00:01.000")
+
+        assert self.saved_times(transcription, transcription_segment_dao) == [
+            (40, 299),
+            (299, 600),
+            (600, 1000),
+        ]
+
     def test_enter_key_triggers_editing(self, qtbot: QtBot, transcription, translator):
         """Test that Enter key triggers editing"""
         widget = TranscriptionSegmentsEditorWidget(

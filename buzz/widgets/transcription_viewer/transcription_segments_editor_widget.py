@@ -187,8 +187,17 @@ class TimeStampEditorDelegate(QStyledItemDelegate):
 
             # Check if new start overlaps with previous segment's end
             if current_row > 0:
+                prev_start_time_ms = model.record(current_row - 1).value("start_time")
                 prev_end_time_ms = model.record(current_row - 1).value("end_time")
                 if prev_end_time_ms is not None and new_value_ms < prev_end_time_ms:
+                    # Validate: previous segment must still end after it starts
+                    if new_value_ms <= prev_start_time_ms:
+                        logging.warning(
+                            f"Start time ({new_value_ms}) must be greater than "
+                            f"previous segment's start time ({prev_start_time_ms})"
+                        )
+                        return
+
                     # Update previous segment's end to match new start
                     model.setData(model.index(current_row - 1, end_col), new_value_ms)
 
@@ -208,7 +217,16 @@ class TimeStampEditorDelegate(QStyledItemDelegate):
             # Check if new end overlaps with next segment's start
             if current_row < model.rowCount() - 1:
                 next_start_time_ms = model.record(current_row + 1).value("start_time")
+                next_end_time_ms = model.record(current_row + 1).value("end_time")
                 if next_start_time_ms is not None and new_value_ms > next_start_time_ms:
+                    # Validate: next segment must still start before it ends
+                    if new_value_ms >= next_end_time_ms:
+                        logging.warning(
+                            f"End time ({new_value_ms}) must be less than "
+                            f"next segment's end time ({next_end_time_ms})"
+                        )
+                        return
+
                     # Update next segment's start to match new end
                     model.setData(model.index(current_row + 1, start_col), new_value_ms)
 

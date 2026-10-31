@@ -231,8 +231,141 @@ class TestTranscriptionViewerWidgetAdditional:
         # Try to adjust start time to overlap with previous segment
         widget._adjust_segment_timestamp("start_time", -600)
 
-        # Should not crash and should handle overlap
-        assert hasattr(widget, '_adjust_segment_timestamp')
+        # A start of 0 would end the previous segment before it starts at 40
+        assert self.segment_times(transcription, transcription_service) == [
+            (40, 500),
+            (500, 1000),
+            (1000, 1500),
+        ]
+
+        # A start of 200 ends the previous segment there
+        widget._adjust_segment_timestamp("start_time", -300)
+
+        assert self.segment_times(transcription, transcription_service) == [
+            (40, 200),
+            (200, 1000),
+            (1000, 1500),
+        ]
+
+        widget.close()
+
+    @staticmethod
+    def segment_times(transcription, transcription_service):
+        return [
+            (segment.start_time, segment.end_time)
+            for segment in transcription_service.get_transcription_segments(
+                transcription.id_as_uuid
+            )
+        ]
+
+    def test_adjust_segment_timestamp_keeps_neighbour_duration(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        """Steps that would leave a neighbouring segment with no duration are ignored"""
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # The third segment would start at 500, where the second one starts
+        widget.currently_selected_segment = widget.table_widget.model().record(2)
+        widget.decrease_segment_start()
+
+        assert self.segment_times(transcription, transcription_service) == [
+            (40, 500),
+            (500, 1000),
+            (1000, 1500),
+        ]
+
+        # The second segment would end at 1500, where the third one ends
+        widget.currently_selected_segment = widget.table_widget.model().record(1)
+        widget.increase_segment_end()
+
+        assert self.segment_times(transcription, transcription_service) == [
+            (40, 500),
+            (500, 1000),
+            (1000, 1500),
+        ]
+
+        widget.close()
+
+    @pytest.fixture()
+    def transcription_with_short_segment(
+        self, transcription_dao, transcription_segment_dao
+    ) -> Transcription:
+        """Create test transcription with a segment shorter than 0.5 s"""
+        id = uuid.uuid4()
+        transcription_dao.insert(
+            Transcription(
+                id=str(id),
+                status="completed",
+                file=test_audio_path,
+                task=Task.TRANSCRIBE.value,
+                model_type=ModelType.WHISPER.value,
+                whisper_model_size=WhisperModelSize.TINY.value,
+            )
+        )
+        transcription_segment_dao.insert(
+            TranscriptionSegment(0, 2000, "First segment", "", str(id))
+        )
+        transcription_segment_dao.insert(
+            TranscriptionSegment(2000, 2300, "Yes.", "", str(id))
+        )
+        transcription_segment_dao.insert(
+            TranscriptionSegment(2300, 5000, "Third segment", "", str(id))
+        )
+
+        return transcription_dao.find_by_id(str(id))
+
+    def test_decrease_segment_start_keeps_previous_segment_valid(
+        self,
+        qtbot: QtBot,
+        transcription_with_short_segment,
+        transcription_service,
+        shortcuts,
+    ):
+        """Moving the start 0.5 s earlier would end "Yes." before it starts"""
+        transcription = transcription_with_short_segment
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Select the segment after "Yes."
+        widget.currently_selected_segment = widget.table_widget.model().record(2)
+        widget.decrease_segment_start()
+
+        assert self.segment_times(transcription, transcription_service) == [
+            (0, 2000),
+            (2000, 2300),
+            (2300, 5000),
+        ]
+
+        widget.close()
+
+    def test_increase_segment_end_keeps_next_segment_valid(
+        self,
+        qtbot: QtBot,
+        transcription_with_short_segment,
+        transcription_service,
+        shortcuts,
+    ):
+        """Moving the end 0.5 s later would start "Yes." after it ends"""
+        transcription = transcription_with_short_segment
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+
+        # Select the segment before "Yes."
+        widget.currently_selected_segment = widget.table_widget.model().record(0)
+        widget.increase_segment_end()
+
+        assert self.segment_times(transcription, transcription_service) == [
+            (0, 2000),
+            (2000, 2300),
+            (2300, 5000),
+        ]
 
         widget.close()
 
