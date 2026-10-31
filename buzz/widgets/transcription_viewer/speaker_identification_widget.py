@@ -6,6 +6,7 @@ import time
 import random
 from contextlib import contextmanager
 from typing import Callable, List, Optional
+from uuid import UUID
 
 import numpy as np
 from PyQt6 import sip
@@ -524,6 +525,9 @@ class SpeakerIdentificationWidget(QWidget):
     resize_button_clicked = pyqtSignal()
     identification_started = pyqtSignal()
     identification_finished_signal = pyqtSignal()
+    # Emitted along with transcriptions_updated_signal, which all open viewers
+    # share, for the viewer that opened this dialog
+    transcriptions_updated = pyqtSignal(UUID)
     active_running_instance: Optional["SpeakerIdentificationWidget"] = None
     transcription: Transcription
     settings = Settings()
@@ -1040,6 +1044,7 @@ class SpeakerIdentificationWidget(QWidget):
         #        If text is longer they should expand
         if self.transcriptions_updated_signal:
             self.transcriptions_updated_signal.emit(new_transcript_id)
+        self.transcriptions_updated.emit(new_transcript_id)
 
         self._stop_playback()
 

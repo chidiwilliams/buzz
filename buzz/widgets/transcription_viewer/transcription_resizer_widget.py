@@ -5,6 +5,7 @@ import srt
 from pathlib import Path
 from srt_equalizer import srt_equalizer
 from typing import Optional
+from uuid import UUID
 from PyQt6.QtCore import Qt, QThread, QObject, pyqtSignal
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import (
@@ -135,6 +136,9 @@ class TranscriptionWorker(QObject):
 
 class TranscriptionResizerWidget(QWidget):
     resize_button_clicked = pyqtSignal()
+    # Emitted along with transcriptions_updated_signal, which all open viewers
+    # share, for the viewer that opened this dialog
+    transcriptions_updated = pyqtSignal(UUID)
     transcription: Transcription
     settings = Settings()
 
@@ -349,8 +353,12 @@ class TranscriptionResizerWidget(QWidget):
                 transcript_id, segments
             )
 
+        self._emit_transcriptions_updated(transcript_id)
+
+    def _emit_transcriptions_updated(self, transcript_id: UUID):
         if self.transcriptions_updated_signal:
             self.transcriptions_updated_signal.emit(transcript_id)
+        self.transcriptions_updated.emit(transcript_id)
 
     def load_preferences(self):
         self.settings.settings.beginGroup("file_transcriber")
@@ -435,8 +443,7 @@ class TranscriptionResizerWidget(QWidget):
             )
             self.transcription_service.update_transcription_progress(self.new_transcript_id, 0.0)
 
-            if self.transcriptions_updated_signal:
-                self.transcriptions_updated_signal.emit(self.new_transcript_id)
+            self._emit_transcriptions_updated(self.new_transcript_id)
         else:
             self.new_transcript_id = self.transcription.id_as_uuid
 
@@ -484,8 +491,7 @@ class TranscriptionResizerWidget(QWidget):
             else:
                 self.transcription_service.replace_transcription_segments(self.new_transcript_id, segments)
 
-            if self.transcriptions_updated_signal:
-                self.transcriptions_updated_signal.emit(self.new_transcript_id)
+            self._emit_transcriptions_updated(self.new_transcript_id)
 
         self.close()
 
