@@ -54,18 +54,31 @@ class TranscriptionService:
         self._insert_segments(id, segments)
 
     def _insert_segments(self, id: UUID, segments: List[Segment]):
-        for segment in segments:
-            self.transcription_segment_dao.insert(
-                TranscriptionSegment(
-                    start_time=segment.start,
-                    end_time=segment.end,
-                    text=segment.text,
-                    translation='',
-                    transcription_id=str(id),
-                    speaker=segment.speaker,
-                    metadata=json.dumps(segment.metadata, ensure_ascii=False),
+        # Without a transaction each insert waits for its own write to disk, which
+        # freezes the window for seconds on long transcripts
+        db = self.transcription_segment_dao.db
+        db.transaction()
+        try:
+            for segment in segments:
+                self.transcription_segment_dao.insert(
+                    TranscriptionSegment(
+                        start_time=segment.start,
+                        end_time=segment.end,
+                        text=segment.text,
+                        translation='',
+                        transcription_id=str(id),
+                        speaker=segment.speaker,
+                        metadata=json.dumps(segment.metadata, ensure_ascii=False),
+                    )
                 )
-            )
+        except Exception:
+            db.rollback()
+            raise
+
+        if not db.commit():
+            error = db.lastError().text()
+            db.rollback()
+            raise Exception(error)
 
     def update_transcription_file_and_name(self, id: UUID, file_path: str, name: str | None = None):
         self.transcription_dao.update_transcription_file_and_name(id, file_path, name)

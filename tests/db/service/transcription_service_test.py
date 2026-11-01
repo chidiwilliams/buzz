@@ -251,3 +251,43 @@ class TestTranscriptionService:
         
         # Verify the DAO method was called with unicode string
         mock_transcription_dao.update_transcription_notes.assert_called_once_with(transcription_id, unicode_notes)
+
+
+class TestInsertSegmentsTransaction:
+    segments = [Segment(0, 100, "one"), Segment(100, 200, "two")]
+
+    def test_writes_all_segments_in_one_transaction(
+        self, transcription_service, mock_transcription_segment_dao
+    ):
+        db = mock_transcription_segment_dao.db
+
+        transcription_service.update_transcription_as_completed(uuid4(), self.segments)
+
+        assert mock_transcription_segment_dao.insert.call_count == 2
+        db.transaction.assert_called_once()
+        db.commit.assert_called_once()
+        db.rollback.assert_not_called()
+
+    def test_rolls_back_when_an_insert_fails(
+        self, transcription_service, mock_transcription_segment_dao
+    ):
+        db = mock_transcription_segment_dao.db
+        mock_transcription_segment_dao.insert.side_effect = [None, Exception("disk full")]
+
+        with pytest.raises(Exception, match="disk full"):
+            transcription_service.update_transcription_as_completed(uuid4(), self.segments)
+
+        db.rollback.assert_called_once()
+        db.commit.assert_not_called()
+
+    def test_raises_when_the_commit_fails(
+        self, transcription_service, mock_transcription_segment_dao
+    ):
+        db = mock_transcription_segment_dao.db
+        db.commit.return_value = False
+        db.lastError.return_value.text.return_value = "database is locked"
+
+        with pytest.raises(Exception, match="database is locked"):
+            transcription_service.update_transcription_as_completed(uuid4(), self.segments)
+
+        db.rollback.assert_called_once()
