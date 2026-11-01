@@ -695,8 +695,13 @@ class TranscriptionViewerWidget(QWidget):
 
             # Check overlap with previous segment
             if current_row > 0:
-                prev_end = self.table_widget.model().record(current_row - 1).value("end_time")
+                prev_segment = self.table_widget.model().record(current_row - 1)
+                prev_end = prev_segment.value("end_time")
                 if new_value < prev_end:
+                    # Ensure previous segment still ends after it starts
+                    if new_value <= prev_segment.value("start_time"):
+                        return
+
                     # Update previous segment's end time
                     self.table_widget.model().setData(
                         self.table_widget.model().index(current_row - 1, end_col),
@@ -709,9 +714,13 @@ class TranscriptionViewerWidget(QWidget):
 
             # Check overlap with next segment
             if current_row < len(segments) - 1:
-                next_start = self.table_widget.model().record(
-                    current_row + 1).value("start_time")
+                next_segment = self.table_widget.model().record(current_row + 1)
+                next_start = next_segment.value("start_time")
                 if new_value > next_start:
+                    # Ensure next segment still starts before it ends
+                    if new_value >= next_segment.value("end_time"):
+                        return
+
                     # Update next segment's start time
                     self.table_widget.model().setData(
                         self.table_widget.model().index(current_row + 1, start_col),
