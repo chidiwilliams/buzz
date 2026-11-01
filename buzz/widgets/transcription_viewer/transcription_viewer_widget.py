@@ -679,10 +679,8 @@ class TranscriptionViewerWidget(QWidget):
         # Calculate new value based on CURRENT database value
         if field == "start_time":
             current_value = current_start_time
-            other_value = current_end_time
         else:
             current_value = current_end_time
-            other_value = current_start_time
 
         new_value = current_value + delta_ms
 
@@ -1779,7 +1777,7 @@ class TranscriptionViewerWidget(QWidget):
                         self.table_widget.highlight_and_scroll_to_row(i)
                         break
 
-        except Exception as e:
+        except Exception:
             pass  # Silently handle any errors
 
     def event(self, event):

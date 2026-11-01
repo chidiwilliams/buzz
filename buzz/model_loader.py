@@ -237,18 +237,6 @@ HUGGING_FACE_MODEL_ALLOW_PATTERNS = [
     "vocab.json",
 ]
 
-# MMS models use different patterns - adapters are downloaded on-demand by transformers
-MMS_MODEL_ALLOW_PATTERNS = [
-    "model.safetensors",
-    "pytorch_model.bin",
-    "config.json",
-    "preprocessor_config.json",
-    "tokenizer_config.json",
-    "vocab.json",
-    "special_tokens_map.json",
-    "added_tokens.json",
-]
-
 # ISO 639-1 to ISO 639-3 language code mapping for MMS models
 ISO_639_1_TO_3 = {
     "en": "eng", "fr": "fra", "de": "deu", "es": "spa", "it": "ita",

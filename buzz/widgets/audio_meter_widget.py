@@ -15,8 +15,6 @@ class AudioMeterWidget(QWidget):
     BAR_INACTIVE_COLOR: QColor
     BAR_ACTIVE_COLOR: QColor
 
-    # Factor by which the amplitude is scaled to make the changes more visible
-    DIFF_MULTIPLIER_FACTOR = 10
     SMOOTHING_FACTOR = 0.95
 
     def __init__(self, parent: Optional[QWidget] = None):

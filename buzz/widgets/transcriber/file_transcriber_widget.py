@@ -1,4 +1,3 @@
-import logging
 from typing import Optional, List, Tuple
 
 from PyQt6 import QtGui
@@ -33,7 +32,6 @@ class FileTranscriberWidget(QWidget):
     model_loader: Optional[ModelDownloader] = None
     file_transcription_options: FileTranscriptionOptions
     transcription_options: TranscriptionOptions
-    is_transcribing = False
     # (TranscriptionOptions, FileTranscriptionOptions, str)
     triggered = pyqtSignal(tuple)
     openai_access_token_changed = pyqtSignal(str)

@@ -1,5 +1,4 @@
 import re
-import logging
 import requests
 from typing import Optional
 from platformdirs import user_documents_dir

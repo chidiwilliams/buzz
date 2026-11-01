@@ -49,7 +49,6 @@ from buzz.settings.settings import Settings
 from buzz.sounddevice_player import AudioFilePlayer
 from buzz.widgets.audio_file_player_loader import AudioFilePlayerLoader
 from buzz.widgets.line_edit import LineEdit
-from buzz.transcriber.transcriber import Segment
 from buzz.transcriber.speaker_identifier import build_speaker_segments
 
 

@@ -27,8 +27,6 @@ class MainWindowToolbar(ToolBar):
     open_transcript_action_triggered: pyqtSignal
     clear_history_action_triggered: pyqtSignal
     update_action_triggered: pyqtSignal
-    ICON_LIGHT_THEME_BACKGROUND = "#555"
-    ICON_DARK_THEME_BACKGROUND = "#AAA"
 
     def __init__(self, shortcuts: Shortcuts, parent: Optional[QWidget]):
         super().__init__(parent)

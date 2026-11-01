@@ -1,6 +1,5 @@
 import enum
 import typing
-import logging
 import uuid
 
 from PyQt6.QtCore import QSettings
