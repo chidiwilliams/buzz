@@ -49,7 +49,12 @@ from buzz.settings.settings import Settings
 from buzz.sounddevice_player import AudioFilePlayer
 from buzz.widgets.audio_file_player_loader import AudioFilePlayerLoader
 from buzz.widgets.line_edit import LineEdit
-from buzz.transcriber.speaker_identifier import build_speaker_segments
+from buzz.transcriber.speaker_identifier import (
+    TranscriptAligner,
+    build_speaker_segments,
+    join_segment_texts,
+    merge_word_pieces,
+)
 
 
 
@@ -233,11 +238,10 @@ class IdentificationWorker(QObject):
 
         segments = self._get_segments()
 
-        full_transcript = " ".join(segment.text for segment in segments)
-        full_transcript = re.sub(r' {2,}', ' ', full_transcript)
+        full_transcript = join_segment_texts(segment.text for segment in segments)
 
         audio_waveform = faster_whisper.decode_audio(self._get_audio_file())
-        return language, full_transcript, audio_waveform
+        return language, segments, full_transcript, audio_waveform
 
     def _setup_device(self):
         import torch
@@ -307,23 +311,23 @@ class IdentificationWorker(QObject):
             del alignment_model
             torch.cuda.empty_cache()
 
-    def _get_word_timestamps(self, full_transcript, language, emissions, stride, alignment_tokenizer):
-        tokens_starred, text_starred = self._preprocess_text(
-            full_transcript,
-            romanize=True,
-            language=self._langs_to_iso[language],
+    def _get_word_timestamps(
+        self, full_transcript, language, emissions, stride, alignment_tokenizer, segments=None,
+    ):
+        aligner = TranscriptAligner(
+            preprocess_text=self._preprocess_text,
+            get_alignments=self._get_alignments,
+            get_spans=self._get_spans,
+            postprocess_results=self._postprocess_results,
+            langs_to_iso=self._langs_to_iso,
+            is_cancelled=lambda: self._cancel_if_requested("while aligning transcript chunks"),
+            on_chunk_started=lambda index, count: self.progress_update.emit(
+                _("5/8 Preparing transcripts") + f" ({index}/{count})"
+            ),
         )
-
-        segments, scores, blank_token = self._get_alignments(
-            emissions,
-            tokens_starred,
-            alignment_tokenizer,
+        return aligner.align(
+            full_transcript, language, emissions, stride, alignment_tokenizer, segments=segments,
         )
-
-        spans = self._get_spans(tokens_starred, segments, blank_token)
-
-        word_timestamps = self._postprocess_results(text_starred, spans, stride, scores)
-        return word_timestamps
 
     def _run_diarization(self, audio_waveform, device):
         import torch
@@ -390,7 +394,12 @@ class IdentificationWorker(QObject):
             # We don't want to punctuate U.S.A. with a period. Right?
             is_acronym = lambda x: re.fullmatch(r"\b(?:[a-zA-Z]\.){2,}", x)
 
-            for word_dict, labeled_tuple in zip(wsm, labled_words):
+            for index, (word_dict, labeled_tuple) in enumerate(zip(wsm, labled_words)):
+                # A sentence cannot end inside a word split for alignment
+                next_word = word_timestamps[index + 1:index + 2]
+                if next_word and next_word[0].get("joins_previous"):
+                    continue
+
                 word = word_dict["word"]
                 if (
                         word
@@ -409,6 +418,7 @@ class IdentificationWorker(QObject):
             )
 
         wsm = self._get_realigned_ws_mapping_with_punctuation(wsm)
+        wsm = merge_word_pieces(wsm, word_timestamps)
         ssm = self._get_sentences_speaker_mapping(wsm, speaker_ts)
         return ssm
 
@@ -461,7 +471,7 @@ class IdentificationWorker(QObject):
             if self._cancel_if_requested("at step 1"):
                 return
 
-            language, full_transcript, audio_waveform = self._get_transcript_data()
+            language, segments, full_transcript, audio_waveform = self._get_transcript_data()
 
             if self._cancel_if_requested("at step 2"):
                 return
@@ -495,9 +505,10 @@ class IdentificationWorker(QObject):
             self.progress_update.emit(_("5/8 Preparing transcripts"))
             word_timestamps = self._get_word_timestamps(
                 full_transcript, language, emissions, stride, alignment_tokenizer,
+                segments=segments,
             )
 
-            if self._cancel_if_requested("at step 6"):
+            if word_timestamps is None or self._cancel_if_requested("at step 6"):
                 return
 
             self.progress_update.emit(_("6/8 Identifying speakers"))
