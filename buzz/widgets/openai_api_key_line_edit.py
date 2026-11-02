@@ -1,4 +1,3 @@
-import logging
 from typing import Optional
 
 from PyQt6.QtCore import pyqtSignal

@@ -1,11 +1,9 @@
-import logging
 from typing import Optional
 
 from PyQt6.QtCore import pyqtSignal, Qt
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QCheckBox, QFormLayout, QHBoxLayout
 
 from buzz.locale import _
-from buzz.model_loader import ModelType
 from buzz.transcriber.transcriber import (
     TranscriptionOptions,
     FileTranscriptionOptions,

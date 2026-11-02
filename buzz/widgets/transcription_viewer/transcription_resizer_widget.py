@@ -20,7 +20,7 @@ from PyQt6.QtWidgets import (
     QSpacerItem,
     QSizePolicy,
 )
-from buzz.locale import _, languages
+from buzz.locale import _
 from buzz import whisper_audio
 from buzz.db.entity.transcription import Transcription
 from buzz.db.service.transcription_service import TranscriptionService
