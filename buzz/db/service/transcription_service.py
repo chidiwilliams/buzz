@@ -56,11 +56,11 @@ class TranscriptionService:
             self._insert_segments(id, segments)
 
     def _transaction(self):
-        # Without a transaction each insert waits for its own write to disk, which
-        # freezes the window for seconds on long transcripts
         return transaction(self.transcription_segment_dao.db)
 
     def _insert_segments(self, id: UUID, segments: List[Segment]):
+        # Call inside _transaction(): without one each insert waits for its own
+        # write to disk, which freezes the window for seconds on long transcripts
         for segment in segments:
             self.transcription_segment_dao.insert(
                 TranscriptionSegment(
