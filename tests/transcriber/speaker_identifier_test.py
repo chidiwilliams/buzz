@@ -8,6 +8,7 @@ import torch
 from buzz.transcriber import speaker_identifier
 from buzz.transcriber.file_transcriber import FileTranscriber
 from buzz.transcriber.speaker_identifier import (
+    ALIGNMENT_CHUNK_MAX_REACH_BACK_MS,
     ALIGNMENT_CHUNK_PADDING_MS,
     ALIGNMENT_MAX_WORD_CHARS,
     AlignmentFailedError,
@@ -329,16 +330,18 @@ class TestTranscriptAligner:
 
         assert [call.args[0] for call in aligner._align_text.call_args_list] == ["first", "second"]
         assert chunks_started == [(1, 2), (2, 2)]
-        # The first window starts at the beginning of the audio, the second
-        # one ALIGNMENT_CHUNK_PADDING_MS before its segment
-        second_offset = (ten_minutes_ms - 1000 - ALIGNMENT_CHUNK_PADDING_MS) / 1000
+        # The first window starts at the beginning of the audio. The second one
+        # reaches back over the unclaimed audio before its segment, as far as
+        # allowed, plus ALIGNMENT_CHUNK_PADDING_MS
+        reach_ms = ALIGNMENT_CHUNK_MAX_REACH_BACK_MS + ALIGNMENT_CHUNK_PADDING_MS
+        second_offset = (ten_minutes_ms - 1000 - reach_ms) / 1000
         assert result == [
             {"text": "first", "start": 0.5, "end": 1.0},
             {"text": "second", "start": second_offset + 5.2, "end": second_offset + 5.8},
         ]
         # The second window gets just its own slice of the emissions
         second_emissions = aligner._align_text.call_args_list[1].args[2]
-        assert second_emissions.size(0) == int((1000 + ALIGNMENT_CHUNK_PADDING_MS) / stride)
+        assert second_emissions.size(0) == int((1000 + reach_ms) / stride)
 
     @pytest.mark.parametrize(
         "segments",
@@ -635,8 +638,8 @@ class TestTranscriptAlignerWithRealCtc:
     def test_retries_chunk_whose_timestamps_drifted(self, synthetic):
         """A window that misses its speech aligns without error but is retried."""
         aligner, emissions, tokenizer = synthetic
-        # "b" is spoken at 400 s, but its segment claims 440 s
-        emissions[4000:4003] = emissions[2000:2003].clone()
+        # "b" is spoken at 490 s, after the end its segment claims
+        emissions[4900:4903] = emissions[2000:2003].clone()
         emissions[2000:2003] = emissions[:3]
 
         result = aligner.align(
@@ -644,8 +647,25 @@ class TestTranscriptAlignerWithRealCtc:
             segments=[Segment(95000, 105000, "a"), Segment(440000, 445000, "b")],
         )
 
-        assert [word["start"] for word in result] == pytest.approx([100, 400], abs=0.3)
+        assert [word["start"] for word in result] == pytest.approx([100, 490], abs=0.3)
         assert aligner._get_alignments.call_count == 3
+
+    def test_window_reaches_back_over_audio_no_segment_claims(self, synthetic):
+        """Whisper can stamp a run of segments with one time after their speech."""
+        aligner, emissions, tokenizer = synthetic
+        # "b" is spoken at 300 s, but its segment claims 440 s, too late for
+        # even the retry's padding to reach
+        emissions[3000:3003] = emissions[2000:2003].clone()
+        emissions[2000:2003] = emissions[:3]
+
+        result = aligner.align(
+            "a b", "en", emissions, 100.0, tokenizer,
+            segments=[Segment(95000, 105000, "a"), Segment(440000, 440000, "b")],
+        )
+
+        assert [word["start"] for word in result] == pytest.approx([100, 300], abs=0.3)
+        # Found on the first try, with no retry
+        assert aligner._get_alignments.call_count == 2
 
     def test_identical_timestamps_are_an_error_not_a_single_time(self, synthetic):
         aligner, emissions, tokenizer = synthetic

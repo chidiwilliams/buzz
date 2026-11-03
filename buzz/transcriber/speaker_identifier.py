@@ -21,6 +21,10 @@ from buzz.transcriber.transcriber import Segment
 ALIGNMENT_CHUNK_DURATION_MS = 5 * 60 * 1000
 # Audio added around each window, as segment timestamps are not exact
 ALIGNMENT_CHUNK_PADDING_MS = 5 * 1000
+# How far a window reaches back over audio that no segment claims. Whisper can
+# lose track and stamp a run of segments with one later time, so their speech
+# lies in the gap before them. The limit bounds a window after a long silence.
+ALIGNMENT_CHUNK_MAX_REACH_BACK_MS = ALIGNMENT_CHUNK_DURATION_MS
 # Wider padding for a window that did not match its audio. Only for windows where
 # most words failed: stars let the last words of any other window drift forward
 # into the extra audio, up to this far.
@@ -409,8 +413,15 @@ class TranscriptAligner:
             if self._is_cancelled():
                 return None
             self._on_chunk_started(index + 1, len(chunks))
+            # Reach back to where the previous window's speech ended, so no
+            # audio between windows is left out
+            previous_end_ms = 0
+            if word_timestamps:
+                previous_end_ms = min(chunks[index - 1][2], word_timestamps[-1]["end"] * 1000)
+            earliest_ms = max(previous_end_ms, start_ms - ALIGNMENT_CHUNK_MAX_REACH_BACK_MS)
             words = self._align_chunk_with_retry(
                 text, start_ms, end_ms, language, emissions, stride, tokenizer,
+                earliest_ms=earliest_ms,
             )
             self._realign_chunk_overlap(
                 word_timestamps, words, language, emissions, stride, tokenizer,
@@ -484,11 +495,13 @@ class TranscriptAligner:
 
     def _align_chunk_with_retry(
         self, text, start_ms, end_ms, language, emissions, stride, tokenizer,
+        earliest_ms=None,
     ):
         for padding_ms in (ALIGNMENT_CHUNK_PADDING_MS, ALIGNMENT_CHUNK_RETRY_PADDING_MS):
             try:
                 words = self._align_chunk(
                     text, start_ms, end_ms, padding_ms, language, emissions, stride, tokenizer,
+                    earliest_ms=earliest_ms,
                 )
             except ALIGNMENT_ERRORS as e:
                 # Usually the text did not fit into the audio of its window
@@ -527,8 +540,15 @@ class TranscriptAligner:
 
     def _align_chunk(
         self, text, start_ms, end_ms, padding_ms, language, emissions, stride, tokenizer,
+        earliest_ms=None,
     ):
-        start_frame = max(0, int((start_ms - padding_ms) / stride))
+        """Align a window's text to its audio, padded on both sides.
+
+        ``earliest_ms`` lets the window start before ``start_ms``, over audio
+        no other window covers.
+        """
+        window_start_ms = start_ms if earliest_ms is None else min(start_ms, earliest_ms)
+        start_frame = max(0, int((window_start_ms - padding_ms) / stride))
         end_frame = min(emissions.size(0), math.ceil((end_ms + padding_ms) / stride))
         # Text whose timestamps run past the end of the audio (Whisper
         # hallucinations, trimmed files) is aligned to the tail of the audio
