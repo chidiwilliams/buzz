@@ -1,5 +1,6 @@
 # Adapted from https://github.com/zhiyiYo/Groove
 from abc import ABC
+from contextlib import contextmanager
 from typing import TypeVar, Generic, Any, Type, List
 
 from PyQt6.QtSql import QSqlDatabase, QSqlQuery, QSqlRecord
@@ -7,6 +8,23 @@ from PyQt6.QtSql import QSqlDatabase, QSqlQuery, QSqlRecord
 from buzz.db.entity.entity import Entity
 
 T = TypeVar("T", bound=Entity)
+
+
+@contextmanager
+def transaction(db: QSqlDatabase):
+    """Run the enclosed queries in one transaction: commit on success, roll back
+    on any error so no partial write is left behind."""
+    if not db.transaction():
+        raise Exception(db.lastError().text())
+    try:
+        yield
+    except BaseException:
+        db.rollback()
+        raise
+    if not db.commit():
+        error = db.lastError().text()
+        db.rollback()
+        raise Exception(error)
 
 
 class DAO(ABC, Generic[T]):
