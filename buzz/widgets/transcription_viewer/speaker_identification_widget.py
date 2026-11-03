@@ -205,6 +205,9 @@ class IdentificationWorker(QObject):
         )
         from deepmultilingualpunctuation.deepmultilingualpunctuation import PunctuationModel
         from whisper_diarization.diarization import MSDDDiarizer, SortformerDiarizer
+        from buzz.transcriber.nemo_memory_patch import patch_nemo_memory_use
+
+        patch_nemo_memory_use()
 
         # Store on the instance so the other worker methods can access them.
         # (Local imports here would otherwise be out of scope elsewhere.)
