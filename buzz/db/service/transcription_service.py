@@ -2,6 +2,7 @@ import json
 from typing import List
 from uuid import UUID
 
+from buzz.db.dao.dao import transaction
 from buzz.db.dao.transcription_dao import TranscriptionDAO
 from buzz.db.dao.transcription_segment_dao import TranscriptionSegmentDAO
 from buzz.db.entity.transcription_segment import TranscriptionSegment
@@ -50,35 +51,28 @@ class TranscriptionService:
         self.transcription_dao.update_transcription_progress(id, progress)
 
     def update_transcription_as_completed(self, id: UUID, segments: List[Segment]):
-        self.transcription_dao.update_transcription_as_completed(id)
-        self._insert_segments(id, segments)
+        with self._transaction():
+            self.transcription_dao.update_transcription_as_completed(id)
+            self._insert_segments(id, segments)
 
-    def _insert_segments(self, id: UUID, segments: List[Segment]):
+    def _transaction(self):
         # Without a transaction each insert waits for its own write to disk, which
         # freezes the window for seconds on long transcripts
-        db = self.transcription_segment_dao.db
-        db.transaction()
-        try:
-            for segment in segments:
-                self.transcription_segment_dao.insert(
-                    TranscriptionSegment(
-                        start_time=segment.start,
-                        end_time=segment.end,
-                        text=segment.text,
-                        translation='',
-                        transcription_id=str(id),
-                        speaker=segment.speaker,
-                        metadata=json.dumps(segment.metadata, ensure_ascii=False),
-                    )
-                )
-        except Exception:
-            db.rollback()
-            raise
+        return transaction(self.transcription_segment_dao.db)
 
-        if not db.commit():
-            error = db.lastError().text()
-            db.rollback()
-            raise Exception(error)
+    def _insert_segments(self, id: UUID, segments: List[Segment]):
+        for segment in segments:
+            self.transcription_segment_dao.insert(
+                TranscriptionSegment(
+                    start_time=segment.start,
+                    end_time=segment.end,
+                    text=segment.text,
+                    translation='',
+                    transcription_id=str(id),
+                    speaker=segment.speaker,
+                    metadata=json.dumps(segment.metadata, ensure_ascii=False),
+                )
+            )
 
     def update_transcription_file_and_name(self, id: UUID, file_path: str, name: str | None = None):
         self.transcription_dao.update_transcription_file_and_name(id, file_path, name)
@@ -93,8 +87,9 @@ class TranscriptionService:
         self.transcription_dao.update_transcription_language(id, language)
 
     def update_transcription_as_skipped(self, id: UUID, segments: List[Segment]):
-        self.transcription_dao.update_transcription_as_skipped(id)
-        self._insert_segments(id, segments)
+        with self._transaction():
+            self.transcription_dao.update_transcription_as_skipped(id)
+            self._insert_segments(id, segments)
 
     def find_completed_transcription_by_filename(self, filename: str):
         return self.transcription_dao.find_completed_transcription_by_filename(filename)
@@ -106,8 +101,9 @@ class TranscriptionService:
         self.transcription_dao.reset_transcription_for_restart(id)
 
     def replace_transcription_segments(self, id: UUID, segments: List[Segment]):
-        self.transcription_segment_dao.delete_segments(id)
-        self._insert_segments(id, segments)
+        with self._transaction():
+            self.transcription_segment_dao.delete_segments(id)
+            self._insert_segments(id, segments)
 
     def get_transcription_segments(self, transcription_id: UUID):
         return self.transcription_segment_dao.get_segments(transcription_id)

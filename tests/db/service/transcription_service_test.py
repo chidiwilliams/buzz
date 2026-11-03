@@ -4,6 +4,8 @@ from uuid import UUID, uuid4
 
 import pytest
 
+from buzz.db.dao.transcription_dao import TranscriptionDAO
+from buzz.db.dao.transcription_segment_dao import TranscriptionSegmentDAO
 from buzz.db.service.transcription_service import TranscriptionService
 from buzz.db.entity.transcription import Transcription
 from buzz.transcriber.transcriber import Segment
@@ -291,3 +293,63 @@ class TestInsertSegmentsTransaction:
             transcription_service.update_transcription_as_completed(uuid4(), self.segments)
 
         db.rollback.assert_called_once()
+
+    def test_raises_without_writing_when_the_transaction_cannot_start(
+        self, transcription_service, mock_transcription_segment_dao
+    ):
+        db = mock_transcription_segment_dao.db
+        db.transaction.return_value = False
+        db.lastError.return_value.text.return_value = "database is locked"
+
+        with pytest.raises(Exception, match="database is locked"):
+            transcription_service.update_transcription_as_completed(uuid4(), self.segments)
+
+        mock_transcription_segment_dao.insert.assert_not_called()
+        db.commit.assert_not_called()
+
+
+class TestInsertSegmentsTransactionWithDatabase:
+    unserializable = Segment(100, 200, "bad", metadata=[{"x": object()}])
+
+    @pytest.fixture
+    def service(self, db):
+        return TranscriptionService(TranscriptionDAO(db), TranscriptionSegmentDAO(db))
+
+    @pytest.fixture
+    def transcription_id(self, service):
+        transcription_id = uuid4()
+        service.transcription_dao.insert(
+            Transcription(
+                id=str(transcription_id),
+                file="/path/to/test.mp3",
+                status="in_progress",
+                time_queued="2023-01-01T00:00:00",
+                task="TRANSCRIBE",
+                model_type="WHISPER",
+            )
+        )
+        return transcription_id
+
+    def test_failed_replace_keeps_the_old_segments(self, service, transcription_id):
+        service.update_transcription_as_completed(
+            transcription_id, [Segment(0, 100, "old")]
+        )
+
+        with pytest.raises(TypeError):
+            service.replace_transcription_segments(
+                transcription_id, [Segment(0, 100, "new"), self.unserializable]
+            )
+
+        segments = service.get_transcription_segments(transcription_id)
+        assert [segment.text for segment in segments] == ["old"]
+
+    def test_failed_completion_leaves_status_and_segments_unchanged(
+        self, service, transcription_id
+    ):
+        with pytest.raises(TypeError):
+            service.update_transcription_as_completed(
+                transcription_id, [Segment(0, 100, "one"), self.unserializable]
+            )
+
+        assert service.get_transcription_segments(transcription_id) == []
+        assert service.transcription_dao.find_by_id(str(transcription_id)).status == "in_progress"
