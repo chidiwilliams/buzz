@@ -127,6 +127,7 @@ def _add_command_options(parser: QCommandLineParser):
     srt_option = QCommandLineOption(["srt"], "Output result in an SRT file.")
     vtt_option = QCommandLineOption(["vtt"], "Output result in a VTT file.")
     txt_option = QCommandLineOption("txt", "Output result in a TXT file.")
+    md_option = QCommandLineOption("md", "Output result in a Markdown file.")
     hide_gui_option = QCommandLineOption("hide-gui", "Hide the main application window.")
 
     parser.addOptions(
@@ -148,6 +149,7 @@ def _add_command_options(parser: QCommandLineParser):
             srt_option,
             vtt_option,
             txt_option,
+            md_option,
             hide_gui_option,
         ]
     )
@@ -170,6 +172,7 @@ def _add_command_options(parser: QCommandLineParser):
         "srt": srt_option,
         "vtt": vtt_option,
         "txt": txt_option,
+        "md": md_option,
         "hide_gui": hide_gui_option,
     }
 
@@ -240,6 +243,8 @@ def _process_add_output_formats(parser, opts) -> typing.Set[OutputFormat]:
         output_formats.add(OutputFormat.VTT)
     if parser.isSet(opts["txt"]):
         output_formats.add(OutputFormat.TXT)
+    if parser.isSet(opts["md"]):
+        output_formats.add(OutputFormat.MD)
     return output_formats
 
 

@@ -1994,9 +1994,9 @@ msgstr "檢查現有結果檔案"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid ""
-"Skip if a .txt, .srt, or .vtt file matching the audio filename is found next "
-"to it"
-msgstr "如果音訊檔案旁邊存在相符的 .txt、.srt 或 .vtt 檔案，則跳過"
+"Skip if a .txt, .srt, .vtt, or .md file matching the audio filename is found "
+"next to it"
+msgstr "如果音訊檔案旁邊存在相符的 .txt、.srt、.vtt 或 .md 檔案，則跳過"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Check in transcription database"

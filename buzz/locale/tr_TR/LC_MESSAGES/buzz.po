@@ -2035,11 +2035,11 @@ msgstr "Mevcut sonuç dosyalarını kontrol et"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid ""
-"Skip if a .txt, .srt, or .vtt file matching the audio filename is found next "
-"to it"
+"Skip if a .txt, .srt, .vtt, or .md file matching the audio filename is found "
+"next to it"
 msgstr ""
-"Ses dosyasının yanında aynı adlı bir .txt, .srt veya .vtt dosyası bulunursa "
-"atla"
+"Ses dosyasının yanında aynı adlı bir .txt, .srt, .vtt veya .md dosyası "
+"bulunursa atla"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Check in transcription database"

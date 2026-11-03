@@ -33,7 +33,7 @@ class SkipAlreadyTranscribedPlugin(BuzzPlugin):
                 type=ConfigFieldType.BOOL,
                 default=True,
                 description=_(
-                    "Skip if a .txt, .srt, or .vtt file matching the audio filename is found next to it"
+                    "Skip if a .txt, .srt, .vtt, or .md file matching the audio filename is found next to it"
                 ),
             ),
             ConfigField(
@@ -128,6 +128,8 @@ class SkipAlreadyTranscribedPlugin(BuzzPlugin):
                 return self._parse_srt(text) or None
             elif fmt == OutputFormat.VTT:
                 return self._parse_vtt(text) or None
+            elif fmt == OutputFormat.MD:
+                return self._parse_md(text) or None
         except Exception as exc:
             context.log.warning("Failed to parse result file %s: %s", path, exc)
         return None
@@ -170,6 +172,26 @@ class SkipAlreadyTranscribedPlugin(BuzzPlugin):
             end = self._ts_to_ms(m.group(2))
             body = "\n".join(lines[1:])
             segments.append(Segment(start=start, end=end, text=body))
+        return segments
+
+    def _parse_md(self, text: str) -> List:
+        from buzz.transcriber.transcriber import Segment
+
+        segments = []
+        blocks = re.split(r"\n\n+", text.strip())
+        for block in blocks:
+            m = re.match(
+                r"(?:\*\*\[(\d+:\d+:\d+)\]\*\*|\*\*(.+?)\*\* \[(\d+:\d+:\d+)\]:)\s*(.*)",
+                block.strip(),
+                re.DOTALL,
+            )
+            if not m:
+                continue
+            start = self._ts_to_ms(m.group(1) or m.group(3))
+            speaker = m.group(2)
+            body = m.group(4).strip()
+            segments.append(Segment(start=start, end=start, text=body,
+                                    speaker=speaker or ""))
         return segments
 
     def _ts_to_ms(self, ts: str) -> int:

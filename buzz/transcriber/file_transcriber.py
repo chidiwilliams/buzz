@@ -346,6 +346,31 @@ def write_output(
                 )
                 file.write(f"{segment_content(segment)}\n\n")
 
+        elif output_format == OutputFormat.MD:
+            paragraph_split_time = int(os.getenv("BUZZ_PARAGRAPH_SPLIT_TIME", "2000"))
+            paragraphs = []
+            previous_end_time = None
+            previous_speaker = None
+
+            for segment in segments:
+                content = getattr(segment, segment_key).strip()
+                speaker = getattr(segment, "speaker", "").strip()
+                if (
+                    not paragraphs
+                    or speaker != previous_speaker
+                    or (segment.start - previous_end_time) >= paragraph_split_time
+                ):
+                    timestamp = to_timestamp(segment.start).split(".")[0]
+                    heading = f"**{speaker}** [{timestamp}]:" if speaker else f"**[{timestamp}]**"
+                    paragraphs.append([heading])
+                paragraphs[-1].append(content)
+                previous_end_time = segment.end
+                previous_speaker = speaker
+
+            file.write("\n\n".join(" ".join(paragraph) for paragraph in paragraphs))
+            if paragraphs:
+                file.write("\n")
+
     logging.debug("Written transcription output")
 
 

@@ -220,6 +220,7 @@ class OutputFormat(enum.Enum):
     TXT = "txt"
     SRT = "srt"
     VTT = "vtt"
+    MD = "md"
 
 
 SUPPORTED_AUDIO_EXTENSIONS = (

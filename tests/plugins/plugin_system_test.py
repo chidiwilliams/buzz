@@ -868,6 +868,28 @@ def test_sat_skips_on_vtt_file(tmp_path):
     assert result[1].start == 3000
 
 
+def test_sat_skips_on_md_file(tmp_path):
+    plugin = _sat_plugin()
+    audio = tmp_path / "talk.mp3"
+    audio.write_bytes(b"")
+    md = tmp_path / "talk (transcribed on 01-Jan-2024 12-00-00).md"
+    md.write_text(
+        "**[00:00:01]** First line.\n\n"
+        "**Speaker 1** [00:01:05]: Second line.\n",
+        encoding="utf-8",
+    )
+
+    ctx = _sat_context(config={"check_result_files": True, "check_database": False})
+    result = plugin.check_skip(_SatTask(file_path=str(audio)), ctx)
+    assert result is not None
+    assert len(result) == 2
+    assert result[0].text == "First line."
+    assert result[0].start == 1000
+    assert result[1].text == "Second line."
+    assert result[1].speaker == "Speaker 1"
+    assert result[1].start == 65000
+
+
 def test_sat_skips_on_srt_file_with_brackets_in_name(tmp_path):
     plugin = _sat_plugin()
     audio = tmp_path / "Interview [Part 1].mp3"

@@ -2053,11 +2053,11 @@ msgstr "Comprova si hi ha fitxers de resultats existents"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid ""
-"Skip if a .txt, .srt, or .vtt file matching the audio filename is found next "
-"to it"
+"Skip if a .txt, .srt, .vtt, or .md file matching the audio filename is found "
+"next to it"
 msgstr ""
-"Omet si al costat de l'àudio es troba un fitxer .txt, .srt o .vtt amb el "
-"mateix nom"
+"Omet si al costat de l'àudio es troba un fitxer .txt, .srt, .vtt o .md amb "
+"el mateix nom"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Check in transcription database"

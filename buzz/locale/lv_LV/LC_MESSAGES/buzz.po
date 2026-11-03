@@ -2032,11 +2032,11 @@ msgstr "Pārbaudīt esošos rezultātu failus"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid ""
-"Skip if a .txt, .srt, or .vtt file matching the audio filename is found next "
-"to it"
+"Skip if a .txt, .srt, .vtt, or .md file matching the audio filename is found "
+"next to it"
 msgstr ""
-"Izlaist, ja blakus audio failam atrodas .txt, .srt vai .vtt fails ar tādu "
-"pašu nosaukumu"
+"Izlaist, ja blakus audio failam atrodas .txt, .srt, .vtt vai .md fails ar "
+"tādu pašu nosaukumu"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Check in transcription database"

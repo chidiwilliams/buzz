@@ -2045,11 +2045,11 @@ msgstr "Sprawdź istniejące pliki wyników"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid ""
-"Skip if a .txt, .srt, or .vtt file matching the audio filename is found next "
-"to it"
+"Skip if a .txt, .srt, .vtt, or .md file matching the audio filename is found "
+"next to it"
 msgstr ""
-"Pomiń, jeśli obok pliku audio znajduje się plik .txt, .srt lub .vtt o tej "
-"samej nazwie"
+"Pomiń, jeśli obok pliku audio znajduje się plik .txt, .srt, .vtt lub .md o "
+"tej samej nazwie"
 
 #: buzz/plugins/skip_already_transcribed/plugin.py
 msgid "Check in transcription database"

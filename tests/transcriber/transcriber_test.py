@@ -47,6 +47,7 @@ def test_url_output_path_uses_safe_display_name(tmp_path):
             OutputFormat.VTT,
             "WEBVTT\n\n00:00:00.040 --> 00:00:00.299\nBien\n\n00:00:00.299 --> 00:00:00.329\nvenue dans\n\n",
         ),
+        (OutputFormat.MD, "**[00:00:00]** Bien venue dans\n"),
     ],
 )
 def test_write_output(
@@ -61,3 +62,23 @@ def test_write_output(
 
     with open(output_file_path, encoding="utf-8") as output_file:
         assert output_text == output_file.read()
+
+
+def test_write_output_md_splits_paragraphs_on_speaker_and_pause(tmp_path: pathlib.Path):
+    output_file_path = tmp_path / "whisper.md"
+    segments = [
+        Segment(0, 1000, "Hello", speaker="Speaker 1"),
+        Segment(1000, 2000, "there.", speaker="Speaker 1"),
+        Segment(2000, 3000, "Hi.", speaker="Speaker 2"),
+        Segment(65000, 66000, "Later.", speaker="Speaker 2"),
+    ]
+
+    write_output(
+        path=str(output_file_path), segments=segments, output_format=OutputFormat.MD
+    )
+
+    assert output_file_path.read_text(encoding="utf-8") == (
+        "**Speaker 1** [00:00:00]: Hello there.\n\n"
+        "**Speaker 2** [00:00:02]: Hi.\n\n"
+        "**Speaker 2** [00:01:05]: Later.\n"
+    )
