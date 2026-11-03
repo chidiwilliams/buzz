@@ -9,6 +9,7 @@ from buzz.transcriber import speaker_identifier
 from buzz.transcriber.file_transcriber import FileTranscriber
 from buzz.transcriber.speaker_identifier import (
     ALIGNMENT_CHUNK_PADDING_MS,
+    ALIGNMENT_MAX_WORD_CHARS,
     AlignmentFailedError,
     TranscriptAligner,
     build_alignment_chunks,
@@ -256,6 +257,27 @@ def test_split_long_words_keeps_marks_with_their_consonant():
     assert not any(unicodedata.category(piece[0]).startswith("M") for piece in pieces)
 
 
+def test_split_long_words_keeps_leading_vowels_with_their_consonant():
+    # Thai writes these vowels before the consonant they follow, and uroman
+    # reorders them: "เป็น" romanizes to "pen", but "เ" + "ป็น" to "e" + "pon"
+    word = "ก" * 23 + "เป็น" + "ก" * 20
+    pieces, _joins = split_long_words(word)
+
+    assert "".join(pieces) == word
+    assert len(pieces) == 2
+    assert not any(piece[-1] in "เแโใไ" for piece in pieces)
+
+
+def test_split_long_words_pieces_are_not_split_again():
+    """Overlap re-alignment splits its contested pieces again, which must keep them."""
+    word = "ก" * 24 + "่" + "ก" * 23  # a tone mark right where the split falls
+    pieces, _joins = split_long_words(word)
+
+    assert "".join(pieces) == word
+    assert all(len(piece) <= ALIGNMENT_MAX_WORD_CHARS for piece in pieces)
+    assert split_long_words(" ".join(pieces))[0] == pieces
+
+
 class TestTranscriptAligner:
     @pytest.mark.parametrize("transcript", ["", "  "])
     def test_empty_transcript_of_long_audio_gets_the_aligner_error(self, transcript):
@@ -339,6 +361,29 @@ class TestTranscriptAligner:
 
         texts = [call.args[0] for call in aligner._align_text.call_args_list]
         assert texts == [s.text for s in segments if s.text.strip()]
+
+    def test_leading_zero_length_words_still_align_in_chunks(self):
+        """Word-level timings can start with (0, 0) words; those times are not missing."""
+        aligner = make_aligner()
+        aligner._align_text = MagicMock(
+            side_effect=lambda text, *args: [
+                {"text": word, "start": 0.5, "end": 0.5} for word in text.split()
+            ]
+        )
+        segments = [
+            Segment(0, 0, "first"),
+            Segment(0, 0, "second"),
+            Segment(0, 1000, "third"),
+            Segment(599000, 600000, "fourth"),
+        ]
+
+        aligner.align(
+            "first second third fourth", "en", ten_minutes_of_emissions(), 20.0, "tokenizer",
+            segments=segments,
+        )
+
+        texts = [call.args[0] for call in aligner._align_text.call_args_list]
+        assert texts == ["first second third", "fourth"]
 
     def test_retries_chunk_whose_text_does_not_fit_with_wider_window(self):
         aligner = make_aligner()
@@ -748,6 +793,33 @@ class TestTranscriptAlignerWithRealCtc:
         assert [word["start"] for word in result] == pytest.approx([298, 302], abs=0.3)
         mapping = get_words_speaker_mapping(result, [(0, 300000, 0), (300000, 600000, 1)])
         assert [word["speaker"] for word in mapping] == [0, 1]
+
+    def test_realigned_word_can_move_back_towards_the_word_kept_before_it(self, synthetic):
+        """A word that drifted past the next window's first word can return before it."""
+        aligner, emissions, tokenizer = synthetic
+        a_row, b_row = emissions[1000].clone(), emissions[2000].clone()
+        emissions[1000:1003] = emissions[2000:2003] = emissions[:3]
+        # One frame per letter, so the star before the second window's "a"
+        # cannot take speech frames before the start it reports
+        for frame, row in [(2900, b_row), (2970, a_row), (3010, b_row), (3030, a_row)]:
+            emissions[frame] = row
+        real_align_text = aligner._align_text
+        # The first window took the second window's "a" at 303 s, past its "b"
+        first_window = iter([[
+            {"text": "b", "start": 290.0, "end": 291.0, "score": -0.1},
+            {"text": "a", "start": 303.0, "end": 303.3, "score": -0.1},
+        ]])
+        aligner._align_text = MagicMock(
+            side_effect=lambda text, *args: next(first_window, None) or real_align_text(text, *args)
+        )
+
+        result = aligner.align(
+            "b a b a", "en", emissions, 100.0, tokenizer,
+            segments=[Segment(0, 300000, "b a"), Segment(300000, 600000, "b a")],
+        )
+
+        assert [word["text"] for word in result] == ["b", "a", "b", "a"]
+        assert [word["start"] for word in result] == pytest.approx([290, 297, 301, 303], abs=0.3)
 
     @pytest.mark.parametrize("text, joins", [("ab", True), ("a b", False)])
     def test_japanese_is_aligned_character_by_character(self, synthetic, text, joins):

@@ -36,6 +36,9 @@ ALIGNMENT_MIN_TOKEN_LOG_PROB = -5.0
 # a whole phrase: one timestamp then hides speaker changes inside it, and on
 # long files it may not fit the CTC budget. Longer words are aligned in pieces.
 ALIGNMENT_MAX_WORD_CHARS = 24
+# Thai and Lao vowels written before the consonant they follow. uroman moves them
+# after it ("เป็น" is "pen"), so splitting after one reorders the letters.
+LEADING_VOWELS = frozenset("เแโใไເແໂໃໄ")
 # Raised by the aligner, usually when text does not fit into its audio
 ALIGNMENT_ERRORS = (RuntimeError, ValueError, AssertionError)
 
@@ -183,11 +186,23 @@ def segment_times_ms(segment):
     return segment.start, segment.end
 
 
-def has_usable_times(segment):
-    """Zero-length segments at real positions (common with word-level timings)
-    still chunk fine; only missing or inverted times do not."""
-    start, end = segment_times_ms(segment)
-    return start is not None and end is not None and 0 < end and start <= end
+def have_usable_times(segments):
+    """Whether the times of ``segments``, in spoken order, can place them in windows.
+
+    Zero-length segments at real positions (common with word-level timings)
+    still chunk fine, including words at (0, 0) before the first timed one.
+    Missing or inverted times do not, nor a (0, 0) segment after timed ones.
+    """
+    timed = False
+    for segment in segments:
+        start, end = segment_times_ms(segment)
+        if start is None or end is None or start > end:
+            return False
+        if end > 0:
+            timed = True
+        elif timed:
+            return False
+    return timed
 
 
 def build_alignment_chunks(segments, chunk_duration_ms=ALIGNMENT_CHUNK_DURATION_MS):
@@ -238,26 +253,44 @@ def clamp_chunk_words(words, audio_end, previous_word=None):
         previous_word = word
 
 
+def can_split_before(word, index):
+    """Whether a piece of ``word`` may start at ``index``.
+
+    Not on a combining mark, so vowel and tone marks stay with their consonant,
+    and not after a vowel written before its consonant.
+    """
+    return (
+        not unicodedata.category(word[index]).startswith("M")
+        and word[index - 1] not in LEADING_VOWELS
+    )
+
+
 def split_long_words(text, max_chars=ALIGNMENT_MAX_WORD_CHARS):
     """Split words longer than ``max_chars`` into about equal pieces.
 
     Returns the pieces and, for each, whether it continues the previous word.
-    A piece never starts with a combining mark, so vowel and tone marks stay
-    with their consonant.
+    Pieces split only where ``can_split_before`` allows. They keep within
+    ``max_chars`` where that allows, so splitting them again keeps them whole,
+    as re-aligning contested words does.
     """
     pieces = []
     joins = []
     for word in text.split():
-        count = math.ceil(len(word) / max_chars)
-        size = math.ceil(len(word) / count)
         start = 0
         while start < len(word):
-            end = min(start + size, len(word))
-            while end < len(word) and unicodedata.category(word[end]).startswith("M"):
-                end += 1
-            pieces.append(word[start:end])
+            remaining = len(word) - start
+            end = start + math.ceil(remaining / math.ceil(remaining / max_chars))
+            split = end
+            while start + 1 < split < len(word) and not can_split_before(word, split):
+                split -= 1
+            if split < len(word) and not can_split_before(word, split):
+                # The whole piece is one cluster of marks: end after it instead
+                split = end
+                while split < len(word) and not can_split_before(word, split):
+                    split += 1
+            pieces.append(word[start:split])
             joins.append(start > 0)
-            start = end
+            start = split
     return pieces, joins
 
 
@@ -290,12 +323,17 @@ def lexical_runs(tokens, spans, blank):
 
 
 def mean_run_score(runs, scores):
-    """Mean letter log probability of runs; -inf without acoustic evidence.
+    """Mean letter log probability of runs.
 
-    ``get_alignments`` returns inclusive run ends.
+    Digits and punctuation romanize to no letters, so have no runs. They are
+    not evidence of a bad match, which would send nearly every window of real
+    speech to a wider retry, so they score 0. ``get_alignments`` returns
+    inclusive run ends.
     """
-    token_scores = [float(scores[run.start:run.end + 1].mean()) for run in runs]
-    return sum(token_scores) / len(token_scores) if token_scores else float("-inf")
+    if not runs:
+        return 0.0
+    run_scores = [float(scores[run.start:run.end + 1].mean()) for run in runs]
+    return sum(run_scores) / len(run_scores)
 
 
 def count_unconfident_words(words):
@@ -349,7 +387,7 @@ class TranscriptAligner:
         emissions = emissions.cpu()
         # Segments without text are not aligned, so their times do not matter
         segments = [segment for segment in segments or [] if segment.text.strip()]
-        if segments and all(map(has_usable_times, segments)):
+        if have_usable_times(segments):
             words = self._align_chunks(segments, language, emissions, stride, tokenizer)
         else:
             words = self._align_text(full_transcript, language, emissions, stride, tokenizer)
@@ -390,8 +428,9 @@ class TranscriptAligner:
         a repeat in the next window's padding while the next window takes the
         earlier occurrence ("a" at 302 s and 298 s). Clamping alone would then
         move a correctly placed word onto the other's speech. Aligning the
-        contested words together over the audio they claim restores their
-        spoken order. Updates ``aligned`` and ``words`` in place.
+        contested words together over the audio between the words kept on
+        either side restores their spoken order. Updates ``aligned`` and
+        ``words`` in place.
         """
         if not aligned or not words or aligned[-1]["start"] <= words[0]["start"]:
             return
@@ -403,8 +442,12 @@ class TranscriptAligner:
             head += 1
         contested = aligned[tail:] + words[:head]
 
-        # Words kept on either side bound the window, so order is preserved
+        # Words kept on either side bound the window, so order is preserved.
+        # A word that drifted past the next window's first word may belong
+        # before it, so the window reaches back to the word kept before.
         start = min(word["start"] for word in contested)
+        if tail > 0:
+            start = min(start, aligned[tail - 1]["end"])
         end = max(word["end"] for word in contested)
         if head < len(words):
             end = min(end, words[head]["start"])
@@ -557,9 +600,6 @@ class TranscriptAligner:
         for word, runs, joins_previous in zip(
             word_timestamps, lexical_runs(tokens_starred, spans, blank_token), joins,
         ):
-            # Digits and punctuation romanize to no letters. They are not evidence
-            # of a bad match, which would send nearly every window of real speech
-            # to a wider retry
-            word["score"] = mean_run_score(runs, flat_scores) if runs else 0.0
+            word["score"] = mean_run_score(runs, flat_scores)
             mark_join(word, joins_previous)
         return word_timestamps
