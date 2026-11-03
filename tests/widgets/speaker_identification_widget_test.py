@@ -1,4 +1,3 @@
-import logging
 import platform
 import time
 import uuid
@@ -9,7 +8,7 @@ from unittest.mock import MagicMock, patch
 from buzz.db.entity.transcription import Transcription
 from buzz.db.entity.transcription_segment import TranscriptionSegment
 from buzz.model_loader import ModelType, WhisperModelSize
-from buzz.transcriber.transcriber import Task
+from buzz.transcriber.transcriber import Segment, Task
 # Underlying libs do not support intel Macs or Windows (nemo C extensions crash on Windows CI)
 if not (platform.system() == "Darwin" and platform.machine() == "x86_64") and platform.system() != "Windows":
     from buzz.widgets.transcription_viewer.speaker_identification_widget import (
@@ -427,7 +426,7 @@ class TestSpeakerIdentificationWidget:
             "faster_whisper.decode_audio",
             return_value=fake_waveform,
         ) as mock_decode:
-            language, full_transcript, waveform = worker._get_transcript_data()
+            language, segments, full_transcript, waveform = worker._get_transcript_data()
 
         # transcription fixture has no language set, so it falls back to "en"
         assert language == "en"
@@ -438,7 +437,6 @@ class TestSpeakerIdentificationWidget:
     def test_get_transcript_data_without_a_stored_transcription(self):
         """The worker runs on passed-in segments, e.g. for folder watch tasks."""
         import numpy as np
-        from buzz.transcriber.transcriber import Segment
 
         segments = [Segment(0, 100, "Bien"), Segment(100, 200, "venue")]
         # Language is None when the transcription options auto-detect it
@@ -455,12 +453,70 @@ class TestSpeakerIdentificationWidget:
             "faster_whisper.decode_audio",
             return_value=fake_waveform,
         ) as mock_decode:
-            language, full_transcript, waveform = worker._get_transcript_data()
+            language, segments, full_transcript, waveform = worker._get_transcript_data()
 
         assert language == "en"
         assert full_transcript == "Bien venue"
+        assert [segment.text for segment in segments] == ["Bien", "venue"]
         assert waveform is fake_waveform
         mock_decode.assert_called_once_with("audio.mp3")
+
+    def test_get_word_timestamps_reports_chunks_and_cancellation(self):
+        """The worker hands the aligner its libraries, progress and cancel flag."""
+        worker = IdentificationWorker(None, None)
+        worker._preprocess_text = "preprocess"
+        worker._get_alignments = "get_alignments"
+        worker._get_spans = "get_spans"
+        worker._postprocess_results = "postprocess"
+        worker._langs_to_iso = {"en": "eng"}
+        progress = []
+        worker.progress_update.connect(progress.append)
+
+        with patch(
+            "buzz.widgets.transcription_viewer.speaker_identification_widget.TranscriptAligner"
+        ) as aligner_class:
+            result = worker._get_word_timestamps(
+                "text", "en", "emissions", 20.0, "tokenizer", segments=["segment"],
+            )
+
+        kwargs = aligner_class.call_args.kwargs
+        assert kwargs["get_alignments"] == "get_alignments"
+        aligner_class.return_value.align.assert_called_once_with(
+            "text", "en", "emissions", 20.0, "tokenizer", segments=["segment"],
+        )
+        assert result is aligner_class.return_value.align.return_value
+
+        kwargs["on_chunk_started"](2, 7)
+        assert progress == [_("5/8 Preparing transcripts") + " (2/7)"]
+        assert kwargs["is_cancelled"]() is False
+        worker.cancel()
+        assert kwargs["is_cancelled"]() is True
+
+    def test_stepwise_e2e_forwards_transcript_segments(self, transcription, transcription_service):
+        """Exercise the opt-in test's unpacking/forwarding without loading models."""
+        import numpy as np
+        import torch
+        from tests import speaker_identification_e2e_test as e2e
+
+        worker = IdentificationWorker(transcription, transcription_service)
+        worker._setup_device = MagicMock(return_value=("cpu", torch.float32))
+        worker._load_alignment_model_with_retry = MagicMock(return_value=("model", "tokenizer"))
+        emissions = torch.zeros(10, 4)
+        worker._generate_emissions_and_cleanup = MagicMock(return_value=(emissions, 20.0))
+        worker._get_word_timestamps = MagicMock(
+            return_value=[{"text": "Bien venue dans", "start": 0, "end": 1}]
+        )
+        worker._run_diarization = MagicMock(return_value=[(0, 1000, 0)])
+        worker._map_speakers_with_punctuation = MagicMock(return_value=[
+            {"speaker": "Speaker 0", "text": "Bien venue dans", "start_time": 0, "end_time": 1000}
+        ])
+        with patch.object(e2e, "make_worker", return_value=worker), patch(
+            "faster_whisper.decode_audio", return_value=np.zeros(10, dtype=np.float32),
+        ):
+            e2e.test_identification_steps(transcription, transcription_service, "msdd")
+
+        passed_segments = worker._get_word_timestamps.call_args.kwargs["segments"]
+        assert [segment.text for segment in passed_segments] == ["Bien", "venue dans"]
 
     def test_setup_device_force_cpu(self, transcription, transcription_service, monkeypatch):
         """_setup_device honours BUZZ_FORCE_CPU regardless of CUDA availability."""
@@ -564,9 +620,60 @@ class TestSpeakerIdentificationWidget:
         worker._PunctuationModel.assert_not_called()
         worker._get_sentences_speaker_mapping.assert_called_once()
 
-    # ------------------------------------------------------------------
-    # SpeakerIdentificationWidget unit tests
-    # ------------------------------------------------------------------
+    def test_map_speakers_does_not_end_a_sentence_inside_a_split_word(self):
+        worker = IdentificationWorker(None, None)
+        worker._get_words_speaker_mapping = MagicMock(return_value=[
+            {"word": "piece", "start_time": 0, "end_time": 1, "speaker": 0},
+            {"word": "rest", "start_time": 1, "end_time": 2, "speaker": 0},
+        ])
+        worker._get_realigned_ws_mapping_with_punctuation = lambda wsm: wsm
+        worker._get_sentences_speaker_mapping = lambda wsm, _speaker_ts: wsm
+        worker._punct_model_langs = ["en"]
+        punct_model = MagicMock()
+        punct_model.predict.side_effect = lambda batch, chunk_size: [
+            (word, ".") for word in batch
+        ]
+        worker._PunctuationModel = MagicMock(return_value=punct_model)
+
+        result = worker._map_speakers_with_punctuation(
+            [
+                {"text": "piece", "start": 0.0, "end": 0.001},
+                {"text": "rest", "start": 0.001, "end": 0.002, "joins_previous": True},
+            ],
+            [(0, 5000, 0)],
+            "en",
+        )
+
+        assert [entry["word"] for entry in result] == ["piecerest."]
+
+    def test_map_speakers_rejoins_pieces_of_the_same_speaker(self):
+        from whisper_diarization.helpers import (
+            get_realigned_ws_mapping_with_punctuation,
+            get_sentences_speaker_mapping,
+            get_words_speaker_mapping,
+        )
+
+        worker = IdentificationWorker(None, None)
+        worker._get_words_speaker_mapping = get_words_speaker_mapping
+        worker._get_realigned_ws_mapping_with_punctuation = get_realigned_ws_mapping_with_punctuation
+        worker._get_sentences_speaker_mapping = get_sentences_speaker_mapping
+        worker._punct_model_langs = ["en"]
+        # The period ends the sentence, so the speaker change is kept
+        words = [
+            {"text": "สวัสดีครับ", "start": 1.0, "end": 2.0},
+            {"text": "วันนี้.", "start": 2.0, "end": 3.0, "joins_previous": True},
+            {"text": "อากาศดี", "start": 6.0, "end": 7.0, "joins_previous": True},
+            {"text": "hello", "start": 8.0, "end": 9.0},
+        ]
+
+        sentences = worker._map_speakers_with_punctuation(
+            words, [(0, 5000, 0), (5000, 10000, 1)], "th",
+        )
+
+        assert [(s["speaker"], s["text"]) for s in sentences] == [
+            ("Speaker 0", "สวัสดีครับวันนี้. "),
+            ("Speaker 1", "อากาศดี hello "),
+        ]
 
     def test_on_progress_update_invalid_format(self, qtbot: QtBot, transcription, transcription_service):
         """A non-numeric progress string updates the label but not the bar."""

@@ -1,0 +1,18 @@
+diff --git a/ctc_forced_aligner/forced_align_impl.cpp b/ctc_forced_aligner/forced_align_impl.cpp
+--- a/ctc_forced_aligner/forced_align_impl.cpp
++++ b/ctc_forced_aligner/forced_align_impl.cpp
+@@ -151,6 +151,14 @@
+   for (auto t = T - 1; t > -1; t--) {
+     auto lbl_idx = ltrIdx % 2 == 0 ? blank : targets_data(batchIndex, ltrIdx / 2);
+     paths_data(batchIndex, t) = lbl_idx;
++    // The first frame has no previous frame to trace back to. Looking one up
++    // reads out of bounds when there is one frame, or exactly as many as the
++    // targets need, and that segfaults.
++    // Same fix as https://github.com/MahmoudAshraf97/ctc-forced-aligner/pull/101;
++    // re-evaluate this patch once that PR is merged upstream.
++    if (t == 0) {
++      break;
++    }
+     // Calculate backPtr value from bits
+     auto t_minus_one = t - 1 >= 0 ? t - 1 : 0;
+     auto backPtr_idx = backPtr_seek[t_minus_one] +
