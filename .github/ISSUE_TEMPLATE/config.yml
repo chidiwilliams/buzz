@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: I want to transcribe an audio or video file
+    url: https://chidiwilliams.github.io/buzz/docs/installation
+    about: Buzz is a desktop app that you install on your computer. Files uploaded to GitHub issues are NOT transcribed. Follow this link to download and install Buzz.
+  - name: Questions and help
+    url: https://github.com/chidiwilliams/buzz/discussions
+    about: Ask questions about using Buzz and share ideas in GitHub Discussions.
+  - name: Documentation and FAQ
+    url: https://chidiwilliams.github.io/buzz/docs/faq
+    about: Answers to common problems.

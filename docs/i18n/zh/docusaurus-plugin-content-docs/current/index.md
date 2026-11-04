@@ -5,6 +5,11 @@ sidebar_position: 1
 
 在您的个人电脑上离线转录和翻译音频。由 OpenAI 的 [Whisper](https://github.com/openai/whisper) 提供支持。
 
+:::info
+Buzz 是一款需要[安装到电脑上](installation.md)的桌面应用。
+将音频或视频文件上传到 GitHub issue **不会**进行转录。
+:::
+
 ![MIT License](https://img.shields.io/badge/license-MIT-green)
 [![CI](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml/badge.svg)](https://github.com/chidiwilliams/buzz/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/github/chidiwilliams/buzz/branch/main/graph/badge.svg?token=YJSB8S2VEP)](https://codecov.io/github/chidiwilliams/buzz)
