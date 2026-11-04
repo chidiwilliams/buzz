@@ -20,6 +20,7 @@ if not (platform.system() == "Darwin" and platform.machine() == "x86_64") and pl
 from buzz.locale import _
 from buzz.widgets.audio_file_player_loader import AudioFilePlayerLoader
 from tests.audio import test_audio_path
+from tests.transcriptions import all_transcription_ids
 
 @pytest.mark.skipif(
     (platform.system() == "Darwin" and platform.machine() == "x86_64") or platform.system() == "Windows",
@@ -251,12 +252,11 @@ class TestSpeakerIdentificationWidget:
         widget.on_identification_finished(result)
         widget.merge_speaker_sentences.setChecked(False)
 
-        with patch.object(widget.transcription_service, 'copy_transcription', return_value=uuid.uuid4()) as mock_copy, \
-             patch.object(widget.transcription_service, 'update_transcription_as_completed') as mock_update:
+        with patch.object(widget.transcription_service, 'copy_transcription_with_segments', return_value=uuid.uuid4()) as mock_update:
             widget.on_save_button_clicked()
 
-        mock_copy.assert_called_once()
         mock_update.assert_called_once()
+        assert mock_update.call_args[0][0] == transcription.id_as_uuid
         segments = mock_update.call_args[0][1]
         # No merge: 3 entries → 3 segments
         assert len(segments) == 3
@@ -284,8 +284,7 @@ class TestSpeakerIdentificationWidget:
         widget.on_identification_finished(result)
         widget.merge_speaker_sentences.setChecked(True)
 
-        with patch.object(widget.transcription_service, 'copy_transcription', return_value=uuid.uuid4()), \
-             patch.object(widget.transcription_service, 'update_transcription_as_completed') as mock_update:
+        with patch.object(widget.transcription_service, 'copy_transcription_with_segments', return_value=uuid.uuid4()) as mock_update:
             widget.on_save_button_clicked()
 
         segments = mock_update.call_args[0][1]
@@ -311,11 +310,36 @@ class TestSpeakerIdentificationWidget:
         widget.on_identification_finished(result)
 
         new_id = uuid.uuid4()
-        with patch.object(widget.transcription_service, 'copy_transcription', return_value=new_id), \
-             patch.object(widget.transcription_service, 'update_transcription_as_completed'):
+        with patch.object(widget.transcription_service, 'copy_transcription_with_segments', return_value=new_id):
             widget.on_save_button_clicked()
 
         updated_signal.emit.assert_called_once_with(new_id)
+
+        widget.close()
+
+    def test_failed_save_leaves_no_empty_copy_behind(
+        self, qtbot: QtBot, transcription, transcription_service, transcription_dao
+    ):
+        updated_signal = MagicMock()
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+            transcriptions_updated_signal=updated_signal,
+        )
+        qtbot.addWidget(widget)
+
+        result = [{'speaker': 'Speaker 0', 'start_time': 0, 'end_time': 1000, 'text': 'Hi.'}]
+        widget.on_identification_finished(result)
+
+        with patch.object(
+            transcription_service.transcription_segment_dao,
+            'insert',
+            side_effect=Exception("disk full"),
+        ), pytest.raises(Exception, match="disk full"):
+            widget.on_save_button_clicked()
+
+        assert all_transcription_ids(transcription_dao) == [transcription.id]
+        updated_signal.emit.assert_not_called()
 
         widget.close()
 
