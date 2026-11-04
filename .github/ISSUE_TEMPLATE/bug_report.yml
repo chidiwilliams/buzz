@@ -1,0 +1,95 @@
+name: Bug report
+description: Report a problem with the Buzz app installed on your computer
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Buzz is a desktop app.** Uploading audio or video files here will not transcribe them.
+        To transcribe a file, [install Buzz](https://chidiwilliams.github.io/buzz/docs/installation) on your computer.
+
+        Before reporting, please check the [FAQ](https://chidiwilliams.github.io/buzz/docs/faq) and search [existing issues](https://github.com/chidiwilliams/buzz/issues).
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirmation
+      options:
+        - label: I have installed Buzz on my computer and I am reporting a problem with the app. I understand that files uploaded here are not transcribed.
+          required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the problem and what you expected to happen instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open Buzz
+        2. Select ...
+        3. Click ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Buzz version
+      description: Found in Help -> About Buzz
+      placeholder: e.g. 1.4.5
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows
+        - macOS
+        - Linux
+    validations:
+      required: true
+  - type: input
+    id: os-version
+    attributes:
+      label: Operating system version
+      placeholder: e.g. Windows 11 24H2, macOS 15.5, Ubuntu 24.04
+    validations:
+      required: true
+  - type: dropdown
+    id: install-method
+    attributes:
+      label: How did you install Buzz?
+      options:
+        - Windows installer
+        - macOS .dmg
+        - Mac App Store
+        - Flatpak
+        - Snap
+        - AppImage
+        - PyPI (pip install buzz-captions)
+        - From source
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Model
+      description: Model type and size used, if relevant
+      placeholder: e.g. Whisper.cpp large-v3-turbo, Faster Whisper medium
+  - type: input
+    id: hardware
+    attributes:
+      label: Hardware
+      description: CPU / GPU, if relevant (e.g. for performance or GPU acceleration problems)
+      placeholder: e.g. Apple M2, NVIDIA RTX 3060, Intel i5 with integrated graphics
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        To open the logs folder go to `Help -> About Buzz` and click `Show logs`. Paste relevant parts of the log file here, or drag and drop the log file.
+      render: shell
