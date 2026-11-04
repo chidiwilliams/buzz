@@ -534,11 +534,18 @@ class MainWindow(QMainWindow):
             self.quit_if_all_tasks_done(task)
             return
 
+        try:
+            self.save_completed_task(task, segments)
+        except Exception as e:
+            self.on_task_save_failed(task, str(e))
+
+        self.quit_if_all_tasks_done(task)
+
+    def save_completed_task(self, task: FileTranscriptionTask, segments: List[Segment]):
         # Handle skipped tasks (e.g. plugin detected file already transcribed)
         if task.status == FileTranscriptionTask.Status.SKIPPED:
             self.transcription_service.update_transcription_as_skipped(task.uid, segments)
             self.table_widget.refresh_row(task.uid)
-            self.quit_if_all_tasks_done(task)
             return
 
         # Update file path in database only for URL imports where file is downloaded
@@ -573,8 +580,10 @@ class MainWindow(QMainWindow):
             runnable.signals.finished.connect(
                 lambda: self.table_widget.refresh_row(task.uid)
             )
+            # Plugin hook errors are caught inside the plugin manager, so an
+            # error here means the result could not be saved
             runnable.signals.error.connect(
-                lambda e: logging.error(f"Plugin post-processing failed: {e}")
+                lambda e: self.on_task_save_failed(task, e)
             )
             QThreadPool.globalInstance().start(runnable)
         elif self.plugin_manager.has_enabled_post_hooks():
@@ -584,7 +593,15 @@ class MainWindow(QMainWindow):
             self.transcription_service.update_transcription_as_completed(task.uid, segments)
             self.table_widget.refresh_row(task.uid)
 
-        self.quit_if_all_tasks_done(task)
+    def on_task_save_failed(self, task: FileTranscriptionTask, error: str):
+        # The save rolled back, so mark the task failed instead of leaving it
+        # in progress forever
+        logging.error(f"Failed to save result of task {task.uid}: {error}")
+        # Plugins run in the background, the task may have been canceled meanwhile
+        if self.transcription_service.is_transcription_deleted_or_canceled(task.uid):
+            return
+        self.transcription_service.update_transcription_as_failed(task.uid, error)
+        self.table_widget.refresh_row(task.uid)
 
     def quit_if_all_tasks_done(self, task: FileTranscriptionTask):
         if not self.quit_on_complete:

@@ -55,6 +55,17 @@ class TranscriptionService:
             self.transcription_dao.update_transcription_as_completed(id)
             self._insert_segments(id, segments)
 
+    def copy_transcription_with_segments(
+        self, id: UUID, segments: List[Segment]
+    ) -> UUID:
+        """Copy a transcription and save segments as the copy's completed
+        transcript in one transaction, so a failed save leaves no empty copy."""
+        with self._transaction():
+            new_id = self.transcription_dao.copy_transcription(id)
+            self.transcription_dao.update_transcription_as_completed(new_id)
+            self._insert_segments(new_id, segments)
+        return new_id
+
     def _transaction(self):
         return transaction(self.transcription_segment_dao.db)
 

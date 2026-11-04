@@ -337,11 +337,8 @@ class TranscriptionResizerWidget(QWidget):
 
     def save_segments(self, segments):
         if self.create_new_transcript_checkbox.isChecked():
-            transcript_id = self.transcription_service.copy_transcription(
-                self.transcription.id_as_uuid
-            )
-            self.transcription_service.update_transcription_as_completed(
-                transcript_id, segments
+            transcript_id = self.transcription_service.copy_transcription_with_segments(
+                self.transcription.id_as_uuid, segments
             )
         else:
             transcript_id = self.transcription.id_as_uuid
@@ -479,10 +476,18 @@ class TranscriptionResizerWidget(QWidget):
 
     def on_transcription_completed(self, segments):
         if self.new_transcript_id is not None:
-            if self.create_new_transcript_checkbox.isChecked():
-                self.transcription_service.update_transcription_as_completed(self.new_transcript_id, segments)
-            else:
-                self.transcription_service.replace_transcription_segments(self.new_transcript_id, segments)
+            creates_new_transcript = self.create_new_transcript_checkbox.isChecked()
+            try:
+                if creates_new_transcript:
+                    self.transcription_service.update_transcription_as_completed(self.new_transcript_id, segments)
+                else:
+                    self.transcription_service.replace_transcription_segments(self.new_transcript_id, segments)
+            except Exception as e:
+                logging.error(f"Failed to save merged segments: {e}")
+                # The copy was shown as in progress while merging; don't leave
+                # it stuck there. An in-place merge keeps the old segments.
+                if creates_new_transcript:
+                    self.transcription_service.update_transcription_as_failed(self.new_transcript_id, str(e))
 
             if self.transcriptions_updated_signal:
                 self.transcriptions_updated_signal.emit(self.new_transcript_id)
