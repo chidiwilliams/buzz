@@ -9,7 +9,12 @@ APP_NAME = "Buzz"
 
 class Settings:
     def __init__(self, application=""):
-        self.settings = QSettings(APP_NAME, application)
+        # Same store as QSettings(APP_NAME, application), which always uses the
+        # native format. Going through defaultFormat() lets tests swap it for
+        # files in a temporary folder, away from the user's own settings.
+        self.settings = QSettings(
+            QSettings.defaultFormat(), QSettings.Scope.UserScope, APP_NAME, application
+        )
         self.settings.sync()
 
     class Key(enum.Enum):

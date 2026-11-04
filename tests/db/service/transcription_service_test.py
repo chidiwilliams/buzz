@@ -9,6 +9,7 @@ from buzz.db.dao.transcription_segment_dao import TranscriptionSegmentDAO
 from buzz.db.service.transcription_service import TranscriptionService
 from buzz.db.entity.transcription import Transcription
 from buzz.transcriber.transcriber import Segment
+from tests.transcriptions import all_transcription_ids
 
 
 @pytest.fixture
@@ -353,3 +354,94 @@ class TestInsertSegmentsTransactionWithDatabase:
 
         assert service.get_transcription_segments(transcription_id) == []
         assert service.transcription_dao.find_by_id(str(transcription_id)).status == "in_progress"
+
+
+class TestCopyTranscriptionWithSegments:
+    segments = [Segment(0, 100, "one"), Segment(100, 200, "two")]
+
+    def test_copies_completes_and_inserts_in_one_transaction(
+        self, transcription_service, mock_transcription_dao, mock_transcription_segment_dao
+    ):
+        db = mock_transcription_segment_dao.db
+        new_id = uuid4()
+        mock_transcription_dao.copy_transcription.return_value = new_id
+        original_id = uuid4()
+
+        result = transcription_service.copy_transcription_with_segments(
+            original_id, self.segments
+        )
+
+        assert result == new_id
+        mock_transcription_dao.copy_transcription.assert_called_once_with(original_id)
+        mock_transcription_dao.update_transcription_as_completed.assert_called_once_with(new_id)
+        assert mock_transcription_segment_dao.insert.call_count == 2
+        inserted = mock_transcription_segment_dao.insert.call_args_list[0][0][0]
+        assert inserted.transcription_id == str(new_id)
+        db.transaction.assert_called_once()
+        db.commit.assert_called_once()
+        db.rollback.assert_not_called()
+
+    def test_rolls_back_the_copy_when_an_insert_fails(
+        self, transcription_service, mock_transcription_dao, mock_transcription_segment_dao
+    ):
+        db = mock_transcription_segment_dao.db
+        mock_transcription_dao.copy_transcription.return_value = uuid4()
+        mock_transcription_segment_dao.insert.side_effect = [None, Exception("disk full")]
+
+        with pytest.raises(Exception, match="disk full"):
+            transcription_service.copy_transcription_with_segments(uuid4(), self.segments)
+
+        mock_transcription_dao.copy_transcription.assert_called_once()
+        db.rollback.assert_called_once()
+        db.commit.assert_not_called()
+
+
+class TestCopyTranscriptionWithSegmentsWithDatabase:
+    unserializable = Segment(100, 200, "bad", metadata=[{"x": object()}])
+
+    @pytest.fixture
+    def service(self, db):
+        return TranscriptionService(TranscriptionDAO(db), TranscriptionSegmentDAO(db))
+
+    @pytest.fixture
+    def original_id(self, service):
+        original_id = uuid4()
+        service.transcription_dao.insert(
+            Transcription(
+                id=str(original_id),
+                file="/path/to/test.mp3",
+                status="completed",
+                time_queued="2023-01-01T00:00:00",
+                task="TRANSCRIBE",
+                model_type="WHISPER",
+            )
+        )
+        service.replace_transcription_segments(original_id, [Segment(0, 100, "original")])
+        return original_id
+
+    def test_creates_a_completed_copy_with_the_segments(self, service, original_id):
+        new_id = service.copy_transcription_with_segments(
+            original_id, [Segment(0, 50, "new one"), Segment(50, 100, "new two")]
+        )
+
+        copy = service.transcription_dao.find_by_id(str(new_id))
+        assert copy.status == "completed"
+        assert [s.text for s in service.get_transcription_segments(new_id)] == [
+            "new one",
+            "new two",
+        ]
+        # The original is left as it was
+        assert [s.text for s in service.get_transcription_segments(original_id)] == [
+            "original"
+        ]
+
+    def test_failed_save_leaves_no_empty_copy_behind(self, service, original_id):
+        with pytest.raises(TypeError):
+            service.copy_transcription_with_segments(
+                original_id, [Segment(0, 100, "new"), self.unserializable]
+            )
+
+        assert all_transcription_ids(service.transcription_dao) == [str(original_id)]
+        assert [s.text for s in service.get_transcription_segments(original_id)] == [
+            "original"
+        ]

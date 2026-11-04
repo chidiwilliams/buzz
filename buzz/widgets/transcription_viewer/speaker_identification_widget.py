@@ -1043,11 +1043,9 @@ class SpeakerIdentificationWidget(QWidget):
             merge_speaker_sentences=self.merge_speaker_sentences.isChecked(),
         )
 
-        new_transcript_id = self.transcription_service.copy_transcription(
-            self.transcription.id_as_uuid
+        new_transcript_id = self.transcription_service.copy_transcription_with_segments(
+            self.transcription.id_as_uuid, segments
         )
-
-        self.transcription_service.update_transcription_as_completed(new_transcript_id, segments)
 
         # TODO - See if we can get rows in the transcription viewer to be of variable height
         #        If text is longer they should expand
