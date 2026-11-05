@@ -2,20 +2,6 @@ name: Bug report
 description: Report a problem with the Buzz app installed on your computer
 labels: ["bug"]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        **Buzz is a desktop app.** Uploading audio or video files here will not transcribe them.
-        To transcribe a file, [install Buzz](https://chidiwilliams.github.io/buzz/docs/installation) on your computer.
-
-        Before reporting, please check the [FAQ](https://chidiwilliams.github.io/buzz/docs/faq) and search [existing issues](https://github.com/chidiwilliams/buzz/issues).
-  - type: checkboxes
-    id: confirm
-    attributes:
-      label: Confirmation
-      options:
-        - label: I have installed Buzz on my computer and I am reporting a problem with the app. I understand that files uploaded here are not transcribed.
-          required: true
   - type: textarea
     id: description
     attributes:
@@ -31,16 +17,12 @@ body:
         1. Open Buzz
         2. Select ...
         3. Click ...
-    validations:
-      required: true
   - type: input
     id: version
     attributes:
       label: Buzz version
       description: Found in Help -> About Buzz
       placeholder: e.g. 1.4.5
-    validations:
-      required: true
   - type: dropdown
     id: os
     attributes:
@@ -49,15 +31,11 @@ body:
         - Windows
         - macOS
         - Linux
-    validations:
-      required: true
   - type: input
     id: os-version
     attributes:
       label: Operating system version
       placeholder: e.g. Windows 11 24H2, macOS 15.5, Ubuntu 24.04
-    validations:
-      required: true
   - type: dropdown
     id: install-method
     attributes:
@@ -72,8 +50,6 @@ body:
         - PyPI (pip install buzz-captions)
         - From source
         - Other
-    validations:
-      required: true
   - type: input
     id: model
     attributes:
