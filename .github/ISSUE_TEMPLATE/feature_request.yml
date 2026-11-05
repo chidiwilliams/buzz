@@ -2,11 +2,6 @@ name: Feature request
 description: Suggest an improvement or new feature for the Buzz app
 labels: ["enhancement"]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        **Buzz is a desktop app.** Uploading audio or video files here will not transcribe them.
-        To transcribe a file, [install Buzz](https://chidiwilliams.github.io/buzz/docs/installation) on your computer.
   - type: textarea
     id: problem
     attributes:
@@ -19,8 +14,6 @@ body:
     attributes:
       label: Proposed solution
       description: How would you like this to work?
-    validations:
-      required: true
   - type: textarea
     id: alternatives
     attributes:
