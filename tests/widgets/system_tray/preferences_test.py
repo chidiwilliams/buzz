@@ -20,6 +20,10 @@ def tray_preferences(qtbot, tmp_path, mocker):
     available = mocker.patch.object(
         QSystemTrayIcon, "isSystemTrayAvailable", return_value=True
     )
+    # Don't depend on the platform running the tests (e.g. a Wayland desktop).
+    mocker.patch.object(
+        general_preferences_widget, "is_minimize_to_tray_supported", return_value=True
+    )
     return settings, available
 
 

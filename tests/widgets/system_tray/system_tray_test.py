@@ -37,6 +37,10 @@ def tray(qtbot, tmp_path, mocker):
     available = mocker.patch.object(
         QSystemTrayIcon, "isSystemTrayAvailable", return_value=True
     )
+    # Don't depend on the platform running the tests (e.g. a Wayland desktop).
+    mocker.patch(
+        "buzz.widgets.system_tray.is_minimize_to_tray_supported", return_value=True
+    )
     window = TrackingWindow()
     qtbot.addWidget(window)
     controller = SystemTray(window, settings)
