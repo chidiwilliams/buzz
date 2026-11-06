@@ -104,7 +104,7 @@ the output folder. Audio playback will not be available for these transcriptions
 the watched folder. They work the same way as for a regular file transcription.
 
 **Speaker identification** - When enabled, speakers are identified after transcription and speaker
-labels are added to the exported transcripts. Transcription will take longer.
+labels are added to the exported transcripts. Transcription will take longer. This option is available since `1.4.6`.
 
 ## Advanced Preferences
 
