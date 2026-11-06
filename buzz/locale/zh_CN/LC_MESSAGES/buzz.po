@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-12 17:09+0300\n"
+"POT-Creation-Date: 2026-11-06 13:30+0200\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: \n"
 "Language-Team: lamb\n"
@@ -60,6 +60,14 @@ msgstr "输入的网址无效"
 #: buzz/widgets/presentation_window.py
 msgid "Live Transcript Presentation"
 msgstr "实时识别展示"
+
+#: buzz/widgets/system_tray.py
+msgid "Show Buzz"
+msgstr "显示 Buzz"
+
+#: buzz/widgets/system_tray.py
+msgid "Quit"
+msgstr "退出"
 
 #: buzz/widgets/preferences_dialog/shortcuts_editor_preferences_widget.py
 msgid "Reset to Defaults"
@@ -131,6 +139,11 @@ msgstr "俄语"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
+msgid "Turkish"
+msgstr "土耳其语"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
 msgid "Ukrainian"
 msgstr "乌克兰语"
 
@@ -153,6 +166,20 @@ msgstr "界面语言"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Font Size"
 msgstr "字体大小"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Minimize to system tray"
+msgstr "最小化到系统托盘"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Close to system tray"
+msgstr "关闭到系统托盘"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid ""
+"Keep Buzz running when the main window is closed. Use Quit in the tray menu "
+"to exit."
+msgstr "关闭主窗口时保持 Buzz 运行。使用托盘菜单中的“退出”来退出。"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Test"
@@ -462,6 +489,19 @@ msgstr "您确定要删除所选模型吗？"
 msgid "Download failed"
 msgstr "下载失败"
 
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Loading audio"
+msgstr "正在加载音频"
+
+#: buzz/widgets/audio_file_player_loader.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Could not load audio"
+msgstr "无法加载音频"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Audio file not found: {}"
+msgstr "未找到音频文件：{}"
+
 #: buzz/widgets/record_button.py buzz/widgets/main_window_toolbar.py
 msgid "Record"
 msgstr "录制"
@@ -471,7 +511,6 @@ msgid "Stop"
 msgstr "停止"
 
 #: buzz/widgets/transcriber/languages_combo_box.py
-#: buzz/transcriber/transcriber.py
 msgid "Detect Language"
 msgstr "检测语言"
 
@@ -1220,6 +1259,10 @@ msgstr "需要API Key"
 msgid "Please enter OpenAI API Key in preferences"
 msgstr "请在偏好设置中输入OpenAI API Key"
 
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Speaker identification is already in progress in another window"
+msgstr "说话人识别已在另一个窗口中进行"
+
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Settings"
 msgstr "设置"
@@ -1290,6 +1333,10 @@ msgid ""
 msgstr "加载对齐模型失败。请检查您的网络连接后重试。"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "5/8 Preparing transcripts"
+msgstr "5/8 准备识别文本"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "0/0 Error identifying speakers"
 msgstr "0/0 识别说话人时出错"
 
@@ -1313,10 +1360,6 @@ msgstr "3/8 加载对齐模型"
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "4/8 Processing audio"
 msgstr "4/8 处理音频"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "5/8 Preparing transcripts"
-msgstr "5/8 准备识别文本"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "6/8 Identifying speakers"
@@ -1478,10 +1521,6 @@ msgstr "韩语"
 #: buzz/transcriber/transcriber.py
 msgid "Portuguese"
 msgstr "葡萄牙语"
-
-#: buzz/transcriber/transcriber.py
-msgid "Turkish"
-msgstr "土耳其语"
 
 #: buzz/transcriber/transcriber.py
 msgid "Arabic"
@@ -1815,6 +1854,18 @@ msgstr "巽他语"
 msgid "Cantonese"
 msgstr "粤语"
 
+#: buzz/transcriber/speaker_identifier.py
+msgid ""
+"Most of the transcript does not match the audio. Check that the audio file, "
+"language and timestamps are correct."
+msgstr "大部分转录内容与音频不匹配。请检查音频文件、语言和时间戳是否正确。"
+
+#: buzz/transcriber/speaker_identifier.py
+msgid ""
+"This transcript is too long to align at once. Its segments may have no "
+"usable timestamps."
+msgstr "此转录内容过长，无法一次性对齐。其片段可能没有可用的时间戳。"
+
 #: buzz/transcriber/recording_transcriber.py buzz/model_loader.py
 msgid "A connection error occurred"
 msgstr "连接发生错误"
@@ -2048,15 +2099,3 @@ msgid ""
 "Speech extraction failed! Check your internet connection — a model may need "
 "to be downloaded."
 msgstr "语音提取失败！请检查您的网络连接——可能需要下载模型。"
-
-#: buzz/widgets/audio_file_player_loader.py
-msgid "Loading audio"
-msgstr "正在加载音频"
-
-#: buzz/widgets/audio_file_player_loader.py
-msgid "Could not load audio"
-msgstr "无法加载音频"
-
-#: buzz/widgets/audio_file_player_loader.py
-msgid "Audio file not found: {}"
-msgstr "未找到音频文件：{}"

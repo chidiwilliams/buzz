@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-12 17:09+0300\n"
+"POT-Creation-Date: 2026-11-06 13:30+0200\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: Catalan <jmas@softcatala.org>\n"
@@ -60,6 +60,14 @@ msgstr "L'URL que heu introduït no és vàlid."
 #: buzz/widgets/presentation_window.py
 msgid "Live Transcript Presentation"
 msgstr "Presentació de transcripció en directe"
+
+#: buzz/widgets/system_tray.py
+msgid "Show Buzz"
+msgstr "Mostra Buzz"
+
+#: buzz/widgets/system_tray.py
+msgid "Quit"
+msgstr "Surt"
 
 #: buzz/widgets/preferences_dialog/shortcuts_editor_preferences_widget.py
 msgid "Reset to Defaults"
@@ -131,6 +139,11 @@ msgstr "Rus"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
+msgid "Turkish"
+msgstr "Turc"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
 msgid "Ukrainian"
 msgstr "Ucraïnès"
 
@@ -153,6 +166,22 @@ msgstr "Idioma UI"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Font Size"
 msgstr "Mida de la lletra"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Minimize to system tray"
+msgstr "Minimitza a la safata del sistema"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Close to system tray"
+msgstr "Tanca a la safata del sistema"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid ""
+"Keep Buzz running when the main window is closed. Use Quit in the tray menu "
+"to exit."
+msgstr ""
+"Manté Buzz en execució quan es tanca la finestra principal. Utilitzeu Surt "
+"al menú de la safata per sortir."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Test"
@@ -475,6 +504,19 @@ msgstr "Esteu segur que voleu suprimir el model seleccionat?"
 msgid "Download failed"
 msgstr "Descàrrega fallida"
 
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Loading audio"
+msgstr "S'està carregant l'àudio"
+
+#: buzz/widgets/audio_file_player_loader.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Could not load audio"
+msgstr "No s'ha pogut carregar l'àudio"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Audio file not found: {}"
+msgstr "No s'ha trobat el fitxer d'àudio: {}"
+
 #: buzz/widgets/record_button.py buzz/widgets/main_window_toolbar.py
 msgid "Record"
 msgstr "Enregistra"
@@ -484,7 +526,6 @@ msgid "Stop"
 msgstr "Atura"
 
 #: buzz/widgets/transcriber/languages_combo_box.py
-#: buzz/transcriber/transcriber.py
 msgid "Detect Language"
 msgstr "Detecta l'idioma"
 
@@ -1253,6 +1294,10 @@ msgstr "Clau API necessària"
 msgid "Please enter OpenAI API Key in preferences"
 msgstr "Introduïu la clau API d'OpenAI a les preferències"
 
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Speaker identification is already in progress in another window"
+msgstr "La identificació de parlants ja està en curs en una altra finestra"
+
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Settings"
 msgstr "Configuració"
@@ -1333,6 +1378,10 @@ msgstr ""
 "Internet i torneu-ho a intentar."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "5/8 Preparing transcripts"
+msgstr "5/8 Preparant transcripcions"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "0/0 Error identifying speakers"
 msgstr "0/0 Error en identificar parlants"
 
@@ -1358,10 +1407,6 @@ msgstr "3/8 Carregant el model d'alineació"
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "4/8 Processing audio"
 msgstr "4/8 Processant àudio"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "5/8 Preparing transcripts"
-msgstr "5/8 Preparant transcripcions"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "6/8 Identifying speakers"
@@ -1529,10 +1574,6 @@ msgstr "Coreà"
 #: buzz/transcriber/transcriber.py
 msgid "Portuguese"
 msgstr "Portuguès"
-
-#: buzz/transcriber/transcriber.py
-msgid "Turkish"
-msgstr "Turc"
 
 #: buzz/transcriber/transcriber.py
 msgid "Arabic"
@@ -1866,6 +1907,22 @@ msgstr "Sundanès"
 msgid "Cantonese"
 msgstr "Cantonès"
 
+#: buzz/transcriber/speaker_identifier.py
+msgid ""
+"Most of the transcript does not match the audio. Check that the audio file, "
+"language and timestamps are correct."
+msgstr ""
+"La major part de la transcripció no coincideix amb l'àudio. Comproveu que el "
+"fitxer d'àudio, l'idioma i les marques de temps siguin correctes."
+
+#: buzz/transcriber/speaker_identifier.py
+msgid ""
+"This transcript is too long to align at once. Its segments may have no "
+"usable timestamps."
+msgstr ""
+"Aquesta transcripció és massa llarga per alinear-la d'una vegada. És "
+"possible que els seus segments no tinguin marques de temps utilitzables."
+
 #: buzz/transcriber/recording_transcriber.py buzz/model_loader.py
 msgid "A connection error occurred"
 msgstr "S'ha produït un error de connexió"
@@ -2114,15 +2171,3 @@ msgid ""
 msgstr ""
 "Ha fallat l'extracció de veu! Comproveu la vostra connexió a Internet — pot "
 "ser que s'hagi de descarregar un model."
-
-#: buzz/widgets/audio_file_player_loader.py
-msgid "Loading audio"
-msgstr "S'està carregant l'àudio"
-
-#: buzz/widgets/audio_file_player_loader.py
-msgid "Could not load audio"
-msgstr "No s'ha pogut carregar l'àudio"
-
-#: buzz/widgets/audio_file_player_loader.py
-msgid "Audio file not found: {}"
-msgstr "No s'ha trobat el fitxer d'àudio: {}"

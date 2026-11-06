@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-12 17:09+0300\n"
+"POT-Creation-Date: 2026-11-06 13:30+0200\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: none\n"
@@ -62,6 +62,14 @@ msgstr "De ingevoerde url is ongeldig."
 #: buzz/widgets/presentation_window.py
 msgid "Live Transcript Presentation"
 msgstr "Live transcriptie presenteren"
+
+#: buzz/widgets/system_tray.py
+msgid "Show Buzz"
+msgstr "Buzz tonen"
+
+#: buzz/widgets/system_tray.py
+msgid "Quit"
+msgstr "Afsluiten"
 
 #: buzz/widgets/preferences_dialog/shortcuts_editor_preferences_widget.py
 msgid "Reset to Defaults"
@@ -133,6 +141,11 @@ msgstr "Russisch"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
+msgid "Turkish"
+msgstr "Turks"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
 msgid "Ukrainian"
 msgstr "Oekraïens"
 
@@ -155,6 +168,22 @@ msgstr "Programmataal"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Font Size"
 msgstr "Tekstgrootte"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Minimize to system tray"
+msgstr "Minimaliseren naar systeemvak"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Close to system tray"
+msgstr "Sluiten naar systeemvak"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid ""
+"Keep Buzz running when the main window is closed. Use Quit in the tray menu "
+"to exit."
+msgstr ""
+"Buzz actief houden wanneer het hoofdvenster wordt gesloten. Gebruik "
+"Afsluiten in het systeemvakmenu om af te sluiten."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Test"
@@ -478,6 +507,19 @@ msgstr "Weet u zeker dat u het gekozen model wilt verwijderen?"
 msgid "Download failed"
 msgstr "Het downloaden is mislukt"
 
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Loading audio"
+msgstr "Audio laden"
+
+#: buzz/widgets/audio_file_player_loader.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Could not load audio"
+msgstr "Kan audio niet laden"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Audio file not found: {}"
+msgstr "Audiobestand niet gevonden: {}"
+
 #: buzz/widgets/record_button.py buzz/widgets/main_window_toolbar.py
 msgid "Record"
 msgstr "Opnemen"
@@ -487,7 +529,6 @@ msgid "Stop"
 msgstr "Stoppen"
 
 #: buzz/widgets/transcriber/languages_combo_box.py
-#: buzz/transcriber/transcriber.py
 msgid "Detect Language"
 msgstr "Taal herkennen"
 
@@ -1256,6 +1297,10 @@ msgstr "Api-sleutel vereist"
 msgid "Please enter OpenAI API Key in preferences"
 msgstr "Voer de OpenAI-api-sleutel in in de instellingen"
 
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Speaker identification is already in progress in another window"
+msgstr "Sprekeridentificatie is al bezig in een ander venster"
+
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Settings"
 msgstr "Instellingen"
@@ -1334,6 +1379,10 @@ msgstr ""
 "internetverbinding en probeer het opnieuw."
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "5/8 Preparing transcripts"
+msgstr "5/8 Transcripties voorbereiden"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "0/0 Error identifying speakers"
 msgstr "0/0 Fout bij het identificeren van sprekers"
 
@@ -1359,10 +1408,6 @@ msgstr "3/8 Uitlijningsmodel laden"
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "4/8 Processing audio"
 msgstr "4/8 Audio verwerken"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "5/8 Preparing transcripts"
-msgstr "5/8 Transcripties voorbereiden"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "6/8 Identifying speakers"
@@ -1530,10 +1575,6 @@ msgstr "Koreaans"
 #: buzz/transcriber/transcriber.py
 msgid "Portuguese"
 msgstr "Portugees"
-
-#: buzz/transcriber/transcriber.py
-msgid "Turkish"
-msgstr "Turks"
 
 #: buzz/transcriber/transcriber.py
 msgid "Arabic"
@@ -1867,6 +1908,22 @@ msgstr "Soedanees"
 msgid "Cantonese"
 msgstr "Kantonees"
 
+#: buzz/transcriber/speaker_identifier.py
+msgid ""
+"Most of the transcript does not match the audio. Check that the audio file, "
+"language and timestamps are correct."
+msgstr ""
+"Het grootste deel van het transcript komt niet overeen met de audio. "
+"Controleer of het audiobestand, de taal en de tijdstempels correct zijn."
+
+#: buzz/transcriber/speaker_identifier.py
+msgid ""
+"This transcript is too long to align at once. Its segments may have no "
+"usable timestamps."
+msgstr ""
+"Dit transcript is te lang om in één keer uit te lijnen. De segmenten hebben "
+"mogelijk geen bruikbare tijdstempels."
+
 #: buzz/transcriber/recording_transcriber.py buzz/model_loader.py
 msgid "A connection error occurred"
 msgstr "Er is een verbindingsfout opgetreden"
@@ -2114,15 +2171,3 @@ msgid ""
 msgstr ""
 "Spraakextractie mislukt! Controleer uw internetverbinding — mogelijk moet er "
 "een model worden gedownload."
-
-#: buzz/widgets/audio_file_player_loader.py
-msgid "Loading audio"
-msgstr "Audio laden"
-
-#: buzz/widgets/audio_file_player_loader.py
-msgid "Could not load audio"
-msgstr "Kan audio niet laden"
-
-#: buzz/widgets/audio_file_player_loader.py
-msgid "Audio file not found: {}"
-msgstr "Audiobestand niet gevonden: {}"
