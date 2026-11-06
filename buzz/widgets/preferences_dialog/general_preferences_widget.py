@@ -26,6 +26,7 @@ from buzz.store.keyring_store import get_password, Key
 from buzz.widgets.line_edit import LineEdit
 from buzz.widgets.openai_api_key_line_edit import OpenAIAPIKeyLineEdit
 from buzz.locale import _
+from buzz.widgets.system_tray import is_minimize_to_tray_supported
 from buzz.widgets.icon import INFO_ICON_PATH
 from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
 
@@ -110,7 +111,10 @@ class GeneralPreferencesWidget(QWidget):
         self.minimize_to_tray_checkbox.toggled.connect(
             lambda enabled: self.settings.set_value(Settings.Key.MINIMIZE_TO_TRAY, enabled)
         )
-        layout.addRow("", self.minimize_to_tray_checkbox)
+        if is_minimize_to_tray_supported():
+            layout.addRow("", self.minimize_to_tray_checkbox)
+        else:
+            self.minimize_to_tray_checkbox.hide()
 
         self.close_to_tray_checkbox = QCheckBox(_("Close to system tray"))
         self.close_to_tray_checkbox.setObjectName("CloseToTrayCheckbox")

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 13:30+0200\n"
+"POT-Creation-Date: 2026-11-06 13:48+0200\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -65,7 +65,7 @@ msgstr "Dzīvais ieraksts"
 msgid "Show Buzz"
 msgstr "Rādīt Buzz"
 
-#: buzz/widgets/system_tray.py
+#: buzz/widgets/system_tray.py buzz/widgets/menu_bar.py
 msgid "Quit"
 msgstr "Iziet"
 
@@ -179,8 +179,7 @@ msgstr "Aizverot atstāt paziņojumu joslā"
 msgid ""
 "Keep Buzz running when the main window is closed. Use Quit in the tray menu "
 "to exit."
-msgstr ""
-"Turpināt darbināt Buzz, kad galvenais logs ir aizvērts."
+msgstr "Turpināt darbināt Buzz, kad galvenais logs ir aizvērts."
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Test"

@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 13:30+0200\n"
+"POT-Creation-Date: 2026-11-06 13:48+0200\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: Yevhen Popok <xalt7x.service@gmail.com>\n"
 "Language-Team: \n"
@@ -63,7 +63,7 @@ msgstr "Презентація транскрипції в реальному ч
 msgid "Show Buzz"
 msgstr "Показати Buzz"
 
-#: buzz/widgets/system_tray.py
+#: buzz/widgets/system_tray.py buzz/widgets/menu_bar.py
 msgid "Quit"
 msgstr "Вийти"
 

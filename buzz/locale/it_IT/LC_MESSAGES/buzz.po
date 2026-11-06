@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 13:30+0200\n"
+"POT-Creation-Date: 2026-11-06 13:48+0200\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Language-Team: (Italiano) Albano Battistella <albanobattistella@gmail.com>\n"
 "Language: it_IT\n"
@@ -64,7 +64,7 @@ msgstr "Presentazione con trascrizione in diretta"
 msgid "Show Buzz"
 msgstr "Mostra Buzz"
 
-#: buzz/widgets/system_tray.py
+#: buzz/widgets/system_tray.py buzz/widgets/menu_bar.py
 msgid "Quit"
 msgstr "Esci"
 

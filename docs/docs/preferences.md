@@ -20,6 +20,12 @@ window. Choose **Quit** from the tray menu to stop Buzz and close its workers.
 Both options are off by default and require an available system tray. Buzz uses
 its usual minimize and close behavior when the system tray is unavailable.
 
+**Minimize to system tray** is not available on Linux Wayland sessions, because
+Wayland does not let applications detect when their window is minimized. Use
+**Close to system tray** instead.
+
+This feature is available since `1.4.6`. 
+
 ### OpenAI API preferences
 
 **API Key** - key to authenticate your requests to OpenAI API. To get API key from OpenAI see [this article](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key).

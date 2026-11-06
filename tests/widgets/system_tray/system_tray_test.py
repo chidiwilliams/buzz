@@ -187,3 +187,14 @@ def test_closing_a_secondary_window_keeps_tray_mode_enabled(tray, qapp, qtbot):
     assert not qapp.quitOnLastWindowClosed()
     assert tray.controller.icon.isVisible()
     assert not tray.controller.closed
+
+
+def test_minimize_preference_is_ignored_on_wayland(tray, qtbot, mocker):
+    mocker.patch(
+        "buzz.widgets.system_tray.is_minimize_to_tray_supported", return_value=False
+    )
+    enable(tray, Settings.Key.MINIMIZE_TO_TRAY)
+    assert not tray.controller.icon.isVisible()
+    tray.window.showMinimized()
+    qtbot.waitUntil(tray.window.isMinimized)
+    assert tray.window.isVisible()

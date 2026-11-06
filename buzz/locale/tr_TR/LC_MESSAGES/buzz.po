@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 13:30+0200\n"
+"POT-Creation-Date: 2026-11-06 13:48+0200\n"
 "PO-Revision-Date: 2026-10-20 22:49+0300\n"
 "Last-Translator: Muhammet\n"
 "Language-Team: Turkish\n"
@@ -62,7 +62,7 @@ msgstr "Canlı Deşifre Sunumu"
 msgid "Show Buzz"
 msgstr "Buzz'ı Göster"
 
-#: buzz/widgets/system_tray.py
+#: buzz/widgets/system_tray.py buzz/widgets/menu_bar.py
 msgid "Quit"
 msgstr "Çık"
 

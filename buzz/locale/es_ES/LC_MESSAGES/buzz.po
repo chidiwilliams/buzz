@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 13:30+0200\n"
+"POT-Creation-Date: 2026-11-06 13:48+0200\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: Éric Duarte <contacto@ericdq.com>\n"
 "Language-Team: \n"
@@ -66,7 +66,7 @@ msgstr "Presentación de transcripción en vivo"
 msgid "Show Buzz"
 msgstr "Mostrar Buzz"
 
-#: buzz/widgets/system_tray.py
+#: buzz/widgets/system_tray.py buzz/widgets/menu_bar.py
 msgid "Quit"
 msgstr "Salir"
 

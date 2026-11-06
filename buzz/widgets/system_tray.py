@@ -5,6 +5,12 @@ from buzz.locale import _
 from buzz.settings.settings import APP_NAME, Settings
 
 
+def is_minimize_to_tray_supported() -> bool:
+    # Wayland never reports a window as minimized, so we cannot hide it on minimize.
+    app = QApplication.instance()
+    return app is not None and app.platformName() != "wayland"
+
+
 class SystemTray(QObject):
     """Keep the main window available while optional tray mode is enabled."""
 
@@ -37,6 +43,10 @@ class SystemTray(QObject):
             and not self.quitting
             and self.settings.value(key, False)
             and QSystemTrayIcon.isSystemTrayAvailable()
+            and (
+                key != Settings.Key.MINIMIZE_TO_TRAY
+                or is_minimize_to_tray_supported()
+            )
         )
 
     def update_preferences(self):

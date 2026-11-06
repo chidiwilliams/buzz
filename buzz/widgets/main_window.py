@@ -206,6 +206,8 @@ class MainWindow(QMainWindow):
         self._maybe_show_cuda_prompt()
 
         self.system_tray = SystemTray(self, self.settings)
+        # Quit through the tray controller so close-to-tray does not just hide the window.
+        self.menu_bar.quit_action_triggered.connect(lambda: self.system_tray.quit())
 
     def on_preferences_changed(self, preferences: Preferences):
         self.preferences = preferences

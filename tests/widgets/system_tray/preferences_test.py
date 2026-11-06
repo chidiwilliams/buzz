@@ -58,3 +58,14 @@ def test_tray_preferences_are_disabled_without_a_system_tray(tray_preferences, q
     assert not widget.close_to_tray_checkbox.isEnabled()
     assert not settings.value(Settings.Key.MINIMIZE_TO_TRAY, False)
     assert not settings.value(Settings.Key.CLOSE_TO_TRAY, False)
+
+
+def test_minimize_to_tray_is_hidden_on_wayland(tray_preferences, qtbot, mocker):
+    mocker.patch.object(
+        general_preferences_widget, "is_minimize_to_tray_supported", return_value=False
+    )
+    widget = general_preferences_widget.GeneralPreferencesWidget()
+    qtbot.addWidget(widget)
+    widget.show()
+    assert not widget.minimize_to_tray_checkbox.isVisible()
+    assert widget.close_to_tray_checkbox.isVisible()
