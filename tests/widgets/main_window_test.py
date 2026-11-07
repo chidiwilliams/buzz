@@ -76,6 +76,18 @@ class TestMainWindow:
         assert window.windowIcon().pixmap(QSize(64, 64)).isNull() is False
         window.close()
 
+    def test_file_quit_action_quits_through_system_tray(
+        self, qtbot, transcription_service
+    ):
+        window = MainWindow(transcription_service)
+        qtbot.add_widget(window)
+
+        with patch.object(window.system_tray, "quit") as quit_mock:
+            window.menu_bar.quit_action.trigger()
+
+        quit_mock.assert_called_once()
+        window.close()
+
     def test_queue_busy_changes_are_serialized_on_gui_thread(
         self, qtbot, transcription_service
     ):
@@ -651,7 +663,7 @@ class TestMainWindow:
         window.quit_on_complete = True
         window.pending_quit_task_uids.add(transcription.id_as_uuid)
 
-        with patch("buzz.widgets.main_window.QApplication.quit") as quit_mock:
+        with patch.object(window.system_tray, "quit") as quit_mock:
             window.on_task_completed(self._task_for(transcription), [])
 
         quit_mock.assert_called_once()
@@ -690,8 +702,8 @@ class TestMainWindow:
             window.plugin_manager, "has_enabled_post_hooks", return_value=has_post_hooks
         ), patch.object(
             transcription_segment_dao, "insert", side_effect=Exception("disk full")
-        ), patch(
-            "buzz.widgets.main_window.QApplication.quit"
+        ), patch.object(
+            window.system_tray, "quit"
         ) as quit_mock, patch.object(
             # Closing the window closes the database the test still reads
             window, "close"

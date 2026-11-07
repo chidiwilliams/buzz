@@ -65,6 +65,9 @@ class Settings:
 
         FONT_SIZE = "font-size"
 
+        MINIMIZE_TO_TRAY = "window/minimize-to-tray"
+        CLOSE_TO_TRAY = "window/close-to-tray"
+
         UI_LOCALE = "ui-locale"
 
         USER_IDENTIFIER = "user-identifier"

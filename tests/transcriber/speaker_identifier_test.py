@@ -1,10 +1,12 @@
 import platform
+import re
 import unicodedata
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 import torch
 
+from buzz.locale import _
 from buzz.transcriber import speaker_identifier
 from buzz.transcriber.file_transcriber import FileTranscriber
 from buzz.transcriber.speaker_identifier import (
@@ -25,6 +27,16 @@ from buzz.transcriber.transcriber import (
     Segment,
     TranscriptionOptions,
 )
+
+# Compare against the translated text, so the tests pass in any UI locale.
+TRANSCRIPT_MISMATCH_ERROR = re.escape(_(
+    "Most of the transcript does not match the audio. "
+    "Check that the audio file, language and timestamps are correct."
+))
+TRANSCRIPT_TOO_LONG_ERROR = re.escape(_(
+    "This transcript is too long to align at once. "
+    "Its segments may have no usable timestamps."
+))
 
 
 IDENTIFICATION_RESULT = [
@@ -482,7 +494,7 @@ class TestTranscriptAligner:
             side_effect=RuntimeError("targets length is too long for CTC.")
         )
 
-        with pytest.raises(AlignmentFailedError, match="does not match the audio"):
+        with pytest.raises(AlignmentFailedError, match=TRANSCRIPT_MISMATCH_ERROR):
             aligner.align(
                 "first", "en", ten_minutes_of_emissions(), 20.0, "tokenizer",
                 segments=[Segment(100000, 100000, "first")],
@@ -573,7 +585,7 @@ class TestTranscriptAligner:
             get_alignments=get_alignments,
         )
 
-        with pytest.raises(AlignmentFailedError, match="too long to align at once"):
+        with pytest.raises(AlignmentFailedError, match=TRANSCRIPT_TOO_LONG_ERROR):
             aligner.align("a", "en", ten_minutes_of_emissions(), 20.0, "tokenizer")
 
         get_alignments.assert_not_called()
@@ -671,7 +683,7 @@ class TestTranscriptAlignerWithRealCtc:
         aligner, emissions, tokenizer = synthetic
         text = " ".join(["a b"] * 400)
 
-        with pytest.raises(AlignmentFailedError, match="does not match the audio"):
+        with pytest.raises(AlignmentFailedError, match=TRANSCRIPT_MISMATCH_ERROR):
             aligner.align(
                 text, "en", emissions, 100.0, tokenizer,
                 segments=[Segment(100000, 100000, text)],
@@ -683,7 +695,7 @@ class TestTranscriptAlignerWithRealCtc:
         emissions[:, :3] = -12
         emissions[:, 0] = 0
 
-        with pytest.raises(AlignmentFailedError, match="does not match the audio"):
+        with pytest.raises(AlignmentFailedError, match=TRANSCRIPT_MISMATCH_ERROR):
             aligner.align(
                 "a b", "en", emissions, 100.0, tokenizer,
                 segments=[Segment(95000, 105000, "a"), Segment(195000, 205000, "b")],

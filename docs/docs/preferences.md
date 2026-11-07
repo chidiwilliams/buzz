@@ -7,6 +7,25 @@ Open the Preferences window from the Menu bar, or click `Ctrl/Cmd + ,`.
 
 ## General Preferences
 
+### System tray
+
+Enable **Minimize to system tray** to keep Buzz running in the system tray when
+you minimize its main window. Enable **Close to system tray** to keep it running
+when you close the main window. Folder Watch and queued transcriptions continue
+while the window is hidden.
+
+Click the Buzz tray icon or choose **Show Buzz** from its menu to restore the
+window. Choose **Quit** from the tray menu to stop Buzz and close its workers.
+
+Both options are off by default and require an available system tray. Buzz uses
+its usual minimize and close behavior when the system tray is unavailable.
+
+**Minimize to system tray** is not available on Linux Wayland sessions, because
+Wayland does not let applications detect when their window is minimized. Use
+**Close to system tray** instead.
+
+This feature is available since `1.4.6`. 
+
 ### OpenAI API preferences
 
 **API Key** - key to authenticate your requests to OpenAI API. To get API key from OpenAI see [this article](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key).
@@ -91,7 +110,7 @@ the output folder. Audio playback will not be available for these transcriptions
 the watched folder. They work the same way as for a regular file transcription.
 
 **Speaker identification** - When enabled, speakers are identified after transcription and speaker
-labels are added to the exported transcripts. Transcription will take longer.
+labels are added to the exported transcripts. Transcription will take longer. This option is available since `1.4.6`.
 
 ## Advanced Preferences
 
