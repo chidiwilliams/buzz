@@ -101,6 +101,14 @@ class SkipAlreadyTranscribedPlugin(BuzzPlugin):
         # Match the name get_output_file_path writes, e.g. "what?" -> "what_"
         stem = safe_filename_component(stem)
 
+        # A bare "{stem}*" would also match the results of "episode10.mp3"
+        # when looking for "episode1.mp3", so only accept the file name itself
+        # or the name the export template gives it
+        patterns = [glob.escape(stem)]
+        template_pattern = self._export_name_pattern(stem)
+        if template_pattern is not None and template_pattern not in patterns:
+            patterns.append(template_pattern)
+
         search_dirs = [Path(file_path).parent]
         if task.output_directory:
             search_dirs.append(Path(task.output_directory))
@@ -109,11 +117,24 @@ class SkipAlreadyTranscribedPlugin(BuzzPlugin):
             if not search_dir.is_dir():
                 continue
             for fmt in OutputFormat:
-                for candidate in search_dir.glob(f"{glob.escape(stem)}*.{fmt.value}"):
-                    segments = self._parse_result_file(candidate, fmt, context)
-                    if segments is not None:
-                        return segments
+                for pattern in patterns:
+                    for candidate in search_dir.glob(f"{pattern}.{fmt.value}"):
+                        segments = self._parse_result_file(candidate, fmt, context)
+                        if segments is not None:
+                            return segments
         return None
+
+    def _export_name_pattern(self, stem: str) -> Optional[str]:
+        from buzz.settings.settings import Settings
+
+        template = Settings().get_default_export_file_template()
+        if "{{ input_file_name }}" not in template:
+            return None
+        return re.sub(
+            r"\{\{ (\w+) \}\}",
+            lambda m: glob.escape(stem) if m.group(1) == "input_file_name" else "*",
+            glob.escape(template),
+        )
 
     def _parse_result_file(self, path: Path, fmt, context: PluginContext):
         from buzz.transcriber.transcriber import OutputFormat, Segment
