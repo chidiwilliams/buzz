@@ -1,0 +1,20 @@
+name: Feature request
+description: Suggest an improvement or new feature for the Buzz app
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe what you are trying to do and why the current app does not support it well.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How would you like this to work?
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered

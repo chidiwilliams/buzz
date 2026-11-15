@@ -51,7 +51,11 @@ class CustomWhisperCppModel:
 
 
 def _settings() -> QSettings:
-    return QSettings(APP_NAME, "")
+    # defaultFormat() so tests can keep this away from the user's settings,
+    # see Settings.__init__
+    return QSettings(
+        QSettings.defaultFormat(), QSettings.Scope.UserScope, APP_NAME, ""
+    )
 
 
 def _load_stored() -> List[CustomWhisperCppModel]:

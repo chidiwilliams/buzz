@@ -158,7 +158,6 @@ class AudioPlayer(QWidget, DecodedAudioMixin):
         if self._sd_player is None:
             return
         pos = self._sd_player.position_ms
-        dur = self._sd_player.duration_ms
 
         if not self.is_slider_dragging:
             self.scrubber.blockSignals(True)

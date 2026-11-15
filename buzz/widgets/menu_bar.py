@@ -21,6 +21,7 @@ class MenuBar(QMenuBar):
     import_action_triggered = pyqtSignal()
     import_url_action_triggered = pyqtSignal()
     import_folder_action_triggered = pyqtSignal()
+    quit_action_triggered = pyqtSignal()
     shortcuts_changed = pyqtSignal()
     openai_api_key_changed = pyqtSignal(str)
     preferences_changed = pyqtSignal(Preferences)
@@ -48,6 +49,11 @@ class MenuBar(QMenuBar):
         self.import_folder_action = QAction(_("Import Folder..."), self)
         self.import_folder_action.triggered.connect(self.import_folder_action_triggered)
 
+        self.quit_action = QAction(_("Quit"), self)
+        self.quit_action.setShortcut(QKeySequence.StandardKey.Quit)
+        self.quit_action.setMenuRole(QAction.MenuRole.QuitRole)
+        self.quit_action.triggered.connect(self.quit_action_triggered)
+
         about_label = _("About")
         about_action = QAction(f'{about_label} {APP_NAME}', self)
         about_action.triggered.connect(self.on_about_action_triggered)
@@ -70,6 +76,8 @@ class MenuBar(QMenuBar):
         file_menu.addAction(self.import_action)
         file_menu.addAction(self.import_url_action)
         file_menu.addAction(self.import_folder_action)
+        file_menu.addSeparator()
+        file_menu.addAction(self.quit_action)
 
         help_menu_title = _("Help") + ("\u200B" if platform.system() == "Darwin" else "")
         help_menu = self.addMenu(help_menu_title)

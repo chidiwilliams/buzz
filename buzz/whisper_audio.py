@@ -2,16 +2,10 @@ import subprocess
 import numpy as np
 import sys
 import os
-import logging
 
 from buzz.assets import APP_BASE_DIR
 
 SAMPLE_RATE = 16000
-
-N_FFT = 400
-HOP_LENGTH = 160
-CHUNK_LENGTH = 30
-N_SAMPLES = CHUNK_LENGTH * SAMPLE_RATE  # 480000 samples in a 30-second chunk
 
 app_env = os.environ.copy()
 app_env['PATH'] = os.pathsep.join([os.path.join(APP_BASE_DIR, "_internal")] + [app_env['PATH']])

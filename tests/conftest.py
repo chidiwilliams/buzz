@@ -1,10 +1,15 @@
+import contextlib
 import gc
 import glob
+import io
 import multiprocessing
 import os
 import platform
 import random
+import shutil
 import string
+import sys
+import tempfile
 import weakref
 
 # Disable the GUI startup update check during tests. The check fires an async
@@ -24,10 +29,26 @@ if platform.system() != "Windows":
     except RuntimeError:
         pass  # Already set
 from PyQt6 import sip
-from PyQt6.QtCore import QCoreApplication, QEvent, QObject, QThread
+from PyQt6.QtCore import QCoreApplication, QEvent, QObject, QSettings, QThread
 from PyQt6.QtSql import QSqlDatabase
 from PyQt6.QtWidgets import QApplication
 from _pytest.fixtures import SubRequest
+
+# Keep tests away from the user's own Buzz settings: point every settings store
+# at INI files in a temporary folder that is deleted after the run. Settings
+# opens its store with QSettings.defaultFormat() so this applies on all
+# platforms, the native format (registry, plists) cannot be moved.
+# Child processes that import this file inherit the folder through the
+# environment, so the run leaves no second folder behind.
+if "BUZZ_TEST_SETTINGS_DIR" not in os.environ:
+    os.environ["BUZZ_TEST_SETTINGS_DIR"] = tempfile.mkdtemp(
+        prefix="buzz-test-settings-"
+    )
+TEST_SETTINGS_DIR = os.environ["BUZZ_TEST_SETTINGS_DIR"]
+QSettings.setDefaultFormat(QSettings.Format.IniFormat)
+QSettings.setPath(
+    QSettings.Format.IniFormat, QSettings.Scope.UserScope, TEST_SETTINGS_DIR
+)
 
 from buzz.db.dao.transcription_dao import TranscriptionDAO
 from buzz.db.dao.transcription_segment_dao import TranscriptionSegmentDAO
@@ -36,6 +57,29 @@ from buzz.db.service.transcription_service import TranscriptionService
 from buzz.settings.settings import Settings
 from buzz.settings.shortcuts import Shortcuts
 from buzz.widgets.application import Application
+
+
+def pytest_sessionstart(session):
+    """Apply the submodule patches and rebuild the ctc_forced_aligner extension
+    if it is out of date, like ``make test`` does. A plain ``pytest`` run would
+    otherwise test against a stale build, which segfaults when it lacks a
+    patched fix."""
+    scripts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "scripts")
+    sys.path.insert(0, scripts_dir)
+    try:
+        import build_ctc_forced_aligner as aligner_build
+    finally:
+        sys.path.remove(scripts_dir)
+
+    # Only its "already applied" notes go to stdout, warnings go to stderr
+    with contextlib.redirect_stdout(io.StringIO()):
+        aligner_build.apply_all_patches()
+    if not aligner_build.is_up_to_date():
+        aligner_build.build()
+
+
+def pytest_unconfigure(config):
+    shutil.rmtree(TEST_SETTINGS_DIR, ignore_errors=True)
 
 
 def pytest_sessionfinish(session, exitstatus):
@@ -148,9 +192,8 @@ def settings():
         random.choice(string.ascii_letters + string.digits) for _ in range(6)
     )
 
-    settings = Settings(application=application)
-    yield settings
-    settings.clear()
+    # Lives in TEST_SETTINGS_DIR, which is deleted after the run
+    return Settings(application=application)
 
 
 @pytest.fixture(scope="session")
