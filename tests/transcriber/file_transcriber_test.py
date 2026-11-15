@@ -16,6 +16,8 @@ from buzz.transcriber.file_transcriber import (
 from buzz.transcriber.transcriber import (
     FileTranscriptionOptions,
     FileTranscriptionTask,
+    OutputFormat,
+    Segment,
     TranscriptionOptions,
 )
 from tests.audio import test_audio_path
@@ -453,6 +455,79 @@ def test_folder_watch_keeps_file_when_output_is_input_directory(tmp_path):
         assert player.ready
     finally:
         player.close()
+
+
+@pytest.mark.parametrize(
+    "taken_names,expected_name",
+    [
+        (["audio.mp3"], "audio (1).mp3"),
+        (["audio.mp3", "audio (1).mp3"], "audio (2).mp3"),
+    ],
+    ids=["one_earlier_file", "two_earlier_files"],
+)
+def test_folder_watch_move_keeps_earlier_files_with_same_name(
+    tmp_path, taken_names, expected_name
+):
+    """Recorders reuse names like "Recording.m4a" once the last file has been
+    moved out. An earlier file in the output directory must not be replaced."""
+    input_directory = tmp_path / "input"
+    output_directory = tmp_path / "output"
+    input_directory.mkdir()
+    output_directory.mkdir()
+    for name in taken_names:
+        (output_directory / name).write_bytes(f"earlier {name}".encode())
+
+    transcriber = make_folder_watch_transcriber(input_directory, output_directory)
+    source_path = transcriber.transcription_task.file_path
+    source_bytes = Path(source_path).read_bytes()
+
+    transcriber.run()
+
+    moved_path = output_directory / expected_name
+    assert sorted(os.listdir(output_directory)) == sorted(taken_names + [expected_name])
+    for name in taken_names:
+        assert (output_directory / name).read_bytes() == f"earlier {name}".encode()
+    assert not os.path.exists(source_path)
+    assert moved_path.read_bytes() == source_bytes
+    assert transcriber.transcription_task.file_path == str(moved_path)
+    assert transcriber.transcription_task.original_file_path == str(moved_path)
+
+
+def test_folder_watch_transcript_follows_numbered_name(tmp_path, monkeypatch):
+    """The transcript is named after the moved file, so with a file name
+    template without the date the earlier transcript is kept too."""
+    monkeypatch.setattr(
+        "buzz.transcriber.transcriber.Settings.get_default_export_file_template",
+        lambda _settings: "{{ input_file_name }}",
+    )
+    input_directory = tmp_path / "input"
+    output_directory = tmp_path / "output"
+    input_directory.mkdir()
+    output_directory.mkdir()
+    (output_directory / "audio.mp3").write_bytes(b"earlier recording")
+    (output_directory / "audio.txt").write_text("earlier transcript", encoding="utf-8")
+
+    transcriber = make_folder_watch_transcriber(input_directory, output_directory)
+    transcriber.transcription_task.file_transcription_options.output_formats = {
+        OutputFormat.TXT
+    }
+    monkeypatch.setattr(
+        transcriber, "transcribe", lambda: [Segment(0, 1000, "new transcript")]
+    )
+
+    transcriber.run()
+
+    assert sorted(os.listdir(output_directory)) == [
+        "audio (1).mp3",
+        "audio (1).txt",
+        "audio.mp3",
+        "audio.txt",
+    ]
+    assert (output_directory / "audio.mp3").read_bytes() == b"earlier recording"
+    earlier_transcript = (output_directory / "audio.txt").read_text(encoding="utf-8")
+    assert earlier_transcript == "earlier transcript"
+    new_transcript = (output_directory / "audio (1).txt").read_text(encoding="utf-8")
+    assert new_transcript.strip() == "new transcript"
 
 
 def test_folder_watch_delete_removes_source_file(tmp_path):
