@@ -917,6 +917,118 @@ class TestModelDownloaderDownloadModel:
         assert result is True
         assert open(str(model_file), 'rb').read() == existing_content + resume_content
 
+    @staticmethod
+    def _response(status_code, headers, chunks):
+        response = MagicMock()
+        response.__enter__ = lambda s: s
+        response.__exit__ = MagicMock(return_value=False)
+        response.status_code = status_code
+        response.headers = headers
+        response.iter_content = MagicMock(side_effect=lambda chunk_size: iter(chunks()))
+        response.raise_for_status = MagicMock()
+        return response
+
+    def test_download_model_retries_dropped_connection(self, tmp_path, monkeypatch):
+        import requests
+        import buzz.model_loader as model_loader_module
+
+        monkeypatch.setattr(model_loader_module, "MODEL_DOWNLOAD_RETRY_DELAY", 0)
+        model = TranscriptionModel(model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY)
+        downloader = self._make_downloader(model)
+        file_path = str(tmp_path / "model.pt")
+        content = b"model data"
+        ok = self._response(200, {"Content-Length": str(len(content))}, lambda: [content])
+
+        with patch('requests.get', side_effect=[requests.ConnectionError("aborted"), ok]) as mock_get:
+            result = downloader.download_model(url="http://example.com/model.pt", file_path=file_path,
+                                               expected_sha256=None)
+
+        assert result is True
+        assert mock_get.call_count == 2
+        assert open(file_path, 'rb').read() == content
+
+    def test_download_model_gives_up_after_max_attempts(self, tmp_path, monkeypatch):
+        import requests
+        import buzz.model_loader as model_loader_module
+
+        monkeypatch.setattr(model_loader_module, "MODEL_DOWNLOAD_RETRY_DELAY", 0)
+        model = TranscriptionModel(model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY)
+        downloader = self._make_downloader(model)
+
+        with patch('requests.get', side_effect=requests.ConnectionError("aborted")) as mock_get, \
+             pytest.raises(requests.ConnectionError):
+            downloader.download_model(url="http://example.com/model.pt", file_path=str(tmp_path / "model.pt"),
+                                      expected_sha256=None)
+
+        assert mock_get.call_count == model_loader_module.MODEL_DOWNLOAD_ATTEMPTS
+
+    def test_download_model_does_not_retry_not_found(self, tmp_path, monkeypatch):
+        import requests
+        import buzz.model_loader as model_loader_module
+
+        monkeypatch.setattr(model_loader_module, "MODEL_DOWNLOAD_RETRY_DELAY", 0)
+        model = TranscriptionModel(model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY)
+        downloader = self._make_downloader(model)
+        not_found = self._response(404, {}, lambda: [])
+        not_found.raise_for_status.side_effect = requests.HTTPError("404", response=not_found)
+
+        with patch('requests.get', return_value=not_found) as mock_get, \
+             pytest.raises(requests.HTTPError):
+            downloader.download_model(url="http://example.com/model.pt", file_path=str(tmp_path / "model.pt"),
+                                      expected_sha256=None)
+
+        assert mock_get.call_count == 1
+
+    def test_download_model_retry_resumes_from_what_failed_try_wrote(self, tmp_path, monkeypatch):
+        import requests
+        import buzz.model_loader as model_loader_module
+
+        monkeypatch.setattr(model_loader_module, "MODEL_DOWNLOAD_RETRY_DELAY", 0)
+        model = TranscriptionModel(model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY)
+        downloader = self._make_downloader(model)
+        model_file = tmp_path / "model.pt"
+        model_file.write_bytes(b"part1")
+
+        def dropping_chunks():
+            yield b"part2"
+            raise requests.ConnectionError("aborted mid-stream")
+
+        first = self._response(206, {"Content-Range": "bytes 5-14/15"}, dropping_chunks)
+        second = self._response(206, {"Content-Range": "bytes 10-14/15"}, lambda: [b"part3"])
+        head = MagicMock()
+        head.headers = {"Accept-Ranges": "bytes"}
+
+        with patch('requests.head', return_value=head), \
+             patch('requests.get', side_effect=[first, second]) as mock_get:
+            result = downloader.download_model(url="http://example.com/model.pt", file_path=str(model_file),
+                                               expected_sha256=None)
+
+        assert result is True
+        assert mock_get.call_args_list[1].kwargs["headers"] == {"Range": "bytes=10-"}
+        assert model_file.read_bytes() == b"part1part2part3"
+
+    def test_download_model_cancel_during_retry_wait(self, tmp_path, monkeypatch):
+        import requests
+        import buzz.model_loader as model_loader_module
+
+        monkeypatch.setattr(model_loader_module, "MODEL_DOWNLOAD_RETRY_DELAY", 30)
+        model = TranscriptionModel(model_type=ModelType.WHISPER, whisper_model_size=WhisperModelSize.TINY)
+        downloader = self._make_downloader(model)
+
+        def fail_and_cancel(*args, **kwargs):
+            # The user cancels while the downloader waits to retry.
+            threading.Timer(0.1, lambda: setattr(downloader, "stopped", True)).start()
+            raise requests.ConnectionError("aborted")
+
+        started = time.monotonic()
+        with patch('requests.get', side_effect=fail_and_cancel) as mock_get:
+            result = downloader.download_model(url="http://example.com/model.pt",
+                                               file_path=str(tmp_path / "model.pt"), expected_sha256=None)
+
+        assert result is False
+        assert mock_get.call_count == 1
+        assert time.monotonic() - started < 5
+
 
 class TestModelDownloaderWhisperCpp:
     def _make_downloader(self, model, custom_url=None):
