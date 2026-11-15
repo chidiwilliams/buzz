@@ -1,10 +1,54 @@
 """Custom build hook for hatchling to build whisper.cpp binaries."""
 import glob
+import platform
+import re
 import subprocess
 import sys
 from pathlib import Path
 
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+
+
+def required_glibc_minor(paths) -> int:
+    """The highest glibc 2.x symbol version any of the ELF files in `paths` needs.
+
+    Binaries need the glibc of the machine they were compiled on, not the one
+    we would like to support, so this is what the wheel tag has to promise.
+    """
+    highest = 0
+    for path in paths:
+        with open(path, "rb") as f:
+            if f.read(4) != b"\x7fELF":
+                continue
+            data = f.read()
+        for match in re.finditer(rb"GLIBC_2\.(\d+)", data):
+            highest = max(highest, int(match.group(1)))
+    return highest
+
+
+def platform_tag(included_files) -> str:
+    system = platform.system().lower()
+    machine = platform.machine().lower()
+
+    if system == "linux":
+        if machine not in ("x86_64", "amd64"):
+            raise ValueError(f"Unsupported Linux architecture: {machine}. Only x86_64 is supported.")
+        glibc_minor = required_glibc_minor(included_files)
+        if glibc_minor == 0:
+            # No binaries to inspect: fall back to the glibc we are building with.
+            glibc_minor = int(platform.libc_ver()[1].split(".")[1])
+        return f"py3-none-manylinux_2_{max(glibc_minor, 17)}_x86_64"
+    if system == "darwin":
+        if machine in ("x86_64", "amd64"):
+            return "py3-none-macosx_10_9_x86_64"
+        if machine in ("arm64", "aarch64"):
+            return "py3-none-macosx_11_0_arm64"
+        raise ValueError(f"Unsupported macOS architecture: {machine}")
+    if system == "windows":
+        if machine in ("x86_64", "amd64"):
+            return "py3-none-win_amd64"
+        raise ValueError(f"Unsupported Windows architecture: {machine}. Only x86_64 is supported.")
+    raise ValueError(f"Unsupported operating system: {system}")
 
 
 class CustomBuildHook(BuildHookInterface):
@@ -13,41 +57,6 @@ class CustomBuildHook(BuildHookInterface):
     def initialize(self, version, build_data):
         """Run make buzz/whisper_cpp before building."""
         print("Running 'make buzz/whisper_cpp' to build whisper.cpp binaries...")
-
-        # Mark wheel as platform-specific since we're including compiled binaries
-        # But set tag to py3-none since binaries are standalone (no Python C extensions)
-        if version == "standard":  # Only for wheel builds
-            import platform
-
-            build_data["pure_python"] = False
-
-            # Determine the platform tag based on current OS and architecture
-            system = platform.system().lower()
-            machine = platform.machine().lower()
-
-            if system == "linux":
-                if machine in ("x86_64", "amd64"):
-                    tag = "py3-none-manylinux_2_34_x86_64"
-                else:
-                    raise ValueError(f"Unsupported Linux architecture: {machine}. Only x86_64 is supported.")
-            elif system == "darwin":
-                if machine in ("x86_64", "amd64"):
-                    tag = "py3-none-macosx_10_9_x86_64"
-                elif machine in ("arm64", "aarch64"):
-                    tag = "py3-none-macosx_11_0_arm64"
-                else:
-                    raise ValueError(f"Unsupported macOS architecture: {machine}")
-            elif system == "windows":
-                if machine in ("x86_64", "amd64"):
-                    tag = "py3-none-win_amd64"
-                else:
-                    raise ValueError(f"Unsupported Windows architecture: {machine}. Only x86_64 is supported.")
-            else:
-                raise ValueError(f"Unsupported operating system: {system}")
-
-            if tag:
-                build_data["tag"] = tag
-                print(f"Building wheel with tag: {tag}")
 
         # Get the project root directory
         project_root = Path(self.root)
@@ -155,6 +164,14 @@ class CustomBuildHook(BuildHookInterface):
                 print(f"Force including {len(extension_files)} compiled extension(s) from ctc_forced_aligner/")
             else:
                 print(f"Warning: {ctc_aligner_pkg} does not exist", file=sys.stderr)
+
+            # Mark wheel as platform-specific since we're including compiled binaries,
+            # tagged py3-none since the binaries do not depend on the Python version.
+            if version == "standard":  # Only for wheel builds
+                build_data["pure_python"] = False
+                included = [project_root / p for p in build_data.get("force_include", {})]
+                build_data["tag"] = platform_tag(included)
+                print(f"Building wheel with tag: {build_data['tag']}")
 
         except subprocess.CalledProcessError as e:
             print(f"Error building whisper.cpp: {e}", file=sys.stderr)

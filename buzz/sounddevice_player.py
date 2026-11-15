@@ -6,7 +6,7 @@ import threading
 from typing import Callable, Optional
 
 import numpy as np
-import sounddevice as sd
+from buzz.sounddevice_compat import is_audio_available, sounddevice as sd
 
 from buzz.audio_devices import (
     refresh_audio_devices,
@@ -333,6 +333,10 @@ class AudioFilePlayer:
         """`samples` are already decoded ones, e.g. another player's, played without decoding again."""
         self._player: Optional[SounddevicePlayer] = None
         self._ready = False
+
+        if not is_audio_available():
+            # Not ready, so callers fall back to Qt multimedia; no point decoding.
+            return
 
         try:
             data = samples if samples is not None else (decoder or AudioDecoder(file_path)).decode()

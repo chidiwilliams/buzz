@@ -3,7 +3,7 @@ import threading
 import weakref
 from contextlib import contextmanager
 
-import sounddevice as sd
+from buzz.sounddevice_compat import sounddevice as sd
 
 
 # PortAudio reads the list of audio devices once, when it initializes, and keeps

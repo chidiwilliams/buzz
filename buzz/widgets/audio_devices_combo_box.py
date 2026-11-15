@@ -1,6 +1,6 @@
 from typing import List, Tuple, Optional
 
-import sounddevice
+from buzz.sounddevice_compat import sounddevice
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QComboBox, QWidget, QMessageBox
 
