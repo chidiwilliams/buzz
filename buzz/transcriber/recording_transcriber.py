@@ -20,8 +20,7 @@ from buzz import cuda_setup  # noqa: F401
 # would otherwise freeze the UI while only the selected backend needs its library.
 import numpy as np
 from buzz.transcriber.cuda_device import cuda_works
-import sounddevice
-from sounddevice import PortAudioError
+from buzz.sounddevice_compat import PortAudioError, sounddevice
 
 from buzz.audio_devices import registered_stream
 from PyQt6.QtCore import QObject, pyqtSignal
