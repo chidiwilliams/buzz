@@ -72,6 +72,9 @@
         <ul>
           <li>Smaller installer size, CUDA now optional</li>
           <li>Folder watch improvements</li>
+          <li>Speaker identification optimizations</li>
+          <li>Added French translations</li>
+          <li>Added option to minimize to system tray</li>
         </ul>
       </description>
     </release>
