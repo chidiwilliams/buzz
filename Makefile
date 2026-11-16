@@ -84,7 +84,12 @@ ifeq ($(shell uname -s), Linux)
 	rm -rf whisper.cpp/build || true
 	-mkdir -p buzz/whisper_cpp
 	cmake -S whisper.cpp -B whisper.cpp/build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_RPATH='$$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DGGML_VULKAN=1 -DGGML_NATIVE=OFF
-	cmake --build whisper.cpp/build -j --config Release --verbose
+	# Cap parallel jobs at the CPU count. A bare -j lets make start every Vulkan
+	# shader target at once, and each one runs several glslc processes. That can
+	# run a CI runner out of memory. When that happens, the shader generator skips
+	# the shaders it could not fork for and still exits successfully, so the build
+	# only fails later, at link time, with undefined matmul_*_cm1 symbols.
+	cmake --build whisper.cpp/build -j $(shell nproc) --config Release --verbose
 	cp whisper.cpp/build/bin/whisper-cli buzz/whisper_cpp/ || true
 	cp whisper.cpp/build/bin/whisper-server buzz/whisper_cpp/ || true
 	cp -P whisper.cpp/build/src/libwhisper.so* buzz/whisper_cpp/ || true
