@@ -47,6 +47,17 @@ def _downloaded_file_path(info: Any) -> Path:
     raise FileNotFoundError(f"yt-dlp output does not exist: {reported_path}")
 
 
+def _first_unused_path(path: str) -> str:
+    """Return ``path`` if nothing exists there, otherwise the first of
+    ``name (1).ext``, ``name (2).ext``, ... that is not taken."""
+    stem, extension = os.path.splitext(path)
+    counter = 1
+    while os.path.lexists(path):
+        path = f"{stem} ({counter}){extension}"
+        counter += 1
+    return path
+
+
 DOWNLOAD_CANCELED_MESSAGE = "Download canceled"
 
 
@@ -256,6 +267,9 @@ class FileTranscriber(QObject):
         if not os.path.exists(destination) or not os.path.samefile(
             source_path, destination
         ):
+            # Recorders reuse names like "Recording.m4a" once the last file has
+            # been moved out. Number the new file instead of replacing the earlier one.
+            destination = _first_unused_path(destination)
             shutil.move(source_path, destination)
 
         # Point the task at the new location so the transcription keeps a

@@ -1,5 +1,4 @@
 from uuid import UUID
-import logging
 from PyQt6.QtSql import QSqlRecord
 
 from buzz.model_loader import TranscriptionModel, ModelType, WhisperModelSize

@@ -1,5 +1,3 @@
-import os
-import logging
 import gettext
 
 from PyQt6.QtCore import QLocale

@@ -76,6 +76,18 @@ class TestMainWindow:
         assert window.windowIcon().pixmap(QSize(64, 64)).isNull() is False
         window.close()
 
+    def test_file_quit_action_quits_through_system_tray(
+        self, qtbot, transcription_service
+    ):
+        window = MainWindow(transcription_service)
+        qtbot.add_widget(window)
+
+        with patch.object(window.system_tray, "quit") as quit_mock:
+            window.menu_bar.quit_action.trigger()
+
+        quit_mock.assert_called_once()
+        window.close()
+
     def test_queue_busy_changes_are_serialized_on_gui_thread(
         self, qtbot, transcription_service
     ):
@@ -651,10 +663,116 @@ class TestMainWindow:
         window.quit_on_complete = True
         window.pending_quit_task_uids.add(transcription.id_as_uuid)
 
-        with patch("buzz.widgets.main_window.QApplication.quit") as quit_mock:
+        with patch.object(window.system_tray, "quit") as quit_mock:
             window.on_task_completed(self._task_for(transcription), [])
 
         quit_mock.assert_called_once()
+
+    @pytest.mark.parametrize(
+        "transcription_dao", [[Transcription(status="in_progress")]], indirect=True
+    )
+    @pytest.mark.parametrize(
+        "has_post_hooks,quit_on_complete",
+        [
+            (False, False),  # saved directly
+            (True, True),  # plugin pipeline, run synchronously
+            (True, False),  # plugin pipeline, run on a background thread
+        ],
+        ids=["no-plugins", "plugins-sync", "plugins-async"],
+    )
+    def test_should_mark_task_failed_when_result_cannot_be_saved(
+        self,
+        qtbot,
+        transcription_dao,
+        transcription_segment_dao,
+        has_post_hooks,
+        quit_on_complete,
+    ):
+        service = TranscriptionService(transcription_dao, transcription_segment_dao)
+        window = MainWindow(service)
+        qtbot.add_widget(window)
+
+        transcription = self._get_tasks_table(window).transcription(
+            self._get_tasks_table(window).model().index(0, 0)
+        )
+        window.quit_on_complete = quit_on_complete
+        window.pending_quit_task_uids.add(transcription.id_as_uuid)
+
+        with patch.object(
+            window.plugin_manager, "has_enabled_post_hooks", return_value=has_post_hooks
+        ), patch.object(
+            transcription_segment_dao, "insert", side_effect=Exception("disk full")
+        ), patch.object(
+            window.system_tray, "quit"
+        ) as quit_mock, patch.object(
+            # Closing the window closes the database the test still reads
+            window, "close"
+        ), qtbot.capture_exceptions() as exceptions:
+            window.on_task_completed(
+                self._task_for(transcription),
+                [Segment(start=0, end=1000, text="Bonjour")],
+            )
+            qtbot.waitUntil(
+                lambda: transcription_dao.find_by_id(transcription.id).status
+                == "failed"
+            )
+
+        assert exceptions == []
+        failed = transcription_dao.find_by_id(transcription.id)
+        assert failed.error_message == "disk full"
+        assert service.get_transcription_segments(transcription.id_as_uuid) == []
+        assert quit_mock.call_count == (1 if quit_on_complete else 0)
+        window.close()
+
+    @pytest.mark.parametrize(
+        "transcription_dao", [[Transcription(status="canceled")]], indirect=True
+    )
+    def test_should_keep_task_canceled_while_plugins_ran_when_save_fails(
+        self, qtbot, transcription_dao, transcription_segment_dao
+    ):
+        window = MainWindow(
+            TranscriptionService(transcription_dao, transcription_segment_dao)
+        )
+        qtbot.add_widget(window)
+
+        transcription = self._get_tasks_table(window).transcription(
+            self._get_tasks_table(window).model().index(0, 0)
+        )
+
+        # Background plugin work reports the failed save after the cancel
+        window.on_task_save_failed(self._task_for(transcription), "disk full")
+
+        canceled = transcription_dao.find_by_id(transcription.id)
+        assert canceled.status == "canceled"
+        assert not canceled.error_message
+        window.close()
+
+    @pytest.mark.parametrize(
+        "transcription_dao", [[Transcription(status="in_progress")]], indirect=True
+    )
+    def test_should_mark_skipped_task_failed_when_result_cannot_be_saved(
+        self, qtbot, transcription_dao, transcription_segment_dao
+    ):
+        service = TranscriptionService(transcription_dao, transcription_segment_dao)
+        window = MainWindow(service)
+        qtbot.add_widget(window)
+
+        transcription = self._get_tasks_table(window).transcription(
+            self._get_tasks_table(window).model().index(0, 0)
+        )
+        task = self._task_for(transcription)
+        task.status = FileTranscriptionTask.Status.SKIPPED
+
+        with patch.object(
+            transcription_segment_dao, "insert", side_effect=Exception("disk full")
+        ):
+            window.on_task_completed(task, [Segment(start=0, end=1000, text="Bonjour")])
+
+        failed = transcription_dao.find_by_id(transcription.id)
+        assert failed.status == "failed"
+        assert failed.error_message == "disk full"
+        assert service.get_transcription_segments(transcription.id_as_uuid) == []
+        window.close()
 
     @pytest.mark.parametrize(
         "transcription_dao",

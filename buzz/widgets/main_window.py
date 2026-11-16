@@ -15,7 +15,6 @@ from PyQt6.QtCore import (
 
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
-    QApplication,
     QMainWindow,
     QMessageBox,
     QFileDialog,
@@ -45,6 +44,7 @@ from buzz.widgets.icon import BUZZ_ICON_PATH
 from buzz.widgets.import_url_dialog import ImportURLDialog
 from buzz.widgets.main_window_toolbar import MainWindowToolbar
 from buzz.widgets.menu_bar import MenuBar
+from buzz.widgets.system_tray import SystemTray
 from buzz.widgets.preferences_dialog.models.preferences import Preferences
 from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
 from buzz.widgets.transcription_task_folder_watcher import (
@@ -205,9 +205,14 @@ class MainWindow(QMainWindow):
         #Offer CUDA installation on Windows if not done before
         self._maybe_show_cuda_prompt()
 
+        self.system_tray = SystemTray(self, self.settings)
+        # Quit through the tray controller so close-to-tray does not just hide the window.
+        self.menu_bar.quit_action_triggered.connect(lambda: self.system_tray.quit())
+
     def on_preferences_changed(self, preferences: Preferences):
         self.preferences = preferences
         self.save_preferences(preferences)
+        self.system_tray.update_preferences()
         self.sleep_inhibitor.set_enabled(
             self.settings.value(
                 Settings.Key.PREVENT_SLEEP_WHILE_TRANSCRIBING,
@@ -534,11 +539,18 @@ class MainWindow(QMainWindow):
             self.quit_if_all_tasks_done(task)
             return
 
+        try:
+            self.save_completed_task(task, segments)
+        except Exception as e:
+            self.on_task_save_failed(task, str(e))
+
+        self.quit_if_all_tasks_done(task)
+
+    def save_completed_task(self, task: FileTranscriptionTask, segments: List[Segment]):
         # Handle skipped tasks (e.g. plugin detected file already transcribed)
         if task.status == FileTranscriptionTask.Status.SKIPPED:
             self.transcription_service.update_transcription_as_skipped(task.uid, segments)
             self.table_widget.refresh_row(task.uid)
-            self.quit_if_all_tasks_done(task)
             return
 
         # Update file path in database only for URL imports where file is downloaded
@@ -573,8 +585,10 @@ class MainWindow(QMainWindow):
             runnable.signals.finished.connect(
                 lambda: self.table_widget.refresh_row(task.uid)
             )
+            # Plugin hook errors are caught inside the plugin manager, so an
+            # error here means the result could not be saved
             runnable.signals.error.connect(
-                lambda e: logging.error(f"Plugin post-processing failed: {e}")
+                lambda e: self.on_task_save_failed(task, e)
             )
             QThreadPool.globalInstance().start(runnable)
         elif self.plugin_manager.has_enabled_post_hooks():
@@ -584,7 +598,15 @@ class MainWindow(QMainWindow):
             self.transcription_service.update_transcription_as_completed(task.uid, segments)
             self.table_widget.refresh_row(task.uid)
 
-        self.quit_if_all_tasks_done(task)
+    def on_task_save_failed(self, task: FileTranscriptionTask, error: str):
+        # The save rolled back, so mark the task failed instead of leaving it
+        # in progress forever
+        logging.error(f"Failed to save result of task {task.uid}: {error}")
+        # Plugins run in the background, the task may have been canceled meanwhile
+        if self.transcription_service.is_transcription_deleted_or_canceled(task.uid):
+            return
+        self.transcription_service.update_transcription_as_failed(task.uid, error)
+        self.table_widget.refresh_row(task.uid)
 
     def quit_if_all_tasks_done(self, task: FileTranscriptionTask):
         if not self.quit_on_complete:
@@ -594,8 +616,7 @@ class MainWindow(QMainWindow):
         if len(self.pending_quit_task_uids) > 0:
             return
 
-        self.close()
-        QApplication.quit()
+        self.system_tray.quit()
 
     def on_task_error(self, task: FileTranscriptionTask, error: str):
         if not self.transcription_service.is_transcription_deleted_or_canceled(task.uid):
@@ -612,6 +633,7 @@ class MainWindow(QMainWindow):
         self.save_geometry()
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        self.system_tray.shutdown()
         self.save_geometry()
         self.settings.settings.sync()
         self.sleep_inhibitor.close()

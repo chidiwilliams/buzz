@@ -88,7 +88,7 @@ def test_identification_steps(transcription, transcription_service, diarizer):
     worker = make_worker(transcription, transcription_service, diarizer)
 
     # 1/8 + 2/8 - collect transcripts and load audio
-    language, full_transcript, audio_waveform = worker._get_transcript_data()
+    language, segments, full_transcript, audio_waveform = worker._get_transcript_data()
     assert language == "en"
     assert full_transcript == "Bien venue dans"
     assert len(audio_waveform) > 0
@@ -116,7 +116,7 @@ def test_identification_steps(transcription, transcription_service, diarizer):
 
     # 5/8 - word timestamps
     word_timestamps = worker._get_word_timestamps(
-        full_transcript, language, emissions, stride, alignment_tokenizer
+        full_transcript, language, emissions, stride, alignment_tokenizer, segments=segments
     )
     assert len(word_timestamps) > 0
     assert {"text", "start", "end"} <= set(word_timestamps[0].keys())

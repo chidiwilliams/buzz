@@ -1,7 +1,5 @@
-import logging
 import pytest
 from unittest.mock import patch, MagicMock
-from buzz.settings.settings import Settings
 
 
 @pytest.fixture(autouse=True)
@@ -44,11 +42,3 @@ def force_gc_between_tests():
     # non-cyclic objects; PyQt6's own lifecycle management handles Qt cycles.
     for _ in range(3):
         QCoreApplication.processEvents()
-
-
-@pytest.fixture(scope="package")
-def reset_settings():
-    settings = Settings()
-    settings.clear()
-    settings.sync()
-    logging.debug("Reset settings")

@@ -7,7 +7,7 @@ import time
 import requests
 import logging
 import datetime
-import sounddevice
+from buzz.sounddevice_compat import sounddevice
 from enum import auto
 from typing import Optional, Tuple, Any
 

@@ -2,7 +2,7 @@ from typing import Optional
 
 import logging
 import numpy as np
-import sounddevice
+from buzz.sounddevice_compat import sounddevice
 from PyQt6.QtCore import QObject, pyqtSignal
 
 from buzz.audio_devices import register_stream, unregister_stream

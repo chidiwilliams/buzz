@@ -237,18 +237,6 @@ HUGGING_FACE_MODEL_ALLOW_PATTERNS = [
     "vocab.json",
 ]
 
-# MMS models use different patterns - adapters are downloaded on-demand by transformers
-MMS_MODEL_ALLOW_PATTERNS = [
-    "model.safetensors",
-    "pytorch_model.bin",
-    "config.json",
-    "preprocessor_config.json",
-    "tokenizer_config.json",
-    "vocab.json",
-    "special_tokens_map.json",
-    "added_tokens.json",
-]
-
 # ISO 639-1 to ISO 639-3 language code mapping for MMS models
 ISO_639_1_TO_3 = {
     "en": "eng", "fr": "fra", "de": "deu", "es": "spa", "it": "ita",
@@ -772,6 +760,17 @@ def get_whisper_file_path(size: WhisperModelSize) -> str:
 SNAPSHOT_DOWNLOAD_ATTEMPTS = 3
 SNAPSHOT_DOWNLOAD_RETRY_DELAY = 5  # seconds, doubled after each failed attempt
 
+MODEL_DOWNLOAD_ATTEMPTS = 3
+MODEL_DOWNLOAD_RETRY_DELAY = 5  # seconds, doubled after each failed attempt
+
+
+def _is_retryable_download_error(exc: requests.RequestException) -> bool:
+    """Dropped connections, timeouts and server errors are worth retrying; a 404 is not."""
+    response = getattr(exc, "response", None)
+    if response is None:
+        return True
+    return response.status_code == 429 or response.status_code >= 500
+
 
 def _snapshot_download_worker(result_queue, repo_id, allow_patterns, cache_dir, etag_timeout, max_workers):
     """Runs snapshot_download in a child process so it can be killed on cancel.
@@ -1275,21 +1274,20 @@ class ModelDownloader(QRunnable):
                 "model."
             )
 
-    def download_model(
+    def _download_attempt(
         self, url: str, file_path: str, expected_sha256: Optional[str]
-    ) -> bool:
-        logging.debug(f"Downloading model from {url} to {file_path}")
+    ) -> str:
+        """One try at downloading `url`, resuming whatever earlier tries left on disk.
 
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-
-        if os.path.exists(file_path) and not os.path.isfile(file_path):
-            raise RuntimeError(f"{file_path} exists and is not a regular file")
-
+        Returns "downloaded", "verified" when the file on disk was already
+        complete and checked, or "cancelled". The resume point is re-read from
+        disk every time, as a failed try may have appended to the file first.
+        """
         resume_from, file_mode, already_downloaded = self._prepare_resume_download(
             url, file_path, expected_sha256,
         )
         if already_downloaded:
-            return True
+            return "verified"
 
         if resume_from > 0:
             supports_range = self._check_range_support(url)
@@ -1300,7 +1298,50 @@ class ModelDownloader(QRunnable):
             supports_range = False
 
         if not self._stream_download(url, file_path, resume_from, file_mode, supports_range):
-            return False
+            return "cancelled"
+        return "downloaded"
+
+    def _wait_unless_stopped(self, seconds: float) -> bool:
+        """Sleep for `seconds`, returning False early if the download was cancelled."""
+        deadline = time.monotonic() + seconds
+        while time.monotonic() < deadline:
+            if self.stopped:
+                return False
+            time.sleep(min(0.2, deadline - time.monotonic()))
+        return not self.stopped
+
+    def download_model(
+        self, url: str, file_path: str, expected_sha256: Optional[str]
+    ) -> bool:
+        logging.debug(f"Downloading model from {url} to {file_path}")
+
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        if os.path.exists(file_path) and not os.path.isfile(file_path):
+            raise RuntimeError(f"{file_path} exists and is not a regular file")
+
+        for attempt in range(MODEL_DOWNLOAD_ATTEMPTS):
+            try:
+                outcome = self._download_attempt(url, file_path, expected_sha256)
+                if outcome == "cancelled":
+                    return False
+                if outcome == "verified":
+                    return True
+                break
+            except requests.RequestException as exc:
+                if (
+                    self.stopped
+                    or attempt == MODEL_DOWNLOAD_ATTEMPTS - 1
+                    or not _is_retryable_download_error(exc)
+                ):
+                    raise
+                delay = MODEL_DOWNLOAD_RETRY_DELAY * (2 ** attempt)
+                logging.warning(
+                    "Download of %s failed (attempt %s/%s): %s. Retrying in %ss",
+                    url, attempt + 1, MODEL_DOWNLOAD_ATTEMPTS, exc, delay,
+                )
+                if not self._wait_unless_stopped(delay):
+                    return False
 
         self._verify_sha256(file_path, expected_sha256)
 

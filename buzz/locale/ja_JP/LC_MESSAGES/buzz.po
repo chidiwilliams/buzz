@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-12 17:09+0300\n"
+"POT-Creation-Date: 2026-11-06 13:48+0200\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: nunawa <71294849+nunawa@users.noreply.github.com>\n"
 "Language-Team: \n"
@@ -56,6 +56,14 @@ msgstr "入力されたURLは無効です。"
 #: buzz/widgets/presentation_window.py
 msgid "Live Transcript Presentation"
 msgstr "ライブ文字起こしプレゼンテーション"
+
+#: buzz/widgets/system_tray.py
+msgid "Show Buzz"
+msgstr "Buzzを表示"
+
+#: buzz/widgets/system_tray.py buzz/widgets/menu_bar.py
+msgid "Quit"
+msgstr "終了"
 
 #: buzz/widgets/preferences_dialog/shortcuts_editor_preferences_widget.py
 msgid "Reset to Defaults"
@@ -127,6 +135,11 @@ msgstr "ロシア語"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 #: buzz/transcriber/transcriber.py
+msgid "Turkish"
+msgstr "トルコ語"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+#: buzz/transcriber/transcriber.py
 msgid "Ukrainian"
 msgstr "ウクライナ語"
 
@@ -149,6 +162,22 @@ msgstr "UIの言語"
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Font Size"
 msgstr "フォントサイズ"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Minimize to system tray"
+msgstr "システムトレイに最小化"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid "Close to system tray"
+msgstr "閉じるときにシステムトレイに格納"
+
+#: buzz/widgets/preferences_dialog/general_preferences_widget.py
+msgid ""
+"Keep Buzz running when the main window is closed. Use Quit in the tray menu "
+"to exit."
+msgstr ""
+"メインウィンドウを閉じてもBuzzを実行し続けます。終了するにはトレイメニューの"
+"「終了」を使用してください。"
 
 #: buzz/widgets/preferences_dialog/general_preferences_widget.py
 msgid "Test"
@@ -467,6 +496,19 @@ msgstr "選択したモデルを本当に削除しますか?"
 msgid "Download failed"
 msgstr "ダウンロード失敗"
 
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Loading audio"
+msgstr "音声を読み込み中"
+
+#: buzz/widgets/audio_file_player_loader.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Could not load audio"
+msgstr "音声を読み込めませんでした"
+
+#: buzz/widgets/audio_file_player_loader.py
+msgid "Audio file not found: {}"
+msgstr "音声ファイルが見つかりません: {}"
+
 #: buzz/widgets/record_button.py buzz/widgets/main_window_toolbar.py
 msgid "Record"
 msgstr "録音する"
@@ -476,7 +518,6 @@ msgid "Stop"
 msgstr "停止する"
 
 #: buzz/widgets/transcriber/languages_combo_box.py
-#: buzz/transcriber/transcriber.py
 msgid "Detect Language"
 msgstr "自動検出"
 
@@ -1242,6 +1283,10 @@ msgstr "APIキーが必要"
 msgid "Please enter OpenAI API Key in preferences"
 msgstr "設定画面でOpenAI APIキーを入力してください"
 
+#: buzz/widgets/transcription_viewer/transcription_viewer_widget.py
+msgid "Speaker identification is already in progress in another window"
+msgstr "話者識別は別のウィンドウですでに実行中です"
+
 #: buzz/widgets/transcription_viewer/transcription_resizer_widget.py
 msgid "Settings"
 msgstr "設定"
@@ -1314,6 +1359,10 @@ msgstr ""
 "お試しください。"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "5/8 Preparing transcripts"
+msgstr "5/8 文字起こしを準備中"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "0/0 Error identifying speakers"
 msgstr "0/0 話者識別中にエラーが発生しました"
 
@@ -1337,10 +1386,6 @@ msgstr "3/8 アライメントモデルを読み込み中"
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "4/8 Processing audio"
 msgstr "4/8 音声を処理中"
-
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "5/8 Preparing transcripts"
-msgstr "5/8 文字起こしを準備中"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "6/8 Identifying speakers"
@@ -1503,10 +1548,6 @@ msgstr "韓国語"
 #: buzz/transcriber/transcriber.py
 msgid "Portuguese"
 msgstr "ポルトガル語"
-
-#: buzz/transcriber/transcriber.py
-msgid "Turkish"
-msgstr "トルコ語"
 
 #: buzz/transcriber/transcriber.py
 msgid "Arabic"
@@ -1840,6 +1881,22 @@ msgstr "スンダ語"
 msgid "Cantonese"
 msgstr "広東語"
 
+#: buzz/transcriber/speaker_identifier.py
+msgid ""
+"Most of the transcript does not match the audio. Check that the audio file, "
+"language and timestamps are correct."
+msgstr ""
+"文字起こしの大部分が音声と一致しません。音声ファイル、言語、タイムスタンプが"
+"正しいか確認してください。"
+
+#: buzz/transcriber/speaker_identifier.py
+msgid ""
+"This transcript is too long to align at once. Its segments may have no "
+"usable timestamps."
+msgstr ""
+"この文字起こしは長すぎて一度に整列できません。セグメントに使用可能なタイムス"
+"タンプがない可能性があります。"
+
 #: buzz/transcriber/recording_transcriber.py buzz/model_loader.py
 msgid "A connection error occurred"
 msgstr "接続エラーが発生しました"
@@ -2083,15 +2140,3 @@ msgid ""
 msgstr ""
 "音声抽出に失敗しました！インターネット接続を確認してください。モデルのダウン"
 "ロードが必要な場合があります。"
-
-#: buzz/widgets/audio_file_player_loader.py
-msgid "Loading audio"
-msgstr "音声を読み込み中"
-
-#: buzz/widgets/audio_file_player_loader.py
-msgid "Could not load audio"
-msgstr "音声を読み込めませんでした"
-
-#: buzz/widgets/audio_file_player_loader.py
-msgid "Audio file not found: {}"
-msgstr "音声ファイルが見つかりません: {}"

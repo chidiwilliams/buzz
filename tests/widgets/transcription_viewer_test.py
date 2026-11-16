@@ -4,14 +4,14 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from pytestqt.qtbot import QtBot
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import QSignalBlocker, Qt
 from PyQt6.QtWidgets import QFrame
 
 from buzz.locale import _
 from buzz.db.entity.transcription import Transcription
 from buzz.db.entity.transcription_segment import TranscriptionSegment
 from buzz.model_loader import ModelType, WhisperModelSize
-from buzz.transcriber.transcriber import Task
+from buzz.transcriber.transcriber import Segment, Task
 from buzz.widgets.transcription_viewer.transcription_view_mode_tool_button import (
     TranscriptionViewModeToolButton,
     ViewMode
@@ -27,6 +27,7 @@ from buzz.widgets.transcription_viewer.transcription_resizer_widget import (
     TranscriptionWorker,
 )
 from tests.audio import test_audio_path
+from tests.transcriptions import all_transcription_ids
 
 
 class TestTranscriptionViewerWidget:
@@ -85,7 +86,7 @@ class TestTranscriptionViewerWidget:
         widget.close()
 
     def test_should_resize_segment_text(self, qtbot, transcription, transcription_service):
-        transcription_service.update_transcription_as_completed = MagicMock()
+        transcription_service.copy_transcription_with_segments = MagicMock(return_value=uuid.uuid4())
 
         widget = TranscriptionResizerWidget(transcription, transcription_service)
         widget.target_chars_spin_box.setValue(5)
@@ -94,13 +95,12 @@ class TestTranscriptionViewerWidget:
 
         widget.on_resize_button_clicked()
 
-        transcription_service.update_transcription_as_completed.assert_called_once()
+        transcription_service.copy_transcription_with_segments.assert_called_once()
 
         widget.close()
 
     def test_should_extend_segment_endings(self, qtbot, transcription, transcription_service):
-        transcription_service.update_transcription_as_completed = MagicMock()
-        transcription_service.copy_transcription = MagicMock(return_value=uuid.uuid4())
+        transcription_service.copy_transcription_with_segments = MagicMock(return_value=uuid.uuid4())
 
         mock_signal = MagicMock()
 
@@ -115,18 +115,15 @@ class TestTranscriptionViewerWidget:
 
         widget.on_extend_button_clicked()
 
-        # Verify a new transcription is created
-        transcription_service.copy_transcription.assert_called_once_with(transcription.id_as_uuid)
-
-        # Verify segments are updated
-        transcription_service.update_transcription_as_completed.assert_called_once()
+        # Verify a new transcription is created with the extended segments
+        transcription_service.copy_transcription_with_segments.assert_called_once()
 
         # Verify signal is emitted
         mock_signal.emit.assert_called_once()
 
         # Verify segments are extended correctly
-        call_args = transcription_service.update_transcription_as_completed.call_args
-        new_transcript_id, segments = call_args[0]
+        call_args = transcription_service.copy_transcription_with_segments.call_args
+        original_id, segments = call_args[0]
 
         # Original segments: (40, 299, "Bien"), (299, 329, "venue dans")
         # With 0.2s (200ms) extension:
@@ -141,8 +138,7 @@ class TestTranscriptionViewerWidget:
         widget.close()
 
     def test_extend_with_invalid_input_uses_default(self, qtbot, transcription, transcription_service):
-        transcription_service.update_transcription_as_completed = MagicMock()
-        transcription_service.copy_transcription = MagicMock(return_value=uuid.uuid4())
+        transcription_service.copy_transcription_with_segments = MagicMock(return_value=uuid.uuid4())
 
         widget = TranscriptionResizerWidget(
             transcription=transcription,
@@ -155,13 +151,92 @@ class TestTranscriptionViewerWidget:
         widget.on_extend_button_clicked()
 
         # Should use default 0.2 seconds (200ms)
-        call_args = transcription_service.update_transcription_as_completed.call_args
-        new_transcript_id, segments = call_args[0]
+        call_args = transcription_service.copy_transcription_with_segments.call_args
+        original_id, segments = call_args[0]
 
         # Second segment should be extended by default 200ms
         assert segments[1].end == 529  # 329 + 200
 
         widget.close()
+
+    def test_failed_extend_leaves_no_empty_copy_behind(
+            self, qtbot, transcription, transcription_service, transcription_dao
+    ):
+        mock_signal = MagicMock()
+        widget = TranscriptionResizerWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+            transcriptions_updated_signal=mock_signal,
+        )
+        # Block the toggled signal, it would persist the choice to the user's settings
+        with QSignalBlocker(widget.create_new_transcript_checkbox):
+            widget.create_new_transcript_checkbox.setChecked(True)
+        qtbot.add_widget(widget)
+
+        with patch.object(
+            transcription_service.transcription_segment_dao,
+            "insert",
+            side_effect=Exception("disk full"),
+        ), pytest.raises(Exception, match="disk full"):
+            widget.on_extend_button_clicked()
+
+        assert all_transcription_ids(transcription_dao) == [transcription.id]
+        mock_signal.emit.assert_not_called()
+
+        widget.close()
+
+    def test_failed_merge_marks_the_new_transcript_as_failed(
+            self, qtbot, transcription, transcription_service, transcription_dao
+    ):
+        widget = TranscriptionResizerWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        # Block the toggled signal, it would persist the choice to the user's settings
+        with QSignalBlocker(widget.create_new_transcript_checkbox):
+            widget.create_new_transcript_checkbox.setChecked(True)
+        qtbot.add_widget(widget)
+
+        # The merge creates the copy up front, to show progress while it runs
+        widget.new_transcript_id = transcription_service.copy_transcription(
+            transcription.id_as_uuid
+        )
+
+        with patch.object(
+            transcription_service.transcription_segment_dao,
+            "insert",
+            side_effect=Exception("disk full"),
+        ):
+            widget.on_transcription_completed([Segment(0, 100, "merged")])
+
+        copy = transcription_dao.find_by_id(str(widget.new_transcript_id))
+        assert copy.status == "failed"
+        assert copy.error_message == "disk full"
+        assert transcription_service.get_transcription_segments(widget.new_transcript_id) == []
+
+    def test_failed_in_place_merge_keeps_the_old_segments(
+            self, qtbot, transcription, transcription_service, transcription_dao
+    ):
+        widget = TranscriptionResizerWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        # Block the toggled signal, it would persist the choice to the user's settings
+        with QSignalBlocker(widget.create_new_transcript_checkbox):
+            widget.create_new_transcript_checkbox.setChecked(False)
+        qtbot.add_widget(widget)
+        widget.new_transcript_id = transcription.id_as_uuid
+
+        with patch.object(
+            transcription_service.transcription_segment_dao,
+            "insert",
+            side_effect=Exception("disk full"),
+        ):
+            widget.on_transcription_completed([Segment(0, 100, "merged")])
+
+        segments = transcription_service.get_transcription_segments(transcription.id_as_uuid)
+        assert [segment.text for segment in segments] == ["Bien", "venue dans"]
+        assert transcription_dao.find_by_id(transcription.id).status == "completed"
 
     def test_on_merge_button_clicked(self, qtbot: QtBot, transcription, transcription_service):
         # Prerequisite: Merge button is only enabled if word_level_timings is True

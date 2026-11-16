@@ -679,10 +679,8 @@ class TranscriptionViewerWidget(QWidget):
         # Calculate new value based on CURRENT database value
         if field == "start_time":
             current_value = current_start_time
-            other_value = current_end_time
         else:
             current_value = current_end_time
-            other_value = current_start_time
 
         new_value = current_value + delta_ms
 
@@ -695,8 +693,13 @@ class TranscriptionViewerWidget(QWidget):
 
             # Check overlap with previous segment
             if current_row > 0:
-                prev_end = self.table_widget.model().record(current_row - 1).value("end_time")
+                prev_segment = self.table_widget.model().record(current_row - 1)
+                prev_end = prev_segment.value("end_time")
                 if new_value < prev_end:
+                    # Ensure previous segment still ends after it starts
+                    if new_value <= prev_segment.value("start_time"):
+                        return
+
                     # Update previous segment's end time
                     self.table_widget.model().setData(
                         self.table_widget.model().index(current_row - 1, end_col),
@@ -709,9 +712,13 @@ class TranscriptionViewerWidget(QWidget):
 
             # Check overlap with next segment
             if current_row < len(segments) - 1:
-                next_start = self.table_widget.model().record(
-                    current_row + 1).value("start_time")
+                next_segment = self.table_widget.model().record(current_row + 1)
+                next_start = next_segment.value("start_time")
                 if new_value > next_start:
+                    # Ensure next segment still starts before it ends
+                    if new_value >= next_segment.value("end_time"):
+                        return
+
                     # Update next segment's start time
                     self.table_widget.model().setData(
                         self.table_widget.model().index(current_row + 1, start_col),
@@ -1774,7 +1781,7 @@ class TranscriptionViewerWidget(QWidget):
                         self.table_widget.highlight_and_scroll_to_row(i)
                         break
 
-        except Exception as e:
+        except Exception:
             pass  # Silently handle any errors
 
     def event(self, event):
@@ -1804,9 +1811,12 @@ class TranscriptionViewerWidget(QWidget):
 
         self.hide()
 
-        # Stop media playback when closing
-        if self.current_media_player:
-            self.current_media_player.stop()
+        # Closed rather than only stopped, as Qt sends no close event to child
+        # widgets: their closeEvent() releases the decoders and audio streams,
+        # which would otherwise outlive the window
+        self.audio_player.close()
+        if self.video_player:
+            self.video_player.close()
 
         if self.transcription_resizer_dialog:
             self.transcription_resizer_dialog.close()

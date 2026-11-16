@@ -84,6 +84,19 @@ jobs:
           sudo apt-get install libyaml-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-shape0 libxcb-cursor0 libportaudio2 gettext libpulse0 libgl1-mesa-dev libvulkan-dev spirv-headers ccache
         if: "startsWith(matrix.os, 'ubuntu-')"
 
+      # Since Ubuntu 26.04, PortAudio fails to initialize (and `import sounddevice`
+      # raises) when its PulseAudio backend cannot reach a server. Runners run no
+      # audio server, so start a headless one with a dummy output for the tests.
+      - name: Start PulseAudio
+        if: "startsWith(matrix.os, 'ubuntu-')"
+        run: |
+          sudo apt-get install -y pulseaudio
+          pulseaudio -D --exit-idle-time=-1 --disallow-exit -n \
+            --load=module-native-protocol-unix \
+            --load=module-null-sink \
+            --load=module-always-sink
+          pulseaudio --check
+
       - name: Install dependencies
         run: uv sync
 
@@ -293,7 +306,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        # The Linux wheel requires the glibc of the machine it is built on (see
+        # hatch_build.py), so build it on the oldest Ubuntu we want to support
+        # rather than ubuntu-latest.
+        os: [ubuntu-24.04, windows-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v7

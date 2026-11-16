@@ -930,6 +930,45 @@ def test_sat_finds_result_file_written_by_get_output_file_path(tmp_path, stem):
     assert result[0].text == "Hello there."
 
 
+@pytest.mark.parametrize("other_stem", ["episode10", "episode1 extended", "episode1-b"])
+def test_sat_ignores_result_file_of_another_media_file(tmp_path, other_stem):
+    from buzz.model_loader import TranscriptionModel
+    from buzz.transcriber.transcriber import (
+        OutputFormat,
+        Task,
+        get_output_file_path,
+    )
+
+    srt = get_output_file_path(
+        str(tmp_path / f"{other_stem}.mp3"),
+        Task.TRANSCRIBE,
+        None,
+        TranscriptionModel(),
+        OutputFormat.SRT,
+    )
+    with open(srt, "w", encoding="utf-8") as f:
+        f.write("1\n00:00:01,000 --> 00:00:03,500\nHello there.\n\n")
+
+    audio = tmp_path / "episode1.mp3"
+    audio.write_bytes(b"")
+
+    plugin = _sat_plugin()
+    ctx = _sat_context(config={"check_result_files": True, "check_database": False})
+    assert plugin.check_skip(_SatTask(file_path=str(audio)), ctx) is None
+
+
+def test_sat_skips_on_result_file_named_like_media_file(tmp_path):
+    plugin = _sat_plugin()
+    audio = tmp_path / "episode1.mp3"
+    audio.write_bytes(b"")
+    (tmp_path / "episode1.txt").write_text("Hello world.", encoding="utf-8")
+
+    ctx = _sat_context(config={"check_result_files": True, "check_database": False})
+    result = plugin.check_skip(_SatTask(file_path=str(audio)), ctx)
+    assert result is not None
+    assert result[0].text == "Hello world."
+
+
 def test_sat_returns_none_when_result_files_disabled(tmp_path):
     plugin = _sat_plugin()
     audio = tmp_path / "audio.mp3"
