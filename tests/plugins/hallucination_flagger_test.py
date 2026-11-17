@@ -1,3 +1,5 @@
+import json
+
 from buzz.plugins.hallucination_flagger.plugin import (
     HallucinationFlaggerPlugin,
     check,
@@ -65,6 +67,49 @@ class TestHallucinationFlaggerPlugin:
 
     def test_metadata_id_matches_folder_name(self):
         assert HallucinationFlaggerPlugin.metadata.id == "hallucination_flagger"
+
+
+def test_flag_metadata_survives_the_database_round_trip(
+    qtbot, transcription_service, transcription_dao
+):
+    """The flag must reach the viewer, not just the in-memory Segment.
+
+    The viewer reads tooltips from the persisted ``metadata`` column, so a
+    flag that doesn't survive the Segment -> DB hop would be invisible to
+    the user even though the hook "worked".
+    """
+    from buzz.transcriber.transcriber import (
+        FileTranscriptionOptions,
+        FileTranscriptionTask,
+        TranscriptionOptions,
+    )
+
+    task = FileTranscriptionTask(
+        file_path="/tmp/audio.mp3",
+        transcription_options=TranscriptionOptions(),
+        file_transcription_options=FileTranscriptionOptions(),
+        model_path="mock_path",
+    )
+    transcription_service.create_transcription(task)
+
+    segments = HallucinationFlaggerPlugin().after_transcription(
+        task=task,
+        segments=[
+            Segment(0, 1000, "Thanks for watching!"),
+            Segment(1000, 2000, "The weather today is sunny."),
+        ],
+        context=_FakeContext(),
+    )
+    transcription_service.update_transcription_as_completed(task.uid, segments)
+
+    saved = sorted(
+        transcription_service.get_transcription_segments(transcription_id=task.uid),
+        key=lambda s: s.start_time,
+    )
+    flagged = json.loads(saved[0].metadata)
+    assert flagged and flagged[0]["suspect"] == "true"
+    assert "suspect_reason" in flagged[0]
+    assert json.loads(saved[1].metadata) == []
 
 
 class _FakeContext:
