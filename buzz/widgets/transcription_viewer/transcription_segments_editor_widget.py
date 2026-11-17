@@ -18,6 +18,7 @@ from PyQt6.QtGui import (
     QFontMetrics,
     QIcon,
     QPainter,
+    QPalette,
     QPixmap,
     QRegularExpressionValidator,
     QTextOption,
@@ -39,6 +40,7 @@ from PyQt6.QtWidgets import (
 )
 
 from buzz.locale import _
+from buzz.plugins.base import HIGHLIGHT_METADATA_KEY, RESERVED_METADATA_KEYS
 from buzz.speaker_transcript import SPEAKER_COLORS
 from buzz.translator import Translator
 from buzz.transcriber.file_transcriber import to_timestamp
@@ -343,6 +345,17 @@ class SpeakerDelegate(QStyledItemDelegate):
         )
 
 
+# Severity -> (light theme tint, dark theme tint). Deliberately pale, so a
+# tinted row stays readable in the theme's normal text colour. Colour alone
+# never carries the meaning: the tooltip holds the plugin's actual reason, so
+# the flag is still legible to anyone who cannot distinguish the tint.
+HIGHLIGHT_COLORS = {
+    "info": ("#E8F1FB", "#1E3448"),
+    "warning": ("#FFF3E0", "#43341A"),
+    "error": ("#FDECEA", "#45211E"),
+}
+
+
 class TranscriptionSegmentModel(QSqlTableModel):
     def __init__(self, transcription_id: UUID):
         super().__init__()
@@ -351,12 +364,46 @@ class TranscriptionSegmentModel(QSqlTableModel):
         self.setFilter(f"transcription_id = '{transcription_id}'")
 
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
-        if index.isValid() and role == Qt.ItemDataRole.ToolTipRole:
-            metadata = self._metadata(index.row())
-            if metadata:
-                return "\n".join(f"{key}: {value}" for key, value in metadata)
+        if index.isValid():
+            if role == Qt.ItemDataRole.ToolTipRole:
+                pairs = [
+                    (key, value)
+                    for key, value in self._metadata(index.row())
+                    if key not in RESERVED_METADATA_KEYS
+                ]
+                if pairs:
+                    return "\n".join(f"{key}: {value}" for key, value in pairs)
+
+            elif role == Qt.ItemDataRole.BackgroundRole:
+                color = self._highlight_color(index.row())
+                if color is not None:
+                    return color
 
         return super().data(index, role)
+
+    def _highlight_color(self, row: int) -> Optional[QColor]:
+        """Return the tint a plugin asked for on this row, if any.
+
+        An unknown severity is ignored rather than guessed at, so a plugin
+        writing a value this version doesn't know about leaves the row looking
+        normal instead of mis-coloured.
+        """
+        for key, value in self._metadata(row):
+            if key != HIGHLIGHT_METADATA_KEY:
+                continue
+            tints = HIGHLIGHT_COLORS.get(value.lower())
+            if tints is None:
+                return None
+            light, dark = tints
+            return QColor(dark if self._is_dark_theme() else light)
+        return None
+
+    @staticmethod
+    def _is_dark_theme() -> bool:
+        # Measured from the palette actually in use rather than the colour
+        # scheme hint, so the tint follows the real row background however the
+        # theme was set.
+        return QApplication.palette().color(QPalette.ColorRole.Base).lightness() < 128
 
     def _metadata(self, row: int) -> list[tuple[str, str]]:
         """Return the segment metadata as a flat list of key-value pairs."""

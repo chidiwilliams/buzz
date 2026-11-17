@@ -24,8 +24,9 @@ v1: Buzz already discards that data in whisper_file_transcriber.py, so wiring
 it back in is separate follow-up work, not part of this plugin.
 
 Flagged segments get a `{"suspect": "true", "suspect_reason": "..."}` entry
-appended to their `metadata` list. The transcription viewer already renders
-segment metadata as a tooltip, so no viewer changes are needed for v1.
+appended to their `metadata` list, plus a `highlight` key asking the viewer
+to tint the row. The reason shows in the row's tooltip, so the tint is never
+the only thing carrying the meaning.
 """
 
 import logging
@@ -33,6 +34,7 @@ import re
 from typing import List
 
 from buzz.plugins.base import (
+    HIGHLIGHT_METADATA_KEY,
     BuzzPlugin,
     PluginContext,
     PluginMetadata,
@@ -113,9 +115,8 @@ class HallucinationFlaggerPlugin(BuzzPlugin):
         id="hallucination_flagger",
         name=_("Hallucination Flagger"),
         description=_(
-            "Flags segments that look hallucinated -- known silence junk "
-            "phrases, or a word/phrase repeating 3+ times in a row -- so "
-            "you can review them. Never deletes or edits the text."
+            "Flags transcript segments that look hallucinated so you can "
+            "review them. Never deletes or changes the text."
         ),
         version="1.0.0",
         pip_dependencies=[],
@@ -132,7 +133,15 @@ class HallucinationFlaggerPlugin(BuzzPlugin):
             reason = check(segment.text)
             if reason:
                 segment.metadata.append(
-                    {"suspect": "true", "suspect_reason": reason}
+                    {
+                        "suspect": "true",
+                        "suspect_reason": reason,
+                        # Asks the viewer to tint the row. `highlight` is a
+                        # reserved rendering key, so it is not shown in the
+                        # tooltip -- `suspect_reason` above is what the reader
+                        # actually sees there.
+                        HIGHLIGHT_METADATA_KEY: "warning",
+                    }
                 )
                 context.log.debug("Flagged segment %r: %s", segment.text, reason)
         return segments

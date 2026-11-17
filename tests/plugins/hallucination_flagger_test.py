@@ -1,5 +1,6 @@
 import json
 
+from buzz.plugins.base import HIGHLIGHT_METADATA_KEY, RESERVED_METADATA_KEYS
 from buzz.plugins.hallucination_flagger.plugin import (
     HallucinationFlaggerPlugin,
     check,
@@ -67,6 +68,65 @@ class TestHallucinationFlaggerPlugin:
 
     def test_metadata_id_matches_folder_name(self):
         assert HallucinationFlaggerPlugin.metadata.id == "hallucination_flagger"
+
+    def test_flag_requests_a_row_highlight(self):
+        """Without this the flag is tooltip-only and easy to miss."""
+        segment = Segment(0, 1000, "Thanks for watching!")
+
+        HallucinationFlaggerPlugin().after_transcription(
+            task=None, segments=[segment], context=_FakeContext()
+        )
+
+        assert segment.metadata[0][HIGHLIGHT_METADATA_KEY] == "warning"
+
+    def test_reason_is_readable_without_relying_on_the_colour(self):
+        """Colour must never be the only thing carrying the meaning."""
+        segment = Segment(0, 1000, "Thanks for watching!")
+
+        HallucinationFlaggerPlugin().after_transcription(
+            task=None, segments=[segment], context=_FakeContext()
+        )
+
+        reason = segment.metadata[0]["suspect_reason"]
+        assert reason and reason not in RESERVED_METADATA_KEYS
+
+
+class TestBundling:
+    """A bundled plugin must be registered and fully localized (AGENTS.md)."""
+
+    def test_is_registered_as_a_bundled_plugin(self):
+        from buzz.plugins import loader
+
+        assert "hallucination_flagger" in loader.BUNDLED_PLUGIN_IDS
+
+    def test_ships_the_same_locale_set_as_other_bundled_plugins(self):
+        import os
+
+        locales = os.listdir("buzz/plugins/hallucination_flagger/locale")
+        reference = os.listdir("buzz/plugins/ai_summary/locale")
+        assert set(locales) == set(reference)
+
+    def test_every_locale_translates_both_strings(self):
+        """An absent key or empty value silently blanks or un-translates the UI.
+
+        Asserts against the literal English sources rather than
+        ``metadata.name``/``.description``, which are already translated when
+        the suite runs under a non-English locale.
+        """
+        import glob
+        import os
+
+        sources = (
+            "Hallucination Flagger",
+            "Flags transcript segments that look hallucinated so you can "
+            "review them. Never deletes or changes the text.",
+        )
+        for path in glob.glob("buzz/plugins/hallucination_flagger/locale/*.json"):
+            with open(path, encoding="utf-8") as f:
+                data = json.load(f)
+            for source in sources:
+                assert source in data, f"{os.path.basename(path)} missing a key"
+                assert data[source].strip(), f"{os.path.basename(path)} has an empty value"
 
 
 def test_flag_metadata_survives_the_database_round_trip(
