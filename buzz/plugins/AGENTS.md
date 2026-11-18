@@ -120,6 +120,30 @@ Passed to every hook. Fields:
 - `segments` is a `list[Segment]`; `Segment(start, end, text, translation="")`
   with `start`/`end` in **milliseconds**.
 
+### Segment metadata
+
+Each `Segment` has a `metadata` list of `dict[str, str]`. In `after_transcription`,
+append a dict to a segment's `metadata` to attach information to that row
+without changing or deleting its text:
+
+```python
+segment.metadata.append({"review_reason": "Possible repetition loop", "confidence": "0.21"})
+```
+
+- It is saved as JSON in the `transcription_segment.metadata` column and read
+  back by `get_transcription_segments`.
+- The transcription viewer shows every key-value pair as a `key: value` line in
+  the row's tooltip, so use keys and values a user can read.
+- Use strings. Other values are shown with `str()`, and nested structures are
+  not rendered in a useful way.
+- Append, never replace the list: other plugins may have added entries to the
+  same segment.
+- Metadata only survives while the same `Segment` objects are passed along.
+  Code that builds new `Segment(...)` objects (e.g. the Resize Transcript plugin,
+  the viewer's resize tool, speaker identification) starts them with empty
+  metadata. If your plugin regroups segments, copy the metadata across;
+  if it reads other plugins' metadata, it must run after them in the plugin order.
+
 ## Configuration fields
 
 Declare config via `ConfigField`. Types (`ConfigFieldType`):
