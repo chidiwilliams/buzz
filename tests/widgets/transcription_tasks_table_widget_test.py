@@ -11,6 +11,7 @@ from PyQt6.QtGui import QKeyEvent
 from PyQt6.QtSql import QSqlDatabase, QSqlQuery, QSqlRecord, QSqlTableModel
 from PyQt6.QtWidgets import QApplication, QMenu, QStyledItemDelegate
 
+from buzz import metadata_cache
 from buzz.locale import _
 from buzz.widgets.transcription_tasks_table_widget import (
     TranscriptionTasksTableWidget,
@@ -261,6 +262,30 @@ class TestTranscriptionTasksTableWidget:
 
         assert widget.model().rowCount() == initial_row_count - 1
         assert self._stored_ids(db) == {"1", "2", str(ids[1])}
+
+    def test_delete_transcriptions_deletes_their_metadata(self, widget, db, metadata_dir):
+        deleted_id, kept_id = self._insert_transcriptions(db, 2)
+        not_in_table_id = uuid4()
+        for id in (deleted_id, kept_id, not_in_table_id):
+            metadata_cache.save_metadata(id, "whisper_cpp", {"id": str(id)})
+        widget.model().select()
+
+        widget.delete_transcriptions([deleted_id, not_in_table_id])
+
+        assert metadata_cache.list_metadata(deleted_id) == []
+        assert metadata_cache.list_metadata(kept_id) == ["whisper_cpp"]
+        # Not deleted, as it was not in the table
+        assert metadata_cache.list_metadata(not_in_table_id) == ["whisper_cpp"]
+
+    def test_failed_delete_keeps_metadata(self, widget, db, metadata_dir):
+        transcription_id = self._insert_transcriptions(db, 1)[0]
+        metadata_cache.save_metadata(transcription_id, "whisper_cpp", {})
+        widget.model().select()
+
+        with patch.object(widget.model(), "submitAll", return_value=False):
+            widget.delete_transcriptions([transcription_id])
+
+        assert metadata_cache.list_metadata(transcription_id) == ["whisper_cpp"]
 
     def test_delete_transcriptions_not_fetched_yet(self, widget, db):
         ids = self._insert_transcriptions(db, 300)

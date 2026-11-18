@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 from pytestqt.qtbot import QtBot
 from unittest.mock import MagicMock, patch
+from buzz import metadata_cache
 from buzz.db.entity.transcription import Transcription
 from buzz.db.entity.transcription_segment import TranscriptionSegment
 from buzz.model_loader import ModelType, WhisperModelSize
@@ -15,6 +16,7 @@ if not (platform.system() == "Darwin" and platform.machine() == "x86_64") and pl
         SpeakerIdentificationWidget,
         IdentificationWorker,
         process_in_batches,
+        build_identification_metadata,
         MAX_PREVIEW_DURATION_MS,
     )
 from buzz.locale import _
@@ -297,6 +299,51 @@ class TestSpeakerIdentificationWidget:
 
         widget.close()
 
+    def test_on_save_keeps_identification_metadata_on_the_new_transcript(
+        self, qtbot: QtBot, transcription, transcription_service, metadata_dir
+    ):
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+
+        run_metadata = {
+            "diarizer": "msdd",
+            "speaker_turns": [
+                {"start_time": 0, "end_time": 1000, "speaker": "Speaker 0"},
+                {"start_time": 1000, "end_time": 2000, "speaker": "Speaker 1"},
+            ],
+        }
+        widget._on_metadata_ready(run_metadata)
+        widget.on_identification_finished([
+            {'speaker': 'Speaker 0', 'start_time': 0, 'end_time': 1000, 'text': 'Hi.'},
+            {'speaker': 'Speaker 1', 'start_time': 1000, 'end_time': 2000, 'text': 'Hello.'},
+        ])
+        # Rename the first speaker
+        speaker_inputs = [
+            widget.speaker_preview_row.itemAt(row).layout().itemAt(0).widget()
+            for row in range(widget.speaker_preview_row.count())
+        ]
+        assert [line_edit.text() for line_edit in speaker_inputs] == ["Speaker 0", "Speaker 1"]
+        speaker_inputs[0].setText("Alice")
+        widget.merge_speaker_sentences.setChecked(True)
+
+        widget.on_save_button_clicked()
+
+        new_ids = [id for id in all_transcription_ids(transcription_service.transcription_dao)
+                   if id != transcription.id]
+        assert len(new_ids) == 1
+        assert metadata_cache.load_metadata(
+            new_ids[0], metadata_cache.SPEAKER_IDENTIFICATION
+        ) == {
+            **run_metadata,
+            "speaker_names": {"Speaker 0": "Alice", "Speaker 1": "Speaker 1"},
+            "merge_speaker_sentences": True,
+        }
+        # The transcript identification ran on is left as it was
+        assert metadata_cache.list_metadata(transcription.id) == []
+
     def test_on_save_emits_transcriptions_updated(self, qtbot: QtBot, transcription, transcription_service):
         updated_signal = MagicMock()
         widget = SpeakerIdentificationWidget(
@@ -541,6 +588,88 @@ class TestSpeakerIdentificationWidget:
 
         passed_segments = worker._get_word_timestamps.call_args.kwargs["segments"]
         assert [segment.text for segment in passed_segments] == ["Bien", "venue dans"]
+
+    def test_run_emits_metadata_before_finishing(self, transcription, transcription_service):
+        import torch
+
+        worker = IdentificationWorker(transcription, transcription_service, num_speakers=2)
+        worker._import_libraries = MagicMock()
+        worker._get_transcript_data = MagicMock(
+            return_value=("en", [], "Hello there", np.zeros(10, dtype=np.float32))
+        )
+        worker._setup_device = MagicMock(return_value=("cpu", torch.float32))
+        worker._load_alignment_model_with_retry = MagicMock(return_value=("model", "tokenizer"))
+        worker._generate_emissions_and_cleanup = MagicMock(return_value=(torch.zeros(10, 4), 20.0))
+        word_timestamps = [
+            {"text": "Hello", "start": 0.0, "end": 0.5, "score": -0.1},
+            {"text": "there", "start": 0.5, "end": 1.0, "score": float("-inf")},
+        ]
+        worker._get_word_timestamps = MagicMock(return_value=word_timestamps)
+        worker._run_diarization = MagicMock(return_value=[[0, 500, 0], [500, 1000, 1]])
+        word_speaker_mapping = [
+            {"word": "Hello", "start_time": 0, "end_time": 500, "speaker": 0},
+            {"word": "there", "start_time": 500, "end_time": 1000, "speaker": 1},
+        ]
+        sentences = [
+            {"speaker": "Speaker 0", "start_time": 0, "end_time": 500, "text": "Hello "},
+            {"speaker": "Speaker 1", "start_time": 500, "end_time": 1000, "text": "there "},
+        ]
+
+        def map_speakers(*_args):
+            worker.word_speaker_mapping = word_speaker_mapping
+            return sentences
+
+        worker._map_speakers_with_punctuation = MagicMock(side_effect=map_speakers)
+        worker._cleanup = MagicMock()
+        emitted = []
+        worker.metadata_ready.connect(lambda metadata: emitted.append(("metadata", metadata)))
+        worker.finished.connect(lambda result: emitted.append(("finished", result)))
+
+        worker.run()
+
+        assert [kind for kind, _value in emitted] == ["metadata", "finished"]
+        assert emitted[0][1] == build_identification_metadata(
+            "msdd", 2, "en", word_timestamps, [[0, 500, 0], [500, 1000, 1]],
+            word_speaker_mapping, sentences,
+        )
+
+    def test_run_emits_no_metadata_on_error(self, transcription, transcription_service):
+        worker = IdentificationWorker(transcription, transcription_service)
+        worker._import_libraries = MagicMock()
+        worker._get_transcript_data = MagicMock(side_effect=RuntimeError("boom"))
+        worker._cleanup = MagicMock()
+        metadata = []
+        worker.metadata_ready.connect(metadata.append)
+
+        worker.run()
+
+        assert metadata == []
+
+    def test_build_identification_metadata_labels_speakers_like_the_sentences(self):
+        metadata = build_identification_metadata(
+            diarizer="sortformer",
+            num_speakers=None,
+            language="en",
+            word_timestamps=[{"text": "Hi", "start": 0.0, "end": 0.4, "score": -0.3}],
+            speaker_ts=[[0, 400, 0], [400, 900, 1]],
+            word_speaker_mapping=[{"word": "Hi", "start_time": 0, "end_time": 400, "speaker": 0}],
+            sentences=[{"speaker": "Speaker 0", "start_time": 0, "end_time": 400, "text": "Hi "}],
+        )
+
+        assert metadata == {
+            "diarizer": "sortformer",
+            "num_speakers": None,
+            "language": "en",
+            "speaker_turns": [
+                {"start_time": 0, "end_time": 400, "speaker": "Speaker 0"},
+                {"start_time": 400, "end_time": 900, "speaker": "Speaker 1"},
+            ],
+            "word_timestamps": [{"text": "Hi", "start": 0.0, "end": 0.4, "score": -0.3}],
+            "word_speaker_mapping": [
+                {"word": "Hi", "start_time": 0, "end_time": 400, "speaker": "Speaker 0"}
+            ],
+            "sentences": [{"speaker": "Speaker 0", "start_time": 0, "end_time": 400, "text": "Hi "}],
+        }
 
     def test_setup_device_force_cpu(self, transcription, transcription_service, monkeypatch):
         """_setup_device honours BUZZ_FORCE_CPU regardless of CUDA availability."""

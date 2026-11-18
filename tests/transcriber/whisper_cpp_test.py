@@ -6,6 +6,7 @@ import sys
 
 import pytest
 
+from buzz import metadata_cache
 from buzz.model_loader import TranscriptionModel, ModelType, WhisperModelSize
 from buzz.transcriber.transcriber import (
     TranscriptionOptions,
@@ -690,3 +691,56 @@ class TestWhisperCpp:
     def test_find_discrete_gpu_index_without_discrete(self):
         vk = self._fake_vulkan([1, 4])
         assert whisper_cpp._find_discrete_gpu_index(vk, MagicMock()) is None
+
+
+class TestWhisperCppMetadata:
+    def make_task(self, tmp_path):
+        source = tmp_path / "audio.wav"
+        source.write_bytes(b"audio bytes")
+        return FileTranscriptionTask(
+            transcription_options=TranscriptionOptions(
+                language="zh",
+                task=Task.TRANSCRIBE,
+                word_level_timings=False,
+                model=TranscriptionModel(
+                    model_type=ModelType.WHISPER_CPP,
+                    whisper_model_size=WhisperModelSize.TINY,
+                ),
+            ),
+            file_transcription_options=FileTranscriptionOptions(),
+            model_path="/fake/model.bin",
+            file_path=str(source),
+        )
+
+    def test_transcribe_keeps_whisper_cli_output_as_metadata(self, tmp_path, metadata_dir):
+        task = self.make_task(tmp_path)
+        # "你好" with the first character split between two tokens, so the
+        # file is not valid UTF-8 and has to be kept byte for byte
+        output = (
+            b'{"result": {"language": "zh"}, "transcription": [{"offsets": '
+            b'{"from": 0, "to": 1000}, "text": "\xe4\xbd\xa0\xe5\xa5\xbd", "tokens": ['
+            b'{"text": "\xe4\xbd", "p": 0.91}, {"text": "\xa0\xe5\xa5\xbd", "p": 0.87}]}]}'
+        )
+
+        def fake_run_whisper(cmd):
+            file_to_process = cmd[cmd.index("-f") + 1]
+            with open(f"{file_to_process}.json", "wb") as f:
+                f.write(output)
+            return 0, ""
+
+        with patch.object(WhisperCpp, "_run_whisper", side_effect=fake_run_whisper):
+            segments = WhisperCpp.transcribe(task)
+
+        assert [segment.text for segment in segments] == ["你好"]
+        path = metadata_cache.metadata_path(task.uid, metadata_cache.WHISPER_CPP)
+        with open(path, "rb") as f:
+            assert f.read() == output
+
+    def test_failed_transcription_saves_no_metadata(self, tmp_path, metadata_dir):
+        task = self.make_task(tmp_path)
+
+        with patch.object(WhisperCpp, "_run_whisper", return_value=(1, "boom")):
+            with pytest.raises(Exception, match="return code 1"):
+                WhisperCpp.transcribe(task)
+
+        assert metadata_cache.list_metadata(task.uid) == []

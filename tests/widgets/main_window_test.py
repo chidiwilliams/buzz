@@ -19,6 +19,7 @@ from PyQt6.QtWidgets import (
 )
 from pytestqt.qtbot import QtBot
 
+from buzz import metadata_cache
 from buzz.locale import _
 from buzz.db.entity.transcription import Transcription
 from buzz.db.service.transcription_service import TranscriptionService
@@ -615,6 +616,84 @@ class TestMainWindow:
 
         assert exceptions == []
         assert transcription_dao.find_by_id(transcription.id) is None
+        window.close()
+
+    @pytest.mark.parametrize(
+        "transcription_dao", [[Transcription(status="completed")]], indirect=True
+    )
+    def test_delete_key_deletes_metadata(
+        self, qtbot, transcription_dao, transcription_segment_dao, metadata_dir
+    ):
+        window = MainWindow(
+            TranscriptionService(transcription_dao, transcription_segment_dao)
+        )
+        qtbot.add_widget(window)
+
+        table_widget = self._get_tasks_table(window)
+        table_widget.selectRow(0)
+        transcription = table_widget.selected_transcriptions()[0]
+        metadata_cache.save_metadata(transcription.id, "whisper_cpp", {})
+
+        self._press_delete(table_widget)
+
+        assert metadata_cache.list_metadata(transcription.id) == []
+        window.close()
+
+    @pytest.mark.parametrize(
+        "transcription_dao", [[Transcription(status="in_progress")]], indirect=True
+    )
+    @pytest.mark.parametrize("outcome", ["completed", "error"])
+    def test_deletes_metadata_saved_after_delete(
+        self, qtbot, transcription_dao, transcription_segment_dao, metadata_dir, outcome
+    ):
+        window = MainWindow(
+            TranscriptionService(transcription_dao, transcription_segment_dao)
+        )
+        qtbot.add_widget(window)
+
+        table_widget = self._get_tasks_table(window)
+        table_widget.selectRow(0)
+        transcription = table_widget.selected_transcriptions()[0]
+
+        with patch.object(window.transcriber_worker, "cancel_task"):
+            self._press_delete(table_widget)
+
+        # The transcriber saved its metadata before it learned of the delete
+        metadata_cache.save_metadata(transcription.id, "openai_api", {})
+        task = self._task_for(transcription)
+        with patch.object(
+            window.plugin_manager, "has_enabled_post_hooks", return_value=False
+        ):
+            if outcome == "completed":
+                window.on_task_completed(task, [Segment(start=0, end=1000, text="Bonjour")])
+            else:
+                window.on_task_error(task, "Error")
+
+        assert metadata_cache.list_metadata(transcription.id) == []
+        window.close()
+
+    @pytest.mark.parametrize(
+        "transcription_dao", [[Transcription(status="canceled")]], indirect=True
+    )
+    def test_canceled_transcription_keeps_metadata_on_late_result(
+        self, qtbot, transcription_dao, transcription_segment_dao, metadata_dir
+    ):
+        window = MainWindow(
+            TranscriptionService(transcription_dao, transcription_segment_dao)
+        )
+        qtbot.add_widget(window)
+
+        transcription = self._get_tasks_table(window).transcription(
+            self._get_tasks_table(window).model().index(0, 0)
+        )
+        metadata_cache.save_metadata(transcription.id, "openai_api", {})
+
+        with patch.object(
+            window.plugin_manager, "has_enabled_post_hooks", return_value=False
+        ):
+            window.on_task_completed(self._task_for(transcription), [])
+
+        assert metadata_cache.list_metadata(transcription.id) == ["openai_api"]
         window.close()
 
     @pytest.mark.parametrize(

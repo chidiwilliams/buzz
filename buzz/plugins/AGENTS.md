@@ -120,6 +120,126 @@ Passed to every hook. Fields:
 - `segments` is a `list[Segment]`; `Segment(start, end, text, translation="")`
   with `start`/`end` in **milliseconds**.
 
+### Segment metadata
+
+Each `Segment` has a `metadata` list of `dict[str, str]`. In `after_transcription`,
+append a dict to a segment's `metadata` to attach information to that row
+without changing or deleting its text:
+
+```python
+segment.metadata.append({"review_reason": "Possible repetition loop", "confidence": "0.21"})
+```
+
+- It is saved as JSON in the `transcription_segment.metadata` column and read
+  back by `get_transcription_segments`.
+- The transcription viewer shows every key-value pair as a `key: value` line in
+  the row's tooltip, so use keys and values a user can read.
+- Use strings. Other values are shown with `str()`, and nested structures are
+  not rendered in a useful way.
+- Append, never replace the list: other plugins may have added entries to the
+  same segment.
+- Metadata only survives while the same `Segment` objects are passed along.
+  Code that builds new `Segment(...)` objects (e.g. the Resize Transcript plugin,
+  the viewer's resize tool, speaker identification) starts them with empty
+  metadata. If your plugin regroups segments, copy the metadata across;
+  if it reads other plugins' metadata, it must run after them in the plugin order.
+
+## Metadata cache
+
+Transcription engines and speaker identification produce more data than Buzz
+saves as segments: token and word probabilities, `no_speech_prob`,
+`avg_logprob`, detected language probabilities, diarization turns, and so on.
+Buzz keeps that data per transcription in JSON files that plugins can read:
+
+```
+<user_cache_dir>/Buzz/metadata/<transcription id>/<name>.json
+```
+
+The transcription id is `task.uid` / the `transcription_id` passed to
+`on_complete`. Use `buzz.metadata_cache` rather than building paths:
+
+```python
+from buzz import metadata_cache
+
+def after_transcription(self, task, segments, context):
+    result = metadata_cache.load_metadata(task.uid, metadata_cache.FASTER_WHISPER)
+    if result is None:          # another engine, or the save failed
+        return segments
+    for whisper_segment in result["segments"]:
+        if whisper_segment["no_speech_prob"] > 0.6:
+            ...
+    return segments
+```
+
+- `load_metadata(id, name)` returns the parsed JSON, or `None` if there is no
+  such file. `list_metadata(id)` returns the names a transcription has.
+  `metadata_path(id, name)` gives the file path.
+- `save_metadata(id, name, data)` lets a plugin keep its own data next to Buzz's.
+  Use a name prefixed with your plugin id (`my_plugin_scores`), so it never
+  clashes with the names below. Names may contain letters, digits, `_`, `-`
+  and `.`. It converts dataclasses, numpy values and similar to JSON; infinite
+  and NaN floats become `null`. It logs and returns `None` on failure, never raises.
+- The files are written by the transcriber, so they exist in
+  `after_transcription` and `on_complete`, but **not** in
+  `before_transcription` or `check_skip`.
+- Only the file of the engine that ran is there. A transcription run before
+  this feature, or a failed save, has no files. Always handle `None`.
+- Times in engine files are the engine's own (mostly seconds), not the
+  milliseconds of `Segment`. Engine files describe the raw transcription, so
+  they don't reflect what `after_transcription` plugins or the user changed later.
+- The folder is deleted with the transcription, cleared when it is restarted,
+  and copied when a transcription is copied (e.g. Resize, Speaker
+  Identification), so a copy can read the result of its source.
+
+### Available metadata
+
+| Name (`metadata_cache.*`)  | Written by | Content |
+|----------------------------|------------|---------|
+| `whisper_cpp` (`WHISPER_CPP`) | Whisper.cpp | The `--output-json-full` output of `whisper-cli`, byte for byte: `result.language`, `params`, and `transcription[]` with `offsets` (ms), `text` and `tokens[]` (`text`, `id`, `p` probability, `t_dtw`, `offsets`). See the note below. |
+| `faster_whisper` (`FASTER_WHISPER`) | Faster Whisper | `{"info": {...}, "segments": [...]}`. `info` has `language`, `language_probability`, `duration`, `duration_after_vad`, `all_language_probs`, `transcription_options`, `vad_options`. Each segment has `id`, `seek`, `start`, `end` (s), `text`, `tokens`, `avg_logprob`, `compression_ratio`, `no_speech_prob`, `temperature`, and `words[]` (`start`, `end`, `word`, `probability`) when word-level timings are on. |
+| `openai_whisper` (`OPENAI_WHISPER`) | Whisper | The result of `model.transcribe()`: `text`, `language`, `segments[]` with `id`, `seek`, `start`, `end` (s), `text`, `tokens`, `temperature`, `avg_logprob`, `compression_ratio`, `no_speech_prob`. With word-level timings it is stable-ts's `WhisperResult.to_dict()`, whose segments also have `words[]` with `probability`. |
+| `hugging_face` (`HUGGING_FACE`) | Hugging Face | The result of Buzz's `TransformersTranscriber.transcribe()`: `text` and `segments[]` with `start`, `end` (s), `text`. Few models return more than that. |
+| `openai_api` (`OPENAI_API`) | OpenAI API (and compatible servers) | `{"model": ..., "responses": [{"offset_ms": ..., "response": {...}}]}`, one response per uploaded chunk (files over 25 MB are split). `offset_ms` is where the chunk starts in the file. A `verbose_json` response has `language`, `duration`, `segments[]` with `avg_logprob`, `compression_ratio`, `no_speech_prob`, `tokens`, and `words[]`; `gpt-4o` models return only `text`. |
+| `speaker_identification` (`SPEAKER_IDENTIFICATION`) | Speaker identification | See below. |
+
+**whisper_cpp text encoding.** whisper-cli can split one multi-byte character
+across tokens, so the file is not always valid UTF-8. Read it as Latin-1 and
+recover the text of a field the way Buzz does:
+
+```python
+import json
+with open(metadata_cache.metadata_path(task.uid, metadata_cache.WHISPER_CPP), encoding="latin-1") as f:
+    result = json.load(f)
+text = result["transcription"][0]["text"].encode("latin-1").decode("utf-8", errors="replace")
+```
+
+`load_metadata` reads files as UTF-8 and so raises `UnicodeDecodeError` on such
+a file; use the snippet above for `whisper_cpp`.
+
+**speaker_identification** is saved when speaker identification succeeds:
+on the new transcript when the user saves the result in the viewer, or on the
+transcription itself for folder watch / CLI transcriptions with
+"Identify speakers" on. It has:
+
+- `diarizer` (`"msdd"` or `"sortformer"`), `num_speakers` (requested count or
+  `null`), `language`.
+- `speaker_turns[]` — `start_time`, `end_time` (ms), `speaker` (`"Speaker 0"`, ...):
+  who speaks when, from the diarizer.
+- `word_timestamps[]` — `text`, `start`, `end` (**seconds**), `score` (mean log
+  probability of the word's letters in forced alignment; `null` for words that
+  could not be aligned and were spread over their window), and
+  `joins_previous` on pieces of a long word that was split for alignment.
+- `word_speaker_mapping[]` — `word`, `start_time`, `end_time` (ms), `speaker`.
+- `sentences[]` — `speaker`, `start_time`, `end_time` (ms), `text`: the result
+  the segments are built from.
+- `speaker_names` — the names the user gave in the viewer, e.g.
+  `{"Speaker 0": "Alice"}` (`{}` for folder watch), and
+  `merge_speaker_sentences`.
+
+When adding a new engine or data source, save its data with
+`metadata_cache.save_metadata(task.uid, ...)` in the transcriber, add a name
+constant to `buzz/metadata_cache.py`, and document it in this table.
+
 ## Configuration fields
 
 Declare config via `ConfigField`. Types (`ConfigFieldType`):

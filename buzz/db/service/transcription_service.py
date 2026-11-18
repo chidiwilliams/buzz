@@ -2,6 +2,7 @@ import json
 from typing import List
 from uuid import UUID
 
+from buzz import metadata_cache
 from buzz.db.dao.dao import transaction
 from buzz.db.dao.transcription_dao import TranscriptionDAO
 from buzz.db.dao.transcription_segment_dao import TranscriptionSegmentDAO
@@ -22,7 +23,9 @@ class TranscriptionService:
         self.transcription_dao.create_transcription(task)
 
     def copy_transcription(self, id: UUID) -> UUID:
-        return self.transcription_dao.copy_transcription(id)
+        new_id = self.transcription_dao.copy_transcription(id)
+        metadata_cache.copy_metadata(id, new_id)
+        return new_id
 
     def is_transcription_queued(self, id: UUID) -> bool:
         transcription = self.transcription_dao.find_by_id(str(id))
@@ -30,6 +33,13 @@ class TranscriptionService:
             transcription is not None
             and transcription.status == FileTranscriptionTask.Status.QUEUED.value
         )
+
+    def is_transcription_deleted(self, id: UUID) -> bool:
+        return self.transcription_dao.find_by_id(str(id)) is None
+
+    def delete_transcription_metadata(self, id: UUID):
+        """Delete the metadata cache of a transcription, see buzz.metadata_cache."""
+        metadata_cache.delete_metadata(id)
 
     def is_transcription_deleted_or_canceled(self, id: UUID) -> bool:
         transcription = self.transcription_dao.find_by_id(str(id))
@@ -64,6 +74,7 @@ class TranscriptionService:
             new_id = self.transcription_dao.copy_transcription(id)
             self.transcription_dao.update_transcription_as_completed(new_id)
             self._insert_segments(new_id, segments)
+        metadata_cache.copy_metadata(id, new_id)
         return new_id
 
     def _transaction(self):
@@ -110,6 +121,8 @@ class TranscriptionService:
 
     def reset_transcription_for_restart(self, id: UUID):
         self.transcription_dao.reset_transcription_for_restart(id)
+        # The new run saves its own metadata, which may come from another engine
+        metadata_cache.delete_metadata(id)
 
     def replace_transcription_segments(self, id: UUID, segments: List[Segment]):
         with self._transaction():

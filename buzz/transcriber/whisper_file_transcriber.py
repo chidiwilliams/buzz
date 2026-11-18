@@ -21,7 +21,7 @@ from typing import Optional, List
 import psutil
 from PyQt6.QtCore import QObject
 
-from buzz import whisper_audio
+from buzz import metadata_cache, whisper_audio
 from buzz.conn import pipe_stderr
 from buzz.model_loader import ModelType, map_language_to_mms
 from buzz.transformers_whisper import TransformersTranscriber
@@ -313,6 +313,7 @@ class WhisperFileTranscriber(FileTranscriber):
             word_timestamps=word_timestamps,
             initial_prompt=initial_prompt,
         )
+        metadata_cache.save_metadata(task.uid, metadata_cache.HUGGING_FACE, result)
         return [
             Segment(
                 start=int(segment.get("start") * 1000),
@@ -380,6 +381,13 @@ class WhisperFileTranscriber(FileTranscriber):
             no_speech_threshold=0.4,
             log_progress=True,
         )
+        # A generator that transcribes as it is read, so read it only once
+        whisper_segments = list(whisper_segments)
+        metadata_cache.save_metadata(
+            task.uid,
+            metadata_cache.FASTER_WHISPER,
+            {"info": info, "segments": whisper_segments},
+        )
         segments = []
         for segment in whisper_segments:
             # Segment will contain words if word-level timings is True
@@ -439,6 +447,9 @@ class WhisperFileTranscriber(FileTranscriber):
                 no_speech_threshold=0.4,
                 fp16=use_cuda,
             )
+            metadata_cache.save_metadata(
+                task.uid, metadata_cache.OPENAI_WHISPER, result.to_dict()
+            )
             return [
                 Segment(
                     start=int(word.start * 1000),
@@ -459,6 +470,7 @@ class WhisperFileTranscriber(FileTranscriber):
             verbose=False,
             fp16=use_cuda,
         )
+        metadata_cache.save_metadata(task.uid, metadata_cache.OPENAI_WHISPER, result)
         segments = result.get("segments")
         return [
             Segment(

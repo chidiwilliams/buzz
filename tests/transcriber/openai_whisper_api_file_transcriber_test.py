@@ -3,6 +3,7 @@ from unittest.mock import patch, Mock
 
 import pytest
 
+from buzz import metadata_cache
 from buzz.transcriber.openai_whisper_api_file_transcriber import (
     OpenAIWhisperAPIFileTranscriber,
     append_segment,
@@ -126,3 +127,42 @@ class TestOpenAIWhisperAPIFileTranscriber:
         assert called_segments[0].start == 0
         assert called_segments[0].end == 6560
         assert called_segments[0].text == "Hello"
+
+
+class TestOpenAIWhisperAPIMetadata:
+    def test_keeps_full_api_responses(self, metadata_dir):
+        file_path = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "../../testdata/whisper-french.mp3",
+        )
+        task = FileTranscriptionTask(
+            file_path=file_path,
+            transcription_options=TranscriptionOptions(openai_access_token="key"),
+            file_transcription_options=FileTranscriptionOptions(file_paths=[file_path]),
+            model_path="",
+        )
+        response = Transcription(
+            text="Hello",
+            language="french",
+            segments=[{
+                "start": 0, "end": 6.56, "text": "Hello",
+                "avg_logprob": -0.21, "no_speech_prob": 0.03,
+            }],
+        )
+
+        with patch(
+            "buzz.transcriber.openai_whisper_api_file_transcriber.OpenAI"
+        ) as mock_openai:
+            mock_openai.return_value.audio.transcriptions.create.return_value = response
+            transcriber = OpenAIWhisperAPIFileTranscriber(task=task)
+            segments = transcriber.transcribe()
+
+        assert [segment.text for segment in segments] == ["Hello"]
+        metadata = metadata_cache.load_metadata(task.uid, metadata_cache.OPENAI_API)
+        assert metadata["model"] == transcriber.whisper_api_model
+        assert len(metadata["responses"]) == 1
+        assert metadata["responses"][0]["offset_ms"] == 0
+        saved = metadata["responses"][0]["response"]
+        assert saved["language"] == "french"
+        assert saved["segments"][0]["no_speech_prob"] == 0.03
+        assert saved["segments"][0]["avg_logprob"] == -0.21

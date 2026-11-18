@@ -10,12 +10,13 @@ import tempfile
 import time
 from threading import Thread
 from typing import List
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import psutil
 import pytest
 from pytestqt.qtbot import QtBot
 
+from buzz import metadata_cache
 from buzz.model_loader import TranscriptionModel, ModelType, WhisperModelSize
 from buzz.transcriber.transcriber import (
     OutputFormat,
@@ -34,6 +35,8 @@ from buzz.transcriber.whisper_file_transcriber import (
 )
 from tests.audio import test_audio_path
 from tests.model_loader import get_model_path
+
+MODULE = "buzz.transcriber.whisper_file_transcriber"
 
 
 def _spawn_grandchild_worker(pipe):
@@ -616,3 +619,117 @@ def test_transcribe_reports_terminated_process_as_canceled(monkeypatch, exitcode
 
     with pytest.raises(Exception, match="Transcription was canceled"):
         transcriber.transcribe()
+
+
+class TestTranscriberMetadata:
+    """Each engine keeps its full result in the metadata cache of the task."""
+
+    def make_task(self, model_type, word_level_timings=False):
+        return FileTranscriptionTask(
+            model_path="/fake/model",
+            transcription_options=TranscriptionOptions(
+                language="en",
+                word_level_timings=word_level_timings,
+                model=TranscriptionModel(
+                    model_type=model_type, whisper_model_size=WhisperModelSize.TINY
+                ),
+            ),
+            file_transcription_options=FileTranscriptionOptions(file_paths=[test_audio_path]),
+            file_path=test_audio_path,
+        )
+
+    def test_faster_whisper(self, metadata_dir):
+        from faster_whisper.transcribe import Segment as FasterSegment
+        from faster_whisper.transcribe import TranscriptionInfo, Word
+
+        task = self.make_task(ModelType.FASTER_WHISPER, word_level_timings=True)
+        whisper_segment = FasterSegment(
+            id=1, seek=0, start=0.0, end=1.5, text=" Hello there", tokens=[50364, 2425],
+            avg_logprob=-0.25, compression_ratio=1.1, no_speech_prob=0.02,
+            words=[
+                Word(start=0.0, end=0.5, word=" Hello", probability=0.98),
+                Word(start=0.5, end=1.5, word=" there", probability=0.61),
+            ],
+            temperature=0.0,
+        )
+        info = TranscriptionInfo(
+            language="en", language_probability=0.97, duration=1.5,
+            duration_after_vad=1.5, all_language_probs=[("en", 0.97)],
+            transcription_options=None, vad_options=None,
+        )
+        pipeline = Mock()
+        # A generator, like the real pipeline, so it can only be read once
+        pipeline.transcribe.return_value = ((s for s in [whisper_segment]), info)
+
+        with patch(f"{MODULE}.faster_whisper.WhisperModel"), patch(
+            f"{MODULE}.faster_whisper.BatchedInferencePipeline", return_value=pipeline
+        ), patch(f"{MODULE}.whisper_audio.load_audio"), patch(
+            f"{MODULE}.cuda_works", return_value=False
+        ):
+            segments = WhisperFileTranscriber.transcribe_faster_whisper(task)
+
+        assert [segment.text for segment in segments] == [" Hello", " there"]
+        metadata = metadata_cache.load_metadata(task.uid, metadata_cache.FASTER_WHISPER)
+        assert metadata["info"]["language_probability"] == 0.97
+        saved_segment = metadata["segments"][0]
+        assert saved_segment["no_speech_prob"] == 0.02
+        assert saved_segment["avg_logprob"] == -0.25
+        assert saved_segment["words"][1] == {
+            "start": 0.5, "end": 1.5, "word": " there", "probability": 0.61,
+        }
+
+    def test_openai_whisper(self, metadata_dir):
+        task = self.make_task(ModelType.WHISPER)
+        result = {
+            "text": " Hello",
+            "language": "en",
+            "segments": [{
+                "id": 0, "start": 0.0, "end": 1.5, "text": " Hello", "tokens": [2425],
+                "avg_logprob": -0.3, "compression_ratio": 0.8, "no_speech_prob": 0.04,
+                "temperature": 0.0,
+            }],
+        }
+        model = Mock()
+        model.transcribe.return_value = result
+
+        with patch(f"{MODULE}.whisper.load_model", return_value=model), patch(
+            f"{MODULE}.whisper_audio.load_audio"
+        ), patch(f"{MODULE}.cuda_works", return_value=False):
+            segments = WhisperFileTranscriber.transcribe_openai_whisper(task)
+
+        assert [segment.text for segment in segments] == [" Hello"]
+        assert metadata_cache.load_metadata(task.uid, metadata_cache.OPENAI_WHISPER) == result
+
+    def test_openai_whisper_word_level_timings(self, metadata_dir):
+        task = self.make_task(ModelType.WHISPER, word_level_timings=True)
+        result = Mock()
+        result.segments = []
+        result.to_dict.return_value = {"segments": [{"avg_logprob": -0.3, "words": []}]}
+        model = Mock()
+        model.transcribe.return_value = result
+
+        with patch(f"{MODULE}.whisper.load_model", return_value=model), patch(
+            f"{MODULE}.stable_whisper.modify_model"
+        ), patch(f"{MODULE}.whisper_audio.load_audio"), patch(
+            f"{MODULE}.cuda_works", return_value=False
+        ):
+            WhisperFileTranscriber.transcribe_openai_whisper(task)
+
+        assert metadata_cache.load_metadata(task.uid, metadata_cache.OPENAI_WHISPER) == {
+            "segments": [{"avg_logprob": -0.3, "words": []}]
+        }
+
+    def test_hugging_face(self, metadata_dir):
+        task = self.make_task(ModelType.HUGGING_FACE)
+        result = {
+            "text": "Hello",
+            "segments": [{"start": 0.0, "end": 1.5, "text": "Hello", "score": 0.9}],
+        }
+        model = Mock(is_mms_model=False)
+        model.transcribe.return_value = result
+
+        with patch(f"{MODULE}.TransformersTranscriber", return_value=model):
+            segments = WhisperFileTranscriber.transcribe_hugging_face(task)
+
+        assert [segment.text for segment in segments] == ["Hello"]
+        assert metadata_cache.load_metadata(task.uid, metadata_cache.HUGGING_FACE) == result

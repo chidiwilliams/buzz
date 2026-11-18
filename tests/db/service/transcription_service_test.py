@@ -4,6 +4,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
+from buzz import metadata_cache
 from buzz.db.dao.transcription_dao import TranscriptionDAO
 from buzz.db.dao.transcription_segment_dao import TranscriptionSegmentDAO
 from buzz.db.service.transcription_service import TranscriptionService
@@ -445,3 +446,73 @@ class TestCopyTranscriptionWithSegmentsWithDatabase:
         assert [s.text for s in service.get_transcription_segments(original_id)] == [
             "original"
         ]
+
+
+class TestTranscriptionServiceMetadata:
+    def test_copy_transcription_copies_metadata(
+        self, transcription_service, mock_transcription_dao, metadata_dir
+    ):
+        source_id, copy_id = uuid4(), uuid4()
+        mock_transcription_dao.copy_transcription.return_value = copy_id
+        metadata_cache.save_metadata(source_id, "whisper_cpp", {"result": 1})
+
+        assert transcription_service.copy_transcription(source_id) == copy_id
+
+        assert metadata_cache.load_metadata(copy_id, "whisper_cpp") == {"result": 1}
+
+    def test_copy_transcription_with_segments_copies_metadata(
+        self, transcription_service, mock_transcription_dao, metadata_dir
+    ):
+        source_id, copy_id = uuid4(), uuid4()
+        mock_transcription_dao.copy_transcription.return_value = copy_id
+        metadata_cache.save_metadata(source_id, "faster_whisper", {"result": 1})
+
+        with patch("buzz.db.service.transcription_service.transaction"):
+            transcription_service.copy_transcription_with_segments(
+                source_id, [Segment(0, 100, "Hello")]
+            )
+
+        assert metadata_cache.load_metadata(copy_id, "faster_whisper") == {"result": 1}
+
+    def test_failed_copy_copies_no_metadata(
+        self, transcription_service, mock_transcription_segment_dao, mock_transcription_dao,
+        metadata_dir,
+    ):
+        source_id, copy_id = uuid4(), uuid4()
+        mock_transcription_dao.copy_transcription.return_value = copy_id
+        mock_transcription_segment_dao.insert.side_effect = Exception("disk full")
+        metadata_cache.save_metadata(source_id, "faster_whisper", {"result": 1})
+
+        with patch("buzz.db.service.transcription_service.transaction"), pytest.raises(
+            Exception, match="disk full"
+        ):
+            transcription_service.copy_transcription_with_segments(
+                source_id, [Segment(0, 100, "Hello")]
+            )
+
+        assert metadata_cache.list_metadata(copy_id) == []
+
+    def test_restart_clears_metadata_of_the_earlier_run(
+        self, transcription_service, metadata_dir
+    ):
+        transcription_id = uuid4()
+        metadata_cache.save_metadata(transcription_id, "whisper_cpp", {"run": 1})
+
+        transcription_service.reset_transcription_for_restart(transcription_id)
+
+        assert metadata_cache.list_metadata(transcription_id) == []
+
+    def test_delete_transcription_metadata(self, transcription_service, metadata_dir):
+        transcription_id = uuid4()
+        metadata_cache.save_metadata(transcription_id, "whisper_cpp", {"run": 1})
+
+        transcription_service.delete_transcription_metadata(transcription_id)
+
+        assert metadata_cache.list_metadata(transcription_id) == []
+
+    def test_is_transcription_deleted(self, transcription_service, mock_transcription_dao):
+        mock_transcription_dao.find_by_id.return_value = None
+        assert transcription_service.is_transcription_deleted(uuid4()) is True
+
+        mock_transcription_dao.find_by_id.return_value = Mock()
+        assert transcription_service.is_transcription_deleted(uuid4()) is False

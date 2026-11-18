@@ -536,6 +536,7 @@ class MainWindow(QMainWindow):
         # row, or turn a canceled one into completed.
         if self.transcription_service.is_transcription_deleted_or_canceled(task.uid):
             logging.debug(f"Ignoring result of deleted or canceled task {task.uid}")
+            self.delete_metadata_if_transcription_deleted(task)
             self.quit_if_all_tasks_done(task)
             return
 
@@ -618,10 +619,17 @@ class MainWindow(QMainWindow):
 
         self.system_tray.quit()
 
+    def delete_metadata_if_transcription_deleted(self, task: FileTranscriptionTask):
+        # The transcriber may save metadata after the transcription was deleted
+        if self.transcription_service.is_transcription_deleted(task.uid):
+            self.transcription_service.delete_transcription_metadata(task.uid)
+
     def on_task_error(self, task: FileTranscriptionTask, error: str):
         if not self.transcription_service.is_transcription_deleted_or_canceled(task.uid):
             self.transcription_service.update_transcription_as_failed(task.uid, error)
             self.table_widget.refresh_row(task.uid)
+        else:
+            self.delete_metadata_if_transcription_deleted(task)
 
         self.quit_if_all_tasks_done(task)
 

@@ -11,6 +11,7 @@ import re
 import unicodedata
 from typing import Callable, Dict, List, Optional
 
+from buzz import metadata_cache
 from buzz.locale import _
 from buzz.transcriber.transcriber import Segment
 
@@ -117,12 +118,14 @@ def identify_speakers(
     diarizer: str = "msdd",
     num_speakers: Optional[int] = None,
     merge_speaker_sentences: bool = True,
+    transcription_id=None,
 ) -> List[Segment]:
     """Label ``segments`` with automatic speaker names.
 
     Runs synchronously on the calling thread. Returns the original segments
     unchanged if the identification fails, so a transcription is still
-    exported when speakers cannot be identified.
+    exported when speakers cannot be identified. With a ``transcription_id``
+    the data of the run is saved to its metadata cache.
     """
     if not segments:
         return segments
@@ -145,7 +148,9 @@ def identify_speakers(
 
     result: List[Dict] = []
     errors: List[str] = []
+    metadata: List[Dict] = []
 
+    worker.metadata_ready.connect(metadata.append)
     worker.finished.connect(result.extend)
     worker.error.connect(errors.append)
     worker.progress_update.connect(
@@ -165,6 +170,13 @@ def identify_speakers(
     if not result:
         logging.warning("Speaker identification returned no speakers")
         return segments
+
+    if metadata:
+        metadata_cache.save_metadata(
+            transcription_id,
+            metadata_cache.SPEAKER_IDENTIFICATION,
+            {**metadata[0], "speaker_names": {}, "merge_speaker_sentences": merge_speaker_sentences},
+        )
 
     return build_speaker_segments(
         result, merge_speaker_sentences=merge_speaker_sentences
