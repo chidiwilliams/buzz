@@ -144,6 +144,7 @@ class FileTranscriber(QObject):
             diarizer=self.transcription_task.speaker_diarizer,
             num_speakers=self.transcription_task.speaker_count,
             merge_speaker_sentences=self.transcription_task.merge_speaker_sentences,
+            transcription_id=self.transcription_task.uid,
         )
 
     def _download_from_url(self) -> bool:

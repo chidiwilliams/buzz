@@ -42,6 +42,7 @@ from PyQt6.QtWidgets import (
     QSizePolicy,
     QLayout,
 )
+from buzz import metadata_cache
 from buzz.locale import _
 from buzz.db.entity.transcription import Transcription
 from buzz.db.service.transcription_service import TranscriptionService
@@ -144,8 +145,36 @@ def hide_cuda_from_torch(device):
         torch.cuda.is_available = original_is_available
 
 
+def build_identification_metadata(
+    diarizer, num_speakers, language, word_timestamps, speaker_ts,
+    word_speaker_mapping, sentences,
+) -> dict:
+    """Data of one speaker identification run, for the metadata cache.
+
+    ``word_timestamps`` are in seconds, everything else in milliseconds.
+    """
+    return {
+        "diarizer": diarizer,
+        "num_speakers": num_speakers,
+        "language": language,
+        "speaker_turns": [
+            {"start_time": start, "end_time": end, "speaker": f"Speaker {speaker}"}
+            for start, end, speaker in speaker_ts
+        ],
+        "word_timestamps": word_timestamps,
+        "word_speaker_mapping": [
+            {**entry, "speaker": f"Speaker {entry['speaker']}"}
+            for entry in word_speaker_mapping
+        ],
+        "sentences": sentences,
+    }
+
+
 class IdentificationWorker(QObject):
     finished = pyqtSignal(list)
+    # Emitted before ``finished`` when identification succeeds, with the data
+    # of the run that is not kept in the segments, see build_identification_metadata
+    metadata_ready = pyqtSignal(dict)
     progress_update = pyqtSignal(str)
     error = pyqtSignal(str)
 
@@ -170,6 +199,7 @@ class IdentificationWorker(QObject):
         self.file_path = file_path
         self.language = language
         self._is_cancelled = False
+        self.word_speaker_mapping = []
 
     def cancel(self):
         """Request cancellation of the worker."""
@@ -420,6 +450,7 @@ class IdentificationWorker(QObject):
 
         wsm = self._get_realigned_ws_mapping_with_punctuation(wsm)
         wsm = merge_word_pieces(wsm, word_timestamps)
+        self.word_speaker_mapping = wsm
         ssm = self._get_sentences_speaker_mapping(wsm, speaker_ts)
         return ssm
 
@@ -525,6 +556,13 @@ class IdentificationWorker(QObject):
 
             logging.debug("Speaker identification worker: Finished successfully")
             self.progress_update.emit(_("8/8 Identification done"))
+            try:
+                self.metadata_ready.emit(build_identification_metadata(
+                    self.diarizer, self.num_speakers, language, word_timestamps,
+                    speaker_ts, self.word_speaker_mapping, ssm,
+                ))
+            except Exception:
+                logging.exception("Speaker identification worker: Failed to collect metadata")
             self.finished.emit(ssm)
 
         except Exception as e:
@@ -581,6 +619,7 @@ class SpeakerIdentificationWidget(QWidget):
         self.transcription_service = transcription_service
         self.transcriptions_updated_signal = transcriptions_updated_signal
         self.identification_result = None
+        self.identification_metadata = None
         self.thread = None
         self.worker = None
         self.needs_layout_update = False
@@ -866,6 +905,7 @@ class SpeakerIdentificationWidget(QWidget):
 
         SpeakerIdentificationWidget.active_running_instance = self
         self.identification_started.emit()
+        self.identification_metadata = None
 
         logging.debug("Speaker identification: Starting identification thread (%s)", diarizer)
 
@@ -878,6 +918,7 @@ class SpeakerIdentificationWidget(QWidget):
         )
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.run)
+        self.worker.metadata_ready.connect(self._on_metadata_ready)
         self.worker.finished.connect(self._on_thread_finished)
         self.worker.progress_update.connect(self.on_progress_update)
         self.worker.error.connect(self.on_identification_error)
@@ -907,6 +948,9 @@ class SpeakerIdentificationWidget(QWidget):
         self.step_1_button.setEnabled(True)
         self.cancel_button.setVisible(False)
         self.cancel_button.setEnabled(True)
+
+    def _on_metadata_ready(self, metadata: dict):
+        self.identification_metadata = metadata
 
     def _on_thread_finished(self, result):
         """Handle thread completion and cleanup."""
@@ -1050,6 +1094,16 @@ class SpeakerIdentificationWidget(QWidget):
         new_transcript_id = self.transcription_service.copy_transcription_with_segments(
             self.transcription.id_as_uuid, segments
         )
+        if self.identification_metadata is not None:
+            metadata_cache.save_metadata(
+                new_transcript_id,
+                metadata_cache.SPEAKER_IDENTIFICATION,
+                {
+                    **self.identification_metadata,
+                    "speaker_names": speaker_mapping,
+                    "merge_speaker_sentences": self.merge_speaker_sentences.isChecked(),
+                },
+            )
 
         # TODO - See if we can get rows in the transcription viewer to be of variable height
         #        If text is longer they should expand

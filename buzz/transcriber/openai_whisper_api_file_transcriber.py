@@ -11,6 +11,7 @@ from typing import Optional, List
 from PyQt6.QtCore import QObject
 from openai import OpenAI
 
+from buzz import metadata_cache
 from buzz.settings.settings import Settings
 from buzz.transcriber.file_transcriber import FileTranscriber, app_env
 from buzz.transcriber.transcriber import FileTranscriptionTask, Segment, Task
@@ -52,10 +53,23 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
             key=Settings.Key.OPENAI_API_MODEL, default_value="whisper-1"
         )
         self.word_level_timings = self.transcription_task.transcription_options.word_level_timings
+        self.api_responses = []
         logging.debug("Will use whisper API on %s, %s",
                       custom_openai_base_url, self.whisper_api_model)
 
     def transcribe(self) -> List[Segment]:
+        # Full responses of each request, with data that is not saved as
+        # segments, e.g. avg_logprob and no_speech_prob
+        self.api_responses = []
+        segments = self._transcribe()
+        metadata_cache.save_metadata(
+            self.transcription_task.uid,
+            metadata_cache.OPENAI_API,
+            {"model": self.whisper_api_model, "responses": self.api_responses},
+        )
+        return segments
+
+    def _transcribe(self) -> List[Segment]:
         logging.debug(
             "Starting OpenAI Whisper API file transcription, file path = %s, task = %s",
             self.transcription_task.file_path,
@@ -213,6 +227,7 @@ class OpenAIWhisperAPIFileTranscriber(FileTranscriber):
                 if self.transcription_task.transcription_options.task == Task.TRANSCRIBE
                 else self.openai_client.audio.translations.create(**options)
             )
+            self.api_responses.append({"offset_ms": offset_ms, "response": transcript})
 
             segments = getattr(transcript, "segments", None)
 

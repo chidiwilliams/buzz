@@ -45,6 +45,11 @@ if "BUZZ_TEST_SETTINGS_DIR" not in os.environ:
         prefix="buzz-test-settings-"
     )
 TEST_SETTINGS_DIR = os.environ["BUZZ_TEST_SETTINGS_DIR"]
+# The transcription metadata cache too, so tests never write into the user's
+# Buzz cache. Inside the settings folder, so it is deleted with it.
+os.environ.setdefault(
+    "BUZZ_METADATA_DIR", os.path.join(TEST_SETTINGS_DIR, "metadata")
+)
 QSettings.setDefaultFormat(QSettings.Format.IniFormat)
 QSettings.setPath(
     QSettings.Format.IniFormat, QSettings.Scope.UserScope, TEST_SETTINGS_DIR
@@ -231,3 +236,11 @@ def cleanup_testdata_exports():
         except OSError:
             pass
     _sweep_leaked_exports()
+
+
+@pytest.fixture
+def metadata_dir(tmp_path, monkeypatch):
+    """An empty transcription metadata cache for one test, see buzz.metadata_cache."""
+    path = tmp_path / "metadata"
+    monkeypatch.setenv("BUZZ_METADATA_DIR", str(path))
+    return path

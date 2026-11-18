@@ -1,11 +1,13 @@
 import platform
 import re
+from uuid import uuid4
 import unicodedata
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 import torch
 
+from buzz import metadata_cache
 from buzz.locale import _
 from buzz.transcriber import speaker_identifier
 from buzz.transcriber.file_transcriber import FileTranscriber
@@ -147,6 +149,40 @@ class TestIdentifySpeakers:
     def test_skips_identification_without_segments(self):
         assert identify_speakers(file_path="audio.mp3", segments=[]) == []
 
+    def test_saves_metadata_of_the_run(self, metadata_dir):
+        transcription_id = uuid4()
+        run_metadata = {
+            "diarizer": "msdd",
+            "speaker_turns": [{"start_time": 0, "end_time": 300, "speaker": "Speaker 0"}],
+            "word_timestamps": [{"text": "Hello.", "start": 0.0, "end": 0.1, "score": -0.2}],
+        }
+
+        def worker_run(worker):
+            worker.metadata_ready.connect.call_args[0][0](run_metadata)
+            worker.finished.connect.call_args[0][0](IDENTIFICATION_RESULT)
+
+        self.run_with_worker(
+            worker_run, [Segment(0, 300, "Hello.")],
+            merge_speaker_sentences=False, transcription_id=transcription_id,
+        )
+
+        assert metadata_cache.load_metadata(
+            transcription_id, metadata_cache.SPEAKER_IDENTIFICATION
+        ) == {**run_metadata, "speaker_names": {}, "merge_speaker_sentences": False}
+
+    def test_saves_no_metadata_when_identification_fails(self, metadata_dir):
+        transcription_id = uuid4()
+
+        def worker_run(worker):
+            worker.error.connect.call_args[0][0]("boom")
+            worker.finished.connect.call_args[0][0]([])
+
+        self.run_with_worker(
+            worker_run, [Segment(0, 300, "Hello.")], transcription_id=transcription_id,
+        )
+
+        assert metadata_cache.list_metadata(transcription_id) == []
+
 
 class SpeakerFileTranscriber(FileTranscriber):
     def transcribe(self):
@@ -182,6 +218,8 @@ class TestFileTranscriberSpeakerIdentification:
 
         mock_identify.assert_called_once()
         assert mock_identify.call_args.kwargs["file_path"] == "audio.mp3"
+        # So the run is saved to the metadata cache of this transcription
+        assert mock_identify.call_args.kwargs["transcription_id"] == transcriber.transcription_task.uid
         assert mock_identify.call_args.kwargs["language"] == "en"
         assert mock_identify.call_args.kwargs["num_speakers"] == 2
         # Segments are stripped before identification runs

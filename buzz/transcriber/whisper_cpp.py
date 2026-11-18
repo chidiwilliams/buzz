@@ -8,6 +8,7 @@ import subprocess
 import tempfile
 import json
 from typing import List, Optional
+from buzz import metadata_cache
 from buzz.assets import APP_BASE_DIR
 from buzz.transcriber.transcriber import Segment, Task, FileTranscriptionTask
 from buzz.transcriber.file_transcriber import app_env
@@ -520,6 +521,10 @@ class WhisperCpp:
 
         try:
             result = WhisperCpp._read_json_output(file_to_process)
+            # Keep the full output, with token probabilities, for plugins
+            metadata_cache.save_metadata_file(
+                task.uid, metadata_cache.WHISPER_CPP, f"{file_to_process}.json"
+            )
             if task.transcription_options.word_level_timings:
                 segments = WhisperCpp._parse_word_level_timings(
                     result, language, vad_enabled

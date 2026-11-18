@@ -20,6 +20,7 @@ from PyQt6.QtWidgets import (
     QStyledItemDelegate,
 )
 
+from buzz import metadata_cache
 from buzz.db.entity.transcription import Transcription
 from buzz.locale import _
 from buzz.settings.settings import Settings
@@ -604,6 +605,7 @@ class TranscriptionTasksTableWidget(QTableView):
 
     def delete_transcriptions(self, ids: List[UUID]):
         remaining_ids = {str(id) for id in ids}
+        removed_ids = []
         model = self.model()
         row = 0
         while remaining_ids:
@@ -616,10 +618,13 @@ class TranscriptionTasksTableWidget(QTableView):
             row_id = model.record(row).value("id")
             if row_id in remaining_ids:
                 remaining_ids.discard(row_id)
+                removed_ids.append(row_id)
                 # Removed rows stay in the model until submitAll()
                 model.removeRow(row)
             row += 1
-        model.submitAll()
+        if model.submitAll():
+            for id in removed_ids:
+                metadata_cache.delete_metadata(id)
 
     def transcription(self, index: QModelIndex) -> Transcription:
         return Transcription.from_record(self.model().record(index.row()))
