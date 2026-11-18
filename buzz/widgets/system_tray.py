@@ -20,6 +20,8 @@ class SystemTray(QObject):
         self.settings = settings
         self.quitting = False
         self.closed = False
+        # Window state to restore, kept when the window is hidden to the tray
+        self.hidden_window_state = None
         self.app = QApplication.instance()
         self.quit_on_last_window_closed = self.app.quitOnLastWindowClosed()
 
@@ -83,13 +85,20 @@ class SystemTray(QObject):
 
     def hide_minimized_window(self):
         if self.window.isMinimized() and self.enabled(Settings.Key.MINIMIZE_TO_TRAY):
+            # The platform can still report a state change for the hidden window,
+            # e.g. a Wayland compositor answering an earlier request late, and
+            # that report never says maximized as the window is gone. Keep the
+            # state now, so the window comes back as it was.
+            self.hidden_window_state = self.window.windowState()
             self.window.hide()
 
     def restore_window(self):
+        window_state = self.window.windowState()
+        if self.hidden_window_state is not None and not self.window.isVisible():
+            window_state = self.hidden_window_state
+        self.hidden_window_state = None
         # Removing only the minimized flag preserves a previously maximized window.
-        self.window.setWindowState(
-            self.window.windowState() & ~Qt.WindowState.WindowMinimized
-        )
+        self.window.setWindowState(window_state & ~Qt.WindowState.WindowMinimized)
         self.window.show()
         self.window.raise_()
         self.window.activateWindow()

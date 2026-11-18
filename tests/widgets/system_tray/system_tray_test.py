@@ -1,6 +1,6 @@
 from types import SimpleNamespace
 import pytest
-from PyQt6.QtCore import QSettings
+from PyQt6.QtCore import QSettings, Qt
 from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtWidgets import QMainWindow, QSystemTrayIcon
 
@@ -46,6 +46,9 @@ def tray(qtbot, tmp_path, mocker):
     controller = SystemTray(window, settings)
     window.controller = controller
     window.show()
+    # Let the platform answer the show first. A Wayland compositor's late
+    # answer would otherwise reset the window state set by a test.
+    qtbot.waitExposed(window)
     yield SimpleNamespace(
         window=window, controller=controller, settings=settings, available=available
     )
@@ -165,6 +168,30 @@ def test_restoring_keeps_a_maximized_window_maximized(tray, qtbot):
     tray.controller.show_action.trigger()
     assert tray.window.isVisible()
     assert tray.window.isMaximized()
+
+
+def test_restoring_ignores_state_reported_while_hidden(tray, qtbot):
+    enable(tray, Settings.Key.MINIMIZE_TO_TRAY)
+    tray.window.showMaximized()
+    tray.window.showMinimized()
+    qtbot.waitUntil(lambda: not tray.window.isVisible())
+    # What a late state report from the platform does to the hidden window
+    tray.window.setWindowState(Qt.WindowState.WindowNoState)
+    tray.controller.show_action.trigger()
+    assert tray.window.isVisible()
+    assert tray.window.isMaximized()
+
+
+def test_restoring_a_window_shown_another_way_keeps_its_current_state(tray, qtbot):
+    enable(tray, Settings.Key.MINIMIZE_TO_TRAY)
+    tray.window.showMaximized()
+    tray.window.showMinimized()
+    qtbot.waitUntil(lambda: not tray.window.isVisible())
+    # Shown again without the tray, e.g. by a second Buzz launch, then unmaximized
+    tray.window.showNormal()
+    tray.controller.show_action.trigger()
+    assert tray.window.isVisible()
+    assert not tray.window.isMaximized()
 
 
 @pytest.mark.parametrize(
