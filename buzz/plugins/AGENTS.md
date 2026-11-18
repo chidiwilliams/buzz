@@ -217,9 +217,11 @@ text = result["transcription"][0]["text"].encode("latin-1").decode("utf-8", erro
 a file; use the snippet above for `whisper_cpp`.
 
 **speaker_identification** is saved when speaker identification succeeds:
-on the new transcript when the user saves the result in the viewer, or on the
-transcription itself for folder watch / CLI transcriptions with
-"Identify speakers" on. It has:
+on the transcript it ran on when it runs in the viewer (and again as the user
+renames speakers there), on the new transcript when the user saves the result,
+or on the transcription itself for folder watch / CLI transcriptions with
+"Identify speakers" on. The viewer shows the saved result when its speaker
+identification dialog is opened again; a new run replaces it. It has:
 
 - `diarizer` (`"msdd"` or `"sortformer"`), `num_speakers` (requested count or
   `null`), `language`.
@@ -233,8 +235,8 @@ transcription itself for folder watch / CLI transcriptions with
 - `sentences[]` — `speaker`, `start_time`, `end_time` (ms), `text`: the result
   the segments are built from.
 - `speaker_names` — the names the user gave in the viewer, e.g.
-  `{"Speaker 0": "Alice"}` (`{}` for folder watch), and
-  `merge_speaker_sentences`.
+  `{"Speaker 0": "Alice", "Speaker 1": "Speaker 1"}` (`{}` for folder watch),
+  and `merge_speaker_sentences`.
 
 When adding a new engine or data source, save its data with
 `metadata_cache.save_metadata(task.uid, ...)` in the transcriber, add a name
