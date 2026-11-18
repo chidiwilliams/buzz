@@ -12,7 +12,6 @@ from PyQt6.QtWidgets import (
     QCheckBox,
     QVBoxLayout,
     QMessageBox,
-    QComboBox,
     QGroupBox,
     QLabel,
 )
@@ -32,6 +31,10 @@ from buzz.widgets.preferences_dialog.models.folder_watch_preferences import (
 )
 from buzz.widgets.transcriber.file_transcription_form_widget import (
     FileTranscriptionFormWidget,
+)
+from buzz.widgets.transcriber.speaker_identification_options_widget import (
+    SpeakerIdentificationOptions,
+    SpeakerIdentificationOptionsWidget,
 )
 
 
@@ -140,103 +143,34 @@ class FolderWatchPreferencesWidget(QWidget):
         group_box = QGroupBox(self)
         group_box.setObjectName("SpeakerIdentificationGroupBox")
 
-        self.identify_speakers_checkbox = QCheckBox(_("Identify speakers"))
-        self.identify_speakers_checkbox.setChecked(self.config.identify_speakers)
-        self.identify_speakers_checkbox.setObjectName("IdentifySpeakersCheckbox")
-        self.identify_speakers_checkbox.setToolTip(
-            _(
-                "Identify speakers after transcription and add speaker labels "
-                "to the exported transcripts. Transcription will take longer."
-            )
+        self.speaker_identification_options_widget = SpeakerIdentificationOptionsWidget(
+            SpeakerIdentificationOptions(
+                identify_speakers=self.config.identify_speakers,
+                speaker_diarizer=self.config.speaker_diarizer,
+                speaker_count=self.config.speaker_count,
+                merge_speaker_sentences=self.config.merge_speaker_sentences,
+            ),
+            parent=group_box,
         )
-        self.identify_speakers_checkbox.stateChanged.connect(
-            self.on_identify_speakers_changed
+        self.speaker_identification_options_widget.options_changed.connect(
+            self.on_speaker_identification_options_changed
         )
-
-        self.diarizer_combo_box = QComboBox(self)
-        self.diarizer_combo_box.setObjectName("SpeakerDiarizerComboBox")
-        self.diarizer_combo_box.addItem(_("MSDD"), "msdd")
-        self.diarizer_combo_box.addItem(_("Sortformer"), "sortformer")
-        diarizer_index = self.diarizer_combo_box.findData(self.config.speaker_diarizer)
-        self.diarizer_combo_box.setCurrentIndex(max(diarizer_index, 0))
-        self.diarizer_combo_box.currentIndexChanged.connect(
-            self.on_speaker_diarizer_changed
+        self.speaker_identification_options_widget.set_options_enabled(
+            self.config.enabled
         )
 
-        self.speaker_count_combo_box = QComboBox(self)
-        self.speaker_count_combo_box.setObjectName("SpeakerCountComboBox")
-        self.speaker_count_combo_box.addItem(_("Auto"), None)
-        for speaker_count in range(2, 9):
-            self.speaker_count_combo_box.addItem(str(speaker_count), speaker_count)
-        speaker_count_index = self.speaker_count_combo_box.findData(
-            self.config.speaker_count
-        )
-        self.speaker_count_combo_box.setCurrentIndex(max(speaker_count_index, 0))
-        self.speaker_count_combo_box.setToolTip(
-            _("Set the known number of speakers, or use Auto to detect it.")
-        )
-        self.speaker_count_combo_box.currentIndexChanged.connect(
-            self.on_speaker_count_changed
-        )
-
-        self.merge_speaker_sentences_checkbox = QCheckBox(
-            _("Merge speaker sentences")
-        )
-        self.merge_speaker_sentences_checkbox.setChecked(
-            self.config.merge_speaker_sentences
-        )
-        self.merge_speaker_sentences_checkbox.setObjectName(
-            "MergeSpeakerSentencesCheckbox"
-        )
-        self.merge_speaker_sentences_checkbox.stateChanged.connect(
-            self.on_merge_speaker_sentences_changed
-        )
-
-        model_row = QHBoxLayout()
-        model_row.addWidget(self.diarizer_combo_box)
-        model_row.addSpacing(12)
-        model_row.addWidget(QLabel(_("Speakers:"), self))
-        model_row.addWidget(self.speaker_count_combo_box)
-        model_row.addStretch()
-
-        form_layout = QFormLayout(group_box)
-        form_layout.addRow("", self.identify_speakers_checkbox)
-        form_layout.addRow(_("Model"), model_row)
-        form_layout.addRow("", self.merge_speaker_sentences_checkbox)
-
-        self._set_speaker_options_enabled(
-            self.config.enabled and self.config.identify_speakers
-        )
+        group_layout = QVBoxLayout(group_box)
+        group_layout.addWidget(self.speaker_identification_options_widget)
 
         return title_label, group_box
 
-    def _set_speaker_options_enabled(self, enabled: bool):
-        self.diarizer_combo_box.setEnabled(enabled)
-        self.speaker_count_combo_box.setEnabled(
-            enabled and self.config.speaker_diarizer == "msdd"
-        )
-        self.merge_speaker_sentences_checkbox.setEnabled(enabled)
-
-    def on_identify_speakers_changed(self, state: int):
-        self.config.identify_speakers = state == 2
-        self._set_speaker_options_enabled(
-            self.config.enabled and self.config.identify_speakers
-        )
-        self.config_changed.emit(self.config)
-
-    def on_speaker_diarizer_changed(self, _index: int):
-        self.config.speaker_diarizer = self.diarizer_combo_box.currentData()
-        self._set_speaker_options_enabled(
-            self.config.enabled and self.config.identify_speakers
-        )
-        self.config_changed.emit(self.config)
-
-    def on_speaker_count_changed(self, _index: int):
-        self.config.speaker_count = self.speaker_count_combo_box.currentData()
-        self.config_changed.emit(self.config)
-
-    def on_merge_speaker_sentences_changed(self, state: int):
-        self.config.merge_speaker_sentences = state == 2
+    def on_speaker_identification_options_changed(
+        self, options: SpeakerIdentificationOptions
+    ):
+        self.config.identify_speakers = options.identify_speakers
+        self.config.speaker_diarizer = options.speaker_diarizer
+        self.config.speaker_count = options.speaker_count
+        self.config.merge_speaker_sentences = options.merge_speaker_sentences
         self.config_changed.emit(self.config)
 
     def on_click_browse_input_folder(self):
@@ -309,8 +243,7 @@ class FolderWatchPreferencesWidget(QWidget):
         self.output_folder_browse_button.setEnabled(enabled)
         self.delete_checkbox.setEnabled(enabled)
         self.transcription_form_widget.setEnabled(enabled)
-        self.identify_speakers_checkbox.setEnabled(enabled)
-        self._set_speaker_options_enabled(enabled and self.config.identify_speakers)
+        self.speaker_identification_options_widget.set_options_enabled(enabled)
 
     def on_enable_changed(self, state: int):
         enabled = state == 2

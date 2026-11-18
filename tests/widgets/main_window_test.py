@@ -36,6 +36,9 @@ from buzz.transcriber.transcriber import (
 from buzz.widgets.main_window import MainWindow
 from buzz.widgets.preferences_dialog.models.file_transcription_preferences import FileTranscriptionPreferences
 from buzz.widgets.transcriber.file_transcriber_widget import FileTranscriberWidget
+from buzz.widgets.transcriber.speaker_identification_options_widget import (
+    SpeakerIdentificationOptions,
+)
 from buzz.widgets.transcription_tasks_table_widget import Column
 
 mock_transcriptions: List[Transcription] = [
@@ -168,6 +171,39 @@ class TestMainWindow:
 
         table_widget.setCurrentIndex(table_widget.model().index(0, 0))
         assert open_transcript_action.isEnabled()
+        window.close()
+
+    @pytest.mark.parametrize("url", [None, "https://example.com/audio.mp3"])
+    def test_imported_tasks_get_speaker_identification_options(
+        self, qtbot: QtBot, transcription_service, url
+    ):
+        window = MainWindow(transcription_service)
+        qtbot.add_widget(window)
+        file_paths = None if url else [
+            get_test_asset("whisper-french.mp3"),
+            get_test_asset("whisper-french.mp3"),
+        ]
+
+        with patch.object(window, "add_task") as add_task:
+            window.on_file_transcriber_triggered((
+                TranscriptionOptions(),
+                FileTranscriptionOptions(file_paths=file_paths, url=url),
+                "/path/to/model",
+                SpeakerIdentificationOptions(
+                    identify_speakers=True,
+                    speaker_diarizer="sortformer",
+                    speaker_count=None,
+                    merge_speaker_sentences=False,
+                ),
+            ))
+
+        tasks = [call[0][0] for call in add_task.call_args_list]
+        assert len(tasks) == (1 if url else 2)
+        for task in tasks:
+            assert task.identify_speakers is True
+            assert task.speaker_diarizer == "sortformer"
+            assert task.speaker_count is None
+            assert task.merge_speaker_sentences is False
         window.close()
 
     @staticmethod
