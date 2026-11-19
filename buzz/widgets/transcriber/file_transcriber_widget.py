@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QPushButton,
+    QGroupBox,
 )
 
 from buzz.dialogs import show_model_download_error_dialog
@@ -25,6 +26,11 @@ from buzz.widgets.preferences_dialog.models.file_transcription_preferences impor
 from buzz.widgets.transcriber.file_transcription_form_widget import (
     FileTranscriptionFormWidget,
 )
+from buzz.widgets.transcriber.speaker_identification_options_widget import (
+    SpeakerIdentificationOptions,
+    SpeakerIdentificationOptionsWidget,
+    is_speaker_identification_available,
+)
 
 
 class FileTranscriberWidget(QWidget):
@@ -32,7 +38,7 @@ class FileTranscriberWidget(QWidget):
     model_loader: Optional[ModelDownloader] = None
     file_transcription_options: FileTranscriptionOptions
     transcription_options: TranscriptionOptions
-    # (TranscriptionOptions, FileTranscriptionOptions, str)
+    # (TranscriptionOptions, FileTranscriptionOptions, str, SpeakerIdentificationOptions)
     triggered = pyqtSignal(tuple)
     openai_access_token_changed = pyqtSignal(str)
     settings = Settings()
@@ -84,6 +90,33 @@ class FileTranscriberWidget(QWidget):
         self.run_button.clicked.connect(self.on_click_run)
 
         layout.addWidget(self.form_widget)
+
+        self.speaker_identification_options = self.load_speaker_identification_options()
+        self.speaker_identification_options_widget: Optional[
+            SpeakerIdentificationOptionsWidget
+        ] = None
+        if is_speaker_identification_available():
+            speaker_identification_group_box = QGroupBox(
+                _("Speaker identification"), self
+            )
+            speaker_identification_group_box.setObjectName(
+                "SpeakerIdentificationGroupBox"
+            )
+            self.speaker_identification_options_widget = (
+                SpeakerIdentificationOptionsWidget(
+                    self.speaker_identification_options,
+                    parent=speaker_identification_group_box,
+                )
+            )
+            self.speaker_identification_options_widget.options_changed.connect(
+                self.on_speaker_identification_options_changed
+            )
+            group_layout = QVBoxLayout(speaker_identification_group_box)
+            group_layout.addWidget(self.speaker_identification_options_widget)
+            layout.addWidget(speaker_identification_group_box)
+        else:
+            self.speaker_identification_options.identify_speakers = False
+
         layout.addWidget(self.run_button, 0, Qt.AlignmentFlag.AlignRight)
 
         self.setLayout(layout)
@@ -111,7 +144,20 @@ class FileTranscriberWidget(QWidget):
             self.transcription_options, self.file_transcription_options
         )
         preferences.save(settings=self.settings.settings)
+        if self.speaker_identification_options_widget is not None:
+            self.speaker_identification_options.save(self.settings.settings)
         self.settings.settings.endGroup()
+
+    def load_speaker_identification_options(self) -> SpeakerIdentificationOptions:
+        self.settings.settings.beginGroup("file_transcriber")
+        options = SpeakerIdentificationOptions.load(self.settings.settings)
+        self.settings.settings.endGroup()
+        return options
+
+    def on_speaker_identification_options_changed(
+        self, options: SpeakerIdentificationOptions
+    ):
+        self.speaker_identification_options = options
 
     def on_click_run(self):
         self.run_button.setDisabled(True)
@@ -139,7 +185,12 @@ class FileTranscriberWidget(QWidget):
             return
 
         self.triggered.emit(
-            (self.transcription_options, self.file_transcription_options, model_path)
+            (
+                self.transcription_options,
+                self.file_transcription_options,
+                model_path,
+                self.speaker_identification_options,
+            )
         )
         self.close()
 

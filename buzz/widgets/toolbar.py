@@ -13,6 +13,8 @@ class ToolBar(QToolBar):
         self.setIconSize(QSize(18, 18))
         self.setStyleSheet("QToolButton{margin: 6px 3px;}")
         self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
+        # Prevent the toolbar from being hidden via the main window's context menu
+        self.toggleViewAction().setVisible(False)
 
     def addAction(self, *args):
         action = super().addAction(*args)
