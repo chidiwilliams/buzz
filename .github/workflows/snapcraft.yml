@@ -37,6 +37,53 @@ jobs:
           sudo rm -rf /usr/local/share/boost || true
           sudo rm -rf /usr/lib/jvm || true
           sudo docker image prune --all --force || true
+      - name: Use the fastest Ubuntu apt mirror
+        run: |
+          # The runner's default mirror (us-east-2.ec2.archive.ubuntu.com) became
+          # extremely slow in Nov 2026 (~190 kB/s instead of ~20 MB/s), which
+          # turned a ~16 min snap build into 70+ min. apt only falls back to the
+          # next mirror on errors, not on slowness, so probe a few mirrors and put
+          # the fastest first. Snapcraft's build-packages and stage-packages both
+          # download through the host's apt configuration.
+          mirrors_file=/etc/apt/apt-mirrors.txt
+          if [ ! -f "$mirrors_file" ]; then
+            echo "$mirrors_file not found, keeping default apt sources"
+            exit 0
+          fi
+          echo "=== Current mirrors ==="
+          cat "$mirrors_file"
+
+          candidates="
+            http://us-east-1.ec2.archive.ubuntu.com/ubuntu/
+            http://us-east-2.ec2.archive.ubuntu.com/ubuntu/
+            http://azure.archive.ubuntu.com/ubuntu/
+            http://archive.ubuntu.com/ubuntu/
+            http://mirrors.edge.kernel.org/ubuntu/
+          "
+          best=""
+          best_speed=0
+          for mirror in $candidates; do
+            speed=$(curl -s -o /dev/null --max-time 15 -w '%{speed_download}' \
+              "${mirror}dists/noble/main/binary-amd64/Packages.gz" || true)
+            speed=${speed%.*}
+            speed=${speed:-0}
+            echo "$mirror: $((speed / 1024)) KB/s"
+            if [ "$speed" -gt "$best_speed" ]; then
+              best=$mirror
+              best_speed=$speed
+            fi
+          done
+
+          if [ -z "$best" ]; then
+            echo "No mirror responded, keeping default apt sources"
+            exit 0
+          fi
+          echo "Using $best"
+          # Fastest first, then the original entries as fallbacks (in file order)
+          { echo "$best"; cut -f1 "$mirrors_file" | grep -v -x -F "$best"; } > /tmp/apt-mirrors.txt
+          sudo cp /tmp/apt-mirrors.txt "$mirrors_file"
+          echo "=== New mirrors ==="
+          cat "$mirrors_file"
       - name: Check available disk space
         run: |
           echo "=== Disk space ==="
