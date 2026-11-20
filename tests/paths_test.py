@@ -1,4 +1,5 @@
 import os
+import sys
 from unittest.mock import patch
 
 import pytest
@@ -21,14 +22,19 @@ def test_safe_filename_component(name, expected):
     assert safe_filename_component(name) == expected
 
 
+def test_resolve_document_portal_path_returns_regular_path_unchanged():
+    assert resolve_document_portal_path("/home/user/a.mp3") == "/home/user/a.mp3"
+    assert resolve_document_portal_path("") == ""
+
+
+# Document portal paths, os.getuid and os.getxattr only exist on Linux.
+@pytest.mark.skipif(
+    not sys.platform.startswith("linux"), reason="document portal is Linux-only"
+)
 class TestResolveDocumentPortalPath:
     @staticmethod
     def portal_path(name="audio.mp3"):
         return f"/run/user/{os.getuid()}/doc/abc123/{name}"
-
-    def test_returns_regular_path_unchanged(self):
-        assert resolve_document_portal_path("/home/user/a.mp3") == "/home/user/a.mp3"
-        assert resolve_document_portal_path("") == ""
 
     def test_resolves_existing_file_to_host_path(self, tmp_path):
         host_file = tmp_path / "audio.mp3"
