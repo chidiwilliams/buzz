@@ -55,6 +55,7 @@ datas += [("buzz/schema.sql", ".")]
 datas += [("buzz/plugins/ai_summary", "plugins/ai_summary")]
 datas += [("buzz/plugins/enhanced_language_detection", "plugins/enhanced_language_detection")]
 datas += [("buzz/plugins/export_docx", "plugins/export_docx")]
+datas += [("buzz/plugins/reexport_after_editing", "plugins/reexport_after_editing")]
 datas += [("buzz/plugins/skip_already_transcribed", "plugins/skip_already_transcribed")]
 datas += [("buzz/plugins/transcript_resizer", "plugins/transcript_resizer")]
 

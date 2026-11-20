@@ -1,0 +1,6 @@
+{
+  "Re-export after editing": "编辑后重新导出",
+  "When a transcript is changed in the transcript viewer, export it again in the formats chosen when it was transcribed, once the viewer is closed. Transcripts that were not exported are skipped.": "在转录查看器中更改转录后，关闭查看器时将按转录时选择的格式重新导出。未导出的转录将被跳过。",
+  "File name": "文件名",
+  "Name of the exported files, without extension. Available variables: {{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, {{ model_size }}, {{ date_time }}. A file with the same name is overwritten.": "导出文件的名称，不含扩展名。可用变量：{{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, {{ model_size }}, {{ date_time }}。同名文件将被覆盖。"
+}

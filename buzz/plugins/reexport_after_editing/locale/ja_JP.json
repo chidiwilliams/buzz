@@ -1,0 +1,6 @@
+{
+  "Re-export after editing": "編集後に再エクスポート",
+  "When a transcript is changed in the transcript viewer, export it again in the formats chosen when it was transcribed, once the viewer is closed. Transcripts that were not exported are skipped.": "文字起こしビューアーで文字起こしを変更すると、ビューアーを閉じたときに、文字起こし時に選択した形式で再度エクスポートします。エクスポートされなかった文字起こしはスキップされます。",
+  "File name": "ファイル名",
+  "Name of the exported files, without extension. Available variables: {{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, {{ model_size }}, {{ date_time }}. A file with the same name is overwritten.": "エクスポートするファイルの名前（拡張子なし）。使用できる変数: {{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, {{ model_size }}, {{ date_time }}。同じ名前のファイルは上書きされます。"
+}

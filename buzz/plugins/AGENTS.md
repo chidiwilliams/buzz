@@ -164,6 +164,9 @@ viewers Buzz closes when it quits.
   user's export file name template, which by default contains
   `{{ date_time }}`: every export would get a new file name. Pass your own
   `export_file_name_template` to overwrite a single file instead.
+- The bundled `reexport_after_editing` plugin is a worked example: it re-exports
+  a modified transcript in its `export_formats` to its `output_folder` (or next
+  to the source file), and skips transcripts that were not exported.
 
 ### `PluginContext`
 

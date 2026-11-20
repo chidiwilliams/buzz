@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Buzz\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-20 16:22+0200\n"
+"POT-Creation-Date: 2026-11-20 16:50+0200\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: Paulo Schopf <pschopf@gmail.com>\n"
 "Language-Team: none\n"
@@ -2126,6 +2126,28 @@ msgid ""
 "database"
 msgstr ""
 "Pular se este arquivo já foi transcrito e o registro existe no banco de dados"
+
+#: buzz/plugins/reexport_after_editing/plugin.py
+msgid "Re-export after editing"
+msgstr "Reexportar após edição"
+
+#: buzz/plugins/reexport_after_editing/plugin.py
+msgid ""
+"When a transcript is changed in the transcript viewer, export it again in "
+"the formats chosen when it was transcribed, once the viewer is closed. "
+"Transcripts that were not exported are skipped."
+msgstr "Quando uma transcrição é alterada no visualizador de transcrições, ela é exportada novamente nos formatos escolhidos ao transcrevê-la, assim que o visualizador é fechado. Transcrições que não foram exportadas são ignoradas."
+
+#: buzz/plugins/reexport_after_editing/plugin.py
+msgid "File name"
+msgstr "Nome do arquivo"
+
+#: buzz/plugins/reexport_after_editing/plugin.py
+msgid ""
+"Name of the exported files, without extension. Available variables: "
+"{{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, "
+"{{ model_size }}, {{ date_time }}. A file with the same name is overwritten."
+msgstr "Nome dos arquivos exportados, sem extensão. Variáveis disponíveis: {{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, {{ model_size }}, {{ date_time }}. Um arquivo com o mesmo nome é substituído."
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"

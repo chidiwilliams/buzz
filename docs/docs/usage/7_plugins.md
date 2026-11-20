@@ -28,6 +28,12 @@ Automatically detects the spoken language before transcription begins using a lo
 
 Exports the completed transcript to a Microsoft Word `.docx` file. Timestamps can optionally be included. No extra dependencies required.
 
+### Re-export after editing
+
+*Available since Buzz version **1.4.6**.*
+
+Exports a transcript again after you change it in the transcript viewer. When you close the viewer of a transcript you edited, it is exported in the same formats (TXT, SRT, VTT) and to the same folder you chose when transcribing it.
+
 ### Resize Transcript
 
 Automatically regroups word-level transcript segments into subtitle-sized chunks after transcription. Supports merging by silence gaps, splitting on punctuation, and enforcing a maximum subtitle length. Requires word-level timings to be enabled on the transcription.

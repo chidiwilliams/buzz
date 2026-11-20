@@ -1,0 +1,6 @@
+{
+  "Re-export after editing": "Eksportēt atkārtoti pēc labošanas",
+  "When a transcript is changed in the transcript viewer, export it again in the formats chosen when it was transcribed, once the viewer is closed. Transcripts that were not exported are skipped.": "Kad transkripcija ir mainīta transkripcijas skatītājā, pēc skatītāja aizvēršanas to atkārtoti eksportē formātos, kas tika izvēlēti transkribējot. Transkripcijas, kas netika eksportētas, tiek izlaistas.",
+  "File name": "Faila nosaukums",
+  "Name of the exported files, without extension. Available variables: {{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, {{ model_size }}, {{ date_time }}. A file with the same name is overwritten.": "Eksportēto failu nosaukums bez paplašinājuma. Pieejamie mainīgie: {{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, {{ model_size }}, {{ date_time }}. Fails ar tādu pašu nosaukumu tiek pārrakstīts."
+}

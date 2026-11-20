@@ -1,0 +1,6 @@
+{
+  "Re-export after editing": "Düzenledikten sonra yeniden dışa aktar",
+  "When a transcript is changed in the transcript viewer, export it again in the formats chosen when it was transcribed, once the viewer is closed. Transcripts that were not exported are skipped.": "Bir transkript, transkript görüntüleyicisinde değiştirildiğinde, görüntüleyici kapatıldıktan sonra transkripsiyon sırasında seçilen biçimlerde yeniden dışa aktarılır. Dışa aktarılmamış transkriptler atlanır.",
+  "File name": "Dosya adı",
+  "Name of the exported files, without extension. Available variables: {{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, {{ model_size }}, {{ date_time }}. A file with the same name is overwritten.": "Dışa aktarılan dosyaların uzantısız adı. Kullanılabilir değişkenler: {{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, {{ model_size }}, {{ date_time }}. Aynı ada sahip dosyanın üzerine yazılır."
+}

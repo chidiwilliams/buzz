@@ -1,0 +1,6 @@
+{
+  "Re-export after editing": "Torna a exportar després d'editar",
+  "When a transcript is changed in the transcript viewer, export it again in the formats chosen when it was transcribed, once the viewer is closed. Transcripts that were not exported are skipped.": "Quan es modifica una transcripció al visualitzador de transcripcions, la torna a exportar en els formats triats en transcriure-la, un cop es tanca el visualitzador. Les transcripcions que no es van exportar s'ometen.",
+  "File name": "Nom del fitxer",
+  "Name of the exported files, without extension. Available variables: {{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, {{ model_size }}, {{ date_time }}. A file with the same name is overwritten.": "Nom dels fitxers exportats, sense extensió. Variables disponibles: {{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, {{ model_size }}, {{ date_time }}. Un fitxer amb el mateix nom se sobreescriu."
+}
