@@ -45,4 +45,16 @@ This is useful when re-importing a folder of files where some have already been 
 
 The built-in plugins are a good starting point for writing a custom plugin. Browse the source code in [buzz/plugins](https://github.com/chidiwilliams/buzz/tree/main/buzz/plugins) to see how they are structured and which hooks they use. Alternatively point your AI coding agent to this folder and ask to crete the plugin you need.
 
+### Plugin hooks
+
+A plugin implements the hooks it needs. Each hook runs at a set point:
+
+| Hook | When it runs | Available since |
+|------|--------------|-----------------|
+| `check_skip` | Before transcription. Can skip it and provide the result instead. | 1.4.5 |
+| `before_transcription` | Before transcription. Can process or replace the audio. | 1.4.5 |
+| `after_transcription` | After transcription, before the result is saved. Can change the result. | 1.4.5 |
+| `on_complete` | After the result is saved. For actions such as exporting or summarizing. | 1.4.5 |
+| `on_viewer_closed` | After the user closes a transcript's viewer window. Tells the plugin whether the transcript was changed while it was open, e.g. to export the edited transcript. | 1.4.6 |
+
 If you build something useful, please share it with the Buzz community! Open a [GitHub Discussion](https://github.com/chidiwilliams/buzz/discussions) or submit a pull request to have your plugin considered for inclusion as a built-in.

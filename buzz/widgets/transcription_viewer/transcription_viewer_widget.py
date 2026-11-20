@@ -25,6 +25,8 @@ from PyQt6.QtWidgets import (
     QStackedWidget,
     QSplitter,
     QApplication,
+    QAbstractItemDelegate,
+    QAbstractItemView,
 )
 
 from buzz.locale import _
@@ -79,6 +81,9 @@ class TranscriptionViewerWidget(QWidget):
     AUDIO_PLAYER_MAX_HEIGHT = 80
     MINIMUM_WIDTH = 800
     resize_button_clicked = pyqtSignal()
+    # Emitted once when the viewer closes: the transcription id and whether
+    # the transcript was changed while the viewer was open
+    viewer_closed = pyqtSignal(UUID, bool)
     transcription: Transcription
     settings = Settings()
 
@@ -104,6 +109,9 @@ class TranscriptionViewerWidget(QWidget):
         self.speaker_identification_dialog = None
         self.speaker_identification_button = None
         self.transcriptions_updated_signal = transcriptions_updated_signal
+        # Whether the transcript was changed while this viewer was open
+        self.modified = False
+        self._viewer_closed_emitted = False
 
         self.translation_thread = None
         self.translator = None
@@ -186,6 +194,9 @@ class TranscriptionViewerWidget(QWidget):
         self.table_widget.timestamp_being_edited.connect(
             self.on_timestamp_being_edited)
         self.table_widget.speakers_changed.connect(self.on_speakers_changed)
+        # Every edit in the table (text, timestamps, speakers, translations)
+        # is saved to the database as it is made
+        self.table_widget.model().dataChanged.connect(self._mark_modified)
 
     def _setup_speaker_filter(self):
         self.speaker_filter_frame = QFrame()
@@ -1589,7 +1600,9 @@ class TranscriptionViewerWidget(QWidget):
 
         # Not transcriptions_updated_signal, which all open viewers share, or
         # saving in another viewer would close this one too
-        self.transcription_resizer_dialog.transcriptions_updated.connect(self.close)
+        self.transcription_resizer_dialog.transcriptions_updated.connect(
+            self._on_dialog_saved
+        )
 
         self.transcription_resizer_dialog.show()
 
@@ -1637,7 +1650,7 @@ class TranscriptionViewerWidget(QWidget):
             )
 
             self.speaker_identification_dialog.transcriptions_updated.connect(
-                self.close
+                self._on_dialog_saved
             )
 
             self.speaker_identification_dialog.show()
@@ -1802,8 +1815,33 @@ class TranscriptionViewerWidget(QWidget):
         self.save_splitter_sizes()
         super().resizeEvent(event)
 
+    def _mark_modified(self, *_args) -> None:
+        self.modified = True
+
+    def _on_dialog_saved(self, transcription_id: UUID) -> None:
+        """The resize or speaker identification tool saved its result."""
+        # Saved over this transcript rather than as a new one
+        if transcription_id == self.transcription.id_as_uuid:
+            self.modified = True
+        self.close()
+
+    def _commit_open_editor(self) -> None:
+        """Save a cell that is still being edited, so the edit is not lost."""
+        if self.table_widget.state() != QAbstractItemView.State.EditingState:
+            return
+        # Cell editors are created on the table's viewport
+        for editor in self.table_widget.viewport().findChildren(
+            QWidget, options=Qt.FindChildOption.FindDirectChildrenOnly
+        ):
+            self.table_widget.commitData(editor)
+            self.table_widget.closeEditor(
+                editor, QAbstractItemDelegate.EndEditHint.NoHint
+            )
+
     def closeEvent(self, event):
         """Save geometry when widget is closed"""
+        self._commit_open_editor()
+
         self.save_geometry()
 
         # save splitter sizes before closing
@@ -1840,6 +1878,11 @@ class TranscriptionViewerWidget(QWidget):
                 # Give it a brief moment to terminate
                 if not self.translation_thread.wait(1_000):
                     logging.error("Translation thread could not be terminated")
+
+        # Once, a viewer closed on quit may have been closed already
+        if not self._viewer_closed_emitted:
+            self._viewer_closed_emitted = True
+            self.viewer_closed.emit(self.transcription.id_as_uuid, self.modified)
 
         super().closeEvent(event)
 

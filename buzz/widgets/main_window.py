@@ -94,6 +94,8 @@ class MainWindow(QMainWindow):
         self.shortcuts = Shortcuts(settings=self.settings)
 
         self.quit_on_complete = False
+        # Set when the window closes, plugin hooks then run synchronously
+        self._quitting = False
         self.pending_quit_task_uids: Set[UUID] = set()
         self.transcription_service = transcription_service
 
@@ -516,7 +518,32 @@ class MainWindow(QMainWindow):
         self.transcription_viewer_widget.setAttribute(
             Qt.WidgetAttribute.WA_DeleteOnClose
         )
+        self.transcription_viewer_widget.viewer_closed.connect(
+            self.on_transcription_viewer_closed
+        )
         self.transcription_viewer_widget.show()
+
+    def on_transcription_viewer_closed(self, transcription_id: UUID, modified: bool):
+        """Run the plugins' on_viewer_closed hook for the closed transcript."""
+        if not self.plugin_manager.has_enabled_post_hooks():
+            return
+        # Read after the viewer saved its last edit, with the current name and notes
+        transcription = self.transcription_service.get_transcription(transcription_id)
+        if transcription is None:  # Deleted while the viewer was open
+            return
+
+        # While quitting, run synchronously so the work isn't cut short
+        if self._quitting:
+            self.plugin_manager.run_on_viewer_closed(transcription, modified)
+            return
+        runnable = FnRunnable(
+            lambda: self.plugin_manager.run_on_viewer_closed(transcription, modified)
+        )
+        # Plugin notes or segments may have changed
+        runnable.signals.finished.connect(
+            lambda: self.table_widget.refresh_row(transcription_id)
+        )
+        QThreadPool.globalInstance().start(runnable)
 
     def add_task(self, task: FileTranscriptionTask):
         self.transcription_service.create_transcription(task)
@@ -666,6 +693,7 @@ class MainWindow(QMainWindow):
         self.save_geometry()
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        self._quitting = True
         self.system_tray.shutdown()
         self.save_geometry()
         self.settings.settings.sync()

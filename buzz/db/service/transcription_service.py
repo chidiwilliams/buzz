@@ -19,6 +19,10 @@ class TranscriptionService:
         self.transcription_dao = transcription_dao
         self.transcription_segment_dao = transcription_segment_dao
 
+    def get_transcription(self, id: UUID):
+        """The transcription's record, or None if it no longer exists."""
+        return self.transcription_dao.find_by_id(str(id))
+
     def create_transcription(self, task):
         self.transcription_dao.create_transcription(task)
 
