@@ -802,12 +802,30 @@ class SpeakerIdentificationWidget(QWidget):
         self.merge_speaker_sentences.setEnabled(False)
         self.merge_speaker_sentences.setMinimumWidth(250)
 
+        # Unchecked, saving replaces the segments of this transcript
+        self.save_as_new_recording = QCheckBox(_("Save as new recording"))
+        self.save_as_new_recording.setChecked(
+            self.settings.value(
+                Settings.Key.SPEAKER_IDENTIFICATION_SAVE_AS_NEW_RECORDING, False
+            )
+        )
+        self.save_as_new_recording.setEnabled(False)
+        self.save_as_new_recording.toggled.connect(
+            self._on_save_as_new_recording_toggled
+        )
+
         self.save_button = QPushButton(_("Save"))
         self.save_button.setEnabled(False)
         self.save_button.clicked.connect(self.on_save_button_clicked)
 
         layout.addRow(self.merge_speaker_sentences)
+        layout.addRow(self.save_as_new_recording)
         layout.addRow(self.save_button)
+
+    def _on_save_as_new_recording_toggled(self, checked: bool) -> None:
+        self.settings.set_value(
+            Settings.Key.SPEAKER_IDENTIFICATION_SAVE_AS_NEW_RECORDING, checked
+        )
 
     def _setup_audio_player(self) -> None:
         # Created on first playback: decoding the file takes a moment and the
@@ -995,6 +1013,7 @@ class SpeakerIdentificationWidget(QWidget):
     def _set_results_enabled(self, enabled: bool) -> None:
         self.step_2_group_box.setEnabled(enabled)
         self.merge_speaker_sentences.setEnabled(enabled)
+        self.save_as_new_recording.setEnabled(enabled)
         self.save_button.setEnabled(enabled)
 
     def _on_thread_finished(self, result):
@@ -1222,11 +1241,17 @@ class SpeakerIdentificationWidget(QWidget):
             merge_speaker_sentences=self.merge_speaker_sentences.isChecked(),
         )
 
-        new_transcript_id = self.transcription_service.copy_transcription_with_segments(
-            self.transcription.id_as_uuid, segments
-        )
+        if self.save_as_new_recording.isChecked():
+            saved_transcript_id = self.transcription_service.copy_transcription_with_segments(
+                self.transcription.id_as_uuid, segments
+            )
+        else:
+            saved_transcript_id = self.transcription.id_as_uuid
+            self.transcription_service.replace_transcription_segments(
+                saved_transcript_id, segments
+            )
         metadata_cache.save_metadata(
-            new_transcript_id,
+            saved_transcript_id,
             metadata_cache.SPEAKER_IDENTIFICATION,
             self._cache_data(),
         )
@@ -1234,8 +1259,8 @@ class SpeakerIdentificationWidget(QWidget):
         # TODO - See if we can get rows in the transcription viewer to be of variable height
         #        If text is longer they should expand
         if self.transcriptions_updated_signal:
-            self.transcriptions_updated_signal.emit(new_transcript_id)
-        self.transcriptions_updated.emit(new_transcript_id)
+            self.transcriptions_updated_signal.emit(saved_transcript_id)
+        self.transcriptions_updated.emit(saved_transcript_id)
 
         self._stop_playback()
 
