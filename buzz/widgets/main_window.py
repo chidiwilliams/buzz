@@ -24,6 +24,7 @@ from buzz.db.entity.transcription import Transcription
 from buzz.db.service.transcription_service import TranscriptionService
 from buzz.file_transcriber_queue_worker import FileTranscriberQueueWorker
 from buzz.locale import _
+from buzz.paths import resolve_document_portal_path
 from buzz.plugins.manager import PluginManager
 from buzz.plugins.post_processing import FnRunnable
 from buzz.settings.settings import APP_NAME, Settings
@@ -258,7 +259,7 @@ class MainWindow(QMainWindow):
     def dropEvent(self, event):
         file_paths = []
         for url in event.mimeData().urls():
-            path = url.toLocalFile()
+            path = resolve_document_portal_path(url.toLocalFile())
             if os.path.isdir(path):
                 file_paths.extend(find_media_files_in_folder(path))
             elif path:
@@ -383,6 +384,7 @@ class MainWindow(QMainWindow):
         )
         if len(file_paths) == 0:
             return
+        file_paths = [resolve_document_portal_path(path) for path in file_paths]
 
         self.settings.set_value(
             Settings.Key.LAST_IMPORT_FOLDER, os.path.dirname(file_paths[0])
@@ -402,6 +404,7 @@ class MainWindow(QMainWindow):
         )
         if not folder:
             return
+        folder = resolve_document_portal_path(folder)
         self.settings.set_value(Settings.Key.LAST_IMPORT_FOLDER, folder)
         file_paths = find_media_files_in_folder(folder)
         if not file_paths:

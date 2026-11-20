@@ -26,6 +26,7 @@ from buzz.store.keyring_store import get_password, Key
 from buzz.widgets.line_edit import LineEdit
 from buzz.widgets.openai_api_key_line_edit import OpenAIAPIKeyLineEdit
 from buzz.locale import _
+from buzz.paths import resolve_document_portal_path
 from buzz.widgets.system_tray import is_minimize_to_tray_supported
 from buzz.widgets.icon import INFO_ICON_PATH
 from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
@@ -331,7 +332,9 @@ class GeneralPreferencesWidget(QWidget):
         )
 
     def on_click_browse_export_folder(self):
-        folder = QFileDialog.getExistingDirectory(self, _("Select Export Folder"))
+        folder = resolve_document_portal_path(
+            QFileDialog.getExistingDirectory(self, _("Select Export Folder"))
+        )
         self.recording_export_folder_line_edit.setText(folder)
         self.on_recording_export_folder_changed(folder)
 

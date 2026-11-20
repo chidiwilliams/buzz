@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import QWidget, QMenu, QFileDialog, QMessageBox
 from buzz.db.entity.transcription import Transcription
 from buzz.db.service.transcription_service import TranscriptionService
 from buzz.locale import _
-from buzz.paths import safe_filename_component
+from buzz.paths import resolve_document_portal_path, safe_filename_component
 from buzz.transcriber.file_transcriber import write_output
 from buzz.transcriber.docx_writer import write_speaker_docx
 from buzz.transcriber.transcriber import (
@@ -103,6 +103,7 @@ class ExportTranscriptionMenu(QMenu):
 
         if output_file_path == "":
             return
+        output_file_path = resolve_document_portal_path(output_file_path)
 
         write_output(
             path=output_file_path,
@@ -158,6 +159,7 @@ class ExportTranscriptionMenu(QMenu):
         )
         if not output_file_path:
             return
+        output_file_path = resolve_document_portal_path(output_file_path)
         if not output_file_path.lower().endswith(".docx"):
             output_file_path += ".docx"
 
