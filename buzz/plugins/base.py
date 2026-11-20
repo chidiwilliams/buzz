@@ -29,6 +29,17 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+# Metadata key a plugin sets to ask the transcription viewer to tint a segment's
+# row (see ``BuzzPlugin.after_transcription``). Its value is a severity name:
+# ``info``, ``warning`` or ``error``. Unlike a plugin's own metadata, this one
+# drives rendering rather than saying something to the reader, so the viewer
+# consumes it and keeps it out of the tooltip. Any plugin can use it; the
+# severity-to-colour mapping lives with the viewer.
+HIGHLIGHT_METADATA_KEY = "highlight"
+
+# Metadata keys the viewer interprets itself and hides from the tooltip.
+RESERVED_METADATA_KEYS = frozenset({HIGHLIGHT_METADATA_KEY})
+
 
 def _current_locale() -> str:
     """Return the active UI locale name, e.g. ``lv_LV`` or ``en_US``."""
@@ -161,6 +172,13 @@ class BuzzPlugin:
         Append ``{"key": "value"}`` dicts to a segment's ``metadata`` list to
         attach extra information to that row without changing or deleting its
         text. The transcription viewer shows it as a ``key: value`` tooltip.
+
+        Setting the reserved :data:`HIGHLIGHT_METADATA_KEY` (``"highlight"``)
+        to ``"info"``, ``"warning"`` or ``"error"`` additionally tints the
+        row. That key drives rendering, so it is consumed by the viewer and
+        left out of the tooltip -- pair it with a plain key of your own
+        describing *why*, so the reason is still readable to someone who
+        cannot distinguish the colour.
 
         Must return a list of segments (return the input unchanged to do nothing).
         Runs on a background thread.

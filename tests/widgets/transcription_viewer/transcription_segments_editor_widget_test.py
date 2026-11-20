@@ -3,7 +3,7 @@ from uuid import UUID
 import pytest
 from pytestqt.qtbot import QtBot
 from PyQt6.QtCore import Qt, QEvent
-from PyQt6.QtGui import QFocusEvent
+from PyQt6.QtGui import QColor, QFocusEvent, QPalette
 from PyQt6.QtSql import QSqlRecord
 
 from buzz.db.entity.transcription import Transcription
@@ -19,6 +19,7 @@ from buzz.widgets.transcription_viewer.transcription_segments_editor_widget impo
     CustomTextEdit,
     parse_timestamp,
     Column,
+    HIGHLIGHT_COLORS,
 )
 from buzz.translator import Translator
 from tests.audio import test_audio_path
@@ -312,6 +313,101 @@ class TestTranscriptionSegmentModel:
         assert tooltip == (
             "review_reason: Possible repetition loop\nconfidence: 0.21"
         )
+
+    def _model_with_metadata(
+        self, transcription_dao, transcription_segment_dao, metadata: str
+    ) -> TranscriptionSegmentModel:
+        transcription_id = uuid.uuid4()
+        transcription_dao.insert(
+            Transcription(
+                id=str(transcription_id),
+                status="completed",
+                file=test_audio_path,
+                task=Task.TRANSCRIBE.value,
+                model_type=ModelType.WHISPER.value,
+                whisper_model_size=WhisperModelSize.TINY.value,
+            )
+        )
+        transcription_segment_dao.insert(
+            TranscriptionSegment(
+                40, 299, "Thanks for watching", "", str(transcription_id),
+                metadata=metadata,
+            )
+        )
+        model = TranscriptionSegmentModel(transcription_id)
+        model.select()
+        return model
+
+    @pytest.mark.parametrize(
+        "base_color,is_dark", [("#FFFFFF", False), ("#1E1E1E", True)]
+    )
+    def test_highlight_metadata_tints_the_row_for_the_active_theme(
+        self, qapp, transcription_dao, transcription_segment_dao,
+        base_color, is_dark,
+    ):
+        """The tint must follow the theme, or it is unreadable in one of them."""
+        model = self._model_with_metadata(
+            transcription_dao,
+            transcription_segment_dao,
+            '[{"suspect": "true", "highlight": "warning"}]',
+        )
+        index = model.index(0, Column.TEXT.value)
+
+        original = qapp.palette()
+        try:
+            palette = QPalette(original)
+            palette.setColor(QPalette.ColorRole.Base, QColor(base_color))
+            qapp.setPalette(palette)
+
+            background = model.data(index, Qt.ItemDataRole.BackgroundRole)
+        finally:
+            qapp.setPalette(original)
+
+        light_tint, dark_tint = HIGHLIGHT_COLORS["warning"]
+        assert isinstance(background, QColor)
+        assert background.name().lower() == (
+            dark_tint if is_dark else light_tint
+        ).lower()
+
+    def test_highlight_key_is_hidden_from_the_tooltip(
+        self, qapp, transcription_dao, transcription_segment_dao
+    ):
+        """`highlight` drives rendering, so it must not read as a message."""
+        model = self._model_with_metadata(
+            transcription_dao,
+            transcription_segment_dao,
+            '[{"suspect_reason": "known junk phrase", "highlight": "warning"}]',
+        )
+        index = model.index(0, Column.TEXT.value)
+
+        assert model.data(index, Qt.ItemDataRole.ToolTipRole) == (
+            "suspect_reason: known junk phrase"
+        )
+
+    def test_unknown_highlight_severity_leaves_the_row_untinted(
+        self, qapp, transcription_dao, transcription_segment_dao
+    ):
+        """A value this version doesn't know must not be guessed at."""
+        model = self._model_with_metadata(
+            transcription_dao,
+            transcription_segment_dao,
+            '[{"highlight": "chartreuse"}]',
+        )
+        index = model.index(0, Column.TEXT.value)
+
+        assert model.data(index, Qt.ItemDataRole.BackgroundRole) is None
+
+    def test_row_without_highlight_is_untinted(
+        self, qapp, transcription_dao, transcription_segment_dao
+    ):
+        model = self._model_with_metadata(
+            transcription_dao,
+            transcription_segment_dao,
+            '[{"confidence": "0.91"}]',
+        )
+        index = model.index(0, Column.TEXT.value)
+
+        assert model.data(index, Qt.ItemDataRole.BackgroundRole) is None
 
 
 class TestTranscriptionSegmentsEditorWidget:

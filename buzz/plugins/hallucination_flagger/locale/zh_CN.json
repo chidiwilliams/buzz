@@ -1,0 +1,4 @@
+{
+  "Hallucination Flagger": "幻觉标记",
+  "Flags transcript segments that look hallucinated so you can review them. Never deletes or changes the text.": "标记疑似幻觉的转录片段，便于您复查。绝不会删除或修改文本。"
+}

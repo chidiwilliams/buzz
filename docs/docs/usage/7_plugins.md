@@ -28,6 +28,17 @@ Automatically detects the spoken language before transcription begins using a lo
 
 Exports the completed transcript to a Microsoft Word `.docx` file. Timestamps can optionally be included. No extra dependencies required.
 
+### Hallucination Flagger
+
+Whisper models sometimes invent text during silence, music or background noise. This plugin marks segments that look invented so you can check them — it never deletes or changes the text. A flagged row is tinted in the transcript viewer, and its tooltip says why it was flagged.
+
+Two checks are applied to each segment:
+
+- **Known filler phrases** — the whole segment is something Whisper commonly produces over silence, such as "Thanks for watching", "[Music]", or a stray "...". A normal sentence that merely mentions those words is not flagged.
+- **Repetition loops** — a word or short phrase repeats three or more times in a row, such as "the the the" or "Thank you. Thank you. Thank you."
+
+Flagged segments are left for you to review rather than removed automatically, since a repeated phrase is occasionally something the speaker really said.
+
 ### Resize Transcript
 
 Automatically regroups word-level transcript segments into subtitle-sized chunks after transcription. Supports merging by silence gaps, splitting on punctuation, and enforcing a maximum subtitle length. Requires word-level timings to be enabled on the transcription.

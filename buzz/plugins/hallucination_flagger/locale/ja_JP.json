@@ -1,0 +1,4 @@
+{
+  "Hallucination Flagger": "ハルシネーション検出",
+  "Flags transcript segments that look hallucinated so you can review them. Never deletes or changes the text.": "幻聴とみられる文字起こしのセグメントに印を付けて確認できるようにします。テキストを削除したり変更したりすることはありません。"
+}
