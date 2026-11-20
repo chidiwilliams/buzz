@@ -10,6 +10,7 @@ from buzz import metadata_cache
 from buzz.db.entity.transcription import Transcription
 from buzz.db.entity.transcription_segment import TranscriptionSegment
 from buzz.model_loader import ModelType, WhisperModelSize
+from buzz.settings.settings import Settings
 from buzz.transcriber.transcriber import Segment, Task
 # Underlying libs do not support intel Macs or Windows (nemo C extensions crash on Windows CI)
 if not (platform.system() == "Darwin" and platform.machine() == "x86_64") and platform.system() != "Windows":
@@ -30,6 +31,15 @@ from tests.transcriptions import all_transcription_ids
     reason="Speaker identification dependencies (nemo/texterrors C extensions) crash on Windows and are unsupported on Intel Mac"
 )
 class TestSpeakerIdentificationWidget:
+    @pytest.fixture(autouse=True)
+    def reset_save_as_new_recording(self):
+        """The choice is remembered, start each test from the default."""
+        settings = SpeakerIdentificationWidget.settings
+        key = Settings.Key.SPEAKER_IDENTIFICATION_SAVE_AS_NEW_RECORDING
+        settings.settings.remove(key.value)
+        yield
+        settings.settings.remove(key.value)
+
     @pytest.fixture()
     def transcription(
         self, transcription_dao, transcription_segment_dao
@@ -183,6 +193,8 @@ class TestSpeakerIdentificationWidget:
         assert widget.save_button.isEnabled()
         assert widget.step_2_group_box.isEnabled()
         assert widget.merge_speaker_sentences.isEnabled()
+        assert widget.save_as_new_recording.isEnabled()
+        assert not widget.save_as_new_recording.isChecked()
 
         widget.close()
 
@@ -256,6 +268,7 @@ class TestSpeakerIdentificationWidget:
         widget.on_identification_finished(result)
         widget.merge_speaker_sentences.setChecked(False)
 
+        widget.save_as_new_recording.setChecked(True)
         with patch.object(widget.transcription_service, 'copy_transcription_with_segments', return_value=uuid.uuid4()) as mock_update:
             widget.on_save_button_clicked()
 
@@ -288,6 +301,7 @@ class TestSpeakerIdentificationWidget:
         widget.on_identification_finished(result)
         widget.merge_speaker_sentences.setChecked(True)
 
+        widget.save_as_new_recording.setChecked(True)
         with patch.object(widget.transcription_service, 'copy_transcription_with_segments', return_value=uuid.uuid4()) as mock_update:
             widget.on_save_button_clicked()
 
@@ -332,6 +346,7 @@ class TestSpeakerIdentificationWidget:
         speaker_inputs[0].setText("Alice")
         widget.merge_speaker_sentences.setChecked(True)
 
+        widget.save_as_new_recording.setChecked(True)
         widget.on_save_button_clicked()
 
         new_ids = [id for id in all_transcription_ids(transcription_service.transcription_dao)
@@ -426,6 +441,7 @@ class TestSpeakerIdentificationWidget:
         assert widget.step_1_button.isEnabled()
         assert widget.progress_label.text() == _("Showing the result of the previous identification")
 
+        widget.save_as_new_recording.setChecked(True)
         with patch.object(
             widget.transcription_service, 'copy_transcription_with_segments', return_value=uuid.uuid4()
         ) as mock_copy:
@@ -640,6 +656,7 @@ class TestSpeakerIdentificationWidget:
         widget.on_identification_finished(result)
 
         new_id = uuid.uuid4()
+        widget.save_as_new_recording.setChecked(True)
         with patch.object(widget.transcription_service, 'copy_transcription_with_segments', return_value=new_id):
             widget.on_save_button_clicked()
 
@@ -661,6 +678,7 @@ class TestSpeakerIdentificationWidget:
         result = [{'speaker': 'Speaker 0', 'start_time': 0, 'end_time': 1000, 'text': 'Hi.'}]
         widget.on_identification_finished(result)
 
+        widget.save_as_new_recording.setChecked(True)
         with patch.object(
             transcription_service.transcription_segment_dao,
             'insert',
@@ -670,6 +688,97 @@ class TestSpeakerIdentificationWidget:
 
         assert all_transcription_ids(transcription_dao) == [transcription.id]
         updated_signal.emit.assert_not_called()
+
+        widget.close()
+
+    def test_save_overwrites_the_transcript_by_default(
+        self, qtbot: QtBot, transcription, transcription_service, transcription_dao, metadata_dir
+    ):
+        updated_signal = MagicMock()
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+            transcriptions_updated_signal=updated_signal,
+        )
+        qtbot.addWidget(widget)
+
+        result = [
+            {'speaker': 'Speaker 0', 'start_time': 0, 'end_time': 1000, 'text': 'Hi.'},
+            {'speaker': 'Speaker 1', 'start_time': 1000, 'end_time': 2000, 'text': 'Hello.'},
+        ]
+        widget.on_identification_finished(result)
+        assert not widget.save_as_new_recording.isChecked()
+
+        widget.on_save_button_clicked()
+
+        assert all_transcription_ids(transcription_dao) == [transcription.id]
+        segments = transcription_service.get_transcription_segments(transcription.id_as_uuid)
+        assert [(segment.speaker, segment.text) for segment in segments] == [
+            ("Speaker 0", "Hi."),
+            ("Speaker 1", "Hello."),
+        ]
+        assert metadata_cache.load_metadata(
+            transcription.id, metadata_cache.SPEAKER_IDENTIFICATION
+        )["sentences"] == result
+        updated_signal.emit.assert_called_once_with(transcription.id_as_uuid)
+
+    def test_save_as_new_recording_choice_is_remembered(
+        self, qtbot: QtBot, transcription, transcription_service
+    ):
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+        assert not widget.save_as_new_recording.isChecked()
+        widget.save_as_new_recording.setChecked(True)
+        widget.close()
+
+        reopened = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(reopened)
+        assert reopened.save_as_new_recording.isChecked()
+
+        reopened.save_as_new_recording.setChecked(False)
+        reopened.close()
+
+        reopened_again = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(reopened_again)
+        assert not reopened_again.save_as_new_recording.isChecked()
+        reopened_again.close()
+
+    def test_failed_overwrite_keeps_the_original_segments(
+        self, qtbot: QtBot, transcription, transcription_service
+    ):
+        widget = SpeakerIdentificationWidget(
+            transcription=transcription,
+            transcription_service=transcription_service,
+        )
+        qtbot.addWidget(widget)
+        original = [
+            (segment.start_time, segment.end_time, segment.text)
+            for segment in transcription_service.get_transcription_segments(transcription.id_as_uuid)
+        ]
+
+        result = [{'speaker': 'Speaker 0', 'start_time': 0, 'end_time': 1000, 'text': 'Hi.'}]
+        widget.on_identification_finished(result)
+
+        with patch.object(
+            transcription_service.transcription_segment_dao,
+            'insert',
+            side_effect=Exception("disk full"),
+        ), pytest.raises(Exception, match="disk full"):
+            widget.on_save_button_clicked()
+
+        assert [
+            (segment.start_time, segment.end_time, segment.text)
+            for segment in transcription_service.get_transcription_segments(transcription.id_as_uuid)
+        ] == original
 
         widget.close()
 

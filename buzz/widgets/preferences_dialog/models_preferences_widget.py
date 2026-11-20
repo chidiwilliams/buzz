@@ -17,6 +17,7 @@ from PyQt6.QtWidgets import (
 )
 
 from buzz.locale import _
+from buzz.paths import resolve_document_portal_path
 from buzz.model_loader import (
     ModelType,
     WhisperModelSize,
@@ -346,6 +347,7 @@ class ModelsPreferencesWidget(QWidget):
         )
         if not file_path:
             return
+        file_path = resolve_document_portal_path(file_path)
 
         add_custom_model(name=name, path=file_path)
         self.custom_model_name_input.clear()

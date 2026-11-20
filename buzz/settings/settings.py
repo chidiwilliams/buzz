@@ -54,6 +54,9 @@ class Settings:
         TRANSCRIPTION_RESIZER_CREATE_NEW_TRANSCRIPT = (
             "transcription-resizer/create-new-transcript"
         )
+        SPEAKER_IDENTIFICATION_SAVE_AS_NEW_RECORDING = (
+            "speaker-identification/save-as-new-recording"
+        )
 
         DEFAULT_EXPORT_FILE_NAME = "transcriber/default-export-file-name"
         CUSTOM_OPENAI_BASE_URL = "transcriber/custom-openai-base-url"

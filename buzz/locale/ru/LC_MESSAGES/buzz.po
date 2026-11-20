@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 13:48+0200\n"
+"POT-Creation-Date: 2026-11-20 16:50+0200\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -325,58 +325,9 @@ msgid "Output folder"
 msgstr "Папка вывода"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcriber/file_transcriber_widget.py
 msgid "Speaker identification"
 msgstr "Определение говорящих"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-msgid "Identify speakers"
-msgstr "Определить говорящих"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-msgid ""
-"Identify speakers after transcription and add speaker labels to the exported "
-"transcripts. Transcription will take longer."
-msgstr ""
-"Определять говорящих после транскрибирования и добавлять метки говорящих в "
-"экспортируемые транскрипции. Транскрибирование займёт больше времени."
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "MSDD"
-msgstr "MSDD"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Sortformer"
-msgstr "Sortformer"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Auto"
-msgstr "Авто"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Set the known number of speakers, or use Auto to detect it."
-msgstr ""
-"Укажите известное количество говорящих или выберите «Авто» для "
-"автоопределения."
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Merge speaker sentences"
-msgstr "Объединить предложения говорящих"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Speakers:"
-msgstr "Говорящие:"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcription_tasks_table_widget.py
-#: buzz/plugins/ai_summary/plugin.py
-msgid "Model"
-msgstr "Модель"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Select Input Folder"
@@ -676,6 +627,56 @@ msgstr "Извлечь речь"
 #: buzz/widgets/transcriber/file_transcription_form_widget.py
 msgid "Export:"
 msgstr "Экспорт:"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+msgid "Identify speakers"
+msgstr "Определить говорящих"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+msgid ""
+"Identify speakers after transcription and add speaker labels to the exported "
+"transcripts. Transcription will take longer."
+msgstr ""
+"Определять говорящих после транскрибирования и добавлять метки говорящих в "
+"экспортируемые транскрипции. Транскрибирование займёт больше времени."
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "Авто"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr ""
+"Укажите известное количество говорящих или выберите «Авто» для "
+"автоопределения."
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Merge speaker sentences"
+msgstr "Объединить предложения говорящих"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "Говорящие:"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Model"
+msgstr "Модель"
 
 #: buzz/widgets/transcriber/hugging_face_search_line_edit.py
 msgid "Huggingface ID of a model"
@@ -1440,6 +1441,10 @@ msgid "Play sample"
 msgstr "Воспроизвести образец"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Save as new recording"
+msgstr "Сохранить как новую запись"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Save"
 msgstr "Сохранить"
 
@@ -1450,6 +1455,10 @@ msgstr "Отмена..."
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Cancelled"
 msgstr "Отменено"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Showing the result of the previous identification"
+msgstr "Показан результат предыдущего определения"
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py
 msgid "DOCX – Speakers"
@@ -2120,6 +2129,28 @@ msgid ""
 "database"
 msgstr ""
 "Пропустить, если этот файл уже транскрибирован и запись есть в базе данных"
+
+#: buzz/plugins/reexport_after_editing/plugin.py
+msgid "Re-export after editing"
+msgstr "Повторный экспорт после редактирования"
+
+#: buzz/plugins/reexport_after_editing/plugin.py
+msgid ""
+"When a transcript is changed in the transcript viewer, export it again in "
+"the formats chosen when it was transcribed, once the viewer is closed. "
+"Transcripts that were not exported are skipped."
+msgstr "Когда транскрипция изменена в окне просмотра транскрипции, после закрытия окна она снова экспортируется в форматах, выбранных при транскрибировании. Транскрипции, которые не экспортировались, пропускаются."
+
+#: buzz/plugins/reexport_after_editing/plugin.py
+msgid "File name"
+msgstr "Имя файла"
+
+#: buzz/plugins/reexport_after_editing/plugin.py
+msgid ""
+"Name of the exported files, without extension. Available variables: "
+"{{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, "
+"{{ model_size }}, {{ date_time }}. A file with the same name is overwritten."
+msgstr "Имя экспортируемых файлов без расширения. Доступные переменные: {{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, {{ model_size }}, {{ date_time }}. Файл с таким же именем будет перезаписан."
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"

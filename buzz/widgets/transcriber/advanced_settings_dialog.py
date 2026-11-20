@@ -20,6 +20,7 @@ from PyQt6.QtWidgets import (
 )
 
 from buzz.locale import _
+from buzz.paths import resolve_document_portal_path
 from buzz.transcriber.transcriber import TranscriptionOptions
 from buzz.settings.settings import Settings
 from buzz.settings.recording_transcriber_mode import RecordingTranscriberMode
@@ -353,7 +354,9 @@ class AdvancedSettingsDialog(QDialog):
         self.settings.set_value(Settings.Key.RECORDING_TRANSCRIBER_EXPORT_FOLDER, text)
 
     def on_browse_export_folder(self):
-        folder = QFileDialog.getExistingDirectory(self, _("Select Export Folder"))
+        folder = resolve_document_portal_path(
+            QFileDialog.getExistingDirectory(self, _("Select Export Folder"))
+        )
         if folder:
             self.export_folder_line_edit.setText(folder)
 

@@ -665,6 +665,54 @@ def test_before_and_after_hooks(qtbot, isolated_plugins, transcription_service, 
     manager.remove("my_plugin")
 
 
+VIEWER_CLOSED_PLUGIN = textwrap.dedent(
+    """
+    from buzz.plugins.base import BuzzPlugin, PluginMetadata
+
+    CALLS = []
+
+    class ViewerClosedPlugin(BuzzPlugin):
+        metadata = PluginMetadata(id="viewer_closed_plugin", name="Viewer closed")
+
+        def on_viewer_closed(self, transcription, modified, context):
+            CALLS.append((transcription, modified))
+            raise RuntimeError("plugin bug")
+    """
+)
+
+
+def test_on_viewer_closed_hook(qtbot, isolated_plugins, transcription_service, plugin_settings):
+    plugins_dir, _deps, _secrets = isolated_plugins
+    _write_plugin(str(plugins_dir / "viewer_closed_plugin"), VIEWER_CLOSED_PLUGIN)
+    # A plugin without the hook is not affected
+    _write_plugin(str(plugins_dir / "my_plugin"))
+
+    manager = PluginManager(transcription_service, plugin_settings)
+    manager.initialize()
+    plugin = manager.plugins["viewer_closed_plugin"]
+    calls = __import__(type(plugin).__module__, fromlist=["CALLS"]).CALLS
+
+    transcription = object()
+    # Not enabled
+    manager.run_on_viewer_closed(transcription, True)
+    assert calls == []
+
+    manager.set_enabled("viewer_closed_plugin", True)
+    manager.set_enabled("my_plugin", True)
+    # The plugin's exception is logged, not raised
+    manager.run_on_viewer_closed(transcription, True)
+    assert calls == [(transcription, True)]
+
+    manager.remove("viewer_closed_plugin")
+    manager.remove("my_plugin")
+
+
+def test_base_on_viewer_closed_is_a_no_op():
+    from buzz.plugins.base import BuzzPlugin
+
+    assert BuzzPlugin().on_viewer_closed(object(), True, None) is None
+
+
 # ---------------------------------------------------------------------------
 # skip_already_transcribed plugin tests
 # ---------------------------------------------------------------------------

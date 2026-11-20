@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from pytestqt.qtbot import QtBot
 from PyQt6.QtCore import QSignalBlocker, Qt
-from PyQt6.QtWidgets import QFrame
+from PyQt6.QtWidgets import QAbstractItemView, QFrame, QTextEdit
 
 from buzz.locale import _
 from buzz.db.entity.transcription import Transcription
@@ -84,6 +84,88 @@ class TestTranscriptionViewerWidget:
 
         editor.model().setData(editor.model().index(0, 3), "Biens")
         widget.close()
+
+    def test_viewer_closed_reports_unmodified_transcript(
+            self, qtbot, transcription, transcription_service, shortcuts
+    ):
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        closed = MagicMock()
+        widget.viewer_closed.connect(closed)
+
+        widget.close()
+        # A second close, as on quit, does not report it again
+        widget.close()
+
+        closed.assert_called_once_with(transcription.id_as_uuid, False)
+
+    def test_viewer_closed_reports_edited_transcript(
+            self, qtbot, transcription, transcription_service, shortcuts
+    ):
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        closed = MagicMock()
+        widget.viewer_closed.connect(closed)
+
+        editor = widget.findChild(TranscriptionSegmentsEditorWidget)
+        editor.model().setData(editor.model().index(0, 3), "Biens")
+        widget.close()
+
+        closed.assert_called_once_with(transcription.id_as_uuid, True)
+
+    def test_viewer_close_saves_the_cell_being_edited(
+            self, qtbot, transcription, transcription_service, shortcuts
+    ):
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        widget.show()
+        closed = MagicMock()
+        widget.viewer_closed.connect(closed)
+
+        editor = widget.findChild(TranscriptionSegmentsEditorWidget)
+        index = editor.model().index(0, 3)
+        editor.setCurrentIndex(index)
+        editor.edit(index)
+        assert editor.state() == QAbstractItemView.State.EditingState
+        [cell_editor] = editor.viewport().findChildren(
+            QTextEdit, options=Qt.FindChildOption.FindDirectChildrenOnly
+        )
+        cell_editor.setPlainText("Typed before closing")
+        widget.close()
+
+        closed.assert_called_once_with(transcription.id_as_uuid, True)
+        segments = transcription_service.get_transcription_segments(
+            transcription.id_as_uuid
+        )
+        assert "Typed before closing" in [segment.text for segment in segments]
+
+    @pytest.mark.parametrize("saved_over_this_transcript", [True, False])
+    def test_viewer_closed_after_a_tool_saved(
+            self, qtbot, transcription, transcription_service, shortcuts,
+            saved_over_this_transcript,
+    ):
+        widget = TranscriptionViewerWidget(
+            transcription, transcription_service, shortcuts
+        )
+        qtbot.add_widget(widget)
+        closed = MagicMock()
+        widget.viewer_closed.connect(closed)
+
+        # The resize or speaker identification tool saved over this
+        # transcript, or as a new one
+        widget._on_dialog_saved(
+            transcription.id_as_uuid if saved_over_this_transcript else uuid.uuid4()
+        )
+
+        closed.assert_called_once_with(
+            transcription.id_as_uuid, saved_over_this_transcript
+        )
 
     def test_should_resize_segment_text(self, qtbot, transcription, transcription_service):
         transcription_service.copy_transcription_with_segments = MagicMock(return_value=uuid.uuid4())

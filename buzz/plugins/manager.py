@@ -147,6 +147,20 @@ class PluginManager:
                     exc_info=True,
                 )
 
+    def run_on_viewer_closed(self, transcription, modified: bool) -> None:
+        for plugin in self.enabled_plugins_in_order():
+            try:
+                plugin.on_viewer_closed(
+                    transcription, modified, self._context(plugin)
+                )
+            except Exception as exc:
+                logger.error(
+                    "Plugin '%s' on_viewer_closed failed: %s",
+                    plugin.metadata.id,
+                    exc,
+                    exc_info=True,
+                )
+
     def has_enabled_post_hooks(self) -> bool:
         return len(self.enabled_plugins_in_order()) > 0
 

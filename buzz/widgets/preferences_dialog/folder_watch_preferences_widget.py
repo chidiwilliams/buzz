@@ -17,6 +17,7 @@ from PyQt6.QtWidgets import (
 )
 
 from buzz.locale import _
+from buzz.paths import resolve_document_portal_path
 from buzz.store.keyring_store import Key, get_password
 from buzz.transcriber.transcriber import (
     TranscriptionOptions,
@@ -174,7 +175,9 @@ class FolderWatchPreferencesWidget(QWidget):
         self.config_changed.emit(self.config)
 
     def on_click_browse_input_folder(self):
-        folder = QFileDialog.getExistingDirectory(self, _("Select Input Folder"))
+        folder = resolve_document_portal_path(
+            QFileDialog.getExistingDirectory(self, _("Select Input Folder"))
+        )
         self.input_folder_line_edit.setText(folder)
         self.on_input_folder_changed(folder)
 
@@ -183,7 +186,9 @@ class FolderWatchPreferencesWidget(QWidget):
         self.config_changed.emit(self.config)
 
     def on_click_browse_output_folder(self):
-        folder = QFileDialog.getExistingDirectory(self, _("Select Output Folder"))
+        folder = resolve_document_portal_path(
+            QFileDialog.getExistingDirectory(self, _("Select Output Folder"))
+        )
         if not folder:
             return
         if self._is_subfolder_of_input(folder):

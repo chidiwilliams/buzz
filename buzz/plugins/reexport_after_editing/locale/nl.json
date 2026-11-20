@@ -1,0 +1,6 @@
+{
+  "Re-export after editing": "Opnieuw exporteren na bewerken",
+  "When a transcript is changed in the transcript viewer, export it again in the formats chosen when it was transcribed, once the viewer is closed. Transcripts that were not exported are skipped.": "Wanneer een transcriptie in de transcriptieweergave wordt gewijzigd, wordt deze na het sluiten van de weergave opnieuw geëxporteerd in de formaten die bij het transcriberen zijn gekozen. Transcripties die niet zijn geëxporteerd, worden overgeslagen.",
+  "File name": "Bestandsnaam",
+  "Name of the exported files, without extension. Available variables: {{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, {{ model_size }}, {{ date_time }}. A file with the same name is overwritten.": "Naam van de geëxporteerde bestanden, zonder extensie. Beschikbare variabelen: {{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, {{ model_size }}, {{ date_time }}. Een bestand met dezelfde naam wordt overschreven."
+}

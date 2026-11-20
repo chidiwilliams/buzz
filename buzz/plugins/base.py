@@ -15,6 +15,9 @@ Thread-safety contract (enforced by the host, important for plugin authors):
   are given access to :class:`PluginContext` whose ``transcription_service`` is
   used by the host on the main thread. Plugins may call it; the host marshals
   the segment save back to the main thread. Plugins must never touch Qt widgets.
+- ``on_viewer_closed`` runs on a **background thread** (on the main thread while
+  Buzz quits), with the same ``transcription_service`` access. Plugins must never
+  touch Qt widgets.
 """
 
 import enum
@@ -25,6 +28,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, List, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from buzz.db.entity.transcription import Transcription
     from buzz.transcriber.transcriber import FileTranscriptionTask, Segment
 
 logger = logging.getLogger(__name__)
@@ -188,5 +192,30 @@ class BuzzPlugin:
 
         Use this for side effects keyed on the persisted transcription, e.g.
         writing notes or exporting a file. Runs on a background thread.
+        """
+        return None
+
+    def on_viewer_closed(
+        self,
+        transcription: "Transcription",
+        modified: bool,
+        context: PluginContext,
+    ) -> None:
+        """Run after the user closes the transcription viewer of a transcript.
+
+        Available since Buzz 1.4.6.
+
+        ``transcription`` is the transcript's record as saved in the database
+        when the viewer closed (name, notes, file, export formats, output
+        folder, ...). ``modified`` is True if the transcript was changed while
+        the viewer was open: segment text, timestamps, speakers or translations
+        edited, or the speaker identification or resize tool saved its result
+        over the transcript. Read the current segments with
+        ``context.transcription_service.get_transcription_segments(
+        transcription.id_as_uuid)``.
+
+        Use this for side effects after the user is done editing, e.g.
+        exporting the edited transcript. Runs on a background thread, or on
+        the main thread while Buzz quits so the work is not cut short.
         """
         return None

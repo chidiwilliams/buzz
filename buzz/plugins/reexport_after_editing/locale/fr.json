@@ -1,0 +1,6 @@
+{
+  "Re-export after editing": "Réexporter après modification",
+  "When a transcript is changed in the transcript viewer, export it again in the formats chosen when it was transcribed, once the viewer is closed. Transcripts that were not exported are skipped.": "Lorsqu'une transcription est modifiée dans la visionneuse de transcription, elle est réexportée dans les formats choisis lors de la transcription, une fois la visionneuse fermée. Les transcriptions qui n'ont pas été exportées sont ignorées.",
+  "File name": "Nom du fichier",
+  "Name of the exported files, without extension. Available variables: {{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, {{ model_size }}, {{ date_time }}. A file with the same name is overwritten.": "Nom des fichiers exportés, sans extension. Variables disponibles : {{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, {{ model_size }}, {{ date_time }}. Un fichier portant le même nom est écrasé."
+}

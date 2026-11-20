@@ -1,0 +1,6 @@
+{
+  "Re-export after editing": "Повторный экспорт после редактирования",
+  "When a transcript is changed in the transcript viewer, export it again in the formats chosen when it was transcribed, once the viewer is closed. Transcripts that were not exported are skipped.": "Когда транскрипция изменена в окне просмотра транскрипции, после закрытия окна она снова экспортируется в форматах, выбранных при транскрибировании. Транскрипции, которые не экспортировались, пропускаются.",
+  "File name": "Имя файла",
+  "Name of the exported files, without extension. Available variables: {{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, {{ model_size }}, {{ date_time }}. A file with the same name is overwritten.": "Имя экспортируемых файлов без расширения. Доступные переменные: {{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, {{ model_size }}, {{ date_time }}. Файл с таким же именем будет перезаписан."
+}

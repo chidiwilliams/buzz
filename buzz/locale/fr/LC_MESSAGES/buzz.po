@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 13:48+0200\n"
+"POT-Creation-Date: 2026-11-20 16:50+0200\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: cherkaba\n"
 "Language-Team: French <kde-francophone@kde.org>\n"
@@ -333,59 +333,9 @@ msgid "Output folder"
 msgstr "Dossier de sortie"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcriber/file_transcriber_widget.py
 msgid "Speaker identification"
 msgstr "Identification des intervenants"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-msgid "Identify speakers"
-msgstr "Identifier les intervenants"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-msgid ""
-"Identify speakers after transcription and add speaker labels to the exported "
-"transcripts. Transcription will take longer."
-msgstr ""
-"Identifie les intervenants après la transcription et ajoute des étiquettes "
-"d'intervenant aux transcriptions exportées. La transcription sera plus "
-"longue."
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "MSDD"
-msgstr "MSDD"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Sortformer"
-msgstr "Sortformer"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Auto"
-msgstr "Automatique"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Set the known number of speakers, or use Auto to detect it."
-msgstr ""
-"Définissez le nombre connu d'intervenants ou utilisez 'Auto' pour le "
-"détecter."
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Merge speaker sentences"
-msgstr "Fusionner les phrases du même intervenant"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Speakers:"
-msgstr "Intervenants :"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcription_tasks_table_widget.py
-#: buzz/plugins/ai_summary/plugin.py
-msgid "Model"
-msgstr "Modèle"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Select Input Folder"
@@ -688,6 +638,57 @@ msgstr "Extraire la parole"
 #: buzz/widgets/transcriber/file_transcription_form_widget.py
 msgid "Export:"
 msgstr "Exporter :"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+msgid "Identify speakers"
+msgstr "Identifier les intervenants"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+msgid ""
+"Identify speakers after transcription and add speaker labels to the exported "
+"transcripts. Transcription will take longer."
+msgstr ""
+"Identifie les intervenants après la transcription et ajoute des étiquettes "
+"d'intervenant aux transcriptions exportées. La transcription sera plus "
+"longue."
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "Automatique"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr ""
+"Définissez le nombre connu d'intervenants ou utilisez 'Auto' pour le "
+"détecter."
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Merge speaker sentences"
+msgstr "Fusionner les phrases du même intervenant"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "Intervenants :"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Model"
+msgstr "Modèle"
 
 #: buzz/widgets/transcriber/hugging_face_search_line_edit.py
 msgid "Huggingface ID of a model"
@@ -1453,6 +1454,10 @@ msgid "Play sample"
 msgstr "Lire un échantillon"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Save as new recording"
+msgstr "Sauvegarder comme nouvel enregistrement"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Save"
 msgstr "Sauvegarder"
 
@@ -1463,6 +1468,10 @@ msgstr "Annulation en cours..."
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Cancelled"
 msgstr "Annulé"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Showing the result of the previous identification"
+msgstr "Affichage du résultat de l'identification précédente"
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py
 msgid "DOCX – Speakers"
@@ -2133,6 +2142,28 @@ msgid ""
 msgstr ""
 "Ignorer si ce fichier a déjà été transcrit et que l'enregistrement existe "
 "dans la base de données"
+
+#: buzz/plugins/reexport_after_editing/plugin.py
+msgid "Re-export after editing"
+msgstr "Réexporter après modification"
+
+#: buzz/plugins/reexport_after_editing/plugin.py
+msgid ""
+"When a transcript is changed in the transcript viewer, export it again in "
+"the formats chosen when it was transcribed, once the viewer is closed. "
+"Transcripts that were not exported are skipped."
+msgstr "Lorsqu'une transcription est modifiée dans la visionneuse de transcription, elle est réexportée dans les formats choisis lors de la transcription, une fois la visionneuse fermée. Les transcriptions qui n'ont pas été exportées sont ignorées."
+
+#: buzz/plugins/reexport_after_editing/plugin.py
+msgid "File name"
+msgstr "Nom du fichier"
+
+#: buzz/plugins/reexport_after_editing/plugin.py
+msgid ""
+"Name of the exported files, without extension. Available variables: "
+"{{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, "
+"{{ model_size }}, {{ date_time }}. A file with the same name is overwritten."
+msgstr "Nom des fichiers exportés, sans extension. Variables disponibles : {{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, {{ model_size }}, {{ date_time }}. Un fichier portant le même nom est écrasé."
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"

@@ -3,6 +3,7 @@ import os
 import shutil
 import tempfile
 import threading
+import uuid
 from typing import List
 from unittest.mock import call, patch, Mock
 
@@ -782,6 +783,68 @@ class TestMainWindow:
             window.on_task_completed(self._task_for(transcription), [])
 
         quit_mock.assert_called_once()
+
+    @pytest.mark.parametrize(
+        "transcription_dao", [[Transcription(status="completed")]], indirect=True
+    )
+    @pytest.mark.parametrize("quitting", [False, True], ids=["async", "quitting"])
+    def test_viewer_closed_runs_plugin_hook(
+        self, qtbot, transcription_dao, transcription_segment_dao, quitting
+    ):
+        service = TranscriptionService(transcription_dao, transcription_segment_dao)
+        window = MainWindow(service)
+        qtbot.add_widget(window)
+        transcription = self._get_tasks_table(window).transcription(
+            self._get_tasks_table(window).model().index(0, 0)
+        )
+        window._quitting = quitting
+        calling_threads = []
+
+        with patch.object(
+            window.plugin_manager, "has_enabled_post_hooks", return_value=True
+        ), patch.object(
+            window.plugin_manager,
+            "run_on_viewer_closed",
+            side_effect=lambda *_: calling_threads.append(threading.current_thread()),
+        ) as run_mock:
+            window.on_transcription_viewer_closed(transcription.id_as_uuid, True)
+            qtbot.waitUntil(lambda: run_mock.call_count == 1)
+
+        closed_transcription, modified = run_mock.call_args[0]
+        assert closed_transcription.id == transcription.id
+        assert modified is True
+        assert (calling_threads[0] is threading.main_thread()) == quitting
+        window._quitting = False
+        window.close()
+
+    @pytest.mark.parametrize(
+        "transcription_dao", [[Transcription(status="completed")]], indirect=True
+    )
+    def test_viewer_closed_skips_hook_without_plugins_or_transcript(
+        self, qtbot, transcription_dao, transcription_segment_dao
+    ):
+        service = TranscriptionService(transcription_dao, transcription_segment_dao)
+        window = MainWindow(service)
+        qtbot.add_widget(window)
+        transcription = self._get_tasks_table(window).transcription(
+            self._get_tasks_table(window).model().index(0, 0)
+        )
+
+        with patch.object(
+            window.plugin_manager, "run_on_viewer_closed"
+        ) as run_mock:
+            with patch.object(
+                window.plugin_manager, "has_enabled_post_hooks", return_value=False
+            ):
+                window.on_transcription_viewer_closed(transcription.id_as_uuid, True)
+            with patch.object(
+                window.plugin_manager, "has_enabled_post_hooks", return_value=True
+            ):
+                # Deleted while its viewer was open
+                window.on_transcription_viewer_closed(uuid.uuid4(), True)
+
+        run_mock.assert_not_called()
+        window.close()
 
     @pytest.mark.parametrize(
         "transcription_dao", [[Transcription(status="in_progress")]], indirect=True

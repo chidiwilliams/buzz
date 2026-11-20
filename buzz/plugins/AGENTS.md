@@ -11,6 +11,8 @@ one subclass of `BuzzPlugin`. Plugins can:
 
 - Process / replace the **source audio** before transcription.
 - Modify or replace the **transcription result** (segments) after transcription.
+- React when the user **closes the transcription viewer**, e.g. to export a
+  transcript they edited.
 - Run **custom code** and import parts of Buzz.
 - Declare **pip dependencies** that get installed into the user cache on load.
 - Expose **configuration** fields (text, multi-line text, checkbox, password)
@@ -84,6 +86,12 @@ class MyPlugin(BuzzPlugin):
         # Use for side effects keyed on the persisted transcription, e.g.
         # writing notes or exporting a file.
         return None
+
+    def on_viewer_closed(self, transcription, modified, context: PluginContext):
+        # Since Buzz 1.4.6. Runs on a BACKGROUND thread after the user closes
+        # the transcription viewer. `modified` tells if the transcript changed
+        # while it was open.
+        return None
 ```
 
 ### Hooks and when they run
@@ -94,9 +102,71 @@ class MyPlugin(BuzzPlugin):
 | `before_transcription` | worker       | Process/replace source audio; return new file path |
 | `after_transcription`  | background   | Modify/replace result `Segment`s before save       |
 | `on_complete`          | background   | Post-save side effects (notes, file export, upload)|
+| `on_viewer_closed`     | background (main while quitting) | After the user closes a transcript's viewer: side effects of the user's edits, e.g. export. **Since 1.4.6.** |
 
 Hooks run for **enabled** plugins in the user-defined **order**. Exceptions in a
 hook are logged and never break the pipeline or other plugins.
+
+### Hook availability
+
+| Hook | Available since |
+|------|-----------------|
+| `check_skip`, `before_transcription`, `after_transcription`, `on_complete` | 1.4.5 |
+| `on_viewer_closed` | 1.4.6 |
+
+Older Buzz versions never call a hook they don't know, so a plugin that
+implements `on_viewer_closed` still loads on 1.4.5; the hook just doesn't run.
+Don't rely on it for anything the plugin must do on every version.
+
+### `on_viewer_closed`
+
+**Available since Buzz 1.4.6.**
+
+```python
+def on_viewer_closed(self, transcription, modified, context):
+    if not modified:
+        return
+    segments = context.transcription_service.get_transcription_segments(
+        transcription.id_as_uuid
+    )
+    ...  # e.g. export the edited transcript
+```
+
+Called once each time a transcription viewer window closes, including the
+viewers Buzz closes when it quits.
+
+- `transcription` — the transcript's `Transcription` record
+  (`buzz/db/entity/transcription.py`), read from the database after the viewer
+  closed: `id` / `id_as_uuid`, `file`, `url`, `name`, `notes`, `language`,
+  `task`, `model_type`, `export_formats` (comma-separated `OutputFormat`
+  values chosen when the file was transcribed), `output_folder`, etc. It is not
+  called if the transcript was deleted while the viewer was open.
+- `modified` — `True` if the transcript was changed while the viewer was open:
+  segment text, timestamps, speakers or translations edited in the viewer, or
+  the resize or speaker identification tool saved its result **over** this
+  transcript. A cell still being edited is saved before the hook runs. It can
+  be `True` when an edit was confirmed without changing the value. Changes made
+  outside the viewer (renaming or editing notes in the main table) don't count.
+- When the resize or speaker identification tool saves its result as a **new**
+  transcript, the hook gets the transcript the viewer showed, and `modified`
+  only reflects changes to that one. The new copy is reported when its own
+  viewer is closed.
+- Read the segments with
+  `context.transcription_service.get_transcription_segments(transcription.id_as_uuid)`
+  rather than keeping them from earlier hooks; they reflect the user's edits.
+- Runs on a background thread, so the window closes without waiting for the
+  plugin. While Buzz quits it runs on the main thread instead, so the work is
+  not cut short; keep it quick, Buzz waits for it before exiting.
+- To write files in the user's export formats, reuse
+  `buzz.transcriber.file_transcriber.write_output(path, segments, output_format)`
+  (convert the database segments to `Segment(start_time, end_time, text,
+  translation, speaker=speaker)`). Note that `get_output_file_path` uses the
+  user's export file name template, which by default contains
+  `{{ date_time }}`: every export would get a new file name. Pass your own
+  `export_file_name_template` to overwrite a single file instead.
+- The bundled `reexport_after_editing` plugin is a worked example: it re-exports
+  a modified transcript in its `export_formats` to its `output_folder` (or next
+  to the source file), and skips transcripts that were not exported.
 
 ### `PluginContext`
 
@@ -109,7 +179,8 @@ Passed to every hook. Fields:
   connection is thread-affine). Useful methods:
   `update_transcription_notes(id, text)`,
   `replace_transcription_segments(id, segments)`,
-  `get_transcription_segments(transcription_id=id)`.
+  `get_transcription_segments(transcription_id=id)`,
+  `get_transcription(id)` (the `Transcription` record or `None`, since 1.4.6).
 - `context.settings` — the Buzz `Settings` object.
 - `context.log` — a `logging.Logger` namespaced to the plugin.
 
@@ -117,6 +188,8 @@ Passed to every hook. Fields:
 
 - `task` is a `FileTranscriptionTask` (see `buzz/transcriber/transcriber.py`):
   `file_path`, `original_file_path`, `uid`, `transcription_options`, etc.
+- `transcription` (`on_viewer_closed`) is a `Transcription` database record
+  (see `buzz/db/entity/transcription.py`).
 - `segments` is a `list[Segment]`; `Segment(start, end, text, translation="")`
   with `start`/`end` in **milliseconds**.
 

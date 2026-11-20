@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 13:48+0200\n"
+"POT-Creation-Date: 2026-11-20 16:50+0200\n"
 "PO-Revision-Date: 2026-09-11 18:58+0300\n"
 "Last-Translator: \n"
 "Language-Team: lamb\n"
@@ -315,56 +315,9 @@ msgid "Output folder"
 msgstr "输出文件夹"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
+#: buzz/widgets/transcriber/file_transcriber_widget.py
 msgid "Speaker identification"
 msgstr "说话人识别"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-msgid "Identify speakers"
-msgstr "识别说话人"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-msgid ""
-"Identify speakers after transcription and add speaker labels to the exported "
-"transcripts. Transcription will take longer."
-msgstr ""
-"在转录完成后识别说话人，并在导出的转录文本中添加说话人标签。转录将花费更长时"
-"间。"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "MSDD"
-msgstr "MSDD"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Sortformer"
-msgstr "Sortformer"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Auto"
-msgstr "自动"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Set the known number of speakers, or use Auto to detect it."
-msgstr "设置已知的说话人数量，或使用“自动”进行检测。"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Merge speaker sentences"
-msgstr "合并说话人句子"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
-msgid "Speakers:"
-msgstr "说话人数:"
-
-#: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
-#: buzz/widgets/transcription_tasks_table_widget.py
-#: buzz/plugins/ai_summary/plugin.py
-msgid "Model"
-msgstr "模型"
 
 #: buzz/widgets/preferences_dialog/folder_watch_preferences_widget.py
 msgid "Select Input Folder"
@@ -662,6 +615,54 @@ msgstr "提取语音"
 #: buzz/widgets/transcriber/file_transcription_form_widget.py
 msgid "Export:"
 msgstr "导出:"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+msgid "Identify speakers"
+msgstr "识别说话人"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+msgid ""
+"Identify speakers after transcription and add speaker labels to the exported "
+"transcripts. Transcription will take longer."
+msgstr ""
+"在转录完成后识别说话人，并在导出的转录文本中添加说话人标签。转录将花费更长时"
+"间。"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "MSDD"
+msgstr "MSDD"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Sortformer"
+msgstr "Sortformer"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Auto"
+msgstr "自动"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Set the known number of speakers, or use Auto to detect it."
+msgstr "设置已知的说话人数量，或使用“自动”进行检测。"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Merge speaker sentences"
+msgstr "合并说话人句子"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Speakers:"
+msgstr "说话人数:"
+
+#: buzz/widgets/transcriber/speaker_identification_options_widget.py
+#: buzz/widgets/transcription_tasks_table_widget.py
+#: buzz/plugins/ai_summary/plugin.py
+msgid "Model"
+msgstr "模型"
 
 #: buzz/widgets/transcriber/hugging_face_search_line_edit.py
 msgid "Huggingface ID of a model"
@@ -1398,6 +1399,10 @@ msgid "Play sample"
 msgstr "播放样本"
 
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Save as new recording"
+msgstr "另存为新录音"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Save"
 msgstr "保存"
 
@@ -1408,6 +1413,10 @@ msgstr "正在取消..."
 #: buzz/widgets/transcription_viewer/speaker_identification_widget.py
 msgid "Cancelled"
 msgstr "已取消"
+
+#: buzz/widgets/transcription_viewer/speaker_identification_widget.py
+msgid "Showing the result of the previous identification"
+msgstr "正在显示上一次识别的结果"
 
 #: buzz/widgets/transcription_viewer/export_transcription_menu.py
 msgid "DOCX – Speakers"
@@ -2057,6 +2066,28 @@ msgid ""
 "Skip if this file has already been transcribed and the record exists in the "
 "database"
 msgstr "如果此文件已转录且数据库中存在记录，则跳过"
+
+#: buzz/plugins/reexport_after_editing/plugin.py
+msgid "Re-export after editing"
+msgstr "编辑后重新导出"
+
+#: buzz/plugins/reexport_after_editing/plugin.py
+msgid ""
+"When a transcript is changed in the transcript viewer, export it again in "
+"the formats chosen when it was transcribed, once the viewer is closed. "
+"Transcripts that were not exported are skipped."
+msgstr "在转录查看器中更改转录后，关闭查看器时将按转录时选择的格式重新导出。未导出的转录将被跳过。"
+
+#: buzz/plugins/reexport_after_editing/plugin.py
+msgid "File name"
+msgstr "文件名"
+
+#: buzz/plugins/reexport_after_editing/plugin.py
+msgid ""
+"Name of the exported files, without extension. Available variables: "
+"{{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, "
+"{{ model_size }}, {{ date_time }}. A file with the same name is overwritten."
+msgstr "导出文件的名称，不含扩展名。可用变量：{{ input_file_name }}, {{ task }}, {{ language }}, {{ model_type }}, {{ model_size }}, {{ date_time }}。同名文件将被覆盖。"
 
 #: buzz/plugins/ai_summary/plugin.py
 msgid "AI Summary"
