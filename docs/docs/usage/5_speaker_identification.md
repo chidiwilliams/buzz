@@ -18,4 +18,4 @@ To label speakers without opening the transcript afterwards, check **Identify sp
 
 The speakers get automatic labels, such as "Speaker 0". To give them real names, open the transcript and click "Identify speakers". The result of that identification is shown, so you can rename the speakers without identifying them again.
 
-Speakers can also be identified for [folder watch](../preferences.md) transcriptions and from the [command line](../cli.md) with the `--identify-speakers`, `--speaker-count` and `--speaker-diarizer` options.
+Speakers can also be identified for [folder watch](../preferences) transcriptions and from the [command line](../cli) with the `--identify-speakers`, `--speaker-count` and `--speaker-diarizer` options.
