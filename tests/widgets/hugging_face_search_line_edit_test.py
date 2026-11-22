@@ -2,7 +2,7 @@ import json
 from unittest.mock import MagicMock, patch
 
 import pytest
-from PyQt6.QtCore import Qt, QEvent
+from PyQt6.QtCore import Qt, QEvent, QUrlQuery
 from PyQt6.QtGui import QKeyEvent
 from PyQt6.QtNetwork import QNetworkReply, QNetworkAccessManager
 from PyQt6.QtWidgets import QListWidgetItem
@@ -62,6 +62,47 @@ class TestHuggingFaceSearchLineEdit:
         widget.fetch_models()
         call_args = widget.network_manager.get.call_args[0][0]
         assert "whisper" in call_args.url().toString()
+
+    @pytest.mark.parametrize("native", [False, True])
+    def test_fetch_models_uses_backend_filter(self, widget, native):
+        widget.search_native_asr = native
+        widget.setText("fourier")
+        widget.fetch_models()
+        request = widget.network_manager.get.call_args.args[0]
+        query = QUrlQuery(request.url())
+        assert query.queryItemValue("search") == "fourier"
+        if native:
+            assert query.queryItemValue("pipeline_tag") == "automatic-speech-recognition"
+            assert not query.hasQueryItem("filter")
+        else:
+            assert query.queryItemValue("filter") == "whisper"
+
+    def test_native_search_reply_after_switching_backend_is_ignored(self, widget):
+        widget.search_native_asr = True
+        widget.setText("fourier")
+        reply = widget.fetch_models()
+        widget.search_native_asr = False
+        widget.on_request_response(reply)
+        reply.readAll.assert_not_called()
+
+    def test_native_asr_search_filters_by_format_and_architecture(self, widget):
+        widget.search_native_asr = True
+        reply = MagicMock(spec=QNetworkReply)
+        reply.error.return_value = QNetworkReply.NetworkError.NoError
+        models = [
+            {"id": "oruk/oruk-fourier-2b", "tags": ["transformers", "safetensors", "qwen3_asr"]},
+            {"id": "openai/whisper-tiny", "tags": ["transformers", "whisper"]},
+            {"id": "ggml/example", "tags": ["gguf", "qwen3_asr"]},
+            {"id": "example/unrelated-asr", "tags": ["safetensors", "transformers", "wav2vec2"]},
+        ]
+        reply.readAll.return_value.data.return_value = json.dumps(models).encode()
+        widget.on_request_response(reply)
+        assert [widget.popup.item(i).text() for i in range(widget.popup.count())] == [
+            "oruk/oruk-fourier-2b", "openai/whisper-tiny",
+        ]
+        reply.readAll.return_value.data.return_value = json.dumps(models[-1:]).encode()
+        widget.on_request_response(reply)
+        assert widget.popup.count() == 0
 
     def test_on_request_response_network_error_does_not_populate_popup(self, widget):
         mock_reply = MagicMock(spec=QNetworkReply)
