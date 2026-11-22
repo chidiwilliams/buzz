@@ -92,13 +92,15 @@ class TestHuggingFaceSearchLineEdit:
         models = [
             {"id": "oruk/oruk-fourier-2b", "tags": ["transformers", "safetensors", "qwen3_asr"]},
             {"id": "openai/whisper-tiny", "tags": ["transformers", "whisper"]},
+            {"id": "facebook/mms-1b-all", "tags": ["pytorch", "wav2vec2", "mms"]},
+            {"id": "oruk/orukeet", "tags": ["nemo", "safetensors", "parakeet_tdt"]},
             {"id": "ggml/example", "tags": ["gguf", "qwen3_asr"]},
             {"id": "example/unrelated-asr", "tags": ["safetensors", "transformers", "wav2vec2"]},
         ]
         reply.readAll.return_value.data.return_value = json.dumps(models).encode()
         widget.on_request_response(reply)
         assert [widget.popup.item(i).text() for i in range(widget.popup.count())] == [
-            "oruk/oruk-fourier-2b", "openai/whisper-tiny",
+            "oruk/oruk-fourier-2b", "openai/whisper-tiny", "facebook/mms-1b-all", "oruk/orukeet",
         ]
         reply.readAll.return_value.data.return_value = json.dumps(models[-1:]).encode()
         widget.on_request_response(reply)
