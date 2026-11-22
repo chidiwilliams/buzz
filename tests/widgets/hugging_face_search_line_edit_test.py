@@ -71,11 +71,14 @@ class TestHuggingFaceSearchLineEdit:
         request = widget.network_manager.get.call_args.args[0]
         query = QUrlQuery(request.url())
         assert query.queryItemValue("search") == "fourier"
+        params = dict(query.queryItems())
         if native:
-            assert query.queryItemValue("pipeline_tag") == "automatic-speech-recognition"
-            assert not query.hasQueryItem("filter")
+            assert params == {
+                "search": "fourier", "filter": "automatic-speech-recognition",
+                "sort": "downloads", "limit": "200", "expand": "tags",
+            }
         else:
-            assert query.queryItemValue("filter") == "whisper"
+            assert params == {"search": "fourier", "filter": "whisper"}
 
     def test_native_search_reply_after_switching_backend_is_ignored(self, widget):
         widget.search_native_asr = True
@@ -85,22 +88,55 @@ class TestHuggingFaceSearchLineEdit:
         widget.on_request_response(reply)
         reply.readAll.assert_not_called()
 
+    def test_out_of_order_native_replies_keep_newest_results(self, widget):
+        widget.search_native_asr = True
+        stale = MagicMock(spec=QNetworkReply)
+        latest = MagicMock(spec=QNetworkReply)
+        widget.network_manager.get.side_effect = [stale, latest]
+        widget.setText("qwen")
+        widget.fetch_models()
+        widget.setText("vibevoice")
+        widget.fetch_models()
+
+        latest.error.return_value = QNetworkReply.NetworkError.NoError
+        latest.readAll.return_value.data.return_value = json.dumps([{
+            "id": "microsoft/VibeVoice-ASR-HF", "tags": ["transformers", "safetensors", "vibevoice_asr"],
+        }]).encode()
+        widget.on_request_response(latest)
+        widget.on_request_response(stale)
+        stale.readAll.assert_not_called()
+        assert widget.popup.count() == 1
+        assert widget.popup.item(0).text() == "microsoft/VibeVoice-ASR-HF"
+
     def test_native_asr_search_filters_by_format_and_architecture(self, widget):
         widget.search_native_asr = True
         reply = MagicMock(spec=QNetworkReply)
         reply.error.return_value = QNetworkReply.NetworkError.NoError
         models = [
             {"id": "oruk/oruk-fourier-2b", "tags": ["transformers", "safetensors", "qwen3_asr"]},
+            {
+                "id": "microsoft/VibeVoice-ASR-HF",
+                "pipeline_tag": "audio-text-to-text",
+                "tags": ["transformers", "safetensors", "vibevoice_asr"],
+            },
+            {
+                "id": "example/audio-chat",
+                "pipeline_tag": "audio-text-to-text",
+                "tags": ["transformers", "safetensors", "qwen2_audio"],
+            },
             {"id": "openai/whisper-tiny", "tags": ["transformers", "whisper"]},
             {"id": "facebook/mms-1b-all", "tags": ["pytorch", "wav2vec2", "mms"]},
             {"id": "oruk/orukeet", "tags": ["nemo", "safetensors", "parakeet_tdt"]},
+            {"id": "example/gguf-only", "tags": ["gguf", "transformers", "whisper"]},
+            {"id": "example/both-formats", "tags": ["gguf", "transformers", "whisper", "safetensors"]},
             {"id": "ggml/example", "tags": ["gguf", "qwen3_asr"]},
             {"id": "example/unrelated-asr", "tags": ["safetensors", "transformers", "wav2vec2"]},
         ]
         reply.readAll.return_value.data.return_value = json.dumps(models).encode()
         widget.on_request_response(reply)
         assert [widget.popup.item(i).text() for i in range(widget.popup.count())] == [
-            "oruk/oruk-fourier-2b", "openai/whisper-tiny", "facebook/mms-1b-all", "oruk/orukeet",
+            "oruk/oruk-fourier-2b", "microsoft/VibeVoice-ASR-HF", "openai/whisper-tiny",
+            "facebook/mms-1b-all", "oruk/orukeet", "example/both-formats",
         ]
         reply.readAll.return_value.data.return_value = json.dumps(models[-1:]).encode()
         widget.on_request_response(reply)

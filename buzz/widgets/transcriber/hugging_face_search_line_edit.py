@@ -22,9 +22,12 @@ from buzz.widgets.line_edit import LineEdit
 
 
 def _has_native_asr_tags(tags: list[str]) -> bool:
+    native_weights = "safetensors" in tags or "pytorch" in tags
     if "whisper" in tags:
+        if "gguf" in tags and not native_weights:
+            return False
         return "transformers" in tags or "peft" in tags
-    if "safetensors" not in tags and "pytorch" not in tags:
+    if not native_weights:
         return False
     if ("mms" in tags and "wav2vec2" in tags) or any(
         tag in tags for tag in ("parakeet_ctc", "parakeet_rnnt", "parakeet_tdt")
@@ -105,7 +108,11 @@ class HuggingFaceSearchLineEdit(LineEdit):
 
         query = QUrlQuery()
         if self.search_native_asr:
-            query.addQueryItem("pipeline_tag", "automatic-speech-recognition")
+            # Some native ASR models (e.g. VibeVoice) list ASR as a secondary Hub task.
+            query.addQueryItem("filter", "automatic-speech-recognition")
+            query.addQueryItem("sort", "downloads")
+            query.addQueryItem("limit", "200")
+            query.addQueryItem("expand", "tags")
         else:
             query.addQueryItem("filter", "whisper")
         query.addQueryItem("search", text)
