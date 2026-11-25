@@ -147,7 +147,6 @@ jobs:
       - uses: snapcore/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
-          SNAPCRAFT_STORE_AUTH: candid
         with:
           snap: ${{ needs.build.outputs.snap }}
           release: edge
@@ -163,7 +162,6 @@ jobs:
       - uses: snapcore/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
-          SNAPCRAFT_STORE_AUTH: candid
         with:
           snap: ${{ needs.build.outputs.snap }}
           release: stable
