@@ -44,6 +44,7 @@ In addition to choosing an appropriate model size you also can choose whisper ty
 - **HuggingFace** option is a `Transformers` implementation and is good in that it supports wide range of custom models that may be optimized for a particular language. 
   - Since version `1.4.0` This option also supports [MMS](https://ai.meta.com/blog/multilingual-model-speech-recognition/) family of models from Meta AI that support over 1000 of worlds languages as well as [PEFT](https://github.com/huggingface/peft) adjustments to Whisper models.
   - Since version `1.4.5` [Parakeet](https://huggingface.co/models?sort=trending&search=parakeet), [Qwen3-ASR](https://huggingface.co/models?sort=trending&search=qwen+asr+hf) and [VibeVoice ASR](https://huggingface.co/models?sort=trending&search=vibevoice+hf+) models are also supported.
+  - For English transcription with the Qwen3-ASR backend, select **HuggingFace**, enter [`oruk/oruk-fourier-2b`](https://huggingface.co/oruk/oruk-fourier-2b) as the model ID, and choose **English**. The weights are licensed [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).
   - Since version `1.4.6`. [Orukeet](https://huggingface.co/oruk/orukeet) is a Parakeet TDT fine-tune for 25 languages (CC BY-SA 4.0). Use `oruk/orukeet` as model id.
   - Since version `1.4.6`. [FunASR Nano](https://huggingface.co/FunAudioLLM/Fun-ASR-Nano-2512-hf) models for Chinese, English and Japanese are also supported. Use `FunAudioLLM/Fun-ASR-Nano-2512-hf` as model id.
 

@@ -21,6 +21,23 @@ from buzz.locale import _
 from buzz.widgets.line_edit import LineEdit
 
 
+def _has_native_asr_tags(tags: list[str]) -> bool:
+    native_weights = "safetensors" in tags or "pytorch" in tags
+    if "whisper" in tags:
+        if "gguf" in tags and not native_weights:
+            return False
+        return "transformers" in tags or "peft" in tags
+    if not native_weights:
+        return False
+    if ("mms" in tags and "wav2vec2" in tags) or any(
+        tag in tags for tag in ("parakeet_ctc", "parakeet_rnnt", "parakeet_tdt")
+    ):
+        return True
+    return "transformers" in tags and any(
+        tag in tags for tag in ("qwen3_asr", "vibevoice_asr", "fun_asr_nano")
+    )
+
+
 # Adapted from https://github.com/ismailsunni/scripts/blob/master/autocomplete_from_url.py
 class HuggingFaceSearchLineEdit(LineEdit):
     model_selected = pyqtSignal(str)
@@ -37,6 +54,9 @@ class HuggingFaceSearchLineEdit(LineEdit):
         self.setPlaceholderText(_("Huggingface ID of a model"))
 
         self.setMinimumWidth(50)
+        self.search_native_asr = False
+        self._pending_reply: Optional[QNetworkReply] = None
+        self._pending_search = None
 
         self.timer = QTimer(self)
         self.timer.setSingleShot(True)
@@ -87,14 +107,28 @@ class HuggingFaceSearchLineEdit(LineEdit):
         url = QUrl("https://huggingface.co/api/models")
 
         query = QUrlQuery()
-        query.addQueryItem("filter", "whisper")
+        if self.search_native_asr:
+            # Some native ASR models (e.g. VibeVoice) list ASR as a secondary Hub task.
+            query.addQueryItem("filter", "automatic-speech-recognition")
+            query.addQueryItem("sort", "downloads")
+            query.addQueryItem("limit", "200")
+            query.addQueryItem("expand", "tags")
+        else:
+            query.addQueryItem("filter", "whisper")
         query.addQueryItem("search", text)
 
         url.setQuery(query)
 
-        return self.network_manager.get(QNetworkRequest(url))
+        self._pending_search = (text, self.search_native_asr)
+        self._pending_reply = self.network_manager.get(QNetworkRequest(url))
+        return self._pending_reply
 
     def on_request_response(self, network_reply: QNetworkReply):
+        if self._pending_reply is not None and (
+            network_reply != self._pending_reply
+            or self._pending_search != (self.text(), self.search_native_asr)
+        ):
+            return
         if network_reply.error() != QNetworkReply.NetworkError.NoError:
             logging.debug(
                 "Error fetching Hugging Face models: %s", network_reply.error()
@@ -103,28 +137,34 @@ class HuggingFaceSearchLineEdit(LineEdit):
 
         models = json.loads(network_reply.readAll().data())
 
-        # TODO Possibly need to include text entered in the search box as item in popup
-        #      as not all models are tagged with 'whisper'
-        if len(models) > 0:
-            self.popup.setUpdatesEnabled(False)
+        if self.search_native_asr:
+            # The Hub also returns GGUF-only conversions and unrelated ASR
+            # architectures. Keep suggestions within Buzz's native loaders.
+            models = [model for model in models if _has_native_asr_tags(model.get("tags", []))]
+        if not models:
             self.popup.clear()
+            self.popup.hide()
+            return
 
-            for model in models:
-                model_id = model.get("id")
+        self.popup.setUpdatesEnabled(False)
+        self.popup.clear()
 
-                item = QListWidgetItem(self.popup)
-                item.setText(model_id)
-                item.setData(Qt.ItemDataRole.UserRole, model_id)
+        for model in models:
+            model_id = model.get("id")
 
-            self.popup.setCurrentItem(self.popup.item(0))
-            self.popup.setFixedWidth(self.popup.sizeHintForColumn(0) + 20)
-            self.popup.setFixedHeight(
-                self.popup.sizeHintForRow(0) * min(len(models), 8)
-            )  # show max 8 models, then scroll
-            self.popup.setUpdatesEnabled(True)
-            self.popup.move(self.mapToGlobal(QPoint(0, self.height())))
-            self.popup.setFocus()
-            self.popup.show()
+            item = QListWidgetItem(self.popup)
+            item.setText(model_id)
+            item.setData(Qt.ItemDataRole.UserRole, model_id)
+
+        self.popup.setCurrentItem(self.popup.item(0))
+        self.popup.setFixedWidth(self.popup.sizeHintForColumn(0) + 20)
+        self.popup.setFixedHeight(
+            self.popup.sizeHintForRow(0) * min(len(models), 8)
+        )  # show max 8 models, then scroll
+        self.popup.setUpdatesEnabled(True)
+        self.popup.move(self.mapToGlobal(QPoint(0, self.height())))
+        self.popup.setFocus()
+        self.popup.show()
 
     def eventFilter(self, target: QObject, event: QEvent):
         if hasattr(self, "popup") is False or target != self.popup:

@@ -169,6 +169,7 @@ class TranscriptionOptionsGroupBox(QGroupBox):
         model_type = self.transcription_options.model.model_type
         whisper_model_size = self.transcription_options.model.whisper_model_size
 
+        self.hugging_face_search_line_edit.search_native_asr = model_type == ModelType.HUGGING_FACE
         if (model_type == ModelType.HUGGING_FACE
             or (whisper_model_size == WhisperModelSize.CUSTOM
                 and model_type == ModelType.FASTER_WHISPER)):
