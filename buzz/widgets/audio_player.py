@@ -58,6 +58,7 @@ class AudioPlayer(QWidget, DecodedAudioMixin):
             was_playing = self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState
             self._sd_player = sd_player
             self._use_sd = True
+            sd_player.set_playback_rate(self.media_player.playbackRate())
             self.audio_output.setMuted(True)
             if was_playing and not self.is_video:
                 self.media_player.pause()

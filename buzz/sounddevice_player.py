@@ -1,5 +1,6 @@
 import json
 import logging
+from math import ceil
 import os
 import subprocess
 import threading
@@ -200,7 +201,9 @@ class SounddevicePlayer:
         self.data = data
         self.samplerate = samplerate
         self._lock = threading.Lock()
-        self._frame_pos = 0
+        self._frame_pos: float = 0
+        self._playback_rate = 1.0
+        self._buffered_rate = 1.0
         self._stream: Optional[sd.OutputStream] = None
         self._playing = False
         self._latency_frames = 0
@@ -212,7 +215,8 @@ class SounddevicePlayer:
         # latency. Report the audible position so callers comparing this against
         # another clock (e.g. QMediaPlayer in VideoPlayer) don't see a constant
         # offset and try to "correct" it.
-        audible = max(0, self._frame_pos - self._latency_frames)
+        with self._lock:
+            audible = max(0, self._frame_pos - self._latency_frames * self._buffered_rate)
         return int(audible / self.samplerate * 1000)
 
     @property
@@ -223,6 +227,10 @@ class SounddevicePlayer:
     def is_playing(self) -> bool:
         return self._playing
 
+    def set_playback_rate(self, rate: float):
+        with self._lock:
+            self._playback_rate = rate
+
     def _callback(self, outdata: np.ndarray, frames: int, time, status):
         with self._lock:
             remaining = len(self.data) - self._frame_pos
@@ -230,11 +238,26 @@ class SounddevicePlayer:
                 outdata[:] = 0
                 self._playing = False
                 raise sd.CallbackStop
-            chunk = min(frames, remaining)
-            outdata[:chunk] = self.data[self._frame_pos: self._frame_pos + chunk]
+            rate = self._playback_rate
+            chunk = min(frames, ceil(remaining / rate))
+            start = int(self._frame_pos)
+            if rate == 1.0 and start == self._frame_pos:
+                outdata[:chunk] = self.data[start: start + chunk]
+            else:
+                # Keep the device sample rate fixed and interpolate source frames
+                # within this output block. The cursor remains in source time.
+                positions = np.minimum(
+                    self._frame_pos + rate * np.arange(chunk), len(self.data) - 1
+                )
+                left = positions.astype(np.intp)
+                right = np.minimum(left + 1, len(self.data) - 1)
+                fraction = (positions - left)[:, None]
+                samples = self.data.reshape(len(self.data), -1)
+                outdata[:chunk] = (1 - fraction) * samples[left] + fraction * samples[right]
             if chunk < frames:
                 outdata[chunk:] = 0
-            self._frame_pos += chunk
+            self._frame_pos = min(self._frame_pos + chunk * rate, len(self.data))
+            self._buffered_rate = rate
 
     def _open_stream(self):
         channels = self.data.shape[1] if self.data.ndim == 2 else 1
@@ -382,6 +405,10 @@ class AudioFilePlayer:
     def seek(self, position_ms: int):
         if self._player:
             self._player.seek(position_ms)
+
+    def set_playback_rate(self, rate: float):
+        if self._player:
+            self._player.set_playback_rate(rate)
 
     def stop(self):
         if self._player:
