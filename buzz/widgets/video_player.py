@@ -52,6 +52,7 @@ class VideoPlayer(QWidget, DecodedAudioMixin):
         if sd_player is not None:
             self._sd_player = sd_player
             self._use_sd = True
+            sd_player.set_playback_rate(self.media_player.playbackRate())
             sd_player.seek(self.media_player.position())
             # The video may have been started meanwhile, e.g. from a keyboard
             # shortcut, so join in with its audio

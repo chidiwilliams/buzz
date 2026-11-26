@@ -128,6 +128,11 @@ class DecodedAudioMixin:
         self._use_sd = False
         self._audio_loader: Optional[AudioFilePlayerLoader] = None
 
+    def set_playback_rate(self, rate: float):
+        self.media_player.setPlaybackRate(rate)
+        if self._sd_player is not None:
+            self._sd_player.set_playback_rate(rate)
+
     @property
     def _loading_audio(self) -> bool:
         return self._audio_loader is not None

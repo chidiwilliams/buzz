@@ -765,20 +765,8 @@ class TranscriptionViewerWidget(QWidget):
                 self.show_loop_controls()
 
     def initialize_speed_control(self):
-        """Initialize the speed control with current value from audio player"""
-        try:
-            # Get current speed from audio player
-            if self.current_media_player:
-                current_speed = self.current_media_player.media_player.playbackRate()
-                # Ensure it's within valid range
-                current_speed = max(0.1, min(5.0, current_speed))
-                # Set the combo box text
-                speed_text = f"{current_speed:.2f}x"
-                self.speed_combo.setCurrentText(speed_text)
-        except Exception as e:
-            logging.warning(f"Could not initialize speed control: {e}")
-            # Default to 1.0x
-            self.speed_combo.setCurrentText("1.0x")
+        rate = self.settings.value(self.settings.Key.AUDIO_PLAYBACK_RATE, 1.0, float)
+        self.set_speed(rate)
 
     def on_speed_changed(self, speed_text: str):
         """Handle speed change from the combo box"""
@@ -801,8 +789,7 @@ class TranscriptionViewerWidget(QWidget):
 
             # Set the playback rate on the audio player
             if self.current_media_player:
-                self.current_media_player.media_player.setPlaybackRate(
-                    speed_value)
+                self.current_media_player.set_playback_rate(speed_value)
             # Save the new rate to settings
             self.settings.set_value(
                 self.settings.Key.AUDIO_PLAYBACK_RATE, speed_value)
@@ -835,18 +822,8 @@ class TranscriptionViewerWidget(QWidget):
 
     def set_speed(self, speed: float):
         """Set the playback speed programmatically"""
-        # Clamp the speed value to valid range
         speed = max(0.1, min(5.0, speed))
-
-        # Update the combo box
-        speed_text = f"{speed:.2f}x"
-        self.speed_combo.setCurrentText(speed_text)
-
-        # Set the playback rate on the audio player
-        self.audio_player.media_player.setPlaybackRate(speed)
-
-        # Save the new rate to settings
-        self.settings.set_value(self.settings.Key.AUDIO_PLAYBACK_RATE, speed)
+        self.on_speed_changed(f"{speed:.2f}x")
 
     def on_search_text_changed(self, text: str):
         """Handle search text changes"""

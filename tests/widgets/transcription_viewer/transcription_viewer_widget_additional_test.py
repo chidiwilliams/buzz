@@ -1,6 +1,7 @@
 import platform
 import uuid
 import sys
+import numpy as np
 import pytest
 from pytestqt.qtbot import QtBot
 from PyQt6.QtCore import QObject, Qt, QThread, pyqtSignal
@@ -11,7 +12,9 @@ from buzz.locale import _
 from buzz.db.entity.transcription import Transcription
 from buzz.db.entity.transcription_segment import TranscriptionSegment
 from buzz.model_loader import ModelType, WhisperModelSize
+from buzz.sounddevice_player import AudioFilePlayer
 from buzz.transcriber.transcriber import Task
+from buzz.widgets.audio_player import AudioPlayer
 from buzz.widgets.transcription_viewer.transcription_viewer_widget import (
     TranscriptionViewerWidget,
 )
@@ -448,6 +451,30 @@ class TestTranscriptionViewerWidgetAdditional:
         # Should not crash with invalid input
         widget.on_speed_changed("invalid")
 
+        widget.close()
+
+    def test_speed_changes_decoded_audio_playback(
+        self, qtbot: QtBot, transcription, transcription_service, shortcuts
+    ):
+        with patch.object(AudioPlayer, "_start_audio_loader"):
+            widget = TranscriptionViewerWidget(transcription, transcription_service, shortcuts)
+        qtbot.add_widget(widget)
+        widget.set_speed(2.0)
+
+        samples = np.arange(16, dtype=np.int16).reshape(-1, 2)
+        with patch("buzz.sounddevice_player.is_audio_available", return_value=True):
+            player = AudioFilePlayer(transcription.file, samples=samples)
+        widget.audio_player._on_audio_loaded(player)
+        output = np.empty((2, 2), dtype=np.int16)
+
+        player._player._callback(output, len(output), None, None)
+        np.testing.assert_array_equal(output, samples[[0, 2]])
+
+        widget.speed_combo.setCurrentText("0.5x")
+        player._player._callback(output, len(output), None, None)
+        np.testing.assert_array_equal(output, [[8, 9], [9, 10]])
+
+        widget.set_speed(1.0)
         widget.close()
 
     def test_on_speed_changed_clamping(self, qtbot: QtBot, transcription, transcription_service, shortcuts):
