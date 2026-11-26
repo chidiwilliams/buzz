@@ -170,13 +170,17 @@ def test_restoring_keeps_a_maximized_window_maximized(tray, qtbot):
     assert tray.window.isMaximized()
 
 
-def test_restoring_ignores_state_reported_while_hidden(tray, qtbot):
+def test_restoring_ignores_state_reported_while_hidden(tray, qtbot, mocker):
     enable(tray, Settings.Key.MINIMIZE_TO_TRAY)
     tray.window.showMaximized()
     tray.window.showMinimized()
     qtbot.waitUntil(lambda: not tray.window.isVisible())
-    # What a late state report from the platform does to the hidden window
-    tray.window.setWindowState(Qt.WindowState.WindowNoState)
+    # What a late state report from the platform does to the hidden window.
+    # Mocked, as setting the state for real also changes the native window on
+    # macOS, which then comes back unmaximized whatever state is restored.
+    mocker.patch.object(
+        tray.window, "windowState", return_value=Qt.WindowState.WindowNoState
+    )
     tray.controller.show_action.trigger()
     assert tray.window.isVisible()
     assert tray.window.isMaximized()
