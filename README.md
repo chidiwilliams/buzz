@@ -1,5 +1,7 @@
 [[简体中文](readme/README.zh_CN.md)] <- 点击查看中文页面。
 
+[[العربية](README.ar_SA.md)] <- اضغط هنا لعرض الصفحة بالعربية.
+
 # Buzz
 
 [Documentation](https://chidiwilliams.github.io/buzz/)
